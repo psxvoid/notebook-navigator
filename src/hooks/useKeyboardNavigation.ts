@@ -59,21 +59,27 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
         let newIndex = currentIndex;
         
         if (direction === 'up') {
-            // Change this line
             newIndex = currentIndex > 0 ? currentIndex - 1 : 0;
         } else {
-            // Change this line
             newIndex = currentIndex < elements.length - 1 ? currentIndex + 1 : currentIndex;
         }
         
-        if (newIndex !== currentIndex || currentIndex === -1) { // Add check for initial selection
+        if (newIndex !== currentIndex || currentIndex === -1) {
             const path = elements[newIndex].getAttribute('data-path');
             if (path) {
                 const file = app.vault.getAbstractFileByPath(path);
                 if (file && 'extension' in file) {
-                    dispatch({ type: 'SET_SELECTED_FILE', file: file as TFile });
+                    const tFile = file as TFile;
+                    dispatch({ type: 'SET_SELECTED_FILE', file: tFile });
                     dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                     elements[newIndex].scrollIntoView({ block: 'nearest' });
+                    
+                    // Open file in edit view (same as clicking)
+                    // Use getMostRecentLeaf to avoid creating new panes or stealing focus
+                    const leaf = app.workspace.getMostRecentLeaf();
+                    if (leaf) {
+                        leaf.openFile(tFile);
+                    }
                 }
             }
         }
@@ -133,29 +139,51 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
                             dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                         }
                     }
+                } else if (appState.focusedPane === 'files' && appState.selectedFile) {
+                    // Move focus to edit view showing the selected file
+                    const leaves = app.workspace.getLeavesOfType('markdown')
+                        .concat(app.workspace.getLeavesOfType('canvas'))
+                        .concat(app.workspace.getLeavesOfType('database'));
+                    
+                    // Find leaf showing our file
+                    const targetLeaf = leaves.find(leaf => leaf.view.file?.path === appState.selectedFile.path);
+                    if (targetLeaf) {
+                        app.workspace.setActiveLeaf(targetLeaf, { focus: true });
+                    }
                 }
                 break;
                 
             case 'Tab':
                 e.preventDefault();
-                dispatch({ 
-                    type: 'SET_FOCUSED_PANE', 
-                    pane: appState.focusedPane === 'folders' ? 'files' : 'folders' 
-                });
+                if (e.shiftKey) {
+                    // Shift+Tab always moves left (to folders if in files)
+                    if (appState.focusedPane === 'files') {
+                        dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+                    }
+                } else {
+                    // Tab moves right or to editor
+                    if (appState.focusedPane === 'folders') {
+                        dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                    } else if (appState.focusedPane === 'files' && appState.selectedFile) {
+                        // Move focus to edit view showing the selected file
+                        const leaves = app.workspace.getLeavesOfType('markdown')
+                            .concat(app.workspace.getLeavesOfType('canvas'))
+                            .concat(app.workspace.getLeavesOfType('database'));
+                        
+                        // Find leaf showing our file
+                        const targetLeaf = leaves.find(leaf => leaf.view.file?.path === appState.selectedFile.path);
+                        if (targetLeaf) {
+                            app.workspace.setActiveLeaf(targetLeaf, { focus: true });
+                        }
+                    }
+                }
                 break;
                 
             case 'Enter':
+            case 'Escape':
+            case ' ': // Space key
                 e.preventDefault();
-                if (appState.focusedPane === 'files' && appState.selectedFile) {
-                    const leaves = app.workspace.getLeavesOfType('markdown');
-                    if (leaves.length > 0) {
-                        leaves[0].openFile(appState.selectedFile);
-                    } else {
-                        app.workspace.getLeaf().openFile(appState.selectedFile);
-                    }
-                } else if (appState.focusedPane === 'folders' && appState.selectedFolder) {
-                    dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: appState.selectedFolder.path });
-                }
+                // Do nothing
                 break;
                 
             case 'Delete':

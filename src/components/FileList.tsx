@@ -13,11 +13,9 @@ export function FileList() {
         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         
         // Open file preview
-        const leaves = app.workspace.getLeavesOfType('markdown');
-        if (leaves.length > 0) {
-            leaves[0].openFile(file);
-        } else {
-            app.workspace.getLeaf().openFile(file);
+        const leaf = app.workspace.getMostRecentLeaf();
+        if (leaf) {
+            leaf.openFile(file);
         }
     }, [app, dispatch]);
     
@@ -89,11 +87,9 @@ export function FileList() {
                     dispatch({ type: 'SET_SELECTED_FILE', file: tfile });
                     
                     // Open the file
-                    const leaves = app.workspace.getLeavesOfType('markdown');
-                    if (leaves.length > 0) {
-                        leaves[0].openFile(tfile);
-                    } else {
-                        app.workspace.getLeaf().openFile(tfile);
+                    const leaf = app.workspace.getMostRecentLeaf();
+                    if (leaf) {
+                        leaf.openFile(tfile);
                     }
                 }
             }
