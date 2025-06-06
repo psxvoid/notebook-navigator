@@ -42,7 +42,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
         if (type !== 'folder' || !appState.selectedFolder) return;
         
         try {
-            await fileSystemOps.createFolder(appState.selectedFolder);
+            await fileSystemOps.createNewFolder(appState.selectedFolder);
         } catch (error) {
             console.error('Failed to create folder:', error);
         }
@@ -52,7 +52,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
         if (type !== 'file' || !appState.selectedFolder) return;
         
         try {
-            await fileSystemOps.createNote(appState.selectedFolder);
+            await fileSystemOps.createNewFile(appState.selectedFolder);
         } catch (error) {
             console.error('Failed to create file:', error);
         }
@@ -69,7 +69,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                             onClick={handleExpandCollapseAll}
                             ref={(el) => {
                                 if (el) {
-                                    setIcon(el, appState.expandedFolders.size > 0 ? 'chevrons-up' : 'chevrons-down');
+                                    setIcon(el, appState.expandedFolders.size > 0 ? 'chevrons-down-up' : 'chevrons-up-down');
                                 }
                             }}
                         />

@@ -230,4 +230,145 @@ export class FileSystemOperations {
         }
         return false;
     }
+
+    /**
+     * Duplicates a file with an incremented name
+     * @param file - The file to duplicate
+     */
+    async duplicateNote(file: TFile): Promise<void> {
+        try {
+            const baseName = file.basename;
+            const extension = file.extension;
+            let counter = 1;
+            let newName = `${baseName} ${counter}`;
+            let newPath = normalizePath(file.parent ? `${file.parent.path}/${newName}.${extension}` : `${newName}.${extension}`);
+            
+            while (this.app.vault.getAbstractFileByPath(newPath)) {
+                counter++;
+                newName = `${baseName} ${counter}`;
+                newPath = normalizePath(file.parent ? `${file.parent.path}/${newName}.${extension}` : `${newName}.${extension}`);
+            }
+            
+            const content = await this.app.vault.read(file);
+            const newFile = await this.app.vault.create(newPath, content);
+            
+            this.app.workspace.getLeaf(false).openFile(newFile);
+            new Notice(`Note duplicated as "${newName}"`);
+        } catch (error) {
+            new Notice(`Failed to duplicate note: ${error.message}`);
+        }
+    }
+
+    /**
+     * Creates a new canvas file in the specified folder
+     * @param parent - The parent folder
+     */
+    async createCanvas(parent: TFolder): Promise<void> {
+        try {
+            let fileName = "Untitled";
+            let counter = 1;
+            let path = normalizePath(parent.path ? `${parent.path}/${fileName}.canvas` : `${fileName}.canvas`);
+            
+            while (this.app.vault.getAbstractFileByPath(path)) {
+                fileName = `Untitled ${counter}`;
+                path = normalizePath(parent.path ? `${parent.path}/${fileName}.canvas` : `${fileName}.canvas`);
+                counter++;
+            }
+            
+            const file = await this.app.vault.create(path, '{}');
+            this.app.workspace.getLeaf(false).openFile(file);
+        } catch (error) {
+            new Notice(`Failed to create canvas: ${error.message}`);
+        }
+    }
+
+    /**
+     * Creates a new database view file in the specified folder
+     * @param parent - The parent folder
+     */
+    async createBase(parent: TFolder): Promise<void> {
+        try {
+            let fileName = "Untitled";
+            let counter = 1;
+            let path = normalizePath(parent.path ? `${parent.path}/${fileName}.base` : `${fileName}.base`);
+            
+            while (this.app.vault.getAbstractFileByPath(path)) {
+                fileName = `Untitled ${counter}`;
+                path = normalizePath(parent.path ? `${parent.path}/${fileName}.base` : `${fileName}.base`);
+                counter++;
+            }
+            
+            const content = JSON.stringify({
+                "model": {
+                    "version": 1,
+                    "kind": "Table",
+                    "columns": []
+                },
+                "pluginVersion": "1.0.0"
+            }, null, 2);
+            
+            const file = await this.app.vault.create(path, content);
+            this.app.workspace.getLeaf(false).openFile(file);
+        } catch (error) {
+            new Notice(`Failed to create database: ${error.message}`);
+        }
+    }
+
+    /**
+     * Duplicates a folder and all its contents
+     * @param folder - The folder to duplicate
+     */
+    async duplicateFolder(folder: TFolder): Promise<void> {
+        try {
+            const baseName = folder.name;
+            let counter = 1;
+            let newName = `${baseName} ${counter}`;
+            let newPath = normalizePath(folder.parent ? `${folder.parent.path}/${newName}` : newName);
+            
+            while (this.app.vault.getAbstractFileByPath(newPath)) {
+                counter++;
+                newName = `${baseName} ${counter}`;
+                newPath = normalizePath(folder.parent ? `${folder.parent.path}/${newName}` : newName);
+            }
+            
+            await this.app.vault.createFolder(newPath);
+            
+            // Copy all contents recursively
+            const copyContents = async (sourceFolder: TFolder, destPath: string) => {
+                for (const child of sourceFolder.children) {
+                    if (child instanceof TFile) {
+                        const content = await this.app.vault.read(child);
+                        const childPath = normalizePath(`${destPath}/${child.name}`);
+                        await this.app.vault.create(childPath, content);
+                    } else if (child instanceof TFolder) {
+                        const childPath = normalizePath(`${destPath}/${child.name}`);
+                        await this.app.vault.createFolder(childPath);
+                        await copyContents(child, childPath);
+                    }
+                }
+            };
+            
+            await copyContents(folder, newPath);
+            new Notice(`Folder duplicated as "${newName}"`);
+        } catch (error) {
+            new Notice(`Failed to duplicate folder: ${error.message}`);
+        }
+    }
+
+    // Alias methods for backward compatibility
+    async createNote(parent: TFolder): Promise<TFile | null> {
+        return this.createNewFile(parent);
+    }
+
+    async createFolder(parent: TFolder, onSuccess?: (path: string) => void): Promise<void> {
+        return this.createNewFolder(parent, onSuccess);
+    }
+
+    async deleteNote(file: TFile, confirmBeforeDelete?: boolean, onSuccess?: () => void): Promise<void> {
+        return this.deleteFile(file, confirmBeforeDelete || false, onSuccess);
+    }
+
+    async renameNote(file: TFile): Promise<void> {
+        return this.renameFile(file);
+    }
 }

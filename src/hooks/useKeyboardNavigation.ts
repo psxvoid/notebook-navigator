@@ -59,18 +59,22 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
         let newIndex = currentIndex;
         
         if (direction === 'up') {
-            newIndex = currentIndex > 0 ? currentIndex - 1 : elements.length - 1;
+            // Change this line
+            newIndex = currentIndex > 0 ? currentIndex - 1 : 0;
         } else {
-            newIndex = currentIndex < elements.length - 1 ? currentIndex + 1 : 0;
+            // Change this line
+            newIndex = currentIndex < elements.length - 1 ? currentIndex + 1 : currentIndex;
         }
         
-        const path = elements[newIndex].getAttribute('data-path');
-        if (path) {
-            const file = app.vault.getAbstractFileByPath(path);
-            if (file && 'extension' in file) {
-                dispatch({ type: 'SET_SELECTED_FILE', file: file as TFile });
-                dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                elements[newIndex].scrollIntoView({ block: 'nearest' });
+        if (newIndex !== currentIndex || currentIndex === -1) { // Add check for initial selection
+            const path = elements[newIndex].getAttribute('data-path');
+            if (path) {
+                const file = app.vault.getAbstractFileByPath(path);
+                if (file && 'extension' in file) {
+                    dispatch({ type: 'SET_SELECTED_FILE', file: file as TFile });
+                    dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                    elements[newIndex].scrollIntoView({ block: 'nearest' });
+                }
             }
         }
     }, [getFileElements, getSelectedIndex, appState.selectedFile, app, dispatch]);
@@ -160,9 +164,9 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
                 e.preventDefault();
                 
                 if (appState.focusedPane === 'files' && appState.selectedFile) {
-                    fileSystemOps.deleteNote(appState.selectedFile);
+                    fileSystemOps.deleteFile(appState.selectedFile, true);
                 } else if (appState.focusedPane === 'folders' && appState.selectedFolder) {
-                    fileSystemOps.deleteFolder(appState.selectedFolder);
+                    fileSystemOps.deleteFolder(appState.selectedFolder, true);
                 }
                 break;
         }

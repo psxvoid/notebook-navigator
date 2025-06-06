@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React, { useRef, useEffect } from 'react';
 import { TFolder } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { setIcon } from 'obsidian';
@@ -45,38 +45,52 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
     const hasChildren = folder.children.some(isTFolder);
     
     const chevronRef = React.useRef<HTMLDivElement>(null);
-    
-    React.useEffect(() => {
+    const iconRef = React.useRef<HTMLSpanElement>(null);
+
+    useEffect(() => {
         if (chevronRef.current) {
             setIcon(chevronRef.current, isExpanded ? 'chevron-down' : 'chevron-right');
         }
     }, [isExpanded]);
+
+    // Add this useEffect for the folder icon
+    useEffect(() => {
+        if (iconRef.current) {
+            const customIcon = plugin.settings.folderIcons?.[folder.path];
+            if (customIcon) {
+                setIcon(iconRef.current, customIcon);
+            } else {
+                setIcon(iconRef.current, isExpanded ? 'folder-open' : 'folder-closed');
+            }
+        }
+    }, [isExpanded, folder.path, plugin.settings.folderIcons]);
 
     return (
         <div 
             ref={folderRef}
             className={`nn-folder-item ${isSelected ? 'nn-selected' : ''}`}
             data-path={folder.path}
-            style={{ paddingLeft: `${level * 16}px` }}
         >
-            <div 
-                className="nn-folder-chevron"
-                ref={chevronRef}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    if (hasChildren) onToggle();
-                }}
-                style={{ 
-                    visibility: hasChildren ? 'visible' : 'hidden',
-                    cursor: hasChildren ? 'pointer' : 'default'
-                }}
-            />
             <div 
                 className="nn-folder-content"
                 onClick={onClick}
                 data-drop-zone="folder"
                 data-clickable="folder"
+                style={{ paddingLeft: `${level * 20}px` }}
             >
+                <div 
+                    className="nn-folder-chevron"
+                    ref={chevronRef}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (hasChildren) onToggle();
+                    }}
+                    style={{ 
+                        visibility: hasChildren ? 'visible' : 'hidden',
+                        cursor: hasChildren ? 'pointer' : 'default'
+                    }}
+                />
+                <span className="nn-folder-icon" ref={iconRef}></span>
                 <span className="nn-folder-name">{folder.name}</span>
                 {plugin.settings.showFolderFileCount && fileCount > 0 && (
                     <span className="nn-folder-count">{fileCount}</span>

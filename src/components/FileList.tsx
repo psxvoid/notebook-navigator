@@ -70,27 +70,46 @@ export function FileList() {
     
     // Group files by date if enabled
     const groupedFiles = useMemo(() => {
-        if (!plugin.settings.groupByDate) {
-            return [{ title: null, files }];
+        // Separate pinned files first
+        const pinnedPaths = plugin.settings.pinnedNotes[appState.selectedFolder?.path || ''] || [];
+        const pinnedFiles = files.filter(file => pinnedPaths.includes(file.path));
+        const unpinnedFiles = files.filter(file => !pinnedPaths.includes(file.path));
+
+        const groups: { title: string | null; files: TFile[] }[] = [];
+
+        // Add Pinned group if it exists
+        if (pinnedFiles.length > 0) {
+            groups.push({ title: '📌 Pinned', files: pinnedFiles });
+        }
+
+        // Group remaining files
+        if (!plugin.settings.groupByDate || plugin.settings.sortOption === 'title') {
+            if (unpinnedFiles.length > 0) {
+                groups.push({ title: null, files: unpinnedFiles });
+            }
+            return groups;
         }
         
-        const groups = new Map<string, TFile[]>();
-        const today = new Date();
-        
-        files.forEach(file => {
+        const dateGroups = new Map<string, TFile[]>();
+        unpinnedFiles.forEach(file => {
             const fileDate = new Date(
                 plugin.settings.sortOption === 'created' ? file.stat.ctime : file.stat.mtime
             );
             const groupTitle = DateUtils.getDateGroup(fileDate.getTime());
             
-            if (!groups.has(groupTitle)) {
-                groups.set(groupTitle, []);
+            if (!dateGroups.has(groupTitle)) {
+                dateGroups.set(groupTitle, []);
             }
-            groups.get(groupTitle)!.push(file);
+            dateGroups.get(groupTitle)!.push(file);
         });
         
-        return Array.from(groups.entries()).map(([title, files]) => ({ title, files }));
-    }, [files, plugin.settings.groupByDate, plugin.settings.sortOption]);
+        // Add date groups to the main groups array
+        dateGroups.forEach((filesInGroup, title) => {
+            groups.push({ title, files: filesInGroup });
+        });
+
+        return groups;
+    }, [files, plugin.settings, appState.selectedFolder]);
     
     if (!appState.selectedFolder) {
         return (

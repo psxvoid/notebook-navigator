@@ -21,8 +21,20 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement>, config:
         
         e.preventDefault();
         e.stopPropagation();
+
+        // Add this line to apply the class
+        const element = elementRef.current;
+        element.classList.add('nn-context-menu-active');
         
         const menu = new Menu();
+        
+        // This is a handler to clean up the class
+        const cleanup = () => {
+            element.classList.remove('nn-context-menu-active');
+            menu.hide();
+        };
+
+        menu.onHide(cleanup); // Use the built-in onHide callback
         
         if (config.type === 'folder') {
             const folder = config.item as TFolder;
@@ -33,7 +45,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement>, config:
                     .setTitle('New note')
                     .setIcon('file-plus')
                     .onClick(async () => {
-                        await fileSystemOps.createNote(folder);
+                        await fileSystemOps.createNewFile(folder);
                     });
             });
             
@@ -43,7 +55,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement>, config:
                     .setTitle('New folder')
                     .setIcon('folder-plus')
                     .onClick(async () => {
-                        await fileSystemOps.createFolder(folder);
+                        await fileSystemOps.createNewFolder(folder);
                     });
             });
             
@@ -112,7 +124,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement>, config:
                     .setTitle('Delete folder')
                     .setIcon('trash')
                     .onClick(async () => {
-                        await fileSystemOps.deleteFolder(folder);
+                        await fileSystemOps.deleteFolder(folder, plugin.settings.confirmBeforeDelete);
                     });
             });
             
@@ -158,7 +170,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement>, config:
             menu.addItem((item: MenuItem) => {
                 item
                     .setTitle(isPinned ? 'Unpin note' : 'Pin note')
-                    .setIcon('pin')
+                    .setIcon(isPinned ? 'unpin' : 'pin')
                     .onClick(async () => {
                         if (!file.parent) return;
                         
@@ -207,7 +219,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement>, config:
                     .setTitle('Rename note')
                     .setIcon('pencil')
                     .onClick(async () => {
-                        await fileSystemOps.renameNote(file);
+                        await fileSystemOps.renameFile(file);
                     });
             });
             
@@ -217,7 +229,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement>, config:
                     .setTitle('Delete note')
                     .setIcon('trash')
                     .onClick(async () => {
-                        await fileSystemOps.deleteNote(file);
+                        await fileSystemOps.deleteFile(file, plugin.settings.confirmBeforeDelete);
                     });
             });
         }

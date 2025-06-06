@@ -1,6 +1,6 @@
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useState, useCallback, useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
-import { TFile } from 'obsidian';
+import { TFile, WorkspaceLeaf } from 'obsidian';
 import { PaneHeader } from './PaneHeader';
 import { FolderTree } from './FolderTree';
 import { FileList } from './FileList';
@@ -14,7 +14,7 @@ export interface NotebookNavigatorHandle {
 }
 
 export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_, ref) => {
-    const { app, appState, dispatch, refreshCounter } = useAppContext();
+    const { app, appState, dispatch, plugin, refreshCounter } = useAppContext();
     const [forceRefresh, setForceRefresh] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
     
@@ -61,6 +61,27 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
     }, [leftPaneWidth]);
+
+    // Add this useEffect to handle active leaf changes
+    useEffect(() => {
+        if (!plugin.settings.autoRevealActiveFile) return;
+
+        const handleActiveLeafChange = (leaf: WorkspaceLeaf | null) => {
+            const file = leaf?.view.file;
+            if (file && file instanceof TFile) {
+                // Don't reveal if it's already selected
+                if (appState.selectedFile?.path !== file.path) {
+                    dispatch({ type: 'REVEAL_FILE', file });
+                }
+            }
+        };
+
+        const eventRef = app.workspace.on('active-leaf-change', handleActiveLeafChange);
+
+        return () => {
+            app.workspace.offref(eventRef);
+        };
+    }, [app.workspace, dispatch, plugin.settings.autoRevealActiveFile, appState.selectedFile]);
 
     return (
         <div 
