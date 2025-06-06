@@ -12,7 +12,27 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
     
     const getFolderElements = useCallback(() => {
         if (!containerRef.current) return [];
-        return Array.from(containerRef.current.querySelectorAll('.nn-folder-item'));
+        // Get all folder items
+        const allFolders = Array.from(containerRef.current.querySelectorAll('.nn-folder-item'));
+        
+        // Filter out folders that are inside collapsed parents
+        return allFolders.filter(element => {
+            // Check if this element is visible by checking if it's inside a collapsed folder
+            const parent = element.parentElement;
+            if (!parent) return true;
+            
+            // Walk up the tree to see if we're inside a collapsed folder
+            let currentElement = parent;
+            while (currentElement && currentElement !== containerRef.current) {
+                if (currentElement.classList.contains('nn-folder-children') && 
+                    !currentElement.classList.contains('nn-expanded')) {
+                    return false; // This folder is inside a collapsed parent
+                }
+                currentElement = currentElement.parentElement;
+            }
+            
+            return true; // This folder is visible
+        });
     }, [containerRef]);
     
     const getFileElements = useCallback(() => {
