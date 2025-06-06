@@ -25,6 +25,7 @@ import { FileList } from './FileList';
 import { useAppContext } from '../context/AppContext';
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
+import { useResizablePane } from '../hooks/useResizablePane';
 import { isTFolder } from '../utils/typeGuards';
 
 export interface NotebookNavigatorHandle {
@@ -51,17 +52,13 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     useKeyboardNavigation(containerRef);
     // Enable drag and drop
     useDragAndDrop(containerRef);
-    
-    // Load initial width from localStorage
-    const [leftPaneWidth, setLeftPaneWidth] = useState(() => {
-        const saved = localStorage.getItem('notebook-navigator-left-pane-width');
-        return saved ? parseInt(saved, 10) : 300;
+    // Enable resizable pane
+    const { paneWidth, resizeHandleProps } = useResizablePane({
+        initialWidth: 300,
+        min: 150,
+        max: 600,
+        storageKey: 'notebook-navigator-left-pane-width'
     });
-    
-    // Save leftPaneWidth to localStorage when it changes
-    useEffect(() => {
-        localStorage.setItem('notebook-navigator-left-pane-width', leftPaneWidth.toString());
-    }, [leftPaneWidth]);
     
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
@@ -72,26 +69,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             setForceRefresh(c => c + 1);
         }
     }), [dispatch]);
-
-    const handleResizeMouseDown = useCallback((e: React.MouseEvent) => {
-        const startX = e.clientX;
-        const startWidth = leftPaneWidth;
-        let currentWidth = startWidth;
-
-        const handleMouseMove = (moveEvent: MouseEvent) => {
-            const deltaX = moveEvent.clientX - startX;
-            currentWidth = Math.max(150, Math.min(600, startWidth + deltaX));
-            setLeftPaneWidth(currentWidth);
-        };
-
-        const handleMouseUp = () => {
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
-        };
-
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
-    }, [leftPaneWidth]);
 
     // Add this useEffect to handle active leaf changes
     useEffect(() => {
@@ -126,11 +103,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             data-focus-pane={appState.focusedPane}
             tabIndex={-1}
         >
-            <div className="nn-left-pane" style={{ width: `${leftPaneWidth}px` }}>
+            <div className="nn-left-pane" style={{ width: `${paneWidth}px` }}>
                 <PaneHeader type="folder" />
                 <FolderTree />
             </div>
-            <div className="nn-resize-handle" onMouseDown={handleResizeMouseDown} />
+            <div className="nn-resize-handle" {...resizeHandleProps} />
             <div className="nn-right-pane">
                 <PaneHeader type="file" />
                 <FileList />
