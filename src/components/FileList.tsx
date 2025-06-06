@@ -165,7 +165,7 @@ export function FileList() {
     if (files.length === 0) {
         return (
             <div className="nn-file-list nn-empty-state">
-                <div className="nn-empty-message">No files in this folder</div>
+                <div className="nn-empty-message">No files</div>
             </div>
         );
     }
