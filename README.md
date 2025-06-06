@@ -2,31 +2,19 @@
 
 A plugin for [Obsidian](https://obsidian.md) that replaces the default file explorer with a clean, Notes-style interface featuring a two-pane layout with folders on the left and files on the right.
 
-## Built with Modern React Architecture
-
-Notebook Navigator is built using React and TypeScript, providing:
-
-- ⚡ **Lightning-fast performance** with React's virtual DOM and optimized rendering
-- 🏗️ **Modular architecture** with reusable components and custom hooks
-- 🔒 **Type safety** with TypeScript strict mode throughout the codebase
-- 🧠 **Smart state management** using React Context API for predictable updates
-- 🔄 **Automatic memory cleanup** preventing leaks with proper lifecycle management
-- 🛠️ **Developer-friendly** with hot module reloading and React DevTools support
-
 ## Features
 
 - 📁 **Two-pane interface:** Clean layout with folder tree on the left, file list on the right
 - 🔍 **Smart file previews:** Shows content preview with date and first lines of text
 - 🖼️ **Feature images:** Display thumbnail images from frontmatter properties
 - 📌 **Pin important notes:** Keep frequently accessed notes at the top of any folder
-- ⌨️ **Full keyboard navigation:** Navigate entirely with arrow keys and Tab
+- ⌨️ **Full keyboard navigation:** Navigate entirely with arrow keys, Tab and Shift+Tab
 - 🔄 **Multiple sort options:** Sort by date modified, date created, or title
-- 📅 **Date grouping:** Automatically group files by Today, Yesterday, Previous 7 Days, etc.
+- 📅 **Date grouping:** Automatically group files by Today, Yesterday, Previous 7 days, etc.
 - 🎯 **Drag and drop:** Move files and folders with intuitive drag and drop
-- 🎨 **Customizable appearance:** Adjust colors, date formats, and animation speeds
+- 🎨 **Customizable appearance:** Adjust date formats
 - 🌓 **Dark mode support:** Fully integrated with Obsidian's theme system
 - ↔️ **Resizable panes:** Drag the divider to adjust folder/file pane widths
-- 📂 **Subfolder support:** View all notes from subfolders in one list
 - 🚀 **Auto-reveal:** Automatically reveal files when opened from search or links
 
 ## Screenshot
@@ -59,7 +47,7 @@ Notebook Navigator is built using React and TypeScript, providing:
 | ↑/↓ | Navigate up/down in current pane |
 | ← | In folders: collapse or go to parent<br>In files: switch to folder pane |
 | → | In folders: expand or switch to file pane<br>In files: open selected file |
-| Tab | Switch between folder and file panes<br>When in files: open selected file |
+| Tab | When in folders: switch to file pane<br>When in files: open selected file |
 | Shift+Tab | Switch from files to folders pane |
 | Delete (Windows/Linux)<br>Backspace (macOS) | Delete selected item |
 
@@ -86,25 +74,26 @@ Notebook Navigator is built using React and TypeScript, providing:
 
 ### File Organization
 
-- **Sort files by:** Choose between Date Edited, Date Created, or Title
+- **Sort files by:** Choose between date edited, date created, or title
 - **Group notes by date:** When sorted by date, group files under headers like "Today", "Yesterday", etc.
 - **Show notes from subfolders:** Display all notes from subfolders in the current folder view
 - **Auto-reveal active file:** Automatically show and select files when opened from search or links
-- **Excluded folders:** Comma-separated list of folders to hide (e.g., `resources, templates`)
 - **Excluded files:** Comma-separated list of frontmatter properties. Files containing any of these properties will be hidden (e.g., `draft, private, archived`)
+- **Excluded folders:** Comma-separated list of folders to hide (e.g., `resources, templates`)
 
 ### File Display
 
 - **Show file preview:** Display preview text beneath file names
-- **Skip non-text in preview:** Exclude headings, images, and embeds from preview text
+- **Skip headings in preview:** Skip heading lines when generating preview text
+- **Skip non-text in preview:** Skip images, embeds, and other non-text elements from preview text
 - **Show feature image:** Display thumbnail images from frontmatter properties
 - **Feature image property:** The frontmatter property name for thumbnails (default: `feature`)
-  - **Tip:** Use the [Featured Image plugin](https://github.com/johansan/obsidian-featured-image) (also available in Community Plugins) to automatically set feature images for all your notes based on the first image in each document!
+  - **Tip:** Use the [Featured Image plugin](https://github.com/johansan/obsidian-featured-image) (also available in community plugins) to automatically set feature images for all your notes based on the first image in each document!
 
 ### Folder Display
 
 - **Show root folder:** Display "Vault" as the root folder in the tree
-- **Show folder file count:** Display the number of markdown files in each folder
+- **Show folder file count:** Display the number of files in each folder
 
 ### Appearance
 
@@ -113,7 +102,6 @@ Notebook Navigator is built using React and TypeScript, providing:
     - `MMM d, yyyy` = Jan 5, 2024
     - `dd/MM/yyyy` = 05/01/2024
     - `yyyy-MM-dd` = 2024-01-05
-- **Animation speed:** UI animation duration in milliseconds
 
 ### Advanced
 
@@ -122,7 +110,7 @@ Notebook Navigator is built using React and TypeScript, providing:
 
 ## Tips and Tricks
 
-### Creating Beautiful Note Lists
+### Creating beautiful note lists
 
 Combine Notebook Navigator with the [Featured Image plugin](https://github.com/johansan/obsidian-featured-image) to display thumbnail previews in your file list:
 
@@ -130,36 +118,36 @@ Combine Notebook Navigator with the [Featured Image plugin](https://github.com/j
 2. Enable "Show feature image" in Notebook Navigator settings
 3. Your notes will automatically display thumbnails from the first image
 
-#### Optimizing Thumbnail Performance
+#### Optimizing thumbnail performance
 
 For best performance with Notebook Navigator's 42px thumbnails, configure these Featured Image plugin settings:
 
-- **Create Resized Thumbnail:** `true`
-- **Resized Thumbnail Frontmatter Property:** `featureResized`
-- **Max Resized Width:** `42` (or `84` for retina displays)
-- **Max Resized Height:** `42` (or `84` for retina displays)
-- **Fill Resized Dimensions:** `true`
+- **Create resized thumbnail:** `true`
+- **Resized thumbnail frontmatter property:** `featureResized`
+- **Max resized width:** `42` (or `84` for retina displays)
+- **Max resized height:** `42` (or `84` for retina displays)
+- **Fill resized dimensions:** `true`
 
 Then in Notebook Navigator settings:
 - **Feature image property:** `featureResized`
 
 This creates optimized 42px thumbnails that load quickly and display perfectly in the file list, rather than loading full-size images.
 
-### Organizing with Pins
+### Organizing with pins
 
 Pin frequently accessed notes to keep them at the top:
 1. Right-click any file
-2. Select "Pin Note"
+2. Select "Pin note"
 3. Pinned notes appear at the top with a 📌 icon
 
-### Quick Navigation Patterns
+### Quick navigation patterns
 
 - **Quick file access:** Press Tab from folders to jump to files
 - **Parent folder navigation:** Press Left arrow to go up the folder tree
 - **Rapid browsing:** Hold arrow keys for continuous navigation
 - **Focus management:** The focused pane has a subtle border highlight
 
-### Managing Draft and Private Notes
+### Managing draft and private notes
 
 Use the "Excluded files" setting to hide notes with specific frontmatter properties:
 
@@ -192,6 +180,17 @@ If you have any questions, suggestions, or issues, please open an issue on the [
 ## Development
 
 This plugin is open source and built with a modern React/TypeScript stack. Contributions are welcome!
+
+### Built with Modern React Architecture
+
+Notebook Navigator is built using React and TypeScript, providing:
+
+- ⚡ **Lightning-fast performance** with React's virtual DOM and optimized rendering
+- 🏗️ **Modular architecture** with reusable components and custom hooks
+- 🔒 **Type safety** with TypeScript strict mode throughout the codebase
+- 🧠 **Smart state management** using React Context API for predictable updates
+- 🔄 **Automatic memory cleanup** preventing leaks with proper lifecycle management
+- 🛠️ **Developer-friendly** with hot module reloading and React DevTools support
 
 ### Building from Source
 
