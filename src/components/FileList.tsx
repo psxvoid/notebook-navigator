@@ -179,7 +179,7 @@ export function FileList() {
     if (!appState.selectedFolder) {
         return (
             <div className="nn-file-list nn-empty-state">
-                <div className="nn-empty-message">Select a folder to view files</div>
+                <div className="nn-empty-message">Select a folder to view notes</div>
             </div>
         );
     }
@@ -187,7 +187,7 @@ export function FileList() {
     if (files.length === 0) {
         return (
             <div className="nn-file-list nn-empty-state">
-                <div className="nn-empty-message">No files</div>
+                <div className="nn-empty-message">No notes</div>
             </div>
         );
     }

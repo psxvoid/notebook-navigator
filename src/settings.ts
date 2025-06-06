@@ -204,8 +204,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         //     .setHeading();
 
         const sortSetting = new Setting(containerEl)
-            .setName('Sort files by')
-            .setDesc('Choose how files are sorted in the file list.')
+            .setName('Sort notes by')
+            .setDesc('Choose how notes are sorted in the note list.')
             .addDropdown(dropdown => dropdown
                 .addOption('modified', 'Date edited')
                 .addOption('created', 'Date created')
@@ -242,8 +242,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Auto-reveal active file')
-            .setDesc('Automatically reveal and select files when opened from Quick Switcher, links, or search.')
+            .setName('Auto-reveal active note')
+            .setDesc('Automatically reveal and select notes when opened from Quick Switcher, links, or search.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.autoRevealActiveFile)
                 .onChange(async (value) => {
@@ -253,8 +253,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         this.createDebouncedTextSetting(
             containerEl,
-            'Excluded files',
-            'Comma-separated list of frontmatter properties. Files containing any of these properties will be hidden (e.g., draft, private, archived).',
+            'Excluded notes',
+            'Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived).',
             'draft, private',
             () => this.plugin.settings.excludedFiles,
             (value) => { this.plugin.settings.excludedFiles = value; }
@@ -269,14 +269,14 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             (value) => { this.plugin.settings.ignoreFolders = value; }
         );
 
-        // Section 2: File display
+        // Section 2: Note display
         new Setting(containerEl)
-            .setName('File display')
+            .setName('Note display')
             .setHeading();
 
         const showPreviewSetting = new Setting(containerEl)
-            .setName('Show file preview')
-            .setDesc('Display preview text beneath file names.')
+            .setName('Show note preview')
+            .setDesc('Display preview text beneath note names.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.showFilePreview)
                 .onChange(async (value) => {
@@ -347,8 +347,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Show folder file count')
-            .setDesc('Display the number of files in each folder.')
+            .setName('Show folder note count')
+            .setDesc('Display the number of notes in each folder.')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.showFolderFileCount)
                 .onChange(async (value) => {
@@ -381,8 +381,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .setHeading();
 
         new Setting(containerEl)
-            .setName('Confirm before deleting files')
-            .setDesc('Show confirmation dialog when deleting files or folders')
+            .setName('Confirm before deleting notes')
+            .setDesc('Show confirmation dialog when deleting notes or folders')
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.confirmBeforeDelete)
                 .onChange(async (value) => {
