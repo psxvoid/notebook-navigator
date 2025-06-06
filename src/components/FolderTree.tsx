@@ -4,16 +4,23 @@ import { useAppContext } from '../context/AppContext';
 import { FolderItem } from './FolderItem';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 
-// Component to handle folder children with scroll behavior
-function FolderChildrenContainer({ isExpanded, folderPath, scrollContainerRef, children }: { 
-    isExpanded: boolean; 
+interface FolderChildrenContainerProps {
+    isExpanded: boolean;
     folderPath: string;
     scrollContainerRef: React.RefObject<HTMLDivElement>;
     children: React.ReactNode;
-}) {
+}
+
+// Component to handle folder children with scroll behavior
+const FolderChildrenContainer = React.memo(({ 
+    isExpanded, 
+    folderPath, 
+    scrollContainerRef, 
+    children 
+}: FolderChildrenContainerProps) => {
     const containerRef = useRef<HTMLDivElement>(null);
     
-    const handleTransitionEnd = (e: React.TransitionEvent) => {
+    const handleTransitionEnd = useCallback((e: React.TransitionEvent) => {
         // Only handle our own transition, not bubbled ones
         if (e.target !== containerRef.current) return;
         
@@ -25,9 +32,9 @@ function FolderChildrenContainer({ isExpanded, folderPath, scrollContainerRef, c
             const rect = containerRef.current.getBoundingClientRect();
             const scrollRect = scrollContainerRef.current.getBoundingClientRect();
             
-            // Check if any part of the expanded content is below the visible area
+            // Check if content needs scrolling
             if (rect.bottom > scrollRect.bottom) {
-                // Calculate how much we need to scroll
+                // Content is below viewport - scroll down
                 const scrollBy = Math.min(
                     rect.bottom - scrollRect.bottom + 20, // +20 for padding
                     rect.height // Don't scroll more than the height of the content
@@ -37,9 +44,15 @@ function FolderChildrenContainer({ isExpanded, folderPath, scrollContainerRef, c
                     top: scrollBy,
                     behavior: 'smooth'
                 });
+            } else if (rect.top < scrollRect.top) {
+                // Content is above viewport - scroll up
+                scrollContainerRef.current.scrollBy({
+                    top: rect.top - scrollRect.top - 20, // -20 for padding
+                    behavior: 'smooth'
+                });
             }
         }
-    };
+    }, [isExpanded, scrollContainerRef]);
     
     return (
         <div 
@@ -52,7 +65,9 @@ function FolderChildrenContainer({ isExpanded, folderPath, scrollContainerRef, c
             </div>
         </div>
     );
-}
+});
+
+FolderChildrenContainer.displayName = 'FolderChildrenContainer';
 
 export function FolderTree() {
     const { app, appState, dispatch, plugin, refreshCounter } = useAppContext();
