@@ -1,5 +1,5 @@
-// src/view/NotebookNavigatorView.ts
-import { ItemView, WorkspaceLeaf } from 'obsidian';
+// src/view/NotebookNavigatorView.tsx
+import { ItemView, WorkspaceLeaf, TFile } from 'obsidian';
 import { Root, createRoot } from 'react-dom/client';
 import React from 'react';
 import NotebookNavigatorPlugin from '../main';
@@ -8,6 +8,18 @@ import { NotebookNavigatorComponent } from '../components/NotebookNavigatorCompo
 
 // A new, unique identifier for our React-based view
 export const VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT = 'notebook-navigator-react-view';
+
+// Global reference to reveal file in the navigator
+let revealFileCallback: ((file: TFile) => void) | null = null;
+let refreshCallback: (() => void) | null = null;
+
+export function setRevealFileCallback(callback: (file: TFile) => void) {
+    revealFileCallback = callback;
+}
+
+export function setRefreshCallback(callback: () => void) {
+    refreshCallback = callback;
+}
 
 export class NotebookNavigatorView extends ItemView {
     plugin: NotebookNavigatorPlugin;
@@ -47,5 +59,25 @@ export class NotebookNavigatorView extends ItemView {
     async onClose() {
         // Unmount the React app when the view is closed to prevent memory leaks
         this.root?.unmount();
+        revealFileCallback = null;
+        refreshCallback = null;
+    }
+    
+    /**
+     * Reveals a file in the navigator by selecting it and its parent folder
+     */
+    revealFile(file: TFile) {
+        if (revealFileCallback) {
+            revealFileCallback(file);
+        }
+    }
+    
+    /**
+     * Refreshes the navigator view (e.g., after settings change)
+     */
+    refresh() {
+        if (refreshCallback) {
+            refreshCallback();
+        }
     }
 }
