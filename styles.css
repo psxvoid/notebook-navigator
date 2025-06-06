@@ -254,7 +254,7 @@ button.nn-icon-button {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: var(--nn-selection-color, #B3D9FF);
+    background-color: var(--text-selection);
     border-radius: 4px;
     z-index: 0;
 }
@@ -419,12 +419,12 @@ button.nn-icon-button {
 }
 
 .nn-file-item.nn-selected .nn-file-content {
-    background-color: var(--nn-selection-color, #B3D9FF) !important;
+    background-color: var(--text-selection) !important;
 }
 
 /* Ensure proper background in dark mode */
 .theme-dark .nn-file-item.nn-selected .nn-file-content {
-    background-color: var(--nn-selection-color, #B3D9FF) !important;
+    background-color: var(--text-selection) !important;
     filter: brightness(0.5);
 }
 
@@ -470,7 +470,7 @@ button.nn-icon-button {
     left: 0;
     right: 0;
     bottom: 1px; /* Stop above the separator line */
-    background-color: var(--nn-selection-color, #B3D9FF);
+    background-color: var(--text-selection);
     border-radius: 8px;
 }
 
@@ -913,14 +913,14 @@ button.nn-icon-button {
     left: 0px;
     right: 0px;
     bottom: 0;
-    border: 2px solid var(--nn-selection-color, #B3D9FF);
+    border: 2px solid var(--text-selection);
     border-radius: 6px;
     pointer-events: none;
     z-index: 2;
 }
 
 .theme-dark .nn-folder-item.nn-context-menu-active:not(.nn-selected) > .nn-folder-content::after {
-    border-color: var(--nn-selection-color, #B3D9FF);
+    border-color: var(--text-selection);
     opacity: 0.5;
 }
 
@@ -936,13 +936,13 @@ button.nn-icon-button {
     left: 0px;
     right: 0px;
     bottom: 1px; /* Account for separator line */
-    border: 2px solid var(--nn-selection-color, #B3D9FF);
+    border: 2px solid var(--text-selection);
     border-radius: 10px;
     pointer-events: none;
     z-index: 2;
 }
 
 .theme-dark .nn-file-item.nn-context-menu-active:not(.nn-selected) .nn-file-content::after {
-    border-color: var(--nn-selection-color, #B3D9FF);
+    border-color: var(--text-selection);
     opacity: 0.5;
 }

@@ -109,9 +109,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
             })
         );
 
-        // Set initial selection color
-        this.updateSelectionColor();
-
         // Ribbon Icon For Opening
         this.refreshIconRibbon();
         
@@ -196,15 +193,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
         }
     }
 
-    /**
-     * Updates the selection color CSS variable based on user settings
-     * Allows dynamic theming of selected items in the navigator
-     * Applied globally via CSS custom property
-     */
-    updateSelectionColor() {
-        // Update CSS variable for selection color
-        document.documentElement.style.setProperty('--nn-selection-color', this.settings.selectionColor);
-    }
     
     /**
      * Removes references to deleted pinned notes from settings
@@ -283,9 +271,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 view.refresh();
             }
         });
-        
-        // Update selection color
-        this.updateSelectionColor();
     }
 
     /**
