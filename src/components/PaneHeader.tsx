@@ -99,6 +99,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                             className="nn-icon-button"
                             aria-label={appState.expandedFolders.size > 0 ? "Collapse all folders" : "Expand all folders"}
                             onClick={handleExpandCollapseAll}
+                            tabIndex={-1}
                             ref={(el) => {
                                 if (el) {
                                     setIcon(el, appState.expandedFolders.size > 0 ? 'chevrons-down-up' : 'chevrons-up-down');
@@ -110,6 +111,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                             aria-label="New folder"
                             onClick={handleNewFolder}
                             disabled={!appState.selectedFolder}
+                            tabIndex={-1}
                             ref={(el) => {
                                 if (el) {
                                     setIcon(el, 'folder-plus');
@@ -123,6 +125,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                         aria-label="New note"
                         onClick={handleNewFile}
                         disabled={!appState.selectedFolder}
+                        tabIndex={-1}
                         ref={(el) => {
                             if (el) {
                                 setIcon(el, 'file-plus');
