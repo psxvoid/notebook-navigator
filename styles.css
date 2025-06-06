@@ -1,10 +1,18 @@
-/* Notebook Navigator - Notes Style */
+/* ========================================================================
+   Notebook Navigator - Notes Style
+   ======================================================================== */
 
-/* Remove default padding from view-content when it has our class */
+/* ========================================================================
+   Base Layout & Container Styles
+   ======================================================================== */
+
+/* Resets Obsidian's default view-content padding for cleaner integration */
 .view-content.notebook-navigator {
-    padding: 0 !important;
+    padding: 0;
+    border: none;
 }
 
+/* Main container - establishes the plugin's layout foundation */
 .notebook-navigator {
     height: 100%;
     display: flex;
@@ -13,22 +21,23 @@
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
-.theme-dark .notebook-navigator {
-    background-color: var(--background-primary);
-}
-
+/* Removes focus outline on main container for cleaner appearance */
 .notebook-navigator:focus {
     outline: none;
 }
 
+/* Split container - creates the two-pane layout structure */
 .nn-split-container {
     display: flex;
     height: 100%;
     overflow: hidden;
 }
 
-/* Left Pane - Folder Tree */
-.notebook-navigator .nn-left-pane,
+/* ========================================================================
+   Pane Layout (Left/Right Panes)
+   ======================================================================== */
+
+/* Left pane - contains the folder tree navigation */
 .nn-left-pane {
     width: 300px;
     min-width: 150px;
@@ -40,12 +49,16 @@
     flex-shrink: 0;
 }
 
-.theme-dark .notebook-navigator .nn-left-pane,
-.theme-dark .nn-left-pane {
-    background-color: var(--background-secondary);
+/* Right pane - contains the file list */
+.nn-right-pane {
+    flex: 1;
+    background-color: var(--background-primary);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 }
 
-/* Resize Handle */
+/* Resize handle - allows users to drag and resize the left pane */
 .nn-resize-handle {
     width: 5px;
     background-color: transparent;
@@ -54,56 +67,40 @@
     flex-shrink: 0;
 }
 
+/* Resize handle hover state - provides visual feedback */
 .nn-resize-handle:hover {
     background-color: var(--interactive-accent);
     opacity: 0.5;
 }
 
+/* Resize handle active state - stronger feedback during drag */
 .nn-resize-handle:active {
     background-color: var(--interactive-accent);
     opacity: 0.8;
 }
 
-/* Right Pane - File List */
-.notebook-navigator .nn-right-pane,
-.nn-right-pane {
-    flex: 1;
-    background-color: white;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
+/* ========================================================================
+   Header Styles
+   ======================================================================== */
 
-.theme-dark .notebook-navigator .nn-right-pane,
-.theme-dark .nn-right-pane {
-    background-color: black;
-}
-
-/* Pane Headers */
+/* Pane headers - consistent header styling for both panes */
 .nn-pane-header {
     padding: 8px 16px;
     border-bottom: 1px solid var(--background-modifier-border);
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    background-color: white;
+    background-color: var(--background-primary);
     min-height: 32px;
     height: 32px;
 }
 
-.theme-dark .nn-pane-header {
-    background-color: black;
-}
-
-/* Left pane header should match the folder tree background */
+/* Left pane header - matches folder tree background for visual consistency */
 .nn-left-pane .nn-pane-header {
     background-color: var(--background-secondary);
 }
 
-.theme-dark .nn-left-pane .nn-pane-header {
-    background-color: var(--background-secondary);
-}
-
+/* Header title styling - currently unused but available for future use */
 .nn-pane-header h3 {
     margin: 0;
     font-size: 14px;
@@ -111,11 +108,17 @@
     color: var(--text-normal);
 }
 
+/* Header actions container - groups action buttons in headers */
 .nn-header-actions {
     display: flex;
     gap: 8px;
 }
 
+/* ========================================================================
+   Button Styles
+   ======================================================================== */
+
+/* Icon button base style - transparent buttons matching Obsidian's design */
 .nn-icon-button {
     background: transparent !important;
     background-color: transparent !important;
@@ -140,18 +143,36 @@ button.nn-icon-button {
     outline: none !important;
 }
 
+/* Icon button hover state - subtle background on hover */
 .nn-icon-button:hover {
-    color: var(--text-normal);
     background-color: var(--background-modifier-hover) !important;
     border: none !important;
     box-shadow: none !important;
 }
 
+/* Icon button active state - feedback on click */
 .nn-icon-button:active {
     opacity: 0.8;
 }
 
-/* Style the SVG icons inside buttons to match Obsidian's native appearance */
+/* Icon button disabled state - visual indicator for unavailable actions */
+.nn-icon-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+/* Disabled hover state - no hover effect when disabled */
+.nn-icon-button:disabled:hover {
+    background-color: transparent;
+    color: var(--text-muted);
+}
+
+/* Disabled icon color - maintains muted appearance */
+.nn-icon-button:disabled:hover svg {
+    stroke: var(--text-muted);
+}
+
+/* Icon styling - consistent size and appearance for all button icons */
 .nn-icon-button svg {
     width: 18px;
     height: 18px;
@@ -160,11 +181,7 @@ button.nn-icon-button {
     fill: none;
 }
 
-.nn-icon-button:hover svg {
-    stroke: var(--text-normal);
-}
-
-/* Sort Button */
+/* Sort button - UNUSED, kept for potential future sorting feature */
 .nn-sort-button {
     background: none;
     border: 1px solid var(--background-modifier-border);
@@ -178,89 +195,57 @@ button.nn-icon-button {
     margin-right: 8px;
 }
 
+/* Sort button hover - UNUSED */
 .nn-sort-button:hover {
     background-color: var(--background-modifier-hover);
     color: var(--text-normal);
     border-color: var(--background-modifier-border-hover);
 }
 
-/* Folder Tree */
-.notebook-navigator .nn-folder-tree,
+/* ========================================================================
+   Folder Tree Styles
+   ======================================================================== */
+
+/* Folder tree container - scrollable area for folder hierarchy */
 .nn-folder-tree {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 8px 0;
+    padding: 4px 0;
     background-color: var(--background-secondary);
+    line-height: 1;
 }
 
-.theme-dark .notebook-navigator .nn-folder-tree,
-.theme-dark .nn-folder-tree {
-    background-color: var(--background-secondary);
-}
-
-.notebook-navigator .nn-folder-item,
+/* Folder item - container for each folder in the tree */
 .nn-folder-item {
     user-select: none;
-    background-color: transparent !important;
-    background: transparent !important;
+    background: transparent;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
 }
 
-.notebook-navigator .nn-folder-content,
+/* Folder content - clickable area containing folder UI elements */
 .nn-folder-content {
     display: flex;
     align-items: center;
-    padding: 4px 16px;
+    padding: 2px 8px 2px 4px;
     cursor: pointer;
     transition: background-color 0.15s ease;
     border-radius: 4px;
     margin: 0;
-    background-color: transparent !important;
+    background: transparent;
     position: relative;
+    flex: 1;
 }
 
-/* Remove hover effect for cleaner look */
-.nn-folder-content:hover {
-    background-color: transparent !important;
-}
-
-.nn-folder-item.nn-selected > .nn-folder-content {
-    position: relative;
-    background-color: transparent !important;
-}
-
-/* Create pseudo-element for folder selection background */
-.nn-folder-item.nn-selected > .nn-folder-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--nn-selection-color, #B3D9FF);
-    border-radius: 4px;
-    z-index: 0;
-}
-
-.theme-dark .nn-folder-item.nn-selected > .nn-folder-content::before {
-    filter: brightness(0.5);
-}
-
-/* Ensure folder content stays above the background */
-.nn-folder-item.nn-selected > .nn-folder-content > * {
-    position: relative;
-    z-index: 1;
-}
-
-.nn-folder-item.nn-focused > .nn-folder-content {
-    /* No outline for cleaner look */
-}
-
+/* Folder chevron/arrow - expand/collapse indicator */
 .nn-folder-arrow {
     width: 16px;
     height: 16px;
     margin-right: 4px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
@@ -268,10 +253,12 @@ button.nn-icon-button {
     transition: transform 0.2s ease;
 }
 
+/* Hidden chevron - UNUSED class for folders without children */
 .nn-folder-arrow.nn-no-children {
     visibility: hidden;
 }
 
+/* Folder icon - displays folder open/closed or custom icons */
 .nn-folder-icon {
     width: 16px;
     height: 16px;
@@ -280,6 +267,12 @@ button.nn-icon-button {
     color: var(--text-muted);
 }
 
+/* Smooth icon color transitions */
+.nn-folder-icon svg {
+    transition: color 0.2s ease;
+}
+
+/* Folder name text - truncates with ellipsis on overflow */
 .nn-folder-name {
     font-size: 12px;
     font-weight: 400;
@@ -290,75 +283,50 @@ button.nn-icon-button {
     flex: 1;
 }
 
+/* Folder file count - shows number of files in folder */
 .nn-folder-count {
     font-size: 11px;
-    color: #666;
+    color: var(--text-muted);
     margin-left: auto;
     margin-right: 8px;
     flex-shrink: 0;
 }
 
-/* Hide folder count when it's 0 */
-.nn-folder-count[data-count="0"] {
-    display: none;
-}
-
-.theme-dark .nn-folder-count {
-    color: #999;
-}
-
-/* Keep consistent text color for selected folders */
-.nn-folder-item.nn-selected .nn-folder-name {
-    color: var(--text-normal);
-}
-
-.nn-folder-item.nn-selected .nn-folder-icon {
-    color: var(--text-muted);
-}
-
-.nn-folder-item.nn-selected .nn-folder-count {
-    color: #666;
-}
-
-.theme-dark .nn-folder-item.nn-selected .nn-folder-count {
-    color: #999;
-}
-
+/* Folder children container - enables smooth expand/collapse animation */
 .nn-folder-children {
-    overflow: hidden;
-    max-height: 0;
-    transition: none;
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.15s ease-out;
+    min-height: 0;
 }
 
-/* Expanded state - no animation by default */
+/* Expanded folder children - shows nested content */
 .nn-folder-children.nn-expanded {
-    max-height: none;
+    grid-template-rows: 1fr;
 }
 
-/* Animate only when manually toggling */
-.nn-folder-children.nn-animating {
-    transition: max-height 0.18s ease-out;
+/* Folder children inner wrapper - required for grid animation */
+.nn-folder-children-inner {
+    overflow: hidden;
+    min-height: 0;
 }
 
-/* File List */
-.notebook-navigator .nn-file-list,
+/* ========================================================================
+   File List Styles
+   ======================================================================== */
+
+/* File list container - scrollable area for files */
 .nn-file-list {
     flex: 1;
     overflow-y: auto;
     padding: 0;
-    background-color: white;
+    background-color: var(--background-primary);
     scroll-padding-top: 40px; /* Account for sticky headers */
 }
 
-.theme-dark .notebook-navigator .nn-file-list,
-.theme-dark .nn-file-list {
-    background-color: black;
-}
-
-.notebook-navigator .nn-file-item,
+/* File item - container for each file in the list */
 .nn-file-item {
-    background-color: transparent !important;
-    background: transparent !important;
+    background: transparent;
     border-radius: 0;
     padding: 0;
     cursor: pointer;
@@ -366,31 +334,31 @@ button.nn-icon-button {
     position: relative;
 }
 
-/* Inner content wrapper for proper selection styling */
+/* Remove shadows for clean Apple Notes aesthetic */
+.nn-file-item,
+.nn-file-item:hover {
+    box-shadow: none;
+}
+
+/* File content wrapper - contains all file information */
 .nn-file-content {
     padding: 11px 12px;
     margin: 0px 8px;
     border-radius: 8px;
-    background-color: transparent !important;
-    background: transparent !important;
+    background: transparent;
     display: flex;
     flex-direction: row;
     gap: 6px;
     align-items: center;
+    position: relative;
 }
 
-/* Reduce padding when there's a feature image to maintain consistent height */
+/* File content with image - reduced padding for consistent height */
 .nn-file-content:has(.nn-feature-image) {
     padding: 8px 12px;
 }
 
-/* Force non-selected items to be transparent */
-.nn-file-item:not(.nn-selected) .nn-file-content {
-    background-color: transparent !important;
-    background: transparent !important;
-}
-
-/* Add separator line after each item except last */
+/* File separator - horizontal line between files */
 .nn-file-item:not(:last-child)::after {
     content: '';
     position: absolute;
@@ -401,127 +369,7 @@ button.nn-icon-button {
     background-color: var(--background-modifier-border);
 }
 
-.nn-file-item.nn-selected .nn-file-content {
-    background-color: var(--nn-selection-color, #B3D9FF) !important;
-}
-
-/* Ensure proper background in dark mode */
-.theme-dark .nn-file-item.nn-selected .nn-file-content {
-    background-color: var(--nn-selection-color, #B3D9FF) !important;
-    filter: brightness(0.5);
-}
-
-/* Keep consistent text colors - no changes on selection */
-.nn-file-item.nn-selected .nn-file-name {
-    color: black !important;
-}
-
-.theme-dark .nn-file-item.nn-selected .nn-file-name {
-    color: white !important;
-}
-
-.nn-file-item.nn-selected .nn-file-date {
-    color: black !important;
-}
-
-.theme-dark .nn-file-item.nn-selected .nn-file-date {
-    color: white !important;
-}
-
-.nn-file-item.nn-selected .nn-file-preview {
-    color: #666 !important;
-}
-
-.theme-dark .nn-file-item.nn-selected .nn-file-preview {
-    color: #999 !important;
-}
-
-.nn-file-item.nn-focused {
-    /* No outline for cleaner Notes style */
-}
-
-/* Add position relative to file content for pseudo-element */
-.nn-file-content {
-    position: relative;
-}
-
-/* Create pseudo-element for background */
-.nn-file-item.nn-selected .nn-file-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 1px; /* Stop above the separator line */
-    background-color: var(--nn-selection-color, #B3D9FF);
-    border-radius: 8px;
-}
-
-/* Dark mode adjustment for pseudo-element */
-.theme-dark .nn-file-item.nn-selected .nn-file-content::before {
-    filter: brightness(0.5);
-}
-
-/* Ensure content stays above the background */
-.nn-file-item.nn-selected .nn-file-content > * {
-    position: relative;
-    z-index: 1;
-}
-
-/* When folders have focus, make selected file background 50% transparent */
-.notebook-navigator[data-focus-pane="folders"] .nn-file-item.nn-selected .nn-file-content::before {
-    opacity: 0.5;
-}
-
-/* Override the original background color rules to transparent since we're using pseudo-element */
-.nn-file-item.nn-selected .nn-file-content {
-    background-color: transparent !important;
-}
-
-.theme-dark .nn-file-item.nn-selected .nn-file-content {
-    background-color: transparent !important;
-    filter: none;
-}
-
-/* When files have focus, make selected folder background 50% transparent */
-.notebook-navigator[data-focus-pane="files"] .nn-folder-item.nn-selected > .nn-folder-content {
-    position: relative;
-}
-
-.notebook-navigator[data-focus-pane="files"] .nn-folder-item.nn-selected > .nn-folder-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--nn-selection-color, #B3D9FF);
-    opacity: 0.5;
-    border-radius: 4px;
-    z-index: 0;
-}
-
-/* Ensure folder content stays above the background */
-.notebook-navigator[data-focus-pane="files"] .nn-folder-item.nn-selected > .nn-folder-content > * {
-    position: relative;
-    z-index: 1;
-}
-
-/* Remove any remaining hover transitions */
-.nn-file-item:hover .nn-file-content {
-    background-color: transparent;
-}
-
-.nn-file-item.nn-selected:hover .nn-file-content {
-    background-color: transparent !important;
-}
-
-.theme-dark .nn-file-item.nn-selected:hover .nn-file-content {
-    background-color: transparent !important;
-}
-
-/* Already defined above with proper styling */
-
+/* File text content - left side container for name and preview */
 .nn-file-text-content {
     flex: 1;
     min-width: 0; /* Enable text truncation */
@@ -531,7 +379,85 @@ button.nn-icon-button {
     order: 1; /* Ensure it appears on the left */
 }
 
-/* Feature Image */
+/* File name - primary text with ellipsis overflow */
+.nn-file-name {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-normal);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    margin-bottom: 0;
+}
+
+/* Dark mode file name - consistent color */
+.theme-dark .nn-file-name {
+    color: var(--text-normal);
+}
+
+/* Preview line container - holds date and preview text */
+.nn-file-preview-line {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-top: -2px;
+}
+
+/* Second line container - used in subfolder mode */
+.nn-file-second-line {
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
+    margin-top: -2px;
+}
+
+/* File date - modification date display */
+.nn-file-date {
+    font-size: 12px;
+    color: var(--text-normal);
+    flex-shrink: 0;
+    white-space: nowrap;
+    margin-right: 8px;
+}
+
+/* Dark mode file date */
+.theme-dark .nn-file-date {
+    color: var(--text-normal);
+}
+
+/* File preview text - secondary line showing file content */
+.nn-file-preview {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+    flex: 1;
+}
+
+/* Parent folder display - shows folder path in subfolder mode */
+.nn-file-parent-folder {
+    font-size: 12px;
+    color: var(--text-muted);
+    line-height: 1.4;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+    word-break: break-word;
+    flex: 1;
+}
+
+/* ========================================================================
+   Feature Image Styles
+   ======================================================================== */
+
+/* Feature image container - right-aligned image thumbnail */
 .nn-feature-image {
     width: 42px;
     height: 42px;
@@ -543,6 +469,7 @@ button.nn-icon-button {
     order: 2; /* Ensure it appears on the right */
 }
 
+/* Feature image element - covers container with proper aspect ratio */
 .nn-feature-image-img {
     width: 100%;
     height: 100%;
@@ -550,103 +477,22 @@ button.nn-icon-button {
     object-position: center top;
 }
 
-/* Adjust selected state for feature images */
+/* Selected file image - slightly transparent when selected */
 .nn-file-item.nn-selected .nn-feature-image {
     opacity: 0.9;
 }
 
-/* Preview line with date and text */
-.nn-file-preview-line {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    margin-top: -2px;
-}
+/* ========================================================================
+   Date Group Headers
+   ======================================================================== */
 
-.nn-file-name {
-    font-size: 14px;
-    font-weight: 600;
-    color: black;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
-    margin-bottom: 0;
-}
-
-.theme-dark .nn-file-name {
-    color: white;
-}
-
-.nn-file-date {
-    font-size: 12px;
-    color: black;
-    flex-shrink: 0;
-    white-space: nowrap;
-    margin-right: 8px;
-}
-
-.theme-dark .nn-file-date {
-    color: white;
-}
-
-.nn-file-preview {
-    font-size: 12px;
-    color: #666;
-    line-height: 1.4;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    word-break: break-word;
-    flex: 1;
-}
-
-.theme-dark .nn-file-preview {
-    color: #999;
-}
-
-/* Second line layout for subfolder mode */
-.nn-file-second-line {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    margin-top: -2px;
-}
-
-/* Parent folder - same styling as preview */
-.nn-file-parent-folder {
-    font-size: 12px;
-    color: #666;
-    line-height: 1.4;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    word-break: break-word;
-    flex: 1;
-}
-
-.theme-dark .nn-file-parent-folder {
-    color: #999;
-}
-
-/* Empty State */
-.nn-empty-state {
-    padding: 40px 20px;
-    text-align: center;
-    color: var(--text-muted);
-    font-size: 14px;
-}
-
-/* Date Group Headers */
+/* Date group headers - sticky headers for grouped files */
 .nn-date-group-header {
     padding: 8px 12px;
     font-size: 13px;
     font-weight: 600;
     color: var(--text-muted);
-    background-color: white;
+    background-color: var(--background-primary);
     border-bottom: 1px solid var(--background-modifier-border);
     position: sticky;
     top: 0;
@@ -654,25 +500,250 @@ button.nn-icon-button {
     margin-top: 16px;
 }
 
-/* Remove margin for the first header (which would be Pinned) */
+/* First date header - no top margin for first group */
 .nn-date-group-header:first-child {
     margin-top: 0;
 }
 
-.theme-dark .nn-date-group-header {
-    background-color: black;
+/* ========================================================================
+   Empty State
+   ======================================================================== */
+
+/* Empty state container - shown when no files in folder */
+.nn-empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
+    padding: 40px 20px;
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 14px;
 }
 
-/* Drag and Drop */
+/* Empty state message text */
+.nn-empty-message {
+    text-align: center;
+}
+
+/* ========================================================================
+   Selection States
+   ======================================================================== */
+
+/* Selected folder - transparent background for pseudo-element approach */
+.nn-folder-item.nn-selected > .nn-folder-content {
+    position: relative;
+    background: transparent;
+}
+
+/* Selected folder background - uses pseudo-element for better control */
+.nn-folder-item.nn-selected > .nn-folder-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: var(--text-selection);
+    border-radius: 4px;
+    z-index: 0;
+}
+
+/* Dark mode selected folder - dimmer selection color */
+.theme-dark .nn-folder-item.nn-selected > .nn-folder-content::before {
+    filter: brightness(0.5);
+}
+
+/* Selected folder content z-index - ensures text appears above background */
+.nn-folder-item.nn-selected > .nn-folder-content > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Keep consistent text color for selected folders */
+.nn-folder-item.nn-selected .nn-folder-name {
+    color: var(--text-normal);
+}
+
+/* Selected folder icon - maintains muted color */
+.nn-folder-item.nn-selected .nn-folder-icon {
+    color: var(--text-muted);
+}
+
+/* Selected folder count - maintains muted color */
+.nn-folder-item.nn-selected .nn-folder-count {
+    color: var(--text-muted);
+}
+
+/* Selected file background */
+.nn-file-item.nn-selected .nn-file-content {
+    background-color: var(--text-selection);
+}
+
+/* Dark mode selected file - dimmer selection */
+.theme-dark .nn-file-item.nn-selected .nn-file-content {
+    filter: brightness(0.5);
+}
+
+/* Selected file background pseudo-element - better control over styling */
+.nn-file-item.nn-selected .nn-file-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 1px; /* Stop above the separator line */
+    background-color: var(--text-selection);
+    border-radius: 8px;
+}
+
+/* Dark mode selected file pseudo-element */
+.theme-dark .nn-file-item.nn-selected .nn-file-content::before {
+    filter: brightness(0.5);
+}
+
+/* Selected file content z-index - ensures content above background */
+.nn-file-item.nn-selected .nn-file-content > * {
+    position: relative;
+    z-index: 1;
+}
+
+/* Override background for pseudo-element approach */
+.nn-file-item.nn-selected .nn-file-content {
+    background-color: transparent;
+}
+
+.theme-dark .nn-file-item.nn-selected .nn-file-content {
+    background-color: transparent;
+    filter: none;
+}
+
+/* Selected file text colors - maintains readability */
+.nn-file-item.nn-selected .nn-file-name {
+    color: var(--text-normal);
+}
+
+.nn-file-item.nn-selected .nn-file-date {
+    color: var(--text-normal);
+}
+
+.nn-file-item.nn-selected .nn-file-preview {
+    color: var(--text-muted);
+}
+
+/* ========================================================================
+   Focus States
+   ======================================================================== */
+
+/* Focused folder - no outline for cleaner Apple Notes style */
+.nn-folder-item.nn-focused > .nn-folder-content {
+    /* No outline for cleaner look */
+}
+
+/* Focused file - no outline for cleaner appearance */
+.nn-file-item.nn-focused {
+    /* No outline for cleaner Notes style */
+}
+
+/* Inactive pane selected file - dimmer selection when folder pane focused */
+.nn-split-container[data-focus-pane="folders"] .nn-file-item.nn-selected .nn-file-content::before {
+    background-color: var(--text-selection);
+    opacity: 0.4;
+}
+
+/* Inactive pane selected folder - dimmer selection when file pane focused */
+.nn-split-container[data-focus-pane="files"] .nn-folder-item.nn-selected > .nn-folder-content::before {
+    background-color: var(--text-selection);
+    opacity: 0.4;
+}
+
+/* ========================================================================
+   Hover States
+   ======================================================================== */
+
+/* File hover states - maintains transparency */
+.nn-file-item:hover .nn-file-content {
+    background-color: transparent;
+}
+
+.nn-file-item.nn-selected:hover .nn-file-content,
+.theme-dark .nn-file-item.nn-selected:hover .nn-file-content {
+    background-color: transparent;
+}
+
+/* ========================================================================
+   Drag and Drop States
+   ======================================================================== */
+
+/* Dragging state - visual feedback during drag operations */
 .nn-dragging {
     opacity: 0.5;
 }
 
-.nn-folder-item.nn-drag-over > .nn-folder-content {
-    background-color: var(--interactive-accent-hover) !important;
+/* Drag over state - highlights valid drop targets */
+.nn-folder-content.nn-drag-over {
+    background-color: var(--interactive-accent-hover);
 }
 
-/* Modals */
+/* ========================================================================
+   Context Menu States
+   ======================================================================== */
+
+/* Context menu active folder - prepares for outline */
+.nn-folder-item.nn-context-menu-active > .nn-folder-content {
+    position: relative;
+}
+
+/* Context menu outline for folders - shows which item menu affects */
+.nn-folder-item.nn-context-menu-active:not(.nn-selected) > .nn-folder-content::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0px;
+    right: 0px;
+    bottom: 0;
+    border: 2px solid var(--text-selection);
+    border-radius: 6px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Dark mode context menu outline for folders */
+.theme-dark .nn-folder-item.nn-context-menu-active:not(.nn-selected) > .nn-folder-content::after {
+    border-color: var(--text-selection);
+    opacity: 0.5;
+}
+
+/* Context menu active file - prepares for outline */
+.nn-file-item.nn-context-menu-active .nn-file-content {
+    position: relative;
+}
+
+/* Context menu outline for files - shows which item menu affects */
+.nn-file-item.nn-context-menu-active:not(.nn-selected) .nn-file-content::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0px;
+    right: 0px;
+    bottom: 1px; /* Account for separator line */
+    border: 2px solid var(--text-selection);
+    border-radius: 10px;
+    pointer-events: none;
+    z-index: 2;
+}
+
+/* Dark mode context menu outline for files */
+.theme-dark .nn-file-item.nn-context-menu-active:not(.nn-selected) .nn-file-content::after {
+    border-color: var(--text-selection);
+    opacity: 0.5;
+}
+
+/* ========================================================================
+   Modal Styles
+   ======================================================================== */
+
+/* Modal input field - used in rename/create dialogs */
 .nn-input {
     width: 100%;
     padding: 8px 12px;
@@ -684,11 +755,13 @@ button.nn-icon-button {
     margin: 16px 0;
 }
 
+/* Modal input focus state */
 .nn-input:focus {
     outline: none;
     border-color: var(--interactive-accent);
 }
 
+/* Modal button container - right-aligned button group */
 .nn-button-container {
     display: flex;
     justify-content: flex-end;
@@ -696,89 +769,16 @@ button.nn-icon-button {
     margin-top: 16px;
 }
 
-/* Scrollbar Styling */
-.nn-folder-tree::-webkit-scrollbar,
-.nn-file-list::-webkit-scrollbar {
-    width: 8px;
-}
+/* ========================================================================
+   Icon Picker Modal
+   ======================================================================== */
 
-.nn-folder-tree::-webkit-scrollbar-track,
-.nn-file-list::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-.nn-folder-tree::-webkit-scrollbar-thumb,
-.nn-file-list::-webkit-scrollbar-thumb {
-    background-color: var(--background-modifier-border);
-    border-radius: 4px;
-}
-
-.nn-folder-tree::-webkit-scrollbar-thumb:hover,
-.nn-file-list::-webkit-scrollbar-thumb:hover {
-    background-color: var(--background-modifier-border-hover);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .nn-left-pane {
-        width: 200px;
-        min-width: 150px;
-    }
-    
-    .nn-pane-header {
-        padding: 12px 16px;
-    }
-    
-    .nn-file-item {
-        padding: 12px;
-    }
-    
-    .nn-file-name {
-        font-size: 14px;
-    }
-    
-    .nn-file-preview {
-        font-size: 13px;
-    }
-}
-
-/* Remove all shadows for clean Notes style */
-.theme-dark .nn-file-item,
-.theme-light .nn-file-item {
-    box-shadow: none !important;
-}
-
-.theme-dark .nn-file-item:hover,
-.theme-light .nn-file-item:hover {
-    box-shadow: none !important;
-}
-
-/* Settings styles */
-.date-grouping-settings,
-.preview-settings,
-.feature-image-settings {
-    margin-left: 20px;
-}
-
-/* Add some spacing between section headers */
-.setting-item-heading {
-    margin-top: 30px !important;
-}
-
-.setting-item-heading:first-child {
-    margin-top: 0 !important;
-}
-
-/* Utility class for hiding settings elements */
-.nn-setting-hidden {
-    display: none !important;
-}
-
-/* Icon Picker Modal Styles */
+/* Icon picker modal width */
 .nn-icon-picker-modal {
     width: 500px;
 }
 
+/* Icon picker content layout */
 .nn-icon-picker-modal .modal-content {
     padding: 0;
     height: 100%;
@@ -786,11 +786,23 @@ button.nn-icon-button {
     flex-direction: column;
 }
 
+/* Icon picker modal height control */
+.nn-icon-picker-modal .modal {
+    height: auto;
+}
+
+/* Prevent icon picker content overflow */
+.nn-icon-picker-modal .modal-content {
+    overflow: hidden;
+}
+
+/* Icon search container with bottom border */
 .nn-icon-search-container {
     padding: 16px;
     border-bottom: 1px solid var(--background-modifier-border);
 }
 
+/* Icon search input field */
 .nn-icon-search-input {
     width: 100%;
     padding: 8px 12px;
@@ -800,11 +812,13 @@ button.nn-icon-button {
     border-radius: 4px;
 }
 
+/* Icon search input focus */
 .nn-icon-search-input:focus {
     outline: none;
     border-color: var(--interactive-accent);
 }
 
+/* Icon results scrollable container */
 .nn-icon-results-container {
     height: 400px;
     min-height: 400px;
@@ -813,6 +827,7 @@ button.nn-icon-button {
     flex: 0 0 auto;
 }
 
+/* Icon category headers */
 .nn-icon-section-header {
     font-size: 12px;
     font-weight: 500;
@@ -822,12 +837,14 @@ button.nn-icon-button {
     margin-bottom: 12px;
 }
 
+/* Icon grid layout - 5 columns */
 .nn-icon-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
     gap: 8px;
 }
 
+/* Individual icon item */
 .nn-icon-item {
     display: flex;
     flex-direction: column;
@@ -838,16 +855,19 @@ button.nn-icon-button {
     transition: background-color 0.15s ease;
 }
 
+/* Icon item hover/focus states */
 .nn-icon-item:hover,
 .nn-icon-item:focus {
     background-color: var(--background-modifier-hover);
     outline: none;
 }
 
+/* Icon item keyboard focus indicator */
 .nn-icon-item:focus-visible {
     box-shadow: 0 0 0 2px var(--interactive-accent);
 }
 
+/* Icon preview container */
 .nn-icon-item-preview {
     display: flex;
     align-items: center;
@@ -858,11 +878,13 @@ button.nn-icon-button {
     color: var(--text-muted);
 }
 
+/* Icon SVG size */
 .nn-icon-item-preview svg {
     width: 24px;
     height: 24px;
 }
 
+/* Icon name label */
 .nn-icon-item-name {
     font-size: 11px;
     color: var(--text-muted);
@@ -872,6 +894,7 @@ button.nn-icon-button {
     max-width: 100%;
 }
 
+/* Empty search and additional icons messages */
 .nn-icon-empty-message,
 .nn-icon-more-message {
     text-align: center;
@@ -880,62 +903,58 @@ button.nn-icon-button {
     font-size: 14px;
 }
 
-/* Ensure modal maintains size */
-.nn-icon-picker-modal .modal {
-    height: auto;
+/* ========================================================================
+   Scrollbar Styles
+   ======================================================================== */
+
+/* Custom scrollbar width */
+.nn-folder-tree::-webkit-scrollbar,
+.nn-file-list::-webkit-scrollbar {
+    width: 8px;
 }
 
-.nn-icon-picker-modal .modal-content {
-    overflow: hidden;
+/* Scrollbar track - transparent background */
+.nn-folder-tree::-webkit-scrollbar-track,
+.nn-file-list::-webkit-scrollbar-track {
+    background: transparent;
 }
 
-/* Smooth transition for folder icons */
-.nn-folder-icon svg {
-    transition: color 0.2s ease;
+/* Scrollbar thumb - visible scroll indicator */
+.nn-folder-tree::-webkit-scrollbar-thumb,
+.nn-file-list::-webkit-scrollbar-thumb {
+    background-color: var(--background-modifier-border);
+    border-radius: 4px;
 }
 
-/* Context menu outline - shows which item will be affected by menu choices */
-.nn-folder-item.nn-context-menu-active > .nn-folder-content {
-    position: relative;
+/* Scrollbar thumb hover - darker on hover */
+.nn-folder-tree::-webkit-scrollbar-thumb:hover,
+.nn-file-list::-webkit-scrollbar-thumb:hover {
+    background-color: var(--background-modifier-border-hover);
 }
 
-.nn-folder-item.nn-context-menu-active:not(.nn-selected) > .nn-folder-content::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0px;
-    right: 0px;
-    bottom: 0;
-    border: 2px solid var(--nn-selection-color, #B3D9FF);
-    border-radius: 6px;
-    pointer-events: none;
-    z-index: 2;
+/* ========================================================================
+   Settings Page Styles
+   ======================================================================== */
+
+/* Settings page indentation for sub-settings */
+.date-grouping-settings,
+.preview-settings,
+.feature-image-settings {
+    margin-left: 20px;
 }
 
-.theme-dark .nn-folder-item.nn-context-menu-active:not(.nn-selected) > .nn-folder-content::after {
-    border-color: var(--nn-selection-color, #B3D9FF);
-    opacity: 0.5;
+/* Settings section header spacing */
+.setting-item-heading {
+    margin-top: 30px;
 }
 
-/* File context menu outline */
-.nn-file-item.nn-context-menu-active .nn-file-content {
-    position: relative;
+/* First settings header - no top margin */
+.setting-item-heading:first-child {
+    margin-top: 0;
 }
 
-.nn-file-item.nn-context-menu-active:not(.nn-selected) .nn-file-content::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0px;
-    right: 0px;
-    bottom: 1px; /* Account for separator line */
-    border: 2px solid var(--nn-selection-color, #B3D9FF);
-    border-radius: 10px;
-    pointer-events: none;
-    z-index: 2;
+/* Utility class for conditionally hidden settings */
+.nn-setting-hidden {
+    display: none;
 }
 
-.theme-dark .nn-file-item.nn-context-menu-active:not(.nn-selected) .nn-file-content::after {
-    border-color: var(--nn-selection-color, #B3D9FF);
-    opacity: 0.5;
-}

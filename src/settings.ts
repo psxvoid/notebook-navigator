@@ -46,7 +46,6 @@ export interface NotebookNavigatorSettings {
     showRootFolder: boolean;
     showFolderFileCount: boolean;
     // Appearance
-    selectionColor: string;
     dateFormat: string;
     // Advanced
     confirmBeforeDelete: boolean;
@@ -79,7 +78,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showRootFolder: false,
     showFolderFileCount: true,
     // Appearance
-    selectionColor: '#B3D9FF',
     dateFormat: 'MMM d, yyyy',
     // Advanced
     confirmBeforeDelete: true,
@@ -156,9 +154,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                             
                             if (refreshView) {
                                 this.plugin.onSettingsChange();
-                            } else {
-                                // For color setting that only updates CSS
-                                this.plugin.updateSelectionColor();
                             }
                         }
                         
@@ -203,9 +198,10 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         containerEl.empty();
 
         // Section 1: File organization
-        new Setting(containerEl)
-            .setName('File organization')
-            .setHeading();
+        // Not shown to follow Obsidian plugin guidelines
+        // new Setting(containerEl)
+        //     .setName('File organization')
+        //     .setHeading();
 
         const sortSetting = new Setting(containerEl)
             .setName('Sort files by')
@@ -364,28 +360,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName('Appearance')
             .setHeading();
-
-        new Setting(containerEl)
-            .setName('Selection color')
-            .setDesc('Background color for selected items')
-            .addColorPicker(color => color
-                .setValue(this.plugin.settings.selectionColor)
-                .onChange(async (value) => {
-                    this.plugin.settings.selectionColor = value;
-                    await this.plugin.saveSettings();
-                    this.plugin.updateSelectionColor();
-                }))
-            .addText(text => text
-                .setPlaceholder('#B3D9FF')
-                .setValue(this.plugin.settings.selectionColor)
-                .onChange(async (value) => {
-                    // Validate hex color format
-                    if (/^#[0-9A-F]{6}$/i.test(value) || value === '') {
-                        this.plugin.settings.selectionColor = value || '#B3D9FF';
-                        await this.plugin.saveSettings();
-                        this.plugin.updateSelectionColor();
-                    }
-                }));
 
         this.createDebouncedTextSetting(
             containerEl,

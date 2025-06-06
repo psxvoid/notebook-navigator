@@ -2,6 +2,17 @@
 
 A plugin for [Obsidian](https://obsidian.md) that replaces the default file explorer with a clean, Notes-style interface featuring a two-pane layout with folders on the left and files on the right.
 
+## Built with Modern React Architecture
+
+Notebook Navigator is built using React and TypeScript, providing:
+
+- ⚡ **Lightning-fast performance** with React's virtual DOM and optimized rendering
+- 🏗️ **Modular architecture** with reusable components and custom hooks
+- 🔒 **Type safety** with TypeScript strict mode throughout the codebase
+- 🧠 **Smart state management** using React Context API for predictable updates
+- 🔄 **Automatic memory cleanup** preventing leaks with proper lifecycle management
+- 🛠️ **Developer-friendly** with hot module reloading and React DevTools support
+
 ## Features
 
 - 📁 **Two-pane interface:** Clean layout with folder tree on the left, file list on the right
@@ -97,7 +108,6 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 
 ### Appearance
 
-- **Selection color:** Background color for selected items (hex format)
 - **Date format:** Format for displaying dates (uses date-fns format)
   - Common formats:
     - `MMM d, yyyy` = Jan 5, 2024
@@ -181,7 +191,7 @@ If you have any questions, suggestions, or issues, please open an issue on the [
 
 ## Development
 
-This plugin is open source. Contributions are welcome!
+This plugin is open source and built with a modern React/TypeScript stack. Contributions are welcome!
 
 ### Building from Source
 
@@ -200,6 +210,21 @@ npm run dev
 npm run build
 ```
 
+### Technical Stack
+
+- **React** - Component-based UI with hooks and Context API
+- **TypeScript** - Full type safety with strict mode
+- **esbuild** - Lightning-fast bundling and development builds
+- **Obsidian API** - Deep integration with Obsidian's plugin system
+
+### Architecture Highlights
+
+- **Component-based design** - Each UI element is a self-contained React component
+- **Custom hooks** - Reusable logic for keyboard navigation, context menus, and drag-and-drop
+- **Context providers** - Centralized state management without prop drilling
+- **Service layer** - Clean separation of business logic from UI components
+- **Zero setTimeout/DOM manipulation** - Pure React patterns for predictable behavior
+
 ### Contributing
 
 1. Fork the repository
@@ -209,8 +234,10 @@ npm run build
 5. Open a Pull Request
 
 Please ensure your code:
-- Maintains the existing code style
-- Includes comprehensive function documentation
+- Follows React best practices and hooks rules
+- Maintains TypeScript strict mode compliance
+- Includes proper cleanup in useEffect hooks
+- Avoids direct DOM manipulation
 - Preserves keyboard navigation functionality
 - Has been thoroughly tested on desktop
 

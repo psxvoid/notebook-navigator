@@ -4,343 +4,547 @@
 Notebook Navigator is an Obsidian plugin that replaces the default file explorer with a Notes-style interface. It provides a clean, two-pane layout with a folder tree on the left and a file list on the right, mimicking the UI/UX patterns found in modern note-taking applications.
 
 ## Quick Start for AI Assistants
-- **Main entry point**: `src/main.ts` - Plugin class; `src/view/NotebookNavigatorView.ts` - View implementation
+- **Main entry point**: `src/main.ts` - Plugin class
+- **React entry**: `src/view/NotebookNavigatorView.tsx` - View wrapper
+- **Main component**: `src/components/NotebookNavigatorComponent.tsx` - Root React component
 - **Build command**: `npm run dev` for development with watch mode
-- **Key patterns**: Event-driven architecture, TypeScript strict mode, Obsidian API integration, Modular components
+- **Key patterns**: React hooks, Context API, TypeScript strict mode, Event delegation
 - **Testing**: Manual testing in Obsidian vault (no automated tests)
-- **Architecture**: Plugin → View → Managers (State, DOM, Events, Interactions, UI)
 
 ## Architecture Overview
 
-### Core Files Structure
+### Directory Structure
 ```
 notebook-navigator/
 ├── src/
-│   ├── main.ts                    # Main plugin class only
+│   ├── main.ts                    # Obsidian plugin entry point
 │   ├── settings.ts                # Settings interface and tab
-│   ├── types.ts                   # Shared type definitions
-│   ├── view/                      # View layer (refactored from main.ts)
-│   │   ├── NotebookNavigatorView.ts # Main view class and coordination
-│   │   ├── domRenderer.ts         # DOM rendering operations
-│   │   ├── eventManager.ts        # Event handling and delegation
-│   │   ├── interactionManager.ts  # User interaction handlers
-│   │   ├── uiHelper.ts           # UI utilities and helpers
-│   │   └── viewState.ts          # State persistence management
-│   ├── handlers/
-│   │   └── KeyboardHandler.ts     # Keyboard navigation logic
-│   ├── operations/
-│   │   └── FileSystemOperations.ts # File/folder CRUD operations
-│   ├── modals/
-│   │   ├── ConfirmModal.ts        # Delete confirmation dialog
-│   │   └── InputModal.ts          # Text input dialog
-│   └── utils/
-│       ├── DateUtils.ts           # Date formatting and grouping
-│       └── PreviewTextUtils.ts    # File preview text extraction
-├── styles.css                     # Notes-inspired styling
+│   ├── types.ts                   # Shared TypeScript types
+│   ├── view/                      # Obsidian view integration
+│   │   └── NotebookNavigatorView.tsx  # React root mounting
+│   ├── components/                # React components
+│   │   ├── NotebookNavigatorComponent.tsx  # Main container
+│   │   ├── FolderTree.tsx        # Left pane folder hierarchy
+│   │   ├── FolderItem.tsx        # Individual folder component
+│   │   ├── FileList.tsx          # Right pane file listing
+│   │   ├── FileItem.tsx          # Individual file component
+│   │   └── PaneHeader.tsx        # Header with actions
+│   ├── context/                   # React Context providers
+│   │   ├── AppContext.tsx        # Global app state
+│   │   └── ServicesContext.tsx   # Service injection
+│   ├── hooks/                     # Custom React hooks
+│   │   ├── useKeyboardNavigation.ts  # Keyboard shortcuts
+│   │   ├── useContextMenu.ts     # Right-click menus
+│   │   ├── useDragAndDrop.ts    # Drag & drop logic
+│   │   └── useScrollIntoView.ts  # Smart scroll positioning
+│   ├── services/                  # Business logic services
+│   │   └── FileSystemService.ts  # File operations
+│   ├── modals/                    # Obsidian modal dialogs
+│   │   ├── ConfirmModal.ts       # Delete confirmation
+│   │   ├── InputModal.ts         # Text input dialog
+│   │   └── IconPickerModal.ts    # Folder icon picker
+│   └── utils/                     # Utility functions
+│       ├── DateUtils.ts          # Date formatting
+│       ├── PreviewTextUtils.ts   # File preview extraction
+│       ├── typeGuards.ts         # TypeScript type guards
+│       └── fileFilters.ts        # File filtering utilities
+├── styles.css                     # Global styles
 ├── manifest.json                  # Plugin metadata
-├── package.json                   # Dependencies
+├── package.json                  # Dependencies
+├── tsconfig.json                  # TypeScript configuration
 ├── esbuild.config.mjs            # Build configuration
+├── version-bump.mjs              # Version management script
+├── versions.json                 # Version history
+├── LICENSE                       # GPL-3.0 license
+├── README.md                     # User documentation
 └── CLAUDE.md                     # This file
 ```
 
-### Key Classes and Their Responsibilities
+## React Architecture
 
-#### NotebookNavigatorPlugin (main.ts)
-- Plugin lifecycle management
-- Settings persistence
-- View registration
-- Commands and ribbon icon
-- State cleanup
+### Component Hierarchy
+```
+NotebookNavigatorView (Obsidian ItemView)
+└── React.StrictMode
+    └── ServicesProvider
+        └── AppProvider
+            └── NotebookNavigatorComponent
+                ├── PaneHeader
+                ├── FolderTree
+                │   └── FolderItem (recursive)
+                └── FileList
+                    └── FileItem (multiple)
+```
 
-#### NotebookNavigatorView (view/NotebookNavigatorView.ts)
-- Main view coordination
-- Component initialization
-- State management delegation
-- Public API for other components
+### State Management
 
-#### ViewStateManager (view/viewState.ts)
-- localStorage state persistence
-- State loading and saving
-- Validation of persisted data
-
-#### DomRenderer (view/domRenderer.ts)
-- All DOM rendering operations
-- Folder tree rendering
-- File list rendering
-- Progressive preview text loading
-- Initial DOM structure creation
-
-#### EventManager (view/eventManager.ts)
-- Event registration and cleanup
-- Vault event handling
-- Workspace event handling
-- DOM event delegation setup
-- Resize handle management
-
-#### InteractionManager (view/interactionManager.ts)
-- User interaction handling
-- Folder/file selection
-- Context menu operations
-- File/folder creation
-- Drag and drop operations
-- File operations coordination
-
-#### UiHelper (view/uiHelper.ts)
-- UI update utilities
-- Focus management
-- Scroll operations
-- Visibility helpers
-
-#### KeyboardHandler
-- Centralized keyboard navigation
-- Arrow keys, Tab, Delete handling
-- Focus management between panes
-- Platform-specific key mappings
-
-#### FileSystemOperations
-- Folder/file creation with modals
-- Rename operations
-- Delete with optional confirmation
-- Drag-drop validation
-
-### Important Implementation Details
-
-#### Refactored Architecture (Major Change)
-The view logic has been refactored from a single 2500+ line file into modular components:
-- **Separation of Concerns**: Each class has a single responsibility
-- **Dependency Injection**: Components receive the view instance for coordination
-- **Public/Private Methods**: Clear API boundaries between components
-- **Progressive Loading**: File previews load asynchronously for better performance
-
-#### State Persistence (ViewStateManager)
-The plugin uses localStorage for immediate persistence of:
-- Expanded folders (`notebook-navigator-expanded-folders`)
-- Selected folder (`notebook-navigator-selected-folder`)
-- Selected file (`notebook-navigator-selected-file`)
-- Left pane width (`notebook-navigator-left-pane-width`)
-
-#### File Filtering (DomRenderer)
-- Supported file types: `.md`, `.canvas`, `.base`
-- Images and other file types are excluded
-- Implemented in `isDisplayableFile()` method
-- Uses `collectFilesRecursively()` and direct folder child filtering
-
-#### Keyboard Navigation Context
-The `KeyboardHandler` receives a context object with getters/setters to avoid circular dependencies while maintaining access to view state.
-
-#### Event Delegation Architecture (EventManager - Major Memory Optimization)
-The plugin uses event delegation for all interactive elements to prevent memory leaks:
-- **Single setup**: `setupEventDelegation()` called once in `onOpen()`
-- **7 total listeners**: All events handled at container level
-- **Zero memory leaks**: No cleanup needed when elements are re-rendered
-- **Data attributes**: Elements identified by `data-*` attributes instead of direct listeners
-
-Supported events:
-- Drag operations: `dragstart`, `dragend`, `dragover`, `dragleave`, `drop`
-- User interactions: `click`, `dblclick`, `contextmenu`
-
-Key data attributes:
-- `data-draggable="true"` - Marks draggable elements
-- `data-drag-type="file|folder"` - Type of item
-- `data-drop-zone="folder"` - Valid drop targets
-- `data-clickable="file|folder"` - Clickable elements
-
-#### Drag and Drop Implementation
-- **Event delegation**: No individual listeners on elements
-- **Validation**: Prevents folder being moved into its own descendant
-- **Visual feedback**: CSS classes `nn-dragging` and `nn-drag-over`
-- **Drag handles**: Folders use content area, files use entire element
-
-### Settings System
-
-#### Key Settings
+#### Global State (AppContext)
 ```typescript
-interface NotebookNavigatorSettings {
-    showFilePreview: boolean;          // Show preview text under filenames
-    skipNonTextInPreview: boolean;     // Skip headings/images in preview
-    showFeatureImage: boolean;         // Show thumbnail from frontmatter
-    featureImageProperty: string;      // Frontmatter property name
-    selectionColor: string;           // Hex color for selection
-    dateFormat: string;               // date-fns format string
-    sortOption: 'modified'|'created'|'title';
-    ignoreFolders: string;            // Comma-separated folder names
-    showFolderFileCount: boolean;     // Show count next to folder names
-    groupByDate: boolean;             // Group files by date
-    pinnedNotes: Record<string, string[]>; // Pinned files per folder
-    showNotesFromSubfolders: boolean; // Recursive file display
-    autoRevealActiveFile: boolean;    // Auto-reveal on file open
-    confirmBeforeDelete: boolean;     // Show delete confirmation
+interface AppState {
+    selectedFolder: TFolder | null;      // Currently selected folder
+    selectedFile: TFile | null;          // Currently selected file
+    expandedFolders: Set<string>;        // Set of expanded folder paths
+    focusedPane: 'folders' | 'files';   // Which pane has keyboard focus
 }
 ```
 
-### Context Menu Features
+State is managed through React's useReducer hook with these actions:
+- `SET_SELECTED_FOLDER` - Change active folder
+- `SET_SELECTED_FILE` - Change active file
+- `SET_EXPANDED_FOLDERS` - Replace all expanded folders
+- `TOGGLE_FOLDER_EXPANDED` - Toggle single folder
+- `SET_FOCUSED_PANE` - Switch keyboard focus
+- `EXPAND_FOLDERS` - Expand multiple folders
+- `REVEAL_FILE` - Reveal file in tree
+- `CLEANUP_DELETED_ITEMS` - Remove deleted items
+- `FORCE_REFRESH` - Force component re-render
 
-#### Folder Context Menu
-- **New note** - Create markdown file
-- **New folder** - Create subfolder
-- **New canvas** - Create canvas file (.canvas)
-- **New base** - Create database view (.base) - requires Obsidian 1.9+
-- **Duplicate folder** - Copy folder with all contents
-- **Search in folder** - Open search with path filter
-- **Rename folder** - Change folder name
-- **Delete folder** - Remove folder with confirmation
+#### Local Storage Persistence
+State is automatically persisted to localStorage:
+- `notebook-navigator-expanded-folders` - Array of expanded folder paths
+- `notebook-navigator-selected-folder` - Current folder path
+- `notebook-navigator-selected-file` - Current file path
+- `notebook-navigator-left-pane-width` - Resizable pane width
 
-#### File Context Menu
-- **Open in new tab** - Open file in new tab
-- **Open to the right** - Open in split pane
-- **Open in new window** - Open in separate window
-- **Pin/Unpin note** - Pin to top of folder
-- **Duplicate note** - Create copy of file
-- **Open version history** - View Sync history (requires Sync)
-- **Rename note** - Change file name
-- **Delete note** - Remove file with confirmation
+### Context Providers
 
-#### Settings Tab Features
-- Debounced text inputs (500ms delay)
-- Conditional setting visibility
-- Organized into sections
-- State reset functionality
+#### AppContext
+Provides global app state and dispatch function to all components:
+- `app` - Obsidian App instance
+- `plugin` - Plugin instance with settings
+- `appState` - Current state
+- `dispatch` - State update function
+- `refreshCounter` - Force re-render trigger
 
-### CSS Architecture
+#### ServicesContext
+Provides service instances through custom hooks:
+- `useFileSystemOps()` - File system operations service
 
-#### Key CSS Classes
-- `.notebook-navigator` - Main container
-- `.nn-folder-tree` - Left pane folder hierarchy
-- `.nn-file-list` - Right pane file listing
-- `.nn-selected` - Selected item highlight
-- `.nn-focused` - Keyboard focus indicator
-- `.nn-dragging` - Active drag state
-- `.nn-drag-over` - Drop target highlight
+### Custom Hooks
+
+#### useKeyboardNavigation
+Handles all keyboard shortcuts:
+- Arrow keys for navigation
+- Tab to switch panes
+- Enter to open files/toggle folders
+- Delete/Backspace to delete items
+- Debounced to prevent rapid key spam
+
+#### useContextMenu
+Attaches right-click context menus to elements:
+- Folder menus: New note/folder/canvas, rename, delete, etc.
+- File menus: Open options, pin/unpin, rename, delete, etc.
+- Uses Obsidian's Menu API
+
+#### useDragAndDrop
+Manages drag and drop operations:
+- Visual feedback with CSS classes
+- Validation to prevent invalid moves
+- Works with both files and folders
+- Updates file system on drop
+
+#### useScrollIntoView
+Smart scroll positioning for active items:
+- Centers selected items in view
+- Uses double requestAnimationFrame for proper timing
+- Manual scroll calculation for reliability
+- Smooth scrolling behavior
+- Prevents unnecessary scrolls when item is already visible
+
+## Code Style & Patterns
+
+### CRITICAL: React Patterns - NO setTimeout/DOM Manipulation
+
+**NEVER use setTimeout, setInterval, or direct DOM manipulation in React components.**
+
+❌ **WRONG - Never do this:**
+```typescript
+// NEVER use setTimeout to wait for React updates
+setTimeout(() => {
+    const element = document.querySelector('.some-class');
+    element?.scrollIntoView();
+}, 100);
+
+// NEVER query DOM directly
+const fileElement = document.querySelector(`[data-path="${path}"]`);
+
+// NEVER manipulate DOM directly
+element.classList.add('active');
+```
+
+✅ **CORRECT - Always use React patterns:**
+```typescript
+// Use useEffect to respond to state changes
+useEffect(() => {
+    if (isSelected && ref.current) {
+        ref.current.scrollIntoView({ behavior: 'smooth' });
+    }
+}, [isSelected]);
+
+// Use state and props for conditional rendering
+<div className={`item ${isActive ? 'active' : ''}`}>
+
+// Use refs for DOM access when needed
+const ref = useRef<HTMLDivElement>(null);
+```
+
+**Why this matters:**
+1. React controls the DOM - direct manipulation breaks React's virtual DOM
+2. setTimeout creates race conditions with React's render cycle
+3. React's lifecycle methods guarantee proper timing
+4. Direct DOM queries are fragile and break when components re-render
+
+**ALWAYS use React patterns:**
+- `useEffect` for side effects
+- `useState` for local state
+- `useRef` for DOM element references
+- `useMemo`/`useCallback` for optimization
+- Conditional rendering for dynamic UI
+
+### React Best Practices
+
+#### Component Structure
+```typescript
+// 1. Imports (React first, then Obsidian, then local)
+import React, { useState, useCallback } from 'react';
+import { TFile } from 'obsidian';
+import { useAppContext } from '../context/AppContext';
+
+// 2. TypeScript interfaces
+interface FileItemProps {
+    file: TFile;
+    isSelected: boolean;
+    onClick: () => void;
+}
+
+// 3. Component with explicit return type
+export function FileItem({ file, isSelected, onClick }: FileItemProps) {
+    // 4. Hooks at the top
+    const { app } = useAppContext();
+    const [loading, setLoading] = useState(false);
+    
+    // 5. Callbacks with proper dependencies
+    const handleClick = useCallback(() => {
+        onClick();
+    }, [onClick]);
+    
+    // 6. Render
+    return (
+        <div className="file-item" onClick={handleClick}>
+            {file.basename}
+        </div>
+    );
+}
+```
+
+#### Hook Dependencies
+Always include all dependencies in hook arrays:
+```typescript
+// ✅ Good
+useEffect(() => {
+    doSomething(file.path);
+}, [file.path]); // Specific property
+
+// ❌ Bad
+useEffect(() => {
+    doSomething(file.path);
+}, [file]); // Entire object causes unnecessary re-renders
+```
+
+#### Performance Optimizations
+1. Use `useMemo` for expensive computations:
+```typescript
+const sortedFiles = useMemo(() => {
+    return files.sort((a, b) => b.stat.mtime - a.stat.mtime);
+}, [files]);
+```
+
+2. Use `useCallback` for functions passed as props:
+```typescript
+const handleClick = useCallback(() => {
+    dispatch({ type: 'SELECT_FILE', file });
+}, [dispatch, file]);
+```
+
+3. Use `useLayoutEffect` for DOM measurements to prevent flicker:
+```typescript
+useLayoutEffect(() => {
+    const firstItem = document.querySelector('.nn-file-item');
+    if (firstItem) {
+        // Synchronous DOM updates before paint
+    }
+}, [folder]);
+```
+
+### TypeScript Patterns
+
+#### Type Guards
+Use type guards for Obsidian's abstract types:
+```typescript
+// In utils/typeGuards.ts
+export function isTFile(file: TAbstractFile): file is TFile {
+    return 'extension' in file;
+}
+
+export function isTFolder(file: TAbstractFile): file is TFolder {
+    return 'children' in file;
+}
+```
+
+#### Strict Null Checks
+Always handle null/undefined:
+```typescript
+// ✅ Good
+const fileName = file?.basename ?? 'Untitled';
+
+// ❌ Bad
+const fileName = file.basename; // Could crash
+```
+
+### Event Handling
+
+#### Event Delegation
+Use event delegation for dynamic lists to prevent memory leaks:
+```typescript
+// In parent component
+<div onClick={handleContainerClick}>
+    {items.map(item => (
+        <div key={item.id} data-id={item.id}>
+            {item.name}
+        </div>
+    ))}
+</div>
+
+// Handler
+const handleContainerClick = (e: React.MouseEvent) => {
+    const target = e.target as HTMLElement;
+    const id = target.closest('[data-id]')?.getAttribute('data-id');
+    if (id) {
+        handleItemClick(id);
+    }
+};
+```
+
+#### Keyboard Events
+Prevent default browser behavior:
+```typescript
+const handleKeyDown = (e: KeyboardEvent) => {
+    if (e.key === 'ArrowDown') {
+        e.preventDefault(); // Prevent page scroll
+        navigateDown();
+    }
+};
+```
+
+### CSS Classes & Styling
+
+#### BEM-like Naming
+Use consistent class naming:
+```css
+.nn-folder-tree {}           /* Block */
+.nn-folder-item {}           /* Element */
+.nn-folder-item--expanded {} /* Modifier */
+.nn-selected {}              /* State */
+```
 
 #### CSS Variables
-- `--nn-selection-color` - Dynamic selection color from settings
-- Extensive use of Obsidian's theme variables for integration
+Use CSS variables for theming:
+```css
+.notebook-navigator {
+    --nn-selection-color: var(--interactive-accent);
+    --nn-hover-color: var(--background-modifier-hover);
+}
+```
 
-### Event Flow
+## Common Development Tasks
 
-1. **File Selection**:
-   - Click/keyboard → `selectFile()` → Update selection → Preview file → Save state
-
-2. **Folder Navigation**:
-   - Click/keyboard → `selectFolder()` → Refresh file list → Save state
-
-3. **File Changes**:
-   - Vault event → Debounced refresh (100ms) → Update file list/counts
-
-4. **Keyboard Navigation**:
-   - Keydown → KeyboardHandler → Update focus → Scroll into view
-
-### Common Development Tasks
-
-#### Adding a New Setting
+### Adding a New Setting
 1. Add to `NotebookNavigatorSettings` interface in `settings.ts`
-2. Add to `DEFAULT_SETTINGS` in `settings.ts`
-3. Add UI in `NotebookNavigatorSettingTab.display()`
-4. Handle in relevant view component (likely `DomRenderer` or `InteractionManager`)
+2. Add default value to `DEFAULT_SETTINGS`
+3. Add UI control in `NotebookNavigatorSettingTab.display()`
+4. Use setting in relevant component via `plugin.settings.yourSetting`
 
-#### Adding a New Keyboard Shortcut
-1. Add case in `KeyboardHandler.handleKeyboardNavigation()`
-2. Implement handler method
-3. Update context interface if needed in `NotebookNavigatorView`
+### Adding a New Keyboard Shortcut
+1. Add case to switch statement in `useKeyboardNavigation` hook
+2. Prevent default if needed with `e.preventDefault()`
+3. Dispatch appropriate action or call service method
+4. Update this documentation
 
-#### Modifying File Display
-1. Update `renderFileItem()` in `DomRenderer` for individual file rendering
-2. Update `refreshFileList()` in `DomRenderer` for list logic
-3. Update CSS for styling changes
+### Adding a New Context Menu Item
+1. Locate the appropriate menu builder in `useContextMenu`
+2. Add new menu item with `menu.addItem()`
+3. Implement handler function
+4. Consider adding to FileSystemService if it's a file operation
 
-#### Adding New User Interactions
-1. Add handler method in `InteractionManager`
-2. If DOM events needed, update event delegation in `EventManager`
-3. If UI updates needed, add helper methods in `UiHelper`
+### Creating a New Component
+1. Create file in `src/components/`
+2. Define TypeScript interface for props
+3. Export named function (not default)
+4. Use hooks for state and context access
+5. Add to component hierarchy documentation
 
-### Performance Considerations
-- File list refreshes are debounced (100ms)
-- Folder counts update separately from tree rendering
-- **Progressive preview text loading**: File list renders instantly, previews load in background
-- Preview text loaded asynchronously per file
-- No virtual scrolling (potential enhancement for large vaults)
-- **Event delegation eliminates memory leaks from orphaned event listeners**
-- **Only 7 total event listeners regardless of vault size**
-- **Modular architecture**: Smaller, focused classes improve maintainability and testability
+### Adding a New Global State Property
+1. Add to `AppState` interface in `AppContext.tsx`
+2. Add initial value in `loadStateFromStorage()`
+3. Add new action type to `AppAction` union
+4. Implement reducer case
+5. Add localStorage persistence if needed
 
-### Recent Changes (January 2025)
+## Performance Considerations
 
-#### Major Refactor
-- Split 2500+ line `main.ts` into modular view components
-- Improved separation of concerns with dedicated managers
-- Better testability and maintainability
+### React Rendering
+- File list uses `useLayoutEffect` for flicker-free auto-selection
+- Preview text loads asynchronously in FileItem
+- Memoized computations for sorting and filtering
+- Debounced vault change events (100ms)
 
-#### Performance Improvements
-- Progressive preview text loading (file list renders instantly)
-- Fixed folder file count accuracy with proper filtering
-- Optimized render cycles
+### Memory Management
+- Event delegation prevents listener leaks
+- Cleanup functions in useEffect hooks
+- WeakMap for drag-drop data storage
+- Proper ref cleanup
 
-#### Removed Features
-- Custom folder icons temporarily removed (may return later)
-
-### Known Limitations
-1. No search functionality within navigator
-2. No bulk operations support
-3. Limited accessibility features
-4. No undo/redo for file operations
-5. No custom sort orders beyond the three options
-6. Custom folder icons not currently supported
-
-### Debugging Tips
-- Check localStorage for persisted state issues (see `ViewStateManager`)
-- Use `console.log` in event handlers for flow tracking
-- Verify `view.isLoading` flag for initialization issues
-- Check `view.expandedFolders` Set for tree state problems
-- Monitor debounce timers for refresh issues in `EventManager`
-- Component boundaries: Check which manager handles specific functionality
-- Event delegation: Verify data attributes on elements in `DomRenderer`
-
-### Code Style Guidelines
-- TypeScript strict mode
-- Comprehensive JSDoc comments on all functions
-- Descriptive variable names
-- Early returns for validation
-- Consistent error handling with Notice API
-- Clean up event listeners and timers
+### Large Vaults
+- No virtualization yet (potential future enhancement)
+- Folder counts update separately from tree renders
+- Progressive preview loading
+- Efficient Set operations for expanded folders
 
 ## Testing Checklist
 When making changes, test:
-- [ ] Keyboard navigation (all arrow keys, Tab, Delete)
-- [ ] Drag and drop (files and folders)
+- [ ] Keyboard navigation (arrows, Tab, Enter, Delete)
+- [ ] Mouse interactions (click, double-click, right-click)
+- [ ] Drag and drop (files to folders, folders to folders)
 - [ ] File operations (create, rename, delete)
-- [ ] Settings changes and persistence
-- [ ] State restoration after reload
-- [ ] Dark/light theme compatibility
-- [ ] Large vault performance
-- [ ] Edge cases (empty folders, special characters)
+- [ ] Settings changes take effect immediately
+- [ ] State persists across plugin reload
+- [ ] No console errors or warnings
+- [ ] Performance with large folders (100+ files)
+- [ ] Theme compatibility (light/dark)
+- [ ] Mobile/tablet if applicable
 
-## Common Issues and Solutions
+## Common Pitfalls & Solutions
 
-### State Not Persisting
-- Check localStorage keys are being set
-- Verify `saveState()` is called
-- Ensure `isLoading` flag isn't blocking saves
+### State Not Updating
+```typescript
+// ❌ Wrong - mutating state
+appState.expandedFolders.add(folderPath);
 
-### Keyboard Navigation Broken
-- Verify focus is on container element
-- Check `focusedPane` state
-- Ensure event handlers are attached
+// ✅ Correct - dispatch action
+dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath });
+```
 
-### Files Not Showing
-- Check file extension filter (`.md` only)
-- Verify folder isn't in `ignoreFolders`
-- Check `showNotesFromSubfolders` setting
+### Effect Running Too Often
+```typescript
+// ❌ Wrong - object in dependency
+useEffect(() => {}, [someObject]);
 
-### Drag and Drop Not Working
-- Verify `data-draggable="true"` attribute is set
-- Check `data-drag-path` and `data-drop-zone` attributes
-- Ensure elements have proper data attributes for event delegation
-- Check browser console for errors in `setupEventDelegation()`
+// ✅ Correct - specific properties
+useEffect(() => {}, [someObject.id, someObject.name]);
+```
+
+### Memory Leaks
+```typescript
+// ❌ Wrong - no cleanup
+useEffect(() => {
+    const timer = setTimeout(...);
+});
+
+// ✅ Correct - cleanup function
+useEffect(() => {
+    const timer = setTimeout(...);
+    return () => clearTimeout(timer);
+});
+```
+
+### Context Menu Not Working
+```typescript
+// ❌ Wrong - creating ref in render
+<div ref={useRef()}>
+
+// ✅ Correct - stable ref
+const ref = useRef();
+<div ref={ref}>
+```
+
+### DOM Manipulation (NEVER DO THIS)
+```typescript
+// ❌ Wrong - setTimeout and DOM queries
+setTimeout(() => {
+    document.querySelector('.item')?.scrollIntoView();
+}, 100);
+
+// ✅ Correct - React lifecycle
+useEffect(() => {
+    if (condition && ref.current) {
+        ref.current.scrollIntoView();
+    }
+}, [condition]);
+```
+
+**REMEMBER: React owns the DOM. Use React patterns ONLY.**
+
+## Debugging Tips
+
+### React DevTools
+1. Install React Developer Tools browser extension
+2. Look for "Notebook Navigator" in Components tab
+3. Check props and state values
+4. Use Profiler to find performance issues
+
+### Console Logging
+```typescript
+// Temporary debug logging
+console.log('[NN]', 'FolderTree render', { 
+    selectedFolder: appState.selectedFolder?.path,
+    expandedCount: appState.expandedFolders.size 
+});
+```
+
+### State Inspection
+```typescript
+// In browser console
+localStorage.getItem('notebook-navigator-expanded-folders')
+```
+
+## Future Enhancement Ideas
+- Virtual scrolling for large file lists
+- Folder icons customization (UI exists, needs implementation)
+- Bulk file operations
+- Search within navigator
+- Tag-based filtering
+- Custom sort orders
+- Folder templates
+- Keyboard shortcut customization
+
+## Build Process
+
+### Development
+```bash
+npm run dev    # Start development build with watch mode
+```
+
+### Production
+```bash
+npm run build  # Create production build
+```
+
+The build process:
+1. TypeScript compilation with strict mode
+2. React JSX transformation
+3. Bundle creation with esbuild
+4. Output to `main.js` in project root
+5. Sourcemap generation for debugging
+
+### Version Management
+```bash
+npm run version   # Bump version in manifest.json and versions.json
+```
 
 ## Contributing Guidelines
-1. Maintain comprehensive function documentation
-2. Test all changes manually in Obsidian
-3. Preserve keyboard navigation functionality
-4. Follow existing code patterns
-5. Update CLAUDE.md for significant changes
-6. Avoid copyright/trademark issues in naming
+1. Follow existing code patterns
+2. Add TypeScript types for all parameters
+3. Include JSDoc comments for public APIs
+4. Test with both light and dark themes
+5. Ensure mobile compatibility
+6. Update this documentation for significant changes
