@@ -25,11 +25,24 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
     const fileCount = React.useMemo(() => {
         if (!plugin.settings.showFolderFileCount) return 0;
         
+        // Parse excluded properties
+        const excludedProperties = plugin.settings.excludedFiles
+            .split(',')
+            .map(p => p.trim())
+            .filter(p => p);
+        
         const countFiles = (folder: TFolder): number => {
             let count = 0;
             for (const child of folder.children) {
                 if (isTFile(child)) {
                     if (child.extension === 'md' || child.extension === 'canvas' || child.extension === 'base') {
+                        // Check if file should be excluded
+                        if (excludedProperties.length > 0) {
+                            const metadata = app.metadataCache.getFileCache(child);
+                            if (metadata?.frontmatter && excludedProperties.some(prop => prop in metadata.frontmatter!)) {
+                                continue; // Skip this file
+                            }
+                        }
                         count++;
                     }
                 } else if (plugin.settings.showNotesFromSubfolders && isTFolder(child)) {
@@ -40,7 +53,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
         };
         
         return countFiles(folder);
-    }, [folder.path, folder.children.length, plugin.settings.showFolderFileCount, plugin.settings.showNotesFromSubfolders, refreshCounter]);
+    }, [folder.path, folder.children.length, plugin.settings.showFolderFileCount, plugin.settings.showNotesFromSubfolders, plugin.settings.excludedFiles, app, refreshCounter]);
 
     const hasChildren = folder.children.some(isTFolder);
     
