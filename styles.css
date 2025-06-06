@@ -141,7 +141,6 @@ button.nn-icon-button {
 }
 
 .nn-icon-button:hover {
-    color: var(--text-normal);
     background-color: var(--background-modifier-hover) !important;
     border: none !important;
     box-shadow: none !important;
@@ -149,6 +148,20 @@ button.nn-icon-button {
 
 .nn-icon-button:active {
     opacity: 0.8;
+}
+
+.nn-icon-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.nn-icon-button:disabled:hover {
+    background-color: transparent !important;
+    color: var(--text-muted);
+}
+
+.nn-icon-button:disabled:hover svg {
+    stroke: var(--text-muted);
 }
 
 /* Style the SVG icons inside buttons to match Obsidian's native appearance */
@@ -160,9 +173,6 @@ button.nn-icon-button {
     fill: none;
 }
 
-.nn-icon-button:hover svg {
-    stroke: var(--text-normal);
-}
 
 /* Sort Button */
 .nn-sort-button {
@@ -612,6 +622,7 @@ button.nn-icon-button {
 .theme-dark .nn-file-preview {
     color: #999;
 }
+
 
 /* Second line layout for subfolder mode */
 .nn-file-second-line {

@@ -60,12 +60,11 @@ export function PaneHeader({ type }: PaneHeaderProps) {
     
     return (
         <div className="nn-pane-header">
-            <span className="nn-pane-title">{type === 'folder' ? 'Folders' : 'Files'}</span>
-            <div className="nn-pane-buttons">
+            <div className="nn-header-actions">
                 {type === 'folder' ? (
                     <>
                         <button
-                            className="nn-header-button"
+                            className="nn-icon-button"
                             aria-label={appState.expandedFolders.size > 0 ? "Collapse all folders" : "Expand all folders"}
                             onClick={handleExpandCollapseAll}
                             ref={(el) => {
@@ -75,7 +74,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                             }}
                         />
                         <button
-                            className="nn-header-button"
+                            className="nn-icon-button"
                             aria-label="New folder"
                             onClick={handleNewFolder}
                             disabled={!appState.selectedFolder}
@@ -88,7 +87,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                     </>
                 ) : (
                     <button
-                        className="nn-header-button"
+                        className="nn-icon-button"
                         aria-label="New note"
                         onClick={handleNewFile}
                         disabled={!appState.selectedFolder}
