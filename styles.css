@@ -224,6 +224,7 @@ button.nn-icon-button {
     align-items: center;
     margin: 0;
     padding: 0;
+    min-width: 0; /* Allow folder items to shrink below min-content width */
 }
 
 /* Folder content - clickable area containing folder UI elements */
@@ -238,6 +239,7 @@ button.nn-icon-button {
     background: transparent;
     position: relative;
     flex: 1;
+    min-width: 0; /* Critical: allows flex children to shrink below their min-content width */
 }
 
 /* Folder chevron/arrow - expand/collapse indicator */
@@ -290,6 +292,7 @@ button.nn-icon-button {
     margin-left: auto;
     margin-right: 8px;
     flex-shrink: 0;
+    padding-left: 8px; /* Add space between truncated text and count */
 }
 
 /* Folder children container - enables smooth expand/collapse animation */
