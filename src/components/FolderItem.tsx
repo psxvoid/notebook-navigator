@@ -4,6 +4,7 @@ import { useAppContext } from '../context/AppContext';
 import { setIcon } from 'obsidian';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 import { useContextMenu } from '../hooks/useContextMenu';
+import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 
 interface FolderItemProps {
     folder: TFolder;
@@ -26,10 +27,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
         if (!plugin.settings.showFolderFileCount) return 0;
         
         // Parse excluded properties
-        const excludedProperties = plugin.settings.excludedFiles
-            .split(',')
-            .map(p => p.trim())
-            .filter(p => p);
+        const excludedProperties = parseExcludedProperties(plugin.settings.excludedFiles);
         
         const countFiles = (folder: TFolder): number => {
             let count = 0;
@@ -37,13 +35,9 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
                 if (isTFile(child)) {
                     if (child.extension === 'md' || child.extension === 'canvas' || child.extension === 'base') {
                         // Check if file should be excluded
-                        if (excludedProperties.length > 0) {
-                            const metadata = app.metadataCache.getFileCache(child);
-                            if (metadata?.frontmatter && excludedProperties.some(prop => prop in metadata.frontmatter!)) {
-                                continue; // Skip this file
-                            }
+                        if (!shouldExcludeFile(child, excludedProperties, app)) {
+                            count++;
                         }
-                        count++;
                     }
                 } else if (plugin.settings.showNotesFromSubfolders && isTFolder(child)) {
                     count += countFiles(child);
@@ -85,7 +79,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
                 setIcon(iconRef.current, iconName);
             }
         }
-    }, [isExpanded, folder.path, plugin.settings.folderIcons, hasChildren]);
+    }, [isExpanded, folder.path, plugin.settings.folderIcons, hasChildren, refreshCounter]);
 
     return (
         <div 

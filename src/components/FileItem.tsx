@@ -48,7 +48,7 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
         }
 
         return null;
-    }, [file, plugin.settings.showFeatureImage, plugin.settings.featureImageProperty, app]);
+    }, [file.path, plugin.settings.showFeatureImage, plugin.settings.featureImageProperty]);
 
     // useEffect is how you perform side effects, like reading file content.
     useEffect(() => {
