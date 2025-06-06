@@ -22,6 +22,7 @@ import { TFile, TFolder } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { useFileSystemOps } from '../context/ServicesContext';
 import { isTFolder, isFolderAncestor } from '../utils/typeGuards';
+import { getPathFromElement, getFolderFromElement, getFileFromElement } from '../utils/domUtils';
 
 /**
  * Custom hook that provides keyboard navigation for the file explorer.
@@ -78,7 +79,7 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
                     !currentElement.classList.contains('nn-expanded')) {
                     return false; // This folder is inside a collapsed parent
                 }
-                currentElement = currentElement.parentElement;
+                currentElement = currentElement.parentElement as HTMLElement | null;
             }
             
             return true; // This folder is visible
@@ -104,7 +105,7 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
      */
     const getSelectedIndex = useCallback((elements: Element[], selectedPath: string | null) => {
         if (!selectedPath) return -1;
-        return elements.findIndex(el => el.getAttribute('data-path') === selectedPath);
+        return elements.findIndex(el => getPathFromElement(el as HTMLElement) === selectedPath);
     }, []);
     
     /**
@@ -127,14 +128,11 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
         }
         
         if (newIndex !== currentIndex) {
-            const path = elements[newIndex].getAttribute('data-path');
-            if (path) {
-                const folder = app.vault.getAbstractFileByPath(path);
-                if (isTFolder(folder)) {
-                    dispatch({ type: 'SET_SELECTED_FOLDER', folder });
-                    dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
-                    elements[newIndex].scrollIntoView({ block: 'nearest' });
-                }
+            const folder = getFolderFromElement(elements[newIndex] as HTMLElement, app);
+            if (folder) {
+                dispatch({ type: 'SET_SELECTED_FOLDER', folder });
+                dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+                elements[newIndex].scrollIntoView({ block: 'nearest' });
             }
         }
     }, [getFolderElements, getSelectedIndex, appState.selectedFolder, app, dispatch]);
@@ -159,21 +157,17 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
         }
         
         if (newIndex !== currentIndex || currentIndex === -1) {
-            const path = elements[newIndex].getAttribute('data-path');
-            if (path) {
-                const file = app.vault.getAbstractFileByPath(path);
-                if (file && 'extension' in file) {
-                    const tFile = file as TFile;
-                    dispatch({ type: 'SET_SELECTED_FILE', file: tFile });
-                    dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                    elements[newIndex].scrollIntoView({ block: 'nearest' });
-                    
-                    // Open file in edit view (same as clicking)
-                    // Use getMostRecentLeaf to avoid creating new panes or stealing focus
-                    const leaf = app.workspace.getMostRecentLeaf();
-                    if (leaf) {
-                        leaf.openFile(tFile);
-                    }
+            const file = getFileFromElement(elements[newIndex] as HTMLElement, app);
+            if (file) {
+                dispatch({ type: 'SET_SELECTED_FILE', file });
+                dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                elements[newIndex].scrollIntoView({ block: 'nearest' });
+                
+                // Open file in edit view (same as clicking)
+                // Use getMostRecentLeaf to avoid creating new panes or stealing focus
+                const leaf = app.workspace.getMostRecentLeaf();
+                if (leaf) {
+                    leaf.openFile(file);
                 }
             }
         }
@@ -237,7 +231,7 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
                                 
                                 // Ensure parent is visible by scrolling to it
                                 const folderElements = getFolderElements();
-                                const parentElement = folderElements.find(el => el.getAttribute('data-path') === parentPath);
+                                const parentElement = folderElements.find(el => getPathFromElement(el as HTMLElement) === parentPath);
                                 if (parentElement) {
                                     parentElement.scrollIntoView({ block: 'nearest' });
                                 }
@@ -269,7 +263,7 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
                         .concat(app.workspace.getLeavesOfType('database'));
                     
                     // Find leaf showing our file
-                    const targetLeaf = leaves.find(leaf => leaf.view.file?.path === appState.selectedFile.path);
+                    const targetLeaf = leaves.find(leaf => (leaf.view as any).file?.path === appState.selectedFile?.path);
                     if (targetLeaf) {
                         app.workspace.setActiveLeaf(targetLeaf, { focus: true });
                     }
@@ -294,7 +288,7 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
                             .concat(app.workspace.getLeavesOfType('database'));
                         
                         // Find leaf showing our file
-                        const targetLeaf = leaves.find(leaf => leaf.view.file?.path === appState.selectedFile.path);
+                        const targetLeaf = leaves.find(leaf => (leaf.view as any).file?.path === appState.selectedFile?.path);
                         if (targetLeaf) {
                             app.workspace.setActiveLeaf(targetLeaf, { focus: true });
                         }

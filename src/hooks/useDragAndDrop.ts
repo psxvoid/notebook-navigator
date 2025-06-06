@@ -22,6 +22,7 @@ import { TFolder, TFile, Notice } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { useFileSystemOps } from '../context/ServicesContext';
 import { isTFolder } from '../utils/typeGuards';
+import { getPathFromDataAttribute, getAbstractFileFromElement } from '../utils/domUtils';
 
 /**
  * Custom hook that enables drag and drop functionality for files and folders.
@@ -62,7 +63,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement>) {
         const draggable = target.closest('[data-draggable="true"]');
         if (!draggable) return;
 
-        const path = draggable.getAttribute('data-drag-path');
+        const path = getPathFromDataAttribute(draggable as HTMLElement, 'data-drag-path');
         const type = draggable.getAttribute('data-drag-type');
         if (path && e.dataTransfer) {
             e.dataTransfer.setData('text/plain', path);
@@ -106,7 +107,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement>) {
             dragOverElement.current.classList.remove('nn-drag-over');
         }
 
-        const targetPath = dragOverElement.current?.getAttribute('data-drop-path');
+        const targetPath = getPathFromDataAttribute(dragOverElement.current, 'data-drop-path');
         const sourcePath = e.dataTransfer?.getData('text/plain');
 
         if (!sourcePath || !targetPath) return;

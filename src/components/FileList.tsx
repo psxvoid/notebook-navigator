@@ -23,6 +23,7 @@ import { FileItem } from './FileItem';
 import { DateUtils } from '../utils/DateUtils';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
+import { getFileFromElement } from '../utils/domUtils';
 
 /**
  * Renders the file list pane displaying files from the selected folder.
@@ -113,18 +114,14 @@ export function FileList() {
         
         const firstFileElement = document.querySelector('.nn-file-item');
         if (firstFileElement) {
-            const path = firstFileElement.getAttribute('data-path');
-            if (path) {
-                const file = app.vault.getAbstractFileByPath(path);
-                if (file && 'extension' in file) {
-                    const tfile = file as TFile;
-                    dispatch({ type: 'SET_SELECTED_FILE', file: tfile });
-                    
-                    // Open the file
-                    const leaf = app.workspace.getMostRecentLeaf();
-                    if (leaf) {
-                        leaf.openFile(tfile);
-                    }
+            const file = getFileFromElement(firstFileElement as HTMLElement, app);
+            if (file) {
+                dispatch({ type: 'SET_SELECTED_FILE', file });
+                
+                // Open the file
+                const leaf = app.workspace.getMostRecentLeaf();
+                if (leaf) {
+                    leaf.openFile(file);
                 }
             }
         }
