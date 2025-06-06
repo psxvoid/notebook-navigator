@@ -485,9 +485,10 @@ button.nn-icon-button {
     z-index: 1;
 }
 
-/* When folders have focus, make selected file background 50% transparent */
+/* When folders have focus, use text-selection with 40% opacity for selected file */
 .nn-split-container[data-focus-pane="folders"] .nn-file-item.nn-selected .nn-file-content::before {
-    opacity: 0.5;
+    background-color: var(--text-selection);
+    opacity: 0.4;
 }
 
 /* Override the original background color rules to transparent since we're using pseudo-element */
@@ -500,9 +501,10 @@ button.nn-icon-button {
     filter: none;
 }
 
-/* When files have focus, make selected folder background 50% transparent */
+/* When files have focus, use text-selection with 40% opacity for selected folder */
 .nn-split-container[data-focus-pane="files"] .nn-folder-item.nn-selected > .nn-folder-content::before {
-    opacity: 0.5;
+    background-color: var(--text-selection);
+    opacity: 0.4;
 }
 
 /* Remove any remaining hover transitions */
