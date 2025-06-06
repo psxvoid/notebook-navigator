@@ -66,7 +66,10 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
                     e.stopPropagation();
                     if (hasChildren) onToggle();
                 }}
-                style={{ visibility: hasChildren ? 'visible' : 'hidden' }}
+                style={{ 
+                    visibility: hasChildren ? 'visible' : 'hidden',
+                    cursor: hasChildren ? 'pointer' : 'default'
+                }}
             />
             <div 
                 className="nn-folder-content"

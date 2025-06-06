@@ -190,8 +190,9 @@ button.nn-icon-button {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: 8px 0;
+    padding: 4px 0;
     background-color: var(--background-secondary);
+    line-height: 1;
 }
 
 .theme-dark .notebook-navigator .nn-folder-tree,
@@ -204,19 +205,24 @@ button.nn-icon-button {
     user-select: none;
     background-color: transparent !important;
     background: transparent !important;
+    display: flex;
+    align-items: center;
+    margin: 0;
+    padding: 0;
 }
 
 .notebook-navigator .nn-folder-content,
 .nn-folder-content {
     display: flex;
     align-items: center;
-    padding: 4px 16px;
+    padding: 4px 8px 4px 4px;
     cursor: pointer;
     transition: background-color 0.15s ease;
     border-radius: 4px;
     margin: 0;
     background-color: transparent !important;
     position: relative;
+    flex: 1;
 }
 
 /* Remove hover effect for cleaner look */
@@ -256,11 +262,12 @@ button.nn-icon-button {
     /* No outline for cleaner look */
 }
 
-.nn-folder-arrow {
+.nn-folder-arrow,
+.nn-folder-chevron {
     width: 16px;
     height: 16px;
     margin-right: 4px;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
