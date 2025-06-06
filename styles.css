@@ -3,6 +3,7 @@
 /* Remove default padding from view-content when it has our class */
 .view-content.notebook-navigator {
     padding: 0 !important;
+    border: none !important;
 }
 
 .notebook-navigator {

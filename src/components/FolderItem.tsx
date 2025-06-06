@@ -44,6 +44,12 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
 
     const hasChildren = folder.children.some(isTFolder);
     
+    const handleDoubleClick = () => {
+        if (hasChildren) {
+            onToggle();
+        }
+    };
+    
     const chevronRef = React.useRef<HTMLDivElement>(null);
     const iconRef = React.useRef<HTMLSpanElement>(null);
 
@@ -70,11 +76,17 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
             ref={folderRef}
             className={`nn-folder-item ${isSelected ? 'nn-selected' : ''}`}
             data-path={folder.path}
+            data-drag-path={folder.path}
+            data-drag-type="folder"
+            data-draggable="true"
+            draggable="true"
         >
             <div 
                 className="nn-folder-content"
                 onClick={onClick}
+                onDoubleClick={handleDoubleClick}
                 data-drop-zone="folder"
+                data-drop-path={folder.path}
                 data-clickable="folder"
                 style={{ paddingLeft: `${level * 20}px` }}
             >

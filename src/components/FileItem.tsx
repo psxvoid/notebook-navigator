@@ -41,7 +41,16 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
     const className = `nn-file-item ${isSelected ? 'nn-selected' : ''}`;
 
     return (
-        <div ref={fileRef} className={className} data-path={file.path} onClick={onClick} draggable="true">
+        <div 
+            ref={fileRef} 
+            className={className} 
+            data-path={file.path} 
+            data-drag-path={file.path}
+            data-drag-type="file"
+            data-draggable="true"
+            onClick={onClick} 
+            draggable="true"
+        >
             <div className="nn-file-content">
                 <div className="nn-file-text-content">
                     <div className="nn-file-name">{file.basename}</div>

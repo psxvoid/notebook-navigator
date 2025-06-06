@@ -6,6 +6,7 @@ import { FolderTree } from './FolderTree';
 import { FileList } from './FileList';
 import { useAppContext } from '../context/AppContext';
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
+import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { isTFolder } from '../utils/typeGuards';
 
 export interface NotebookNavigatorHandle {
@@ -20,6 +21,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     
     // Enable keyboard navigation
     useKeyboardNavigation(containerRef);
+    // Enable drag and drop
+    useDragAndDrop(containerRef);
     
     // Load initial width from localStorage
     const [leftPaneWidth, setLeftPaneWidth] = useState(() => {

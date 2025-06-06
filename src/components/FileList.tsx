@@ -66,7 +66,14 @@ export function FileList() {
         const unpinnedFiles = allFiles.filter(file => !pinnedPaths.includes(file.path));
         
         return [...pinnedFiles, ...unpinnedFiles];
-    }, [appState.selectedFolder, plugin.settings, app, refreshCounter, plugin.settings.pinnedNotes]);
+    }, [
+        appState.selectedFolder, 
+        plugin.settings.sortOption,
+        plugin.settings.showNotesFromSubfolders,
+        plugin.settings.pinnedNotes,
+        app, 
+        refreshCounter
+    ]);
     
     // Group files by date if enabled
     const groupedFiles = useMemo(() => {
@@ -109,7 +116,13 @@ export function FileList() {
         });
 
         return groups;
-    }, [files, plugin.settings, appState.selectedFolder]);
+    }, [
+        files, 
+        plugin.settings.groupByDate,
+        plugin.settings.sortOption,
+        plugin.settings.pinnedNotes,
+        appState.selectedFolder
+    ]);
     
     if (!appState.selectedFolder) {
         return (
