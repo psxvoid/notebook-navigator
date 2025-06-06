@@ -633,10 +633,18 @@ button.nn-icon-button {
 
 /* Empty State */
 .nn-empty-state {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 100%;
     padding: 40px 20px;
     text-align: center;
     color: var(--text-muted);
     font-size: 14px;
+}
+
+.nn-empty-message {
+    text-align: center;
 }
 
 /* Date Group Headers */
