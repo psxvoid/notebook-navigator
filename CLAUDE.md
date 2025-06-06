@@ -1,7 +1,7 @@
 # Notebook Navigator - AI Assistant Guide
 
 ## Project Summary
-Notebook Navigator is an Obsidian plugin that replaces the default file explorer with a Notes-style interface. It provides a clean, two-pane layout with a folder tree on the left and a file list on the right, mimicking the UI/UX patterns found in modern note-taking applications. The plugin has been completely refactored to use React for better performance and maintainability.
+Notebook Navigator is an Obsidian plugin that replaces the default file explorer with a Notes-style interface. It provides a clean, two-pane layout with a folder tree on the left and a file list on the right, mimicking the UI/UX patterns found in modern note-taking applications.
 
 ## Quick Start for AI Assistants
 - **Main entry point**: `src/main.ts` - Plugin class
@@ -61,18 +61,6 @@ notebook-navigator/
 ```
 
 ## React Architecture
-
-### Why React?
-The plugin was completely refactored from vanilla JavaScript to React for several key benefits:
-
-1. **Performance**: React's virtual DOM and efficient diffing algorithm provide smooth updates even with large vaults
-2. **Maintainability**: Component-based architecture makes the codebase modular and easy to extend
-3. **State Management**: Centralized state with Context API eliminates prop drilling and makes state predictable
-4. **Type Safety**: Full TypeScript integration with strict mode catches errors at compile time
-5. **Memory Management**: Automatic cleanup of event listeners and subscriptions prevents memory leaks
-6. **Developer Experience**: Hot module reloading, React DevTools, and clear component hierarchy
-
-The refactor maintains 100% feature parity while significantly improving code quality and performance.
 
 ### Component Hierarchy
 ```
