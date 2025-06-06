@@ -309,8 +309,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement>, config:
                     item
                         .setTitle('Open version history')
                         .setIcon('history')
-                        .onClick(() => {
-                            (app as any).commands.executeCommandById('sync:view-version-history');
+                        .onClick(async () => {
+                            await fileSystemOps.openVersionHistory(file);
                         });
                 });
             }

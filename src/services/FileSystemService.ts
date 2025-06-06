@@ -415,4 +415,43 @@ export class FileSystemOperations {
     async renameNote(file: TFile): Promise<void> {
         return this.renameFile(file);
     }
+
+    /**
+     * Opens version history for a file using Obsidian Sync
+     * Only available when Sync plugin is enabled
+     * @param file - The file to view version history for
+     */
+    async openVersionHistory(file: TFile): Promise<void> {
+        try {
+            // Ensure the file is open and active first
+            const leaf = this.app.workspace.getLeaf(false);
+            await leaf.openFile(file);
+            
+            // Wait a bit for the file to be fully loaded
+            await new Promise(resolve => setTimeout(resolve, 200));
+            
+            // Try both possible command IDs
+            const commandIds = ['sync:show-sync-history', 'sync:view-version-history'];
+            let executed = false;
+            
+            for (const commandId of commandIds) {
+                try {
+                    const success = this.app.commands.executeCommandById(commandId);
+                    if (success) {
+                        executed = true;
+                        break;
+                    }
+                } catch (error) {
+                    // Continue to next command ID
+                    continue;
+                }
+            }
+            
+            if (!executed) {
+                new Notice('Version history command not found. Ensure Obsidian Sync is enabled.');
+            }
+        } catch (error) {
+            new Notice(`Failed to open version history: ${error.message}`);
+        }
+    }
 }
