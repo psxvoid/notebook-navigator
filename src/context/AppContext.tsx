@@ -222,11 +222,18 @@ export function AppProvider({ children, plugin }: { children: React.ReactNode, p
         () => loadStateFromStorage(app)
     );
     
-    // Wrap dispatch to include app in all actions
-    const dispatch = useMemo(() => baseDispatch, []);
-    
     // Force refresh counter
     const [refreshCounter, setRefreshCounter] = React.useState(0);
+    
+    // Wrap dispatch to handle FORCE_REFRESH specially
+    const dispatch = useMemo(() => {
+        return (action: AppAction) => {
+            if (action.type === 'FORCE_REFRESH') {
+                setRefreshCounter(c => c + 1);
+            }
+            baseDispatch(action);
+        };
+    }, []);
     
     // Handle vault events
     useEffect(() => {

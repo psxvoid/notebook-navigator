@@ -66,7 +66,7 @@ export function FileList() {
         const unpinnedFiles = allFiles.filter(file => !pinnedPaths.includes(file.path));
         
         return [...pinnedFiles, ...unpinnedFiles];
-    }, [appState.selectedFolder, plugin.settings, app, refreshCounter]);
+    }, [appState.selectedFolder, plugin.settings, app, refreshCounter, plugin.settings.pinnedNotes]);
     
     // Group files by date if enabled
     const groupedFiles = useMemo(() => {
