@@ -22,6 +22,17 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
     // Enable context menu
     useContextMenu(folderRef, { type: 'folder', item: folder });
     
+    // Auto-scroll to selected folder when it becomes selected
+    useEffect(() => {
+        if (isSelected && folderRef.current) {
+            folderRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'nearest',
+                inline: 'nearest'
+            });
+        }
+    }, [isSelected]);
+    
     // Count files in folder (including subfolders if setting enabled)
     const fileCount = React.useMemo(() => {
         if (!plugin.settings.showFolderFileCount) return 0;
