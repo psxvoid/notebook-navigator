@@ -6,14 +6,11 @@ import { DateUtils } from '../utils/DateUtils';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 
 export function FileList() {
-    const { app, appState, setAppState, plugin, refreshCounter } = useAppContext();
+    const { app, appState, dispatch, plugin, refreshCounter } = useAppContext();
     
     const handleFileClick = useCallback((file: TFile) => {
-        setAppState(currentState => ({
-            ...currentState,
-            selectedFile: file,
-            focusedPane: 'files',
-        }));
+        dispatch({ type: 'SET_SELECTED_FILE', file });
+        dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         
         // Open file preview
         const leaves = app.workspace.getLeavesOfType('markdown');
@@ -22,7 +19,7 @@ export function FileList() {
         } else {
             app.workspace.getLeaf().openFile(file);
         }
-    }, [app, setAppState]);
+    }, [app, dispatch]);
     
     // Get files from selected folder
     const files = useMemo(() => {

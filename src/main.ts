@@ -29,14 +29,11 @@ import {
     Notice
 } from 'obsidian';
 import { SortOption, NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
-import { LocalStorageKeys, NavigatorElementAttributes } from './types';
+import { LocalStorageKeys, NavigatorElementAttributes, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from './types';
 import { DateUtils } from './utils/DateUtils';
 import { PreviewTextUtils } from './utils/PreviewTextUtils';
 import { FileSystemOperations } from './services/FileSystemService';
-import { 
-    NotebookNavigatorView, 
-    VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT 
-} from './view/NotebookNavigatorView';
+import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 
 /**
  * Main plugin class for Notebook Navigator

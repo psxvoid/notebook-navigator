@@ -25,7 +25,7 @@
  * Unique identifier for the Notebook Navigator view type
  * Used by Obsidian to register and manage the custom view
  */
-export const VIEW_TYPE_NOTEBOOK = 'notebook-navigator-view';
+export const VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT = 'notebook-navigator-react-view';
 
 /**
  * Identifies which pane currently has keyboard focus

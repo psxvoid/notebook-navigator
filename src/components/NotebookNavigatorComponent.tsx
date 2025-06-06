@@ -1,16 +1,25 @@
 // src/components/NotebookNavigatorComponent.tsx
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
 import { TFile } from 'obsidian';
 import { PaneHeader } from './PaneHeader';
 import { FolderTree } from './FolderTree';
 import { FileList } from './FileList';
 import { useAppContext } from '../context/AppContext';
-import { setRevealFileCallback, setRefreshCallback } from '../view/NotebookNavigatorView';
+import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
 import { isTFolder } from '../utils/typeGuards';
 
-export function NotebookNavigatorComponent() {
-    const { app, appState, setAppState, refreshCounter } = useAppContext();
+export interface NotebookNavigatorHandle {
+    revealFile: (file: TFile) => void;
+    refresh: () => void;
+}
+
+export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_, ref) => {
+    const { app, appState, dispatch, refreshCounter } = useAppContext();
     const [forceRefresh, setForceRefresh] = useState(0);
+    const containerRef = useRef<HTMLDivElement>(null);
+    
+    // Enable keyboard navigation
+    useKeyboardNavigation(containerRef);
     
     // Load initial width from localStorage
     const [leftPaneWidth, setLeftPaneWidth] = useState(() => {
@@ -18,41 +27,20 @@ export function NotebookNavigatorComponent() {
         return saved ? parseInt(saved, 10) : 300;
     });
     
-    // Set up reveal file callback
+    // Save leftPaneWidth to localStorage when it changes
     useEffect(() => {
-        const handleRevealFile = (file: TFile) => {
-            if (!file.parent) return;
-            
-            // Get all parent folders up to root
-            const foldersToExpand: string[] = [];
-            let currentFolder = file.parent;
-            while (currentFolder && currentFolder.path !== '/') {
-                foldersToExpand.unshift(currentFolder.path);
-                currentFolder = currentFolder.parent;
-            }
-            
-            // Update state to expand folders and select file
-            setAppState(currentState => ({
-                ...currentState,
-                expandedFolders: new Set([...currentState.expandedFolders, ...foldersToExpand]),
-                selectedFolder: file.parent,
-                selectedFile: file,
-                focusedPane: 'files'
-            }));
-        };
-        
-        const handleRefresh = () => {
+        localStorage.setItem('notebook-navigator-left-pane-width', leftPaneWidth.toString());
+    }, [leftPaneWidth]);
+    
+    // Expose methods via ref
+    useImperativeHandle(ref, () => ({
+        revealFile: (file: TFile) => {
+            dispatch({ type: 'REVEAL_FILE', file });
+        },
+        refresh: () => {
             setForceRefresh(c => c + 1);
-        };
-        
-        setRevealFileCallback(handleRevealFile);
-        setRefreshCallback(handleRefresh);
-        
-        return () => {
-            setRevealFileCallback(null as any);
-            setRefreshCallback(null as any);
-        };
-    }, [app, setAppState]);
+        }
+    }), [dispatch]);
 
     const handleResizeMouseDown = useCallback((e: React.MouseEvent) => {
         const startX = e.clientX;
@@ -68,8 +56,6 @@ export function NotebookNavigatorComponent() {
         const handleMouseUp = () => {
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
-            // Save final width to localStorage
-            localStorage.setItem('notebook-navigator-left-pane-width', currentWidth.toString());
         };
 
         document.addEventListener('mousemove', handleMouseMove);
@@ -78,6 +64,7 @@ export function NotebookNavigatorComponent() {
 
     return (
         <div 
+            ref={containerRef}
             className="notebook-navigator" 
             data-focus-pane={appState.focusedPane}
             tabIndex={-1}
@@ -95,4 +82,6 @@ export function NotebookNavigatorComponent() {
             </div>
         </div>
     );
-}
+});
+
+NotebookNavigatorComponent.displayName = 'NotebookNavigatorComponent';

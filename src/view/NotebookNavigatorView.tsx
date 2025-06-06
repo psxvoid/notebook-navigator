@@ -4,26 +4,14 @@ import { Root, createRoot } from 'react-dom/client';
 import React from 'react';
 import NotebookNavigatorPlugin from '../main';
 import { AppProvider } from '../context/AppContext';
-import { NotebookNavigatorComponent } from '../components/NotebookNavigatorComponent';
-
-// A new, unique identifier for our React-based view
-export const VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT = 'notebook-navigator-react-view';
-
-// Global reference to reveal file in the navigator
-let revealFileCallback: ((file: TFile) => void) | null = null;
-let refreshCallback: (() => void) | null = null;
-
-export function setRevealFileCallback(callback: (file: TFile) => void) {
-    revealFileCallback = callback;
-}
-
-export function setRefreshCallback(callback: () => void) {
-    refreshCallback = callback;
-}
+import { ServicesProvider } from '../context/ServicesContext';
+import { NotebookNavigatorComponent, NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
+import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 
 export class NotebookNavigatorView extends ItemView {
     plugin: NotebookNavigatorPlugin;
     private root: Root | null = null;
+    private componentRef = React.createRef<NotebookNavigatorHandle>();
 
     constructor(leaf: WorkspaceLeaf, plugin: NotebookNavigatorPlugin) {
         super(leaf);
@@ -49,9 +37,11 @@ export class NotebookNavigatorView extends ItemView {
         this.root = createRoot(container);
         this.root.render(
             <React.StrictMode>
-                <AppProvider plugin={this.plugin}>
-                    <NotebookNavigatorComponent />
-                </AppProvider>
+                <ServicesProvider app={this.plugin.app}>
+                    <AppProvider plugin={this.plugin}>
+                        <NotebookNavigatorComponent ref={this.componentRef} />
+                    </AppProvider>
+                </ServicesProvider>
             </React.StrictMode>
         );
     }
@@ -59,25 +49,19 @@ export class NotebookNavigatorView extends ItemView {
     async onClose() {
         // Unmount the React app when the view is closed to prevent memory leaks
         this.root?.unmount();
-        revealFileCallback = null;
-        refreshCallback = null;
     }
     
     /**
      * Reveals a file in the navigator by selecting it and its parent folder
      */
     revealFile(file: TFile) {
-        if (revealFileCallback) {
-            revealFileCallback(file);
-        }
+        this.componentRef.current?.revealFile(file);
     }
     
     /**
      * Refreshes the navigator view (e.g., after settings change)
      */
     refresh() {
-        if (refreshCallback) {
-            refreshCallback();
-        }
+        this.componentRef.current?.refresh();
     }
 }

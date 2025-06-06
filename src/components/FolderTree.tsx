@@ -5,7 +5,7 @@ import { FolderItem } from './FolderItem';
 import { isTFolder } from '../utils/typeGuards';
 
 export function FolderTree() {
-    const { app, appState, setAppState, plugin, refreshCounter } = useAppContext();
+    const { app, appState, dispatch, plugin, refreshCounter } = useAppContext();
     
     const rootFolder = app.vault.getRoot();
     
@@ -20,27 +20,13 @@ export function FolderTree() {
     }, [plugin.settings.ignoreFolders]);
     
     const handleFolderClick = useCallback((folder: TFolder) => {
-        setAppState(currentState => ({
-            ...currentState,
-            selectedFolder: folder,
-            focusedPane: 'folders',
-        }));
-    }, [setAppState]);
+        dispatch({ type: 'SET_SELECTED_FOLDER', folder });
+        dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+    }, [dispatch]);
     
     const handleToggleExpanded = useCallback((folderPath: string) => {
-        setAppState(currentState => {
-            const newExpanded = new Set(currentState.expandedFolders);
-            if (newExpanded.has(folderPath)) {
-                newExpanded.delete(folderPath);
-            } else {
-                newExpanded.add(folderPath);
-            }
-            return {
-                ...currentState,
-                expandedFolders: newExpanded,
-            };
-        });
-    }, [setAppState]);
+        dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath });
+    }, [dispatch]);
     
     const renderFolder = (folder: TFolder, level: number = 0): React.ReactNode => {
         // Skip ignored folders

@@ -1,8 +1,9 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import { TFolder } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { setIcon } from 'obsidian';
 import { isTFile, isTFolder } from '../utils/typeGuards';
+import { useContextMenu } from '../hooks/useContextMenu';
 
 interface FolderItemProps {
     folder: TFolder;
@@ -15,6 +16,10 @@ interface FolderItemProps {
 
 export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick }: FolderItemProps) {
     const { app, plugin } = useAppContext();
+    const folderRef = useRef<HTMLDivElement>(null);
+    
+    // Enable context menu
+    useContextMenu(folderRef, { type: 'folder', item: folder });
     
     // Count files in folder (including subfolders if setting enabled)
     const fileCount = React.useMemo(() => {
@@ -49,6 +54,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
 
     return (
         <div 
+            ref={folderRef}
             className={`nn-folder-item ${isSelected ? 'nn-selected' : ''}`}
             data-path={folder.path}
             style={{ paddingLeft: `${level * 16}px` }}
