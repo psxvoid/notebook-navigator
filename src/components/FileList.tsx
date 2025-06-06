@@ -1,4 +1,4 @@
-import React, { useMemo, useCallback } from 'react';
+import React, { useMemo, useCallback, useEffect } from 'react';
 import { TFile, TFolder } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { FileItem } from './FileItem';
@@ -74,6 +74,36 @@ export function FileList() {
         app, 
         refreshCounter
     ]);
+    
+    // Auto-select and open first file when folder changes
+    useEffect(() => {
+        if (!appState.selectedFolder) return;
+        
+        // Small delay to ensure DOM is updated
+        const timer = setTimeout(() => {
+            const firstFileElement = document.querySelector('.nn-file-item');
+            if (firstFileElement) {
+                const path = firstFileElement.getAttribute('data-path');
+                if (path) {
+                    const file = app.vault.getAbstractFileByPath(path);
+                    if (file && 'extension' in file) {
+                        const tfile = file as TFile;
+                        dispatch({ type: 'SET_SELECTED_FILE', file: tfile });
+                        
+                        // Open the file
+                        const leaves = app.workspace.getLeavesOfType('markdown');
+                        if (leaves.length > 0) {
+                            leaves[0].openFile(tfile);
+                        } else {
+                            app.workspace.getLeaf().openFile(tfile);
+                        }
+                    }
+                }
+            }
+        }, 50);
+        
+        return () => clearTimeout(timer);
+    }, [appState.selectedFolder?.path, app, dispatch]); // Only run when folder changes
     
     // Group files by date if enabled
     const groupedFiles = useMemo(() => {

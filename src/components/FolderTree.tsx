@@ -22,17 +22,6 @@ export function FolderTree() {
     const handleFolderClick = useCallback((folder: TFolder) => {
         dispatch({ type: 'SET_SELECTED_FOLDER', folder });
         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
-
-        // Add this logic to select the first file
-        const files = folder.children
-            .filter(isTFile)
-            .sort((a, b) => b.stat.mtime - a.stat.mtime); // Ensure default sort to find the "first" file
-
-        if (files.length > 0) {
-            dispatch({ type: 'SET_SELECTED_FILE', file: files[0] as TFile });
-        } else {
-            dispatch({ type: 'SET_SELECTED_FILE', file: null }); // Clear selection if folder is empty
-        }
     }, [dispatch]);
     
     const handleToggleExpanded = useCallback((folderPath: string) => {
