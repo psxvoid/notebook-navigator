@@ -1,5 +1,5 @@
 // src/components/FileItem.tsx
-import React, { useEffect, useState, useRef } from 'react';
+import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { TFile } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { DateUtils } from '../utils/DateUtils';
@@ -24,6 +24,32 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
     const dateToShow = plugin.settings.sortOption === 'created' ? file.stat.ctime : file.stat.mtime;
     const formattedDate = DateUtils.formatDate(dateToShow, plugin.settings.dateFormat);
 
+    // Calculate feature image URL if enabled
+    const featureImageUrl = useMemo(() => {
+        if (!plugin.settings.showFeatureImage) {
+            return null;
+        }
+
+        const metadata = app.metadataCache.getFileCache(file);
+        const imagePath = metadata?.frontmatter?.[plugin.settings.featureImageProperty];
+
+        if (!imagePath) {
+            return null;
+        }
+
+        // Handle wikilinks e.g., [[image.png]]
+        const resolvedPath = imagePath.startsWith('[[') && imagePath.endsWith(']]')
+            ? imagePath.slice(2, -2)
+            : imagePath;
+
+        const imageFile = app.metadataCache.getFirstLinkpathDest(resolvedPath, file.path);
+        if (imageFile) {
+            return app.vault.getResourcePath(imageFile);
+        }
+
+        return null;
+    }, [file, plugin.settings.showFeatureImage, plugin.settings.featureImageProperty, app]);
+
     // useEffect is how you perform side effects, like reading file content.
     useEffect(() => {
         let isCancelled = false;
@@ -38,7 +64,7 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
         }
         // This cleanup function prevents state updates on unmounted components
         return () => { isCancelled = true; };
-    }, [file.path, app.vault, plugin.settings]); // Rerun effect if file path changes
+    }, [file.path, app.vault, plugin.settings.skipHeadingsInPreview, plugin.settings.skipNonTextInPreview]); // Rerun effect if file path or preview settings change
     
     const className = `nn-file-item ${isSelected ? 'nn-selected' : ''}`;
 
@@ -61,6 +87,11 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
                         <div className="nn-file-preview">{previewText}</div>
                     </div>
                 </div>
+                {featureImageUrl && (
+                    <div className="nn-feature-image">
+                        <img src={featureImageUrl} alt="Feature image" className="nn-feature-image-img" />
+                    </div>
+                )}
             </div>
         </div>
     );

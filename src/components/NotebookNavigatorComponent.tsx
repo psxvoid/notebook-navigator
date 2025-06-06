@@ -70,7 +70,12 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         if (!plugin.settings.autoRevealActiveFile) return;
 
         const handleActiveLeafChange = (leaf: WorkspaceLeaf | null) => {
-            const file = leaf?.view.file;
+            // Only trigger for leaves in the main editor area
+            if (!leaf || leaf.getRoot() !== app.workspace.rootSplit) {
+                return;
+            }
+            
+            const file = (leaf.view as any).file;
             if (file && file instanceof TFile) {
                 // Don't reveal if it's already selected
                 if (appState.selectedFile?.path !== file.path) {

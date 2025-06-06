@@ -71,7 +71,6 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement>) {
 
         try {
             await app.fileManager.renameFile(sourceItem, newPath);
-            new Notice(`Moved "${sourceItem.name}" to "${targetFolder.name}"`);
             // Force refresh to update folder counts
             dispatch({ type: 'FORCE_REFRESH' });
         } catch (error) {

@@ -253,7 +253,6 @@ export class FileSystemOperations {
             const newFile = await this.app.vault.create(newPath, content);
             
             this.app.workspace.getLeaf(false).openFile(newFile);
-            new Notice(`Note duplicated as "${newName}"`);
         } catch (error) {
             new Notice(`Failed to duplicate note: ${error.message}`);
         }
@@ -349,7 +348,6 @@ export class FileSystemOperations {
             };
             
             await copyContents(folder, newPath);
-            new Notice(`Folder duplicated as "${newName}"`);
         } catch (error) {
             new Notice(`Failed to duplicate folder: ${error.message}`);
         }

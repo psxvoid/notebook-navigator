@@ -64,12 +64,15 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
         if (iconRef.current) {
             const customIcon = plugin.settings.folderIcons?.[folder.path];
             if (customIcon) {
+                // Custom icon is set - always show it, never toggle
                 setIcon(iconRef.current, customIcon);
             } else {
-                setIcon(iconRef.current, isExpanded ? 'folder-open' : 'folder-closed');
+                // Default icon - show open folder only if has children AND is expanded
+                const iconName = (hasChildren && isExpanded) ? 'folder-open' : 'folder-closed';
+                setIcon(iconRef.current, iconName);
             }
         }
-    }, [isExpanded, folder.path, plugin.settings.folderIcons]);
+    }, [isExpanded, folder.path, plugin.settings.folderIcons, hasChildren]);
 
     return (
         <div 

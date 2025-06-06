@@ -42,6 +42,20 @@ export function FileList() {
         
         let allFiles = collectFiles(appState.selectedFolder);
         
+        // Filter out excluded files based on frontmatter properties
+        const excludedProperties = plugin.settings.excludedFiles
+            .split(',')
+            .map(p => p.trim())
+            .filter(p => p);
+        
+        if (excludedProperties.length > 0) {
+            allFiles = allFiles.filter(file => {
+                const metadata = app.metadataCache.getFileCache(file);
+                if (!metadata?.frontmatter) return true; // Keep files without frontmatter
+                return !excludedProperties.some(prop => prop in metadata.frontmatter!);
+            });
+        }
+        
         // Sort files based on settings
         switch (plugin.settings.sortOption) {
             case 'modified':
@@ -69,6 +83,7 @@ export function FileList() {
         plugin.settings.sortOption,
         plugin.settings.showNotesFromSubfolders,
         plugin.settings.pinnedNotes,
+        plugin.settings.excludedFiles,
         app, 
         refreshCounter
     ]);

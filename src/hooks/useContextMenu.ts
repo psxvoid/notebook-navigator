@@ -114,6 +114,42 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement>, config:
             
             menu.addSeparator();
             
+            // Change icon
+            menu.addItem((item: MenuItem) => {
+                item
+                    .setTitle('Change icon')
+                    .setIcon('palette')
+                    .onClick(async () => {
+                        const { IconPickerModal } = await import('../modals/IconPickerModal');
+                        const modal = new IconPickerModal(app, plugin, folder.path);
+                        
+                        modal.onChooseIcon = (iconId) => {
+                            if (iconId) {
+                                dispatch({ type: 'FORCE_REFRESH' });
+                            }
+                        };
+                        
+                        modal.open();
+                    });
+            });
+            
+            // Remove icon (only show if custom icon is set)
+            const currentIcon = plugin.settings.folderIcons?.[folder.path];
+            if (currentIcon) {
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle('Remove icon')
+                        .setIcon('x')
+                        .onClick(async () => {
+                            delete plugin.settings.folderIcons[folder.path];
+                            await plugin.saveSettings();
+                            dispatch({ type: 'FORCE_REFRESH' });
+                        });
+                });
+            }
+            
+            menu.addSeparator();
+            
             // Rename folder
             menu.addItem((item: MenuItem) => {
                 item
