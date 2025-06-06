@@ -29,12 +29,14 @@ import {
     Notice
 } from 'obsidian';
 import { SortOption, NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
-import { VIEW_TYPE_NOTEBOOK, LocalStorageKeys, NavigatorElementAttributes } from './types';
+import { LocalStorageKeys, NavigatorElementAttributes } from './types';
 import { DateUtils } from './utils/DateUtils';
 import { PreviewTextUtils } from './utils/PreviewTextUtils';
-import { KeyboardHandler } from './handlers/KeyboardHandler';
-import { FileSystemOperations } from './operations/FileSystemOperations';
-import { NotebookNavigatorView } from './view/NotebookNavigatorView';
+import { FileSystemOperations } from './services/FileSystemService';
+import { 
+    NotebookNavigatorView, 
+    VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT 
+} from './view/NotebookNavigatorView';
 
 /**
  * Main plugin class for Notebook Navigator
@@ -63,7 +65,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         await this.loadSettings();
         
         this.registerView(
-            VIEW_TYPE_NOTEBOOK,
+            VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT_NAVIGATOR_REACT,
             (leaf) => new NotebookNavigatorView(leaf, this)
         );
 
@@ -161,7 +163,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         const { workspace } = this.app;
 
         let leaf: WorkspaceLeaf | null = null;
-        const leaves = workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK);
+        const leaves = workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
 
         if (leaves.length > 0) {
             // View already exists - just reveal it
@@ -173,7 +175,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
             // Create new leaf only if none exists
             leaf = workspace.getLeftLeaf(false);
             if (leaf) {
-                await leaf.setViewState({ type: VIEW_TYPE_NOTEBOOK, active: true });
+                await leaf.setViewState({ type: VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, active: true });
                 if (showAfterAttach) {
                     workspace.revealLeaf(leaf);
                 }
@@ -191,7 +193,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * Iterates through all leaves of our view type and detaches them
      */
     private async detachNotebookNavigatorLeaves() {
-        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK);
+        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         for (const leaf of leaves) {
             leaf.detach();
         }
@@ -255,13 +257,13 @@ export default class NotebookNavigatorPlugin extends Plugin {
      */
     private async revealFileInNavigator(file: TFile) {
         // Ensure navigator is open
-        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK);
+        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         if (leaves.length === 0) {
             await this.activateView(true);
         }
         
         // Find and update the navigator view
-        const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK);
+        const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         navigatorLeaves.forEach(leaf => {
             const view = leaf.view;
             if (view instanceof NotebookNavigatorView) {
@@ -277,7 +279,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
      */
     onSettingsChange() {
         // Update all active views when settings change
-        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK);
+        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         leaves.forEach(leaf => {
             const view = leaf.view;
             if (view instanceof NotebookNavigatorView) {
