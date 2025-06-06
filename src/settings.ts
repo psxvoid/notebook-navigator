@@ -198,9 +198,10 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         containerEl.empty();
 
         // Section 1: File organization
-        new Setting(containerEl)
-            .setName('File organization')
-            .setHeading();
+        // Not shown to follow Obsidian plugin guidelines
+        // new Setting(containerEl)
+        //     .setName('File organization')
+        //     .setHeading();
 
         const sortSetting = new Setting(containerEl)
             .setName('Sort files by')

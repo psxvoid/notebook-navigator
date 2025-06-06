@@ -48,7 +48,7 @@ interface FolderItemProps {
  * @returns A folder item element with chevron, icon, name and optional file count
  */
 export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick }: FolderItemProps) {
-    const { app, plugin, refreshCounter } = useAppContext();
+    const { app, plugin, refreshCounter, appState } = useAppContext();
     const folderRef = useRef<HTMLDivElement>(null);
     
     // Enable context menu
@@ -57,13 +57,72 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
     // Auto-scroll to selected folder when it becomes selected
     useEffect(() => {
         if (isSelected && folderRef.current) {
-            folderRef.current.scrollIntoView({
-                behavior: 'smooth',
-                block: 'nearest',
-                inline: 'nearest'
+            // Ensure all parent folders are expanded and rendered before scrolling
+            requestAnimationFrame(() => {
+                if (folderRef.current && isSelected) {
+                    // Find the scrollable container
+                    const scrollContainer = folderRef.current.closest('.nn-folder-tree');
+                    if (scrollContainer) {
+                        const containerRect = scrollContainer.getBoundingClientRect();
+                        const itemRect = folderRef.current.getBoundingClientRect();
+                        
+                        // Check if item is outside visible area
+                        if (itemRect.top < containerRect.top || itemRect.bottom > containerRect.bottom) {
+                            // Calculate scroll position to center the item
+                            const scrollTop = scrollContainer.scrollTop;
+                            const itemOffsetTop = itemRect.top - containerRect.top + scrollTop;
+                            const itemHeight = itemRect.height;
+                            const containerHeight = containerRect.height;
+                            
+                            // Center the item in the container
+                            const targetScrollTop = itemOffsetTop - (containerHeight / 2) + (itemHeight / 2);
+                            
+                            scrollContainer.scrollTo({
+                                top: Math.max(0, targetScrollTop),
+                                behavior: 'smooth'
+                            });
+                        }
+                    }
+                }
             });
         }
-    }, [isSelected]);
+    }, [isSelected, folder.path]);
+    
+    // Additional scroll trigger based on timestamp to handle re-selection
+    useEffect(() => {
+        if (isSelected && appState.folderSelectionTimestamp > 0 && folderRef.current) {
+            // Double requestAnimationFrame to ensure DOM is fully updated
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    if (folderRef.current && isSelected) {
+                        // Find the scrollable container
+                        const scrollContainer = folderRef.current.closest('.nn-folder-tree');
+                        if (scrollContainer) {
+                            const containerRect = scrollContainer.getBoundingClientRect();
+                            const itemRect = folderRef.current.getBoundingClientRect();
+                            
+                            // Check if item is outside visible area
+                            if (itemRect.top < containerRect.top || itemRect.bottom > containerRect.bottom) {
+                                // Calculate scroll position to center the item
+                                const scrollTop = scrollContainer.scrollTop;
+                                const itemOffsetTop = itemRect.top - containerRect.top + scrollTop;
+                                const itemHeight = itemRect.height;
+                                const containerHeight = containerRect.height;
+                                
+                                // Center the item in the container
+                                const targetScrollTop = itemOffsetTop - (containerHeight / 2) + (itemHeight / 2);
+                                
+                                scrollContainer.scrollTo({
+                                    top: Math.max(0, targetScrollTop),
+                                    behavior: 'smooth'
+                                });
+                            }
+                        }
+                    }
+                });
+            });
+        }
+    }, [appState.folderSelectionTimestamp]);
     
     // Count files in folder (including subfolders if setting enabled)
     const fileCount = React.useMemo(() => {

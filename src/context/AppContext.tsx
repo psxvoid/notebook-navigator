@@ -35,6 +35,8 @@ export interface AppState {
     expandedFolders: Set<string>;
     /** Which pane currently has keyboard focus */
     focusedPane: 'folders' | 'files';
+    /** Timestamp to force folder selection to re-trigger scroll */
+    folderSelectionTimestamp: number;
 }
 
 /**
@@ -133,6 +135,7 @@ function loadStateFromStorage(app: App): AppState {
         selectedFile,
         expandedFolders,
         focusedPane: 'folders',
+        folderSelectionTimestamp: 0
     };
 }
 
@@ -213,7 +216,9 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
         
         case 'REVEAL_FILE': {
             // Reveal a file in the navigator by expanding all parent folders
-            if (!action.file.parent) return state;
+            if (!action.file.parent) {
+                return state;
+            }
             
             // Get all parent folders up to root
             const foldersToExpand: string[] = [];
@@ -229,12 +234,15 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
             saveToStorage(STORAGE_KEYS.selectedFolder, action.file.parent.path);
             saveToStorage(STORAGE_KEYS.selectedFile, action.file.path);
             
+            const newTimestamp = Date.now();
+            
             return {
                 ...state,
                 expandedFolders: newExpanded,
                 selectedFolder: action.file.parent,
                 selectedFile: action.file,
-                focusedPane: 'files'
+                focusedPane: 'files',
+                folderSelectionTimestamp: newTimestamp
             };
         }
         
