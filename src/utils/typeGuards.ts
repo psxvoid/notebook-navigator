@@ -94,3 +94,20 @@ export function assertNonNull<T>(value: T | null | undefined, message: string): 
         throw new Error(message);
     }
 }
+
+/**
+ * Check if a folder is an ancestor of another folder
+ * @param potentialAncestor - The folder that might be an ancestor
+ * @param folder - The folder to check
+ * @returns true if potentialAncestor is an ancestor of folder
+ */
+export function isFolderAncestor(potentialAncestor: TFolder, folder: TFolder): boolean {
+    let current = folder.parent;
+    while (current) {
+        if (current.path === potentialAncestor.path) {
+            return true;
+        }
+        current = current.parent;
+    }
+    return false;
+}

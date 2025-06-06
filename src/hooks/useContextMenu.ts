@@ -3,6 +3,7 @@ import { useEffect, useCallback } from 'react';
 import { Menu, MenuItem, TFile, TFolder, Notice } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { useFileSystemOps } from '../context/ServicesContext';
+import { isFolderAncestor } from '../utils/typeGuards';
 
 interface MenuConfig {
     type: 'file' | 'folder';
@@ -10,7 +11,7 @@ interface MenuConfig {
 }
 
 export function useContextMenu(elementRef: React.RefObject<HTMLElement>, config: MenuConfig | null) {
-    const { app, plugin, dispatch } = useAppContext();
+    const { app, plugin, dispatch, appState } = useAppContext();
     const fileSystemOps = useFileSystemOps();
     
     const handleContextMenu = useCallback((e: MouseEvent) => {
@@ -55,7 +56,12 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement>, config:
                     .setTitle('New folder')
                     .setIcon('folder-plus')
                     .onClick(async () => {
-                        await fileSystemOps.createNewFolder(folder);
+                        await fileSystemOps.createNewFolder(folder, () => {
+                            // Expand the parent folder to show the newly created folder
+                            if (!appState.expandedFolders.has(folder.path)) {
+                                dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
+                            }
+                        });
                     });
             });
             
@@ -124,7 +130,25 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement>, config:
                     .setTitle('Delete folder')
                     .setIcon('trash')
                     .onClick(async () => {
-                        await fileSystemOps.deleteFolder(folder, plugin.settings.confirmBeforeDelete);
+                        const parentFolder = folder.parent;
+                        
+                        await fileSystemOps.deleteFolder(folder, plugin.settings.confirmBeforeDelete, () => {
+                            // Check if we need to update selection
+                            if (appState.selectedFolder) {
+                                const isSelectedFolderDeleted = folder.path === appState.selectedFolder.path;
+                                const isAncestorDeleted = isFolderAncestor(folder, appState.selectedFolder);
+                                
+                                if (isSelectedFolderDeleted || isAncestorDeleted) {
+                                    // If parent exists and is not root (or root is visible), select it
+                                    if (parentFolder && (parentFolder.path !== '' || plugin.settings.showRootFolder)) {
+                                        dispatch({ type: 'SET_SELECTED_FOLDER', folder: parentFolder });
+                                    } else {
+                                        // Clear selection if no valid parent
+                                        dispatch({ type: 'SET_SELECTED_FOLDER', folder: null });
+                                    }
+                                }
+                            }
+                        });
                     });
             });
             
@@ -235,7 +259,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement>, config:
         }
         
         menu.showAtMouseEvent(e);
-    }, [config, elementRef, app, plugin, dispatch, fileSystemOps]);
+    }, [config, elementRef, app, plugin, dispatch, fileSystemOps, appState]);
     
     useEffect(() => {
         const element = elementRef.current;
