@@ -79,8 +79,15 @@ export class FileSystemOperations {
             // Create the file
             const file = await this.app.vault.create(path, '');
             
-            // Open the file
-            this.app.workspace.getLeaf(false).openFile(file);
+            // Open the file and trigger rename mode
+            const leaf = this.app.workspace.getLeaf(false);
+            await leaf.openFile(file);
+            
+            // Trigger rename mode after the file is loaded
+            // We need to wait for the next event loop to ensure the editor is ready
+            setTimeout(() => {
+                this.app.commands.executeCommandById('workspace:edit-file-title');
+            }, 0);
             
             return file;
         } catch (error) {
@@ -275,7 +282,13 @@ export class FileSystemOperations {
             }
             
             const file = await this.app.vault.create(path, '{}');
-            this.app.workspace.getLeaf(false).openFile(file);
+            const leaf = this.app.workspace.getLeaf(false);
+            await leaf.openFile(file);
+            
+            // Trigger rename mode
+            setTimeout(() => {
+                this.app.commands.executeCommandById('workspace:edit-file-title');
+            }, 0);
         } catch (error) {
             new Notice(`Failed to create canvas: ${error.message}`);
         }
@@ -307,7 +320,13 @@ export class FileSystemOperations {
             }, null, 2);
             
             const file = await this.app.vault.create(path, content);
-            this.app.workspace.getLeaf(false).openFile(file);
+            const leaf = this.app.workspace.getLeaf(false);
+            await leaf.openFile(file);
+            
+            // Trigger rename mode
+            setTimeout(() => {
+                this.app.commands.executeCommandById('workspace:edit-file-title');
+            }, 0);
         } catch (error) {
             new Notice(`Failed to create database: ${error.message}`);
         }
