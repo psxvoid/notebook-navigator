@@ -6,7 +6,7 @@ import { useFileSystemOps } from '../context/ServicesContext';
 import { isTFolder } from '../utils/typeGuards';
 
 export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>) {
-    const { app, appState, dispatch } = useAppContext();
+    const { app, appState, dispatch, plugin } = useAppContext();
     const fileSystemOps = useFileSystemOps();
     const lastActionTime = useRef(0);
     
@@ -119,8 +119,30 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
                 e.preventDefault();
                 if (appState.focusedPane === 'files') {
                     dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
-                } else if (appState.selectedFolder && appState.expandedFolders.has(appState.selectedFolder.path)) {
-                    dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: appState.selectedFolder.path });
+                } else if (appState.selectedFolder) {
+                    // If folder is expanded, collapse it
+                    if (appState.expandedFolders.has(appState.selectedFolder.path)) {
+                        dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: appState.selectedFolder.path });
+                    } else {
+                        // If folder is collapsed or has no children, navigate to parent
+                        const parentPath = appState.selectedFolder.parent?.path;
+                        
+                        // Don't navigate to root if showRootFolder is false and we're at root level
+                        const isAtRootLevel = !parentPath || parentPath === '' || parentPath === '/';
+                        if (parentPath && !(isAtRootLevel && !plugin.settings.showRootFolder)) {
+                            const parentFolder = app.vault.getAbstractFileByPath(parentPath);
+                            if (parentFolder && isTFolder(parentFolder)) {
+                                dispatch({ type: 'SET_SELECTED_FOLDER', folder: parentFolder });
+                                
+                                // Ensure parent is visible by scrolling to it
+                                const folderElements = getFolderElements();
+                                const parentElement = folderElements.find(el => el.getAttribute('data-path') === parentPath);
+                                if (parentElement) {
+                                    parentElement.scrollIntoView({ block: 'nearest' });
+                                }
+                            }
+                        }
+                    }
                 }
                 break;
                 
@@ -198,7 +220,7 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
                 }
                 break;
         }
-    }, [appState, dispatch, navigateFolders, navigateFiles, app, fileSystemOps]);
+    }, [appState, dispatch, navigateFolders, navigateFiles, app, fileSystemOps, getFolderElements, plugin]);
     
     useEffect(() => {
         const container = containerRef.current;
