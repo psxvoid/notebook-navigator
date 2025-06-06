@@ -6,7 +6,7 @@ import { useFileSystemOps } from '../context/ServicesContext';
 import { isTFolder } from '../utils/typeGuards';
 
 export function useDragAndDrop(containerRef: React.RefObject<HTMLElement>) {
-    const { app } = useAppContext();
+    const { app, dispatch } = useAppContext();
     const fileSystemOps = useFileSystemOps();
     const dragOverElement = useRef<HTMLElement | null>(null);
 
@@ -72,10 +72,12 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement>) {
         try {
             await app.fileManager.renameFile(sourceItem, newPath);
             new Notice(`Moved "${sourceItem.name}" to "${targetFolder.name}"`);
+            // Force refresh to update folder counts
+            dispatch({ type: 'FORCE_REFRESH' });
         } catch (error) {
             new Notice(`Failed to move: ${error.message}`);
         }
-    }, [app, fileSystemOps]);
+    }, [app, fileSystemOps, dispatch]);
     
     const handleDragEnd = useCallback((e: DragEvent) => {
         const target = e.target as HTMLElement;

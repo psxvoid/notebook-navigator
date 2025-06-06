@@ -687,7 +687,7 @@ button.nn-icon-button {
     opacity: 0.5;
 }
 
-.nn-folder-item.nn-drag-over > .nn-folder-content {
+.nn-folder-content.nn-drag-over {
     background-color: var(--interactive-accent-hover) !important;
 }
 

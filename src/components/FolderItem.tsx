@@ -15,7 +15,7 @@ interface FolderItemProps {
 }
 
 export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick }: FolderItemProps) {
-    const { app, plugin } = useAppContext();
+    const { app, plugin, refreshCounter } = useAppContext();
     const folderRef = useRef<HTMLDivElement>(null);
     
     // Enable context menu
@@ -40,7 +40,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
         };
         
         return countFiles(folder);
-    }, [folder, plugin.settings.showFolderFileCount, plugin.settings.showNotesFromSubfolders, app]);
+    }, [folder.path, folder.children.length, plugin.settings.showFolderFileCount, plugin.settings.showNotesFromSubfolders, refreshCounter]);
 
     const hasChildren = folder.children.some(isTFolder);
     

@@ -33,6 +33,7 @@ export class NotebookNavigatorView extends ItemView {
     async onOpen() {
         const container = this.containerEl.children[1];
         container.empty(); // Clear previous content
+        container.classList.add('notebook-navigator');
 
         this.root = createRoot(container);
         this.root.render(
@@ -48,6 +49,8 @@ export class NotebookNavigatorView extends ItemView {
 
     async onClose() {
         // Unmount the React app when the view is closed to prevent memory leaks
+        const container = this.containerEl.children[1];
+        container.classList.remove('notebook-navigator');
         this.root?.unmount();
     }
     

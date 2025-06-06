@@ -89,20 +89,18 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     return (
         <div 
             ref={containerRef}
-            className="notebook-navigator" 
+            className="nn-split-container" 
             data-focus-pane={appState.focusedPane}
             tabIndex={-1}
         >
-            <div className="nn-split-container">
-                <div className="nn-left-pane" style={{ width: `${leftPaneWidth}px` }}>
-                    <PaneHeader type="folder" />
-                    <FolderTree />
-                </div>
-                <div className="nn-resize-handle" onMouseDown={handleResizeMouseDown} />
-                <div className="nn-right-pane">
-                    <PaneHeader type="file" />
-                    <FileList />
-                </div>
+            <div className="nn-left-pane" style={{ width: `${leftPaneWidth}px` }}>
+                <PaneHeader type="folder" />
+                <FolderTree />
+            </div>
+            <div className="nn-resize-handle" onMouseDown={handleResizeMouseDown} />
+            <div className="nn-right-pane">
+                <PaneHeader type="file" />
+                <FileList />
             </div>
         </div>
     );
