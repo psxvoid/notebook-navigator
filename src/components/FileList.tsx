@@ -81,7 +81,7 @@ export function FileList() {
             const fileDate = new Date(
                 plugin.settings.sortOption === 'created' ? file.stat.ctime : file.stat.mtime
             );
-            const groupTitle = DateUtils.getGroupTitle(fileDate, today);
+            const groupTitle = DateUtils.getDateGroup(fileDate.getTime());
             
             if (!groups.has(groupTitle)) {
                 groups.set(groupTitle, []);

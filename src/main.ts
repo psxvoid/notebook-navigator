@@ -62,7 +62,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         await this.loadSettings();
         
         this.registerView(
-            VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT_NAVIGATOR_REACT,
+            VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT,
             (leaf) => new NotebookNavigatorView(leaf, this)
         );
 
