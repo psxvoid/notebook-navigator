@@ -45,7 +45,8 @@ notebook-navigator/
 │   └── utils/                     # Utility functions
 │       ├── DateUtils.ts          # Date formatting
 │       ├── PreviewTextUtils.ts   # File preview extraction
-│       └── typeGuards.ts         # TypeScript type guards
+│       ├── typeGuards.ts         # TypeScript type guards
+│       └── fileFilters.ts        # File filtering utilities
 ├── styles.css                     # Global styles
 ├── manifest.json                  # Plugin metadata
 ├── package.json                  # Dependencies
@@ -137,6 +138,54 @@ Manages drag and drop operations:
 - Updates file system on drop
 
 ## Code Style & Patterns
+
+### CRITICAL: React Patterns - NO setTimeout/DOM Manipulation
+
+**NEVER use setTimeout, setInterval, or direct DOM manipulation in React components.**
+
+❌ **WRONG - Never do this:**
+```typescript
+// NEVER use setTimeout to wait for React updates
+setTimeout(() => {
+    const element = document.querySelector('.some-class');
+    element?.scrollIntoView();
+}, 100);
+
+// NEVER query DOM directly
+const fileElement = document.querySelector(`[data-path="${path}"]`);
+
+// NEVER manipulate DOM directly
+element.classList.add('active');
+```
+
+✅ **CORRECT - Always use React patterns:**
+```typescript
+// Use useEffect to respond to state changes
+useEffect(() => {
+    if (isSelected && ref.current) {
+        ref.current.scrollIntoView({ behavior: 'smooth' });
+    }
+}, [isSelected]);
+
+// Use state and props for conditional rendering
+<div className={`item ${isActive ? 'active' : ''}`}>
+
+// Use refs for DOM access when needed
+const ref = useRef<HTMLDivElement>(null);
+```
+
+**Why this matters:**
+1. React controls the DOM - direct manipulation breaks React's virtual DOM
+2. setTimeout creates race conditions with React's render cycle
+3. React's lifecycle methods guarantee proper timing
+4. Direct DOM queries are fragile and break when components re-render
+
+**ALWAYS use React patterns:**
+- `useEffect` for side effects
+- `useState` for local state
+- `useRef` for DOM element references
+- `useMemo`/`useCallback` for optimization
+- Conditional rendering for dynamic UI
 
 ### React Best Practices
 
@@ -403,6 +452,23 @@ useEffect(() => {
 const ref = useRef();
 <div ref={ref}>
 ```
+
+### DOM Manipulation (NEVER DO THIS)
+```typescript
+// ❌ Wrong - setTimeout and DOM queries
+setTimeout(() => {
+    document.querySelector('.item')?.scrollIntoView();
+}, 100);
+
+// ✅ Correct - React lifecycle
+useEffect(() => {
+    if (condition && ref.current) {
+        ref.current.scrollIntoView();
+    }
+}, [condition]);
+```
+
+**REMEMBER: React owns the DOM. Use React patterns ONLY.**
 
 ## Debugging Tips
 
