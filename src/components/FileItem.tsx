@@ -20,7 +20,9 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
     // Enable context menu
     useContextMenu(fileRef, { type: 'file', item: file });
 
-    const formattedDate = DateUtils.formatDate(file.stat.mtime, plugin.settings.dateFormat);
+    // Show date based on sort option - created date when sorted by created, modified date otherwise
+    const dateToShow = plugin.settings.sortOption === 'created' ? file.stat.ctime : file.stat.mtime;
+    const formattedDate = DateUtils.formatDate(dateToShow, plugin.settings.dateFormat);
 
     // useEffect is how you perform side effects, like reading file content.
     useEffect(() => {
