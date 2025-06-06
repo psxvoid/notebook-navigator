@@ -487,7 +487,7 @@ button.nn-icon-button {
 }
 
 /* When folders have focus, make selected file background 50% transparent */
-.notebook-navigator[data-focus-pane="folders"] .nn-file-item.nn-selected .nn-file-content::before {
+.nn-split-container[data-focus-pane="folders"] .nn-file-item.nn-selected .nn-file-content::before {
     opacity: 0.5;
 }
 
@@ -502,27 +502,8 @@ button.nn-icon-button {
 }
 
 /* When files have focus, make selected folder background 50% transparent */
-.notebook-navigator[data-focus-pane="files"] .nn-folder-item.nn-selected > .nn-folder-content {
-    position: relative;
-}
-
-.notebook-navigator[data-focus-pane="files"] .nn-folder-item.nn-selected > .nn-folder-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background-color: var(--nn-selection-color, #B3D9FF);
+.nn-split-container[data-focus-pane="files"] .nn-folder-item.nn-selected > .nn-folder-content::before {
     opacity: 0.5;
-    border-radius: 4px;
-    z-index: 0;
-}
-
-/* Ensure folder content stays above the background */
-.notebook-navigator[data-focus-pane="files"] .nn-folder-item.nn-selected > .nn-folder-content > * {
-    position: relative;
-    z-index: 1;
 }
 
 /* Remove any remaining hover transitions */
