@@ -342,20 +342,19 @@ button.nn-icon-button {
     color: #999;
 }
 
+/* Smooth expand/collapse animation */
 .nn-folder-children {
-    overflow: hidden;
-    max-height: 0;
-    transition: none;
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.15s ease-out;
 }
 
-/* Expanded state - no animation by default */
 .nn-folder-children.nn-expanded {
-    max-height: none;
+    grid-template-rows: 1fr;
 }
 
-/* Animate only when manually toggling */
-.nn-folder-children.nn-animating {
-    transition: max-height 0.18s ease-out;
+.nn-folder-children-inner {
+    overflow: hidden;
 }
 
 /* File List */

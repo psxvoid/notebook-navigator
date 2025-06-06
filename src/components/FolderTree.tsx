@@ -52,9 +52,13 @@ export function FolderTree() {
                     onToggle={() => handleToggleExpanded(folder.path)}
                     onClick={() => handleFolderClick(folder)}
                 />
-                {isExpanded && childFolders.map(childFolder => 
-                    renderFolder(childFolder, level + 1)
-                )}
+                <div className={`nn-folder-children ${isExpanded ? 'nn-expanded' : ''}`}>
+                    <div className="nn-folder-children-inner">
+                        {childFolders.map(childFolder => 
+                            renderFolder(childFolder, level + 1)
+                        )}
+                    </div>
+                </div>
             </React.Fragment>
         );
     };
