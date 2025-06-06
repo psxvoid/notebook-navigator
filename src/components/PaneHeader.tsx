@@ -42,11 +42,16 @@ export function PaneHeader({ type }: PaneHeaderProps) {
         if (type !== 'folder' || !appState.selectedFolder) return;
         
         try {
-            await fileSystemOps.createNewFolder(appState.selectedFolder);
+            await fileSystemOps.createNewFolder(appState.selectedFolder, () => {
+                // Expand the parent folder to show the newly created folder
+                if (!appState.expandedFolders.has(appState.selectedFolder.path)) {
+                    dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: appState.selectedFolder.path });
+                }
+            });
         } catch (error) {
             console.error('Failed to create folder:', error);
         }
-    }, [appState.selectedFolder, fileSystemOps, type]);
+    }, [appState.selectedFolder, appState.expandedFolders, fileSystemOps, type, dispatch]);
     
     const handleNewFile = useCallback(async () => {
         if (type !== 'file' || !appState.selectedFolder) return;
