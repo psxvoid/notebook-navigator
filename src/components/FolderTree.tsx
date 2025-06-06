@@ -79,7 +79,13 @@ export function FolderTree() {
     
     return (
         <div className="nn-folder-tree">
-            {rootFolders.map(folder => renderFolder(folder))}
+            {plugin.settings.showRootFolder ? (
+                // When showing root folder, render it as the top level with its children
+                renderFolder(rootFolder)
+            ) : (
+                // Otherwise just render the root level folders
+                rootFolders.map(folder => renderFolder(folder))
+            )}
         </div>
     );
 }

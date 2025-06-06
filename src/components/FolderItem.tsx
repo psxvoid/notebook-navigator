@@ -103,7 +103,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
                     }}
                 />
                 <span className="nn-folder-icon" ref={iconRef}></span>
-                <span className="nn-folder-name">{folder.name}</span>
+                <span className="nn-folder-name">{folder.path === '/' || folder.path === '' ? 'Vault' : folder.name}</span>
                 {plugin.settings.showFolderFileCount && fileCount > 0 && (
                     <span className="nn-folder-count">{fileCount}</span>
                 )}
