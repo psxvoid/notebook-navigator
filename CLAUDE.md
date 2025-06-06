@@ -35,7 +35,8 @@ notebook-navigator/
 │   ├── hooks/                     # Custom React hooks
 │   │   ├── useKeyboardNavigation.ts  # Keyboard shortcuts
 │   │   ├── useContextMenu.ts     # Right-click menus
-│   │   └── useDragAndDrop.ts    # Drag & drop logic
+│   │   ├── useDragAndDrop.ts    # Drag & drop logic
+│   │   └── useScrollIntoView.ts  # Smart scroll positioning
 │   ├── services/                  # Business logic services
 │   │   └── FileSystemService.ts  # File operations
 │   ├── modals/                    # Obsidian modal dialogs
@@ -50,11 +51,28 @@ notebook-navigator/
 ├── styles.css                     # Global styles
 ├── manifest.json                  # Plugin metadata
 ├── package.json                  # Dependencies
+├── tsconfig.json                  # TypeScript configuration
 ├── esbuild.config.mjs            # Build configuration
+├── version-bump.mjs              # Version management script
+├── versions.json                 # Version history
+├── LICENSE                       # GPL-3.0 license
+├── README.md                     # User documentation
 └── CLAUDE.md                     # This file
 ```
 
 ## React Architecture
+
+### Why React?
+The plugin was completely refactored from vanilla JavaScript to React for several key benefits:
+
+1. **Performance**: React's virtual DOM and efficient diffing algorithm provide smooth updates even with large vaults
+2. **Maintainability**: Component-based architecture makes the codebase modular and easy to extend
+3. **State Management**: Centralized state with Context API eliminates prop drilling and makes state predictable
+4. **Type Safety**: Full TypeScript integration with strict mode catches errors at compile time
+5. **Memory Management**: Automatic cleanup of event listeners and subscriptions prevents memory leaks
+6. **Developer Experience**: Hot module reloading, React DevTools, and clear component hierarchy
+
+The refactor maintains 100% feature parity while significantly improving code quality and performance.
 
 ### Component Hierarchy
 ```
@@ -136,6 +154,14 @@ Manages drag and drop operations:
 - Validation to prevent invalid moves
 - Works with both files and folders
 - Updates file system on drop
+
+#### useScrollIntoView
+Smart scroll positioning for active items:
+- Centers selected items in view
+- Uses double requestAnimationFrame for proper timing
+- Manual scroll calculation for reliability
+- Smooth scrolling behavior
+- Prevents unnecessary scrolls when item is already visible
 
 ## Code Style & Patterns
 
@@ -502,6 +528,30 @@ localStorage.getItem('notebook-navigator-expanded-folders')
 - Custom sort orders
 - Folder templates
 - Keyboard shortcut customization
+
+## Build Process
+
+### Development
+```bash
+npm run dev    # Start development build with watch mode
+```
+
+### Production
+```bash
+npm run build  # Create production build
+```
+
+The build process:
+1. TypeScript compilation with strict mode
+2. React JSX transformation
+3. Bundle creation with esbuild
+4. Output to `main.js` in project root
+5. Sourcemap generation for debugging
+
+### Version Management
+```bash
+npm run version   # Bump version in manifest.json and versions.json
+```
 
 ## Contributing Guidelines
 1. Follow existing code patterns
