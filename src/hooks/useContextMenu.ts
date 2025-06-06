@@ -21,7 +21,7 @@ import { useEffect, useCallback } from 'react';
 import { Menu, MenuItem, TFile, TFolder, Notice } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { useFileSystemOps } from '../context/ServicesContext';
-import { isFolderAncestor } from '../utils/typeGuards';
+import { isFolderAncestor, getInternalPlugin } from '../utils/typeGuards';
 
 /**
  * Configuration for the context menu
@@ -119,8 +119,9 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement>, config:
                     });
             });
             
-            // New database (only if Obsidian supports it)
-            if ((app as any).vault.adapter.createBase) {
+            // New base (only if Bases plugin is enabled)
+            const basesPlugin = getInternalPlugin(app, 'bases');
+            if (basesPlugin?.enabled) {
                 menu.addItem((item: MenuItem) => {
                     item
                         .setTitle('New base')
