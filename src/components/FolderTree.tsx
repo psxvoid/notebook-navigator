@@ -1,3 +1,21 @@
+/*
+ * Notebook Navigator - Plugin for Obsidian
+ * Copyright (c) 2025 Johan Sanneblad
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import React, { useCallback, useMemo } from 'react';
 import { TFile, TFolder } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
@@ -5,6 +23,13 @@ import { FolderItem } from './FolderItem';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 
 
+/**
+ * Renders the hierarchical folder tree structure for the vault.
+ * Manages folder expansion state, selection, and filtering of ignored folders.
+ * Recursively renders nested folders with proper indentation.
+ * 
+ * @returns A tree view of folders with expand/collapse functionality
+ */
 export function FolderTree() {
     const { app, appState, dispatch, plugin, refreshCounter } = useAppContext();
     
@@ -29,6 +54,13 @@ export function FolderTree() {
         dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath });
     }, [dispatch]);
     
+    /**
+     * Recursively renders a folder and its children.
+     * 
+     * @param folder - The folder to render
+     * @param level - The nesting level for indentation
+     * @returns React nodes for the folder and its expanded children
+     */
     const renderFolder = (folder: TFolder, level: number = 0): React.ReactNode => {
         // Skip ignored folders
         if (ignoredFolders.has(folder.name)) {

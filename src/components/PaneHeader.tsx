@@ -1,3 +1,21 @@
+/*
+ * Notebook Navigator - Plugin for Obsidian
+ * Copyright (c) 2025 Johan Sanneblad
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import React, { useCallback } from 'react';
 import { setIcon } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
@@ -8,6 +26,15 @@ interface PaneHeaderProps {
     type: 'folder' | 'file';
 }
 
+/**
+ * Renders the header bar for either the folder or file pane.
+ * Provides action buttons based on pane type - expand/collapse all and new folder
+ * for the folder pane, new file for the file pane.
+ * 
+ * @param props - The component props
+ * @param props.type - Whether this is the header for the 'folder' or 'file' pane
+ * @returns A header element with context-appropriate action buttons
+ */
 export function PaneHeader({ type }: PaneHeaderProps) {
     const { app, appState, dispatch } = useAppContext();
     const fileSystemOps = useFileSystemOps();

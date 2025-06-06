@@ -1,3 +1,21 @@
+/*
+ * Notebook Navigator - Plugin for Obsidian
+ * Copyright (c) 2025 Johan Sanneblad
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 // src/hooks/useDragAndDrop.ts
 import { useCallback, useEffect, useRef } from 'react';
 import { TFolder, TFile, Notice } from 'obsidian';
@@ -5,11 +23,40 @@ import { useAppContext } from '../context/AppContext';
 import { useFileSystemOps } from '../context/ServicesContext';
 import { isTFolder } from '../utils/typeGuards';
 
+/**
+ * Custom hook that enables drag and drop functionality for files and folders.
+ * Handles visual feedback, validation, and file system operations.
+ * 
+ * @param containerRef - React ref to the container element that will handle drag events
+ * 
+ * @example
+ * ```tsx
+ * const containerRef = useRef<HTMLDivElement>(null);
+ * useDragAndDrop(containerRef);
+ * 
+ * return (
+ *   <div ref={containerRef}>
+ *     <div data-draggable="true" data-drag-path="/path/to/file" data-drag-type="file">
+ *       Draggable item
+ *     </div>
+ *     <div data-drop-zone="folder" data-drop-path="/path/to/folder">
+ *       Drop zone
+ *     </div>
+ *   </div>
+ * );
+ * ```
+ */
 export function useDragAndDrop(containerRef: React.RefObject<HTMLElement>) {
     const { app, dispatch } = useAppContext();
     const fileSystemOps = useFileSystemOps();
     const dragOverElement = useRef<HTMLElement | null>(null);
 
+    /**
+     * Handles the drag start event.
+     * Extracts drag data from data attributes and sets drag effect.
+     * 
+     * @param e - The drag event
+     */
     const handleDragStart = useCallback((e: DragEvent) => {
         const target = e.target as HTMLElement;
         const draggable = target.closest('[data-draggable="true"]');
@@ -24,6 +71,12 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement>) {
         }
     }, []);
 
+    /**
+     * Handles the drag over event.
+     * Provides visual feedback by adding CSS classes to valid drop targets.
+     * 
+     * @param e - The drag event
+     */
     const handleDragOver = useCallback((e: DragEvent) => {
         e.preventDefault();
         const target = e.target as HTMLElement;
@@ -41,6 +94,12 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement>) {
         }
     }, []);
 
+    /**
+     * Handles the drop event.
+     * Validates the drop and performs the file/folder move operation.
+     * 
+     * @param e - The drag event
+     */
     const handleDrop = useCallback(async (e: DragEvent) => {
         e.preventDefault();
         if (dragOverElement.current) {
@@ -78,6 +137,12 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement>) {
         }
     }, [app, fileSystemOps, dispatch]);
     
+    /**
+     * Handles the drag end event.
+     * Cleans up drag-related CSS classes.
+     * 
+     * @param e - The drag event
+     */
     const handleDragEnd = useCallback((e: DragEvent) => {
         const target = e.target as HTMLElement;
         const draggable = target.closest('[data-draggable="true"]');

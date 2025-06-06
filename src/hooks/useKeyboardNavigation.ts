@@ -1,3 +1,21 @@
+/*
+ * Notebook Navigator - Plugin for Obsidian
+ * Copyright (c) 2025 Johan Sanneblad
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 // src/hooks/useKeyboardNavigation.ts
 import { useCallback, useEffect, useRef } from 'react';
 import { TFile, TFolder } from 'obsidian';
@@ -5,11 +23,43 @@ import { useAppContext } from '../context/AppContext';
 import { useFileSystemOps } from '../context/ServicesContext';
 import { isTFolder, isFolderAncestor } from '../utils/typeGuards';
 
+/**
+ * Custom hook that provides keyboard navigation for the file explorer.
+ * Handles arrow key navigation, tab switching between panes, and delete operations.
+ * 
+ * Keyboard shortcuts:
+ * - Arrow Up/Down: Navigate items in current pane
+ * - Arrow Left: Collapse folder, move to parent, or switch to folder pane
+ * - Arrow Right: Expand folder, switch to file pane, or focus editor
+ * - Tab: Switch between panes (Shift+Tab for reverse)
+ * - Delete/Backspace: Delete selected item
+ * 
+ * @param containerRef - React ref to the container element that will receive keyboard events
+ * 
+ * @example
+ * ```tsx
+ * const containerRef = useRef<HTMLDivElement>(null);
+ * useKeyboardNavigation(containerRef);
+ * 
+ * return (
+ *   <div ref={containerRef} tabIndex={0}>
+ *     <FolderTree />
+ *     <FileList />
+ *   </div>
+ * );
+ * ```
+ */
 export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>) {
     const { app, appState, dispatch, plugin } = useAppContext();
     const fileSystemOps = useFileSystemOps();
     const lastActionTime = useRef(0);
     
+    /**
+     * Gets all visible folder elements from the DOM.
+     * Filters out folders that are inside collapsed parent folders.
+     * 
+     * @returns Array of visible folder DOM elements
+     */
     const getFolderElements = useCallback(() => {
         if (!containerRef.current) return [];
         // Get all folder items
@@ -35,16 +85,34 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
         });
     }, [containerRef]);
     
+    /**
+     * Gets all file elements from the DOM.
+     * 
+     * @returns Array of file DOM elements
+     */
     const getFileElements = useCallback(() => {
         if (!containerRef.current) return [];
         return Array.from(containerRef.current.querySelectorAll('.nn-file-item'));
     }, [containerRef]);
     
+    /**
+     * Finds the index of the selected element in an array of elements.
+     * 
+     * @param elements - Array of DOM elements
+     * @param selectedPath - Path of the selected item
+     * @returns Index of selected element or -1 if not found
+     */
     const getSelectedIndex = useCallback((elements: Element[], selectedPath: string | null) => {
         if (!selectedPath) return -1;
         return elements.findIndex(el => el.getAttribute('data-path') === selectedPath);
     }, []);
     
+    /**
+     * Navigates through folder items using arrow keys.
+     * Updates selection and scrolls the selected folder into view.
+     * 
+     * @param direction - Direction to navigate ('up' or 'down')
+     */
     const navigateFolders = useCallback((direction: 'up' | 'down') => {
         const elements = getFolderElements();
         if (elements.length === 0) return;
@@ -71,6 +139,12 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
         }
     }, [getFolderElements, getSelectedIndex, appState.selectedFolder, app, dispatch]);
     
+    /**
+     * Navigates through file items using arrow keys.
+     * Updates selection, scrolls into view, and opens the file in the editor.
+     * 
+     * @param direction - Direction to navigate ('up' or 'down')
+     */
     const navigateFiles = useCallback((direction: 'up' | 'down') => {
         const elements = getFileElements();
         if (elements.length === 0) return;
@@ -105,6 +179,13 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
         }
     }, [getFileElements, getSelectedIndex, appState.selectedFile, app, dispatch]);
     
+    /**
+     * Main keyboard event handler.
+     * Processes all keyboard shortcuts and delegates to appropriate actions.
+     * Includes debouncing to prevent rapid key spam.
+     * 
+     * @param e - The keyboard event
+     */
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
         // Debounce rapid key presses
         const now = Date.now();

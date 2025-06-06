@@ -1,3 +1,21 @@
+/*
+ * Notebook Navigator - Plugin for Obsidian
+ * Copyright (c) 2025 Johan Sanneblad
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 // src/view/NotebookNavigatorView.tsx
 import { ItemView, WorkspaceLeaf, TFile } from 'obsidian';
 import { Root, createRoot } from 'react-dom/client';
@@ -8,28 +26,55 @@ import { ServicesProvider } from '../context/ServicesContext';
 import { NotebookNavigatorComponent, NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
 import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 
+/**
+ * Custom Obsidian view that hosts the React-based Notebook Navigator interface
+ * Manages the lifecycle of the React application and provides integration between
+ * Obsidian's view system and the React component tree
+ */
 export class NotebookNavigatorView extends ItemView {
     plugin: NotebookNavigatorPlugin;
     private root: Root | null = null;
     private componentRef = React.createRef<NotebookNavigatorHandle>();
 
+    /**
+     * Creates a new NotebookNavigatorView instance
+     * @param leaf - The workspace leaf that contains this view
+     * @param plugin - The plugin instance for accessing settings and methods
+     */
     constructor(leaf: WorkspaceLeaf, plugin: NotebookNavigatorPlugin) {
         super(leaf);
         this.plugin = plugin;
     }
 
+    /**
+     * Returns the unique identifier for this view type
+     * @returns The view type constant used by Obsidian to manage this view
+     */
     getViewType() {
         return VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT;
     }
 
+    /**
+     * Returns the display text shown in the view header
+     * @returns The human-readable name of this view
+     */
     getDisplayText() {
         return 'Notebook Navigator';
     }
 
+    /**
+     * Returns the icon identifier for this view
+     * @returns The Obsidian icon name to display in tabs and headers
+     */
     getIcon() {
         return 'notebook';
     }
 
+    /**
+     * Called when the view is opened/created
+     * Initializes the React application within the Obsidian view container
+     * Sets up the component hierarchy with necessary context providers
+     */
     async onOpen() {
         const container = this.containerEl.children[1];
         container.empty(); // Clear previous content
@@ -47,6 +92,11 @@ export class NotebookNavigatorView extends ItemView {
         );
     }
 
+    /**
+     * Called when the view is closed/destroyed
+     * Properly unmounts the React application to prevent memory leaks
+     * Cleans up any view-specific classes and resources
+     */
     async onClose() {
         // Unmount the React app when the view is closed to prevent memory leaks
         const container = this.containerEl.children[1];

@@ -1,3 +1,21 @@
+/*
+ * Notebook Navigator - Plugin for Obsidian
+ * Copyright (c) 2025 Johan Sanneblad
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import React, { useRef, useEffect } from 'react';
 import { TFolder } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
@@ -15,6 +33,20 @@ interface FolderItemProps {
     onClick: () => void;
 }
 
+/**
+ * Renders an individual folder item in the folder tree with expand/collapse functionality.
+ * Displays folder icon, name, and optional file count. Handles selection state,
+ * context menus, drag-and-drop, and auto-scrolling when selected.
+ * 
+ * @param props - The component props
+ * @param props.folder - The Obsidian TFolder to display
+ * @param props.level - The nesting level for indentation
+ * @param props.isExpanded - Whether this folder is currently expanded
+ * @param props.isSelected - Whether this folder is currently selected
+ * @param props.onToggle - Handler called when the expand/collapse chevron is clicked
+ * @param props.onClick - Handler called when the folder is clicked
+ * @returns A folder item element with chevron, icon, name and optional file count
+ */
 export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick }: FolderItemProps) {
     const { app, plugin, refreshCounter } = useAppContext();
     const folderRef = useRef<HTMLDivElement>(null);

@@ -1,3 +1,21 @@
+/*
+ * Notebook Navigator - Plugin for Obsidian
+ * Copyright (c) 2025 Johan Sanneblad
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import React, { useMemo, useCallback, useLayoutEffect } from 'react';
 import { TFile, TFolder } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
@@ -6,6 +24,13 @@ import { DateUtils } from '../utils/DateUtils';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 
+/**
+ * Renders the file list pane displaying files from the selected folder.
+ * Handles file sorting, grouping by date, pinned notes, and auto-selection.
+ * Integrates with the app context to manage file selection and navigation.
+ * 
+ * @returns A scrollable list of files grouped by date (if enabled) with empty state handling
+ */
 export function FileList() {
     const { app, appState, dispatch, plugin, refreshCounter } = useAppContext();
     

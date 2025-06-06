@@ -1,4 +1,21 @@
-// src/components/FileItem.tsx
+/*
+ * Notebook Navigator - Plugin for Obsidian
+ * Copyright (c) 2025 Johan Sanneblad
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import React, { useEffect, useState, useRef, useMemo } from 'react';
 import { TFile } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
@@ -12,6 +29,17 @@ interface FileItemProps {
     onClick: () => void;
 }
 
+/**
+ * Renders an individual file item in the file list with preview text and metadata.
+ * Displays the file name, date, preview text, and optional feature image.
+ * Handles selection state, context menus, and drag-and-drop functionality.
+ * 
+ * @param props - The component props
+ * @param props.file - The Obsidian TFile to display
+ * @param props.isSelected - Whether this file is currently selected
+ * @param props.onClick - Handler called when the file is clicked
+ * @returns A file item element with name, date, preview and optional image
+ */
 export function FileItem({ file, isSelected, onClick }: FileItemProps) {
     const { app, plugin } = useAppContext();
     const [previewText, setPreviewText] = useState('...');

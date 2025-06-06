@@ -354,18 +354,45 @@ export class FileSystemOperations {
     }
 
     // Alias methods for backward compatibility
+    /**
+     * Creates a new note in the specified parent folder
+     * @deprecated Use createNewFile instead
+     * @param parent - The parent folder where the note will be created
+     * @returns Promise resolving to the created file or null if creation failed
+     */
     async createNote(parent: TFolder): Promise<TFile | null> {
         return this.createNewFile(parent);
     }
 
+    /**
+     * Creates a new folder in the specified parent folder
+     * @deprecated Use createNewFolder instead
+     * @param parent - The parent folder where the new folder will be created
+     * @param onSuccess - Optional callback with the new folder path
+     * @returns Promise that resolves when the folder is created
+     */
     async createFolder(parent: TFolder, onSuccess?: (path: string) => void): Promise<void> {
         return this.createNewFolder(parent, onSuccess);
     }
 
+    /**
+     * Deletes a note file from the vault
+     * @deprecated Use deleteFile instead
+     * @param file - The file to delete
+     * @param confirmBeforeDelete - Whether to show confirmation dialog
+     * @param onSuccess - Optional callback to run after successful deletion
+     * @returns Promise that resolves when the file is deleted
+     */
     async deleteNote(file: TFile, confirmBeforeDelete?: boolean, onSuccess?: () => void): Promise<void> {
         return this.deleteFile(file, confirmBeforeDelete || false, onSuccess);
     }
 
+    /**
+     * Renames a note file using a modal dialog
+     * @deprecated Use renameFile instead
+     * @param file - The file to rename
+     * @returns Promise that resolves when the rename is complete
+     */
     async renameNote(file: TFile): Promise<void> {
         return this.renameFile(file);
     }
