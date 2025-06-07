@@ -112,6 +112,12 @@ export function FileList() {
     useLayoutEffect(() => {
         if (!appState.selectedFolder) return;
         
+        // Check if there's already a selected file in the current folder
+        if (appState.selectedFile && appState.selectedFile.parent?.path === appState.selectedFolder.path) {
+            // File is already selected in this folder, don't auto-select first file
+            return;
+        }
+        
         const firstFileElement = document.querySelector('.nn-file-item');
         if (firstFileElement) {
             const file = getFileFromElement(firstFileElement as HTMLElement, app);
@@ -125,7 +131,7 @@ export function FileList() {
                 }
             }
         }
-    }, [appState.selectedFolder?.path, app.workspace, dispatch]); // Only run when folder changes
+    }, [appState.selectedFolder?.path, appState.selectedFile, app.workspace, dispatch]); // Only run when folder changes
     
     // Group files by date if enabled
     const groupedFiles = useMemo(() => {
