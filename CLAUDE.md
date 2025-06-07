@@ -122,273 +122,92 @@ Provides service instances through custom hooks:
 
 ### Custom Hooks
 
-#### useKeyboardNavigation
-Handles all keyboard shortcuts:
-- Arrow keys for navigation
-- Tab to switch panes
-- Enter to open files/toggle folders
-- Delete/Backspace to delete items
-- Debounced to prevent rapid key spam
-
-#### useContextMenu
-Attaches right-click context menus to elements:
-- Folder menus: New note/folder/canvas, rename, delete, etc.
-- File menus: Open options, pin/unpin, rename, delete, etc.
-- Uses Obsidian's Menu API
-
-#### useDragAndDrop
-Manages drag and drop operations:
-- Visual feedback with CSS classes
-- Validation to prevent invalid moves
-- Works with both files and folders
-- Updates file system on drop
-
-#### useScrollIntoView
-Smart scroll positioning for active items:
-- Centers selected items in view
-- Uses double requestAnimationFrame for proper timing
-- Manual scroll calculation for reliability
-- Smooth scrolling behavior
-- Prevents unnecessary scrolls when item is already visible
+- **useKeyboardNavigation**: Arrow keys, Tab, Enter, Delete with debouncing
+- **useContextMenu**: Right-click menus using Obsidian's Menu API
+- **useDragAndDrop**: Drag-and-drop with validation and visual feedback  
+- **useScrollIntoView**: Smart scrolling that centers selected items
+- **useResizablePane**: Handles pane resizing with min/max constraints
 
 ## Code Style & Patterns
 
-### CRITICAL: React Patterns - NO setTimeout/DOM Manipulation
+### Key Development Principles
 
-**NEVER use setTimeout, setInterval, or direct DOM manipulation in React components.**
+1. **Pragmatism over Purity**: When integrating with Obsidian's imperative APIs and handling performance requirements for large vaults, practical solutions take precedence over strict React patterns.
 
-❌ **WRONG - Never do this:**
+2. **Performance Matters**: For a file explorer dealing with potentially thousands of items, performance optimizations (like event delegation) are crucial. Choose patterns that scale well.
+
+3. **Documentation is Crucial**: When using non-standard patterns, always document the rationale. Future maintainers need to understand why decisions were made.
+
+### React Patterns
+
+**AVOID direct DOM manipulation in React components unless justified by performance or Obsidian integration needs.**
+
+❌ **Generally Wrong:**
 ```typescript
-// NEVER use setTimeout to wait for React updates
+// Avoid setTimeout for React state synchronization
 setTimeout(() => {
-    const element = document.querySelector('.some-class');
     element?.scrollIntoView();
 }, 100);
 
-// NEVER query DOM directly
-const fileElement = document.querySelector(`[data-path="${path}"]`);
-
-// NEVER manipulate DOM directly
+// Avoid direct DOM manipulation for state
 element.classList.add('active');
 ```
 
-✅ **CORRECT - Always use React patterns:**
+✅ **Preferred React Patterns:**
 ```typescript
-// Use useEffect to respond to state changes
+// Use React lifecycle for side effects
 useEffect(() => {
     if (isSelected && ref.current) {
         ref.current.scrollIntoView({ behavior: 'smooth' });
     }
 }, [isSelected]);
 
-// Use state and props for conditional rendering
+// Use state for UI changes
 <div className={`item ${isActive ? 'active' : ''}`}>
-
-// Use refs for DOM access when needed
-const ref = useRef<HTMLDivElement>(null);
 ```
 
-**Why this matters:**
-1. React controls the DOM - direct manipulation breaks React's virtual DOM
-2. setTimeout creates race conditions with React's render cycle
-3. React's lifecycle methods guarantee proper timing
-4. Direct DOM queries are fragile and break when components re-render
+### Pragmatic Exceptions
 
-**ALWAYS use React patterns:**
-- `useEffect` for side effects
-- `useState` for local state
-- `useRef` for DOM element references
-- `useMemo`/`useCallback` for optimization
-- Conditional rendering for dynamic UI
+Some patterns deviate from React best practices for good reasons:
+
+1. **DOM Queries in useKeyboardNavigation**: Used for dynamic navigation through complex, nested structures. Managing refs for hundreds of items would add unnecessary complexity.
+
+2. **Event Delegation in useDragAndDrop**: Provides superior performance with 4 listeners vs hundreds. Essential for large vaults.
+
+3. **Data Attributes**: Used extensively for drag-and-drop and keyboard navigation. Provides clean separation between data and presentation.
 
 ### React Best Practices
 
-#### Component Structure
-```typescript
-// 1. Imports (React first, then Obsidian, then local)
-import React, { useState, useCallback } from 'react';
-import { TFile } from 'obsidian';
-import { useAppContext } from '../context/AppContext';
-
-// 2. TypeScript interfaces
-interface FileItemProps {
-    file: TFile;
-    isSelected: boolean;
-    onClick: () => void;
-}
-
-// 3. Component with explicit return type
-export function FileItem({ file, isSelected, onClick }: FileItemProps) {
-    // 4. Hooks at the top
-    const { app } = useAppContext();
-    const [loading, setLoading] = useState(false);
-    
-    // 5. Callbacks with proper dependencies
-    const handleClick = useCallback(() => {
-        onClick();
-    }, [onClick]);
-    
-    // 6. Render
-    return (
-        <div className="file-item" onClick={handleClick}>
-            {file.basename}
-        </div>
-    );
-}
-```
-
-#### Hook Dependencies
-Always include all dependencies in hook arrays:
-```typescript
-// ✅ Good
-useEffect(() => {
-    doSomething(file.path);
-}, [file.path]); // Specific property
-
-// ❌ Bad
-useEffect(() => {
-    doSomething(file.path);
-}, [file]); // Entire object causes unnecessary re-renders
-```
-
-#### Performance Optimizations
-1. Use `useMemo` for expensive computations:
-```typescript
-const sortedFiles = useMemo(() => {
-    return files.sort((a, b) => b.stat.mtime - a.stat.mtime);
-}, [files]);
-```
-
-2. Use `useCallback` for functions passed as props:
-```typescript
-const handleClick = useCallback(() => {
-    dispatch({ type: 'SELECT_FILE', file });
-}, [dispatch, file]);
-```
-
-3. Use `useLayoutEffect` for DOM measurements to prevent flicker:
-```typescript
-useLayoutEffect(() => {
-    const firstItem = document.querySelector('.nn-file-item');
-    if (firstItem) {
-        // Synchronous DOM updates before paint
-    }
-}, [folder]);
-```
+- **Component Structure**: Imports → Interfaces → Component → Hooks → Callbacks → Render
+- **Hook Dependencies**: Use specific properties, not entire objects
+- **Performance**: Use `useMemo` for expensive computations, `useCallback` for stable references
+- **DOM Measurements**: Use `useLayoutEffect` to prevent visual flicker
 
 ### TypeScript Patterns
 
-#### Type Guards
-Use type guards for Obsidian's abstract types:
-```typescript
-// In utils/typeGuards.ts
-export function isTFile(file: TAbstractFile): file is TFile {
-    return 'extension' in file;
-}
-
-export function isTFolder(file: TAbstractFile): file is TFolder {
-    return 'children' in file;
-}
-```
-
-#### Strict Null Checks
-Always handle null/undefined:
-```typescript
-// ✅ Good
-const fileName = file?.basename ?? 'Untitled';
-
-// ❌ Bad
-const fileName = file.basename; // Could crash
-```
+- **Type Guards**: Use `isTFile()` and `isTFolder()` for Obsidian's abstract types
+- **Null Safety**: Always use optional chaining (`?.`) and nullish coalescing (`??`)
+- **Strict Mode**: TypeScript strict mode is enabled - handle all edge cases
 
 ### Event Handling
 
-#### Event Delegation
-Use event delegation for dynamic lists to prevent memory leaks:
-```typescript
-// In parent component
-<div onClick={handleContainerClick}>
-    {items.map(item => (
-        <div key={item.id} data-id={item.id}>
-            {item.name}
-        </div>
-    ))}
-</div>
-
-// Handler
-const handleContainerClick = (e: React.MouseEvent) => {
-    const target = e.target as HTMLElement;
-    const id = target.closest('[data-id]')?.getAttribute('data-id');
-    if (id) {
-        handleItemClick(id);
-    }
-};
-```
-
-#### Keyboard Events
-Prevent default browser behavior:
-```typescript
-const handleKeyDown = (e: KeyboardEvent) => {
-    if (e.key === 'ArrowDown') {
-        e.preventDefault(); // Prevent page scroll
-        navigateDown();
-    }
-};
-```
+- **Event Delegation**: Used for performance with large lists (see `useDragAndDrop` and `useKeyboardNavigation`)
+- **Keyboard Events**: Always `preventDefault()` for navigation keys to prevent scrolling
+- **Data Attributes**: Used for associating data with DOM elements in event delegation patterns
 
 ### CSS Classes & Styling
 
-#### BEM-like Naming
-Use consistent class naming:
-```css
-.nn-folder-tree {}           /* Block */
-.nn-folder-item {}           /* Element */
-.nn-folder-item--expanded {} /* Modifier */
-.nn-selected {}              /* State */
-```
-
-#### CSS Variables
-Use CSS variables for theming:
-```css
-.notebook-navigator {
-    --nn-selection-color: var(--interactive-accent);
-    --nn-hover-color: var(--background-modifier-hover);
-}
-```
+- **Naming Convention**: BEM-like with `nn-` prefix (e.g., `nn-folder-tree`, `nn-folder-item--expanded`)
+- **Theming**: Use Obsidian's CSS variables for consistent theming
+- **States**: Use modifier classes for states (`nn-selected`, `nn-dragging`, `nn-drag-over`)
 
 ## Common Development Tasks
 
-### Adding a New Setting
-1. Add to `NotebookNavigatorSettings` interface in `settings.ts`
-2. Add default value to `DEFAULT_SETTINGS`
-3. Add UI control in `NotebookNavigatorSettingTab.display()`
-4. Use setting in relevant component via `plugin.settings.yourSetting`
-
-### Adding a New Keyboard Shortcut
-1. Add case to switch statement in `useKeyboardNavigation` hook
-2. Prevent default if needed with `e.preventDefault()`
-3. Dispatch appropriate action or call service method
-4. Update this documentation
-
-### Adding a New Context Menu Item
-1. Locate the appropriate menu builder in `useContextMenu`
-2. Add new menu item with `menu.addItem()`
-3. Implement handler function
-4. Consider adding to FileSystemService if it's a file operation
-
-### Creating a New Component
-1. Create file in `src/components/`
-2. Define TypeScript interface for props
-3. Export named function (not default)
-4. Use hooks for state and context access
-5. Add to component hierarchy documentation
-
-### Adding a New Global State Property
-1. Add to `AppState` interface in `AppContext.tsx`
-2. Add initial value in `loadStateFromStorage()`
-3. Add new action type to `AppAction` union
-4. Implement reducer case
-5. Add localStorage persistence if needed
+- **New Setting**: Add to interface → DEFAULT_SETTINGS → Settings tab UI → Use in component
+- **New Keyboard Shortcut**: Add case in `useKeyboardNavigation` → preventDefault → Dispatch action
+- **New Context Menu**: Find menu builder in `useContextMenu` → Add menu item → Implement handler
+- **New Component**: Create in `src/components/` → Named export → TypeScript props interface
+- **New Global State**: Add to AppState → Add action type → Implement reducer case → Add persistence
 
 ## Performance Considerations
 
@@ -467,14 +286,14 @@ const ref = useRef();
 <div ref={ref}>
 ```
 
-### DOM Manipulation (NEVER DO THIS)
+### DOM Manipulation
 ```typescript
-// ❌ Wrong - setTimeout and DOM queries
+// ❌ Avoid - setTimeout for React synchronization
 setTimeout(() => {
     document.querySelector('.item')?.scrollIntoView();
 }, 100);
 
-// ✅ Correct - React lifecycle
+// ✅ Preferred - React lifecycle
 useEffect(() => {
     if (condition && ref.current) {
         ref.current.scrollIntoView();
@@ -482,30 +301,14 @@ useEffect(() => {
 }, [condition]);
 ```
 
-**REMEMBER: React owns the DOM. Use React patterns ONLY.**
+**REMEMBER: Prefer React patterns, but prioritize performance and practicality when needed.**
 
 ## Debugging Tips
 
-### React DevTools
-1. Install React Developer Tools browser extension
-2. Look for "Notebook Navigator" in Components tab
-3. Check props and state values
-4. Use Profiler to find performance issues
-
-### Console Logging
-```typescript
-// Temporary debug logging
-console.log('[NN]', 'FolderTree render', { 
-    selectedFolder: appState.selectedFolder?.path,
-    expandedCount: appState.expandedFolders.size 
-});
-```
-
-### State Inspection
-```typescript
-// In browser console
-localStorage.getItem('notebook-navigator-expanded-folders')
-```
+- **React DevTools**: Use Components tab to inspect state and props
+- **Console Logging**: Prefix with `[NN]` for easy filtering
+- **State Inspection**: Check localStorage keys for persisted state
+- **Performance**: Use React Profiler to identify render bottlenecks
 
 ## Future Enhancement Ideas
 - Virtual scrolling for large file lists
@@ -545,6 +348,8 @@ npm run version   # Bump version in manifest.json and versions.json
 1. Follow existing code patterns
 2. Add TypeScript types for all parameters
 3. Include JSDoc comments for public APIs
-4. Test with both light and dark themes
-5. Ensure mobile compatibility
-6. Update this documentation for significant changes
+4. Document any non-standard patterns with clear rationale
+5. Test with both light and dark themes
+6. Ensure mobile compatibility
+7. Consider performance implications for large vaults
+8. Update this documentation for significant changes
