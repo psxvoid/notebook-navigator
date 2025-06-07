@@ -5,6 +5,7 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 ## Features
 
 - 📁 **Two-pane interface:** Clean layout with folder tree on the left, file list on the right
+- 🏷️ **Tag browsing:** View and navigate all your tags in a dedicated section
 - 🔍 **Smart file previews:** Shows content preview with date and first lines of text
 - 🖼️ **Feature images:** Display thumbnail images from frontmatter properties
 - 📌 **Pin important notes:** Keep frequently accessed notes at the top of any folder
@@ -26,10 +27,10 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 1. Install the plugin from Obsidian's Community Plugins
 2. The navigator will replace your default file explorer
 3. Navigate using:
-   - **Click** to select folders and files
+   - **Click** to select folders, tags, and files
    - **Double-click** folders to expand/collapse
    - **Arrow keys** for navigation
-   - **Tab** to switch between folder and file panes
+   - **Tab** to switch between folder/tag and file panes
    - **Delete/Backspace** to delete (with optional confirmation)
 4. Right-click for context menus:
    - Create new files and folders
@@ -93,7 +94,8 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 ### Folder Display
 
 - **Show root folder:** Display "Vault" as the root folder in the tree
-- **Show folder file count:** Display the number of files in each folder
+- **Show folder file count:** Display the number of files in each folder (also applies to tag counts)
+- **Show tags:** Display tags section below folders in the navigator
 
 ### Appearance
 

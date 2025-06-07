@@ -27,8 +27,12 @@ import { isTFolder } from '../utils/typeGuards';
  * Manages the current state of the Notebook Navigator plugin.
  */
 export interface AppState {
+    /** Type of selection - either folder or tag */
+    selectionType: 'folder' | 'tag';
     /** Currently selected folder in the folder tree */
     selectedFolder: TFolder | null;
+    /** Currently selected tag */
+    selectedTag: string | null;
     /** Currently selected file in the file list */
     selectedFile: TFile | null;
     /** Set of folder paths that are currently expanded in the tree */
@@ -45,6 +49,7 @@ export interface AppState {
  */
 export type AppAction = 
     | { type: 'SET_SELECTED_FOLDER'; folder: TFolder | null }
+    | { type: 'SET_SELECTED_TAG'; tag: string | null }
     | { type: 'SET_SELECTED_FILE'; file: TFile | null }
     | { type: 'SET_EXPANDED_FOLDERS'; folders: Set<string> }
     | { type: 'TOGGLE_FOLDER_EXPANDED'; folderPath: string }
@@ -131,7 +136,9 @@ function loadStateFromStorage(app: App): AppState {
     }
     
     return {
+        selectionType: 'folder',
         selectedFolder,
+        selectedTag: null,
         selectedFile,
         expandedFolders,
         focusedPane: 'folders',
@@ -170,8 +177,13 @@ function saveToStorage(key: string, value: any) {
 function appReducer(state: AppState, action: AppAction, app: App): AppState {
     switch (action.type) {
         case 'SET_SELECTED_FOLDER': {
-            // Update the selected folder
-            return { ...state, selectedFolder: action.folder };
+            // Update the selected folder and clear tag selection
+            return { ...state, selectionType: 'folder', selectedFolder: action.folder, selectedTag: null };
+        }
+        
+        case 'SET_SELECTED_TAG': {
+            // Update the selected tag and clear folder selection
+            return { ...state, selectionType: 'tag', selectedTag: action.tag, selectedFolder: null };
         }
         
         case 'SET_SELECTED_FILE': {

@@ -203,13 +203,30 @@ button.nn-icon-button {
 }
 
 /* ========================================================================
+   Left Pane Scroller
+   ======================================================================== */
+
+/* Scroller container for both folder tree and tag list */
+.nn-left-pane-scroller {
+    flex: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Make FolderTree and TagList take their natural height */
+.nn-folder-tree,
+.nn-tag-list-container {
+    flex-shrink: 0;
+}
+
+/* ========================================================================
    Folder Tree Styles
    ======================================================================== */
 
 /* Folder tree container - scrollable area for folder hierarchy */
 .nn-folder-tree {
-    flex: 1;
-    overflow-y: auto;
+    overflow-y: visible;
     overflow-x: hidden;
     padding: 4px 0;
     background-color: var(--background-secondary);
@@ -240,6 +257,11 @@ button.nn-icon-button {
     position: relative;
     flex: 1;
     min-width: 0; /* Critical: allows flex children to shrink below their min-content width */
+}
+
+/* Folder content hover state */
+.nn-folder-content:hover {
+    background-color: var(--background-modifier-hover);
 }
 
 /* Folder chevron/arrow - expand/collapse indicator */
@@ -313,6 +335,84 @@ button.nn-icon-button {
 .nn-folder-children-inner {
     overflow: hidden;
     min-height: 0;
+}
+
+/* ========================================================================
+   Tag List Styles
+   ======================================================================== */
+
+/* Section header for Tags */
+.nn-section-header {
+    padding: 12px 8px 4px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin-top: 10px;
+    border-top: 1px solid var(--background-modifier-border);
+}
+
+/* Tag list container */
+.nn-tag-list-container {
+    background-color: var(--background-secondary);
+}
+
+/* Tag list */
+.nn-tag-list {
+    padding: 0 4px;
+}
+
+/* Individual tag item */
+.nn-tag-item {
+    display: flex;
+    align-items: center;
+    padding: 4px 8px;
+    cursor: pointer;
+    border-radius: 4px;
+    font-size: 12px;
+    color: var(--text-normal);
+    user-select: none;
+}
+
+/* Tag item hover state */
+.nn-tag-item:hover {
+    background-color: var(--background-modifier-hover);
+}
+
+/* Selected tag item */
+.nn-tag-item.nn-selected {
+    background-color: var(--text-selection);
+    color: var(--text-normal);
+}
+
+/* Dark mode selected tag */
+.theme-dark .nn-tag-item.nn-selected {
+    filter: brightness(0.5);
+}
+
+/* Tag icon (#) */
+.nn-tag-icon {
+    color: var(--text-muted);
+    margin-right: 8px;
+}
+
+/* Tag name text */
+.nn-tag-name {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    flex: 1;
+}
+
+/* Tag file count */
+.nn-tag-count {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-left: auto;
+    margin-right: 8px;
+    flex-shrink: 0;
+    padding-left: 8px;
 }
 
 /* ========================================================================
@@ -663,6 +763,11 @@ button.nn-icon-button {
 
 /* Inactive pane selected folder - dimmer selection when file pane focused */
 .nn-split-container[data-focus-pane="files"] .nn-folder-item.nn-selected > .nn-folder-content::before {
+    background-color: var(--background-modifier-hover);
+}
+
+/* Inactive pane selected tag - dimmer selection when file pane focused */
+.nn-split-container[data-focus-pane="files"] .nn-tag-item.nn-selected {
     background-color: var(--background-modifier-hover);
 }
 
