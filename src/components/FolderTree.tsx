@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useCallback, useMemo } from 'react';
+import React, { useMemo } from 'react';
 import { TFile, TFolder } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { FolderItem } from './FolderItem';
@@ -45,14 +45,14 @@ export function FolderTree() {
         );
     }, [plugin.settings.ignoreFolders]);
     
-    const handleFolderClick = useCallback((folder: TFolder) => {
+    const handleFolderClick = (folder: TFolder) => {
         dispatch({ type: 'SET_SELECTED_FOLDER', folder });
         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
-    }, [dispatch]);
+    };
     
-    const handleToggleExpanded = useCallback((folderPath: string) => {
+    const handleToggleExpanded = (folderPath: string) => {
         dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath });
-    }, [dispatch]);
+    };
     
     /**
      * Recursively renders a folder and its children.
