@@ -419,9 +419,13 @@ button.nn-icon-button {
 .nn-file-date {
     font-size: 12px;
     color: var(--text-normal);
-    flex-shrink: 0;
+    flex-shrink: 1; /* Allow date to shrink when space is limited */
     white-space: nowrap;
     margin-right: 8px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    min-width: 0; /* Allow shrinking below content size */
+    max-width: 150px; /* Reasonable max width for dates */
 }
 
 /* Dark mode file date */
@@ -502,6 +506,9 @@ button.nn-icon-button {
     top: 0;
     z-index: 10;
     margin-top: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 /* First date header - no top margin for first group */
