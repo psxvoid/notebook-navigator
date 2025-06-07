@@ -50,7 +50,7 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
     useContextMenu(fileRef, { type: 'file', item: file });
     
     // Auto-scroll to selected file when needed
-    useScrollIntoView(fileRef, isSelected, [file.path]);
+    useScrollIntoView(fileRef, '.nn-file-list', isSelected, [file.path]);
 
     // Show date based on sort option - created date when sorted by created, modified date otherwise
     const dateToShow = plugin.settings.sortOption === 'created' ? file.stat.ctime : file.stat.mtime;
