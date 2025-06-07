@@ -19,64 +19,33 @@
 import { useEffect, RefObject } from 'react';
 
 /**
- * Custom hook that scrolls an element into view within a scrollable container.
- * Uses manual scroll calculation for more reliable behavior than native scrollIntoView.
+ * Custom hook that scrolls an element into view using native scrollIntoView.
+ * Simple wrapper that handles timing and only scrolls when needed.
  * 
  * @param elementRef - React ref to the element to scroll into view
- * @param containerSelector - CSS selector for the scrollable container
  * @param isActive - Whether the element should be scrolled into view
  * @param dependencies - Additional dependencies that should trigger a scroll
  */
 export function useScrollIntoView(
     elementRef: RefObject<HTMLElement>,
-    containerSelector: string,
     isActive: boolean,
     dependencies: any[] = []
 ) {
     useEffect(() => {
         if (!isActive || !elementRef.current) return;
         
-        let animationFrameId: number;
-        let secondFrameId: number;
-        
-        const scrollIntoViewIfNeeded = () => {
-            if (!elementRef.current || !isActive) return;
-            
-            const scrollContainer = elementRef.current.closest(containerSelector) as HTMLElement;
-            if (!scrollContainer) return;
-            
-            const containerRect = scrollContainer.getBoundingClientRect();
-            const itemRect = elementRef.current.getBoundingClientRect();
-            
-            // Check if item is outside visible area
-            const isOutsideView = itemRect.top < containerRect.top || itemRect.bottom > containerRect.bottom;
-            
-            if (isOutsideView) {
-                // Calculate scroll position to center the item
-                const scrollTop = scrollContainer.scrollTop;
-                const itemOffsetTop = itemRect.top - containerRect.top + scrollTop;
-                const itemHeight = itemRect.height;
-                const containerHeight = containerRect.height;
-                
-                // Center the item in the container
-                const targetScrollTop = itemOffsetTop - (containerHeight / 2) + (itemHeight / 2);
-                
-                scrollContainer.scrollTo({
-                    top: Math.max(0, targetScrollTop),
-                    behavior: 'smooth'
+        // Use requestAnimationFrame to ensure DOM is ready
+        const frameId = requestAnimationFrame(() => {
+            if (elementRef.current && isActive) {
+                elementRef.current.scrollIntoView({ 
+                    behavior: 'smooth',
+                    block: 'nearest'
                 });
             }
-        };
-        
-        // Use double RAF for proper timing after DOM updates
-        animationFrameId = requestAnimationFrame(() => {
-            secondFrameId = requestAnimationFrame(scrollIntoViewIfNeeded);
         });
         
-        // Cleanup
         return () => {
-            if (animationFrameId) cancelAnimationFrame(animationFrameId);
-            if (secondFrameId) cancelAnimationFrame(secondFrameId);
+            cancelAnimationFrame(frameId);
         };
-    }, [isActive, containerSelector, ...dependencies]);
+    }, [isActive, ...dependencies]);
 }

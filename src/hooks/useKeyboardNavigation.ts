@@ -146,7 +146,7 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
             if (folder) {
                 dispatch({ type: 'SET_SELECTED_FOLDER', folder });
                 dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
-                elements[newIndex].scrollIntoView({ block: 'nearest' });
+                elements[newIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
             }
         }
     }, [getFolderElements, getSelectedIndex, appState.selectedFolder, app, dispatch]);
@@ -175,7 +175,7 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
             if (file) {
                 dispatch({ type: 'SET_SELECTED_FILE', file });
                 dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                elements[newIndex].scrollIntoView({ block: 'nearest' });
+                elements[newIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
                 
                 // Open file in edit view (same as clicking)
                 // Use getMostRecentLeaf to avoid creating new panes or stealing focus
@@ -247,7 +247,7 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
                                 const folderElements = getFolderElements();
                                 const parentElement = folderElements.find(el => getPathFromElement(el as HTMLElement) === parentPath);
                                 if (parentElement) {
-                                    parentElement.scrollIntoView({ block: 'nearest' });
+                                    parentElement.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
                                 }
                             }
                         }
