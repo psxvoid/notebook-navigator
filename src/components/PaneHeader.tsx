@@ -17,10 +17,10 @@
  */
 
 import React, { useCallback } from 'react';
-import { setIcon } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { useFileSystemOps } from '../context/ServicesContext';
 import { isTFolder } from '../utils/typeGuards';
+import { ObsidianIcon } from './ObsidianIcon';
 
 interface PaneHeaderProps {
     type: 'folder' | 'file';
@@ -100,24 +100,20 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                             aria-label={appState.expandedFolders.size > 0 ? "Collapse all folders" : "Expand all folders"}
                             onClick={handleExpandCollapseAll}
                             tabIndex={-1}
-                            ref={(el) => {
-                                if (el) {
-                                    setIcon(el, appState.expandedFolders.size > 0 ? 'chevrons-down-up' : 'chevrons-up-down');
-                                }
-                            }}
-                        />
+                        >
+                            <ObsidianIcon 
+                                name={appState.expandedFolders.size > 0 ? 'chevrons-down-up' : 'chevrons-up-down'}
+                            />
+                        </button>
                         <button
                             className="nn-icon-button"
                             aria-label="New folder"
                             onClick={handleNewFolder}
                             disabled={!appState.selectedFolder}
                             tabIndex={-1}
-                            ref={(el) => {
-                                if (el) {
-                                    setIcon(el, 'folder-plus');
-                                }
-                            }}
-                        />
+                        >
+                            <ObsidianIcon name="folder-plus" />
+                        </button>
                     </>
                 ) : (
                     <button
@@ -126,12 +122,9 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                         onClick={handleNewFile}
                         disabled={!appState.selectedFolder}
                         tabIndex={-1}
-                        ref={(el) => {
-                            if (el) {
-                                setIcon(el, 'file-plus');
-                            }
-                        }}
-                    />
+                    >
+                        <ObsidianIcon name="file-plus" />
+                    </button>
                 )}
             </div>
         </div>

@@ -28,6 +28,24 @@ import { getPathFromDataAttribute, getAbstractFileFromElement } from '../utils/d
  * Custom hook that enables drag and drop functionality for files and folders.
  * Handles visual feedback, validation, and file system operations.
  * 
+ * ## Design Decision: Event Delegation with Data Attributes
+ * This hook uses event delegation and data attributes rather than individual React event handlers.
+ * While this differs from typical React patterns, it's the optimal choice here because:
+ * 
+ * 1. **Performance**: One set of listeners on the container vs hundreds on individual items
+ * 2. **Memory Efficiency**: Scales well with large vaults containing many files/folders
+ * 3. **Dynamic Content**: Works seamlessly as items are added/removed from the DOM
+ * 4. **Obsidian Consistency**: Follows patterns used throughout Obsidian's codebase
+ * 5. **Simplicity**: Avoids prop drilling drag handlers through multiple component levels
+ * 
+ * The alternative React approach would require:
+ * - Passing drag handlers as props through FolderTree → FolderItem → each nested level
+ * - Managing drag state in React state (causing unnecessary re-renders)
+ * - Complex coordination between deeply nested components
+ * 
+ * Data attributes provide a clean, performant way to associate drag data with DOM elements
+ * without coupling the drag logic to the component hierarchy.
+ * 
  * @param containerRef - React ref to the container element that will handle drag events
  * 
  * @example

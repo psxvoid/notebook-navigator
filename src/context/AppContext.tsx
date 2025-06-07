@@ -160,7 +160,7 @@ function saveToStorage(key: string, value: any) {
 
 /**
  * Main reducer function that handles all state updates.
- * Each action type modifies the state and persists changes to localStorage.
+ * This is a pure function - no side effects are performed here.
  * 
  * @param state - Current application state
  * @param action - The action to process
@@ -170,24 +170,18 @@ function saveToStorage(key: string, value: any) {
 function appReducer(state: AppState, action: AppAction, app: App): AppState {
     switch (action.type) {
         case 'SET_SELECTED_FOLDER': {
-            // Update the selected folder and persist to localStorage
-            const newState = { ...state, selectedFolder: action.folder };
-            saveToStorage(STORAGE_KEYS.selectedFolder, action.folder?.path);
-            return newState;
+            // Update the selected folder
+            return { ...state, selectedFolder: action.folder };
         }
         
         case 'SET_SELECTED_FILE': {
-            // Update the selected file and persist to localStorage
-            const newState = { ...state, selectedFile: action.file };
-            saveToStorage(STORAGE_KEYS.selectedFile, action.file?.path);
-            return newState;
+            // Update the selected file
+            return { ...state, selectedFile: action.file };
         }
         
         case 'SET_EXPANDED_FOLDERS': {
             // Replace all expanded folders (used for bulk operations)
-            const newState = { ...state, expandedFolders: action.folders };
-            saveToStorage(STORAGE_KEYS.expandedFolders, action.folders);
-            return newState;
+            return { ...state, expandedFolders: action.folders };
         }
         
         case 'TOGGLE_FOLDER_EXPANDED': {
@@ -198,19 +192,17 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
             } else {
                 newExpanded.add(action.folderPath);
             }
-            saveToStorage(STORAGE_KEYS.expandedFolders, newExpanded);
             return { ...state, expandedFolders: newExpanded };
         }
         
         case 'SET_FOCUSED_PANE': {
-            // Update which pane has keyboard focus (no persistence needed)
+            // Update which pane has keyboard focus
             return { ...state, focusedPane: action.pane };
         }
         
         case 'EXPAND_FOLDERS': {
             // Expand multiple folders at once (additive, doesn't collapse others)
             const newExpanded = new Set([...state.expandedFolders, ...action.folderPaths]);
-            saveToStorage(STORAGE_KEYS.expandedFolders, newExpanded);
             return { ...state, expandedFolders: newExpanded };
         }
         
@@ -230,9 +222,6 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
             
             // Expand all parent folders, select the file and its parent folder
             const newExpanded = new Set([...state.expandedFolders, ...foldersToExpand]);
-            saveToStorage(STORAGE_KEYS.expandedFolders, newExpanded);
-            saveToStorage(STORAGE_KEYS.selectedFolder, action.file.parent.path);
-            saveToStorage(STORAGE_KEYS.selectedFile, action.file.path);
             
             return {
                 ...state,
@@ -247,20 +236,15 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
         case 'CLEANUP_DELETED_ITEMS': {
             // Remove references to deleted files/folders from state
             let newState = { ...state };
-            let changed = false;
             
             // Check if selected file still exists
             if (state.selectedFile && !app.vault.getAbstractFileByPath(state.selectedFile.path)) {
                 newState.selectedFile = null;
-                saveToStorage(STORAGE_KEYS.selectedFile, '');
-                changed = true;
             }
             
             // Check if selected folder still exists
             if (state.selectedFolder && !app.vault.getAbstractFileByPath(state.selectedFolder.path)) {
                 newState.selectedFolder = null;
-                saveToStorage(STORAGE_KEYS.selectedFolder, '');
-                changed = true;
             }
             
             // Clean up expanded folders that no longer exist
@@ -268,17 +252,14 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
             state.expandedFolders.forEach(path => {
                 if (app.vault.getAbstractFileByPath(path)) {
                     validExpandedFolders.add(path);
-                } else {
-                    changed = true;
                 }
             });
             
-            if (changed) {
+            if (validExpandedFolders.size !== state.expandedFolders.size) {
                 newState.expandedFolders = validExpandedFolders;
-                saveToStorage(STORAGE_KEYS.expandedFolders, validExpandedFolders);
             }
             
-            return changed ? newState : state;
+            return newState;
         }
         
         case 'FORCE_REFRESH': {
@@ -406,6 +387,21 @@ export function AppProvider({ children, plugin }: { children: React.ReactNode, p
             app.vault.off('modify', handleModify);
         };
     }, [app, dispatch]);
+
+    /**
+     * Effect that persists state changes to localStorage.
+     * Runs whenever the state changes to keep localStorage in sync.
+     */
+    useEffect(() => {
+        // Save expanded folders
+        saveToStorage(STORAGE_KEYS.expandedFolders, appState.expandedFolders);
+        
+        // Save selected folder
+        saveToStorage(STORAGE_KEYS.selectedFolder, appState.selectedFolder?.path);
+        
+        // Save selected file
+        saveToStorage(STORAGE_KEYS.selectedFile, appState.selectedFile?.path);
+    }, [appState.expandedFolders, appState.selectedFolder, appState.selectedFile]);
 
     const contextValue = useMemo(() => ({
         app,

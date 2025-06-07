@@ -194,8 +194,8 @@ export function FileList() {
     
     return (
         <div className="nn-file-list">
-            {groupedFiles.map((group, groupIndex) => (
-                <div key={groupIndex} className="nn-file-group">
+            {groupedFiles.map((group) => (
+                <div key={group.title || 'ungrouped'} className="nn-file-group">
                     {group.title && (
                         <div className="nn-date-group-header">{group.title}</div>
                     )}

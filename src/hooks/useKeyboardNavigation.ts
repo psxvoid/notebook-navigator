@@ -28,7 +28,21 @@ import { getPathFromElement, getFolderFromElement, getFileFromElement } from '..
  * Custom hook that provides keyboard navigation for the file explorer.
  * Handles arrow key navigation, tab switching between panes, and delete operations.
  * 
- * Keyboard shortcuts:
+ * ## Design Decision: DOM Queries
+ * This hook uses DOM queries (querySelectorAll) to find navigable elements rather than
+ * React refs. While this goes against typical React patterns, it's a pragmatic choice here because:
+ * 
+ * 1. **Dynamic Hierarchy**: The folder tree has a complex, nested structure with dynamic visibility
+ * 2. **Performance**: Managing refs for potentially hundreds of items would add complexity
+ * 3. **Simplicity**: DOM queries provide a clean way to get only visible items
+ * 4. **Reliability**: We control the DOM structure and class names, making queries predictable
+ * 
+ * The alternative would require:
+ * - Complex ref management across multiple component levels
+ * - State tracking for all navigable items
+ * - Significant refactoring of the component hierarchy
+ * 
+ * ## Keyboard shortcuts:
  * - Arrow Up/Down: Navigate items in current pane
  * - Arrow Left: Collapse folder, move to parent, or switch to folder pane
  * - Arrow Right: Expand folder, switch to file pane, or focus editor
