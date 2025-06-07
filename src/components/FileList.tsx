@@ -125,7 +125,7 @@ export function FileList() {
                 }
             }
         }
-    }, [appState.selectedFolder?.path, app, dispatch]); // Only run when folder changes
+    }, [appState.selectedFolder?.path, app.workspace, dispatch]); // Only run when folder changes
     
     // Group files by date if enabled
     const groupedFiles = useMemo(() => {
