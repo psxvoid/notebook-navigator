@@ -651,14 +651,12 @@ button.nn-icon-button {
 
 /* Inactive pane selected file - dimmer selection when folder pane focused */
 .nn-split-container[data-focus-pane="folders"] .nn-file-item.nn-selected .nn-file-content::before {
-    background-color: var(--text-selection);
-    opacity: 0.4;
+    background-color: var(--background-modifier-hover);
 }
 
 /* Inactive pane selected folder - dimmer selection when file pane focused */
 .nn-split-container[data-focus-pane="files"] .nn-folder-item.nn-selected > .nn-folder-content::before {
-    background-color: var(--text-selection);
-    opacity: 0.4;
+    background-color: var(--background-modifier-hover);
 }
 
 /* ========================================================================
