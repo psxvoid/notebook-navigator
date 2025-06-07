@@ -283,6 +283,7 @@ button.nn-icon-button {
     text-overflow: ellipsis;
     color: var(--text-normal);
     flex: 1;
+    line-height: 1.2; /* Prevent descender cutoff */
 }
 
 /* Folder file count - shows number of files in folder */

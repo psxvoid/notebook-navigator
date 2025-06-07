@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useMemo, useLayoutEffect } from 'react';
+import React, { useMemo, useLayoutEffect, useCallback } from 'react';
 import { TFile, TFolder } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { FileItem } from './FileItem';
@@ -35,7 +35,7 @@ import { getFileFromElement } from '../utils/domUtils';
 export function FileList() {
     const { app, appState, dispatch, plugin, refreshCounter } = useAppContext();
     
-    const handleFileClick = (file: TFile) => {
+    const handleFileClick = useCallback((file: TFile) => {
         dispatch({ type: 'SET_SELECTED_FILE', file });
         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         
@@ -44,7 +44,7 @@ export function FileList() {
         if (leaf) {
             leaf.openFile(file);
         }
-    };
+    }, [app.workspace, dispatch]);
     
     // Get files from selected folder
     const files = useMemo(() => {
