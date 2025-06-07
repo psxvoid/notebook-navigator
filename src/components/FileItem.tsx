@@ -22,6 +22,7 @@ import { useAppContext } from '../context/AppContext';
 import { DateUtils } from '../utils/DateUtils';
 import { PreviewTextUtils } from '../utils/PreviewTextUtils';
 import { useContextMenu } from '../hooks/useContextMenu';
+import { useScrollIntoView } from '../hooks/useScrollIntoView';
 
 interface FileItemProps {
     file: TFile;
@@ -48,12 +49,8 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
     // Enable context menu
     useContextMenu(fileRef, { type: 'file', item: file });
     
-    // Ensure selected item is visible when it becomes selected
-    useEffect(() => {
-        if (isSelected && fileRef.current) {
-            fileRef.current.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-        }
-    }, [isSelected]);
+    // Auto-scroll to selected file when needed
+    useScrollIntoView(fileRef, isSelected, [file.path]);
 
     // Show date based on sort option - created date when sorted by created, modified date otherwise
     const dateToShow = plugin.settings.sortOption === 'created' ? file.stat.ctime : file.stat.mtime;
