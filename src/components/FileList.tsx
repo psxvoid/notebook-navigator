@@ -17,7 +17,7 @@
  */
 
 import React, { useMemo, useLayoutEffect, useCallback } from 'react';
-import { TFile, TFolder } from 'obsidian';
+import { TFile, TFolder, TAbstractFile, getAllTags } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { FileItem } from './FileItem';
 import { DateUtils } from '../utils/DateUtils';
@@ -34,6 +34,7 @@ import { getFileFromElement } from '../utils/domUtils';
  */
 export function FileList() {
     const { app, appState, dispatch, plugin, refreshCounter } = useAppContext();
+    const { selectionType, selectedFolder, selectedTag } = appState;
     
     const handleFileClick = useCallback((file: TFile) => {
         dispatch({ type: 'SET_SELECTED_FILE', file });
@@ -46,11 +47,13 @@ export function FileList() {
         }
     }, [app.workspace, dispatch]);
     
-    // Get files from selected folder
+    // Get files from selected folder or tag
     const files = useMemo(() => {
-        if (!appState.selectedFolder) return [];
-        
-        const collectFiles = (folder: TFolder): TFile[] => {
+        let allFiles: TFile[] = [];
+        const excludedProperties = parseExcludedProperties(plugin.settings.excludedFiles);
+
+        if (selectionType === 'folder' && selectedFolder) {
+            const collectFiles = (folder: TFolder): TFile[] => {
             const files: TFile[] = [];
             
             for (const child of folder.children) {
@@ -67,11 +70,27 @@ export function FileList() {
             return files;
         };
         
-        let allFiles = collectFiles(appState.selectedFolder);
+            allFiles = collectFiles(selectedFolder);
+            
+        } else if (selectionType === 'tag' && selectedTag) {
+            // Get all markdown files in the vault
+            const filesWithTag: TFile[] = [];
+            const allMarkdownFiles = app.vault.getMarkdownFiles();
+            
+            for (const file of allMarkdownFiles) {
+                const cache = app.metadataCache.getFileCache(file);
+                // Use getAllTags to get all tags from the file (includes frontmatter tags)
+                const fileTags = cache ? getAllTags(cache) : null;
+                const hasTag = fileTags && fileTags.includes(selectedTag);
+                
+                if (hasTag) {
+                    filesWithTag.push(file);
+                }
+            }
+            allFiles = filesWithTag;
+        }
         
         // Filter out excluded files based on frontmatter properties
-        const excludedProperties = parseExcludedProperties(plugin.settings.excludedFiles);
-        
         if (excludedProperties.length > 0) {
             allFiles = allFiles.filter(file => !shouldExcludeFile(file, excludedProperties, app));
         }
@@ -89,17 +108,23 @@ export function FileList() {
                 break;
         }
         
-        // Handle pinned notes
-        const pinnedPaths = plugin.settings.pinnedNotes[appState.selectedFolder.path] || [];
-        const pinnedFiles = pinnedPaths
-            .map(path => app.vault.getAbstractFileByPath(path))
-            .filter(isTFile);
+        // Handle pinned notes (only for folder selection)
+        if (selectionType === 'folder' && selectedFolder) {
+            const pinnedPaths = plugin.settings.pinnedNotes[selectedFolder.path] || [];
+            const pinnedFiles = pinnedPaths
+                .map(path => app.vault.getAbstractFileByPath(path))
+                .filter(isTFile);
+            
+            const unpinnedFiles = allFiles.filter(file => !pinnedPaths.includes(file.path));
+            
+            return [...pinnedFiles, ...unpinnedFiles];
+        }
         
-        const unpinnedFiles = allFiles.filter(file => !pinnedPaths.includes(file.path));
-        
-        return [...pinnedFiles, ...unpinnedFiles];
+        return allFiles;
     }, [
-        appState.selectedFolder, 
+        selectionType,
+        selectedFolder,
+        selectedTag,
         plugin.settings.sortOption,
         plugin.settings.showNotesFromSubfolders,
         plugin.settings.pinnedNotes,
@@ -108,35 +133,53 @@ export function FileList() {
         refreshCounter
     ]);
     
-    // Auto-select and open first file when folder changes
+    // Auto-select first file when folder/tag changes
     useLayoutEffect(() => {
-        if (!appState.selectedFolder) return;
+        // Need either a folder or tag selected
+        if (!selectedFolder && !selectedTag) return;
         
-        // Check if there's already a selected file in the current folder
-        if (appState.selectedFile && appState.selectedFile.parent?.path === appState.selectedFolder.path) {
-            // File is already selected in this folder, don't auto-select first file
-            return;
+        // Don't auto-select if we already have a file selected in the current context
+        if (selectionType === 'folder' && selectedFolder && appState.selectedFile) {
+            // Check if the selected file is in the current folder
+            if (appState.selectedFile.parent?.path === selectedFolder.path) {
+                return; // Keep current selection
+            }
         }
         
+        // For tags, also check if we already have a file selected
+        if (selectionType === 'tag' && appState.selectedFile) {
+            // Check if the selected file is in the current file list
+            const fileElements = Array.from(document.querySelectorAll('.nn-file-item'));
+            const selectedFileInList = fileElements.some(el => 
+                (el as HTMLElement).dataset.path === appState.selectedFile?.path
+            );
+            if (selectedFileInList) {
+                return; // Keep current selection if it's in the current tag's file list
+            }
+        }
+        
+        // Find and select the first file
         const firstFileElement = document.querySelector('.nn-file-item');
         if (firstFileElement) {
             const file = getFileFromElement(firstFileElement as HTMLElement, app);
             if (file) {
                 dispatch({ type: 'SET_SELECTED_FILE', file });
                 
-                // Open the file
+                // Always open the file when a new folder/tag is selected
+                // This matches the original behavior
                 const leaf = app.workspace.getMostRecentLeaf();
                 if (leaf) {
                     leaf.openFile(file);
                 }
             }
         }
-    }, [appState.selectedFolder?.path, appState.selectedFile, app.workspace, dispatch]); // Only run when folder changes
+    }, [selectionType, selectedFolder?.path, selectedTag, appState.selectedFile, app.workspace, dispatch]);
     
     // Group files by date if enabled
     const groupedFiles = useMemo(() => {
-        // Separate pinned files first
-        const pinnedPaths = plugin.settings.pinnedNotes[appState.selectedFolder?.path || ''] || [];
+        // Separate pinned files first (only for folder selection)
+        const pinnedPaths = (selectionType === 'folder' && selectedFolder) ? 
+            (plugin.settings.pinnedNotes[selectedFolder.path] || []) : [];
         const pinnedFiles = files.filter(file => pinnedPaths.includes(file.path));
         const unpinnedFiles = files.filter(file => !pinnedPaths.includes(file.path));
 
@@ -179,13 +222,14 @@ export function FileList() {
         plugin.settings.groupByDate,
         plugin.settings.sortOption,
         plugin.settings.pinnedNotes,
-        appState.selectedFolder
+        selectionType,
+        selectedFolder
     ]);
     
-    if (!appState.selectedFolder) {
+    if (!selectedFolder && !selectedTag) {
         return (
             <div className="nn-file-list nn-empty-state">
-                <div className="nn-empty-message">Select a folder to view notes</div>
+                <div className="nn-empty-message">Select a folder or tag to view notes</div>
             </div>
         );
     }

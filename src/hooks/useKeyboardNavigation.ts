@@ -87,13 +87,13 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
             if (!parent) return true;
             
             // Walk up the tree to see if we're inside a collapsed folder
-            let currentElement = parent;
+            let currentElement: HTMLElement | null = parent;
             while (currentElement && currentElement !== containerRef.current) {
                 if (currentElement.classList.contains('nn-folder-children') && 
                     !currentElement.classList.contains('nn-expanded')) {
                     return false; // This folder is inside a collapsed parent
                 }
-                currentElement = currentElement.parentElement as HTMLElement | null;
+                currentElement = currentElement.parentElement;
             }
             
             return true; // This folder is visible
@@ -111,6 +111,16 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
     }, [containerRef]);
     
     /**
+     * Gets all tag elements from the DOM.
+     * 
+     * @returns Array of tag DOM elements
+     */
+    const getTagElements = useCallback(() => {
+        if (!containerRef.current) return [];
+        return Array.from(containerRef.current.querySelectorAll('.nn-tag-item'));
+    }, [containerRef]);
+    
+    /**
      * Finds the index of the selected element in an array of elements.
      * 
      * @param elements - Array of DOM elements
@@ -120,6 +130,18 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
     const getSelectedIndex = useCallback((elements: Element[], selectedPath: string | null) => {
         if (!selectedPath) return -1;
         return elements.findIndex(el => getPathFromElement(el as HTMLElement) === selectedPath);
+    }, []);
+    
+    /**
+     * Finds the index of the selected tag element.
+     * 
+     * @param elements - Array of tag DOM elements  
+     * @param selectedTag - Selected tag string
+     * @returns Index of selected element or -1 if not found
+     */
+    const getSelectedTagIndex = useCallback((elements: Element[], selectedTag: string | null) => {
+        if (!selectedTag) return -1;
+        return elements.findIndex(el => (el as HTMLElement).dataset.tag === selectedTag);
     }, []);
     
     /**
@@ -150,6 +172,35 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
             }
         }
     }, [getFolderElements, getSelectedIndex, appState.selectedFolder, app, dispatch]);
+    
+    /**
+     * Navigates through tag items using arrow keys.
+     * Updates selection and scrolls the selected tag into view.
+     * 
+     * @param direction - Direction to navigate ('up' or 'down')
+     */
+    const navigateTags = useCallback((direction: 'up' | 'down') => {
+        const elements = getTagElements();
+        if (elements.length === 0) return;
+        
+        const currentIndex = getSelectedTagIndex(elements, appState.selectedTag);
+        let newIndex = currentIndex;
+        
+        if (direction === 'up') {
+            newIndex = currentIndex > 0 ? currentIndex - 1 : 0;
+        } else {
+            newIndex = currentIndex < elements.length - 1 ? currentIndex + 1 : elements.length - 1;
+        }
+        
+        if (newIndex !== currentIndex && elements[newIndex]) {
+            const tagElement = elements[newIndex] as HTMLElement;
+            const tag = tagElement.dataset.tag;
+            if (tag) {
+                dispatch({ type: 'SET_SELECTED_TAG', tag });
+                tagElement.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+            }
+        }
+    }, [getTagElements, getSelectedTagIndex, appState.selectedTag, dispatch]);
     
     /**
      * Navigates through file items using arrow keys.
@@ -209,7 +260,12 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
             case 'ArrowUp':
                 e.preventDefault();
                 if (appState.focusedPane === 'folders') {
-                    navigateFolders('up');
+                    // Check if we're in tag mode or folder mode
+                    if (appState.selectionType === 'tag') {
+                        navigateTags('up');
+                    } else {
+                        navigateFolders('up');
+                    }
                 } else {
                     navigateFiles('up');
                 }
@@ -218,7 +274,12 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
             case 'ArrowDown':
                 e.preventDefault();
                 if (appState.focusedPane === 'folders') {
-                    navigateFolders('down');
+                    // Check if we're in tag mode or folder mode
+                    if (appState.selectionType === 'tag') {
+                        navigateTags('down');
+                    } else {
+                        navigateFolders('down');
+                    }
                 } else {
                     navigateFiles('down');
                 }
@@ -258,7 +319,11 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
             case 'ArrowRight':
                 e.preventDefault();
                 if (appState.focusedPane === 'folders') {
-                    if (appState.selectedFolder) {
+                    // If in tag mode, just move to files
+                    if (appState.selectionType === 'tag') {
+                        dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                    } else if (appState.selectedFolder) {
+                        // Folder mode - expand or move to files
                         if (!appState.expandedFolders.has(appState.selectedFolder.path)) {
                             const hasSubfolders = appState.selectedFolder.children.some(isTFolder);
                             if (hasSubfolders) {
@@ -348,7 +413,7 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
                 }
                 break;
         }
-    }, [appState, dispatch, navigateFolders, navigateFiles, app, fileSystemOps, getFolderElements, plugin]);
+    }, [appState, dispatch, navigateFolders, navigateTags, navigateFiles, app, fileSystemOps, getFolderElements, plugin]);
     
     useEffect(() => {
         const container = containerRef.current;

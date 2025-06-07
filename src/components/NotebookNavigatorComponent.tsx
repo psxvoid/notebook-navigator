@@ -21,6 +21,7 @@ import React, { useEffect, useImperativeHandle, forwardRef, useRef } from 'react
 import { TFile, WorkspaceLeaf } from 'obsidian';
 import { PaneHeader } from './PaneHeader';
 import { FolderTree } from './FolderTree';
+import { TagList } from './TagList';
 import { FileList } from './FileList';
 import { useAppContext } from '../context/AppContext';
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
@@ -104,7 +105,10 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         >
             <div className="nn-left-pane" style={{ width: `${paneWidth}px` }}>
                 <PaneHeader type="folder" />
-                <FolderTree />
+                <div className="nn-left-pane-scroller">
+                    <FolderTree />
+                    <TagList />
+                </div>
             </div>
             <div className="nn-resize-handle" {...resizeHandleProps} />
             <div className="nn-right-pane">

@@ -45,6 +45,7 @@ export interface NotebookNavigatorSettings {
     // Folder display
     showRootFolder: boolean;
     showFolderFileCount: boolean;
+    showTags: boolean;
     // Appearance
     dateFormat: string;
     // Advanced
@@ -77,6 +78,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Folder display
     showRootFolder: false,
     showFolderFileCount: true,
+    showTags: true,
     // Appearance
     dateFormat: 'MMM d, yyyy',
     // Advanced
@@ -353,6 +355,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.showFolderFileCount)
                 .onChange(async (value) => {
                     this.plugin.settings.showFolderFileCount = value;
+                    await this.saveAndRefresh();
+                }));
+
+        new Setting(containerEl)
+            .setName('Show tags')
+            .setDesc('Display tags section below folders in the navigator.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showTags)
+                .onChange(async (value) => {
+                    this.plugin.settings.showTags = value;
                     await this.saveAndRefresh();
                 }));
 
