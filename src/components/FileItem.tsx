@@ -42,7 +42,7 @@ interface FileItemProps {
  * @returns A file item element with name, date, preview and optional image
  */
 export function FileItem({ file, isSelected, onClick }: FileItemProps) {
-    const { app, plugin } = useAppContext();
+    const { app, plugin, refreshCounter } = useAppContext();
     const [previewText, setPreviewText] = useState('...');
     const fileRef = useRef<HTMLDivElement>(null);
     
@@ -80,7 +80,7 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
         }
 
         return null;
-    }, [file.path, plugin.settings.showFeatureImage, plugin.settings.featureImageProperty]);
+    }, [file.path, plugin.settings.showFeatureImage, plugin.settings.featureImageProperty, refreshCounter]);
 
     // useEffect is how you perform side effects, like reading file content.
     useEffect(() => {

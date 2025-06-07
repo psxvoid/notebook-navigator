@@ -17,7 +17,7 @@
  */
 
 // src/components/NotebookNavigatorComponent.tsx
-import React, { useState, useCallback, useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
+import React, { useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
 import { TFile, WorkspaceLeaf } from 'obsidian';
 import { PaneHeader } from './PaneHeader';
 import { FolderTree } from './FolderTree';
@@ -45,7 +45,6 @@ export interface NotebookNavigatorHandle {
  */
 export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_, ref) => {
     const { app, appState, dispatch, plugin, refreshCounter } = useAppContext();
-    const [forceRefresh, setForceRefresh] = useState(0);
     const containerRef = useRef<HTMLDivElement>(null);
     
     // Enable keyboard navigation
@@ -66,7 +65,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             dispatch({ type: 'REVEAL_FILE', file });
         },
         refresh: () => {
-            setForceRefresh(c => c + 1);
+            dispatch({ type: 'FORCE_REFRESH' });
         }
     }), [dispatch]);
 
