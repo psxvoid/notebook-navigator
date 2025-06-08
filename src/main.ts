@@ -117,17 +117,10 @@ export default class NotebookNavigatorPlugin extends Plugin {
         this.app.workspace.onLayoutReady(async () => {
             this.cleanupPinnedNotes();
             
-            // Auto-open the view on first launch
+            // Always open the view if it doesn't exist
             const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
             if (leaves.length === 0) {
-                // Check if this might be the first launch by seeing if we have any saved state
-                const hasExpandedFolders = localStorage.getItem(this.keys.expandedFoldersKey);
-                const hasSelectedFolder = localStorage.getItem(this.keys.selectedFolderKey);
-                
-                // If no saved state exists, this is likely the first launch
-                if (!hasExpandedFolders && !hasSelectedFolder) {
-                    await this.activateView(true);
-                }
+                await this.activateView(true);
             }
         });
     }
