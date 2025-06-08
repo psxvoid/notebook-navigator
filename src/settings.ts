@@ -75,7 +75,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showFilePreview: true,
     skipHeadingsInPreview: false,
     skipNonTextInPreview: true,
-    showFeatureImage: false,
+    showFeatureImage: true,
     featureImageProperty: 'feature',
     // Folder display
     showRootFolder: false,
