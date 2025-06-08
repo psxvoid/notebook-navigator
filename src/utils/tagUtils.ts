@@ -43,6 +43,12 @@ export interface TagTreeNode {
  */
 export function buildTagTree(allFiles: TFile[], app: App): Map<string, TagTreeNode> {
     const root = new Map<string, TagTreeNode>();
+    
+    // Early return for empty file list
+    if (!allFiles || allFiles.length === 0) {
+        return root;
+    }
+    
     const allTagsCache = new Map<string, Set<string>>();
 
     // First pass: collect all tags and their associated files
@@ -51,9 +57,12 @@ export function buildTagTree(allFiles: TFile[], app: App): Map<string, TagTreeNo
         if (!cache) continue;
         
         const tags = getAllTags(cache);
-        if (!tags) continue;
+        if (!tags || tags.length === 0) continue;
         
         for (const tag of tags) {
+            // Skip empty or invalid tags
+            if (!tag || tag.length <= 1) continue;
+            
             if (!allTagsCache.has(tag)) {
                 allTagsCache.set(tag, new Set());
             }
@@ -94,19 +103,32 @@ export function buildTagTree(allFiles: TFile[], app: App): Map<string, TagTreeNo
     return root;
 }
 
+// Cache for total note counts to avoid recalculation
+const noteCountCache = new WeakMap<TagTreeNode, number>();
+
 /**
  * Gets the total count of notes for a tag node including all its children.
  * This is useful for showing aggregate counts in parent tags.
+ * Uses memoization to improve performance.
  * 
  * @param node - The tag node to count
  * @returns Total number of notes with this tag or any child tags
  */
 export function getTotalNoteCount(node: TagTreeNode): number {
+    // Check cache first
+    const cached = noteCountCache.get(node);
+    if (cached !== undefined) {
+        return cached;
+    }
+    
     let count = node.notesWithTag.size;
     
     for (const child of node.children.values()) {
         count += getTotalNoteCount(child);
     }
+    
+    // Cache the result
+    noteCountCache.set(node, count);
     
     return count;
 }
@@ -137,7 +159,16 @@ export function collectAllTagPaths(node: TagTreeNode, paths: Set<string> = new S
  * @returns The tag node if found, null otherwise
  */
 export function findTagNode(path: string, tree: Map<string, TagTreeNode>): TagTreeNode | null {
-    const parts = path.substring(1).split('/');
+    // Validate input
+    if (!path || path.length <= 1 || !path.startsWith('#')) {
+        return null;
+    }
+    
+    const parts = path.substring(1).split('/').filter(part => part.length > 0);
+    if (parts.length === 0) {
+        return null;
+    }
+    
     let currentLevel = tree;
     let currentNode: TagTreeNode | undefined;
 

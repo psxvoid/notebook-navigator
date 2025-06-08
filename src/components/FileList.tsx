@@ -74,8 +74,11 @@ export function FileList() {
             allFiles = collectFiles(selectedFolder);
             
         } else if (selectionType === 'tag' && selectedTag) {
-            // Build the tag tree to handle hierarchical tags
-            const allMarkdownFiles = app.vault.getMarkdownFiles();
+            // Get all markdown files that aren't excluded
+            const allMarkdownFiles = app.vault.getMarkdownFiles()
+                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
+            
+            // Build the tag tree once
             const tagTree = buildTagTree(allMarkdownFiles, app);
             
             // Find the selected tag node
@@ -86,18 +89,11 @@ export function FileList() {
                 const tagsToInclude = collectAllTagPaths(selectedNode);
                 
                 // Filter files that have any of the collected tags
-                const filesWithTag: TFile[] = [];
-                for (const file of allMarkdownFiles) {
-                    if (shouldExcludeFile(file, excludedProperties, app)) continue;
-                    
+                allFiles = allMarkdownFiles.filter(file => {
                     const cache = app.metadataCache.getFileCache(file);
                     const fileTags = cache ? getAllTags(cache) : null;
-                    
-                    if (fileTags && fileTags.some(tag => tagsToInclude.has(tag))) {
-                        filesWithTag.push(file);
-                    }
-                }
-                allFiles = filesWithTag;
+                    return fileTags && fileTags.some(tag => tagsToInclude.has(tag));
+                });
             } else {
                 // Fallback to empty if tag not found
                 allFiles = [];

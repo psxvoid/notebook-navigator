@@ -69,7 +69,6 @@ export function TagTreeItem({
     return (
         <div 
             className={`nn-tag-item ${isSelected ? 'nn-selected' : ''}`} 
-            data-path={tagNode.path}
             data-tag={tagNode.path}
             style={{ paddingLeft: `${12 + level * 20}px` }}
         >
