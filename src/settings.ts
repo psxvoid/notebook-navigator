@@ -447,6 +447,17 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     new Notice('Navigator state cleared. Refresh the view to see changes.');
                 }));
 
+        // Sponsor section
+        new Setting(containerEl)
+            .setName('Support development')
+            .setDesc('If you enjoy using Notebook Navigator, please consider supporting its continued development.')
+            .addButton((button) => {
+                button
+                    .setButtonText('❤️ Sponsor on GitHub')
+                    .onClick(() => window.open('https://github.com/sponsors/johansan/'))
+                    .buttonEl.addClass('nn-sponsor-button');
+            });
+
         // Set initial visibility
         this.setElementVisibility(dateGroupingEl, this.plugin.settings.sortOption !== 'title');
         this.setElementVisibility(previewSettingsEl, this.plugin.settings.showFilePreview);
