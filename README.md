@@ -5,7 +5,7 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 ## Features
 
 - 📁 **Two-pane interface:** Clean layout with folder tree on the left, file list on the right
-- 🏷️ **Tag browsing:** View and navigate all your tags in a dedicated section
+- 🏷️ **Hierarchical tag browsing:** View and navigate all your tags in a tree structure with nested tags support
 - 🔍 **Smart file previews:** Shows content preview with date and first lines of text
 - 🖼️ **Feature images:** Display thumbnail images from frontmatter properties
 - 📌 **Pin important notes:** Keep frequently accessed notes at the top of any folder
@@ -28,7 +28,7 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 2. The navigator will replace your default file explorer
 3. Navigate using:
    - **Click** to select folders, tags, and files
-   - **Double-click** folders to expand/collapse
+   - **Double-click** folders and tags to expand/collapse
    - **Arrow keys** for navigation
    - **Tab** to switch between folder/tag and file panes
    - **Delete/Backspace** to delete (with optional confirmation)
@@ -46,10 +46,10 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 | Key | Action |
 |-----|---------|
 | ↑/↓ | Navigate up/down in current pane |
-| ← | In folders: collapse or go to parent<br>In files: switch to folder pane |
-| → | In folders: expand or switch to file pane<br>In files: open selected file |
-| Tab | When in folders: switch to file pane<br>When in files: open selected file |
-| Shift+Tab | Switch from files to folders pane |
+| ← | In folders/tags: collapse or go to parent<br>In files: switch to folder/tag pane |
+| → | In folders/tags: expand or switch to file pane<br>In files: open selected file |
+| Tab | When in folders/tags: switch to file pane<br>When in files: open selected file |
+| Shift+Tab | Switch from files to folders/tags pane |
 | Delete (Windows/Linux)<br>Backspace (macOS) | Delete selected item |
 
 ## Installation
@@ -97,6 +97,14 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 - **Show folder file count:** Display the number of files in each folder (also applies to tag counts)
 - **Show tags:** Display tags section below folders in the navigator
 
+### Tags
+
+- **Show tags:** Enable the tags section below folders in the navigator
+- **Show file count:** Display the number of notes for each tag
+- **Hierarchical tags:** Nested tags (e.g., `#project/work`) are displayed in a tree structure
+- **Untagged notes:** Notes without any tags appear under "Untagged"
+- **Tag expansion state:** Expanded/collapsed tag states are preserved between sessions
+
 ### Appearance
 
 - **Date format:** Format for displaying dates (uses date-fns format)
@@ -142,6 +150,15 @@ Pin frequently accessed notes to keep them at the top:
 2. Select "Pin note"
 3. Pinned notes appear at the top with a 📌 icon
 
+### Using tags effectively
+
+The tags section provides powerful ways to organize and find your notes:
+
+- **Hierarchical organization:** Use nested tags like `#project/work/urgent` to create tag hierarchies
+- **Quick filtering:** Click any tag to see all notes with that tag and its subtags
+- **Untagged notes:** Find notes without tags by clicking "Untagged"
+- **Tag counts:** See at a glance how many notes use each tag
+
 ### Quick navigation patterns
 
 - **Quick file access:** Press Tab from folders to jump to files
@@ -181,7 +198,7 @@ If you have any questions, suggestions, or issues, please open an issue on the [
 
 ## Development
 
-This plugin is open source and built with a modern React/TypeScript stack. Contributions are welcome!
+This plugin is open source and built with a modern React/TypeScript stack.
 
 ### Built with Modern React Architecture
 
@@ -225,22 +242,6 @@ npm run build
 - **Context providers** - Centralized state management without prop drilling
 - **Service layer** - Clean separation of business logic from UI components
 - **Zero setTimeout/DOM manipulation** - Pure React patterns for predictable behavior
-
-### Contributing
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
-
-Please ensure your code:
-- Follows React best practices and hooks rules
-- Maintains TypeScript strict mode compliance
-- Includes proper cleanup in useEffect hooks
-- Avoids direct DOM manipulation
-- Preserves keyboard navigation functionality
-- Has been thoroughly tested on desktop
 
 ## License
 
