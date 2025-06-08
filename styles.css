@@ -230,7 +230,7 @@ button.nn-icon-button {
     overflow-x: hidden;
     padding: 4px 0;
     background-color: var(--background-secondary);
-    line-height: 1;
+    line-height: 1.4; /* Increased from 1 to prevent text cutoff on Windows */
 }
 
 /* Folder item - container for each folder in the tree */
@@ -248,7 +248,7 @@ button.nn-icon-button {
 .nn-folder-content {
     display: flex;
     align-items: center;
-    padding: 3px 8px 3px 4px;
+    padding: 4px 8px 4px 4px; /* Increased vertical padding to prevent text cutoff */
     cursor: pointer;
     transition: background-color 0.15s ease;
     border-radius: 4px;
@@ -306,7 +306,7 @@ button.nn-icon-button {
     text-overflow: ellipsis;
     color: var(--text-normal);
     flex: 1;
-    line-height: 1.2; /* Prevent descender cutoff */
+    line-height: 1.5; /* Increased to prevent descender cutoff on Windows */
 }
 
 /* Folder file count - shows number of files in folder */
@@ -362,13 +362,14 @@ button.nn-icon-button {
 /* Tag list */
 .nn-tag-list {
     padding: 4px 0;
+    line-height: 1.4; /* Match folder tree line-height to prevent text cutoff */
 }
 
 /* Individual tag item */
 .nn-tag-item {
     display: flex;
     align-items: center;
-    padding: 3px 8px 3px 4px;
+    padding: 4px 8px 4px 4px; /* Match folder item padding to prevent text cutoff */
     cursor: pointer;
     border-radius: 4px;
     font-size: 12px;
@@ -405,6 +406,7 @@ button.nn-icon-button {
     overflow: hidden;
     text-overflow: ellipsis;
     flex: 1;
+    line-height: 1.5; /* Match folder name line-height to prevent descender cutoff */
 }
 
 /* Tag file count */

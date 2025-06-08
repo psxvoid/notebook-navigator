@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile, TFolder, TAbstractFile, Notice, normalizePath } from 'obsidian';
+import { App, TFile, TFolder, TAbstractFile, Notice, normalizePath, Platform } from 'obsidian';
 import { InputModal } from '../modals/InputModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
 
@@ -452,6 +452,32 @@ export class FileSystemOperations {
             }
         } catch (error) {
             new Notice(`Failed to open version history: ${error.message}`);
+        }
+    }
+
+    /**
+     * Gets the platform-specific text for the "Reveal in system explorer" menu option
+     * @returns The appropriate text based on the current platform
+     */
+    getRevealInSystemExplorerText(): string {
+        if (Platform.isMacOS) {
+            return 'Reveal in Finder';
+        } else {
+            return 'Show in system explorer';
+        }
+    }
+
+    /**
+     * Reveals a file in the system's file explorer
+     * @param file - The file to reveal
+     */
+    async revealInSystemExplorer(file: TFile): Promise<void> {
+        try {
+            // Use Obsidian's built-in method to reveal the file
+            // showInFolder expects the vault-relative path, not the full system path
+            await this.app.showInFolder(file.path);
+        } catch (error) {
+            new Notice(`Failed to reveal file in system explorer: ${error.message}`);
         }
     }
 }

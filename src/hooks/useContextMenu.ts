@@ -318,6 +318,18 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement>, config:
             
             menu.addSeparator();
             
+            // Reveal in system explorer
+            menu.addItem((item: MenuItem) => {
+                item
+                    .setTitle(fileSystemOps.getRevealInSystemExplorerText())
+                    .setIcon('folder-open')
+                    .onClick(async () => {
+                        await fileSystemOps.revealInSystemExplorer(file);
+                    });
+            });
+            
+            menu.addSeparator();
+            
             // Rename note
             menu.addItem((item: MenuItem) => {
                 item
