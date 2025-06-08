@@ -96,7 +96,7 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
         }
         // This cleanup function prevents state updates on unmounted components
         return () => { isCancelled = true; };
-    }, [file.path, app.vault, plugin.settings.skipHeadingsInPreview, plugin.settings.skipNonTextInPreview]); // Rerun effect if file path or preview settings change
+    }, [file.path, app.vault, plugin.settings.skipHeadingsInPreview, plugin.settings.skipNonTextInPreview, refreshCounter]); // Rerun effect if file path, preview settings, or content changes
     
     const className = `nn-file-item ${isSelected ? 'nn-selected' : ''}`;
 
