@@ -273,8 +273,10 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
             
             return {
                 ...state,
+                selectionType: 'folder', // Switch to folder view when revealing a file
                 expandedFolders: newExpanded,
                 selectedFolder: action.file.parent,
+                selectedTag: null, // Clear tag selection
                 selectedFile: action.file,
                 focusedPane: 'files',
                 scrollToFolderTrigger: state.scrollToFolderTrigger + 1
