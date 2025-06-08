@@ -28,7 +28,7 @@ import { useEffect, RefObject } from 'react';
  * @param dependencies - Additional dependencies that should trigger a scroll
  */
 export function useScrollIntoView(
-    elementRef: RefObject<HTMLElement>,
+    elementRef: RefObject<HTMLElement | null>,
     containerSelector: string,
     isActive: boolean,
     dependencies: any[] = []
