@@ -64,7 +64,7 @@ import { getPathFromElement, getFolderFromElement, getFileFromElement } from '..
  * );
  * ```
  */
-export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>) {
+export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement | null>) {
     const { app, appState, dispatch, plugin } = useAppContext();
     const fileSystemOps = useFileSystemOps();
     const lastActionTime = useRef(0);

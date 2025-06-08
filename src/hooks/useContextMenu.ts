@@ -48,7 +48,7 @@ interface MenuConfig {
  * return <div ref={ref}>Right-click me</div>;
  * ```
  */
-export function useContextMenu(elementRef: React.RefObject<HTMLElement>, config: MenuConfig | null) {
+export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, config: MenuConfig | null) {
     const { app, plugin, dispatch, appState } = useAppContext();
     const fileSystemOps = useFileSystemOps();
     

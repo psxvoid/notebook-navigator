@@ -71,7 +71,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
         try {
             await fileSystemOps.createNewFolder(appState.selectedFolder, () => {
                 // Expand the parent folder to show the newly created folder
-                if (!appState.expandedFolders.has(appState.selectedFolder.path)) {
+                if (appState.selectedFolder && !appState.expandedFolders.has(appState.selectedFolder.path)) {
                     dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: appState.selectedFolder.path });
                 }
             });

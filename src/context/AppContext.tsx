@@ -262,10 +262,10 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
             
             // Get all parent folders up to root
             const foldersToExpand: string[] = [];
-            let currentFolder = action.file.parent;
+            let currentFolder: TFolder | null = action.file.parent;
             while (currentFolder && currentFolder.path !== '/') {
                 foldersToExpand.unshift(currentFolder.path);
-                currentFolder = currentFolder.parent;
+                currentFolder = currentFolder.parent || null;
             }
             
             // Expand all parent folders, select the file and its parent folder
@@ -357,7 +357,7 @@ export function AppProvider({ children, plugin }: { children: React.ReactNode, p
     const dispatch = useMemo(() => {
         return (action: AppAction) => {
             if (action.type === 'FORCE_REFRESH') {
-                setRefreshCounter(c => c + 1);
+                setRefreshCounter((c: number) => c + 1);
             }
             baseDispatch(action);
         };
@@ -380,7 +380,7 @@ export function AppProvider({ children, plugin }: { children: React.ReactNode, p
         const handleCreate = () => {
             clearTimeout(createTimeout);
             createTimeout = setTimeout(() => {
-                setRefreshCounter(c => c + 1);
+                setRefreshCounter((c: number) => c + 1);
             }, 50);
         };
         
@@ -392,7 +392,7 @@ export function AppProvider({ children, plugin }: { children: React.ReactNode, p
             clearTimeout(deleteTimeout);
             deleteTimeout = setTimeout(() => {
                 dispatch({ type: 'CLEANUP_DELETED_ITEMS' });
-                setRefreshCounter(c => c + 1);
+                setRefreshCounter((c: number) => c + 1);
             }, 50);
         };
         
@@ -404,7 +404,7 @@ export function AppProvider({ children, plugin }: { children: React.ReactNode, p
             clearTimeout(renameTimeout);
             renameTimeout = setTimeout(() => {
                 dispatch({ type: 'CLEANUP_DELETED_ITEMS' });
-                setRefreshCounter(c => c + 1);
+                setRefreshCounter((c: number) => c + 1);
             }, 50);
         };
         
@@ -415,7 +415,7 @@ export function AppProvider({ children, plugin }: { children: React.ReactNode, p
         const handleModify = () => {
             clearTimeout(modifyTimeout);
             modifyTimeout = setTimeout(() => {
-                setRefreshCounter(c => c + 1);
+                setRefreshCounter((c: number) => c + 1);
             }, 200); // Longer debounce for modifications
         };
         

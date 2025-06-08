@@ -86,7 +86,7 @@ export class FileSystemOperations {
             // Trigger rename mode after the file is loaded
             // We need to wait for the next event loop to ensure the editor is ready
             setTimeout(() => {
-                this.app.commands.executeCommandById('workspace:edit-file-title');
+                (this.app as any).commands.executeCommandById('workspace:edit-file-title');
             }, 0);
             
             return file;
@@ -287,7 +287,7 @@ export class FileSystemOperations {
             
             // Trigger rename mode
             setTimeout(() => {
-                this.app.commands.executeCommandById('workspace:edit-file-title');
+                (this.app as any).commands.executeCommandById('workspace:edit-file-title');
             }, 0);
         } catch (error) {
             new Notice(`Failed to create canvas: ${error.message}`);
@@ -325,7 +325,7 @@ export class FileSystemOperations {
             
             // Trigger rename mode
             setTimeout(() => {
-                this.app.commands.executeCommandById('workspace:edit-file-title');
+                (this.app as any).commands.executeCommandById('workspace:edit-file-title');
             }, 0);
         } catch (error) {
             new Notice(`Failed to create database: ${error.message}`);
@@ -436,7 +436,7 @@ export class FileSystemOperations {
             
             for (const commandId of commandIds) {
                 try {
-                    const success = this.app.commands.executeCommandById(commandId);
+                    const success = (this.app as any).commands.executeCommandById(commandId);
                     if (success) {
                         executed = true;
                         break;
@@ -475,7 +475,7 @@ export class FileSystemOperations {
         try {
             // Use Obsidian's built-in method to reveal the file
             // showInFolder expects the vault-relative path, not the full system path
-            await this.app.showInFolder(file.path);
+            await (this.app as any).showInFolder(file.path);
         } catch (error) {
             new Notice(`Failed to reveal file in system explorer: ${error.message}`);
         }

@@ -65,7 +65,7 @@ import { getPathFromDataAttribute, getAbstractFileFromElement } from '../utils/d
  * );
  * ```
  */
-export function useDragAndDrop(containerRef: React.RefObject<HTMLElement>) {
+export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>) {
     const { app, dispatch } = useAppContext();
     const fileSystemOps = useFileSystemOps();
     const dragOverElement = useRef<HTMLElement | null>(null);
