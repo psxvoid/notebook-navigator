@@ -415,6 +415,38 @@ button.nn-icon-button {
     padding-left: 8px;
 }
 
+/* Tag arrow - expand/collapse indicator for hierarchical tags */
+.nn-tag-arrow {
+    width: 16px;
+    height: 16px;
+    margin-right: 4px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    color: var(--text-muted);
+    transition: transform 0.2s ease;
+}
+
+/* Tag children container - for nested tags */
+.nn-tag-children {
+    display: grid;
+    grid-template-rows: 0fr;
+    transition: grid-template-rows 0.15s ease-out;
+    min-height: 0;
+}
+
+/* Expanded tag children - shows nested tags */
+.nn-tag-children.nn-expanded {
+    grid-template-rows: 1fr;
+}
+
+/* Tag children inner wrapper - required for grid animation */
+.nn-tag-children-inner {
+    overflow: hidden;
+    min-height: 0;
+}
+
 /* ========================================================================
    File List Styles
    ======================================================================== */

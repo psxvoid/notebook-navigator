@@ -18,13 +18,14 @@
 
 // src/components/TagList.tsx
 import React, { useMemo } from 'react';
-import { getAllTags } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
+import { buildTagTree, TagTreeNode, getTotalNoteCount } from '../utils/tagUtils';
+import { TagTreeItem } from './TagTreeItem';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 
 /**
- * Component that displays all tags in the vault as a selectable list.
- * Tags are fetched from Obsidian's metadata cache and sorted alphabetically.
+ * Component that displays all tags in the vault as a hierarchical tree.
+ * Tags are organized by their path structure (e.g., #inbox/processing).
  */
 export function TagList() {
     const { app, appState, dispatch, plugin, refreshCounter } = useAppContext();
@@ -34,70 +35,57 @@ export function TagList() {
         return null;
     }
 
-    // Memoize the tag list with counts for performance
-    const tagsWithCounts = useMemo(() => {
-        const tagMap = new Map<string, number>();
+    // Build the tag tree from all vault files
+    const tagTree = useMemo(() => {
         const excludedProperties = parseExcludedProperties(plugin.settings.excludedFiles);
-        
-        // Iterate through all markdown files
-        const files = app.vault.getMarkdownFiles();
-        
-        for (const file of files) {
-            // Skip excluded files
-            if (excludedProperties.length > 0 && shouldExcludeFile(file, excludedProperties, app)) {
-                continue;
-            }
-            
-            // Get cached metadata for the file
-            const cache = app.metadataCache.getFileCache(file);
-            
-            if (cache) {
-                // Get all tags from this file
-                const fileTags = getAllTags(cache);
-                
-                if (fileTags) {
-                    // Count each tag
-                    fileTags.forEach(tag => {
-                        tagMap.set(tag, (tagMap.get(tag) || 0) + 1);
-                    });
-                }
-            }
-        }
-        
-        // Convert to sorted array with counts
-        return Array.from(tagMap.entries())
-            .sort(([a], [b]) => a.substring(1).localeCompare(b.substring(1)))
-            .map(([tag, count]) => ({ tag, count }));
-    }, [app.vault, app.metadataCache, plugin.settings.excludedFiles, refreshCounter]); // Re-run on refresh
+        const allFiles = app.vault.getMarkdownFiles().filter(file => {
+            return !excludedProperties.length || !shouldExcludeFile(file, excludedProperties, app);
+        });
+        return buildTagTree(allFiles, app);
+    }, [app.vault, app.metadataCache, plugin.settings.excludedFiles, refreshCounter]);
+
+    // Recursive render function for tag nodes
+    const renderTagNode = (tagNode: TagTreeNode, level: number = 0): React.ReactNode => {
+        const isExpanded = appState.expandedTags.has(tagNode.path);
+        const isSelected = appState.selectionType === 'tag' && appState.selectedTag === tagNode.path;
+        const fileCount = getTotalNoteCount(tagNode);
+
+        return (
+            <React.Fragment key={tagNode.path}>
+                <TagTreeItem
+                    tagNode={tagNode}
+                    level={level}
+                    isExpanded={isExpanded}
+                    isSelected={isSelected}
+                    fileCount={fileCount}
+                    showFileCount={plugin.settings.showFolderFileCount}
+                    onClick={() => dispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path })}
+                    onToggle={() => dispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tagNode.path })}
+                />
+                <div className={`nn-tag-children ${isExpanded ? 'nn-expanded' : ''}`}>
+                    <div className="nn-tag-children-inner">
+                        {isExpanded && Array.from(tagNode.children.values())
+                            .sort((a, b) => a.name.localeCompare(b.name))
+                            .map(child => renderTagNode(child, level + 1))}
+                    </div>
+                </div>
+            </React.Fragment>
+        );
+    };
+
+    // Get root nodes and sort them
+    const rootNodes = Array.from(tagTree.values()).sort((a, b) => a.name.localeCompare(b.name));
 
     // Don't render if there are no tags
-    if (tagsWithCounts.length === 0) {
+    if (rootNodes.length === 0) {
         return null;
     }
-
-    const handleTagClick = (tag: string) => {
-        dispatch({ type: 'SET_SELECTED_TAG', tag });
-        // Keep focus on the left pane (tags/folders), don't switch to files
-    };
 
     return (
         <div className="nn-tag-list-container">
             <div className="nn-section-header">Tags</div>
             <div className="nn-tag-list">
-                {tagsWithCounts.map(({ tag, count }) => (
-                    <div
-                        key={tag}
-                        className={`nn-tag-item ${appState.selectedTag === tag ? 'nn-selected' : ''}`}
-                        onClick={() => handleTagClick(tag)}
-                        data-tag={tag}
-                    >
-                        <span className="nn-tag-icon">#</span>
-                        <span className="nn-tag-name">{tag.substring(1)}</span>
-                        {plugin.settings.showFolderFileCount && (
-                            <span className="nn-tag-count">{count}</span>
-                        )}
-                    </div>
-                ))}
+                {rootNodes.map(node => renderTagNode(node, 0))}
             </div>
         </div>
     );

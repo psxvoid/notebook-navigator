@@ -24,6 +24,7 @@ import { DateUtils } from '../utils/DateUtils';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 import { getFileFromElement } from '../utils/domUtils';
+import { buildTagTree, findTagNode, collectAllTagPaths } from '../utils/tagUtils';
 
 /**
  * Renders the file list pane displaying files from the selected folder.
@@ -73,21 +74,34 @@ export function FileList() {
             allFiles = collectFiles(selectedFolder);
             
         } else if (selectionType === 'tag' && selectedTag) {
-            // Get all markdown files in the vault
-            const filesWithTag: TFile[] = [];
+            // Build the tag tree to handle hierarchical tags
             const allMarkdownFiles = app.vault.getMarkdownFiles();
+            const tagTree = buildTagTree(allMarkdownFiles, app);
             
-            for (const file of allMarkdownFiles) {
-                const cache = app.metadataCache.getFileCache(file);
-                // Use getAllTags to get all tags from the file (includes frontmatter tags)
-                const fileTags = cache ? getAllTags(cache) : null;
-                const hasTag = fileTags && fileTags.includes(selectedTag);
+            // Find the selected tag node
+            const selectedNode = findTagNode(selectedTag, tagTree);
+            
+            if (selectedNode) {
+                // Collect all tags to include (selected tag and all children)
+                const tagsToInclude = collectAllTagPaths(selectedNode);
                 
-                if (hasTag) {
-                    filesWithTag.push(file);
+                // Filter files that have any of the collected tags
+                const filesWithTag: TFile[] = [];
+                for (const file of allMarkdownFiles) {
+                    if (shouldExcludeFile(file, excludedProperties, app)) continue;
+                    
+                    const cache = app.metadataCache.getFileCache(file);
+                    const fileTags = cache ? getAllTags(cache) : null;
+                    
+                    if (fileTags && fileTags.some(tag => tagsToInclude.has(tag))) {
+                        filesWithTag.push(file);
+                    }
                 }
+                allFiles = filesWithTag;
+            } else {
+                // Fallback to empty if tag not found
+                allFiles = [];
             }
-            allFiles = filesWithTag;
         }
         
         // Filter out excluded files based on frontmatter properties

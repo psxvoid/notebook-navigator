@@ -111,14 +111,35 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
     }, [containerRef]);
     
     /**
-     * Gets all tag elements from the DOM.
+     * Gets all visible tag elements from the DOM.
+     * Filters out tags that are inside collapsed parent tags.
      * 
-     * @returns Array of tag DOM elements
+     * @returns Array of visible tag DOM elements
      */
     const getTagElements = useCallback(() => {
         if (!containerRef.current) return [];
-        return Array.from(containerRef.current.querySelectorAll('.nn-tag-item'));
-    }, [containerRef]);
+        const allTags = Array.from(containerRef.current.querySelectorAll('.nn-tag-item'));
+        
+        // Filter out tags that are inside collapsed parents
+        return allTags.filter(element => {
+            // Check if this element is visible by checking if it's inside collapsed tag children
+            let parent = element.parentElement;
+            while (parent && parent !== containerRef.current) {
+                if (parent.classList.contains('nn-tag-children')) {
+                    // Check if the parent tag item is expanded
+                    const parentTagItem = parent.previousElementSibling;
+                    if (parentTagItem && parentTagItem.classList.contains('nn-tag-item')) {
+                        const parentPath = (parentTagItem as HTMLElement).dataset.tag;
+                        if (parentPath && appState.expandedTags && !appState.expandedTags.has(parentPath)) {
+                            return false; // This tag is inside a collapsed parent
+                        }
+                    }
+                }
+                parent = parent.parentElement;
+            }
+            return true; // This tag is visible
+        });
+    }, [containerRef, appState.expandedTags]);
     
     /**
      * Finds the index of the selected element in an array of elements.
@@ -289,6 +310,27 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
                 e.preventDefault();
                 if (appState.focusedPane === 'files') {
                     dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+                } else if (appState.selectionType === 'tag' && appState.selectedTag) {
+                    // Tag mode: collapse or move to parent
+                    const tagPath = appState.selectedTag;
+                    if (appState.expandedTags.has(tagPath)) {
+                        // Collapse the tag
+                        dispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath });
+                    } else {
+                        // Move to parent tag
+                        const lastSlashIndex = tagPath.lastIndexOf('/');
+                        if (lastSlashIndex > 0) { // Has a parent (not a root tag)
+                            const parentPath = tagPath.substring(0, lastSlashIndex);
+                            dispatch({ type: 'SET_SELECTED_TAG', tag: parentPath });
+                            
+                            // Ensure parent is visible by scrolling to it
+                            const tagElements = getTagElements();
+                            const parentElement = tagElements.find(el => (el as HTMLElement).dataset.tag === parentPath);
+                            if (parentElement) {
+                                parentElement.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                            }
+                        }
+                    }
                 } else if (appState.selectedFolder) {
                     // If folder is expanded, collapse it
                     if (appState.expandedFolders.has(appState.selectedFolder.path)) {
@@ -319,9 +361,24 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement>
             case 'ArrowRight':
                 e.preventDefault();
                 if (appState.focusedPane === 'folders') {
-                    // If in tag mode, just move to files
-                    if (appState.selectionType === 'tag') {
-                        dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                    if (appState.selectionType === 'tag' && appState.selectedTag) {
+                        // Tag mode: expand or move to files
+                        if (!appState.expandedTags.has(appState.selectedTag)) {
+                            // Check if tag has children by looking at DOM
+                            const tagElements = getTagElements();
+                            const currentElement = tagElements.find(el => (el as HTMLElement).dataset.tag === appState.selectedTag);
+                            if (currentElement) {
+                                const arrow = currentElement.querySelector('.nn-tag-arrow');
+                                const hasChildren = arrow && getComputedStyle(arrow).visibility !== 'hidden';
+                                if (hasChildren) {
+                                    dispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: appState.selectedTag });
+                                } else {
+                                    dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                                }
+                            }
+                        } else {
+                            dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                        }
                     } else if (appState.selectedFolder) {
                         // Folder mode - expand or move to files
                         if (!appState.expandedFolders.has(appState.selectedFolder.path)) {

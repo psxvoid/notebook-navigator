@@ -37,6 +37,8 @@ export interface AppState {
     selectedFile: TFile | null;
     /** Set of folder paths that are currently expanded in the tree */
     expandedFolders: Set<string>;
+    /** Set of tag paths that are currently expanded in the tree */
+    expandedTags: Set<string>;
     /** Which pane currently has keyboard focus */
     focusedPane: 'folders' | 'files';
     /** Counter that increments when we need to trigger a scroll to the selected folder */
@@ -53,6 +55,8 @@ export type AppAction =
     | { type: 'SET_SELECTED_FILE'; file: TFile | null }
     | { type: 'SET_EXPANDED_FOLDERS'; folders: Set<string> }
     | { type: 'TOGGLE_FOLDER_EXPANDED'; folderPath: string }
+    | { type: 'SET_EXPANDED_TAGS'; tags: Set<string> }
+    | { type: 'TOGGLE_TAG_EXPANDED'; tagPath: string }
     | { type: 'SET_FOCUSED_PANE'; pane: 'folders' | 'files' }
     | { type: 'EXPAND_FOLDERS'; folderPaths: string[] }
     | { type: 'REVEAL_FILE'; file: TFile }
@@ -89,6 +93,8 @@ const AppContext = createContext<AppContextType>(null!);
 const STORAGE_KEYS = {
     /** Key for storing expanded folder paths */
     expandedFolders: 'notebook-navigator-expanded-folders',
+    /** Key for storing expanded tag paths */
+    expandedTags: 'notebook-navigator-expanded-tags',
     /** Key for storing selected folder path */
     selectedFolder: 'notebook-navigator-selected-folder',
     /** Key for storing selected file path */
@@ -104,6 +110,7 @@ const STORAGE_KEYS = {
  */
 function loadStateFromStorage(app: App): AppState {
     const expandedFoldersData = localStorage.getItem(STORAGE_KEYS.expandedFolders);
+    const expandedTagsData = localStorage.getItem(STORAGE_KEYS.expandedTags);
     const selectedFolderPath = localStorage.getItem(STORAGE_KEYS.selectedFolder);
     const selectedFilePath = localStorage.getItem(STORAGE_KEYS.selectedFile);
     
@@ -117,6 +124,18 @@ function loadStateFromStorage(app: App): AppState {
         }
     } catch (e) {
         console.error('Failed to parse expanded folders:', e);
+    }
+    
+    let expandedTags = new Set<string>();
+    try {
+        if (expandedTagsData) {
+            const parsed = JSON.parse(expandedTagsData);
+            if (Array.isArray(parsed)) {
+                expandedTags = new Set(parsed);
+            }
+        }
+    } catch (e) {
+        console.error('Failed to parse expanded tags:', e);
     }
     
     let selectedFolder: TFolder | null = null;
@@ -141,6 +160,7 @@ function loadStateFromStorage(app: App): AppState {
         selectedTag: null,
         selectedFile,
         expandedFolders,
+        expandedTags,
         focusedPane: 'folders',
         scrollToFolderTrigger: 0
     };
@@ -155,7 +175,7 @@ function loadStateFromStorage(app: App): AppState {
  */
 function saveToStorage(key: string, value: any) {
     try {
-        if (key === STORAGE_KEYS.expandedFolders) {
+        if (key === STORAGE_KEYS.expandedFolders || key === STORAGE_KEYS.expandedTags) {
             localStorage.setItem(key, JSON.stringify(Array.from(value)));
         } else {
             localStorage.setItem(key, value || '');
@@ -205,6 +225,22 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
                 newExpanded.add(action.folderPath);
             }
             return { ...state, expandedFolders: newExpanded };
+        }
+        
+        case 'SET_EXPANDED_TAGS': {
+            // Replace all expanded tags (used for bulk operations)
+            return { ...state, expandedTags: action.tags };
+        }
+        
+        case 'TOGGLE_TAG_EXPANDED': {
+            // Toggle a single tag's expanded state
+            const newExpanded = new Set(state.expandedTags);
+            if (newExpanded.has(action.tagPath)) {
+                newExpanded.delete(action.tagPath);
+            } else {
+                newExpanded.add(action.tagPath);
+            }
+            return { ...state, expandedTags: newExpanded };
         }
         
         case 'SET_FOCUSED_PANE': {
@@ -408,12 +444,15 @@ export function AppProvider({ children, plugin }: { children: React.ReactNode, p
         // Save expanded folders
         saveToStorage(STORAGE_KEYS.expandedFolders, appState.expandedFolders);
         
+        // Save expanded tags
+        saveToStorage(STORAGE_KEYS.expandedTags, appState.expandedTags);
+        
         // Save selected folder
         saveToStorage(STORAGE_KEYS.selectedFolder, appState.selectedFolder?.path);
         
         // Save selected file
         saveToStorage(STORAGE_KEYS.selectedFile, appState.selectedFile?.path);
-    }, [appState.expandedFolders, appState.selectedFolder, appState.selectedFile]);
+    }, [appState.expandedFolders, appState.expandedTags, appState.selectedFolder, appState.selectedFile]);
 
     const contextValue = useMemo(() => ({
         app,
