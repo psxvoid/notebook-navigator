@@ -45,7 +45,9 @@ export interface NotebookNavigatorSettings {
     // Folder display
     showRootFolder: boolean;
     showFolderFileCount: boolean;
+    // Tag display
     showTags: boolean;
+    showUntagged: boolean;
     // Appearance
     dateFormat: string;
     // Advanced
@@ -78,7 +80,9 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Folder display
     showRootFolder: false,
     showFolderFileCount: true,
+    // Tag display
     showTags: true,
+    showUntagged: false,
     // Appearance
     dateFormat: 'MMM d, yyyy',
     // Advanced
@@ -358,7 +362,12 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                 }));
 
+        // Section 4: Tag display
         new Setting(containerEl)
+            .setName('Tag display')
+            .setHeading();
+
+        const showTagsSetting = new Setting(containerEl)
             .setName('Show tags')
             .setDesc('Display tags section below folders in the navigator.')
             .addToggle(toggle => toggle
@@ -366,9 +375,24 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .onChange(async (value) => {
                     this.plugin.settings.showTags = value;
                     await this.saveAndRefresh();
+                    // Update untagged visibility
+                    this.setElementVisibility(untaggedSettingEl, value);
                 }));
 
-        // Section 4: Appearance
+        // Container for untagged setting
+        const untaggedSettingEl = containerEl.createDiv();
+
+        new Setting(untaggedSettingEl)
+            .setName('Show untagged notes')
+            .setDesc('Display "Untagged" item for notes without any tags.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showUntagged)
+                .onChange(async (value) => {
+                    this.plugin.settings.showUntagged = value;
+                    await this.saveAndRefresh();
+                }));
+
+        // Section 5: Appearance
         new Setting(containerEl)
             .setName('Appearance')
             .setHeading();
@@ -387,7 +411,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 new Notice('Common formats:\nMMM d, yyyy = May 25, 2022\ndd/MM/yyyy = 25/05/2022\nyyyy-MM-dd = 2022-05-25\n\nTokens:\nyyyy/yy = year\nMMMM/MMM/MM = month\ndd/d = day\nEEEE/EEE = weekday', 10000);
             }));
 
-        // Section 5: Advanced
+        // Section 6: Advanced
         new Setting(containerEl)
             .setName('Advanced')
             .setHeading();
@@ -411,6 +435,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .onClick(async () => {
                     // Clear all localStorage keys
                     localStorage.removeItem(this.plugin.keys.expandedFoldersKey);
+                    localStorage.removeItem(this.plugin.keys.expandedTagsKey);
                     localStorage.removeItem(this.plugin.keys.selectedFolderKey);
                     localStorage.removeItem(this.plugin.keys.selectedFileKey);
                     localStorage.removeItem(this.plugin.keys.leftPaneWidthKey);
@@ -426,6 +451,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         this.setElementVisibility(dateGroupingEl, this.plugin.settings.sortOption !== 'title');
         this.setElementVisibility(previewSettingsEl, this.plugin.settings.showFilePreview);
         this.setElementVisibility(featureImageSettingsEl, this.plugin.settings.showFeatureImage);
+        this.setElementVisibility(untaggedSettingEl, this.plugin.settings.showTags);
     }
 
     /**

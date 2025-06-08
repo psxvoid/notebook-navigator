@@ -25,6 +25,7 @@ import { isTFile, isTFolder } from '../utils/typeGuards';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 import { getFileFromElement } from '../utils/domUtils';
 import { buildTagTree, findTagNode, collectAllTagPaths } from '../utils/tagUtils';
+import { UNTAGGED_TAG_ID } from '../types';
 
 /**
  * Renders the file list pane displaying files from the selected folder.
@@ -78,25 +79,34 @@ export function FileList() {
             const allMarkdownFiles = app.vault.getMarkdownFiles()
                 .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
             
-            // Build the tag tree once
-            const tagTree = buildTagTree(allMarkdownFiles, app);
-            
-            // Find the selected tag node
-            const selectedNode = findTagNode(selectedTag, tagTree);
-            
-            if (selectedNode) {
-                // Collect all tags to include (selected tag and all children)
-                const tagsToInclude = collectAllTagPaths(selectedNode);
-                
-                // Filter files that have any of the collected tags
+            // Special case for untagged files
+            if (selectedTag === UNTAGGED_TAG_ID) {
                 allFiles = allMarkdownFiles.filter(file => {
                     const cache = app.metadataCache.getFileCache(file);
                     const fileTags = cache ? getAllTags(cache) : null;
-                    return fileTags && fileTags.some(tag => tagsToInclude.has(tag));
+                    return !fileTags || fileTags.length === 0;
                 });
             } else {
-                // Fallback to empty if tag not found
-                allFiles = [];
+                // Build the tag tree once
+                const tagTree = buildTagTree(allMarkdownFiles, app);
+                
+                // Find the selected tag node
+                const selectedNode = findTagNode(selectedTag, tagTree);
+                
+                if (selectedNode) {
+                    // Collect all tags to include (selected tag and all children)
+                    const tagsToInclude = collectAllTagPaths(selectedNode);
+                    
+                    // Filter files that have any of the collected tags
+                    allFiles = allMarkdownFiles.filter(file => {
+                        const cache = app.metadataCache.getFileCache(file);
+                        const fileTags = cache ? getAllTags(cache) : null;
+                        return fileTags && fileTags.some(tag => tagsToInclude.has(tag));
+                    });
+                } else {
+                    // Fallback to empty if tag not found
+                    allFiles = [];
+                }
             }
         }
         

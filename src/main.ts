@@ -48,6 +48,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
     // These keys are used to save and restore the plugin's state between sessions
     keys: LocalStorageKeys = {
         expandedFoldersKey: 'notebook-navigator-expanded-folders',
+        expandedTagsKey: 'notebook-navigator-expanded-tags',
         selectedFolderKey: 'notebook-navigator-selected-folder',
         selectedFileKey: 'notebook-navigator-selected-file',
         leftPaneWidthKey: 'notebook-navigator-left-pane-width'

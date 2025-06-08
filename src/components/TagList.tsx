@@ -18,10 +18,12 @@
 
 // src/components/TagList.tsx
 import React, { useMemo } from 'react';
+import { getAllTags } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { buildTagTree, TagTreeNode, getTotalNoteCount } from '../utils/tagUtils';
 import { TagTreeItem } from './TagTreeItem';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
+import { UNTAGGED_TAG_ID } from '../types';
 
 /**
  * Component that displays all tags in the vault as a hierarchical tree.
@@ -73,11 +75,28 @@ export function TagList() {
         );
     };
 
+    // Count untagged files only when needed
+    const untaggedCount = useMemo(() => {
+        if (!plugin.settings.showUntagged) {
+            return 0;
+        }
+        
+        const excludedProperties = parseExcludedProperties(plugin.settings.excludedFiles);
+        return app.vault.getMarkdownFiles().filter(file => {
+            if (excludedProperties.length && shouldExcludeFile(file, excludedProperties, app)) {
+                return false;
+            }
+            const cache = app.metadataCache.getFileCache(file);
+            const tags = cache ? getAllTags(cache) : null;
+            return !tags || tags.length === 0;
+        }).length;
+    }, [plugin.settings.showUntagged, app.vault, app.metadataCache, plugin.settings.excludedFiles, refreshCounter]);
+
     // Get root nodes and sort them
     const rootNodes = Array.from(tagTree.values()).sort((a, b) => a.name.localeCompare(b.name));
 
-    // Don't render if there are no tags
-    if (rootNodes.length === 0) {
+    // Don't render if there are no tags and no untagged files
+    if (rootNodes.length === 0 && untaggedCount === 0) {
         return null;
     }
 
@@ -86,6 +105,20 @@ export function TagList() {
             <div className="nn-section-header">Tags</div>
             <div className="nn-tag-list">
                 {rootNodes.map(node => renderTagNode(node, 0))}
+                {plugin.settings.showUntagged && untaggedCount > 0 && (
+                    <div 
+                        className={`nn-tag-item ${appState.selectionType === 'tag' && appState.selectedTag === UNTAGGED_TAG_ID ? 'nn-selected' : ''}`}
+                        data-tag={UNTAGGED_TAG_ID}
+                        onClick={() => dispatch({ type: 'SET_SELECTED_TAG', tag: UNTAGGED_TAG_ID })}
+                        style={{ paddingLeft: '0px' }}
+                    >
+                        <div className="nn-tag-arrow" style={{ visibility: 'hidden' }} />
+                        <span className="nn-tag-name">Untagged</span>
+                        {plugin.settings.showFolderFileCount && (
+                            <span className="nn-tag-count">{untaggedCount}</span>
+                        )}
+                    </div>
+                )}
             </div>
         </div>
     );

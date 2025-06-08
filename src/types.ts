@@ -28,6 +28,12 @@
 export const VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT = 'notebook-navigator-react-view';
 
 /**
+ * Special tag identifier for untagged notes
+ * Using double underscore to avoid conflicts with real tags
+ */
+export const UNTAGGED_TAG_ID = '__untagged__';
+
+/**
  * Identifies which pane currently has keyboard focus
  * Used for keyboard navigation between folder tree and file list
  */
@@ -39,6 +45,7 @@ export type FocusedPane = 'folders' | 'files';
  */
 export interface LocalStorageKeys {
     expandedFoldersKey: string;
+    expandedTagsKey: string;
     selectedFolderKey: string;
     selectedFileKey: string;
     leftPaneWidthKey: string;
