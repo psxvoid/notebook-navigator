@@ -48,7 +48,7 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 | ↑/↓ | Navigate up/down in current pane |
 | ← | In folders/tags: collapse or go to parent<br>In files: switch to folder/tag pane |
 | → | In folders/tags: expand or switch to file pane<br>In files: open selected file |
-| Tab | When in folders/tags: switch to file pane<br>When in files: open selected file |
+| Tab | In folders/tags: switch to file pane<br>In files: open selected file |
 | Shift+Tab | Switch from files to folders/tags pane |
 | Delete (Windows/Linux)<br>Backspace (macOS) | Delete selected item |
 
