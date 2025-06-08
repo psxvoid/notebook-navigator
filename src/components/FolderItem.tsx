@@ -58,7 +58,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
     // Auto-scroll to selected folder when needed
     useScrollIntoView(
         folderRef,
-        '.nn-folder-tree',
+        '.nn-left-pane-scroller',
         isSelected,
         [folder.path, appState.scrollToFolderTrigger]
     );
