@@ -248,7 +248,7 @@ button.nn-icon-button {
 .nn-folder-content {
     display: flex;
     align-items: center;
-    padding: 2px 8px 2px 4px;
+    padding: 3px 8px 3px 4px;
     cursor: pointer;
     transition: background-color 0.15s ease;
     border-radius: 4px;
@@ -368,7 +368,7 @@ button.nn-icon-button {
 .nn-tag-item {
     display: flex;
     align-items: center;
-    padding: 2px 8px 2px 4px;
+    padding: 3px 8px 3px 4px;
     cursor: pointer;
     border-radius: 4px;
     font-size: 12px;
