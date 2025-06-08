@@ -265,7 +265,8 @@ button.nn-icon-button {
 }
 
 /* Folder chevron/arrow - expand/collapse indicator */
-.nn-folder-arrow {
+.nn-folder-arrow,
+.nn-folder-chevron {
     width: 16px;
     height: 16px;
     margin-right: 4px;
@@ -360,19 +361,20 @@ button.nn-icon-button {
 
 /* Tag list */
 .nn-tag-list {
-    padding: 0 4px;
+    padding: 4px 0;
 }
 
 /* Individual tag item */
 .nn-tag-item {
     display: flex;
     align-items: center;
-    padding: 4px 8px;
+    padding: 2px 8px 2px 4px;
     cursor: pointer;
     border-radius: 4px;
     font-size: 12px;
     color: var(--text-normal);
     user-select: none;
+    margin: 0;
 }
 
 /* Tag item hover state */

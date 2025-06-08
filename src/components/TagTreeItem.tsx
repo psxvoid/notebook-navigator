@@ -70,7 +70,7 @@ export function TagTreeItem({
         <div 
             className={`nn-tag-item ${isSelected ? 'nn-selected' : ''}`} 
             data-tag={tagNode.path}
-            style={{ paddingLeft: `${12 + level * 20}px` }}
+            style={{ paddingLeft: `${level * 20}px` }}
         >
             <div
                 ref={chevronRef}
