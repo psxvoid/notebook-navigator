@@ -84,6 +84,12 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
 
     // useEffect is how you perform side effects, like reading file content.
     useEffect(() => {
+        // Only load preview text if the setting is enabled
+        if (!plugin.settings.showFilePreview) {
+            setPreviewText('');
+            return;
+        }
+        
         let isCancelled = false;
         if (file.extension === 'md') {
             app.vault.cachedRead(file).then(content => {
@@ -96,7 +102,7 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
         }
         // This cleanup function prevents state updates on unmounted components
         return () => { isCancelled = true; };
-    }, [file.path, app.vault, plugin.settings.skipHeadingsInPreview, plugin.settings.skipNonTextInPreview, refreshCounter]); // Rerun effect if file path, preview settings, or content changes
+    }, [file.path, app.vault, plugin.settings.showFilePreview, plugin.settings.skipHeadingsInPreview, plugin.settings.skipNonTextInPreview, refreshCounter]); // Rerun effect if file path, preview settings, or content changes
     
     const className = `nn-file-item ${isSelected ? 'nn-selected' : ''}`;
 
@@ -116,7 +122,9 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
                     <div className="nn-file-name">{file.basename}</div>
                     <div className="nn-file-second-line">
                         <div className="nn-file-date">{formattedDate}</div>
-                        <div className="nn-file-preview">{previewText}</div>
+                        {plugin.settings.showFilePreview && (
+                            <div className="nn-file-preview">{previewText}</div>
+                        )}
                     </div>
                 </div>
                 {featureImageUrl && (
