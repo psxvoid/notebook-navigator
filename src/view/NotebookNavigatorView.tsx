@@ -102,6 +102,7 @@ export class NotebookNavigatorView extends ItemView {
         const container = this.containerEl.children[1];
         container.classList.remove('notebook-navigator');
         this.root?.unmount();
+        this.root = null;
     }
     
     /**

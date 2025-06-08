@@ -123,7 +123,7 @@ function loadStateFromStorage(app: App): AppState {
             }
         }
     } catch (e) {
-        console.error('Failed to parse expanded folders:', e);
+        // Silently ignore parse errors
     }
     
     let expandedTags = new Set<string>();
@@ -135,7 +135,7 @@ function loadStateFromStorage(app: App): AppState {
             }
         }
     } catch (e) {
-        console.error('Failed to parse expanded tags:', e);
+        // Silently ignore parse errors
     }
     
     let selectedFolder: TFolder | null = null;
@@ -181,7 +181,7 @@ function saveToStorage(key: string, value: any) {
             localStorage.setItem(key, value || '');
         }
     } catch (e) {
-        console.error(`Failed to save ${key} to localStorage:`, e);
+        // Silently ignore save errors (e.g., quota exceeded)
     }
 }
 

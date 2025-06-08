@@ -182,17 +182,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
         return leaf;
     }
 
-    /**
-     * Detaches all Notebook Navigator views from the workspace
-     * Used during plugin cleanup to ensure no orphaned views remain
-     * Iterates through all leaves of our view type and detaches them
-     */
-    private async detachNotebookNavigatorLeaves() {
-        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-        for (const leaf of leaves) {
-            leaf.detach();
-        }
-    }
 
     
     /**
@@ -286,15 +275,5 @@ export default class NotebookNavigatorPlugin extends Plugin {
         });
     }
 
-    /**
-     * Completely refreshes the navigator by recreating all views
-     * Used when major changes require full view reconstruction
-     * More aggressive than view.refresh() which updates existing views
-     */
-    async refreshView() {
-        // Detach existing views and create a new one
-        await this.detachNotebookNavigatorLeaves();
-        await this.activateView(true);
-    }
 
 }

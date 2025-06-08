@@ -76,7 +76,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                 }
             });
         } catch (error) {
-            console.error('Failed to create folder:', error);
+            // Error is handled by FileSystemOperations with user notification
         }
     }, [appState.selectedFolder, appState.expandedFolders, fileSystemOps, type, dispatch]);
     
@@ -86,7 +86,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
         try {
             await fileSystemOps.createNewFile(appState.selectedFolder);
         } catch (error) {
-            console.error('Failed to create file:', error);
+            // Error is handled by FileSystemOperations with user notification
         }
     }, [appState.selectedFolder, fileSystemOps, type]);
     
