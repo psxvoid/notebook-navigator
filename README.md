@@ -25,6 +25,7 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 - 🎯 **Drag and drop:** Move files and folders with intuitive drag and drop
 - 🎨 **Customizable appearance:** Adjust date formats
 - 🌓 **Dark mode support:** Fully integrated with Obsidian's theme system
+- 📱 **Mobile support:** Full functionality on iOS and Android devices with touch gestures
 - ↔️ **Resizable panes:** Drag the divider to adjust folder/file pane widths
 - 🚀 **Auto-reveal:** Automatically reveal files when opened from search or links
 
@@ -67,6 +68,8 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 3. Search for "Notebook Navigator"
 4. Click Install
 5. Enable the plugin
+
+**Note:** Available on both desktop and mobile versions of Obsidian.
 
 ### Manual Installation
 
@@ -193,7 +196,7 @@ This is perfect for:
 
 - Works with all Obsidian themes
 - Compatible with other file management plugins
-- **Desktop only** - This plugin is only available for desktop versions of Obsidian
+- **Desktop and mobile support** - Works on all platforms where Obsidian is available
 - Respects Obsidian's safe mode
 
 ## Support
