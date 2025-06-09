@@ -212,6 +212,7 @@ button.nn-icon-button {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
+    padding: 0 4px;
 }
 
 /* Make FolderTree and TagList take their natural height */
@@ -314,7 +315,7 @@ button.nn-icon-button {
     font-size: 11px;
     color: var(--text-muted);
     margin-left: auto;
-    margin-right: 8px;
+    margin-right: 4px;
     flex-shrink: 0;
     padding-left: 8px; /* Add space between truncated text and count */
 }
@@ -414,7 +415,7 @@ button.nn-icon-button {
     font-size: 11px;
     color: var(--text-muted);
     margin-left: auto;
-    margin-right: 8px;
+    margin-right: 4px;
     flex-shrink: 0;
     padding-left: 8px;
 }
