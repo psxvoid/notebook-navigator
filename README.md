@@ -71,8 +71,6 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 
 ## Settings
 
-![Settings Screenshot](https://github.com/johansan/notebook-navigator/blob/main/images/screenshot2.png?raw=true)
-
 ### File Organization
 
 - **Sort files by:** Choose between date edited, date created, or title
