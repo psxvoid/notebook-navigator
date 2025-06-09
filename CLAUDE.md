@@ -3,6 +3,21 @@
 ## Project Summary
 Notebook Navigator is an Obsidian plugin that replaces the default file explorer with a Notes-style interface. It provides a clean, two-pane layout with a folder tree on the left and a file list on the right, mimicking the UI/UX patterns found in modern note-taking applications.
 
+## Key Features
+
+### Core Features
+- **Two-pane layout**: Folder tree on left, file list on right (desktop)
+- **Tag browsing**: Browse notes by tags with expandable tag tree
+- **File previews**: Show preview text and feature images
+- **Keyboard navigation**: Full keyboard support with arrow keys, Tab, Enter
+- **Drag & drop**: Move files and folders (desktop only)
+- **Context menus**: Right-click menus for all operations
+- **Mobile support**: Single-pane view with swipe gestures
+- **Auto-reveal**: Automatically reveal active file in tree
+- **Search & filtering**: Filter files, exclude patterns
+- **Pinned notes**: Pin important notes to top of folders (backend exists, UI pending)
+- **Folder icons**: Custom folder icons (backend exists, UI pending)
+
 ## Quick Start for AI Assistants
 - **Main entry point**: `src/main.ts` - Plugin class
 - **React entry**: `src/view/NotebookNavigatorView.tsx` - View wrapper
@@ -28,7 +43,10 @@ notebook-navigator/
 │   │   ├── FolderItem.tsx        # Individual folder component
 │   │   ├── FileList.tsx          # Right pane file listing
 │   │   ├── FileItem.tsx          # Individual file component
-│   │   └── PaneHeader.tsx        # Header with actions
+│   │   ├── PaneHeader.tsx        # Header with actions
+│   │   ├── TagList.tsx           # Tag browsing component
+│   │   ├── TagTreeItem.tsx       # Individual tag component
+│   │   └── ObsidianIcon.tsx      # Icon wrapper component
 │   ├── context/                   # React Context providers
 │   │   ├── AppContext.tsx        # Global app state
 │   │   └── ServicesContext.tsx   # Service injection
@@ -36,7 +54,9 @@ notebook-navigator/
 │   │   ├── useKeyboardNavigation.ts  # Keyboard shortcuts
 │   │   ├── useContextMenu.ts     # Right-click menus
 │   │   ├── useDragAndDrop.ts    # Drag & drop logic
-│   │   └── useScrollIntoView.ts  # Smart scroll positioning
+│   │   ├── useScrollIntoView.ts  # Smart scroll positioning
+│   │   ├── useResizablePane.ts   # Pane resizing functionality
+│   │   └── useSwipeGesture.ts    # Mobile swipe gestures
 │   ├── services/                  # Business logic services
 │   │   └── FileSystemService.ts  # File operations
 │   ├── modals/                    # Obsidian modal dialogs
@@ -69,9 +89,12 @@ NotebookNavigatorView (Obsidian ItemView)
     └── ServicesProvider
         └── AppProvider
             └── NotebookNavigatorComponent
-                ├── PaneHeader
+                ├── PaneHeader (left pane)
                 ├── FolderTree
                 │   └── FolderItem (recursive)
+                ├── TagList
+                │   └── TagTreeItem (recursive)
+                ├── PaneHeader (right pane)
                 └── FileList
                     └── FileItem (multiple)
 ```
@@ -81,19 +104,28 @@ NotebookNavigatorView (Obsidian ItemView)
 #### Global State (AppContext)
 ```typescript
 interface AppState {
+    selectionType: 'folder' | 'tag';     // Type of selection - folder or tag
     selectedFolder: TFolder | null;      // Currently selected folder
+    selectedTag: string | null;          // Currently selected tag
     selectedFile: TFile | null;          // Currently selected file
     expandedFolders: Set<string>;        // Set of expanded folder paths
+    expandedTags: Set<string>;           // Set of expanded tag paths
     focusedPane: 'folders' | 'files';   // Which pane has keyboard focus
+    scrollToFolderTrigger: number;       // Trigger for scrolling to folder
+    currentMobileView: 'list' | 'files'; // Mobile view state
 }
 ```
 
 State is managed through React's useReducer hook with these actions:
 - `SET_SELECTED_FOLDER` - Change active folder
+- `SET_SELECTED_TAG` - Change active tag
 - `SET_SELECTED_FILE` - Change active file
 - `SET_EXPANDED_FOLDERS` - Replace all expanded folders
+- `SET_EXPANDED_TAGS` - Replace all expanded tags
 - `TOGGLE_FOLDER_EXPANDED` - Toggle single folder
+- `TOGGLE_TAG_EXPANDED` - Toggle single tag
 - `SET_FOCUSED_PANE` - Switch keyboard focus
+- `SET_MOBILE_VIEW` - Switch mobile view between list and files
 - `EXPAND_FOLDERS` - Expand multiple folders
 - `REVEAL_FILE` - Reveal file in tree
 - `CLEANUP_DELETED_ITEMS` - Remove deleted items
@@ -102,6 +134,7 @@ State is managed through React's useReducer hook with these actions:
 #### Local Storage Persistence
 State is automatically persisted to localStorage:
 - `notebook-navigator-expanded-folders` - Array of expanded folder paths
+- `notebook-navigator-expanded-tags` - Array of expanded tag paths
 - `notebook-navigator-selected-folder` - Current folder path
 - `notebook-navigator-selected-file` - Current file path
 - `notebook-navigator-left-pane-width` - Resizable pane width
@@ -115,6 +148,7 @@ Provides global app state and dispatch function to all components:
 - `appState` - Current state
 - `dispatch` - State update function
 - `refreshCounter` - Force re-render trigger
+- `isMobile` - Whether the app is running on a mobile device
 
 #### ServicesContext
 Provides service instances through custom hooks:
@@ -124,9 +158,10 @@ Provides service instances through custom hooks:
 
 - **useKeyboardNavigation**: Arrow keys, Tab, Enter, Delete with debouncing
 - **useContextMenu**: Right-click menus using Obsidian's Menu API
-- **useDragAndDrop**: Drag-and-drop with validation and visual feedback  
+- **useDragAndDrop**: Drag-and-drop with validation and visual feedback (desktop only)
 - **useScrollIntoView**: Smart scrolling that centers selected items
 - **useResizablePane**: Handles pane resizing with min/max constraints
+- **useSwipeGesture**: Mobile swipe gestures for navigation (edge swipe detection)
 
 ## Code Style & Patterns
 
@@ -201,6 +236,22 @@ Some patterns deviate from React best practices for good reasons:
 - **Theming**: Use Obsidian's CSS variables for consistent theming
 - **States**: Use modifier classes for states (`nn-selected`, `nn-dragging`, `nn-drag-over`)
 
+## Tag System
+
+### Tag Features
+- **Tag browsing**: Separate section below folder tree for tag navigation
+- **Nested tags**: Support for hierarchical tags (e.g., `#project/work`)
+- **Untagged notes**: Special pseudo-tag `__untagged__` for notes without tags
+- **Tag counts**: Display number of notes for each tag
+- **Expandable tree**: Collapsible tag hierarchy similar to folder tree
+- **Tag selection**: Select tag to show all notes with that tag
+
+### Tag Implementation
+- **Tag extraction**: Uses Obsidian's `CachedMetadata` for tag information
+- **Tag tree building**: Hierarchical structure built from tag paths
+- **State management**: Separate `expandedTags` and `selectedTag` in AppState
+- **Persistence**: Expanded tags saved to localStorage
+
 ## Common Development Tasks
 
 - **New Setting**: Add to interface → DEFAULT_SETTINGS → Settings tab UI → Use in component
@@ -208,6 +259,8 @@ Some patterns deviate from React best practices for good reasons:
 - **New Context Menu**: Find menu builder in `useContextMenu` → Add menu item → Implement handler
 - **New Component**: Create in `src/components/` → Named export → TypeScript props interface
 - **New Global State**: Add to AppState → Add action type → Implement reducer case → Add persistence
+- **New Mobile Feature**: Check `isMobile` → Add conditional logic → Test on mobile device
+- **New Tag Feature**: Update TagList/TagTreeItem → Handle in AppContext reducer → Add tag-specific logic
 
 ## Performance Considerations
 
@@ -228,19 +281,6 @@ Some patterns deviate from React best practices for good reasons:
 - Folder counts update separately from tree renders
 - Progressive preview loading
 - Efficient Set operations for expanded folders
-
-## Testing Checklist
-When making changes, test:
-- [ ] Keyboard navigation (arrows, Tab, Enter, Delete)
-- [ ] Mouse interactions (click, double-click, right-click)
-- [ ] Drag and drop (files to folders, folders to folders)
-- [ ] File operations (create, rename, delete)
-- [ ] Settings changes take effect immediately
-- [ ] State persists across plugin reload
-- [ ] No console errors or warnings
-- [ ] Performance with large folders (100+ files)
-- [ ] Theme compatibility (light/dark)
-- [ ] Mobile/tablet if applicable
 
 ## Common Pitfalls & Solutions
 
@@ -303,23 +343,6 @@ useEffect(() => {
 
 **REMEMBER: Prefer React patterns, but prioritize performance and practicality when needed.**
 
-## Debugging Tips
-
-- **React DevTools**: Use Components tab to inspect state and props
-- **Console Logging**: Prefix with `[NN]` for easy filtering
-- **State Inspection**: Check localStorage keys for persisted state
-- **Performance**: Use React Profiler to identify render bottlenecks
-
-## Future Enhancement Ideas
-- Virtual scrolling for large file lists
-- Folder icons customization (UI exists, needs implementation)
-- Bulk file operations
-- Search within navigator
-- Tag-based filtering
-- Custom sort orders
-- Folder templates
-- Keyboard shortcut customization
-
 ## Build Process
 
 ### Development
@@ -344,12 +367,23 @@ The build process:
 npm run version   # Bump version in manifest.json and versions.json
 ```
 
-## Contributing Guidelines
-1. Follow existing code patterns
-2. Add TypeScript types for all parameters
-3. Include JSDoc comments for public APIs
-4. Document any non-standard patterns with clear rationale
-5. Test with both light and dark themes
-6. Ensure mobile compatibility
-7. Consider performance implications for large vaults
-8. Update this documentation for significant changes
+## Mobile Support
+
+### Mobile-Specific Features
+
+1. **Single-Pane View**: On mobile devices, the navigator switches to a single-pane view that shows either the folder/tag list or the file list
+2. **Swipe Gestures**: Edge swipe (from left edge) navigates back from files to folder list
+3. **Mobile View States**: 
+   - `list` - Shows folder tree and tag list
+   - `files` - Shows file list for selected folder/tag
+4. **No Drag & Drop**: Drag and drop is disabled on mobile for better touch interaction
+5. **Responsive Layout**: Pane resizing is disabled, full width is used
+
+### Mobile Implementation Details
+
+- Mobile detection: Uses `Platform.isMobile` from Obsidian API
+- View switching: Managed through `currentMobileView` state
+- Swipe handling: `useSwipeGesture` hook with edge detection (25px threshold)
+- CSS classes: `.show-list` and `.show-files` control visibility
+- Back navigation: PaneHeader shows back button when viewing files
+
