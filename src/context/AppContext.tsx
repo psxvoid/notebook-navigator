@@ -20,7 +20,7 @@
 import React, { createContext, useContext, useMemo, useEffect, useReducer } from 'react';
 import { App, TFile, TFolder } from 'obsidian';
 import NotebookNavigatorPlugin from '../main';
-import { isTFolder } from '../utils/typeGuards';
+import { isTFolder, isTFile } from '../utils/typeGuards';
 
 /**
  * Global application state interface.
@@ -149,8 +149,8 @@ function loadStateFromStorage(app: App): AppState {
     let selectedFile: TFile | null = null;
     if (selectedFilePath) {
         const file = app.vault.getAbstractFileByPath(selectedFilePath);
-        if (file && 'extension' in file) {
-            selectedFile = file as TFile;
+        if (isTFile(file)) {
+            selectedFile = file;
         }
     }
     

@@ -21,7 +21,7 @@ import { useEffect, useCallback } from 'react';
 import { Menu, MenuItem, TFile, TFolder, Notice } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { useFileSystemOps } from '../context/ServicesContext';
-import { isFolderAncestor, getInternalPlugin } from '../utils/typeGuards';
+import { isFolderAncestor, getInternalPlugin, isTFolder, isTFile } from '../utils/typeGuards';
 
 /**
  * Configuration for the context menu
@@ -82,7 +82,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
         menu.onHide(cleanup); // Use the built-in onHide callback
         
         if (config.type === 'folder') {
-            const folder = config.item as TFolder;
+            if (!isTFolder(config.item)) return;
+            const folder = config.item;
             
             // New note
             menu.addItem((item: MenuItem) => {
@@ -150,8 +151,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     .setTitle('Search in folder')
                     .setIcon('search')
                     .onClick(() => {
-                        const searchPlugin = (app as any).internalPlugins?.getPluginById('global-search');
-                        if (searchPlugin?.instance) {
+                        const searchPlugin = getInternalPlugin(app, 'global-search');
+                        if (searchPlugin && 'instance' in searchPlugin && searchPlugin.instance) {
                             searchPlugin.instance.openGlobalSearch(`path:"${folder.path}"`);
                         }
                     });
@@ -234,7 +235,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             });
             
         } else {
-            const file = config.item as TFile;
+            if (!isTFile(config.item)) return;
+            const file = config.item;
             
             // Open in new tab
             menu.addItem((item: MenuItem) => {
@@ -304,8 +306,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             });
             
             // Open version history (if Sync is enabled)
-            const syncPlugin = (app as any).internalPlugins?.getPluginById('sync');
-            if (syncPlugin?.enabled) {
+            const syncPlugin = getInternalPlugin(app, 'sync');
+            if (syncPlugin && 'enabled' in syncPlugin && syncPlugin.enabled) {
                 menu.addItem((item: MenuItem) => {
                     item
                         .setTitle('Open version history')

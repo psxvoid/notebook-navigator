@@ -80,6 +80,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 return;
             }
             
+            // Note: Accessing view.file via 'any' as it's not in Obsidian's public TypeScript API
             const file = (leaf.view as any).file;
             if (file && file instanceof TFile) {
                 // Don't reveal if it's already selected

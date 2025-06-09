@@ -399,6 +399,7 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement 
                         .concat(app.workspace.getLeavesOfType('database'));
                     
                     // Find leaf showing our file
+                    // Note: Accessing view.file via 'any' as it's not in Obsidian's public TypeScript API
                     const targetLeaf = leaves.find(leaf => (leaf.view as any).file?.path === appState.selectedFile?.path);
                     if (targetLeaf) {
                         app.workspace.setActiveLeaf(targetLeaf, { focus: true });

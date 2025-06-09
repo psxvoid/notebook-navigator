@@ -19,6 +19,7 @@
 import { App, TFile, TFolder, TAbstractFile, Notice, normalizePath, Platform } from 'obsidian';
 import { InputModal } from '../modals/InputModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
+import { executeCommand } from '../utils/typeGuards';
 
 /**
  * Handles all file system operations for the Notebook Navigator
@@ -86,7 +87,7 @@ export class FileSystemOperations {
             // Trigger rename mode after the file is loaded
             // We need to wait for the next event loop to ensure the editor is ready
             setTimeout(() => {
-                (this.app as any).commands.executeCommandById('workspace:edit-file-title');
+                executeCommand(this.app, 'workspace:edit-file-title');
             }, 0);
             
             return file;
@@ -160,7 +161,7 @@ export class FileSystemOperations {
                 `Are you sure you want to delete this folder and all its contents?`,
                 async () => {
                     try {
-                        await this.app.vault.delete(folder, true);
+                        await this.app.fileManager.trashFile(folder);
                         if (onSuccess) {
                             onSuccess();
                         }
@@ -173,7 +174,7 @@ export class FileSystemOperations {
         } else {
             // Direct deletion without confirmation
             try {
-                await this.app.vault.delete(folder, true);
+                await this.app.fileManager.trashFile(folder);
                 if (onSuccess) {
                     onSuccess();
                 }
@@ -198,7 +199,7 @@ export class FileSystemOperations {
                 `Are you sure you want to delete this file?`,
                 async () => {
                     try {
-                        await this.app.vault.delete(file);
+                        await this.app.fileManager.trashFile(file);
                         if (onSuccess) {
                             onSuccess();
                         }
@@ -211,7 +212,7 @@ export class FileSystemOperations {
         } else {
             // Direct deletion without confirmation
             try {
-                await this.app.vault.delete(file);
+                await this.app.fileManager.trashFile(file);
                 if (onSuccess) {
                     onSuccess();
                 }
@@ -287,7 +288,7 @@ export class FileSystemOperations {
             
             // Trigger rename mode
             setTimeout(() => {
-                (this.app as any).commands.executeCommandById('workspace:edit-file-title');
+                executeCommand(this.app, 'workspace:edit-file-title');
             }, 0);
         } catch (error) {
             new Notice(`Failed to create canvas: ${error.message}`);
@@ -325,7 +326,7 @@ export class FileSystemOperations {
             
             // Trigger rename mode
             setTimeout(() => {
-                (this.app as any).commands.executeCommandById('workspace:edit-file-title');
+                executeCommand(this.app, 'workspace:edit-file-title');
             }, 0);
         } catch (error) {
             new Notice(`Failed to create database: ${error.message}`);
@@ -436,7 +437,7 @@ export class FileSystemOperations {
             
             for (const commandId of commandIds) {
                 try {
-                    const success = (this.app as any).commands.executeCommandById(commandId);
+                    const success = executeCommand(this.app, commandId);
                     if (success) {
                         executed = true;
                         break;
@@ -474,6 +475,7 @@ export class FileSystemOperations {
     async revealInSystemExplorer(file: TFile): Promise<void> {
         try {
             // Use Obsidian's built-in method to reveal the file
+            // Note: showInFolder is not in Obsidian's public TypeScript API, but is widely used by plugins
             // showInFolder expects the vault-relative path, not the full system path
             await (this.app as any).showInFolder(file.path);
         } catch (error) {
