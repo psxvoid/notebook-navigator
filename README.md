@@ -2,6 +2,10 @@
 
 A plugin for [Obsidian](https://obsidian.md) that replaces the default file explorer with a clean, Notes-style interface featuring a two-pane layout with folders on the left and files on the right.
 
+## Screenshot
+
+![Notebook Navigator Interface](https://github.com/johansan/notebook-navigator/blob/main/images/screenshot1.png?raw=true)
+
 ## Features
 
 - 📁 **Two-pane interface:** Clean layout with folder tree on the left, file list on the right
@@ -17,10 +21,6 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 - 🌓 **Dark mode support:** Fully integrated with Obsidian's theme system
 - ↔️ **Resizable panes:** Drag the divider to adjust folder/file pane widths
 - 🚀 **Auto-reveal:** Automatically reveal files when opened from search or links
-
-## Screenshot
-
-![Notebook Navigator Interface](https://github.com/johansan/notebook-navigator/blob/main/images/screenshot1.png?raw=true)
 
 ## How to Use
 
