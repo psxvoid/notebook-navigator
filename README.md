@@ -82,16 +82,16 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 
 ### File Organization
 
-- **Sort files by:** Choose between date edited, date created, or title
-- **Group notes by date:** When sorted by date, group files under headers like "Today", "Yesterday", etc.
+- **Sort notes by:** Choose between date edited, date created, or title
+- **Group notes by date:** When sorted by date, group notes under date headers like "Today", "Yesterday", etc.
 - **Show notes from subfolders:** Display all notes from subfolders in the current folder view
-- **Auto-reveal active file:** Automatically show and select files when opened from search or links
-- **Excluded files:** Comma-separated list of frontmatter properties. Files containing any of these properties will be hidden (e.g., `draft, private, archived`)
+- **Auto-reveal active note:** Automatically reveal and select notes when opened from Quick Switcher, links, or search
+- **Excluded notes:** Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., `draft, private, archived`)
 - **Excluded folders:** Comma-separated list of folders to hide (e.g., `resources, templates`)
 
-### File Display
+### Note Display
 
-- **Show file preview:** Display preview text beneath file names
+- **Show note preview:** Display preview text beneath note names
 - **Skip headings in preview:** Skip heading lines when generating preview text
 - **Skip non-text in preview:** Skip images, embeds, and other non-text elements from preview text
 - **Show feature image:** Display thumbnail images from frontmatter properties
@@ -101,16 +101,12 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 ### Folder Display
 
 - **Show root folder:** Display "Vault" as the root folder in the tree
-- **Show folder file count:** Display the number of files in each folder (also applies to tag counts)
+- **Show folder note count:** Display the number of notes in each folder
+
+### Tag Display
+
 - **Show tags:** Display tags section below folders in the navigator
-
-### Tags
-
-- **Show tags:** Enable the tags section below folders in the navigator
-- **Show file count:** Display the number of notes for each tag
-- **Hierarchical tags:** Nested tags (e.g., `#project/work`) are displayed in a tree structure
-- **Untagged notes:** Notes without any tags appear under "Untagged"
-- **Tag expansion state:** Expanded/collapsed tag states are preserved between sessions
+- **Show untagged notes:** Display "Untagged" item for notes without any tags
 
 ### Appearance
 
@@ -122,7 +118,7 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 
 ### Advanced
 
-- **Confirm before deleting files:** Show confirmation dialog when deleting files or folders
+- **Confirm before deleting notes:** Show confirmation dialog when deleting notes or folders
 - **Clear saved state:** Reset expanded folders, selections, and pane width to defaults
 
 ## Tips and Tricks
@@ -164,14 +160,6 @@ The tags section provides powerful ways to organize and find your notes:
 - **Hierarchical organization:** Use nested tags like `#project/work/urgent` to create tag hierarchies
 - **Quick filtering:** Click any tag to see all notes with that tag and its subtags
 - **Untagged notes:** Find notes without tags by clicking "Untagged"
-- **Tag counts:** See at a glance how many notes use each tag
-
-### Quick navigation patterns
-
-- **Quick file access:** Press Tab from folders to jump to files
-- **Parent folder navigation:** Press Left arrow to go up the folder tree
-- **Rapid browsing:** Hold arrow keys for continuous navigation
-- **Focus management:** The focused pane has a subtle border highlight
 
 ### Managing draft and private notes
 
@@ -191,13 +179,6 @@ This is perfect for:
 - Personal/sensitive content
 - Archived notes you want to keep but not see daily
 - Template files with a `template: true` property
-
-## Compatibility
-
-- Works with all Obsidian themes
-- Compatible with other file management plugins
-- **Desktop and mobile support** - Works on all platforms where Obsidian is available
-- Respects Obsidian's safe mode
 
 ## Support
 
