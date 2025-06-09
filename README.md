@@ -196,8 +196,6 @@ If you have any questions, suggestions, or issues, please open an issue on the [
 
 ## Development
 
-This plugin is open source and built with a modern React/TypeScript stack.
-
 ### Built with Modern React Architecture
 
 Notebook Navigator is built using React and TypeScript, providing:
@@ -226,31 +224,6 @@ npm run dev
 npm run build
 ```
 
-### Technical Stack
-
-- **React** - Component-based UI with hooks and Context API
-- **TypeScript** - Full type safety with strict mode
-- **esbuild** - Lightning-fast bundling and development builds
-- **Obsidian API** - Deep integration with Obsidian's plugin system
-
-### Architecture Highlights
-
-- **Component-based design** - Each UI element is a self-contained React component
-- **Custom hooks** - Reusable logic for keyboard navigation, context menus, and drag-and-drop
-- **Context providers** - Centralized state management without prop drilling
-- **Service layer** - Clean separation of business logic from UI components
-- **Zero setTimeout/DOM manipulation** - Pure React patterns for predictable behavior
-
 ## License
 
 This project is licensed under the GNU General Public License v3.0 (GPL-3.0) - see the [LICENSE](LICENSE) file for details.
-
-## Acknowledgments
-
-- Inspired by modern note-taking applications
-- Built with the amazing [Obsidian API](https://docs.obsidian.md/)
-- Thanks to all contributors and users for their feedback
-
----
-
-Enjoy using Notebook Navigator!
