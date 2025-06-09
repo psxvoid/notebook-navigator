@@ -151,6 +151,9 @@ export class PreviewTextUtils {
                 // Skip horizontal rules
                 if (line.match(/^(-{3,}|\*{3,}|_{3,})$/)) continue;
                 
+                // Skip callout blocks (e.g., > [!info], > [!note], > [!warning])
+                if (line.match(/^>\s*\[![\w-]+\]/)) continue;
+                
                 // Skip block quotes that might contain non-text
                 if (line.startsWith('>') && line.match(/!\[.*\]\(.*\)/)) continue;
             }
