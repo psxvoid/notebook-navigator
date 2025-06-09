@@ -69,7 +69,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
         this.addCommand({
             id: 'open-notebook-navigator',
-            name: 'Open Notebook Navigator',
+            name: 'Open',
             callback: async () => {
                 await this.activateView(true);
             }
@@ -77,7 +77,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
         this.addCommand({
             id: 'reveal-active-file',
-            name: 'Reveal active file in Notebook Navigator',
+            name: 'Reveal active file',
             checkCallback: (checking: boolean) => {
                 const activeFile = this.app.workspace.getActiveFile();
                 if (activeFile && activeFile.parent) {
