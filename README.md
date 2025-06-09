@@ -23,7 +23,7 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 - 🔄 **Multiple sort options:** Sort by date modified, date created, or title
 - 📅 **Date grouping:** Automatically group files by Today, Yesterday, Previous 7 days, etc.
 - 🎯 **Drag and drop:** Move files and folders with intuitive drag and drop
-- 🎨 **Customizable appearance:** Adjust date formats
+- 🎨 **Customizable appearance:** Adjust date formats and folder colors
 - 🌓 **Dark mode support:** Fully integrated with Obsidian's theme system
 - 📱 **Mobile support:** Full functionality on iOS and Android devices with touch gestures
 - ↔️ **Resizable panes:** Drag the divider to adjust folder/file pane widths
