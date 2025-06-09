@@ -100,6 +100,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
     
     const chevronRef = React.useRef<HTMLDivElement>(null);
     const iconRef = React.useRef<HTMLSpanElement>(null);
+    const customColor = plugin.settings.folderColors?.[folder.path];
 
     useEffect(() => {
         if (chevronRef.current) {
@@ -153,8 +154,15 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
                         cursor: hasChildren ? 'pointer' : 'default'
                     }}
                 />
-                <span className="nn-folder-icon" ref={iconRef}></span>
-                <span className="nn-folder-name">{folder.path === '/' || folder.path === '' ? 'Vault' : folder.name}</span>
+                <span 
+                    className="nn-folder-icon" 
+                    ref={iconRef}
+                    style={customColor ? { color: customColor } : undefined}
+                ></span>
+                <span 
+                    className="nn-folder-name"
+                    style={customColor ? { color: customColor, fontWeight: 600 } : undefined}
+                >{folder.path === '/' || folder.path === '' ? 'Vault' : folder.name}</span>
                 {plugin.settings.showFolderFileCount && fileCount > 0 && (
                     <span className="nn-folder-count">{fileCount}</span>
                 )}

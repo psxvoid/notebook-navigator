@@ -56,6 +56,7 @@ export interface NotebookNavigatorSettings {
     leftPaneWidth: number;
     pinnedNotes: Record<string, string[]>;
     folderIcons: Record<string, string>;
+    folderColors: Record<string, string>;
     recentlyUsedIcons: string[];
 }
 
@@ -91,6 +92,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     leftPaneWidth: 300,
     pinnedNotes: {},
     folderIcons: {},
+    folderColors: {},
     recentlyUsedIcons: []
 }
 

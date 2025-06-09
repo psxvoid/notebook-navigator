@@ -1236,4 +1236,98 @@ body.nn-resizing {
     justify-content: center;
 }
 
+/* ========================================================================
+   Color Picker Modal
+   ======================================================================== */
+
+/* Color picker modal width - calculated for 5 columns */
+.modal.nn-color-picker-modal {
+    width: 340px !important;
+    max-width: 340px !important;
+    min-width: 340px !important;
+}
+
+/* Color picker content layout */
+.nn-color-picker-modal .modal-content {
+    padding: 20px;
+}
+
+/* Color picker header */
+.nn-color-picker-header {
+    margin-bottom: 16px;
+    width: 100%;
+    text-align: center;
+}
+
+.nn-color-picker-header h3 {
+    margin: 0;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--text-normal);
+}
+
+/* Color grid layout - 5 columns */
+.nn-color-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 12px;
+}
+
+/* Individual color item */
+.nn-color-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+    padding: 8px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.15s ease;
+}
+
+/* Color item hover/focus states */
+.nn-color-item:hover {
+    background-color: var(--background-modifier-hover);
+    transform: scale(1.05);
+}
+
+.nn-color-item:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--interactive-accent);
+}
+
+/* Color preview circle */
+.nn-color-preview {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 
+                inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+    transition: transform 0.15s ease;
+}
+
+/* Color name label */
+.nn-color-name {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    font-weight: 500;
+}
+
+/* Dark theme adjustments for color picker */
+.theme-dark .nn-color-preview {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 
+                inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+}
+
+/* ========================================================================
+   Folder Color Styles
+   ======================================================================== */
+
+/* Smooth color transitions for folder items */
+.nn-folder-icon svg,
+.nn-folder-name {
+    transition: color 0.2s ease;
+}
+
 

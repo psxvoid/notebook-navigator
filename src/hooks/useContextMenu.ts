@@ -196,6 +196,38 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             
             menu.addSeparator();
             
+            // Change color
+            menu.addItem((item: MenuItem) => {
+                item
+                    .setTitle('Change color')
+                    .setIcon('palette')
+                    .onClick(() => {
+                        const { ColorPickerModal } = require('../modals/ColorPickerModal');
+                        const modal = new ColorPickerModal(app, plugin, folder.path);
+                        modal.onChooseColor = () => {
+                            dispatch({ type: 'FORCE_REFRESH' });
+                        };
+                        modal.open();
+                    });
+            });
+            
+            // Remove color (only show if custom color is set)
+            const currentColor = plugin.settings.folderColors?.[folder.path];
+            if (currentColor) {
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle('Remove color')
+                        .setIcon('x')
+                        .onClick(async () => {
+                            delete plugin.settings.folderColors[folder.path];
+                            await plugin.saveSettings();
+                            dispatch({ type: 'FORCE_REFRESH' });
+                        });
+                });
+            }
+            
+            menu.addSeparator();
+            
             // Rename folder
             menu.addItem((item: MenuItem) => {
                 item
