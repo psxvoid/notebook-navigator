@@ -830,6 +830,11 @@ button.nn-icon-button {
     opacity: 0.5;
 }
 
+/* Resizing state - prevents text selection during pane resize */
+body.nn-resizing {
+    user-select: none;
+}
+
 /* Drag over state - highlights valid drop targets */
 .nn-folder-content.nn-drag-over {
     background-color: var(--interactive-accent-hover);

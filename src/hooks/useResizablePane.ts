@@ -82,12 +82,12 @@ export function useResizablePane({
         const handleMouseUp = () => {
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
-            // Prevent text selection during drag
-            document.body.style.userSelect = '';
+            // Remove resizing class to restore text selection
+            document.body.classList.remove('nn-resizing');
         };
 
-        // Prevent text selection during drag
-        document.body.style.userSelect = 'none';
+        // Add resizing class to prevent text selection during drag
+        document.body.classList.add('nn-resizing');
         
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
