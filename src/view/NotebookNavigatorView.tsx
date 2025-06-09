@@ -17,7 +17,7 @@
  */
 
 // src/view/NotebookNavigatorView.tsx
-import { ItemView, WorkspaceLeaf, TFile } from 'obsidian';
+import { ItemView, WorkspaceLeaf, TFile, Platform } from 'obsidian';
 import { Root, createRoot } from 'react-dom/client';
 import React from 'react';
 import NotebookNavigatorPlugin from '../main';
@@ -79,12 +79,18 @@ export class NotebookNavigatorView extends ItemView {
         const container = this.containerEl.children[1];
         container.empty(); // Clear previous content
         container.classList.add('notebook-navigator');
+        
+        // Detect mobile environment and add mobile class
+        const isMobile = Platform.isMobile;
+        if (isMobile) {
+            container.classList.add('notebook-navigator-mobile');
+        }
 
         this.root = createRoot(container);
         this.root.render(
             <React.StrictMode>
                 <ServicesProvider app={this.plugin.app}>
-                    <AppProvider plugin={this.plugin}>
+                    <AppProvider plugin={this.plugin} isMobile={isMobile}>
                         <NotebookNavigatorComponent ref={this.componentRef} />
                     </AppProvider>
                 </ServicesProvider>

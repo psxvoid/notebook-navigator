@@ -30,7 +30,7 @@ import { UNTAGGED_TAG_ID } from '../types';
  * Tags are organized by their path structure (e.g., #inbox/processing).
  */
 export function TagList() {
-    const { app, appState, dispatch, plugin, refreshCounter } = useAppContext();
+    const { app, appState, dispatch, plugin, refreshCounter, isMobile } = useAppContext();
 
     // Don't render if tags are disabled in settings
     if (!plugin.settings.showTags) {
@@ -61,7 +61,12 @@ export function TagList() {
                     isSelected={isSelected}
                     fileCount={fileCount}
                     showFileCount={plugin.settings.showFolderFileCount}
-                    onClick={() => dispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path })}
+                    onClick={() => {
+                        dispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path });
+                        if (isMobile) {
+                            dispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
+                        }
+                    }}
                     onToggle={() => dispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tagNode.path })}
                 />
                 <div className={`nn-tag-children ${isExpanded ? 'nn-expanded' : ''}`}>
@@ -109,7 +114,12 @@ export function TagList() {
                     <div 
                         className={`nn-tag-item ${appState.selectionType === 'tag' && appState.selectedTag === UNTAGGED_TAG_ID ? 'nn-selected' : ''}`}
                         data-tag={UNTAGGED_TAG_ID}
-                        onClick={() => dispatch({ type: 'SET_SELECTED_TAG', tag: UNTAGGED_TAG_ID })}
+                        onClick={() => {
+                            dispatch({ type: 'SET_SELECTED_TAG', tag: UNTAGGED_TAG_ID });
+                            if (isMobile) {
+                                dispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
+                            }
+                        }}
                         style={{ paddingLeft: '0px' }}
                     >
                         <div className="nn-tag-arrow" style={{ visibility: 'hidden' }} />

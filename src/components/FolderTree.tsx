@@ -31,7 +31,7 @@ import { isTFile, isTFolder } from '../utils/typeGuards';
  * @returns A tree view of folders with expand/collapse functionality
  */
 export function FolderTree() {
-    const { app, appState, dispatch, plugin, refreshCounter } = useAppContext();
+    const { app, appState, dispatch, plugin, refreshCounter, isMobile } = useAppContext();
     
     const rootFolder = app.vault.getRoot();
     
@@ -48,6 +48,11 @@ export function FolderTree() {
     const handleFolderClick = (folder: TFolder) => {
         dispatch({ type: 'SET_SELECTED_FOLDER', folder });
         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+        
+        // On mobile, switch to files view when a folder is selected
+        if (isMobile) {
+            dispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
+        }
     };
     
     const handleToggleExpanded = (folderPath: string) => {

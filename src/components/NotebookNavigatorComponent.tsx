@@ -27,6 +27,7 @@ import { useAppContext } from '../context/AppContext';
 import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useResizablePane } from '../hooks/useResizablePane';
+import { useSwipeGesture } from '../hooks/useSwipeGesture';
 import { isTFolder } from '../utils/typeGuards';
 
 export interface NotebookNavigatorHandle {
@@ -45,19 +46,31 @@ export interface NotebookNavigatorHandle {
  * @returns A split-pane container with folder tree and file list
  */
 export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_, ref) => {
-    const { app, appState, dispatch, plugin, refreshCounter } = useAppContext();
+    const { app, appState, dispatch, plugin, refreshCounter, isMobile } = useAppContext();
     const containerRef = useRef<HTMLDivElement>(null);
     
     // Enable keyboard navigation
     useKeyboardNavigation(containerRef);
-    // Enable drag and drop
+    
+    // Enable drag and drop only on desktop
     useDragAndDrop(containerRef);
+    
     // Enable resizable pane
     const { paneWidth, resizeHandleProps } = useResizablePane({
         initialWidth: 300,
         min: 150,
         max: 600,
         storageKey: 'notebook-navigator-left-pane-width'
+    });
+    
+    // Enable swipe gestures on mobile
+    useSwipeGesture(containerRef, {
+        onSwipeRight: () => {
+            if (isMobile && appState.currentMobileView === 'files') {
+                dispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
+            }
+        },
+        enabled: isMobile
     });
     
     // Expose methods via ref
@@ -97,21 +110,29 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         };
     }, [app.workspace, dispatch, plugin.settings.autoRevealActiveFile, appState.selectedFile]);
 
+    // Determine CSS classes for mobile view state
+    const containerClasses = ['nn-split-container'];
+    if (isMobile) {
+        containerClasses.push(appState.currentMobileView === 'list' ? 'show-list' : 'show-files');
+    } else {
+        containerClasses.push('nn-desktop');
+    }
+    
     return (
         <div 
             ref={containerRef}
-            className="nn-split-container" 
+            className={containerClasses.join(' ')} 
             data-focus-pane={appState.focusedPane}
             tabIndex={-1}
         >
-            <div className="nn-left-pane" style={{ width: `${paneWidth}px` }}>
+            <div className="nn-left-pane" style={{ width: isMobile ? '100%' : `${paneWidth}px` }}>
                 <PaneHeader type="folder" />
                 <div className="nn-left-pane-scroller">
                     <FolderTree />
                     <TagList />
                 </div>
             </div>
-            <div className="nn-resize-handle" {...resizeHandleProps} />
+            {!isMobile && <div className="nn-resize-handle" {...resizeHandleProps} />}
             <div className="nn-right-pane">
                 <PaneHeader type="file" />
                 <FileList />

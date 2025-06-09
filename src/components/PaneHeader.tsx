@@ -36,7 +36,7 @@ interface PaneHeaderProps {
  * @returns A header element with context-appropriate action buttons
  */
 export function PaneHeader({ type }: PaneHeaderProps) {
-    const { app, appState, dispatch } = useAppContext();
+    const { app, appState, dispatch, isMobile } = useAppContext();
     const fileSystemOps = useFileSystemOps();
     
     const handleExpandCollapseAll = useCallback(() => {
@@ -90,6 +90,65 @@ export function PaneHeader({ type }: PaneHeaderProps) {
         }
     }, [appState.selectedFolder, fileSystemOps, type]);
     
+    // Mobile header with back button
+    if (isMobile) {
+        let headerTitle = 'No selection';
+        
+        if (appState.selectionType === 'folder' && appState.selectedFolder) {
+            headerTitle = appState.selectedFolder.path === '/' ? 'Vault' : appState.selectedFolder.name;
+        } else if (appState.selectionType === 'tag' && appState.selectedTag) {
+            headerTitle = appState.selectedTag === '__untagged__' ? 'Untagged' : appState.selectedTag;
+        }
+        
+        // For file pane header on mobile
+        if (type === 'file') {
+            return (
+                <div className="nn-pane-header">
+                    <div className="nn-header-actions" style={{ width: '100%', justifyContent: 'space-between' }}>
+                        <div className="nn-mobile-back">
+                            <button
+                                className="nn-icon-button"
+                                aria-label="Back to folders"
+                                onClick={() => dispatch({ type: 'SET_MOBILE_VIEW', view: 'list' })}
+                                tabIndex={-1}
+                            >
+                                <ObsidianIcon name="arrow-left" />
+                            </button>
+                            <span className="nn-mobile-title">{headerTitle}</span>
+                        </div>
+                        <button
+                            className="nn-icon-button"
+                            aria-label="New note"
+                            onClick={handleNewFile}
+                            disabled={!appState.selectedFolder}
+                            tabIndex={-1}
+                        >
+                            <ObsidianIcon name="file-plus" />
+                        </button>
+                    </div>
+                </div>
+            );
+        }
+        
+        // For folder pane header on mobile
+        return (
+            <div className="nn-pane-header">
+                <div className="nn-header-actions" style={{ width: '100%', justifyContent: 'flex-end' }}>
+                    <button
+                        className="nn-icon-button"
+                        aria-label="New folder"
+                        onClick={handleNewFolder}
+                        disabled={!appState.selectedFolder}
+                        tabIndex={-1}
+                    >
+                        <ObsidianIcon name="folder-plus" />
+                    </button>
+                </div>
+            </div>
+        );
+    }
+    
+    // Desktop header (original code)
     return (
         <div className="nn-pane-header">
             <div className="nn-header-actions">

@@ -143,8 +143,8 @@ button.nn-icon-button {
     outline: none !important;
 }
 
-/* Icon button hover state - subtle background on hover */
-.nn-icon-button:hover {
+/* Icon button hover state - subtle background on hover - desktop only */
+.nn-desktop .nn-icon-button:hover {
     background-color: var(--background-modifier-hover) !important;
     border: none !important;
     box-shadow: none !important;
@@ -162,13 +162,13 @@ button.nn-icon-button {
 }
 
 /* Disabled hover state - no hover effect when disabled */
-.nn-icon-button:disabled:hover {
+.nn-desktop .nn-icon-button:disabled:hover {
     background-color: transparent;
     color: var(--text-muted);
 }
 
 /* Disabled icon color - maintains muted appearance */
-.nn-icon-button:disabled:hover svg {
+.nn-desktop .nn-icon-button:disabled:hover svg {
     stroke: var(--text-muted);
 }
 
@@ -196,7 +196,7 @@ button.nn-icon-button {
 }
 
 /* Sort button hover - UNUSED */
-.nn-sort-button:hover {
+.nn-desktop .nn-sort-button:hover {
     background-color: var(--background-modifier-hover);
     color: var(--text-normal);
     border-color: var(--background-modifier-border-hover);
@@ -260,8 +260,8 @@ button.nn-icon-button {
     min-width: 0; /* Critical: allows flex children to shrink below their min-content width */
 }
 
-/* Folder content hover state */
-.nn-folder-content:hover {
+/* Folder content hover state - desktop only */
+.nn-desktop .nn-folder-content:hover {
     background-color: var(--background-modifier-hover);
 }
 
@@ -379,8 +379,8 @@ button.nn-icon-button {
     margin: 0;
 }
 
-/* Tag item hover state */
-.nn-tag-item:hover {
+/* Tag item hover state - desktop only */
+.nn-desktop .nn-tag-item:hover {
     background-color: var(--background-modifier-hover);
 }
 
@@ -477,7 +477,7 @@ button.nn-icon-button {
 
 /* Remove shadows for clean Apple Notes aesthetic */
 .nn-file-item,
-.nn-file-item:hover {
+.nn-desktop .nn-file-item:hover {
     box-shadow: none;
 }
 
@@ -812,13 +812,13 @@ button.nn-icon-button {
    Hover States
    ======================================================================== */
 
-/* File hover states - maintains transparency */
-.nn-file-item:hover .nn-file-content {
+/* File hover states - maintains transparency - desktop only */
+.nn-desktop .nn-file-item:hover .nn-file-content {
     background-color: transparent;
 }
 
-.nn-file-item.nn-selected:hover .nn-file-content,
-.theme-dark .nn-file-item.nn-selected:hover .nn-file-content {
+.nn-desktop .nn-file-item.nn-selected:hover .nn-file-content,
+.theme-dark .nn-desktop .nn-file-item.nn-selected:hover .nn-file-content {
     background-color: transparent;
 }
 
@@ -1127,4 +1127,113 @@ body.nn-resizing {
 .nn-sponsor-button:hover {
     opacity: 0.8;
 }
+
+/* ========================================================================
+   Mobile Styles
+   ======================================================================== */
+
+/* Mobile container - stack panes and prepare for sliding */
+.notebook-navigator-mobile .nn-split-container {
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+    height: 100%;
+}
+
+/* Mobile panes - full width and positioned absolutely for sliding */
+.notebook-navigator-mobile .nn-left-pane,
+.notebook-navigator-mobile .nn-right-pane {
+    width: 100% !important;
+    max-width: 100% !important;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+    transition: transform 0.3s ease-in-out;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Hide resize handle on mobile */
+.notebook-navigator-mobile .nn-resize-handle {
+    display: none !important;
+}
+
+/* Mobile view states - show list view */
+.notebook-navigator-mobile .nn-split-container.show-list .nn-left-pane {
+    transform: translateX(0%);
+}
+.notebook-navigator-mobile .nn-split-container.show-list .nn-right-pane {
+    transform: translateX(100%);
+}
+
+/* Mobile view states - show files view */
+.notebook-navigator-mobile .nn-split-container.show-files .nn-left-pane {
+    transform: translateX(-100%);
+}
+.notebook-navigator-mobile .nn-split-container.show-files .nn-right-pane {
+    transform: translateX(0%);
+}
+
+/* Add touch-action to prevent browser gestures interfering */
+.notebook-navigator-mobile .nn-split-container {
+    touch-action: pan-y;
+}
+
+/* Mobile header - adjust for back button */
+.notebook-navigator-mobile .nn-pane-header {
+    flex-shrink: 0;
+    border-bottom: 1px solid var(--background-modifier-border);
+}
+
+/* Mobile header back button */
+.notebook-navigator-mobile .nn-mobile-back {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 0 4px;
+}
+
+/* Mobile header title */
+.notebook-navigator-mobile .nn-mobile-title {
+    font-weight: 500;
+    color: var(--text-normal);
+}
+
+/* Ensure scrollers fill available space on mobile */
+.notebook-navigator-mobile .nn-left-pane-scroller,
+.notebook-navigator-mobile .nn-file-list {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Disable drag and drop cursors on mobile */
+.notebook-navigator-mobile [draggable="true"] {
+    cursor: default !important;
+}
+
+/* Disable drag-over states on mobile */
+.notebook-navigator-mobile .nn-drag-over {
+    background-color: transparent !important;
+}
+
+/* Touch-friendly tap targets on mobile */
+.notebook-navigator-mobile .nn-folder-item,
+.notebook-navigator-mobile .nn-file-item,
+.notebook-navigator-mobile .nn-tag-item {
+    min-height: 44px;
+}
+
+/* Larger touch targets for chevrons on mobile */
+.notebook-navigator-mobile .nn-folder-chevron,
+.notebook-navigator-mobile .nn-tag-chevron {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
 
