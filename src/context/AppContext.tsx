@@ -43,6 +43,8 @@ export interface AppState {
     focusedPane: 'folders' | 'files';
     /** Counter that increments when we need to trigger a scroll to the selected folder */
     scrollToFolderTrigger: number;
+    /** Current view on mobile devices - 'list' for folder/tags, 'files' for file list */
+    currentMobileView: 'list' | 'files';
 }
 
 /**
@@ -61,7 +63,8 @@ export type AppAction =
     | { type: 'EXPAND_FOLDERS'; folderPaths: string[] }
     | { type: 'REVEAL_FILE'; file: TFile }
     | { type: 'CLEANUP_DELETED_ITEMS' }
-    | { type: 'FORCE_REFRESH' };
+    | { type: 'FORCE_REFRESH' }
+    | { type: 'SET_MOBILE_VIEW'; view: 'list' | 'files' };
 
 /**
  * Context value type containing all app-level data and functions
@@ -78,6 +81,8 @@ interface AppContextType {
     dispatch: React.Dispatch<AppAction>;
     /** Counter that increments to force component re-renders */
     refreshCounter: number;
+    /** Whether the app is running on a mobile device */
+    isMobile: boolean;
 }
 
 /**
@@ -98,7 +103,9 @@ const STORAGE_KEYS = {
     /** Key for storing selected folder path */
     selectedFolder: 'notebook-navigator-selected-folder',
     /** Key for storing selected file path */
-    selectedFile: 'notebook-navigator-selected-file'
+    selectedFile: 'notebook-navigator-selected-file',
+    /** Key for storing current mobile view */
+    currentMobileView: 'notebook-navigator-mobile-view'
 };
 
 /**
@@ -154,6 +161,10 @@ function loadStateFromStorage(app: App): AppState {
         }
     }
     
+    // Load mobile view state - always default to 'list' for better UX
+    const currentMobileView = 'list' as 'list' | 'files';
+    // Note: We don't persist mobile view to avoid confusion when switching platforms
+    
     return {
         selectionType: 'folder',
         selectedFolder,
@@ -162,7 +173,8 @@ function loadStateFromStorage(app: App): AppState {
         expandedFolders,
         expandedTags,
         focusedPane: 'folders',
-        scrollToFolderTrigger: 0
+        scrollToFolderTrigger: 0,
+        currentMobileView
     };
 }
 
@@ -318,6 +330,11 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
             return { ...state };
         }
         
+        case 'SET_MOBILE_VIEW': {
+            // Update the current mobile view
+            return { ...state, currentMobileView: action.view };
+        }
+        
         default:
             return state;
     }
@@ -331,7 +348,7 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
  * @param props.children - Child components to render
  * @param props.plugin - The NotebookNavigatorPlugin instance
  */
-export function AppProvider({ children, plugin }: { children: React.ReactNode, plugin: NotebookNavigatorPlugin }) {
+export function AppProvider({ children, plugin, isMobile = false }: { children: React.ReactNode, plugin: NotebookNavigatorPlugin, isMobile?: boolean }) {
     const { app } = plugin;
 
     /**
@@ -454,6 +471,8 @@ export function AppProvider({ children, plugin }: { children: React.ReactNode, p
         
         // Save selected file
         saveToStorage(STORAGE_KEYS.selectedFile, appState.selectedFile?.path);
+        
+        // Note: We don't persist currentMobileView to always start fresh on mobile
     }, [appState.expandedFolders, appState.expandedTags, appState.selectedFolder, appState.selectedFile]);
 
     const contextValue = useMemo(() => ({
@@ -462,7 +481,8 @@ export function AppProvider({ children, plugin }: { children: React.ReactNode, p
         appState,
         dispatch,
         refreshCounter,
-    }), [app, plugin, appState, dispatch, refreshCounter]);
+        isMobile,
+    }), [app, plugin, appState, dispatch, refreshCounter, isMobile]);
 
     return (
         <AppContext.Provider value={contextValue}>
