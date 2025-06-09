@@ -161,8 +161,9 @@ function loadStateFromStorage(app: App): AppState {
         }
     }
     
-    // Load mobile view state
-    const currentMobileView = (localStorage.getItem(STORAGE_KEYS.currentMobileView) as 'list' | 'files') || 'list';
+    // Load mobile view state - always default to 'list' for better UX
+    const currentMobileView = 'list' as 'list' | 'files';
+    // Note: We don't persist mobile view to avoid confusion when switching platforms
     
     return {
         selectionType: 'folder',
@@ -471,9 +472,8 @@ export function AppProvider({ children, plugin, isMobile = false }: { children: 
         // Save selected file
         saveToStorage(STORAGE_KEYS.selectedFile, appState.selectedFile?.path);
         
-        // Save current mobile view
-        saveToStorage(STORAGE_KEYS.currentMobileView, appState.currentMobileView);
-    }, [appState.expandedFolders, appState.expandedTags, appState.selectedFolder, appState.selectedFile, appState.currentMobileView]);
+        // Note: We don't persist currentMobileView to always start fresh on mobile
+    }, [appState.expandedFolders, appState.expandedTags, appState.selectedFolder, appState.selectedFile]);
 
     const contextValue = useMemo(() => ({
         app,

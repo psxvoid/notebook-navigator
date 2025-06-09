@@ -1149,7 +1149,7 @@ body.nn-resizing {
     position: absolute;
     top: 0;
     left: 0;
-    transition: transform 0.3s ease-in-out;
+    transition: transform 0.2s ease-out; /* Faster, snappier animation */
     overflow: hidden;
     display: flex;
     flex-direction: column;

@@ -39,7 +39,7 @@ export function useSwipeGesture(
         onSwipeRight, 
         onSwipeLeft, 
         threshold = 50,
-        edgeThreshold = 20, // Start swipe must be within this many pixels of edge
+        edgeThreshold = 25, // Start swipe must be within this many pixels of edge (iOS uses ~20-25px)
         enabled = true 
     } = options;
     
