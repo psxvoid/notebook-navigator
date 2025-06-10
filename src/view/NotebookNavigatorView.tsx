@@ -124,4 +124,11 @@ export class NotebookNavigatorView extends ItemView {
     refresh() {
         this.componentRef.current?.refresh();
     }
+    
+    /**
+     * Moves focus to the file pane for keyboard navigation
+     */
+    focusFilePane() {
+        this.componentRef.current?.focusFilePane();
+    }
 }

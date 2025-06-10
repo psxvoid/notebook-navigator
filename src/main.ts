@@ -90,6 +90,27 @@ export default class NotebookNavigatorPlugin extends Plugin {
             }
         });
 
+        this.addCommand({
+            id: 'focus-file-list',
+            name: 'Focus file list',
+            callback: async () => {
+                // Ensure navigator is open
+                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                if (leaves.length === 0) {
+                    await this.activateView(true);
+                }
+                
+                // Find and focus the file pane
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                navigatorLeaves.forEach(leaf => {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        view.focusFilePane();
+                    }
+                });
+            }
+        });
+
         this.addSettingTab(new NotebookNavigatorSettingTab(this.app, this));
 
         // Register editor context menu

@@ -33,6 +33,7 @@ import { isTFolder } from '../utils/typeGuards';
 export interface NotebookNavigatorHandle {
     revealFile: (file: TFile) => void;
     refresh: () => void;
+    focusFilePane: () => void;
 }
 
 /**
@@ -80,6 +81,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         },
         refresh: () => {
             dispatch({ type: 'FORCE_REFRESH' });
+        },
+        focusFilePane: () => {
+            dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+            // Focus the container to ensure keyboard navigation works
+            containerRef.current?.focus();
         }
     }), [dispatch]);
 
