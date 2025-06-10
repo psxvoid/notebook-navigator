@@ -124,8 +124,9 @@ export class PreviewTextUtils {
         // Find content lines based on settings
         let previewLines = [];
         let charCount = 0;
+        const maxChars = 300; // Increased to accommodate up to 5 lines
         
-        for (let i = startIndex; i < lines.length && charCount < 100; i++) {
+        for (let i = startIndex; i < lines.length && charCount < maxChars; i++) {
             const line = lines[i].trim();
             
             // Skip empty lines
@@ -179,9 +180,9 @@ export class PreviewTextUtils {
             .map(line => this.stripMarkdownSyntax(line))
             .join(' ');
         
-        // Now trim to 100 chars after stripping
-        preview = preview.substring(0, 100);
+        // Now trim to maxChars after stripping
+        preview = preview.substring(0, maxChars);
         
-        return preview + (preview.length >= 100 ? '...' : '');
+        return preview + (preview.length >= maxChars ? '...' : '');
     }
 }

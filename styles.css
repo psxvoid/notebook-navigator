@@ -541,7 +541,7 @@ button.nn-icon-button {
 /* Second line container - holds date and preview text */
 .nn-file-second-line {
     display: flex;
-    align-items: baseline;
+    align-items: flex-start;
     gap: 6px;
     margin-top: -2px;
 }
@@ -572,7 +572,7 @@ button.nn-icon-button {
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
-    -webkit-line-clamp: 1;
+    -webkit-line-clamp: var(--preview-rows, 1);
     -webkit-box-orient: vertical;
     word-break: break-word;
     flex: 1;

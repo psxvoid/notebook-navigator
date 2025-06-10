@@ -42,6 +42,7 @@ export interface NotebookNavigatorSettings {
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;
     skipNonTextInPreview: boolean;
+    previewRows: number;
     showFeatureImage: boolean;
     featureImageProperty: string;
     // Folder display
@@ -79,6 +80,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showFilePreview: true,
     skipHeadingsInPreview: false,
     skipNonTextInPreview: true,
+    previewRows: 1,
     showFeatureImage: true,
     featureImageProperty: 'feature',
     // Folder display
@@ -343,6 +345,21 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.skipNonTextInPreview)
                 .onChange(async (value) => {
                     this.plugin.settings.skipNonTextInPreview = value;
+                    await this.saveAndRefresh();
+                }));
+
+        new Setting(previewSettingsEl)
+            .setName('Preview rows')
+            .setDesc('Number of rows to display for preview text.')
+            .addDropdown(dropdown => dropdown
+                .addOption('1', '1 row')
+                .addOption('2', '2 rows')
+                .addOption('3', '3 rows')
+                .addOption('4', '4 rows')
+                .addOption('5', '5 rows')
+                .setValue(this.plugin.settings.previewRows.toString())
+                .onChange(async (value) => {
+                    this.plugin.settings.previewRows = parseInt(value, 10);
                     await this.saveAndRefresh();
                 }));
 
