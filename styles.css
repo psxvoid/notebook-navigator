@@ -405,6 +405,7 @@ button.nn-icon-button {
 
 /* Tag name text */
 .nn-tag-name {
+    font-size: 12px; /* Match folder name font-size */
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1185,6 +1186,11 @@ body.nn-resizing {
     -webkit-overflow-scrolling: touch;
 }
 
+/* Add bottom padding to left pane on mobile to prevent last item from being hidden */
+.notebook-navigator-mobile .nn-left-pane-scroller {
+    padding-bottom: 40px; /* Extra space for mobile UI elements */
+}
+
 /* Disable drag and drop cursors on mobile */
 .notebook-navigator-mobile [draggable="true"] {
     cursor: default !important;
@@ -1370,6 +1376,39 @@ body.nn-resizing {
 .notebook-navigator-mobile .nn-date-group-header {
     font-size: 16px;
     padding: 10px 16px;
+}
+
+/* Increase tag section header text size on mobile to match date headers */
+.notebook-navigator-mobile .nn-section-header {
+    font-size: 14px;
+    padding: 14px 16px 6px 16px;
+}
+
+/* Increase tag item text size on mobile to match folder text */
+.notebook-navigator-mobile .nn-tag-name {
+    font-size: 16px;
+}
+
+/* Increase tag icon size on mobile */
+.notebook-navigator-mobile .nn-tag-icon {
+    font-size: 14px;
+}
+
+/* Increase tag count text size on mobile to match folder count */
+.notebook-navigator-mobile .nn-tag-count {
+    font-size: 14px;
+}
+
+/* Increase tag arrow size on mobile to match folder chevron */
+.notebook-navigator-mobile .nn-tag-arrow {
+    width: 20px;
+    height: 20px;
+}
+
+/* Mobile tag item padding adjustment to match folder padding */
+.notebook-navigator-mobile .nn-tag-item {
+    padding: 6px 8px 6px 4px;
+    min-height: 40px;
 }
 
 
