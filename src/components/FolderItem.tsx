@@ -110,7 +110,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
 
     // Add this useEffect for the folder icon
     useEffect(() => {
-        if (iconRef.current) {
+        if (iconRef.current && plugin.settings.showFolderIcons) {
             const customIcon = plugin.settings.folderIcons?.[folder.path];
             if (customIcon) {
                 // Custom icon is set - always show it, never toggle
@@ -121,7 +121,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
                 setIcon(iconRef.current, iconName);
             }
         }
-    }, [isExpanded, folder.path, plugin.settings.folderIcons, hasChildren, refreshCounter]);
+    }, [isExpanded, folder.path, plugin.settings.folderIcons, hasChildren, refreshCounter, plugin.settings.showFolderIcons]);
 
     return (
         <div 
@@ -154,11 +154,13 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
                         cursor: hasChildren ? 'pointer' : 'default'
                     }}
                 />
-                <span 
-                    className="nn-folder-icon" 
-                    ref={iconRef}
-                    style={customColor ? { color: customColor } : undefined}
-                ></span>
+                {plugin.settings.showFolderIcons && (
+                    <span 
+                        className="nn-folder-icon" 
+                        ref={iconRef}
+                        style={customColor ? { color: customColor } : undefined}
+                    ></span>
+                )}
                 <span 
                     className="nn-folder-name"
                     style={customColor ? { color: customColor, fontWeight: 600 } : undefined}

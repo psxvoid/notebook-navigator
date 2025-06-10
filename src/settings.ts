@@ -45,6 +45,7 @@ export interface NotebookNavigatorSettings {
     // Folder display
     showRootFolder: boolean;
     showFolderFileCount: boolean;
+    showFolderIcons: boolean;
     // Tag display
     showTags: boolean;
     showUntagged: boolean;
@@ -81,6 +82,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Folder display
     showRootFolder: false,
     showFolderFileCount: true,
+    showFolderIcons: true,
     // Tag display
     showTags: true,
     showUntagged: false,
@@ -361,6 +363,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.showFolderFileCount)
                 .onChange(async (value) => {
                     this.plugin.settings.showFolderFileCount = value;
+                    await this.saveAndRefresh();
+                }));
+
+        new Setting(containerEl)
+            .setName('Show folder icons')
+            .setDesc('Display icons next to folder names in the tree.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showFolderIcons)
+                .onChange(async (value) => {
+                    this.plugin.settings.showFolderIcons = value;
                     await this.saveAndRefresh();
                 }));
 
