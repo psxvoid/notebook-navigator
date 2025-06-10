@@ -615,7 +615,7 @@ button.nn-icon-button {
 /* Date group headers - sticky headers for grouped files */
 .nn-date-group-header {
     padding: 8px 12px;
-    font-size: 13px;
+    font-size: 12px;
     font-weight: 600;
     color: var(--text-muted);
     background-color: var(--background-primary);
