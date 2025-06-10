@@ -23,7 +23,13 @@ import { strings } from './i18n';
 /**
  * Available sort options for file listing
  */
-export type SortOption = 'modified' | 'created' | 'title';
+export type SortOption = 
+    | 'modified-desc'  // Date edited (newest first)
+    | 'modified-asc'   // Date edited (oldest first)
+    | 'created-desc'   // Date created (newest first)
+    | 'created-asc'    // Date created (oldest first)
+    | 'title-asc'      // Title (A first)
+    | 'title-desc';    // Title (Z first)
 
 /**
  * Plugin settings interface defining all configurable options
@@ -31,7 +37,8 @@ export type SortOption = 'modified' | 'created' | 'title';
  */
 export interface NotebookNavigatorSettings {
     // File organization
-    sortOption: SortOption;
+    defaultFolderSort: SortOption;
+    folderSortOverrides: Record<string, SortOption>;
     groupByDate: boolean;
     showNotesFromSubfolders: boolean;
     autoRevealActiveFile: boolean;
@@ -69,7 +76,8 @@ export interface NotebookNavigatorSettings {
  */
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // File organization
-    sortOption: 'modified',
+    defaultFolderSort: 'modified-desc',
+    folderSortOverrides: {},
     groupByDate: true,
     showNotesFromSubfolders: false,
     autoRevealActiveFile: true,
@@ -220,15 +228,18 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .setName(strings.settings.items.sortNotesBy.name)
             .setDesc(strings.settings.items.sortNotesBy.desc)
             .addDropdown(dropdown => dropdown
-                .addOption('modified', strings.settings.items.sortNotesBy.options.modified)
-                .addOption('created', strings.settings.items.sortNotesBy.options.created)
-                .addOption('title', strings.settings.items.sortNotesBy.options.title)
-                .setValue(this.plugin.settings.sortOption)
+                .addOption('modified-desc', strings.settings.items.sortNotesBy.options['modified-desc'])
+                .addOption('modified-asc', strings.settings.items.sortNotesBy.options['modified-asc'])
+                .addOption('created-desc', strings.settings.items.sortNotesBy.options['created-desc'])
+                .addOption('created-asc', strings.settings.items.sortNotesBy.options['created-asc'])
+                .addOption('title-asc', strings.settings.items.sortNotesBy.options['title-asc'])
+                .addOption('title-desc', strings.settings.items.sortNotesBy.options['title-desc'])
+                .setValue(this.plugin.settings.defaultFolderSort)
                 .onChange(async (value: SortOption) => {
-                    this.plugin.settings.sortOption = value;
+                    this.plugin.settings.defaultFolderSort = value;
                     await this.saveAndRefresh();
                     // Update group by date visibility
-                    this.setElementVisibility(dateGroupingEl, value !== 'title');
+                    this.setElementVisibility(dateGroupingEl, !value.startsWith('title'));
                 }));
 
         // Container for conditional group by date setting
@@ -481,8 +492,9 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     localStorage.removeItem(this.plugin.keys.selectedFileKey);
                     localStorage.removeItem(this.plugin.keys.leftPaneWidthKey);
                     
-                    // Reset the plugin settings for left pane width
+                    // Reset the plugin settings for left pane width and custom sort orders
                     this.plugin.settings.leftPaneWidth = 300;
+                    this.plugin.settings.folderSortOverrides = {};
                     await this.plugin.saveSettings();
                     
                     new Notice(strings.settings.items.clearSavedState.successMessage);
@@ -500,7 +512,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             });
 
         // Set initial visibility
-        this.setElementVisibility(dateGroupingEl, this.plugin.settings.sortOption !== 'title');
+        this.setElementVisibility(dateGroupingEl, !this.plugin.settings.defaultFolderSort.startsWith('title'));
         this.setElementVisibility(previewSettingsEl, this.plugin.settings.showFilePreview);
         this.setElementVisibility(featureImageSettingsEl, this.plugin.settings.showFeatureImage);
         this.setElementVisibility(dateFormatSettingEl, this.plugin.settings.showDate);

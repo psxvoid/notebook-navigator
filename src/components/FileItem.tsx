@@ -54,7 +54,7 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
     useScrollIntoView(fileRef, '.nn-file-list', isSelected, [file.path]);
 
     // Show date based on sort option - created date when sorted by created, modified date otherwise
-    const dateToShow = plugin.settings.sortOption === 'created' ? file.stat.ctime : file.stat.mtime;
+    const dateToShow = plugin.settings.defaultFolderSort.startsWith('created') ? file.stat.ctime : file.stat.mtime;
     const formattedDate = DateUtils.formatDate(dateToShow, plugin.settings.dateFormat);
 
     // Calculate feature image URL if enabled

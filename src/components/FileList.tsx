@@ -121,16 +121,31 @@ export function FileList() {
             allFiles = allFiles.filter(file => !shouldExcludeFile(file, excludedProperties, app));
         }
         
-        // Sort files based on settings
-        switch (plugin.settings.sortOption) {
-            case 'modified':
+        // Determine which sort option to use
+        let sortOption = plugin.settings.defaultFolderSort;
+        if (selectionType === 'folder' && selectedFolder && plugin.settings.folderSortOverrides[selectedFolder.path]) {
+            sortOption = plugin.settings.folderSortOverrides[selectedFolder.path];
+        }
+        
+        // Sort files based on the determined sort option
+        switch (sortOption) {
+            case 'modified-desc':
                 allFiles.sort((a, b) => b.stat.mtime - a.stat.mtime);
                 break;
-            case 'created':
+            case 'modified-asc':
+                allFiles.sort((a, b) => a.stat.mtime - b.stat.mtime);
+                break;
+            case 'created-desc':
                 allFiles.sort((a, b) => b.stat.ctime - a.stat.ctime);
                 break;
-            case 'title':
+            case 'created-asc':
+                allFiles.sort((a, b) => a.stat.ctime - b.stat.ctime);
+                break;
+            case 'title-asc':
                 allFiles.sort((a, b) => a.basename.localeCompare(b.basename));
+                break;
+            case 'title-desc':
+                allFiles.sort((a, b) => b.basename.localeCompare(a.basename));
                 break;
         }
         
@@ -171,7 +186,8 @@ export function FileList() {
         selectionType,
         selectedFolder,
         selectedTag,
-        plugin.settings.sortOption,
+        plugin.settings.defaultFolderSort,
+        plugin.settings.folderSortOverrides,
         plugin.settings.showNotesFromSubfolders,
         plugin.settings.pinnedNotes,
         plugin.settings.excludedFiles,
@@ -238,8 +254,14 @@ export function FileList() {
             groups.push({ title: strings.fileList.pinnedSection, files: pinnedFiles });
         }
 
+        // Determine which sort option to use
+        let sortOption = plugin.settings.defaultFolderSort;
+        if (selectionType === 'folder' && selectedFolder && plugin.settings.folderSortOverrides[selectedFolder.path]) {
+            sortOption = plugin.settings.folderSortOverrides[selectedFolder.path];
+        }
+        
         // Group remaining files
-        if (!plugin.settings.groupByDate || plugin.settings.sortOption === 'title') {
+        if (!plugin.settings.groupByDate || sortOption.startsWith('title')) {
             if (unpinnedFiles.length > 0) {
                 groups.push({ title: null, files: unpinnedFiles });
             }
@@ -249,7 +271,7 @@ export function FileList() {
         const dateGroups = new Map<string, TFile[]>();
         unpinnedFiles.forEach(file => {
             const fileDate = new Date(
-                plugin.settings.sortOption === 'created' ? file.stat.ctime : file.stat.mtime
+                sortOption.startsWith('created') ? file.stat.ctime : file.stat.mtime
             );
             const groupTitle = DateUtils.getDateGroup(fileDate.getTime());
             
@@ -268,7 +290,8 @@ export function FileList() {
     }, [
         files, 
         plugin.settings.groupByDate,
-        plugin.settings.sortOption,
+        plugin.settings.defaultFolderSort,
+        plugin.settings.folderSortOverrides,
         plugin.settings.pinnedNotes,
         plugin.settings.showNotesFromSubfolders,
         selectionType,

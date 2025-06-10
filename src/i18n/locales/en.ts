@@ -57,6 +57,9 @@ export const STRINGS_EN = {
         newFolder: 'New folder',
         newNote: 'New note',
         mobileBackToFolders: 'Back to folders',
+        changeSortOrder: 'Change sort order',
+        defaultSort: 'Default',
+        customSort: 'Custom',
     },
 
     // Context menus
@@ -204,9 +207,12 @@ export const STRINGS_EN = {
                 name: 'Sort notes by',
                 desc: 'Choose how notes are sorted in the note list.',
                 options: {
-                    modified: 'Date edited',
-                    created: 'Date created',
-                    title: 'Title',
+                    'modified-desc': 'Date edited (newest first)',
+                    'modified-asc': 'Date edited (oldest first)',
+                    'created-desc': 'Date created (newest first)',
+                    'created-asc': 'Date created (oldest first)',
+                    'title-asc': 'Title (A first)',
+                    'title-desc': 'Title (Z first)',
                 },
             },
             groupByDate: {

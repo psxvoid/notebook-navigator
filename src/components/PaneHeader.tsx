@@ -17,12 +17,14 @@
  */
 
 import React, { useCallback } from 'react';
+import { Menu } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { useFileSystemOps } from '../context/ServicesContext';
 import { isTFolder } from '../utils/typeGuards';
 import { ObsidianIcon } from './ObsidianIcon';
 import { strings } from '../i18n';
 import { UNTAGGED_TAG_ID } from '../types';
+import type { SortOption } from '../settings';
 
 interface PaneHeaderProps {
     type: 'folder' | 'file';
@@ -38,7 +40,7 @@ interface PaneHeaderProps {
  * @returns A header element with context-appropriate action buttons
  */
 export function PaneHeader({ type }: PaneHeaderProps) {
-    const { app, appState, dispatch, isMobile } = useAppContext();
+    const { app, appState, dispatch, isMobile, plugin } = useAppContext();
     const fileSystemOps = useFileSystemOps();
     
     const handleExpandCollapseAll = useCallback(() => {
@@ -92,6 +94,80 @@ export function PaneHeader({ type }: PaneHeaderProps) {
         }
     }, [appState.selectedFolder, fileSystemOps, type]);
     
+    const getCurrentSortOption = useCallback((): SortOption => {
+        if (appState.selectionType === 'folder' && appState.selectedFolder && plugin.settings.folderSortOverrides[appState.selectedFolder.path]) {
+            return plugin.settings.folderSortOverrides[appState.selectedFolder.path];
+        }
+        return plugin.settings.defaultFolderSort;
+    }, [appState.selectionType, appState.selectedFolder, plugin.settings.folderSortOverrides, plugin.settings.defaultFolderSort]);
+    
+    const getSortIcon = useCallback(() => {
+        const sortOption = getCurrentSortOption();
+        return sortOption.endsWith('-desc') ? 'sort-desc' : 'sort-asc';
+    }, [getCurrentSortOption]);
+    
+    const handleSortMenu = useCallback((event: React.MouseEvent) => {
+        if (type !== 'file') return;
+        
+        const menu = new Menu();
+        const currentSort = getCurrentSortOption();
+        const isCustomSort = appState.selectionType === 'folder' && 
+                           appState.selectedFolder && 
+                           plugin.settings.folderSortOverrides[appState.selectedFolder.path];
+        
+        // Default option
+        menu.addItem((item) => {
+            item
+                .setTitle(`${strings.paneHeader.defaultSort}: ${strings.settings.items.sortNotesBy.options[plugin.settings.defaultFolderSort]}`)
+                .setChecked(!isCustomSort)
+                .onClick(async () => {
+                    if (appState.selectionType === 'folder' && appState.selectedFolder) {
+                        delete plugin.settings.folderSortOverrides[appState.selectedFolder.path];
+                        await plugin.saveSettings();
+                        dispatch({ type: 'FORCE_REFRESH' });
+                    }
+                });
+        });
+        
+        menu.addSeparator();
+        
+        // Sort options
+        const sortOptions: SortOption[] = [
+            'modified-desc',
+            'modified-asc',
+            'created-desc',
+            'created-asc',
+            'title-asc',
+            'title-desc'
+        ];
+        
+        let lastCategory = '';
+        sortOptions.forEach((option) => {
+            const category = option.split('-')[0];
+            if (lastCategory && lastCategory !== category) {
+                menu.addSeparator();
+            }
+            lastCategory = category;
+            
+            menu.addItem((item) => {
+                item
+                    .setTitle(strings.settings.items.sortNotesBy.options[option])
+                    .setChecked(isCustomSort && currentSort === option)
+                    .onClick(async () => {
+                        if (appState.selectionType === 'folder' && appState.selectedFolder) {
+                            plugin.settings.folderSortOverrides[appState.selectedFolder.path] = option;
+                        } else {
+                            plugin.settings.defaultFolderSort = option;
+                        }
+                        await plugin.saveSettings();
+                        dispatch({ type: 'FORCE_REFRESH' });
+                    });
+            });
+        });
+        
+        menu.showAtMouseEvent(event.nativeEvent);
+    }, [type, appState.selectionType, appState.selectedFolder, plugin, dispatch, getCurrentSortOption]);
+    
     // Mobile header with back button
     if (isMobile) {
         let headerTitle = strings.common.noSelection;
@@ -118,15 +194,26 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                             </button>
                             <span className="nn-mobile-title">{headerTitle}</span>
                         </div>
-                        <button
-                            className="nn-icon-button"
-                            aria-label={strings.paneHeader.newNote}
-                            onClick={handleNewFile}
-                            disabled={!appState.selectedFolder}
-                            tabIndex={-1}
-                        >
-                            <ObsidianIcon name="file-plus" />
-                        </button>
+                        <div className="nn-header-actions">
+                            <button
+                                className="nn-icon-button"
+                                aria-label={strings.paneHeader.changeSortOrder}
+                                onClick={handleSortMenu}
+                                disabled={!appState.selectedFolder && !appState.selectedTag}
+                                tabIndex={-1}
+                            >
+                                <ObsidianIcon name={getSortIcon()} />
+                            </button>
+                            <button
+                                className="nn-icon-button"
+                                aria-label={strings.paneHeader.newNote}
+                                onClick={handleNewFile}
+                                disabled={!appState.selectedFolder}
+                                tabIndex={-1}
+                            >
+                                <ObsidianIcon name="file-plus" />
+                            </button>
+                        </div>
                     </div>
                 </div>
             );
@@ -177,15 +264,26 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                         </button>
                     </>
                 ) : (
-                    <button
-                        className="nn-icon-button"
-                        aria-label={strings.paneHeader.newNote}
-                        onClick={handleNewFile}
-                        disabled={!appState.selectedFolder}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name="file-plus" />
-                    </button>
+                    <>
+                        <button
+                            className="nn-icon-button"
+                            aria-label={strings.paneHeader.changeSortOrder}
+                            onClick={handleSortMenu}
+                            disabled={!appState.selectedFolder && !appState.selectedTag}
+                            tabIndex={-1}
+                        >
+                            <ObsidianIcon name={getSortIcon()} />
+                        </button>
+                        <button
+                            className="nn-icon-button"
+                            aria-label={strings.paneHeader.newNote}
+                            onClick={handleNewFile}
+                            disabled={!appState.selectedFolder}
+                            tabIndex={-1}
+                        >
+                            <ObsidianIcon name="file-plus" />
+                        </button>
+                    </>
                 )}
             </div>
         </div>
