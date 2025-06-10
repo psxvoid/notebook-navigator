@@ -20,7 +20,7 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 - 🖼️ **Feature images:** Display thumbnail images from frontmatter properties
 - 📌 **Pin important notes:** Keep frequently accessed notes at the top of any folder
 - ⌨️ **Full keyboard navigation:** Navigate entirely with arrow keys, Tab and Shift+Tab
-- 🔄 **Multiple sort options:** Sort by date modified, date created, or title
+- 🔄 **Custom folder sorting:** Each folder can have its own unique sort order - modified date, created date, title (A-Z or Z-A)
 - 📅 **Date grouping:** Automatically group files by Today, Yesterday, Previous 7 days, etc.
 - 🎯 **Drag and drop:** Move files and folders with intuitive drag and drop
 - 🎨 **Customizable appearance:** Adjust date formats and folder colors
@@ -92,7 +92,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### File Organization
 
-- **Sort notes by:** Choose between date edited, date created, or title
+- **Default sort order:** Choose the default sorting for all folders - modified date (newest/oldest), created date (newest/oldest), or title (A-Z/Z-A). This can be overridden on a per-folder basis using the sort button above the file list
 - **Group notes by date:** When sorted by date, group notes under date headers like "Today", "Yesterday", etc.
 - **Show notes from subfolders:** Display all notes from subfolders in the current folder view
 - **Auto-reveal active note:** Automatically reveal and select notes when opened from Quick Switcher, links, or search
