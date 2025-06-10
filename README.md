@@ -65,9 +65,9 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 
 You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
-- **Notebook Navigator: Open** - Opens the Notebook Navigator view in the left sidebar
-- **Notebook Navigator: Reveal active file** - Reveals the currently active file in the navigator, expanding parent folders and scrolling to it
-- **Notebook Navigator: Focus file list** - Moves keyboard focus to the file list pane so you can navigate with arrow keys
+- `Notebook Navigator: Open` Opens the Notebook Navigator view in the left sidebar
+- `Notebook Navigator: Reveal active file` Reveals the currently active file in the navigator, expanding parent folders and scrolling to it
+- `Notebook Navigator: Focus file list` Moves keyboard focus to the file list pane so you can navigate with arrow keys
 
 ## Installation
 
