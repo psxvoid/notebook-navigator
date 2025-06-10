@@ -36,7 +36,9 @@ export interface NotebookNavigatorSettings {
     autoRevealActiveFile: boolean;
     excludedFiles: string;
     ignoreFolders: string;
-    // File display
+    // Note display
+    showDate: boolean;
+    dateFormat: string;
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;
     skipNonTextInPreview: boolean;
@@ -49,8 +51,6 @@ export interface NotebookNavigatorSettings {
     // Tag display
     showTags: boolean;
     showUntagged: boolean;
-    // Appearance
-    dateFormat: string;
     // Advanced
     confirmBeforeDelete: boolean;
     // Internal
@@ -73,7 +73,9 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     autoRevealActiveFile: true,
     excludedFiles: '',
     ignoreFolders: '',
-    // File display
+    // Note display
+    showDate: true,
+    dateFormat: 'MMM d, yyyy',
     showFilePreview: true,
     skipHeadingsInPreview: false,
     skipNonTextInPreview: true,
@@ -86,8 +88,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Tag display
     showTags: true,
     showUntagged: false,
-    // Appearance
-    dateFormat: 'MMM d, yyyy',
     // Advanced
     confirmBeforeDelete: true,
     // Internal
@@ -229,7 +229,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }));
 
         // Container for conditional group by date setting
-        const dateGroupingEl = containerEl.createDiv('date-grouping-settings');
+        const dateGroupingEl = containerEl.createDiv('nn-sub-settings');
 
         new Setting(dateGroupingEl)
             .setName('Group notes by date')
@@ -284,6 +284,34 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .setName('Note display')
             .setHeading();
 
+        const showDateSetting = new Setting(containerEl)
+            .setName('Show date')
+            .setDesc('Display the date below note names.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showDate)
+                .onChange(async (value) => {
+                    this.plugin.settings.showDate = value;
+                    await this.saveAndRefresh();
+                    this.setElementVisibility(dateFormatSettingEl, value);
+                }));
+
+        // Container for date format setting
+        const dateFormatSettingEl = containerEl.createDiv('nn-sub-settings');
+
+        this.createDebouncedTextSetting(
+            dateFormatSettingEl,
+            'Date format',
+            'Format for displaying dates (uses date-fns format).',
+            'MMM d, yyyy',
+            () => this.plugin.settings.dateFormat,
+            (value) => { this.plugin.settings.dateFormat = value || 'MMM d, yyyy'; }
+        ).addExtraButton(button => button
+            .setIcon('help')
+            .setTooltip('Click for format reference')
+            .onClick(() => {
+                new Notice('Common formats:\nMMM d, yyyy = May 25, 2022\ndd/MM/yyyy = 25/05/2022\nyyyy-MM-dd = 2022-05-25\n\nTokens:\nyyyy/yy = year\nMMMM/MMM/MM = month\ndd/d = day\nEEEE/EEE = weekday', 10000);
+            }));
+
         const showPreviewSetting = new Setting(containerEl)
             .setName('Show note preview')
             .setDesc('Display preview text beneath note names.')
@@ -296,7 +324,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }));
 
         // Container for preview-related settings
-        const previewSettingsEl = containerEl.createDiv('preview-settings');
+        const previewSettingsEl = containerEl.createDiv('nn-sub-settings');
 
         new Setting(previewSettingsEl)
             .setName('Skip headings in preview')
@@ -330,7 +358,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }));
 
         // Container for feature image settings
-        const featureImageSettingsEl = containerEl.createDiv('feature-image-settings');
+        const featureImageSettingsEl = containerEl.createDiv('nn-sub-settings');
 
         this.createDebouncedTextSetting(
             featureImageSettingsEl,
@@ -406,26 +434,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                 }));
 
-        // Section 5: Appearance
-        new Setting(containerEl)
-            .setName('Appearance')
-            .setHeading();
-
-        this.createDebouncedTextSetting(
-            containerEl,
-            'Date format',
-            'Format for displaying dates (uses date-fns format).',
-            'MMM d, yyyy',
-            () => this.plugin.settings.dateFormat,
-            (value) => { this.plugin.settings.dateFormat = value || 'MMM d, yyyy'; }
-        ).addExtraButton(button => button
-            .setIcon('help')
-            .setTooltip('Click for format reference')
-            .onClick(() => {
-                new Notice('Common formats:\nMMM d, yyyy = May 25, 2022\ndd/MM/yyyy = 25/05/2022\nyyyy-MM-dd = 2022-05-25\n\nTokens:\nyyyy/yy = year\nMMMM/MMM/MM = month\ndd/d = day\nEEEE/EEE = weekday', 10000);
-            }));
-
-        // Section 6: Advanced
+        // Section 5: Advanced
         new Setting(containerEl)
             .setName('Advanced')
             .setHeading();
@@ -476,6 +485,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         this.setElementVisibility(dateGroupingEl, this.plugin.settings.sortOption !== 'title');
         this.setElementVisibility(previewSettingsEl, this.plugin.settings.showFilePreview);
         this.setElementVisibility(featureImageSettingsEl, this.plugin.settings.showFeatureImage);
+        this.setElementVisibility(dateFormatSettingEl, this.plugin.settings.showDate);
         this.setElementVisibility(untaggedSettingEl, this.plugin.settings.showTags);
     }
 

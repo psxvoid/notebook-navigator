@@ -121,7 +121,9 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
                 <div className="nn-file-text-content">
                     <div className="nn-file-name">{file.basename}</div>
                     <div className="nn-file-second-line">
-                        <div className="nn-file-date">{formattedDate}</div>
+                        {plugin.settings.showDate && (
+                            <div className="nn-file-date">{formattedDate}</div>
+                        )}
                         {plugin.settings.showFilePreview && (
                             <div className="nn-file-preview">{previewText}</div>
                         )}

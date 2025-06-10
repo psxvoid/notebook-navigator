@@ -1071,9 +1071,7 @@ body.nn-resizing {
    ======================================================================== */
 
 /* Settings page indentation for sub-settings */
-.date-grouping-settings,
-.preview-settings,
-.feature-image-settings {
+.nn-sub-settings {
     margin-left: 20px;
 }
 
