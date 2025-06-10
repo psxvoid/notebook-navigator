@@ -17,7 +17,7 @@
  */
 
 // src/components/NotebookNavigatorComponent.tsx
-import React, { useEffect, useImperativeHandle, forwardRef, useRef } from 'react';
+import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState } from 'react';
 import { TFile, WorkspaceLeaf } from 'obsidian';
 import { PaneHeader } from './PaneHeader';
 import { FolderTree } from './FolderTree';
@@ -49,6 +49,7 @@ export interface NotebookNavigatorHandle {
 export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_, ref) => {
     const { app, appState, dispatch, plugin, refreshCounter, isMobile } = useAppContext();
     const containerRef = useRef<HTMLDivElement>(null);
+    const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
     
     // Enable keyboard navigation
     useKeyboardNavigation(containerRef);
@@ -88,6 +89,32 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             containerRef.current?.focus();
         }
     }), [dispatch]);
+
+    // Handle focus/blur events to track when navigator has focus
+    useEffect(() => {
+        const container = containerRef.current;
+        if (!container) return;
+
+        const handleFocus = () => {
+            setIsNavigatorFocused(true);
+        };
+
+        const handleBlur = (e: FocusEvent) => {
+            // Check if focus is moving within the navigator
+            if (e.relatedTarget && container.contains(e.relatedTarget as Node)) {
+                return;
+            }
+            setIsNavigatorFocused(false);
+        };
+
+        container.addEventListener('focusin', handleFocus);
+        container.addEventListener('focusout', handleBlur);
+
+        return () => {
+            container.removeEventListener('focusin', handleFocus);
+            container.removeEventListener('focusout', handleBlur);
+        };
+    }, []);
 
     // Add this useEffect to handle active leaf changes
     useEffect(() => {
@@ -129,6 +156,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             ref={containerRef}
             className={containerClasses.join(' ')} 
             data-focus-pane={appState.focusedPane}
+            data-navigator-focused={isNavigatorFocused}
             tabIndex={-1}
         >
             <div className="nn-left-pane" style={{ width: isMobile ? '100%' : `${paneWidth}px` }}>

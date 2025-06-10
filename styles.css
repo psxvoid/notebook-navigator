@@ -793,18 +793,28 @@ button.nn-icon-button {
     /* No outline for cleaner Notes style */
 }
 
+/* Navigator unfocused - dim all selections when navigator doesn't have focus */
+.nn-split-container[data-navigator-focused="false"] .nn-file-item.nn-selected .nn-file-content::before,
+.nn-split-container[data-navigator-focused="false"] .nn-folder-item.nn-selected > .nn-folder-content::before {
+    background-color: var(--background-modifier-hover);
+}
+
+.nn-split-container[data-navigator-focused="false"] .nn-tag-item.nn-selected {
+    background-color: var(--background-modifier-hover);
+}
+
 /* Inactive pane selected file - dimmer selection when folder pane focused */
-.nn-split-container[data-focus-pane="folders"] .nn-file-item.nn-selected .nn-file-content::before {
+.nn-split-container[data-navigator-focused="true"][data-focus-pane="folders"] .nn-file-item.nn-selected .nn-file-content::before {
     background-color: var(--background-modifier-hover);
 }
 
 /* Inactive pane selected folder - dimmer selection when file pane focused */
-.nn-split-container[data-focus-pane="files"] .nn-folder-item.nn-selected > .nn-folder-content::before {
+.nn-split-container[data-navigator-focused="true"][data-focus-pane="files"] .nn-folder-item.nn-selected > .nn-folder-content::before {
     background-color: var(--background-modifier-hover);
 }
 
 /* Inactive pane selected tag - dimmer selection when file pane focused */
-.nn-split-container[data-focus-pane="files"] .nn-tag-item.nn-selected {
+.nn-split-container[data-navigator-focused="true"][data-focus-pane="files"] .nn-tag-item.nn-selected {
     background-color: var(--background-modifier-hover);
 }
 
