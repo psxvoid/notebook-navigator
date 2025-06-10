@@ -525,7 +525,7 @@ button.nn-icon-button {
 
 /* File name - primary text with ellipsis overflow */
 .nn-file-name {
-    font-size: var(--font-ui-medium);
+    font-size: calc(var(--font-ui-small) + 1px);
     font-weight: 600;
     color: var(--text-normal);
     overflow: hidden;
@@ -1320,7 +1320,7 @@ body.nn-resizing {
 
 /* Increase folder text size on mobile for better readability */
 .notebook-navigator-mobile .nn-folder-name {
-    font-size: var(--font-ui-medium);
+    font-size: calc(var(--font-ui-medium) + 1px);
 }
 
 /* Increase folder icon size on mobile */
@@ -1344,9 +1344,9 @@ body.nn-resizing {
    Mobile-specific File List Text Size
    ======================================================================== */
 
-/* Increase file name text size on mobile for better readability */
+/* File name text size on mobile */
 .notebook-navigator-mobile .nn-file-name {
-    font-size: var(--font-ui-large);
+    font-size: calc(var(--font-ui-medium) + 1px);
 }
 
 /* Increase file date and preview text size on mobile */
@@ -1388,7 +1388,7 @@ body.nn-resizing {
 
 /* Increase tag item text size on mobile to match folder text */
 .notebook-navigator-mobile .nn-tag-name {
-    font-size: var(--font-ui-medium);
+    font-size: calc(var(--font-ui-medium) + 1px);
 }
 
 /* Increase tag icon size on mobile */
