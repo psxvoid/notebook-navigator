@@ -291,6 +291,8 @@ button.nn-icon-button {
     margin-right: 8px;
     flex-shrink: 0;
     color: var(--text-muted);
+    display: flex;
+    align-items: center;
 }
 
 /* Smooth icon color transitions */
@@ -305,9 +307,9 @@ button.nn-icon-button {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    line-height: 1.5; /* Normal line height for proper text rendering */
     color: var(--text-normal);
     flex: 1;
-    line-height: 1.5; /* Increased to prevent descender cutoff on Windows */
 }
 
 /* Folder file count - shows number of files in folder */
@@ -1199,7 +1201,7 @@ body.nn-resizing {
 .notebook-navigator-mobile .nn-folder-item,
 .notebook-navigator-mobile .nn-file-item,
 .notebook-navigator-mobile .nn-tag-item {
-    min-height: 44px;
+    min-height: 40px;
 }
 
 /* Larger touch targets for chevrons on mobile */
@@ -1304,6 +1306,27 @@ body.nn-resizing {
 .nn-folder-icon svg,
 .nn-folder-name {
     transition: color 0.2s ease;
+}
+
+/* ========================================================================
+   Mobile-specific Folder Text Size
+   ======================================================================== */
+
+/* Increase folder text size on mobile for better readability */
+.notebook-navigator-mobile .nn-folder-name {
+    font-size: 16px;
+}
+
+/* Increase folder icon size on mobile */
+.notebook-navigator-mobile .nn-folder-icon {
+    width: 20px;
+    height: 20px;
+}
+
+/* Mobile folder content padding adjustment for proper selection height */
+.notebook-navigator-mobile .nn-folder-content {
+    padding: 6px 8px 6px 4px; /* Slightly reduced vertical padding */
+    min-height: 40px; /* Slightly reduced min-height */
 }
 
 

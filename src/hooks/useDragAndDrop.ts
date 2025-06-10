@@ -66,7 +66,7 @@ import { getPathFromDataAttribute, getAbstractFileFromElement } from '../utils/d
  * ```
  */
 export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>) {
-    const { app, dispatch } = useAppContext();
+    const { app, dispatch, isMobile } = useAppContext();
     const fileSystemOps = useFileSystemOps();
     const dragOverElement = useRef<HTMLElement | null>(null);
 
@@ -173,7 +173,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
     useEffect(() => {
         const container = containerRef.current;
-        if (!container) return;
+        if (!container || isMobile) return;
 
         container.addEventListener('dragstart', handleDragStart);
         container.addEventListener('dragover', handleDragOver);
@@ -186,5 +186,5 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             container.removeEventListener('drop', handleDrop);
             container.removeEventListener('dragend', handleDragEnd);
         };
-    }, [containerRef, handleDragStart, handleDragOver, handleDrop, handleDragEnd]);
+    }, [containerRef, handleDragStart, handleDragOver, handleDrop, handleDragEnd, isMobile]);
 }

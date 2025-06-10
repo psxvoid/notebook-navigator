@@ -42,7 +42,7 @@ interface FileItemProps {
  * @returns A file item element with name, date, preview and optional image
  */
 export function FileItem({ file, isSelected, onClick }: FileItemProps) {
-    const { app, plugin, refreshCounter } = useAppContext();
+    const { app, plugin, refreshCounter, isMobile } = useAppContext();
     const [previewText, setPreviewText] = useState('...');
     const fileRef = useRef<HTMLDivElement>(null);
     
@@ -113,9 +113,9 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
             data-path={file.path} 
             data-drag-path={file.path}
             data-drag-type="file"
-            data-draggable="true"
+            data-draggable={!isMobile ? "true" : undefined}
             onClick={onClick} 
-            draggable="true"
+            draggable={!isMobile}
         >
             <div className="nn-file-content">
                 <div className="nn-file-text-content">

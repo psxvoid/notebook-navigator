@@ -49,7 +49,7 @@ interface MenuConfig {
  * ```
  */
 export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, config: MenuConfig | null) {
-    const { app, plugin, dispatch, appState } = useAppContext();
+    const { app, plugin, dispatch, appState, isMobile } = useAppContext();
     const fileSystemOps = useFileSystemOps();
     
     /**
@@ -393,12 +393,12 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
     
     useEffect(() => {
         const element = elementRef.current;
-        if (!element || !config) return;
+        if (!element || !config || isMobile) return;
         
         element.addEventListener('contextmenu', handleContextMenu);
         
         return () => {
             element.removeEventListener('contextmenu', handleContextMenu);
         };
-    }, [elementRef, handleContextMenu, config]);
+    }, [elementRef, handleContextMenu, config, isMobile]);
 }

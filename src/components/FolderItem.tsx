@@ -49,7 +49,7 @@ interface FolderItemProps {
  * @returns A folder item element with chevron, icon, name and optional file count
  */
 export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick }: FolderItemProps) {
-    const { app, plugin, refreshCounter, appState } = useAppContext();
+    const { app, plugin, refreshCounter, appState, isMobile } = useAppContext();
     const folderRef = useRef<HTMLDivElement>(null);
     
     // Enable context menu
@@ -130,8 +130,8 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
             data-path={folder.path}
             data-drag-path={folder.path}
             data-drag-type="folder"
-            data-draggable="true"
-            draggable="true"
+            data-draggable={!isMobile ? "true" : undefined}
+            draggable={!isMobile}
         >
             <div 
                 className="nn-folder-content"
