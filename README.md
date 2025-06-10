@@ -155,18 +155,20 @@ Pin frequently accessed notes to keep them at the top:
 2. Select "Pin note"
 3. Pinned notes appear at the top with a 📌 icon
 
-### Customizing folder colors
+### Customizing folder colors and icons
 
-Add visual organization to your folders with custom colors:
+Add visual organization to your folders with custom colors and icons:
+
 1. Right-click any folder
-2. Select "Change color"
-3. Choose from a palette of predefined colors
-4. To remove a color, right-click and select "Remove color"
+2. Select "Change color" or "Change icon"
+3. Choose from a palette of colors or variety of Lucide icons
+4. To remove, right-click and select "Remove color" or "Remove icon"
 
-Folder colors help you:
-- Visually distinguish between different types of content
+Visual customization helps you:
+- Quickly identify different types of content at a glance
 - Highlight important project folders
-- Create a more personalized navigation experience
+- Create a more personalized and intuitive navigation experience
+- Combine colors and icons for even better organization
 
 ### Using tags effectively
 
