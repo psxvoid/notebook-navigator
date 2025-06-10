@@ -44,6 +44,8 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
    - Rename items
    - Delete items
    - Pin/unpin files
+   - Change folder colors
+   - Remove folder colors
 5. Drag and drop files between folders to organize
 
 **Tip:** You can use the ribbon icon (folder tree icon) in the left sidebar to activate Notebook Navigator in case you close it by mistake.
@@ -152,6 +154,19 @@ Pin frequently accessed notes to keep them at the top:
 1. Right-click any file
 2. Select "Pin note"
 3. Pinned notes appear at the top with a 📌 icon
+
+### Customizing folder colors
+
+Add visual organization to your folders with custom colors:
+1. Right-click any folder
+2. Select "Change color"
+3. Choose from a palette of predefined colors
+4. To remove a color, right-click and select "Remove color"
+
+Folder colors help you:
+- Visually distinguish between different types of content
+- Highlight important project folders
+- Create a more personalized navigation experience
 
 ### Using tags effectively
 
