@@ -1323,6 +1323,11 @@ body.nn-resizing {
     height: 20px;
 }
 
+/* Increase folder count size on mobile to match folder text */
+.notebook-navigator-mobile .nn-folder-count {
+    font-size: 14px;
+}
+
 /* Mobile folder content padding adjustment for proper selection height */
 .notebook-navigator-mobile .nn-folder-content {
     padding: 6px 8px 6px 4px; /* Slightly reduced vertical padding */
@@ -1361,6 +1366,12 @@ body.nn-resizing {
 .notebook-navigator-mobile .nn-feature-image {
     width: 50px;
     height: 50px;
+}
+
+/* Increase date group header text size on mobile */
+.notebook-navigator-mobile .nn-date-group-header {
+    font-size: 16px;
+    padding: 10px 16px;
 }
 
 
