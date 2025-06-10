@@ -57,6 +57,10 @@ notebook-navigator/
 │   │   ├── useScrollIntoView.ts  # Smart scroll positioning
 │   │   ├── useResizablePane.ts   # Pane resizing functionality
 │   │   └── useSwipeGesture.ts    # Mobile swipe gestures
+│   ├── i18n/                      # Internationalization
+│   │   ├── index.ts              # i18n setup and exports
+│   │   └── locales/              # Translation files
+│   │       └── en.ts             # English translations
 │   ├── services/                  # Business logic services
 │   │   └── FileSystemService.ts  # File operations
 │   ├── modals/                    # Obsidian modal dialogs
@@ -394,4 +398,14 @@ npm run version   # Bump version in manifest.json and versions.json
 - Swipe handling: `useSwipeGesture` hook with edge detection (25px threshold)
 - CSS classes: `.show-list` and `.show-files` control visibility
 - Back navigation: PaneHeader shows back button when viewing files
+
+## Internationalization (i18n)
+
+The plugin is prepared for internationalization with all UI strings centralized:
+
+- **Locale files**: `src/i18n/locales/en.ts` contains all English translations
+- **Import pattern**: `import { strings } from '../i18n';`
+- **Usage in JSX**: `{strings.fileList.emptyStateNoSelection}`, `{strings.common.new}`
+- **Type safety**: Full TypeScript support with autocomplete for all keys
+- **Structure**: Hierarchical organization by feature (common, folder, file, tag, etc.)
 
