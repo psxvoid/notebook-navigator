@@ -35,7 +35,7 @@ import { UNTAGGED_TAG_ID } from '../types';
  * @returns A scrollable list of files grouped by date (if enabled) with empty state handling
  */
 export function FileList() {
-    const { app, appState, dispatch, plugin, refreshCounter } = useAppContext();
+    const { app, appState, dispatch, plugin, refreshCounter, isMobile } = useAppContext();
     const { selectionType, selectedFolder, selectedTag } = appState;
     
     const handleFileClick = useCallback((file: TFile) => {
@@ -47,7 +47,12 @@ export function FileList() {
         if (leaf) {
             leaf.openFile(file);
         }
-    }, [app.workspace, dispatch]);
+        
+        // Collapse left sidebar on mobile after opening file
+        if (isMobile && app.workspace.leftSplit) {
+            app.workspace.leftSplit.collapse();
+        }
+    }, [app.workspace, dispatch, isMobile]);
     
     // Get files from selected folder or tag
     const files = useMemo(() => {
