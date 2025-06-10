@@ -17,6 +17,7 @@
  */
 
 import { format } from 'date-fns';
+import { strings } from '../i18n';
 
 export class DateUtils {
     /**
@@ -56,13 +57,13 @@ export class DateUtils {
         const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
         
         if (dateOnly.getTime() === today.getTime()) {
-            return 'Today';
+            return strings.dateGroups.today;
         } else if (dateOnly.getTime() === yesterday.getTime()) {
-            return 'Yesterday';
+            return strings.dateGroups.yesterday;
         } else if (dateOnly > weekAgo) {
-            return 'Previous 7 days';
+            return strings.dateGroups.previous7Days;
         } else if (dateOnly > monthAgo) {
-            return 'Previous 30 days';
+            return strings.dateGroups.previous30Days;
         } else if (date.getFullYear() === now.getFullYear()) {
             // Same year - show month name
             return format(date, 'MMMM');

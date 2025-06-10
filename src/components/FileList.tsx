@@ -26,6 +26,7 @@ import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters
 import { getFileFromElement } from '../utils/domUtils';
 import { buildTagTree, findTagNode, collectAllTagPaths } from '../utils/tagUtils';
 import { UNTAGGED_TAG_ID } from '../types';
+import { strings } from '../i18n';
 
 /**
  * Renders the file list pane displaying files from the selected folder.
@@ -234,7 +235,7 @@ export function FileList() {
 
         // Add Pinned group if it exists
         if (pinnedFiles.length > 0) {
-            groups.push({ title: '📌 Pinned', files: pinnedFiles });
+            groups.push({ title: strings.fileList.pinnedSection, files: pinnedFiles });
         }
 
         // Group remaining files
@@ -277,7 +278,7 @@ export function FileList() {
     if (!selectedFolder && !selectedTag) {
         return (
             <div className="nn-file-list nn-empty-state">
-                <div className="nn-empty-message">Select a folder or tag to view notes</div>
+                <div className="nn-empty-message">{strings.fileList.emptyStateNoSelection}</div>
             </div>
         );
     }
@@ -285,7 +286,7 @@ export function FileList() {
     if (files.length === 0) {
         return (
             <div className="nn-file-list nn-empty-state">
-                <div className="nn-empty-message">No notes</div>
+                <div className="nn-empty-message">{strings.fileList.emptyStateNoNotes}</div>
             </div>
         );
     }

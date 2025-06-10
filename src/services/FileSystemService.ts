@@ -20,6 +20,7 @@ import { App, TFile, TFolder, TAbstractFile, Notice, normalizePath, Platform } f
 import { InputModal } from '../modals/InputModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
 import { executeCommand } from '../utils/typeGuards';
+import { strings } from '../i18n';
 
 /**
  * Handles all file system operations for the Notebook Navigator
@@ -40,7 +41,7 @@ export class FileSystemOperations {
      * @param onSuccess - Optional callback with the new folder path on successful creation
      */
     async createNewFolder(parent: TFolder, onSuccess?: (path: string) => void): Promise<void> {
-        const modal = new InputModal(this.app, 'New folder', 'Enter folder name:', async (name) => {
+        const modal = new InputModal(this.app, strings.modals.fileSystem.newFolderTitle, strings.modals.fileSystem.folderNamePrompt, async (name) => {
             if (name) {
                 try {
                     const path = normalizePath(parent.path ? `${parent.path}/${name}` : name);
@@ -49,7 +50,7 @@ export class FileSystemOperations {
                         onSuccess(path);
                     }
                 } catch (error) {
-                    new Notice(`Failed to create folder: ${error.message}`);
+                    new Notice(strings.fileSystem.errors.createFolder.replace('{error}', error.message));
                 }
             }
         });
@@ -66,13 +67,13 @@ export class FileSystemOperations {
     async createNewFile(parent: TFolder): Promise<TFile | null> {
         try {
             // Generate unique "Untitled" name
-            let fileName = "Untitled";
+            let fileName = strings.fileSystem.defaultNames.untitled;
             let counter = 1;
             let path = normalizePath(parent.path ? `${parent.path}/${fileName}.md` : `${fileName}.md`);
             
             // Check if file exists and increment counter
             while (this.app.vault.getAbstractFileByPath(path)) {
-                fileName = `Untitled ${counter}`;
+                fileName = strings.fileSystem.defaultNames.untitledNumber.replace('{number}', counter.toString());
                 path = normalizePath(parent.path ? `${parent.path}/${fileName}.md` : `${fileName}.md`);
                 counter++;
             }
@@ -92,7 +93,7 @@ export class FileSystemOperations {
             
             return file;
         } catch (error) {
-            new Notice(`Failed to create file: ${error.message}`);
+            new Notice(strings.fileSystem.errors.createFile.replace('{error}', error.message));
             return null;
         }
     }
@@ -104,7 +105,7 @@ export class FileSystemOperations {
      * @param folder - The folder to rename
      */
     async renameFolder(folder: TFolder): Promise<void> {
-        const modal = new InputModal(this.app, 'Rename folder', 'Enter new name:', async (newName) => {
+        const modal = new InputModal(this.app, strings.modals.fileSystem.renameFolderTitle, strings.modals.fileSystem.renamePrompt, async (newName) => {
             if (newName && newName !== folder.name) {
                 try {
                     const newPath = normalizePath(folder.parent?.path 
@@ -112,7 +113,7 @@ export class FileSystemOperations {
                         : newName);
                     await this.app.fileManager.renameFile(folder, newPath);
                 } catch (error) {
-                    new Notice(`Failed to rename folder: ${error.message}`);
+                    new Notice(strings.fileSystem.errors.renameFolder.replace('{error}', error.message));
                 }
             }
         }, folder.name);
@@ -126,7 +127,7 @@ export class FileSystemOperations {
      * @param file - The file to rename
      */
     async renameFile(file: TFile): Promise<void> {
-        const modal = new InputModal(this.app, 'Rename file', 'Enter new name:', async (newName) => {
+        const modal = new InputModal(this.app, strings.modals.fileSystem.renameFileTitle, strings.modals.fileSystem.renamePrompt, async (newName) => {
             if (newName && newName !== file.basename) {
                 try {
                     // Preserve original extension if not provided
@@ -138,7 +139,7 @@ export class FileSystemOperations {
                         : newName);
                     await this.app.fileManager.renameFile(file, newPath);
                 } catch (error) {
-                    new Notice(`Failed to rename file: ${error.message}`);
+                    new Notice(strings.fileSystem.errors.renameFile.replace('{error}', error.message));
                 }
             }
         }, file.basename);
@@ -157,8 +158,8 @@ export class FileSystemOperations {
         if (confirmBeforeDelete) {
             const confirmModal = new ConfirmModal(
                 this.app,
-                `Delete "${folder.name}"?`,
-                `Are you sure you want to delete this folder and all its contents?`,
+                strings.modals.fileSystem.deleteFolderTitle.replace('{name}', folder.name),
+                strings.modals.fileSystem.deleteFolderConfirm,
                 async () => {
                     try {
                         await this.app.fileManager.trashFile(folder);
@@ -166,7 +167,7 @@ export class FileSystemOperations {
                             onSuccess();
                         }
                     } catch (error) {
-                        new Notice(`Failed to delete folder: ${error.message}`);
+                        new Notice(strings.fileSystem.errors.deleteFolder.replace('{error}', error.message));
                     }
                 }
             );
@@ -179,7 +180,7 @@ export class FileSystemOperations {
                     onSuccess();
                 }
             } catch (error) {
-                new Notice(`Failed to delete folder: ${error.message}`);
+                new Notice(strings.fileSystem.errors.deleteFolder.replace('{error}', error.message));
             }
         }
     }
@@ -195,8 +196,8 @@ export class FileSystemOperations {
         if (confirmBeforeDelete) {
             const confirmModal = new ConfirmModal(
                 this.app,
-                `Delete "${file.basename}"?`,
-                `Are you sure you want to delete this file?`,
+                strings.modals.fileSystem.deleteFileTitle.replace('{name}', file.basename),
+                strings.modals.fileSystem.deleteFileConfirm,
                 async () => {
                     try {
                         await this.app.fileManager.trashFile(file);
@@ -204,7 +205,7 @@ export class FileSystemOperations {
                             onSuccess();
                         }
                     } catch (error) {
-                        new Notice(`Failed to delete file: ${error.message}`);
+                        new Notice(strings.fileSystem.errors.deleteFile.replace('{error}', error.message));
                     }
                 }
             );
@@ -217,7 +218,7 @@ export class FileSystemOperations {
                     onSuccess();
                 }
             } catch (error) {
-                new Notice(`Failed to delete file: ${error.message}`);
+                new Notice(strings.fileSystem.errors.deleteFile.replace('{error}', error.message));
             }
         }
     }
@@ -262,7 +263,7 @@ export class FileSystemOperations {
             
             this.app.workspace.getLeaf(false).openFile(newFile);
         } catch (error) {
-            new Notice(`Failed to duplicate note: ${error.message}`);
+            new Notice(strings.fileSystem.errors.duplicateNote.replace('{error}', error.message));
         }
     }
 
@@ -272,12 +273,12 @@ export class FileSystemOperations {
      */
     async createCanvas(parent: TFolder): Promise<void> {
         try {
-            let fileName = "Untitled";
+            let fileName = strings.fileSystem.defaultNames.untitled;
             let counter = 1;
             let path = normalizePath(parent.path ? `${parent.path}/${fileName}.canvas` : `${fileName}.canvas`);
             
             while (this.app.vault.getAbstractFileByPath(path)) {
-                fileName = `Untitled ${counter}`;
+                fileName = strings.fileSystem.defaultNames.untitledNumber.replace('{number}', counter.toString());
                 path = normalizePath(parent.path ? `${parent.path}/${fileName}.canvas` : `${fileName}.canvas`);
                 counter++;
             }
@@ -291,7 +292,7 @@ export class FileSystemOperations {
                 executeCommand(this.app, 'workspace:edit-file-title');
             }, 0);
         } catch (error) {
-            new Notice(`Failed to create canvas: ${error.message}`);
+            new Notice(strings.fileSystem.errors.createCanvas.replace('{error}', error.message));
         }
     }
 
@@ -301,12 +302,12 @@ export class FileSystemOperations {
      */
     async createBase(parent: TFolder): Promise<void> {
         try {
-            let fileName = "Untitled";
+            let fileName = strings.fileSystem.defaultNames.untitled;
             let counter = 1;
             let path = normalizePath(parent.path ? `${parent.path}/${fileName}.base` : `${fileName}.base`);
             
             while (this.app.vault.getAbstractFileByPath(path)) {
-                fileName = `Untitled ${counter}`;
+                fileName = strings.fileSystem.defaultNames.untitledNumber.replace('{number}', counter.toString());
                 path = normalizePath(parent.path ? `${parent.path}/${fileName}.base` : `${fileName}.base`);
                 counter++;
             }
@@ -329,7 +330,7 @@ export class FileSystemOperations {
                 executeCommand(this.app, 'workspace:edit-file-title');
             }, 0);
         } catch (error) {
-            new Notice(`Failed to create database: ${error.message}`);
+            new Notice(strings.fileSystem.errors.createDatabase.replace('{error}', error.message));
         }
     }
 
@@ -369,7 +370,7 @@ export class FileSystemOperations {
             
             await copyContents(folder, newPath);
         } catch (error) {
-            new Notice(`Failed to duplicate folder: ${error.message}`);
+            new Notice(strings.fileSystem.errors.duplicateFolder.replace('{error}', error.message));
         }
     }
 
@@ -449,10 +450,10 @@ export class FileSystemOperations {
             }
             
             if (!executed) {
-                new Notice('Version history command not found. Ensure Obsidian Sync is enabled.');
+                new Notice(strings.fileSystem.errors.versionHistoryNotFound);
             }
         } catch (error) {
-            new Notice(`Failed to open version history: ${error.message}`);
+            new Notice(strings.fileSystem.errors.openVersionHistory.replace('{error}', error.message));
         }
     }
 
@@ -462,9 +463,9 @@ export class FileSystemOperations {
      */
     getRevealInSystemExplorerText(): string {
         if (Platform.isMacOS) {
-            return 'Reveal in Finder';
+            return strings.contextMenu.file.revealInFinder;
         } else {
-            return 'Show in system explorer';
+            return strings.contextMenu.file.showInExplorer;
         }
     }
 
@@ -479,7 +480,7 @@ export class FileSystemOperations {
             // showInFolder expects the vault-relative path, not the full system path
             await (this.app as any).showInFolder(file.path);
         } catch (error) {
-            new Notice(`Failed to reveal file in system explorer: ${error.message}`);
+            new Notice(strings.fileSystem.errors.revealInExplorer.replace('{error}', error.message));
         }
     }
 }

@@ -18,32 +18,33 @@
 
 import { App, Modal } from 'obsidian';
 import NotebookNavigatorPlugin from '../main';
+import { strings } from '../i18n';
 
 /**
  * Color palette for folder colors
  * Carefully selected to work well in both light and dark themes
  */
 const COLOR_PALETTE = [
-    { name: 'Red', value: '#ef4444' },
-    { name: 'Orange', value: '#f97316' },
-    { name: 'Amber', value: '#f59e0b' },
-    { name: 'Yellow', value: '#eab308' },
-    { name: 'Lime', value: '#84cc16' },
-    { name: 'Green', value: '#22c55e' },
-    { name: 'Emerald', value: '#10b981' },
-    { name: 'Teal', value: '#14b8a6' },
-    { name: 'Cyan', value: '#06b6d4' },
-    { name: 'Sky', value: '#0ea5e9' },
-    { name: 'Blue', value: '#3b82f6' },
-    { name: 'Indigo', value: '#6366f1' },
-    { name: 'Violet', value: '#8b5cf6' },
-    { name: 'Purple', value: '#a855f7' },
-    { name: 'Fuchsia', value: '#d946ef' },
-    { name: 'Pink', value: '#ec4899' },
-    { name: 'Rose', value: '#f43f5e' },
-    { name: 'Gray', value: '#6b7280' },
-    { name: 'Slate', value: '#64748b' },
-    { name: 'Stone', value: '#78716c' }
+    { name: strings.modals.colorPicker.colors.red, value: '#ef4444' },
+    { name: strings.modals.colorPicker.colors.orange, value: '#f97316' },
+    { name: strings.modals.colorPicker.colors.amber, value: '#f59e0b' },
+    { name: strings.modals.colorPicker.colors.yellow, value: '#eab308' },
+    { name: strings.modals.colorPicker.colors.lime, value: '#84cc16' },
+    { name: strings.modals.colorPicker.colors.green, value: '#22c55e' },
+    { name: strings.modals.colorPicker.colors.emerald, value: '#10b981' },
+    { name: strings.modals.colorPicker.colors.teal, value: '#14b8a6' },
+    { name: strings.modals.colorPicker.colors.cyan, value: '#06b6d4' },
+    { name: strings.modals.colorPicker.colors.sky, value: '#0ea5e9' },
+    { name: strings.modals.colorPicker.colors.blue, value: '#3b82f6' },
+    { name: strings.modals.colorPicker.colors.indigo, value: '#6366f1' },
+    { name: strings.modals.colorPicker.colors.violet, value: '#8b5cf6' },
+    { name: strings.modals.colorPicker.colors.purple, value: '#a855f7' },
+    { name: strings.modals.colorPicker.colors.fuchsia, value: '#d946ef' },
+    { name: strings.modals.colorPicker.colors.pink, value: '#ec4899' },
+    { name: strings.modals.colorPicker.colors.rose, value: '#f43f5e' },
+    { name: strings.modals.colorPicker.colors.gray, value: '#6b7280' },
+    { name: strings.modals.colorPicker.colors.slate, value: '#64748b' },
+    { name: strings.modals.colorPicker.colors.stone, value: '#78716c' }
 ];
 
 /**
@@ -90,7 +91,7 @@ export class ColorPickerModal extends Modal {
 
         // Create header
         const header = contentEl.createDiv('nn-color-picker-header');
-        header.createEl('h3', { text: 'Choose folder color' });
+        header.createEl('h3', { text: strings.modals.colorPicker.header });
 
         // Create color grid
         this.colorGrid = contentEl.createDiv('nn-color-grid');

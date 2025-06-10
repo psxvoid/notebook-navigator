@@ -24,6 +24,7 @@ import { buildTagTree, TagTreeNode, getTotalNoteCount } from '../utils/tagUtils'
 import { TagTreeItem } from './TagTreeItem';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 import { UNTAGGED_TAG_ID } from '../types';
+import { strings } from '../i18n';
 
 /**
  * Component that displays all tags in the vault as a hierarchical tree.
@@ -107,7 +108,7 @@ export function TagList() {
 
     return (
         <div className="nn-tag-list-container">
-            <div className="nn-section-header">Tags</div>
+            <div className="nn-section-header">{strings.tagList.sectionHeader}</div>
             <div className="nn-tag-list">
                 {rootNodes.map(node => renderTagNode(node, 0))}
                 {plugin.settings.showUntagged && untaggedCount > 0 && (
@@ -123,7 +124,7 @@ export function TagList() {
                         style={{ paddingLeft: '0px' }}
                     >
                         <div className="nn-tag-arrow" style={{ visibility: 'hidden' }} />
-                        <span className="nn-tag-name">Untagged</span>
+                        <span className="nn-tag-name">{strings.tagList.untaggedLabel}</span>
                         {plugin.settings.showFolderFileCount && (
                             <span className="nn-tag-count">{untaggedCount}</span>
                         )}

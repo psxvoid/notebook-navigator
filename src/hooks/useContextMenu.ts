@@ -22,6 +22,7 @@ import { Menu, MenuItem, TFile, TFolder, Notice } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { useFileSystemOps } from '../context/ServicesContext';
 import { isFolderAncestor, getInternalPlugin, isTFolder, isTFile } from '../utils/typeGuards';
+import { strings } from '../i18n';
 
 /**
  * Configuration for the context menu
@@ -88,7 +89,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // New note
             menu.addItem((item: MenuItem) => {
                 item
-                    .setTitle('New note')
+                    .setTitle(strings.contextMenu.folder.newNote)
                     .setIcon('file-plus')
                     .onClick(async () => {
                         await fileSystemOps.createNewFile(folder);
@@ -98,7 +99,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // New folder
             menu.addItem((item: MenuItem) => {
                 item
-                    .setTitle('New folder')
+                    .setTitle(strings.contextMenu.folder.newFolder)
                     .setIcon('folder-plus')
                     .onClick(async () => {
                         await fileSystemOps.createNewFolder(folder, () => {
@@ -113,7 +114,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // New canvas
             menu.addItem((item: MenuItem) => {
                 item
-                    .setTitle('New canvas')
+                    .setTitle(strings.contextMenu.folder.newCanvas)
                     .setIcon('layout-grid')
                     .onClick(async () => {
                         await fileSystemOps.createCanvas(folder);
@@ -125,7 +126,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             if (basesPlugin?.enabled) {
                 menu.addItem((item: MenuItem) => {
                     item
-                        .setTitle('New base')
+                        .setTitle(strings.contextMenu.folder.newBase)
                         .setIcon('database')
                         .onClick(async () => {
                             await fileSystemOps.createBase(folder);
@@ -138,7 +139,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // Duplicate folder
             menu.addItem((item: MenuItem) => {
                 item
-                    .setTitle('Duplicate folder')
+                    .setTitle(strings.contextMenu.folder.duplicateFolder)
                     .setIcon('documents')
                     .onClick(async () => {
                         await fileSystemOps.duplicateFolder(folder);
@@ -148,7 +149,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // Search in folder
             menu.addItem((item: MenuItem) => {
                 item
-                    .setTitle('Search in folder')
+                    .setTitle(strings.contextMenu.folder.searchInFolder)
                     .setIcon('search')
                     .onClick(() => {
                         const searchPlugin = getInternalPlugin(app, 'global-search');
@@ -165,7 +166,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 // Change icon
                 menu.addItem((item: MenuItem) => {
                     item
-                        .setTitle('Change icon')
+                        .setTitle(strings.contextMenu.folder.changeIcon)
                         .setIcon('palette')
                         .onClick(async () => {
                             const { IconPickerModal } = await import('../modals/IconPickerModal');
@@ -186,7 +187,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 if (currentIcon) {
                     menu.addItem((item: MenuItem) => {
                         item
-                            .setTitle('Remove icon')
+                            .setTitle(strings.contextMenu.folder.removeIcon)
                             .setIcon('x')
                             .onClick(async () => {
                                 delete plugin.settings.folderIcons[folder.path];
@@ -202,7 +203,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // Change color
             menu.addItem((item: MenuItem) => {
                 item
-                    .setTitle('Change color')
+                    .setTitle(strings.contextMenu.folder.changeColor)
                     .setIcon('palette')
                     .onClick(() => {
                         const { ColorPickerModal } = require('../modals/ColorPickerModal');
@@ -219,7 +220,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             if (currentColor) {
                 menu.addItem((item: MenuItem) => {
                     item
-                        .setTitle('Remove color')
+                        .setTitle(strings.contextMenu.folder.removeColor)
                         .setIcon('x')
                         .onClick(async () => {
                             delete plugin.settings.folderColors[folder.path];
@@ -234,7 +235,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // Rename folder
             menu.addItem((item: MenuItem) => {
                 item
-                    .setTitle('Rename folder')
+                    .setTitle(strings.contextMenu.folder.renameFolder)
                     .setIcon('pencil')
                     .onClick(async () => {
                         await fileSystemOps.renameFolder(folder);
@@ -244,7 +245,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // Delete folder
             menu.addItem((item: MenuItem) => {
                 item
-                    .setTitle('Delete folder')
+                    .setTitle(strings.contextMenu.folder.deleteFolder)
                     .setIcon('trash')
                     .onClick(async () => {
                         const parentFolder = folder.parent;
@@ -276,7 +277,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // Open in new tab
             menu.addItem((item: MenuItem) => {
                 item
-                    .setTitle('Open in new tab')
+                    .setTitle(strings.contextMenu.file.openInNewTab)
                     .setIcon('file-plus')
                     .onClick(() => {
                         app.workspace.getLeaf('tab').openFile(file);
@@ -286,7 +287,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // Open to the right
             menu.addItem((item: MenuItem) => {
                 item
-                    .setTitle('Open to the right')
+                    .setTitle(strings.contextMenu.file.openToRight)
                     .setIcon('layout-sidebar-right')
                     .onClick(() => {
                         app.workspace.getLeaf('split').openFile(file);
@@ -296,7 +297,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // Open in new window
             menu.addItem((item: MenuItem) => {
                 item
-                    .setTitle('Open in new window')
+                    .setTitle(strings.contextMenu.file.openInNewWindow)
                     .setIcon('monitor')
                     .onClick(() => {
                         app.workspace.getLeaf('window').openFile(file);
@@ -311,7 +312,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             
             menu.addItem((item: MenuItem) => {
                 item
-                    .setTitle(isPinned ? 'Unpin note' : 'Pin note')
+                    .setTitle(isPinned ? strings.contextMenu.file.unpinNote : strings.contextMenu.file.pinNote)
                     .setIcon(isPinned ? 'unpin' : 'pin')
                     .onClick(async () => {
                         if (!file.parent) return;
@@ -333,7 +334,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // Duplicate note
             menu.addItem((item: MenuItem) => {
                 item
-                    .setTitle('Duplicate note')
+                    .setTitle(strings.contextMenu.file.duplicateNote)
                     .setIcon('documents')
                     .onClick(async () => {
                         await fileSystemOps.duplicateNote(file);
@@ -345,7 +346,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             if (syncPlugin && 'enabled' in syncPlugin && syncPlugin.enabled) {
                 menu.addItem((item: MenuItem) => {
                     item
-                        .setTitle('Open version history')
+                        .setTitle(strings.contextMenu.file.openVersionHistory)
                         .setIcon('history')
                         .onClick(async () => {
                             await fileSystemOps.openVersionHistory(file);
@@ -370,7 +371,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // Rename note
             menu.addItem((item: MenuItem) => {
                 item
-                    .setTitle('Rename note')
+                    .setTitle(strings.contextMenu.file.renameNote)
                     .setIcon('pencil')
                     .onClick(async () => {
                         await fileSystemOps.renameFile(file);
@@ -380,7 +381,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // Delete note
             menu.addItem((item: MenuItem) => {
                 item
-                    .setTitle('Delete note')
+                    .setTitle(strings.contextMenu.file.deleteNote)
                     .setIcon('trash')
                     .onClick(async () => {
                         await fileSystemOps.deleteFile(file, plugin.settings.confirmBeforeDelete);

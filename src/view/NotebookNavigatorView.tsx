@@ -25,6 +25,7 @@ import { AppProvider } from '../context/AppContext';
 import { ServicesProvider } from '../context/ServicesContext';
 import { NotebookNavigatorComponent, NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
 import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
+import { strings } from '../i18n';
 
 /**
  * Custom Obsidian view that hosts the React-based Notebook Navigator interface
@@ -59,7 +60,7 @@ export class NotebookNavigatorView extends ItemView {
      * @returns The human-readable name of this view
      */
     getDisplayText() {
-        return 'Notebook Navigator';
+        return strings.plugin.viewName;
     }
 
     /**

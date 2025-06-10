@@ -17,6 +17,7 @@
  */
 
 import { App, Modal } from 'obsidian';
+import { strings } from '../i18n';
 
 /**
  * Modal dialog for confirming destructive actions
@@ -55,11 +56,11 @@ export class ConfirmModal extends Modal {
             this.onConfirm();
         };
         
-        this.cancelBtn = buttonContainer.createEl('button', { text: 'Cancel' });
+        this.cancelBtn = buttonContainer.createEl('button', { text: strings.common.cancel });
         this.cancelBtn.addEventListener('click', this.cancelHandler);
         
         this.confirmBtn = buttonContainer.createEl('button', { 
-            text: 'Delete',
+            text: strings.common.delete,
             cls: 'mod-warning'
         });
         this.confirmBtn.addEventListener('click', this.confirmHandler);

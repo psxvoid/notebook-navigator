@@ -24,6 +24,7 @@ import { isTFile, isTFolder } from '../utils/typeGuards';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { useScrollIntoView } from '../hooks/useScrollIntoView';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
+import { strings } from '../i18n';
 
 interface FolderItemProps {
     folder: TFolder;
@@ -164,7 +165,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
                 <span 
                     className="nn-folder-name"
                     style={customColor ? { color: customColor, fontWeight: 600 } : undefined}
-                >{folder.path === '/' || folder.path === '' ? 'Vault' : folder.name}</span>
+                >{folder.path === '/' || folder.path === '' ? strings.folderTree.rootFolderName : folder.name}</span>
                 {plugin.settings.showFolderFileCount && fileCount > 0 && (
                     <span className="nn-folder-count">{fileCount}</span>
                 )}

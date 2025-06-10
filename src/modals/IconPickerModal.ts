@@ -18,6 +18,7 @@
 
 import { App, Modal, setIcon, getIconIds } from 'obsidian';
 import NotebookNavigatorPlugin from '../main';
+import { strings } from '../i18n';
 
 /**
  * Icon picker modal for selecting custom folder icons
@@ -80,7 +81,7 @@ export class IconPickerModal extends Modal {
         const searchContainer = contentEl.createDiv('nn-icon-search-container');
         this.searchInput = searchContainer.createEl('input', {
             type: 'text',
-            placeholder: 'Search icons...',
+            placeholder: strings.modals.iconPicker.searchPlaceholder,
             cls: 'nn-icon-search-input'
         });
 
@@ -259,7 +260,7 @@ export class IconPickerModal extends Modal {
             // Show only recently used icons
             if (this.recentlyUsedIcons.length > 0) {
                 const header = this.resultsContainer.createDiv('nn-icon-section-header');
-                header.setText('Recently used');
+                header.setText(strings.modals.iconPicker.recentlyUsedHeader);
                 
                 const grid = this.resultsContainer.createDiv('nn-icon-grid');
                 this.recentlyUsedIcons.forEach(iconId => {
@@ -267,7 +268,7 @@ export class IconPickerModal extends Modal {
                 });
             } else {
                 const emptyMessage = this.resultsContainer.createDiv('nn-icon-empty-message');
-                emptyMessage.setText('Start typing to search icons');
+                emptyMessage.setText(strings.modals.iconPicker.emptyStateSearch);
             }
         } else {
             // Filter and show matching icons
@@ -286,11 +287,11 @@ export class IconPickerModal extends Modal {
                 
                 if (matchingIcons.length > 50) {
                     const moreMessage = this.resultsContainer.createDiv('nn-icon-more-message');
-                    moreMessage.setText(`Showing 50 of ${matchingIcons.length} results. Type more to narrow down.`);
+                    moreMessage.setText(strings.modals.iconPicker.showingResultsInfo.replace('{count}', matchingIcons.length.toString()));
                 }
             } else {
                 const emptyMessage = this.resultsContainer.createDiv('nn-icon-empty-message');
-                emptyMessage.setText('No icons found');
+                emptyMessage.setText(strings.modals.iconPicker.emptyStateNoResults);
             }
         }
     }

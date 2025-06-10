@@ -23,6 +23,7 @@ import { DateUtils } from '../utils/DateUtils';
 import { PreviewTextUtils } from '../utils/PreviewTextUtils';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { useScrollIntoView } from '../hooks/useScrollIntoView';
+import { strings } from '../i18n';
 
 interface FileItemProps {
     file: TFile;
@@ -134,7 +135,7 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
                 </div>
                 {featureImageUrl && (
                     <div className="nn-feature-image">
-                        <img src={featureImageUrl} alt="Feature image" className="nn-feature-image-img" />
+                        <img src={featureImageUrl} alt={strings.common.featureImageAlt} className="nn-feature-image-img" />
                     </div>
                 )}
             </div>

@@ -17,6 +17,7 @@
  */
 
 import { App, Modal } from 'obsidian';
+import { strings } from '../i18n';
 
 /**
  * Modal dialog for accepting text input from the user
@@ -74,11 +75,11 @@ export class InputModal extends Modal {
         
         const buttonContainer = this.contentEl.createDiv('nn-button-container');
         
-        this.cancelBtn = buttonContainer.createEl('button', { text: 'Cancel' });
+        this.cancelBtn = buttonContainer.createEl('button', { text: strings.common.cancel });
         this.cancelBtn.addEventListener('click', this.cancelHandler);
         
         this.submitBtn = buttonContainer.createEl('button', { 
-            text: 'Submit',
+            text: strings.common.submit,
             cls: 'mod-cta'
         });
         this.submitBtn.addEventListener('click', this.submitHandler);

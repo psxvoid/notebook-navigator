@@ -18,6 +18,7 @@
 
 import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
 import NotebookNavigatorPlugin from './main';
+import { strings } from './i18n';
 
 /**
  * Available sort options for file listing
@@ -216,12 +217,12 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         //     .setHeading();
 
         const sortSetting = new Setting(containerEl)
-            .setName('Sort notes by')
-            .setDesc('Choose how notes are sorted in the note list.')
+            .setName(strings.settings.items.sortNotesBy.name)
+            .setDesc(strings.settings.items.sortNotesBy.desc)
             .addDropdown(dropdown => dropdown
-                .addOption('modified', 'Date edited')
-                .addOption('created', 'Date created')
-                .addOption('title', 'Title')
+                .addOption('modified', strings.settings.items.sortNotesBy.options.modified)
+                .addOption('created', strings.settings.items.sortNotesBy.options.created)
+                .addOption('title', strings.settings.items.sortNotesBy.options.title)
                 .setValue(this.plugin.settings.sortOption)
                 .onChange(async (value: SortOption) => {
                     this.plugin.settings.sortOption = value;
@@ -234,8 +235,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         const dateGroupingEl = containerEl.createDiv('nn-sub-settings');
 
         new Setting(dateGroupingEl)
-            .setName('Group notes by date')
-            .setDesc('When sorted by date, group notes under date headers.')
+            .setName(strings.settings.items.groupByDate.name)
+            .setDesc(strings.settings.items.groupByDate.desc)
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.groupByDate)
                 .onChange(async (value) => {
@@ -244,8 +245,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Show notes from subfolders')
-            .setDesc('Display all notes from subfolders in the current folder view.')
+            .setName(strings.settings.items.showNotesFromSubfolders.name)
+            .setDesc(strings.settings.items.showNotesFromSubfolders.desc)
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.showNotesFromSubfolders)
                 .onChange(async (value) => {
@@ -254,8 +255,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Auto-reveal active note')
-            .setDesc('Automatically reveal and select notes when opened from Quick Switcher, links, or search.')
+            .setName(strings.settings.items.autoRevealActiveNote.name)
+            .setDesc(strings.settings.items.autoRevealActiveNote.desc)
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.autoRevealActiveFile)
                 .onChange(async (value) => {
@@ -265,30 +266,30 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         this.createDebouncedTextSetting(
             containerEl,
-            'Excluded notes',
-            'Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived).',
-            'draft, private',
+            strings.settings.items.excludedNotes.name,
+            strings.settings.items.excludedNotes.desc,
+            strings.settings.items.excludedNotes.placeholder,
             () => this.plugin.settings.excludedFiles,
             (value) => { this.plugin.settings.excludedFiles = value; }
         );
 
         this.createDebouncedTextSetting(
             containerEl,
-            'Excluded folders',
-            'Comma-separated list of folders to hide (e.g., resources, templates).',
-            'folder1, folder2',
+            strings.settings.items.excludedFolders.name,
+            strings.settings.items.excludedFolders.desc,
+            strings.settings.items.excludedFolders.placeholder,
             () => this.plugin.settings.ignoreFolders,
             (value) => { this.plugin.settings.ignoreFolders = value; }
         );
 
         // Section 2: Note display
         new Setting(containerEl)
-            .setName('Note display')
+            .setName(strings.settings.sections.noteDisplay)
             .setHeading();
 
         const showDateSetting = new Setting(containerEl)
-            .setName('Show date')
-            .setDesc('Display the date below note names.')
+            .setName(strings.settings.items.showDate.name)
+            .setDesc(strings.settings.items.showDate.desc)
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.showDate)
                 .onChange(async (value) => {
@@ -302,21 +303,21 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         this.createDebouncedTextSetting(
             dateFormatSettingEl,
-            'Date format',
-            'Format for displaying dates (uses date-fns format).',
-            'MMM d, yyyy',
+            strings.settings.items.dateFormat.name,
+            strings.settings.items.dateFormat.desc,
+            strings.settings.items.dateFormat.placeholder,
             () => this.plugin.settings.dateFormat,
             (value) => { this.plugin.settings.dateFormat = value || 'MMM d, yyyy'; }
         ).addExtraButton(button => button
             .setIcon('help')
-            .setTooltip('Click for format reference')
+            .setTooltip(strings.settings.items.dateFormat.helpTooltip)
             .onClick(() => {
-                new Notice('Common formats:\nMMM d, yyyy = May 25, 2022\ndd/MM/yyyy = 25/05/2022\nyyyy-MM-dd = 2022-05-25\n\nTokens:\nyyyy/yy = year\nMMMM/MMM/MM = month\ndd/d = day\nEEEE/EEE = weekday', 10000);
+                new Notice(strings.settings.items.dateFormat.help, 10000);
             }));
 
         const showPreviewSetting = new Setting(containerEl)
-            .setName('Show note preview')
-            .setDesc('Display preview text beneath note names.')
+            .setName(strings.settings.items.showFilePreview.name)
+            .setDesc(strings.settings.items.showFilePreview.desc)
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.showFilePreview)
                 .onChange(async (value) => {
@@ -329,8 +330,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         const previewSettingsEl = containerEl.createDiv('nn-sub-settings');
 
         new Setting(previewSettingsEl)
-            .setName('Skip headings in preview')
-            .setDesc('Skip heading lines when generating preview text.')
+            .setName(strings.settings.items.skipHeadingsInPreview.name)
+            .setDesc(strings.settings.items.skipHeadingsInPreview.desc)
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.skipHeadingsInPreview)
                 .onChange(async (value) => {
@@ -339,8 +340,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(previewSettingsEl)
-            .setName('Skip non-text in preview')
-            .setDesc('Skip images, embeds, and other non-text elements from preview text.')
+            .setName(strings.settings.items.skipNonTextInPreview.name)
+            .setDesc(strings.settings.items.skipNonTextInPreview.desc)
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.skipNonTextInPreview)
                 .onChange(async (value) => {
@@ -349,14 +350,14 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(previewSettingsEl)
-            .setName('Preview rows')
-            .setDesc('Number of rows to display for preview text.')
+            .setName(strings.settings.items.previewRows.name)
+            .setDesc(strings.settings.items.previewRows.desc)
             .addDropdown(dropdown => dropdown
-                .addOption('1', '1 row')
-                .addOption('2', '2 rows')
-                .addOption('3', '3 rows')
-                .addOption('4', '4 rows')
-                .addOption('5', '5 rows')
+                .addOption('1', strings.settings.items.previewRows.options['1'])
+                .addOption('2', strings.settings.items.previewRows.options['2'])
+                .addOption('3', strings.settings.items.previewRows.options['3'])
+                .addOption('4', strings.settings.items.previewRows.options['4'])
+                .addOption('5', strings.settings.items.previewRows.options['5'])
                 .setValue(this.plugin.settings.previewRows.toString())
                 .onChange(async (value) => {
                     this.plugin.settings.previewRows = parseInt(value, 10);
@@ -364,8 +365,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }));
 
         const showFeatureImageSetting = new Setting(containerEl)
-            .setName('Show feature image')
-            .setDesc('Display thumbnail images from frontmatter. Tip: Use the "Featured Image" plugin to automatically set feature images for all your documents.')
+            .setName(strings.settings.items.showFeatureImage.name)
+            .setDesc(strings.settings.items.showFeatureImage.desc)
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.showFeatureImage)
                 .onChange(async (value) => {
@@ -379,21 +380,21 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         this.createDebouncedTextSetting(
             featureImageSettingsEl,
-            'Feature image property',
-            'The frontmatter property name for thumbnail images.',
-            'feature',
+            strings.settings.items.featureImageProperty.name,
+            strings.settings.items.featureImageProperty.desc,
+            strings.settings.items.featureImageProperty.placeholder,
             () => this.plugin.settings.featureImageProperty,
             (value) => { this.plugin.settings.featureImageProperty = value || 'feature'; }
         );
 
         // Section 3: Folder display
         new Setting(containerEl)
-            .setName('Folder display')
+            .setName(strings.settings.sections.folderDisplay)
             .setHeading();
 
         new Setting(containerEl)
-            .setName('Show root folder')
-            .setDesc('Display "Vault" as the root folder in the tree.')
+            .setName(strings.settings.items.showRootFolder.name)
+            .setDesc(strings.settings.items.showRootFolder.desc)
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.showRootFolder)
                 .onChange(async (value) => {
@@ -402,8 +403,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Show folder note count')
-            .setDesc('Display the number of notes in each folder.')
+            .setName(strings.settings.items.showFolderFileCount.name)
+            .setDesc(strings.settings.items.showFolderFileCount.desc)
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.showFolderFileCount)
                 .onChange(async (value) => {
@@ -412,8 +413,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Show folder icons')
-            .setDesc('Display icons next to folder names in the tree.')
+            .setName(strings.settings.items.showFolderIcons.name)
+            .setDesc(strings.settings.items.showFolderIcons.desc)
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.showFolderIcons)
                 .onChange(async (value) => {
@@ -423,12 +424,12 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         // Section 4: Tag display
         new Setting(containerEl)
-            .setName('Tag display')
+            .setName(strings.settings.sections.tagDisplay)
             .setHeading();
 
         const showTagsSetting = new Setting(containerEl)
-            .setName('Show tags')
-            .setDesc('Display tags section below folders in the navigator.')
+            .setName(strings.settings.items.showTags.name)
+            .setDesc(strings.settings.items.showTags.desc)
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.showTags)
                 .onChange(async (value) => {
@@ -442,8 +443,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         const untaggedSettingEl = containerEl.createDiv();
 
         new Setting(untaggedSettingEl)
-            .setName('Show untagged notes')
-            .setDesc('Display "Untagged" item for notes without any tags.')
+            .setName(strings.settings.items.showUntagged.name)
+            .setDesc(strings.settings.items.showUntagged.desc)
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.showUntagged)
                 .onChange(async (value) => {
@@ -453,12 +454,12 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         // Section 5: Advanced
         new Setting(containerEl)
-            .setName('Advanced')
+            .setName(strings.settings.sections.advanced)
             .setHeading();
 
         new Setting(containerEl)
-            .setName('Confirm before deleting notes')
-            .setDesc('Show confirmation dialog when deleting notes or folders')
+            .setName(strings.settings.items.confirmBeforeDelete.name)
+            .setDesc(strings.settings.items.confirmBeforeDelete.desc)
             .addToggle(toggle => toggle
                 .setValue(this.plugin.settings.confirmBeforeDelete)
                 .onChange(async (value) => {
@@ -467,10 +468,10 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(containerEl)
-            .setName('Clear saved state')
-            .setDesc('Reset expanded folders, selections, and pane width to defaults.')
+            .setName(strings.settings.items.clearSavedState.name)
+            .setDesc(strings.settings.items.clearSavedState.desc)
             .addButton(button => button
-                .setButtonText('Clear state')
+                .setButtonText(strings.settings.items.clearSavedState.buttonText)
                 .setCta()  // Makes it a primary button
                 .onClick(async () => {
                     // Clear all localStorage keys
@@ -484,16 +485,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     this.plugin.settings.leftPaneWidth = 300;
                     await this.plugin.saveSettings();
                     
-                    new Notice('Navigator state cleared. Refresh the view to see changes.');
+                    new Notice(strings.settings.items.clearSavedState.successMessage);
                 }));
 
         // Sponsor section
         new Setting(containerEl)
-            .setName('Support development')
-            .setDesc('If you enjoy using Notebook Navigator, please consider supporting its continued development.')
+            .setName(strings.settings.items.supportDevelopment.name)
+            .setDesc(strings.settings.items.supportDevelopment.desc)
             .addButton((button) => {
                 button
-                    .setButtonText('❤️ Sponsor on GitHub')
+                    .setButtonText(strings.settings.items.supportDevelopment.buttonText)
                     .onClick(() => window.open('https://github.com/sponsors/johansan/'))
                     .buttonEl.addClass('nn-sponsor-button');
             });

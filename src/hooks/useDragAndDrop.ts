@@ -23,6 +23,7 @@ import { useAppContext } from '../context/AppContext';
 import { useFileSystemOps } from '../context/ServicesContext';
 import { isTFolder } from '../utils/typeGuards';
 import { getPathFromDataAttribute, getAbstractFileFromElement } from '../utils/domUtils';
+import { strings } from '../i18n';
 
 /**
  * Custom hook that enables drag and drop functionality for files and folders.
@@ -137,13 +138,13 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
         // Prevent dropping a folder into itself or its own children
         if (sourceItem.path === targetFolder.path || (sourceItem instanceof TFolder && fileSystemOps.isDescendant(sourceItem, targetFolder))) {
-            new Notice("Cannot move a folder into itself or a subfolder.", 2000);
+            new Notice(strings.dragDrop.errors.cannotMoveIntoSelf, 2000);
             return;
         }
         
         const newPath = `${targetFolder.path}/${sourceItem.name}`;
         if (app.vault.getAbstractFileByPath(newPath)) {
-            new Notice(`An item named "${sourceItem.name}" already exists in this location.`, 2000);
+            new Notice(strings.dragDrop.errors.itemAlreadyExists.replace('{name}', sourceItem.name), 2000);
             return;
         }
 
@@ -152,7 +153,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             // Force refresh to update folder counts
             dispatch({ type: 'FORCE_REFRESH' });
         } catch (error) {
-            new Notice(`Failed to move: ${error.message}`);
+            new Notice(strings.dragDrop.errors.failedToMove.replace('{error}', error.message));
         }
     }, [app, fileSystemOps, dispatch]);
     

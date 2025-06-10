@@ -21,6 +21,8 @@ import { useAppContext } from '../context/AppContext';
 import { useFileSystemOps } from '../context/ServicesContext';
 import { isTFolder } from '../utils/typeGuards';
 import { ObsidianIcon } from './ObsidianIcon';
+import { strings } from '../i18n';
+import { UNTAGGED_TAG_ID } from '../types';
 
 interface PaneHeaderProps {
     type: 'folder' | 'file';
@@ -92,12 +94,12 @@ export function PaneHeader({ type }: PaneHeaderProps) {
     
     // Mobile header with back button
     if (isMobile) {
-        let headerTitle = 'No selection';
+        let headerTitle = strings.common.noSelection;
         
         if (appState.selectionType === 'folder' && appState.selectedFolder) {
-            headerTitle = appState.selectedFolder.path === '/' ? 'Vault' : appState.selectedFolder.name;
+            headerTitle = appState.selectedFolder.path === '/' ? strings.folderTree.rootFolderName : appState.selectedFolder.name;
         } else if (appState.selectionType === 'tag' && appState.selectedTag) {
-            headerTitle = appState.selectedTag === '__untagged__' ? 'Untagged' : appState.selectedTag;
+            headerTitle = appState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : appState.selectedTag;
         }
         
         // For file pane header on mobile
@@ -108,7 +110,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                         <div className="nn-mobile-back">
                             <button
                                 className="nn-icon-button"
-                                aria-label="Back to folders"
+                                aria-label={strings.paneHeader.mobileBackToFolders}
                                 onClick={() => dispatch({ type: 'SET_MOBILE_VIEW', view: 'list' })}
                                 tabIndex={-1}
                             >
@@ -118,7 +120,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                         </div>
                         <button
                             className="nn-icon-button"
-                            aria-label="New note"
+                            aria-label={strings.paneHeader.newNote}
                             onClick={handleNewFile}
                             disabled={!appState.selectedFolder}
                             tabIndex={-1}
@@ -136,7 +138,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                 <div className="nn-header-actions" style={{ width: '100%', justifyContent: 'flex-end' }}>
                     <button
                         className="nn-icon-button"
-                        aria-label="New folder"
+                        aria-label={strings.paneHeader.newFolder}
                         onClick={handleNewFolder}
                         disabled={!appState.selectedFolder}
                         tabIndex={-1}
@@ -156,7 +158,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                     <>
                         <button
                             className="nn-icon-button"
-                            aria-label={appState.expandedFolders.size > 0 ? "Collapse all folders" : "Expand all folders"}
+                            aria-label={appState.expandedFolders.size > 0 ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
                             onClick={handleExpandCollapseAll}
                             tabIndex={-1}
                         >
@@ -166,7 +168,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                         </button>
                         <button
                             className="nn-icon-button"
-                            aria-label="New folder"
+                            aria-label={strings.paneHeader.newFolder}
                             onClick={handleNewFolder}
                             disabled={!appState.selectedFolder}
                             tabIndex={-1}
@@ -177,7 +179,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                 ) : (
                     <button
                         className="nn-icon-button"
-                        aria-label="New note"
+                        aria-label={strings.paneHeader.newNote}
                         onClick={handleNewFile}
                         disabled={!appState.selectedFolder}
                         tabIndex={-1}

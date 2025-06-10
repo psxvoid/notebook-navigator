@@ -34,6 +34,7 @@ import { DateUtils } from './utils/DateUtils';
 import { PreviewTextUtils } from './utils/PreviewTextUtils';
 import { FileSystemOperations } from './services/FileSystemService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
+import { strings } from './i18n';
 
 /**
  * Main plugin class for Notebook Navigator
@@ -69,7 +70,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
         this.addCommand({
             id: 'open-notebook-navigator',
-            name: 'Open',
+            name: strings.commands.open,
             callback: async () => {
                 await this.activateView(true);
             }
@@ -77,7 +78,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
         this.addCommand({
             id: 'reveal-active-file',
-            name: 'Reveal active file',
+            name: strings.commands.revealActiveFile,
             checkCallback: (checking: boolean) => {
                 const activeFile = this.app.workspace.getActiveFile();
                 if (activeFile && activeFile.parent) {
@@ -92,7 +93,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
         this.addCommand({
             id: 'focus-file-list',
-            name: 'Focus file list',
+            name: strings.commands.focusFileList,
             callback: async () => {
                 // Ensure navigator is open
                 const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
@@ -121,7 +122,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                     menu.addSeparator();
                     menu.addItem((item) => {
                         item
-                            .setTitle('Reveal in Notebook Navigator')
+                            .setTitle(strings.plugin.revealInNavigator)
                             .setIcon('folder-open')
                             .onClick(async () => {
                                 await this.revealFileInNavigator(file);
@@ -297,7 +298,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
      */
     refreshIconRibbon() {
         this.ribbonIconEl?.remove();
-        this.ribbonIconEl = this.addRibbonIcon('notebook', 'Notebook Navigator', async () => {
+        this.ribbonIconEl = this.addRibbonIcon('notebook', strings.plugin.ribbonTooltip, async () => {
             await this.activateView(true);
         });
     }
