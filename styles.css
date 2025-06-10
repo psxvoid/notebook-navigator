@@ -1329,4 +1329,38 @@ body.nn-resizing {
     min-height: 40px; /* Slightly reduced min-height */
 }
 
+/* ========================================================================
+   Mobile-specific File List Text Size
+   ======================================================================== */
+
+/* Increase file name text size on mobile for better readability */
+.notebook-navigator-mobile .nn-file-name {
+    font-size: 17px;
+}
+
+/* Increase file date and preview text size on mobile */
+.notebook-navigator-mobile .nn-file-date {
+    font-size: 15px;
+}
+
+.notebook-navigator-mobile .nn-file-preview {
+    font-size: 15px;
+}
+
+/* Adjust file content padding on mobile for larger text */
+.notebook-navigator-mobile .nn-file-content {
+    padding: 14px 16px;
+}
+
+/* Adjust file content with image padding on mobile */
+.notebook-navigator-mobile .nn-file-content:has(.nn-feature-image) {
+    padding: 10px 16px;
+}
+
+/* Increase feature image size on mobile for better visibility */
+.notebook-navigator-mobile .nn-feature-image {
+    width: 50px;
+    height: 50px;
+}
+
 
