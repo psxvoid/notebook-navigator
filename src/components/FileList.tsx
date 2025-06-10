@@ -61,7 +61,7 @@ export function FileList() {
             for (const child of folder.children) {
                 if (isTFile(child)) {
                     // Only include supported file types
-                    if (child.extension === 'md' || child.extension === 'canvas' || child.extension === 'base') {
+                    if (child.extension === 'md' || child.extension === 'canvas' || child.extension === 'base' || child.extension === 'pdf') {
                         files.push(child);
                     }
                 } else if (plugin.settings.showNotesFromSubfolders && isTFolder(child)) {

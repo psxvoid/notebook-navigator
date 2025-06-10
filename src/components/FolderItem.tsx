@@ -74,7 +74,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
             let count = 0;
             for (const child of folder.children) {
                 if (isTFile(child)) {
-                    if (child.extension === 'md' || child.extension === 'canvas' || child.extension === 'base') {
+                    if (child.extension === 'md' || child.extension === 'canvas' || child.extension === 'base' || child.extension === 'pdf') {
                         // Check if file should be excluded
                         if (!shouldExcludeFile(child, excludedProperties, app)) {
                             count++;
