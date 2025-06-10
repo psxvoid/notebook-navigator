@@ -21,6 +21,7 @@ import { TFile } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { DateUtils } from '../utils/DateUtils';
 import { PreviewTextUtils } from '../utils/PreviewTextUtils';
+import { getDateField } from '../utils/sortUtils';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { useScrollIntoView } from '../hooks/useScrollIntoView';
 import { strings } from '../i18n';
@@ -54,7 +55,8 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
     useScrollIntoView(fileRef, '.nn-file-list', isSelected, [file.path]);
 
     // Show date based on sort option - created date when sorted by created, modified date otherwise
-    const dateToShow = plugin.settings.defaultFolderSort.startsWith('created') ? file.stat.ctime : file.stat.mtime;
+    const dateField = getDateField(plugin.settings.defaultFolderSort);
+    const dateToShow = file.stat[dateField];
     const formattedDate = DateUtils.formatDate(dateToShow, plugin.settings.dateFormat);
 
     // Calculate feature image URL if enabled

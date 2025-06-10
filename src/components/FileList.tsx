@@ -25,6 +25,7 @@ import { isTFile, isTFolder } from '../utils/typeGuards';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 import { getFileFromElement } from '../utils/domUtils';
 import { buildTagTree, findTagNode, collectAllTagPaths } from '../utils/tagUtils';
+import { getEffectiveSortOption, sortFiles, getDateField } from '../utils/sortUtils';
 import { UNTAGGED_TAG_ID } from '../types';
 import { strings } from '../i18n';
 
@@ -121,33 +122,9 @@ export function FileList() {
             allFiles = allFiles.filter(file => !shouldExcludeFile(file, excludedProperties, app));
         }
         
-        // Determine which sort option to use
-        let sortOption = plugin.settings.defaultFolderSort;
-        if (selectionType === 'folder' && selectedFolder && plugin.settings.folderSortOverrides[selectedFolder.path]) {
-            sortOption = plugin.settings.folderSortOverrides[selectedFolder.path];
-        }
-        
-        // Sort files based on the determined sort option
-        switch (sortOption) {
-            case 'modified-desc':
-                allFiles.sort((a, b) => b.stat.mtime - a.stat.mtime);
-                break;
-            case 'modified-asc':
-                allFiles.sort((a, b) => a.stat.mtime - b.stat.mtime);
-                break;
-            case 'created-desc':
-                allFiles.sort((a, b) => b.stat.ctime - a.stat.ctime);
-                break;
-            case 'created-asc':
-                allFiles.sort((a, b) => a.stat.ctime - b.stat.ctime);
-                break;
-            case 'title-asc':
-                allFiles.sort((a, b) => a.basename.localeCompare(b.basename));
-                break;
-            case 'title-desc':
-                allFiles.sort((a, b) => b.basename.localeCompare(a.basename));
-                break;
-        }
+        // Determine which sort option to use and apply it
+        const sortOption = getEffectiveSortOption(plugin.settings, selectionType, selectedFolder);
+        sortFiles(allFiles, sortOption);
         
         // Handle pinned notes (only for folder selection)
         if (selectionType === 'folder' && selectedFolder) {
@@ -255,10 +232,7 @@ export function FileList() {
         }
 
         // Determine which sort option to use
-        let sortOption = plugin.settings.defaultFolderSort;
-        if (selectionType === 'folder' && selectedFolder && plugin.settings.folderSortOverrides[selectedFolder.path]) {
-            sortOption = plugin.settings.folderSortOverrides[selectedFolder.path];
-        }
+        const sortOption = getEffectiveSortOption(plugin.settings, selectionType, selectedFolder);
         
         // Group remaining files
         if (!plugin.settings.groupByDate || sortOption.startsWith('title')) {
@@ -270,9 +244,8 @@ export function FileList() {
         
         const dateGroups = new Map<string, TFile[]>();
         unpinnedFiles.forEach(file => {
-            const fileDate = new Date(
-                sortOption.startsWith('created') ? file.stat.ctime : file.stat.mtime
-            );
+            const dateField = getDateField(sortOption);
+            const fileDate = new Date(file.stat[dateField]);
             const groupTitle = DateUtils.getDateGroup(fileDate.getTime());
             
             if (!dateGroups.has(groupTitle)) {

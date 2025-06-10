@@ -19,6 +19,7 @@
 import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
 import NotebookNavigatorPlugin from './main';
 import { strings } from './i18n';
+import { shouldShowDateGrouping } from './utils/sortUtils';
 
 /**
  * Available sort options for file listing
@@ -239,7 +240,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     this.plugin.settings.defaultFolderSort = value;
                     await this.saveAndRefresh();
                     // Update group by date visibility
-                    this.setElementVisibility(dateGroupingEl, !value.startsWith('title'));
+                    this.setElementVisibility(dateGroupingEl, shouldShowDateGrouping(value));
                 }));
 
         // Container for conditional group by date setting
@@ -512,7 +513,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             });
 
         // Set initial visibility
-        this.setElementVisibility(dateGroupingEl, !this.plugin.settings.defaultFolderSort.startsWith('title'));
+        this.setElementVisibility(dateGroupingEl, shouldShowDateGrouping(this.plugin.settings.defaultFolderSort));
         this.setElementVisibility(previewSettingsEl, this.plugin.settings.showFilePreview);
         this.setElementVisibility(featureImageSettingsEl, this.plugin.settings.showFeatureImage);
         this.setElementVisibility(dateFormatSettingEl, this.plugin.settings.showDate);

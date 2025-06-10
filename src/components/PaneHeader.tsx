@@ -24,6 +24,7 @@ import { isTFolder } from '../utils/typeGuards';
 import { ObsidianIcon } from './ObsidianIcon';
 import { strings } from '../i18n';
 import { UNTAGGED_TAG_ID } from '../types';
+import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } from '../utils/sortUtils';
 import type { SortOption } from '../settings';
 
 interface PaneHeaderProps {
@@ -95,15 +96,11 @@ export function PaneHeader({ type }: PaneHeaderProps) {
     }, [appState.selectedFolder, fileSystemOps, type]);
     
     const getCurrentSortOption = useCallback((): SortOption => {
-        if (appState.selectionType === 'folder' && appState.selectedFolder && plugin.settings.folderSortOverrides[appState.selectedFolder.path]) {
-            return plugin.settings.folderSortOverrides[appState.selectedFolder.path];
-        }
-        return plugin.settings.defaultFolderSort;
-    }, [appState.selectionType, appState.selectedFolder, plugin.settings.folderSortOverrides, plugin.settings.defaultFolderSort]);
+        return getEffectiveSortOption(plugin.settings, appState.selectionType, appState.selectedFolder);
+    }, [plugin.settings, appState.selectionType, appState.selectedFolder]);
     
     const getSortIcon = useCallback(() => {
-        const sortOption = getCurrentSortOption();
-        return sortOption.endsWith('-desc') ? 'sort-desc' : 'sort-asc';
+        return getSortIconName(getCurrentSortOption());
     }, [getCurrentSortOption]);
     
     const handleSortMenu = useCallback((event: React.MouseEvent) => {
@@ -132,17 +129,8 @@ export function PaneHeader({ type }: PaneHeaderProps) {
         menu.addSeparator();
         
         // Sort options
-        const sortOptions: SortOption[] = [
-            'modified-desc',
-            'modified-asc',
-            'created-desc',
-            'created-asc',
-            'title-asc',
-            'title-desc'
-        ];
-        
         let lastCategory = '';
-        sortOptions.forEach((option) => {
+        SORT_OPTIONS.forEach((option) => {
             const category = option.split('-')[0];
             if (lastCategory && lastCategory !== category) {
                 menu.addSeparator();
