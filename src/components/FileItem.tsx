@@ -30,6 +30,7 @@ interface FileItemProps {
     file: TFile;
     isSelected: boolean;
     onClick: () => void;
+    dateGroup?: string | null;
 }
 
 /**
@@ -43,7 +44,7 @@ interface FileItemProps {
  * @param props.onClick - Handler called when the file is clicked
  * @returns A file item element with name, date, preview and optional image
  */
-export function FileItem({ file, isSelected, onClick }: FileItemProps) {
+export function FileItem({ file, isSelected, onClick, dateGroup }: FileItemProps) {
     const { app, plugin, refreshCounter, isMobile } = useAppContext();
     const [previewText, setPreviewText] = useState('...');
     const fileRef = useRef<HTMLDivElement>(null);
@@ -57,7 +58,9 @@ export function FileItem({ file, isSelected, onClick }: FileItemProps) {
     // Show date based on sort option - created date when sorted by created, modified date otherwise
     const dateField = getDateField(plugin.settings.defaultFolderSort);
     const dateToShow = file.stat[dateField];
-    const formattedDate = DateUtils.formatDate(dateToShow, plugin.settings.dateFormat);
+    const formattedDate = dateGroup 
+        ? DateUtils.formatDateForGroup(dateToShow, dateGroup, plugin.settings.dateFormat, plugin.settings.timeFormat)
+        : DateUtils.formatDate(dateToShow, plugin.settings.dateFormat);
 
     // Calculate feature image URL if enabled
     const featureImageUrl = useMemo(() => {

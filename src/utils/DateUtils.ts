@@ -72,4 +72,39 @@ export class DateUtils {
             return date.getFullYear().toString();
         }
     }
+
+    /**
+     * Format a date based on its group - Apple Notes style
+     * @param timestamp - Unix timestamp in milliseconds
+     * @param group - The date group this timestamp belongs to
+     * @param dateFormat - Default date format string (date-fns format)
+     * @param timeFormat - Time format string (date-fns format)
+     * @returns Formatted date string appropriate for the group
+     */
+    static formatDateForGroup(timestamp: number, group: string, dateFormat: string, timeFormat: string): string {
+        const date = new Date(timestamp);
+        
+        // Today and Yesterday groups - show time only
+        if (group === strings.dateGroups.today || group === strings.dateGroups.yesterday) {
+            return format(date, timeFormat);
+        }
+        
+        // Previous 7 days - show weekday name
+        if (group === strings.dateGroups.previous7Days) {
+            const weekdayIndex = date.getDay();
+            const weekdayNames = [
+                strings.weekdays.sunday,
+                strings.weekdays.monday,
+                strings.weekdays.tuesday,
+                strings.weekdays.wednesday,
+                strings.weekdays.thursday,
+                strings.weekdays.friday,
+                strings.weekdays.saturday
+            ];
+            return weekdayNames[weekdayIndex];
+        }
+        
+        // All other groups - use default format
+        return DateUtils.formatDate(timestamp, dateFormat);
+    }
 }

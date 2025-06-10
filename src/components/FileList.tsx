@@ -300,6 +300,7 @@ export function FileList() {
                             file={file}
                             isSelected={appState.selectedFile?.path === file.path}
                             onClick={() => handleFileClick(file)}
+                            dateGroup={group.title}
                         />
                     ))}
                 </div>

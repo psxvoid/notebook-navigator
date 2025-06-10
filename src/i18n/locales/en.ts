@@ -180,6 +180,17 @@ export const STRINGS_EN = {
         previous30Days: 'Previous 30 days',
     },
 
+    // Weekdays
+    weekdays: {
+        sunday: 'Sunday',
+        monday: 'Monday',
+        tuesday: 'Tuesday',
+        wednesday: 'Wednesday',
+        thursday: 'Thursday',
+        friday: 'Friday',
+        saturday: 'Saturday',
+    },
+
     // Plugin commands
     commands: {
         open: 'Open',
@@ -246,6 +257,13 @@ export const STRINGS_EN = {
                 desc: 'Format for displaying dates (uses date-fns format).',
                 placeholder: 'MMM d, yyyy',
                 help: 'Common formats:\nMMM d, yyyy = May 25, 2022\ndd/MM/yyyy = 25/05/2022\nyyyy-MM-dd = 2022-05-25\n\nTokens:\nyyyy/yy = year\nMMMM/MMM/MM = month\ndd/d = day\nEEEE/EEE = weekday',
+                helpTooltip: 'Click for format reference',
+            },
+            timeFormat: {
+                name: 'Time format',
+                desc: 'Format for displaying times in Today and Yesterday groups (uses date-fns format).',
+                placeholder: 'h:mm a',
+                help: 'Common formats:\nh:mm a = 2:30 PM (12-hour)\nHH:mm = 14:30 (24-hour)\nh:mm:ss a = 2:30:45 PM\nHH:mm:ss = 14:30:45\n\nTokens:\nHH/H = 24-hour\nhh/h = 12-hour\nmm = minutes\nss = seconds\na = AM/PM',
                 helpTooltip: 'Click for format reference',
             },
             showFilePreview: {

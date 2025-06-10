@@ -48,6 +48,7 @@ export interface NotebookNavigatorSettings {
     // Note display
     showDate: boolean;
     dateFormat: string;
+    timeFormat: string;
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;
     skipNonTextInPreview: boolean;
@@ -87,6 +88,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Note display
     showDate: true,
     dateFormat: 'MMM d, yyyy',
+    timeFormat: 'h:mm a',
     showFilePreview: true,
     skipHeadingsInPreview: false,
     skipNonTextInPreview: true,
@@ -325,6 +327,20 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .setTooltip(strings.settings.items.dateFormat.helpTooltip)
             .onClick(() => {
                 new Notice(strings.settings.items.dateFormat.help, 10000);
+            }));
+
+        this.createDebouncedTextSetting(
+            dateFormatSettingEl,
+            strings.settings.items.timeFormat.name,
+            strings.settings.items.timeFormat.desc,
+            strings.settings.items.timeFormat.placeholder,
+            () => this.plugin.settings.timeFormat,
+            (value) => { this.plugin.settings.timeFormat = value || 'h:mm a'; }
+        ).addExtraButton(button => button
+            .setIcon('help')
+            .setTooltip(strings.settings.items.timeFormat.helpTooltip)
+            .onClick(() => {
+                new Notice(strings.settings.items.timeFormat.help, 10000);
             }));
 
         const showPreviewSetting = new Setting(containerEl)
