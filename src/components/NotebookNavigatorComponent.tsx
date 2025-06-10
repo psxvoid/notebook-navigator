@@ -155,8 +155,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         <div 
             ref={containerRef}
             className={containerClasses.join(' ')} 
-            data-focus-pane={appState.focusedPane}
-            data-navigator-focused={isNavigatorFocused}
+            data-focus-pane={isMobile ? (appState.currentMobileView === 'list' ? 'folders' : 'files') : appState.focusedPane}
+            data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}
             tabIndex={-1}
         >
             <div className="nn-left-pane" style={{ width: isMobile ? '100%' : `${paneWidth}px` }}>
