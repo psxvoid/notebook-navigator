@@ -236,13 +236,19 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement 
         const currentIndex = getSelectedIndex(elements, appState.selectedFile?.path || null);
         let newIndex = currentIndex;
         
-        if (direction === 'up') {
-            newIndex = currentIndex > 0 ? currentIndex - 1 : 0;
+        // If no file is currently selected (currentIndex === -1), start from the beginning
+        if (currentIndex === -1) {
+            newIndex = direction === 'up' ? elements.length - 1 : 0;
         } else {
-            newIndex = currentIndex < elements.length - 1 ? currentIndex + 1 : currentIndex;
+            if (direction === 'up') {
+                newIndex = currentIndex > 0 ? currentIndex - 1 : 0;
+            } else {
+                newIndex = currentIndex < elements.length - 1 ? currentIndex + 1 : elements.length - 1;
+            }
         }
         
-        if (newIndex !== currentIndex || currentIndex === -1) {
+        // Always update if we have a valid new index
+        if (newIndex >= 0 && newIndex < elements.length) {
             const file = getFileFromElement(elements[newIndex] as HTMLElement, app);
             if (file) {
                 dispatch({ type: 'SET_SELECTED_FILE', file });

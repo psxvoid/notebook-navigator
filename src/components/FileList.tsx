@@ -130,12 +130,32 @@ export function FileList() {
         
         // Handle pinned notes (only for folder selection)
         if (selectionType === 'folder' && selectedFolder) {
-            const pinnedPaths = plugin.settings.pinnedNotes[selectedFolder.path] || [];
-            const pinnedFiles = pinnedPaths
-                .map(path => app.vault.getAbstractFileByPath(path))
-                .filter(isTFile);
+            let allPinnedPaths: string[] = [];
             
-            const unpinnedFiles = allFiles.filter(file => !pinnedPaths.includes(file.path));
+            if (plugin.settings.showNotesFromSubfolders) {
+                // Collect pinned notes from the selected folder and all subfolders
+                const collectPinnedPaths = (folder: TFolder): string[] => {
+                    let paths: string[] = plugin.settings.pinnedNotes[folder.path] || [];
+                    
+                    // Recursively collect from subfolders
+                    for (const child of folder.children) {
+                        if (isTFolder(child)) {
+                            paths = paths.concat(collectPinnedPaths(child));
+                        }
+                    }
+                    
+                    return paths;
+                };
+                
+                allPinnedPaths = collectPinnedPaths(selectedFolder);
+            } else {
+                // Only get pinned notes from the selected folder
+                allPinnedPaths = plugin.settings.pinnedNotes[selectedFolder.path] || [];
+            }
+            
+            // Filter to only include pinned files that are in our allFiles list
+            const pinnedFiles = allFiles.filter(file => allPinnedPaths.includes(file.path));
+            const unpinnedFiles = allFiles.filter(file => !allPinnedPaths.includes(file.path));
             
             return [...pinnedFiles, ...unpinnedFiles];
         }
@@ -158,26 +178,6 @@ export function FileList() {
         // Need either a folder or tag selected
         if (!selectedFolder && !selectedTag) return;
         
-        // Don't auto-select if we already have a file selected in the current context
-        if (selectionType === 'folder' && selectedFolder && appState.selectedFile) {
-            // Check if the selected file is in the current folder
-            if (appState.selectedFile.parent?.path === selectedFolder.path) {
-                return; // Keep current selection
-            }
-        }
-        
-        // For tags, also check if we already have a file selected
-        if (selectionType === 'tag' && appState.selectedFile) {
-            // Check if the selected file is in the current file list
-            const fileElements = Array.from(document.querySelectorAll('.nn-file-item'));
-            const selectedFileInList = fileElements.some(el => 
-                (el as HTMLElement).dataset.path === appState.selectedFile?.path
-            );
-            if (selectedFileInList) {
-                return; // Keep current selection if it's in the current tag's file list
-            }
-        }
-        
         // Find and select the first file
         const firstFileElement = document.querySelector('.nn-file-item');
         if (firstFileElement) {
@@ -185,21 +185,43 @@ export function FileList() {
             if (file) {
                 dispatch({ type: 'SET_SELECTED_FILE', file });
                 
-                // Always open the file when a new folder/tag is selected
-                // This matches the original behavior
+                // Open the file
                 const leaf = app.workspace.getMostRecentLeaf();
                 if (leaf) {
                     leaf.openFile(file);
                 }
             }
         }
-    }, [selectionType, selectedFolder?.path, selectedTag, appState.selectedFile, app.workspace, dispatch]);
+    }, [selectedFolder?.path, selectedTag, selectionType, dispatch, app]);
     
     // Group files by date if enabled
     const groupedFiles = useMemo(() => {
         // Separate pinned files first (only for folder selection)
-        const pinnedPaths = (selectionType === 'folder' && selectedFolder) ? 
-            (plugin.settings.pinnedNotes[selectedFolder.path] || []) : [];
+        let pinnedPaths: string[] = [];
+        
+        if (selectionType === 'folder' && selectedFolder) {
+            if (plugin.settings.showNotesFromSubfolders) {
+                // Collect pinned notes from the selected folder and all subfolders
+                const collectPinnedPaths = (folder: TFolder): string[] => {
+                    let paths: string[] = plugin.settings.pinnedNotes[folder.path] || [];
+                    
+                    // Recursively collect from subfolders
+                    for (const child of folder.children) {
+                        if (isTFolder(child)) {
+                            paths = paths.concat(collectPinnedPaths(child));
+                        }
+                    }
+                    
+                    return paths;
+                };
+                
+                pinnedPaths = collectPinnedPaths(selectedFolder);
+            } else {
+                // Only get pinned notes from the selected folder
+                pinnedPaths = plugin.settings.pinnedNotes[selectedFolder.path] || [];
+            }
+        }
+        
         const pinnedFiles = files.filter(file => pinnedPaths.includes(file.path));
         const unpinnedFiles = files.filter(file => !pinnedPaths.includes(file.path));
 
@@ -242,6 +264,7 @@ export function FileList() {
         plugin.settings.groupByDate,
         plugin.settings.sortOption,
         plugin.settings.pinnedNotes,
+        plugin.settings.showNotesFromSubfolders,
         selectionType,
         selectedFolder
     ]);
