@@ -85,7 +85,7 @@
 
 /* Pane headers - consistent header styling for both panes */
 .nn-pane-header {
-    padding: 8px 16px;
+    padding: var(--size-4-2) var(--size-4-4);
     border-bottom: 1px solid var(--background-modifier-border);
     display: flex;
     justify-content: flex-end;
@@ -111,7 +111,7 @@
 /* Header actions container - groups action buttons in headers */
 .nn-header-actions {
     display: flex;
-    gap: 8px;
+    gap: var(--size-4-2);
 }
 
 /* ========================================================================
@@ -123,8 +123,8 @@
     background: transparent !important;
     background-color: transparent !important;
     border: none !important;
-    border-radius: 3px;
-    padding: 2px 4px;
+    border-radius: var(--radius-s);
+    padding: var(--size-2-2) var(--size-4-1);
     cursor: pointer;
     color: var(--text-muted);
     display: flex;
@@ -174,8 +174,8 @@ button.nn-icon-button {
 
 /* Icon styling - consistent size and appearance for all button icons */
 .nn-icon-button svg {
-    width: 18px;
-    height: 18px;
+    width: var(--icon-size);
+    height: var(--icon-size);
     stroke: var(--text-muted);
     stroke-width: 2;
     fill: none;
@@ -185,14 +185,14 @@ button.nn-icon-button {
 .nn-sort-button {
     background: none;
     border: 1px solid var(--background-modifier-border);
-    border-radius: 6px;
-    padding: 2px 10px;
+    border-radius: var(--radius-s);
+    padding: var(--size-2-1) var(--size-4-2);
     cursor: pointer;
     color: var(--text-muted);
-    font-size: 12px;
+    font-size: var(--font-ui-small);
     font-weight: 500;
-    transition: all 0.2s ease;
-    margin-right: 8px;
+    transition: all var(--transition-duration-moderate) ease;
+    margin-right: var(--size-4-2);
 }
 
 /* Sort button hover - UNUSED */
@@ -212,7 +212,7 @@ button.nn-icon-button {
     overflow-y: auto;
     display: flex;
     flex-direction: column;
-    padding: 0 4px;
+    padding: 0 var(--size-4-1);
 }
 
 /* Make FolderTree and TagList take their natural height */
@@ -229,7 +229,7 @@ button.nn-icon-button {
 .nn-folder-tree {
     overflow-y: visible;
     overflow-x: hidden;
-    padding: 4px 0;
+    padding: var(--size-4-1) 0;
     background-color: var(--background-secondary);
     line-height: 1.4; /* Increased from 1 to prevent text cutoff on Windows */
 }
@@ -249,10 +249,10 @@ button.nn-icon-button {
 .nn-folder-content {
     display: flex;
     align-items: center;
-    padding: 4px 8px 4px 4px; /* Increased vertical padding to prevent text cutoff */
+    padding: var(--nav-item-padding);
     cursor: pointer;
     transition: background-color 0.15s ease;
-    border-radius: 4px;
+    border-radius: var(--radius-s);
     margin: 0;
     background: transparent;
     position: relative;
@@ -268,9 +268,9 @@ button.nn-icon-button {
 /* Folder chevron/arrow - expand/collapse indicator */
 .nn-folder-arrow,
 .nn-folder-chevron {
-    width: 16px;
-    height: 16px;
-    margin-right: 4px;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    margin-right: var(--size-4-1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -286,9 +286,9 @@ button.nn-icon-button {
 
 /* Folder icon - displays folder open/closed or custom icons */
 .nn-folder-icon {
-    width: 16px;
-    height: 16px;
-    margin-right: 8px;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    margin-right: var(--size-4-2);
     flex-shrink: 0;
     color: var(--text-muted);
     display: flex;
@@ -297,12 +297,12 @@ button.nn-icon-button {
 
 /* Smooth icon color transitions */
 .nn-folder-icon svg {
-    transition: color 0.2s ease;
+    transition: color var(--transition-duration-moderate) ease;
 }
 
 /* Folder name text - truncates with ellipsis on overflow */
 .nn-folder-name {
-    font-size: 12px;
+    font-size: var(--font-ui-small);
     font-weight: 400;
     white-space: nowrap;
     overflow: hidden;
@@ -314,12 +314,12 @@ button.nn-icon-button {
 
 /* Folder file count - shows number of files in folder */
 .nn-folder-count {
-    font-size: 11px;
+    font-size: var(--font-ui-smaller);
     color: var(--text-muted);
     margin-left: auto;
-    margin-right: 4px;
+    margin-right: var(--size-4-1);
     flex-shrink: 0;
-    padding-left: 8px; /* Add space between truncated text and count */
+    padding-left: var(--size-4-2); /* Add space between truncated text and count */
 }
 
 /* Folder children container - enables smooth expand/collapse animation */
@@ -347,13 +347,13 @@ button.nn-icon-button {
 
 /* Section header for Tags */
 .nn-section-header {
-    padding: 12px 8px 4px 12px;
-    font-size: 11px;
+    padding: var(--size-4-3) var(--size-4-2) var(--size-4-1) var(--size-4-3);
+    font-size: var(--font-ui-smaller);
     font-weight: 600;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-top: 10px;
+    margin-top: var(--size-4-2);
     border-top: 1px solid var(--background-modifier-border);
 }
 
@@ -364,7 +364,7 @@ button.nn-icon-button {
 
 /* Tag list */
 .nn-tag-list {
-    padding: 4px 0;
+    padding: var(--size-4-1) 0;
     line-height: 1.4; /* Match folder tree line-height to prevent text cutoff */
 }
 
@@ -372,10 +372,10 @@ button.nn-icon-button {
 .nn-tag-item {
     display: flex;
     align-items: center;
-    padding: 4px 8px 4px 4px; /* Match folder item padding to prevent text cutoff */
+    padding: var(--nav-item-padding);
     cursor: pointer;
-    border-radius: 4px;
-    font-size: 12px;
+    border-radius: var(--radius-s);
+    font-size: var(--font-ui-small);
     color: var(--text-normal);
     user-select: none;
     margin: 0;
@@ -400,12 +400,12 @@ button.nn-icon-button {
 /* Tag icon (#) */
 .nn-tag-icon {
     color: var(--text-muted);
-    margin-right: 8px;
+    margin-right: var(--size-4-2);
 }
 
 /* Tag name text */
 .nn-tag-name {
-    font-size: 12px; /* Match folder name font-size */
+    font-size: var(--font-ui-small);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -415,19 +415,19 @@ button.nn-icon-button {
 
 /* Tag file count */
 .nn-tag-count {
-    font-size: 11px;
+    font-size: var(--font-ui-smaller);
     color: var(--text-muted);
     margin-left: auto;
-    margin-right: 4px;
+    margin-right: var(--size-4-1);
     flex-shrink: 0;
-    padding-left: 8px;
+    padding-left: var(--size-4-2);
 }
 
 /* Tag arrow - expand/collapse indicator for hierarchical tags */
 .nn-tag-arrow {
-    width: 16px;
-    height: 16px;
-    margin-right: 4px;
+    width: var(--icon-size);
+    height: var(--icon-size);
+    margin-right: var(--size-4-1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -486,20 +486,20 @@ button.nn-icon-button {
 
 /* File content wrapper - contains all file information */
 .nn-file-content {
-    padding: 11px 12px;
-    margin: 0px 8px;
-    border-radius: 8px;
+    padding: var(--size-4-3) var(--size-4-3);
+    margin: 0px var(--size-4-2);
+    border-radius: var(--radius-m);
     background: transparent;
     display: flex;
     flex-direction: row;
-    gap: 6px;
+    gap: var(--size-4-1);
     align-items: center;
     position: relative;
 }
 
 /* File content with image - reduced padding for consistent height */
 .nn-file-content:has(.nn-feature-image) {
-    padding: 8px 12px;
+    padding: var(--size-4-2) var(--size-4-3);
 }
 
 /* File separator - horizontal line between files */
@@ -507,8 +507,8 @@ button.nn-icon-button {
     content: '';
     position: absolute;
     bottom: 0;
-    left: 20px;
-    right: 20px;
+    left: var(--size-4-5);
+    right: var(--size-4-5);
     height: 1px;
     background-color: var(--background-modifier-border);
 }
@@ -519,13 +519,13 @@ button.nn-icon-button {
     min-width: 0; /* Enable text truncation */
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    gap: var(--size-2-1);
     order: 1; /* Ensure it appears on the left */
 }
 
 /* File name - primary text with ellipsis overflow */
 .nn-file-name {
-    font-size: 14px;
+    font-size: var(--font-ui-medium);
     font-weight: 600;
     color: var(--text-normal);
     overflow: hidden;
@@ -543,17 +543,17 @@ button.nn-icon-button {
 .nn-file-second-line {
     display: flex;
     align-items: flex-start;
-    gap: 6px;
-    margin-top: -2px;
+    gap: var(--size-4-1);
+    margin-top: calc(var(--size-2-1) * -1);
 }
 
 /* File date - modification date display */
 .nn-file-date {
-    font-size: 12px;
+    font-size: var(--font-ui-small);
     color: var(--text-normal);
     flex-shrink: 1; /* Allow date to shrink when space is limited */
     white-space: nowrap;
-    margin-right: 8px;
+    margin-right: var(--size-4-2);
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 0; /* Allow shrinking below content size */
@@ -567,7 +567,7 @@ button.nn-icon-button {
 
 /* File preview text - secondary line showing file content */
 .nn-file-preview {
-    font-size: 12px;
+    font-size: var(--font-ui-small);
     color: var(--text-muted);
     line-height: 1.4;
     overflow: hidden;
@@ -589,7 +589,7 @@ button.nn-icon-button {
     width: 42px;
     height: 42px;
     flex-shrink: 0;
-    border-radius: 6px;
+    border-radius: var(--radius-s);
     overflow: hidden;
     background-color: var(--background-secondary-alt);
     position: relative;
@@ -615,8 +615,8 @@ button.nn-icon-button {
 
 /* Date group headers - sticky headers for grouped files */
 .nn-date-group-header {
-    padding: 8px 12px;
-    font-size: 12px;
+    padding: var(--size-4-2) var(--size-4-3);
+    font-size: var(--font-ui-small);
     font-weight: 600;
     color: var(--text-muted);
     background-color: var(--background-primary);
@@ -624,7 +624,7 @@ button.nn-icon-button {
     position: sticky;
     top: 0;
     z-index: 10;
-    margin-top: 16px;
+    margin-top: var(--size-4-4);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -645,10 +645,10 @@ button.nn-icon-button {
     align-items: center;
     justify-content: center;
     height: 100%;
-    padding: 40px 20px;
+    padding: var(--size-4-10) var(--size-4-5);
     text-align: center;
     color: var(--text-muted);
-    font-size: 14px;
+    font-size: var(--font-ui-medium);
 }
 
 /* Empty state message text */
@@ -675,7 +675,7 @@ button.nn-icon-button {
     right: 0;
     bottom: 0;
     background-color: var(--text-selection);
-    border-radius: 4px;
+    border-radius: var(--radius-s);
     z-index: 0;
 }
 
@@ -724,7 +724,7 @@ button.nn-icon-button {
     right: 0;
     bottom: 1px; /* Stop above the separator line */
     background-color: var(--text-selection);
-    border-radius: 8px;
+    border-radius: var(--radius-m);
 }
 
 /* Dark mode selected file pseudo-element */
@@ -838,7 +838,7 @@ body.nn-resizing {
     right: 0px;
     bottom: 0;
     border: 2px solid var(--text-selection);
-    border-radius: 6px;
+    border-radius: var(--radius-s);
     pointer-events: none;
     z-index: 2;
 }
@@ -863,7 +863,7 @@ body.nn-resizing {
     right: 0px;
     bottom: 1px; /* Account for separator line */
     border: 2px solid var(--text-selection);
-    border-radius: 10px;
+    border-radius: var(--radius-m);
     pointer-events: none;
     z-index: 2;
 }
@@ -881,13 +881,13 @@ body.nn-resizing {
 /* Modal input field - used in rename/create dialogs */
 .nn-input {
     width: 100%;
-    padding: 8px 12px;
+    padding: var(--size-4-2) var(--size-4-3);
     border: 1px solid var(--background-modifier-border);
-    border-radius: 6px;
+    border-radius: var(--radius-s);
     background-color: var(--background-primary);
     color: var(--text-normal);
-    font-size: 14px;
-    margin: 16px 0;
+    font-size: var(--font-ui-medium);
+    margin: var(--size-4-4) 0;
 }
 
 /* Modal input focus state */
@@ -900,8 +900,8 @@ body.nn-resizing {
 .nn-button-container {
     display: flex;
     justify-content: flex-end;
-    gap: 8px;
-    margin-top: 16px;
+    gap: var(--size-4-2);
+    margin-top: var(--size-4-4);
 }
 
 /* ========================================================================
@@ -933,18 +933,18 @@ body.nn-resizing {
 
 /* Icon search container with bottom border */
 .nn-icon-search-container {
-    padding: 16px;
+    padding: var(--size-4-4);
     border-bottom: 1px solid var(--background-modifier-border);
 }
 
 /* Icon search input field */
 .nn-icon-search-input {
     width: 100%;
-    padding: 8px 12px;
-    font-size: 14px;
+    padding: var(--size-4-2) var(--size-4-3);
+    font-size: var(--font-ui-medium);
     background: var(--background-primary);
     border: 1px solid var(--background-modifier-border);
-    border-radius: 4px;
+    border-radius: var(--radius-s);
 }
 
 /* Icon search input focus */
@@ -958,25 +958,25 @@ body.nn-resizing {
     height: 400px;
     min-height: 400px;
     overflow-y: auto;
-    padding: 16px;
+    padding: var(--size-4-4);
     flex: 0 0 auto;
 }
 
 /* Icon category headers */
 .nn-icon-section-header {
-    font-size: 12px;
+    font-size: var(--font-ui-small);
     font-weight: 500;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
-    margin-bottom: 12px;
+    margin-bottom: var(--size-4-3);
 }
 
 /* Icon grid layout - 5 columns */
 .nn-icon-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 8px;
+    gap: var(--size-4-2);
 }
 
 /* Individual icon item */
@@ -984,10 +984,10 @@ body.nn-resizing {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 12px 8px;
-    border-radius: 4px;
+    padding: var(--size-4-3) var(--size-4-2);
+    border-radius: var(--radius-s);
     cursor: pointer;
-    transition: background-color 0.15s ease;
+    transition: background-color var(--transition-duration-fast) ease;
 }
 
 /* Icon item hover/focus states */
@@ -1021,7 +1021,7 @@ body.nn-resizing {
 
 /* Icon name label */
 .nn-icon-item-name {
-    font-size: 11px;
+    font-size: var(--font-ui-smaller);
     color: var(--text-muted);
     text-align: center;
     word-break: break-word;
@@ -1034,15 +1034,17 @@ body.nn-resizing {
 .nn-icon-more-message {
     text-align: center;
     color: var(--text-muted);
-    padding: 24px;
-    font-size: 14px;
+    padding: var(--size-4-6);
+    font-size: var(--font-ui-medium);
 }
 
 /* ========================================================================
    Scrollbar Styles
    ======================================================================== */
 
-/* Custom scrollbar width */
+/* Custom scrollbar width 
+   Note: Obsidian doesn't provide CSS variables for scrollbar dimensions yet,
+   so we use a hardcoded value that matches the default Obsidian scrollbar width */
 .nn-folder-tree::-webkit-scrollbar,
 .nn-file-list::-webkit-scrollbar {
     width: 8px;
@@ -1058,7 +1060,7 @@ body.nn-resizing {
 .nn-folder-tree::-webkit-scrollbar-thumb,
 .nn-file-list::-webkit-scrollbar-thumb {
     background-color: var(--background-modifier-border);
-    border-radius: 4px;
+    border-radius: var(--radius-s);
 }
 
 /* Scrollbar thumb hover - darker on hover */
@@ -1073,7 +1075,7 @@ body.nn-resizing {
 
 /* Settings page indentation for sub-settings */
 .nn-sub-settings {
-    margin-left: 20px;
+    margin-left: var(--size-4-5);
 }
 
 /* Settings section header spacing */
@@ -1097,7 +1099,7 @@ body.nn-resizing {
 
 /* Sponsor button - minimal, clean styling */
 .nn-sponsor-button {
-    transition: opacity 0.2s ease;
+    transition: opacity var(--transition-duration-moderate) ease;
 }
 
 /* Sponsor button hover - subtle opacity change */
@@ -1126,7 +1128,7 @@ body.nn-resizing {
     position: absolute;
     top: 0;
     left: 0;
-    transition: transform 0.2s ease-out; /* Faster, snappier animation */
+    transition: transform var(--transition-duration-moderate) ease-out; /* Faster, snappier animation */
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -1231,19 +1233,19 @@ body.nn-resizing {
 
 /* Color picker content layout */
 .nn-color-picker-modal .modal-content {
-    padding: 20px;
+    padding: var(--size-4-5);
 }
 
 /* Color picker header */
 .nn-color-picker-header {
-    margin-bottom: 16px;
+    margin-bottom: var(--size-4-4);
     width: 100%;
     text-align: center;
 }
 
 .nn-color-picker-header h3 {
     margin: 0;
-    font-size: 16px;
+    font-size: var(--font-ui-medium);
     font-weight: 600;
     color: var(--text-normal);
 }
@@ -1252,7 +1254,7 @@ body.nn-resizing {
 .nn-color-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: 12px;
+    gap: var(--size-4-3);
 }
 
 /* Individual color item */
@@ -1260,11 +1262,11 @@ body.nn-resizing {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 6px;
-    padding: 8px;
-    border-radius: 8px;
+    gap: var(--size-4-1);
+    padding: var(--size-4-2);
+    border-radius: var(--radius-m);
     cursor: pointer;
-    transition: all 0.15s ease;
+    transition: all var(--transition-duration-fast) ease;
 }
 
 /* Color item hover/focus states */
@@ -1285,12 +1287,12 @@ body.nn-resizing {
     border-radius: 50%;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 
                 inset 0 0 0 1px rgba(0, 0, 0, 0.1);
-    transition: transform 0.15s ease;
+    transition: transform var(--transition-duration-fast) ease;
 }
 
 /* Color name label */
 .nn-color-name {
-    font-size: 11px;
+    font-size: var(--font-ui-smaller);
     color: var(--text-muted);
     text-align: center;
     font-weight: 500;
@@ -1309,7 +1311,7 @@ body.nn-resizing {
 /* Smooth color transitions for folder items */
 .nn-folder-icon svg,
 .nn-folder-name {
-    transition: color 0.2s ease;
+    transition: color var(--transition-duration-moderate) ease;
 }
 
 /* ========================================================================
@@ -1318,7 +1320,7 @@ body.nn-resizing {
 
 /* Increase folder text size on mobile for better readability */
 .notebook-navigator-mobile .nn-folder-name {
-    font-size: 16px;
+    font-size: var(--font-ui-medium);
 }
 
 /* Increase folder icon size on mobile */
@@ -1329,12 +1331,12 @@ body.nn-resizing {
 
 /* Increase folder count size on mobile to match folder text */
 .notebook-navigator-mobile .nn-folder-count {
-    font-size: 14px;
+    font-size: var(--font-ui-small);
 }
 
 /* Mobile folder content padding adjustment for proper selection height */
 .notebook-navigator-mobile .nn-folder-content {
-    padding: 6px 8px 6px 4px; /* Slightly reduced vertical padding */
+    padding: var(--size-4-1) var(--size-4-2) var(--size-4-1) var(--size-4-1); /* Slightly reduced vertical padding */
     min-height: 40px; /* Slightly reduced min-height */
 }
 
@@ -1344,26 +1346,26 @@ body.nn-resizing {
 
 /* Increase file name text size on mobile for better readability */
 .notebook-navigator-mobile .nn-file-name {
-    font-size: 17px;
+    font-size: var(--font-ui-large);
 }
 
 /* Increase file date and preview text size on mobile */
 .notebook-navigator-mobile .nn-file-date {
-    font-size: 15px;
+    font-size: var(--font-ui-medium);
 }
 
 .notebook-navigator-mobile .nn-file-preview {
-    font-size: 15px;
+    font-size: var(--font-ui-medium);
 }
 
 /* Adjust file content padding on mobile for larger text */
 .notebook-navigator-mobile .nn-file-content {
-    padding: 14px 16px;
+    padding: var(--size-4-3) var(--size-4-4);
 }
 
 /* Adjust file content with image padding on mobile */
 .notebook-navigator-mobile .nn-file-content:has(.nn-feature-image) {
-    padding: 10px 16px;
+    padding: var(--size-4-2) var(--size-4-4);
 }
 
 /* Increase feature image size on mobile for better visibility */
@@ -1374,29 +1376,29 @@ body.nn-resizing {
 
 /* Increase date group header text size on mobile */
 .notebook-navigator-mobile .nn-date-group-header {
-    font-size: 16px;
-    padding: 10px 16px;
+    font-size: var(--font-ui-medium);
+    padding: var(--size-4-2) var(--size-4-4);
 }
 
 /* Increase tag section header text size on mobile to match date headers */
 .notebook-navigator-mobile .nn-section-header {
-    font-size: 14px;
-    padding: 14px 16px 6px 16px;
+    font-size: var(--font-ui-small);
+    padding: var(--size-4-3) var(--size-4-4) var(--size-4-1) var(--size-4-4);
 }
 
 /* Increase tag item text size on mobile to match folder text */
 .notebook-navigator-mobile .nn-tag-name {
-    font-size: 16px;
+    font-size: var(--font-ui-medium);
 }
 
 /* Increase tag icon size on mobile */
 .notebook-navigator-mobile .nn-tag-icon {
-    font-size: 14px;
+    font-size: var(--font-ui-small);
 }
 
 /* Increase tag count text size on mobile to match folder count */
 .notebook-navigator-mobile .nn-tag-count {
-    font-size: 14px;
+    font-size: var(--font-ui-small);
 }
 
 /* Increase tag arrow size on mobile to match folder chevron */
@@ -1407,7 +1409,7 @@ body.nn-resizing {
 
 /* Mobile tag item padding adjustment to match folder padding */
 .notebook-navigator-mobile .nn-tag-item {
-    padding: 6px 8px 6px 4px;
+    padding: var(--size-4-1) var(--size-4-2) var(--size-4-1) var(--size-4-1);
     min-height: 40px;
 }
 
