@@ -727,6 +727,17 @@ button.nn-icon-button {
     border-radius: var(--radius-m);
 }
 
+/* Hide the separators above and below the selected file */
+/* Remove separator below selected item */
+.nn-file-item.nn-selected::after {
+    display: none;
+}
+
+/* Remove separator above selected item */
+.nn-file-item:has(+ .nn-file-item.nn-selected)::after {
+    display: none;
+}
+
 /* Dark mode selected file pseudo-element */
 .theme-dark .nn-file-item.nn-selected .nn-file-content::before {
     filter: brightness(0.5);
