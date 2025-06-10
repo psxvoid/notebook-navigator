@@ -73,6 +73,7 @@ notebook-navigator/
 │       ├── PreviewTextUtils.ts   # File preview extraction
 │       ├── domUtils.ts           # DOM utility functions
 │       ├── fileFilters.ts        # File filtering utilities
+│       ├── sortUtils.ts          # Sorting utilities
 │       ├── tagUtils.ts           # Tag-related utilities
 │       └── typeGuards.ts         # TypeScript type guards
 ├── images/                        # Screenshots and assets
