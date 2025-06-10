@@ -101,9 +101,16 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Note Display
 
+- **Show date:** Display the date below note names
+- **Date format:** Format for displaying dates (uses date-fns format)
+  - Common formats:
+    - `MMM d, yyyy` = Jan 5, 2024
+    - `dd/MM/yyyy` = 05/01/2024
+    - `yyyy-MM-dd` = 2024-01-05
 - **Show note preview:** Display preview text beneath note names
 - **Skip headings in preview:** Skip heading lines when generating preview text
 - **Skip non-text in preview:** Skip images, embeds, and other non-text elements from preview text
+- **Preview rows:** Number of rows to display for preview text (1-5 rows)
 - **Show feature image:** Display thumbnail images from frontmatter properties
 - **Feature image property:** The frontmatter property name for thumbnails (default: `feature`)
   - **Tip:** Use the [Featured Image plugin](https://github.com/johansan/obsidian-featured-image) (also available in community plugins) to automatically set feature images for all your notes based on the first image in each document!
@@ -118,14 +125,6 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - **Show tags:** Display tags section below folders in the navigator
 - **Show untagged notes:** Display "Untagged" item for notes without any tags
-
-### Appearance
-
-- **Date format:** Format for displaying dates (uses date-fns format)
-  - Common formats:
-    - `MMM d, yyyy` = Jan 5, 2024
-    - `dd/MM/yyyy` = 05/01/2024
-    - `yyyy-MM-dd` = 2024-01-05
 
 ### Advanced
 
