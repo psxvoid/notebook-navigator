@@ -18,7 +18,7 @@
     display: flex;
     flex-direction: column;
     background-color: var(--background-primary);
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    font-family: var(--font-interface);
 }
 
 /* Removes focus outline on main container for cleaner appearance */
