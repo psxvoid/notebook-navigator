@@ -536,15 +536,7 @@ button.nn-icon-button {
     color: var(--text-normal);
 }
 
-/* Preview line container - holds date and preview text */
-.nn-file-preview-line {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    margin-top: -2px;
-}
-
-/* Second line container - used in subfolder mode */
+/* Second line container - holds date and preview text */
 .nn-file-second-line {
     display: flex;
     align-items: baseline;
@@ -584,19 +576,6 @@ button.nn-icon-button {
     flex: 1;
 }
 
-/* Parent folder display - shows folder path in subfolder mode */
-.nn-file-parent-folder {
-    font-size: 12px;
-    color: var(--text-muted);
-    line-height: 1.4;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 1;
-    -webkit-box-orient: vertical;
-    word-break: break-word;
-    flex: 1;
-}
 
 /* ========================================================================
    Feature Image Styles
