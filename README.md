@@ -112,7 +112,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - **Show root folder:** Display "Vault" as the root folder in the tree
 - **Show folder note count:** Display the number of notes in each folder
-- **Show folder icons:** Display custom icons for folders that have been assigned icons
+- **Show folder icons:** Display folder icons in the folder tree
 
 ### Tag Display
 
