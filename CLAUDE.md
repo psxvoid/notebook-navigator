@@ -60,14 +60,22 @@ notebook-navigator/
 │   ├── services/                  # Business logic services
 │   │   └── FileSystemService.ts  # File operations
 │   ├── modals/                    # Obsidian modal dialogs
+│   │   ├── ColorPickerModal.ts   # Color picker for folders
 │   │   ├── ConfirmModal.ts       # Delete confirmation
-│   │   ├── InputModal.ts         # Text input dialog
-│   │   └── IconPickerModal.ts    # Folder icon picker
+│   │   ├── IconPickerModal.ts    # Folder icon picker
+│   │   └── InputModal.ts         # Text input dialog
 │   └── utils/                     # Utility functions
 │       ├── DateUtils.ts          # Date formatting
 │       ├── PreviewTextUtils.ts   # File preview extraction
-│       ├── typeGuards.ts         # TypeScript type guards
-│       └── fileFilters.ts        # File filtering utilities
+│       ├── domUtils.ts           # DOM utility functions
+│       ├── fileFilters.ts        # File filtering utilities
+│       ├── tagUtils.ts           # Tag-related utilities
+│       └── typeGuards.ts         # TypeScript type guards
+├── images/                        # Screenshots and assets
+│   ├── mobile.psd                # Mobile design source
+│   ├── screenshot1.png           # App screenshot
+│   ├── screenshot2-source.png    # Screenshot source
+│   └── screenshot2.png           # App screenshot
 ├── styles.css                     # Global styles
 ├── manifest.json                  # Plugin metadata
 ├── package.json                  # Dependencies
