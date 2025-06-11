@@ -245,8 +245,8 @@ export const STRINGS_EN = {
             },
             excludedFolders: {
                 name: 'Excluded folders',
-                desc: 'Comma-separated list of folders to hide (e.g., resources, templates).',
-                placeholder: 'folder1, folder2',
+                desc: 'Comma-separated list of folders to hide. Supports wildcards: assets* (starts with), *_temp (ends with).',
+                placeholder: 'templates, assets*, *_temp',
             },
             showDate: {
                 name: 'Show date',

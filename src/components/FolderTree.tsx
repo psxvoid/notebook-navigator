@@ -21,6 +21,7 @@ import { TFile, TFolder } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { FolderItem } from './FolderItem';
 import { isTFile, isTFolder } from '../utils/typeGuards';
+import { parseExcludedFolders, shouldExcludeFolder } from '../utils/fileFilters';
 
 
 /**
@@ -35,14 +36,9 @@ export function FolderTree() {
     
     const rootFolder = app.vault.getRoot();
     
-    // Filter out ignored folders
-    const ignoredFolders = useMemo(() => {
-        return new Set(
-            plugin.settings.ignoreFolders
-                .split(',')
-                .map(f => f.trim())
-                .filter(f => f.length > 0)
-        );
+    // Parse excluded folder patterns
+    const excludedPatterns = useMemo(() => {
+        return parseExcludedFolders(plugin.settings.ignoreFolders);
     }, [plugin.settings.ignoreFolders]);
     
     const handleFolderClick = (folder: TFolder) => {
@@ -67,8 +63,8 @@ export function FolderTree() {
      * @returns React nodes for the folder and its expanded children
      */
     const renderFolder = (folder: TFolder, level: number = 0): React.ReactNode => {
-        // Skip ignored folders
-        if (ignoredFolders.has(folder.name)) {
+        // Skip excluded folders based on patterns
+        if (shouldExcludeFolder(folder.name, excludedPatterns)) {
             return null;
         }
         

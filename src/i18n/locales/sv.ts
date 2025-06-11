@@ -245,8 +245,8 @@ export const STRINGS_SV = {
             },
             excludedFolders: {
                 name: 'Exkluderade mappar',
-                desc: 'Kommaseparerad lista med mappar att dölja (t.ex. resurser, mallar).',
-                placeholder: 'mapp1, mapp2',
+                desc: 'Kommaseparerad lista över mappar att dölja. Stöder wildcards: assets* (börjar med), *_temp (slutar med).',
+                placeholder: 'mallar, assets*, *_temp',
             },
             showDate: {
                 name: 'Visa datum',
