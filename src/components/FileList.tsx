@@ -224,7 +224,7 @@ export function FileList() {
         // If the selection hasn't changed, check if we should keep the current file
         if (!hasSelectionChanged) {
             // Check if the currently selected file is in the current file list
-            const selectedFileInList = appState.selectedFile && files.some(f => f.path === appState.selectedFile.path);
+            const selectedFileInList = appState.selectedFile && files.some(f => f.path === appState.selectedFile?.path);
             
             if (selectedFileInList) {
                 // Keep the current selection if it's in the list (e.g., from REVEAL_FILE)

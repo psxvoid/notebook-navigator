@@ -18,7 +18,7 @@
 
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState } from 'react';
-import { TFile, WorkspaceLeaf } from 'obsidian';
+import { TFile, TFolder, WorkspaceLeaf } from 'obsidian';
 import { PaneHeader } from './PaneHeader';
 import { FolderTree } from './FolderTree';
 import { TagList } from './TagList';
@@ -144,7 +144,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                         
                         // If showing notes from subfolders, check if file is in a subfolder
                         if (plugin.settings.showNotesFromSubfolders) {
-                            let parent = file.parent;
+                            let parent: TFolder | null = file.parent;
                             while (parent) {
                                 if (parent.path === appState.selectedFolder.path) {
                                     // File is in a subfolder of the selected folder
