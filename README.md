@@ -255,6 +255,14 @@ Notebook Navigator is built and maintained by [Johan Sanneblad](https://www.link
 
 Feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/johansan/).
 
+## Support Development
+
+If you love using Notebook Navigator, please consider supporting its continued development:
+
+[❤️ Sponsor on GitHub](https://github.com/sponsors/johansan)
+
+Your sponsorship helps maintain and improve this plugin, ensuring it remains free and open source for the Obsidian community.
+
 ## License
 
 This project is licensed under the GNU General Public License v3.0 (GPL-3.0) - see the [LICENSE](LICENSE) file for details.
