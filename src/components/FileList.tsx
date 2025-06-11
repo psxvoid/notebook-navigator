@@ -206,7 +206,7 @@ export function FileList() {
         refreshCounter
     ]);
     
-    // Auto-select first file when folder/tag changes
+    // Auto-select first file when folder/tag changes (desktop only)
     useLayoutEffect(() => {
         // Need either a folder or tag selected
         if (!selectedFolder && !selectedTag) return;
@@ -223,6 +223,12 @@ export function FileList() {
             tag: selectedTag
         };
         
+        // On mobile, don't auto-select files when changing folders/tags
+        if (isMobile && hasSelectionChanged) {
+            // Keep the current file selection on mobile
+            return;
+        }
+        
         // If the selection hasn't changed, check if we should keep the current file
         if (!hasSelectionChanged) {
             // Check if the currently selected file is in the current file list
@@ -234,7 +240,7 @@ export function FileList() {
             }
         }
         
-        // Selection has changed or current file is not in list - select first file
+        // Selection has changed or current file is not in list - select first file (desktop only)
         if (files.length > 0) {
             const firstFile = files[0];
             
