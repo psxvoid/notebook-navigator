@@ -154,17 +154,31 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate 
             <div className="nn-file-content">
                 <div className="nn-file-text-content">
                     <div className="nn-file-name">{file.basename}</div>
-                    <div className="nn-file-second-line">
-                        {plugin.settings.showDate && (
-                            <div className="nn-file-date">{displayDate}</div>
-                        )}
-                        {plugin.settings.showFilePreview && (
-                            <div 
-                                className="nn-file-preview" 
-                                style={{ '--preview-rows': plugin.settings.previewRows } as React.CSSProperties}
-                            >{previewText}</div>
-                        )}
-                    </div>
+                    {plugin.settings.previewRows >= 2 && plugin.settings.showFilePreview ? (
+                        <>
+                            {plugin.settings.showFilePreview && (
+                                <div 
+                                    className="nn-file-preview" 
+                                    style={{ '--preview-rows': plugin.settings.previewRows } as React.CSSProperties}
+                                >{previewText}</div>
+                            )}
+                            {plugin.settings.showDate && (
+                                <div className="nn-file-date nn-file-date-below">{displayDate}</div>
+                            )}
+                        </>
+                    ) : (
+                        <div className="nn-file-second-line">
+                            {plugin.settings.showDate && (
+                                <div className="nn-file-date">{displayDate}</div>
+                            )}
+                            {plugin.settings.showFilePreview && (
+                                <div 
+                                    className="nn-file-preview" 
+                                    style={{ '--preview-rows': plugin.settings.previewRows } as React.CSSProperties}
+                                >{previewText}</div>
+                            )}
+                        </div>
+                    )}
                 </div>
                 {featureImageUrl && (
                     <div className="nn-feature-image">
