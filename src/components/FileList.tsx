@@ -200,6 +200,14 @@ export function FileList() {
         // Need either a folder or tag selected
         if (!selectedFolder && !selectedTag) return;
         
+        // Check if the currently selected file is in the current file list
+        const selectedFileInList = appState.selectedFile && files.some(f => f.path === appState.selectedFile.path);
+        
+        if (selectedFileInList) {
+            // Keep the current selection if it's in the list (e.g., from REVEAL_FILE)
+            return;
+        }
+        
         // Use the first file from the files array instead of DOM query
         if (files.length > 0) {
             const firstFile = files[0];
@@ -211,7 +219,7 @@ export function FileList() {
             // Clear selection when folder has no files
             dispatch({ type: 'SET_SELECTED_FILE', file: null });
         }
-    }, [selectedFolder?.path, selectedTag, selectionType, dispatch]);
+    }, [selectedFolder?.path, selectedTag, selectionType, dispatch, files, appState.selectedFile]);
     
     // Group files by date if enabled
     const groupedFiles = useMemo(() => {
