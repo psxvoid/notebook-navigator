@@ -14,21 +14,28 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 
 ## Features
 
-- 📁 **Two-pane interface:** Clean layout with folder tree on the left, file list on the right
-- 🏷️ **Hierarchical tag browsing:** View and navigate all your tags in a tree structure with nested tags support
-- 🔍 **Smart file previews:** Shows content preview with date and first lines of text
-- 🖼️ **Feature images:** Display thumbnail images from frontmatter properties
-- 📌 **Pin important notes:** Keep frequently accessed notes at the top of any folder
-- ⌨️ **Full keyboard navigation:** Navigate entirely with arrow keys, Tab and Shift+Tab
-- 🔄 **Custom folder sorting:** Each folder can have its own unique sort order - modified date, created date, title (A-Z or Z-A)
-- 📅 **Date grouping:** Automatically group files by Today, Yesterday, Previous 7 days, etc.
-- 🎯 **Drag and drop:** Move files and folders with intuitive drag and drop
-- 🎨 **Customizable appearance:** Adjust date formats and folder colors
-- 🚫 **Smart folder exclusions:** Hide folders using patterns with wildcard support
-- 🌓 **Dark mode support:** Fully integrated with Obsidian's theme system
-- 📱 **Mobile support:** Full functionality on iOS and Android devices with touch gestures
-- ↔️ **Resizable panes:** Drag the divider to adjust folder/file pane widths
-- 🚀 **Auto-reveal:** Automatically reveal files when opened from search or links
+### Core Interface
+- **📁 Two-pane layout** - Folders on left, files on right (like Apple Notes)
+- **📱 Mobile optimized** - Touch gestures and single-pane navigation
+- **🌓 Theme support** - Seamlessly matches your Obsidian theme
+
+### Navigation & Organization
+- **🏷️ Tag browser** - Hierarchical tag tree with nested tag support
+- **📌 Pin notes** - Keep important files at the top of folders
+- **🚀 Auto-reveal** - Find your current file instantly
+- **⌨️ Keyboard first** - Full navigation with arrow keys and Tab
+
+### File Display
+- **🔍 Smart previews** - See content snippets without opening files
+- **🖼️ Thumbnails** - Display feature images from frontmatter
+- **📅 Date grouping** - Organize by Today, Yesterday, This Week
+- **🔄 Custom sorting** - Per-folder sort preferences
+
+### Productivity
+- **🎯 Drag & drop** - Move files between folders (desktop)
+- **↔️ Resizable panes** - Adjust the layout to your needs
+- **🚫 Smart filtering** - Hide folders/files with patterns
+- **🎨 Visual customization** - Folder colors and icons
 
 ## How to Use
 
