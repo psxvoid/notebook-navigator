@@ -191,7 +191,7 @@ button.nn-icon-button {
     color: var(--text-muted);
     font-size: var(--font-ui-small);
     font-weight: 500;
-    transition: all var(--transition-duration-moderate) ease;
+    transition: all 0.2s ease;
     margin-right: var(--size-4-2);
 }
 
@@ -297,7 +297,7 @@ button.nn-icon-button {
 
 /* Smooth icon color transitions */
 .nn-folder-icon svg {
-    transition: color var(--transition-duration-moderate) ease;
+    transition: color 0.2s ease;
 }
 
 /* Folder name text - truncates with ellipsis on overflow */
@@ -987,7 +987,7 @@ body.nn-resizing {
     padding: var(--size-4-3) var(--size-4-2);
     border-radius: var(--radius-s);
     cursor: pointer;
-    transition: background-color var(--transition-duration-fast) ease;
+    transition: background-color 0.15s ease;
 }
 
 /* Icon item hover/focus states */
@@ -1099,7 +1099,7 @@ body.nn-resizing {
 
 /* Sponsor button - minimal, clean styling */
 .nn-sponsor-button {
-    transition: opacity var(--transition-duration-moderate) ease;
+    transition: opacity 0.2s ease;
 }
 
 /* Sponsor button hover - subtle opacity change */
@@ -1128,7 +1128,7 @@ body.nn-resizing {
     position: absolute;
     top: 0;
     left: 0;
-    transition: transform var(--transition-duration-moderate) ease-out; /* Faster, snappier animation */
+    transition: transform 0.2s ease-out; /* Faster, snappier animation */
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -1266,7 +1266,7 @@ body.nn-resizing {
     padding: var(--size-4-2);
     border-radius: var(--radius-m);
     cursor: pointer;
-    transition: all var(--transition-duration-fast) ease;
+    transition: all 0.15s ease;
 }
 
 /* Color item hover/focus states */
@@ -1287,7 +1287,7 @@ body.nn-resizing {
     border-radius: 50%;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 
                 inset 0 0 0 1px rgba(0, 0, 0, 0.1);
-    transition: transform var(--transition-duration-fast) ease;
+    transition: transform 0.15s ease;
 }
 
 /* Color name label */
@@ -1311,7 +1311,7 @@ body.nn-resizing {
 /* Smooth color transitions for folder items */
 .nn-folder-icon svg,
 .nn-folder-name {
-    transition: color var(--transition-duration-moderate) ease;
+    transition: color 0.2s ease;
 }
 
 /* ========================================================================
