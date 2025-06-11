@@ -24,6 +24,7 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 - 📅 **Date grouping:** Automatically group files by Today, Yesterday, Previous 7 days, etc.
 - 🎯 **Drag and drop:** Move files and folders with intuitive drag and drop
 - 🎨 **Customizable appearance:** Adjust date formats and folder colors
+- 🚫 **Smart folder exclusions:** Hide folders using patterns with wildcard support
 - 🌓 **Dark mode support:** Fully integrated with Obsidian's theme system
 - 📱 **Mobile support:** Full functionality on iOS and Android devices with touch gestures
 - ↔️ **Resizable panes:** Drag the divider to adjust folder/file pane widths
@@ -97,7 +98,9 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Show notes from subfolders:** Display all notes from subfolders in the current folder view
 - **Auto-reveal active note:** Automatically reveal and select notes when opened from Quick Switcher, links, or search
 - **Excluded notes:** Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., `draft, private, archived`)
-- **Excluded folders:** Comma-separated list of folders to hide (e.g., `resources, templates`)
+- **Excluded folders:** Comma-separated list of folders to hide with wildcard support:
+  - Simple names: `resources, templates`
+  - Wildcards: `*-archive, temp-*, _*` (matches folders like `2023-archive`, `temp-notes`, `_private`)
 
 ### Note Display
 
