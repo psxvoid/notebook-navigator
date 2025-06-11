@@ -117,6 +117,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         };
     }, []);
 
+    // Track navigator interaction time for smarter auto-reveal
+    const navigatorInteractionRef = useRef(0);
+    
     // Add this useEffect to handle active leaf changes
     useEffect(() => {
         if (!plugin.settings.autoRevealActiveFile) return;
@@ -124,6 +127,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         const handleActiveLeafChange = (leaf: WorkspaceLeaf | null) => {
             // Only trigger for leaves in the main editor area
             if (!leaf || leaf.getRoot() !== app.workspace.rootSplit) {
+                return;
+            }
+            
+            // Skip auto-reveal if navigator was recently interacted with (within 300ms)
+            if (Date.now() - navigatorInteractionRef.current < 300) {
                 return;
             }
             
@@ -192,6 +200,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             data-focus-pane={isMobile ? (appState.currentMobileView === 'list' ? 'folders' : 'files') : appState.focusedPane}
             data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}
             tabIndex={-1}
+            onMouseDown={() => navigatorInteractionRef.current = Date.now()}
+            onKeyDown={() => navigatorInteractionRef.current = Date.now()}
         >
             <div className="nn-left-pane" style={{ width: isMobile ? '100%' : `${paneWidth}px` }}>
                 <PaneHeader type="folder" />
