@@ -116,8 +116,10 @@ export function FileList() {
                     return !fileTags || fileTags.length === 0;
                 });
             } else {
-                // Create a simple hash to check if files have changed
-                const filesHash = allMarkdownFiles.map(f => f.path).join('|');
+                // Create a hash that includes both paths and modification times to detect tag changes
+                const filesHash = allMarkdownFiles
+                    .map(f => `${f.path}:${f.stat.mtime}`)
+                    .join('|');
                 
                 // Use cached tag tree if available and files haven't changed
                 let tagTree: Map<string, TagTreeNode>;

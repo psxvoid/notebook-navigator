@@ -29,6 +29,7 @@ import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useSwipeGesture } from '../hooks/useSwipeGesture';
 import { isTFolder } from '../utils/typeGuards';
+import { STORAGE_KEYS } from '../types';
 
 export interface NotebookNavigatorHandle {
     revealFile: (file: TFile) => void;
@@ -62,7 +63,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         initialWidth: 300,
         min: 150,
         max: 600,
-        storageKey: 'notebook-navigator-left-pane-width'
+        storageKey: STORAGE_KEYS.leftPaneWidthKey
     });
     
     // Enable swipe gestures on mobile
@@ -127,8 +128,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             }
             
             // Note: Accessing view.file via 'any' as it's not in Obsidian's public TypeScript API
-            const file = (leaf.view as any).file;
-            if (file && file instanceof TFile) {
+            const view = leaf.view as any;
+            if (view && view.file && view.file instanceof TFile) {
+                const file = view.file;
                 // Always update selected file if it's different
                 if (appState.selectedFile?.path !== file.path) {
                     dispatch({ type: 'SET_SELECTED_FILE', file });

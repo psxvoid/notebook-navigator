@@ -21,6 +21,7 @@ import React, { createContext, useContext, useMemo, useEffect, useReducer } from
 import { App, TFile, TFolder } from 'obsidian';
 import NotebookNavigatorPlugin from '../main';
 import { isTFolder, isTFile } from '../utils/typeGuards';
+import { STORAGE_KEYS } from '../types';
 
 /**
  * Global application state interface.
@@ -92,21 +93,10 @@ interface AppContextType {
 const AppContext = createContext<AppContextType>(null!);
 
 /**
- * LocalStorage keys for persisting state across sessions.
- * These keys are used to save and restore the plugin state.
+ * Additional localStorage key for mobile view state
+ * Not included in main STORAGE_KEYS as it's only used in AppContext
  */
-const STORAGE_KEYS = {
-    /** Key for storing expanded folder paths */
-    expandedFolders: 'notebook-navigator-expanded-folders',
-    /** Key for storing expanded tag paths */
-    expandedTags: 'notebook-navigator-expanded-tags',
-    /** Key for storing selected folder path */
-    selectedFolder: 'notebook-navigator-selected-folder',
-    /** Key for storing selected file path */
-    selectedFile: 'notebook-navigator-selected-file',
-    /** Key for storing current mobile view */
-    currentMobileView: 'notebook-navigator-mobile-view'
-};
+const MOBILE_VIEW_KEY = 'notebook-navigator-mobile-view';
 
 /**
  * Loads the application state from localStorage.
@@ -116,10 +106,10 @@ const STORAGE_KEYS = {
  * @returns The restored AppState with validated references
  */
 function loadStateFromStorage(app: App): AppState {
-    const expandedFoldersData = localStorage.getItem(STORAGE_KEYS.expandedFolders);
-    const expandedTagsData = localStorage.getItem(STORAGE_KEYS.expandedTags);
-    const selectedFolderPath = localStorage.getItem(STORAGE_KEYS.selectedFolder);
-    const selectedFilePath = localStorage.getItem(STORAGE_KEYS.selectedFile);
+    const expandedFoldersData = localStorage.getItem(STORAGE_KEYS.expandedFoldersKey);
+    const expandedTagsData = localStorage.getItem(STORAGE_KEYS.expandedTagsKey);
+    const selectedFolderPath = localStorage.getItem(STORAGE_KEYS.selectedFolderKey);
+    const selectedFilePath = localStorage.getItem(STORAGE_KEYS.selectedFileKey);
     
     let expandedFolders = new Set<string>();
     try {
@@ -187,7 +177,7 @@ function loadStateFromStorage(app: App): AppState {
  */
 function saveToStorage(key: string, value: any) {
     try {
-        if (key === STORAGE_KEYS.expandedFolders || key === STORAGE_KEYS.expandedTags) {
+        if (key === STORAGE_KEYS.expandedFoldersKey || key === STORAGE_KEYS.expandedTagsKey) {
             localStorage.setItem(key, JSON.stringify(Array.from(value)));
         } else {
             localStorage.setItem(key, value || '');
@@ -480,16 +470,16 @@ export function AppProvider({ children, plugin, isMobile = false }: { children: 
      */
     useEffect(() => {
         // Save expanded folders
-        saveToStorage(STORAGE_KEYS.expandedFolders, appState.expandedFolders);
+        saveToStorage(STORAGE_KEYS.expandedFoldersKey, appState.expandedFolders);
         
         // Save expanded tags
-        saveToStorage(STORAGE_KEYS.expandedTags, appState.expandedTags);
+        saveToStorage(STORAGE_KEYS.expandedTagsKey, appState.expandedTags);
         
         // Save selected folder
-        saveToStorage(STORAGE_KEYS.selectedFolder, appState.selectedFolder?.path);
+        saveToStorage(STORAGE_KEYS.selectedFolderKey, appState.selectedFolder?.path);
         
         // Save selected file
-        saveToStorage(STORAGE_KEYS.selectedFile, appState.selectedFile?.path);
+        saveToStorage(STORAGE_KEYS.selectedFileKey, appState.selectedFile?.path);
         
         // Note: We don't persist currentMobileView to always start fresh on mobile
     }, [appState.expandedFolders, appState.expandedTags, appState.selectedFolder, appState.selectedFile]);

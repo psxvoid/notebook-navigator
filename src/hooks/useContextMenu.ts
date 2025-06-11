@@ -205,8 +205,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 item
                     .setTitle(strings.contextMenu.folder.changeColor)
                     .setIcon('palette')
-                    .onClick(() => {
-                        const { ColorPickerModal } = require('../modals/ColorPickerModal');
+                    .onClick(async () => {
+                        const { ColorPickerModal } = await import('../modals/ColorPickerModal');
                         const modal = new ColorPickerModal(app, plugin, folder.path);
                         modal.onChooseColor = () => {
                             dispatch({ type: 'FORCE_REFRESH' });

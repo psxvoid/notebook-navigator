@@ -52,6 +52,18 @@ export interface LocalStorageKeys {
 }
 
 /**
+ * Singleton instance of localStorage keys
+ * Use this instead of defining keys in multiple places
+ */
+export const STORAGE_KEYS: LocalStorageKeys = {
+    expandedFoldersKey: 'notebook-navigator-expanded-folders',
+    expandedTagsKey: 'notebook-navigator-expanded-tags',
+    selectedFolderKey: 'notebook-navigator-selected-folder',
+    selectedFileKey: 'notebook-navigator-selected-file',
+    leftPaneWidthKey: 'notebook-navigator-left-pane-width'
+};
+
+/**
  * Data attributes for drag-and-drop functionality using event delegation
  * These attributes are added to DOM elements to enable drag-drop without individual event listeners
  */

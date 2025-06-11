@@ -29,7 +29,7 @@ import {
     Notice
 } from 'obsidian';
 import { SortOption, NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
-import { LocalStorageKeys, NavigatorElementAttributes, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from './types';
+import { LocalStorageKeys, NavigatorElementAttributes, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, STORAGE_KEYS } from './types';
 import { DateUtils } from './utils/DateUtils';
 import { PreviewTextUtils } from './utils/PreviewTextUtils';
 import { FileSystemOperations } from './services/FileSystemService';
@@ -47,13 +47,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
     // LocalStorage keys for state persistence
     // These keys are used to save and restore the plugin's state between sessions
-    keys: LocalStorageKeys = {
-        expandedFoldersKey: 'notebook-navigator-expanded-folders',
-        expandedTagsKey: 'notebook-navigator-expanded-tags',
-        selectedFolderKey: 'notebook-navigator-selected-folder',
-        selectedFileKey: 'notebook-navigator-selected-file',
-        leftPaneWidthKey: 'notebook-navigator-left-pane-width'
-    };
+    keys: LocalStorageKeys = STORAGE_KEYS;
 
     /**
      * Plugin initialization - called when plugin is enabled

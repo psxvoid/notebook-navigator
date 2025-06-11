@@ -44,6 +44,9 @@ export class IconPickerModal extends Modal {
     private recentlyUsedIcons: string[];
     private focusedIndex: number = -1;
     private gridColumns: number = 5;
+    private searchInputKeydownHandler: ((e: KeyboardEvent) => void) | null = null;
+    private contentElKeydownHandler: ((e: KeyboardEvent) => void) | null = null;
+    private searchDebounceTimer: NodeJS.Timeout | null = null;
 
     /** Callback function invoked when an icon is selected */
     public onChooseIcon: (iconId: string | null) => void;
@@ -89,10 +92,11 @@ export class IconPickerModal extends Modal {
         this.resultsContainer = contentEl.createDiv('nn-icon-results-container');
 
         // Set up search functionality with debouncing for better performance
-        let debounceTimer: NodeJS.Timeout;
         this.searchInput.addEventListener('input', () => {
-            clearTimeout(debounceTimer);
-            debounceTimer = setTimeout(() => {
+            if (this.searchDebounceTimer) {
+                clearTimeout(this.searchDebounceTimer);
+            }
+            this.searchDebounceTimer = setTimeout(() => {
                 this.updateResults();
             }, 150);
         });
@@ -109,9 +113,25 @@ export class IconPickerModal extends Modal {
 
     /**
      * Called when the modal is closed
-     * Cleans up the modal content
+     * Cleans up the modal content and removes event listeners
      */
     onClose() {
+        // Clear debounce timer
+        if (this.searchDebounceTimer) {
+            clearTimeout(this.searchDebounceTimer);
+            this.searchDebounceTimer = null;
+        }
+        
+        // Remove event listeners to prevent memory leak
+        if (this.searchInputKeydownHandler && this.searchInput) {
+            this.searchInput.removeEventListener('keydown', this.searchInputKeydownHandler);
+            this.searchInputKeydownHandler = null;
+        }
+        if (this.contentElKeydownHandler) {
+            this.contentEl.removeEventListener('keydown', this.contentElKeydownHandler);
+            this.contentElKeydownHandler = null;
+        }
+        
         const { contentEl } = this;
         contentEl.empty();
     }
@@ -123,7 +143,7 @@ export class IconPickerModal extends Modal {
      */
     private setupKeyboardNavigation() {
         // Handle Tab key on search input
-        this.searchInput.addEventListener('keydown', (e) => {
+        this.searchInputKeydownHandler = (e) => {
             if (e.key === 'Tab') {
                 if (!e.shiftKey) {
                     // Tab: Move to grid
@@ -135,10 +155,11 @@ export class IconPickerModal extends Modal {
                     // Just keep focus on search input
                 }
             }
-        });
+        };
+        this.searchInput.addEventListener('keydown', this.searchInputKeydownHandler);
 
         // Handle keyboard navigation in the modal
-        this.contentEl.addEventListener('keydown', (e) => {
+        this.contentElKeydownHandler = (e) => {
             const iconItems = Array.from(this.resultsContainer.querySelectorAll('.nn-icon-item')) as HTMLElement[];
             if (iconItems.length === 0) return;
 
@@ -206,7 +227,8 @@ export class IconPickerModal extends Modal {
                     this.ensureIconVisible(iconItems[newIndex]);
                 }
             }
-        });
+        };
+        this.contentEl.addEventListener('keydown', this.contentElKeydownHandler);
     }
 
     /**

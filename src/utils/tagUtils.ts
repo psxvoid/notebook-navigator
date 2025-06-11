@@ -49,9 +49,7 @@ export function buildTagTree(allFiles: TFile[], app: App): Map<string, TagTreeNo
         return root;
     }
     
-    const allTagsCache = new Map<string, Set<string>>();
-
-    // First pass: collect all tags and their associated files
+    // Single pass: build tree and collect files
     for (const file of allFiles) {
         const cache = app.metadataCache.getFileCache(file);
         if (!cache) continue;
@@ -63,42 +61,34 @@ export function buildTagTree(allFiles: TFile[], app: App): Map<string, TagTreeNo
             // Skip empty or invalid tags
             if (!tag || tag.length <= 1) continue;
             
-            if (!allTagsCache.has(tag)) {
-                allTagsCache.set(tag, new Set());
-            }
-            allTagsCache.get(tag)!.add(file.path);
+            // Remove the # prefix and split by /
+            const parts = tag.substring(1).split('/');
+            let currentLevel = root;
+
+            parts.forEach((part, index) => {
+                // Rebuild the full path up to this point
+                const currentPath = '#' + parts.slice(0, index + 1).join('/');
+
+                if (!currentLevel.has(part)) {
+                    currentLevel.set(part, {
+                        name: part,
+                        path: currentPath,
+                        children: new Map(),
+                        notesWithTag: new Set(),
+                    });
+                }
+
+                const node = currentLevel.get(part)!;
+
+                // If this is the last part, add the file to this tag
+                if (index === parts.length - 1) {
+                    node.notesWithTag.add(file.path);
+                }
+
+                currentLevel = node.children;
+            });
         }
     }
-
-    // Second pass: build the tree structure
-    allTagsCache.forEach((notes, tag) => {
-        // Remove the # prefix and split by /
-        const parts = tag.substring(1).split('/');
-        let currentLevel = root;
-
-        parts.forEach((part, index) => {
-            // Rebuild the full path up to this point
-            const currentPath = '#' + parts.slice(0, index + 1).join('/');
-
-            if (!currentLevel.has(part)) {
-                currentLevel.set(part, {
-                    name: part,
-                    path: currentPath,
-                    children: new Map(),
-                    notesWithTag: new Set(),
-                });
-            }
-
-            const node = currentLevel.get(part)!;
-
-            // If this is the last part, it's the actual tag with notes
-            if (index === parts.length - 1) {
-                node.notesWithTag = notes;
-            }
-
-            currentLevel = node.children;
-        });
-    });
 
     return root;
 }

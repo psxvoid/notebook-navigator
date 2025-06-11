@@ -119,11 +119,18 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate 
         }
         
         // Load markdown preview text from file content
-        app.vault.cachedRead(file).then(content => {
-            if (!isCancelled) {
-                setPreviewText(PreviewTextUtils.extractPreviewText(content, plugin.settings));
-            }
-        });
+        app.vault.cachedRead(file)
+            .then(content => {
+                if (!isCancelled) {
+                    setPreviewText(PreviewTextUtils.extractPreviewText(content, plugin.settings));
+                }
+            })
+            .catch(error => {
+                if (!isCancelled) {
+                    console.error('Failed to read file preview:', error);
+                    setPreviewText(''); // Clear preview on error
+                }
+            });
         
         // Cleanup function
         return () => { 
