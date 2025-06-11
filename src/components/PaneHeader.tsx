@@ -213,6 +213,16 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                 <div className="nn-header-actions" style={{ width: '100%', justifyContent: 'flex-end' }}>
                     <button
                         className="nn-icon-button"
+                        aria-label={appState.expandedFolders.size > 0 ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
+                        onClick={handleExpandCollapseAll}
+                        tabIndex={-1}
+                    >
+                        <ObsidianIcon 
+                            name={appState.expandedFolders.size > 0 ? 'chevrons-down-up' : 'chevrons-up-down'}
+                        />
+                    </button>
+                    <button
+                        className="nn-icon-button"
                         aria-label={strings.paneHeader.newFolder}
                         onClick={handleNewFolder}
                         disabled={!appState.selectedFolder}
