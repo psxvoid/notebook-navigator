@@ -210,8 +210,11 @@ export function FileList() {
             if (leaf) {
                 leaf.openFile(firstFile, { active: false });
             }
+        } else {
+            // Clear selection when folder has no files
+            dispatch({ type: 'SET_SELECTED_FILE', file: null });
         }
-    }, [selectedFolder?.path, selectedTag, selectionType, dispatch, app, files.length]);
+    }, [selectedFolder?.path, selectedTag, selectionType, dispatch, app]);
     
     // Group files by date if enabled
     const groupedFiles = useMemo(() => {
@@ -304,22 +307,6 @@ export function FileList() {
         selectedFolder
     ]);
     
-    if (!selectedFolder && !selectedTag) {
-        return (
-            <div className="nn-file-list nn-empty-state">
-                <div className="nn-empty-message">{strings.fileList.emptyStateNoSelection}</div>
-            </div>
-        );
-    }
-    
-    if (files.length === 0) {
-        return (
-            <div className="nn-file-list nn-empty-state">
-                <div className="nn-empty-message">{strings.fileList.emptyStateNoNotes}</div>
-            </div>
-        );
-    }
-    
     // Cache selected file path to avoid repeated property access
     const selectedFilePath = appState.selectedFile?.path;
     
@@ -344,6 +331,23 @@ export function FileList() {
         });
         return dateMap;
     }, [groupedFiles, dateField, plugin.settings.showDate, plugin.settings.dateFormat, plugin.settings.timeFormat]);
+    
+    // Early returns MUST come after all hooks
+    if (!selectedFolder && !selectedTag) {
+        return (
+            <div className="nn-file-list nn-empty-state">
+                <div className="nn-empty-message">{strings.fileList.emptyStateNoSelection}</div>
+            </div>
+        );
+    }
+    
+    if (files.length === 0) {
+        return (
+            <div className="nn-file-list nn-empty-state">
+                <div className="nn-empty-message">{strings.fileList.emptyStateNoNotes}</div>
+            </div>
+        );
+    }
     
     return (
         <div className="nn-file-list">
