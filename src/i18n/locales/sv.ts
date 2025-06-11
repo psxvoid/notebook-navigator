@@ -208,9 +208,9 @@ export const STRINGS_SV = {
     // Settings
     settings: {
         sections: {
-            noteDisplay: 'Anteckningsvisning',
-            folderDisplay: 'Mappvisning',
-            tagDisplay: 'Taggvisning',
+            noteDisplay: 'Anteckningar',
+            folderDisplay: 'Mappar',
+            tagDisplay: 'Taggar',
             advanced: 'Avancerat',
         },
         items: {
@@ -228,11 +228,11 @@ export const STRINGS_SV = {
             },
             groupByDate: {
                 name: 'Gruppera anteckningar efter datum',
-                desc: 'När sorterat efter datum, gruppera anteckningar under datumrubriker.',
+                desc: 'Gruppera anteckningar under datumrubriker när de sorteras efter datum.',
             },
             showNotesFromSubfolders: {
                 name: 'Visa anteckningar från undermappar',
-                desc: 'Visa alla anteckningar från undermappar i den aktuella mappvyn.',
+                desc: 'Visa anteckningar från alla undermappar i den aktuella mappvyn.',
             },
             autoRevealActiveNote: {
                 name: 'Visa aktiv anteckning automatiskt',
@@ -240,7 +240,7 @@ export const STRINGS_SV = {
             },
             excludedNotes: {
                 name: 'Exkluderade anteckningar',
-                desc: 'Kommaseparerad lista med frontmatter-egenskaper. Anteckningar som innehåller någon av dessa egenskaper kommer att döljas (t.ex. utkast, privat, arkiverad).',
+                desc: 'Kommaseparerad lista med frontmatter-attribut. Anteckningar som innehåller någon av dessa attribut kommer att döljas (t.ex. utkast, privat, arkiverad).',
                 placeholder: 'utkast, privat',
             },
             excludedFolders: {
@@ -255,7 +255,7 @@ export const STRINGS_SV = {
             dateFormat: {
                 name: 'Datumformat',
                 desc: 'Format för att visa datum (använder date-fns format).',
-                placeholder: 'd MMM yyyy',
+                placeholder: 'yyyy-MM-dd',
                 help: 'Vanliga format:\nd MMM yyyy = 25 maj 2022\ndd/MM/yyyy = 25/05/2022\nyyyy-MM-dd = 2022-05-25\n\nTokens:\nyyyy/yy = år\nMMMM/MMM/MM = månad\ndd/d = dag\nEEEE/EEE = veckodag',
                 helpTooltip: 'Klicka för formatreferens',
             },
@@ -291,11 +291,11 @@ export const STRINGS_SV = {
             },
             showFeatureImage: {
                 name: 'Visa utvald bild',
-                desc: 'Visa miniatyrbilder från frontmatter. Tips: Använd pluginet "Featured Image" för att automatiskt ställa in utvalda bilder för alla dina dokument.',
+                desc: 'Visa miniatyrbilder från frontmatter. Tips: Använd plugin "Featured Image" för att automatiskt ställa in utvalda bilder för alla dina dokument.',
             },
             featureImageProperty: {
-                name: 'Utvald bild-egenskap',
-                desc: 'Frontmatter-egenskapsnamnet för miniatyrbilder.',
+                name: 'Attribut för utvald bild',
+                desc: 'Frontmatter-attribut för miniatyrbilder.',
                 placeholder: 'feature',
             },
             showRootFolder: {
@@ -320,17 +320,17 @@ export const STRINGS_SV = {
             },
             confirmBeforeDelete: {
                 name: 'Bekräfta innan borttagning',
-                desc: 'Visa bekräftelsedialog när anteckningar eller mappar tas bort',
+                desc: 'Visa dialog innan anteckningar eller mappar tas bort',
             },
             clearSavedState: {
-                name: 'Rensa sparat tillstånd',
-                desc: 'Återställ expanderade mappar, val och panelbredd till standardvärden.',
-                buttonText: 'Rensa tillstånd',
-                successMessage: 'Navigatortillstånd rensat. Uppdatera vyn för att se ändringar.',
+                name: 'Rensa inställningar',
+                desc: 'Tag bort alla sparade inställningar för unika ikoner, färger, sorteringar, val och panelbredd.',
+                buttonText: 'Rensa',
+                successMessage: 'Inställningar rensade. Uppdatera vyn för att se ändringar.',
             },
             supportDevelopment: {
-                name: 'Stöd utvecklingen',
-                desc: 'Om du gillar att använda Notebook Navigator, överväg att stödja dess fortsatta utveckling.',
+                name: 'Sponsra utveckling',
+                desc: 'Om du älskar Notebook Navigator och den hjälper dig i din vardag, sponsra dess fortsatta utveckling.',
                 buttonText: '❤️ Sponsra på GitHub',
             },
         },

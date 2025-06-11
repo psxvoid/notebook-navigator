@@ -330,7 +330,7 @@ export const STRINGS_EN = {
             },
             supportDevelopment: {
                 name: 'Support development',
-                desc: 'If you enjoy using Notebook Navigator, please consider supporting its continued development.',
+                desc: 'If you love using Notebook Navigator, please consider supporting its continued development.',
                 buttonText: '❤️ Sponsor on GitHub',
             },
         },
