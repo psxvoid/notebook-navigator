@@ -503,6 +503,21 @@ export function useAppContext() {
 }
 
 /**
+ * Custom hook to access only stable parts of the context.
+ * Use this in components that don't need refreshCounter to avoid unnecessary re-renders.
+ * 
+ * @returns Stable context values that rarely change
+ */
+export function useStableAppContext() {
+    const context = useContext(AppContext);
+    return useMemo(() => ({
+        app: context.app,
+        plugin: context.plugin,
+        isMobile: context.isMobile
+    }), [context.app, context.plugin, context.isMobile]);
+}
+
+/**
  * Convenience hook to access just the dispatch function.
  * Use this when you only need to dispatch actions.
  * 

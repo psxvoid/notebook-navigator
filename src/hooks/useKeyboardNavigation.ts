@@ -227,43 +227,76 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement 
      * Navigates through file items using arrow keys.
      * Updates selection, scrolls into view, and opens the file in the editor.
      * 
+     * Performance optimization: Instead of querying all elements and searching,
+     * we use DOM traversal from the currently selected element when possible.
+     * 
      * @param direction - Direction to navigate ('up' or 'down')
      */
     const navigateFiles = useCallback((direction: 'up' | 'down') => {
-        const elements = getFileElements();
-        if (elements.length === 0) return;
+        if (!containerRef.current) return;
         
-        const currentIndex = getSelectedIndex(elements, appState.selectedFile?.path || null);
-        let newIndex = currentIndex;
+        // Try to find the currently selected element first
+        const selectedElement = containerRef.current.querySelector('.nn-file-item.nn-selected');
+        let targetElement: Element | null = null;
         
-        // If no file is currently selected (currentIndex === -1), start from the beginning
-        if (currentIndex === -1) {
-            newIndex = direction === 'up' ? elements.length - 1 : 0;
-        } else {
+        if (selectedElement) {
+            // Use DOM traversal for better performance within the same group
+            // Note: This won't work across date groups, but the fallback handles that
             if (direction === 'up') {
-                newIndex = currentIndex > 0 ? currentIndex - 1 : 0;
+                targetElement = selectedElement.previousElementSibling;
+                // Skip date group headers
+                while (targetElement && !targetElement.classList.contains('nn-file-item')) {
+                    targetElement = targetElement.previousElementSibling;
+                }
             } else {
-                newIndex = currentIndex < elements.length - 1 ? currentIndex + 1 : elements.length - 1;
-            }
-        }
-        
-        // Always update if we have a valid new index
-        if (newIndex >= 0 && newIndex < elements.length) {
-            const file = getFileFromElement(elements[newIndex] as HTMLElement, app);
-            if (file) {
-                dispatch({ type: 'SET_SELECTED_FILE', file });
-                dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                elements[newIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
-                
-                // Open file in edit view (same as clicking)
-                // Use getMostRecentLeaf to avoid creating new panes or stealing focus
-                const leaf = app.workspace.getMostRecentLeaf();
-                if (leaf) {
-                    leaf.openFile(file);
+                targetElement = selectedElement.nextElementSibling;
+                // Skip date group headers
+                while (targetElement && !targetElement.classList.contains('nn-file-item')) {
+                    targetElement = targetElement.nextElementSibling;
                 }
             }
         }
-    }, [getFileElements, getSelectedIndex, appState.selectedFile, app, dispatch]);
+        
+        // If no selected element or no sibling found, fall back to querying all elements
+        if (!targetElement) {
+            const elements = getFileElements();
+            if (elements.length === 0) return;
+            
+            const currentIndex = selectedElement ? 
+                Array.from(elements).indexOf(selectedElement) : -1;
+            
+            let newIndex: number;
+            if (currentIndex === -1) {
+                newIndex = direction === 'up' ? elements.length - 1 : 0;
+            } else {
+                if (direction === 'up') {
+                    newIndex = currentIndex > 0 ? currentIndex - 1 : 0;
+                } else {
+                    newIndex = currentIndex < elements.length - 1 ? currentIndex + 1 : elements.length - 1;
+                }
+            }
+            
+            targetElement = elements[newIndex];
+        }
+        
+        // Update selection if we found a target
+        if (targetElement) {
+            const file = getFileFromElement(targetElement as HTMLElement, app);
+            if (file) {
+                // Update state immediately for better responsiveness
+                dispatch({ type: 'SET_SELECTED_FILE', file });
+                dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                
+                // Scroll and open file immediately (not deferred)
+                targetElement.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                
+                const leaf = app.workspace.getLeaf(false);
+                if (leaf) {
+                    leaf.openFile(file, { active: false });
+                }
+            }
+        }
+    }, [containerRef, getFileElements, app, dispatch]);
     
     /**
      * Main keyboard event handler.
@@ -273,9 +306,9 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement 
      * @param e - The keyboard event
      */
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
-        // Debounce rapid key presses
+        // Debounce rapid key presses with shorter delay for better responsiveness
         const now = Date.now();
-        if (now - lastActionTime.current < 50) return;
+        if (now - lastActionTime.current < 30) return;
         lastActionTime.current = now;
         
         // Don't handle if user is typing in an input

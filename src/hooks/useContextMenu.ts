@@ -390,7 +390,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
         }
         
         menu.showAtMouseEvent(e);
-    }, [config, elementRef, app, plugin, dispatch, fileSystemOps, appState]);
+    }, [config?.type, config?.item, app, plugin.settings.confirmBeforeDelete, plugin.settings.showFolderIcons, plugin.settings.pinnedNotes, plugin.settings.folderColors, plugin.settings.folderIcons, dispatch, fileSystemOps, appState.selectedFolder, appState.expandedFolders]);
     
     useEffect(() => {
         const element = elementRef.current;

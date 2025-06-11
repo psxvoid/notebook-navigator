@@ -16,9 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useEffect, useState, useRef, useMemo } from 'react';
+import React, { useEffect, useState, useRef, useMemo, memo } from 'react';
 import { TFile } from 'obsidian';
-import { useAppContext } from '../context/AppContext';
+import { useStableAppContext } from '../context/AppContext';
 import { DateUtils } from '../utils/DateUtils';
 import { PreviewTextUtils } from '../utils/PreviewTextUtils';
 import { getDateField } from '../utils/sortUtils';
@@ -31,9 +31,12 @@ interface FileItemProps {
     isSelected: boolean;
     onClick: () => void;
     dateGroup?: string | null;
+    settingsVersion?: number;
+    formattedDate?: string;
 }
 
 /**
+ * Internal FileItem implementation without memoization.
  * Renders an individual file item in the file list with preview text and metadata.
  * Displays the file name, date, preview text, and optional feature image.
  * Handles selection state, context menus, and drag-and-drop functionality.
@@ -44,9 +47,9 @@ interface FileItemProps {
  * @param props.onClick - Handler called when the file is clicked
  * @returns A file item element with name, date, preview and optional image
  */
-export function FileItem({ file, isSelected, onClick, dateGroup }: FileItemProps) {
-    const { app, plugin, refreshCounter, isMobile } = useAppContext();
-    const [previewText, setPreviewText] = useState('...');
+function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate }: FileItemProps) {
+    const { app, plugin, isMobile } = useStableAppContext();
+    const [previewText, setPreviewText] = useState('');
     const fileRef = useRef<HTMLDivElement>(null);
     
     // Enable context menu
@@ -55,12 +58,18 @@ export function FileItem({ file, isSelected, onClick, dateGroup }: FileItemProps
     // Auto-scroll to selected file when needed
     useScrollIntoView(fileRef, '.nn-file-list', isSelected, [file.path]);
 
-    // Show date based on sort option - created date when sorted by created, modified date otherwise
-    const dateField = getDateField(plugin.settings.defaultFolderSort);
-    const dateToShow = file.stat[dateField];
-    const formattedDate = dateGroup 
-        ? DateUtils.formatDateForGroup(dateToShow, dateGroup, plugin.settings.dateFormat, plugin.settings.timeFormat)
-        : DateUtils.formatDate(dateToShow, plugin.settings.dateFormat);
+    // Use pre-formatted date if provided, otherwise format it ourselves
+    const displayDate = useMemo(() => {
+        if (formattedDate !== undefined) return formattedDate;
+        if (!plugin.settings.showDate) return '';
+        
+        const dateField = getDateField(plugin.settings.defaultFolderSort);
+        const dateToShow = file.stat[dateField];
+        return dateGroup 
+            ? DateUtils.formatDateForGroup(dateToShow, dateGroup, plugin.settings.dateFormat, plugin.settings.timeFormat)
+            : DateUtils.formatDate(dateToShow, plugin.settings.dateFormat);
+    }, [formattedDate, plugin.settings.showDate, plugin.settings.defaultFolderSort, 
+        plugin.settings.dateFormat, plugin.settings.timeFormat, file.stat.mtime, file.stat.ctime, dateGroup]);
 
     // Calculate feature image URL if enabled
     const featureImageUrl = useMemo(() => {
@@ -82,13 +91,18 @@ export function FileItem({ file, isSelected, onClick, dateGroup }: FileItemProps
 
         const imageFile = app.metadataCache.getFirstLinkpathDest(resolvedPath, file.path);
         if (imageFile) {
-            return app.vault.getResourcePath(imageFile);
+            try {
+                return app.vault.getResourcePath(imageFile);
+            } catch (e) {
+                // Vault might not be ready, return null
+                return null;
+            }
         }
 
         return null;
-    }, [file.path, plugin.settings.showFeatureImage, plugin.settings.featureImageProperty, refreshCounter]);
+    }, [file.path, file.stat.mtime, plugin.settings.showFeatureImage, plugin.settings.featureImageProperty, app.metadataCache, app.vault]);
 
-    // useEffect is how you perform side effects, like reading file content.
+    // Load preview text
     useEffect(() => {
         // Only load preview text if the setting is enabled
         if (!plugin.settings.showFilePreview) {
@@ -97,18 +111,25 @@ export function FileItem({ file, isSelected, onClick, dateGroup }: FileItemProps
         }
         
         let isCancelled = false;
-        if (file.extension === 'md') {
-            app.vault.cachedRead(file).then(content => {
-                if (!isCancelled) {
-                    setPreviewText(PreviewTextUtils.extractPreviewText(content, plugin.settings));
-                }
-            });
-        } else {
+        
+        // For non-markdown files, set extension immediately
+        if (file.extension !== 'md') {
             setPreviewText(file.extension.toUpperCase());
+            return;
         }
-        // This cleanup function prevents state updates on unmounted components
-        return () => { isCancelled = true; };
-    }, [file.path, app.vault, plugin.settings.showFilePreview, plugin.settings.skipHeadingsInPreview, plugin.settings.skipNonTextInPreview, refreshCounter]); // Rerun effect if file path, preview settings, or content changes
+        
+        // Load markdown preview text from file content
+        app.vault.cachedRead(file).then(content => {
+            if (!isCancelled) {
+                setPreviewText(PreviewTextUtils.extractPreviewText(content, plugin.settings));
+            }
+        });
+        
+        // Cleanup function
+        return () => { 
+            isCancelled = true;
+        };
+    }, [file.path, file.stat.mtime, app.vault, plugin.settings.showFilePreview, plugin.settings.skipHeadingsInPreview, plugin.settings.skipNonTextInPreview]); // Include mtime to detect file changes
     
     const className = `nn-file-item ${isSelected ? 'nn-selected' : ''}`;
 
@@ -128,7 +149,7 @@ export function FileItem({ file, isSelected, onClick, dateGroup }: FileItemProps
                     <div className="nn-file-name">{file.basename}</div>
                     <div className="nn-file-second-line">
                         {plugin.settings.showDate && (
-                            <div className="nn-file-date">{formattedDate}</div>
+                            <div className="nn-file-date">{displayDate}</div>
                         )}
                         {plugin.settings.showFilePreview && (
                             <div 
@@ -147,3 +168,29 @@ export function FileItem({ file, isSelected, onClick, dateGroup }: FileItemProps
         </div>
     );
 }
+
+/**
+ * Memoized FileItem component that only re-renders when necessary.
+ * This optimization is critical for performance with large file lists.
+ * 
+ * The component will only re-render when:
+ * - The file path changes (different file)
+ * - The file is modified (mtime changes)
+ * - The selection state changes 
+ * - The date group changes
+ * - The onClick handler changes (should be stable from parent)
+ * - Settings version changes (forces re-render for settings updates)
+ */
+export const FileItem = memo(FileItemInternal, (prevProps, nextProps) => {
+    // Return true if props are equal (skip re-render)
+    // Return false if props changed (do re-render)
+    return (
+        prevProps.file.path === nextProps.file.path &&
+        prevProps.file.stat.mtime === nextProps.file.stat.mtime &&
+        prevProps.isSelected === nextProps.isSelected &&
+        prevProps.dateGroup === nextProps.dateGroup &&
+        prevProps.onClick === nextProps.onClick &&
+        prevProps.settingsVersion === nextProps.settingsVersion &&
+        prevProps.formattedDate === nextProps.formattedDate
+    );
+});

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useMemo, useLayoutEffect, useCallback } from 'react';
+import React, { useMemo, useLayoutEffect, useCallback, useRef, useEffect } from 'react';
 import { TFile, TFolder, TAbstractFile, getAllTags } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { FileItem } from './FileItem';
@@ -24,7 +24,7 @@ import { DateUtils } from '../utils/DateUtils';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 import { getFileFromElement } from '../utils/domUtils';
-import { buildTagTree, findTagNode, collectAllTagPaths } from '../utils/tagUtils';
+import { buildTagTree, findTagNode, collectAllTagPaths, TagTreeNode } from '../utils/tagUtils';
 import { getEffectiveSortOption, sortFiles, getDateField } from '../utils/sortUtils';
 import { UNTAGGED_TAG_ID } from '../types';
 import { strings } from '../i18n';
@@ -40,14 +40,27 @@ export function FileList() {
     const { app, appState, dispatch, plugin, refreshCounter, isMobile } = useAppContext();
     const { selectionType, selectedFolder, selectedTag } = appState;
     
+    // Cache for tag tree to avoid rebuilding on every render
+    // Clear cache when component unmounts to prevent memory leak
+    const tagTreeCacheRef = useRef<{
+        tree: Map<string, TagTreeNode>;
+        filesHash: string;
+    } | null>(null);
+    
+    useEffect(() => {
+        return () => {
+            tagTreeCacheRef.current = null;
+        };
+    }, []);
+    
     const handleFileClick = useCallback((file: TFile) => {
         dispatch({ type: 'SET_SELECTED_FILE', file });
         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         
-        // Open file preview
-        const leaf = app.workspace.getMostRecentLeaf();
+        // Open file preview without stealing focus
+        const leaf = app.workspace.getLeaf(false);
         if (leaf) {
-            leaf.openFile(file);
+            leaf.openFile(file, { active: false });
         }
         
         // Collapse left sidebar on mobile after opening file
@@ -94,8 +107,18 @@ export function FileList() {
                     return !fileTags || fileTags.length === 0;
                 });
             } else {
-                // Build the tag tree once
-                const tagTree = buildTagTree(allMarkdownFiles, app);
+                // Create a simple hash to check if files have changed
+                const filesHash = allMarkdownFiles.map(f => f.path).join('|');
+                
+                // Use cached tag tree if available and files haven't changed
+                let tagTree: Map<string, TagTreeNode>;
+                if (tagTreeCacheRef.current && tagTreeCacheRef.current.filesHash === filesHash) {
+                    tagTree = tagTreeCacheRef.current.tree;
+                } else {
+                    // Build and cache the tag tree
+                    tagTree = buildTagTree(allMarkdownFiles, app);
+                    tagTreeCacheRef.current = { tree: tagTree, filesHash };
+                }
                 
                 // Find the selected tag node
                 const selectedNode = findTagNode(selectedTag, tagTree);
@@ -177,52 +200,62 @@ export function FileList() {
         // Need either a folder or tag selected
         if (!selectedFolder && !selectedTag) return;
         
-        // Find and select the first file
-        const firstFileElement = document.querySelector('.nn-file-item');
-        if (firstFileElement) {
-            const file = getFileFromElement(firstFileElement as HTMLElement, app);
-            if (file) {
-                dispatch({ type: 'SET_SELECTED_FILE', file });
-                
-                // Open the file
-                const leaf = app.workspace.getMostRecentLeaf();
-                if (leaf) {
-                    leaf.openFile(file);
-                }
+        // Use the first file from the files array instead of DOM query
+        if (files.length > 0) {
+            const firstFile = files[0];
+            dispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
+            
+            // Open the file without stealing focus
+            const leaf = app.workspace.getLeaf(false);
+            if (leaf) {
+                leaf.openFile(firstFile, { active: false });
             }
         }
-    }, [selectedFolder?.path, selectedTag, selectionType, dispatch, app]);
+    }, [selectedFolder?.path, selectedTag, selectionType, dispatch, app, files.length]);
     
     // Group files by date if enabled
     const groupedFiles = useMemo(() => {
-        // Separate pinned files first (only for folder selection)
-        let pinnedPaths: string[] = [];
+        // Files are already sorted and pinned files are at the beginning
+        // Just need to identify where pinned section ends
+        let pinnedCount = 0;
         
         if (selectionType === 'folder' && selectedFolder) {
+            // Count pinned files at the beginning of the array
+            const pinnedPaths = new Set<string>();
+            
             if (plugin.settings.showNotesFromSubfolders) {
                 // Collect pinned notes from the selected folder and all subfolders
-                const collectPinnedPaths = (folder: TFolder): string[] => {
-                    let paths: string[] = plugin.settings.pinnedNotes[folder.path] || [];
+                const collectPinnedPaths = (folder: TFolder): void => {
+                    const paths = plugin.settings.pinnedNotes[folder.path] || [];
+                    paths.forEach(p => pinnedPaths.add(p));
                     
                     // Recursively collect from subfolders
                     for (const child of folder.children) {
                         if (isTFolder(child)) {
-                            paths = paths.concat(collectPinnedPaths(child));
+                            collectPinnedPaths(child);
                         }
                     }
-                    
-                    return paths;
                 };
                 
-                pinnedPaths = collectPinnedPaths(selectedFolder);
+                collectPinnedPaths(selectedFolder);
             } else {
                 // Only get pinned notes from the selected folder
-                pinnedPaths = plugin.settings.pinnedNotes[selectedFolder.path] || [];
+                const paths = plugin.settings.pinnedNotes[selectedFolder.path] || [];
+                paths.forEach(p => pinnedPaths.add(p));
+            }
+            
+            // Count how many files at the start are pinned
+            for (const file of files) {
+                if (pinnedPaths.has(file.path)) {
+                    pinnedCount++;
+                } else {
+                    break; // Pinned files are at the beginning, so we can stop
+                }
             }
         }
         
-        const pinnedFiles = files.filter(file => pinnedPaths.includes(file.path));
-        const unpinnedFiles = files.filter(file => !pinnedPaths.includes(file.path));
+        const pinnedFiles = pinnedCount > 0 ? files.slice(0, pinnedCount) : [];
+        const unpinnedFiles = files.slice(pinnedCount);
 
         const groups: { title: string | null; files: TFile[] }[] = [];
 
@@ -287,6 +320,31 @@ export function FileList() {
         );
     }
     
+    // Cache selected file path to avoid repeated property access
+    const selectedFilePath = appState.selectedFile?.path;
+    
+    // Pre-calculate date field for all files in the group
+    const dateField = useMemo(() => {
+        return getDateField(getEffectiveSortOption(plugin.settings, selectionType, selectedFolder));
+    }, [plugin.settings, selectionType, selectedFolder]);
+    
+    // Pre-compute formatted dates for all files to avoid doing it in render
+    const filesWithDates = useMemo(() => {
+        if (!plugin.settings.showDate) return null;
+        
+        const dateMap = new Map<string, string>();
+        groupedFiles.forEach(group => {
+            group.files.forEach(file => {
+                const dateToShow = file.stat[dateField];
+                const formatted = group.title 
+                    ? DateUtils.formatDateForGroup(dateToShow, group.title, plugin.settings.dateFormat, plugin.settings.timeFormat)
+                    : DateUtils.formatDate(dateToShow, plugin.settings.dateFormat);
+                dateMap.set(file.path, formatted);
+            });
+        });
+        return dateMap;
+    }, [groupedFiles, dateField, plugin.settings.showDate, plugin.settings.dateFormat, plugin.settings.timeFormat]);
+    
     return (
         <div className="nn-file-list">
             {groupedFiles.map((group) => (
@@ -298,9 +356,11 @@ export function FileList() {
                         <FileItem
                             key={file.path}
                             file={file}
-                            isSelected={appState.selectedFile?.path === file.path}
-                            onClick={() => handleFileClick(file)}
+                            isSelected={selectedFilePath === file.path}
+                            onClick={handleFileClick.bind(null, file)}
                             dateGroup={group.title}
+                            settingsVersion={refreshCounter}
+                            formattedDate={filesWithDates?.get(file.path)}
                         />
                     ))}
                 </div>
