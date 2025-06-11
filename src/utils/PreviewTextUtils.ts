@@ -18,155 +18,216 @@
 
 import { NotebookNavigatorSettings } from '../settings';
 
+// Pre-compiled regex patterns for stripping markdown
+// Order matters - these are applied sequentially from inside out
+
+// Line start patterns
+const REGEX_HEADING = /^#+\s+/gm;
+const REGEX_LIST_MARKERS = /^[-*+]\s+/gm;
+const REGEX_ORDERED_LIST_MARKERS = /^\d+\.\s+/gm;
+const REGEX_BLOCKQUOTE = /^>\s+/gm;
+
+// Inline patterns - processed in specific order
+const REGEX_INLINE_CODE = /`([^`]+)`/g;
+const REGEX_BOLD_ITALIC_STARS = /\*\*\*([^\*]+)\*\*\*/g;
+const REGEX_BOLD_ITALIC_UNDERSCORES = /___([^_]+)___/g;
+const REGEX_BOLD_STARS = /\*\*([^\*]+)\*\*/g;
+const REGEX_BOLD_UNDERSCORES = /__([^_]+)__/g;
+const REGEX_ITALIC_STARS = /(?<!\d)\*([^\*\n]+)\*(?!\d)/g;
+const REGEX_ITALIC_UNDERSCORES = /(?<![a-zA-Z0-9])_([^_\n]+)_(?![a-zA-Z0-9])/g;
+const REGEX_STRIKETHROUGH = /~~([^~]+)~~/g;
+const REGEX_HIGHLIGHT = /==([^=]+)==/g;
+
+// Link patterns
+const REGEX_LINK = /\[([^\]]+)\]\([^\)]+\)/g;
+const REGEX_WIKI_LINK_DISPLAY = /\[\[([^\]|]+)\|([^\]]+)\]\]/g;
+const REGEX_WIKI_LINK = /\[\[([^\]]+)\]\]/g;
+
+// Special characters
+const REGEX_ESCAPE_CHARS = /\\([*_~`])/g;
+
+// Pre-compiled regex patterns for counting attachments/links
+const REGEX_MARKDOWN_IMAGE = /!\[.*?\]\((.*?)\)/g;
+const REGEX_WIKI_EMBED = /!\[\[.*?\]\]/g;
+const REGEX_WEB_URL = /^(https?:\/\/|www\.)/;
+const REGEX_WEB_LINK = /(?:https?:\/\/|www\.)[^\s\)]+/g;
+
+// Combined regex for single-pass markdown stripping
+// IMPORTANT: Order matters! More specific patterns must come before less specific ones
+const COMBINED_MARKDOWN_REGEX = new RegExp(
+    [
+        // Group 1: Escape characters - must be first to prevent interference
+        /\\([*_~`])/.source,
+        // Group 2: Inline code - process early to avoid conflicts
+        /`([^`]+)`/.source,
+        // Group 3: Bold italic stars (must come before bold/italic)
+        /\*\*\*([^\*]+)\*\*\*/.source,
+        // Group 4: Bold italic underscores (must come before bold/italic)
+        /___([^_]+)___/.source,
+        // Group 5: Bold stars
+        /\*\*([^\*]+)\*\*/.source,
+        // Group 6: Bold underscores
+        /__([^_]+)__/.source,
+        // Group 7: Italic stars (with negative lookbehind/ahead for digits)
+        /(?<!\d)\*([^\*\n]+)\*(?!\d)/.source,
+        // Group 8: Italic underscores (with negative lookbehind/ahead for alphanumeric)
+        /(?<![a-zA-Z0-9])_([^_\n]+)_(?![a-zA-Z0-9])/.source,
+        // Group 9: Strikethrough
+        /~~([^~]+)~~/.source,
+        // Group 10: Highlight
+        /==([^=]+)==/.source,
+        // Group 11: Links [text](url)
+        /\[([^\]]+)\]\([^\)]+\)/.source,
+        // Group 12: Wiki links with display [[path|text]]
+        /\[\[[^\]|]+\|([^\]]+)\]\]/.source,
+        // Group 13: Wiki links [[path]]
+        /\[\[([^\]]+)\]\]/.source,
+        // Group 14: Line start patterns (headings, lists, blockquotes) - no capture group
+        /^(?:#+\s+|[-*+]\s+|\d+\.\s+|>\s+)/.source,
+    ].join('|'),
+    'gm'
+);
+
 export class PreviewTextUtils {
     /**
      * Strips markdown syntax from text to create clean preview text
+     * This version uses a single regex pass for significantly better performance
      * @param text The text to strip markdown from
      * @returns The text with markdown syntax removed
      */
     static stripMarkdownSyntax(text: string): string {
-        // Order matters - process from inside out
-        return text
-            // Heading markers at start of line
-            .replace(/^#+\s+/gm, '')
-            // Inline code (must be before bold/italic to avoid conflicts)
-            .replace(/`([^`]+)`/g, '$1')
-            // Bold italic combined
-            .replace(/\*\*\*([^\*]+)\*\*\*/g, '$1')
-            .replace(/___([^_]+)___/g, '$1')
-            // Bold
-            .replace(/\*\*([^\*]+)\*\*/g, '$1')
-            .replace(/__([^_]+)__/g, '$1')
-            // Italic (be careful not to match multiplication)
-            .replace(/(?<!\d)\*([^\*\n]+)\*(?!\d)/g, '$1')
-            .replace(/(?<![a-zA-Z0-9])_([^_\n]+)_(?![a-zA-Z0-9])/g, '$1')
-            // Strikethrough
-            .replace(/~~([^~]+)~~/g, '$1')
-            // Highlight
-            .replace(/==([^=]+)==/g, '$1')
-            // Links
-            .replace(/\[([^\]]+)\]\([^\)]+\)/g, '$1')
-            // Wiki links with display text
-            .replace(/\[\[([^\]|]+)\|([^\]]+)\]\]/g, '$2')
-            // Wiki links without display text
-            .replace(/\[\[([^\]]+)\]\]/g, '$1')
-            // List markers at start of line
-            .replace(/^[-*+]\s+/gm, '')
-            .replace(/^\d+\.\s+/gm, '')
-            // Blockquotes
-            .replace(/^>\s+/gm, '')
-            // Escape characters
-            .replace(/\\([*_~`])/g, '$1');
+        return text.replace(COMBINED_MARKDOWN_REGEX, (...args) => {
+            // args = [fullMatch, g1, g2, g3, ..., g14, offset, originalString]
+            // Groups 1-13 contain captured text content we want to keep
+            
+            // Find the first non-undefined capture group (1-13)
+            for (let i = 1; i <= 13; i++) {
+                if (args[i] !== undefined) {
+                    return args[i];
+                }
+            }
+            
+            // Group 14 (line start patterns) has no capture - remove entirely
+            if (args[0].match(/^(?:#+\s+|[-*+]\s+|\d+\.\s+|>\s+)/)) {
+                return '';
+            }
+            
+            // Fallback - should not happen with our regex
+            return args[0];
+        });
     }
+
 
     /**
      * Extracts preview text from markdown content
+     * Optimized single-pass implementation that combines counting and preview extraction
      * @param content The full markdown content
      * @param settings The plugin settings to determine skip behavior
-     * @returns The preview text (max 100 chars) or a descriptive message
+     * @returns The preview text (max 300 chars) or a descriptive message
      */
     static extractPreviewText(content: string, settings: NotebookNavigatorSettings): string {
-        let lines = content.split('\n');
-        let startIndex = 0;
+        const lines = content.split('\n');
+        let lineIndex = 0;
         
         // Skip frontmatter
         if (lines[0] === '---') {
-            let endIndex = lines.findIndex((line, idx) => idx > 0 && line === '---');
+            const endIndex = lines.findIndex((line, idx) => idx > 0 && line === '---');
             if (endIndex > 0) {
-                startIndex = endIndex + 1;
+                lineIndex = endIndex + 1;
             }
         }
         
-        // Count attachments and web links in the entire document first
+        // Single pass through the document
         let attachmentCount = 0;
         let webLinkCount = 0;
+        let previewLines = [];
+        let charCount = 0;
+        const maxChars = 300; // Increased to accommodate up to 5 lines
+        let hasCollectedPreview = false;
         
-        for (let i = startIndex; i < lines.length; i++) {
-            const line = lines[i];
+        while (lineIndex < lines.length) {
+            const line = lines[lineIndex];
+            const trimmedLine = line.trim();
             
-            // Check for markdown images with URLs (these are web links, not attachments)
-            const markdownImages = line.match(/!\[.*?\]\((.*?)\)/g);
-            if (markdownImages) {
-                markdownImages.forEach(match => {
-                    const urlMatch = match.match(/!\[.*?\]\((.*?)\)/);
-                    if (urlMatch && urlMatch[1]) {
-                        const url = urlMatch[1];
-                        // If it's a web URL, count as web link
-                        if (url.match(/^https?:\/\/|^www\./)) {
-                            webLinkCount++;
-                        } else {
-                            // Local image, count as attachment
-                            attachmentCount++;
-                        }
+            // Count attachments and links in every line
+            // Check for markdown images - need to use exec() to get capture groups
+            let imageMatch;
+            const imageRegex = new RegExp(REGEX_MARKDOWN_IMAGE.source, 'g');
+            while ((imageMatch = imageRegex.exec(line)) !== null) {
+                const url = imageMatch[1];
+                if (url) {
+                    if (REGEX_WEB_URL.test(url)) {
+                        webLinkCount++;
+                    } else {
+                        attachmentCount++;
                     }
-                });
+                }
             }
             
-            // Count Obsidian wiki-style embeds: ![[...]] (always attachments)
-            const wikiEmbeds = line.match(/!\[\[.*?\]\]/g);
+            // Count wiki embeds
+            const wikiEmbeds = line.match(REGEX_WIKI_EMBED);
             if (wikiEmbeds) {
                 attachmentCount += wikiEmbeds.length;
             }
             
-            // Count web links but exclude those that are part of markdown images
-            // First remove markdown images and embeds from the line
+            // Count web links (excluding those in images)
             const cleanLine = line
-                .replace(/!\[.*?\]\(.*?\)/g, '') // Remove markdown images
-                .replace(/!\[\[.*?\]\]/g, ''); // Remove wiki embeds
-            
-            // Now count web links in the cleaned line
-            const webLinks = cleanLine.match(/(?:https?:\/\/|www\.)[^\s\)]+/g);
+                .replace(REGEX_MARKDOWN_IMAGE, '')
+                .replace(REGEX_WIKI_EMBED, '');
+            const webLinks = cleanLine.match(REGEX_WEB_LINK);
             if (webLinks) {
                 webLinkCount += webLinks.length;
             }
-        }
-        
-        // Find content lines based on settings
-        let previewLines = [];
-        let charCount = 0;
-        const maxChars = 300; // Increased to accommodate up to 5 lines
-        
-        for (let i = startIndex; i < lines.length && charCount < maxChars; i++) {
-            const line = lines[i].trim();
             
-            // Skip empty lines
-            if (!line) continue;
-            
-            // Skip headings if enabled
-            if (settings.skipHeadingsInPreview && line.match(/^#+\s/)) continue;
-            
-            // Skip non-text content if enabled
-            if (settings.skipNonTextInPreview) {
-                // Skip markdown images and embeds
-                if (line.match(/^!\[.*?\]\(.*?\)/)) continue;
+            // Collect preview text if we haven't reached the limit
+            if (!hasCollectedPreview && charCount < maxChars) {
+                // Skip empty lines
+                if (trimmedLine) {
+                    let shouldInclude = true;
+                    
+                    // Skip headings if enabled
+                    if (settings.skipHeadingsInPreview && trimmedLine.match(/^#+\s/)) {
+                        shouldInclude = false;
+                    }
+                    
+                    // Skip non-text content if enabled
+                    if (shouldInclude && settings.skipNonTextInPreview) {
+                        if (
+                            trimmedLine.match(/^!\[.*?\]\(.*?\)/) || // Markdown images
+                            trimmedLine.match(/^!\[\[.*?\]\]/) ||     // Wiki embeds
+                            trimmedLine.match(/^\[.*\]\(.*\)$/) ||    // Standalone links
+                            trimmedLine.startsWith('```') ||          // Code blocks
+                            trimmedLine.match(/^(-{3,}|\*{3,}|_{3,})$/) || // Horizontal rules
+                            trimmedLine.match(/^>\s*\[![\w-]+\]/) ||  // Callout blocks
+                            (trimmedLine.startsWith('>') && trimmedLine.match(/!\[.*\]\(.*\)/)) // Blockquotes with images
+                        ) {
+                            shouldInclude = false;
+                        }
+                    }
+                    
+                    if (shouldInclude) {
+                        previewLines.push(line);
+                        charCount += line.length;
+                    }
+                }
                 
-                // Skip Obsidian wiki-style embeds (images, files, etc)
-                if (line.match(/^!\[\[.*?\]\]/)) continue;
-                
-                // Skip standalone links that look like embeds
-                if (line.match(/^\[.*\]\(.*\)$/)) continue;
-                
-                // Skip code blocks
-                if (line.startsWith('```')) continue;
-                
-                // Skip horizontal rules
-                if (line.match(/^(-{3,}|\*{3,}|_{3,})$/)) continue;
-                
-                // Skip callout blocks (e.g., > [!info], > [!note], > [!warning])
-                if (line.match(/^>\s*\[![\w-]+\]/)) continue;
-                
-                // Skip block quotes that might contain non-text
-                if (line.startsWith('>') && line.match(/!\[.*\]\(.*\)/)) continue;
+                // Check if we've collected enough preview text
+                if (charCount >= maxChars) {
+                    hasCollectedPreview = true;
+                }
             }
             
-            previewLines.push(lines[i]);
-            charCount += lines[i].length;
+            // Early exit optimization: only break if we have preview text AND counted some media
+            if (hasCollectedPreview && previewLines.length > 0 && (attachmentCount > 0 || webLinkCount > 0)) {
+                break;
+            }
+            
+            lineIndex++;
         }
         
         // If no content found, return Notes style message
         if (previewLines.length === 0) {
             if (attachmentCount > 0) {
-                // If there are attachments, count both attachments and web links together
                 const totalCount = attachmentCount + webLinkCount;
                 return totalCount === 1 ? '1 attachment' : `${totalCount} attachments`;
             } else if (webLinkCount > 0) {
@@ -175,13 +236,11 @@ export class PreviewTextUtils {
             return 'No additional text';
         }
         
-        // Strip markdown syntax from each line before joining
+        // Strip markdown syntax from preview text
         let preview = previewLines
             .map(line => this.stripMarkdownSyntax(line))
-            .join(' ');
-        
-        // Now trim to maxChars after stripping
-        preview = preview.substring(0, maxChars);
+            .join(' ')
+            .substring(0, maxChars);
         
         return preview + (preview.length >= maxChars ? '...' : '');
     }
