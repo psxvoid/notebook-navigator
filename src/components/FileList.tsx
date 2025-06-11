@@ -47,6 +47,15 @@ export function FileList() {
         filesHash: string;
     } | null>(null);
     
+    // Track previous folder/tag selection to detect changes
+    const previousSelectionRef = useRef<{
+        folderPath: string | null;
+        tag: string | null;
+    }>({
+        folderPath: selectedFolder?.path || null,
+        tag: selectedTag
+    });
+    
     useEffect(() => {
         return () => {
             tagTreeCacheRef.current = null;
@@ -200,15 +209,30 @@ export function FileList() {
         // Need either a folder or tag selected
         if (!selectedFolder && !selectedTag) return;
         
-        // Check if the currently selected file is in the current file list
-        const selectedFileInList = appState.selectedFile && files.some(f => f.path === appState.selectedFile.path);
+        // Check if folder/tag has changed
+        const currentFolderPath = selectedFolder?.path || null;
+        const hasSelectionChanged = 
+            previousSelectionRef.current.folderPath !== currentFolderPath ||
+            previousSelectionRef.current.tag !== selectedTag;
         
-        if (selectedFileInList) {
-            // Keep the current selection if it's in the list (e.g., from REVEAL_FILE)
-            return;
+        // Update the ref
+        previousSelectionRef.current = {
+            folderPath: currentFolderPath,
+            tag: selectedTag
+        };
+        
+        // If the selection hasn't changed, check if we should keep the current file
+        if (!hasSelectionChanged) {
+            // Check if the currently selected file is in the current file list
+            const selectedFileInList = appState.selectedFile && files.some(f => f.path === appState.selectedFile.path);
+            
+            if (selectedFileInList) {
+                // Keep the current selection if it's in the list (e.g., from REVEAL_FILE)
+                return;
+            }
         }
         
-        // Use the first file from the files array instead of DOM query
+        // Selection has changed or current file is not in list - select first file
         if (files.length > 0) {
             const firstFile = files[0];
             dispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
