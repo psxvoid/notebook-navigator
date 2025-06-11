@@ -289,6 +289,14 @@ export const STRINGS_SV = {
                     '5': '5 rader',
                 },
             },
+            fileNameRows: {
+                name: 'Filnamnsrader',
+                desc: 'Antal rader att visa för filnamn.',
+                options: {
+                    '1': '1 rad',
+                    '2': '2 rader',
+                },
+            },
             showFeatureImage: {
                 name: 'Visa utvald bild',
                 desc: 'Visa miniatyrbilder från frontmatter. Tips: Använd plugin "Featured Image" för att automatiskt ställa in utvalda bilder för alla dina dokument.',

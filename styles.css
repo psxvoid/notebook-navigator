@@ -530,8 +530,10 @@ button.nn-icon-button {
     color: var(--text-normal);
     overflow: hidden;
     text-overflow: ellipsis;
-    white-space: nowrap;
     margin-bottom: 0;
+    display: -webkit-box;
+    -webkit-line-clamp: var(--filename-rows, 1);
+    -webkit-box-orient: vertical;
 }
 
 /* Dark mode file name - consistent color */

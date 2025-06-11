@@ -153,7 +153,10 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate 
         >
             <div className="nn-file-content">
                 <div className="nn-file-text-content">
-                    <div className="nn-file-name">{file.basename}</div>
+                    <div 
+                        className="nn-file-name"
+                        style={{ '--filename-rows': plugin.settings.fileNameRows } as React.CSSProperties}
+                    >{file.basename}</div>
                     {plugin.settings.previewRows >= 2 && plugin.settings.showFilePreview ? (
                         <>
                             {plugin.settings.showFilePreview && (

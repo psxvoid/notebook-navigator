@@ -289,6 +289,14 @@ export const STRINGS_EN = {
                     '5': '5 rows',
                 },
             },
+            fileNameRows: {
+                name: 'File name rows',
+                desc: 'Number of rows to display for file names.',
+                options: {
+                    '1': '1 row',
+                    '2': '2 rows',
+                },
+            },
             showFeatureImage: {
                 name: 'Show feature image',
                 desc: 'Display thumbnail images from frontmatter. Tip: Use the "Featured Image" plugin to automatically set feature images for all your documents.',

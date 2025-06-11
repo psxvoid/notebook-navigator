@@ -46,6 +46,7 @@ export interface NotebookNavigatorSettings {
     excludedFiles: string;
     ignoreFolders: string;
     // Note display
+    fileNameRows: number;
     showDate: boolean;
     dateFormat: string;
     timeFormat: string;
@@ -86,6 +87,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     excludedFiles: '',
     ignoreFolders: '',
     // Note display
+    fileNameRows: 1,
     showDate: true,
     dateFormat: 'MMM d, yyyy',
     timeFormat: 'h:mm a',
@@ -300,6 +302,18 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName(strings.settings.sections.noteDisplay)
             .setHeading();
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.fileNameRows.name)
+            .setDesc(strings.settings.items.fileNameRows.desc)
+            .addDropdown(dropdown => dropdown
+                .addOption('1', strings.settings.items.fileNameRows.options['1'])
+                .addOption('2', strings.settings.items.fileNameRows.options['2'])
+                .setValue(this.plugin.settings.fileNameRows.toString())
+                .onChange(async (value) => {
+                    this.plugin.settings.fileNameRows = parseInt(value, 10);
+                    await this.saveAndRefresh();
+                }));
 
         const showDateSetting = new Setting(containerEl)
             .setName(strings.settings.items.showDate.name)
