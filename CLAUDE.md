@@ -60,7 +60,8 @@ notebook-navigator/
 │   ├── i18n/                      # Internationalization
 │   │   ├── index.ts              # i18n setup and exports
 │   │   └── locales/              # Translation files
-│   │       └── en.ts             # English translations
+│   │       ├── en.ts             # English translations
+│   │       └── sv.ts             # Swedish translations
 │   ├── services/                  # Business logic services
 │   │   └── FileSystemService.ts  # File operations
 │   ├── modals/                    # Obsidian modal dialogs

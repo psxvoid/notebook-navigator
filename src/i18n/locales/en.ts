@@ -23,43 +23,43 @@
 export const STRINGS_EN = {
     // Common UI elements
     common: {
-        cancel: 'Cancel',
-        delete: 'Delete',
-        submit: 'Submit',
-        noSelection: 'No selection',
-        untagged: 'Untagged',
-        untitled: 'Untitled',
-        featureImageAlt: 'Feature image',
+        cancel: 'Cancel', // Button text for canceling dialogs and operations (English: Cancel)
+        delete: 'Delete', // Button text for delete operations in dialogs (English: Delete)
+        submit: 'Submit', // Button text for submitting forms and dialogs (English: Submit)
+        noSelection: 'No selection', // Placeholder text when no folder or tag is selected (English: No selection)
+        untagged: 'Untagged', // Label for notes without any tags (English: Untagged)
+        untitled: 'Untitled', // Default name for notes without a title (English: Untitled)
+        featureImageAlt: 'Feature image', // Alt text for thumbnail/preview images (English: Feature image)
     },
 
     // File list
     fileList: {
-        emptyStateNoSelection: 'Select a folder or tag to view notes',
-        emptyStateNoNotes: 'No notes',
-        pinnedSection: '📌 Pinned',
+        emptyStateNoSelection: 'Select a folder or tag to view notes', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
+        emptyStateNoNotes: 'No notes', // Message shown when a folder/tag has no notes (English: No notes)
+        pinnedSection: '📌 Pinned', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
     },
 
     // Folder tree
     folderTree: {
-        rootFolderName: 'Vault',
+        rootFolderName: 'Vault', // Display name for the vault root folder in the tree (English: Vault)
     },
 
     // Tag list
     tagList: {
-        sectionHeader: 'Tags',
-        untaggedLabel: 'Untagged',
+        sectionHeader: 'Tags', // Header text for the tags section below folders (English: Tags)
+        untaggedLabel: 'Untagged', // Label for the special item showing notes without tags (English: Untagged)
     },
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: 'Collapse all folders',
-        expandAllFolders: 'Expand all folders',
-        newFolder: 'New folder',
-        newNote: 'New note',
-        mobileBackToFolders: 'Back to folders',
-        changeSortOrder: 'Change sort order',
-        defaultSort: 'Default',
-        customSort: 'Custom',
+        collapseAllFolders: 'Collapse all folders', // Tooltip for button that collapses all expanded folders (English: Collapse all folders)
+        expandAllFolders: 'Expand all folders', // Tooltip for button that expands all folders (English: Expand all folders)
+        newFolder: 'New folder', // Tooltip for create new folder button (English: New folder)
+        newNote: 'New note', // Tooltip for create new note button (English: New note)
+        mobileBackToFolders: 'Back to folders', // Mobile-only back button text to return to folder list (English: Back to folders)
+        changeSortOrder: 'Change sort order', // Tooltip for the sort order toggle button (English: Change sort order)
+        defaultSort: 'Default', // Label for default sorting mode (English: Default)
+        customSort: 'Custom', // Label for custom sorting mode (English: Custom)
     },
 
     // Context menus
@@ -193,16 +193,16 @@ export const STRINGS_EN = {
 
     // Plugin commands
     commands: {
-        open: 'Open',
-        revealActiveFile: 'Reveal active file',
-        focusFileList: 'Focus file list',
+        open: 'Open', // Command palette: Opens the Notebook Navigator view (English: Open)
+        revealActiveFile: 'Reveal active file', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal active file)
+        focusFileList: 'Focus file list', // Command palette: Moves keyboard focus to the file list pane (English: Focus file list)
     },
 
     // Plugin UI
     plugin: {
-        viewName: 'Notebook Navigator',
-        ribbonTooltip: 'Notebook Navigator',
-        revealInNavigator: 'Reveal in Notebook Navigator',
+        viewName: 'Notebook Navigator', // Name shown in the view header/tab (English: Notebook Navigator)
+        ribbonTooltip: 'Notebook Navigator', // Tooltip for the ribbon icon in the left sidebar (English: Notebook Navigator)
+        revealInNavigator: 'Reveal in Notebook Navigator', // Context menu item to reveal a file in the navigator (English: Reveal in Notebook Navigator)
     },
 
     // Settings

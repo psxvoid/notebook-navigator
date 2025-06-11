@@ -18,10 +18,36 @@
 
 /**
  * Central export point for internationalization
- * Currently only exports English, but can be extended to support
- * dynamic language switching based on user preferences
+ * Dynamically loads the appropriate language based on Obsidian's language setting
  */
-export { STRINGS_EN as strings } from './locales/en';
+import { STRINGS_EN } from './locales/en';
+import { STRINGS_SV } from './locales/sv';
 
-// Future: This could be enhanced to dynamically select language
-// export const strings = getStringsForLanguage(userLanguage);
+// Type for the translation strings structure
+type TranslationStrings = typeof STRINGS_EN;
+
+// Map of supported languages to their translation modules
+// Just add new languages here as they're created
+const LANGUAGE_MAP: Record<string, TranslationStrings> = {
+    en: STRINGS_EN,
+    sv: STRINGS_SV,
+};
+
+/**
+ * Detects the current Obsidian language setting
+ * Falls back to English if the language is not supported
+ */
+function getObsidianLanguage(): string {
+    const obsidianLanguage = window.localStorage.getItem('language');
+    
+    // Check if the detected language is supported
+    if (obsidianLanguage && obsidianLanguage in LANGUAGE_MAP) {
+        return obsidianLanguage;
+    }
+    
+    // Fallback to English
+    return 'en';
+}
+
+// Export the appropriate language strings based on Obsidian's setting
+export const strings: TranslationStrings = LANGUAGE_MAP[getObsidianLanguage()];
