@@ -129,14 +129,17 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             // Note: Accessing view.file via 'any' as it's not in Obsidian's public TypeScript API
             const file = (leaf.view as any).file;
             if (file && file instanceof TFile) {
-                // Don't reveal if it's already selected
+                // Always update selected file if it's different
                 if (appState.selectedFile?.path !== file.path) {
-                    // Additional check: Don't reveal if we're already showing this file
-                    // Check if the file is in the selected folder (or its subfolders when that setting is enabled)
+                    dispatch({ type: 'SET_SELECTED_FILE', file });
+                    
+                    // Check if we need to reveal the file in the folder tree
+                    let needsReveal = true;
+                    
                     if (appState.selectedFolder && file.parent) {
                         // Check if file is in the selected folder
                         if (appState.selectedFolder.path === file.parent.path) {
-                            return;
+                            needsReveal = false;
                         }
                         
                         // If showing notes from subfolders, check if file is in a subfolder
@@ -145,13 +148,22 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                             while (parent) {
                                 if (parent.path === appState.selectedFolder.path) {
                                     // File is in a subfolder of the selected folder
-                                    return;
+                                    // Update folder selection to file's immediate parent for clarity
+                                    if (file.parent.path !== appState.selectedFolder.path) {
+                                        dispatch({ type: 'SET_SELECTED_FOLDER', folder: file.parent });
+                                    }
+                                    needsReveal = false;
+                                    break;
                                 }
                                 parent = parent.parent;
                             }
                         }
                     }
-                    dispatch({ type: 'REVEAL_FILE', file });
+                    
+                    // Only reveal if the file is not already visible in the current view
+                    if (needsReveal) {
+                        dispatch({ type: 'REVEAL_FILE', file });
+                    }
                 }
             }
         };
@@ -161,7 +173,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         return () => {
             app.workspace.offref(eventRef);
         };
-    }, [app.workspace, dispatch, plugin.settings.autoRevealActiveFile, appState.selectedFile]);
+    }, [app.workspace, dispatch, plugin.settings.autoRevealActiveFile, plugin.settings.showNotesFromSubfolders, appState.selectedFile, appState.selectedFolder]);
 
     // Determine CSS classes for mobile view state
     const containerClasses = ['nn-split-container'];
