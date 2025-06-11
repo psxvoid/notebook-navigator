@@ -22,7 +22,7 @@ Notebook Navigator is an Obsidian plugin that replaces the default file explorer
 - **Main entry point**: `src/main.ts` - Plugin class
 - **React entry**: `src/view/NotebookNavigatorView.tsx` - View wrapper
 - **Main component**: `src/components/NotebookNavigatorComponent.tsx` - Root React component
-- **Build command**: `npm run dev` for development with watch mode
+- **Build command**: `npm run build` for production build
 - **Key patterns**: React hooks, Context API, TypeScript strict mode, Event delegation
 - **Testing**: Manual testing in Obsidian vault (no automated tests)
 
@@ -179,76 +179,22 @@ Provides service instances through custom hooks:
 
 ## Code Style & Patterns
 
-### Key Development Principles
+### Key Principles
+- **TypeScript Strict Mode**: All code must pass strict type checking
+- **React Hooks**: Functional components with hooks for state and effects
+- **Event Delegation**: Used for performance with large file lists
+- **Data Attributes**: Clean separation between data and presentation
 
-1. **Pragmatism over Purity**: When integrating with Obsidian's imperative APIs and handling performance requirements for large vaults, practical solutions take precedence over strict React patterns.
-
-2. **Performance Matters**: For a file explorer dealing with potentially thousands of items, performance optimizations (like event delegation) are crucial. Choose patterns that scale well.
-
-3. **Documentation is Crucial**: When using non-standard patterns, always document the rationale. Future maintainers need to understand why decisions were made.
-
-### React Patterns
-
-**AVOID direct DOM manipulation in React components unless justified by performance or Obsidian integration needs.**
-
-❌ **Generally Wrong:**
-```typescript
-// Avoid setTimeout for React state synchronization
-setTimeout(() => {
-    element?.scrollIntoView();
-}, 100);
-
-// Avoid direct DOM manipulation for state
-element.classList.add('active');
-```
-
-✅ **Preferred React Patterns:**
-```typescript
-// Use React lifecycle for side effects
-useEffect(() => {
-    if (isSelected && ref.current) {
-        ref.current.scrollIntoView({ behavior: 'smooth' });
-    }
-}, [isSelected]);
-
-// Use state for UI changes
-<div className={`item ${isActive ? 'active' : ''}`}>
-```
-
-### Pragmatic Exceptions
-
-Some patterns deviate from React best practices for good reasons:
-
-1. **DOM Queries in useKeyboardNavigation**: Used for dynamic navigation through complex, nested structures. Managing refs for hundreds of items would add unnecessary complexity.
-
-2. **Event Delegation in useDragAndDrop**: Provides superior performance with 4 listeners vs hundreds. Essential for large vaults.
-
-3. **Data Attributes**: Used extensively for drag-and-drop and keyboard navigation. Provides clean separation between data and presentation.
-
-### React Best Practices
-
-- **Component Structure**: Imports → Interfaces → Component → Hooks → Callbacks → Render
-- **Hook Dependencies**: Use specific properties, not entire objects
-- **Performance**: Use `useMemo` for expensive computations, `useCallback` for stable references
-- **DOM Measurements**: Use `useLayoutEffect` to prevent visual flicker
-
-### TypeScript Patterns
-
-- **Type Guards**: Use `isTFile()` and `isTFolder()` for Obsidian's abstract types
+### Important Patterns
+- **Type Guards**: Use `isTFile()` and `isTFolder()` for Obsidian types
 - **Null Safety**: Always use optional chaining (`?.`) and nullish coalescing (`??`)
-- **Strict Mode**: TypeScript strict mode is enabled - handle all edge cases
+- **Hook Dependencies**: Use specific properties, not entire objects
+- **Performance**: Use `useMemo` and `useCallback` for optimization
 
-### Event Handling
-
-- **Event Delegation**: Used for performance with large lists (see `useDragAndDrop` and `useKeyboardNavigation`)
-- **Keyboard Events**: Always `preventDefault()` for navigation keys to prevent scrolling
-- **Data Attributes**: Used for associating data with DOM elements in event delegation patterns
-
-### CSS Classes & Styling
-
-- **Naming Convention**: BEM-like with `nn-` prefix (e.g., `nn-folder-tree`, `nn-folder-item--expanded`)
-- **Theming**: Use Obsidian's CSS variables for consistent theming
-- **States**: Use modifier classes for states (`nn-selected`, `nn-dragging`, `nn-drag-over`)
+### CSS Conventions
+- **Naming**: BEM-like with `nn-` prefix (e.g., `nn-folder-tree`)
+- **Theming**: Use Obsidian's CSS variables
+- **States**: Modifier classes (`nn-selected`, `nn-dragging`)
 
 ## Tag System
 
@@ -278,108 +224,28 @@ Some patterns deviate from React best practices for good reasons:
 
 ## Performance Considerations
 
-### React Rendering
-- File list uses `useLayoutEffect` for flicker-free auto-selection
-- Preview text loads asynchronously in FileItem
+- Event delegation for scalability with large vaults
 - Memoized computations for sorting and filtering
-- Debounced vault change events (100ms)
-
-### Memory Management
-- Event delegation prevents listener leaks
-- Cleanup functions in useEffect hooks
-- WeakMap for drag-drop data storage
-- Proper ref cleanup
-
-### Large Vaults
+- Asynchronous preview loading
+- Efficient Set operations for expanded state
 - No virtualization yet (potential future enhancement)
-- Folder counts update separately from tree renders
-- Progressive preview loading
-- Efficient Set operations for expanded folders
 
-## Common Pitfalls & Solutions
+## Common Pitfalls
 
-### State Not Updating
-```typescript
-// ❌ Wrong - mutating state
-appState.expandedFolders.add(folderPath);
+- **State Mutations**: Always use dispatch actions, never mutate state directly
+- **Effect Dependencies**: Use specific properties, not entire objects
+- **Memory Leaks**: Always clean up effects, timers, and listeners
+- **Ref Creation**: Create refs outside render, not inline
 
-// ✅ Correct - dispatch action
-dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath });
-```
+## Build & Development
 
-### Effect Running Too Often
-```typescript
-// ❌ Wrong - object in dependency
-useEffect(() => {}, [someObject]);
-
-// ✅ Correct - specific properties
-useEffect(() => {}, [someObject.id, someObject.name]);
-```
-
-### Memory Leaks
-```typescript
-// ❌ Wrong - no cleanup
-useEffect(() => {
-    const timer = setTimeout(...);
-});
-
-// ✅ Correct - cleanup function
-useEffect(() => {
-    const timer = setTimeout(...);
-    return () => clearTimeout(timer);
-});
-```
-
-### Context Menu Not Working
-```typescript
-// ❌ Wrong - creating ref in render
-<div ref={useRef()}>
-
-// ✅ Correct - stable ref
-const ref = useRef();
-<div ref={ref}>
-```
-
-### DOM Manipulation
-```typescript
-// ❌ Avoid - setTimeout for React synchronization
-setTimeout(() => {
-    document.querySelector('.item')?.scrollIntoView();
-}, 100);
-
-// ✅ Preferred - React lifecycle
-useEffect(() => {
-    if (condition && ref.current) {
-        ref.current.scrollIntoView();
-    }
-}, [condition]);
-```
-
-**REMEMBER: Prefer React patterns, but prioritize performance and practicality when needed.**
-
-## Build Process
-
-### Development
 ```bash
-npm run dev    # Start development build with watch mode
+npm run build     # Production build
+npm run dev       # Development with watch mode
+npm run version   # Bump version
 ```
 
-### Production
-```bash
-npm run build  # Create production build
-```
-
-The build process:
-1. TypeScript compilation with strict mode
-2. React JSX transformation
-3. Bundle creation with esbuild
-4. Output to `main.js` in project root
-5. Sourcemap generation for debugging
-
-### Version Management
-```bash
-npm run version   # Bump version in manifest.json and versions.json
-```
+The build outputs `main.js` in the project root using esbuild with TypeScript strict mode.
 
 ## Mobile Support
 
