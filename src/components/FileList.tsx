@@ -238,16 +238,13 @@ export function FileList() {
         if (files.length > 0) {
             const firstFile = files[0];
             
-            // On mobile, only select the file visually without opening it
-            // On desktop, select and open the file
+            // Select and open the file
             dispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
             
-            // Desktop only: auto-open the first file when switching folders
-            if (!isMobile) {
-                const leaf = app.workspace.getLeaf(false);
-                if (leaf) {
-                    leaf.openFile(firstFile, { active: false });
-                }
+            // Auto-open the first file when switching folders
+            const leaf = app.workspace.getLeaf(false);
+            if (leaf) {
+                leaf.openFile(firstFile, { active: false });
             }
         } else {
             // Clear selection when folder has no files
