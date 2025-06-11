@@ -205,16 +205,13 @@ export function FileList() {
             const firstFile = files[0];
             dispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
             
-            // Open the file without stealing focus
-            const leaf = app.workspace.getLeaf(false);
-            if (leaf) {
-                leaf.openFile(firstFile, { active: false });
-            }
+            // Don't automatically open files when just browsing folders
+            // Files will be opened when user explicitly selects them
         } else {
             // Clear selection when folder has no files
             dispatch({ type: 'SET_SELECTED_FILE', file: null });
         }
-    }, [selectedFolder?.path, selectedTag, selectionType, dispatch, app]);
+    }, [selectedFolder?.path, selectedTag, selectionType, dispatch]);
     
     // Group files by date if enabled
     const groupedFiles = useMemo(() => {

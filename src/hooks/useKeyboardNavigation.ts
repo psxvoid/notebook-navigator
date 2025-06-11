@@ -287,7 +287,7 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement 
                 dispatch({ type: 'SET_SELECTED_FILE', file });
                 dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                 
-                // Scroll and open file immediately (not deferred)
+                // Scroll and open file immediately
                 targetElement.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
                 
                 const leaf = app.workspace.getLeaf(false);

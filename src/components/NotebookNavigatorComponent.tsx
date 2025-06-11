@@ -131,6 +131,26 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             if (file && file instanceof TFile) {
                 // Don't reveal if it's already selected
                 if (appState.selectedFile?.path !== file.path) {
+                    // Additional check: Don't reveal if we're already showing this file
+                    // Check if the file is in the selected folder (or its subfolders when that setting is enabled)
+                    if (appState.selectedFolder && file.parent) {
+                        // Check if file is in the selected folder
+                        if (appState.selectedFolder.path === file.parent.path) {
+                            return;
+                        }
+                        
+                        // If showing notes from subfolders, check if file is in a subfolder
+                        if (plugin.settings.showNotesFromSubfolders) {
+                            let parent = file.parent;
+                            while (parent) {
+                                if (parent.path === appState.selectedFolder.path) {
+                                    // File is in a subfolder of the selected folder
+                                    return;
+                                }
+                                parent = parent.parent;
+                            }
+                        }
+                    }
                     dispatch({ type: 'REVEAL_FILE', file });
                 }
             }
