@@ -129,6 +129,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Show feature image:** Display thumbnail images from frontmatter properties
   - **Feature image property:** The frontmatter property name for thumbnails (default: `feature`)
     - **Tip:** Use the [Featured Image plugin](https://github.com/johansan/obsidian-featured-image) (also available in community plugins) to automatically set feature images for all your notes based on the first image in each document!
+    - **Important!** In Featured Image plugin you can choose to create resized thumbnails, this will significantly improve performance! Use 42 pixels for maximum performance, or 84 pixels for retina displays.
 
 ### Folder Display
 
