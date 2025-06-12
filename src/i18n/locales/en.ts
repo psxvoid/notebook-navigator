@@ -290,8 +290,8 @@ export const STRINGS_EN = {
                 },
             },
             fileNameRows: {
-                name: 'File name rows',
-                desc: 'Number of rows to display for file names.',
+                name: 'Title rows',
+                desc: 'Number of rows to display for note titles.',
                 options: {
                     '1': '1 row',
                     '2': '2 rows',

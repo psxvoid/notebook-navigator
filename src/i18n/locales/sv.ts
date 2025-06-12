@@ -290,8 +290,8 @@ export const STRINGS_SV = {
                 },
             },
             fileNameRows: {
-                name: 'Filnamnsrader',
-                desc: 'Antal rader att visa för filnamn.',
+                name: 'Titelrader',
+                desc: 'Antal rader att visa för anteckningstitlar.',
                 options: {
                     '1': '1 rad',
                     '2': '2 rader',

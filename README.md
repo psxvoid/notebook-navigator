@@ -101,7 +101,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 ### File Organization
 
 - **Default sort order:** Choose the default sorting for all folders - modified date (newest/oldest), created date (newest/oldest), or title (A-Z/Z-A). This can be overridden on a per-folder basis using the sort button above the file list
-- **Group notes by date:** When sorted by date, group notes under date headers like "Today", "Yesterday", etc.
+  - **Group notes by date:** When sorted by date, group notes under date headers like "Today", "Yesterday", etc.
 - **Show notes from subfolders:** Display all notes from subfolders in the current folder view
 - **Auto-reveal active note:** Automatically reveal and select notes when opened from Quick Switcher, links, or search
 - **Excluded notes:** Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., `draft, private, archived`)
@@ -111,19 +111,24 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Note Display
 
+- **Title rows:** Display note titles in 1 or 2 rows (default: 1 row). Use 2 rows for longer titles
 - **Show date:** Display the date below note names
-- **Date format:** Format for displaying dates (uses date-fns format)
-  - Common formats:
-    - `MMM d, yyyy` = Jan 5, 2024
-    - `dd/MM/yyyy` = 05/01/2024
-    - `yyyy-MM-dd` = 2024-01-05
+  - **Date format:** Format for displaying dates (uses date-fns format)
+    - Common formats:
+      - `MMM d, yyyy` = Jan 5, 2024
+      - `dd/MM/yyyy` = 05/01/2024
+      - `yyyy-MM-dd` = 2024-01-05
+  - **Time format:** Format for displaying time (uses date-fns format)
+    - Common formats:
+      - `h:mm a` = 3:30 PM (12-hour)
+      - `HH:mm` = 15:30 (24-hour)
 - **Show note preview:** Display preview text beneath note names
-- **Skip headings in preview:** Skip heading lines when generating preview text
-- **Skip non-text in preview:** Skip images, embeds, and other non-text elements from preview text
-- **Preview rows:** Number of rows to display for preview text (1-5 rows)
+  - **Skip headings in preview:** Skip heading lines when generating preview text
+  - **Skip non-text in preview:** Skip images, embeds, and other non-text elements from preview text
+  - **Preview rows:** Number of rows to display for preview text (1-5 rows)
 - **Show feature image:** Display thumbnail images from frontmatter properties
-- **Feature image property:** The frontmatter property name for thumbnails (default: `feature`)
-  - **Tip:** Use the [Featured Image plugin](https://github.com/johansan/obsidian-featured-image) (also available in community plugins) to automatically set feature images for all your notes based on the first image in each document!
+  - **Feature image property:** The frontmatter property name for thumbnails (default: `feature`)
+    - **Tip:** Use the [Featured Image plugin](https://github.com/johansan/obsidian-featured-image) (also available in community plugins) to automatically set feature images for all your notes based on the first image in each document!
 
 ### Folder Display
 
@@ -134,7 +139,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 ### Tag Display
 
 - **Show tags:** Display tags section below folders in the navigator
-- **Show untagged notes:** Display "Untagged" item for notes without any tags
+  - **Show untagged notes:** Display "Untagged" item for notes without any tags
 
 ### Advanced
 
