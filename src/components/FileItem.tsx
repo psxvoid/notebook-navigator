@@ -29,7 +29,7 @@ import { strings } from '../i18n';
 interface FileItemProps {
     file: TFile;
     isSelected: boolean;
-    onClick: () => void;
+    onClick: (e: React.MouseEvent) => void;
     dateGroup?: string | null;
     settingsVersion?: number;
     formattedDate?: string;
@@ -153,7 +153,7 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate 
             data-drag-path={file.path}
             data-drag-type="file"
             data-draggable={!isMobile ? "true" : undefined}
-            onClick={onClick} 
+            onClick={(e) => onClick(e)} 
             draggable={!isMobile}
         >
             <div className="nn-file-content">

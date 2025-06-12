@@ -62,12 +62,15 @@ export function FileList() {
         };
     }, []);
     
-    const handleFileClick = useCallback((file: TFile) => {
+    const handleFileClick = useCallback((file: TFile, e: React.MouseEvent) => {
         dispatch({ type: 'SET_SELECTED_FILE', file });
         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         
-        // Open file preview without stealing focus
-        const leaf = app.workspace.getLeaf(false);
+        // Check if CMD (Mac) or Ctrl (Windows/Linux) is pressed
+        const openInNewTab = e.metaKey || e.ctrlKey;
+        
+        // Open file in new tab or current tab based on modifier key
+        const leaf = openInNewTab ? app.workspace.getLeaf('tab') : app.workspace.getLeaf(false);
         if (leaf) {
             leaf.openFile(file, { active: false });
         }
@@ -403,7 +406,7 @@ export function FileList() {
                             key={file.path}
                             file={file}
                             isSelected={selectedFilePath === file.path}
-                            onClick={handleFileClick.bind(null, file)}
+                            onClick={(e) => handleFileClick(file, e)}
                             dateGroup={group.title}
                             settingsVersion={refreshCounter}
                             formattedDate={filesWithDates?.get(file.path)}
