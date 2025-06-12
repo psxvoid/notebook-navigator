@@ -303,7 +303,7 @@ export const STRINGS_EN = {
             },
             featureImageProperty: {
                 name: 'Feature image property',
-                desc: 'The frontmatter property name for thumbnail images.',
+                desc: 'The frontmatter property name for thumbnail images. Important! In Featured Image plugin you can choose to create resized thumbnails, this will significantly improve performance! Use 42 pixels for maximum performance, or 84 pixels for retina displays.',
                 placeholder: 'feature',
             },
             showRootFolder: {
