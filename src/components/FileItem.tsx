@@ -118,6 +118,25 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate 
             return;
         }
         
+        // Check if this is an Excalidraw file
+        // Method 1: Check by filename pattern
+        if (file.name.endsWith('.excalidraw.md')) {
+            setPreviewText('EXCALIDRAW');
+            return;
+        }
+        
+        // Method 2: Check by frontmatter tags
+        const metadata = app.metadataCache.getFileCache(file);
+        const frontmatterTags = metadata?.frontmatter?.tags;
+        if (frontmatterTags) {
+            // Handle both array format and single string format
+            const tags = Array.isArray(frontmatterTags) ? frontmatterTags : [frontmatterTags];
+            if (tags.includes('excalidraw')) {
+                setPreviewText('EXCALIDRAW');
+                return;
+            }
+        }
+        
         // Load markdown preview text from file content
         app.vault.cachedRead(file)
             .then(content => {

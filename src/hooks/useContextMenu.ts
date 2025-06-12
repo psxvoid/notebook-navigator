@@ -134,6 +134,19 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 });
             }
             
+            // New drawing (only if Excalidraw plugin is installed)
+            const isExcalidrawInstalled = !!(app as any).plugins?.plugins?.['obsidian-excalidraw-plugin'];
+            if (isExcalidrawInstalled) {
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle('New drawing')
+                        .setIcon('pencil')
+                        .onClick(async () => {
+                            await fileSystemOps.createNewDrawing(folder);
+                        });
+                });
+            }
+            
             menu.addSeparator();
             
             // Duplicate folder

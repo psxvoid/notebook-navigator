@@ -483,4 +483,65 @@ export class FileSystemOperations {
             new Notice(strings.fileSystem.errors.revealInExplorer.replace('{error}', error.message));
         }
     }
+
+    /**
+     * Creates a new Excalidraw drawing in the specified folder
+     * Only available when Excalidraw plugin is installed
+     * @param parent - The parent folder to create the drawing in
+     * @returns The created file or null if creation failed
+     */
+    async createNewDrawing(parent: TFolder): Promise<TFile | null> {
+        try {
+            // Generate unique filename with timestamp
+            const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
+            const fileName = `Drawing ${timestamp}.excalidraw.md`;
+            const filePath = parent.path ? `${parent.path}/${fileName}` : fileName;
+            
+            // Minimal Excalidraw file content
+            const content = `---
+
+excalidraw-plugin: parsed
+tags: [excalidraw]
+
+---
+==⚠  Switch to EXCALIDRAW VIEW in the MORE OPTIONS menu of this document. ⚠==
+
+
+# Text Elements
+# Embedded files
+# Drawing
+\`\`\`json
+{
+  "type": "excalidraw",
+  "version": 2,
+  "source": "https://github.com/zsviczian/obsidian-excalidraw-plugin/releases/tag/2.0.0",
+  "elements": [],
+  "appState": {
+    "gridSize": null,
+    "viewBackgroundColor": "#ffffff"
+  },
+  "files": {}
+}
+\`\`\`
+%%`;
+            
+            // Create the file
+            const file = await this.app.vault.create(filePath, content);
+            
+            // Open the file
+            const leaf = this.app.workspace.getLeaf(false);
+            await leaf.openFile(file);
+            
+            // The Excalidraw plugin should automatically recognize and open it in drawing mode
+            return file;
+        } catch (error) {
+            if (error.message?.includes('already exists')) {
+                new Notice('A drawing with this name already exists');
+            } else {
+                new Notice('Failed to create drawing');
+                console.error('Error creating drawing:', error);
+            }
+            return null;
+        }
+    }
 }
