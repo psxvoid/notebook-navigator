@@ -241,6 +241,13 @@ export function FileList() {
                 // Keep the current selection if it's in the list (e.g., from REVEAL_FILE)
                 return;
             }
+            
+            // Check if a file was recently created (within last 2 seconds)
+            // This prevents auto-selection from interfering with newly created files
+            const activeFile = app.workspace.getActiveFile();
+            if (activeFile && activeFile.stat.ctime > Date.now() - 2000) {
+                return;
+            }
         }
         
         // Selection has changed or current file is not in list - select first file (desktop only)
