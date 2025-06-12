@@ -303,7 +303,7 @@ export const STRINGS_SV = {
             },
             featureImageProperty: {
                 name: 'Attribut för utvald bild',
-                desc: 'Frontmatter-attribut för miniatyrbilder. Viktigt! I Featured Image-pluginet kan du välja att skapa storleksändrade miniatyrer, detta kommer avsevärt förbättra prestandan! Använd 42 pixlar för maximal prestanda, eller 84 pixlar för retinadisplayer.',
+                desc: 'Frontmatter-attribut för miniatyrbilder. Viktigt! I Featured Image-pluginet kan du välja att skapa storleksändrade miniatyrer, detta kommer avsevärt förbättra prestandan! Använd 42 pixlar för maximal prestanda, eller 84 pixlar för retinadisplayer. Det storleksändrade attributet heter "featureResized" som standard.',
                 placeholder: 'feature',
             },
             showRootFolder: {
