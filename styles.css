@@ -588,6 +588,33 @@ button.nn-icon-button {
     margin-top: var(--size-2-1);
 }
 
+/* ========================================================================
+   Slim Mode Styles - When date, preview, and image are all disabled
+   ======================================================================== */
+
+/* Slim file item - more compact list appearance */
+.nn-file-item.nn-slim .nn-file-content {
+    padding: var(--size-4-2) var(--size-4-3);
+}
+
+/* Slim file name - no bold, smaller font like folder items */
+.nn-file-item.nn-slim .nn-file-name {
+    font-size: var(--font-ui-small);
+    font-weight: 400;
+    margin-bottom: 0;
+    line-height: 1.5;
+}
+
+/* Selected slim file - maintain selection styles */
+.nn-file-item.nn-slim.nn-selected .nn-file-name {
+    color: var(--text-normal);
+}
+
+/* Dark mode slim file name */
+.theme-dark .nn-file-item.nn-slim .nn-file-name {
+    color: var(--text-normal);
+}
+
 
 /* ========================================================================
    Feature Image Styles

@@ -138,7 +138,12 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate 
         };
     }, [file.path, file.stat.mtime, app.vault, plugin.settings.showFilePreview, plugin.settings.skipHeadingsInPreview, plugin.settings.skipNonTextInPreview]); // Include mtime to detect file changes
     
-    const className = `nn-file-item ${isSelected ? 'nn-selected' : ''}`;
+    // Detect slim mode when all display options are disabled
+    const isSlimMode = !plugin.settings.showDate && 
+                       !plugin.settings.showFilePreview && 
+                       !plugin.settings.showFeatureImage;
+    
+    const className = `nn-file-item ${isSelected ? 'nn-selected' : ''} ${isSlimMode ? 'nn-slim' : ''}`;
 
     return (
         <div 
@@ -152,41 +157,52 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate 
             draggable={!isMobile}
         >
             <div className="nn-file-content">
-                <div className="nn-file-text-content">
+                {isSlimMode ? (
+                    // Slim mode: Only show file name with minimal styling
                     <div 
                         className="nn-file-name"
                         style={{ '--filename-rows': plugin.settings.fileNameRows } as React.CSSProperties}
                     >{file.basename}</div>
-                    {plugin.settings.previewRows >= 2 && plugin.settings.showFilePreview ? (
-                        <>
-                            {plugin.settings.showFilePreview && (
-                                <div 
-                                    className="nn-file-preview" 
-                                    style={{ '--preview-rows': plugin.settings.previewRows } as React.CSSProperties}
-                                >{previewText}</div>
-                            )}
-                            {plugin.settings.showDate && (
-                                <div className="nn-file-date nn-file-date-below">{displayDate}</div>
-                            )}
-                        </>
-                    ) : (
-                        <div className="nn-file-second-line">
-                            {plugin.settings.showDate && (
-                                <div className="nn-file-date">{displayDate}</div>
-                            )}
-                            {plugin.settings.showFilePreview && (
-                                <div 
-                                    className="nn-file-preview" 
-                                    style={{ '--preview-rows': plugin.settings.previewRows } as React.CSSProperties}
-                                >{previewText}</div>
+                ) : (
+                    // Normal mode: Show all enabled elements
+                    <>
+                        <div className="nn-file-text-content">
+                            <div 
+                                className="nn-file-name"
+                                style={{ '--filename-rows': plugin.settings.fileNameRows } as React.CSSProperties}
+                            >{file.basename}</div>
+                            {plugin.settings.previewRows >= 2 && plugin.settings.showFilePreview ? (
+                                <>
+                                    {plugin.settings.showFilePreview && (
+                                        <div 
+                                            className="nn-file-preview" 
+                                            style={{ '--preview-rows': plugin.settings.previewRows } as React.CSSProperties}
+                                        >{previewText}</div>
+                                    )}
+                                    {plugin.settings.showDate && (
+                                        <div className="nn-file-date nn-file-date-below">{displayDate}</div>
+                                    )}
+                                </>
+                            ) : (
+                                <div className="nn-file-second-line">
+                                    {plugin.settings.showDate && (
+                                        <div className="nn-file-date">{displayDate}</div>
+                                    )}
+                                    {plugin.settings.showFilePreview && (
+                                        <div 
+                                            className="nn-file-preview" 
+                                            style={{ '--preview-rows': plugin.settings.previewRows } as React.CSSProperties}
+                                        >{previewText}</div>
+                                    )}
+                                </div>
                             )}
                         </div>
-                    )}
-                </div>
-                {featureImageUrl && (
-                    <div className="nn-feature-image">
-                        <img src={featureImageUrl} alt={strings.common.featureImageAlt} className="nn-feature-image-img" />
-                    </div>
+                        {featureImageUrl && (
+                            <div className="nn-feature-image">
+                                <img src={featureImageUrl} alt={strings.common.featureImageAlt} className="nn-feature-image-img" />
+                            </div>
+                        )}
+                    </>
                 )}
             </div>
         </div>
