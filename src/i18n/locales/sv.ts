@@ -74,6 +74,7 @@ export const STRINGS_SV = {
             openVersionHistory: 'Öppna versionshistorik',
             revealInFinder: 'Visa i Finder',
             showInExplorer: 'Visa i filutforskaren',
+            copyDeepLink: 'Kopiera djuplänk',
             renameNote: 'Byt namn på anteckning',
             deleteNote: 'Ta bort anteckning',
         },

@@ -379,6 +379,22 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     });
             });
             
+            // Copy deep link
+            menu.addItem((item: MenuItem) => {
+                item
+                    .setTitle(strings.contextMenu.file.copyDeepLink)
+                    .setIcon('link')
+                    .onClick(async () => {
+                        const vaultName = app.vault.getName();
+                        const encodedVault = encodeURIComponent(vaultName);
+                        const encodedFile = encodeURIComponent(file.path);
+                        const deepLink = `obsidian://open?vault=${encodedVault}&file=${encodedFile}`;
+                        
+                        await navigator.clipboard.writeText(deepLink);
+                        new Notice('Deep link copied to clipboard');
+                    });
+            });
+            
             menu.addSeparator();
             
             // Rename note

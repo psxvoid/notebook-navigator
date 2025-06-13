@@ -74,6 +74,7 @@ export const STRINGS_EN = {
             openVersionHistory: 'Open version history',
             revealInFinder: 'Reveal in Finder',
             showInExplorer: 'Show in system explorer',
+            copyDeepLink: 'Copy deep link',
             renameNote: 'Rename note',
             deleteNote: 'Delete note',
         },
