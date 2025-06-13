@@ -129,6 +129,13 @@ export default class NotebookNavigatorPlugin extends Plugin {
         // Ribbon Icon For Opening
         this.refreshIconRibbon();
         
+        // Register rename event handler to update folder metadata
+        this.registerEvent(
+            this.app.vault.on('rename', (file, oldPath) => {
+                this.handleRename(file, oldPath);
+            })
+        );
+        
         // Clean up pinned notes after workspace is ready
         this.app.workspace.onLayoutReady(async () => {
             this.cleanupPinnedNotes();
@@ -295,6 +302,192 @@ export default class NotebookNavigatorPlugin extends Plugin {
         this.ribbonIconEl = this.addRibbonIcon('notebook', strings.plugin.ribbonTooltip, async () => {
             await this.activateView(true);
         });
+    }
+
+    /**
+     * Handles file/folder rename events from Obsidian's vault
+     * Updates folder metadata (colors and icons) when folders are renamed
+     * @param file - The renamed file or folder
+     * @param oldPath - The previous path before renaming
+     */
+    private handleRename(file: TAbstractFile, oldPath: string) {
+        try {
+            if (file instanceof TFolder) {
+                this.updateFolderMetadata(oldPath, file.path);
+            }
+        } catch (error) {
+            console.error('NotebookNavigator: Error handling rename', error);
+        }
+    }
+
+    /**
+     * Updates folder metadata (colors and icons) when a folder is renamed
+     * Handles nested folders by updating all descendant paths
+     * @param oldPath - The old folder path
+     * @param newPath - The new folder path
+     */
+    private async updateFolderMetadata(oldPath: string, newPath: string) {
+        let hasChanges = false;
+
+        // Ensure all metadata objects exist
+        if (!this.settings.folderColors) {
+            this.settings.folderColors = {};
+        }
+        if (!this.settings.folderIcons) {
+            this.settings.folderIcons = {};
+        }
+        if (!this.settings.folderSortOverrides) {
+            this.settings.folderSortOverrides = {};
+        }
+
+        // Update direct folder color
+        if (this.settings.folderColors[oldPath]) {
+            this.settings.folderColors[newPath] = this.settings.folderColors[oldPath];
+            delete this.settings.folderColors[oldPath];
+            hasChanges = true;
+        }
+
+        // Update direct folder icon
+        if (this.settings.folderIcons[oldPath]) {
+            this.settings.folderIcons[newPath] = this.settings.folderIcons[oldPath];
+            delete this.settings.folderIcons[oldPath];
+            hasChanges = true;
+        }
+
+        // Update direct folder sort override
+        if (this.settings.folderSortOverrides[oldPath]) {
+            this.settings.folderSortOverrides[newPath] = this.settings.folderSortOverrides[oldPath];
+            delete this.settings.folderSortOverrides[oldPath];
+            hasChanges = true;
+        }
+
+        // Handle nested folders for colors
+        const oldPathPrefix = oldPath + '/';
+        const colorsToUpdate: Array<{oldPath: string, newPath: string, color: string}> = [];
+        
+        for (const path in this.settings.folderColors) {
+            if (path.startsWith(oldPathPrefix)) {
+                const newNestedPath = newPath + path.substring(oldPath.length);
+                colorsToUpdate.push({
+                    oldPath: path,
+                    newPath: newNestedPath,
+                    color: this.settings.folderColors[path]
+                });
+            }
+        }
+        
+        // Apply color updates
+        for (const update of colorsToUpdate) {
+            this.settings.folderColors[update.newPath] = update.color;
+            delete this.settings.folderColors[update.oldPath];
+            hasChanges = true;
+        }
+
+        // Handle nested folders for icons
+        const iconsToUpdate: Array<{oldPath: string, newPath: string, icon: string}> = [];
+        
+        for (const path in this.settings.folderIcons) {
+            if (path.startsWith(oldPathPrefix)) {
+                const newNestedPath = newPath + path.substring(oldPath.length);
+                iconsToUpdate.push({
+                    oldPath: path,
+                    newPath: newNestedPath,
+                    icon: this.settings.folderIcons[path]
+                });
+            }
+        }
+        
+        // Apply icon updates
+        for (const update of iconsToUpdate) {
+            this.settings.folderIcons[update.newPath] = update.icon;
+            delete this.settings.folderIcons[update.oldPath];
+            hasChanges = true;
+        }
+
+        // Handle folder sort overrides for nested folders
+        const sortOverridesToUpdate: Array<{oldPath: string, newPath: string, sortOption: any}> = [];
+        
+        for (const path in this.settings.folderSortOverrides) {
+            if (path.startsWith(oldPathPrefix)) {
+                const newNestedPath = newPath + path.substring(oldPath.length);
+                sortOverridesToUpdate.push({
+                    oldPath: path,
+                    newPath: newNestedPath,
+                    sortOption: this.settings.folderSortOverrides[path]
+                });
+            }
+        }
+        
+        // Apply sort override updates
+        for (const update of sortOverridesToUpdate) {
+            this.settings.folderSortOverrides[update.newPath] = update.sortOption;
+            delete this.settings.folderSortOverrides[update.oldPath];
+            hasChanges = true;
+        }
+
+        // Handle pinned notes
+        if (!this.settings.pinnedNotes) {
+            this.settings.pinnedNotes = {};
+        }
+        
+        // Update pinned notes for the renamed folder
+        if (this.settings.pinnedNotes[oldPath]) {
+            // Update file paths within the pinned notes array
+            const updatedNotes = this.settings.pinnedNotes[oldPath].map(notePath => {
+                if (notePath.startsWith(oldPath + '/')) {
+                    return newPath + notePath.substring(oldPath.length);
+                }
+                return notePath;
+            });
+            this.settings.pinnedNotes[newPath] = updatedNotes;
+            delete this.settings.pinnedNotes[oldPath];
+            hasChanges = true;
+        }
+        
+        // Update pinned notes for nested folders
+        const pinnedNotesToUpdate: Array<{oldPath: string, newPath: string, notes: string[]}> = [];
+        
+        for (const path in this.settings.pinnedNotes) {
+            if (path.startsWith(oldPathPrefix)) {
+                const newNestedPath = newPath + path.substring(oldPath.length);
+                pinnedNotesToUpdate.push({
+                    oldPath: path,
+                    newPath: newNestedPath,
+                    notes: this.settings.pinnedNotes[path]
+                });
+            }
+        }
+        
+        // Apply pinned notes updates
+        for (const update of pinnedNotesToUpdate) {
+            // Update file paths within the pinned notes arrays
+            const updatedNotes = update.notes.map(notePath => {
+                if (notePath.startsWith(oldPath + '/')) {
+                    return newPath + notePath.substring(oldPath.length);
+                }
+                return notePath;
+            });
+            this.settings.pinnedNotes[update.newPath] = updatedNotes;
+            delete this.settings.pinnedNotes[update.oldPath];
+            hasChanges = true;
+        }
+
+        // Save settings if any changes were made
+        if (hasChanges) {
+            await this.saveSettings();
+            
+            // Refresh navigator views to show updated metadata
+            // Add a small delay to ensure Obsidian has finished processing the rename
+            setTimeout(() => {
+                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                leaves.forEach(leaf => {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        view.refresh();
+                    }
+                });
+            }, 100);
+        }
     }
 
 
