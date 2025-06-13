@@ -98,7 +98,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showFeatureImage: true,
     featureImageProperty: 'feature',
     // Folder display
-    showRootFolder: false,
+    showRootFolder: true,
     showFolderFileCount: true,
     showFolderIcons: true,
     // Tag display
