@@ -89,12 +89,16 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 **Note:** Available on both desktop and mobile versions of Obsidian.
 
-### Manual Installation
+### Beta Installation (via BRAT)
 
-1. Download the latest release from [GitHub](https://github.com/johansan/notebook-navigator/releases)
-2. Extract the files to your vault's `.obsidian/plugins/notebook-navigator/` folder
-3. Reload Obsidian
-4. Enable the plugin in Settings
+Until the plugin is approved in the Community Plugins directory, you can install it using BRAT:
+
+1. Install the BRAT plugin from Community Plugins
+2. Enable BRAT
+3. In BRAT settings, click "Add Beta Plugin"
+4. Enter the repository URL: `https://github.com/johansan/notebook-navigator`
+5. Click "Add Plugin"
+6. Enable "Notebook Navigator" in your Community Plugins settings
 
 ## Settings
 
