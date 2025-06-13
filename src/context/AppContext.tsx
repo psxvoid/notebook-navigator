@@ -265,8 +265,9 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
             // Get all parent folders up to root
             const foldersToExpand: string[] = [];
             let currentFolder: TFolder | null = action.file.parent;
-            while (currentFolder && currentFolder.path !== '/') {
+            while (currentFolder) {
                 foldersToExpand.unshift(currentFolder.path);
+                if (currentFolder.path === '/') break;
                 currentFolder = currentFolder.parent || null;
             }
             

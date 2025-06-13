@@ -197,7 +197,20 @@ export default class NotebookNavigatorPlugin extends Plugin {
      */
     async loadSettings() {
         const data = await this.loadData();
+        const isFirstLaunch = !data; // No saved data means first launch
         this.settings = Object.assign({}, DEFAULT_SETTINGS, data || {});
+        
+        // On first launch, if showRootFolder is enabled by default, 
+        // ensure the root folder is in the expanded folders list
+        if (isFirstLaunch && this.settings.showRootFolder) {
+            const storedExpanded = localStorage.getItem(STORAGE_KEYS.expandedFoldersKey);
+            const expandedFolders = storedExpanded ? JSON.parse(storedExpanded) : [];
+            
+            if (!expandedFolders.includes('/')) {
+                expandedFolders.push('/');
+                localStorage.setItem(STORAGE_KEYS.expandedFoldersKey, JSON.stringify(expandedFolders));
+            }
+        }
     }
 
     /**

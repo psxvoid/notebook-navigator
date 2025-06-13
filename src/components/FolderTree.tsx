@@ -68,14 +68,8 @@ export function FolderTree() {
             return null;
         }
         
-        // Root folder should be expanded by default when shown
-        let isExpanded = appState.expandedFolders.has(folder.path);
-        
-        // If this is the root folder and showRootFolder is true, 
-        // default to expanded if it's not explicitly in the set
-        if (folder.path === '/' && plugin.settings.showRootFolder && !appState.expandedFolders.has('/')) {
-            isExpanded = true;
-        }
+        // Check if folder is expanded
+        const isExpanded = appState.expandedFolders.has(folder.path);
         const isSelected = appState.selectedFolder?.path === folder.path;
         
         // Get child folders, sorted alphabetically
