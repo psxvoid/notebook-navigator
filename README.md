@@ -109,6 +109,7 @@ Until the plugin is approved in the Community Plugins directory, you can install
 - **Default sort order:** Choose the default sorting for all folders - modified date (newest/oldest), created date (newest/oldest), or title (A-Z/Z-A). This can be overridden on a per-folder basis using the sort button above the file list
   - **Group notes by date:** When sorted by date, group notes under date headers like "Today", "Yesterday", etc.
 - **Show notes from subfolders:** Display all notes from subfolders in the current folder view
+  - **Show parent folder names:** When showing notes from subfolders, display the parent folder name for each note
 - **Auto-reveal active note:** Automatically reveal and select notes when opened from Quick Switcher, links, or search
 - **Auto-select first file on folder change:** Automatically select and open the first file when switching folders
 - **Excluded notes:** Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., `draft, private, archived`)
