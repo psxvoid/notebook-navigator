@@ -67,10 +67,23 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     });
     
     // Enable swipe gestures on mobile
+    const isRTL = document.body.classList.contains('mod-rtl');
     useSwipeGesture(containerRef, {
         onSwipeRight: () => {
             if (isMobile && appState.currentMobileView === 'files') {
-                dispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
+                // In RTL mode, swipe right goes forward (to files view)
+                // In LTR mode, swipe right goes back (to list view)
+                if (!isRTL) {
+                    dispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
+                }
+            }
+        },
+        onSwipeLeft: () => {
+            if (isMobile && appState.currentMobileView === 'files') {
+                // In RTL mode, swipe left goes back (to list view)
+                if (isRTL) {
+                    dispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
+                }
             }
         },
         enabled: isMobile

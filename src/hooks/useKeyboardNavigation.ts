@@ -336,7 +336,17 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement 
             return;
         }
         
-        switch (e.key) {
+        // Check if RTL mode is active
+        const isRTL = document.body.classList.contains('mod-rtl');
+        
+        // Swap left/right keys in RTL mode
+        let key = e.key;
+        if (isRTL) {
+            if (key === 'ArrowLeft') key = 'ArrowRight';
+            else if (key === 'ArrowRight') key = 'ArrowLeft';
+        }
+        
+        switch (key) {
             case 'ArrowUp':
                 e.preventDefault();
                 if (appState.focusedPane === 'folders') {

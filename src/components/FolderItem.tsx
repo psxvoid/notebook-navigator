@@ -133,6 +133,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
             data-drag-type="folder"
             data-draggable={!isMobile ? "true" : undefined}
             draggable={!isMobile}
+            style={{ paddingInlineStart: `${level * 20}px` }}
         >
             <div 
                 className="nn-folder-content"
@@ -141,7 +142,6 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
                 data-drop-zone="folder"
                 data-drop-path={folder.path}
                 data-clickable="folder"
-                style={{ paddingLeft: `${level * 20}px` }}
             >
                 <div 
                     className="nn-folder-chevron"
@@ -166,6 +166,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
                     className="nn-folder-name"
                     style={customColor ? { color: customColor, fontWeight: 600 } : undefined}
                 >{folder.path === '/' || folder.path === '' ? strings.folderTree.rootFolderName : folder.name}</span>
+                <span className="nn-folder-spacer" />
                 {plugin.settings.showFolderFileCount && fileCount > 0 && (
                     <span className="nn-folder-count">{fileCount}</span>
                 )}

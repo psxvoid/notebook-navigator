@@ -72,9 +72,16 @@ export function useResizablePane({
         const startX = e.clientX;
         const startWidth = paneWidth;
         let currentWidth = startWidth;
+        
+        // Check if RTL mode is active
+        const isRTL = document.body.classList.contains('mod-rtl');
 
         const handleMouseMove = (moveEvent: MouseEvent) => {
-            const deltaX = moveEvent.clientX - startX;
+            let deltaX = moveEvent.clientX - startX;
+            // In RTL mode, reverse the delta to make dragging feel natural
+            if (isRTL) {
+                deltaX = -deltaX;
+            }
             currentWidth = Math.max(min, Math.min(max, startWidth + deltaX));
             setPaneWidth(currentWidth);
         };

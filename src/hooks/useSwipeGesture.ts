@@ -43,6 +43,9 @@ export function useSwipeGesture(
         enabled = true 
     } = options;
     
+    // Check if RTL mode is active
+    const isRTL = document.body.classList.contains('mod-rtl');
+    
     const touchStartX = useRef<number | null>(null);
     const touchStartY = useRef<number | null>(null);
     const isValidSwipe = useRef<boolean>(false);
@@ -57,8 +60,13 @@ export function useSwipeGesture(
             touchStartX.current = touch.clientX;
             touchStartY.current = touch.clientY;
             
-            // Check if touch started near the left edge for edge swipe
-            isValidSwipe.current = touch.clientX <= edgeThreshold;
+            // Check if touch started near the edge for edge swipe
+            // In RTL mode, check right edge; in LTR mode, check left edge
+            if (isRTL) {
+                isValidSwipe.current = touch.clientX >= (window.innerWidth - edgeThreshold);
+            } else {
+                isValidSwipe.current = touch.clientX <= edgeThreshold;
+            }
         };
         
         const handleTouchMove = (e: TouchEvent) => {
@@ -67,8 +75,9 @@ export function useSwipeGesture(
                 const touch = e.touches[0];
                 const deltaX = touch.clientX - touchStartX.current;
                 
-                // If swiping right from edge and moved enough, prevent vertical scroll
-                if (deltaX > 10) {
+                // Prevent vertical scroll when swiping from edge
+                // In RTL: swiping left from right edge; in LTR: swiping right from left edge
+                if ((isRTL && deltaX < -10) || (!isRTL && deltaX > 10)) {
                     e.preventDefault();
                 }
             }
@@ -86,12 +95,23 @@ export function useSwipeGesture(
             // Check if horizontal swipe is more significant than vertical
             if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > threshold) {
                 if (deltaX > 0 && onSwipeRight) {
-                    // For right swipe, check if it started from edge
-                    if (isValidSwipe.current || touchStartX.current <= edgeThreshold) {
+                    // For right swipe, check if it started from correct edge based on RTL
+                    const isEdgeSwipe = isRTL ? 
+                        (touchStartX.current >= (window.innerWidth - edgeThreshold)) : 
+                        (touchStartX.current <= edgeThreshold);
+                    
+                    if (isValidSwipe.current || isEdgeSwipe) {
                         onSwipeRight();
                     }
                 } else if (deltaX < 0 && onSwipeLeft) {
-                    onSwipeLeft();
+                    // For left swipe, check if it started from correct edge based on RTL
+                    const isEdgeSwipe = isRTL ? 
+                        (touchStartX.current <= edgeThreshold) : 
+                        (touchStartX.current >= (window.innerWidth - edgeThreshold));
+                    
+                    if (isValidSwipe.current || isEdgeSwipe) {
+                        onSwipeLeft();
+                    }
                 }
             }
             
@@ -109,5 +129,5 @@ export function useSwipeGesture(
             container.removeEventListener('touchmove', handleTouchMove);
             container.removeEventListener('touchend', handleTouchEnd);
         };
-    }, [containerRef, onSwipeRight, onSwipeLeft, threshold, edgeThreshold, enabled]);
+    }, [containerRef, onSwipeRight, onSwipeLeft, threshold, edgeThreshold, enabled, isRTL]);
 }

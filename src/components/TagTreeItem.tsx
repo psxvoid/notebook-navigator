@@ -70,7 +70,7 @@ export function TagTreeItem({
         <div 
             className={`nn-tag-item ${isSelected ? 'nn-selected' : ''}`} 
             data-tag={tagNode.path}
-            style={{ paddingLeft: `${level * 20}px` }}
+            style={{ paddingInlineStart: `${level * 20}px` }}
         >
             <div
                 ref={chevronRef}
@@ -97,6 +97,7 @@ export function TagTreeItem({
             >
                 {tagNode.name}
             </span>
+            <span className="nn-tag-spacer" />
             {showFileCount && fileCount > 0 && (
                 <span className="nn-tag-count">{fileCount}</span>
             )}

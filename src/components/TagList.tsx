@@ -121,10 +121,11 @@ export function TagList() {
                                 dispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
                             }
                         }}
-                        style={{ paddingLeft: '0px' }}
+                        style={{ paddingInlineStart: '0px' }}
                     >
                         <div className="nn-tag-arrow" style={{ visibility: 'hidden' }} />
                         <span className="nn-tag-name">{strings.tagList.untaggedLabel}</span>
+                        <span className="nn-tag-spacer" />
                         {plugin.settings.showFolderFileCount && (
                             <span className="nn-tag-count">{untaggedCount}</span>
                         )}

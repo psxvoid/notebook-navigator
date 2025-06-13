@@ -192,7 +192,7 @@ button.nn-icon-button {
     font-size: var(--font-ui-small);
     font-weight: 500;
     transition: all 0.2s ease;
-    margin-right: var(--size-4-2);
+    margin-inline-end: var(--size-4-2);
 }
 
 /* Sort button hover - UNUSED */
@@ -250,6 +250,7 @@ button.nn-icon-button {
     display: flex;
     align-items: center;
     padding: var(--nav-item-padding);
+    padding-inline-start: 0; /* Remove start padding since it's on the parent */
     cursor: pointer;
     transition: background-color 0.15s ease;
     border-radius: var(--radius-s);
@@ -270,7 +271,7 @@ button.nn-icon-button {
 .nn-folder-chevron {
     width: var(--icon-size);
     height: var(--icon-size);
-    margin-right: var(--size-4-1);
+    margin-inline-end: var(--size-4-1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -288,7 +289,7 @@ button.nn-icon-button {
 .nn-folder-icon {
     width: var(--icon-size);
     height: var(--icon-size);
-    margin-right: var(--size-4-2);
+    margin-inline-end: var(--size-4-2);
     flex-shrink: 0;
     color: var(--text-muted);
     display: flex;
@@ -309,17 +310,21 @@ button.nn-icon-button {
     text-overflow: ellipsis;
     line-height: 1.5; /* Normal line height for proper text rendering */
     color: var(--text-normal);
+    unicode-bidi: plaintext; /* Proper bidirectional text handling */
+}
+
+/* Spacer element to push count to the end */
+.nn-folder-spacer {
     flex: 1;
+    min-width: var(--size-4-2); /* Minimum space between name and count */
 }
 
 /* Folder file count - shows number of files in folder */
 .nn-folder-count {
     font-size: var(--font-ui-smaller);
     color: var(--text-muted);
-    margin-left: auto;
-    margin-right: var(--size-4-1);
+    margin-inline-end: var(--size-4-1);
     flex-shrink: 0;
-    padding-left: var(--size-4-2); /* Add space between truncated text and count */
 }
 
 /* Folder children container - enables smooth expand/collapse animation */
@@ -400,7 +405,7 @@ button.nn-icon-button {
 /* Tag icon (#) */
 .nn-tag-icon {
     color: var(--text-muted);
-    margin-right: var(--size-4-2);
+    margin-inline-end: var(--size-4-2);
 }
 
 /* Tag name text */
@@ -409,25 +414,29 @@ button.nn-icon-button {
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    flex: 1;
     line-height: 1.5; /* Match folder name line-height to prevent descender cutoff */
+    unicode-bidi: plaintext; /* Proper bidirectional text handling */
+}
+
+/* Tag spacer element to push count to the end */
+.nn-tag-spacer {
+    flex: 1;
+    min-width: var(--size-4-2); /* Minimum space between name and count */
 }
 
 /* Tag file count */
 .nn-tag-count {
     font-size: var(--font-ui-smaller);
     color: var(--text-muted);
-    margin-left: auto;
-    margin-right: var(--size-4-1);
+    margin-inline-end: var(--size-4-1);
     flex-shrink: 0;
-    padding-left: var(--size-4-2);
 }
 
 /* Tag arrow - expand/collapse indicator for hierarchical tags */
 .nn-tag-arrow {
     width: var(--icon-size);
     height: var(--icon-size);
-    margin-right: var(--size-4-1);
+    margin-inline-end: var(--size-4-1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -507,8 +516,8 @@ button.nn-icon-button {
     content: '';
     position: absolute;
     bottom: 0;
-    left: var(--size-4-5);
-    right: var(--size-4-5);
+    inset-inline-start: var(--size-4-5);
+    inset-inline-end: var(--size-4-5);
     height: 1px;
     background-color: var(--background-modifier-border);
 }
@@ -534,6 +543,7 @@ button.nn-icon-button {
     display: -webkit-box;
     -webkit-line-clamp: var(--filename-rows, 1);
     -webkit-box-orient: vertical;
+    unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
 
 /* Dark mode file name - consistent color */
@@ -555,7 +565,7 @@ button.nn-icon-button {
     color: var(--text-normal);
     flex-shrink: 1; /* Allow date to shrink when space is limited */
     white-space: nowrap;
-    margin-right: var(--size-4-2);
+    margin-inline-end: var(--size-4-2);
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 0; /* Allow shrinking below content size */
@@ -707,8 +717,8 @@ button.nn-icon-button {
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     bottom: 0;
     background-color: var(--text-selection);
     border-radius: var(--radius-s);
@@ -756,8 +766,8 @@ button.nn-icon-button {
     content: '';
     position: absolute;
     top: 0;
-    left: 0;
-    right: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     bottom: 1px; /* Stop above the separator line */
     background-color: var(--text-selection);
     border-radius: var(--radius-m);
@@ -881,8 +891,8 @@ body.nn-resizing {
     content: '';
     position: absolute;
     top: 0;
-    left: 0px;
-    right: 0px;
+    inset-inline-start: 0px;
+    inset-inline-end: 0px;
     bottom: 0;
     border: 2px solid var(--text-selection);
     border-radius: var(--radius-s);
@@ -906,8 +916,8 @@ body.nn-resizing {
     content: '';
     position: absolute;
     top: 0;
-    left: 0px;
-    right: 0px;
+    inset-inline-start: 0px;
+    inset-inline-end: 0px;
     bottom: 1px; /* Account for separator line */
     border: 2px solid var(--text-selection);
     border-radius: var(--radius-m);
@@ -1122,7 +1132,7 @@ body.nn-resizing {
 
 /* Settings page indentation for sub-settings */
 .nn-sub-settings {
-    margin-left: var(--size-4-5);
+    margin-inline-start: var(--size-4-5);
 }
 
 /* Settings section header spacing */
@@ -1174,7 +1184,7 @@ body.nn-resizing {
     height: 100%;
     position: absolute;
     top: 0;
-    left: 0;
+    inset-inline-start: 0;
     transition: transform 0.2s ease-out; /* Faster, snappier animation */
     overflow: hidden;
     display: flex;
@@ -1459,5 +1469,35 @@ body.nn-resizing {
     padding: var(--size-4-1) var(--size-4-2) var(--size-4-1) var(--size-4-1);
     min-height: 40px;
 }
+
+/* ========================================================================
+   RTL (Right-to-Left) Support
+   ======================================================================== */
+
+/* Mobile slide animations for RTL */
+.mod-rtl .notebook-navigator-mobile .nn-split-container.show-list .nn-left-pane {
+    transform: translateX(0%);
+}
+.mod-rtl .notebook-navigator-mobile .nn-split-container.show-list .nn-right-pane {
+    transform: translateX(-100%);
+}
+
+.mod-rtl .notebook-navigator-mobile .nn-split-container.show-files .nn-left-pane {
+    transform: translateX(100%);
+}
+.mod-rtl .notebook-navigator-mobile .nn-split-container.show-files .nn-right-pane {
+    transform: translateX(0%);
+}
+
+/* Ensure proper text direction for file preview and dates */
+.nn-file-preview,
+.nn-file-date,
+.nn-date-group-header {
+    unicode-bidi: plaintext;
+}
+
+/* Fix icon mirroring - Obsidian auto-mirrors icons, but we may need to prevent it for some icons */
+/* Currently, all our icons (chevrons, folders, etc.) should be mirrored in RTL, so no overrides needed */
+
 
 
