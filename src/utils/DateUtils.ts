@@ -17,23 +17,99 @@
  */
 
 import { format } from 'date-fns';
+import * as locales from 'date-fns/locale';
 import { strings } from '../i18n';
 
 export class DateUtils {
     /**
+     * Map of Obsidian language codes to date-fns locale names
+     * Only define the special cases where names differ
+     * 
+     * Based on Obsidian's supported languages:
+     * - 'en' = English
+     * - 'en-gb' = English (GB)
+     * - 'zh' = 简体中文 (Chinese Simplified)
+     * - 'zh-tw' = 繁體中文 (Chinese Traditional)
+     * - 'pt' = Português (Portuguese)
+     * - 'pt-br' = Português do Brasil (Brazilian Portuguese)
+     * - Other languages use their ISO code directly (de, es, fr, it, ja, ko, nl, no, pl, ru, tr, etc.)
+     */
+    private static localeExceptions: Record<string, string> = {
+        'en': 'enUS',           // English defaults to US
+        'en-gb': 'enGB',        // English (GB)
+        'zh': 'zhCN',           // Chinese defaults to Simplified
+        'zh-tw': 'zhTW',        // Chinese Traditional
+        'pt': 'pt',             // Portuguese (Portugal)
+        'pt-br': 'ptBR',        // Portuguese (Brazil)
+        'no': 'nb',             // Norwegian (Bokmål) - date-fns uses 'nb' for Norwegian
+    };
+
+    /**
+     * Get the current Obsidian language setting
+     * @returns Language code (e.g., 'en', 'de', 'sv')
+     */
+    private static getObsidianLanguage(): string {
+        // Get language from localStorage (same as i18n/index.ts)
+        const obsidianLanguage = window.localStorage.getItem('language');
+        return obsidianLanguage || 'en';
+    }
+
+    /**
+     * Get the appropriate date-fns locale for the current Obsidian language
+     * @returns date-fns locale object
+     */
+    private static getDateFnsLocale(): any {
+        const obsidianLang = DateUtils.getObsidianLanguage();
+        
+        // Check if this language has a different locale name in date-fns
+        const localeName = DateUtils.localeExceptions[obsidianLang] || obsidianLang;
+        
+        // Dynamically access the locale from the imported locales object
+        // TypeScript doesn't know the exact shape of locales, so we use 'any'
+        return (locales as any)[localeName] || locales.enUS;
+    }
+
+    /**
      * Format a timestamp into a human-readable date string
+     * Uses date-fns with proper locale support
      * @param timestamp - Unix timestamp in milliseconds
      * @param dateFormat - Date format string (date-fns format)
      * @returns Formatted date string
      */
     static formatDate(timestamp: number, dateFormat: string): string {
         const date = new Date(timestamp);
+        const locale = DateUtils.getDateFnsLocale();
+        
         try {
-            return format(date, dateFormat);
+            return format(date, dateFormat, { locale });
         } catch (e) {
-            // If invalid format string, fall back to default
-            return format(date, 'MMM d, yyyy');
+            // If invalid format string, fall back to a default format
+            try {
+                return format(date, 'PPP', { locale }); // localized date format
+            } catch (e2) {
+                // Last resort fallback
+                return date.toLocaleDateString();
+            }
         }
+    }
+
+    /**
+     * Languages that use lowercase month names by default in date-fns
+     * Based on testing, these languages format months in lowercase
+     */
+    private static lowercaseMonthLanguages = new Set([
+        'es', 'fr', 'no', 'nb', 'pt', 'pt-br', 'it', 'nl', 'sv', 'da', 'fi', 
+        'pl', 'cs', 'ca', 'ro'
+    ]);
+
+    /**
+     * Capitalize the first letter of a string
+     * @param str - String to capitalize
+     * @returns Capitalized string
+     */
+    private static capitalizeFirst(str: string): string {
+        if (!str) return str;
+        return str.charAt(0).toUpperCase() + str.slice(1);
     }
 
     /**
@@ -66,7 +142,16 @@ export class DateUtils {
             return strings.dateGroups.previous30Days;
         } else if (date.getFullYear() === now.getFullYear()) {
             // Same year - show month name
-            return format(date, 'MMMM');
+            const locale = DateUtils.getDateFnsLocale();
+            let monthName = format(date, 'MMMM', { locale });
+            
+            // Capitalize month name for languages that use lowercase
+            const obsidianLang = DateUtils.getObsidianLanguage();
+            if (DateUtils.lowercaseMonthLanguages.has(obsidianLang)) {
+                monthName = DateUtils.capitalizeFirst(monthName);
+            }
+            
+            return monthName;
         } else {
             // Previous years - show year
             return date.getFullYear().toString();
@@ -83,25 +168,16 @@ export class DateUtils {
      */
     static formatDateForGroup(timestamp: number, group: string, dateFormat: string, timeFormat: string): string {
         const date = new Date(timestamp);
+        const locale = DateUtils.getDateFnsLocale();
         
         // Today and Yesterday groups - show time only
         if (group === strings.dateGroups.today || group === strings.dateGroups.yesterday) {
-            return format(date, timeFormat);
+            return format(date, timeFormat, { locale });
         }
         
         // Previous 7 days - show weekday name
         if (group === strings.dateGroups.previous7Days) {
-            const weekdayIndex = date.getDay();
-            const weekdayNames = [
-                strings.weekdays.sunday,
-                strings.weekdays.monday,
-                strings.weekdays.tuesday,
-                strings.weekdays.wednesday,
-                strings.weekdays.thursday,
-                strings.weekdays.friday,
-                strings.weekdays.saturday
-            ];
-            return weekdayNames[weekdayIndex];
+            return format(date, 'EEEE', { locale }); // Full weekday name
         }
         
         // All other groups - use default format
