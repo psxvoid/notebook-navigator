@@ -104,6 +104,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Group notes by date:** When sorted by date, group notes under date headers like "Today", "Yesterday", etc.
 - **Show notes from subfolders:** Display all notes from subfolders in the current folder view
 - **Auto-reveal active note:** Automatically reveal and select notes when opened from Quick Switcher, links, or search
+- **Auto-select first file on folder change:** Automatically select and open the first file when switching folders
 - **Excluded notes:** Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., `draft, private, archived`)
 - **Excluded folders:** Comma-separated list of folders to hide with wildcard support:
   - Simple names: `resources, templates`
