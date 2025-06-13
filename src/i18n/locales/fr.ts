@@ -235,6 +235,10 @@ export const STRINGS_FR = {
                 name: 'Afficher les notes des sous-dossiers',
                 desc: 'Afficher toutes les notes des sous-dossiers dans la vue du dossier actuel.',
             },
+            showSubfolderNamesInList: {
+                name: 'Afficher les noms des dossiers parents',
+                desc: 'Afficher le nom du dossier parent pour les notes provenant des sous-dossiers.',
+            },
             autoRevealActiveNote: {
                 name: 'Révéler automatiquement la note active',
                 desc: 'Révéler et sélectionner automatiquement les notes lorsqu\'elles sont ouvertes depuis le Commutateur rapide, les liens ou la recherche.',

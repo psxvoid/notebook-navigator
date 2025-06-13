@@ -540,7 +540,7 @@ button.nn-icon-button {
     min-width: 0; /* Enable text truncation */
     display: flex;
     flex-direction: column;
-    gap: var(--size-2-1);
+    gap: 0;
     order: 1; /* Ensure it appears on the left */
 }
 
@@ -568,7 +568,6 @@ button.nn-icon-button {
     display: flex;
     align-items: flex-start;
     gap: var(--size-4-1);
-    margin-top: calc(var(--size-2-1) * -1);
 }
 
 /* File date - modification date display */
@@ -587,11 +586,6 @@ button.nn-icon-button {
 /* Dark mode file date */
 .theme-dark .nn-file-date {
     color: var(--text-normal);
-}
-
-/* Dark mode folder indicator */
-.theme-dark .nn-file-folder {
-    color: var(--text-muted);
 }
 
 /* File preview text - secondary line showing file content */
@@ -621,6 +615,11 @@ button.nn-icon-button {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+}
+
+/* Dark mode folder indicator */
+.theme-dark .nn-file-folder {
+    color: var(--text-muted);
 }
 
 /* ========================================================================

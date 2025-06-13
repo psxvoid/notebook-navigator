@@ -42,6 +42,7 @@ export interface NotebookNavigatorSettings {
     folderSortOverrides: Record<string, SortOption>;
     groupByDate: boolean;
     showNotesFromSubfolders: boolean;
+    showSubfolderNamesInList: boolean;
     autoRevealActiveFile: boolean;
     autoSelectFirstFile: boolean;
     excludedFiles: string;
@@ -83,6 +84,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     folderSortOverrides: {},
     groupByDate: true,
     showNotesFromSubfolders: false,
+    showSubfolderNamesInList: true,
     autoRevealActiveFile: true,
     autoSelectFirstFile: true,
     excludedFiles: '',
@@ -260,7 +262,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                 }));
 
-        new Setting(containerEl)
+        const showNotesFromSubfoldersToggle = new Setting(containerEl)
             .setName(strings.settings.items.showNotesFromSubfolders.name)
             .setDesc(strings.settings.items.showNotesFromSubfolders.desc)
             .addToggle(toggle => toggle
@@ -268,7 +270,25 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .onChange(async (value) => {
                     this.plugin.settings.showNotesFromSubfolders = value;
                     await this.saveAndRefresh();
+                    // Update subfolder names visibility
+                    this.setElementVisibility(subfolderNamesEl, value);
                 }));
+
+        // Container for conditional subfolder names setting
+        const subfolderNamesEl = containerEl.createDiv('nn-sub-settings');
+
+        new Setting(subfolderNamesEl)
+            .setName(strings.settings.items.showSubfolderNamesInList.name)
+            .setDesc(strings.settings.items.showSubfolderNamesInList.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showSubfolderNamesInList)
+                .onChange(async (value) => {
+                    this.plugin.settings.showSubfolderNamesInList = value;
+                    await this.saveAndRefresh();
+                }));
+
+        // Set initial visibility
+        this.setElementVisibility(subfolderNamesEl, this.plugin.settings.showNotesFromSubfolders);
 
         new Setting(containerEl)
             .setName(strings.settings.items.autoRevealActiveNote.name)

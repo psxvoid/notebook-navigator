@@ -235,6 +235,10 @@ export const STRINGS_SV = {
                 name: 'Visa anteckningar från undermappar',
                 desc: 'Visa anteckningar från alla undermappar i den aktuella mappvyn.',
             },
+            showSubfolderNamesInList: {
+                name: 'Visa överordnade mappnamn',
+                desc: 'Visa namnet på överordnad mapp för anteckningar från undermappar.',
+            },
             autoRevealActiveNote: {
                 name: 'Visa aktiv anteckning automatiskt',
                 desc: 'Visa och välj automatiskt anteckningar när de öppnas från snabbväljaren, länkar eller sök.',

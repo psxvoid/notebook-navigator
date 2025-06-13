@@ -191,22 +191,8 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
                                 className="nn-file-name"
                                 style={{ '--filename-rows': plugin.settings.fileNameRows } as React.CSSProperties}
                             >{file.basename}</div>
-                            {plugin.settings.previewRows >= 2 && plugin.settings.showFilePreview ? (
-                                <>
-                                    {plugin.settings.showFilePreview && (
-                                        <div 
-                                            className="nn-file-preview" 
-                                            style={{ '--preview-rows': plugin.settings.previewRows } as React.CSSProperties}
-                                        >{previewText}</div>
-                                    )}
-                                    {plugin.settings.showDate && (
-                                        <div className="nn-file-date nn-file-date-below">{displayDate}</div>
-                                    )}
-                                    {plugin.settings.showNotesFromSubfolders && parentFolder && file.parent && file.parent.path !== parentFolder && (
-                                        <div className="nn-file-folder">📁 {file.parent.name}</div>
-                                    )}
-                                </>
-                            ) : (
+                            {/* Show preview and date on same line when preview is 1 row */}
+                            {plugin.settings.previewRows < 2 && (plugin.settings.showDate || plugin.settings.showFilePreview) && (
                                 <div className="nn-file-second-line">
                                     {plugin.settings.showDate && (
                                         <div className="nn-file-date">{displayDate}</div>
@@ -219,7 +205,19 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
                                     )}
                                 </div>
                             )}
-                            {plugin.settings.showNotesFromSubfolders && parentFolder && file.parent && file.parent.path !== parentFolder && (
+                            {/* Show preview vertically when 2+ rows */}
+                            {plugin.settings.previewRows >= 2 && plugin.settings.showFilePreview && (
+                                <div 
+                                    className="nn-file-preview" 
+                                    style={{ '--preview-rows': plugin.settings.previewRows } as React.CSSProperties}
+                                >{previewText}</div>
+                            )}
+                            {/* Show date below preview when 2+ rows */}
+                            {plugin.settings.previewRows >= 2 && plugin.settings.showDate && (
+                                <div className="nn-file-date nn-file-date-below">{displayDate}</div>
+                            )}
+                            {/* Show folder indicator */}
+                            {plugin.settings.showNotesFromSubfolders && plugin.settings.showSubfolderNamesInList && parentFolder && file.parent && file.parent.path !== parentFolder && (
                                 <div className="nn-file-folder">📁 {file.parent.name}</div>
                             )}
                         </div>

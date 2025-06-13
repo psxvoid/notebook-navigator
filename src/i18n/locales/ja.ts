@@ -235,6 +235,10 @@ export const STRINGS_JA = {
                 name: 'サブフォルダのノートを表示',
                 desc: '現在のフォルダビューにすべてのサブフォルダのノートを表示します。',
             },
+            showSubfolderNamesInList: {
+                name: '親フォルダ名を表示',
+                desc: 'サブフォルダのノートに親フォルダ名を表示します。',
+            },
             autoRevealActiveNote: {
                 name: 'アクティブなノートを自動表示',
                 desc: 'クイックスイッチャー、リンク、検索から開いたときに自動的にノートを表示して選択します。',

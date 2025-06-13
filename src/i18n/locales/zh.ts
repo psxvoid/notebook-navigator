@@ -235,6 +235,10 @@ export const STRINGS_ZH = {
                 name: '显示子文件夹中的笔记',
                 desc: '在当前文件夹视图中显示所有子文件夹中的笔记。',
             },
+            showSubfolderNamesInList: {
+                name: '显示父文件夹名称',
+                desc: '为子文件夹中的笔记显示父文件夹名称。',
+            },
             autoRevealActiveNote: {
                 name: '自动定位活动笔记',
                 desc: '从快速切换器、链接或搜索打开笔记时自动显示并选择。',

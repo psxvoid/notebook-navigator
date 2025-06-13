@@ -235,6 +235,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar notas de subcarpetas',
                 desc: 'Muestra todas las notas de las subcarpetas en la vista de carpeta actual.',
             },
+            showSubfolderNamesInList: {
+                name: 'Mostrar nombres de carpetas principales',
+                desc: 'Muestra el nombre de la carpeta principal para las notas de subcarpetas.',
+            },
             autoRevealActiveNote: {
                 name: 'Mostrar automáticamente la nota activa',
                 desc: 'Muestra y selecciona automáticamente las notas cuando se abren desde el Conmutador rápido, enlaces o búsqueda.',

@@ -235,6 +235,10 @@ export const STRINGS_EN = {
                 name: 'Show notes from subfolders',
                 desc: 'Display all notes from subfolders in the current folder view.',
             },
+            showSubfolderNamesInList: {
+                name: 'Show parent folder names',
+                desc: 'Display the parent folder name for notes from subfolders.',
+            },
             autoRevealActiveNote: {
                 name: 'Auto-reveal active note',
                 desc: 'Automatically reveal and select notes when opened from Quick Switcher, links, or search.',

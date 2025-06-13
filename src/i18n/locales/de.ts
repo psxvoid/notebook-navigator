@@ -235,6 +235,10 @@ export const STRINGS_DE = {
                 name: 'Notizen aus Unterordnern anzeigen',
                 desc: 'Alle Notizen aus Unterordnern in der aktuellen Ordneransicht anzeigen.',
             },
+            showSubfolderNamesInList: {
+                name: 'Übergeordnete Ordnernamen anzeigen',
+                desc: 'Den übergeordneten Ordnernamen für Notizen aus Unterordnern anzeigen.',
+            },
             autoRevealActiveNote: {
                 name: 'Aktive Notiz automatisch anzeigen',
                 desc: 'Notizen automatisch anzeigen und auswählen, wenn sie über Schnellauswahl, Links oder Suche geöffnet werden.',
