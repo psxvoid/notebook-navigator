@@ -377,8 +377,7 @@ button.nn-icon-button {
 .nn-tag-item {
     display: flex;
     align-items: center;
-    padding: var(--nav-item-padding);
-    cursor: pointer;
+    padding: 0;
     border-radius: var(--radius-s);
     font-size: var(--font-ui-small);
     color: var(--text-normal);
@@ -386,8 +385,21 @@ button.nn-icon-button {
     margin: 0;
 }
 
-/* Tag item hover state - desktop only */
-.nn-desktop .nn-tag-item:hover {
+/* Tag content wrapper - clickable area */
+.nn-tag-content {
+    display: flex;
+    align-items: center;
+    padding: var(--nav-item-padding);
+    padding-inline-start: 0;
+    cursor: pointer;
+    transition: background-color 0.15s ease;
+    border-radius: var(--radius-s);
+    flex: 1;
+    min-width: 0;
+}
+
+/* Tag content hover state - desktop only */
+.nn-desktop .nn-tag-content:hover {
     background-color: var(--background-modifier-hover);
 }
 

@@ -72,35 +72,36 @@ export function TagTreeItem({
             data-tag={tagNode.path}
             style={{ paddingInlineStart: `${level * 20}px` }}
         >
-            <div
-                ref={chevronRef}
-                className="nn-tag-arrow"
-                style={{ 
-                    visibility: hasChildren ? 'visible' : 'hidden',
-                    cursor: hasChildren ? 'pointer' : 'default',
-                    width: '18px',
-                    minWidth: '18px',
-                    display: 'flex',
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                }}
-                onClick={(e) => {
-                    e.stopPropagation();
-                    if (hasChildren) onToggle();
-                }}
-            />
-            <span className="nn-tag-icon">#</span>
-            <span 
-                className="nn-tag-name" 
+            <div 
+                className="nn-tag-content"
                 onClick={onClick}
-                style={{ cursor: 'pointer' }}
             >
-                {tagNode.name}
-            </span>
-            <span className="nn-tag-spacer" />
-            {showFileCount && fileCount > 0 && (
-                <span className="nn-tag-count">{fileCount}</span>
-            )}
+                <div
+                    ref={chevronRef}
+                    className="nn-tag-arrow"
+                    style={{ 
+                        visibility: hasChildren ? 'visible' : 'hidden',
+                        cursor: hasChildren ? 'pointer' : 'default',
+                        width: '18px',
+                        minWidth: '18px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center'
+                    }}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        if (hasChildren) onToggle();
+                    }}
+                />
+                <span className="nn-tag-icon">#</span>
+                <span className="nn-tag-name">
+                    {tagNode.name}
+                </span>
+                <span className="nn-tag-spacer" />
+                {showFileCount && fileCount > 0 && (
+                    <span className="nn-tag-count">{fileCount}</span>
+                )}
+            </div>
         </div>
     );
 }
