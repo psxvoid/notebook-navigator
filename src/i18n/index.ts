@@ -21,6 +21,11 @@
  * Dynamically loads the appropriate language based on Obsidian's language setting
  */
 import { STRINGS_EN } from './locales/en';
+import { STRINGS_DE } from './locales/de';
+import { STRINGS_ES } from './locales/es';
+import { STRINGS_FR } from './locales/fr';
+import { STRINGS_JA } from './locales/ja';
+import { STRINGS_ZH } from './locales/zh';
 // import { STRINGS_SV } from './locales/sv'; // Uncomment when Swedish is supported by Obsidian
 
 // Type for the translation strings structure
@@ -30,6 +35,11 @@ type TranslationStrings = typeof STRINGS_EN;
 // Just add new languages here as they are created
 const LANGUAGE_MAP: Record<string, TranslationStrings> = {
     en: STRINGS_EN,
+    de: STRINGS_DE,
+    es: STRINGS_ES,
+    fr: STRINGS_FR,
+    ja: STRINGS_JA,
+    zh: STRINGS_ZH,
 //    sv: STRINGS_SV, // Uncomment when Swedish is supported by Obsidian
 };
 
