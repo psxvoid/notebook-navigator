@@ -120,9 +120,55 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Track navigator interaction time for smarter auto-reveal
     const navigatorInteractionRef = useRef(0);
     
-    // Add this useEffect to handle active leaf changes
+    // Add this useEffect to handle active leaf changes and file-open events
     useEffect(() => {
         if (!plugin.settings.autoRevealActiveFile) return;
+
+        const handleFileChange = (file: TFile | null) => {
+            if (!file) return;
+            
+            // Skip auto-reveal if navigator was recently interacted with (within 300ms)
+            if (Date.now() - navigatorInteractionRef.current < 300) {
+                return;
+            }
+            
+            // Always update selected file if it's different
+            if (appState.selectedFile?.path !== file.path) {
+                dispatch({ type: 'SET_SELECTED_FILE', file });
+                
+                // Check if we need to reveal the file in the folder tree
+                let needsReveal = true;
+                
+                if (appState.selectedFolder && file.parent) {
+                    // Check if file is in the selected folder
+                    if (appState.selectedFolder.path === file.parent.path) {
+                        needsReveal = false;
+                    }
+                    
+                    // If showing notes from subfolders, check if file is in a subfolder
+                    if (plugin.settings.showNotesFromSubfolders) {
+                        let parent: TFolder | null = file.parent;
+                        while (parent) {
+                            if (parent.path === appState.selectedFolder.path) {
+                                // File is in a subfolder of the selected folder
+                                // Update folder selection to file's immediate parent for clarity
+                                if (file.parent.path !== appState.selectedFolder.path) {
+                                    dispatch({ type: 'SET_SELECTED_FOLDER', folder: file.parent });
+                                }
+                                needsReveal = false;
+                                break;
+                            }
+                            parent = parent.parent;
+                        }
+                    }
+                }
+                
+                // Only reveal if the file is not already visible in the current view
+                if (needsReveal) {
+                    dispatch({ type: 'REVEAL_FILE', file });
+                }
+            }
+        };
 
         const handleActiveLeafChange = (leaf: WorkspaceLeaf | null) => {
             // Only trigger for leaves in the main editor area
@@ -130,58 +176,29 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 return;
             }
             
-            // Skip auto-reveal if navigator was recently interacted with (within 300ms)
-            if (Date.now() - navigatorInteractionRef.current < 300) {
-                return;
-            }
-            
             // Note: Accessing view.file via 'any' as it's not in Obsidian's public TypeScript API
             const view = leaf.view as any;
             if (view && view.file && view.file instanceof TFile) {
-                const file = view.file;
-                // Always update selected file if it's different
-                if (appState.selectedFile?.path !== file.path) {
-                    dispatch({ type: 'SET_SELECTED_FILE', file });
-                    
-                    // Check if we need to reveal the file in the folder tree
-                    let needsReveal = true;
-                    
-                    if (appState.selectedFolder && file.parent) {
-                        // Check if file is in the selected folder
-                        if (appState.selectedFolder.path === file.parent.path) {
-                            needsReveal = false;
-                        }
-                        
-                        // If showing notes from subfolders, check if file is in a subfolder
-                        if (plugin.settings.showNotesFromSubfolders) {
-                            let parent: TFolder | null = file.parent;
-                            while (parent) {
-                                if (parent.path === appState.selectedFolder.path) {
-                                    // File is in a subfolder of the selected folder
-                                    // Update folder selection to file's immediate parent for clarity
-                                    if (file.parent.path !== appState.selectedFolder.path) {
-                                        dispatch({ type: 'SET_SELECTED_FOLDER', folder: file.parent });
-                                    }
-                                    needsReveal = false;
-                                    break;
-                                }
-                                parent = parent.parent;
-                            }
-                        }
-                    }
-                    
-                    // Only reveal if the file is not already visible in the current view
-                    if (needsReveal) {
-                        dispatch({ type: 'REVEAL_FILE', file });
-                    }
+                handleFileChange(view.file);
+            }
+        };
+
+        const handleFileOpen = (file: TFile | null) => {
+            if (file instanceof TFile) {
+                // Only process if the file is opened in the main editor area
+                const activeLeaf = app.workspace.activeLeaf;
+                if (activeLeaf && activeLeaf.getRoot() === app.workspace.rootSplit) {
+                    handleFileChange(file);
                 }
             }
         };
 
-        const eventRef = app.workspace.on('active-leaf-change', handleActiveLeafChange);
+        const activeLeafEventRef = app.workspace.on('active-leaf-change', handleActiveLeafChange);
+        const fileOpenEventRef = app.workspace.on('file-open', handleFileOpen);
 
         return () => {
-            app.workspace.offref(eventRef);
+            app.workspace.offref(activeLeafEventRef);
+            app.workspace.offref(fileOpenEventRef);
         };
     }, [app.workspace, dispatch, plugin.settings.autoRevealActiveFile, plugin.settings.showNotesFromSubfolders, appState.selectedFile, appState.selectedFolder]);
 
