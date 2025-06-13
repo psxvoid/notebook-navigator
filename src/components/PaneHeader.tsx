@@ -64,11 +64,17 @@ export function PaneHeader({ type }: PaneHeaderProps) {
             };
             
             const rootFolder = app.vault.getRoot();
+            
+            // Add root folder itself if it's shown
+            if (plugin.settings.showRootFolder) {
+                allFolders.add(rootFolder.path);
+            }
+            
             collectAllFolders(rootFolder);
             
             dispatch({ type: 'SET_EXPANDED_FOLDERS', folders: allFolders });
         }
-    }, [app, appState.expandedFolders.size, dispatch, type]);
+    }, [app, appState.expandedFolders.size, dispatch, type, plugin.settings.showRootFolder]);
     
     const handleNewFolder = useCallback(async () => {
         if (type !== 'folder' || !appState.selectedFolder) return;
