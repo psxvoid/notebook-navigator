@@ -238,6 +238,10 @@ export const STRINGS_EN = {
                 name: 'Auto-reveal active note',
                 desc: 'Automatically reveal and select notes when opened from Quick Switcher, links, or search.',
             },
+            autoSelectFirstFile: {
+                name: 'Auto-select first file on folder change',
+                desc: 'Automatically select and open the first file when switching folders.',
+            },
             excludedNotes: {
                 name: 'Excluded notes',
                 desc: 'Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived).',

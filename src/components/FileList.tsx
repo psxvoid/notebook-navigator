@@ -256,7 +256,7 @@ export function FileList() {
         }
         
         // Selection has changed or current file is not in list - select first file (desktop only)
-        if (files.length > 0) {
+        if (files.length > 0 && plugin.settings.autoSelectFirstFile) {
             const firstFile = files[0];
             
             // Select and open the file
@@ -267,11 +267,11 @@ export function FileList() {
             if (leaf) {
                 leaf.openFile(firstFile, { active: false });
             }
-        } else {
-            // Clear selection when folder has no files
+        } else if (!plugin.settings.autoSelectFirstFile || files.length === 0) {
+            // Clear selection when auto-select is disabled or folder has no files
             dispatch({ type: 'SET_SELECTED_FILE', file: null });
         }
-    }, [selectedFolder?.path, selectedTag, selectionType, dispatch, files, appState.selectedFile, app.workspace, isMobile]);
+    }, [selectedFolder?.path, selectedTag, selectionType, dispatch, files, appState.selectedFile, app.workspace, isMobile, plugin.settings.autoSelectFirstFile]);
     
     // Group files by date if enabled
     const groupedFiles = useMemo(() => {

@@ -43,6 +43,7 @@ export interface NotebookNavigatorSettings {
     groupByDate: boolean;
     showNotesFromSubfolders: boolean;
     autoRevealActiveFile: boolean;
+    autoSelectFirstFile: boolean;
     excludedFiles: string;
     ignoreFolders: string;
     // Note display
@@ -84,6 +85,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     groupByDate: true,
     showNotesFromSubfolders: false,
     autoRevealActiveFile: true,
+    autoSelectFirstFile: true,
     excludedFiles: '',
     ignoreFolders: '',
     // Note display
@@ -277,6 +279,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.autoRevealActiveFile)
                 .onChange(async (value) => {
                     this.plugin.settings.autoRevealActiveFile = value;
+                    await this.saveAndRefresh(false);
+                }));
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.autoSelectFirstFile.name)
+            .setDesc(strings.settings.items.autoSelectFirstFile.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.autoSelectFirstFile)
+                .onChange(async (value) => {
+                    this.plugin.settings.autoSelectFirstFile = value;
                     await this.saveAndRefresh(false);
                 }));
 

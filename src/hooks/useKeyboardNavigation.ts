@@ -299,6 +299,26 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement 
     }, [containerRef, getFileElements, app, dispatch]);
     
     /**
+     * Selects the first file in the file list when autoSelectFirstFile is disabled
+     * and no file is currently selected. Used when navigating to the files pane.
+     */
+    const selectFirstFileIfNeeded = useCallback(() => {
+        if (!plugin.settings.autoSelectFirstFile && !appState.selectedFile) {
+            const fileElements = getFileElements();
+            if (fileElements.length > 0) {
+                const firstFile = getFileFromElement(fileElements[0] as HTMLElement, app);
+                if (firstFile) {
+                    dispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
+                    const leaf = app.workspace.getLeaf(false);
+                    if (leaf) {
+                        leaf.openFile(firstFile, { active: false });
+                    }
+                }
+            }
+        }
+    }, [plugin.settings.autoSelectFirstFile, appState.selectedFile, getFileElements, app, dispatch]);
+    
+    /**
      * Main keyboard event handler.
      * Processes all keyboard shortcuts and delegates to appropriate actions.
      * Includes debouncing to prevent rapid key spam.
@@ -413,10 +433,12 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement 
                                     dispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: appState.selectedTag });
                                 } else {
                                     dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                                    selectFirstFileIfNeeded();
                                 }
                             }
                         } else {
                             dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                            selectFirstFileIfNeeded();
                         }
                     } else if (appState.selectedFolder) {
                         // Folder mode - expand or move to files
@@ -426,9 +448,11 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement 
                                 dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: appState.selectedFolder.path });
                             } else {
                                 dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                                selectFirstFileIfNeeded();
                             }
                         } else {
                             dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                            selectFirstFileIfNeeded();
                         }
                     }
                 } else if (appState.focusedPane === 'files' && appState.selectedFile) {
@@ -457,6 +481,7 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement 
                     // Tab moves right or to editor
                     if (appState.focusedPane === 'folders') {
                         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                        selectFirstFileIfNeeded();
                     } else if (appState.focusedPane === 'files' && appState.selectedFile) {
                         // Move focus to edit view showing the selected file
                         const leaves = app.workspace.getLeavesOfType('markdown')
@@ -510,7 +535,7 @@ export function useKeyboardNavigation(containerRef: React.RefObject<HTMLElement 
                 }
                 break;
         }
-    }, [appState, dispatch, navigateFolders, navigateTags, navigateFiles, app, fileSystemOps, getFolderElements, plugin]);
+    }, [appState, dispatch, navigateFolders, navigateTags, navigateFiles, app, fileSystemOps, getFolderElements, getFileElements, getTagElements, plugin, selectFirstFileIfNeeded]);
     
     useEffect(() => {
         const container = containerRef.current;

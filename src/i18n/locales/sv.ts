@@ -238,6 +238,10 @@ export const STRINGS_SV = {
                 name: 'Visa aktiv anteckning automatiskt',
                 desc: 'Visa och välj automatiskt anteckningar när de öppnas från snabbväljaren, länkar eller sök.',
             },
+            autoSelectFirstFile: {
+                name: 'Välj första filen automatiskt vid mappbyte',
+                desc: 'Välj och öppna automatiskt den första filen när du byter mapp.',
+            },
             excludedNotes: {
                 name: 'Exkluderade anteckningar',
                 desc: 'Kommaseparerad lista med frontmatter-attribut. Anteckningar som innehåller någon av dessa attribut kommer att döljas (t.ex. utkast, privat, arkiverad).',
