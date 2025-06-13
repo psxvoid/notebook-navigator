@@ -15,8 +15,10 @@ Notebook Navigator is an Obsidian plugin that replaces the default file explorer
 - **Mobile support**: Single-pane view with swipe gestures
 - **Auto-reveal**: Automatically reveal active file in tree
 - **Search & filtering**: Filter files, exclude patterns
-- **Pinned notes**: Pin important notes to top of folders (backend exists, UI pending)
-- **Folder icons**: Custom folder icons (backend exists, UI pending)
+- **Pinned notes**: Pin important notes to top of folders
+- **Folder icons**: Custom folder icons with Lucide icon picker
+- **Folder colors**: Custom folder colors for visual organization
+- **RTL support**: Full support for right-to-left languages
 
 ## Quick Start for AI Assistants
 - **Main entry point**: `src/main.ts` - Plugin class
@@ -63,7 +65,8 @@ notebook-navigator/
 │   │       ├── en.ts             # English translations
 │   │       └── sv.ts             # Swedish translations
 │   ├── services/                  # Business logic services
-│   │   └── FileSystemService.ts  # File operations
+│   │   ├── FileSystemService.ts  # File operations
+│   │   └── MetadataService.ts    # Folder metadata management
 │   ├── modals/                    # Obsidian modal dialogs
 │   │   ├── ColorPickerModal.ts   # Color picker for folders
 │   │   ├── ConfirmModal.ts       # Delete confirmation
@@ -167,6 +170,31 @@ Provides global app state and dispatch function to all components:
 #### ServicesContext
 Provides service instances through custom hooks:
 - `useFileSystemOps()` - File system operations service
+- `useMetadataService()` - Metadata operations service
+
+### Services
+
+#### MetadataService
+Centralized service for managing all folder and file metadata:
+- **Folder Colors**: `setFolderColor()`, `removeFolderColor()`, `getFolderColor()`
+- **Folder Icons**: `setFolderIcon()`, `removeFolderIcon()`, `getFolderIcon()`
+- **Sort Overrides**: `setFolderSortOverride()`, `removeFolderSortOverride()`, `getFolderSortOverride()`
+- **Pinned Notes**: `togglePinnedNote()`, `isPinned()`, `getPinnedNotes()`
+- **Cleanup Operations**: 
+  - `cleanupAllMetadata()` - Removes references to deleted items on startup
+  - `handleFolderRename()` - Updates metadata when folders are renamed
+  - `handleFolderDelete()` - Cleans up metadata when folders are deleted
+  - `handleFileDelete()` - Removes file from pinned notes when deleted
+
+The service handles all metadata persistence and ensures consistency across renames and deletions.
+
+#### FileSystemService
+Handles file system operations with user interaction:
+- `createNewFolder()` - Shows modal for folder name input
+- `createNewFile()` - Shows modal for file name input
+- `renameFile()` - Shows modal for renaming files/folders
+- `deleteFile()` - Shows confirmation modal if enabled
+- `duplicateFile()` - Creates a copy with automatic naming
 
 ### Custom Hooks
 
@@ -190,6 +218,7 @@ Provides service instances through custom hooks:
 - **Null Safety**: Always use optional chaining (`?.`) and nullish coalescing (`??`)
 - **Hook Dependencies**: Use specific properties, not entire objects
 - **Performance**: Use `useMemo` and `useCallback` for optimization
+- **Constants**: Use `STORAGE_KEYS` for localStorage keys, `PANE_DIMENSIONS` for pane sizing
 
 ### CSS Conventions
 - **Naming**: BEM-like with `nn-` prefix (e.g., `nn-folder-tree`)
@@ -221,6 +250,8 @@ Provides service instances through custom hooks:
 - **New Global State**: Add to AppState → Add action type → Implement reducer case → Add persistence
 - **New Mobile Feature**: Check `isMobile` → Add conditional logic → Test on mobile device
 - **New Tag Feature**: Update TagList/TagTreeItem → Handle in AppContext reducer → Add tag-specific logic
+- **New Metadata Type**: Add to MetadataService → Add getter/setter/remover methods → Handle in cleanup operations
+- **New Service**: Create in `src/services/` → Add to ServicesContext → Create convenience hook
 
 ## Performance Considerations
 
@@ -258,6 +289,7 @@ The build outputs `main.js` in the project root using esbuild with TypeScript st
    - `files` - Shows file list for selected folder/tag
 4. **No Drag & Drop**: Drag and drop is disabled on mobile for better touch interaction
 5. **Responsive Layout**: Pane resizing is disabled, full width is used
+6. **RTL Support**: Swipe gestures are reversed in RTL mode for natural interaction
 
 ### Mobile Implementation Details
 
