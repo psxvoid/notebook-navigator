@@ -589,6 +589,11 @@ button.nn-icon-button {
     color: var(--text-normal);
 }
 
+/* Dark mode folder indicator */
+.theme-dark .nn-file-folder {
+    color: var(--text-muted);
+}
+
 /* File preview text - secondary line showing file content */
 .nn-file-preview {
     font-size: var(--font-ui-small);
@@ -607,7 +612,15 @@ button.nn-icon-button {
 .nn-file-date-below {
     margin-right: 0;
     max-width: none;
-    margin-top: var(--size-2-1);
+}
+
+/* Folder indicator - shows parent folder for files from subfolders */
+.nn-file-folder {
+    font-size: var(--font-ui-small);
+    color: var(--text-muted);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* ========================================================================
@@ -827,6 +840,10 @@ button.nn-icon-button {
 }
 
 .nn-file-item.nn-selected .nn-file-preview {
+    color: var(--text-muted);
+}
+
+.nn-file-item.nn-selected .nn-file-folder {
     color: var(--text-muted);
 }
 
@@ -1504,6 +1521,7 @@ body.nn-resizing {
 /* Ensure proper text direction for file preview and dates */
 .nn-file-preview,
 .nn-file-date,
+.nn-file-folder,
 .nn-date-group-header {
     unicode-bidi: plaintext;
 }

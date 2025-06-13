@@ -33,6 +33,7 @@ interface FileItemProps {
     dateGroup?: string | null;
     settingsVersion?: number;
     formattedDate?: string;
+    parentFolder?: string | null;
 }
 
 /**
@@ -47,7 +48,7 @@ interface FileItemProps {
  * @param props.onClick - Handler called when the file is clicked
  * @returns A file item element with name, date, preview and optional image
  */
-function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate }: FileItemProps) {
+function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate, parentFolder }: FileItemProps) {
     const { app, plugin, isMobile } = useStableAppContext();
     const [previewText, setPreviewText] = useState('');
     const fileRef = useRef<HTMLDivElement>(null);
@@ -201,6 +202,9 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate 
                                     {plugin.settings.showDate && (
                                         <div className="nn-file-date nn-file-date-below">{displayDate}</div>
                                     )}
+                                    {plugin.settings.showNotesFromSubfolders && parentFolder && file.parent && file.parent.path !== parentFolder && (
+                                        <div className="nn-file-folder">📁 {file.parent.name}</div>
+                                    )}
                                 </>
                             ) : (
                                 <div className="nn-file-second-line">
@@ -214,6 +218,9 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate 
                                         >{previewText}</div>
                                     )}
                                 </div>
+                            )}
+                            {plugin.settings.showNotesFromSubfolders && parentFolder && file.parent && file.parent.path !== parentFolder && (
+                                <div className="nn-file-folder">📁 {file.parent.name}</div>
                             )}
                         </div>
                         {featureImageUrl && (
@@ -250,6 +257,7 @@ export const FileItem = memo(FileItemInternal, (prevProps, nextProps) => {
         prevProps.dateGroup === nextProps.dateGroup &&
         prevProps.onClick === nextProps.onClick &&
         prevProps.settingsVersion === nextProps.settingsVersion &&
-        prevProps.formattedDate === nextProps.formattedDate
+        prevProps.formattedDate === nextProps.formattedDate &&
+        prevProps.parentFolder === nextProps.parentFolder
     );
 });

@@ -472,6 +472,7 @@ export function FileList() {
                             dateGroup={group.title}
                             settingsVersion={refreshCounter}
                             formattedDate={filesWithDates?.get(file.path)}
+                            parentFolder={selectedFolder?.path}
                         />
                     ))}
                 </div>
