@@ -141,11 +141,16 @@ export function FileList() {
                     // Collect all tags to include (selected tag and all children)
                     const tagsToInclude = collectAllTagPaths(selectedNode);
                     
-                    // Filter files that have any of the collected tags
+                    // Create a lowercase set for case-insensitive comparison
+                    const tagsToIncludeLower = new Set(
+                        Array.from(tagsToInclude).map(tag => tag.toLowerCase())
+                    );
+                    
+                    // Filter files that have any of the collected tags (case-insensitive)
                     allFiles = allMarkdownFiles.filter(file => {
                         const cache = app.metadataCache.getFileCache(file);
                         const fileTags = cache ? getAllTags(cache) : null;
-                        return fileTags && fileTags.some(tag => tagsToInclude.has(tag));
+                        return fileTags && fileTags.some(tag => tagsToIncludeLower.has(tag.toLowerCase()));
                     });
                 } else {
                     // Fallback to empty if tag not found

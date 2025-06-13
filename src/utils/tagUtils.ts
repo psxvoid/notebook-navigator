@@ -36,6 +36,8 @@ export interface TagTreeNode {
 /**
  * Builds a hierarchical tree structure from flat tags.
  * Tags like "#inbox/processing" will create nested nodes.
+ * Tags are case-insensitive - #Tag and #TAG are treated as the same tag.
+ * The first-seen casing is preserved for display.
  * 
  * @param allFiles - Array of markdown files to process
  * @param app - Obsidian app instance for metadata access
@@ -43,6 +45,8 @@ export interface TagTreeNode {
  */
 export function buildTagTree(allFiles: TFile[], app: App): Map<string, TagTreeNode> {
     const root = new Map<string, TagTreeNode>();
+    // Track first-seen casing for each tag part
+    const casingMap = new Map<string, string>();
     
     // Early return for empty file list
     if (!allFiles || allFiles.length === 0) {
@@ -64,21 +68,35 @@ export function buildTagTree(allFiles: TFile[], app: App): Map<string, TagTreeNo
             // Remove the # prefix and split by /
             const parts = tag.substring(1).split('/');
             let currentLevel = root;
+            let pathParts: string[] = [];
 
             parts.forEach((part, index) => {
-                // Rebuild the full path up to this point
-                const currentPath = '#' + parts.slice(0, index + 1).join('/');
+                const lowerPart = part.toLowerCase();
+                
+                // Track first-seen casing
+                if (!casingMap.has(lowerPart)) {
+                    casingMap.set(lowerPart, part);
+                }
+                
+                // Use the preserved casing
+                const displayPart = casingMap.get(lowerPart)!;
+                pathParts.push(displayPart);
+                
+                // Rebuild the full path up to this point with preserved casing
+                const currentPath = '#' + pathParts.join('/');
 
-                if (!currentLevel.has(part)) {
-                    currentLevel.set(part, {
-                        name: part,
+                // Use lowercase key for case-insensitive lookup
+                let node = currentLevel.get(lowerPart);
+                
+                if (!node) {
+                    node = {
+                        name: displayPart,
                         path: currentPath,
                         children: new Map(),
                         notesWithTag: new Set(),
-                    });
+                    };
+                    currentLevel.set(lowerPart, node);
                 }
-
-                const node = currentLevel.get(part)!;
 
                 // If this is the last part, add the file to this tag
                 if (index === parts.length - 1) {
@@ -143,6 +161,7 @@ export function collectAllTagPaths(node: TagTreeNode, paths: Set<string> = new S
 
 /**
  * Finds a tag node by its path in the tree.
+ * Uses case-insensitive matching for tag paths.
  * 
  * @param path - The tag path to find (e.g., "#inbox/processing")
  * @param tree - The root tree to search in
@@ -163,7 +182,8 @@ export function findTagNode(path: string, tree: Map<string, TagTreeNode>): TagTr
     let currentNode: TagTreeNode | undefined;
 
     for (const part of parts) {
-        currentNode = currentLevel.get(part);
+        // Use lowercase for case-insensitive lookup
+        currentNode = currentLevel.get(part.toLowerCase());
         if (!currentNode) return null;
         currentLevel = currentNode.children;
     }
