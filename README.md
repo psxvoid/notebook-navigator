@@ -18,6 +18,7 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 - **📁 Two-pane layout** - Folders on left, files on right (like Apple Notes)
 - **📱 Mobile optimized** - Touch gestures and single-pane navigation
 - **🌓 Theme support** - Seamlessly matches your Obsidian theme
+- **🌍 RTL language support** - Full support for right-to-left languages with proper layout mirroring and navigation
 
 ### Navigation & Organization
 - **🏷️ Tag browser** - Hierarchical tag tree with nested tag support
