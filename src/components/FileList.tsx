@@ -419,8 +419,8 @@ export function FileList() {
     
     // Pre-calculate date field for all files in the group
     const dateField = useMemo(() => {
-        return getDateField(getEffectiveSortOption(plugin.settings, selectionType, selectedFolder));
-    }, [plugin.settings, selectionType, selectedFolder]);
+        return getDateField(plugin.settings.defaultFolderSort);
+    }, [plugin.settings.defaultFolderSort]);
     
     // Pre-compute formatted dates for all files to avoid doing it in render
     const filesWithDates = useMemo(() => {
