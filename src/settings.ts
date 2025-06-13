@@ -536,7 +536,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     localStorage.removeItem(this.plugin.keys.leftPaneWidthKey);
                     
                     // Reset the plugin settings for left pane width and custom sort orders
-                    this.plugin.settings.leftPaneWidth = 300;
+                    this.plugin.settings.leftPaneWidth = DEFAULT_SETTINGS.leftPaneWidth;
                     this.plugin.settings.folderSortOverrides = {};
                     await this.plugin.saveSettings();
                     
