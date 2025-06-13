@@ -75,7 +75,7 @@ function performRelease(releaseType) {
     
     // Update manifest.json
     manifest.version = newVersion;
-    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, 2) + '\n');
+    fs.writeFileSync(manifestPath, JSON.stringify(manifest, null, '\t') + '\n');
     console.log('✓ Updated manifest.json');
     
     // Update package.json if it exists
@@ -83,7 +83,7 @@ function performRelease(releaseType) {
     if (fs.existsSync(packagePath)) {
         const packageJson = JSON.parse(fs.readFileSync(packagePath, 'utf8'));
         packageJson.version = newVersion;
-        fs.writeFileSync(packagePath, JSON.stringify(packageJson, null, 2) + '\n');
+        fs.writeFileSync(packagePath, JSON.stringify(packageJson, null, '\t') + '\n');
         console.log('✓ Updated package.json');
     }
     
@@ -95,7 +95,7 @@ function performRelease(releaseType) {
     }
     // Add new version with minimum required Obsidian version from manifest
     versionsJson[newVersion] = manifest.minAppVersion;
-    fs.writeFileSync(versionsPath, JSON.stringify(versionsJson, null, 2) + '\n');
+    fs.writeFileSync(versionsPath, JSON.stringify(versionsJson, null, '\t') + '\n');
     console.log('✓ Updated versions.json');
     
     // Git operations
