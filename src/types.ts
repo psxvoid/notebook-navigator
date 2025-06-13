@@ -64,6 +64,16 @@ export const STORAGE_KEYS: LocalStorageKeys = {
 };
 
 /**
+ * Default dimensions for the resizable left pane
+ * These values are used when no saved state exists
+ */
+export const PANE_DIMENSIONS = {
+    defaultWidth: 300,
+    minWidth: 150,
+    maxWidth: 600
+};
+
+/**
  * Data attributes for drag-and-drop functionality using event delegation
  * These attributes are added to DOM elements to enable drag-drop without individual event listeners
  */

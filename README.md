@@ -151,7 +151,6 @@ Until the plugin is approved in the Community Plugins directory, you can install
 ### Advanced
 
 - **Confirm before deleting notes:** Show confirmation dialog when deleting notes or folders
-- **Clear saved state:** Reset expanded folders, selections, and pane width to defaults
 
 ## Tips and Tricks
 

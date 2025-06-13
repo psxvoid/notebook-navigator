@@ -335,12 +335,6 @@ export const STRINGS_SV = {
                 name: 'Bekräfta innan borttagning',
                 desc: 'Visa dialog innan anteckningar eller mappar tas bort',
             },
-            clearSavedState: {
-                name: 'Rensa inställningar',
-                desc: 'Tag bort alla sparade inställningar för unika ikoner, färger, sorteringar, val och panelbredd.',
-                buttonText: 'Rensa',
-                successMessage: 'Inställningar rensade. Uppdatera vyn för att se ändringar.',
-            },
             supportDevelopment: {
                 name: 'Sponsra utveckling',
                 desc: 'Om du älskar Notebook Navigator och den hjälper dig i din vardag, sponsra dess fortsatta utveckling.',

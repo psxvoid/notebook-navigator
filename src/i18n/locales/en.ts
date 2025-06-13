@@ -335,12 +335,6 @@ export const STRINGS_EN = {
                 name: 'Confirm before deleting notes',
                 desc: 'Show confirmation dialog when deleting notes or folders',
             },
-            clearSavedState: {
-                name: 'Clear saved state',
-                desc: 'Reset expanded folders, selections, and pane width to defaults.',
-                buttonText: 'Clear state',
-                successMessage: 'Navigator state cleared. Refresh the view to see changes.',
-            },
             supportDevelopment: {
                 name: 'Support development',
                 desc: 'If you love using Notebook Navigator, please consider supporting its continued development.',

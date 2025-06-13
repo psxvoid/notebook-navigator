@@ -29,7 +29,7 @@ import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useSwipeGesture } from '../hooks/useSwipeGesture';
 import { isTFolder } from '../utils/typeGuards';
-import { STORAGE_KEYS } from '../types';
+import { STORAGE_KEYS, PANE_DIMENSIONS } from '../types';
 
 export interface NotebookNavigatorHandle {
     revealFile: (file: TFile) => void;
@@ -60,9 +60,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     
     // Enable resizable pane
     const { paneWidth, resizeHandleProps } = useResizablePane({
-        initialWidth: 300,
-        min: 150,
-        max: 600,
+        initialWidth: PANE_DIMENSIONS.defaultWidth,
+        min: PANE_DIMENSIONS.minWidth,
+        max: PANE_DIMENSIONS.maxWidth,
         storageKey: STORAGE_KEYS.leftPaneWidthKey
     });
     

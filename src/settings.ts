@@ -67,7 +67,6 @@ export interface NotebookNavigatorSettings {
     // Advanced
     confirmBeforeDelete: boolean;
     // Internal
-    leftPaneWidth: number;
     pinnedNotes: Record<string, string[]>;
     folderIcons: Record<string, string>;
     folderColors: Record<string, string>;
@@ -109,7 +108,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Advanced
     confirmBeforeDelete: true,
     // Internal
-    leftPaneWidth: 300,
     pinnedNotes: {},
     folderIcons: {},
     folderColors: {},
@@ -521,27 +519,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh(false);
                 }));
 
-        new Setting(containerEl)
-            .setName(strings.settings.items.clearSavedState.name)
-            .setDesc(strings.settings.items.clearSavedState.desc)
-            .addButton(button => button
-                .setButtonText(strings.settings.items.clearSavedState.buttonText)
-                .setCta()  // Makes it a primary button
-                .onClick(async () => {
-                    // Clear all localStorage keys
-                    localStorage.removeItem(this.plugin.keys.expandedFoldersKey);
-                    localStorage.removeItem(this.plugin.keys.expandedTagsKey);
-                    localStorage.removeItem(this.plugin.keys.selectedFolderKey);
-                    localStorage.removeItem(this.plugin.keys.selectedFileKey);
-                    localStorage.removeItem(this.plugin.keys.leftPaneWidthKey);
-                    
-                    // Reset the plugin settings for left pane width and custom sort orders
-                    this.plugin.settings.leftPaneWidth = DEFAULT_SETTINGS.leftPaneWidth;
-                    this.plugin.settings.folderSortOverrides = {};
-                    await this.plugin.saveSettings();
-                    
-                    new Notice(strings.settings.items.clearSavedState.successMessage);
-                }));
 
         // Sponsor section
         new Setting(containerEl)
