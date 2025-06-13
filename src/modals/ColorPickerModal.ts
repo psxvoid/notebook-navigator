@@ -17,7 +17,7 @@
  */
 
 import { App, Modal } from 'obsidian';
-import NotebookNavigatorPlugin from '../main';
+import { MetadataService } from '../services/MetadataService';
 import { strings } from '../i18n';
 
 /**
@@ -59,7 +59,7 @@ const COLOR_PALETTE = [
  * - Applies to folder icon and name (not chevron)
  */
 export class ColorPickerModal extends Modal {
-    private plugin: NotebookNavigatorPlugin;
+    private metadataService: MetadataService;
     private folderPath: string;
     private colorGrid: HTMLDivElement;
     private focusedIndex: number = -1;
@@ -71,12 +71,12 @@ export class ColorPickerModal extends Modal {
     /**
      * Creates a new color picker modal
      * @param app - The Obsidian app instance
-     * @param plugin - The Notebook Navigator plugin instance
+     * @param metadataService - The metadata service for managing folder colors
      * @param folderPath - Path of the folder to set color for
      */
-    constructor(app: App, plugin: NotebookNavigatorPlugin, folderPath: string) {
+    constructor(app: App, metadataService: MetadataService, folderPath: string) {
         super(app);
-        this.plugin = plugin;
+        this.metadataService = metadataService;
         this.folderPath = folderPath;
     }
 
@@ -230,17 +230,9 @@ export class ColorPickerModal extends Modal {
      * Saves the selection and closes the modal
      * @param color - The selected color value
      */
-    private selectColor(color: string) {
-        // Initialize folderColors if it doesn't exist
-        if (!this.plugin.settings.folderColors) {
-            this.plugin.settings.folderColors = {};
-        }
-        
-        // Set the folder color
-        this.plugin.settings.folderColors[this.folderPath] = color;
-        
-        // Save settings
-        this.plugin.saveSettings();
+    private async selectColor(color: string) {
+        // Set the folder color using metadata service
+        await this.metadataService.setFolderColor(this.folderPath, color);
 
         // Notify callback and close
         this.onChooseColor?.(color);

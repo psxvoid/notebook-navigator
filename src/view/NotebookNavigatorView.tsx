@@ -90,7 +90,7 @@ export class NotebookNavigatorView extends ItemView {
         this.root = createRoot(container);
         this.root.render(
             <React.StrictMode>
-                <ServicesProvider app={this.plugin.app}>
+                <ServicesProvider plugin={this.plugin}>
                     <AppProvider plugin={this.plugin} isMobile={isMobile}>
                         <NotebookNavigatorComponent ref={this.componentRef} />
                     </AppProvider>

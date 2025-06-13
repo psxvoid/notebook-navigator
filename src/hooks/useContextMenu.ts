@@ -20,7 +20,7 @@
 import { useEffect, useCallback } from 'react';
 import { Menu, MenuItem, TFile, TFolder, Notice } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
-import { useFileSystemOps } from '../context/ServicesContext';
+import { useFileSystemOps, useMetadataService } from '../context/ServicesContext';
 import { isFolderAncestor, getInternalPlugin, isTFolder, isTFile } from '../utils/typeGuards';
 import { strings } from '../i18n';
 
@@ -52,6 +52,7 @@ interface MenuConfig {
 export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, config: MenuConfig | null) {
     const { app, plugin, dispatch, appState, isMobile } = useAppContext();
     const fileSystemOps = useFileSystemOps();
+    const metadataService = useMetadataService();
     
     /**
      * Handles the context menu event.
@@ -183,7 +184,12 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                         .setIcon('palette')
                         .onClick(async () => {
                             const { IconPickerModal } = await import('../modals/IconPickerModal');
-                            const modal = new IconPickerModal(app, plugin, folder.path);
+                            const modal = new IconPickerModal(
+                                app, 
+                                metadataService, 
+                                folder.path,
+                                plugin.settings.recentlyUsedIcons || []
+                            );
                             
                             modal.onChooseIcon = (iconId) => {
                                 if (iconId) {
@@ -196,15 +202,14 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 });
                 
                 // Remove icon (only show if custom icon is set)
-                const currentIcon = plugin.settings.folderIcons?.[folder.path];
+                const currentIcon = metadataService.getFolderIcon(folder.path);
                 if (currentIcon) {
                     menu.addItem((item: MenuItem) => {
                         item
                             .setTitle(strings.contextMenu.folder.removeIcon)
                             .setIcon('x')
                             .onClick(async () => {
-                                delete plugin.settings.folderIcons[folder.path];
-                                await plugin.saveSettings();
+                                await metadataService.removeFolderIcon(folder.path);
                                 dispatch({ type: 'FORCE_REFRESH' });
                             });
                     });
@@ -220,7 +225,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     .setIcon('palette')
                     .onClick(async () => {
                         const { ColorPickerModal } = await import('../modals/ColorPickerModal');
-                        const modal = new ColorPickerModal(app, plugin, folder.path);
+                        const modal = new ColorPickerModal(app, metadataService, folder.path);
                         modal.onChooseColor = () => {
                             dispatch({ type: 'FORCE_REFRESH' });
                         };
@@ -229,15 +234,14 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             });
             
             // Remove color (only show if custom color is set)
-            const currentColor = plugin.settings.folderColors?.[folder.path];
+            const currentColor = metadataService.getFolderColor(folder.path);
             if (currentColor) {
                 menu.addItem((item: MenuItem) => {
                     item
                         .setTitle(strings.contextMenu.folder.removeColor)
                         .setIcon('x')
                         .onClick(async () => {
-                            delete plugin.settings.folderColors[folder.path];
-                            await plugin.saveSettings();
+                            await metadataService.removeFolderColor(folder.path);
                             dispatch({ type: 'FORCE_REFRESH' });
                         });
                 });
@@ -320,8 +324,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             menu.addSeparator();
             
             // Pin/Unpin note
-            const pinnedNotes = plugin.settings.pinnedNotes[file.parent?.path || ''] || [];
-            const isPinned = pinnedNotes.includes(file.path);
+            const folderPath = file.parent?.path || '';
+            const isPinned = metadataService.isPinned(folderPath, file.path);
             
             menu.addItem((item: MenuItem) => {
                 item
@@ -330,16 +334,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     .onClick(async () => {
                         if (!file.parent) return;
                         
-                        const folderPath = file.parent.path;
-                        const currentPinned = plugin.settings.pinnedNotes[folderPath] || [];
-                        
-                        if (isPinned) {
-                            plugin.settings.pinnedNotes[folderPath] = currentPinned.filter(p => p !== file.path);
-                        } else {
-                            plugin.settings.pinnedNotes[folderPath] = [...currentPinned, file.path];
-                        }
-                        
-                        await plugin.saveSettings();
+                        await metadataService.togglePinnedNote(folderPath, file.path);
                         dispatch({ type: 'FORCE_REFRESH' });
                     });
             });
@@ -419,7 +414,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
         }
         
         menu.showAtMouseEvent(e);
-    }, [config?.type, config?.item, app, plugin.settings.confirmBeforeDelete, plugin.settings.showFolderIcons, plugin.settings.pinnedNotes, plugin.settings.folderColors, plugin.settings.folderIcons, dispatch, fileSystemOps, appState.selectedFolder, appState.expandedFolders]);
+    }, [config?.type, config?.item, app, plugin.settings.confirmBeforeDelete, plugin.settings.showFolderIcons, dispatch, fileSystemOps, metadataService, appState.selectedFolder, appState.expandedFolders]);
     
     useEffect(() => {
         const element = elementRef.current;

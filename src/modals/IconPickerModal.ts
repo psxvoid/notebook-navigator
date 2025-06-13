@@ -17,7 +17,7 @@
  */
 
 import { App, Modal, setIcon, getIconIds } from 'obsidian';
-import NotebookNavigatorPlugin from '../main';
+import { MetadataService } from '../services/MetadataService';
 import { strings } from '../i18n';
 
 /**
@@ -36,7 +36,7 @@ import { strings } from '../i18n';
  * all available icons, ensuring compatibility with future updates.
  */
 export class IconPickerModal extends Modal {
-    private plugin: NotebookNavigatorPlugin;
+    private metadataService: MetadataService;
     private folderPath: string;
     private searchInput: HTMLInputElement;
     private resultsContainer: HTMLDivElement;
@@ -54,19 +54,20 @@ export class IconPickerModal extends Modal {
     /**
      * Creates a new icon picker modal
      * @param app - The Obsidian app instance
-     * @param plugin - The Notebook Navigator plugin instance
+     * @param metadataService - The metadata service for managing folder icons
      * @param folderPath - Path of the folder to set icon for
+     * @param recentlyUsedIcons - List of recently used icon IDs
      */
-    constructor(app: App, plugin: NotebookNavigatorPlugin, folderPath: string) {
+    constructor(app: App, metadataService: MetadataService, folderPath: string, recentlyUsedIcons: string[] = []) {
         super(app);
-        this.plugin = plugin;
+        this.metadataService = metadataService;
         this.folderPath = folderPath;
         
         // Get all available icons
         this.allIcons = getIconIds();
         
         // Get recently used icons and filter out any that no longer exist
-        this.recentlyUsedIcons = (plugin.settings.recentlyUsedIcons || [])
+        this.recentlyUsedIcons = recentlyUsedIcons
             .filter(icon => this.allIcons.includes(icon));
     }
 
@@ -366,20 +367,9 @@ export class IconPickerModal extends Modal {
      * Updates recently used icons, saves the selection, and closes the modal
      * @param iconId - The selected icon identifier
      */
-    private selectIcon(iconId: string) {
-        // Update recently used icons (remove duplicates and add to front)
-        const recentIcons = [iconId, ...this.recentlyUsedIcons.filter(id => id !== iconId)];
-        // Keep only the last 15 recently used icons
-        this.plugin.settings.recentlyUsedIcons = recentIcons.slice(0, 15);
-        
-        // Set the folder icon
-        if (!this.plugin.settings.folderIcons) {
-            this.plugin.settings.folderIcons = {};
-        }
-        this.plugin.settings.folderIcons[this.folderPath] = iconId;
-        
-        // Save settings once
-        this.plugin.saveSettings();
+    private async selectIcon(iconId: string) {
+        // Set the folder icon using metadata service
+        await this.metadataService.setFolderIcon(this.folderPath, iconId);
 
         // Notify callback and close
         this.onChooseIcon?.(iconId);

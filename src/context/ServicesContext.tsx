@@ -20,6 +20,8 @@
 import React, { createContext, useContext, useMemo } from 'react';
 import { App } from 'obsidian';
 import { FileSystemOperations } from '../services/FileSystemService';
+import { MetadataService } from '../services/MetadataService';
+import NotebookNavigatorPlugin from '../main';
 
 /**
  * Interface defining all services available through the context.
@@ -28,6 +30,8 @@ import { FileSystemOperations } from '../services/FileSystemService';
 interface Services {
     /** File system operations service for creating, renaming, and deleting files/folders */
     fileSystemOps: FileSystemOperations;
+    /** Metadata service for managing folder colors, icons, sorts, and pinned notes */
+    metadataService: MetadataService;
 }
 
 /**
@@ -42,16 +46,17 @@ const ServicesContext = createContext<Services>(null!);
  * 
  * @param props - Component props
  * @param props.children - Child components that will have access to services
- * @param props.app - The Obsidian App instance needed by services
+ * @param props.plugin - The plugin instance providing app and metadata service
  */
-export function ServicesProvider({ children, app }: { children: React.ReactNode, app: App }) {
+export function ServicesProvider({ children, plugin }: { children: React.ReactNode, plugin: NotebookNavigatorPlugin }) {
     /**
      * Instantiate services once and memoize them.
      * Services are only recreated if the app instance changes (which shouldn't happen).
      */
     const services = useMemo(() => ({
-        fileSystemOps: new FileSystemOperations(app)
-    }), [app]);
+        fileSystemOps: new FileSystemOperations(plugin.app),
+        metadataService: plugin.metadataService
+    }), [plugin]);
 
     return (
         <ServicesContext.Provider value={services}>
@@ -80,4 +85,15 @@ export function useServices() {
 export function useFileSystemOps() {
     const { fileSystemOps } = useServices();
     return fileSystemOps;
+}
+
+/**
+ * Convenience hook to access the MetadataService directly.
+ * Use this when you need to manage folder colors, icons, sorts, or pinned notes.
+ * 
+ * @returns The MetadataService instance
+ */
+export function useMetadataService() {
+    const { metadataService } = useServices();
+    return metadataService;
 }
