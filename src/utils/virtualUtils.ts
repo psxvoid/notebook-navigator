@@ -54,15 +54,9 @@ export function scrollVirtualItemIntoView(
                 return;
             }
             
-            let targetIndex = index;
-            
-            // If scrollToHeader is true and there's a previous item, check if it's a header
-            if (scrollToHeader && index > 0) {
-                // In FileList, headers have type 'header' and are placed before their group
-                // So if we want to show the header for an item, we should scroll to index - 1
-                // if that item is a header
-                targetIndex = index - 1;
-            }
+            // When scrollToHeader is true and we're not at the first item,
+            // scroll to show the group header if it exists
+            const targetIndex = (scrollToHeader && index > 0) ? index - 1 : index;
             
             virtualizer.scrollToIndex(targetIndex, {
                 align: scrollToHeader ? 'start' : 'auto',
