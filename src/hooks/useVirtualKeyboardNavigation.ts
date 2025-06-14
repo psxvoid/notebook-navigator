@@ -122,9 +122,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                         
                         // If we get here, either no children or already expanded, so switch to files pane
                         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                        return; // Stop execution here to prevent race condition
                     } else {
                         // No selection, just switch pane
                         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                        return; // Stop execution here to prevent race condition
                     }
                 } else if (focusedPane === 'files' && appState.selectedFile) {
                     // Move focus to edit view showing the selected file
