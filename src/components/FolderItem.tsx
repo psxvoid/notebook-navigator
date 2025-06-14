@@ -22,7 +22,6 @@ import { useAppContext } from '../context/AppContext';
 import { setIcon } from 'obsidian';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 import { useContextMenu } from '../hooks/useContextMenu';
-import { useScrollIntoView } from '../hooks/useScrollIntoView';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 import { strings } from '../i18n';
 
@@ -55,14 +54,6 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
     
     // Enable context menu
     useContextMenu(folderRef, { type: 'folder', item: folder });
-    
-    // Auto-scroll to selected folder when needed
-    useScrollIntoView(
-        folderRef,
-        '.nn-left-pane-scroller',
-        isSelected,
-        [folder.path, appState.scrollToFolderTrigger]
-    );
     
     // Count files in folder (including subfolders if setting enabled)
     const fileCount = React.useMemo(() => {

@@ -18,6 +18,7 @@
 
 import React, { useMemo, useLayoutEffect, useCallback, useRef, useEffect } from 'react';
 import { TFile, TFolder, TAbstractFile, getAllTags } from 'obsidian';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { useAppContext } from '../context/AppContext';
 import { FileItem } from './FileItem';
 import { DateUtils } from '../utils/DateUtils';
@@ -28,6 +29,9 @@ import { buildTagTree, findTagNode, collectAllTagPaths, TagTreeNode } from '../u
 import { getEffectiveSortOption, sortFiles, getDateField } from '../utils/sortUtils';
 import { UNTAGGED_TAG_ID } from '../types';
 import { strings } from '../i18n';
+import type { FileListItem } from '../types/virtualization';
+import { PaneHeader } from './PaneHeader';
+import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 
 /**
  * Collects all pinned note paths from settings
@@ -160,6 +164,10 @@ export function FileList() {
     const handleFileClick = useCallback((file: TFile, e: React.MouseEvent) => {
         dispatch({ type: 'SET_SELECTED_FILE', file });
         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+        
+        // Focus the container
+        const container = document.querySelector('.nn-split-container') as HTMLElement;
+        if (container) container.focus();
         
         // Check if CMD (Mac) or Ctrl (Windows/Linux) is pressed
         const openInNewTab = e.metaKey || e.ctrlKey;
@@ -334,7 +342,106 @@ export function FileList() {
         }
     }, [selectedFolder?.path, selectedTag, selectionType, dispatch, files, appState.selectedFile, app.workspace, isMobile, plugin.settings.autoSelectFirstFile]);
     
-    // Group files by date if enabled
+    // Create flattened list items for virtualization
+    const listItems = useMemo((): FileListItem[] => {
+        const items: FileListItem[] = [];
+        
+        // Get the appropriate pinned paths based on selection type
+        let pinnedPaths: Set<string>;
+        
+        if (selectionType === 'folder' && selectedFolder) {
+            pinnedPaths = collectPinnedPaths(
+                plugin.settings.pinnedNotes,
+                selectedFolder,
+                plugin.settings.showNotesFromSubfolders
+            );
+        } else if (selectionType === 'tag') {
+            pinnedPaths = collectPinnedPaths(plugin.settings.pinnedNotes);
+        } else {
+            pinnedPaths = new Set<string>();
+        }
+        
+        // Separate pinned and unpinned files
+        const pinnedFiles = files.filter(f => pinnedPaths.has(f.path));
+        const unpinnedFiles = files.filter(f => !pinnedPaths.has(f.path));
+        
+        // Add pinned files
+        if (pinnedFiles.length > 0) {
+            items.push({ 
+                type: 'header', 
+                data: strings.fileList.pinnedSection,
+                key: 'header-pinned'
+            });
+            pinnedFiles.forEach(file => {
+                items.push({ 
+                    type: 'file', 
+                    data: file,
+                    parentFolder: selectedFolder?.path,
+                    key: file.path
+                });
+            });
+        }
+        
+        // Determine which sort option to use
+        const sortOption = getEffectiveSortOption(plugin.settings, selectionType, selectedFolder);
+        
+        // Add unpinned files with date grouping if enabled
+        if (!plugin.settings.groupByDate || sortOption.startsWith('title')) {
+            // No date grouping
+            unpinnedFiles.forEach(file => {
+                items.push({ 
+                    type: 'file', 
+                    data: file,
+                    parentFolder: selectedFolder?.path,
+                    key: file.path
+                });
+            });
+        } else {
+            // Group by date
+            let currentGroup: string | null = null;
+            unpinnedFiles.forEach(file => {
+                const dateField = getDateField(sortOption);
+                const timestamp = DateUtils.getFileTimestamp(
+                    file, 
+                    dateField === 'ctime' ? 'created' : 'modified',
+                    plugin.settings,
+                    app.metadataCache
+                );
+                const groupTitle = DateUtils.getDateGroup(timestamp);
+                
+                if (groupTitle !== currentGroup) {
+                    currentGroup = groupTitle;
+                    items.push({ 
+                        type: 'header', 
+                        data: groupTitle,
+                        key: `header-${groupTitle}`
+                    });
+                }
+                
+                items.push({ 
+                    type: 'file', 
+                    data: file,
+                    parentFolder: selectedFolder?.path,
+                    key: file.path
+                });
+            });
+        }
+        
+        return items;
+    }, [
+        files, 
+        plugin.settings.groupByDate,
+        plugin.settings.defaultFolderSort,
+        plugin.settings.folderSortOverrides,
+        plugin.settings.pinnedNotes,
+        plugin.settings.showNotesFromSubfolders,
+        selectionType,
+        selectedFolder,
+        strings.fileList.pinnedSection,
+        app.metadataCache
+    ]);
+    
+    // Group files by date if enabled (kept for date formatting)
     const groupedFiles = useMemo(() => {
         // Files are already sorted and pinned files are at the beginning
         // Just need to identify where pinned section ends
@@ -419,8 +526,72 @@ export function FileList() {
         selectedFolder
     ]);
     
+    // Add ref for scroll container
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+    
+    // Initialize virtualizer
+    const rowVirtualizer = useVirtualizer({
+        count: listItems.length,
+        getScrollElement: () => scrollContainerRef.current,
+        estimateSize: (index) => {
+            const item = listItems[index];
+            if (item.type === 'header') {
+                return 35; // Height of nn-date-group-header
+            }
+            // File item height depends on view mode
+            if (!plugin.settings.showFilePreview) {
+                return 32; // Title only mode height
+            }
+            return 70; // Normal mode with preview
+        },
+        overscan: 5, // Render 5 items above/below viewport
+        scrollPaddingStart: 0,
+        scrollPaddingEnd: 0,
+    });
+    
     // Cache selected file path to avoid repeated property access
     const selectedFilePath = appState.selectedFile?.path;
+    
+    // Handle programmatic scrolling
+    useEffect(() => {
+        if (appState.scrollToFileIndex !== null && scrollContainerRef.current) {
+            rowVirtualizer.scrollToIndex(appState.scrollToFileIndex, {
+                align: 'center',
+                behavior: 'auto'
+            });
+            // Clear the scroll request
+            dispatch({ type: 'SCROLL_TO_FILE_INDEX', index: null });
+        }
+    }, [appState.scrollToFileIndex, rowVirtualizer, dispatch]);
+    
+    // Scroll to selected file when it changes
+    useEffect(() => {
+        if (selectedFilePath && scrollContainerRef.current) {
+            const fileIndex = listItems.findIndex(item => 
+                item.type === 'file' && (item.data as TFile).path === selectedFilePath
+            );
+            
+            if (fileIndex >= 0) {
+                // Use double RAF for proper timing
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        rowVirtualizer.scrollToIndex(fileIndex, {
+                            align: 'center',
+                            behavior: 'auto'
+                        });
+                    });
+                });
+            }
+        }
+    }, [selectedFilePath, listItems, rowVirtualizer]);
+    
+    // Add keyboard navigation
+    useVirtualKeyboardNavigation({
+        items: listItems,
+        virtualizer: rowVirtualizer,
+        focusedPane: 'files',
+        containerRef: scrollContainerRef
+    });
     
     // Pre-calculate date field for all files in the group
     const dateField = useMemo(() => {
@@ -432,61 +603,119 @@ export function FileList() {
         if (!plugin.settings.showDate) return null;
         
         const dateMap = new Map<string, string>();
-        groupedFiles.forEach(group => {
-            group.files.forEach(file => {
+        let currentGroup: string | null = null;
+        
+        listItems.forEach(item => {
+            if (item.type === 'header') {
+                currentGroup = item.data as string;
+            } else if (item.type === 'file') {
+                const file = item.data as TFile;
                 const timestamp = DateUtils.getFileTimestamp(
                     file,
                     dateField === 'ctime' ? 'created' : 'modified',
                     plugin.settings,
                     app.metadataCache
                 );
-                const formatted = group.title 
-                    ? DateUtils.formatDateForGroup(timestamp, group.title, plugin.settings.dateFormat, plugin.settings.timeFormat)
+                const formatted = currentGroup && currentGroup !== strings.fileList.pinnedSection
+                    ? DateUtils.formatDateForGroup(timestamp, currentGroup, plugin.settings.dateFormat, plugin.settings.timeFormat)
                     : DateUtils.formatDate(timestamp, plugin.settings.dateFormat);
                 dateMap.set(file.path, formatted);
-            });
+            }
         });
         return dateMap;
-    }, [groupedFiles, dateField, plugin.settings.showDate, plugin.settings.dateFormat, plugin.settings.timeFormat, plugin.settings.useFrontmatterDates, plugin.settings.frontmatterCreatedField, plugin.settings.frontmatterModifiedField, plugin.settings.frontmatterDateFormat, app.metadataCache]);
+    }, [listItems, dateField, plugin.settings.showDate, plugin.settings.dateFormat, plugin.settings.timeFormat, plugin.settings.useFrontmatterDates, plugin.settings.frontmatterCreatedField, plugin.settings.frontmatterModifiedField, plugin.settings.frontmatterDateFormat, strings.fileList.pinnedSection, app.metadataCache]);
     
     // Early returns MUST come after all hooks
     if (!selectedFolder && !selectedTag) {
         return (
-            <div className="nn-file-list nn-empty-state">
-                <div className="nn-empty-message">{strings.fileList.emptyStateNoSelection}</div>
+            <div className="nn-right-pane">
+                <PaneHeader type="file" />
+                <div className="nn-file-list nn-empty-state">
+                    <div className="nn-empty-message">{strings.fileList.emptyStateNoSelection}</div>
+                </div>
             </div>
         );
     }
     
     if (files.length === 0) {
         return (
-            <div className="nn-file-list nn-empty-state">
-                <div className="nn-empty-message">{strings.fileList.emptyStateNoNotes}</div>
+            <div className="nn-right-pane">
+                <PaneHeader type="file" />
+                <div className="nn-file-list nn-empty-state">
+                    <div className="nn-empty-message">{strings.fileList.emptyStateNoNotes}</div>
+                </div>
             </div>
         );
     }
     
     return (
-        <div className="nn-file-list">
-            {groupedFiles.map((group) => (
-                <div key={group.title || 'ungrouped'} className="nn-file-group">
-                    {group.title && (
-                        <div className="nn-date-group-header">{group.title}</div>
-                    )}
-                    {group.files.map((file) => (
-                        <FileItem
-                            key={file.path}
-                            file={file}
-                            isSelected={selectedFilePath === file.path}
-                            onClick={(e) => handleFileClick(file, e)}
-                            dateGroup={group.title}
-                            settingsVersion={refreshCounter}
-                            formattedDate={filesWithDates?.get(file.path)}
-                            parentFolder={selectedFolder?.path}
-                        />
-                    ))}
-                </div>
-            ))}
+        <div className="nn-right-pane">
+            <PaneHeader type="file" />
+            <div 
+                ref={scrollContainerRef}
+                className="nn-file-list"
+                data-pane="files"
+            >
+                {/* Virtual list */}
+                {listItems.length > 0 && (
+                    <div
+                        style={{
+                            height: `${rowVirtualizer.getTotalSize()}px`,
+                            width: '100%',
+                            position: 'relative',
+                        }}
+                    >
+                        {rowVirtualizer.getVirtualItems().map((virtualItem) => {
+                            const item = listItems[virtualItem.index];
+                            const isSelected = item.type === 'file' && 
+                                selectedFilePath === (item.data as TFile).path;
+                            
+                            // Find current date group for file items
+                            let dateGroup: string | null = null;
+                            if (item.type === 'file') {
+                                // Look backwards to find the most recent header
+                                for (let i = virtualItem.index - 1; i >= 0; i--) {
+                                    if (listItems[i].type === 'header') {
+                                        dateGroup = listItems[i].data as string;
+                                        break;
+                                    }
+                                }
+                            }
+                            
+                            return (
+                                <div
+                                    key={virtualItem.key}
+                                    data-index={virtualItem.index}
+                                    ref={rowVirtualizer.measureElement}
+                                    style={{
+                                        position: 'absolute',
+                                        top: 0,
+                                        left: 0,
+                                        width: '100%',
+                                        transform: `translateY(${virtualItem.start}px)`,
+                                    }}
+                                >
+                                    {item.type === 'header' ? (
+                                        <div className="nn-date-group-header">
+                                            {item.data as string}
+                                        </div>
+                                    ) : (
+                                        <FileItem
+                                            file={item.data as TFile}
+                                            isSelected={isSelected}
+                                            onClick={(e) => handleFileClick(item.data as TFile, e)}
+                                            dateGroup={dateGroup}
+                                            settingsVersion={refreshCounter}
+                                            formattedDate={filesWithDates?.get((item.data as TFile).path)}
+                                            parentFolder={item.parentFolder}
+                                        />
+                                    )}
+                                </div>
+                            );
+                        })}
+                    </div>
+                )}
+            </div>
         </div>
     );
 }

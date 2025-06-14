@@ -23,7 +23,6 @@ import { DateUtils } from '../utils/DateUtils';
 import { PreviewTextUtils } from '../utils/PreviewTextUtils';
 import { getDateField } from '../utils/sortUtils';
 import { useContextMenu } from '../hooks/useContextMenu';
-import { useScrollIntoView } from '../hooks/useScrollIntoView';
 import { strings } from '../i18n';
 
 interface FileItemProps {
@@ -55,9 +54,6 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
     
     // Enable context menu
     useContextMenu(fileRef, { type: 'file', item: file });
-    
-    // Auto-scroll to selected file when needed
-    useScrollIntoView(fileRef, '.nn-file-list', isSelected, [file.path]);
 
     // Use pre-formatted date if provided, otherwise format it ourselves
     const displayDate = useMemo(() => {

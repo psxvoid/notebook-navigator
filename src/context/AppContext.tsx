@@ -22,6 +22,7 @@ import { App, TFile, TFolder } from 'obsidian';
 import NotebookNavigatorPlugin from '../main';
 import { isTFolder, isTFile } from '../utils/typeGuards';
 import { STORAGE_KEYS } from '../types';
+import { flattenFolderTree, findFolderIndex } from '../utils/treeFlattener';
 
 /**
  * Global application state interface.
@@ -46,6 +47,14 @@ export interface AppState {
     scrollToFolderTrigger: number;
     /** Current view on mobile devices - 'list' for folder/tags, 'files' for file list */
     currentMobileView: 'list' | 'files';
+    /** Virtual scroll position for folder tree */
+    folderTreeScrollTop: number;
+    /** Virtual scroll position for file list */
+    fileListScrollTop: number;
+    /** Index to scroll to in folder tree (null when not scrolling) */
+    scrollToFolderIndex: number | null;
+    /** Index to scroll to in file list (null when not scrolling) */
+    scrollToFileIndex: number | null;
 }
 
 /**
@@ -65,7 +74,11 @@ export type AppAction =
     | { type: 'REVEAL_FILE'; file: TFile }
     | { type: 'CLEANUP_DELETED_ITEMS' }
     | { type: 'FORCE_REFRESH' }
-    | { type: 'SET_MOBILE_VIEW'; view: 'list' | 'files' };
+    | { type: 'SET_MOBILE_VIEW'; view: 'list' | 'files' }
+    | { type: 'SET_FOLDER_TREE_SCROLL'; scrollTop: number }
+    | { type: 'SET_FILE_LIST_SCROLL'; scrollTop: number }
+    | { type: 'SCROLL_TO_FOLDER_INDEX'; index: number | null }
+    | { type: 'SCROLL_TO_FILE_INDEX'; index: number | null };
 
 /**
  * Context value type containing all app-level data and functions
@@ -164,7 +177,11 @@ function loadStateFromStorage(app: App): AppState {
         expandedTags,
         focusedPane: 'folders',
         scrollToFolderTrigger: 0,
-        currentMobileView
+        currentMobileView,
+        folderTreeScrollTop: 0,
+        fileListScrollTop: 0,
+        scrollToFolderIndex: null,
+        scrollToFileIndex: null
     };
 }
 
@@ -343,6 +360,26 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
         case 'SET_MOBILE_VIEW': {
             // Update the current mobile view
             return { ...state, currentMobileView: action.view };
+        }
+        
+        case 'SET_FOLDER_TREE_SCROLL': {
+            // Update folder tree scroll position
+            return { ...state, folderTreeScrollTop: action.scrollTop };
+        }
+        
+        case 'SET_FILE_LIST_SCROLL': {
+            // Update file list scroll position
+            return { ...state, fileListScrollTop: action.scrollTop };
+        }
+        
+        case 'SCROLL_TO_FOLDER_INDEX': {
+            // Set the folder index to scroll to
+            return { ...state, scrollToFolderIndex: action.index };
+        }
+        
+        case 'SCROLL_TO_FILE_INDEX': {
+            // Set the file index to scroll to
+            return { ...state, scrollToFileIndex: action.index };
         }
         
         default:
