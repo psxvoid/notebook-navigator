@@ -159,6 +159,7 @@ Until the plugin is approved in the Community Plugins directory, you can install
 ### Advanced
 
 - **Confirm before deleting notes:** Show confirmation dialog when deleting notes or folders
+- **Try to read timestamps from frontmatter:** Use created/modified frontmatter properties for date display and sorting when available
 
 ## Tips and Tricks
 
