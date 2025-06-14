@@ -180,7 +180,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                                     selectItemAtIndex(items[parentIndex]);
                                     virtualizer.scrollToIndex(parentIndex, {
                                         align: 'center',
-                                        behavior: 'smooth'
+                                        behavior: 'auto'
                                     });
                                 }
                             }
