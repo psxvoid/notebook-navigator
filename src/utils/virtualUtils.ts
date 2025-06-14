@@ -25,12 +25,14 @@ import { Virtualizer } from '@tanstack/react-virtual';
  * @param virtualizer - The TanStack virtualizer instance
  * @param index - The index of the item to scroll to
  * @param behavior - The scroll behavior ('auto' or 'smooth')
+ * @param scrollToHeader - If true, scrolls to show the group header above the item
  */
 export function scrollVirtualItemIntoView(
     virtualizer: Virtualizer<any, any>,
     index: number,
     behavior: 'auto' | 'smooth' = 'auto',
-    maxRetries: number = 3
+    maxRetries: number = 3,
+    scrollToHeader: boolean = false
 ) {
     if (index < 0 || !virtualizer) return () => {};
     
@@ -52,8 +54,18 @@ export function scrollVirtualItemIntoView(
                 return;
             }
             
-            virtualizer.scrollToIndex(index, {
-                align: 'auto',
+            let targetIndex = index;
+            
+            // If scrollToHeader is true and there's a previous item, check if it's a header
+            if (scrollToHeader && index > 0) {
+                // In FileList, headers have type 'header' and are placed before their group
+                // So if we want to show the header for an item, we should scroll to index - 1
+                // if that item is a header
+                targetIndex = index - 1;
+            }
+            
+            virtualizer.scrollToIndex(targetIndex, {
+                align: scrollToHeader ? 'start' : 'auto',
                 behavior
             });
         } catch (error) {

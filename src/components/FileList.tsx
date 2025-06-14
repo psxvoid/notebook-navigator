@@ -598,11 +598,21 @@ export function FileList() {
             const fileIndex = filePathToIndex.get(selectedFilePath);
             
             if (fileIndex !== undefined && fileIndex >= 0) {
-                const cleanup = scrollVirtualItemIntoView(rowVirtualizer, fileIndex);
+                // Check if the previous item is a header (group header)
+                const isFirstInGroup = fileIndex > 0 && listItems[fileIndex - 1]?.type === 'header';
+                
+                // When auto-selecting first file and it has a group header, ensure header is visible
+                const cleanup = scrollVirtualItemIntoView(
+                    rowVirtualizer, 
+                    fileIndex,
+                    'auto',
+                    3,
+                    isFirstInGroup
+                );
                 return cleanup;
             }
         }
-    }, [selectedFilePath, filePathToIndex, rowVirtualizer]);
+    }, [selectedFilePath, filePathToIndex, rowVirtualizer, listItems]);
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({

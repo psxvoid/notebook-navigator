@@ -232,7 +232,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         // Scroll to and select new item
         if (targetIndex >= 0 && targetIndex < items.length) {
             selectItemAtIndex(items[targetIndex]);
-            scrollVirtualItemIntoView(virtualizer, targetIndex);
+            
+            // Check if the item has a group header above it that should be visible
+            const isFirstInGroup = targetIndex > 0 && items[targetIndex - 1]?.type === 'header';
+            
+            scrollVirtualItemIntoView(virtualizer, targetIndex, 'auto', 3, isFirstInGroup);
         }
     }, [items, virtualizer, focusedPane, appState, dispatch, plugin, app, isMobile]);
     
