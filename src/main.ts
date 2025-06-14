@@ -57,6 +57,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * Ensures proper initialization order for all plugin components
      */
     async onload() {
+        const startTime = performance.now();
+        
         await this.loadSettings();
         
         // Initialize metadata service
@@ -170,6 +172,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         
         // Clean up settings after workspace is ready
         this.app.workspace.onLayoutReady(async () => {
+            const cleanupStartTime = performance.now();
             await this.metadataService.cleanupAllMetadata();
             
             // Always open the view if it doesn't exist
@@ -177,6 +180,10 @@ export default class NotebookNavigatorPlugin extends Plugin {
             if (leaves.length === 0) {
                 await this.activateView(true);
             }
+            
+            // Log total startup time
+            const totalTime = performance.now() - startTime;
+            console.log(`Plugin loaded in ${totalTime.toFixed(2)}ms`);
         });
     }
 
