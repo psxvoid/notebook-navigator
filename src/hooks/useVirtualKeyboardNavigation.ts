@@ -6,6 +6,7 @@ import { CombinedLeftPaneItem, FileListItem } from '../types/virtualization';
 import { TagTreeNode } from '../utils/tagUtils';
 import { isTypingInInput } from '../utils/domUtils';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
+import { isTFolder } from '../utils/typeGuards';
 
 type VirtualItem = CombinedLeftPaneItem | FileListItem;
 
@@ -101,7 +102,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                         if (item.type === 'folder') {
                             const folder = item.data;
                             const isExpanded = appState.expandedFolders.has(folder.path);
-                            const hasChildren = folder.children.length > 0;
+                            const hasChildren = folder.children.some(child => isTFolder(child));
                             
                             // Only expand if: has children AND not already expanded
                             if (hasChildren && !isExpanded) {
