@@ -209,7 +209,12 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
     switch (action.type) {
         case 'SET_SELECTED_FOLDER': {
             // Update the selected folder and clear tag selection
-            return { ...state, selectionType: 'folder', selectedFolder: action.folder, selectedTag: null };
+            return { 
+                ...state, 
+                selectionType: 'folder', 
+                selectedFolder: action.folder, 
+                selectedTag: null
+            };
         }
         
         case 'SET_SELECTED_TAG': {

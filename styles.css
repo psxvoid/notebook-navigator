@@ -214,9 +214,14 @@ button.nn-icon-button {
 .nn-left-pane-scroller {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    padding: 0 var(--size-4-1);
+    padding: var(--size-4-1) 0;
+    background-color: var(--background-secondary);
+    line-height: 1.4; /* Increased from 1 to prevent text cutoff on Windows */
+    /* Ensure scroll events work properly with virtualization */
+    position: relative;
 }
 
 
@@ -224,15 +229,7 @@ button.nn-icon-button {
    Folder Tree Styles
    ======================================================================== */
 
-/* Left pane scroller - scrollable container for folder/tag items */
-.nn-left-pane-scroller {
-    overflow-y: auto;
-    overflow-x: hidden;
-    padding: var(--size-4-1) 0;
-    background-color: var(--background-secondary);
-    line-height: 1.4; /* Increased from 1 to prevent text cutoff on Windows */
-    flex: 1;
-}
+/* Note: Left pane scroller styles are defined above in the Left Pane Scroller section */
 
 /* Folder item - container for each folder in the tree */
 .nn-folder-item {
@@ -1152,7 +1149,7 @@ body.nn-resizing {
 .nn-left-pane-scroller > div:first-child,
 .nn-file-list > div:first-child {
     position: relative;
-    overflow: hidden;
+    /* Remove overflow: hidden to allow scroll events to propagate properly */
 }
 
 /* Virtual items container */

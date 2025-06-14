@@ -33,13 +33,12 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         // Skip if typing in input
         if (isTypingInInput(e)) return;
         
-        // Check if the navigator exists and which pane is focused
+        // Check if the navigator exists
         const navigatorContainer = document.querySelector('[data-focus-pane]');
         if (!navigatorContainer) return;
         
-        // Check if this is the correct pane
-        const currentFocusedPane = navigatorContainer.getAttribute('data-focus-pane');
-        if (currentFocusedPane !== focusedPane) return;
+        // Use the state directly instead of DOM attribute to avoid timing issues
+        if (appState.focusedPane !== focusedPane) return;
         
         // Debounce rapid key presses with a more reasonable threshold
         const now = Date.now();
@@ -97,28 +96,32 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 if (focusedPane === 'folders') {
                     if (currentIndex >= 0) {
                         const item = items[currentIndex] as CombinedLeftPaneItem;
-                        let shouldSwitchPane = true;
                         
                         // Check if we should expand instead of switching panes
                         if (item.type === 'folder') {
                             const folder = item.data;
                             const isExpanded = appState.expandedFolders.has(folder.path);
-                            if (!isExpanded && folder.children.length > 0) {
+                            const hasChildren = folder.children.length > 0;
+                            
+                            // Only expand if: has children AND not already expanded
+                            if (hasChildren && !isExpanded) {
                                 handleExpandCollapse(item, true);
-                                shouldSwitchPane = false;
+                                return; // Don't switch panes
                             }
                         } else if (item.type === 'tag') {
                             const tag = item.data as TagTreeNode;
                             const isExpanded = appState.expandedTags.has(tag.path);
-                            if (!isExpanded && tag.children.size > 0) {
+                            const hasChildren = tag.children.size > 0;
+                            
+                            // Only expand if: has children AND not already expanded
+                            if (hasChildren && !isExpanded) {
                                 handleExpandCollapse(item, true);
-                                shouldSwitchPane = false;
+                                return; // Don't switch panes
                             }
                         }
                         
-                        if (shouldSwitchPane) {
-                            dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                        }
+                        // If we get here, either no children or already expanded, so switch to files pane
+                        dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                     } else {
                         // No selection, just switch pane
                         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });

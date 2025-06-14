@@ -147,6 +147,19 @@ export const LeftPaneVirtualized: React.FC = () => {
         }
     }, [appState.scrollToFolderTrigger, appState.selectedFolder, items, rowVirtualizer]);
     
+    // Also handle scroll when selected folder changes (for manual selection and auto-reveal)
+    useEffect(() => {
+        if (appState.selectedFolder && appState.selectionType === 'folder' && rowVirtualizer) {
+            // Find the folder directly in the items array
+            const actualIndex = items.findIndex(item => 
+                item.type === 'folder' && item.data.path === appState.selectedFolder?.path
+            );
+            if (actualIndex >= 0) {
+                scrollVirtualItemIntoView(rowVirtualizer, actualIndex);
+            }
+        }
+    }, [appState.selectedFolder, appState.selectionType, items, rowVirtualizer]);
+    
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
         items: items,
@@ -165,10 +178,6 @@ export const LeftPaneVirtualized: React.FC = () => {
         dispatch({ type: 'SET_SELECTED_FOLDER', folder });
         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         
-        // Focus the container
-        const container = document.querySelector('.nn-split-container') as HTMLElement;
-        if (container) container.focus();
-        
         // Switch to files view on mobile
         if (isMobile) {
             dispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
@@ -184,10 +193,6 @@ export const LeftPaneVirtualized: React.FC = () => {
     const handleTagClick = useCallback((tagPath: string) => {
         dispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
-        
-        // Focus the container
-        const container = document.querySelector('.nn-split-container') as HTMLElement;
-        if (container) container.focus();
         
         // Switch to files view on mobile
         if (isMobile) {
