@@ -510,18 +510,6 @@ button.nn-icon-button {
     padding: var(--size-4-2) var(--size-4-3);
 }
 
-/* File separator - horizontal line between files */
-/* Legacy non-virtualized separator (kept for compatibility) */
-.nn-file-item:not(:last-child)::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    inset-inline-start: var(--size-4-5);
-    inset-inline-end: var(--size-4-5);
-    height: 1px;
-    background-color: var(--background-modifier-border);
-}
-
 /* Virtual list file separator */
 .nn-virtual-file-item:not(.nn-last-file)::after {
     content: '';
