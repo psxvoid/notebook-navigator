@@ -12,6 +12,12 @@ A plugin for [Obsidian](https://obsidian.md) that replaces the default file expl
 
 ![Notebook Navigator Interface](https://github.com/johansan/notebook-navigator/blob/main/images/screenshot2.png?raw=true)
 
+## Support Development
+
+If you love using Notebook Navigator, please consider supporting its continued development.
+
+[❤️ Sponsor on GitHub](https://github.com/sponsors/johansan)
+
 ## Features
 
 ### Core Interface
@@ -267,12 +273,6 @@ npm run build
 Notebook Navigator is built and maintained by [Johan Sanneblad](https://www.linkedin.com/in/johansan/), CEO at [TokenTek](https://tokentek.ai). Johan has a PhD in Applied IT and has been programming for over 40 years. He has worked with innovation development for companies such as Apple, Google, Microsoft, Lego, SKF, Volvo Cars, Volvo Group and Yamaha, and is currently exploring how Transformer-based AI and AI agents can improve corporate productivity.
 
 Feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/johansan/).
-
-## Support Development
-
-If you love using Notebook Navigator, please consider supporting its continued development.
-
-[❤️ Sponsor on GitHub](https://github.com/sponsors/johansan)
 
 ## License
 
