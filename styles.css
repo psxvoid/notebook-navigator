@@ -511,6 +511,7 @@ button.nn-icon-button {
 }
 
 /* File separator - horizontal line between files */
+/* Legacy non-virtualized separator (kept for compatibility) */
 .nn-file-item:not(:last-child)::after {
     content: '';
     position: absolute;
@@ -519,6 +520,18 @@ button.nn-icon-button {
     inset-inline-end: var(--size-4-5);
     height: 1px;
     background-color: var(--background-modifier-border);
+}
+
+/* Virtual list file separator */
+.nn-virtual-file-item:not(.nn-last-file)::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    inset-inline-start: var(--size-4-5);
+    inset-inline-end: var(--size-4-5);
+    height: 1px;
+    background-color: var(--background-modifier-border);
+    z-index: 1;
 }
 
 /* File text content - left side container for name and preview */
@@ -792,6 +805,16 @@ button.nn-icon-button {
 
 /* Remove separator above selected item */
 .nn-file-item:has(+ .nn-file-item.nn-selected)::after {
+    display: none;
+}
+
+/* Virtual list: Remove separator below selected item */
+.nn-virtual-file-item.nn-item-selected::after {
+    display: none;
+}
+
+/* Virtual list: Remove separator above selected item (on the item before) */
+.nn-virtual-file-item.nn-before-selected::after {
     display: none;
 }
 
@@ -1159,6 +1182,11 @@ body.nn-resizing {
     top: 0;
     left: 0;
     width: 100%;
+}
+
+/* Virtual file item wrapper - position relative for separator positioning */
+.nn-virtual-file-item {
+    position: relative;
 }
 
 /* ========================================================================

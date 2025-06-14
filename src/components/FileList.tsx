@@ -691,6 +691,16 @@ export function FileList() {
                             const isSelected = item.type === 'file' && 
                                 selectedFilePath === (item.data as TFile).path;
                             
+                            // Check if this is the last file item
+                            const isLastFile = item.type === 'file' && 
+                                (virtualItem.index === listItems.length - 1 || 
+                                 (virtualItem.index < listItems.length - 1 && listItems[virtualItem.index + 1].type === 'header'));
+                            
+                            // Check if next item is selected (for hiding separator)
+                            const nextItemSelected = virtualItem.index < listItems.length - 1 && 
+                                listItems[virtualItem.index + 1].type === 'file' && 
+                                selectedFilePath === (listItems[virtualItem.index + 1].data as TFile).path;
+                            
                             // Find current date group for file items
                             let dateGroup: string | null = null;
                             if (item.type === 'file') {
@@ -708,6 +718,7 @@ export function FileList() {
                                     key={virtualItem.key}
                                     data-index={virtualItem.index}
                                     ref={rowVirtualizer.measureElement}
+                                    className={`nn-virtual-item ${item.type === 'file' ? 'nn-virtual-file-item' : ''} ${isLastFile ? 'nn-last-file' : ''} ${isSelected ? 'nn-item-selected' : ''} ${nextItemSelected ? 'nn-before-selected' : ''}`}
                                     style={{
                                         position: 'absolute',
                                         top: 0,
