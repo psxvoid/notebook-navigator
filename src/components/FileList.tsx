@@ -598,10 +598,11 @@ export function FileList() {
             const fileIndex = filePathToIndex.get(selectedFilePath);
             
             if (fileIndex !== undefined && fileIndex >= 0) {
-                // Check if the previous item is a header (group header)
-                const isFirstInGroup = fileIndex > 0 && listItems[fileIndex - 1]?.type === 'header';
+                // Only scroll to header when it's the first file (auto-selection)
+                // Don't do it during normal navigation to avoid jumping
+                const isFirstFile = fileIndex === 0 || (fileIndex === 1 && listItems[0]?.type === 'header');
+                const isFirstInGroup = isFirstFile && fileIndex > 0 && listItems[fileIndex - 1]?.type === 'header';
                 
-                // When auto-selecting first file and it has a group header, ensure header is visible
                 const cleanup = scrollVirtualItemIntoView(
                     rowVirtualizer, 
                     fileIndex,
