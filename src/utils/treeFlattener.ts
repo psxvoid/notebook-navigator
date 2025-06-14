@@ -22,12 +22,8 @@ export function flattenFolderTree(
 ): FolderTreeItem[] {
     const items: FolderTreeItem[] = [];
     
-    // Sort folders alphabetically
-    const sortedFolders = folders.slice().sort((a, b) => 
-        a.name.localeCompare(b.name)
-    );
-    
-    sortedFolders.forEach(folder => {
+    // Folders are already sorted by the caller
+    folders.forEach(folder => {
         // Prevent circular references
         if (visitedPaths.has(folder.path)) {
             console.warn(`Circular reference detected for folder: ${folder.path}`);
@@ -35,7 +31,7 @@ export function flattenFolderTree(
         }
         
         // Skip excluded folders
-        if (excludePatterns.length > 0 && shouldExcludeFolder(folder.path, excludePatterns)) {
+        if (excludePatterns.length > 0 && shouldExcludeFolder(folder.name, excludePatterns)) {
             return;
         }
         

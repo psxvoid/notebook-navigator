@@ -128,8 +128,14 @@ export const LeftPaneVirtualized: React.FC = () => {
     useEffect(() => {
         if (appState.scrollToFolderIndex !== null && rowVirtualizer) {
             const cleanup = scrollVirtualItemIntoView(rowVirtualizer, appState.scrollToFolderIndex);
-            dispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: null });
-            return cleanup;
+            // Delay clearing the index to ensure scroll completes
+            const clearTimeout = setTimeout(() => {
+                dispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: null });
+            }, 50);
+            return () => {
+                cleanup();
+                clearTimeout(clearTimeout);
+            };
         }
     }, [appState.scrollToFolderIndex, rowVirtualizer, dispatch]);
     

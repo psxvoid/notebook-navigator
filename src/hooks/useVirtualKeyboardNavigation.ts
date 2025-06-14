@@ -381,6 +381,12 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             try {
                 // Use Obsidian's confirm dialog pattern
                 modal = new (plugin.app as any).Modal(plugin.app);
+                
+                // Set up onClose handler immediately after creation
+                modal.onClose = () => {
+                    safeResolve(false);
+                };
+                
                 modal.titleEl.setText(`Delete "${fileToDelete.name}"?`);
                 modal.contentEl.setText('This action cannot be undone.');
                 
@@ -402,11 +408,6 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                             safeResolve(true);
                         });
                 });
-                
-                // Handle modal close without button click (e.g., ESC key)
-                modal.onClose = () => {
-                    safeResolve(false);
-                };
                 
                 modal.open();
             } catch (error) {

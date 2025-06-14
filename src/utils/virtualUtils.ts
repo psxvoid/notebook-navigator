@@ -29,13 +29,15 @@ import { Virtualizer } from '@tanstack/react-virtual';
 export function scrollVirtualItemIntoView(
     virtualizer: Virtualizer<any, any>,
     index: number,
-    behavior: 'auto' | 'smooth' = 'auto'
+    behavior: 'auto' | 'smooth' = 'auto',
+    maxRetries: number = 3
 ) {
-    if (index < 0 || !virtualizer) return;
+    if (index < 0 || !virtualizer) return () => {};
     
-    // Use setTimeout to ensure virtualizer has measured items
-    // This is more reliable than double RAF for virtualized lists
-    const timeoutId = setTimeout(() => {
+    let retryCount = 0;
+    let timeoutId: NodeJS.Timeout | null = null;
+    
+    const attemptScroll = () => {
         try {
             // Check if virtualizer is still valid and not disposed
             if (!virtualizer || 
@@ -55,11 +57,25 @@ export function scrollVirtualItemIntoView(
                 behavior
             });
         } catch (error) {
-            // Fail silently if virtualizer is not ready
-            console.debug('Failed to scroll to virtual item:', error);
+            // Retry if we haven't exceeded max retries
+            if (retryCount < maxRetries) {
+                retryCount++;
+                console.debug(`Retrying scroll to virtual item (attempt ${retryCount}/${maxRetries}):`, error);
+                timeoutId = setTimeout(attemptScroll, 50 * retryCount);
+            } else {
+                console.debug('Failed to scroll to virtual item after max retries:', error);
+            }
         }
-    }, 0);
+    };
+    
+    // Use setTimeout to ensure virtualizer has measured items
+    // This is more reliable than double RAF for virtualized lists
+    timeoutId = setTimeout(attemptScroll, 0);
     
     // Return cleanup function
-    return () => clearTimeout(timeoutId);
+    return () => {
+        if (timeoutId) {
+            clearTimeout(timeoutId);
+        }
+    };
 }
