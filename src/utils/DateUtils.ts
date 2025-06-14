@@ -238,8 +238,15 @@ export class DateUtils {
                         return frontmatterValue;
                     }
                     
-                    // If it's a string, parse it with the configured format
+                    // If it's a string, parse it
                     if (typeof frontmatterValue === 'string') {
+                        // First try to parse as ISO 8601 (standard format)
+                        const isoDate = new Date(frontmatterValue);
+                        if (!isNaN(isoDate.getTime())) {
+                            return isoDate.getTime();
+                        }
+                        
+                        // If ISO parsing failed, try with the configured format
                         const parsedDate = parse(
                             frontmatterValue, 
                             settings.frontmatterDateFormat, 
@@ -248,7 +255,7 @@ export class DateUtils {
                         
                         // Check if parsing failed
                         if (isNaN(parsedDate.getTime())) {
-                            console.error(`Failed to parse frontmatter ${dateType} timestamp for ${file.path}: Invalid format or value "${frontmatterValue}" (expected format: ${settings.frontmatterDateFormat})`);
+                            console.error(`Failed to parse frontmatter ${dateType} timestamp for ${file.path}: Invalid format or value "${frontmatterValue}" (expected format: ${settings.frontmatterDateFormat} or ISO 8601)`);
                         } else {
                             return parsedDate.getTime();
                         }

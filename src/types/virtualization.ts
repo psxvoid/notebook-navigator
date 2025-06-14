@@ -35,4 +35,5 @@ export type CombinedLeftPaneItem =
   | FolderTreeItem
   | { type: 'tag-header'; key: string }
   | TagTreeItem
-  | { type: 'untagged'; data: TagTreeNode; key: string };
+  | { type: 'untagged'; data: TagTreeNode; key: string }
+  | { type: 'spacer'; key: string };

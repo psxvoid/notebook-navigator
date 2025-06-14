@@ -356,9 +356,9 @@ export const STRINGS_ZH = {
             frontmatterDateFormat: {
                 name: '时间戳格式',
                 desc: '用于解析前言中时间戳的格式',
-                placeholder: 'yyyy-MM-dd HH:mm:ss',
+                placeholder: "yyyy-MM-dd'T'HH:mm:ss",
                 helpTooltip: '查看 date-fns 格式文档',
-                help: '常用格式:\nyyyy-MM-dd HH:mm:ss → 2025-01-04 14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM',
+                help: '常用格式:\nyyyy-MM-dd\'T\'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM',
             },
             supportDevelopment: {
                 name: '支持开发',

@@ -356,9 +356,9 @@ export const STRINGS_EN = {
             frontmatterDateFormat: {
                 name: 'Timestamp format',
                 desc: 'Format used to parse timestamps in frontmatter',
-                placeholder: 'yyyy-MM-dd HH:mm:ss',
+                placeholder: "yyyy-MM-dd'T'HH:mm:ss",
                 helpTooltip: 'See date-fns format documentation',
-                help: 'Common formats:\nyyyy-MM-dd HH:mm:ss → 2025-01-04 14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM',
+                help: 'Common formats:\nyyyy-MM-dd\'T\'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM',
             },
             supportDevelopment: {
                 name: 'Support development',

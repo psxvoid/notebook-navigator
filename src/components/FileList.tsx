@@ -326,6 +326,21 @@ export function FileList() {
         return () => clearTimeout(timeoutId);
     }, [selectedFolder?.path, selectedTag, selectionType, dispatch, files, appState.selectedFile, app.workspace, isMobile, plugin.settings.autoSelectFirstFile]);
     
+    // Auto-select first file when files pane gains focus and no file is selected
+    useEffect(() => {
+        if (appState.focusedPane === 'files' && !appState.selectedFile && files.length > 0) {
+            const firstFile = files[0];
+            // Select the first file when focus switches to files pane
+            dispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
+            
+            // Open the file in the editor but keep focus in file list
+            const leaf = app.workspace.getLeaf(false);
+            if (leaf) {
+                leaf.openFile(firstFile, { active: false });
+            }
+        }
+    }, [appState.focusedPane, appState.selectedFile, files, dispatch, app.workspace]);
+    
     // Create flattened list items for virtualization
     const listItems = useMemo((): FileListItem[] => {
         const items: FileListItem[] = [];

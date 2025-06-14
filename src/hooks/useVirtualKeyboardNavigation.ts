@@ -274,7 +274,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         return currentIndex; // Stay at current if no previous item
     };
     
-    // Check if item is selectable (not a header)
+    // Check if item is selectable (not a header or spacer)
     const isSelectableItem = (item: VirtualItem, pane: string): boolean => {
         if (!item || !('type' in item)) return false;
         

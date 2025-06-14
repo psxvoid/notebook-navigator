@@ -1288,10 +1288,7 @@ body.nn-resizing {
     will-change: transform;
 }
 
-/* Add bottom padding to left pane on mobile to prevent last item from being hidden */
-.notebook-navigator-mobile .nn-left-pane-scroller {
-    padding-bottom: 40px; /* Extra space for mobile UI elements */
-}
+/* Note: Bottom spacing is handled by a spacer item in the virtualized list */
 
 /* Disable drag and drop cursors on mobile */
 .notebook-navigator-mobile [draggable="true"] {

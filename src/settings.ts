@@ -116,7 +116,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     useFrontmatterDates: false,
     frontmatterCreatedField: 'created',
     frontmatterModifiedField: 'modified',
-    frontmatterDateFormat: 'yyyy-MM-dd HH:mm:ss',
+    frontmatterDateFormat: "yyyy-MM-dd'T'HH:mm:ss",
     // Internal
     pinnedNotes: {},
     folderIcons: {},
@@ -585,7 +585,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.frontmatterDateFormat.desc,
             strings.settings.items.frontmatterDateFormat.placeholder,
             () => this.plugin.settings.frontmatterDateFormat,
-            (value) => { this.plugin.settings.frontmatterDateFormat = value || 'yyyy-MM-dd HH:mm:ss'; }
+            (value) => { this.plugin.settings.frontmatterDateFormat = value || "yyyy-MM-dd'T'HH:mm:ss"; }
         ).addExtraButton(button => button
             .setIcon('help')
             .setTooltip(strings.settings.items.frontmatterDateFormat.helpTooltip)

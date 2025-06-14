@@ -10,7 +10,7 @@ import { strings } from '../i18n';
 import { isTFolder } from '../utils/typeGuards';
 import type { CombinedLeftPaneItem } from '../types/virtualization';
 import { buildTagTree, TagTreeNode, getTotalNoteCount } from '../utils/tagUtils';
-import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
+import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders } from '../utils/fileFilters';
 import { UNTAGGED_TAG_ID } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
@@ -18,6 +18,7 @@ import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 export const LeftPaneVirtualized: React.FC = () => {
     const { app, plugin, appState, dispatch, refreshCounter, isMobile } = useAppContext();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const spacerHeight = isMobile ? 40 : 25; // More space on mobile
     
     // Get root folders to display
     const rootFolders = useMemo(() => {
@@ -70,7 +71,7 @@ export const LeftPaneVirtualized: React.FC = () => {
         const folderItems = flattenFolderTree(
             rootFolders,
             appState.expandedFolders,
-            plugin.settings.ignoreFolders ? plugin.settings.ignoreFolders.split('\n').filter((p: string) => p.trim()) : []
+            parseExcludedFolders(plugin.settings.ignoreFolders || '')
         );
         allItems.push(...folderItems);
         
@@ -107,6 +108,12 @@ export const LeftPaneVirtualized: React.FC = () => {
             }
         }
         
+        // Add spacer at the end for better visibility
+        allItems.push({
+            type: 'spacer',
+            key: 'bottom-spacer'
+        });
+        
         return allItems;
     }, [rootFolders, appState.expandedFolders, appState.expandedTags, 
         plugin.settings.ignoreFolders, plugin.settings.showTags, 
@@ -119,6 +126,7 @@ export const LeftPaneVirtualized: React.FC = () => {
         estimateSize: (index) => {
             const item = items[index];
             if (item.type === 'tag-header') return 35; // Header height
+            if (item.type === 'spacer') return spacerHeight; // Bottom spacer height
             return 28; // Use a more accurate, consistent height
         },
         overscan: 10,
@@ -247,10 +255,13 @@ export const LeftPaneVirtualized: React.FC = () => {
                 );
             }
                 
+            case 'spacer':
+                return <div style={{ height: `${spacerHeight}px` }} />; // Empty spacer
+                
             default:
                 return null;
         }
-    }, [appState.expandedFolders, appState.expandedTags, appState.selectionType, appState.selectedFolder?.path, appState.selectedTag, handleFolderToggle, handleFolderClick, handleTagToggle, handleTagClick, untaggedCount, plugin.settings.showFolderFileCount]);
+    }, [appState.expandedFolders, appState.expandedTags, appState.selectionType, appState.selectedFolder?.path, appState.selectedTag, handleFolderToggle, handleFolderClick, handleTagToggle, handleTagClick, untaggedCount, plugin.settings.showFolderFileCount, spacerHeight]);
     
     return (
         <>
