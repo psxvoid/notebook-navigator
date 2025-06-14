@@ -303,6 +303,17 @@ export function FileList() {
             }
         }
         
+        // Check if we have a selected file that should be preserved
+        // This handles the case where REVEAL_FILE sets a file but the folder changed
+        if (hasSelectionChanged && appState.selectedFile) {
+            // Check if the selected file is in the new folder
+            const selectedFileInNewFolder = files.some(f => f.path === appState.selectedFile?.path);
+            if (selectedFileInNewFolder) {
+                // The selected file is in the new folder, keep it selected
+                return;
+            }
+        }
+        
         // Use a small delay to avoid race conditions with file list updates
         const timeoutId = setTimeout(() => {
             // Selection has changed or current file is not in list - select first file (desktop only)
