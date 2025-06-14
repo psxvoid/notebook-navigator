@@ -48,6 +48,9 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         }
         lastKeyPressTime.current = now;
         
+        // Check if RTL mode is active
+        const isRTL = document.body.classList.contains('mod-rtl');
+        
         let currentIndex = -1;
         let targetIndex = -1;
         
@@ -76,7 +79,14 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             });
         }
         
-        switch (e.key) {
+        // Swap left/right arrow behavior for RTL layouts
+        const effectiveKey = isRTL ? (
+            e.key === 'ArrowLeft' ? 'ArrowRight' : 
+            e.key === 'ArrowRight' ? 'ArrowLeft' : 
+            e.key
+        ) : e.key;
+        
+        switch (effectiveKey) {
             case 'ArrowDown':
                 e.preventDefault();
                 targetIndex = findNextSelectableIndex(items, currentIndex, focusedPane);
