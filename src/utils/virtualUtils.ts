@@ -53,7 +53,7 @@ export function scrollVirtualItemIntoView(
             }
             
             virtualizer.scrollToIndex(index, {
-                align: 'center',
+                align: 'auto',
                 behavior
             });
         } catch (error) {
