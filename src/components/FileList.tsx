@@ -32,6 +32,7 @@ import { strings } from '../i18n';
 import type { FileListItem } from '../types/virtualization';
 import { PaneHeader } from './PaneHeader';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
+import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 
 /**
  * Collects all pinned note paths from settings
@@ -139,13 +140,6 @@ export function FileList() {
     const { app, appState, dispatch, plugin, refreshCounter, isMobile } = useAppContext();
     const { selectionType, selectedFolder, selectedTag } = appState;
     
-    // Cache for tag tree to avoid rebuilding on every render
-    // Clear cache when component unmounts to prevent memory leak
-    const tagTreeCacheRef = useRef<{
-        tree: Map<string, TagTreeNode>;
-        filesHash: string;
-    } | null>(null);
-    
     // Track previous folder/tag selection to detect changes
     const previousSelectionRef = useRef<{
         folderPath: string | null;
@@ -154,12 +148,6 @@ export function FileList() {
         folderPath: selectedFolder?.path || null,
         tag: selectedTag
     });
-    
-    useEffect(() => {
-        return () => {
-            tagTreeCacheRef.current = null;
-        };
-    }, []);
     
     const handleFileClick = useCallback((file: TFile, e: React.MouseEvent) => {
         dispatch({ type: 'SET_SELECTED_FILE', file });
@@ -205,20 +193,8 @@ export function FileList() {
                     return !fileTags || fileTags.length === 0;
                 });
             } else {
-                // Create a hash that includes both paths and modification times to detect tag changes
-                const filesHash = allMarkdownFiles
-                    .map(f => `${f.path}:${f.stat.mtime}`)
-                    .join('|');
-                
-                // Use cached tag tree if available and files haven't changed
-                let tagTree: Map<string, TagTreeNode>;
-                if (tagTreeCacheRef.current && tagTreeCacheRef.current.filesHash === filesHash) {
-                    tagTree = tagTreeCacheRef.current.tree;
-                } else {
-                    // Build and cache the tag tree
-                    tagTree = buildTagTree(allMarkdownFiles, app);
-                    tagTreeCacheRef.current = { tree: tagTree, filesHash };
-                }
+                // Build the tag tree (memoization happens at the component level)
+                const tagTree = buildTagTree(allMarkdownFiles, app);
                 
                 // Find the selected tag node
                 const selectedNode = findTagNode(selectedTag, tagTree);
@@ -284,7 +260,7 @@ export function FileList() {
     ]);
     
     // Auto-select first file when folder/tag changes (desktop only)
-    useLayoutEffect(() => {
+    useEffect(() => {
         // Need either a folder or tag selected
         if (!selectedFolder && !selectedTag) return;
         
@@ -319,27 +295,35 @@ export function FileList() {
             // Check if a file was recently created (within last 2 seconds)
             // This prevents auto-selection from interfering with newly created files
             const activeFile = app.workspace.getActiveFile();
-            if (activeFile && activeFile.stat.ctime > Date.now() - 2000) {
-                return;
+            if (activeFile && activeFile.stat?.ctime) {
+                const fileAge = Date.now() - activeFile.stat.ctime;
+                if (fileAge >= 0 && fileAge < 2000) {
+                    return;
+                }
             }
         }
         
-        // Selection has changed or current file is not in list - select first file (desktop only)
-        if (files.length > 0 && plugin.settings.autoSelectFirstFile) {
-            const firstFile = files[0];
-            
-            // Select and open the file
-            dispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
-            
-            // Auto-open the first file when switching folders
-            const leaf = app.workspace.getLeaf(false);
-            if (leaf) {
-                leaf.openFile(firstFile, { active: false });
+        // Use a small delay to avoid race conditions with file list updates
+        const timeoutId = setTimeout(() => {
+            // Selection has changed or current file is not in list - select first file (desktop only)
+            if (files.length > 0 && plugin.settings.autoSelectFirstFile) {
+                const firstFile = files[0];
+                
+                // Select and open the file
+                dispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
+                
+                // Auto-open the first file when switching folders
+                const leaf = app.workspace.getLeaf(false);
+                if (leaf) {
+                    leaf.openFile(firstFile, { active: false });
+                }
+            } else if (!plugin.settings.autoSelectFirstFile || files.length === 0) {
+                // Clear selection when auto-select is disabled or folder has no files
+                dispatch({ type: 'SET_SELECTED_FILE', file: null });
             }
-        } else if (!plugin.settings.autoSelectFirstFile || files.length === 0) {
-            // Clear selection when auto-select is disabled or folder has no files
-            dispatch({ type: 'SET_SELECTED_FILE', file: null });
-        }
+        }, 0);
+        
+        return () => clearTimeout(timeoutId);
     }, [selectedFolder?.path, selectedTag, selectionType, dispatch, files, appState.selectedFile, app.workspace, isMobile, plugin.settings.autoSelectFirstFile]);
     
     // Create flattened list items for virtualization
@@ -536,13 +520,33 @@ export function FileList() {
         estimateSize: (index) => {
             const item = listItems[index];
             if (item.type === 'header') {
-                return 35; // Height of nn-date-group-header
+                return 35; // Keep this for date headers
             }
-            // File item height depends on view mode
-            if (!plugin.settings.showFilePreview) {
-                return 32; // Title only mode height
+
+            // Base height for padding and margins
+            let estimatedHeight = 12; // Vertical padding/margin
+            
+            // Add height for file name (can be multi-line)
+            const fileNameLines = plugin.settings.fileNameRows || 1;
+            estimatedHeight += (18 * fileNameLines); // ~18px per line of text
+            
+            // Add height for the feature image if shown
+            if (plugin.settings.showFeatureImage) {
+                estimatedHeight += 20; // Approximate additional height for image
             }
-            return 70; // Normal mode with preview
+
+            // Add height for the file preview if shown
+            if (plugin.settings.showFilePreview) {
+                // Add space for each potential line of the preview
+                estimatedHeight += (16 * plugin.settings.previewRows);
+            }
+            
+            // Add height for subfolder indicator if shown
+            if (plugin.settings.showSubfolderNamesInList) {
+                estimatedHeight += 16; // Additional line for subfolder name
+            }
+            
+            return estimatedHeight;
         },
         overscan: 5, // Render 5 items above/below viewport
         scrollPaddingStart: 0,
@@ -552,38 +556,38 @@ export function FileList() {
     // Cache selected file path to avoid repeated property access
     const selectedFilePath = appState.selectedFile?.path;
     
+    // Create a map for O(1) file lookups
+    const filePathToIndex = useMemo(() => {
+        const map = new Map<string, number>();
+        listItems.forEach((item, index) => {
+            if (item.type === 'file') {
+                map.set((item.data as TFile).path, index);
+            }
+        });
+        return map;
+    }, [listItems]);
+    
     // Handle programmatic scrolling
     useEffect(() => {
-        if (appState.scrollToFileIndex !== null && scrollContainerRef.current) {
-            rowVirtualizer.scrollToIndex(appState.scrollToFileIndex, {
-                align: 'center',
-                behavior: 'auto'
-            });
+        if (appState.scrollToFileIndex !== null && scrollContainerRef.current && rowVirtualizer) {
+            const cleanup = scrollVirtualItemIntoView(rowVirtualizer, appState.scrollToFileIndex);
             // Clear the scroll request
             dispatch({ type: 'SCROLL_TO_FILE_INDEX', index: null });
+            return cleanup;
         }
     }, [appState.scrollToFileIndex, rowVirtualizer, dispatch]);
     
     // Scroll to selected file when it changes
     useEffect(() => {
-        if (selectedFilePath && scrollContainerRef.current) {
-            const fileIndex = listItems.findIndex(item => 
-                item.type === 'file' && (item.data as TFile).path === selectedFilePath
-            );
+        if (selectedFilePath && scrollContainerRef.current && rowVirtualizer) {
+            const fileIndex = filePathToIndex.get(selectedFilePath);
             
-            if (fileIndex >= 0) {
-                // Use double RAF for proper timing
-                requestAnimationFrame(() => {
-                    requestAnimationFrame(() => {
-                        rowVirtualizer.scrollToIndex(fileIndex, {
-                            align: 'center',
-                            behavior: 'auto'
-                        });
-                    });
-                });
+            if (fileIndex !== undefined && fileIndex >= 0) {
+                const cleanup = scrollVirtualItemIntoView(rowVirtualizer, fileIndex);
+                return cleanup;
             }
         }
-    }, [selectedFilePath, listItems, rowVirtualizer]);
+    }, [selectedFilePath, filePathToIndex, rowVirtualizer]);
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
@@ -655,6 +659,8 @@ export function FileList() {
                 ref={scrollContainerRef}
                 className="nn-file-list"
                 data-pane="files"
+                role="list"
+                aria-label="File list"
             >
                 {/* Virtual list */}
                 {listItems.length > 0 && (

@@ -5,6 +5,7 @@ import { useAppContext } from '../context/AppContext';
 import { CombinedLeftPaneItem, FileListItem } from '../types/virtualization';
 import { TagTreeNode } from '../utils/tagUtils';
 import { isTypingInInput } from '../utils/domUtils';
+import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 
 type VirtualItem = CombinedLeftPaneItem | FileListItem;
 
@@ -40,9 +41,9 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         const currentFocusedPane = navigatorContainer.getAttribute('data-focus-pane');
         if (currentFocusedPane !== focusedPane) return;
         
-        // Debounce rapid key presses
+        // Debounce rapid key presses with a more reasonable threshold
         const now = Date.now();
-        if (now - lastKeyPressTime.current < 30) {
+        if (now - lastKeyPressTime.current < 16) { // ~60fps threshold
             return;
         }
         lastKeyPressTime.current = now;
@@ -151,15 +152,16 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                             handleExpandCollapse(item, false);
                         } else if (folder.parent && (!plugin.settings.showRootFolder || folder.path !== '/')) {
                             // Navigate to parent folder
-                            const parentIndex = items.findIndex(i => 
-                                i.type === 'folder' && i.data.path === folder.parent!.path
-                            );
+                            const parentIndex = items.findIndex(i => {
+                                if (i.type === 'folder' && i.data && typeof i.data === 'object') {
+                                    const folderData = i.data as TFolder;
+                                    return folderData.path === folder.parent!.path;
+                                }
+                                return false;
+                            });
                             if (parentIndex >= 0) {
                                 selectItemAtIndex(items[parentIndex]);
-                                virtualizer.scrollToIndex(parentIndex, {
-                                    align: 'center',
-                                    behavior: 'auto'
-                                });
+                                scrollVirtualItemIntoView(virtualizer, parentIndex);
                             }
                         }
                     } else if (item.type === 'tag') {
@@ -178,10 +180,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                                 );
                                 if (parentIndex >= 0) {
                                     selectItemAtIndex(items[parentIndex]);
-                                    virtualizer.scrollToIndex(parentIndex, {
-                                        align: 'center',
-                                        behavior: 'auto'
-                                    });
+                                    scrollVirtualItemIntoView(virtualizer, parentIndex);
                                 }
                             }
                         }
@@ -217,15 +216,15 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         // Scroll to and select new item
         if (targetIndex >= 0 && targetIndex < items.length) {
             selectItemAtIndex(items[targetIndex]);
-            virtualizer.scrollToIndex(targetIndex, {
-                align: 'center',
-                behavior: 'auto'
-            });
+            scrollVirtualItemIntoView(virtualizer, targetIndex);
         }
     }, [items, virtualizer, focusedPane, appState, dispatch, plugin, app, isMobile]);
     
     // Helper function to find next selectable item
     const findNextSelectableIndex = (items: VirtualItem[], currentIndex: number, pane: string): number => {
+        // If no items, return -1
+        if (items.length === 0) return -1;
+        
         // If no current selection, find the first selectable item
         if (currentIndex < 0) {
             for (let i = 0; i < items.length; i++) {
@@ -233,7 +232,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     return i;
                 }
             }
-            return 0;
+            return -1; // No selectable items found
         }
         
         for (let i = currentIndex + 1; i < items.length; i++) {
@@ -247,7 +246,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     
     // Helper function to find previous selectable item
     const findPreviousSelectableIndex = (items: VirtualItem[], currentIndex: number, pane: string): number => {
-        if (currentIndex <= 0) return 0;
+        // If no items or invalid index, return -1
+        if (items.length === 0 || currentIndex < 0) return -1;
         
         for (let i = currentIndex - 1; i >= 0; i--) {
             if (isSelectableItem(items[i], pane)) {
@@ -358,26 +358,74 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         const fileSystemOps = plugin.app.vault;
         const metadataService = plugin.metadataService;
         
-        // Always confirm deletion
+        // Store file reference in case state changes during async operation
+        const fileToDelete = appState.selectedFile;
+        
         const shouldDelete = await new Promise<boolean>((resolve) => {
-            const modal = new (plugin.app as any).ConfirmModal(
-                plugin.app,
-                `Delete "${appState.selectedFile!.name}"?`,
-                'This action cannot be undone.',
-                'Delete',
-                'Cancel',
-                resolve
-            );
-            modal.open();
+            let modal: any = null;
+            let resolved = false;
+            
+            const safeResolve = (value: boolean) => {
+                if (!resolved) {
+                    resolved = true;
+                    resolve(value);
+                }
+            };
+            
+            try {
+                // Use Obsidian's confirm dialog pattern
+                modal = new (plugin.app as any).Modal(plugin.app);
+                modal.titleEl.setText(`Delete "${fileToDelete.name}"?`);
+                modal.contentEl.setText('This action cannot be undone.');
+                
+                modal.contentEl.createDiv({ cls: 'modal-button-container' }, (buttonContainer: HTMLDivElement) => {
+                    buttonContainer
+                        .createEl('button', { text: 'Cancel' })
+                        .addEventListener('click', () => {
+                            modal.close();
+                            safeResolve(false);
+                        });
+                        
+                    buttonContainer
+                        .createEl('button', { 
+                            cls: 'mod-warning',
+                            text: 'Delete' 
+                        })
+                        .addEventListener('click', () => {
+                            modal.close();
+                            safeResolve(true);
+                        });
+                });
+                
+                // Handle modal close without button click (e.g., ESC key)
+                modal.onClose = () => {
+                    safeResolve(false);
+                };
+                
+                modal.open();
+            } catch (error) {
+                // Ensure modal is closed on error
+                if (modal) {
+                    try {
+                        modal.close();
+                    } catch {}
+                }
+                console.error('Error creating delete confirmation modal:', error);
+                safeResolve(false);
+            }
         });
         
         if (!shouldDelete) return;
         
-        // Delete the file
-        await fileSystemOps.delete(appState.selectedFile);
-        
-        // Clean up metadata
-        metadataService.handleFileDelete(appState.selectedFile.path);
+        try {
+            // Delete the file
+            await fileSystemOps.delete(fileToDelete);
+            
+            // Clean up metadata
+            metadataService.handleFileDelete(fileToDelete.path);
+        } catch (error) {
+            console.error('Error deleting file:', error);
+        }
     };
     
     useEffect(() => {

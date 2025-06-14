@@ -17,7 +17,8 @@ export function flattenFolderTree(
     folders: TFolder[],
     expandedFolders: Set<string>,
     excludePatterns: string[],
-    level: number = 0
+    level: number = 0,
+    visitedPaths: Set<string> = new Set()
 ): FolderTreeItem[] {
     const items: FolderTreeItem[] = [];
     
@@ -27,6 +28,12 @@ export function flattenFolderTree(
     );
     
     sortedFolders.forEach(folder => {
+        // Prevent circular references
+        if (visitedPaths.has(folder.path)) {
+            console.warn(`Circular reference detected for folder: ${folder.path}`);
+            return;
+        }
+        
         // Skip excluded folders
         if (excludePatterns.length > 0 && shouldExcludeFolder(folder.path, excludePatterns)) {
             return;
@@ -47,11 +54,16 @@ export function flattenFolderTree(
                 .filter(child => child instanceof TFolder) as TFolder[];
             
             if (childFolders.length > 0) {
+                // Create a new set with the current path added
+                const newVisitedPaths = new Set(visitedPaths);
+                newVisitedPaths.add(folder.path);
+                
                 items.push(...flattenFolderTree(
                     childFolders,
                     expandedFolders,
                     excludePatterns,
-                    level + 1
+                    level + 1,
+                    newVisitedPaths
                 ));
             }
         }

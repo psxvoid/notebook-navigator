@@ -13,6 +13,7 @@ import { buildTagTree, TagTreeNode, getTotalNoteCount } from '../utils/tagUtils'
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 import { UNTAGGED_TAG_ID } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
+import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 
 export const LeftPaneVirtualized: React.FC = () => {
     const { app, plugin, appState, dispatch, refreshCounter, isMobile } = useAppContext();
@@ -118,40 +119,30 @@ export const LeftPaneVirtualized: React.FC = () => {
         estimateSize: (index) => {
             const item = items[index];
             if (item.type === 'tag-header') return 35; // Header height
-            return 32; // Folder/tag item height
+            return 28; // Use a more accurate, consistent height
         },
         overscan: 10,
     });
     
     // Handle reveal file scrolling
     useEffect(() => {
-        if (appState.scrollToFolderIndex !== null) {
-            rowVirtualizer.scrollToIndex(appState.scrollToFolderIndex, {
-                align: 'center',
-                behavior: 'auto'
-            });
+        if (appState.scrollToFolderIndex !== null && rowVirtualizer) {
+            const cleanup = scrollVirtualItemIntoView(rowVirtualizer, appState.scrollToFolderIndex);
             dispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: null });
+            return cleanup;
         }
     }, [appState.scrollToFolderIndex, rowVirtualizer, dispatch]);
     
     // Handle scroll to folder trigger
     useEffect(() => {
-        if (appState.scrollToFolderTrigger > 0 && appState.selectedFolder) {
-            const index = findFolderIndex(
-                items.filter(item => item.type === 'folder') as any[],
-                appState.selectedFolder.path
+        if (appState.scrollToFolderTrigger > 0 && appState.selectedFolder && rowVirtualizer) {
+            // Find the folder directly in the items array
+            const actualIndex = items.findIndex(item => 
+                item.type === 'folder' && item.data.path === appState.selectedFolder?.path
             );
-            if (index >= 0) {
-                // Find the actual index in the combined items array
-                const actualIndex = items.findIndex(item => 
-                    item.type === 'folder' && item.data.path === appState.selectedFolder?.path
-                );
-                if (actualIndex >= 0) {
-                    rowVirtualizer.scrollToIndex(actualIndex, {
-                        align: 'center',
-                        behavior: 'auto'
-                    });
-                }
+            if (actualIndex >= 0) {
+                const cleanup = scrollVirtualItemIntoView(rowVirtualizer, actualIndex);
+                return cleanup;
             }
         }
     }, [appState.scrollToFolderTrigger, appState.selectedFolder, items, rowVirtualizer]);
@@ -248,7 +239,7 @@ export const LeftPaneVirtualized: React.FC = () => {
             default:
                 return null;
         }
-    }, [appState, handleFolderToggle, handleFolderClick, handleTagToggle, handleTagClick]);
+    }, [appState.expandedFolders, appState.expandedTags, appState.selectionType, appState.selectedFolder?.path, appState.selectedTag, handleFolderToggle, handleFolderClick, handleTagToggle, handleTagClick, untaggedCount, plugin.settings.showFolderFileCount]);
     
     return (
         <>
@@ -257,6 +248,8 @@ export const LeftPaneVirtualized: React.FC = () => {
                 ref={scrollContainerRef}
                 className="nn-left-pane-scroller"
                 data-pane="folders"
+                role="tree"
+                aria-label="Folder and tag navigation"
             >
                 <div
                     style={{

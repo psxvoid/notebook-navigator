@@ -47,10 +47,6 @@ export interface AppState {
     scrollToFolderTrigger: number;
     /** Current view on mobile devices - 'list' for folder/tags, 'files' for file list */
     currentMobileView: 'list' | 'files';
-    /** Virtual scroll position for folder tree */
-    folderTreeScrollTop: number;
-    /** Virtual scroll position for file list */
-    fileListScrollTop: number;
     /** Index to scroll to in folder tree (null when not scrolling) */
     scrollToFolderIndex: number | null;
     /** Index to scroll to in file list (null when not scrolling) */
@@ -75,8 +71,6 @@ export type AppAction =
     | { type: 'CLEANUP_DELETED_ITEMS' }
     | { type: 'FORCE_REFRESH' }
     | { type: 'SET_MOBILE_VIEW'; view: 'list' | 'files' }
-    | { type: 'SET_FOLDER_TREE_SCROLL'; scrollTop: number }
-    | { type: 'SET_FILE_LIST_SCROLL'; scrollTop: number }
     | { type: 'SCROLL_TO_FOLDER_INDEX'; index: number | null }
     | { type: 'SCROLL_TO_FILE_INDEX'; index: number | null };
 
@@ -178,8 +172,6 @@ function loadStateFromStorage(app: App): AppState {
         focusedPane: 'folders',
         scrollToFolderTrigger: 0,
         currentMobileView,
-        folderTreeScrollTop: 0,
-        fileListScrollTop: 0,
         scrollToFolderIndex: null,
         scrollToFileIndex: null
     };
@@ -282,7 +274,10 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
             // Get all parent folders up to root
             const foldersToExpand: string[] = [];
             let currentFolder: TFolder | null = action.file.parent;
-            while (currentFolder) {
+            const visitedFolders = new Set<string>();
+            
+            while (currentFolder && !visitedFolders.has(currentFolder.path)) {
+                visitedFolders.add(currentFolder.path);
                 foldersToExpand.unshift(currentFolder.path);
                 if (currentFolder.path === '/') break;
                 currentFolder = currentFolder.parent || null;
@@ -300,7 +295,11 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
             if (state.selectedFolder && state.selectionType === 'folder') {
                 // Check if file is in the currently selected folder or its subfolders
                 let parent: TFolder | null = action.file.parent;
-                while (parent) {
+                const visited = new Set<string>();
+                
+                while (parent && !visited.has(parent.path)) {
+                    visited.add(parent.path);
+                    
                     if (parent.path === state.selectedFolder.path) {
                         // The file is within the currently selected folder's hierarchy
                         folderToSelect = state.selectedFolder;
@@ -360,16 +359,6 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
         case 'SET_MOBILE_VIEW': {
             // Update the current mobile view
             return { ...state, currentMobileView: action.view };
-        }
-        
-        case 'SET_FOLDER_TREE_SCROLL': {
-            // Update folder tree scroll position
-            return { ...state, folderTreeScrollTop: action.scrollTop };
-        }
-        
-        case 'SET_FILE_LIST_SCROLL': {
-            // Update file list scroll position
-            return { ...state, fileListScrollTop: action.scrollTop };
         }
         
         case 'SCROLL_TO_FOLDER_INDEX': {

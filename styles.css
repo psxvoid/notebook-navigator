@@ -47,6 +47,8 @@
     flex-direction: column;
     overflow: hidden;
     flex-shrink: 0;
+    /* Performance optimization for virtualized content */
+    contain: layout style;
 }
 
 /* Right pane - contains the file list */
@@ -56,6 +58,8 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    /* Performance optimization for virtualized content */
+    contain: layout style;
 }
 
 /* Resize handle - allows users to drag and resize the left pane */
@@ -215,23 +219,19 @@ button.nn-icon-button {
     padding: 0 var(--size-4-1);
 }
 
-/* Make FolderTree and TagList take their natural height */
-.nn-folder-tree,
-.nn-tag-list-container {
-    flex-shrink: 0;
-}
 
 /* ========================================================================
    Folder Tree Styles
    ======================================================================== */
 
-/* Folder tree container - scrollable area for folder hierarchy */
-.nn-folder-tree {
-    overflow-y: visible;
+/* Left pane scroller - scrollable container for folder/tag items */
+.nn-left-pane-scroller {
+    overflow-y: auto;
     overflow-x: hidden;
     padding: var(--size-4-1) 0;
     background-color: var(--background-secondary);
     line-height: 1.4; /* Increased from 1 to prevent text cutoff on Windows */
+    flex: 1;
 }
 
 /* Folder item - container for each folder in the tree */
@@ -362,16 +362,6 @@ button.nn-icon-button {
     border-top: 1px solid var(--background-modifier-border);
 }
 
-/* Tag list container */
-.nn-tag-list-container {
-    background-color: var(--background-secondary);
-}
-
-/* Tag list */
-.nn-tag-list {
-    padding: var(--size-4-1) 0;
-    line-height: 1.4; /* Match folder tree line-height to prevent text cutoff */
-}
 
 /* Individual tag item */
 .nn-tag-item {
@@ -1130,28 +1120,48 @@ body.nn-resizing {
 /* Custom scrollbar width 
    Note: Obsidian doesn't provide CSS variables for scrollbar dimensions yet,
    so we use a hardcoded value that matches the default Obsidian scrollbar width */
-.nn-folder-tree::-webkit-scrollbar,
+.nn-left-pane-scroller::-webkit-scrollbar,
 .nn-file-list::-webkit-scrollbar {
     width: 8px;
 }
 
 /* Scrollbar track - transparent background */
-.nn-folder-tree::-webkit-scrollbar-track,
+.nn-left-pane-scroller::-webkit-scrollbar-track,
 .nn-file-list::-webkit-scrollbar-track {
     background: transparent;
 }
 
 /* Scrollbar thumb - visible scroll indicator */
-.nn-folder-tree::-webkit-scrollbar-thumb,
+.nn-left-pane-scroller::-webkit-scrollbar-thumb,
 .nn-file-list::-webkit-scrollbar-thumb {
     background-color: var(--background-modifier-border);
     border-radius: var(--radius-s);
 }
 
 /* Scrollbar thumb hover - darker on hover */
-.nn-folder-tree::-webkit-scrollbar-thumb:hover,
+.nn-left-pane-scroller::-webkit-scrollbar-thumb:hover,
 .nn-file-list::-webkit-scrollbar-thumb:hover {
     background-color: var(--background-modifier-border-hover);
+}
+
+/* ========================================================================
+   Virtual List Styles
+   ======================================================================== */
+
+/* Virtual container wrapper - ensures proper absolute positioning context */
+.nn-left-pane-scroller > div:first-child,
+.nn-file-list > div:first-child {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Virtual items container */
+.nn-left-pane-scroller [data-index],
+.nn-file-list [data-index] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
 }
 
 /* ========================================================================
@@ -1217,6 +1227,8 @@ body.nn-resizing {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    /* Optimize for animations */
+    will-change: transform;
 }
 
 /* Hide resize handle on mobile */
@@ -1271,6 +1283,12 @@ body.nn-resizing {
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+}
+
+/* Optimize mobile view transitions */
+.notebook-navigator-mobile .nn-left-pane,
+.notebook-navigator-mobile .nn-right-pane {
+    will-change: transform;
 }
 
 /* Add bottom padding to left pane on mobile to prevent last item from being hidden */
