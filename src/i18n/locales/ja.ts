@@ -339,6 +339,27 @@ export const STRINGS_JA = {
                 name: 'ノート削除前に確認',
                 desc: 'ノートやフォルダを削除する際に確認ダイアログを表示',
             },
+            useFrontmatterDates: {
+                name: 'フロントマターからタイムスタンプを読み込もうとする',
+                desc: '利用可能な場合、ノートのフロントマターから作成および変更のタイムスタンプを読み取り、それ以外はファイルシステムの日付を使用',
+            },
+            frontmatterCreatedField: {
+                name: '作成タイムスタンプフィールド',
+                desc: '作成タイムスタンプのフロントマターフィールド名。空のままにするとファイルシステムの日付のみを使用。',
+                placeholder: 'created',
+            },
+            frontmatterModifiedField: {
+                name: '変更タイムスタンプフィールド',
+                desc: '変更タイムスタンプのフロントマターフィールド名。空のままにするとファイルシステムの日付のみを使用。',
+                placeholder: 'modified',
+            },
+            frontmatterDateFormat: {
+                name: 'タイムスタンプ形式',
+                desc: 'フロントマター内のタイムスタンプを解析するために使用される形式',
+                placeholder: 'yyyy-MM-dd HH:mm:ss',
+                helpTooltip: 'date-fnsフォーマットのドキュメントを参照',
+                help: '一般的な形式:\nyyyy-MM-dd HH:mm:ss → 2025-01-04 14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM',
+            },
             supportDevelopment: {
                 name: '開発をサポート',
                 desc: 'ノートブックナビゲーターを愛用していただいている場合は、継続的な開発をサポートすることをご検討ください。',

@@ -67,6 +67,10 @@ export interface NotebookNavigatorSettings {
     showUntagged: boolean;
     // Advanced
     confirmBeforeDelete: boolean;
+    useFrontmatterDates: boolean;
+    frontmatterCreatedField: string;
+    frontmatterModifiedField: string;
+    frontmatterDateFormat: string;
     // Internal
     pinnedNotes: Record<string, string[]>;
     folderIcons: Record<string, string>;
@@ -109,6 +113,10 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showUntagged: false,
     // Advanced
     confirmBeforeDelete: true,
+    useFrontmatterDates: false,
+    frontmatterCreatedField: 'created',
+    frontmatterModifiedField: 'modified',
+    frontmatterDateFormat: 'yyyy-MM-dd HH:mm:ss',
     // Internal
     pinnedNotes: {},
     folderIcons: {},
@@ -539,6 +547,52 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh(false);
                 }));
 
+        const useFrontmatterDatesSetting = new Setting(containerEl)
+            .setName(strings.settings.items.useFrontmatterDates.name)
+            .setDesc(strings.settings.items.useFrontmatterDates.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.useFrontmatterDates)
+                .onChange(async (value) => {
+                    this.plugin.settings.useFrontmatterDates = value;
+                    await this.saveAndRefresh();
+                    this.setElementVisibility(frontmatterSettingsEl, value);
+                }));
+
+        // Container for frontmatter settings
+        const frontmatterSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+        this.createDebouncedTextSetting(
+            frontmatterSettingsEl,
+            strings.settings.items.frontmatterCreatedField.name,
+            strings.settings.items.frontmatterCreatedField.desc,
+            strings.settings.items.frontmatterCreatedField.placeholder,
+            () => this.plugin.settings.frontmatterCreatedField,
+            (value) => { this.plugin.settings.frontmatterCreatedField = value || 'created'; }
+        );
+
+        this.createDebouncedTextSetting(
+            frontmatterSettingsEl,
+            strings.settings.items.frontmatterModifiedField.name,
+            strings.settings.items.frontmatterModifiedField.desc,
+            strings.settings.items.frontmatterModifiedField.placeholder,
+            () => this.plugin.settings.frontmatterModifiedField,
+            (value) => { this.plugin.settings.frontmatterModifiedField = value || 'modified'; }
+        );
+
+        this.createDebouncedTextSetting(
+            frontmatterSettingsEl,
+            strings.settings.items.frontmatterDateFormat.name,
+            strings.settings.items.frontmatterDateFormat.desc,
+            strings.settings.items.frontmatterDateFormat.placeholder,
+            () => this.plugin.settings.frontmatterDateFormat,
+            (value) => { this.plugin.settings.frontmatterDateFormat = value || 'yyyy-MM-dd HH:mm:ss'; }
+        ).addExtraButton(button => button
+            .setIcon('help')
+            .setTooltip(strings.settings.items.frontmatterDateFormat.helpTooltip)
+            .onClick(() => {
+                new Notice(strings.settings.items.frontmatterDateFormat.help, 10000);
+            }));
+
 
         // Sponsor section
         new Setting(containerEl)
@@ -557,6 +611,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         this.setElementVisibility(featureImageSettingsEl, this.plugin.settings.showFeatureImage);
         this.setElementVisibility(dateFormatSettingEl, this.plugin.settings.showDate);
         this.setElementVisibility(untaggedSettingEl, this.plugin.settings.showTags);
+        this.setElementVisibility(frontmatterSettingsEl, this.plugin.settings.useFrontmatterDates);
     }
 
     /**

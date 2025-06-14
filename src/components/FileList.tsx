@@ -244,7 +244,7 @@ export function FileList() {
         
         // Determine which sort option to use and apply it
         const sortOption = getEffectiveSortOption(plugin.settings, selectionType, selectedFolder);
-        sortFiles(allFiles, sortOption);
+        sortFiles(allFiles, sortOption, plugin.settings, app.metadataCache);
         
         // Handle pinned notes
         if (selectionType === 'folder' && selectedFolder) {
@@ -388,8 +388,13 @@ export function FileList() {
         const dateGroups = new Map<string, TFile[]>();
         unpinnedFiles.forEach(file => {
             const dateField = getDateField(sortOption);
-            const fileDate = new Date(file.stat[dateField]);
-            const groupTitle = DateUtils.getDateGroup(fileDate.getTime());
+            const timestamp = DateUtils.getFileTimestamp(
+                file, 
+                dateField === 'ctime' ? 'created' : 'modified',
+                plugin.settings,
+                app.metadataCache
+            );
+            const groupTitle = DateUtils.getDateGroup(timestamp);
             
             if (!dateGroups.has(groupTitle)) {
                 dateGroups.set(groupTitle, []);
@@ -429,15 +434,20 @@ export function FileList() {
         const dateMap = new Map<string, string>();
         groupedFiles.forEach(group => {
             group.files.forEach(file => {
-                const dateToShow = file.stat[dateField];
+                const timestamp = DateUtils.getFileTimestamp(
+                    file,
+                    dateField === 'ctime' ? 'created' : 'modified',
+                    plugin.settings,
+                    app.metadataCache
+                );
                 const formatted = group.title 
-                    ? DateUtils.formatDateForGroup(dateToShow, group.title, plugin.settings.dateFormat, plugin.settings.timeFormat)
-                    : DateUtils.formatDate(dateToShow, plugin.settings.dateFormat);
+                    ? DateUtils.formatDateForGroup(timestamp, group.title, plugin.settings.dateFormat, plugin.settings.timeFormat)
+                    : DateUtils.formatDate(timestamp, plugin.settings.dateFormat);
                 dateMap.set(file.path, formatted);
             });
         });
         return dateMap;
-    }, [groupedFiles, dateField, plugin.settings.showDate, plugin.settings.dateFormat, plugin.settings.timeFormat]);
+    }, [groupedFiles, dateField, plugin.settings.showDate, plugin.settings.dateFormat, plugin.settings.timeFormat, plugin.settings.useFrontmatterDates, plugin.settings.frontmatterCreatedField, plugin.settings.frontmatterModifiedField, plugin.settings.frontmatterDateFormat, app.metadataCache]);
     
     // Early returns MUST come after all hooks
     if (!selectedFolder && !selectedTag) {

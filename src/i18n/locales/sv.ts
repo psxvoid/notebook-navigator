@@ -339,6 +339,27 @@ export const STRINGS_SV = {
                 name: 'Bekräfta innan borttagning',
                 desc: 'Visa dialog innan anteckningar eller mappar tas bort',
             },
+            useFrontmatterDates: {
+                name: 'Försök läsa tidsstämplar från frontmatter',
+                desc: 'Läs skapad och ändrad tidsstämpel från anteckningens frontmatter när de finns, annars använd filsystemets datum',
+            },
+            frontmatterCreatedField: {
+                name: 'Fält för skapad tidsstämpel',
+                desc: 'Frontmatter-fältnamn för skapad tidsstämpel. Lämna tomt för att endast använda filsystemets datum.',
+                placeholder: 'created',
+            },
+            frontmatterModifiedField: {
+                name: 'Fält för ändrad tidsstämpel',
+                desc: 'Frontmatter-fältnamn för ändrad tidsstämpel. Lämna tomt för att endast använda filsystemets datum.',
+                placeholder: 'modified',
+            },
+            frontmatterDateFormat: {
+                name: 'Tidsstämpelformat',
+                desc: 'Format som används för att tolka tidsstämplar i frontmatter',
+                placeholder: 'yyyy-MM-dd HH:mm:ss',
+                helpTooltip: 'Se date-fns formatdokumentation',
+                help: 'Vanliga format:\nyyyy-MM-dd HH:mm:ss → 2025-01-04 14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM',
+            },
             supportDevelopment: {
                 name: 'Sponsra utveckling',
                 desc: 'Om du älskar Notebook Navigator och den hjälper dig i din vardag, sponsra dess fortsatta utveckling.',

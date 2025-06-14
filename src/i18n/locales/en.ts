@@ -339,6 +339,27 @@ export const STRINGS_EN = {
                 name: 'Confirm before deleting notes',
                 desc: 'Show confirmation dialog when deleting notes or folders',
             },
+            useFrontmatterDates: {
+                name: 'Try to read timestamps from frontmatter',
+                desc: 'Read created and modified timestamps from note frontmatter when available, falling back to file system dates',
+            },
+            frontmatterCreatedField: {
+                name: 'Created timestamp field',
+                desc: 'Frontmatter field name for the created timestamp. Leave empty to only use file system date.',
+                placeholder: 'created',
+            },
+            frontmatterModifiedField: {
+                name: 'Modified timestamp field',
+                desc: 'Frontmatter field name for the modified timestamp. Leave empty to only use file system date.',
+                placeholder: 'modified',
+            },
+            frontmatterDateFormat: {
+                name: 'Timestamp format',
+                desc: 'Format used to parse timestamps in frontmatter',
+                placeholder: 'yyyy-MM-dd HH:mm:ss',
+                helpTooltip: 'See date-fns format documentation',
+                help: 'Common formats:\nyyyy-MM-dd HH:mm:ss → 2025-01-04 14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM',
+            },
             supportDevelopment: {
                 name: 'Support development',
                 desc: 'If you love using Notebook Navigator, please consider supporting its continued development.',

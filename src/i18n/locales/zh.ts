@@ -339,6 +339,27 @@ export const STRINGS_ZH = {
                 name: '删除笔记前确认',
                 desc: '删除笔记或文件夹时显示确认对话框',
             },
+            useFrontmatterDates: {
+                name: '尝试从前言读取时间戳',
+                desc: '如果可用，从笔记的前言读取创建和修改时间戳，否则回退到文件系统日期',
+            },
+            frontmatterCreatedField: {
+                name: '创建时间戳字段',
+                desc: '创建时间戳的前言字段名称。留空仅使用文件系统日期。',
+                placeholder: 'created',
+            },
+            frontmatterModifiedField: {
+                name: '修改时间戳字段',
+                desc: '修改时间戳的前言字段名称。留空仅使用文件系统日期。',
+                placeholder: 'modified',
+            },
+            frontmatterDateFormat: {
+                name: '时间戳格式',
+                desc: '用于解析前言中时间戳的格式',
+                placeholder: 'yyyy-MM-dd HH:mm:ss',
+                helpTooltip: '查看 date-fns 格式文档',
+                help: '常用格式:\nyyyy-MM-dd HH:mm:ss → 2025-01-04 14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM',
+            },
             supportDevelopment: {
                 name: '支持开发',
                 desc: '如果您喜欢使用笔记本导航器，请考虑支持其持续开发。',

@@ -339,6 +339,27 @@ export const STRINGS_FR = {
                 name: 'Confirmer avant de supprimer les notes',
                 desc: 'Afficher une boîte de dialogue de confirmation lors de la suppression de notes ou de dossiers',
             },
+            useFrontmatterDates: {
+                name: 'Essayer de lire les horodatages du frontmatter',
+                desc: 'Lire les horodatages de création et de modification du frontmatter lorsqu\'ils sont disponibles, sinon utiliser les dates du système',
+            },
+            frontmatterCreatedField: {
+                name: 'Champ d\'horodatage de création',
+                desc: 'Nom du champ frontmatter pour l\'horodatage de création. Laisser vide pour utiliser uniquement la date du système.',
+                placeholder: 'created',
+            },
+            frontmatterModifiedField: {
+                name: 'Champ d\'horodatage de modification',
+                desc: 'Nom du champ frontmatter pour l\'horodatage de modification. Laisser vide pour utiliser uniquement la date du système.',
+                placeholder: 'modified',
+            },
+            frontmatterDateFormat: {
+                name: 'Format d\'horodatage',
+                desc: 'Format utilisé pour analyser les horodatages dans le frontmatter',
+                placeholder: 'yyyy-MM-dd HH:mm:ss',
+                helpTooltip: 'Voir la documentation du format date-fns',
+                help: 'Formats courants :\nyyyy-MM-dd HH:mm:ss → 2025-01-04 14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM',
+            },
             supportDevelopment: {
                 name: 'Soutenir le développement',
                 desc: 'Si vous aimez utiliser le Navigateur de Carnets, veuillez envisager de soutenir son développement continu.',

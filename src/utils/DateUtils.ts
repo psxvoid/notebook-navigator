@@ -16,9 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { format } from 'date-fns';
+import { format, parse } from 'date-fns';
 import * as locales from 'date-fns/locale';
+import { TFile, MetadataCache } from 'obsidian';
 import { strings } from '../i18n';
+import { NotebookNavigatorSettings } from '../settings';
 
 export class DateUtils {
     /**
@@ -182,5 +184,83 @@ export class DateUtils {
         
         // All other groups - use default format
         return DateUtils.formatDate(timestamp, dateFormat);
+    }
+
+    /**
+     * Get file timestamp, optionally from frontmatter
+     * @param file - The file to get timestamp for
+     * @param dateType - Whether to get created or modified timestamp
+     * @param settings - Plugin settings
+     * @param metadataCache - Obsidian metadata cache
+     * @returns Unix timestamp in milliseconds
+     */
+    static getFileTimestamp(
+        file: TFile, 
+        dateType: 'created' | 'modified', 
+        settings: NotebookNavigatorSettings, 
+        metadataCache: MetadataCache
+    ): number {
+        // If frontmatter dates are disabled, return file system timestamps
+        if (!settings.useFrontmatterDates) {
+            return dateType === 'created' ? file.stat.ctime : file.stat.mtime;
+        }
+
+        // Try to get timestamp from frontmatter
+        const metadata = metadataCache.getFileCache(file);
+        const frontmatter = metadata?.frontmatter;
+        
+        if (frontmatter) {
+            const fieldName = dateType === 'created' 
+                ? settings.frontmatterCreatedField 
+                : settings.frontmatterModifiedField;
+            
+            // If field name is empty, skip frontmatter lookup
+            if (!fieldName || fieldName.trim() === '') {
+                return dateType === 'created' ? file.stat.ctime : file.stat.mtime;
+            }
+            
+            const frontmatterValue = frontmatter[fieldName];
+            
+            if (frontmatterValue) {
+                // Try to parse the frontmatter timestamp
+                try {
+                    // If it's already a Date object (rare but possible)
+                    if (frontmatterValue instanceof Date) {
+                        return frontmatterValue.getTime();
+                    }
+                    
+                    // If it's a number, assume it's already a timestamp
+                    if (typeof frontmatterValue === 'number') {
+                        // If it looks like seconds (less than year 3000 in milliseconds)
+                        if (frontmatterValue < 32503680000) {
+                            return frontmatterValue * 1000;
+                        }
+                        return frontmatterValue;
+                    }
+                    
+                    // If it's a string, parse it with the configured format
+                    if (typeof frontmatterValue === 'string') {
+                        const parsedDate = parse(
+                            frontmatterValue, 
+                            settings.frontmatterDateFormat, 
+                            new Date()
+                        );
+                        
+                        // Check if parsing failed
+                        if (isNaN(parsedDate.getTime())) {
+                            console.error(`Failed to parse frontmatter ${dateType} timestamp for ${file.path}: Invalid format or value "${frontmatterValue}" (expected format: ${settings.frontmatterDateFormat})`);
+                        } else {
+                            return parsedDate.getTime();
+                        }
+                    }
+                } catch (e) {
+                    // If parsing fails, fall back to file system timestamp
+                    console.error(`Failed to parse frontmatter ${dateType} timestamp for ${file.path}:`, e);
+                }
+            }
+        }
+        
+        // Fall back to file system timestamp
+        return dateType === 'created' ? file.stat.ctime : file.stat.mtime;
     }
 }

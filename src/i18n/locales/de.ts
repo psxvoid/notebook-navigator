@@ -339,6 +339,27 @@ export const STRINGS_DE = {
                 name: 'Vor dem Löschen von Notizen bestätigen',
                 desc: 'Bestätigungsdialog beim Löschen von Notizen oder Ordnern anzeigen',
             },
+            useFrontmatterDates: {
+                name: 'Versuche Zeitstempel aus Frontmatter zu lesen',
+                desc: 'Erstellungs- und Änderungszeitstempel aus dem Frontmatter der Notiz lesen, falls vorhanden, ansonsten Dateisystemdaten verwenden',
+            },
+            frontmatterCreatedField: {
+                name: 'Feld für Erstellungszeitstempel',
+                desc: 'Frontmatter-Feldname für den Erstellungszeitstempel. Leer lassen, um nur das Dateisystemdatum zu verwenden.',
+                placeholder: 'created',
+            },
+            frontmatterModifiedField: {
+                name: 'Feld für Änderungszeitstempel',
+                desc: 'Frontmatter-Feldname für den Änderungszeitstempel. Leer lassen, um nur das Dateisystemdatum zu verwenden.',
+                placeholder: 'modified',
+            },
+            frontmatterDateFormat: {
+                name: 'Zeitstempelformat',
+                desc: 'Format zum Parsen von Zeitstempeln im Frontmatter',
+                placeholder: 'yyyy-MM-dd HH:mm:ss',
+                helpTooltip: 'Siehe date-fns Formatdokumentation',
+                help: 'Häufige Formate:\nyyyy-MM-dd HH:mm:ss → 2025-01-04 14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM',
+            },
             supportDevelopment: {
                 name: 'Entwicklung unterstützen',
                 desc: 'Wenn Sie Notebook Navigator lieben, erwägen Sie bitte, die weitere Entwicklung zu unterstützen.',
