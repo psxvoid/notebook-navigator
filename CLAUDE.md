@@ -9,7 +9,7 @@ Notebook Navigator is an Obsidian plugin that replaces the default file explorer
 - **Two-pane layout**: Folder tree on left, file list on right (desktop)
 - **Tag browsing**: Browse notes by tags with expandable tag tree
 - **File previews**: Show preview text and feature images
-- **Keyboard navigation**: Full keyboard support with arrow keys, Tab, Enter
+- **Keyboard navigation**: Full keyboard support with arrow keys, Tab, Enter, PageUp, PageDown
 - **Drag & drop**: Move files and folders (desktop only)
 - **Context menus**: Right-click menus for all operations
 - **Mobile support**: Single-pane view with swipe gestures
@@ -25,7 +25,7 @@ Notebook Navigator is an Obsidian plugin that replaces the default file explorer
 - **React entry**: `src/view/NotebookNavigatorView.tsx` - View wrapper
 - **Main component**: `src/components/NotebookNavigatorComponent.tsx` - Root React component
 - **Build command**: `npm run build` for production build
-- **Key patterns**: React hooks, Context API, TypeScript strict mode, Event delegation
+- **Key patterns**: React hooks, Context API, TypeScript strict mode, TanStack Virtual for virtualization
 - **Testing**: Manual testing in Obsidian vault (no automated tests)
 
 ## Architecture Overview
@@ -37,26 +37,29 @@ notebook-navigator/
 │   ├── main.ts                    # Obsidian plugin entry point
 │   ├── settings.ts                # Settings interface and tab
 │   ├── types.ts                   # Shared TypeScript types
+│   ├── types/                     # TypeScript type definitions
+│   │   └── virtualization.ts     # Types for virtualization
 │   ├── view/                      # Obsidian view integration
 │   │   └── NotebookNavigatorView.tsx  # React root mounting
 │   ├── components/                # React components
 │   │   ├── NotebookNavigatorComponent.tsx  # Main container
-│   │   ├── FolderTree.tsx        # Left pane folder hierarchy
+│   │   ├── LeftPaneVirtualized.tsx  # Virtualized left pane with folders/tags
+│   │   ├── FolderTree.tsx        # Left pane folder hierarchy (deprecated)
 │   │   ├── FolderItem.tsx        # Individual folder component
-│   │   ├── FileList.tsx          # Right pane file listing
+│   │   ├── FileList.tsx          # Right pane file listing (virtualized)
 │   │   ├── FileItem.tsx          # Individual file component
 │   │   ├── PaneHeader.tsx        # Header with actions
-│   │   ├── TagList.tsx           # Tag browsing component
+│   │   ├── TagList.tsx           # Tag browsing component (deprecated)
 │   │   ├── TagTreeItem.tsx       # Individual tag component
-│   │   └── ObsidianIcon.tsx      # Icon wrapper component
+│   │   ├── ObsidianIcon.tsx      # Icon wrapper component
+│   │   └── ErrorBoundary.tsx      # Error boundary for components
 │   ├── context/                   # React Context providers
 │   │   ├── AppContext.tsx        # Global app state
 │   │   └── ServicesContext.tsx   # Service injection
 │   ├── hooks/                     # Custom React hooks
-│   │   ├── useKeyboardNavigation.ts  # Keyboard shortcuts
+│   │   ├── useVirtualKeyboardNavigation.ts  # Keyboard navigation for virtualized lists
 │   │   ├── useContextMenu.ts     # Right-click menus
 │   │   ├── useDragAndDrop.ts    # Drag & drop logic
-│   │   ├── useScrollIntoView.ts  # Smart scroll positioning
 │   │   ├── useResizablePane.ts   # Pane resizing functionality
 │   │   └── useSwipeGesture.ts    # Mobile swipe gestures
 │   ├── i18n/                      # Internationalization
@@ -79,7 +82,9 @@ notebook-navigator/
 │       ├── fileFilters.ts        # File filtering utilities
 │       ├── sortUtils.ts          # Sorting utilities
 │       ├── tagUtils.ts           # Tag-related utilities
-│       └── typeGuards.ts         # TypeScript type guards
+│       ├── typeGuards.ts         # TypeScript type guards
+│       ├── treeFlattener.ts      # Flattens tree structure for virtualization
+│       └── virtualUtils.ts       # Utilities for virtual scrolling
 ├── images/                        # Screenshots and assets
 │   ├── mobile.psd                # Mobile design source
 │   ├── screenshot1.png           # App screenshot
@@ -107,13 +112,11 @@ NotebookNavigatorView (Obsidian ItemView)
         └── AppProvider
             └── NotebookNavigatorComponent
                 ├── PaneHeader (left pane)
-                ├── FolderTree
-                │   └── FolderItem (recursive)
-                ├── TagList
-                │   └── TagTreeItem (recursive)
+                ├── LeftPaneVirtualized
+                │   └── Virtual scrolling for folders and tags
                 ├── PaneHeader (right pane)
                 └── FileList
-                    └── FileItem (multiple)
+                    └── Virtual scrolling for file items
 ```
 
 ### State Management
@@ -198,12 +201,34 @@ Handles file system operations with user interaction:
 
 ### Custom Hooks
 
-- **useKeyboardNavigation**: Arrow keys, Tab, Enter, Delete with debouncing
+- **useVirtualKeyboardNavigation**: Arrow keys, Tab, Enter, Delete, PageUp/PageDown for virtualized lists
 - **useContextMenu**: Right-click menus using Obsidian's Menu API
 - **useDragAndDrop**: Drag-and-drop with validation and visual feedback (desktop only)
-- **useScrollIntoView**: Smart scrolling that centers selected items
 - **useResizablePane**: Handles pane resizing with min/max constraints
 - **useSwipeGesture**: Mobile swipe gestures for navigation (edge swipe detection)
+
+## Virtualization
+
+The plugin uses TanStack Virtual for efficient rendering of large file and folder lists:
+
+### Architecture
+- **LeftPaneVirtualized**: Virtualizes the folder tree and tag list
+- **FileList**: Virtualizes the file list
+- **Tree Flattening**: Hierarchical structures are flattened to arrays with depth information
+- **Virtual Utilities**: Helper functions for calculating item sizes and positions
+
+### Key Components
+- **treeFlattener.ts**: Converts nested folder/tag structures to flat arrays
+- **virtualUtils.ts**: Utilities for virtual scrolling calculations
+- **virtualization.ts**: TypeScript types for virtualized items
+- **useVirtualKeyboardNavigation**: Handles keyboard navigation in virtualized lists
+
+### Features
+- Smooth scrolling with thousands of items
+- Maintains selection and focus during scrolling
+- Supports variable item heights (expanded/collapsed folders)
+- Keyboard navigation with PageUp/PageDown support
+- Automatic scroll-to-item functionality
 
 ## Code Style & Patterns
 
@@ -255,11 +280,12 @@ Handles file system operations with user interaction:
 
 ## Performance Considerations
 
-- Event delegation for scalability with large vaults
-- Memoized computations for sorting and filtering
-- Asynchronous preview loading
-- Efficient Set operations for expanded state
-- No virtualization yet (potential future enhancement)
+- **Virtualization**: Uses TanStack Virtual for efficient rendering of large file and folder lists
+- **Event delegation**: For scalability with large vaults
+- **Memoized computations**: For sorting and filtering
+- **Asynchronous preview loading**: Non-blocking preview text generation
+- **Efficient Set operations**: For expanded state management
+- **Tree flattening**: Converts hierarchical structures to flat arrays for virtualization
 
 ## Common Pitfalls
 
