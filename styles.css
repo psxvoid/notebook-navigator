@@ -734,10 +734,6 @@ button.nn-icon-button {
     z-index: 0;
 }
 
-/* Dark mode selected folder - dimmer selection color */
-.theme-dark .nn-folder-item.nn-selected > .nn-folder-content::before {
-    filter: brightness(0.5);
-}
 
 /* Selected folder content z-index - ensures text appears above background */
 .nn-folder-item.nn-selected > .nn-folder-content > * {
@@ -765,10 +761,6 @@ button.nn-icon-button {
     background-color: var(--text-selection);
 }
 
-/* Dark mode selected file - dimmer selection */
-.theme-dark .nn-file-item.nn-selected .nn-file-content {
-    filter: brightness(0.5);
-}
 
 /* Selected file background pseudo-element - better control over styling */
 .nn-file-item.nn-selected .nn-file-content::before {
@@ -792,10 +784,6 @@ button.nn-icon-button {
     display: none;
 }
 
-/* Dark mode selected file pseudo-element */
-.theme-dark .nn-file-item.nn-selected .nn-file-content::before {
-    filter: brightness(0.5);
-}
 
 /* Selected file content z-index - ensures content above background */
 .nn-file-item.nn-selected .nn-file-content > * {
