@@ -142,7 +142,7 @@ export const LeftPaneVirtualized: React.FC = () => {
                 'auto',
                 3,
                 false,
-                isMobile ? 'center' : 'auto'
+                'auto'
             );
             // Delay clearing the index to ensure scroll completes
             const timeoutId = setTimeout(() => {
@@ -183,15 +183,19 @@ export const LeftPaneVirtualized: React.FC = () => {
                     'auto',
                     3,
                     false,
-                    isMobile ? 'center' : 'auto'
+                    'auto'
                 );
                 return cleanup;
             }
         }
     }, [appState.selectedFolder, appState.selectedTag, appState.selectionType, items, rowVirtualizer, isMobile]);
     
-    // Use IntersectionObserver to detect when the pane becomes visible
+    // Use IntersectionObserver to detect when the pane becomes visible (desktop only)
+    // On mobile, this causes flicker when switching views, so we skip it
     useEffect(() => {
+        // Skip IntersectionObserver on mobile to prevent flicker
+        if (isMobile) return;
+        
         const scrollContainer = scrollContainerRef.current;
         if (!scrollContainer) return;
 
@@ -231,7 +235,7 @@ export const LeftPaneVirtualized: React.FC = () => {
                     'auto',
                     3,
                     false,
-                    isMobile ? 'center' : 'auto'
+                    'auto'  // Always use 'auto' on desktop
                 );
             }
         };
