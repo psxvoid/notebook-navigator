@@ -7,6 +7,7 @@ import { TagTreeNode } from '../utils/tagUtils';
 import { isTypingInInput } from '../utils/domUtils';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { isTFolder } from '../utils/typeGuards';
+import { useFileSystemOps } from '../context/ServicesContext';
 
 type VirtualItem = CombinedLeftPaneItem | FileListItem;
 
@@ -28,6 +29,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     containerRef
 }: UseVirtualKeyboardNavigationProps<T>) {
     const { app, appState, dispatch, plugin, isMobile } = useAppContext();
+    const fileSystemOps = useFileSystemOps();
     const lastKeyPressTime = useRef(0);
     
     // Helper function for safe array access
@@ -482,91 +484,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     const handleDelete = async () => {
         if (!appState.selectedFile) return;
         
-        const fileSystemOps = plugin.app.vault;
-        const metadataService = plugin.metadataService;
-        
-        // Store file reference in case state changes during async operation
-        const fileToDelete = appState.selectedFile;
-        
-        const shouldDelete = await new Promise<boolean>((resolve) => {
-            let modal: any = null;
-            let resolved = false;
-            
-            const safeResolve = (value: boolean) => {
-                if (!resolved) {
-                    resolved = true;
-                    resolve(value);
-                }
-            };
-            
-            try {
-                // Use Obsidian's confirm dialog pattern
-                modal = new (plugin.app as any).Modal(plugin.app);
-                
-                // Set up onClose handler immediately after creation
-                modal.onClose = () => {
-                    safeResolve(false);
-                };
-                
-                modal.titleEl.setText(`Delete "${fileToDelete.name}"?`);
-                modal.contentEl.setText('This action cannot be undone.');
-                
-                modal.contentEl.createDiv({ cls: 'modal-button-container' }, (buttonContainer: HTMLDivElement) => {
-                    buttonContainer
-                        .createEl('button', { text: 'Cancel' })
-                        .addEventListener('click', () => {
-                            modal.close();
-                            safeResolve(false);
-                        });
-                        
-                    buttonContainer
-                        .createEl('button', { 
-                            cls: 'mod-warning',
-                            text: 'Delete' 
-                        })
-                        .addEventListener('click', () => {
-                            modal.close();
-                            safeResolve(true);
-                        });
-                });
-                
-                modal.open();
-            } catch (error) {
-                // Ensure modal is closed on error
-                if (modal) {
-                    try {
-                        modal.close();
-                    } catch {}
-                }
-                console.error('Error creating delete confirmation modal:', error);
-                safeResolve(false);
-            }
-        });
-        
-        if (!shouldDelete) return;
-        
-        try {
-            // Verify the file still exists and is still the selected file
-            const fileStillExists = await app.vault.adapter.exists(fileToDelete.path);
-            if (!fileStillExists) {
-                console.warn('File no longer exists:', fileToDelete.path);
-                return;
-            }
-            
-            // Check if it's still the selected file (user might have navigated away)
-            if (appState.selectedFile?.path !== fileToDelete.path) {
-                console.warn('Selected file changed during delete operation');
-                return;
-            }
-            
-            // Delete the file
-            await fileSystemOps.delete(fileToDelete);
-            
-            // Clean up metadata
-            metadataService.handleFileDelete(fileToDelete.path);
-        } catch (error) {
-            console.error('Error deleting file:', error);
-        }
+        // Use the centralized file deletion service
+        await fileSystemOps.deleteFile(
+            appState.selectedFile,
+            plugin.settings.confirmBeforeDelete
+        );
     };
     
     useEffect(() => {

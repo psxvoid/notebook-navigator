@@ -509,11 +509,11 @@ export function AppProvider({ children, plugin, isMobile = false }: { children: 
             }, 200); // Longer debounce for modifications
         };
         
-        // Register event handlers
-        app.vault.on('create', handleCreate);
-        app.vault.on('delete', handleDelete);
-        app.vault.on('rename', handleRename);
-        app.vault.on('modify', handleModify);
+        // Register event handlers using EventRef pattern
+        const createEventRef = app.vault.on('create', handleCreate);
+        const deleteEventRef = app.vault.on('delete', handleDelete);
+        const renameEventRef = app.vault.on('rename', handleRename);
+        const modifyEventRef = app.vault.on('modify', handleModify);
         
         // Cleanup
         return () => {
@@ -521,10 +521,10 @@ export function AppProvider({ children, plugin, isMobile = false }: { children: 
             clearTimeout(deleteTimeout);
             clearTimeout(renameTimeout);
             clearTimeout(modifyTimeout);
-            app.vault.off('create', handleCreate);
-            app.vault.off('delete', handleDelete);
-            app.vault.off('rename', handleRename);
-            app.vault.off('modify', handleModify);
+            app.vault.offref(createEventRef);
+            app.vault.offref(deleteEventRef);
+            app.vault.offref(renameEventRef);
+            app.vault.offref(modifyEventRef);
         };
     }, [app, dispatch]);
 
