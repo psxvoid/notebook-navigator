@@ -102,6 +102,39 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 }
                 break;
                 
+            case 'PageDown': {
+                e.preventDefault();
+                // This is the fix: Use the new geometry-based page size calculation.
+                const pageSize = getVisiblePageSize(virtualizer);
+
+                // If nothing is selected, start from the first item.
+                const startIndex = currentIndex === -1 ? 0 : currentIndex;
+
+                const newIndex = Math.min(startIndex + pageSize, items.length - 1);
+                
+                // Find the next selectable item at or after our jump point.
+                targetIndex = findNextSelectableIndex(items, newIndex - 1, focusedPane);
+                
+                // If we're already at the end, just re-select the last item.
+                if (targetIndex === currentIndex) {
+                     targetIndex = findPreviousSelectableIndex(items, items.length, focusedPane);
+                }
+                break;
+            }
+
+            case 'PageUp': {
+                e.preventDefault();
+                const pageSize = getVisiblePageSize(virtualizer);
+
+                if (currentIndex === -1) break; // Do nothing if at top with no selection.
+
+                const newIndex = Math.max(0, currentIndex - pageSize);
+                
+                // Find the previous selectable item at or before our jump point.
+                targetIndex = findPreviousSelectableIndex(items, newIndex + 1, focusedPane);
+                break;
+            }
+                
             case 'ArrowRight':
                 e.preventDefault();
                 if (focusedPane === 'folders') {
@@ -291,6 +324,46 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                    leftPaneItem.type === 'tag' || 
                    leftPaneItem.type === 'untagged';
         }
+    };
+    
+    /**
+     * Calculates the number of items that fit in the viewport based on geometry.
+     * This is the only reliable way to get a consistent page size.
+     * @param virtualizer The virtualizer instance.
+     * @returns The number of items to jump for a page up/down action.
+     */
+    const getVisiblePageSize = (virtualizer: Virtualizer<any, any>): number => {
+        const virtualItems = virtualizer.getVirtualItems();
+        // If the virtualizer or its scroll element isn't ready, return a sensible default.
+        if (virtualItems.length === 0 || !virtualizer.scrollElement) {
+            return 10;
+        }
+
+        // Get the height of the visible scroll area.
+        const viewportHeight = virtualizer.scrollElement.offsetHeight;
+
+        // To find the average item height, we measure the total height of all *rendered*
+        // items and divide by the number of rendered items.
+        const firstItem = virtualItems[0];
+        const lastItem = virtualItems[virtualItems.length - 1];
+        const totalMeasuredHeight = (lastItem.start + lastItem.size) - firstItem.start;
+        
+        // Avoid division by zero if height is somehow 0.
+        if (totalMeasuredHeight <= 0) {
+            return 10;
+        }
+
+        const averageItemHeight = totalMeasuredHeight / virtualItems.length;
+
+        if (averageItemHeight <= 0) {
+            return 10;
+        }
+
+        // The true page size is how many average-sized items fit in the viewport.
+        const pageSize = Math.floor(viewportHeight / averageItemHeight);
+
+        // Jump by a full page minus one item for visual context, ensuring we jump at least 1.
+        return Math.max(1, pageSize > 1 ? pageSize - 1 : 1);
     };
     
     // Select item at given index
