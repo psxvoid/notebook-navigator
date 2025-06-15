@@ -618,7 +618,6 @@ export function FileList() {
                                             isSelected={isSelected}
                                             onClick={(e) => handleFileClick(item.data as TFile, e)}
                                             dateGroup={dateGroup}
-                                            settingsVersion={refreshCounter}
                                             formattedDate={filesWithDates?.get((item.data as TFile).path)}
                                             parentFolder={item.parentFolder}
                                         />
