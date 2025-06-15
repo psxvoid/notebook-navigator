@@ -554,12 +554,41 @@ export function FileList() {
 
         const observerCallback = (entries: IntersectionObserverEntry[]) => {
             const [entry] = entries;
+            // Only act when the component is intersecting (i.e., visible)
             if (!entry.isIntersecting) return;
 
             if (selectedFilePath) {
                 const fileIndex = filePathToIndex.get(selectedFilePath);
                 if (fileIndex !== undefined && fileIndex >= 0) {
-                    scrollVirtualItemIntoView(rowVirtualizer, fileIndex, 'auto');
+                    
+                    // Determine the best scroll alignment based on the item's position.
+                    // This is key to solving the issue with items at the bottom.
+                    const totalItems = listItems.length;
+                    let alignment: 'start' | 'center' | 'end' = 'center';
+
+                    if (fileIndex < 5) {
+                        // For items near the top, align to the start.
+                        alignment = 'start';
+                    } else if (fileIndex >= totalItems - 5) {
+                        // For items near the bottom, align to the end. This is the crucial fix.
+                        alignment = 'end';
+                    }
+
+                    // Use a timeout to ensure the virtualizer has time to measure the items
+                    // after the component remounts, which is critical on mobile.
+                    const scrollTimeout = setTimeout(() => {
+                        try {
+                            rowVirtualizer.scrollToIndex(fileIndex, {
+                                align: alignment,
+                                behavior: 'auto',
+                            });
+                        } catch (e) {
+                            console.error("Notebook Navigator: Failed to scroll to virtualized index.", e);
+                        }
+                    }, 50); // A 50ms delay is usually sufficient for the UI to update.
+
+                    // Return a cleanup function for the timeout
+                    return () => clearTimeout(scrollTimeout);
                 }
             }
         };
@@ -567,10 +596,11 @@ export function FileList() {
         const observer = new IntersectionObserver(observerCallback, { threshold: 0.1 });
         observer.observe(scrollContainer);
 
+        // Cleanup: disconnect the observer when the component unmounts.
         return () => {
             observer.disconnect();
         };
-    }, [isMobile, rowVirtualizer, filePathToIndex, selectedFilePath]);
+    }, [isMobile, rowVirtualizer, filePathToIndex, selectedFilePath, listItems.length]); // Add listItems.length to dependencies
     
     // Track scroll events and calculate velocity on mobile
     useEffect(() => {
