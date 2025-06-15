@@ -483,8 +483,8 @@ export function FileList() {
             return;
         }
         
-        // Only preserve position during active scrolling
-        if (!scrollStateRef.current.isScrolling) {
+        // Only preserve position during active scrolling AND when files view is visible
+        if (!scrollStateRef.current.isScrolling || (isMobile && appState.currentMobileView !== 'files')) {
             prevItemCountRef.current = currentCount;
             return;
         }
@@ -545,6 +545,32 @@ export function FileList() {
         });
         return map;
     }, [listItems]);
+    
+    // Use IntersectionObserver to scroll to selected file when pane becomes visible on mobile
+    useEffect(() => {
+        if (!isMobile || !scrollContainerRef.current || !rowVirtualizer) return;
+
+        const scrollContainer = scrollContainerRef.current;
+
+        const observerCallback = (entries: IntersectionObserverEntry[]) => {
+            const [entry] = entries;
+            if (!entry.isIntersecting) return;
+
+            if (selectedFilePath) {
+                const fileIndex = filePathToIndex.get(selectedFilePath);
+                if (fileIndex !== undefined && fileIndex >= 0) {
+                    scrollVirtualItemIntoView(rowVirtualizer, fileIndex, 'auto');
+                }
+            }
+        };
+
+        const observer = new IntersectionObserver(observerCallback, { threshold: 0.1 });
+        observer.observe(scrollContainer);
+
+        return () => {
+            observer.disconnect();
+        };
+    }, [isMobile, rowVirtualizer, filePathToIndex, selectedFilePath]);
     
     // Track scroll events and calculate velocity on mobile
     useEffect(() => {
