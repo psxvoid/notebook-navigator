@@ -143,7 +143,6 @@ export function FileList() {
     
     // Track if the file selection is from user click vs auto-selection
     const isUserSelectionRef = useRef(false);
-    const prevSelectedFilePath = useRef(appState.selectedFile?.path);
     
     const handleFileClick = useCallback((file: TFile, e: React.MouseEvent) => {
         isUserSelectionRef.current = true;  // Mark this as a user selection
@@ -450,36 +449,29 @@ export function FileList() {
         }
     }, [appState.scrollToFileIndex, rowVirtualizer, dispatch]);
     
-    // Scroll to selected file only when it truly changes
+    // Scroll to selected file when it changes
     useEffect(() => {
-        // Only scroll if the selected file path has changed since the last render.
-        // This prevents the effect from fighting with manual user scrolling.
-        if (appState.selectedFile?.path !== prevSelectedFilePath.current) {
-            if (selectedFilePath && scrollContainerRef.current && rowVirtualizer) {
-                const fileIndex = filePathToIndex.get(selectedFilePath);
+        if (selectedFilePath && scrollContainerRef.current && rowVirtualizer) {
+            const fileIndex = filePathToIndex.get(selectedFilePath);
+            
+            if (fileIndex !== undefined && fileIndex >= 0) {
+                // Only scroll to header when it's the first file (auto-selection)
+                // Don't do it during normal navigation to avoid jumping
+                const firstItem = listItems[0];
+                const isFirstFile = fileIndex === 0 || (fileIndex === 1 && firstItem && firstItem.type === 'header');
+                const isFirstInGroup = isFirstFile && fileIndex > 0 && listItems[fileIndex - 1]?.type === 'header';
                 
-                if (fileIndex !== undefined && fileIndex >= 0) {
-                    const firstItem = listItems[0];
-                    const isFirstFile = fileIndex === 0 || (fileIndex === 1 && firstItem && firstItem.type === 'header');
-                    const isFirstInGroup = isFirstFile && fileIndex > 0 && listItems[fileIndex - 1]?.type === 'header';
-                    
-                    scrollVirtualItemIntoView(
-                        rowVirtualizer, 
-                        fileIndex,
-                        'auto',
-                        3,
-                        isFirstInGroup
-                    );
-                }
+                const cleanup = scrollVirtualItemIntoView(
+                    rowVirtualizer, 
+                    fileIndex,
+                    'auto',
+                    3,
+                    isFirstInGroup
+                );
+                return cleanup;
             }
         }
-    }, [selectedFilePath, filePathToIndex, rowVirtualizer, listItems]); // Keep the original dependencies
-    
-    // After every render, update the ref to hold the latest selected file path.
-    // useLayoutEffect ensures this happens synchronously before the next paint.
-    useLayoutEffect(() => {
-        prevSelectedFilePath.current = appState.selectedFile?.path;
-    });
+    }, [selectedFilePath, filePathToIndex, rowVirtualizer, listItems]);
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
@@ -626,6 +618,7 @@ export function FileList() {
                                             isSelected={isSelected}
                                             onClick={(e) => handleFileClick(item.data as TFile, e)}
                                             dateGroup={dateGroup}
+                                            settingsVersion={refreshCounter}
                                             formattedDate={filesWithDates?.get((item.data as TFile).path)}
                                             parentFolder={item.parentFolder}
                                         />
