@@ -49,6 +49,11 @@ export function flattenFolderTree(
             const childFolders = folder.children
                 .filter(child => child instanceof TFolder) as TFolder[];
             
+            // Get the current language from Obsidian to sort correctly for that locale. 
+            const lang = window.localStorage.getItem('language') || 'en';
+            // Sort the child folders alphabetically using the detected locale.
+            childFolders.sort((a, b) => a.name.localeCompare(b.name, lang));
+            
             if (childFolders.length > 0) {
                 // Create a new set with the current path added
                 const newVisitedPaths = new Set(visitedPaths);
