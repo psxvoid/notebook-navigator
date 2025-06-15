@@ -266,8 +266,9 @@ export function FileList() {
         
         // Check if folder/tag has changed
         const currentFolderPath = selectedFolder?.path || null;
+        const previousFolderPath = previousSelectionRef.current.folderPath;
         const hasSelectionChanged = 
-            previousSelectionRef.current.folderPath !== currentFolderPath ||
+            previousFolderPath !== currentFolderPath ||
             previousSelectionRef.current.tag !== selectedTag;
         
         // Update the ref
@@ -309,8 +310,27 @@ export function FileList() {
             // Check if the selected file is in the new folder
             const selectedFileInNewFolder = files.some(f => f.path === appState.selectedFile?.path);
             if (selectedFileInNewFolder) {
-                // The selected file is in the new folder, keep it selected
-                return;
+                // Special case: When moving from child to parent folder with showNotesFromSubfolders enabled
+                // and autoSelectFirstFile is on, we should select the first file instead of keeping current
+                if (plugin.settings.showNotesFromSubfolders && 
+                    plugin.settings.autoSelectFirstFile &&
+                    previousFolderPath && currentFolderPath) {
+                    // Check if we're moving from a child folder to a parent folder
+                    const isMovingToParent = currentFolderPath === '/' 
+                        ? previousFolderPath !== '/'  // Any non-root folder to root
+                        : previousFolderPath.startsWith(currentFolderPath + '/');
+                    
+                    if (isMovingToParent) {
+                        // We're moving from a child folder to a parent folder
+                        // Don't preserve selection, let it fall through to auto-select first
+                    } else {
+                        // The selected file is in the new folder, keep it selected
+                        return;
+                    }
+                } else {
+                    // The selected file is in the new folder, keep it selected
+                    return;
+                }
             }
         }
         
