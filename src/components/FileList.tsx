@@ -648,6 +648,9 @@ export function FileList() {
                                 (virtualItem.index === listItems.length - 1 || 
                                  (virtualItem.index < listItems.length - 1 && listItems[virtualItem.index + 1].type === 'header'));
                             
+                            // Check if this is the first header
+                            const isFirstHeader = item.type === 'header' && virtualItem.index === 0;
+                            
                             // Check if next item is selected (for hiding separator)
                             const nextItemSelected = virtualItem.index < listItems.length - 1 && 
                                 listItems[virtualItem.index + 1].type === 'file' && 
@@ -680,7 +683,7 @@ export function FileList() {
                                     }}
                                 >
                                     {item.type === 'header' ? (
-                                        <div className="nn-date-group-header">
+                                        <div className={`nn-date-group-header ${isFirstHeader ? 'nn-first-header' : ''}`}>
                                             {item.data as string}
                                         </div>
                                     ) : (

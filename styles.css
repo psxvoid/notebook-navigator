@@ -674,6 +674,7 @@ button.nn-icon-button {
 /* Date group headers - sticky headers for grouped files */
 .nn-date-group-header {
     padding: var(--size-4-2) var(--size-4-3);
+    padding-top: calc(var(--size-4-2) * 2);
     font-size: var(--font-ui-small);
     font-weight: 600;
     color: var(--text-muted);
@@ -688,10 +689,12 @@ button.nn-icon-button {
     text-overflow: ellipsis;
 }
 
-/* First date header - no top margin for first group */
-.nn-date-group-header:first-child {
+/* First date header - no top margin or extra padding for first group */
+.nn-date-group-header.nn-first-header {
     margin-top: 0;
+    padding-top: var(--size-4-2);
 }
+
 
 /* ========================================================================
    Empty State
