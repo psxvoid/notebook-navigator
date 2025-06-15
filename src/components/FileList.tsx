@@ -140,16 +140,11 @@ export function FileList() {
     const { app, appState, dispatch, plugin, refreshCounter, isMobile } = useAppContext();
     const { selectionType, selectedFolder, selectedTag } = appState;
     
-    // Track previous folder/tag selection to detect changes
-    const previousSelectionRef = useRef<{
-        folderPath: string | null;
-        tag: string | null;
-    }>({
-        folderPath: selectedFolder?.path || null,
-        tag: selectedTag
-    });
+    // Track if the file selection is from user click vs auto-selection
+    const isUserSelectionRef = useRef(false);
     
     const handleFileClick = useCallback((file: TFile, e: React.MouseEvent) => {
+        isUserSelectionRef.current = true;  // Mark this as a user selection
         dispatch({ type: 'SET_SELECTED_FILE', file });
         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         
@@ -259,59 +254,18 @@ export function FileList() {
         refreshCounter
     ]);
     
-    // Auto-select first file when folder/tag changes (desktop only)
+    // Auto-open file when it's selected via folder/tag change (not user click)
     useEffect(() => {
-        if (!selectedFolder && !selectedTag) return;
-
-        const currentFolderPath = selectedFolder?.path || null;
-        const hasSelectionChanged =
-            previousSelectionRef.current.folderPath !== currentFolderPath ||
-            previousSelectionRef.current.tag !== selectedTag;
-
-        if (isMobile && hasSelectionChanged) {
-            // On mobile, don't auto-select files, just update the ref and exit.
-            previousSelectionRef.current = { folderPath: currentFolderPath, tag: selectedTag };
-            return;
-        }
-        
-        if (hasSelectionChanged) {
-            // --- FOLDER/TAG HAS CHANGED ---
-            // Use a timeout to ensure the file list has been updated in the DOM.
-            const timeoutId = setTimeout(() => {
-                if (files.length > 0 && plugin.settings.autoSelectFirstFile) {
-                    const firstFile = files[0];
-                    dispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
-                    
-                    const leaf = app.workspace.getLeaf(false);
-                    if (leaf) {
-                        leaf.openFile(firstFile, { active: false });
-                    }
-                } else if (!plugin.settings.autoSelectFirstFile || files.length === 0) {
-                    // Clear selection if auto-select is off or folder is empty
-                    dispatch({ type: 'SET_SELECTED_FILE', file: null });
-                }
-            }, 0);
-            
-            // Update the ref for the next render cycle.
-            previousSelectionRef.current = { folderPath: currentFolderPath, tag: selectedTag };
-            return () => clearTimeout(timeoutId);
-
-        } else {
-            // --- FOLDER/TAG IS THE SAME, but file list might have changed (e.g., deletion) ---
-            const selectedFileInList = appState.selectedFile && files.some(f => f.path === appState.selectedFile?.path);
-            
-            if (!selectedFileInList) {
-                // The previously selected file is no longer in the list.
-                // If auto-select is on, select the new first file. Otherwise, clear selection.
-                if (files.length > 0 && plugin.settings.autoSelectFirstFile) {
-                    dispatch({ type: 'SET_SELECTED_FILE', file: files[0] });
-                } else {
-                    dispatch({ type: 'SET_SELECTED_FILE', file: null });
-                }
+        if (appState.selectedFile && !isUserSelectionRef.current && plugin.settings.autoSelectFirstFile && !isMobile) {
+            // This is an auto-selection from folder/tag change
+            const leaf = app.workspace.getLeaf(false);
+            if (leaf) {
+                leaf.openFile(appState.selectedFile, { active: false });
             }
         }
-
-    }, [selectedFolder?.path, selectedTag, files, appState.selectedFile?.path, plugin.settings.autoSelectFirstFile, isMobile, dispatch, app.workspace]);
+        // Reset the flag after processing
+        isUserSelectionRef.current = false;
+    }, [appState.selectedFile, app.workspace, plugin.settings.autoSelectFirstFile, isMobile]);
     
     // Auto-select first file when files pane gains focus and no file is selected
     useEffect(() => {

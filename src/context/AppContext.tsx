@@ -23,6 +23,7 @@ import NotebookNavigatorPlugin from '../main';
 import { isTFolder, isTFile } from '../utils/typeGuards';
 import { STORAGE_KEYS } from '../types';
 import { flattenFolderTree, findFolderIndex } from '../utils/treeFlattener';
+import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 
 /**
  * Global application state interface.
@@ -203,23 +204,58 @@ function saveToStorage(key: string, value: any) {
  * @param state - Current application state
  * @param action - The action to process
  * @param app - The Obsidian App instance for vault operations
+ * @param plugin - The plugin instance for settings
+ * @param isMobile - Whether the app is running on mobile
  * @returns The new state after applying the action
  */
-function appReducer(state: AppState, action: AppAction, app: App): AppState {
+function appReducer(state: AppState, action: AppAction, app: App, plugin: NotebookNavigatorPlugin, isMobile: boolean): AppState {
     switch (action.type) {
         case 'SET_SELECTED_FOLDER': {
-            // Update the selected folder and clear tag selection
-            return { 
+            const newState: AppState = { 
                 ...state, 
                 selectionType: 'folder', 
                 selectedFolder: action.folder, 
                 selectedTag: null
             };
+
+            // If a folder is being selected (not cleared) and auto-select is on (desktop only)
+            if (action.folder && plugin.settings.autoSelectFirstFile && !isMobile) {
+                const filesInFolder = getFilesForFolder(action.folder, plugin.settings, app);
+                if (filesInFolder.length > 0) {
+                    newState.selectedFile = filesInFolder[0]; // Select the first file
+                } else {
+                    newState.selectedFile = null; // Or clear selection if folder is empty
+                }
+            } else if (!action.folder) {
+                // If folder is cleared, clear the file selection too
+                newState.selectedFile = null;
+            }
+
+            return newState;
         }
         
         case 'SET_SELECTED_TAG': {
-            // Update the selected tag and clear folder selection
-            return { ...state, selectionType: 'tag', selectedTag: action.tag, selectedFolder: null };
+            const newState: AppState = { 
+                ...state, 
+                selectionType: 'tag', 
+                selectedTag: action.tag, 
+                selectedFolder: null 
+            };
+
+            // If a tag is being selected (not cleared) and auto-select is on (desktop only)
+            if (action.tag && plugin.settings.autoSelectFirstFile && !isMobile) {
+                const filesForTag = getFilesForTag(action.tag, plugin.settings, app);
+                if (filesForTag.length > 0) {
+                    newState.selectedFile = filesForTag[0]; // Select the first file
+                } else {
+                    newState.selectedFile = null; // Or clear selection if tag has no files
+                }
+            } else if (!action.tag) {
+                // If tag is cleared, clear the file selection too
+                newState.selectedFile = null;
+            }
+
+            return newState;
         }
         
         case 'SET_SELECTED_FILE': {
@@ -394,10 +430,10 @@ export function AppProvider({ children, plugin, isMobile = false }: { children: 
 
     /**
      * Initialize state with useReducer, loading initial state from localStorage.
-     * The reducer is wrapped to include the app instance for vault operations.
+     * The reducer is wrapped to include the app and plugin instances for vault operations.
      */
     const [appState, baseDispatch] = useReducer(
-        (state: AppState, action: AppAction) => appReducer(state, action, app),
+        (state: AppState, action: AppAction) => appReducer(state, action, app, plugin, isMobile),
         null,
         () => loadStateFromStorage(app)
     );
