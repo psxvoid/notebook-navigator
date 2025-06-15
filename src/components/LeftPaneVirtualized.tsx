@@ -136,7 +136,14 @@ export const LeftPaneVirtualized: React.FC = () => {
     // Handle reveal file scrolling
     useEffect(() => {
         if (appState.scrollToFolderIndex !== null && rowVirtualizer) {
-            const cleanup = scrollVirtualItemIntoView(rowVirtualizer, appState.scrollToFolderIndex);
+            const cleanup = scrollVirtualItemIntoView(
+                rowVirtualizer, 
+                appState.scrollToFolderIndex,
+                'auto',
+                3,
+                false,
+                isMobile ? 'center' : 'auto'
+            );
             // Delay clearing the index to ensure scroll completes
             const timeoutId = setTimeout(() => {
                 dispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: null });
@@ -146,21 +153,42 @@ export const LeftPaneVirtualized: React.FC = () => {
                 clearTimeout(timeoutId);
             };
         }
-    }, [appState.scrollToFolderIndex, rowVirtualizer, dispatch]);
+    }, [appState.scrollToFolderIndex, rowVirtualizer, dispatch, isMobile]);
     
-    // Handle scroll when selected folder changes (for manual selection and auto-reveal)
+    // Handle scroll when selected folder or tag changes (for manual selection and auto-reveal)
     useEffect(() => {
-        if (appState.selectedFolder && appState.selectionType === 'folder' && rowVirtualizer) {
-            // Find the folder directly in the items array
-            const actualIndex = items.findIndex(item => 
-                item.type === 'folder' && item.data.path === appState.selectedFolder?.path
-            );
+        if (rowVirtualizer) {
+            let actualIndex = -1;
+            
+            if (appState.selectionType === 'folder' && appState.selectedFolder) {
+                // Find the folder directly in the items array
+                actualIndex = items.findIndex(item => 
+                    item.type === 'folder' && item.data.path === appState.selectedFolder?.path
+                );
+            } else if (appState.selectionType === 'tag' && appState.selectedTag) {
+                // Find the tag in the items array
+                actualIndex = items.findIndex(item => {
+                    if (item.type === 'tag' || item.type === 'untagged') {
+                        const tagNode = item.data as TagTreeNode;
+                        return tagNode.path === appState.selectedTag;
+                    }
+                    return false;
+                });
+            }
+            
             if (actualIndex >= 0) {
-                const cleanup = scrollVirtualItemIntoView(rowVirtualizer, actualIndex);
+                const cleanup = scrollVirtualItemIntoView(
+                    rowVirtualizer, 
+                    actualIndex,
+                    'auto',
+                    3,
+                    false,
+                    isMobile ? 'center' : 'auto'
+                );
                 return cleanup;
             }
         }
-    }, [appState.selectedFolder, appState.selectionType, items, rowVirtualizer]);
+    }, [appState.selectedFolder, appState.selectedTag, appState.selectionType, items, rowVirtualizer, isMobile]);
     
     // Use IntersectionObserver to detect when the pane becomes visible
     useEffect(() => {
@@ -172,6 +200,7 @@ export const LeftPaneVirtualized: React.FC = () => {
             const [entry] = entries;
             // Exit if the pane is not visible
             if (!entry.isIntersecting) return;
+
 
             let index = -1;
             const { selectionType, selectedFolder, selectedTag } = appState;
@@ -196,7 +225,14 @@ export const LeftPaneVirtualized: React.FC = () => {
 
             // If a valid item was found, scroll to it
             if (index >= 0) {
-                scrollVirtualItemIntoView(rowVirtualizer, index);
+                scrollVirtualItemIntoView(
+                    rowVirtualizer, 
+                    index,
+                    'auto',
+                    3,
+                    false,
+                    isMobile ? 'center' : 'auto'
+                );
             }
         };
 
@@ -215,7 +251,7 @@ export const LeftPaneVirtualized: React.FC = () => {
         };
     // Dependencies: This effect should re-run if these change,
     // to ensure the observer's callback has the latest state
-    }, [items, appState.selectedFolder, appState.selectedTag, appState.selectionType, rowVirtualizer]);
+    }, [items, appState.selectedFolder, appState.selectedTag, appState.selectionType, rowVirtualizer, isMobile]);
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({

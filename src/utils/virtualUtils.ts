@@ -26,13 +26,15 @@ import { Virtualizer } from '@tanstack/react-virtual';
  * @param index - The index of the item to scroll to
  * @param behavior - The scroll behavior ('auto' or 'smooth')
  * @param scrollToHeader - If true, scrolls to show the group header above the item
+ * @param align - The alignment of the scroll ('auto', 'start', 'center', 'end')
  */
 export function scrollVirtualItemIntoView(
     virtualizer: Virtualizer<any, any>,
     index: number,
     behavior: 'auto' | 'smooth' = 'auto',
     maxRetries: number = 3,
-    scrollToHeader: boolean = false
+    scrollToHeader: boolean = false,
+    align: 'auto' | 'start' | 'center' | 'end' = 'auto'
 ) {
     if (index < 0 || !virtualizer) return () => {};
     
@@ -59,8 +61,8 @@ export function scrollVirtualItemIntoView(
             const targetIndex = (scrollToHeader && index > 0) ? index - 1 : index;
             
             virtualizer.scrollToIndex(targetIndex, {
-                align: scrollToHeader ? 'start' : 'auto',
-                behavior
+                align: scrollToHeader ? 'start' : align,
+                behavior: behavior
             });
         } catch (error) {
             // Retry if we haven't exceeded max retries
