@@ -385,14 +385,30 @@ export function FileList() {
     // Add ref for scroll container
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     
-    // Track scrolling state for mobile momentum preservation
+    /**
+     * Mobile scroll momentum preservation system
+     * 
+     * Problem: On mobile, when items are added to the top of a virtualized list during 
+     * momentum scrolling (inertia scrolling), the browser stops the scroll abruptly.
+     * 
+     * Solution: We track scroll state, velocity, and item count changes. When new items
+     * are added during scrolling, we calculate their height and adjust the scroll position
+     * to maintain visual continuity without interrupting the momentum.
+     */
     const scrollStateRef = useRef({
         isScrolling: false,
         lastScrollTop: 0,
         scrollVelocity: 0,
         lastTimestamp: 0,
-        animationFrameId: 0
+        animationFrameId: 0,
+        scrollEndTimeoutId: 0
     });
+    
+    // Constants for mobile scroll handling
+    const VELOCITY_THRESHOLD = 0.1;        // Minimum velocity to consider as momentum scrolling
+    const SCROLL_END_DELAY = 150;          // Delay before marking scroll as ended
+    const MOMENTUM_DURATION = 500;         // How long to preserve state after touch end
+    const VELOCITY_CALC_MAX_DIFF = 100;    // Max time diff (ms) for velocity calculation
     
     // Track previous item count to detect when items are added
     const prevItemCountRef = useRef(listItems.length);
@@ -438,7 +454,7 @@ export function FileList() {
         // Custom scroll function that preserves momentum on mobile
         scrollToFn: (offset, options, instance) => {
             if (isMobile && scrollStateRef.current.isScrolling && 
-                Math.abs(scrollStateRef.current.scrollVelocity) > 0.1) {
+                Math.abs(scrollStateRef.current.scrollVelocity) > VELOCITY_THRESHOLD) {
                 // Don't interrupt momentum scrolling on mobile
                 return;
             }
@@ -458,47 +474,62 @@ export function FileList() {
     useLayoutEffect(() => {
         if (!isMobile || !scrollContainerRef.current || !rowVirtualizer) return;
         
-        const itemCountChanged = prevItemCountRef.current !== listItems.length;
-        const itemsAddedToTop = listItems.length > prevItemCountRef.current && 
-                                prevItemCountRef.current > 0;
+        const prevCount = prevItemCountRef.current;
+        const currentCount = listItems.length;
         
-        if (itemCountChanged && scrollStateRef.current.isScrolling && itemsAddedToTop) {
-            // Calculate how many items were added
-            const addedCount = listItems.length - prevItemCountRef.current;
+        // Early exit if no change or items were removed
+        if (currentCount <= prevCount) {
+            prevItemCountRef.current = currentCount;
+            return;
+        }
+        
+        // Only preserve position during active scrolling
+        if (!scrollStateRef.current.isScrolling) {
+            prevItemCountRef.current = currentCount;
+            return;
+        }
+        
+        const scrollContainer = scrollContainerRef.current;
+        const visibleRange = rowVirtualizer.getVirtualItems();
+        
+        // No visible items, nothing to adjust
+        if (visibleRange.length === 0) {
+            prevItemCountRef.current = currentCount;
+            return;
+        }
+        
+        const firstVisibleIndex = visibleRange[0].index;
+        
+        // Already at top, no adjustment needed
+        if (firstVisibleIndex === 0) {
+            prevItemCountRef.current = currentCount;
+            return;
+        }
+        
+        // Calculate how many items affect our current position
+        const itemsAddedAbove = Math.min(currentCount - prevCount, firstVisibleIndex);
+        
+        if (itemsAddedAbove > 0) {
+            // Store current position
+            const currentScrollTop = scrollContainer.scrollTop;
             
-            // Get current visible range
-            const visibleRange = rowVirtualizer.getVirtualItems();
-            if (visibleRange.length > 0) {
-                const firstVisibleIndex = visibleRange[0].index;
-                
-                // If items were likely added to the top (before current view)
-                if (firstVisibleIndex > 0) {
-                    // Adjust the virtualizer's scroll offset to maintain position
-                    const scrollContainer = scrollContainerRef.current;
-                    const currentScrollTop = scrollContainer.scrollTop;
-                    
-                    // Estimate the height of added items
-                    let addedHeight = 0;
-                    for (let i = 0; i < Math.min(addedCount, firstVisibleIndex); i++) {
-                        addedHeight += rowVirtualizer.options.estimateSize(i);
+            // Calculate total height of items added above current view
+            let heightAdjustment = 0;
+            for (let i = 0; i < itemsAddedAbove; i++) {
+                heightAdjustment += rowVirtualizer.options.estimateSize(i);
+            }
+            
+            if (heightAdjustment > 0) {
+                // Apply position adjustment immediately to prevent visual jump
+                queueMicrotask(() => {
+                    if (scrollContainer && scrollStateRef.current.isScrolling) {
+                        scrollContainer.scrollTop = currentScrollTop + heightAdjustment;
                     }
-                    
-                    // Apply the offset adjustment without interrupting scroll
-                    if (addedHeight > 0) {
-                        // Use double RAF to ensure measurements are complete
-                        requestAnimationFrame(() => {
-                            requestAnimationFrame(() => {
-                                if (scrollContainer && scrollStateRef.current.isScrolling) {
-                                    scrollContainer.scrollTop = currentScrollTop + addedHeight;
-                                }
-                            });
-                        });
-                    }
-                }
+                });
             }
         }
         
-        prevItemCountRef.current = listItems.length;
+        prevItemCountRef.current = currentCount;
     }, [listItems.length, isMobile, rowVirtualizer]);
     
     // Cache selected file path to avoid repeated property access
@@ -520,28 +551,41 @@ export function FileList() {
         if (!isMobile || !scrollContainerRef.current) return;
         
         const scrollContainer = scrollContainerRef.current;
-        let touchStartY = 0;
-        let touchStartTime = 0;
         
-        const handleTouchStart = (e: TouchEvent) => {
-            touchStartY = e.touches[0].clientY;
-            touchStartTime = Date.now();
+        // Reset scroll state when effect runs (e.g., switching to mobile)
+        scrollStateRef.current = {
+            isScrolling: false,
+            lastScrollTop: 0,
+            scrollVelocity: 0,
+            lastTimestamp: 0,
+            animationFrameId: 0,
+            scrollEndTimeoutId: 0
+        };
+        
+        const handleTouchStart = () => {
             scrollStateRef.current.isScrolling = true;
+            // Clear any pending scroll end timeout
+            if (scrollStateRef.current.scrollEndTimeoutId) {
+                clearTimeout(scrollStateRef.current.scrollEndTimeoutId);
+                scrollStateRef.current.scrollEndTimeoutId = 0;
+            }
         };
         
         const handleTouchEnd = () => {
-            // Keep scrolling state active for a bit to handle momentum
-            setTimeout(() => {
+            // Keep scrolling state active for momentum duration
+            scrollStateRef.current.scrollEndTimeoutId = window.setTimeout(() => {
                 scrollStateRef.current.isScrolling = false;
-            }, 500);
+                scrollStateRef.current.scrollVelocity = 0;
+                scrollStateRef.current.scrollEndTimeoutId = 0;
+            }, MOMENTUM_DURATION);
         };
         
         const handleScroll = () => {
             const currentScrollTop = scrollContainer.scrollTop;
-            const currentTime = Date.now();
+            const currentTime = performance.now();
             const timeDiff = currentTime - scrollStateRef.current.lastTimestamp;
             
-            if (timeDiff > 0) {
+            if (timeDiff > 0 && timeDiff < VELOCITY_CALC_MAX_DIFF) {
                 scrollStateRef.current.scrollVelocity = 
                     (currentScrollTop - scrollStateRef.current.lastScrollTop) / timeDiff;
             }
@@ -550,15 +594,25 @@ export function FileList() {
             scrollStateRef.current.lastTimestamp = currentTime;
             scrollStateRef.current.isScrolling = true;
             
-            // Clear the scrolling flag after scrolling stops
+            // Clear existing timeouts
             if (scrollStateRef.current.animationFrameId) {
                 cancelAnimationFrame(scrollStateRef.current.animationFrameId);
             }
+            if (scrollStateRef.current.scrollEndTimeoutId) {
+                clearTimeout(scrollStateRef.current.scrollEndTimeoutId);
+                scrollStateRef.current.scrollEndTimeoutId = 0;
+            }
+            
+            // Set new timeout for scroll end detection
             scrollStateRef.current.animationFrameId = requestAnimationFrame(() => {
-                setTimeout(() => {
-                    scrollStateRef.current.isScrolling = false;
-                    scrollStateRef.current.scrollVelocity = 0;
-                }, 150);
+                scrollStateRef.current.scrollEndTimeoutId = window.setTimeout(() => {
+                    // Only stop if velocity is low
+                    if (Math.abs(scrollStateRef.current.scrollVelocity) < VELOCITY_THRESHOLD) {
+                        scrollStateRef.current.isScrolling = false;
+                        scrollStateRef.current.scrollVelocity = 0;
+                        scrollStateRef.current.scrollEndTimeoutId = 0;
+                    }
+                }, SCROLL_END_DELAY);
             });
         };
         
@@ -573,8 +627,11 @@ export function FileList() {
             if (scrollStateRef.current.animationFrameId) {
                 cancelAnimationFrame(scrollStateRef.current.animationFrameId);
             }
+            if (scrollStateRef.current.scrollEndTimeoutId) {
+                clearTimeout(scrollStateRef.current.scrollEndTimeoutId);
+            }
         };
-    }, [isMobile]);
+    }, [isMobile, VELOCITY_THRESHOLD, SCROLL_END_DELAY, MOMENTUM_DURATION, VELOCITY_CALC_MAX_DIFF]);
     
     // Handle programmatic scrolling
     useEffect(() => {
