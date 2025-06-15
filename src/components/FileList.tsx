@@ -268,9 +268,9 @@ export function FileList() {
         isUserSelectionRef.current = false;
     }, [appState.selectedFile, app.workspace, plugin.settings.autoSelectFirstFile, isMobile]);
     
-    // Auto-select first file when files pane gains focus and no file is selected
+    // Auto-select first file when files pane gains focus and no file is selected (desktop only)
     useEffect(() => {
-        if (appState.focusedPane === 'files' && !appState.selectedFile && files.length > 0) {
+        if (!isMobile && appState.focusedPane === 'files' && !appState.selectedFile && files.length > 0) {
             const firstFile = files[0];
             // Select the first file when focus switches to files pane
             dispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
@@ -281,7 +281,7 @@ export function FileList() {
                 leaf.openFile(firstFile, { active: false });
             }
         }
-    }, [appState.focusedPane, appState.selectedFile, files, dispatch, app.workspace]);
+    }, [isMobile, appState.focusedPane, appState.selectedFile, files, dispatch, app.workspace]);
     
     // Create flattened list items for virtualization
     const listItems = useMemo((): FileListItem[] => {
@@ -448,7 +448,7 @@ export function FileList() {
             
             return estimatedHeight;
         },
-        overscan: 5, // Render 5 items above/below viewport
+        overscan: isMobile ? 50 : 5, // Render more items on mobile to ensure selected item is rendered
         scrollPaddingStart: 0,
         scrollPaddingEnd: 0,
         // Custom scroll function that preserves momentum on mobile
@@ -546,61 +546,91 @@ export function FileList() {
         return map;
     }, [listItems]);
     
-    // Use IntersectionObserver to scroll to selected file when pane becomes visible on mobile
+    // Create a unique key for storing scroll state based on current selection
+    const scrollStateKey = useMemo(() => {
+        if (selectionType === 'folder' && selectedFolder) {
+            return `nn-scroll-${selectedFolder.path}`;
+        } else if (selectionType === 'tag' && selectedTag) {
+            return `nn-scroll-tag-${selectedTag}`;
+        }
+        return null;
+    }, [selectionType, selectedFolder, selectedTag]);
+    
+    // DISABLED - This was conflicting with scroll-to-selected
+    // Save scroll position to localStorage on mobile when scrolling or unmounting
+    /*
     useEffect(() => {
-        if (!isMobile || !scrollContainerRef.current || !rowVirtualizer) return;
-
-        const scrollContainer = scrollContainerRef.current;
-
-        const observerCallback = (entries: IntersectionObserverEntry[]) => {
-            const [entry] = entries;
-            // Only act when the component is intersecting (i.e., visible)
-            if (!entry.isIntersecting) return;
-
-            if (selectedFilePath) {
-                const fileIndex = filePathToIndex.get(selectedFilePath);
-                if (fileIndex !== undefined && fileIndex >= 0) {
-                    
-                    // Determine the best scroll alignment based on the item's position.
-                    // This is key to solving the issue with items at the bottom.
-                    const totalItems = listItems.length;
-                    let alignment: 'start' | 'center' | 'end' = 'center';
-
-                    if (fileIndex < 5) {
-                        // For items near the top, align to the start.
-                        alignment = 'start';
-                    } else if (fileIndex >= totalItems - 5) {
-                        // For items near the bottom, align to the end. This is the crucial fix.
-                        alignment = 'end';
-                    }
-
-                    // Use a timeout to ensure the virtualizer has time to measure the items
-                    // after the component remounts, which is critical on mobile.
-                    const scrollTimeout = setTimeout(() => {
-                        try {
-                            rowVirtualizer.scrollToIndex(fileIndex, {
-                                align: alignment,
-                                behavior: 'auto',
-                            });
-                        } catch (e) {
-                            console.error("Notebook Navigator: Failed to scroll to virtualized index.", e);
-                        }
-                    }, 50); // A 50ms delay is usually sufficient for the UI to update.
-
-                    // Return a cleanup function for the timeout
-                    return () => clearTimeout(scrollTimeout);
-                }
-            }
+        if (!isMobile || !scrollContainerRef.current || !scrollStateKey) return;
+        
+        const container = scrollContainerRef.current;
+        let scrollTimeout: NodeJS.Timeout;
+        
+        const saveScrollPosition = () => {
+            const scrollData = {
+                scrollTop: container.scrollTop,
+                selectedFile: selectedFilePath,
+                timestamp: Date.now()
+            };
+            localStorage.setItem(scrollStateKey, JSON.stringify(scrollData));
         };
-
-        const observer = new IntersectionObserver(observerCallback, { threshold: 0.1 });
-        observer.observe(scrollContainer);
-
-        // Cleanup: disconnect the observer when the component unmounts.
+        
+        const handleScroll = () => {
+            // Debounce saving to localStorage
+            clearTimeout(scrollTimeout);
+            scrollTimeout = setTimeout(saveScrollPosition, 100);
+        };
+        
+        container.addEventListener('scroll', handleScroll, { passive: true });
+        
+        // Save when component unmounts
         return () => {
-            observer.disconnect();
+            container.removeEventListener('scroll', handleScroll);
+            clearTimeout(scrollTimeout);
+            saveScrollPosition();
         };
-    }, [isMobile, rowVirtualizer, filePathToIndex, selectedFilePath, listItems.length]); // Add listItems.length to dependencies
+    }, [isMobile, scrollStateKey, selectedFilePath]);
+    */
+    
+    // Mobile scroll solution - scroll to selected file when view appears
+    useEffect(() => {
+        if (!isMobile || appState.currentMobileView !== 'files' || !selectedFilePath) return;
+        
+        const fileIndex = filePathToIndex.get(selectedFilePath);
+        if (fileIndex === undefined || fileIndex < 0) return;
+        
+        const attemptScroll = () => {
+            const container = scrollContainerRef.current;
+            if (!container || !rowVirtualizer) return;
+            
+            // First, ensure the virtualizer has rendered items
+            const virtualItems = rowVirtualizer.getVirtualItems();
+            if (virtualItems.length === 0) {
+                // No items yet, virtualizer needs to initialize
+                requestAnimationFrame(attemptScroll);
+                return;
+            }
+            
+            // Simply use the virtualizer's scrollToIndex which should work reliably
+            const totalItems = listItems.length;
+            let align: 'start' | 'center' | 'end' = 'center';
+            
+            if (fileIndex < 3) {
+                align = 'start';
+            } else if (fileIndex >= totalItems - 3) {
+                align = 'end';
+            }
+            
+            // Direct scroll using virtualizer
+            rowVirtualizer.scrollToIndex(fileIndex, {
+                align: align,
+                behavior: 'auto'
+            });
+        };
+        
+        // Use RAF to wait for render
+        requestAnimationFrame(attemptScroll);
+        
+    }, [isMobile, appState.currentMobileView, selectedFilePath, filePathToIndex, rowVirtualizer, listItems.length]);
     
     // Track scroll events and calculate velocity on mobile
     useEffect(() => {
@@ -689,19 +719,19 @@ export function FileList() {
         };
     }, [isMobile, VELOCITY_THRESHOLD, SCROLL_END_DELAY, MOMENTUM_DURATION, VELOCITY_CALC_MAX_DIFF]);
     
-    // Handle programmatic scrolling
+    // Handle programmatic scrolling (DESKTOP ONLY)
     useEffect(() => {
-        if (appState.scrollToFileIndex !== null && scrollContainerRef.current && rowVirtualizer) {
+        if (!isMobile && appState.scrollToFileIndex !== null && scrollContainerRef.current && rowVirtualizer) {
             const cleanup = scrollVirtualItemIntoView(rowVirtualizer, appState.scrollToFileIndex);
             // Clear the scroll request
             dispatch({ type: 'SCROLL_TO_FILE_INDEX', index: null });
             return cleanup;
         }
-    }, [appState.scrollToFileIndex, rowVirtualizer, dispatch]);
+    }, [isMobile, appState.scrollToFileIndex, rowVirtualizer, dispatch]);
     
-    // Scroll to selected file when it changes
+    // Scroll to selected file when it changes (DESKTOP ONLY)
     useEffect(() => {
-        if (selectedFilePath && scrollContainerRef.current && rowVirtualizer) {
+        if (!isMobile && selectedFilePath && scrollContainerRef.current && rowVirtualizer) {
             const fileIndex = filePathToIndex.get(selectedFilePath);
             
             if (fileIndex !== undefined && fileIndex >= 0) {
@@ -721,7 +751,7 @@ export function FileList() {
                 return cleanup;
             }
         }
-    }, [selectedFilePath, filePathToIndex, rowVirtualizer, listItems]);
+    }, [isMobile, selectedFilePath, filePathToIndex, rowVirtualizer, listItems]);
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
