@@ -385,6 +385,18 @@ export function FileList() {
     // Add ref for scroll container
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     
+    // Track scrolling state for mobile momentum preservation
+    const scrollStateRef = useRef({
+        isScrolling: false,
+        lastScrollTop: 0,
+        scrollVelocity: 0,
+        lastTimestamp: 0,
+        animationFrameId: 0
+    });
+    
+    // Track previous item count to detect when items are added
+    const prevItemCountRef = useRef(listItems.length);
+    
     // Initialize virtualizer
     const rowVirtualizer = useVirtualizer({
         count: listItems.length,
@@ -423,7 +435,71 @@ export function FileList() {
         overscan: 5, // Render 5 items above/below viewport
         scrollPaddingStart: 0,
         scrollPaddingEnd: 0,
+        // Custom scroll function that preserves momentum on mobile
+        scrollToFn: (offset, options, instance) => {
+            if (isMobile && scrollStateRef.current.isScrolling && 
+                Math.abs(scrollStateRef.current.scrollVelocity) > 0.1) {
+                // Don't interrupt momentum scrolling on mobile
+                return;
+            }
+            
+            // Use default scrolling behavior
+            const scrollEl = instance.scrollElement;
+            if (scrollEl) {
+                scrollEl.scrollTo({
+                    top: offset,
+                    behavior: options?.behavior || 'auto'
+                });
+            }
+        },
     });
+    
+    // Preserve scroll position when items are added on mobile
+    useLayoutEffect(() => {
+        if (!isMobile || !scrollContainerRef.current || !rowVirtualizer) return;
+        
+        const itemCountChanged = prevItemCountRef.current !== listItems.length;
+        const itemsAddedToTop = listItems.length > prevItemCountRef.current && 
+                                prevItemCountRef.current > 0;
+        
+        if (itemCountChanged && scrollStateRef.current.isScrolling && itemsAddedToTop) {
+            // Calculate how many items were added
+            const addedCount = listItems.length - prevItemCountRef.current;
+            
+            // Get current visible range
+            const visibleRange = rowVirtualizer.getVirtualItems();
+            if (visibleRange.length > 0) {
+                const firstVisibleIndex = visibleRange[0].index;
+                
+                // If items were likely added to the top (before current view)
+                if (firstVisibleIndex > 0) {
+                    // Adjust the virtualizer's scroll offset to maintain position
+                    const scrollContainer = scrollContainerRef.current;
+                    const currentScrollTop = scrollContainer.scrollTop;
+                    
+                    // Estimate the height of added items
+                    let addedHeight = 0;
+                    for (let i = 0; i < Math.min(addedCount, firstVisibleIndex); i++) {
+                        addedHeight += rowVirtualizer.options.estimateSize(i);
+                    }
+                    
+                    // Apply the offset adjustment without interrupting scroll
+                    if (addedHeight > 0) {
+                        // Use double RAF to ensure measurements are complete
+                        requestAnimationFrame(() => {
+                            requestAnimationFrame(() => {
+                                if (scrollContainer && scrollStateRef.current.isScrolling) {
+                                    scrollContainer.scrollTop = currentScrollTop + addedHeight;
+                                }
+                            });
+                        });
+                    }
+                }
+            }
+        }
+        
+        prevItemCountRef.current = listItems.length;
+    }, [listItems.length, isMobile, rowVirtualizer]);
     
     // Cache selected file path to avoid repeated property access
     const selectedFilePath = appState.selectedFile?.path;
@@ -438,6 +514,67 @@ export function FileList() {
         });
         return map;
     }, [listItems]);
+    
+    // Track scroll events and calculate velocity on mobile
+    useEffect(() => {
+        if (!isMobile || !scrollContainerRef.current) return;
+        
+        const scrollContainer = scrollContainerRef.current;
+        let touchStartY = 0;
+        let touchStartTime = 0;
+        
+        const handleTouchStart = (e: TouchEvent) => {
+            touchStartY = e.touches[0].clientY;
+            touchStartTime = Date.now();
+            scrollStateRef.current.isScrolling = true;
+        };
+        
+        const handleTouchEnd = () => {
+            // Keep scrolling state active for a bit to handle momentum
+            setTimeout(() => {
+                scrollStateRef.current.isScrolling = false;
+            }, 500);
+        };
+        
+        const handleScroll = () => {
+            const currentScrollTop = scrollContainer.scrollTop;
+            const currentTime = Date.now();
+            const timeDiff = currentTime - scrollStateRef.current.lastTimestamp;
+            
+            if (timeDiff > 0) {
+                scrollStateRef.current.scrollVelocity = 
+                    (currentScrollTop - scrollStateRef.current.lastScrollTop) / timeDiff;
+            }
+            
+            scrollStateRef.current.lastScrollTop = currentScrollTop;
+            scrollStateRef.current.lastTimestamp = currentTime;
+            scrollStateRef.current.isScrolling = true;
+            
+            // Clear the scrolling flag after scrolling stops
+            if (scrollStateRef.current.animationFrameId) {
+                cancelAnimationFrame(scrollStateRef.current.animationFrameId);
+            }
+            scrollStateRef.current.animationFrameId = requestAnimationFrame(() => {
+                setTimeout(() => {
+                    scrollStateRef.current.isScrolling = false;
+                    scrollStateRef.current.scrollVelocity = 0;
+                }, 150);
+            });
+        };
+        
+        scrollContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
+        scrollContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
+        scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+        
+        return () => {
+            scrollContainer.removeEventListener('touchstart', handleTouchStart);
+            scrollContainer.removeEventListener('touchend', handleTouchEnd);
+            scrollContainer.removeEventListener('scroll', handleScroll);
+            if (scrollStateRef.current.animationFrameId) {
+                cancelAnimationFrame(scrollStateRef.current.animationFrameId);
+            }
+        };
+    }, [isMobile]);
     
     // Handle programmatic scrolling
     useEffect(() => {
