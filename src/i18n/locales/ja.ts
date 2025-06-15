@@ -356,9 +356,9 @@ export const STRINGS_JA = {
             frontmatterDateFormat: {
                 name: 'タイムスタンプ形式',
                 desc: 'フロントマター内のタイムスタンプを解析するために使用される形式',
-                placeholder: 'yyyy-MM-dd HH:mm:ss',
+                placeholder: "yyyy-MM-dd'T'HH:mm:ss",
                 helpTooltip: 'date-fnsフォーマットのドキュメントを参照',
-                help: '一般的な形式:\nyyyy-MM-dd HH:mm:ss → 2025-01-04 14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM',
+                help: '一般的な形式:\nyyyy-MM-dd\'T\'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM',
             },
             supportDevelopment: {
                 name: '開発をサポート',

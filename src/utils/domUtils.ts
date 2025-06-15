@@ -84,3 +84,17 @@ export function getPathFromElement(element: HTMLElement | null): string | null {
 export function getPathFromDataAttribute(element: HTMLElement | null, attribute: string): string | null {
     return element?.getAttribute(attribute) ?? null;
 }
+
+/**
+ * Checks if the user is currently typing in an input field.
+ * Used to prevent keyboard shortcuts from firing while typing.
+ * 
+ * @param e - The keyboard event
+ * @returns True if typing in an input field, false otherwise
+ */
+export function isTypingInInput(e: KeyboardEvent): boolean {
+    const target = e.target as HTMLElement;
+    return target.tagName === 'INPUT' || 
+           target.tagName === 'TEXTAREA' || 
+           target.contentEditable === 'true';
+}

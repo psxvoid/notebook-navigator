@@ -22,6 +22,8 @@ import { App, TFile, TFolder } from 'obsidian';
 import NotebookNavigatorPlugin from '../main';
 import { isTFolder, isTFile } from '../utils/typeGuards';
 import { STORAGE_KEYS } from '../types';
+import { flattenFolderTree, findFolderIndex } from '../utils/treeFlattener';
+import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 
 /**
  * Global application state interface.
@@ -42,10 +44,12 @@ export interface AppState {
     expandedTags: Set<string>;
     /** Which pane currently has keyboard focus */
     focusedPane: 'folders' | 'files';
-    /** Counter that increments when we need to trigger a scroll to the selected folder */
-    scrollToFolderTrigger: number;
     /** Current view on mobile devices - 'list' for folder/tags, 'files' for file list */
     currentMobileView: 'list' | 'files';
+    /** Index to scroll to in folder tree (null when not scrolling) */
+    scrollToFolderIndex: number | null;
+    /** Index to scroll to in file list (null when not scrolling) */
+    scrollToFileIndex: number | null;
 }
 
 /**
@@ -65,7 +69,9 @@ export type AppAction =
     | { type: 'REVEAL_FILE'; file: TFile }
     | { type: 'CLEANUP_DELETED_ITEMS' }
     | { type: 'FORCE_REFRESH' }
-    | { type: 'SET_MOBILE_VIEW'; view: 'list' | 'files' };
+    | { type: 'SET_MOBILE_VIEW'; view: 'list' | 'files' }
+    | { type: 'SCROLL_TO_FOLDER_INDEX'; index: number | null }
+    | { type: 'SCROLL_TO_FILE_INDEX'; index: number | null };
 
 /**
  * Context value type containing all app-level data and functions
@@ -91,12 +97,6 @@ interface AppContextType {
  * The null! assertion is safe because we always wrap components with AppProvider.
  */
 const AppContext = createContext<AppContextType>(null!);
-
-/**
- * Additional localStorage key for mobile view state
- * Not included in main STORAGE_KEYS as it's only used in AppContext
- */
-const MOBILE_VIEW_KEY = 'notebook-navigator-mobile-view';
 
 /**
  * Loads the application state from localStorage.
@@ -163,8 +163,9 @@ function loadStateFromStorage(app: App): AppState {
         expandedFolders,
         expandedTags,
         focusedPane: 'folders',
-        scrollToFolderTrigger: 0,
-        currentMobileView
+        currentMobileView,
+        scrollToFolderIndex: null,
+        scrollToFileIndex: null
     };
 }
 
@@ -194,18 +195,58 @@ function saveToStorage(key: string, value: any) {
  * @param state - Current application state
  * @param action - The action to process
  * @param app - The Obsidian App instance for vault operations
+ * @param plugin - The plugin instance for settings
+ * @param isMobile - Whether the app is running on mobile
  * @returns The new state after applying the action
  */
-function appReducer(state: AppState, action: AppAction, app: App): AppState {
+function appReducer(state: AppState, action: AppAction, app: App, plugin: NotebookNavigatorPlugin, isMobile: boolean): AppState {
     switch (action.type) {
         case 'SET_SELECTED_FOLDER': {
-            // Update the selected folder and clear tag selection
-            return { ...state, selectionType: 'folder', selectedFolder: action.folder, selectedTag: null };
+            const newState: AppState = { 
+                ...state, 
+                selectionType: 'folder', 
+                selectedFolder: action.folder, 
+                selectedTag: null
+            };
+
+            // If a folder is being selected (not cleared) and auto-select is on (desktop only)
+            if (action.folder && plugin.settings.autoSelectFirstFile && !isMobile) {
+                const filesInFolder = getFilesForFolder(action.folder, plugin.settings, app);
+                if (filesInFolder.length > 0) {
+                    newState.selectedFile = filesInFolder[0]; // Select the first file
+                } else {
+                    newState.selectedFile = null; // Or clear selection if folder is empty
+                }
+            } else if (!action.folder) {
+                // If folder is cleared, clear the file selection too
+                newState.selectedFile = null;
+            }
+
+            return newState;
         }
         
         case 'SET_SELECTED_TAG': {
-            // Update the selected tag and clear folder selection
-            return { ...state, selectionType: 'tag', selectedTag: action.tag, selectedFolder: null };
+            const newState: AppState = { 
+                ...state, 
+                selectionType: 'tag', 
+                selectedTag: action.tag, 
+                selectedFolder: null 
+            };
+
+            // If a tag is being selected (not cleared) and auto-select is on (desktop only)
+            if (action.tag && plugin.settings.autoSelectFirstFile && !isMobile) {
+                const filesForTag = getFilesForTag(action.tag, plugin.settings, app);
+                if (filesForTag.length > 0) {
+                    newState.selectedFile = filesForTag[0]; // Select the first file
+                } else {
+                    newState.selectedFile = null; // Or clear selection if tag has no files
+                }
+            } else if (!action.tag) {
+                // If tag is cleared, clear the file selection too
+                newState.selectedFile = null;
+            }
+
+            return newState;
         }
         
         case 'SET_SELECTED_FILE': {
@@ -257,51 +298,29 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
         }
         
         case 'REVEAL_FILE': {
-            // Reveal a file in the navigator by expanding all parent folders
             if (!action.file.parent) {
                 return state;
             }
-            
-            // Get all parent folders up to root
+
             const foldersToExpand: string[] = [];
             let currentFolder: TFolder | null = action.file.parent;
             while (currentFolder) {
                 foldersToExpand.unshift(currentFolder.path);
                 if (currentFolder.path === '/') break;
-                currentFolder = currentFolder.parent || null;
+                currentFolder = currentFolder.parent;
             }
-            
-            // Expand all parent folders
+
             const newExpanded = new Set([...state.expandedFolders, ...foldersToExpand]);
-            
-            // Determine which folder to select
-            // If we're already showing a folder that contains this file (when showNotesFromSubfolders is true),
-            // keep that folder selected. Otherwise, select the file's immediate parent.
-            let folderToSelect = action.file.parent;
-            
-            // Check if the currently selected folder already contains this file
-            if (state.selectedFolder && state.selectionType === 'folder') {
-                // Check if file is in the currently selected folder or its subfolders
-                let parent: TFolder | null = action.file.parent;
-                while (parent) {
-                    if (parent.path === state.selectedFolder.path) {
-                        // The file is within the currently selected folder's hierarchy
-                        folderToSelect = state.selectedFolder;
-                        break;
-                    }
-                    parent = parent.parent;
-                }
-            }
-            
+
             return {
                 ...state,
-                selectionType: 'folder', // Switch to folder view when revealing a file
+                selectionType: 'folder',
                 expandedFolders: newExpanded,
-                selectedFolder: folderToSelect,
-                selectedTag: null, // Clear tag selection
+                selectedFolder: action.file.parent, // Always select the direct parent
+                selectedTag: null,
                 selectedFile: action.file,
                 focusedPane: 'files',
-                scrollToFolderTrigger: state.scrollToFolderTrigger + 1
+                scrollToFolderIndex: null, // Reset scroll trigger
             };
         }
         
@@ -345,6 +364,16 @@ function appReducer(state: AppState, action: AppAction, app: App): AppState {
             return { ...state, currentMobileView: action.view };
         }
         
+        case 'SCROLL_TO_FOLDER_INDEX': {
+            // Set the folder index to scroll to
+            return { ...state, scrollToFolderIndex: action.index };
+        }
+        
+        case 'SCROLL_TO_FILE_INDEX': {
+            // Set the file index to scroll to
+            return { ...state, scrollToFileIndex: action.index };
+        }
+        
         default:
             return state;
     }
@@ -363,10 +392,10 @@ export function AppProvider({ children, plugin, isMobile = false }: { children: 
 
     /**
      * Initialize state with useReducer, loading initial state from localStorage.
-     * The reducer is wrapped to include the app instance for vault operations.
+     * The reducer is wrapped to include the app and plugin instances for vault operations.
      */
     const [appState, baseDispatch] = useReducer(
-        (state: AppState, action: AppAction) => appReducer(state, action, app),
+        (state: AppState, action: AppAction) => appReducer(state, action, app, plugin, isMobile),
         null,
         () => loadStateFromStorage(app)
     );
@@ -446,11 +475,11 @@ export function AppProvider({ children, plugin, isMobile = false }: { children: 
             }, 200); // Longer debounce for modifications
         };
         
-        // Register event handlers
-        app.vault.on('create', handleCreate);
-        app.vault.on('delete', handleDelete);
-        app.vault.on('rename', handleRename);
-        app.vault.on('modify', handleModify);
+        // Register event handlers using EventRef pattern
+        const createEventRef = app.vault.on('create', handleCreate);
+        const deleteEventRef = app.vault.on('delete', handleDelete);
+        const renameEventRef = app.vault.on('rename', handleRename);
+        const modifyEventRef = app.vault.on('modify', handleModify);
         
         // Cleanup
         return () => {
@@ -458,10 +487,10 @@ export function AppProvider({ children, plugin, isMobile = false }: { children: 
             clearTimeout(deleteTimeout);
             clearTimeout(renameTimeout);
             clearTimeout(modifyTimeout);
-            app.vault.off('create', handleCreate);
-            app.vault.off('delete', handleDelete);
-            app.vault.off('rename', handleRename);
-            app.vault.off('modify', handleModify);
+            app.vault.offref(createEventRef);
+            app.vault.offref(deleteEventRef);
+            app.vault.offref(renameEventRef);
+            app.vault.offref(modifyEventRef);
         };
     }, [app, dispatch]);
 

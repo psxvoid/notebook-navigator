@@ -19,12 +19,9 @@
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState } from 'react';
 import { TFile, TFolder, WorkspaceLeaf } from 'obsidian';
-import { PaneHeader } from './PaneHeader';
-import { FolderTree } from './FolderTree';
-import { TagList } from './TagList';
+import { LeftPaneVirtualized } from './LeftPaneVirtualized';
 import { FileList } from './FileList';
 import { useAppContext } from '../context/AppContext';
-import { useKeyboardNavigation } from '../hooks/useKeyboardNavigation';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useSwipeGesture } from '../hooks/useSwipeGesture';
@@ -51,9 +48,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const { app, appState, dispatch, plugin, refreshCounter, isMobile } = useAppContext();
     const containerRef = useRef<HTMLDivElement>(null);
     const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
-    
-    // Enable keyboard navigation
-    useKeyboardNavigation(containerRef);
     
     // Enable drag and drop only on desktop
     useDragAndDrop(containerRef);
@@ -123,6 +117,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
 
         container.addEventListener('focusin', handleFocus);
         container.addEventListener('focusout', handleBlur);
+        
+        // Focus the container initially
+        container.focus();
 
         return () => {
             container.removeEventListener('focusin', handleFocus);
@@ -234,17 +231,10 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             onKeyDown={() => navigatorInteractionRef.current = Date.now()}
         >
             <div className="nn-left-pane" style={{ width: isMobile ? '100%' : `${paneWidth}px` }}>
-                <PaneHeader type="folder" />
-                <div className="nn-left-pane-scroller">
-                    <FolderTree />
-                    <TagList />
-                </div>
+                <LeftPaneVirtualized />
             </div>
             {!isMobile && <div className="nn-resize-handle" {...resizeHandleProps} />}
-            <div className="nn-right-pane">
-                <PaneHeader type="file" />
-                <FileList />
-            </div>
+            <FileList />
         </div>
     );
 });

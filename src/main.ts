@@ -57,6 +57,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * Ensures proper initialization order for all plugin components
      */
     async onload() {
+        const startTime = performance.now();
+        
         await this.loadSettings();
         
         // Initialize metadata service
@@ -143,16 +145,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
             this.app.vault.on('rename', async (file, oldPath) => {
                 if (file instanceof TFolder) {
                     await this.metadataService.handleFolderRename(oldPath, file.path);
-                    // Refresh navigator views after rename
-                    setTimeout(() => {
-                        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-                        leaves.forEach(leaf => {
-                            const view = leaf.view;
-                            if (view instanceof NotebookNavigatorView) {
-                                view.refresh();
-                            }
-                        });
-                    }, 100);
+                    // Use onSettingsChange to refresh views - it handles batching and timing
+                    this.onSettingsChange();
                 }
             })
         );
@@ -170,6 +164,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         
         // Clean up settings after workspace is ready
         this.app.workspace.onLayoutReady(async () => {
+            const cleanupStartTime = performance.now();
             await this.metadataService.cleanupAllMetadata();
             
             // Always open the view if it doesn't exist
@@ -177,6 +172,10 @@ export default class NotebookNavigatorPlugin extends Plugin {
             if (leaves.length === 0) {
                 await this.activateView(true);
             }
+            
+            // Log total startup time
+            const totalTime = performance.now() - startTime;
+            console.log(`Plugin loaded in ${totalTime.toFixed(2)}ms`);
         });
     }
 

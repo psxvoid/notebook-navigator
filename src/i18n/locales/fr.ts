@@ -356,9 +356,9 @@ export const STRINGS_FR = {
             frontmatterDateFormat: {
                 name: 'Format d\'horodatage',
                 desc: 'Format utilisé pour analyser les horodatages dans le frontmatter',
-                placeholder: 'yyyy-MM-dd HH:mm:ss',
+                placeholder: "yyyy-MM-dd'T'HH:mm:ss",
                 helpTooltip: 'Voir la documentation du format date-fns',
-                help: 'Formats courants :\nyyyy-MM-dd HH:mm:ss → 2025-01-04 14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM',
+                help: 'Formats courants :\nyyyy-MM-dd\'T\'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM',
             },
             supportDevelopment: {
                 name: 'Soutenir le développement',

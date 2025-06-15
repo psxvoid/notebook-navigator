@@ -47,6 +47,8 @@
     flex-direction: column;
     overflow: hidden;
     flex-shrink: 0;
+    /* Performance optimization for virtualized content */
+    contain: layout style;
 }
 
 /* Right pane - contains the file list */
@@ -56,6 +58,8 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    /* Performance optimization for virtualized content */
+    contain: layout style;
 }
 
 /* Resize handle - allows users to drag and resize the left pane */
@@ -98,14 +102,6 @@
 /* Left pane header - matches folder tree background for visual consistency */
 .nn-left-pane .nn-pane-header {
     background-color: var(--background-secondary);
-}
-
-/* Header title styling - currently unused but available for future use */
-.nn-pane-header h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-normal);
 }
 
 /* Header actions container - groups action buttons in headers */
@@ -181,26 +177,6 @@ button.nn-icon-button {
     fill: none;
 }
 
-/* Sort button - UNUSED, kept for potential future sorting feature */
-.nn-sort-button {
-    background: none;
-    border: 1px solid var(--background-modifier-border);
-    border-radius: var(--radius-s);
-    padding: var(--size-2-1) var(--size-4-2);
-    cursor: pointer;
-    color: var(--text-muted);
-    font-size: var(--font-ui-small);
-    font-weight: 500;
-    transition: all 0.2s ease;
-    margin-inline-end: var(--size-4-2);
-}
-
-/* Sort button hover - UNUSED */
-.nn-desktop .nn-sort-button:hover {
-    background-color: var(--background-modifier-hover);
-    color: var(--text-normal);
-    border-color: var(--background-modifier-border-hover);
-}
 
 /* ========================================================================
    Left Pane Scroller
@@ -210,29 +186,22 @@ button.nn-icon-button {
 .nn-left-pane-scroller {
     flex: 1;
     overflow-y: auto;
+    overflow-x: hidden;
     display: flex;
     flex-direction: column;
-    padding: 0 var(--size-4-1);
+    padding: var(--size-4-1) 0;
+    background-color: var(--background-secondary);
+    line-height: 1.4; /* Increased from 1 to prevent text cutoff on Windows */
+    /* Ensure scroll events work properly with virtualization */
+    position: relative;
 }
 
-/* Make FolderTree and TagList take their natural height */
-.nn-folder-tree,
-.nn-tag-list-container {
-    flex-shrink: 0;
-}
 
 /* ========================================================================
    Folder Tree Styles
    ======================================================================== */
 
-/* Folder tree container - scrollable area for folder hierarchy */
-.nn-folder-tree {
-    overflow-y: visible;
-    overflow-x: hidden;
-    padding: var(--size-4-1) 0;
-    background-color: var(--background-secondary);
-    line-height: 1.4; /* Increased from 1 to prevent text cutoff on Windows */
-}
+/* Note: Left pane scroller styles are defined above in the Left Pane Scroller section */
 
 /* Folder item - container for each folder in the tree */
 .nn-folder-item {
@@ -280,10 +249,6 @@ button.nn-icon-button {
     transition: transform 0.2s ease;
 }
 
-/* Hidden chevron - UNUSED class for folders without children */
-.nn-folder-arrow.nn-no-children {
-    visibility: hidden;
-}
 
 /* Folder icon - displays folder open/closed or custom icons */
 .nn-folder-icon {
@@ -362,16 +327,6 @@ button.nn-icon-button {
     border-top: 1px solid var(--background-modifier-border);
 }
 
-/* Tag list container */
-.nn-tag-list-container {
-    background-color: var(--background-secondary);
-}
-
-/* Tag list */
-.nn-tag-list {
-    padding: var(--size-4-1) 0;
-    line-height: 1.4; /* Match folder tree line-height to prevent text cutoff */
-}
 
 /* Individual tag item */
 .nn-tag-item {
@@ -486,7 +441,6 @@ button.nn-icon-button {
     overflow-y: auto;
     padding: 0;
     background-color: var(--background-primary);
-    scroll-padding-top: 40px; /* Account for sticky headers */
 }
 
 /* File item - container for each file in the list */
@@ -523,8 +477,8 @@ button.nn-icon-button {
     padding: var(--size-4-2) var(--size-4-3);
 }
 
-/* File separator - horizontal line between files */
-.nn-file-item:not(:last-child)::after {
+/* Virtual list file separator */
+.nn-virtual-file-item:not(.nn-last-file)::after {
     content: '';
     position: absolute;
     bottom: 0;
@@ -532,6 +486,7 @@ button.nn-icon-button {
     inset-inline-end: var(--size-4-5);
     height: 1px;
     background-color: var(--background-modifier-border);
+    z-index: 1;
 }
 
 /* File text content - left side container for name and preview */
@@ -612,14 +567,32 @@ button.nn-icon-button {
 .nn-file-folder {
     font-size: var(--font-ui-small);
     color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: var(--size-4-1);
     overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
 }
 
 /* Dark mode folder indicator */
 .theme-dark .nn-file-folder {
     color: var(--text-muted);
+}
+
+/* Folder indicator text */
+.nn-file-folder span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Folder icon styling */
+.nn-file-folder-icon {
+    width: calc(var(--icon-size) * 0.8);
+    height: calc(var(--icon-size) * 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
 /* ========================================================================
@@ -686,24 +659,24 @@ button.nn-icon-button {
 /* Date group headers - sticky headers for grouped files */
 .nn-date-group-header {
     padding: var(--size-4-2) var(--size-4-3);
+    padding-top: calc(var(--size-4-2) * 2);
     font-size: var(--font-ui-small);
     font-weight: 600;
     color: var(--text-muted);
     background-color: var(--background-primary);
     border-bottom: 1px solid var(--background-modifier-border);
-    position: sticky;
-    top: 0;
-    z-index: 10;
     margin-top: var(--size-4-4);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
 }
 
-/* First date header - no top margin for first group */
-.nn-date-group-header:first-child {
+/* First date header - no top margin or extra padding for first group */
+.nn-date-group-header.nn-first-header {
     margin-top: 0;
+    padding-top: var(--size-4-2);
 }
+
 
 /* ========================================================================
    Empty State
@@ -749,10 +722,6 @@ button.nn-icon-button {
     z-index: 0;
 }
 
-/* Dark mode selected folder - dimmer selection color */
-.theme-dark .nn-folder-item.nn-selected > .nn-folder-content::before {
-    filter: brightness(0.5);
-}
 
 /* Selected folder content z-index - ensures text appears above background */
 .nn-folder-item.nn-selected > .nn-folder-content > * {
@@ -780,10 +749,6 @@ button.nn-icon-button {
     background-color: var(--text-selection);
 }
 
-/* Dark mode selected file - dimmer selection */
-.theme-dark .nn-file-item.nn-selected .nn-file-content {
-    filter: brightness(0.5);
-}
 
 /* Selected file background pseudo-element - better control over styling */
 .nn-file-item.nn-selected .nn-file-content::before {
@@ -797,21 +762,16 @@ button.nn-icon-button {
     border-radius: var(--radius-m);
 }
 
-/* Hide the separators above and below the selected file */
-/* Remove separator below selected item */
-.nn-file-item.nn-selected::after {
+/* Virtual list: Remove separator below selected item */
+.nn-virtual-file-item.nn-item-selected::after {
     display: none;
 }
 
-/* Remove separator above selected item */
-.nn-file-item:has(+ .nn-file-item.nn-selected)::after {
+/* Virtual list: Remove separator above selected item (on the item before) */
+.nn-virtual-file-item.nn-before-selected::after {
     display: none;
 }
 
-/* Dark mode selected file pseudo-element */
-.theme-dark .nn-file-item.nn-selected .nn-file-content::before {
-    filter: brightness(0.5);
-}
 
 /* Selected file content z-index - ensures content above background */
 .nn-file-item.nn-selected .nn-file-content > * {
@@ -1130,28 +1090,53 @@ body.nn-resizing {
 /* Custom scrollbar width 
    Note: Obsidian doesn't provide CSS variables for scrollbar dimensions yet,
    so we use a hardcoded value that matches the default Obsidian scrollbar width */
-.nn-folder-tree::-webkit-scrollbar,
+.nn-left-pane-scroller::-webkit-scrollbar,
 .nn-file-list::-webkit-scrollbar {
     width: 8px;
 }
 
 /* Scrollbar track - transparent background */
-.nn-folder-tree::-webkit-scrollbar-track,
+.nn-left-pane-scroller::-webkit-scrollbar-track,
 .nn-file-list::-webkit-scrollbar-track {
     background: transparent;
 }
 
 /* Scrollbar thumb - visible scroll indicator */
-.nn-folder-tree::-webkit-scrollbar-thumb,
+.nn-left-pane-scroller::-webkit-scrollbar-thumb,
 .nn-file-list::-webkit-scrollbar-thumb {
     background-color: var(--background-modifier-border);
     border-radius: var(--radius-s);
 }
 
 /* Scrollbar thumb hover - darker on hover */
-.nn-folder-tree::-webkit-scrollbar-thumb:hover,
+.nn-left-pane-scroller::-webkit-scrollbar-thumb:hover,
 .nn-file-list::-webkit-scrollbar-thumb:hover {
     background-color: var(--background-modifier-border-hover);
+}
+
+/* ========================================================================
+   Virtual List Styles
+   ======================================================================== */
+
+/* Virtual container wrapper - ensures proper absolute positioning context */
+.nn-left-pane-scroller > div:first-child,
+.nn-file-list > div:first-child {
+    position: relative;
+    /* Remove overflow: hidden to allow scroll events to propagate properly */
+}
+
+/* Virtual items container */
+.nn-left-pane-scroller [data-index],
+.nn-file-list [data-index] {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+}
+
+/* Virtual file item wrapper - position relative for separator positioning */
+.nn-virtual-file-item {
+    position: relative;
 }
 
 /* ========================================================================
@@ -1217,6 +1202,8 @@ body.nn-resizing {
     overflow: hidden;
     display: flex;
     flex-direction: column;
+    /* Optimize for animations */
+    will-change: transform;
 }
 
 /* Hide resize handle on mobile */
@@ -1273,10 +1260,13 @@ body.nn-resizing {
     -webkit-overflow-scrolling: touch;
 }
 
-/* Add bottom padding to left pane on mobile to prevent last item from being hidden */
-.notebook-navigator-mobile .nn-left-pane-scroller {
-    padding-bottom: 40px; /* Extra space for mobile UI elements */
+/* Optimize mobile view transitions */
+.notebook-navigator-mobile .nn-left-pane,
+.notebook-navigator-mobile .nn-right-pane {
+    will-change: transform;
 }
+
+/* Note: Bottom spacing is handled by a spacer item in the virtualized list */
 
 /* Disable drag and drop cursors on mobile */
 .notebook-navigator-mobile [draggable="true"] {

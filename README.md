@@ -75,6 +75,7 @@ If you love using Notebook Navigator, please consider supporting its continued d
 | → | In folders/tags: expand or switch to file pane<br>In files: open selected file |
 | Tab | In folders/tags: switch to file pane<br>In files: open selected file |
 | Shift+Tab | Switch from files to folders/tags pane |
+| PageUp/PageDown | Scroll up/down in folder tree and file list |
 | Delete (Windows/Linux)<br>Backspace (macOS) | Delete selected item |
 
 ### Commands
@@ -246,6 +247,7 @@ If you have any questions, suggestions, or issues, please open an issue on the [
 Notebook Navigator is built using React and TypeScript, providing:
 
 - ⚡ **Lightning-fast performance** with React's virtual DOM and optimized rendering
+- 🚀 **Virtualization** powered by TanStack Virtual for smooth scrolling with thousands of files
 - 🏗️ **Modular architecture** with reusable components and custom hooks
 - 🔒 **Type safety** with TypeScript strict mode throughout the codebase
 - 🧠 **Smart state management** using React Context API for predictable updates

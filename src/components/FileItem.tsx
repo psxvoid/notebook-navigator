@@ -18,20 +18,19 @@
 
 import React, { useEffect, useState, useRef, useMemo, memo } from 'react';
 import { TFile } from 'obsidian';
-import { useStableAppContext } from '../context/AppContext';
+import { useStableAppContext, useAppContext } from '../context/AppContext';
 import { DateUtils } from '../utils/DateUtils';
 import { PreviewTextUtils } from '../utils/PreviewTextUtils';
 import { getDateField } from '../utils/sortUtils';
 import { useContextMenu } from '../hooks/useContextMenu';
-import { useScrollIntoView } from '../hooks/useScrollIntoView';
 import { strings } from '../i18n';
+import { ObsidianIcon } from './ObsidianIcon';
 
 interface FileItemProps {
     file: TFile;
     isSelected: boolean;
     onClick: (e: React.MouseEvent) => void;
     dateGroup?: string | null;
-    settingsVersion?: number;
     formattedDate?: string;
     parentFolder?: string | null;
 }
@@ -50,14 +49,12 @@ interface FileItemProps {
  */
 function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate, parentFolder }: FileItemProps) {
     const { app, plugin, isMobile } = useStableAppContext();
+    const { refreshCounter } = useAppContext();
     const [previewText, setPreviewText] = useState('');
     const fileRef = useRef<HTMLDivElement>(null);
     
     // Enable context menu
     useContextMenu(fileRef, { type: 'file', item: file });
-    
-    // Auto-scroll to selected file when needed
-    useScrollIntoView(fileRef, '.nn-file-list', isSelected, [file.path]);
 
     // Use pre-formatted date if provided, otherwise format it ourselves
     const displayDate = useMemo(() => {
@@ -101,7 +98,7 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
         }
 
         return null;
-    }, [file.path, file.stat.mtime, plugin.settings.showFeatureImage, plugin.settings.featureImageProperty, app.metadataCache, app.vault]);
+    }, [file.path, file.stat.mtime, plugin.settings.showFeatureImage, plugin.settings.featureImageProperty, app.metadataCache, app.vault, refreshCounter]);
 
     // Load preview text
     useEffect(() => {
@@ -120,14 +117,21 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
         }
         
         // Check if this is an Excalidraw file
+        const metadata = app.metadataCache.getFileCache(file);
+        
         // Method 1: Check by filename pattern
         if (file.name.endsWith('.excalidraw.md')) {
             setPreviewText('EXCALIDRAW');
             return;
         }
         
-        // Method 2: Check by frontmatter tags
-        const metadata = app.metadataCache.getFileCache(file);
+        // Method 2: Check by frontmatter excalidraw-plugin key
+        if (metadata?.frontmatter?.['excalidraw-plugin']) {
+            setPreviewText('EXCALIDRAW');
+            return;
+        }
+        
+        // Method 3: Check by frontmatter tags
         const frontmatterTags = metadata?.frontmatter?.tags;
         if (frontmatterTags) {
             // Handle both array format and single string format
@@ -156,7 +160,7 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
         return () => { 
             isCancelled = true;
         };
-    }, [file.path, file.stat.mtime, app.vault, plugin.settings.showFilePreview, plugin.settings.skipHeadingsInPreview, plugin.settings.skipNonTextInPreview]); // Include mtime to detect file changes
+    }, [file.path, file.stat.mtime, app.vault, plugin.settings.showFilePreview, plugin.settings.skipHeadingsInPreview, plugin.settings.skipNonTextInPreview, refreshCounter]); // Include mtime to detect file changes
     
     // Detect slim mode when all display options are disabled
     const isSlimMode = !plugin.settings.showDate && 
@@ -218,7 +222,10 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
                             )}
                             {/* Show folder indicator */}
                             {plugin.settings.showNotesFromSubfolders && plugin.settings.showSubfolderNamesInList && parentFolder && file.parent && file.parent.path !== parentFolder && (
-                                <div className="nn-file-folder">📁 {file.parent.name}</div>
+                                <div className="nn-file-folder">
+                                    <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
+                                    <span>{file.parent.name}</span>
+                                </div>
                             )}
                         </div>
                         {featureImageUrl && (
@@ -254,7 +261,6 @@ export const FileItem = memo(FileItemInternal, (prevProps, nextProps) => {
         prevProps.isSelected === nextProps.isSelected &&
         prevProps.dateGroup === nextProps.dateGroup &&
         prevProps.onClick === nextProps.onClick &&
-        prevProps.settingsVersion === nextProps.settingsVersion &&
         prevProps.formattedDate === nextProps.formattedDate &&
         prevProps.parentFolder === nextProps.parentFolder
     );
