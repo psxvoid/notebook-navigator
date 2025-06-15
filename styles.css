@@ -600,11 +600,10 @@ button.nn-icon-button {
 .nn-file-folder {
     font-size: var(--font-ui-small);
     color: var(--text-muted);
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     display: flex;
     align-items: center;
+    gap: var(--size-4-1);
+    overflow: hidden;
 }
 
 /* Dark mode folder indicator */
@@ -612,12 +611,21 @@ button.nn-icon-button {
     color: var(--text-muted);
 }
 
+/* Folder indicator text */
+.nn-file-folder span {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
 /* Folder icon styling */
 .nn-file-folder-icon {
-    margin-inline-end: var(--size-4-1);
-    width: 1em;
-    height: 1em;
-    transform: scale(0.7);
+    width: calc(var(--icon-size) * 0.8);
+    height: calc(var(--icon-size) * 0.8);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
 }
 
 /* ========================================================================
