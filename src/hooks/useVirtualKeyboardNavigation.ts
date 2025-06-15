@@ -30,6 +30,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     const { app, appState, dispatch, plugin, isMobile } = useAppContext();
     const lastKeyPressTime = useRef(0);
     
+    // Helper function for safe array access
+    const safeGetItem = <T,>(array: T[], index: number): T | undefined => {
+        return index >= 0 && index < array.length ? array[index] : undefined;
+    };
+    
     const handleKeyDown = useCallback((e: KeyboardEvent) => {
         // Skip if typing in input
         if (isTypingInInput(e)) return;
@@ -145,7 +150,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 e.preventDefault();
                 if (focusedPane === 'folders') {
                     if (currentIndex >= 0) {
-                        const item = items[currentIndex] as CombinedLeftPaneItem;
+                        const item = safeGetItem(items, currentIndex) as CombinedLeftPaneItem | undefined;
+                        if (!item) {
+                            dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                            return;
+                        }
                         
                         // Check if we should expand instead of switching panes
                         if (item.type === 'folder') {
@@ -197,7 +206,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 if (focusedPane === 'files') {
                     dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
                 } else if (focusedPane === 'folders' && currentIndex >= 0) {
-                    const item = items[currentIndex] as CombinedLeftPaneItem;
+                    const item = safeGetItem(items, currentIndex) as CombinedLeftPaneItem | undefined;
+                    if (!item) return;
                     
                     if (item.type === 'folder') {
                         const folder = item.data;
@@ -215,8 +225,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                                 return false;
                             });
                             if (parentIndex >= 0) {
-                                selectItemAtIndex(items[parentIndex]);
-                                scrollVirtualItemIntoView(virtualizer, parentIndex);
+                                const parentItem = safeGetItem(items, parentIndex);
+                                if (parentItem) {
+                                    selectItemAtIndex(parentItem);
+                                    scrollVirtualItemIntoView(virtualizer, parentIndex);
+                                }
                             }
                         }
                     } else if (item.type === 'tag') {
@@ -234,8 +247,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                                     i.type === 'tag' && (i.data as TagTreeNode).path === parentPath
                                 );
                                 if (parentIndex >= 0) {
-                                    selectItemAtIndex(items[parentIndex]);
-                                    scrollVirtualItemIntoView(virtualizer, parentIndex);
+                                    const parentItem = safeGetItem(items, parentIndex);
+                                    if (parentItem) {
+                                        selectItemAtIndex(parentItem);
+                                        scrollVirtualItemIntoView(virtualizer, parentIndex);
+                                    }
                                 }
                             }
                         }
@@ -255,7 +271,10 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             case 'Enter':
                 if (currentIndex >= 0) {
                     e.preventDefault();
-                    handleEnter(items[currentIndex]);
+                    const item = safeGetItem(items, currentIndex);
+                    if (item) {
+                        handleEnter(item);
+                    }
                 }
                 break;
                 
@@ -270,10 +289,13 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         
         // Scroll to and select new item
         if (targetIndex >= 0 && targetIndex < items.length) {
-            selectItemAtIndex(items[targetIndex]);
+            const item = safeGetItem(items, targetIndex);
+            if (item) {
+                selectItemAtIndex(item);
+            }
             
             // Check if the item has a group header above it that should be visible
-            const isFirstInGroup = targetIndex > 0 && items[targetIndex - 1]?.type === 'header';
+            const isFirstInGroup = targetIndex > 0 && safeGetItem(items, targetIndex - 1)?.type === 'header';
             
             scrollVirtualItemIntoView(virtualizer, targetIndex, 'auto', 3, isFirstInGroup);
         }
@@ -287,7 +309,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         // If no current selection, find the first selectable item
         if (currentIndex < 0) {
             for (let i = 0; i < items.length; i++) {
-                if (isSelectableItem(items[i], pane)) {
+                const item = safeGetItem(items, i);
+                if (item && isSelectableItem(item, pane)) {
                     return i;
                 }
             }
@@ -295,7 +318,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         }
         
         for (let i = currentIndex + 1; i < items.length; i++) {
-            if (isSelectableItem(items[i], pane)) {
+            const item = safeGetItem(items, i);
+            if (item && isSelectableItem(item, pane)) {
                 return i;
             }
         }
@@ -309,7 +333,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         if (items.length === 0 || currentIndex < 0) return -1;
         
         for (let i = currentIndex - 1; i >= 0; i--) {
-            if (isSelectableItem(items[i], pane)) {
+            const item = safeGetItem(items, i);
+            if (item && isSelectableItem(item, pane)) {
                 return i;
             }
         }
@@ -350,6 +375,9 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
 
         // To find the average item height, we measure the total height of all *rendered*
         // items and divide by the number of rendered items.
+        if (virtualItems.length === 0) {
+            return 10;
+        }
         const firstItem = virtualItems[0];
         const lastItem = virtualItems[virtualItems.length - 1];
         const totalMeasuredHeight = (lastItem.start + lastItem.size) - firstItem.start;
@@ -518,6 +546,19 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         if (!shouldDelete) return;
         
         try {
+            // Verify the file still exists and is still the selected file
+            const fileStillExists = await app.vault.adapter.exists(fileToDelete.path);
+            if (!fileStillExists) {
+                console.warn('File no longer exists:', fileToDelete.path);
+                return;
+            }
+            
+            // Check if it's still the selected file (user might have navigated away)
+            if (appState.selectedFile?.path !== fileToDelete.path) {
+                console.warn('Selected file changed during delete operation');
+                return;
+            }
+            
             // Delete the file
             await fileSystemOps.delete(fileToDelete);
             

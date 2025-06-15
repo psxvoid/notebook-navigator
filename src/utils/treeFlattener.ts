@@ -45,7 +45,7 @@ export function flattenFolderTree(
         });
         
         // Add children if expanded
-        if (expandedFolders.has(folder.path) && folder.children.length > 0) {
+        if (expandedFolders.has(folder.path) && folder.children && folder.children.length > 0) {
             const childFolders = folder.children
                 .filter(child => child instanceof TFolder) as TFolder[];
             
@@ -104,7 +104,7 @@ export function flattenTagTree(
         });
         
         // Add children if expanded and has children
-        if (expandedTags.has(node.path) && node.children.size > 0) {
+        if (expandedTags.has(node.path) && node.children && node.children.size > 0) {
             const sortedChildren = Array.from(node.children.values())
                 .sort((a, b) => a.name.localeCompare(b.name));
             

@@ -14,6 +14,7 @@ import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders } from
 import { UNTAGGED_TAG_ID } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
+import { ErrorBoundary } from './ErrorBoundary';
 
 export const LeftPaneVirtualized: React.FC = () => {
     const { app, plugin, appState, dispatch, refreshCounter, isMobile } = useAppContext();
@@ -147,21 +148,7 @@ export const LeftPaneVirtualized: React.FC = () => {
         }
     }, [appState.scrollToFolderIndex, rowVirtualizer, dispatch]);
     
-    // Handle scroll to folder trigger
-    useEffect(() => {
-        if (appState.scrollToFolderTrigger > 0 && appState.selectedFolder && rowVirtualizer) {
-            // Find the folder directly in the items array
-            const actualIndex = items.findIndex(item => 
-                item.type === 'folder' && item.data.path === appState.selectedFolder?.path
-            );
-            if (actualIndex >= 0) {
-                const cleanup = scrollVirtualItemIntoView(rowVirtualizer, actualIndex);
-                return cleanup;
-            }
-        }
-    }, [appState.scrollToFolderTrigger, appState.selectedFolder, items, rowVirtualizer]);
-    
-    // Also handle scroll when selected folder changes (for manual selection and auto-reveal)
+    // Handle scroll when selected folder changes (for manual selection and auto-reveal)
     useEffect(() => {
         if (appState.selectedFolder && appState.selectionType === 'folder' && rowVirtualizer) {
             // Find the folder directly in the items array
@@ -169,7 +156,8 @@ export const LeftPaneVirtualized: React.FC = () => {
                 item.type === 'folder' && item.data.path === appState.selectedFolder?.path
             );
             if (actualIndex >= 0) {
-                scrollVirtualItemIntoView(rowVirtualizer, actualIndex);
+                const cleanup = scrollVirtualItemIntoView(rowVirtualizer, actualIndex);
+                return cleanup;
             }
         }
     }, [appState.selectedFolder, appState.selectionType, items, rowVirtualizer]);
@@ -264,8 +252,9 @@ export const LeftPaneVirtualized: React.FC = () => {
     }, [appState.expandedFolders, appState.expandedTags, appState.selectionType, appState.selectedFolder?.path, appState.selectedTag, handleFolderToggle, handleFolderClick, handleTagToggle, handleTagClick, untaggedCount, plugin.settings.showFolderFileCount, spacerHeight]);
     
     return (
-        <>
-            <PaneHeader type="folder" />
+        <ErrorBoundary componentName="LeftPaneVirtualized">
+            <>
+                <PaneHeader type="folder" />
             <div 
                 ref={scrollContainerRef}
                 className="nn-left-pane-scroller"
@@ -275,13 +264,17 @@ export const LeftPaneVirtualized: React.FC = () => {
             >
                 <div
                     style={{
-                        height: `${rowVirtualizer.getTotalSize()}px`,
+                        height: rowVirtualizer ? `${rowVirtualizer.getTotalSize()}px` : '100%',
                         width: '100%',
                         position: 'relative',
                     }}
                 >
-                    {rowVirtualizer.getVirtualItems().map((virtualItem) => {
-                        const item = items[virtualItem.index];
+                    {rowVirtualizer && rowVirtualizer.getVirtualItems().map((virtualItem) => {
+                        // Safe array access
+                        const item = virtualItem.index >= 0 && virtualItem.index < items.length 
+                            ? items[virtualItem.index] 
+                            : null;
+                        if (!item) return null;
                         
                         return (
                             <div
@@ -303,5 +296,6 @@ export const LeftPaneVirtualized: React.FC = () => {
                 </div>
             </div>
         </>
+        </ErrorBoundary>
     );
 };

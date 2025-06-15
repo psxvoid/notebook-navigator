@@ -44,8 +44,6 @@ export interface AppState {
     expandedTags: Set<string>;
     /** Which pane currently has keyboard focus */
     focusedPane: 'folders' | 'files';
-    /** Counter that increments when we need to trigger a scroll to the selected folder */
-    scrollToFolderTrigger: number;
     /** Current view on mobile devices - 'list' for folder/tags, 'files' for file list */
     currentMobileView: 'list' | 'files';
     /** Index to scroll to in folder tree (null when not scrolling) */
@@ -171,7 +169,6 @@ function loadStateFromStorage(app: App): AppState {
         expandedFolders,
         expandedTags,
         focusedPane: 'folders',
-        scrollToFolderTrigger: 0,
         currentMobileView,
         scrollToFolderIndex: null,
         scrollToFileIndex: null
@@ -357,8 +354,7 @@ function appReducer(state: AppState, action: AppAction, app: App, plugin: Notebo
                 selectedFolder: folderToSelect,
                 selectedTag: null, // Clear tag selection
                 selectedFile: action.file,
-                focusedPane: 'files',
-                scrollToFolderTrigger: state.scrollToFolderTrigger + 1
+                focusedPane: 'files'
             };
         }
         

@@ -33,6 +33,7 @@ import type { FileListItem } from '../types/virtualization';
 import { PaneHeader } from './PaneHeader';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
+import { ErrorBoundary } from './ErrorBoundary';
 
 /**
  * Collects all pinned note paths from settings
@@ -310,7 +311,7 @@ export function FileList() {
             items.push({ 
                 type: 'header', 
                 data: strings.fileList.pinnedSection,
-                key: 'header-pinned'
+                key: `header-pinned-${selectedFolder?.path || 'root'}`
             });
             pinnedFiles.forEach(file => {
                 items.push({ 
@@ -354,7 +355,7 @@ export function FileList() {
                     items.push({ 
                         type: 'header', 
                         data: groupTitle,
-                        key: `header-${groupTitle}`
+                        key: `header-${selectedFolder?.path || selectedTag || 'root'}-${groupTitle}`
                     });
                 }
                 
@@ -541,7 +542,8 @@ export function FileList() {
             if (fileIndex !== undefined && fileIndex >= 0) {
                 // Only scroll to header when it's the first file (auto-selection)
                 // Don't do it during normal navigation to avoid jumping
-                const isFirstFile = fileIndex === 0 || (fileIndex === 1 && listItems[0]?.type === 'header');
+                const firstItem = listItems[0];
+                const isFirstFile = fileIndex === 0 || (fileIndex === 1 && firstItem && firstItem.type === 'header');
                 const isFirstInGroup = isFirstFile && fileIndex > 0 && listItems[fileIndex - 1]?.type === 'header';
                 
                 const cleanup = scrollVirtualItemIntoView(
@@ -596,6 +598,11 @@ export function FileList() {
         return dateMap;
     }, [listItems, dateField, plugin.settings.showDate, plugin.settings.dateFormat, plugin.settings.timeFormat, plugin.settings.useFrontmatterDates, plugin.settings.frontmatterCreatedField, plugin.settings.frontmatterModifiedField, plugin.settings.frontmatterDateFormat, strings.fileList.pinnedSection, app.metadataCache, refreshCounter]);
     
+    // Helper function for safe array access
+    const safeGetItem = <T,>(array: T[], index: number): T | undefined => {
+        return index >= 0 && index < array.length ? array[index] : undefined;
+    };
+    
     // Early returns MUST come after all hooks
     if (!selectedFolder && !selectedTag) {
         return (
@@ -620,8 +627,9 @@ export function FileList() {
     }
     
     return (
-        <div className="nn-right-pane">
-            <PaneHeader type="file" />
+        <ErrorBoundary componentName="FileList">
+            <div className="nn-right-pane">
+                <PaneHeader type="file" />
             <div 
                 ref={scrollContainerRef}
                 className="nn-file-list"
@@ -639,30 +647,33 @@ export function FileList() {
                         }}
                     >
                         {rowVirtualizer.getVirtualItems().map((virtualItem) => {
-                            const item = listItems[virtualItem.index];
+                            const item = safeGetItem(listItems, virtualItem.index);
+                            if (!item) return null;
                             const isSelected = item.type === 'file' && 
                                 selectedFilePath === (item.data as TFile).path;
                             
                             // Check if this is the last file item
+                            const nextItem = safeGetItem(listItems, virtualItem.index + 1);
                             const isLastFile = item.type === 'file' && 
                                 (virtualItem.index === listItems.length - 1 || 
-                                 (virtualItem.index < listItems.length - 1 && listItems[virtualItem.index + 1].type === 'header'));
+                                 (nextItem && nextItem.type === 'header'));
                             
                             // Check if this is the first header
                             const isFirstHeader = item.type === 'header' && virtualItem.index === 0;
                             
                             // Check if next item is selected (for hiding separator)
-                            const nextItemSelected = virtualItem.index < listItems.length - 1 && 
-                                listItems[virtualItem.index + 1].type === 'file' && 
-                                selectedFilePath === (listItems[virtualItem.index + 1].data as TFile).path;
+                            const nextItemSelected = nextItem && 
+                                nextItem.type === 'file' && 
+                                selectedFilePath === (nextItem.data as TFile).path;
                             
                             // Find current date group for file items
                             let dateGroup: string | null = null;
                             if (item.type === 'file') {
                                 // Look backwards to find the most recent header
                                 for (let i = virtualItem.index - 1; i >= 0; i--) {
-                                    if (listItems[i].type === 'header') {
-                                        dateGroup = listItems[i].data as string;
+                                    const prevItem = safeGetItem(listItems, i);
+                                    if (prevItem && prevItem.type === 'header') {
+                                        dateGroup = prevItem.data as string;
                                         break;
                                     }
                                 }
@@ -704,5 +715,6 @@ export function FileList() {
                 )}
             </div>
         </div>
+        </ErrorBoundary>
     );
 }

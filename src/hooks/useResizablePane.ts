@@ -17,7 +17,7 @@
  */
 
 // src/hooks/useResizablePane.ts
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 
 interface UseResizablePaneConfig {
     initialWidth?: number;
@@ -47,6 +47,9 @@ export function useResizablePane({
     max = 600,
     storageKey
 }: UseResizablePaneConfig = {}): UseResizablePaneResult {
+    // Track cleanup function for current resize operation
+    const cleanupRef = useRef<(() => void) | null>(null);
+    
     // Load initial width from localStorage if storage key is provided
     const [paneWidth, setPaneWidth] = useState(() => {
         if (storageKey) {
@@ -91,6 +94,8 @@ export function useResizablePane({
             document.removeEventListener('mouseup', handleMouseUp);
             // Remove resizing class to restore text selection
             document.body.classList.remove('nn-resizing');
+            // Clear the cleanup ref since we've already cleaned up
+            cleanupRef.current = null;
         };
 
         // Add resizing class to prevent text selection during drag
@@ -98,7 +103,24 @@ export function useResizablePane({
         
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
+        
+        // Store cleanup function in ref so it can be called on unmount
+        cleanupRef.current = () => {
+            document.removeEventListener('mousemove', handleMouseMove);
+            document.removeEventListener('mouseup', handleMouseUp);
+            document.body.classList.remove('nn-resizing');
+        };
     }, [paneWidth, min, max]);
+    
+    // Cleanup on unmount if resize is in progress
+    useEffect(() => {
+        return () => {
+            if (cleanupRef.current) {
+                cleanupRef.current();
+                cleanupRef.current = null;
+            }
+        };
+    }, []);
 
     return {
         paneWidth,
