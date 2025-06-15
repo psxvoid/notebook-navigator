@@ -34,6 +34,12 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         // Skip if typing in input
         if (isTypingInInput(e)) return;
         
+        // Skip if the focused element is inside a modal
+        const activeElement = document.activeElement as HTMLElement;
+        if (activeElement && activeElement.closest('.modal-container')) {
+            return;
+        }
+        
         // Check if the navigator exists
         const navigatorContainer = document.querySelector('[data-focus-pane]');
         if (!navigatorContainer) return;
