@@ -70,16 +70,18 @@ export function useSwipeGesture(
         };
         
         const handleTouchMove = (e: TouchEvent) => {
-            // For edge swipes, we might want to prevent default scrolling
-            if (isValidSwipe.current && touchStartX.current !== null) {
-                const touch = e.touches[0];
-                const deltaX = touch.clientX - touchStartX.current;
-                
-                // Prevent vertical scroll when swiping from edge
-                // In RTL: swiping left from right edge; in LTR: swiping right from left edge
-                if ((isRTL && deltaX < -10) || (!isRTL && deltaX > 10)) {
-                    e.preventDefault();
-                }
+            if (!isValidSwipe.current || touchStartX.current === null || touchStartY.current === null) {
+                return;
+            }
+
+            const touch = e.touches[0];
+            const deltaX = touch.clientX - touchStartX.current;
+            const deltaY = touch.clientY - touchStartY.current;
+
+            // Only prevent default if the swipe is clearly horizontal
+            // This prevents blocking vertical scrolls that start near the edge
+            if (Math.abs(deltaX) > Math.abs(deltaY) + 5) { // Add a small tolerance
+                e.preventDefault();
             }
         };
         

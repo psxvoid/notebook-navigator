@@ -162,6 +162,61 @@ export const LeftPaneVirtualized: React.FC = () => {
         }
     }, [appState.selectedFolder, appState.selectionType, items, rowVirtualizer]);
     
+    // Use IntersectionObserver to detect when the pane becomes visible
+    useEffect(() => {
+        const scrollContainer = scrollContainerRef.current;
+        if (!scrollContainer) return;
+
+        // This callback fires when the pane's visibility changes
+        const observerCallback = (entries: IntersectionObserverEntry[]) => {
+            const [entry] = entries;
+            // Exit if the pane is not visible
+            if (!entry.isIntersecting) return;
+
+            let index = -1;
+            const { selectionType, selectedFolder, selectedTag } = appState;
+
+            // Case 1: A folder is selected
+            if (selectionType === 'folder' && selectedFolder) {
+                index = items.findIndex(item =>
+                    item.type === 'folder' && item.data.path === selectedFolder.path
+                );
+            // Case 2: A tag is selected
+            } else if (selectionType === 'tag' && selectedTag) {
+                index = items.findIndex(item => {
+                    // The item can be a regular tag or the special "untagged" item
+                    if (item.type === 'tag' || item.type === 'untagged') {
+                        // The data payload for both is a TagTreeNode, which has a path
+                        const tagNode = item.data as TagTreeNode;
+                        return tagNode.path === selectedTag;
+                    }
+                    return false;
+                });
+            }
+
+            // If a valid item was found, scroll to it
+            if (index >= 0) {
+                scrollVirtualItemIntoView(rowVirtualizer, index);
+            }
+        };
+
+        // Create the observer
+        const observer = new IntersectionObserver(observerCallback, {
+            root: null, // observes intersections relative to the viewport
+            threshold: 0.1, // trigger when 10% of the element is visible
+        });
+
+        // Start observing the scroll container
+        observer.observe(scrollContainer);
+
+        // Cleanup: Stop observing when the component unmounts
+        return () => {
+            observer.disconnect();
+        };
+    // Dependencies: This effect should re-run if these change,
+    // to ensure the observer's callback has the latest state
+    }, [items, appState.selectedFolder, appState.selectedTag, appState.selectionType, rowVirtualizer]);
+    
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
         items: items,
