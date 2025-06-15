@@ -261,101 +261,57 @@ export function FileList() {
     
     // Auto-select first file when folder/tag changes (desktop only)
     useEffect(() => {
-        // Need either a folder or tag selected
         if (!selectedFolder && !selectedTag) return;
-        
-        // Check if folder/tag has changed
+
         const currentFolderPath = selectedFolder?.path || null;
-        const previousFolderPath = previousSelectionRef.current.folderPath;
-        const hasSelectionChanged = 
-            previousFolderPath !== currentFolderPath ||
+        const hasSelectionChanged =
+            previousSelectionRef.current.folderPath !== currentFolderPath ||
             previousSelectionRef.current.tag !== selectedTag;
-        
-        // Update the ref
-        previousSelectionRef.current = {
-            folderPath: currentFolderPath,
-            tag: selectedTag
-        };
-        
-        // On mobile, don't auto-select files when changing folders/tags
+
         if (isMobile && hasSelectionChanged) {
-            // Keep the current file selection on mobile
+            // On mobile, don't auto-select files, just update the ref and exit.
+            previousSelectionRef.current = { folderPath: currentFolderPath, tag: selectedTag };
             return;
         }
         
-        // If the selection hasn't changed, check if we should keep the current file
-        if (!hasSelectionChanged) {
-            // Check if the currently selected file is in the current file list
+        if (hasSelectionChanged) {
+            // --- FOLDER/TAG HAS CHANGED ---
+            // Use a timeout to ensure the file list has been updated in the DOM.
+            const timeoutId = setTimeout(() => {
+                if (files.length > 0 && plugin.settings.autoSelectFirstFile) {
+                    const firstFile = files[0];
+                    dispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
+                    
+                    const leaf = app.workspace.getLeaf(false);
+                    if (leaf) {
+                        leaf.openFile(firstFile, { active: false });
+                    }
+                } else if (!plugin.settings.autoSelectFirstFile || files.length === 0) {
+                    // Clear selection if auto-select is off or folder is empty
+                    dispatch({ type: 'SET_SELECTED_FILE', file: null });
+                }
+            }, 0);
+            
+            // Update the ref for the next render cycle.
+            previousSelectionRef.current = { folderPath: currentFolderPath, tag: selectedTag };
+            return () => clearTimeout(timeoutId);
+
+        } else {
+            // --- FOLDER/TAG IS THE SAME, but file list might have changed (e.g., deletion) ---
             const selectedFileInList = appState.selectedFile && files.some(f => f.path === appState.selectedFile?.path);
             
-            if (selectedFileInList) {
-                // Keep the current selection if it's in the list (e.g., from REVEAL_FILE)
-                return;
-            }
-            
-            // Check if a file was recently created (within last 2 seconds)
-            // This prevents auto-selection from interfering with newly created files
-            const activeFile = app.workspace.getActiveFile();
-            if (activeFile && activeFile.stat?.ctime) {
-                const fileAge = Date.now() - activeFile.stat.ctime;
-                if (fileAge >= 0 && fileAge < 2000) {
-                    return;
-                }
-            }
-        }
-        
-        // Check if we have a selected file that should be preserved
-        // This handles the case where REVEAL_FILE sets a file but the folder changed
-        if (hasSelectionChanged && appState.selectedFile) {
-            // Check if the selected file is in the new folder
-            const selectedFileInNewFolder = files.some(f => f.path === appState.selectedFile?.path);
-            if (selectedFileInNewFolder) {
-                // Special case: When moving from child to parent folder with showNotesFromSubfolders enabled
-                // and autoSelectFirstFile is on, we should select the first file instead of keeping current
-                if (plugin.settings.showNotesFromSubfolders && 
-                    plugin.settings.autoSelectFirstFile &&
-                    previousFolderPath && currentFolderPath) {
-                    // Check if we're moving from a child folder to a parent folder
-                    const isMovingToParent = currentFolderPath === '/' 
-                        ? previousFolderPath !== '/'  // Any non-root folder to root
-                        : previousFolderPath.startsWith(currentFolderPath + '/');
-                    
-                    if (isMovingToParent) {
-                        // We're moving from a child folder to a parent folder
-                        // Don't preserve selection, let it fall through to auto-select first
-                    } else {
-                        // The selected file is in the new folder, keep it selected
-                        return;
-                    }
+            if (!selectedFileInList) {
+                // The previously selected file is no longer in the list.
+                // If auto-select is on, select the new first file. Otherwise, clear selection.
+                if (files.length > 0 && plugin.settings.autoSelectFirstFile) {
+                    dispatch({ type: 'SET_SELECTED_FILE', file: files[0] });
                 } else {
-                    // The selected file is in the new folder, keep it selected
-                    return;
+                    dispatch({ type: 'SET_SELECTED_FILE', file: null });
                 }
             }
         }
-        
-        // Use a small delay to avoid race conditions with file list updates
-        const timeoutId = setTimeout(() => {
-            // Selection has changed or current file is not in list - select first file (desktop only)
-            if (files.length > 0 && plugin.settings.autoSelectFirstFile) {
-                const firstFile = files[0];
-                
-                // Select and open the file
-                dispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
-                
-                // Auto-open the first file when switching folders
-                const leaf = app.workspace.getLeaf(false);
-                if (leaf) {
-                    leaf.openFile(firstFile, { active: false });
-                }
-            } else if (!plugin.settings.autoSelectFirstFile || files.length === 0) {
-                // Clear selection when auto-select is disabled or folder has no files
-                dispatch({ type: 'SET_SELECTED_FILE', file: null });
-            }
-        }, 0);
-        
-        return () => clearTimeout(timeoutId);
-    }, [selectedFolder?.path, selectedTag, selectionType, dispatch, files, appState.selectedFile, app.workspace, isMobile, plugin.settings.autoSelectFirstFile]);
+
+    }, [selectedFolder?.path, selectedTag, files, appState.selectedFile?.path, plugin.settings.autoSelectFirstFile, isMobile, dispatch, app.workspace]);
     
     // Auto-select first file when files pane gains focus and no file is selected
     useEffect(() => {
