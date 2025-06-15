@@ -298,57 +298,29 @@ function appReducer(state: AppState, action: AppAction, app: App, plugin: Notebo
         }
         
         case 'REVEAL_FILE': {
-            // Reveal a file in the navigator by expanding all parent folders
             if (!action.file.parent) {
                 return state;
             }
-            
-            // Get all parent folders up to root
+
             const foldersToExpand: string[] = [];
             let currentFolder: TFolder | null = action.file.parent;
-            const visitedFolders = new Set<string>();
-            
-            while (currentFolder && !visitedFolders.has(currentFolder.path)) {
-                visitedFolders.add(currentFolder.path);
+            while (currentFolder) {
                 foldersToExpand.unshift(currentFolder.path);
                 if (currentFolder.path === '/') break;
-                currentFolder = currentFolder.parent || null;
+                currentFolder = currentFolder.parent;
             }
-            
-            // Expand all parent folders
+
             const newExpanded = new Set([...state.expandedFolders, ...foldersToExpand]);
-            
-            // Determine which folder to select
-            // If we're already showing a folder that contains this file (when showNotesFromSubfolders is true),
-            // keep that folder selected. Otherwise, select the file's immediate parent.
-            let folderToSelect = action.file.parent;
-            
-            // Check if the currently selected folder already contains this file
-            if (state.selectedFolder && state.selectionType === 'folder') {
-                // Check if file is in the currently selected folder or its subfolders
-                let parent: TFolder | null = action.file.parent;
-                const visited = new Set<string>();
-                
-                while (parent && !visited.has(parent.path)) {
-                    visited.add(parent.path);
-                    
-                    if (parent.path === state.selectedFolder.path) {
-                        // The file is within the currently selected folder's hierarchy
-                        folderToSelect = state.selectedFolder;
-                        break;
-                    }
-                    parent = parent.parent;
-                }
-            }
-            
+
             return {
                 ...state,
-                selectionType: 'folder', // Switch to folder view when revealing a file
+                selectionType: 'folder',
                 expandedFolders: newExpanded,
-                selectedFolder: folderToSelect,
-                selectedTag: null, // Clear tag selection
+                selectedFolder: action.file.parent, // Always select the direct parent
+                selectedTag: null,
                 selectedFile: action.file,
-                focusedPane: 'files'
+                focusedPane: 'files',
+                scrollToFolderIndex: null, // Reset scroll trigger
             };
         }
         

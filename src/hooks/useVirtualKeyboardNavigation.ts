@@ -127,11 +127,6 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 
                 // Find the next selectable item at or after our jump point.
                 targetIndex = findNextSelectableIndex(items, newIndex - 1, focusedPane);
-                
-                // If we're already at the end, just re-select the last item.
-                if (targetIndex === currentIndex) {
-                     targetIndex = findPreviousSelectableIndex(items, items.length, focusedPane);
-                }
                 break;
             }
 

@@ -104,14 +104,6 @@
     background-color: var(--background-secondary);
 }
 
-/* Header title styling - currently unused but available for future use */
-.nn-pane-header h3 {
-    margin: 0;
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-normal);
-}
-
 /* Header actions container - groups action buttons in headers */
 .nn-header-actions {
     display: flex;
