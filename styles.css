@@ -185,26 +185,6 @@ button.nn-icon-button {
     fill: none;
 }
 
-/* Sort button - UNUSED, kept for potential future sorting feature */
-.nn-sort-button {
-    background: none;
-    border: 1px solid var(--background-modifier-border);
-    border-radius: var(--radius-s);
-    padding: var(--size-2-1) var(--size-4-2);
-    cursor: pointer;
-    color: var(--text-muted);
-    font-size: var(--font-ui-small);
-    font-weight: 500;
-    transition: all 0.2s ease;
-    margin-inline-end: var(--size-4-2);
-}
-
-/* Sort button hover - UNUSED */
-.nn-desktop .nn-sort-button:hover {
-    background-color: var(--background-modifier-hover);
-    color: var(--text-normal);
-    border-color: var(--background-modifier-border-hover);
-}
 
 /* ========================================================================
    Left Pane Scroller
@@ -277,10 +257,6 @@ button.nn-icon-button {
     transition: transform 0.2s ease;
 }
 
-/* Hidden chevron - UNUSED class for folders without children */
-.nn-folder-arrow.nn-no-children {
-    visibility: hidden;
-}
 
 /* Folder icon - displays folder open/closed or custom icons */
 .nn-folder-icon {
@@ -804,17 +780,6 @@ button.nn-icon-button {
     bottom: 1px; /* Stop above the separator line */
     background-color: var(--text-selection);
     border-radius: var(--radius-m);
-}
-
-/* Hide the separators above and below the selected file */
-/* Remove separator below selected item */
-.nn-file-item.nn-selected::after {
-    display: none;
-}
-
-/* Remove separator above selected item */
-.nn-file-item:has(+ .nn-file-item.nn-selected)::after {
-    display: none;
 }
 
 /* Virtual list: Remove separator below selected item */

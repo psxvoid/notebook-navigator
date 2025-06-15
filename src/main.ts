@@ -145,16 +145,14 @@ export default class NotebookNavigatorPlugin extends Plugin {
             this.app.vault.on('rename', async (file, oldPath) => {
                 if (file instanceof TFolder) {
                     await this.metadataService.handleFolderRename(oldPath, file.path);
-                    // Refresh navigator views after rename
-                    setTimeout(() => {
-                        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-                        leaves.forEach(leaf => {
-                            const view = leaf.view;
-                            if (view instanceof NotebookNavigatorView) {
-                                view.refresh();
-                            }
-                        });
-                    }, 100);
+                    // Refresh navigator views immediately - the view's React state will handle updates
+                    const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                    leaves.forEach(leaf => {
+                        const view = leaf.view;
+                        if (view instanceof NotebookNavigatorView) {
+                            view.refresh();
+                        }
+                    });
                 }
             })
         );

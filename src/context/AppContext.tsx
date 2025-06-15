@@ -99,12 +99,6 @@ interface AppContextType {
 const AppContext = createContext<AppContextType>(null!);
 
 /**
- * Additional localStorage key for mobile view state
- * Not included in main STORAGE_KEYS as it's only used in AppContext
- */
-const MOBILE_VIEW_KEY = 'notebook-navigator-mobile-view';
-
-/**
  * Loads the application state from localStorage.
  * Validates that files and folders still exist in the vault.
  * 
