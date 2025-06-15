@@ -24,6 +24,7 @@ import { PreviewTextUtils } from '../utils/PreviewTextUtils';
 import { getDateField } from '../utils/sortUtils';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { strings } from '../i18n';
+import { ObsidianIcon } from './ObsidianIcon';
 
 interface FileItemProps {
     file: TFile;
@@ -214,7 +215,10 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
                             )}
                             {/* Show folder indicator */}
                             {plugin.settings.showNotesFromSubfolders && plugin.settings.showSubfolderNamesInList && parentFolder && file.parent && file.parent.path !== parentFolder && (
-                                <div className="nn-file-folder">📁 {file.parent.name}</div>
+                                <div className="nn-file-folder">
+                                    <ObsidianIcon name="folder" className="nn-file-folder-icon" />
+                                    <span>{file.parent.name}</span>
+                                </div>
                             )}
                         </div>
                         {featureImageUrl && (
