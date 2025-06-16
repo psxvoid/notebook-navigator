@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useEffect, useLayoutEffect, useCallback, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { TFolder, TFile, App, getAllTags, Platform } from 'obsidian';
+import { TFolder, TFile, App, getAllTags, Platform, View } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { flattenFolderTree, flattenTagTree, findFolderIndex } from '../utils/treeFlattener';
 import { FolderItem } from './FolderItem';
@@ -36,6 +36,14 @@ export const LeftPaneVirtualized: React.FC = () => {
     // 
     // Desktop doesn't need this because it scrolls on selection change, not view appearance.
     const prevExpandedFoldersSize = useRef(isMobile ? appState.expandedFolders.size : 0);
+    
+    // Cache selected folder/tag path to avoid repeated property access
+    const selectedPath = appState.selectionType === 'folder' && appState.selectedFolder 
+        ? appState.selectedFolder.path 
+        : appState.selectionType === 'tag' && appState.selectedTag 
+        ? appState.selectedTag 
+        : null;
+    
     
     // Log component mount/unmount only if debug is enabled
     useEffect(() => {
@@ -190,120 +198,89 @@ export const LeftPaneVirtualized: React.FC = () => {
         }
     }, [appState.scrollToFolderIndex, rowVirtualizer, dispatch, isMobile]);
     
-    
-    // Mobile: Initial scroll position
-    // This effect runs once when virtualizer is ready to ensure correct initial position
-    // 
-    // Mobile needs this separate initial scroll because:
-    // - The virtualizer might not be ready when the component first mounts
-    // - We need to ensure the selected item is visible immediately when opening the app
-    // - This only runs once on mount (dependency on just rowVirtualizer)
-    // 
-    // Desktop handles this differently through selection change effects
-    useLayoutEffect(() => {
-        if (!isMobile || !rowVirtualizer || !scrollContainerRef.current) {
-            return;
-        }
-        
-        // Only scroll on mount when list view is active
-        if (appState.currentMobileView !== 'list') {
-            return;
-        }
-        
-        let actualIndex = -1;
-        
-        if (appState.selectionType === 'folder' && appState.selectedFolder) {
-            actualIndex = items.findIndex(item => 
-                item.type === 'folder' && item.data.path === appState.selectedFolder?.path
-            );
-        } else if (appState.selectionType === 'tag' && appState.selectedTag) {
-            actualIndex = items.findIndex(item => {
-                if (item.type === 'tag' || item.type === 'untagged') {
-                    const tagNode = item.data as TagTreeNode;
-                    return tagNode.path === appState.selectedTag;
-                }
-                return false;
-            });
-        }
-        
-        if (actualIndex >= 0) {
-            if (Platform.isMobile && plugin.settings.debugMobile) {
-                debugLog.info('LeftPaneVirtualized: Initial scroll on mount', {
-                    index: actualIndex,
-                    path: appState.selectedFolder?.path || appState.selectedTag
-                });
+    // Create a map for O(1) item lookups
+    const pathToIndex = useMemo(() => {
+        const map = new Map<string, number>();
+        items.forEach((item, index) => {
+            if (item.type === 'folder') {
+                map.set(item.data.path, index);
+            } else if (item.type === 'tag' || item.type === 'untagged') {
+                const tagNode = item.data as TagTreeNode;
+                map.set(tagNode.path, index);
             }
-            // Use queueMicrotask to ensure this runs before any paint
-            queueMicrotask(() => {
-                if (rowVirtualizer && scrollContainerRef.current) {
-                    rowVirtualizer.scrollToIndex(actualIndex, {
-                        align: 'center',
-                        behavior: 'auto'
-                    });
-                }
-            });
-        }
-    }, [rowVirtualizer, isMobile, plugin.settings.debugMobile]); // Only depend on virtualizer being ready
-    
-    // Mobile: Scroll when returning to list view
-    // This is the main mobile scroll handler that ensures the selected folder/tag
-    // is visible when the user returns from viewing files or editing a note.
-    // 
-    // The key challenge: We need to scroll when returning from the editor, but NOT
-    // when the user is just browsing (expanding/collapsing folders). Both scenarios
-    // have currentMobileView === 'list', so we use the expandedFolders size trick.
-    useLayoutEffect(() => {
-        if (!isMobile || appState.currentMobileView !== 'list') {
-            return;
-        }
-        
-        // Skip scroll if we're just expanding/collapsing folders (mobile only)
-        // This is the heart of the mobile scroll logic:
-        // 1. User expands folder → expandedFolders.size changes → skip scroll
-        // 2. User returns from editor → expandedFolders.size unchanged → scroll to selected
-        // 
-        // This creates the ideal UX where:
-        // - Expanding folders doesn't jump around
-        // - Returning from editor shows your current location
+        });
+        return map;
+    }, [items]);
+
+    // --- MOBILE SCROLL LOGIC ---
+
+    const [scrollTrigger, setScrollTrigger] = useState(0);
+    const lastScrolledKey = useRef<string | null>(null);
+    const wasInEditor = useRef(false);
+
+    // Trigger 1: Listen for view changes (e.g., list -> files)
+    useEffect(() => {
         if (isMobile) {
-            const expandedSizeChanged = prevExpandedFoldersSize.current !== appState.expandedFolders.size;
-            prevExpandedFoldersSize.current = appState.expandedFolders.size;
-            
-            if (expandedSizeChanged) {
-                // User just expanded/collapsed a folder - don't scroll
-                return;
-            }
-            // Size didn't change - we're returning from edit view, proceed with scroll
+            // A change in mobile view implies we might need to scroll when returning
+            setScrollTrigger(c => c + 1);
         }
-        
-        if (!scrollContainerRef.current || !rowVirtualizer) {
+    }, [isMobile, appState.currentMobileView]);
+
+    // Trigger 2: Listen for returning from editor
+    useEffect(() => {
+        if (!isMobile) return;
+
+        const handleActiveLeafChange = () => {
+            const activeView = app.workspace.getActiveViewOfType(View);
+            const viewType = activeView?.getViewType();
+            const inEditor = viewType === 'markdown' || viewType === 'canvas';
+
+            if (inEditor) {
+                wasInEditor.current = true;
+            } else if (wasInEditor.current) {
+                // We were in the editor, and now we are not. This is our trigger.
+                wasInEditor.current = false;
+                setScrollTrigger(c => c + 1);
+            }
+        };
+
+        const eventRef = app.workspace.on('active-leaf-change', handleActiveLeafChange);
+        return () => {
+            app.workspace.offref(eventRef);
+        };
+    }, [isMobile, app.workspace]);
+
+    // The main scroll effect, triggered by state changes
+    useLayoutEffect(() => {
+        if (!isMobile || !selectedPath || appState.currentMobileView !== 'list') {
             return;
         }
-        
-        let actualIndex = -1;
-        
-        if (appState.selectionType === 'folder' && appState.selectedFolder) {
-            actualIndex = items.findIndex(item => 
-                item.type === 'folder' && item.data.path === appState.selectedFolder?.path
-            );
-        } else if (appState.selectionType === 'tag' && appState.selectedTag) {
-            actualIndex = items.findIndex(item => {
-                if (item.type === 'tag' || item.type === 'untagged') {
-                    const tagNode = item.data as TagTreeNode;
-                    return tagNode.path === appState.selectedTag;
-                }
-                return false;
-            });
+
+        const scrollKey = `${selectedPath}-${scrollTrigger}`;
+        if (lastScrolledKey.current === scrollKey) {
+            return; // Already scrolled for this exact state
         }
-        
-        if (actualIndex >= 0) {
-            // Scroll immediately
-            rowVirtualizer.scrollToIndex(actualIndex, {
-                align: 'center',
-                behavior: 'auto'
-            });
+
+        const itemIndex = pathToIndex.get(selectedPath);
+        if (itemIndex === undefined) {
+            return;
         }
-    }, [isMobile, appState.currentMobileView, appState.selectedFolder?.path, appState.selectedTag, appState.selectionType, rowVirtualizer, items]);
+
+        // The virtualizer might not be ready on first render.
+        // We use requestAnimationFrame to wait for the next paint.
+        requestAnimationFrame(() => {
+            if (scrollContainerRef.current && rowVirtualizer) {
+                rowVirtualizer.scrollToIndex(itemIndex, {
+                    align: 'center',
+                    behavior: 'auto',
+                });
+                lastScrolledKey.current = scrollKey;
+            }
+        });
+
+    }, [isMobile, selectedPath, appState.currentMobileView, scrollTrigger, pathToIndex, rowVirtualizer]);
+    
+    // --- END MOBILE SCROLL LOGIC ---
     
     // Desktop: Scroll when selection changes
     // Desktop has a simpler model than mobile:
