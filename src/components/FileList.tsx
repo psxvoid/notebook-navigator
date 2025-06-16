@@ -159,17 +159,6 @@ export function FileList() {
         }
     }, [plugin.settings.debugMobile]);
     
-    // Log selection changes only if debug is enabled
-    useEffect(() => {
-        if (Platform.isMobile && plugin.settings.debugMobile) {
-            debugLog.debug('FileList: Selection changed', {
-                selectionType,
-                selectedFolder: selectedFolder?.path,
-                selectedTag,
-                selectedFile: appState.selectedFile?.path
-            });
-        }
-    }, [selectionType, selectedFolder?.path, selectedTag, appState.selectedFile?.path, plugin.settings.debugMobile]);
     
     // Track if the file selection is from user click vs auto-selection
     const isUserSelectionRef = useRef(false);

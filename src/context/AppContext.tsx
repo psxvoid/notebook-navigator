@@ -255,7 +255,8 @@ function appReducer(state: AppState, action: AppAction, app: App, plugin: Notebo
                 break;
         }
         
-        debugLog.debug('AppContext: Dispatching action', logData);
+        // Commented out to reduce log verbosity - uncomment for detailed debugging
+        // debugLog.debug('AppContext: Dispatching action', logData);
     }
 
     switch (action.type) {
@@ -453,23 +454,26 @@ function appReducer(state: AppState, action: AppAction, app: App, plugin: Notebo
 function appReducerWithLogging(state: AppState, action: AppAction, app: App, plugin: NotebookNavigatorPlugin, isMobile: boolean): AppState {
     const newState = appReducer(state, action, app, plugin, isMobile);
     
-    // Log state changes if they occurred
+    // Log only important state changes to reduce verbosity
     if (state !== newState) {
-        debugLog.debug('AppContext: State changed', {
-            action: action.type,
-            changes: {
-                selectionType: state.selectionType !== newState.selectionType ? `${state.selectionType} → ${newState.selectionType}` : undefined,
-                selectedFolder: state.selectedFolder?.path !== newState.selectedFolder?.path ? `${state.selectedFolder?.path} → ${newState.selectedFolder?.path}` : undefined,
-                selectedTag: state.selectedTag !== newState.selectedTag ? `${state.selectedTag} → ${newState.selectedTag}` : undefined,
-                selectedFile: state.selectedFile?.path !== newState.selectedFile?.path ? `${state.selectedFile?.path} → ${newState.selectedFile?.path}` : undefined,
-                focusedPane: state.focusedPane !== newState.focusedPane ? `${state.focusedPane} → ${newState.focusedPane}` : undefined,
-                currentMobileView: state.currentMobileView !== newState.currentMobileView ? `${state.currentMobileView} → ${newState.currentMobileView}` : undefined,
-                expandedFoldersCount: state.expandedFolders.size !== newState.expandedFolders.size ? `${state.expandedFolders.size} → ${newState.expandedFolders.size}` : undefined,
-                expandedTagsCount: state.expandedTags.size !== newState.expandedTags.size ? `${state.expandedTags.size} → ${newState.expandedTags.size}` : undefined,
-                scrollToFolderIndex: state.scrollToFolderIndex !== newState.scrollToFolderIndex ? `${state.scrollToFolderIndex} → ${newState.scrollToFolderIndex}` : undefined,
-                scrollToFileIndex: state.scrollToFileIndex !== newState.scrollToFileIndex ? `${state.scrollToFileIndex} → ${newState.scrollToFileIndex}` : undefined,
-            }
-        });
+        // Only log selection and view changes, not expansion or scroll index changes
+        const hasImportantChange = 
+            state.selectionType !== newState.selectionType ||
+            state.selectedFolder?.path !== newState.selectedFolder?.path ||
+            state.selectedTag !== newState.selectedTag ||
+            state.currentMobileView !== newState.currentMobileView;
+            
+        if (hasImportantChange) {
+            debugLog.debug('AppContext: State changed', {
+                action: action.type,
+                changes: {
+                    selectionType: state.selectionType !== newState.selectionType ? `${state.selectionType} → ${newState.selectionType}` : undefined,
+                    selectedFolder: state.selectedFolder?.path !== newState.selectedFolder?.path ? `${state.selectedFolder?.path} → ${newState.selectedFolder?.path}` : undefined,
+                    selectedTag: state.selectedTag !== newState.selectedTag ? `${state.selectedTag} → ${newState.selectedTag}` : undefined,
+                    currentMobileView: state.currentMobileView !== newState.currentMobileView ? `${state.currentMobileView} → ${newState.currentMobileView}` : undefined,
+                }
+            });
+        }
     }
     
     return newState;

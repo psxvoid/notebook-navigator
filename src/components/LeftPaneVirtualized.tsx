@@ -1,4 +1,4 @@
-import React, { useMemo, useRef, useEffect, useCallback } from 'react';
+import React, { useMemo, useRef, useEffect, useLayoutEffect, useCallback, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { TFolder, TFile, App, getAllTags, Platform } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
@@ -39,16 +39,6 @@ export const LeftPaneVirtualized: React.FC = () => {
         }
     }, [plugin.settings.debugMobile]);
     
-    // Log selection changes only if debug is enabled
-    useEffect(() => {
-        if (Platform.isMobile && plugin.settings.debugMobile) {
-            debugLog.debug('LeftPaneVirtualized: Selection changed', {
-                selectionType: appState.selectionType,
-                selectedFolder: appState.selectedFolder?.path,
-                selectedTag: appState.selectedTag
-            });
-        }
-    }, [appState.selectionType, appState.selectedFolder?.path, appState.selectedTag, plugin.settings.debugMobile]);
     
     // Get root folders to display
     const rootFolders = useMemo(() => {
@@ -184,68 +174,70 @@ export const LeftPaneVirtualized: React.FC = () => {
         }
     }, [appState.scrollToFolderIndex, rowVirtualizer, dispatch, isMobile]);
     
-    // Track the last mobile view to detect when returning to list
-    const lastMobileViewRef = useRef(appState.currentMobileView);
     
-    // Handle scroll when selected folder or tag changes (for manual selection and auto-reveal)
+    // Mobile: Scroll to selected item when view is active
+    // This ensures scrolling happens before the view transition completes
+    useLayoutEffect(() => {
+        // Only run on mobile when list view is active
+        if (!isMobile || appState.currentMobileView !== 'list') {
+            return;
+        }
+        
+        // Don't scroll if we don't have virtualizer yet
+        if (!scrollContainerRef.current || !rowVirtualizer) {
+            return;
+        }
+        
+        let actualIndex = -1;
+        
+        if (appState.selectionType === 'folder' && appState.selectedFolder) {
+            // Find the folder in the items array
+            actualIndex = items.findIndex(item => 
+                item.type === 'folder' && item.data.path === appState.selectedFolder?.path
+            );
+        } else if (appState.selectionType === 'tag' && appState.selectedTag) {
+            // Find the tag in the items array
+            actualIndex = items.findIndex(item => {
+                if (item.type === 'tag' || item.type === 'untagged') {
+                    const tagNode = item.data as TagTreeNode;
+                    return tagNode.path === appState.selectedTag;
+                }
+                return false;
+            });
+        }
+        
+        if (actualIndex >= 0) {
+            // Scroll immediately
+            rowVirtualizer.scrollToIndex(actualIndex, {
+                align: 'center',
+                behavior: 'auto'
+            });
+        }
+    }, [isMobile, appState.currentMobileView, appState.selectedFolder?.path, appState.selectedTag, appState.selectionType, rowVirtualizer, items]);
+    
+    // Desktop: Scroll when selection changes
     useEffect(() => {
-        if (rowVirtualizer && items.length > 0) {
-            // On mobile, only scroll when the list view is active
-            if (isMobile && appState.currentMobileView !== 'list') {
-                lastMobileViewRef.current = appState.currentMobileView;
-                return;
-            }
+        if (isMobile || !scrollContainerRef.current || !rowVirtualizer) {
+            return;
+        }
+        
+        let actualIndex = -1;
+        let currentPath: string | null = null;
+        
+        if (appState.selectionType === 'folder' && appState.selectedFolder) {
+            currentPath = appState.selectedFolder.path;
             
-            let actualIndex = -1;
-            let currentPath: string | null = null;
-            let shouldScroll = false;
-            
-            if (appState.selectionType === 'folder' && appState.selectedFolder) {
-                currentPath = appState.selectedFolder.path;
-                
-                // On mobile: scroll when returning to list view or path changed
-                if (isMobile) {
-                    const returningToList = lastMobileViewRef.current !== 'list' && appState.currentMobileView === 'list';
-                    const pathChanged = lastScrolledPath.current !== currentPath;
-                    shouldScroll = returningToList || pathChanged;
-                } else {
-                    // Desktop: only scroll if path changed
-                    shouldScroll = lastScrolledPath.current !== currentPath;
-                }
-                
-                if (!shouldScroll) {
-                    return;
-                }
-                
-                // Find the folder directly in the items array
+            // Only scroll if path changed
+            if (lastScrolledPath.current !== currentPath) {
                 actualIndex = items.findIndex(item => 
                     item.type === 'folder' && item.data.path === appState.selectedFolder?.path
                 );
-                if (actualIndex >= 0 && Platform.isMobile && plugin.settings.debugMobile) {
-                    debugLog.debug('LeftPaneVirtualized: Scrolling to folder', {
-                        folder: appState.selectedFolder.path,
-                        index: actualIndex,
-                        currentView: appState.currentMobileView
-                    });
-                }
-            } else if (appState.selectionType === 'tag' && appState.selectedTag) {
-                currentPath = appState.selectedTag;
-                
-                // On mobile: scroll when returning to list view or path changed
-                if (isMobile) {
-                    const returningToList = lastMobileViewRef.current !== 'list' && appState.currentMobileView === 'list';
-                    const pathChanged = lastScrolledPath.current !== currentPath;
-                    shouldScroll = returningToList || pathChanged;
-                } else {
-                    // Desktop: only scroll if path changed
-                    shouldScroll = lastScrolledPath.current !== currentPath;
-                }
-                
-                if (!shouldScroll) {
-                    return;
-                }
-                
-                // Find the tag in the items array
+            }
+        } else if (appState.selectionType === 'tag' && appState.selectedTag) {
+            currentPath = appState.selectedTag;
+            
+            // Only scroll if path changed
+            if (lastScrolledPath.current !== currentPath) {
                 actualIndex = items.findIndex(item => {
                     if (item.type === 'tag' || item.type === 'untagged') {
                         const tagNode = item.data as TagTreeNode;
@@ -254,50 +246,18 @@ export const LeftPaneVirtualized: React.FC = () => {
                     return false;
                 });
             }
-            
-            if (actualIndex >= 0 && currentPath) {
-                lastScrolledPath.current = currentPath;
-                lastMobileViewRef.current = appState.currentMobileView;
-                
-                if (Platform.isMobile && plugin.settings.debugMobile) {
-                    debugLog.info('LeftPaneVirtualized: Mobile scroll to selected item', {
-                        path: currentPath,
-                        index: actualIndex,
-                        currentView: appState.currentMobileView
-                    });
-                }
-                
-                // Use requestAnimationFrame on mobile for smoother scrolling
-                if (isMobile) {
-                    requestAnimationFrame(() => {
-                        if (rowVirtualizer) {
-                            scrollVirtualItemIntoView(
-                                rowVirtualizer, 
-                                actualIndex,
-                                'auto',
-                                3,
-                                false,
-                                'center'
-                            );
-                        }
-                    });
-                } else {
-                    const cleanup = scrollVirtualItemIntoView(
-                        rowVirtualizer, 
-                        actualIndex,
-                        'auto',
-                        3,
-                        false,
-                        'auto'
-                    );
-                    return cleanup;
-                }
-            }
         }
-    }, [appState.selectedFolder?.path, appState.selectedTag, appState.selectionType, rowVirtualizer, isMobile, items, appState.currentMobileView]);
-    
-    // Remove the IntersectionObserver effect that was causing infinite scrolling
-    // The scrolling is already handled by the effect above (lines 187-223)
+        
+        if (actualIndex >= 0 && currentPath) {
+            lastScrolledPath.current = currentPath;
+            
+            // Scroll immediately for desktop
+            rowVirtualizer.scrollToIndex(actualIndex, {
+                align: 'center',
+                behavior: 'auto'
+            });
+        }
+    }, [isMobile, appState.selectedFolder?.path, appState.selectedTag, appState.selectionType, rowVirtualizer, items]);
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({

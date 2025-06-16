@@ -65,15 +65,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         }
     }, [plugin.settings.debugMobile]);
     
-    // Log mobile view changes only if debug is enabled
-    useEffect(() => {
-        if (Platform.isMobile && plugin.settings.debugMobile) {
-            debugLog.debug('NotebookNavigatorComponent: Mobile view changed', {
-                currentView: appState.currentMobileView,
-                isMobile
-            });
-        }
-    }, [appState.currentMobileView, plugin.settings.debugMobile]);
     
     // Enable drag and drop only on desktop
     useDragAndDrop(containerRef);
@@ -139,9 +130,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         if (!container) return;
 
         const handleFocus = () => {
-            if (Platform.isMobile && plugin.settings.debugMobile) {
-                debugLog.debug('NotebookNavigatorComponent: Focus gained');
-            }
             setIsNavigatorFocused(true);
         };
 
@@ -149,9 +137,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             // Check if focus is moving within the navigator
             if (e.relatedTarget && container.contains(e.relatedTarget as Node)) {
                 return;
-            }
-            if (Platform.isMobile && plugin.settings.debugMobile) {
-                debugLog.debug('NotebookNavigatorComponent: Focus lost');
             }
             setIsNavigatorFocused(false);
         };
