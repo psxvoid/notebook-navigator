@@ -304,6 +304,8 @@ npm run version   # Bump version
 
 The build outputs `main.js` in the project root using esbuild with TypeScript strict mode.
 
+**IMPORTANT**: Always run `npm run build` after making any code changes to ensure the plugin builds successfully before considering the task complete.
+
 ## Mobile Support
 
 ### Mobile-Specific Features
