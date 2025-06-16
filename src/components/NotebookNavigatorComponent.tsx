@@ -26,7 +26,7 @@ import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useSwipeGesture } from '../hooks/useSwipeGesture';
 import { isTFolder } from '../utils/typeGuards';
-import { STORAGE_KEYS, PANE_DIMENSIONS } from '../types';
+import { STORAGE_KEYS, PANE_DIMENSIONS, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 import { debugLog } from '../utils/debugLog';
 import { Platform } from 'obsidian';
 
@@ -223,6 +223,29 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         };
 
         const handleActiveLeafChange = (leaf: WorkspaceLeaf | null) => {
+            // Log view transitions on mobile
+            if (Platform.isMobile && plugin.settings.debugMobile && leaf) {
+                const viewType = leaf.view?.getViewType();
+                const isNavigator = viewType === VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT;
+                const isEditor = viewType === 'markdown' || viewType === 'canvas';
+                const leafLocation = leaf.getRoot() === app.workspace.rootSplit ? 'main' : 'sidebar';
+                
+                debugLog.info('NotebookNavigatorComponent: Active leaf changed', {
+                    viewType,
+                    isNavigator,
+                    isEditor,
+                    leafLocation,
+                    currentFile: (leaf.view as any)?.file?.path
+                });
+                
+                // Log specific transitions
+                if (isNavigator && leafLocation === 'sidebar') {
+                    debugLog.info('NotebookNavigatorComponent: Returned to file navigator');
+                } else if (isEditor && leafLocation === 'main') {
+                    debugLog.info('NotebookNavigatorComponent: Switched to editor view');
+                }
+            }
+            
             // Only trigger for leaves in the main editor area
             if (!leaf || leaf.getRoot() !== app.workspace.rootSplit) {
                 return;
@@ -247,10 +270,27 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
 
         const activeLeafEventRef = app.workspace.on('active-leaf-change', handleActiveLeafChange);
         const fileOpenEventRef = app.workspace.on('file-open', handleFileOpen);
+        
+        // Add layout change listener for mobile sidebar collapse/expand
+        const layoutChangeEventRef = app.workspace.on('layout-change', () => {
+            if (Platform.isMobile && plugin.settings.debugMobile) {
+                const leftSplit = app.workspace.leftSplit;
+                const isCollapsed = leftSplit?.collapsed;
+                debugLog.info('NotebookNavigatorComponent: Layout changed', {
+                    leftSidebarCollapsed: isCollapsed,
+                    activeView: app.workspace.activeLeaf?.view?.getViewType()
+                });
+                
+                if (!isCollapsed) {
+                    debugLog.info('NotebookNavigatorComponent: Sidebar expanded (returning to navigator)');
+                }
+            }
+        });
 
         return () => {
             app.workspace.offref(activeLeafEventRef);
             app.workspace.offref(fileOpenEventRef);
+            app.workspace.offref(layoutChangeEventRef);
         };
     }, [app.workspace, dispatch, plugin.settings.autoRevealActiveFile, plugin.settings.showNotesFromSubfolders, appState.selectedFile, appState.selectedFolder]);
 

@@ -202,6 +202,12 @@ export function FileList() {
         
         // Collapse left sidebar on mobile after opening file
         if (isMobile && app.workspace.leftSplit) {
+            if (plugin.settings.debugMobile) {
+                debugLog.info('FileList: Opening file in editor (collapsing sidebar)', {
+                    file: file.path,
+                    openInNewTab
+                });
+            }
             app.workspace.leftSplit.collapse();
         }
     }, [app.workspace, dispatch, isMobile]);
