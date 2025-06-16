@@ -862,6 +862,21 @@ export function FileList() {
         }
     }, [isMobile, appState.currentMobileView]);
     
+    // Reset scroll position when folder/tag changes on mobile
+    useLayoutEffect(() => {
+        if (!isMobile || !scrollContainerRef.current) return;
+        
+        // Reset scroll to top when folder or tag changes
+        scrollContainerRef.current.scrollTop = 0;
+        
+        if (Platform.isMobile && plugin.settings.debugMobile) {
+            debugLog.debug('FileList: Reset scroll position on folder/tag change', {
+                folder: selectedFolder?.path,
+                tag: selectedTag
+            });
+        }
+    }, [isMobile, selectedFolder?.path, selectedTag, plugin.settings.debugMobile]);
+    
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
         items: listItems,
