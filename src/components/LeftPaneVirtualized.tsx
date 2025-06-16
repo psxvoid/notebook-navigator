@@ -222,19 +222,9 @@ export const LeftPaneVirtualized: React.FC = () => {
         }
     }, [rowVirtualizer, isMobile, plugin.settings.debugMobile]); // Only depend on virtualizer being ready
     
-    // Track the previous mobile view to detect actual returns to list
-    const prevMobileViewRef = useRef(appState.currentMobileView);
-    
     // Mobile: Scroll when returning to list view
     useLayoutEffect(() => {
-        if (!isMobile) {
-            return;
-        }
-        
-        const isReturningToList = prevMobileViewRef.current !== 'list' && appState.currentMobileView === 'list';
-        prevMobileViewRef.current = appState.currentMobileView;
-        
-        if (!isReturningToList) {
+        if (!isMobile || appState.currentMobileView !== 'list') {
             return;
         }
         
@@ -259,19 +249,13 @@ export const LeftPaneVirtualized: React.FC = () => {
         }
         
         if (actualIndex >= 0) {
-            if (Platform.isMobile && plugin.settings.debugMobile) {
-                debugLog.info('LeftPaneVirtualized: Scrolling on return to list view', {
-                    index: actualIndex,
-                    path: appState.selectedFolder?.path || appState.selectedTag
-                });
-            }
             // Scroll immediately
             rowVirtualizer.scrollToIndex(actualIndex, {
                 align: 'center',
                 behavior: 'auto'
             });
         }
-    }, [isMobile, appState.currentMobileView, appState.selectedFolder?.path, appState.selectedTag, appState.selectionType, rowVirtualizer, items, plugin.settings.debugMobile]);
+    }, [isMobile, appState.currentMobileView, appState.selectedFolder?.path, appState.selectedTag, appState.selectionType, rowVirtualizer, items]);
     
     // Desktop: Scroll when selection changes
     useEffect(() => {
