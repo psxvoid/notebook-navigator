@@ -267,8 +267,14 @@ function appReducer(state: AppState, action: AppAction, app: App, plugin: Notebo
                 selectedTag: null
             };
 
-            // If a folder is being selected (not cleared) and auto-select is on (desktop only)
-            if (action.folder && plugin.settings.autoSelectFirstFile && !isMobile) {
+            // Mobile: Always clear file selection when changing folders
+            if (isMobile) {
+                // Clear selectedFile when changing folders on mobile
+                // This prevents stale file selections from other folders
+                newState.selectedFile = null;
+            } 
+            // Desktop: Handle auto-select first file if enabled
+            else if (action.folder && plugin.settings.autoSelectFirstFile) {
                 const filesInFolder = getFilesForFolder(action.folder, plugin.settings, app);
                 if (filesInFolder.length > 0) {
                     newState.selectedFile = filesInFolder[0]; // Select the first file
@@ -291,8 +297,12 @@ function appReducer(state: AppState, action: AppAction, app: App, plugin: Notebo
                 selectedFolder: null 
             };
 
-            // If a tag is being selected (not cleared) and auto-select is on (desktop only)
-            if (action.tag && plugin.settings.autoSelectFirstFile && !isMobile) {
+            // Mobile: Always clear file selection when changing tags
+            if (isMobile) {
+                newState.selectedFile = null;
+            }
+            // Desktop: Handle auto-select first file if enabled
+            else if (action.tag && plugin.settings.autoSelectFirstFile) {
                 const filesForTag = getFilesForTag(action.tag, plugin.settings, app);
                 if (filesForTag.length > 0) {
                     newState.selectedFile = filesForTag[0]; // Select the first file

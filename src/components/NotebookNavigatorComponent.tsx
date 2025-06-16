@@ -18,7 +18,7 @@
 
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState } from 'react';
-import { TFile, TFolder, WorkspaceLeaf } from 'obsidian';
+import { TFile, TFolder, WorkspaceLeaf, debounce, Platform } from 'obsidian';
 import { LeftPaneVirtualized } from './LeftPaneVirtualized';
 import { FileList } from './FileList';
 import { useAppContext } from '../context/AppContext';
@@ -28,7 +28,6 @@ import { useSwipeGesture } from '../hooks/useSwipeGesture';
 import { isTFolder } from '../utils/typeGuards';
 import { STORAGE_KEYS, PANE_DIMENSIONS, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 import { debugLog } from '../utils/debugLog';
-import { Platform } from 'obsidian';
 
 export interface NotebookNavigatorHandle {
     revealFile: (file: TFile) => void;
@@ -172,6 +171,13 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Track navigator interaction time for smarter auto-reveal
     const navigatorInteractionRef = useRef(0);
     
+    // Track last processed file to prevent duplicates on mobile
+    const lastProcessedFileRef = useRef<string | null>(null);
+    const lastProcessedTimeRef = useRef<number>(0);
+    
+    // Track sidebar state to filter out toggle events
+    const sidebarStateRef = useRef<boolean>(false);
+    
     // Add this useEffect to handle active leaf changes and file-open events
     useEffect(() => {
         if (!plugin.settings.autoRevealActiveFile) return;
@@ -223,26 +229,76 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         };
 
         const handleActiveLeafChange = (leaf: WorkspaceLeaf | null) => {
-            // Log view transitions on mobile
-            if (Platform.isMobile && plugin.settings.debugMobile && leaf) {
-                const viewType = leaf.view?.getViewType();
-                const isNavigator = viewType === VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT;
-                const isEditor = viewType === 'markdown' || viewType === 'canvas';
-                const leafLocation = leaf.getRoot() === app.workspace.rootSplit ? 'main' : 'sidebar';
+            // Mobile-specific optimizations
+            if (Platform.isMobile) {
+                // Early exit for sidebar events
+                if (leaf && leaf.getRoot() !== app.workspace.rootSplit) {
+                    if (plugin.settings.debugMobile) {
+                        debugLog.debug('NotebookNavigatorComponent: Ignoring sidebar leaf change');
+                    }
+                    return;
+                }
                 
-                debugLog.info('NotebookNavigatorComponent: Active leaf changed', {
-                    viewType,
-                    isNavigator,
-                    isEditor,
-                    leafLocation,
-                    currentFile: (leaf.view as any)?.file?.path
-                });
+                // Get current file from the leaf
+                const view = leaf?.view as any;
+                const currentFile = view?.file;
                 
-                // Log specific transitions
-                if (isNavigator && leafLocation === 'sidebar') {
-                    debugLog.info('NotebookNavigatorComponent: Returned to file navigator');
-                } else if (isEditor && leafLocation === 'main') {
-                    debugLog.info('NotebookNavigatorComponent: Switched to editor view');
+                // Check for duplicate events within 100ms window
+                if (currentFile instanceof TFile) {
+                    const now = Date.now();
+                    if (lastProcessedFileRef.current === currentFile.path && 
+                        (now - lastProcessedTimeRef.current) < 100) {
+                        if (plugin.settings.debugMobile) {
+                            debugLog.debug('NotebookNavigatorComponent: Skipping duplicate active-leaf event', {
+                                file: currentFile.path,
+                                timeDiff: now - lastProcessedTimeRef.current
+                            });
+                        }
+                        return;
+                    }
+                    lastProcessedFileRef.current = currentFile.path;
+                    lastProcessedTimeRef.current = now;
+                }
+                
+                // Log the event if debug is enabled
+                if (plugin.settings.debugMobile && leaf) {
+                    const viewType = leaf.view?.getViewType();
+                    const isNavigator = viewType === VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT;
+                    const isEditor = viewType === 'markdown' || viewType === 'canvas';
+                    
+                    debugLog.info('NotebookNavigatorComponent: Active leaf changed', {
+                        viewType,
+                        isNavigator,
+                        isEditor,
+                        leafLocation: 'main',
+                        currentFile: currentFile?.path
+                    });
+                    
+                    if (isEditor) {
+                        debugLog.info('NotebookNavigatorComponent: Switched to editor view');
+                    }
+                }
+            } else {
+                // Desktop behavior - log all transitions
+                if (plugin.settings.debugMobile && leaf) {
+                    const viewType = leaf.view?.getViewType();
+                    const isNavigator = viewType === VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT;
+                    const isEditor = viewType === 'markdown' || viewType === 'canvas';
+                    const leafLocation = leaf.getRoot() === app.workspace.rootSplit ? 'main' : 'sidebar';
+                    
+                    debugLog.info('NotebookNavigatorComponent: Active leaf changed', {
+                        viewType,
+                        isNavigator,
+                        isEditor,
+                        leafLocation,
+                        currentFile: (leaf.view as any)?.file?.path
+                    });
+                    
+                    if (isNavigator && leafLocation === 'sidebar') {
+                        debugLog.info('NotebookNavigatorComponent: Returned to file navigator');
+                    } else if (isEditor && leafLocation === 'main') {
+                        debugLog.info('NotebookNavigatorComponent: Switched to editor view');
+                    }
                 }
             }
             
@@ -268,28 +324,47 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             }
         };
 
-        const activeLeafEventRef = app.workspace.on('active-leaf-change', handleActiveLeafChange);
-        const fileOpenEventRef = app.workspace.on('file-open', handleFileOpen);
+        // Create debounced version for mobile to prevent duplicate events
+        const debouncedHandleActiveLeafChange = Platform.isMobile ? 
+            debounce(handleActiveLeafChange, 50, true) : 
+            handleActiveLeafChange;
+        
+        const activeLeafEventRef = app.workspace.on('active-leaf-change', debouncedHandleActiveLeafChange);
+        // Remove file-open listener on mobile - it's redundant with active-leaf-change
+        const fileOpenEventRef = Platform.isMobile ? null : app.workspace.on('file-open', handleFileOpen);
         
         // Add layout change listener for mobile sidebar collapse/expand
         const layoutChangeEventRef = app.workspace.on('layout-change', () => {
-            if (Platform.isMobile && plugin.settings.debugMobile) {
+            if (Platform.isMobile) {
                 const leftSplit = app.workspace.leftSplit;
-                const isCollapsed = leftSplit?.collapsed;
-                debugLog.info('NotebookNavigatorComponent: Layout changed', {
-                    leftSidebarCollapsed: isCollapsed,
-                    activeView: app.workspace.activeLeaf?.view?.getViewType()
-                });
+                const isCollapsed = leftSplit?.collapsed ?? false;
                 
-                if (!isCollapsed) {
-                    debugLog.info('NotebookNavigatorComponent: Sidebar expanded (returning to navigator)');
+                // Track sidebar state
+                sidebarStateRef.current = !isCollapsed;
+                
+                if (plugin.settings.debugMobile) {
+                    debugLog.info('NotebookNavigatorComponent: Layout changed', {
+                        leftSidebarCollapsed: isCollapsed,
+                        activeView: app.workspace.activeLeaf?.view?.getViewType()
+                    });
+                    
+                    if (!isCollapsed) {
+                        debugLog.info('NotebookNavigatorComponent: Sidebar expanded (returning to navigator)');
+                    }
                 }
             }
         });
 
         return () => {
+            // Cancel any pending debounced calls
+            if (Platform.isMobile && typeof (debouncedHandleActiveLeafChange as any).cancel === 'function') {
+                (debouncedHandleActiveLeafChange as any).cancel();
+            }
+            
             app.workspace.offref(activeLeafEventRef);
-            app.workspace.offref(fileOpenEventRef);
+            if (fileOpenEventRef) {
+                app.workspace.offref(fileOpenEventRef);
+            }
             app.workspace.offref(layoutChangeEventRef);
         };
     }, [app.workspace, dispatch, plugin.settings.autoRevealActiveFile, plugin.settings.showNotesFromSubfolders, appState.selectedFile, appState.selectedFolder]);
