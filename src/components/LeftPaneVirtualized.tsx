@@ -161,7 +161,9 @@ export const LeftPaneVirtualized: React.FC = () => {
             const item = items[index];
             if (item.type === 'tag-header') return 35; // Header height
             if (item.type === 'spacer') return spacerHeight; // Bottom spacer height
-            return 28; // Use a more accurate, consistent height
+            // Mobile has larger touch targets with min-height: 40px
+            // Desktop uses smaller heights for denser display
+            return isMobile ? 40 : 28;
         },
         overscan: 10,
     });
