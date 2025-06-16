@@ -184,16 +184,36 @@ export const LeftPaneVirtualized: React.FC = () => {
         }
     }, [appState.scrollToFolderIndex, rowVirtualizer, dispatch, isMobile]);
     
+    // Track the last mobile view to detect when returning to list
+    const lastMobileViewRef = useRef(appState.currentMobileView);
+    
     // Handle scroll when selected folder or tag changes (for manual selection and auto-reveal)
     useEffect(() => {
         if (rowVirtualizer && items.length > 0) {
+            // On mobile, only scroll when the list view is active
+            if (isMobile && appState.currentMobileView !== 'list') {
+                lastMobileViewRef.current = appState.currentMobileView;
+                return;
+            }
+            
             let actualIndex = -1;
             let currentPath: string | null = null;
+            let shouldScroll = false;
             
             if (appState.selectionType === 'folder' && appState.selectedFolder) {
                 currentPath = appState.selectedFolder.path;
-                // Skip if we've already scrolled to this path
-                if (lastScrolledPath.current === currentPath) {
+                
+                // On mobile: scroll when returning to list view or path changed
+                if (isMobile) {
+                    const returningToList = lastMobileViewRef.current !== 'list' && appState.currentMobileView === 'list';
+                    const pathChanged = lastScrolledPath.current !== currentPath;
+                    shouldScroll = returningToList || pathChanged;
+                } else {
+                    // Desktop: only scroll if path changed
+                    shouldScroll = lastScrolledPath.current !== currentPath;
+                }
+                
+                if (!shouldScroll) {
                     return;
                 }
                 
@@ -204,13 +224,24 @@ export const LeftPaneVirtualized: React.FC = () => {
                 if (actualIndex >= 0 && Platform.isMobile && plugin.settings.debugMobile) {
                     debugLog.debug('LeftPaneVirtualized: Scrolling to folder', {
                         folder: appState.selectedFolder.path,
-                        index: actualIndex
+                        index: actualIndex,
+                        currentView: appState.currentMobileView
                     });
                 }
             } else if (appState.selectionType === 'tag' && appState.selectedTag) {
                 currentPath = appState.selectedTag;
-                // Skip if we've already scrolled to this path
-                if (lastScrolledPath.current === currentPath) {
+                
+                // On mobile: scroll when returning to list view or path changed
+                if (isMobile) {
+                    const returningToList = lastMobileViewRef.current !== 'list' && appState.currentMobileView === 'list';
+                    const pathChanged = lastScrolledPath.current !== currentPath;
+                    shouldScroll = returningToList || pathChanged;
+                } else {
+                    // Desktop: only scroll if path changed
+                    shouldScroll = lastScrolledPath.current !== currentPath;
+                }
+                
+                if (!shouldScroll) {
                     return;
                 }
                 
@@ -226,18 +257,44 @@ export const LeftPaneVirtualized: React.FC = () => {
             
             if (actualIndex >= 0 && currentPath) {
                 lastScrolledPath.current = currentPath;
-                const cleanup = scrollVirtualItemIntoView(
-                    rowVirtualizer, 
-                    actualIndex,
-                    'auto',
-                    3,
-                    false,
-                    isMobile ? 'center' : 'auto'
-                );
-                return cleanup;
+                lastMobileViewRef.current = appState.currentMobileView;
+                
+                if (Platform.isMobile && plugin.settings.debugMobile) {
+                    debugLog.info('LeftPaneVirtualized: Mobile scroll to selected item', {
+                        path: currentPath,
+                        index: actualIndex,
+                        currentView: appState.currentMobileView
+                    });
+                }
+                
+                // Use requestAnimationFrame on mobile for smoother scrolling
+                if (isMobile) {
+                    requestAnimationFrame(() => {
+                        if (rowVirtualizer) {
+                            scrollVirtualItemIntoView(
+                                rowVirtualizer, 
+                                actualIndex,
+                                'auto',
+                                3,
+                                false,
+                                'center'
+                            );
+                        }
+                    });
+                } else {
+                    const cleanup = scrollVirtualItemIntoView(
+                        rowVirtualizer, 
+                        actualIndex,
+                        'auto',
+                        3,
+                        false,
+                        'auto'
+                    );
+                    return cleanup;
+                }
             }
         }
-    }, [appState.selectedFolder?.path, appState.selectedTag, appState.selectionType, rowVirtualizer, isMobile, items]);
+    }, [appState.selectedFolder?.path, appState.selectedTag, appState.selectionType, rowVirtualizer, isMobile, items, appState.currentMobileView]);
     
     // Remove the IntersectionObserver effect that was causing infinite scrolling
     // The scrolling is already handled by the effect above (lines 187-223)
