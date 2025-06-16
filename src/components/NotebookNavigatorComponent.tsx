@@ -175,6 +175,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 return;
             }
             
+            // On mobile, skip auto-reveal when the navigator is visible
+            if (isMobile && !app.workspace.leftSplit?.collapsed) {
+                return;
+            }
+            
             // Always update selected file if it's different
             if (appState.selectedFile?.path !== file.path) {
                 dispatch({ type: 'SET_SELECTED_FILE', file });
@@ -352,7 +357,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             }
             app.workspace.offref(layoutChangeEventRef);
         };
-    }, [app.workspace, dispatch, plugin.settings.autoRevealActiveFile, plugin.settings.showNotesFromSubfolders, appState.selectedFile, appState.selectedFolder]);
+    }, [app.workspace, dispatch, plugin.settings.autoRevealActiveFile, plugin.settings.showNotesFromSubfolders, appState.selectedFile, appState.selectedFolder, isMobile]);
 
     // Determine CSS classes for mobile view state
     const containerClasses = ['nn-split-container'];

@@ -175,15 +175,59 @@ export const LeftPaneVirtualized: React.FC = () => {
     }, [appState.scrollToFolderIndex, rowVirtualizer, dispatch, isMobile]);
     
     
-    // Mobile: Scroll to selected item when view is active
-    // This ensures scrolling happens before the view transition completes
+    // Mobile: Initial scroll position
+    // This effect runs once when virtualizer is ready to ensure correct initial position
     useLayoutEffect(() => {
-        // Only run on mobile when list view is active
+        if (!isMobile || !rowVirtualizer || !scrollContainerRef.current) {
+            return;
+        }
+        
+        // Only scroll on mount when list view is active
+        if (appState.currentMobileView !== 'list') {
+            return;
+        }
+        
+        let actualIndex = -1;
+        
+        if (appState.selectionType === 'folder' && appState.selectedFolder) {
+            actualIndex = items.findIndex(item => 
+                item.type === 'folder' && item.data.path === appState.selectedFolder?.path
+            );
+        } else if (appState.selectionType === 'tag' && appState.selectedTag) {
+            actualIndex = items.findIndex(item => {
+                if (item.type === 'tag' || item.type === 'untagged') {
+                    const tagNode = item.data as TagTreeNode;
+                    return tagNode.path === appState.selectedTag;
+                }
+                return false;
+            });
+        }
+        
+        if (actualIndex >= 0) {
+            if (Platform.isMobile && plugin.settings.debugMobile) {
+                debugLog.info('LeftPaneVirtualized: Initial scroll on mount', {
+                    index: actualIndex,
+                    path: appState.selectedFolder?.path || appState.selectedTag
+                });
+            }
+            // Use queueMicrotask to ensure this runs before any paint
+            queueMicrotask(() => {
+                if (rowVirtualizer && scrollContainerRef.current) {
+                    rowVirtualizer.scrollToIndex(actualIndex, {
+                        align: 'center',
+                        behavior: 'auto'
+                    });
+                }
+            });
+        }
+    }, [rowVirtualizer, isMobile, plugin.settings.debugMobile]); // Only depend on virtualizer being ready
+    
+    // Mobile: Scroll when returning to list view
+    useLayoutEffect(() => {
         if (!isMobile || appState.currentMobileView !== 'list') {
             return;
         }
         
-        // Don't scroll if we don't have virtualizer yet
         if (!scrollContainerRef.current || !rowVirtualizer) {
             return;
         }
@@ -191,12 +235,10 @@ export const LeftPaneVirtualized: React.FC = () => {
         let actualIndex = -1;
         
         if (appState.selectionType === 'folder' && appState.selectedFolder) {
-            // Find the folder in the items array
             actualIndex = items.findIndex(item => 
                 item.type === 'folder' && item.data.path === appState.selectedFolder?.path
             );
         } else if (appState.selectionType === 'tag' && appState.selectedTag) {
-            // Find the tag in the items array
             actualIndex = items.findIndex(item => {
                 if (item.type === 'tag' || item.type === 'untagged') {
                     const tagNode = item.data as TagTreeNode;
