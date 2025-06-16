@@ -16,8 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useMemo, useLayoutEffect, useCallback, useRef, useEffect } from 'react';
-import { TFile, TFolder, TAbstractFile, getAllTags } from 'obsidian';
+import React, { useMemo, useLayoutEffect, useCallback, useRef, useEffect, useState } from 'react';
+import { TFile, TFolder, TAbstractFile, getAllTags, Platform } from 'obsidian';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useAppContext } from '../context/AppContext';
 import { FileItem } from './FileItem';
@@ -35,7 +35,6 @@ import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigat
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
 import { debugLog } from '../utils/debugLog';
-import { Platform } from 'obsidian';
 
 /**
  * Collects all pinned note paths from settings
@@ -457,6 +456,20 @@ export function FileList() {
     // Track previous item count to detect when items are added
     const prevItemCountRef = useRef(listItems.length);
     
+    // Cache selected file path to avoid repeated property access
+    const selectedFilePath = appState.selectedFile?.path;
+    
+    // Create a map for O(1) file lookups
+    const filePathToIndex = useMemo(() => {
+        const map = new Map<string, number>();
+        listItems.forEach((item, index) => {
+            if (item.type === 'file') {
+                map.set((item.data as TFile).path, index);
+            }
+        });
+        return map;
+    }, [listItems]);
+    
     // Initialize virtualizer
     const rowVirtualizer = useVirtualizer({
         count: listItems.length,
@@ -576,20 +589,6 @@ export function FileList() {
         prevItemCountRef.current = currentCount;
     }, [listItems.length, isMobile, rowVirtualizer]);
     
-    // Cache selected file path to avoid repeated property access
-    const selectedFilePath = appState.selectedFile?.path;
-    
-    // Create a map for O(1) file lookups
-    const filePathToIndex = useMemo(() => {
-        const map = new Map<string, number>();
-        listItems.forEach((item, index) => {
-            if (item.type === 'file') {
-                map.set((item.data as TFile).path, index);
-            }
-        });
-        return map;
-    }, [listItems]);
-    
     // Create a unique key for storing scroll state based on current selection
     const scrollStateKey = useMemo(() => {
         if (selectionType === 'folder' && selectedFolder) {
@@ -635,46 +634,74 @@ export function FileList() {
     }, [isMobile, scrollStateKey, selectedFilePath]);
     */
     
-    // Mobile scroll solution - scroll to selected file when view appears
-    useEffect(() => {
-        if (!isMobile || appState.currentMobileView !== 'files' || !selectedFilePath) return;
+    // Mobile scroll to selected file when the view changes or file changes
+    const lastScrollKeyRef = useRef<string>('');
+    
+    useLayoutEffect(() => {
+        if (!isMobile || !selectedFilePath || appState.currentMobileView !== 'files') return;
+        
+        // Create a unique key for this scroll scenario
+        const scrollKey = `${appState.currentMobileView}-${selectedFilePath}`;
+        
+        // Skip if we already scrolled for this exact scenario
+        if (lastScrollKeyRef.current === scrollKey) return;
+        
+        if (Platform.isMobile && plugin.settings.debugMobile) {
+            debugLog.debug('FileList: Should scroll immediately', {
+                reason: 'view or file changed',
+                file: selectedFilePath
+            });
+        }
         
         const fileIndex = filePathToIndex.get(selectedFilePath);
         if (fileIndex === undefined || fileIndex < 0) return;
         
-        const attemptScroll = () => {
-            const container = scrollContainerRef.current;
-            if (!container || !rowVirtualizer) return;
+        // Scroll immediately when conditions are met
+        const scrollToFile = () => {
+            if (!scrollContainerRef.current || !rowVirtualizer) return;
             
-            // First, ensure the virtualizer has rendered items
             const virtualItems = rowVirtualizer.getVirtualItems();
             if (virtualItems.length === 0) {
-                // No items yet, virtualizer needs to initialize
-                requestAnimationFrame(attemptScroll);
+                // Wait for virtualizer to initialize
+                requestAnimationFrame(scrollToFile);
                 return;
             }
             
-            // Simply use the virtualizer's scrollToIndex which should work reliably
-            const totalItems = listItems.length;
-            let align: 'start' | 'center' | 'end' = 'center';
-            
-            if (fileIndex < 3) {
-                align = 'start';
-            } else if (fileIndex >= totalItems - 3) {
-                align = 'end';
-            }
-            
-            // Direct scroll using virtualizer
             rowVirtualizer.scrollToIndex(fileIndex, {
-                align: align,
+                align: 'center',
                 behavior: 'auto'
             });
+            
+            lastScrollKeyRef.current = scrollKey;
+            
+            if (Platform.isMobile && plugin.settings.debugMobile) {
+                debugLog.debug('FileList: Scrolled to selected file', {
+                    file: selectedFilePath,
+                    index: fileIndex
+                });
+            }
         };
         
-        // Use RAF to wait for render
-        requestAnimationFrame(attemptScroll);
+        // Execute immediately, no delays
+        scrollToFile();
         
-    }, [isMobile, appState.currentMobileView, selectedFilePath, filePathToIndex, rowVirtualizer, listItems.length]);
+    }, [isMobile, appState.currentMobileView, selectedFilePath, filePathToIndex, rowVirtualizer, plugin.settings.debugMobile]);
+    
+    // Listen for layout changes to reset scroll key when sidebar is hidden
+    useEffect(() => {
+        if (!isMobile) return;
+        
+        const handleLayoutChange = () => {
+            const isCollapsed = app.workspace.leftSplit?.collapsed ?? false;
+            if (isCollapsed) {
+                // Reset scroll key when sidebar is hidden so we scroll next time
+                lastScrollKeyRef.current = '';
+            }
+        };
+        
+        const eventRef = app.workspace.on('layout-change', handleLayoutChange);
+        return () => app.workspace.offref(eventRef);
+    }, [isMobile, app.workspace]);
     
     // Track scroll events and calculate velocity on mobile
     useEffect(() => {
@@ -801,6 +828,50 @@ export function FileList() {
             }
         }
     }, [isMobile, selectedFilePath, filePathToIndex, rowVirtualizer, listItems]);
+    
+    // Mobile: Scroll to selected file when view changes
+    const lastScrolledFileRef = useRef<string | null>(null);
+    
+    useLayoutEffect(() => {
+        if (!isMobile || appState.currentMobileView !== 'files' || !selectedFilePath || !scrollContainerRef.current) {
+            return;
+        }
+        
+        // Skip if we already scrolled to this file
+        if (lastScrolledFileRef.current === selectedFilePath) {
+            return;
+        }
+        
+        const selectedIndex = filePathToIndex.get(selectedFilePath);
+        if (selectedIndex === undefined) {
+            return;
+        }
+        
+        // Mark as scrolled immediately to prevent multiple attempts
+        lastScrolledFileRef.current = selectedFilePath;
+        
+        if (Platform.isMobile && plugin.settings.debugMobile) {
+            debugLog.info('FileList: Mobile scroll to selected file on view change', {
+                selectedFile: selectedFilePath,
+                selectedIndex,
+                currentView: appState.currentMobileView
+            });
+        }
+        
+        // Use requestAnimationFrame to ensure DOM is ready
+        requestAnimationFrame(() => {
+            if (scrollContainerRef.current && rowVirtualizer) {
+                scrollVirtualItemIntoView(rowVirtualizer, selectedIndex, 'auto');
+            }
+        });
+    }, [isMobile, appState.currentMobileView, selectedFilePath, filePathToIndex, rowVirtualizer]);
+    
+    // Reset when view changes away from files
+    useEffect(() => {
+        if (isMobile && appState.currentMobileView !== 'files') {
+            lastScrolledFileRef.current = null;
+        }
+    }, [isMobile, appState.currentMobileView]);
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
