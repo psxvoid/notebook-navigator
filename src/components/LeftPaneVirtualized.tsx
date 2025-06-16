@@ -311,7 +311,7 @@ export const LeftPaneVirtualized: React.FC = () => {
             
             // Scroll immediately for desktop
             rowVirtualizer.scrollToIndex(actualIndex, {
-                align: 'center',
+                align: 'auto',
                 behavior: 'auto'
             });
         }
