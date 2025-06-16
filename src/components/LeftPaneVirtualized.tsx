@@ -250,15 +250,87 @@ export const LeftPaneVirtualized: React.FC = () => {
         };
     }, [isMobile, app.workspace]);
 
+    // Trigger 3: Hybrid approach - detect visibility but scroll instantly
+    // We use IntersectionObserver to detect when becoming visible, but ensure
+    // the scroll happens instantly without visible motion
+    useEffect(() => {
+        if (!isMobile || !scrollContainerRef.current) return;
+
+        let hasScrolledForThisReturn = false;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    // When we start becoming visible (even 1%) and we were in editor
+                    if (entry.isIntersecting && wasInEditor.current && !hasScrolledForThisReturn) {
+                        // Mark that we've handled this return
+                        hasScrolledForThisReturn = true;
+                        wasInEditor.current = false;
+                        
+                        // Force immediate scroll
+                        const container = scrollContainerRef.current;
+                        if (container && rowVirtualizer && selectedPath) {
+                            const itemIndex = pathToIndex.get(selectedPath);
+                            if (itemIndex !== undefined) {
+                                // Scroll immediately without going through the effect
+                                rowVirtualizer.scrollToIndex(itemIndex, {
+                                    align: 'center',
+                                    behavior: 'instant' as any,
+                                });
+                                // Update tracking to prevent duplicate scrolls
+                                lastScrolledKey.current = `${selectedPath}-instant`;
+                                
+                                if (plugin.settings.debugMobile) {
+                                    debugLog.debug('LeftPaneVirtualized: Instant scroll on visibility', {
+                                        selectedPath,
+                                        itemIndex
+                                    });
+                                }
+                            }
+                        }
+                    } else if (!entry.isIntersecting) {
+                        // Reset when going off-screen
+                        hasScrolledForThisReturn = false;
+                    }
+                });
+            },
+            { threshold: 0.01 } // Trigger as early as possible
+        );
+
+        observer.observe(scrollContainerRef.current);
+
+        return () => {
+            observer.disconnect();
+        };
+    }, [isMobile, rowVirtualizer, selectedPath, pathToIndex, plugin.settings.debugMobile]);
+
     // The main scroll effect, triggered by state changes
     useLayoutEffect(() => {
         if (!isMobile || !selectedPath || appState.currentMobileView !== 'list') {
+            if (plugin.settings.debugMobile && isMobile) {
+                debugLog.debug('LeftPaneVirtualized: Scroll skipped', {
+                    hasSelectedPath: !!selectedPath,
+                    currentMobileView: appState.currentMobileView,
+                    reason: !selectedPath ? 'no selected path' : 
+                            appState.currentMobileView !== 'list' ? 'not in list view' : 'unknown'
+                });
+            }
             return;
         }
 
         const scrollKey = `${selectedPath}-${scrollTrigger}`;
-        if (lastScrolledKey.current === scrollKey) {
-            return; // Already scrolled for this exact state
+        const instantScrollKey = `${selectedPath}-instant`;
+        
+        // Skip if we already scrolled for this state OR if we just did an instant scroll
+        if (lastScrolledKey.current === scrollKey || lastScrolledKey.current === instantScrollKey) {
+            if (plugin.settings.debugMobile) {
+                debugLog.debug('LeftPaneVirtualized: Scroll skipped - already scrolled', { 
+                    scrollKey,
+                    lastScrollKey: lastScrolledKey.current,
+                    wasInstant: lastScrolledKey.current === instantScrollKey
+                });
+            }
+            return;
         }
 
         const itemIndex = pathToIndex.get(selectedPath);
@@ -267,16 +339,25 @@ export const LeftPaneVirtualized: React.FC = () => {
         }
 
         // The virtualizer might not be ready on first render.
-        // We use requestAnimationFrame to wait for the next paint.
-        requestAnimationFrame(() => {
-            if (scrollContainerRef.current && rowVirtualizer) {
-                rowVirtualizer.scrollToIndex(itemIndex, {
-                    align: 'center',
-                    behavior: 'auto',
+        // Use immediate scroll (no requestAnimationFrame) for instant positioning
+        if (scrollContainerRef.current && rowVirtualizer) {
+            if (plugin.settings.debugMobile) {
+                debugLog.debug('LeftPaneVirtualized: Scrolling to item', {
+                    selectedPath,
+                    itemIndex,
+                    scrollTrigger
                 });
-                lastScrolledKey.current = scrollKey;
             }
-        });
+            // Force immediate scroll without animation
+            rowVirtualizer.scrollToIndex(itemIndex, {
+                align: 'center',
+                behavior: 'instant' as any, // Use instant to avoid animation
+            });
+            lastScrolledKey.current = scrollKey;
+            
+            // Force a synchronous layout to ensure scroll completes before render
+            scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollTop;
+        }
 
     }, [isMobile, selectedPath, appState.currentMobileView, scrollTrigger, pathToIndex, rowVirtualizer]);
     
