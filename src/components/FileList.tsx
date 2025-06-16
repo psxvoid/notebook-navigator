@@ -422,10 +422,17 @@ export function FileList() {
      * 
      * Problem: On mobile, when items are added to the top of a virtualized list during 
      * momentum scrolling (inertia scrolling), the browser stops the scroll abruptly.
+     * This happens because the DOM changes under the user's finger, breaking the native
+     * scroll behavior.
      * 
      * Solution: We track scroll state, velocity, and item count changes. When new items
      * are added during scrolling, we calculate their height and adjust the scroll position
      * to maintain visual continuity without interrupting the momentum.
+     * 
+     * Mobile-specific because:
+     * - Desktop uses mouse wheel or scrollbar, which don't have momentum
+     * - Mobile touch scrolling has native momentum that we need to preserve
+     * - The issue only manifests on mobile devices with touch interfaces
      */
     const scrollStateRef = useRef({
         isScrolling: false,
@@ -624,15 +631,23 @@ export function FileList() {
     */
     
     // Mobile scroll to selected file when the view changes or file changes
+    // This is one of the key mobile-specific behaviors:
+    // - On desktop: We scroll when file selection changes (user clicks)
+    // - On mobile: We scroll when the files view appears (user navigates back from editor)
+    // 
+    // The lastScrollKeyRef prevents duplicate scrolls for the same view+file combination,
+    // which is important because mobile can trigger multiple layout effects when switching views
     const lastScrollKeyRef = useRef<string>('');
     
     useLayoutEffect(() => {
         if (!isMobile || !selectedFilePath || appState.currentMobileView !== 'files') return;
         
         // Create a unique key for this scroll scenario
+        // This key combines view state and file to ensure we only scroll once per unique state
         const scrollKey = `${appState.currentMobileView}-${selectedFilePath}`;
         
         // Skip if we already scrolled for this exact scenario
+        // This prevents jarring repeated scrolls when the component re-renders
         if (lastScrollKeyRef.current === scrollKey) return;
         
         if (Platform.isMobile && plugin.settings.debugMobile) {
@@ -677,6 +692,10 @@ export function FileList() {
     }, [isMobile, appState.currentMobileView, selectedFilePath, filePathToIndex, rowVirtualizer, plugin.settings.debugMobile]);
     
     // Listen for layout changes to reset scroll key when sidebar is hidden
+    // Mobile-specific: When the user opens a file (collapsing the sidebar), we need
+    // to reset our scroll tracking so that when they return to the file list,
+    // we'll scroll to the selected file again. This creates a consistent experience
+    // where the selected file is always visible when returning from the editor.
     useEffect(() => {
         if (!isMobile) return;
         
@@ -684,6 +703,7 @@ export function FileList() {
             const isCollapsed = app.workspace.leftSplit?.collapsed ?? false;
             if (isCollapsed) {
                 // Reset scroll key when sidebar is hidden so we scroll next time
+                // This ensures the file list shows the selected file when reopened
                 lastScrollKeyRef.current = '';
             }
         };
@@ -819,6 +839,9 @@ export function FileList() {
     }, [isMobile, selectedFilePath, filePathToIndex, rowVirtualizer, listItems]);
     
     // Mobile: Scroll to selected file when view changes
+    // This is a backup scroll mechanism for mobile that ensures the selected file
+    // is visible when switching to the files view. It's separate from the main
+    // scroll logic above to handle edge cases where the initial scroll might fail.
     const lastScrolledFileRef = useRef<string | null>(null);
     
     useLayoutEffect(() => {
@@ -827,6 +850,7 @@ export function FileList() {
         }
         
         // Skip if we already scrolled to this file
+        // This ref tracks which file we last scrolled to, preventing duplicate scrolls
         if (lastScrolledFileRef.current === selectedFilePath) {
             return;
         }
@@ -837,6 +861,7 @@ export function FileList() {
         }
         
         // Mark as scrolled immediately to prevent multiple attempts
+        // This is important because the effect might fire multiple times
         lastScrolledFileRef.current = selectedFilePath;
         
         if (Platform.isMobile && plugin.settings.debugMobile) {
@@ -856,6 +881,9 @@ export function FileList() {
     }, [isMobile, appState.currentMobileView, selectedFilePath, filePathToIndex, rowVirtualizer]);
     
     // Reset when view changes away from files
+    // Mobile-specific: When we navigate away from the files view (back to folders/tags),
+    // we clear our scroll tracking. This ensures that when we return to the files view,
+    // we'll scroll to the selected file again, even if it's the same file as before.
     useEffect(() => {
         if (isMobile && appState.currentMobileView !== 'files') {
             lastScrolledFileRef.current = null;
@@ -863,10 +891,14 @@ export function FileList() {
     }, [isMobile, appState.currentMobileView]);
     
     // Reset scroll position when folder/tag changes
+    // This ensures a consistent experience where each folder/tag starts at the top
+    // Mobile-specific timing: We use useLayoutEffect to reset scroll before paint,
+    // preventing a flash of the old scroll position
     useLayoutEffect(() => {
         if (!scrollContainerRef.current) return;
         
         // Reset scroll to top when folder or tag changes
+        // This gives users a predictable starting point for each new list
         scrollContainerRef.current.scrollTop = 0;
         
         if (plugin.settings.debugMobile) {

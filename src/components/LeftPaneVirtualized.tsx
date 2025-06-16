@@ -22,11 +22,19 @@ export const LeftPaneVirtualized: React.FC = () => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const spacerHeight = isMobile ? 40 : 25; // More space on mobile
     const lastScrolledPath = useRef<string | null>(null);
+    
     // Track expanded folders size to detect expand/collapse actions on mobile
-    // This is only needed on mobile because:
-    // - Mobile scrolls to selected item whenever the view appears (from edit view)
-    // - We need to differentiate between "view appearing" vs "folder expand/collapse"
-    // - Desktop doesn't have this issue as it only scrolls on selection changes
+    // This is a critical mobile-specific optimization that solves a UX problem:
+    // 
+    // Problem: On mobile, we want to scroll to the selected folder when returning
+    // from the file editor, but NOT when the user is just expanding/collapsing folders.
+    // Both actions trigger the same currentMobileView === 'list' condition.
+    // 
+    // Solution: Track the size of expandedFolders. If it changes, we know the user
+    // expanded/collapsed a folder and we should skip scrolling. If it stays the same,
+    // we're returning from the editor and should scroll to show the selected item.
+    // 
+    // Desktop doesn't need this because it scrolls on selection change, not view appearance.
     const prevExpandedFoldersSize = useRef(isMobile ? appState.expandedFolders.size : 0);
     
     // Log component mount/unmount only if debug is enabled
@@ -183,6 +191,13 @@ export const LeftPaneVirtualized: React.FC = () => {
     
     // Mobile: Initial scroll position
     // This effect runs once when virtualizer is ready to ensure correct initial position
+    // 
+    // Mobile needs this separate initial scroll because:
+    // - The virtualizer might not be ready when the component first mounts
+    // - We need to ensure the selected item is visible immediately when opening the app
+    // - This only runs once on mount (dependency on just rowVirtualizer)
+    // 
+    // Desktop handles this differently through selection change effects
     useLayoutEffect(() => {
         if (!isMobile || !rowVirtualizer || !scrollContainerRef.current) {
             return;
@@ -229,15 +244,25 @@ export const LeftPaneVirtualized: React.FC = () => {
     }, [rowVirtualizer, isMobile, plugin.settings.debugMobile]); // Only depend on virtualizer being ready
     
     // Mobile: Scroll when returning to list view
+    // This is the main mobile scroll handler that ensures the selected folder/tag
+    // is visible when the user returns from viewing files or editing a note.
+    // 
+    // The key challenge: We need to scroll when returning from the editor, but NOT
+    // when the user is just browsing (expanding/collapsing folders). Both scenarios
+    // have currentMobileView === 'list', so we use the expandedFolders size trick.
     useLayoutEffect(() => {
         if (!isMobile || appState.currentMobileView !== 'list') {
             return;
         }
         
         // Skip scroll if we're just expanding/collapsing folders (mobile only)
-        // Mobile needs this check because it scrolls every time currentMobileView === 'list'
-        // This includes both: returning from edit view AND expanding/collapsing folders
-        // By tracking expandedFolders size changes, we can skip the unwanted scrolls
+        // This is the heart of the mobile scroll logic:
+        // 1. User expands folder → expandedFolders.size changes → skip scroll
+        // 2. User returns from editor → expandedFolders.size unchanged → scroll to selected
+        // 
+        // This creates the ideal UX where:
+        // - Expanding folders doesn't jump around
+        // - Returning from editor shows your current location
         if (isMobile) {
             const expandedSizeChanged = prevExpandedFoldersSize.current !== appState.expandedFolders.size;
             prevExpandedFoldersSize.current = appState.expandedFolders.size;
@@ -279,6 +304,15 @@ export const LeftPaneVirtualized: React.FC = () => {
     }, [isMobile, appState.currentMobileView, appState.selectedFolder?.path, appState.selectedTag, appState.selectionType, rowVirtualizer, items]);
     
     // Desktop: Scroll when selection changes
+    // Desktop has a simpler model than mobile:
+    // - Scroll whenever the selected folder/tag changes
+    // - Use lastScrolledPath to prevent duplicate scrolls
+    // - No need to worry about view states or expand/collapse
+    // 
+    // This creates the desktop experience where:
+    // - Clicking a folder scrolls it into view if needed
+    // - The scroll is immediate and direct
+    // - No complex state tracking required
     useEffect(() => {
         if (isMobile || !scrollContainerRef.current || !rowVirtualizer) {
             return;

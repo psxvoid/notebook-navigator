@@ -45,7 +45,12 @@ export interface AppState {
     expandedTags: Set<string>;
     /** Which pane currently has keyboard focus */
     focusedPane: 'folders' | 'files';
-    /** Current view on mobile devices - 'list' for folder/tags, 'files' for file list */
+    /** 
+     * Current view on mobile devices - 'list' for folder/tags, 'files' for file list
+     * Mobile uses a single-pane view that switches between folder/tag list and file list.
+     * This state tracks which view is currently active, enabling the back navigation
+     * and proper scroll restoration when switching views.
+     */
     currentMobileView: 'list' | 'files';
     /** Index to scroll to in folder tree (null when not scrolling) */
     scrollToFolderIndex: number | null;
@@ -153,8 +158,12 @@ function loadStateFromStorage(app: App): AppState {
     }
     
     // Load mobile view state - always default to 'list' for better UX
+    // Mobile-specific: We always start with the folder/tag list view visible.
+    // We intentionally don't persist this state because:
+    // 1. Users expect to see folders when opening the app
+    // 2. Prevents confusion when switching between mobile and desktop
+    // 3. Ensures consistent starting experience
     const currentMobileView = 'list' as 'list' | 'files';
-    // Note: We don't persist mobile view to avoid confusion when switching platforms
     
     return {
         selectionType: 'folder',
@@ -269,9 +278,11 @@ function appReducer(state: AppState, action: AppAction, app: App, plugin: Notebo
             };
 
             // Mobile: Always clear file selection when changing folders
+            // This is a critical mobile-specific behavior that prevents confusing states:
+            // - Without this, selectedFile could be from a different folder
+            // - This would cause the file list to try to scroll to a non-existent file
+            // - Clearing ensures clean state when navigating between folders
             if (isMobile) {
-                // Clear selectedFile when changing folders on mobile
-                // This prevents stale file selections from other folders
                 newState.selectedFile = null;
             } 
             // Desktop: Handle auto-select first file if enabled
@@ -299,6 +310,8 @@ function appReducer(state: AppState, action: AppAction, app: App, plugin: Notebo
             };
 
             // Mobile: Always clear file selection when changing tags
+            // Same reasoning as for folders - prevents stale file selections
+            // when switching between different tag views
             if (isMobile) {
                 newState.selectedFile = null;
             }
@@ -430,6 +443,10 @@ function appReducer(state: AppState, action: AppAction, app: App, plugin: Notebo
         
         case 'SET_MOBILE_VIEW': {
             // Update the current mobile view
+            // This action is dispatched when:
+            // - User clicks a folder/tag (switches to 'files' view)
+            // - User clicks back button (switches to 'list' view)
+            // - User swipes from edge (switches to 'list' view)
             return { ...state, currentMobileView: action.view };
         }
         
@@ -629,6 +646,7 @@ export function AppProvider({ children, plugin, isMobile = false }: { children: 
         saveToStorage(STORAGE_KEYS.selectedFileKey, appState.selectedFile?.path);
         
         // Note: We don't persist currentMobileView to always start fresh on mobile
+        // This is intentional - users expect to see the folder list when opening the app
     }, [appState.expandedFolders, appState.expandedTags, appState.selectedFolder, appState.selectedFile]);
 
     const contextValue = useMemo(() => ({
