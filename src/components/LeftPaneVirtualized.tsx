@@ -259,8 +259,6 @@ export const LeftPaneVirtualized: React.FC = () => {
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
-                    // When we start becoming visible (even 1%) and we were in editor
-                    // AND we're actually in the list view (not during a cancelled swipe)
                     if (entry.isIntersecting && wasInEditor.current && appState.currentMobileView === 'list') {
                         // Important: Reset wasInEditor AFTER checking it
                         wasInEditor.current = false;
@@ -288,6 +286,19 @@ export const LeftPaneVirtualized: React.FC = () => {
                                 }
                             }
                         }
+                    } else if (!entry.isIntersecting && !wasInEditor.current) {
+                        // If we become hidden again and wasInEditor was reset, restore it
+                        // This handles the case where user cancels the swipe
+                        const activeView = app.workspace.getActiveViewOfType(View);
+                        const viewType = activeView?.getViewType();
+                        const inEditor = viewType === 'markdown' || viewType === 'canvas';
+                        
+                        if (inEditor) {
+                            wasInEditor.current = true;
+                            if (plugin.settings.debugMobile) {
+                                debugLog.debug('LeftPaneVirtualized: Restored wasInEditor after cancelled swipe');
+                            }
+                        }
                     }
                 });
             },
@@ -299,7 +310,7 @@ export const LeftPaneVirtualized: React.FC = () => {
         return () => {
             observer.disconnect();
         };
-    }, [isMobile, rowVirtualizer, selectedPath, pathToIndex, plugin.settings.debugMobile, appState.currentMobileView]);
+    }, [isMobile, rowVirtualizer, selectedPath, pathToIndex, plugin.settings.debugMobile, appState.currentMobileView, app.workspace]);
 
     // The main scroll effect, triggered by state changes
     useLayoutEffect(() => {
