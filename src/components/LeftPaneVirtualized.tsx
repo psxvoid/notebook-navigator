@@ -21,6 +21,7 @@ export const LeftPaneVirtualized: React.FC = () => {
     const { app, plugin, appState, dispatch, refreshCounter, isMobile } = useAppContext();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const spacerHeight = isMobile ? 40 : 25; // More space on mobile
+    const lastScrolledPath = useRef<string | null>(null);
     
     // Log component mount/unmount only if debug is enabled
     useEffect(() => {
@@ -185,19 +186,34 @@ export const LeftPaneVirtualized: React.FC = () => {
     
     // Handle scroll when selected folder or tag changes (for manual selection and auto-reveal)
     useEffect(() => {
-        if (rowVirtualizer) {
+        if (rowVirtualizer && items.length > 0) {
             let actualIndex = -1;
+            let currentPath: string | null = null;
             
             if (appState.selectionType === 'folder' && appState.selectedFolder) {
+                currentPath = appState.selectedFolder.path;
+                // Skip if we've already scrolled to this path
+                if (lastScrolledPath.current === currentPath) {
+                    return;
+                }
+                
                 // Find the folder directly in the items array
                 actualIndex = items.findIndex(item => 
                     item.type === 'folder' && item.data.path === appState.selectedFolder?.path
                 );
-                debugLog.debug('LeftPaneVirtualized: Scrolling to folder', {
-                    folder: appState.selectedFolder.path,
-                    index: actualIndex
-                });
+                if (actualIndex >= 0 && Platform.isMobile && plugin.settings.debugMobile) {
+                    debugLog.debug('LeftPaneVirtualized: Scrolling to folder', {
+                        folder: appState.selectedFolder.path,
+                        index: actualIndex
+                    });
+                }
             } else if (appState.selectionType === 'tag' && appState.selectedTag) {
+                currentPath = appState.selectedTag;
+                // Skip if we've already scrolled to this path
+                if (lastScrolledPath.current === currentPath) {
+                    return;
+                }
+                
                 // Find the tag in the items array
                 actualIndex = items.findIndex(item => {
                     if (item.type === 'tag' || item.type === 'untagged') {
@@ -208,7 +224,8 @@ export const LeftPaneVirtualized: React.FC = () => {
                 });
             }
             
-            if (actualIndex >= 0) {
+            if (actualIndex >= 0 && currentPath) {
+                lastScrolledPath.current = currentPath;
                 const cleanup = scrollVirtualItemIntoView(
                     rowVirtualizer, 
                     actualIndex,
@@ -220,70 +237,10 @@ export const LeftPaneVirtualized: React.FC = () => {
                 return cleanup;
             }
         }
-    }, [appState.selectedFolder, appState.selectedTag, appState.selectionType, items, rowVirtualizer, isMobile]);
+    }, [appState.selectedFolder?.path, appState.selectedTag, appState.selectionType, rowVirtualizer, isMobile, items]);
     
-    // Use IntersectionObserver to detect when the pane becomes visible
-    useEffect(() => {
-        const scrollContainer = scrollContainerRef.current;
-        if (!scrollContainer) return;
-
-        // This callback fires when the pane's visibility changes
-        const observerCallback = (entries: IntersectionObserverEntry[]) => {
-            const [entry] = entries;
-            // Exit if the pane is not visible
-            if (!entry.isIntersecting) return;
-
-
-            let index = -1;
-            const { selectionType, selectedFolder, selectedTag } = appState;
-
-            // Case 1: A folder is selected
-            if (selectionType === 'folder' && selectedFolder) {
-                index = items.findIndex(item =>
-                    item.type === 'folder' && item.data.path === selectedFolder.path
-                );
-            // Case 2: A tag is selected
-            } else if (selectionType === 'tag' && selectedTag) {
-                index = items.findIndex(item => {
-                    // The item can be a regular tag or the special "untagged" item
-                    if (item.type === 'tag' || item.type === 'untagged') {
-                        // The data payload for both is a TagTreeNode, which has a path
-                        const tagNode = item.data as TagTreeNode;
-                        return tagNode.path === selectedTag;
-                    }
-                    return false;
-                });
-            }
-
-            // If a valid item was found, scroll to it
-            if (index >= 0) {
-                scrollVirtualItemIntoView(
-                    rowVirtualizer, 
-                    index,
-                    'auto',
-                    3,
-                    false,
-                    isMobile ? 'center' : 'auto'
-                );
-            }
-        };
-
-        // Create the observer
-        const observer = new IntersectionObserver(observerCallback, {
-            root: null, // observes intersections relative to the viewport
-            threshold: 0.1, // trigger when 10% of the element is visible
-        });
-
-        // Start observing the scroll container
-        observer.observe(scrollContainer);
-
-        // Cleanup: Stop observing when the component unmounts
-        return () => {
-            observer.disconnect();
-        };
-    // Dependencies: This effect should re-run if these change,
-    // to ensure the observer's callback has the latest state
-    }, [items, appState.selectedFolder, appState.selectedTag, appState.selectionType, rowVirtualizer, isMobile]);
+    // Remove the IntersectionObserver effect that was causing infinite scrolling
+    // The scrolling is already handled by the effect above (lines 187-223)
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
