@@ -22,6 +22,12 @@ export const LeftPaneVirtualized: React.FC = () => {
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const spacerHeight = isMobile ? 40 : 25; // More space on mobile
     const lastScrolledPath = useRef<string | null>(null);
+    // Track expanded folders size to detect expand/collapse actions on mobile
+    // This is only needed on mobile because:
+    // - Mobile scrolls to selected item whenever the view appears (from edit view)
+    // - We need to differentiate between "view appearing" vs "folder expand/collapse"
+    // - Desktop doesn't have this issue as it only scrolls on selection changes
+    const prevExpandedFoldersSize = useRef(isMobile ? appState.expandedFolders.size : 0);
     
     // Log component mount/unmount only if debug is enabled
     useEffect(() => {
@@ -226,6 +232,21 @@ export const LeftPaneVirtualized: React.FC = () => {
     useLayoutEffect(() => {
         if (!isMobile || appState.currentMobileView !== 'list') {
             return;
+        }
+        
+        // Skip scroll if we're just expanding/collapsing folders (mobile only)
+        // Mobile needs this check because it scrolls every time currentMobileView === 'list'
+        // This includes both: returning from edit view AND expanding/collapsing folders
+        // By tracking expandedFolders size changes, we can skip the unwanted scrolls
+        if (isMobile) {
+            const expandedSizeChanged = prevExpandedFoldersSize.current !== appState.expandedFolders.size;
+            prevExpandedFoldersSize.current = appState.expandedFolders.size;
+            
+            if (expandedSizeChanged) {
+                // User just expanded/collapsed a folder - don't scroll
+                return;
+            }
+            // Size didn't change - we're returning from edit view, proceed with scroll
         }
         
         if (!scrollContainerRef.current || !rowVirtualizer) {
