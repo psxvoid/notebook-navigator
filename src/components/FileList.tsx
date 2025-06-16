@@ -16,8 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useMemo, useLayoutEffect, useCallback, useRef, useEffect } from 'react';
-import { TFile, TFolder, TAbstractFile, getAllTags } from 'obsidian';
+import React, { useMemo, useLayoutEffect, useCallback, useRef, useEffect, useState } from 'react';
+import { TFile, TFolder, TAbstractFile, getAllTags, Platform } from 'obsidian';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useAppContext } from '../context/AppContext';
 import { FileItem } from './FileItem';
@@ -35,7 +35,6 @@ import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigat
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
 import { debugLog } from '../utils/debugLog';
-import { Platform } from 'obsidian';
 
 /**
  * Collects all pinned note paths from settings
@@ -160,17 +159,6 @@ export function FileList() {
         }
     }, [plugin.settings.debugMobile]);
     
-    // Log selection changes only if debug is enabled
-    useEffect(() => {
-        if (Platform.isMobile && plugin.settings.debugMobile) {
-            debugLog.debug('FileList: Selection changed', {
-                selectionType,
-                selectedFolder: selectedFolder?.path,
-                selectedTag,
-                selectedFile: appState.selectedFile?.path
-            });
-        }
-    }, [selectionType, selectedFolder?.path, selectedTag, appState.selectedFile?.path, plugin.settings.debugMobile]);
     
     // Track if the file selection is from user click vs auto-selection
     const isUserSelectionRef = useRef(false);
@@ -202,6 +190,12 @@ export function FileList() {
         
         // Collapse left sidebar on mobile after opening file
         if (isMobile && app.workspace.leftSplit) {
+            if (plugin.settings.debugMobile) {
+                debugLog.info('FileList: Opening file in editor (collapsing sidebar)', {
+                    file: file.path,
+                    openInNewTab
+                });
+            }
             app.workspace.leftSplit.collapse();
         }
     }, [app.workspace, dispatch, isMobile]);
@@ -428,10 +422,17 @@ export function FileList() {
      * 
      * Problem: On mobile, when items are added to the top of a virtualized list during 
      * momentum scrolling (inertia scrolling), the browser stops the scroll abruptly.
+     * This happens because the DOM changes under the user's finger, breaking the native
+     * scroll behavior.
      * 
      * Solution: We track scroll state, velocity, and item count changes. When new items
      * are added during scrolling, we calculate their height and adjust the scroll position
      * to maintain visual continuity without interrupting the momentum.
+     * 
+     * Mobile-specific because:
+     * - Desktop uses mouse wheel or scrollbar, which don't have momentum
+     * - Mobile touch scrolling has native momentum that we need to preserve
+     * - The issue only manifests on mobile devices with touch interfaces
      */
     const scrollStateRef = useRef({
         isScrolling: false,
@@ -450,6 +451,20 @@ export function FileList() {
     
     // Track previous item count to detect when items are added
     const prevItemCountRef = useRef(listItems.length);
+    
+    // Cache selected file path to avoid repeated property access
+    const selectedFilePath = appState.selectedFile?.path;
+    
+    // Create a map for O(1) file lookups
+    const filePathToIndex = useMemo(() => {
+        const map = new Map<string, number>();
+        listItems.forEach((item, index) => {
+            if (item.type === 'file') {
+                map.set((item.data as TFile).path, index);
+            }
+        });
+        return map;
+    }, [listItems]);
     
     // Initialize virtualizer
     const rowVirtualizer = useVirtualizer({
@@ -570,20 +585,6 @@ export function FileList() {
         prevItemCountRef.current = currentCount;
     }, [listItems.length, isMobile, rowVirtualizer]);
     
-    // Cache selected file path to avoid repeated property access
-    const selectedFilePath = appState.selectedFile?.path;
-    
-    // Create a map for O(1) file lookups
-    const filePathToIndex = useMemo(() => {
-        const map = new Map<string, number>();
-        listItems.forEach((item, index) => {
-            if (item.type === 'file') {
-                map.set((item.data as TFile).path, index);
-            }
-        });
-        return map;
-    }, [listItems]);
-    
     // Create a unique key for storing scroll state based on current selection
     const scrollStateKey = useMemo(() => {
         if (selectionType === 'folder' && selectedFolder) {
@@ -629,46 +630,87 @@ export function FileList() {
     }, [isMobile, scrollStateKey, selectedFilePath]);
     */
     
-    // Mobile scroll solution - scroll to selected file when view appears
-    useEffect(() => {
-        if (!isMobile || appState.currentMobileView !== 'files' || !selectedFilePath) return;
+    // Mobile scroll to selected file when the view changes or file changes
+    // This is one of the key mobile-specific behaviors:
+    // - On desktop: We scroll when file selection changes (user clicks)
+    // - On mobile: We scroll when the files view appears (user navigates back from editor)
+    // 
+    // The lastScrollKeyRef prevents duplicate scrolls for the same view+file combination,
+    // which is important because mobile can trigger multiple layout effects when switching views
+    const lastScrollKeyRef = useRef<string>('');
+    
+    useLayoutEffect(() => {
+        if (!isMobile || !selectedFilePath || appState.currentMobileView !== 'files') return;
+        
+        // Create a unique key for this scroll scenario
+        // This key combines view state and file to ensure we only scroll once per unique state
+        const scrollKey = `${appState.currentMobileView}-${selectedFilePath}`;
+        
+        // Skip if we already scrolled for this exact scenario
+        // This prevents jarring repeated scrolls when the component re-renders
+        if (lastScrollKeyRef.current === scrollKey) return;
+        
+        if (Platform.isMobile && plugin.settings.debugMobile) {
+            debugLog.debug('FileList: Should scroll immediately', {
+                reason: 'view or file changed',
+                file: selectedFilePath
+            });
+        }
         
         const fileIndex = filePathToIndex.get(selectedFilePath);
         if (fileIndex === undefined || fileIndex < 0) return;
         
-        const attemptScroll = () => {
-            const container = scrollContainerRef.current;
-            if (!container || !rowVirtualizer) return;
+        // Scroll immediately when conditions are met
+        const scrollToFile = () => {
+            if (!scrollContainerRef.current || !rowVirtualizer) return;
             
-            // First, ensure the virtualizer has rendered items
             const virtualItems = rowVirtualizer.getVirtualItems();
             if (virtualItems.length === 0) {
-                // No items yet, virtualizer needs to initialize
-                requestAnimationFrame(attemptScroll);
+                // Wait for virtualizer to initialize
+                requestAnimationFrame(scrollToFile);
                 return;
             }
             
-            // Simply use the virtualizer's scrollToIndex which should work reliably
-            const totalItems = listItems.length;
-            let align: 'start' | 'center' | 'end' = 'center';
-            
-            if (fileIndex < 3) {
-                align = 'start';
-            } else if (fileIndex >= totalItems - 3) {
-                align = 'end';
-            }
-            
-            // Direct scroll using virtualizer
             rowVirtualizer.scrollToIndex(fileIndex, {
-                align: align,
+                align: 'center',
                 behavior: 'auto'
             });
+            
+            lastScrollKeyRef.current = scrollKey;
+            
+            if (Platform.isMobile && plugin.settings.debugMobile) {
+                debugLog.debug('FileList: Scrolled to selected file', {
+                    file: selectedFilePath,
+                    index: fileIndex
+                });
+            }
         };
         
-        // Use RAF to wait for render
-        requestAnimationFrame(attemptScroll);
+        // Execute immediately, no delays
+        scrollToFile();
         
-    }, [isMobile, appState.currentMobileView, selectedFilePath, filePathToIndex, rowVirtualizer, listItems.length]);
+    }, [isMobile, appState.currentMobileView, selectedFilePath, filePathToIndex, rowVirtualizer, plugin.settings.debugMobile]);
+    
+    // Listen for layout changes to reset scroll key when sidebar is hidden
+    // Mobile-specific: When the user opens a file (collapsing the sidebar), we need
+    // to reset our scroll tracking so that when they return to the file list,
+    // we'll scroll to the selected file again. This creates a consistent experience
+    // where the selected file is always visible when returning from the editor.
+    useEffect(() => {
+        if (!isMobile) return;
+        
+        const handleLayoutChange = () => {
+            const isCollapsed = app.workspace.leftSplit?.collapsed ?? false;
+            if (isCollapsed) {
+                // Reset scroll key when sidebar is hidden so we scroll next time
+                // This ensures the file list shows the selected file when reopened
+                lastScrollKeyRef.current = '';
+            }
+        };
+        
+        const eventRef = app.workspace.on('layout-change', handleLayoutChange);
+        return () => app.workspace.offref(eventRef);
+    }, [isMobile, app.workspace]);
     
     // Track scroll events and calculate velocity on mobile
     useEffect(() => {
@@ -795,6 +837,77 @@ export function FileList() {
             }
         }
     }, [isMobile, selectedFilePath, filePathToIndex, rowVirtualizer, listItems]);
+    
+    // Mobile: Scroll to selected file when view changes
+    // This is a backup scroll mechanism for mobile that ensures the selected file
+    // is visible when switching to the files view. It's separate from the main
+    // scroll logic above to handle edge cases where the initial scroll might fail.
+    const lastScrolledFileRef = useRef<string | null>(null);
+    
+    useLayoutEffect(() => {
+        if (!isMobile || appState.currentMobileView !== 'files' || !selectedFilePath || !scrollContainerRef.current) {
+            return;
+        }
+        
+        // Skip if we already scrolled to this file
+        // This ref tracks which file we last scrolled to, preventing duplicate scrolls
+        if (lastScrolledFileRef.current === selectedFilePath) {
+            return;
+        }
+        
+        const selectedIndex = filePathToIndex.get(selectedFilePath);
+        if (selectedIndex === undefined) {
+            return;
+        }
+        
+        // Mark as scrolled immediately to prevent multiple attempts
+        // This is important because the effect might fire multiple times
+        lastScrolledFileRef.current = selectedFilePath;
+        
+        if (Platform.isMobile && plugin.settings.debugMobile) {
+            debugLog.info('FileList: Mobile scroll to selected file on view change', {
+                selectedFile: selectedFilePath,
+                selectedIndex,
+                currentView: appState.currentMobileView
+            });
+        }
+        
+        // Use requestAnimationFrame to ensure DOM is ready
+        requestAnimationFrame(() => {
+            if (scrollContainerRef.current && rowVirtualizer) {
+                scrollVirtualItemIntoView(rowVirtualizer, selectedIndex, 'auto');
+            }
+        });
+    }, [isMobile, appState.currentMobileView, selectedFilePath, filePathToIndex, rowVirtualizer]);
+    
+    // Reset when view changes away from files
+    // Mobile-specific: When we navigate away from the files view (back to folders/tags),
+    // we clear our scroll tracking. This ensures that when we return to the files view,
+    // we'll scroll to the selected file again, even if it's the same file as before.
+    useEffect(() => {
+        if (isMobile && appState.currentMobileView !== 'files') {
+            lastScrolledFileRef.current = null;
+        }
+    }, [isMobile, appState.currentMobileView]);
+    
+    // Reset scroll position when folder/tag changes
+    // This ensures a consistent experience where each folder/tag starts at the top
+    // Mobile-specific timing: We use useLayoutEffect to reset scroll before paint,
+    // preventing a flash of the old scroll position
+    useLayoutEffect(() => {
+        if (!scrollContainerRef.current) return;
+        
+        // Reset scroll to top when folder or tag changes
+        // This gives users a predictable starting point for each new list
+        scrollContainerRef.current.scrollTop = 0;
+        
+        if (plugin.settings.debugMobile) {
+            debugLog.debug('FileList: Reset scroll position on folder/tag change', {
+                folder: selectedFolder?.path,
+                tag: selectedTag
+            });
+        }
+    }, [selectedFolder?.path, selectedTag, plugin.settings.debugMobile]);
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({

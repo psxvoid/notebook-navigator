@@ -45,7 +45,12 @@ export interface AppState {
     expandedTags: Set<string>;
     /** Which pane currently has keyboard focus */
     focusedPane: 'folders' | 'files';
-    /** Current view on mobile devices - 'list' for folder/tags, 'files' for file list */
+    /** 
+     * Current view on mobile devices - 'list' for folder/tags, 'files' for file list
+     * Mobile uses a single-pane view that switches between folder/tag list and file list.
+     * This state tracks which view is currently active, enabling the back navigation
+     * and proper scroll restoration when switching views.
+     */
     currentMobileView: 'list' | 'files';
     /** Index to scroll to in folder tree (null when not scrolling) */
     scrollToFolderIndex: number | null;
@@ -153,8 +158,12 @@ function loadStateFromStorage(app: App): AppState {
     }
     
     // Load mobile view state - always default to 'list' for better UX
+    // Mobile-specific: We always start with the folder/tag list view visible.
+    // We intentionally don't persist this state because:
+    // 1. Users expect to see folders when opening the app
+    // 2. Prevents confusion when switching between mobile and desktop
+    // 3. Ensures consistent starting experience
     const currentMobileView = 'list' as 'list' | 'files';
-    // Note: We don't persist mobile view to avoid confusion when switching platforms
     
     return {
         selectionType: 'folder',
@@ -255,7 +264,8 @@ function appReducer(state: AppState, action: AppAction, app: App, plugin: Notebo
                 break;
         }
         
-        debugLog.debug('AppContext: Dispatching action', logData);
+        // Commented out to reduce log verbosity - uncomment for detailed debugging
+        // debugLog.debug('AppContext: Dispatching action', logData);
     }
 
     switch (action.type) {
@@ -267,8 +277,16 @@ function appReducer(state: AppState, action: AppAction, app: App, plugin: Notebo
                 selectedTag: null
             };
 
-            // If a folder is being selected (not cleared) and auto-select is on (desktop only)
-            if (action.folder && plugin.settings.autoSelectFirstFile && !isMobile) {
+            // Mobile: Always clear file selection when changing folders
+            // This is a critical mobile-specific behavior that prevents confusing states:
+            // - Without this, selectedFile could be from a different folder
+            // - This would cause the file list to try to scroll to a non-existent file
+            // - Clearing ensures clean state when navigating between folders
+            if (isMobile) {
+                newState.selectedFile = null;
+            } 
+            // Desktop: Handle auto-select first file if enabled
+            else if (action.folder && plugin.settings.autoSelectFirstFile) {
                 const filesInFolder = getFilesForFolder(action.folder, plugin.settings, app);
                 if (filesInFolder.length > 0) {
                     newState.selectedFile = filesInFolder[0]; // Select the first file
@@ -291,8 +309,14 @@ function appReducer(state: AppState, action: AppAction, app: App, plugin: Notebo
                 selectedFolder: null 
             };
 
-            // If a tag is being selected (not cleared) and auto-select is on (desktop only)
-            if (action.tag && plugin.settings.autoSelectFirstFile && !isMobile) {
+            // Mobile: Always clear file selection when changing tags
+            // Same reasoning as for folders - prevents stale file selections
+            // when switching between different tag views
+            if (isMobile) {
+                newState.selectedFile = null;
+            }
+            // Desktop: Handle auto-select first file if enabled
+            else if (action.tag && plugin.settings.autoSelectFirstFile) {
                 const filesForTag = getFilesForTag(action.tag, plugin.settings, app);
                 if (filesForTag.length > 0) {
                     newState.selectedFile = filesForTag[0]; // Select the first file
@@ -419,6 +443,10 @@ function appReducer(state: AppState, action: AppAction, app: App, plugin: Notebo
         
         case 'SET_MOBILE_VIEW': {
             // Update the current mobile view
+            // This action is dispatched when:
+            // - User clicks a folder/tag (switches to 'files' view)
+            // - User clicks back button (switches to 'list' view)
+            // - User swipes from edge (switches to 'list' view)
             return { ...state, currentMobileView: action.view };
         }
         
@@ -443,23 +471,26 @@ function appReducer(state: AppState, action: AppAction, app: App, plugin: Notebo
 function appReducerWithLogging(state: AppState, action: AppAction, app: App, plugin: NotebookNavigatorPlugin, isMobile: boolean): AppState {
     const newState = appReducer(state, action, app, plugin, isMobile);
     
-    // Log state changes if they occurred
+    // Log only important state changes to reduce verbosity
     if (state !== newState) {
-        debugLog.debug('AppContext: State changed', {
-            action: action.type,
-            changes: {
-                selectionType: state.selectionType !== newState.selectionType ? `${state.selectionType} → ${newState.selectionType}` : undefined,
-                selectedFolder: state.selectedFolder?.path !== newState.selectedFolder?.path ? `${state.selectedFolder?.path} → ${newState.selectedFolder?.path}` : undefined,
-                selectedTag: state.selectedTag !== newState.selectedTag ? `${state.selectedTag} → ${newState.selectedTag}` : undefined,
-                selectedFile: state.selectedFile?.path !== newState.selectedFile?.path ? `${state.selectedFile?.path} → ${newState.selectedFile?.path}` : undefined,
-                focusedPane: state.focusedPane !== newState.focusedPane ? `${state.focusedPane} → ${newState.focusedPane}` : undefined,
-                currentMobileView: state.currentMobileView !== newState.currentMobileView ? `${state.currentMobileView} → ${newState.currentMobileView}` : undefined,
-                expandedFoldersCount: state.expandedFolders.size !== newState.expandedFolders.size ? `${state.expandedFolders.size} → ${newState.expandedFolders.size}` : undefined,
-                expandedTagsCount: state.expandedTags.size !== newState.expandedTags.size ? `${state.expandedTags.size} → ${newState.expandedTags.size}` : undefined,
-                scrollToFolderIndex: state.scrollToFolderIndex !== newState.scrollToFolderIndex ? `${state.scrollToFolderIndex} → ${newState.scrollToFolderIndex}` : undefined,
-                scrollToFileIndex: state.scrollToFileIndex !== newState.scrollToFileIndex ? `${state.scrollToFileIndex} → ${newState.scrollToFileIndex}` : undefined,
-            }
-        });
+        // Only log selection and view changes, not expansion or scroll index changes
+        const hasImportantChange = 
+            state.selectionType !== newState.selectionType ||
+            state.selectedFolder?.path !== newState.selectedFolder?.path ||
+            state.selectedTag !== newState.selectedTag ||
+            state.currentMobileView !== newState.currentMobileView;
+            
+        if (hasImportantChange) {
+            debugLog.debug('AppContext: State changed', {
+                action: action.type,
+                changes: {
+                    selectionType: state.selectionType !== newState.selectionType ? `${state.selectionType} → ${newState.selectionType}` : undefined,
+                    selectedFolder: state.selectedFolder?.path !== newState.selectedFolder?.path ? `${state.selectedFolder?.path} → ${newState.selectedFolder?.path}` : undefined,
+                    selectedTag: state.selectedTag !== newState.selectedTag ? `${state.selectedTag} → ${newState.selectedTag}` : undefined,
+                    currentMobileView: state.currentMobileView !== newState.currentMobileView ? `${state.currentMobileView} → ${newState.currentMobileView}` : undefined,
+                }
+            });
+        }
     }
     
     return newState;
@@ -615,6 +646,7 @@ export function AppProvider({ children, plugin, isMobile = false }: { children: 
         saveToStorage(STORAGE_KEYS.selectedFileKey, appState.selectedFile?.path);
         
         // Note: We don't persist currentMobileView to always start fresh on mobile
+        // This is intentional - users expect to see the folder list when opening the app
     }, [appState.expandedFolders, appState.expandedTags, appState.selectedFolder, appState.selectedFile]);
 
     const contextValue = useMemo(() => ({

@@ -1,6 +1,6 @@
-import React, { useMemo, useRef, useEffect, useCallback } from 'react';
+import React, { useMemo, useRef, useEffect, useLayoutEffect, useCallback, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { TFolder, TFile, App, getAllTags, Platform } from 'obsidian';
+import { TFolder, TFile, App, getAllTags, Platform, View } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { flattenFolderTree, flattenTagTree, findFolderIndex } from '../utils/treeFlattener';
 import { FolderItem } from './FolderItem';
@@ -21,6 +21,29 @@ export const LeftPaneVirtualized: React.FC = () => {
     const { app, plugin, appState, dispatch, refreshCounter, isMobile } = useAppContext();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const spacerHeight = isMobile ? 40 : 25; // More space on mobile
+    const lastScrolledPath = useRef<string | null>(null);
+    
+    // Track expanded folders size to detect expand/collapse actions on mobile
+    // This is a critical mobile-specific optimization that solves a UX problem:
+    // 
+    // Problem: On mobile, we want to scroll to the selected folder when returning
+    // from the file editor, but NOT when the user is just expanding/collapsing folders.
+    // Both actions trigger the same currentMobileView === 'list' condition.
+    // 
+    // Solution: Track the size of expandedFolders. If it changes, we know the user
+    // expanded/collapsed a folder and we should skip scrolling. If it stays the same,
+    // we're returning from the editor and should scroll to show the selected item.
+    // 
+    // Desktop doesn't need this because it scrolls on selection change, not view appearance.
+    const prevExpandedFoldersSize = useRef(isMobile ? appState.expandedFolders.size : 0);
+    
+    // Cache selected folder/tag path to avoid repeated property access
+    const selectedPath = appState.selectionType === 'folder' && appState.selectedFolder 
+        ? appState.selectedFolder.path 
+        : appState.selectionType === 'tag' && appState.selectedTag 
+        ? appState.selectedTag 
+        : null;
+    
     
     // Log component mount/unmount only if debug is enabled
     useEffect(() => {
@@ -38,16 +61,6 @@ export const LeftPaneVirtualized: React.FC = () => {
         }
     }, [plugin.settings.debugMobile]);
     
-    // Log selection changes only if debug is enabled
-    useEffect(() => {
-        if (Platform.isMobile && plugin.settings.debugMobile) {
-            debugLog.debug('LeftPaneVirtualized: Selection changed', {
-                selectionType: appState.selectionType,
-                selectedFolder: appState.selectedFolder?.path,
-                selectedTag: appState.selectedTag
-            });
-        }
-    }, [appState.selectionType, appState.selectedFolder?.path, appState.selectedTag, plugin.settings.debugMobile]);
     
     // Get root folders to display
     const rootFolders = useMemo(() => {
@@ -156,7 +169,9 @@ export const LeftPaneVirtualized: React.FC = () => {
             const item = items[index];
             if (item.type === 'tag-header') return 35; // Header height
             if (item.type === 'spacer') return spacerHeight; // Bottom spacer height
-            return 28; // Use a more accurate, consistent height
+            // Mobile has larger touch targets with min-height: 40px
+            // Desktop uses smaller heights for denser display
+            return isMobile ? 40 : 28;
         },
         overscan: 10,
     });
@@ -183,22 +198,211 @@ export const LeftPaneVirtualized: React.FC = () => {
         }
     }, [appState.scrollToFolderIndex, rowVirtualizer, dispatch, isMobile]);
     
-    // Handle scroll when selected folder or tag changes (for manual selection and auto-reveal)
+    // Create a map for O(1) item lookups
+    const pathToIndex = useMemo(() => {
+        const map = new Map<string, number>();
+        items.forEach((item, index) => {
+            if (item.type === 'folder') {
+                map.set(item.data.path, index);
+            } else if (item.type === 'tag' || item.type === 'untagged') {
+                const tagNode = item.data as TagTreeNode;
+                map.set(tagNode.path, index);
+            }
+        });
+        return map;
+    }, [items]);
+
+    // --- MOBILE SCROLL LOGIC ---
+
+    const [scrollTrigger, setScrollTrigger] = useState(0);
+    const lastScrolledKey = useRef<string | null>(null);
+    const wasInEditor = useRef(false);
+
+    // Trigger 1: Listen for view changes (e.g., list -> files)
     useEffect(() => {
-        if (rowVirtualizer) {
-            let actualIndex = -1;
+        if (isMobile) {
+            // A change in mobile view implies we might need to scroll when returning
+            setScrollTrigger(c => c + 1);
+        }
+    }, [isMobile, appState.currentMobileView]);
+
+    // Trigger 2: Listen for entering editor (not for leaving)
+    useEffect(() => {
+        if (!isMobile) return;
+
+        const handleActiveLeafChange = () => {
+            const activeView = app.workspace.getActiveViewOfType(View);
+            const viewType = activeView?.getViewType();
+            const inEditor = viewType === 'markdown' || viewType === 'canvas';
+
+            if (inEditor) {
+                // Mark that we're in the editor
+                wasInEditor.current = true;
+                if (plugin.settings.debugMobile) {
+                    debugLog.debug('LeftPaneVirtualized: Entered editor, will scroll on return');
+                }
+            }
+        };
+
+        const eventRef = app.workspace.on('active-leaf-change', handleActiveLeafChange);
+        return () => {
+            app.workspace.offref(eventRef);
+        };
+    }, [isMobile, app.workspace, plugin.settings.debugMobile]);
+
+    // Trigger 3: Hybrid approach - detect visibility but scroll instantly
+    // We use IntersectionObserver to detect when becoming visible, but ensure
+    // the scroll happens instantly without visible motion
+    useEffect(() => {
+        if (!isMobile || !scrollContainerRef.current) return;
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((entry) => {
+                    if (entry.isIntersecting && wasInEditor.current && appState.currentMobileView === 'list') {
+                        // Important: Reset wasInEditor AFTER checking it
+                        wasInEditor.current = false;
+                        
+                        // Force immediate scroll
+                        const container = scrollContainerRef.current;
+                        if (container && rowVirtualizer && selectedPath) {
+                            const itemIndex = pathToIndex.get(selectedPath);
+                            if (itemIndex !== undefined) {
+                                // Scroll immediately without going through the effect
+                                rowVirtualizer.scrollToIndex(itemIndex, {
+                                    align: 'center',
+                                    behavior: 'instant' as any,
+                                });
+                                // Update tracking to prevent duplicate scrolls
+                                lastScrolledKey.current = `${selectedPath}-instant`;
+                                
+                                if (plugin.settings.debugMobile) {
+                                    debugLog.debug('LeftPaneVirtualized: Instant scroll on visibility', {
+                                        selectedPath,
+                                        itemIndex,
+                                        wasInEditor: true,
+                                        currentMobileView: appState.currentMobileView
+                                    });
+                                }
+                            }
+                        }
+                    } else if (!entry.isIntersecting && !wasInEditor.current) {
+                        // If we become hidden again and wasInEditor was reset, restore it
+                        // This handles the case where user cancels the swipe
+                        const activeView = app.workspace.getActiveViewOfType(View);
+                        const viewType = activeView?.getViewType();
+                        const inEditor = viewType === 'markdown' || viewType === 'canvas';
+                        
+                        if (inEditor) {
+                            wasInEditor.current = true;
+                            if (plugin.settings.debugMobile) {
+                                debugLog.debug('LeftPaneVirtualized: Restored wasInEditor after cancelled swipe');
+                            }
+                        }
+                    }
+                });
+            },
+            { threshold: 0.01 } // Trigger as early as possible
+        );
+
+        observer.observe(scrollContainerRef.current);
+
+        return () => {
+            observer.disconnect();
+        };
+    }, [isMobile, rowVirtualizer, selectedPath, pathToIndex, plugin.settings.debugMobile, appState.currentMobileView, app.workspace]);
+
+    // The main scroll effect, triggered by state changes
+    useLayoutEffect(() => {
+        if (!isMobile || !selectedPath || appState.currentMobileView !== 'list') {
+            if (plugin.settings.debugMobile && isMobile) {
+                debugLog.debug('LeftPaneVirtualized: Scroll skipped', {
+                    hasSelectedPath: !!selectedPath,
+                    currentMobileView: appState.currentMobileView,
+                    reason: !selectedPath ? 'no selected path' : 
+                            appState.currentMobileView !== 'list' ? 'not in list view' : 'unknown'
+                });
+            }
+            return;
+        }
+
+        const scrollKey = `${selectedPath}-${scrollTrigger}`;
+        const instantScrollKey = `${selectedPath}-instant`;
+        
+        // Skip if we already scrolled for this state OR if we just did an instant scroll
+        if (lastScrolledKey.current === scrollKey || lastScrolledKey.current === instantScrollKey) {
+            if (plugin.settings.debugMobile) {
+                debugLog.debug('LeftPaneVirtualized: Scroll skipped - already scrolled', { 
+                    scrollKey,
+                    lastScrollKey: lastScrolledKey.current,
+                    wasInstant: lastScrolledKey.current === instantScrollKey
+                });
+            }
+            return;
+        }
+
+        const itemIndex = pathToIndex.get(selectedPath);
+        if (itemIndex === undefined) {
+            return;
+        }
+
+        // The virtualizer might not be ready on first render.
+        // Use immediate scroll (no requestAnimationFrame) for instant positioning
+        if (scrollContainerRef.current && rowVirtualizer) {
+            if (plugin.settings.debugMobile) {
+                debugLog.debug('LeftPaneVirtualized: Scrolling to item', {
+                    selectedPath,
+                    itemIndex,
+                    scrollTrigger
+                });
+            }
+            // Force immediate scroll without animation
+            rowVirtualizer.scrollToIndex(itemIndex, {
+                align: 'center',
+                behavior: 'instant' as any, // Use instant to avoid animation
+            });
+            lastScrolledKey.current = scrollKey;
             
-            if (appState.selectionType === 'folder' && appState.selectedFolder) {
-                // Find the folder directly in the items array
+            // Force a synchronous layout to ensure scroll completes before render
+            scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollTop;
+        }
+
+    }, [isMobile, selectedPath, appState.currentMobileView, scrollTrigger, pathToIndex, rowVirtualizer]);
+    
+    // --- END MOBILE SCROLL LOGIC ---
+    
+    // Desktop: Scroll when selection changes
+    // Desktop has a simpler model than mobile:
+    // - Scroll whenever the selected folder/tag changes
+    // - Use lastScrolledPath to prevent duplicate scrolls
+    // - No need to worry about view states or expand/collapse
+    // 
+    // This creates the desktop experience where:
+    // - Clicking a folder scrolls it into view if needed
+    // - The scroll is immediate and direct
+    // - No complex state tracking required
+    useEffect(() => {
+        if (isMobile || !scrollContainerRef.current || !rowVirtualizer) {
+            return;
+        }
+        
+        let actualIndex = -1;
+        let currentPath: string | null = null;
+        
+        if (appState.selectionType === 'folder' && appState.selectedFolder) {
+            currentPath = appState.selectedFolder.path;
+            
+            // Only scroll if path changed
+            if (lastScrolledPath.current !== currentPath) {
                 actualIndex = items.findIndex(item => 
                     item.type === 'folder' && item.data.path === appState.selectedFolder?.path
                 );
-                debugLog.debug('LeftPaneVirtualized: Scrolling to folder', {
-                    folder: appState.selectedFolder.path,
-                    index: actualIndex
-                });
-            } else if (appState.selectionType === 'tag' && appState.selectedTag) {
-                // Find the tag in the items array
+            }
+        } else if (appState.selectionType === 'tag' && appState.selectedTag) {
+            currentPath = appState.selectedTag;
+            
+            // Only scroll if path changed
+            if (lastScrolledPath.current !== currentPath) {
                 actualIndex = items.findIndex(item => {
                     if (item.type === 'tag' || item.type === 'untagged') {
                         const tagNode = item.data as TagTreeNode;
@@ -207,83 +411,18 @@ export const LeftPaneVirtualized: React.FC = () => {
                     return false;
                 });
             }
-            
-            if (actualIndex >= 0) {
-                const cleanup = scrollVirtualItemIntoView(
-                    rowVirtualizer, 
-                    actualIndex,
-                    'auto',
-                    3,
-                    false,
-                    isMobile ? 'center' : 'auto'
-                );
-                return cleanup;
-            }
         }
-    }, [appState.selectedFolder, appState.selectedTag, appState.selectionType, items, rowVirtualizer, isMobile]);
-    
-    // Use IntersectionObserver to detect when the pane becomes visible
-    useEffect(() => {
-        const scrollContainer = scrollContainerRef.current;
-        if (!scrollContainer) return;
-
-        // This callback fires when the pane's visibility changes
-        const observerCallback = (entries: IntersectionObserverEntry[]) => {
-            const [entry] = entries;
-            // Exit if the pane is not visible
-            if (!entry.isIntersecting) return;
-
-
-            let index = -1;
-            const { selectionType, selectedFolder, selectedTag } = appState;
-
-            // Case 1: A folder is selected
-            if (selectionType === 'folder' && selectedFolder) {
-                index = items.findIndex(item =>
-                    item.type === 'folder' && item.data.path === selectedFolder.path
-                );
-            // Case 2: A tag is selected
-            } else if (selectionType === 'tag' && selectedTag) {
-                index = items.findIndex(item => {
-                    // The item can be a regular tag or the special "untagged" item
-                    if (item.type === 'tag' || item.type === 'untagged') {
-                        // The data payload for both is a TagTreeNode, which has a path
-                        const tagNode = item.data as TagTreeNode;
-                        return tagNode.path === selectedTag;
-                    }
-                    return false;
-                });
-            }
-
-            // If a valid item was found, scroll to it
-            if (index >= 0) {
-                scrollVirtualItemIntoView(
-                    rowVirtualizer, 
-                    index,
-                    'auto',
-                    3,
-                    false,
-                    isMobile ? 'center' : 'auto'
-                );
-            }
-        };
-
-        // Create the observer
-        const observer = new IntersectionObserver(observerCallback, {
-            root: null, // observes intersections relative to the viewport
-            threshold: 0.1, // trigger when 10% of the element is visible
-        });
-
-        // Start observing the scroll container
-        observer.observe(scrollContainer);
-
-        // Cleanup: Stop observing when the component unmounts
-        return () => {
-            observer.disconnect();
-        };
-    // Dependencies: This effect should re-run if these change,
-    // to ensure the observer's callback has the latest state
-    }, [items, appState.selectedFolder, appState.selectedTag, appState.selectionType, rowVirtualizer, isMobile]);
+        
+        if (actualIndex >= 0 && currentPath) {
+            lastScrolledPath.current = currentPath;
+            
+            // Scroll immediately for desktop
+            rowVirtualizer.scrollToIndex(actualIndex, {
+                align: 'auto',
+                behavior: 'auto'
+            });
+        }
+    }, [isMobile, appState.selectedFolder?.path, appState.selectedTag, appState.selectionType, rowVirtualizer, items]);
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
