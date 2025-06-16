@@ -260,7 +260,8 @@ export const LeftPaneVirtualized: React.FC = () => {
             (entries) => {
                 entries.forEach((entry) => {
                     // When we start becoming visible (even 1%) and we were in editor
-                    if (entry.isIntersecting && wasInEditor.current) {
+                    // AND we're actually in the list view (not during a cancelled swipe)
+                    if (entry.isIntersecting && wasInEditor.current && appState.currentMobileView === 'list') {
                         // Important: Reset wasInEditor AFTER checking it
                         wasInEditor.current = false;
                         
@@ -281,7 +282,8 @@ export const LeftPaneVirtualized: React.FC = () => {
                                     debugLog.debug('LeftPaneVirtualized: Instant scroll on visibility', {
                                         selectedPath,
                                         itemIndex,
-                                        wasInEditor: true
+                                        wasInEditor: true,
+                                        currentMobileView: appState.currentMobileView
                                     });
                                 }
                             }
@@ -297,7 +299,7 @@ export const LeftPaneVirtualized: React.FC = () => {
         return () => {
             observer.disconnect();
         };
-    }, [isMobile, rowVirtualizer, selectedPath, pathToIndex, plugin.settings.debugMobile]);
+    }, [isMobile, rowVirtualizer, selectedPath, pathToIndex, plugin.settings.debugMobile, appState.currentMobileView]);
 
     // The main scroll effect, triggered by state changes
     useLayoutEffect(() => {
