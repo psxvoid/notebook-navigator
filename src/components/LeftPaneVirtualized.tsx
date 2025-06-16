@@ -226,7 +226,7 @@ export const LeftPaneVirtualized: React.FC = () => {
         }
     }, [isMobile, appState.currentMobileView]);
 
-    // Trigger 2: Listen for returning from editor
+    // Trigger 2: Listen for entering editor (not for leaving)
     useEffect(() => {
         if (!isMobile) return;
 
@@ -236,11 +236,11 @@ export const LeftPaneVirtualized: React.FC = () => {
             const inEditor = viewType === 'markdown' || viewType === 'canvas';
 
             if (inEditor) {
+                // Mark that we're in the editor
                 wasInEditor.current = true;
-            } else if (wasInEditor.current) {
-                // We were in the editor, and now we are not. This is our trigger.
-                wasInEditor.current = false;
-                setScrollTrigger(c => c + 1);
+                if (plugin.settings.debugMobile) {
+                    debugLog.debug('LeftPaneVirtualized: Entered editor, will scroll on return');
+                }
             }
         };
 
@@ -248,7 +248,7 @@ export const LeftPaneVirtualized: React.FC = () => {
         return () => {
             app.workspace.offref(eventRef);
         };
-    }, [isMobile, app.workspace]);
+    }, [isMobile, app.workspace, plugin.settings.debugMobile]);
 
     // Trigger 3: Hybrid approach - detect visibility but scroll instantly
     // We use IntersectionObserver to detect when becoming visible, but ensure
@@ -256,15 +256,12 @@ export const LeftPaneVirtualized: React.FC = () => {
     useEffect(() => {
         if (!isMobile || !scrollContainerRef.current) return;
 
-        let hasScrolledForThisReturn = false;
-
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
                     // When we start becoming visible (even 1%) and we were in editor
-                    if (entry.isIntersecting && wasInEditor.current && !hasScrolledForThisReturn) {
-                        // Mark that we've handled this return
-                        hasScrolledForThisReturn = true;
+                    if (entry.isIntersecting && wasInEditor.current) {
+                        // Important: Reset wasInEditor AFTER checking it
                         wasInEditor.current = false;
                         
                         // Force immediate scroll
@@ -283,14 +280,12 @@ export const LeftPaneVirtualized: React.FC = () => {
                                 if (plugin.settings.debugMobile) {
                                     debugLog.debug('LeftPaneVirtualized: Instant scroll on visibility', {
                                         selectedPath,
-                                        itemIndex
+                                        itemIndex,
+                                        wasInEditor: true
                                     });
                                 }
                             }
                         }
-                    } else if (!entry.isIntersecting) {
-                        // Reset when going off-screen
-                        hasScrolledForThisReturn = false;
                     }
                 });
             },
