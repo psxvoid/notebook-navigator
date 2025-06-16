@@ -18,12 +18,13 @@
 
 // src/context/AppContext.tsx
 import React, { createContext, useContext, useMemo, useEffect, useReducer } from 'react';
-import { App, TFile, TFolder } from 'obsidian';
+import { App, TFile, TFolder, Platform } from 'obsidian';
 import NotebookNavigatorPlugin from '../main';
 import { isTFolder, isTFile } from '../utils/typeGuards';
 import { STORAGE_KEYS } from '../types';
 import { flattenFolderTree, findFolderIndex } from '../utils/treeFlattener';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { debugLog } from '../utils/debugLog';
 
 /**
  * Global application state interface.
@@ -200,6 +201,63 @@ function saveToStorage(key: string, value: any) {
  * @returns The new state after applying the action
  */
 function appReducer(state: AppState, action: AppAction, app: App, plugin: NotebookNavigatorPlugin, isMobile: boolean): AppState {
+    // Only create log data if debug logging is enabled
+    if (Platform.isMobile && plugin.settings.debugMobile) {
+        const logData: any = { 
+            type: action.type,
+            currentState: {
+                selectionType: state.selectionType,
+                selectedFolder: state.selectedFolder?.path,
+                selectedTag: state.selectedTag,
+                selectedFile: state.selectedFile?.path,
+                expandedFoldersCount: state.expandedFolders.size,
+                expandedTagsCount: state.expandedTags.size,
+                focusedPane: state.focusedPane,
+                currentMobileView: state.currentMobileView
+            },
+            isMobile
+        };
+        
+        // Add action-specific data without full objects
+        switch (action.type) {
+            case 'SET_SELECTED_FOLDER':
+                logData.newFolderPath = (action as any).folder?.path || null;
+                break;
+            case 'SET_SELECTED_TAG':
+                logData.newTag = (action as any).tag;
+                break;
+            case 'SET_SELECTED_FILE':
+                logData.newFilePath = (action as any).file?.path || null;
+                break;
+            case 'TOGGLE_FOLDER_EXPANDED':
+                logData.toggleFolderPath = (action as any).folderPath;
+                break;
+            case 'TOGGLE_TAG_EXPANDED':
+                logData.toggleTagPath = (action as any).tagPath;
+                break;
+            case 'SET_EXPANDED_FOLDERS':
+                logData.newExpandedCount = (action as any).folders.size;
+                break;
+            case 'SET_EXPANDED_TAGS':
+                logData.newExpandedCount = (action as any).tags.size;
+                break;
+            case 'SET_FOCUSED_PANE':
+                logData.newPane = (action as any).pane;
+                break;
+            case 'SET_MOBILE_VIEW':
+                logData.newView = (action as any).view;
+                break;
+            case 'EXPAND_FOLDERS':
+                logData.foldersToExpand = (action as any).folders.length;
+                break;
+            case 'REVEAL_FILE':
+                logData.revealFilePath = (action as any).file.path;
+                break;
+        }
+        
+        debugLog.debug('AppContext: Dispatching action', logData);
+    }
+
     switch (action.type) {
         case 'SET_SELECTED_FOLDER': {
             const newState: AppState = { 
@@ -380,6 +438,34 @@ function appReducer(state: AppState, action: AppAction, app: App, plugin: Notebo
 }
 
 /**
+ * Wraps the appReducer to log state changes
+ */
+function appReducerWithLogging(state: AppState, action: AppAction, app: App, plugin: NotebookNavigatorPlugin, isMobile: boolean): AppState {
+    const newState = appReducer(state, action, app, plugin, isMobile);
+    
+    // Log state changes if they occurred
+    if (state !== newState) {
+        debugLog.debug('AppContext: State changed', {
+            action: action.type,
+            changes: {
+                selectionType: state.selectionType !== newState.selectionType ? `${state.selectionType} → ${newState.selectionType}` : undefined,
+                selectedFolder: state.selectedFolder?.path !== newState.selectedFolder?.path ? `${state.selectedFolder?.path} → ${newState.selectedFolder?.path}` : undefined,
+                selectedTag: state.selectedTag !== newState.selectedTag ? `${state.selectedTag} → ${newState.selectedTag}` : undefined,
+                selectedFile: state.selectedFile?.path !== newState.selectedFile?.path ? `${state.selectedFile?.path} → ${newState.selectedFile?.path}` : undefined,
+                focusedPane: state.focusedPane !== newState.focusedPane ? `${state.focusedPane} → ${newState.focusedPane}` : undefined,
+                currentMobileView: state.currentMobileView !== newState.currentMobileView ? `${state.currentMobileView} → ${newState.currentMobileView}` : undefined,
+                expandedFoldersCount: state.expandedFolders.size !== newState.expandedFolders.size ? `${state.expandedFolders.size} → ${newState.expandedFolders.size}` : undefined,
+                expandedTagsCount: state.expandedTags.size !== newState.expandedTags.size ? `${state.expandedTags.size} → ${newState.expandedTags.size}` : undefined,
+                scrollToFolderIndex: state.scrollToFolderIndex !== newState.scrollToFolderIndex ? `${state.scrollToFolderIndex} → ${newState.scrollToFolderIndex}` : undefined,
+                scrollToFileIndex: state.scrollToFileIndex !== newState.scrollToFileIndex ? `${state.scrollToFileIndex} → ${newState.scrollToFileIndex}` : undefined,
+            }
+        });
+    }
+    
+    return newState;
+}
+
+/**
  * Context provider component that wraps the entire plugin UI.
  * Manages global state, handles vault events, and provides context to all child components.
  * 
@@ -389,13 +475,30 @@ function appReducer(state: AppState, action: AppAction, app: App, plugin: Notebo
  */
 export function AppProvider({ children, plugin, isMobile = false }: { children: React.ReactNode, plugin: NotebookNavigatorPlugin, isMobile?: boolean }) {
     const { app } = plugin;
+    
+    // Log component mount only if debug is enabled
+    useEffect(() => {
+        if (Platform.isMobile && plugin.settings.debugMobile) {
+            debugLog.info('AppProvider: Mounted', { isMobile });
+            return () => {
+                debugLog.info('AppProvider: Unmounted');
+            };
+        }
+    }, [plugin.settings.debugMobile]);
 
     /**
      * Initialize state with useReducer, loading initial state from localStorage.
      * The reducer is wrapped to include the app and plugin instances for vault operations.
      */
     const [appState, baseDispatch] = useReducer(
-        (state: AppState, action: AppAction) => appReducer(state, action, app, plugin, isMobile),
+        (state: AppState, action: AppAction) => {
+            // Only use logging reducer if debug is enabled
+            if (Platform.isMobile && plugin.settings.debugMobile) {
+                return appReducerWithLogging(state, action, app, plugin, isMobile);
+            } else {
+                return appReducer(state, action, app, plugin, isMobile);
+            }
+        },
         null,
         () => loadStateFromStorage(app)
     );

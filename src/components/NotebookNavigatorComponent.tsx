@@ -27,6 +27,8 @@ import { useResizablePane } from '../hooks/useResizablePane';
 import { useSwipeGesture } from '../hooks/useSwipeGesture';
 import { isTFolder } from '../utils/typeGuards';
 import { STORAGE_KEYS, PANE_DIMENSIONS } from '../types';
+import { debugLog } from '../utils/debugLog';
+import { Platform } from 'obsidian';
 
 export interface NotebookNavigatorHandle {
     revealFile: (file: TFile) => void;
@@ -48,6 +50,31 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const { app, appState, dispatch, plugin, refreshCounter, isMobile } = useAppContext();
     const containerRef = useRef<HTMLDivElement>(null);
     const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
+    
+    // Only set up logging effects if debug is enabled
+    useEffect(() => {
+        if (Platform.isMobile && plugin.settings.debugMobile) {
+            debugLog.info('NotebookNavigatorComponent: Mounted', { 
+                isMobile,
+                initialView: appState.currentMobileView,
+                selectedFolder: appState.selectedFolder?.path,
+                selectedFile: appState.selectedFile?.path
+            });
+            return () => {
+                debugLog.info('NotebookNavigatorComponent: Unmounted');
+            };
+        }
+    }, [plugin.settings.debugMobile]);
+    
+    // Log mobile view changes only if debug is enabled
+    useEffect(() => {
+        if (Platform.isMobile && plugin.settings.debugMobile) {
+            debugLog.debug('NotebookNavigatorComponent: Mobile view changed', {
+                currentView: appState.currentMobileView,
+                isMobile
+            });
+        }
+    }, [appState.currentMobileView, plugin.settings.debugMobile]);
     
     // Enable drag and drop only on desktop
     useDragAndDrop(containerRef);
@@ -86,17 +113,26 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
         revealFile: (file: TFile) => {
+            if (Platform.isMobile && plugin.settings.debugMobile) {
+                debugLog.debug('NotebookNavigatorComponent: revealFile called', { file: file.path });
+            }
             dispatch({ type: 'REVEAL_FILE', file });
         },
         refresh: () => {
+            if (Platform.isMobile && plugin.settings.debugMobile) {
+                debugLog.debug('NotebookNavigatorComponent: refresh called');
+            }
             dispatch({ type: 'FORCE_REFRESH' });
         },
         focusFilePane: () => {
+            if (Platform.isMobile && plugin.settings.debugMobile) {
+                debugLog.debug('NotebookNavigatorComponent: focusFilePane called');
+            }
             dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             // Focus the container to ensure keyboard navigation works
             containerRef.current?.focus();
         }
-    }), [dispatch]);
+    }), [dispatch, plugin.settings.debugMobile]);
 
     // Handle focus/blur events to track when navigator has focus
     useEffect(() => {
@@ -104,6 +140,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         if (!container) return;
 
         const handleFocus = () => {
+            if (Platform.isMobile && plugin.settings.debugMobile) {
+                debugLog.debug('NotebookNavigatorComponent: Focus gained');
+            }
             setIsNavigatorFocused(true);
         };
 
@@ -111,6 +150,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             // Check if focus is moving within the navigator
             if (e.relatedTarget && container.contains(e.relatedTarget as Node)) {
                 return;
+            }
+            if (Platform.isMobile && plugin.settings.debugMobile) {
+                debugLog.debug('NotebookNavigatorComponent: Focus lost');
             }
             setIsNavigatorFocused(false);
         };

@@ -26,7 +26,8 @@ import {
     TAbstractFile,
     Menu,
     setIcon,
-    Notice
+    Notice,
+    Platform
 } from 'obsidian';
 import { SortOption, NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
 import { LocalStorageKeys, NavigatorElementAttributes, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, STORAGE_KEYS } from './types';
@@ -36,6 +37,7 @@ import { FileSystemOperations } from './services/FileSystemService';
 import { MetadataService } from './services/MetadataService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings } from './i18n';
+import { debugLog } from './utils/debugLog';
 
 /**
  * Main plugin class for Notebook Navigator
@@ -58,6 +60,21 @@ export default class NotebookNavigatorPlugin extends Plugin {
      */
     async onload() {
         const startTime = performance.now();
+        
+        // Initialize debug logger with vault - delay to ensure vault is ready
+        setTimeout(async () => {
+            try {
+                await debugLog.initialize(this.app.vault, Platform.isMobile && this.settings.debugMobile);
+                debugLog.info('NotebookNavigatorPlugin: Starting plugin load', {
+                    isMobile: Platform.isMobile,
+                    platform: navigator.platform,
+                    timestamp: new Date().toISOString(),
+                    debugMobile: this.settings.debugMobile
+                });
+            } catch (error: any) {
+                console.error('Debug logger initialization failed:', error);
+            }
+        }, 500);
         
         await this.loadSettings();
         
@@ -176,6 +193,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
             // Log total startup time
             const totalTime = performance.now() - startTime;
             console.log(`Plugin loaded in ${totalTime.toFixed(2)}ms`);
+            if (Platform.isMobile && this.settings.debugMobile) {
+                debugLog.info(`NotebookNavigatorPlugin: Plugin loaded in ${totalTime.toFixed(2)}ms`);
+            }
         });
     }
 
@@ -185,6 +205,11 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * Per Obsidian guidelines: leaves should not be detached in onunload
      */
     onunload() {
+        if (Platform.isMobile && this.settings.debugMobile) {
+            debugLog.info('NotebookNavigatorPlugin: Unloading plugin');
+        }
+        // Close the debug log file
+        debugLog.close();
         // Clean up the ribbon icon
         this.ribbonIconEl?.remove();
     }
@@ -230,12 +255,19 @@ export default class NotebookNavigatorPlugin extends Plugin {
     async activateView(showAfterAttach = true) {
         const { workspace } = this.app;
 
+        if (Platform.isMobile && this.settings.debugMobile) {
+            debugLog.info('NotebookNavigatorPlugin: Activating view', { showAfterAttach });
+        }
+
         let leaf: WorkspaceLeaf | null = null;
         const leaves = workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
 
         if (leaves.length > 0) {
             // View already exists - just reveal it
             leaf = leaves[0];
+            if (Platform.isMobile && this.settings.debugMobile) {
+                debugLog.info('NotebookNavigatorPlugin: Found existing view');
+            }
             if (showAfterAttach) {
                 workspace.revealLeaf(leaf);
             }
@@ -243,6 +275,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
             // Create new leaf only if none exists
             leaf = workspace.getLeftLeaf(false);
             if (leaf) {
+                if (Platform.isMobile && this.settings.debugMobile) {
+                    debugLog.info('NotebookNavigatorPlugin: Creating new view');
+                }
                 await leaf.setViewState({ type: VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, active: true });
                 if (showAfterAttach) {
                     workspace.revealLeaf(leaf);
@@ -262,6 +297,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * @param file - The file to reveal in the navigator
      */
     private async revealFileInNavigator(file: TFile) {
+        if (Platform.isMobile && this.settings.debugMobile) {
+            debugLog.info('NotebookNavigatorPlugin: Revealing file', { path: file.path });
+        }
         // Ensure navigator is open
         const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         if (leaves.length === 0) {

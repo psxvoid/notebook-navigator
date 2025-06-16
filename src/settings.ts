@@ -71,6 +71,7 @@ export interface NotebookNavigatorSettings {
     frontmatterCreatedField: string;
     frontmatterModifiedField: string;
     frontmatterDateFormat: string;
+    debugMobile: boolean;
     // Internal
     pinnedNotes: Record<string, string[]>;
     folderIcons: Record<string, string>;
@@ -117,6 +118,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     frontmatterCreatedField: 'created',
     frontmatterModifiedField: 'modified',
     frontmatterDateFormat: "yyyy-MM-dd'T'HH:mm:ss",
+    debugMobile: false,
     // Internal
     pinnedNotes: {},
     folderIcons: {},
@@ -593,6 +595,18 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 new Notice(strings.settings.items.frontmatterDateFormat.help, 10000);
             }));
 
+        // Debug mobile setting
+        new Setting(containerEl)
+            .setName('Enable debug logging (mobile only)')
+            .setDesc('Creates a debug log file in vault root to help diagnose issues. Currently only works on mobile devices. Requires restart.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.debugMobile)
+                .onChange(async (value) => {
+                    this.plugin.settings.debugMobile = value;
+                    await this.saveAndRefresh(false);
+                    // Notify about the change
+                    new Notice('Debug logging change will take effect on next restart');
+                }));
 
         // Sponsor section
         new Setting(containerEl)

@@ -34,6 +34,8 @@ import { PaneHeader } from './PaneHeader';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
+import { debugLog } from '../utils/debugLog';
+import { Platform } from 'obsidian';
 
 /**
  * Collects all pinned note paths from settings
@@ -141,10 +143,46 @@ export function FileList() {
     const { app, appState, dispatch, plugin, refreshCounter, isMobile } = useAppContext();
     const { selectionType, selectedFolder, selectedTag } = appState;
     
+    // Log component mount/unmount only if debug is enabled
+    useEffect(() => {
+        if (Platform.isMobile && plugin.settings.debugMobile) {
+            debugLog.info('FileList: Mounted', {
+                selectionType,
+                selectedFolder: selectedFolder?.path,
+                selectedTag,
+                selectedFile: appState.selectedFile?.path,
+                isMobile,
+                currentMobileView: appState.currentMobileView
+            });
+            return () => {
+                debugLog.info('FileList: Unmounted');
+            };
+        }
+    }, [plugin.settings.debugMobile]);
+    
+    // Log selection changes only if debug is enabled
+    useEffect(() => {
+        if (Platform.isMobile && plugin.settings.debugMobile) {
+            debugLog.debug('FileList: Selection changed', {
+                selectionType,
+                selectedFolder: selectedFolder?.path,
+                selectedTag,
+                selectedFile: appState.selectedFile?.path
+            });
+        }
+    }, [selectionType, selectedFolder?.path, selectedTag, appState.selectedFile?.path, plugin.settings.debugMobile]);
+    
     // Track if the file selection is from user click vs auto-selection
     const isUserSelectionRef = useRef(false);
     
     const handleFileClick = useCallback((file: TFile, e: React.MouseEvent) => {
+        if (Platform.isMobile && plugin.settings.debugMobile) {
+            debugLog.debug('FileList: File clicked', { 
+                file: file.path,
+                isUserSelection: true,
+                isMobile
+            });
+        }
         isUserSelectionRef.current = true;  // Mark this as a user selection
         dispatch({ type: 'SET_SELECTED_FILE', file });
         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
@@ -722,6 +760,7 @@ export function FileList() {
     // Handle programmatic scrolling (DESKTOP ONLY)
     useEffect(() => {
         if (!isMobile && appState.scrollToFileIndex !== null && scrollContainerRef.current && rowVirtualizer) {
+            debugLog.debug('FileList: Programmatic scroll to index', { index: appState.scrollToFileIndex });
             const cleanup = scrollVirtualItemIntoView(rowVirtualizer, appState.scrollToFileIndex);
             // Clear the scroll request
             dispatch({ type: 'SCROLL_TO_FILE_INDEX', index: null });
@@ -735,6 +774,10 @@ export function FileList() {
             const fileIndex = filePathToIndex.get(selectedFilePath);
             
             if (fileIndex !== undefined && fileIndex >= 0) {
+                debugLog.debug('FileList: Scrolling to selected file', {
+                    file: selectedFilePath,
+                    index: fileIndex
+                });
                 // Only scroll to header when it's the first file (auto-selection)
                 // Don't do it during normal navigation to avoid jumping
                 const firstItem = listItems[0];

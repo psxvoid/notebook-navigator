@@ -1,6 +1,6 @@
 import React, { useMemo, useRef, useEffect, useCallback } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { TFolder, TFile, App, getAllTags } from 'obsidian';
+import { TFolder, TFile, App, getAllTags, Platform } from 'obsidian';
 import { useAppContext } from '../context/AppContext';
 import { flattenFolderTree, flattenTagTree, findFolderIndex } from '../utils/treeFlattener';
 import { FolderItem } from './FolderItem';
@@ -15,11 +15,39 @@ import { UNTAGGED_TAG_ID } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
+import { debugLog } from '../utils/debugLog';
 
 export const LeftPaneVirtualized: React.FC = () => {
     const { app, plugin, appState, dispatch, refreshCounter, isMobile } = useAppContext();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const spacerHeight = isMobile ? 40 : 25; // More space on mobile
+    
+    // Log component mount/unmount only if debug is enabled
+    useEffect(() => {
+        if (Platform.isMobile && plugin.settings.debugMobile) {
+            debugLog.info('LeftPaneVirtualized: Mounted', {
+                isMobile,
+                selectedFolder: appState.selectedFolder?.path,
+                selectedTag: appState.selectedTag,
+                expandedFoldersCount: appState.expandedFolders.size,
+                expandedTagsCount: appState.expandedTags.size
+            });
+            return () => {
+                debugLog.info('LeftPaneVirtualized: Unmounted');
+            };
+        }
+    }, [plugin.settings.debugMobile]);
+    
+    // Log selection changes only if debug is enabled
+    useEffect(() => {
+        if (Platform.isMobile && plugin.settings.debugMobile) {
+            debugLog.debug('LeftPaneVirtualized: Selection changed', {
+                selectionType: appState.selectionType,
+                selectedFolder: appState.selectedFolder?.path,
+                selectedTag: appState.selectedTag
+            });
+        }
+    }, [appState.selectionType, appState.selectedFolder?.path, appState.selectedTag, plugin.settings.debugMobile]);
     
     // Get root folders to display
     const rootFolders = useMemo(() => {
@@ -165,6 +193,10 @@ export const LeftPaneVirtualized: React.FC = () => {
                 actualIndex = items.findIndex(item => 
                     item.type === 'folder' && item.data.path === appState.selectedFolder?.path
                 );
+                debugLog.debug('LeftPaneVirtualized: Scrolling to folder', {
+                    folder: appState.selectedFolder.path,
+                    index: actualIndex
+                });
             } else if (appState.selectionType === 'tag' && appState.selectedTag) {
                 // Find the tag in the items array
                 actualIndex = items.findIndex(item => {
@@ -268,6 +300,11 @@ export const LeftPaneVirtualized: React.FC = () => {
     
     // Handle folder click
     const handleFolderClick = useCallback((folder: TFolder) => {
+        debugLog.debug('LeftPaneVirtualized: Folder clicked', {
+            folder: folder.path,
+            isMobile,
+            currentMobileView: appState.currentMobileView
+        });
         dispatch({ type: 'SET_SELECTED_FOLDER', folder });
         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         
@@ -275,7 +312,7 @@ export const LeftPaneVirtualized: React.FC = () => {
         if (isMobile) {
             dispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
         }
-    }, [dispatch, isMobile]);
+    }, [dispatch, isMobile, appState.currentMobileView]);
     
     // Handle tag toggle
     const handleTagToggle = useCallback((path: string) => {
@@ -284,6 +321,13 @@ export const LeftPaneVirtualized: React.FC = () => {
     
     // Handle tag click
     const handleTagClick = useCallback((tagPath: string) => {
+        if (Platform.isMobile && plugin.settings.debugMobile) {
+            debugLog.debug('LeftPaneVirtualized: Tag clicked', {
+                tag: tagPath,
+                isMobile,
+                currentMobileView: appState.currentMobileView
+            });
+        }
         dispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
         dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         
@@ -291,7 +335,7 @@ export const LeftPaneVirtualized: React.FC = () => {
         if (isMobile) {
             dispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
         }
-    }, [dispatch, isMobile]);
+    }, [dispatch, isMobile, appState.currentMobileView]);
     
     // Render individual item
     const renderItem = useCallback((item: CombinedLeftPaneItem): React.ReactNode => {

@@ -26,6 +26,7 @@ import { ServicesProvider } from '../context/ServicesContext';
 import { NotebookNavigatorComponent, NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
 import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 import { strings } from '../i18n';
+import { debugLog } from '../utils/debugLog';
 
 /**
  * Custom Obsidian view that hosts the React-based Notebook Navigator interface
@@ -77,6 +78,9 @@ export class NotebookNavigatorView extends ItemView {
      * Sets up the component hierarchy with necessary context providers
      */
     async onOpen() {
+        if (Platform.isMobile && this.plugin.settings.debugMobile) {
+            debugLog.info('NotebookNavigatorView: Opening view');
+        }
         const container = this.containerEl.children[1];
         container.empty(); // Clear previous content
         container.classList.add('notebook-navigator');
@@ -85,6 +89,10 @@ export class NotebookNavigatorView extends ItemView {
         const isMobile = Platform.isMobile;
         if (isMobile) {
             container.classList.add('notebook-navigator-mobile');
+        }
+        
+        if (Platform.isMobile && this.plugin.settings.debugMobile) {
+            debugLog.info('NotebookNavigatorView: Rendering React app', { isMobile });
         }
 
         this.root = createRoot(container);
@@ -105,6 +113,9 @@ export class NotebookNavigatorView extends ItemView {
      * Cleans up any view-specific classes and resources
      */
     async onClose() {
+        if (Platform.isMobile && this.plugin.settings.debugMobile) {
+            debugLog.info('NotebookNavigatorView: Closing view');
+        }
         // Unmount the React app when the view is closed to prevent memory leaks
         const container = this.containerEl.children[1];
         container.classList.remove('notebook-navigator');
@@ -116,6 +127,9 @@ export class NotebookNavigatorView extends ItemView {
      * Reveals a file in the navigator by selecting it and its parent folder
      */
     revealFile(file: TFile) {
+        if (Platform.isMobile && this.plugin.settings.debugMobile) {
+            debugLog.info('NotebookNavigatorView: Revealing file', { path: file.path });
+        }
         this.componentRef.current?.revealFile(file);
     }
     
