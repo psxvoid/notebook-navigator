@@ -50,15 +50,6 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
         setVersion(v => v + 1);
     }, [plugin]);
     
-    // Listen for external settings changes (e.g., from settings tab)
-    useEffect(() => {
-        // Store the update function on the plugin so MetadataService can use it
-        (plugin as any).__settingsUpdater = () => setVersion(v => v + 1);
-        
-        return () => {
-            delete (plugin as any).__settingsUpdater;
-        };
-    }, [plugin]);
     
     return (
         <SettingsContext.Provider value={{ settings, updateSettings }}>

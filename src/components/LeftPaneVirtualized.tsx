@@ -222,7 +222,7 @@ export const LeftPaneVirtualized: React.FC = () => {
     // Desktop scrolling is now handled through predictive SCROLL_TO_FOLDER_INDEX actions
     
     // Add keyboard navigation
-    useVirtualKeyboardNavigation({
+    const { handleKeyDown } = useVirtualKeyboardNavigation({
         items: items,
         virtualizer: rowVirtualizer,
         focusedPane: 'folders',
@@ -336,6 +336,7 @@ export const LeftPaneVirtualized: React.FC = () => {
                 data-pane="folders"
                 role="tree"
                 aria-label="Folder and tag navigation"
+                onKeyDown={handleKeyDown as any}
             >
                 <div
                     style={{

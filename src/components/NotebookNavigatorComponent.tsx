@@ -351,7 +351,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}
             tabIndex={-1}
             onMouseDown={() => navigatorInteractionRef.current = Date.now()}
-            onKeyDown={() => navigatorInteractionRef.current = Date.now()}
+            onKeyDown={(e) => {
+                navigatorInteractionRef.current = Date.now();
+                // Allow keyboard events to bubble up from child components
+                // The actual keyboard handling is done in LeftPaneVirtualized and FileList
+            }}
         >
             <div className="nn-left-pane" style={{ width: isMobile ? '100%' : `${paneWidth}px` }}>
                 <LeftPaneVirtualized />

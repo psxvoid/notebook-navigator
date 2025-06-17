@@ -22,6 +22,7 @@ interface UseVirtualKeyboardNavigationProps<T extends VirtualItem> {
 /**
  * Custom hook for keyboard navigation in virtualized lists.
  * Works with flattened data arrays instead of DOM queries.
+ * Returns a keyboard event handler that should be attached to the container element.
  */
 export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     items,
@@ -44,9 +45,10 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         return index >= 0 && index < array.length ? array[index] : undefined;
     };
     
-    const handleKeyDown = useCallback((e: KeyboardEvent) => {
+    const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLElement>) => {
         // Skip if typing in input
-        if (isTypingInInput(e)) return;
+        const nativeEvent = 'nativeEvent' in e ? e.nativeEvent : e;
+        if (isTypingInInput(nativeEvent as KeyboardEvent)) return;
         
         // Skip if the focused element is inside a modal
         const activeElement = document.activeElement as HTMLElement;
@@ -54,11 +56,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             return;
         }
         
-        // Check if the navigator exists
-        const navigatorContainer = document.querySelector('[data-focus-pane]');
-        if (!navigatorContainer) return;
-        
-        // Use the state directly instead of DOM attribute to avoid timing issues
+        // Use the state directly to check if this pane should handle the event
         if (uiState.focusedPane !== focusedPane) return;
         
         // Debounce rapid key presses with a more reasonable threshold
@@ -284,7 +282,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 
             case 'Delete':
             case 'Backspace':
-                if (!isTypingInInput(e) && selectionState.selectedFile) {
+                if (!isTypingInInput(nativeEvent as KeyboardEvent) && selectionState.selectedFile) {
                     e.preventDefault();
                     handleDelete();
                 }
@@ -495,8 +493,6 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         );
     };
     
-    useEffect(() => {
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [handleKeyDown]);
+    // Return the handler to be attached at the component level
+    return { handleKeyDown };
 }

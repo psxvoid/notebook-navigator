@@ -149,4 +149,16 @@ export class NotebookNavigatorView extends ItemView {
     focusFilePane() {
         this.componentRef.current?.focusFilePane();
     }
+    
+    /**
+     * Refreshes the view by forcing a re-render of the React component tree
+     * Called when settings change externally (e.g., from settings tab)
+     */
+    refresh() {
+        // Force re-render by remounting the entire React tree
+        if (this.root) {
+            this.onClose();
+            this.onOpen();
+        }
+    }
 }

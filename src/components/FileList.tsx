@@ -635,16 +635,6 @@ export function FileList() {
     }, [isMobile, scrollStateKey, selectedFilePath]);
     */
     
-    // Mobile: Calculate and dispatch scroll index when view becomes visible
-    useEffect(() => {
-        if (isMobile && uiState.currentMobileView === 'files' && selectedFilePath) {
-            const fileIndex = filePathToIndex.get(selectedFilePath);
-            if (fileIndex !== undefined && fileIndex >= 0) {
-                // Dispatch predictive scroll to the selected file
-                uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: fileIndex });
-            }
-        }
-    }, [isMobile, uiState.currentMobileView, selectedFilePath, filePathToIndex, uiDispatch]);
     
     // REMOVED: Old layout-change handler for scroll tracking
     // Predictive scrolling now handles this automatically
@@ -752,26 +742,23 @@ export function FileList() {
         }
     }, [uiState.scrollToFileIndex, rowVirtualizer, uiDispatch]); // This effect ONLY runs when the scroll target changes.
     
-    // Mobile: Calculate and dispatch scroll index when view becomes visible
+    
+    // Scroll to selected file when it changes (e.g., from REVEAL_FILE action)
     useEffect(() => {
-        if (isMobile && uiState.currentMobileView === 'files' && selectedFilePath) {
+        if (selectedFilePath) {
             const fileIndex = filePathToIndex.get(selectedFilePath);
             if (fileIndex !== undefined && fileIndex >= 0) {
-                // Dispatch scroll action - the single predictive effect above will handle it
+                // Dispatch scroll to the selected file
                 uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: fileIndex });
             }
+        } else {
+            // No file selected, scroll to top
+            uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: 0 });
         }
-    }, [isMobile, uiState.currentMobileView, selectedFilePath, filePathToIndex, uiDispatch]);
-    
-    // Reset scroll position when folder/tag changes
-    // Dispatch scroll to first item (index 0) for consistent experience
-    useEffect(() => {
-        // Dispatch scroll to top when folder or tag changes
-        uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: 0 });
-    }, [selectedFolder?.path, selectedTag, uiDispatch]);
+    }, [selectedFilePath, filePathToIndex, uiDispatch]);
     
     // Add keyboard navigation
-    useVirtualKeyboardNavigation({
+    const { handleKeyDown } = useVirtualKeyboardNavigation({
         items: listItems,
         virtualizer: rowVirtualizer,
         focusedPane: 'files',
@@ -848,6 +835,7 @@ export function FileList() {
                 data-pane="files"
                 role="list"
                 aria-label="File list"
+                onKeyDown={handleKeyDown as any}
             >
                 {/* Virtual list */}
                 {listItems.length > 0 && (

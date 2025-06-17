@@ -79,11 +79,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         await this.loadSettings();
         
         // Initialize metadata service
-        this.metadataService = new MetadataService(
-            this.app,
-            this.settings,
-            () => this.saveSettings()
-        );
+        this.metadataService = new MetadataService(this);
         
         this.registerView(
             VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT,
@@ -340,8 +336,13 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * Settings changes are now handled reactively through context providers
      */
     onSettingsChange() {
-        // Settings changes are automatically propagated through the context providers
-        // Components re-render based on the new settings values
-        // No manual refresh is needed
+        // Refresh all navigator views when settings change
+        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+        leaves.forEach(leaf => {
+            const view = leaf.view;
+            if (view instanceof NotebookNavigatorView) {
+                view.refresh();
+            }
+        });
     }
 }
