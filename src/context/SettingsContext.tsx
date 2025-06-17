@@ -62,7 +62,7 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
     
     // Create a stable settings object that changes reference when version changes
     // This ensures components using SettingsStateContext re-render when settings change
-    const settingsValue = React.useMemo(() => plugin.settings, [version]);
+    const settingsValue = React.useMemo(() => ({ ...plugin.settings }), [version]);
     
     return (
         <SettingsStateContext.Provider value={settingsValue}>

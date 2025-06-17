@@ -100,9 +100,9 @@ A key challenge is ensuring the React UI updates when changes happen outside of 
 
 1. **Event Trigger**: An event occurs in the vault (e.g., `app.vault.on('rename', ...)`).
 2. **`main.ts` Handler**: The handler in `main.ts` catches the event and calls the appropriate method on the single `MetadataService` instance to update the settings data.
-3. **Notify Listeners**: After saving the updated settings, `main.ts` iterates over a list of registered listeners and calls them.
-4. **`useMetadataSync` Hook**: This hook, activated by the `MetadataSyncBridge` component, has registered one such listener.
-5. **React Re-render**: The listener's callback function calls the `updateSettings` function from `SettingsContext`. This increments a version counter in the context, triggering a re-render of all components that consume the settings, thus refreshing the UI with the latest data.
+3. **Notify Listeners**: After saving the updated settings, `main.ts` calls `onSettingsUpdate()` which iterates over all registered listeners and calls them.
+4. **`SettingsProvider` Listener**: The `SettingsProvider` component registers a listener that increments a version counter when called.
+5. **React Re-render**: The version increment causes the settings value to be recreated with a new object reference (using spread syntax), triggering a re-render of all components that consume the settings, thus refreshing the UI with the latest data.
 
 This one-way data flow ensures the UI "reacts" to external changes without `main.ts` needing any direct reference to the React components.
 
@@ -115,17 +115,16 @@ NotebookNavigatorView (Obsidian ItemView)
 └── React.StrictMode
     └── SettingsProvider
         └── ServicesProvider
-            └── MetadataSyncBridge
-                └── ExpansionProvider
-                    └── SelectionProvider
-                        └── UIStateProvider
-                            └── NotebookNavigatorComponent
-                                ├── PaneHeader (left)
-                                ├── LeftPaneVirtualized
-                                │   └── FolderItem / TagTreeItem
-                                ├── PaneHeader (right)
-                                └── FileList
-                                    └── FileItem
+            └── ExpansionProvider
+                └── SelectionProvider
+                    └── UIStateProvider
+                        └── NotebookNavigatorComponent
+                            ├── PaneHeader (left)
+                            ├── LeftPaneVirtualized
+                            │   └── FolderItem / TagTreeItem
+                            ├── PaneHeader (right)
+                            └── FileList
+                                └── FileItem
 ```
 
 ### State Management (Context API)
@@ -276,15 +275,12 @@ This section provides a detailed breakdown of each file in the project, explaini
 - Applies custom colors and icons from the `MetadataService`.
 - Handles indentation based on its nesting level.
 - Attaches a context menu using the `useContextMenu` hook.
-- **`src/components/MetadataSyncBridge.tsx`**
-- **Purpose**: A simple, non-rendering component whose sole job is to activate the `useMetadataSync` hook.
-- **Responsibilities**: By including this component high in the component tree, it ensures that the metadata synchronization listener is active whenever the UI is mounted. It acts as the bridge connecting external vault events to the React update cycle.
         
 
 #### State Management (Contexts)
 - **`src/context/ExpansionContext.tsx`**: Manages the state of expanded/collapsed folders and tags (`expandedFolders: Set<string>`, `expandedTags: Set<string>`). Persists this state to `localStorage`.
 - **`src/context/SelectionContext.tsx`**: Manages what is currently selected (`selectedFolder`, `selectedTag`, `selectedFile`). It contains the core logic for what happens when a selection changes, such as auto-selecting the first file in a folder. Persists selection to `localStorage`.
-- **`src/context/SettingsContext.tsx`**: Provides the global `NotebookNavigatorSettings` object to the entire React component tree. Uses a version counter to trigger re-renders when settings change.
+- **`src/context/SettingsContext.tsx`**: Provides the global `NotebookNavigatorSettings` object to the entire React component tree. Uses a version counter to trigger re-renders when settings change. When the version increments, it creates a new settings object reference using spread syntax, ensuring React detects the change and re-renders dependent components.
 - **`src/context/ServicesContext.tsx`**: Acts as a dependency injection container. It instantiates business logic services (`FileSystemService`, `MetadataService`) and makes them available to any component via custom hooks.
 - **`src/context/UIStateContext.tsx`**: Manages state related to the UI's appearance and behavior, such as which pane has keyboard focus (`focusedPane`), the width of the resizable pane, the current view on mobile (`currentMobileView`), and triggers for programmatic scrolling (`scrollToFolderIndex`, `scrollToFileIndex`).
     
@@ -299,10 +295,6 @@ This section provides a detailed breakdown of each file in the project, explaini
         
 
 #### Custom Hooks
-- **`src/hooks/useMetadataSync.ts`**
-- **Purpose**: Bridges the gap between vault events handled in `main.ts` and the React UI.
-- **Responsibilities**: This hook registers a listener with the main plugin instance. When metadata is changed externally (e.g., via a folder rename), `main.ts` calls this listener. The hook's callback then triggers an update in the `SettingsContext`, which forces a re-render of the application with the fresh data, ensuring the UI is always in sync.
-        
 
 #### Utility Functions
 - **`src/utils/fileFinder.ts`**: Contains the main logic (`getFilesForFolder`, `getFilesForTag`) for retrieving the correct list of files based on the current selection and all relevant settings (sorting, pinning, exclusions).

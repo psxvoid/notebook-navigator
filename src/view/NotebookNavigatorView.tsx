@@ -30,7 +30,6 @@ import { NotebookNavigatorComponent, NotebookNavigatorHandle } from '../componen
 import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 import { strings } from '../i18n';
 import { debugLog } from '../utils/debugLog';
-import { MetadataSyncBridge } from '../components/MetadataSyncBridge';
 
 /**
  * Custom Obsidian view that hosts the React-based Notebook Navigator interface
@@ -104,7 +103,6 @@ export class NotebookNavigatorView extends ItemView {
             <React.StrictMode>
                 <SettingsProvider plugin={this.plugin}>
                     <ServicesProvider plugin={this.plugin}>
-                        <MetadataSyncBridge />
                         <ExpansionProvider>
                             <SelectionProvider app={this.plugin.app} plugin={this.plugin} isMobile={isMobile}>
                                 <UIStateProvider isMobile={isMobile}>
