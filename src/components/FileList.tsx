@@ -580,7 +580,8 @@ export function FileList() {
             if (heightAdjustment > 0) {
                 // Apply position adjustment immediately to prevent visual jump
                 queueMicrotask(() => {
-                    if (scrollContainer && scrollStateRef.current.isScrolling) {
+                    // Check if component is still mounted by verifying scrollContainer exists
+                    if (scrollContainer && scrollContainer.isConnected && scrollStateRef.current.isScrolling) {
                         scrollContainer.scrollTop = currentScrollTop + heightAdjustment;
                     }
                 });

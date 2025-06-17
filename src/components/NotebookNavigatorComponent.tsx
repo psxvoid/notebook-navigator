@@ -21,7 +21,9 @@ import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState } f
 import { TFile, TFolder, TAbstractFile, WorkspaceLeaf, debounce, Platform } from 'obsidian';
 import { LeftPaneVirtualized } from './LeftPaneVirtualized';
 import { FileList } from './FileList';
+import { ErrorBoundary } from './ErrorBoundary';
 import { useServices } from '../context/ServicesContext';
+import { useSettings } from '../context/SettingsContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
@@ -37,6 +39,7 @@ import { parseExcludedFolders } from '../utils/fileFilters';
 export interface NotebookNavigatorHandle {
     revealFile: (file: TFile) => void;
     focusFilePane: () => void;
+    refresh: () => void;
 }
 
 /**
@@ -51,6 +54,7 @@ export interface NotebookNavigatorHandle {
  */
 export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_, ref) => {
     const { app, plugin, isMobile } = useServices();
+    const { updateSettings } = useSettings();
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
     const selectionState = useSelectionState();
@@ -126,8 +130,16 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             // Focus the container to ensure keyboard navigation works
             containerRef.current?.focus();
+        },
+        refresh: () => {
+            if (Platform.isMobile && plugin.settings.debugMobile) {
+                debugLog.debug('NotebookNavigatorComponent: refresh called');
+            }
+            // This will trigger the version update in SettingsProvider
+            // and cause a re-render of consumers.
+            updateSettings(settings => {});
         }
-    }), [selectionDispatch, plugin.settings.debugMobile]);
+    }), [selectionDispatch, uiDispatch, updateSettings, plugin.settings.debugMobile]);
 
     // Handle file reveal - expand folders and scroll when a file is revealed
     useEffect(() => {
@@ -354,7 +366,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 <LeftPaneVirtualized />
             </div>
             {!isMobile && <div className="nn-resize-handle" {...resizeHandleProps} />}
-            <FileList />
+            <ErrorBoundary componentName="FileList">
+                <FileList />
+            </ErrorBoundary>
         </div>
     );
 });
