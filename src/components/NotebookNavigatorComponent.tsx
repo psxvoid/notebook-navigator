@@ -23,7 +23,7 @@ import { LeftPaneVirtualized } from './LeftPaneVirtualized';
 import { FileList } from './FileList';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useServices } from '../context/ServicesContext';
-import { useSettings } from '../context/SettingsContext';
+import { useSettingsUpdate } from '../context/SettingsContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
@@ -32,6 +32,7 @@ import { useResizablePane } from '../hooks/useResizablePane';
 import { useSwipeGesture } from '../hooks/useSwipeGesture';
 import { isTFolder } from '../utils/typeGuards';
 import { STORAGE_KEYS, PANE_DIMENSIONS, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
+import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { debugLog } from '../utils/debugLog';
 import { flattenFolderTree, findFolderIndex } from '../utils/treeFlattener';
 import { parseExcludedFolders } from '../utils/fileFilters';
@@ -114,7 +115,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     });
     
     // Get updateSettings from SettingsContext for refresh
-    const { updateSettings } = useSettings();
+    const updateSettings = useSettingsUpdate();
     
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
@@ -168,24 +169,29 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Separate effect to handle scrolling after expansion state updates
     useEffect(() => {
         if (selectionState.selectedFolder) {
-            // Calculate and dispatch scroll to folder
-            const vault = app.vault;
-            const root = vault.getRoot();
-            const rootFolders = plugin.settings.showRootFolder 
-                ? [root]
-                : root.children.filter(child => isTFolder(child)).sort((a, b) => a.name.localeCompare(b.name)) as TFolder[];
+            // Defer the scroll calculation to next tick to ensure expansion state is updated
+            const timeoutId = setTimeout(() => {
+                // Calculate and dispatch scroll to folder
+                const vault = app.vault;
+                const root = vault.getRoot();
+                const rootFolders = plugin.settings.showRootFolder 
+                    ? [root]
+                    : root.children.filter(child => isTFolder(child)).sort((a, b) => a.name.localeCompare(b.name)) as TFolder[];
+                
+                // Use the current expansion state which now includes any newly expanded folders
+                const flattened = flattenFolderTree(
+                    rootFolders,
+                    expansionState.expandedFolders,
+                    parseExcludedFolders(plugin.settings.ignoreFolders || '')
+                );
+                
+                const folderIndex = findFolderIndex(flattened, selectionState.selectedFolder?.path || '');
+                if (folderIndex !== -1) {
+                    uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: folderIndex });
+                }
+            }, 0);
             
-            // Use the current expansion state which now includes any newly expanded folders
-            const flattened = flattenFolderTree(
-                rootFolders,
-                expansionState.expandedFolders,
-                parseExcludedFolders(plugin.settings.ignoreFolders || '')
-            );
-            
-            const folderIndex = findFolderIndex(flattened, selectionState.selectedFolder.path);
-            if (folderIndex !== -1) {
-                uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: folderIndex });
-            }
+            return () => clearTimeout(timeoutId);
         }
     }, [selectionState.selectedFolder, expansionState.expandedFolders, uiDispatch, 
         app.vault, plugin.settings.showRootFolder, plugin.settings.ignoreFolders]);
@@ -279,8 +285,34 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         };
 
         const handleActiveLeafChange = (leaf: WorkspaceLeaf | null) => {
+            if (!leaf) return;
+            
+            // Check if returning to navigator on mobile
+            if (isMobile && leaf.view.getViewType() === VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT) {
+                // User is back in the navigator - scroll to selected file if exists
+                if (selectionState.selectedFile) {
+                    // Calculate the file list based on current selection
+                    let files: TFile[] = [];
+                    if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+                        files = getFilesForFolder(selectionState.selectedFolder, plugin.settings, app);
+                    } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
+                        files = getFilesForTag(selectionState.selectedTag, plugin.settings, app);
+                    }
+                    
+                    // Find the index of selected file
+                    const fileIndex = files.findIndex(f => f.path === selectionState.selectedFile?.path);
+                    if (fileIndex !== -1) {
+                        // Note: This is a simplified calculation. In FileList, the actual index
+                        // might be different due to headers (Pinned, date groups).
+                        // For now, dispatch with the raw index and let FileList handle it
+                        uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: fileIndex });
+                    }
+                }
+                return;
+            }
+            
             // Only process leaves in the main editor area
-            if (!leaf || leaf.getRoot() !== app.workspace.rootSplit) {
+            if (leaf.getRoot() !== app.workspace.rootSplit) {
                 return;
             }
             

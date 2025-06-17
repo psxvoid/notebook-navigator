@@ -19,7 +19,7 @@
 import React, { useRef, useEffect } from 'react';
 import { TFolder } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
-import { useSettings } from '../context/SettingsContext';
+import { useSettingsState } from '../context/SettingsContext';
 import { setIcon } from 'obsidian';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 import { useContextMenu } from '../hooks/useContextMenu';
@@ -51,7 +51,7 @@ interface FolderItemProps {
  */
 export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick }: FolderItemProps) {
     const { app, isMobile } = useServices();
-    const { settings } = useSettings();
+    const settings = useSettingsState();
     const folderRef = useRef<HTMLDivElement>(null);
     
     // Enable context menu

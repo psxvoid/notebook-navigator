@@ -20,12 +20,9 @@ import React, { createContext, useContext, useState, useCallback, ReactNode, use
 import { NotebookNavigatorSettings } from '../settings';
 import NotebookNavigatorPlugin from '../main';
 
-interface SettingsContextType {
-    settings: NotebookNavigatorSettings;
-    updateSettings: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>;
-}
-
-const SettingsContext = createContext<SettingsContextType | null>(null);
+// Separate contexts for state and update function
+const SettingsStateContext = createContext<NotebookNavigatorSettings | null>(null);
+const SettingsUpdateContext = createContext<((updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>) | null>(null);
 
 interface SettingsProviderProps {
     children: ReactNode;
@@ -36,9 +33,6 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
     // Use a version counter to force re-renders when settings change
     const [version, setVersion] = useState(0);
     
-    // Get the current settings from the plugin
-    const settings = plugin.settings;
-    
     const updateSettings = useCallback(async (updater: (settings: NotebookNavigatorSettings) => void) => {
         // Update the settings object
         updater(plugin.settings);
@@ -46,22 +40,44 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
         // Save to storage
         await plugin.saveSettings();
         
-        // Increment version to trigger re-renders
+        // Increment version to trigger re-renders of state consumers only
         setVersion(v => v + 1);
     }, [plugin]);
     
+    // Create a stable settings object that changes reference when version changes
+    // This ensures components using SettingsStateContext re-render when settings change
+    const settingsValue = React.useMemo(() => plugin.settings, [plugin.settings, version]);
     
     return (
-        <SettingsContext.Provider value={{ settings, updateSettings }}>
-            {children}
-        </SettingsContext.Provider>
+        <SettingsStateContext.Provider value={settingsValue}>
+            <SettingsUpdateContext.Provider value={updateSettings}>
+                {children}
+            </SettingsUpdateContext.Provider>
+        </SettingsStateContext.Provider>
     );
 }
 
-export function useSettings() {
-    const context = useContext(SettingsContext);
-    if (!context) {
-        throw new Error('useSettings must be used within a SettingsProvider');
+// Hook to get only settings state (use this when you only need to read settings)
+export function useSettingsState() {
+    const context = useContext(SettingsStateContext);
+    if (context === null) {
+        throw new Error('useSettingsState must be used within a SettingsProvider');
     }
     return context;
+}
+
+// Hook to get only the update function (use this when you only need to update settings)
+export function useSettingsUpdate() {
+    const context = useContext(SettingsUpdateContext);
+    if (!context) {
+        throw new Error('useSettingsUpdate must be used within a SettingsProvider');
+    }
+    return context;
+}
+
+// Legacy hook that returns both (kept for compatibility but less optimal)
+export function useSettings() {
+    const settings = useSettingsState();
+    const updateSettings = useSettingsUpdate();
+    return { settings, updateSettings };
 }

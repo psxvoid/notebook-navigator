@@ -19,7 +19,7 @@
 import React, { useEffect, useState, useRef, useMemo, memo } from 'react';
 import { TFile } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
-import { useSettings } from '../context/SettingsContext';
+import { useSettingsState } from '../context/SettingsContext';
 import { DateUtils } from '../utils/DateUtils';
 import { PreviewTextUtils } from '../utils/PreviewTextUtils';
 import { getDateField } from '../utils/sortUtils';
@@ -50,7 +50,7 @@ interface FileItemProps {
  */
 function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate, parentFolder }: FileItemProps) {
     const { app, isMobile } = useServices();
-    const { settings } = useSettings();
+    const settings = useSettingsState();
     const [previewText, setPreviewText] = useState('');
     const fileRef = useRef<HTMLDivElement>(null);
     
