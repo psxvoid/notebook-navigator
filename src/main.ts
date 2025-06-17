@@ -48,6 +48,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
     settings: NotebookNavigatorSettings;
     ribbonIconEl: HTMLElement | undefined = undefined;
     metadataService: MetadataService;
+    // A map of callbacks to notify open React views of changes
+    private settingsUpdateListeners = new Map<string, () => void>();
 
     // LocalStorage keys for state persistence
     // These keys are used to save and restore the plugin's state between sessions
@@ -87,12 +89,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 updater(this.settings);
                 await this.saveSettings();
                 
-                // Refresh all navigator views to reflect the changes
-                this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT).forEach(leaf => {
-                    if (leaf.view instanceof NotebookNavigatorView) {
-                        leaf.view.refresh();
-                    }
-                });
+                // Notify all registered listeners about the change
+                this.settingsUpdateListeners.forEach(callback => callback());
             }
         );
         
@@ -211,6 +209,22 @@ export default class NotebookNavigatorPlugin extends Plugin {
     }
 
     /**
+     * Register a callback to be notified when settings are updated
+     * Used by React views to trigger re-renders
+     */
+    public registerSettingsUpdateListener(id: string, callback: () => void): void {
+        this.settingsUpdateListeners.set(id, callback);
+    }
+
+    /**
+     * Unregister a settings update callback
+     * Called when React views unmount to prevent memory leaks
+     */
+    public unregisterSettingsUpdateListener(id: string): void {
+        this.settingsUpdateListeners.delete(id);
+    }
+
+    /**
      * Plugin cleanup - called when plugin is disabled or updated
      * Removes ribbon icon but preserves open views to maintain user workspace
      * Per Obsidian guidelines: leaves should not be detached in onunload
@@ -223,6 +237,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
         debugLog.close();
         // Clean up the ribbon icon
         this.ribbonIconEl?.remove();
+        // Clear all listeners to prevent memory leaks
+        this.settingsUpdateListeners.clear();
     }
 
     /**

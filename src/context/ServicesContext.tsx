@@ -22,7 +22,6 @@ import { App, Platform } from 'obsidian';
 import { FileSystemOperations } from '../services/FileSystemService';
 import { MetadataService } from '../services/MetadataService';
 import NotebookNavigatorPlugin from '../main';
-import { useSettings } from './SettingsContext';
 
 /**
  * Interface defining all services and stable dependencies available through the context.
@@ -58,20 +57,17 @@ const ServicesContext = createContext<Services>(null!);
 export function ServicesProvider({ children, plugin }: { children: React.ReactNode, plugin: NotebookNavigatorPlugin }) {
     const isMobile = Platform.isMobile;
     
-    // Get settings and updateSettings from SettingsContext
-    const { settings, updateSettings } = useSettings();
-    
     /**
-     * Instantiate services once and memoize them.
-     * Services are only recreated if the settings or updateSettings changes.
+     * Use the single MetadataService instance from the plugin
+     * This ensures consistency between vault event handlers and UI
      */
     const services = useMemo(() => ({
         app: plugin.app,
         plugin,
         isMobile,
         fileSystemOps: new FileSystemOperations(plugin.app),
-        metadataService: new MetadataService(plugin.app, settings, updateSettings)
-    }), [plugin, isMobile, settings, updateSettings]);
+        metadataService: plugin.metadataService // Use the single instance from plugin
+    }), [plugin, isMobile]);
 
     return (
         <ServicesContext.Provider value={services}>
