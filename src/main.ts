@@ -331,18 +331,4 @@ export default class NotebookNavigatorPlugin extends Plugin {
         }
     }
 
-    /**
-     * Called when plugin settings change
-     * Settings changes are now handled reactively through context providers
-     */
-    onSettingsChange() {
-        // Refresh all navigator views when settings change
-        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-        leaves.forEach(leaf => {
-            const view = leaf.view;
-            if (view instanceof NotebookNavigatorView) {
-                view.refresh();
-            }
-        });
-    }
 }
