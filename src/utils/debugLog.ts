@@ -9,6 +9,7 @@ class DebugLogger {
     private writeCount = 0;
     private initialized = false;
     private earlyLogs: Array<{type: string, message: string, data?: any}> = [];
+    private maxEarlyLogs = 100; // Prevent memory issues
     private debugMobileEnabled = false;
 
     async initialize(vault: Vault, debugMobileEnabled: boolean) {
@@ -130,6 +131,10 @@ class DebugLogger {
         // If not initialized yet, queue the log for later
         if (!this.initialized) {
             this.earlyLogs.push({ type, message, data });
+            // Prevent unbounded growth
+            if (this.earlyLogs.length > this.maxEarlyLogs) {
+                this.earlyLogs.shift();
+            }
             return;
         }
         

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile, TFolder } from 'obsidian';
+import { TFile, TFolder } from 'obsidian';
 import { NotebookNavigatorSettings, SortOption } from '../settings';
 
 /**
@@ -25,24 +25,46 @@ import { NotebookNavigatorSettings, SortOption } from '../settings';
  * Provides cleanup operations for deleted files/folders
  */
 export class MetadataService {
-    private app: App;
+    private app: any;
+    private settings: NotebookNavigatorSettings;
+    private updateSettings: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>;
     
     /**
      * Creates a new MetadataService instance
-     * @param plugin - The plugin instance for accessing settings and saving
+     * Can be called with either:
+     * - A plugin instance (for non-React usage)
+     * - App, settings, and updateSettings (for React context usage)
      */
     constructor(
-        private plugin: any // Using 'any' to avoid circular dependency with NotebookNavigatorPlugin
+        appOrPlugin: any,
+        settings?: NotebookNavigatorSettings,
+        updateSettings?: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>
     ) {
-        this.app = plugin.app;
+        // Handle both constructor signatures
+        if (settings && updateSettings) {
+            // New signature for React context
+            this.app = appOrPlugin;
+            this.settings = settings;
+            this.updateSettings = updateSettings;
+        } else {
+            // Old signature for plugin usage
+            const plugin = appOrPlugin;
+            this.app = plugin.app;
+            this.settings = plugin.settings;
+            // Create a simple updateSettings that directly modifies and saves
+            this.updateSettings = async (updater) => {
+                updater(plugin.settings);
+                await plugin.saveSettings();
+            };
+        }
     }
     
     /**
      * Saves settings and triggers UI update
-     * Uses the plugin's settings updater if available
+     * Uses the updateSettings function for reactive updates
      */
-    private async saveAndUpdate(): Promise<void> {
-        await this.plugin.saveSettings();
+    private async saveAndUpdate(updater: (settings: NotebookNavigatorSettings) => void): Promise<void> {
+        await this.updateSettings(updater);
     }
 
     // ========== Folder Color Management ==========
@@ -53,11 +75,12 @@ export class MetadataService {
      * @param color - CSS color value
      */
     async setFolderColor(folderPath: string, color: string): Promise<void> {
-        if (!this.plugin.settings.folderColors) {
-            this.plugin.settings.folderColors = {};
-        }
-        this.plugin.settings.folderColors[folderPath] = color;
-        await this.saveAndUpdate();
+        await this.saveAndUpdate(settings => {
+            if (!settings.folderColors) {
+                settings.folderColors = {};
+            }
+            settings.folderColors[folderPath] = color;
+        });
     }
 
     /**
@@ -65,9 +88,10 @@ export class MetadataService {
      * @param folderPath - Path of the folder
      */
     async removeFolderColor(folderPath: string): Promise<void> {
-        if (this.plugin.settings.folderColors && this.plugin.settings.folderColors[folderPath]) {
-            delete this.plugin.settings.folderColors[folderPath];
-            await this.saveAndUpdate();
+        if (this.settings.folderColors && this.settings.folderColors[folderPath]) {
+            await this.saveAndUpdate(settings => {
+                delete settings.folderColors![folderPath];
+            });
         }
     }
 
@@ -77,7 +101,7 @@ export class MetadataService {
      * @returns The color value or undefined
      */
     getFolderColor(folderPath: string): string | undefined {
-        return this.plugin.settings.folderColors?.[folderPath];
+        return this.settings.folderColors?.[folderPath];
     }
 
     // ========== Folder Icon Management ==========
@@ -88,23 +112,23 @@ export class MetadataService {
      * @param iconId - Lucide icon identifier
      */
     async setFolderIcon(folderPath: string, iconId: string): Promise<void> {
-        if (!this.plugin.settings.folderIcons) {
-            this.plugin.settings.folderIcons = {};
-        }
-        this.plugin.settings.folderIcons[folderPath] = iconId;
-        
-        // Update recently used icons
-        if (!this.plugin.settings.recentlyUsedIcons) {
-            this.plugin.settings.recentlyUsedIcons = [];
-        }
-        
-        // Remove if already exists and add to front
-        this.plugin.settings.recentlyUsedIcons = [
-            iconId,
-            ...this.plugin.settings.recentlyUsedIcons.filter((id: string) => id !== iconId)
-        ].slice(0, 10); // Keep only 10 most recent
-        
-        await this.saveAndUpdate();
+        await this.saveAndUpdate(settings => {
+            if (!settings.folderIcons) {
+                settings.folderIcons = {};
+            }
+            settings.folderIcons[folderPath] = iconId;
+            
+            // Update recently used icons
+            if (!settings.recentlyUsedIcons) {
+                settings.recentlyUsedIcons = [];
+            }
+            
+            // Remove if already exists and add to front
+            settings.recentlyUsedIcons = [
+                iconId,
+                ...settings.recentlyUsedIcons.filter((id: string) => id !== iconId)
+            ].slice(0, 10); // Keep only 10 most recent
+        });
     }
 
     /**
@@ -112,9 +136,10 @@ export class MetadataService {
      * @param folderPath - Path of the folder
      */
     async removeFolderIcon(folderPath: string): Promise<void> {
-        if (this.plugin.settings.folderIcons && this.plugin.settings.folderIcons[folderPath]) {
-            delete this.plugin.settings.folderIcons[folderPath];
-            await this.saveAndUpdate();
+        if (this.settings.folderIcons && this.settings.folderIcons[folderPath]) {
+            await this.saveAndUpdate(settings => {
+                delete settings.folderIcons![folderPath];
+            });
         }
     }
 
@@ -124,7 +149,7 @@ export class MetadataService {
      * @returns The icon ID or undefined
      */
     getFolderIcon(folderPath: string): string | undefined {
-        return this.plugin.settings.folderIcons?.[folderPath];
+        return this.settings.folderIcons?.[folderPath];
     }
 
     // ========== Folder Sort Override Management ==========
@@ -135,11 +160,12 @@ export class MetadataService {
      * @param sortOption - Sort option to apply
      */
     async setFolderSortOverride(folderPath: string, sortOption: SortOption): Promise<void> {
-        if (!this.plugin.settings.folderSortOverrides) {
-            this.plugin.settings.folderSortOverrides = {};
-        }
-        this.plugin.settings.folderSortOverrides[folderPath] = sortOption;
-        await this.saveAndUpdate();
+        await this.saveAndUpdate(settings => {
+            if (!settings.folderSortOverrides) {
+                settings.folderSortOverrides = {};
+            }
+            settings.folderSortOverrides[folderPath] = sortOption;
+        });
     }
 
     /**
@@ -147,9 +173,10 @@ export class MetadataService {
      * @param folderPath - Path of the folder
      */
     async removeFolderSortOverride(folderPath: string): Promise<void> {
-        if (this.plugin.settings.folderSortOverrides && this.plugin.settings.folderSortOverrides[folderPath]) {
-            delete this.plugin.settings.folderSortOverrides[folderPath];
-            await this.saveAndUpdate();
+        if (this.settings.folderSortOverrides && this.settings.folderSortOverrides[folderPath]) {
+            await this.saveAndUpdate(settings => {
+                delete settings.folderSortOverrides![folderPath];
+            });
         }
     }
 
@@ -159,7 +186,7 @@ export class MetadataService {
      * @returns The sort option or undefined
      */
     getFolderSortOverride(folderPath: string): SortOption | undefined {
-        return this.plugin.settings.folderSortOverrides?.[folderPath];
+        return this.settings.folderSortOverrides?.[folderPath];
     }
 
     // ========== Pinned Notes Management ==========
@@ -170,26 +197,26 @@ export class MetadataService {
      * @param filePath - Path of the file to pin/unpin
      */
     async togglePinnedNote(folderPath: string, filePath: string): Promise<void> {
-        if (!this.plugin.settings.pinnedNotes) {
-            this.plugin.settings.pinnedNotes = {};
-        }
-
-        const currentPinned = this.plugin.settings.pinnedNotes[folderPath] || [];
-        const isPinned = currentPinned.includes(filePath);
-
-        if (isPinned) {
-            // Unpin
-            this.plugin.settings.pinnedNotes[folderPath] = currentPinned.filter((p: string) => p !== filePath);
-            // Remove empty entries
-            if (this.plugin.settings.pinnedNotes[folderPath].length === 0) {
-                delete this.plugin.settings.pinnedNotes[folderPath];
+        await this.saveAndUpdate(settings => {
+            if (!settings.pinnedNotes) {
+                settings.pinnedNotes = {};
             }
-        } else {
-            // Pin
-            this.plugin.settings.pinnedNotes[folderPath] = [...currentPinned, filePath];
-        }
 
-        await this.saveAndUpdate();
+            const currentPinned = settings.pinnedNotes[folderPath] || [];
+            const isPinned = currentPinned.includes(filePath);
+
+            if (isPinned) {
+                // Unpin
+                settings.pinnedNotes[folderPath] = currentPinned.filter((p: string) => p !== filePath);
+                // Remove empty entries
+                if (settings.pinnedNotes[folderPath].length === 0) {
+                    delete settings.pinnedNotes[folderPath];
+                }
+            } else {
+                // Pin
+                settings.pinnedNotes[folderPath] = [...currentPinned, filePath];
+            }
+        });
     }
 
     /**
@@ -199,7 +226,7 @@ export class MetadataService {
      * @returns True if the note is pinned
      */
     isPinned(folderPath: string, filePath: string): boolean {
-        const pinnedNotes = this.plugin.settings.pinnedNotes?.[folderPath] || [];
+        const pinnedNotes = this.settings.pinnedNotes?.[folderPath] || [];
         return pinnedNotes.includes(filePath);
     }
 
@@ -209,7 +236,7 @@ export class MetadataService {
      * @returns Array of pinned file paths
      */
     getPinnedNotes(folderPath: string): string[] {
-        return this.plugin.settings.pinnedNotes?.[folderPath] || [];
+        return this.settings.pinnedNotes?.[folderPath] || [];
     }
 
     // ========== Cleanup Operations ==========
@@ -219,66 +246,57 @@ export class MetadataService {
      * Removes references to deleted files and folders from all settings
      */
     async cleanupAllMetadata(): Promise<void> {
-        let hasChanges = false;
-
-        // Clean up folder colors
-        if (this.plugin.settings.folderColors) {
-            for (const folderPath in this.plugin.settings.folderColors) {
-                const folder = this.app.vault.getAbstractFileByPath(folderPath);
-                if (!(folder instanceof TFolder)) {
-                    delete this.plugin.settings.folderColors[folderPath];
-                    hasChanges = true;
+        await this.saveAndUpdate(settings => {
+            // Clean up folder colors
+            if (settings.folderColors) {
+                for (const folderPath in settings.folderColors) {
+                    const folder = this.app.vault.getAbstractFileByPath(folderPath);
+                    if (!(folder instanceof TFolder)) {
+                        delete settings.folderColors[folderPath];
+                    }
                 }
             }
-        }
 
-        // Clean up folder icons
-        if (this.plugin.settings.folderIcons) {
-            for (const folderPath in this.plugin.settings.folderIcons) {
-                const folder = this.app.vault.getAbstractFileByPath(folderPath);
-                if (!(folder instanceof TFolder)) {
-                    delete this.plugin.settings.folderIcons[folderPath];
-                    hasChanges = true;
+            // Clean up folder icons
+            if (settings.folderIcons) {
+                for (const folderPath in settings.folderIcons) {
+                    const folder = this.app.vault.getAbstractFileByPath(folderPath);
+                    if (!(folder instanceof TFolder)) {
+                        delete settings.folderIcons[folderPath];
+                    }
                 }
             }
-        }
 
-        // Clean up folder sort overrides
-        if (this.plugin.settings.folderSortOverrides) {
-            for (const folderPath in this.plugin.settings.folderSortOverrides) {
-                const folder = this.app.vault.getAbstractFileByPath(folderPath);
-                if (!(folder instanceof TFolder)) {
-                    delete this.plugin.settings.folderSortOverrides[folderPath];
-                    hasChanges = true;
+            // Clean up folder sort overrides
+            if (settings.folderSortOverrides) {
+                for (const folderPath in settings.folderSortOverrides) {
+                    const folder = this.app.vault.getAbstractFileByPath(folderPath);
+                    if (!(folder instanceof TFolder)) {
+                        delete settings.folderSortOverrides[folderPath];
+                    }
                 }
             }
-        }
 
-        // Clean up pinned notes
-        if (this.plugin.settings.pinnedNotes) {
-            for (const folderPath in this.plugin.settings.pinnedNotes) {
-                const filePaths = this.plugin.settings.pinnedNotes[folderPath];
-                const validFiles = filePaths.filter((filePath: string) => {
-                    const file = this.app.vault.getAbstractFileByPath(filePath);
-                    return file instanceof TFile;
-                });
+            // Clean up pinned notes
+            if (settings.pinnedNotes) {
+                for (const folderPath in settings.pinnedNotes) {
+                    const filePaths = settings.pinnedNotes[folderPath];
+                    const validFiles = filePaths.filter((filePath: string) => {
+                        const file = this.app.vault.getAbstractFileByPath(filePath);
+                        return file instanceof TFile;
+                    });
 
-                if (validFiles.length !== filePaths.length) {
-                    this.plugin.settings.pinnedNotes[folderPath] = validFiles;
-                    hasChanges = true;
-                }
+                    if (validFiles.length !== filePaths.length) {
+                        settings.pinnedNotes[folderPath] = validFiles;
+                    }
 
-                // Remove empty entries
-                if (validFiles.length === 0) {
-                    delete this.plugin.settings.pinnedNotes[folderPath];
-                    hasChanges = true;
+                    // Remove empty entries
+                    if (validFiles.length === 0) {
+                        delete settings.pinnedNotes[folderPath];
+                    }
                 }
             }
-        }
-
-        if (hasChanges) {
-            await this.saveAndUpdate();
-        }
+        });
     }
 
     /**
@@ -287,140 +305,129 @@ export class MetadataService {
      * @param newPath - New folder path
      */
     async handleFolderRename(oldPath: string, newPath: string): Promise<void> {
-        let hasChanges = false;
+        await this.saveAndUpdate(settings => {
+            // Ensure all metadata objects exist
+            if (!settings.folderColors) settings.folderColors = {};
+            if (!settings.folderIcons) settings.folderIcons = {};
+            if (!settings.folderSortOverrides) settings.folderSortOverrides = {};
+            if (!settings.pinnedNotes) settings.pinnedNotes = {};
 
-        // Ensure all metadata objects exist
-        if (!this.plugin.settings.folderColors) this.plugin.settings.folderColors = {};
-        if (!this.plugin.settings.folderIcons) this.plugin.settings.folderIcons = {};
-        if (!this.plugin.settings.folderSortOverrides) this.plugin.settings.folderSortOverrides = {};
-        if (!this.plugin.settings.pinnedNotes) this.plugin.settings.pinnedNotes = {};
-
-        // Update direct folder color
-        if (this.plugin.settings.folderColors[oldPath]) {
-            this.plugin.settings.folderColors[newPath] = this.plugin.settings.folderColors[oldPath];
-            delete this.plugin.settings.folderColors[oldPath];
-            hasChanges = true;
-        }
-
-        // Update direct folder icon
-        if (this.plugin.settings.folderIcons[oldPath]) {
-            this.plugin.settings.folderIcons[newPath] = this.plugin.settings.folderIcons[oldPath];
-            delete this.plugin.settings.folderIcons[oldPath];
-            hasChanges = true;
-        }
-
-        // Update direct folder sort override
-        if (this.plugin.settings.folderSortOverrides[oldPath]) {
-            this.plugin.settings.folderSortOverrides[newPath] = this.plugin.settings.folderSortOverrides[oldPath];
-            delete this.plugin.settings.folderSortOverrides[oldPath];
-            hasChanges = true;
-        }
-
-        // Handle nested folders
-        const oldPathPrefix = oldPath + '/';
-        
-        // Update nested folder colors
-        const colorsToUpdate: Array<{oldPath: string, newPath: string, color: string}> = [];
-        for (const path in this.plugin.settings.folderColors) {
-            if (path.startsWith(oldPathPrefix)) {
-                const newNestedPath = newPath + path.substring(oldPath.length);
-                colorsToUpdate.push({
-                    oldPath: path,
-                    newPath: newNestedPath,
-                    color: this.plugin.settings.folderColors[path]
-                });
+            // Update direct folder color
+            if (settings.folderColors[oldPath]) {
+                settings.folderColors[newPath] = settings.folderColors[oldPath];
+                delete settings.folderColors[oldPath];
             }
-        }
-        
-        for (const update of colorsToUpdate) {
-            this.plugin.settings.folderColors[update.newPath] = update.color;
-            delete this.plugin.settings.folderColors[update.oldPath];
-            hasChanges = true;
-        }
 
-        // Update nested folder icons
-        const iconsToUpdate: Array<{oldPath: string, newPath: string, icon: string}> = [];
-        for (const path in this.plugin.settings.folderIcons) {
-            if (path.startsWith(oldPathPrefix)) {
-                const newNestedPath = newPath + path.substring(oldPath.length);
-                iconsToUpdate.push({
-                    oldPath: path,
-                    newPath: newNestedPath,
-                    icon: this.plugin.settings.folderIcons[path]
-                });
+            // Update direct folder icon
+            if (settings.folderIcons[oldPath]) {
+                settings.folderIcons[newPath] = settings.folderIcons[oldPath];
+                delete settings.folderIcons[oldPath];
             }
-        }
-        
-        for (const update of iconsToUpdate) {
-            this.plugin.settings.folderIcons[update.newPath] = update.icon;
-            delete this.plugin.settings.folderIcons[update.oldPath];
-            hasChanges = true;
-        }
 
-        // Update nested folder sort overrides
-        const sortOverridesToUpdate: Array<{oldPath: string, newPath: string, sort: SortOption}> = [];
-        for (const path in this.plugin.settings.folderSortOverrides) {
-            if (path.startsWith(oldPathPrefix)) {
-                const newNestedPath = newPath + path.substring(oldPath.length);
-                sortOverridesToUpdate.push({
-                    oldPath: path,
-                    newPath: newNestedPath,
-                    sort: this.plugin.settings.folderSortOverrides[path]
-                });
+            // Update direct folder sort override
+            if (settings.folderSortOverrides[oldPath]) {
+                settings.folderSortOverrides[newPath] = settings.folderSortOverrides[oldPath];
+                delete settings.folderSortOverrides[oldPath];
             }
-        }
-        
-        for (const update of sortOverridesToUpdate) {
-            this.plugin.settings.folderSortOverrides[update.newPath] = update.sort;
-            delete this.plugin.settings.folderSortOverrides[update.oldPath];
-            hasChanges = true;
-        }
 
-        // Update pinned notes for the renamed folder and its subfolders
-        const pinnedNotesToUpdate: Array<{oldPath: string, newPath: string, notes: string[]}> = [];
-        
-        // Handle direct folder pinned notes
-        if (this.plugin.settings.pinnedNotes[oldPath]) {
-            const updatedNotes = this.plugin.settings.pinnedNotes[oldPath].map((notePath: string) => {
-                if (notePath.startsWith(oldPath + '/')) {
-                    return newPath + notePath.substring(oldPath.length);
+            // Handle nested folders
+            const oldPathPrefix = oldPath + '/';
+            
+            // Update nested folder colors
+            const colorsToUpdate: Array<{oldPath: string, newPath: string, color: string}> = [];
+            for (const path in settings.folderColors) {
+                if (path.startsWith(oldPathPrefix)) {
+                    const newNestedPath = newPath + path.substring(oldPath.length);
+                    colorsToUpdate.push({
+                        oldPath: path,
+                        newPath: newNestedPath,
+                        color: settings.folderColors[path]
+                    });
                 }
-                return notePath;
-            });
-            pinnedNotesToUpdate.push({
-                oldPath: oldPath,
-                newPath: newPath,
-                notes: updatedNotes
-            });
-        }
-        
-        // Handle nested folder pinned notes
-        for (const path in this.plugin.settings.pinnedNotes) {
-            if (path.startsWith(oldPathPrefix)) {
-                const newNestedPath = newPath + path.substring(oldPath.length);
-                const updatedNotes = this.plugin.settings.pinnedNotes[path].map((notePath: string) => {
+            }
+            
+            for (const update of colorsToUpdate) {
+                settings.folderColors[update.newPath] = update.color;
+                delete settings.folderColors[update.oldPath];
+            }
+
+            // Update nested folder icons
+            const iconsToUpdate: Array<{oldPath: string, newPath: string, icon: string}> = [];
+            for (const path in settings.folderIcons) {
+                if (path.startsWith(oldPathPrefix)) {
+                    const newNestedPath = newPath + path.substring(oldPath.length);
+                    iconsToUpdate.push({
+                        oldPath: path,
+                        newPath: newNestedPath,
+                        icon: settings.folderIcons[path]
+                    });
+                }
+            }
+            
+            for (const update of iconsToUpdate) {
+                settings.folderIcons[update.newPath] = update.icon;
+                delete settings.folderIcons[update.oldPath];
+            }
+
+            // Update nested folder sort overrides
+            const sortOverridesToUpdate: Array<{oldPath: string, newPath: string, sort: SortOption}> = [];
+            for (const path in settings.folderSortOverrides) {
+                if (path.startsWith(oldPathPrefix)) {
+                    const newNestedPath = newPath + path.substring(oldPath.length);
+                    sortOverridesToUpdate.push({
+                        oldPath: path,
+                        newPath: newNestedPath,
+                        sort: settings.folderSortOverrides[path]
+                    });
+                }
+            }
+            
+            for (const update of sortOverridesToUpdate) {
+                settings.folderSortOverrides[update.newPath] = update.sort;
+                delete settings.folderSortOverrides[update.oldPath];
+            }
+
+            // Update pinned notes for the renamed folder and its subfolders
+            const pinnedNotesToUpdate: Array<{oldPath: string, newPath: string, notes: string[]}> = [];
+            
+            // Handle direct folder pinned notes
+            if (settings.pinnedNotes[oldPath]) {
+                const updatedNotes = settings.pinnedNotes[oldPath].map((notePath: string) => {
                     if (notePath.startsWith(oldPath + '/')) {
                         return newPath + notePath.substring(oldPath.length);
                     }
                     return notePath;
                 });
                 pinnedNotesToUpdate.push({
-                    oldPath: path,
-                    newPath: newNestedPath,
+                    oldPath: oldPath,
+                    newPath: newPath,
                     notes: updatedNotes
                 });
             }
-        }
-        
-        for (const update of pinnedNotesToUpdate) {
-            this.plugin.settings.pinnedNotes[update.newPath] = update.notes;
-            delete this.plugin.settings.pinnedNotes[update.oldPath];
-            hasChanges = true;
-        }
-
-        if (hasChanges) {
-            await this.saveAndUpdate();
-        }
+            
+            // Handle nested folder pinned notes
+            for (const path in settings.pinnedNotes) {
+                if (path.startsWith(oldPathPrefix)) {
+                    const newNestedPath = newPath + path.substring(oldPath.length);
+                    const updatedNotes = settings.pinnedNotes[path].map((notePath: string) => {
+                        if (notePath.startsWith(oldPath + '/')) {
+                            return newPath + notePath.substring(oldPath.length);
+                        }
+                        return notePath;
+                    });
+                    pinnedNotesToUpdate.push({
+                        oldPath: path,
+                        newPath: newNestedPath,
+                        notes: updatedNotes
+                    });
+                }
+            }
+            
+            for (const update of pinnedNotesToUpdate) {
+                settings.pinnedNotes[update.newPath] = update.notes;
+                delete settings.pinnedNotes[update.oldPath];
+            }
+        });
     }
 
     /**
@@ -428,78 +435,66 @@ export class MetadataService {
      * @param folderPath - Path of the deleted folder
      */
     async handleFolderDelete(folderPath: string): Promise<void> {
-        let hasChanges = false;
+        await this.saveAndUpdate(settings => {
+            // Remove folder color
+            if (settings.folderColors?.[folderPath]) {
+                delete settings.folderColors[folderPath];
+            }
 
-        // Remove folder color
-        if (this.plugin.settings.folderColors?.[folderPath]) {
-            delete this.plugin.settings.folderColors[folderPath];
-            hasChanges = true;
-        }
+            // Remove folder icon
+            if (settings.folderIcons?.[folderPath]) {
+                delete settings.folderIcons[folderPath];
+            }
 
-        // Remove folder icon
-        if (this.plugin.settings.folderIcons?.[folderPath]) {
-            delete this.plugin.settings.folderIcons[folderPath];
-            hasChanges = true;
-        }
+            // Remove folder sort override
+            if (settings.folderSortOverrides?.[folderPath]) {
+                delete settings.folderSortOverrides[folderPath];
+            }
 
-        // Remove folder sort override
-        if (this.plugin.settings.folderSortOverrides?.[folderPath]) {
-            delete this.plugin.settings.folderSortOverrides[folderPath];
-            hasChanges = true;
-        }
+            // Remove pinned notes for this folder
+            if (settings.pinnedNotes?.[folderPath]) {
+                delete settings.pinnedNotes[folderPath];
+            }
 
-        // Remove pinned notes for this folder
-        if (this.plugin.settings.pinnedNotes?.[folderPath]) {
-            delete this.plugin.settings.pinnedNotes[folderPath];
-            hasChanges = true;
-        }
+            // Clean up nested folders
+            const folderPrefix = folderPath + '/';
 
-        // Clean up nested folders
-        const folderPrefix = folderPath + '/';
-
-        // Clean up nested folder colors
-        if (this.plugin.settings.folderColors) {
-            for (const path in this.plugin.settings.folderColors) {
-                if (path.startsWith(folderPrefix)) {
-                    delete this.plugin.settings.folderColors[path];
-                    hasChanges = true;
+            // Clean up nested folder colors
+            if (settings.folderColors) {
+                for (const path in settings.folderColors) {
+                    if (path.startsWith(folderPrefix)) {
+                        delete settings.folderColors[path];
+                    }
                 }
             }
-        }
 
-        // Clean up nested folder icons
-        if (this.plugin.settings.folderIcons) {
-            for (const path in this.plugin.settings.folderIcons) {
-                if (path.startsWith(folderPrefix)) {
-                    delete this.plugin.settings.folderIcons[path];
-                    hasChanges = true;
+            // Clean up nested folder icons
+            if (settings.folderIcons) {
+                for (const path in settings.folderIcons) {
+                    if (path.startsWith(folderPrefix)) {
+                        delete settings.folderIcons[path];
+                    }
                 }
             }
-        }
 
-        // Clean up nested folder sort overrides
-        if (this.plugin.settings.folderSortOverrides) {
-            for (const path in this.plugin.settings.folderSortOverrides) {
-                if (path.startsWith(folderPrefix)) {
-                    delete this.plugin.settings.folderSortOverrides[path];
-                    hasChanges = true;
+            // Clean up nested folder sort overrides
+            if (settings.folderSortOverrides) {
+                for (const path in settings.folderSortOverrides) {
+                    if (path.startsWith(folderPrefix)) {
+                        delete settings.folderSortOverrides[path];
+                    }
                 }
             }
-        }
 
-        // Clean up pinned notes for nested folders
-        if (this.plugin.settings.pinnedNotes) {
-            for (const path in this.plugin.settings.pinnedNotes) {
-                if (path.startsWith(folderPrefix)) {
-                    delete this.plugin.settings.pinnedNotes[path];
-                    hasChanges = true;
+            // Clean up pinned notes for nested folders
+            if (settings.pinnedNotes) {
+                for (const path in settings.pinnedNotes) {
+                    if (path.startsWith(folderPrefix)) {
+                        delete settings.pinnedNotes[path];
+                    }
                 }
             }
-        }
-
-        if (hasChanges) {
-            await this.saveAndUpdate();
-        }
+        });
     }
 
     /**
@@ -507,27 +502,22 @@ export class MetadataService {
      * @param filePath - Path of the deleted file
      */
     async handleFileDelete(filePath: string): Promise<void> {
-        let hasChanges = false;
+        await this.saveAndUpdate(settings => {
+            // Remove file from pinned notes in all folders
+            if (settings.pinnedNotes) {
+                for (const folderPath in settings.pinnedNotes) {
+                    const pinnedFiles = settings.pinnedNotes[folderPath];
+                    const index = pinnedFiles.indexOf(filePath);
+                    if (index > -1) {
+                        pinnedFiles.splice(index, 1);
 
-        // Remove file from pinned notes in all folders
-        if (this.plugin.settings.pinnedNotes) {
-            for (const folderPath in this.plugin.settings.pinnedNotes) {
-                const pinnedFiles = this.plugin.settings.pinnedNotes[folderPath];
-                const index = pinnedFiles.indexOf(filePath);
-                if (index > -1) {
-                    pinnedFiles.splice(index, 1);
-                    hasChanges = true;
-
-                    // Remove the folder entry if no more pinned files
-                    if (pinnedFiles.length === 0) {
-                        delete this.plugin.settings.pinnedNotes[folderPath];
+                        // Remove the folder entry if no more pinned files
+                        if (pinnedFiles.length === 0) {
+                            delete settings.pinnedNotes[folderPath];
+                        }
                     }
                 }
             }
-        }
-
-        if (hasChanges) {
-            await this.saveAndUpdate();
-        }
+        });
     }
 }

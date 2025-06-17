@@ -195,9 +195,13 @@ export const LeftPaneVirtualized: React.FC = () => {
                 behavior: 'auto' // 'auto' is crucial for instant, pre-paint scrolling
             });
 
-            // And immediately dispatch an action to reset the index in the state.
-            // This prevents re-scrolling on subsequent renders.
-            uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: null });
+            // Add a microtask to ensure the scroll completes before resetting
+            queueMicrotask(() => {
+                // Check if component is still mounted by verifying uiDispatch exists
+                if (uiDispatch) {
+                    uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: null });
+                }
+            });
         }
     }, [uiState.scrollToFolderIndex, rowVirtualizer, uiDispatch]); // This effect ONLY runs when the scroll target changes.
     

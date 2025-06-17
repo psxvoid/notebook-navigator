@@ -80,13 +80,28 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
         
         const menu = new Menu();
         
-        // This is a handler to clean up the class
+        // Ensure cleanup happens no matter what
         const cleanup = () => {
             element.classList.remove('nn-context-menu-active');
-            menu.hide();
+            // Remove the global click listener
+            document.removeEventListener('click', globalClickHandler);
         };
-
-        menu.onHide(cleanup); // Use the built-in onHide callback
+        
+        // Add global click listener to ensure cleanup
+        const globalClickHandler = (e: MouseEvent) => {
+            // Since we can't check if the click is inside the menu,
+            // we'll just cleanup on any click outside our element
+            if (!element.contains(e.target as Node)) {
+                cleanup();
+            }
+        };
+        
+        // Add listener after a short delay to avoid immediate trigger
+        setTimeout(() => {
+            document.addEventListener('click', globalClickHandler);
+        }, 0);
+        
+        menu.onHide(cleanup); // Also use the built-in onHide callback
         
         if (config.type === 'folder') {
             if (!isTFolder(config.item)) return;

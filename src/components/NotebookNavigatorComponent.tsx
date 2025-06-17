@@ -240,18 +240,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                     
                     // If showing notes from subfolders, check if file is in a subfolder
                     if (plugin.settings.showNotesFromSubfolders) {
-                        let parent: TFolder | null = file.parent;
-                        while (parent) {
-                            if (parent.path === selectionState.selectedFolder.path) {
-                                // File is in a subfolder of the selected folder
-                                // Update folder selection to file's immediate parent for clarity
-                                if (file.parent.path !== selectionState.selectedFolder.path) {
-                                    selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: file.parent });
-                                }
-                                needsReveal = false;
-                                break;
-                            }
-                            parent = parent.parent;
+                        // Check if the file's parent is a descendant of the currently selected folder
+                        if (file.parent.path.startsWith(selectionState.selectedFolder.path + '/') || 
+                            file.parent.path === selectionState.selectedFolder.path) {
+                            // The file is visible in the current view. Do nothing else.
+                            needsReveal = false;
                         }
                     }
                 }

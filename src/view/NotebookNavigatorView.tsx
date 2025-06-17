@@ -101,8 +101,8 @@ export class NotebookNavigatorView extends ItemView {
         this.root = createRoot(container);
         this.root.render(
             <React.StrictMode>
-                <ServicesProvider plugin={this.plugin}>
-                    <SettingsProvider plugin={this.plugin}>
+                <SettingsProvider plugin={this.plugin}>
+                    <ServicesProvider plugin={this.plugin}>
                         <ExpansionProvider>
                             <SelectionProvider app={this.plugin.app} plugin={this.plugin} isMobile={isMobile}>
                                 <UIStateProvider isMobile={isMobile}>
@@ -110,8 +110,8 @@ export class NotebookNavigatorView extends ItemView {
                                 </UIStateProvider>
                             </SelectionProvider>
                         </ExpansionProvider>
-                    </SettingsProvider>
-                </ServicesProvider>
+                    </ServicesProvider>
+                </SettingsProvider>
             </React.StrictMode>
         );
     }
