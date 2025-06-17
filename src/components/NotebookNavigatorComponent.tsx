@@ -18,7 +18,7 @@
 
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState } from 'react';
-import { TFile, TFolder, WorkspaceLeaf, debounce, Platform } from 'obsidian';
+import { TFile, TFolder, TAbstractFile, WorkspaceLeaf, debounce, Platform } from 'obsidian';
 import { LeftPaneVirtualized } from './LeftPaneVirtualized';
 import { FileList } from './FileList';
 import { useServices } from '../context/ServicesContext';
@@ -304,6 +304,36 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             app.workspace.offref(fileOpenEventRef);
         };
     }, [app.workspace, selectionDispatch, expansionDispatch, plugin.settings.autoRevealActiveFile, plugin.settings.showNotesFromSubfolders, selectionState.selectedFile, selectionState.selectedFolder, isMobile]);
+    
+    // Handle delete events to clean up stale state
+    useEffect(() => {
+        const handleDelete = (file: TAbstractFile) => {
+            if (isTFolder(file)) {
+                // Cleanup expanded folders
+                const existingPaths = new Set<string>();
+                const collectAllFolderPaths = (folder: TFolder) => {
+                    existingPaths.add(folder.path);
+                    folder.children.forEach(child => {
+                        if (isTFolder(child)) {
+                            collectAllFolderPaths(child);
+                        }
+                    });
+                };
+                collectAllFolderPaths(app.vault.getRoot());
+                
+                expansionDispatch({ type: 'CLEANUP_DELETED_FOLDERS', existingPaths });
+                selectionDispatch({ type: 'CLEANUP_DELETED_FOLDER', deletedPath: file.path });
+            } else if (file instanceof TFile) {
+                selectionDispatch({ type: 'CLEANUP_DELETED_FILE', deletedPath: file.path });
+            }
+        };
+        
+        const deleteEventRef = app.vault.on('delete', handleDelete);
+        
+        return () => {
+            app.vault.offref(deleteEventRef);
+        };
+    }, [app.vault, expansionDispatch, selectionDispatch]);
 
     // Determine CSS classes for mobile view state
     const containerClasses = ['nn-split-container'];

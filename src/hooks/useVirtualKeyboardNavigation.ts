@@ -4,7 +4,6 @@ import { Virtualizer } from '@tanstack/react-virtual';
 import { CombinedLeftPaneItem, FileListItem } from '../types/virtualization';
 import { TagTreeNode } from '../utils/tagUtils';
 import { isTypingInInput } from '../utils/domUtils';
-import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { isTFolder } from '../utils/typeGuards';
 import { useServices, useFileSystemOps } from '../context/ServicesContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -233,7 +232,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                                 const parentItem = safeGetItem(items, parentIndex);
                                 if (parentItem) {
                                     selectItemAtIndex(parentItem);
-                                    scrollVirtualItemIntoView(virtualizer, parentIndex);
+                                    uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: parentIndex });
                                 }
                             }
                         }
@@ -255,7 +254,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                                     const parentItem = safeGetItem(items, parentIndex);
                                     if (parentItem) {
                                         selectItemAtIndex(parentItem);
-                                        scrollVirtualItemIntoView(virtualizer, parentIndex);
+                                        uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: parentIndex });
                                     }
                                 }
                             }
@@ -299,10 +298,12 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 selectItemAtIndex(item);
             }
             
-            // Check if the item has a group header above it that should be visible
-            const isFirstInGroup = targetIndex > 0 && safeGetItem(items, targetIndex - 1)?.type === 'header';
-            
-            scrollVirtualItemIntoView(virtualizer, targetIndex, 'auto', 3, isFirstInGroup);
+            // Dispatch state-driven scroll action
+            if (focusedPane === 'folders') {
+                uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: targetIndex });
+            } else {
+                uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: targetIndex });
+            }
         }
     }, [items, virtualizer, focusedPane, selectionState, expansionState, selectionDispatch, expansionDispatch, uiDispatch, plugin, app, isMobile]);
     

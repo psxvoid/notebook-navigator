@@ -36,6 +36,19 @@ export class MetadataService {
         private settings: NotebookNavigatorSettings,
         private saveSettings: () => Promise<void>
     ) {}
+    
+    /**
+     * Saves settings and triggers UI update
+     * Uses the plugin's settings updater if available
+     */
+    private async saveAndUpdate(): Promise<void> {
+        await this.saveAndUpdate();
+        // Trigger settings context update if available
+        const plugin = (this.app as any).plugins?.plugins?.['notebook-navigator'];
+        if (plugin && plugin.__settingsUpdater) {
+            plugin.__settingsUpdater();
+        }
+    }
 
     // ========== Folder Color Management ==========
 
@@ -49,7 +62,7 @@ export class MetadataService {
             this.settings.folderColors = {};
         }
         this.settings.folderColors[folderPath] = color;
-        await this.saveSettings();
+        await this.saveAndUpdate();
     }
 
     /**
@@ -59,7 +72,7 @@ export class MetadataService {
     async removeFolderColor(folderPath: string): Promise<void> {
         if (this.settings.folderColors && this.settings.folderColors[folderPath]) {
             delete this.settings.folderColors[folderPath];
-            await this.saveSettings();
+            await this.saveAndUpdate();
         }
     }
 
@@ -96,7 +109,7 @@ export class MetadataService {
             ...this.settings.recentlyUsedIcons.filter(id => id !== iconId)
         ].slice(0, 10); // Keep only 10 most recent
         
-        await this.saveSettings();
+        await this.saveAndUpdate();
     }
 
     /**
@@ -106,7 +119,7 @@ export class MetadataService {
     async removeFolderIcon(folderPath: string): Promise<void> {
         if (this.settings.folderIcons && this.settings.folderIcons[folderPath]) {
             delete this.settings.folderIcons[folderPath];
-            await this.saveSettings();
+            await this.saveAndUpdate();
         }
     }
 
@@ -131,7 +144,7 @@ export class MetadataService {
             this.settings.folderSortOverrides = {};
         }
         this.settings.folderSortOverrides[folderPath] = sortOption;
-        await this.saveSettings();
+        await this.saveAndUpdate();
     }
 
     /**
@@ -141,7 +154,7 @@ export class MetadataService {
     async removeFolderSortOverride(folderPath: string): Promise<void> {
         if (this.settings.folderSortOverrides && this.settings.folderSortOverrides[folderPath]) {
             delete this.settings.folderSortOverrides[folderPath];
-            await this.saveSettings();
+            await this.saveAndUpdate();
         }
     }
 
@@ -181,7 +194,7 @@ export class MetadataService {
             this.settings.pinnedNotes[folderPath] = [...currentPinned, filePath];
         }
 
-        await this.saveSettings();
+        await this.saveAndUpdate();
     }
 
     /**
@@ -269,7 +282,7 @@ export class MetadataService {
         }
 
         if (hasChanges) {
-            await this.saveSettings();
+            await this.saveAndUpdate();
         }
     }
 
@@ -411,7 +424,7 @@ export class MetadataService {
         }
 
         if (hasChanges) {
-            await this.saveSettings();
+            await this.saveAndUpdate();
         }
     }
 
@@ -490,7 +503,7 @@ export class MetadataService {
         }
 
         if (hasChanges) {
-            await this.saveSettings();
+            await this.saveAndUpdate();
         }
     }
 
@@ -519,7 +532,7 @@ export class MetadataService {
         }
 
         if (hasChanges) {
-            await this.saveSettings();
+            await this.saveAndUpdate();
         }
     }
 }

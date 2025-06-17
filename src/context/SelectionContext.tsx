@@ -23,7 +23,9 @@ type SelectionAction =
     | { type: 'SET_SELECTED_FILE'; file: TFile | null }
     | { type: 'SET_SELECTION_TYPE'; selectionType: 'folder' | 'tag' }
     | { type: 'CLEAR_SELECTION' }
-    | { type: 'REVEAL_FILE'; file: TFile };
+    | { type: 'REVEAL_FILE'; file: TFile }
+    | { type: 'CLEANUP_DELETED_FOLDER'; deletedPath: string }
+    | { type: 'CLEANUP_DELETED_FILE'; deletedPath: string };
 
 // Create contexts
 const SelectionContext = createContext<SelectionState | null>(null);
@@ -113,6 +115,29 @@ function createSelectionReducer(plugin: any, app: any, isMobile: boolean) {
                     selectedTag: null,
                     selectedFile: action.file
                 };
+            }
+            
+            case 'CLEANUP_DELETED_FOLDER': {
+                const newState = { ...state };
+                
+                // Clear selected folder if it was deleted
+                if (state.selectedFolder && state.selectedFolder.path === action.deletedPath) {
+                    newState.selectedFolder = null;
+                    newState.selectedFile = null; // Also clear file selection
+                }
+                
+                return newState;
+            }
+            
+            case 'CLEANUP_DELETED_FILE': {
+                const newState = { ...state };
+                
+                // Clear selected file if it was deleted
+                if (state.selectedFile && state.selectedFile.path === action.deletedPath) {
+                    newState.selectedFile = null;
+                }
+                
+                return newState;
             }
             
             default:

@@ -19,6 +19,7 @@
 import React, { useCallback } from 'react';
 import { Menu } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
+import { useSettings } from '../context/SettingsContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
@@ -44,7 +45,8 @@ interface PaneHeaderProps {
  * @returns A header element with context-appropriate action buttons
  */
 export function PaneHeader({ type }: PaneHeaderProps) {
-    const { app, isMobile, plugin } = useServices();
+    const { app, isMobile } = useServices();
+    const { settings, updateSettings } = useSettings();
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
     const selectionState = useSelectionState();
@@ -75,7 +77,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
             const rootFolder = app.vault.getRoot();
             
             // Add root folder itself if it's shown
-            if (plugin.settings.showRootFolder) {
+            if (settings.showRootFolder) {
                 allFolders.add(rootFolder.path);
             }
             
@@ -83,7 +85,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
             
             expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: allFolders });
         }
-    }, [app, expansionState.expandedFolders.size, expansionDispatch, type, plugin.settings.showRootFolder]);
+    }, [app, expansionState.expandedFolders.size, expansionDispatch, type, settings.showRootFolder]);
     
     const handleNewFolder = useCallback(async () => {
         if (type !== 'folder' || !selectionState.selectedFolder) return;
@@ -111,8 +113,8 @@ export function PaneHeader({ type }: PaneHeaderProps) {
     }, [selectionState.selectedFolder, fileSystemOps, type]);
     
     const getCurrentSortOption = useCallback((): SortOption => {
-        return getEffectiveSortOption(plugin.settings, selectionState.selectionType, selectionState.selectedFolder);
-    }, [plugin.settings, selectionState.selectionType, selectionState.selectedFolder]);
+        return getEffectiveSortOption(settings, selectionState.selectionType, selectionState.selectedFolder);
+    }, [settings, selectionState.selectionType, selectionState.selectedFolder]);
     
     const getSortIcon = useCallback(() => {
         return getSortIconName(getCurrentSortOption());
@@ -125,20 +127,21 @@ export function PaneHeader({ type }: PaneHeaderProps) {
         const currentSort = getCurrentSortOption();
         const isCustomSort = selectionState.selectionType === 'folder' && 
                            selectionState.selectedFolder && 
-                           plugin.settings.folderSortOverrides[selectionState.selectedFolder.path];
+                           settings.folderSortOverrides[selectionState.selectedFolder.path];
         
         // Default option
         menu.addItem((item) => {
             item
-                .setTitle(`${strings.paneHeader.defaultSort}: ${strings.settings.items.sortNotesBy.options[plugin.settings.defaultFolderSort]}`)
+                .setTitle(`${strings.paneHeader.defaultSort}: ${strings.settings.items.sortNotesBy.options[settings.defaultFolderSort]}`)
                 .setChecked(!isCustomSort)
                 .onClick(async () => {
-                    if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
-                        delete plugin.settings.folderSortOverrides[selectionState.selectedFolder.path];
-                        await plugin.saveSettings();
-                        // Trigger refresh by updating workspace
-                        app.workspace.requestSaveLayout();
-                    }
+                    await updateSettings((s) => {
+                        if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+                            delete s.folderSortOverrides[selectionState.selectedFolder.path];
+                        }
+                    });
+                    // Trigger refresh by updating workspace
+                    app.workspace.requestSaveLayout();
                 });
         });
         
@@ -158,12 +161,13 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                     .setTitle(strings.settings.items.sortNotesBy.options[option])
                     .setChecked(isCustomSort && currentSort === option)
                     .onClick(async () => {
-                        if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
-                            plugin.settings.folderSortOverrides[selectionState.selectedFolder.path] = option;
-                        } else {
-                            plugin.settings.defaultFolderSort = option;
-                        }
-                        await plugin.saveSettings();
+                        await updateSettings((s) => {
+                            if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+                                s.folderSortOverrides[selectionState.selectedFolder.path] = option;
+                            } else {
+                                s.defaultFolderSort = option;
+                            }
+                        });
                         // Trigger refresh by updating workspace
                         app.workspace.requestSaveLayout();
                     });
@@ -171,7 +175,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
         });
         
         menu.showAtMouseEvent(event.nativeEvent);
-    }, [type, selectionState.selectionType, selectionState.selectedFolder, plugin, app, getCurrentSortOption]);
+    }, [type, selectionState.selectionType, selectionState.selectedFolder, app, getCurrentSortOption, updateSettings]);
     
     // Mobile header with back button
     if (isMobile) {

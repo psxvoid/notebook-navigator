@@ -216,8 +216,11 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
      */
     private async saveAndRefresh(): Promise<void> {
         await this.plugin.saveSettings();
-        // Settings changes are automatically propagated through context providers
-        // No manual refresh needed
+        // Trigger settings context update if available
+        const plugin = this.plugin as any;
+        if (plugin.__settingsUpdater) {
+            plugin.__settingsUpdater();
+        }
     }
 
     /**
