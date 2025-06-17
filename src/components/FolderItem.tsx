@@ -18,7 +18,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { TFolder } from 'obsidian';
-import { useAppContext } from '../context/AppContext';
+import { useStableContext } from '../context/StableContext';
 import { setIcon } from 'obsidian';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 import { useContextMenu } from '../hooks/useContextMenu';
@@ -49,7 +49,7 @@ interface FolderItemProps {
  * @returns A folder item element with chevron, icon, name and optional file count
  */
 export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick }: FolderItemProps) {
-    const { app, plugin, refreshCounter, appState, isMobile } = useAppContext();
+    const { app, plugin, refreshCounter, isMobile } = useStableContext();
     const folderRef = useRef<HTMLDivElement>(null);
     
     // Enable context menu

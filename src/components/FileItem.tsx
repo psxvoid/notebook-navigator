@@ -18,7 +18,7 @@
 
 import React, { useEffect, useState, useRef, useMemo, memo } from 'react';
 import { TFile } from 'obsidian';
-import { useStableAppContext, useAppContext } from '../context/AppContext';
+import { useStableContext } from '../context/StableContext';
 import { DateUtils } from '../utils/DateUtils';
 import { PreviewTextUtils } from '../utils/PreviewTextUtils';
 import { getDateField } from '../utils/sortUtils';
@@ -48,8 +48,7 @@ interface FileItemProps {
  * @returns A file item element with name, date, preview and optional image
  */
 function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate, parentFolder }: FileItemProps) {
-    const { app, plugin, isMobile } = useStableAppContext();
-    const { refreshCounter } = useAppContext();
+    const { app, plugin, isMobile, refreshCounter } = useStableContext();
     const [previewText, setPreviewText] = useState('');
     const fileRef = useRef<HTMLDivElement>(null);
     

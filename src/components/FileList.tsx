@@ -19,7 +19,9 @@
 import React, { useMemo, useLayoutEffect, useCallback, useRef, useEffect, useState } from 'react';
 import { TFile, TFolder, TAbstractFile, getAllTags, Platform } from 'obsidian';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useAppContext } from '../context/AppContext';
+import { useStableContext } from '../context/StableContext';
+import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { FileItem } from './FileItem';
 import { DateUtils } from '../utils/DateUtils';
 import { isTFile, isTFolder } from '../utils/typeGuards';
@@ -139,8 +141,12 @@ function collectFilesFromFolder(folder: TFolder, includeSubfolders: boolean): TF
  * @returns A scrollable list of files grouped by date (if enabled) with empty state handling
  */
 export function FileList() {
-    const { app, appState, dispatch, plugin, refreshCounter, isMobile } = useAppContext();
-    const { selectionType, selectedFolder, selectedTag } = appState;
+    const { app, plugin, refreshCounter, isMobile } = useStableContext();
+    const selectionState = useSelectionState();
+    const selectionDispatch = useSelectionDispatch();
+    const uiState = useUIState();
+    const uiDispatch = useUIDispatch();
+    const { selectionType, selectedFolder, selectedTag, selectedFile } = selectionState;
     
     // Log component mount/unmount only if debug is enabled
     useEffect(() => {
@@ -149,9 +155,9 @@ export function FileList() {
                 selectionType,
                 selectedFolder: selectedFolder?.path,
                 selectedTag,
-                selectedFile: appState.selectedFile?.path,
+                selectedFile: selectedFile?.path,
                 isMobile,
-                currentMobileView: appState.currentMobileView
+                currentMobileView: uiState.currentMobileView
             });
             return () => {
                 debugLog.info('FileList: Unmounted');
@@ -172,8 +178,8 @@ export function FileList() {
             });
         }
         isUserSelectionRef.current = true;  // Mark this as a user selection
-        dispatch({ type: 'SET_SELECTED_FILE', file });
-        dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+        selectionDispatch({ type: 'SET_SELECTED_FILE', file });
+        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         
         // Focus the container
         const container = document.querySelector('.nn-split-container') as HTMLElement;
@@ -198,7 +204,7 @@ export function FileList() {
             }
             app.workspace.leftSplit.collapse();
         }
-    }, [app.workspace, dispatch, isMobile]);
+    }, [app.workspace, uiDispatch, isMobile]);
     
     // Get files from selected folder or tag
     const files = useMemo(() => {
@@ -289,23 +295,23 @@ export function FileList() {
     
     // Auto-open file when it's selected via folder/tag change (not user click)
     useEffect(() => {
-        if (appState.selectedFile && !isUserSelectionRef.current && plugin.settings.autoSelectFirstFile && !isMobile) {
+        if (selectedFile && !isUserSelectionRef.current && plugin.settings.autoSelectFirstFile && !isMobile) {
             // This is an auto-selection from folder/tag change
             const leaf = app.workspace.getLeaf(false);
             if (leaf) {
-                leaf.openFile(appState.selectedFile, { active: false });
+                leaf.openFile(selectedFile!, { active: false });
             }
         }
         // Reset the flag after processing
         isUserSelectionRef.current = false;
-    }, [appState.selectedFile, app.workspace, plugin.settings.autoSelectFirstFile, isMobile]);
+    }, [selectedFile, app.workspace, plugin.settings.autoSelectFirstFile, isMobile]);
     
     // Auto-select first file when files pane gains focus and no file is selected (desktop only)
     useEffect(() => {
-        if (!isMobile && appState.focusedPane === 'files' && !appState.selectedFile && files.length > 0) {
+        if (!isMobile && uiState.focusedPane === 'files' && !selectedFile && files.length > 0) {
             const firstFile = files[0];
             // Select the first file when focus switches to files pane
-            dispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
+            selectionDispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
             
             // Open the file in the editor but keep focus in file list
             const leaf = app.workspace.getLeaf(false);
@@ -313,7 +319,7 @@ export function FileList() {
                 leaf.openFile(firstFile, { active: false });
             }
         }
-    }, [isMobile, appState.focusedPane, appState.selectedFile, files, dispatch, app.workspace]);
+    }, [isMobile, uiState.focusedPane, selectedFile, files, selectionDispatch, app.workspace]);
     
     // Create flattened list items for virtualization
     const listItems = useMemo((): FileListItem[] => {
@@ -453,7 +459,7 @@ export function FileList() {
     const prevItemCountRef = useRef(listItems.length);
     
     // Cache selected file path to avoid repeated property access
-    const selectedFilePath = appState.selectedFile?.path;
+    const selectedFilePath = selectedFile?.path;
     
     // Create a map for O(1) file lookups
     const filePathToIndex = useMemo(() => {
@@ -537,7 +543,7 @@ export function FileList() {
         }
         
         // Only preserve position during active scrolling AND when files view is visible
-        if (!scrollStateRef.current.isScrolling || (isMobile && appState.currentMobileView !== 'files')) {
+        if (!scrollStateRef.current.isScrolling || (isMobile && uiState.currentMobileView !== 'files')) {
             prevItemCountRef.current = currentCount;
             return;
         }
@@ -640,11 +646,11 @@ export function FileList() {
     const lastScrollKeyRef = useRef<string>('');
     
     useLayoutEffect(() => {
-        if (!isMobile || !selectedFilePath || appState.currentMobileView !== 'files') return;
+        if (!isMobile || !selectedFilePath || uiState.currentMobileView !== 'files') return;
         
         // Create a unique key for this scroll scenario
         // This key combines view state and file to ensure we only scroll once per unique state
-        const scrollKey = `${appState.currentMobileView}-${selectedFilePath}`;
+        const scrollKey = `${uiState.currentMobileView}-${selectedFilePath}`;
         
         // Skip if we already scrolled for this exact scenario
         // This prevents jarring repeated scrolls when the component re-renders
@@ -689,7 +695,7 @@ export function FileList() {
         // Execute immediately, no delays
         scrollToFile();
         
-    }, [isMobile, appState.currentMobileView, selectedFilePath, filePathToIndex, rowVirtualizer, plugin.settings.debugMobile]);
+    }, [isMobile, uiState.currentMobileView, selectedFilePath, filePathToIndex, rowVirtualizer, plugin.settings.debugMobile]);
     
     // Listen for layout changes to reset scroll key when sidebar is hidden
     // Mobile-specific: When the user opens a file (collapsing the sidebar), we need
@@ -801,14 +807,14 @@ export function FileList() {
     
     // Handle programmatic scrolling (DESKTOP ONLY)
     useEffect(() => {
-        if (!isMobile && appState.scrollToFileIndex !== null && scrollContainerRef.current && rowVirtualizer) {
-            debugLog.debug('FileList: Programmatic scroll to index', { index: appState.scrollToFileIndex });
-            const cleanup = scrollVirtualItemIntoView(rowVirtualizer, appState.scrollToFileIndex);
+        if (!isMobile && uiState.scrollToFileIndex !== null && scrollContainerRef.current && rowVirtualizer) {
+            debugLog.debug('FileList: Programmatic scroll to index', { index: uiState.scrollToFileIndex });
+            const cleanup = scrollVirtualItemIntoView(rowVirtualizer, uiState.scrollToFileIndex);
             // Clear the scroll request
-            dispatch({ type: 'SCROLL_TO_FILE_INDEX', index: null });
+            uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: null });
             return cleanup;
         }
-    }, [isMobile, appState.scrollToFileIndex, rowVirtualizer, dispatch]);
+    }, [isMobile, uiState.scrollToFileIndex, rowVirtualizer, uiDispatch]);
     
     // Scroll to selected file when it changes (DESKTOP ONLY)
     useEffect(() => {
@@ -845,7 +851,7 @@ export function FileList() {
     const lastScrolledFileRef = useRef<string | null>(null);
     
     useLayoutEffect(() => {
-        if (!isMobile || appState.currentMobileView !== 'files' || !selectedFilePath || !scrollContainerRef.current) {
+        if (!isMobile || uiState.currentMobileView !== 'files' || !selectedFilePath || !scrollContainerRef.current) {
             return;
         }
         
@@ -868,7 +874,7 @@ export function FileList() {
             debugLog.info('FileList: Mobile scroll to selected file on view change', {
                 selectedFile: selectedFilePath,
                 selectedIndex,
-                currentView: appState.currentMobileView
+                currentView: uiState.currentMobileView
             });
         }
         
@@ -878,17 +884,17 @@ export function FileList() {
                 scrollVirtualItemIntoView(rowVirtualizer, selectedIndex, 'auto');
             }
         });
-    }, [isMobile, appState.currentMobileView, selectedFilePath, filePathToIndex, rowVirtualizer]);
+    }, [isMobile, uiState.currentMobileView, selectedFilePath, filePathToIndex, rowVirtualizer]);
     
     // Reset when view changes away from files
     // Mobile-specific: When we navigate away from the files view (back to folders/tags),
     // we clear our scroll tracking. This ensures that when we return to the files view,
     // we'll scroll to the selected file again, even if it's the same file as before.
     useEffect(() => {
-        if (isMobile && appState.currentMobileView !== 'files') {
+        if (isMobile && uiState.currentMobileView !== 'files') {
             lastScrolledFileRef.current = null;
         }
-    }, [isMobile, appState.currentMobileView]);
+    }, [isMobile, uiState.currentMobileView]);
     
     // Reset scroll position when folder/tag changes
     // This ensures a consistent experience where each folder/tag starts at the top

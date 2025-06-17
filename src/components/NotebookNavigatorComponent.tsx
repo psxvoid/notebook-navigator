@@ -21,13 +21,18 @@ import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState } f
 import { TFile, TFolder, WorkspaceLeaf, debounce, Platform } from 'obsidian';
 import { LeftPaneVirtualized } from './LeftPaneVirtualized';
 import { FileList } from './FileList';
-import { useAppContext } from '../context/AppContext';
+import { useStableContext } from '../context/StableContext';
+import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
+import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useSwipeGesture } from '../hooks/useSwipeGesture';
 import { isTFolder } from '../utils/typeGuards';
 import { STORAGE_KEYS, PANE_DIMENSIONS, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 import { debugLog } from '../utils/debugLog';
+import { flattenFolderTree, findFolderIndex } from '../utils/treeFlattener';
+import { parseExcludedFolders } from '../utils/fileFilters';
 
 export interface NotebookNavigatorHandle {
     revealFile: (file: TFile) => void;
@@ -46,7 +51,13 @@ export interface NotebookNavigatorHandle {
  * @returns A split-pane container with folder tree and file list
  */
 export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_, ref) => {
-    const { app, appState, dispatch, plugin, refreshCounter, isMobile } = useAppContext();
+    const { app, plugin, refreshCounter, isMobile, triggerRefresh } = useStableContext();
+    const expansionState = useExpansionState();
+    const expansionDispatch = useExpansionDispatch();
+    const selectionState = useSelectionState();
+    const selectionDispatch = useSelectionDispatch();
+    const uiState = useUIState();
+    const uiDispatch = useUIDispatch();
     const containerRef = useRef<HTMLDivElement>(null);
     const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
     
@@ -55,9 +66,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         if (Platform.isMobile && plugin.settings.debugMobile) {
             debugLog.info('NotebookNavigatorComponent: Mounted', { 
                 isMobile,
-                initialView: appState.currentMobileView,
-                selectedFolder: appState.selectedFolder?.path,
-                selectedFile: appState.selectedFile?.path
+                initialView: uiState.currentMobileView,
+                selectedFolder: selectionState.selectedFolder?.path,
+                selectedFile: selectionState.selectedFile?.path
             });
             return () => {
                 debugLog.info('NotebookNavigatorComponent: Unmounted');
@@ -81,19 +92,19 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const isRTL = document.body.classList.contains('mod-rtl');
     useSwipeGesture(containerRef, {
         onSwipeRight: () => {
-            if (isMobile && appState.currentMobileView === 'files') {
+            if (isMobile && uiState.currentMobileView === 'files') {
                 // In RTL mode, swipe right goes forward (to files view)
                 // In LTR mode, swipe right goes back (to list view)
                 if (!isRTL) {
-                    dispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
+                    uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
                 }
             }
         },
         onSwipeLeft: () => {
-            if (isMobile && appState.currentMobileView === 'files') {
+            if (isMobile && uiState.currentMobileView === 'files') {
                 // In RTL mode, swipe left goes back (to list view)
                 if (isRTL) {
-                    dispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
+                    uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
                 }
             }
         },
@@ -106,23 +117,64 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             if (Platform.isMobile && plugin.settings.debugMobile) {
                 debugLog.debug('NotebookNavigatorComponent: revealFile called', { file: file.path });
             }
-            dispatch({ type: 'REVEAL_FILE', file });
+            // For REVEAL_FILE, we need to expand folders and update selection
+            if (file.parent) {
+                const foldersToExpand: string[] = [];
+                let currentFolder: TFolder | null = file.parent;
+                while (currentFolder) {
+                    foldersToExpand.unshift(currentFolder.path);
+                    if (currentFolder.path === '/') break;
+                    currentFolder = currentFolder.parent;
+                }
+                
+                // First expand folders
+                expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
+                selectionDispatch({ type: 'REVEAL_FILE', file });
+                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                
+                // Calculate the folder index for predictive scrolling
+                // We need to build the flattened tree with the new expansion state
+                const newExpandedFolders = new Set(expansionState.expandedFolders);
+                foldersToExpand.forEach(path => newExpandedFolders.add(path));
+                
+                // Get root folders
+                const vault = app.vault;
+                const root = vault.getRoot();
+                const rootFolders = plugin.settings.showRootFolder 
+                    ? [root]
+                    : root.children.filter(child => isTFolder(child)).sort((a, b) => a.name.localeCompare(b.name)) as TFolder[];
+                
+                // Flatten the tree with the new expansion state
+                const flattened = flattenFolderTree(
+                    rootFolders,
+                    newExpandedFolders,
+                    parseExcludedFolders(plugin.settings.ignoreFolders || '')
+                );
+                
+                // Find the index of the target folder
+                const folderIndex = findFolderIndex(flattened, file.parent.path);
+                if (folderIndex !== -1) {
+                    // Dispatch scroll to folder index
+                    uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: folderIndex });
+                }
+            }
         },
         refresh: () => {
             if (Platform.isMobile && plugin.settings.debugMobile) {
                 debugLog.debug('NotebookNavigatorComponent: refresh called');
             }
-            dispatch({ type: 'FORCE_REFRESH' });
+            // Trigger a re-render by updating refresh counter
+            triggerRefresh();
         },
         focusFilePane: () => {
             if (Platform.isMobile && plugin.settings.debugMobile) {
                 debugLog.debug('NotebookNavigatorComponent: focusFilePane called');
             }
-            dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             // Focus the container to ensure keyboard navigation works
             containerRef.current?.focus();
         }
-    }), [dispatch, plugin.settings.debugMobile]);
+    }), [app, selectionDispatch, expansionDispatch, uiDispatch, triggerRefresh, plugin.settings.debugMobile]);
 
     // Handle focus/blur events to track when navigator has focus
     useEffect(() => {
@@ -181,15 +233,15 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             }
             
             // Always update selected file if it's different
-            if (appState.selectedFile?.path !== file.path) {
-                dispatch({ type: 'SET_SELECTED_FILE', file });
+            if (selectionState.selectedFile?.path !== file.path) {
+                selectionDispatch({ type: 'SET_SELECTED_FILE', file });
                 
                 // Check if we need to reveal the file in the folder tree
                 let needsReveal = true;
                 
-                if (appState.selectedFolder && file.parent) {
+                if (selectionState.selectedFolder && file.parent) {
                     // Check if file is in the selected folder
-                    if (appState.selectedFolder.path === file.parent.path) {
+                    if (selectionState.selectedFolder.path === file.parent.path) {
                         needsReveal = false;
                     }
                     
@@ -197,11 +249,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                     if (plugin.settings.showNotesFromSubfolders) {
                         let parent: TFolder | null = file.parent;
                         while (parent) {
-                            if (parent.path === appState.selectedFolder.path) {
+                            if (parent.path === selectionState.selectedFolder.path) {
                                 // File is in a subfolder of the selected folder
                                 // Update folder selection to file's immediate parent for clarity
-                                if (file.parent.path !== appState.selectedFolder.path) {
-                                    dispatch({ type: 'SET_SELECTED_FOLDER', folder: file.parent });
+                                if (file.parent.path !== selectionState.selectedFolder.path) {
+                                    selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: file.parent });
                                 }
                                 needsReveal = false;
                                 break;
@@ -212,8 +264,16 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 }
                 
                 // Only reveal if the file is not already visible in the current view
-                if (needsReveal) {
-                    dispatch({ type: 'REVEAL_FILE', file });
+                if (needsReveal && file.parent) {
+                    const foldersToExpand: string[] = [];
+                    let currentFolder: TFolder | null = file.parent;
+                    while (currentFolder) {
+                        foldersToExpand.unshift(currentFolder.path);
+                        if (currentFolder.path === '/') break;
+                        currentFolder = currentFolder.parent;
+                    }
+                    expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
+                    selectionDispatch({ type: 'REVEAL_FILE', file });
                 }
             }
         };
@@ -357,12 +417,12 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             }
             app.workspace.offref(layoutChangeEventRef);
         };
-    }, [app.workspace, dispatch, plugin.settings.autoRevealActiveFile, plugin.settings.showNotesFromSubfolders, appState.selectedFile, appState.selectedFolder, isMobile]);
+    }, [app.workspace, selectionDispatch, expansionDispatch, plugin.settings.autoRevealActiveFile, plugin.settings.showNotesFromSubfolders, selectionState.selectedFile, selectionState.selectedFolder, isMobile]);
 
     // Determine CSS classes for mobile view state
     const containerClasses = ['nn-split-container'];
     if (isMobile) {
-        containerClasses.push(appState.currentMobileView === 'list' ? 'show-list' : 'show-files');
+        containerClasses.push(uiState.currentMobileView === 'list' ? 'show-list' : 'show-files');
     } else {
         containerClasses.push('nn-desktop');
     }
@@ -371,7 +431,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         <div 
             ref={containerRef}
             className={containerClasses.join(' ')} 
-            data-focus-pane={isMobile ? (appState.currentMobileView === 'list' ? 'folders' : 'files') : appState.focusedPane}
+            data-focus-pane={isMobile ? (uiState.currentMobileView === 'list' ? 'folders' : 'files') : uiState.focusedPane}
             data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}
             tabIndex={-1}
             onMouseDown={() => navigatorInteractionRef.current = Date.now()}

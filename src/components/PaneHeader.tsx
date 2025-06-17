@@ -18,7 +18,10 @@
 
 import React, { useCallback } from 'react';
 import { Menu } from 'obsidian';
-import { useAppContext } from '../context/AppContext';
+import { useStableContext } from '../context/StableContext';
+import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
+import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileSystemOps } from '../context/ServicesContext';
 import { isTFolder } from '../utils/typeGuards';
 import { ObsidianIcon } from './ObsidianIcon';
@@ -41,15 +44,21 @@ interface PaneHeaderProps {
  * @returns A header element with context-appropriate action buttons
  */
 export function PaneHeader({ type }: PaneHeaderProps) {
-    const { app, appState, dispatch, isMobile, plugin } = useAppContext();
+    const { app, isMobile, plugin } = useStableContext();
+    const expansionState = useExpansionState();
+    const expansionDispatch = useExpansionDispatch();
+    const selectionState = useSelectionState();
+    const selectionDispatch = useSelectionDispatch();
+    const uiState = useUIState();
+    const uiDispatch = useUIDispatch();
     const fileSystemOps = useFileSystemOps();
     
     const handleExpandCollapseAll = useCallback(() => {
         if (type !== 'folder') return;
         
         // If we have any expanded folders, collapse all
-        if (appState.expandedFolders.size > 0) {
-            dispatch({ type: 'SET_EXPANDED_FOLDERS', folders: new Set() });
+        if (expansionState.expandedFolders.size > 0) {
+            expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: new Set() });
         } else {
             // Otherwise, expand all folders
             const allFolders = new Set<string>();
@@ -72,38 +81,38 @@ export function PaneHeader({ type }: PaneHeaderProps) {
             
             collectAllFolders(rootFolder);
             
-            dispatch({ type: 'SET_EXPANDED_FOLDERS', folders: allFolders });
+            expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: allFolders });
         }
-    }, [app, appState.expandedFolders.size, dispatch, type, plugin.settings.showRootFolder]);
+    }, [app, expansionState.expandedFolders.size, expansionDispatch, type, plugin.settings.showRootFolder]);
     
     const handleNewFolder = useCallback(async () => {
-        if (type !== 'folder' || !appState.selectedFolder) return;
+        if (type !== 'folder' || !selectionState.selectedFolder) return;
         
         try {
-            await fileSystemOps.createNewFolder(appState.selectedFolder, () => {
+            await fileSystemOps.createNewFolder(selectionState.selectedFolder, () => {
                 // Expand the parent folder to show the newly created folder
-                if (appState.selectedFolder && !appState.expandedFolders.has(appState.selectedFolder.path)) {
-                    dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: appState.selectedFolder.path });
+                if (selectionState.selectedFolder && !expansionState.expandedFolders.has(selectionState.selectedFolder.path)) {
+                    expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: selectionState.selectedFolder.path });
                 }
             });
         } catch (error) {
             // Error is handled by FileSystemOperations with user notification
         }
-    }, [appState.selectedFolder, appState.expandedFolders, fileSystemOps, type, dispatch]);
+    }, [selectionState.selectedFolder, expansionState.expandedFolders, fileSystemOps, type, expansionDispatch]);
     
     const handleNewFile = useCallback(async () => {
-        if (type !== 'file' || !appState.selectedFolder) return;
+        if (type !== 'file' || !selectionState.selectedFolder) return;
         
         try {
-            await fileSystemOps.createNewFile(appState.selectedFolder);
+            await fileSystemOps.createNewFile(selectionState.selectedFolder);
         } catch (error) {
             // Error is handled by FileSystemOperations with user notification
         }
-    }, [appState.selectedFolder, fileSystemOps, type]);
+    }, [selectionState.selectedFolder, fileSystemOps, type]);
     
     const getCurrentSortOption = useCallback((): SortOption => {
-        return getEffectiveSortOption(plugin.settings, appState.selectionType, appState.selectedFolder);
-    }, [plugin.settings, appState.selectionType, appState.selectedFolder]);
+        return getEffectiveSortOption(plugin.settings, selectionState.selectionType, selectionState.selectedFolder);
+    }, [plugin.settings, selectionState.selectionType, selectionState.selectedFolder]);
     
     const getSortIcon = useCallback(() => {
         return getSortIconName(getCurrentSortOption());
@@ -114,9 +123,9 @@ export function PaneHeader({ type }: PaneHeaderProps) {
         
         const menu = new Menu();
         const currentSort = getCurrentSortOption();
-        const isCustomSort = appState.selectionType === 'folder' && 
-                           appState.selectedFolder && 
-                           plugin.settings.folderSortOverrides[appState.selectedFolder.path];
+        const isCustomSort = selectionState.selectionType === 'folder' && 
+                           selectionState.selectedFolder && 
+                           plugin.settings.folderSortOverrides[selectionState.selectedFolder.path];
         
         // Default option
         menu.addItem((item) => {
@@ -124,10 +133,11 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                 .setTitle(`${strings.paneHeader.defaultSort}: ${strings.settings.items.sortNotesBy.options[plugin.settings.defaultFolderSort]}`)
                 .setChecked(!isCustomSort)
                 .onClick(async () => {
-                    if (appState.selectionType === 'folder' && appState.selectedFolder) {
-                        delete plugin.settings.folderSortOverrides[appState.selectedFolder.path];
+                    if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+                        delete plugin.settings.folderSortOverrides[selectionState.selectedFolder.path];
                         await plugin.saveSettings();
-                        dispatch({ type: 'FORCE_REFRESH' });
+                        // Trigger refresh by updating workspace
+                        app.workspace.requestSaveLayout();
                     }
                 });
         });
@@ -148,28 +158,29 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                     .setTitle(strings.settings.items.sortNotesBy.options[option])
                     .setChecked(isCustomSort && currentSort === option)
                     .onClick(async () => {
-                        if (appState.selectionType === 'folder' && appState.selectedFolder) {
-                            plugin.settings.folderSortOverrides[appState.selectedFolder.path] = option;
+                        if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+                            plugin.settings.folderSortOverrides[selectionState.selectedFolder.path] = option;
                         } else {
                             plugin.settings.defaultFolderSort = option;
                         }
                         await plugin.saveSettings();
-                        dispatch({ type: 'FORCE_REFRESH' });
+                        // Trigger refresh by updating workspace
+                        app.workspace.requestSaveLayout();
                     });
             });
         });
         
         menu.showAtMouseEvent(event.nativeEvent);
-    }, [type, appState.selectionType, appState.selectedFolder, plugin, dispatch, getCurrentSortOption]);
+    }, [type, selectionState.selectionType, selectionState.selectedFolder, plugin, app, getCurrentSortOption]);
     
     // Mobile header with back button
     if (isMobile) {
         let headerTitle = strings.common.noSelection;
         
-        if (appState.selectionType === 'folder' && appState.selectedFolder) {
-            headerTitle = appState.selectedFolder.path === '/' ? strings.folderTree.rootFolderName : appState.selectedFolder.name;
-        } else if (appState.selectionType === 'tag' && appState.selectedTag) {
-            headerTitle = appState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : appState.selectedTag;
+        if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+            headerTitle = selectionState.selectedFolder.path === '/' ? strings.folderTree.rootFolderName : selectionState.selectedFolder.name;
+        } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
+            headerTitle = selectionState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : selectionState.selectedTag;
         }
         
         // For file pane header on mobile
@@ -181,7 +192,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                             <button
                                 className="nn-icon-button"
                                 aria-label={strings.paneHeader.mobileBackToFolders}
-                                onClick={() => dispatch({ type: 'SET_MOBILE_VIEW', view: 'list' })}
+                                onClick={() => uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'list' })}
                                 tabIndex={-1}
                             >
                                 <ObsidianIcon name="arrow-left" />
@@ -193,7 +204,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                                 className="nn-icon-button"
                                 aria-label={strings.paneHeader.changeSortOrder}
                                 onClick={handleSortMenu}
-                                disabled={!appState.selectedFolder && !appState.selectedTag}
+                                disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
                                 tabIndex={-1}
                             >
                                 <ObsidianIcon name={getSortIcon()} />
@@ -202,7 +213,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                                 className="nn-icon-button"
                                 aria-label={strings.paneHeader.newNote}
                                 onClick={handleNewFile}
-                                disabled={!appState.selectedFolder}
+                                disabled={!selectionState.selectedFolder}
                                 tabIndex={-1}
                             >
                                 <ObsidianIcon name="file-plus" />
@@ -219,19 +230,19 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                 <div className="nn-header-actions" style={{ width: '100%', justifyContent: 'flex-end' }}>
                     <button
                         className="nn-icon-button"
-                        aria-label={appState.expandedFolders.size > 0 ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
+                        aria-label={expansionState.expandedFolders.size > 0 ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
                         onClick={handleExpandCollapseAll}
                         tabIndex={-1}
                     >
                         <ObsidianIcon 
-                            name={appState.expandedFolders.size > 0 ? 'chevrons-down-up' : 'chevrons-up-down'}
+                            name={expansionState.expandedFolders.size > 0 ? 'chevrons-down-up' : 'chevrons-up-down'}
                         />
                     </button>
                     <button
                         className="nn-icon-button"
                         aria-label={strings.paneHeader.newFolder}
                         onClick={handleNewFolder}
-                        disabled={!appState.selectedFolder}
+                        disabled={!selectionState.selectedFolder}
                         tabIndex={-1}
                     >
                         <ObsidianIcon name="folder-plus" />
@@ -249,19 +260,19 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                     <>
                         <button
                             className="nn-icon-button"
-                            aria-label={appState.expandedFolders.size > 0 ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
+                            aria-label={expansionState.expandedFolders.size > 0 ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
                             onClick={handleExpandCollapseAll}
                             tabIndex={-1}
                         >
                             <ObsidianIcon 
-                                name={appState.expandedFolders.size > 0 ? 'chevrons-down-up' : 'chevrons-up-down'}
+                                name={expansionState.expandedFolders.size > 0 ? 'chevrons-down-up' : 'chevrons-up-down'}
                             />
                         </button>
                         <button
                             className="nn-icon-button"
                             aria-label={strings.paneHeader.newFolder}
                             onClick={handleNewFolder}
-                            disabled={!appState.selectedFolder}
+                            disabled={!selectionState.selectedFolder}
                             tabIndex={-1}
                         >
                             <ObsidianIcon name="folder-plus" />
@@ -273,7 +284,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                             className="nn-icon-button"
                             aria-label={strings.paneHeader.changeSortOrder}
                             onClick={handleSortMenu}
-                            disabled={!appState.selectedFolder && !appState.selectedTag}
+                            disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
                             tabIndex={-1}
                         >
                             <ObsidianIcon name={getSortIcon()} />
@@ -282,7 +293,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
                             className="nn-icon-button"
                             aria-label={strings.paneHeader.newNote}
                             onClick={handleNewFile}
-                            disabled={!appState.selectedFolder}
+                            disabled={!selectionState.selectedFolder}
                             tabIndex={-1}
                         >
                             <ObsidianIcon name="file-plus" />

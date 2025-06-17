@@ -1,7 +1,10 @@
 import React, { useMemo, useRef, useEffect, useLayoutEffect, useCallback, useState } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { TFolder, TFile, App, getAllTags, Platform, View } from 'obsidian';
-import { useAppContext } from '../context/AppContext';
+import { useStableContext } from '../context/StableContext';
+import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
+import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { flattenFolderTree, flattenTagTree, findFolderIndex } from '../utils/treeFlattener';
 import { FolderItem } from './FolderItem';
 import { TagTreeItem } from './TagTreeItem';
@@ -18,7 +21,13 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { debugLog } from '../utils/debugLog';
 
 export const LeftPaneVirtualized: React.FC = () => {
-    const { app, plugin, appState, dispatch, refreshCounter, isMobile } = useAppContext();
+    const { app, plugin, refreshCounter, isMobile } = useStableContext();
+    const expansionState = useExpansionState();
+    const expansionDispatch = useExpansionDispatch();
+    const selectionState = useSelectionState();
+    const selectionDispatch = useSelectionDispatch();
+    const uiState = useUIState();
+    const uiDispatch = useUIDispatch();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     const spacerHeight = isMobile ? 40 : 25; // More space on mobile
     const lastScrolledPath = useRef<string | null>(null);
@@ -35,13 +44,13 @@ export const LeftPaneVirtualized: React.FC = () => {
     // we're returning from the editor and should scroll to show the selected item.
     // 
     // Desktop doesn't need this because it scrolls on selection change, not view appearance.
-    const prevExpandedFoldersSize = useRef(isMobile ? appState.expandedFolders.size : 0);
+    const prevExpandedFoldersSize = useRef(isMobile ? expansionState.expandedFolders.size : 0);
     
     // Cache selected folder/tag path to avoid repeated property access
-    const selectedPath = appState.selectionType === 'folder' && appState.selectedFolder 
-        ? appState.selectedFolder.path 
-        : appState.selectionType === 'tag' && appState.selectedTag 
-        ? appState.selectedTag 
+    const selectedPath = selectionState.selectionType === 'folder' && selectionState.selectedFolder 
+        ? selectionState.selectedFolder.path 
+        : selectionState.selectionType === 'tag' && selectionState.selectedTag 
+        ? selectionState.selectedTag 
         : null;
     
     
@@ -50,10 +59,10 @@ export const LeftPaneVirtualized: React.FC = () => {
         if (Platform.isMobile && plugin.settings.debugMobile) {
             debugLog.info('LeftPaneVirtualized: Mounted', {
                 isMobile,
-                selectedFolder: appState.selectedFolder?.path,
-                selectedTag: appState.selectedTag,
-                expandedFoldersCount: appState.expandedFolders.size,
-                expandedTagsCount: appState.expandedTags.size
+                selectedFolder: selectionState.selectedFolder?.path,
+                selectedTag: selectionState.selectedTag,
+                expandedFoldersCount: expansionState.expandedFolders.size,
+                expandedTagsCount: expansionState.expandedTags.size
             });
             return () => {
                 debugLog.info('LeftPaneVirtualized: Unmounted');
@@ -112,7 +121,7 @@ export const LeftPaneVirtualized: React.FC = () => {
         // Add folders
         const folderItems = flattenFolderTree(
             rootFolders,
-            appState.expandedFolders,
+            expansionState.expandedFolders,
             parseExcludedFolders(plugin.settings.ignoreFolders || '')
         );
         allItems.push(...folderItems);
@@ -128,7 +137,7 @@ export const LeftPaneVirtualized: React.FC = () => {
             // Add tags
             const tagItems = flattenTagTree(
                 Array.from(tagTree.values()),
-                appState.expandedTags
+                expansionState.expandedTags
             );
             allItems.push(...tagItems);
             
@@ -157,7 +166,7 @@ export const LeftPaneVirtualized: React.FC = () => {
         });
         
         return allItems;
-    }, [rootFolders, appState.expandedFolders, appState.expandedTags, 
+    }, [rootFolders, expansionState.expandedFolders, expansionState.expandedTags, 
         plugin.settings.ignoreFolders, plugin.settings.showTags, 
         plugin.settings.showUntagged, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
     
@@ -178,25 +187,16 @@ export const LeftPaneVirtualized: React.FC = () => {
     
     // Handle reveal file scrolling
     useEffect(() => {
-        if (appState.scrollToFolderIndex !== null && rowVirtualizer) {
-            const cleanup = scrollVirtualItemIntoView(
-                rowVirtualizer, 
-                appState.scrollToFolderIndex,
-                'auto',
-                3,
-                false,
-                isMobile ? 'center' : 'auto'
-            );
-            // Delay clearing the index to ensure scroll completes
-            const timeoutId = setTimeout(() => {
-                dispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: null });
-            }, 50);
-            return () => {
-                cleanup();
-                clearTimeout(timeoutId);
-            };
+        if (uiState.scrollToFolderIndex !== null && rowVirtualizer) {
+            // Use predictive scrolling - scroll immediately with no animation
+            rowVirtualizer.scrollToIndex(uiState.scrollToFolderIndex, {
+                align: isMobile ? 'center' : 'auto',
+                behavior: 'auto' // Instant scroll for predictive behavior
+            });
+            // Clear the scroll request immediately
+            uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: null });
         }
-    }, [appState.scrollToFolderIndex, rowVirtualizer, dispatch, isMobile]);
+    }, [uiState.scrollToFolderIndex, rowVirtualizer, uiDispatch, isMobile]);
     
     // Create a map for O(1) item lookups
     const pathToIndex = useMemo(() => {
@@ -224,7 +224,7 @@ export const LeftPaneVirtualized: React.FC = () => {
             // A change in mobile view implies we might need to scroll when returning
             setScrollTrigger(c => c + 1);
         }
-    }, [isMobile, appState.currentMobileView]);
+    }, [isMobile, uiState.currentMobileView]);
 
     // Trigger 2: Listen for entering editor (not for leaving)
     useEffect(() => {
@@ -259,7 +259,7 @@ export const LeftPaneVirtualized: React.FC = () => {
         const observer = new IntersectionObserver(
             (entries) => {
                 entries.forEach((entry) => {
-                    if (entry.isIntersecting && wasInEditor.current && appState.currentMobileView === 'list') {
+                    if (entry.isIntersecting && wasInEditor.current && uiState.currentMobileView === 'list') {
                         // Important: Reset wasInEditor AFTER checking it
                         wasInEditor.current = false;
                         
@@ -281,7 +281,7 @@ export const LeftPaneVirtualized: React.FC = () => {
                                         selectedPath,
                                         itemIndex,
                                         wasInEditor: true,
-                                        currentMobileView: appState.currentMobileView
+                                        currentMobileView: uiState.currentMobileView
                                     });
                                 }
                             }
@@ -310,17 +310,17 @@ export const LeftPaneVirtualized: React.FC = () => {
         return () => {
             observer.disconnect();
         };
-    }, [isMobile, rowVirtualizer, selectedPath, pathToIndex, plugin.settings.debugMobile, appState.currentMobileView, app.workspace]);
+    }, [isMobile, rowVirtualizer, selectedPath, pathToIndex, plugin.settings.debugMobile, uiState.currentMobileView, app.workspace]);
 
     // The main scroll effect, triggered by state changes
     useLayoutEffect(() => {
-        if (!isMobile || !selectedPath || appState.currentMobileView !== 'list') {
+        if (!isMobile || !selectedPath || uiState.currentMobileView !== 'list') {
             if (plugin.settings.debugMobile && isMobile) {
                 debugLog.debug('LeftPaneVirtualized: Scroll skipped', {
                     hasSelectedPath: !!selectedPath,
-                    currentMobileView: appState.currentMobileView,
+                    currentMobileView: uiState.currentMobileView,
                     reason: !selectedPath ? 'no selected path' : 
-                            appState.currentMobileView !== 'list' ? 'not in list view' : 'unknown'
+                            uiState.currentMobileView !== 'list' ? 'not in list view' : 'unknown'
                 });
             }
             return;
@@ -367,7 +367,7 @@ export const LeftPaneVirtualized: React.FC = () => {
             scrollContainerRef.current.scrollTop = scrollContainerRef.current.scrollTop;
         }
 
-    }, [isMobile, selectedPath, appState.currentMobileView, scrollTrigger, pathToIndex, rowVirtualizer]);
+    }, [isMobile, selectedPath, uiState.currentMobileView, scrollTrigger, pathToIndex, rowVirtualizer]);
     
     // --- END MOBILE SCROLL LOGIC ---
     
@@ -389,24 +389,24 @@ export const LeftPaneVirtualized: React.FC = () => {
         let actualIndex = -1;
         let currentPath: string | null = null;
         
-        if (appState.selectionType === 'folder' && appState.selectedFolder) {
-            currentPath = appState.selectedFolder.path;
+        if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+            currentPath = selectionState.selectedFolder.path;
             
             // Only scroll if path changed
             if (lastScrolledPath.current !== currentPath) {
                 actualIndex = items.findIndex(item => 
-                    item.type === 'folder' && item.data.path === appState.selectedFolder?.path
+                    item.type === 'folder' && item.data.path === selectionState.selectedFolder?.path
                 );
             }
-        } else if (appState.selectionType === 'tag' && appState.selectedTag) {
-            currentPath = appState.selectedTag;
+        } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
+            currentPath = selectionState.selectedTag;
             
             // Only scroll if path changed
             if (lastScrolledPath.current !== currentPath) {
                 actualIndex = items.findIndex(item => {
                     if (item.type === 'tag' || item.type === 'untagged') {
                         const tagNode = item.data as TagTreeNode;
-                        return tagNode.path === appState.selectedTag;
+                        return tagNode.path === selectionState.selectedTag;
                     }
                     return false;
                 });
@@ -422,7 +422,7 @@ export const LeftPaneVirtualized: React.FC = () => {
                 behavior: 'auto'
             });
         }
-    }, [isMobile, appState.selectedFolder?.path, appState.selectedTag, appState.selectionType, rowVirtualizer, items]);
+    }, [isMobile, selectionState.selectedFolder?.path, selectionState.selectedTag, selectionState.selectionType, rowVirtualizer, items]);
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
@@ -434,29 +434,31 @@ export const LeftPaneVirtualized: React.FC = () => {
     
     // Handle folder toggle
     const handleFolderToggle = useCallback((path: string) => {
-        dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: path });
-    }, [dispatch]);
+        expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: path });
+    }, [expansionDispatch]);
     
     // Handle folder click
     const handleFolderClick = useCallback((folder: TFolder) => {
         debugLog.debug('LeftPaneVirtualized: Folder clicked', {
             folder: folder.path,
             isMobile,
-            currentMobileView: appState.currentMobileView
+            currentMobileView: uiState.currentMobileView
         });
-        dispatch({ type: 'SET_SELECTED_FOLDER', folder });
-        dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+        selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
+        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         
-        // Switch to files view on mobile
+        // Switch to files view on mobile with predictive scroll to first file
         if (isMobile) {
-            dispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
+            uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
+            // Scroll to the first file (index 0) when switching to files view
+            uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: 0 });
         }
-    }, [dispatch, isMobile, appState.currentMobileView]);
+    }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView]);
     
     // Handle tag toggle
     const handleTagToggle = useCallback((path: string) => {
-        dispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: path });
-    }, [dispatch]);
+        expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: path });
+    }, [expansionDispatch]);
     
     // Handle tag click
     const handleTagClick = useCallback((tagPath: string) => {
@@ -464,17 +466,19 @@ export const LeftPaneVirtualized: React.FC = () => {
             debugLog.debug('LeftPaneVirtualized: Tag clicked', {
                 tag: tagPath,
                 isMobile,
-                currentMobileView: appState.currentMobileView
+                currentMobileView: uiState.currentMobileView
             });
         }
-        dispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
-        dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+        selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
+        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         
-        // Switch to files view on mobile
+        // Switch to files view on mobile with predictive scroll to first file
         if (isMobile) {
-            dispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
+            uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
+            // Scroll to the first file (index 0) when switching to files view
+            uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: 0 });
         }
-    }, [dispatch, isMobile, appState.currentMobileView]);
+    }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView, plugin.settings.debugMobile]);
     
     // Render individual item
     const renderItem = useCallback((item: CombinedLeftPaneItem): React.ReactNode => {
@@ -484,9 +488,9 @@ export const LeftPaneVirtualized: React.FC = () => {
                     <FolderItem
                         folder={item.data}
                         level={item.level}
-                        isExpanded={appState.expandedFolders.has(item.data.path)}
-                        isSelected={appState.selectionType === 'folder' && 
-                            appState.selectedFolder?.path === item.data.path}
+                        isExpanded={expansionState.expandedFolders.has(item.data.path)}
+                        isSelected={selectionState.selectionType === 'folder' && 
+                            selectionState.selectedFolder?.path === item.data.path}
                         onToggle={() => handleFolderToggle(item.data.path)}
                         onClick={() => handleFolderClick(item.data)}
                     />
@@ -506,9 +510,9 @@ export const LeftPaneVirtualized: React.FC = () => {
                     <TagTreeItem
                         tagNode={tagNode}
                         level={item.type === 'untagged' ? 0 : item.level}
-                        isExpanded={appState.expandedTags.has(tagNode.path)}
-                        isSelected={appState.selectionType === 'tag' && 
-                            appState.selectedTag === tagNode.path}
+                        isExpanded={expansionState.expandedTags.has(tagNode.path)}
+                        isSelected={selectionState.selectionType === 'tag' && 
+                            selectionState.selectedTag === tagNode.path}
                         onToggle={() => handleTagToggle(tagNode.path)}
                         onClick={() => handleTagClick(tagNode.path)}
                         fileCount={item.type === 'untagged' ? untaggedCount : getTotalNoteCount(tagNode)}
@@ -523,7 +527,7 @@ export const LeftPaneVirtualized: React.FC = () => {
             default:
                 return null;
         }
-    }, [appState.expandedFolders, appState.expandedTags, appState.selectionType, appState.selectedFolder?.path, appState.selectedTag, handleFolderToggle, handleFolderClick, handleTagToggle, handleTagClick, untaggedCount, plugin.settings.showFolderFileCount, spacerHeight]);
+    }, [expansionState.expandedFolders, expansionState.expandedTags, selectionState.selectionType, selectionState.selectedFolder?.path, selectionState.selectedTag, handleFolderToggle, handleFolderClick, handleTagToggle, handleTagClick, untaggedCount, plugin.settings.showFolderFileCount, spacerHeight]);
     
     return (
         <ErrorBoundary componentName="LeftPaneVirtualized">

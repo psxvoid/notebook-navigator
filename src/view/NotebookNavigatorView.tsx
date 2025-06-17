@@ -21,8 +21,11 @@ import { ItemView, WorkspaceLeaf, TFile, Platform } from 'obsidian';
 import { Root, createRoot } from 'react-dom/client';
 import React from 'react';
 import NotebookNavigatorPlugin from '../main';
-import { AppProvider } from '../context/AppContext';
 import { ServicesProvider } from '../context/ServicesContext';
+import { StableProvider } from '../context/StableContext';
+import { ExpansionProvider } from '../context/ExpansionContext';
+import { SelectionProvider } from '../context/SelectionContext';
+import { UIStateProvider } from '../context/UIStateContext';
 import { NotebookNavigatorComponent, NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
 import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 import { strings } from '../i18n';
@@ -99,9 +102,15 @@ export class NotebookNavigatorView extends ItemView {
         this.root.render(
             <React.StrictMode>
                 <ServicesProvider plugin={this.plugin}>
-                    <AppProvider plugin={this.plugin} isMobile={isMobile}>
-                        <NotebookNavigatorComponent ref={this.componentRef} />
-                    </AppProvider>
+                    <StableProvider plugin={this.plugin} isMobile={isMobile}>
+                        <ExpansionProvider>
+                            <SelectionProvider app={this.plugin.app} plugin={this.plugin} isMobile={isMobile}>
+                                <UIStateProvider isMobile={isMobile}>
+                                    <NotebookNavigatorComponent ref={this.componentRef} />
+                                </UIStateProvider>
+                            </SelectionProvider>
+                        </ExpansionProvider>
+                    </StableProvider>
                 </ServicesProvider>
             </React.StrictMode>
         );
