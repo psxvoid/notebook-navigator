@@ -19,8 +19,7 @@
 // src/hooks/useDragAndDrop.ts
 import { useCallback, useEffect, useRef } from 'react';
 import { TFolder, TFile, Notice } from 'obsidian';
-import { useAppContext } from '../context/AppContext';
-import { useFileSystemOps } from '../context/ServicesContext';
+import { useServices, useFileSystemOps } from '../context/ServicesContext';
 import { isTFolder } from '../utils/typeGuards';
 import { getPathFromDataAttribute, getAbstractFileFromElement } from '../utils/domUtils';
 import { strings } from '../i18n';
@@ -67,7 +66,7 @@ import { strings } from '../i18n';
  * ```
  */
 export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>) {
-    const { app, dispatch, isMobile } = useAppContext();
+    const { app, isMobile } = useServices();
     const fileSystemOps = useFileSystemOps();
     const dragOverElement = useRef<HTMLElement | null>(null);
 
@@ -150,12 +149,12 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
         try {
             await app.fileManager.renameFile(sourceItem, newPath);
-            // Force refresh to update folder counts
-            dispatch({ type: 'FORCE_REFRESH' });
+            // The file move will trigger Obsidian's file events, which will update
+            // the state naturally through proper event handling
         } catch (error) {
             new Notice(strings.dragDrop.errors.failedToMove.replace('{error}', error.message));
         }
-    }, [app, fileSystemOps, dispatch]);
+    }, [app, fileSystemOps]);
     
     /**
      * Handles the drag end event.

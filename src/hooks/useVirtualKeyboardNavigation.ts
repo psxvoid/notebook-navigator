@@ -1,13 +1,15 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { TFile, TFolder } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
-import { useAppContext } from '../context/AppContext';
 import { CombinedLeftPaneItem, FileListItem } from '../types/virtualization';
 import { TagTreeNode } from '../utils/tagUtils';
 import { isTypingInInput } from '../utils/domUtils';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { isTFolder } from '../utils/typeGuards';
-import { useFileSystemOps } from '../context/ServicesContext';
+import { useServices, useFileSystemOps } from '../context/ServicesContext';
+import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
+import { useUIState, useUIDispatch } from '../context/UIStateContext';
 
 type VirtualItem = CombinedLeftPaneItem | FileListItem;
 
@@ -28,8 +30,14 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     focusedPane,
     containerRef
 }: UseVirtualKeyboardNavigationProps<T>) {
-    const { app, appState, dispatch, plugin, isMobile } = useAppContext();
+    const { app, plugin, isMobile } = useServices();
     const fileSystemOps = useFileSystemOps();
+    const selectionState = useSelectionState();
+    const selectionDispatch = useSelectionDispatch();
+    const expansionState = useExpansionState();
+    const expansionDispatch = useExpansionDispatch();
+    const uiState = useUIState();
+    const uiDispatch = useUIDispatch();
     const lastKeyPressTime = useRef(0);
     
     // Helper function for safe array access
@@ -52,7 +60,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         if (!navigatorContainer) return;
         
         // Use the state directly instead of DOM attribute to avoid timing issues
-        if (appState.focusedPane !== focusedPane) return;
+        if (uiState.focusedPane !== focusedPane) return;
         
         // Debounce rapid key presses with a more reasonable threshold
         const now = Date.now();
@@ -72,7 +80,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             currentIndex = items.findIndex(item => {
                 if ('type' in item && item.type === 'file') {
                     const fileItem = item as FileListItem;
-                    return (fileItem.data as TFile).path === appState.selectedFile?.path;
+                    return (fileItem.data as TFile).path === selectionState.selectedFile?.path;
                 }
                 return false;
             });
@@ -80,12 +88,12 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             currentIndex = items.findIndex(item => {
                 if ('type' in item) {
                     const leftPaneItem = item as CombinedLeftPaneItem;
-                    if (leftPaneItem.type === 'folder' && appState.selectionType === 'folder') {
-                        return leftPaneItem.data.path === appState.selectedFolder?.path;
+                    if (leftPaneItem.type === 'folder' && selectionState.selectionType === 'folder') {
+                        return leftPaneItem.data.path === selectionState.selectedFolder?.path;
                     } else if ((leftPaneItem.type === 'tag' || leftPaneItem.type === 'untagged') && 
-                               appState.selectionType === 'tag') {
+                               selectionState.selectionType === 'tag') {
                         const tagNode = leftPaneItem.data as TagTreeNode;
-                        return tagNode.path === appState.selectedTag;
+                        return tagNode.path === selectionState.selectedTag;
                     }
                 }
                 return false;
@@ -149,14 +157,14 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     if (currentIndex >= 0) {
                         const item = safeGetItem(items, currentIndex) as CombinedLeftPaneItem | undefined;
                         if (!item) {
-                            dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                             return;
                         }
                         
                         // Check if we should expand instead of switching panes
                         if (item.type === 'folder') {
                             const folder = item.data;
-                            const isExpanded = appState.expandedFolders.has(folder.path);
+                            const isExpanded = expansionState.expandedFolders.has(folder.path);
                             const hasChildren = folder.children.some(child => isTFolder(child));
                             
                             // Only expand if: has children AND not already expanded
@@ -166,7 +174,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                             }
                         } else if (item.type === 'tag') {
                             const tag = item.data as TagTreeNode;
-                            const isExpanded = appState.expandedTags.has(tag.path);
+                            const isExpanded = expansionState.expandedTags.has(tag.path);
                             const hasChildren = tag.children.size > 0;
                             
                             // Only expand if: has children AND not already expanded
@@ -177,21 +185,21 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                         }
                         
                         // If we get here, either no children or already expanded, so switch to files pane
-                        dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                         return; // Stop execution here to prevent race condition
                     } else {
                         // No selection, just switch pane
-                        dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                         return; // Stop execution here to prevent race condition
                     }
-                } else if (focusedPane === 'files' && appState.selectedFile) {
+                } else if (focusedPane === 'files' && selectionState.selectedFile) {
                     // Move focus to edit view showing the selected file
                     const leaves = app.workspace.getLeavesOfType('markdown')
                         .concat(app.workspace.getLeavesOfType('canvas'))
                         .concat(app.workspace.getLeavesOfType('pdf'));
                     
                     // Find leaf showing our file
-                    const targetLeaf = leaves.find(leaf => (leaf.view as any).file?.path === appState.selectedFile?.path);
+                    const targetLeaf = leaves.find(leaf => (leaf.view as any).file?.path === selectionState.selectedFile?.path);
                     if (targetLeaf) {
                         app.workspace.setActiveLeaf(targetLeaf, { focus: true });
                     }
@@ -201,14 +209,14 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             case 'ArrowLeft':
                 e.preventDefault();
                 if (focusedPane === 'files') {
-                    dispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
                 } else if (focusedPane === 'folders' && currentIndex >= 0) {
                     const item = safeGetItem(items, currentIndex) as CombinedLeftPaneItem | undefined;
                     if (!item) return;
                     
                     if (item.type === 'folder') {
                         const folder = item.data;
-                        const isExpanded = appState.expandedFolders.has(folder.path);
+                        const isExpanded = expansionState.expandedFolders.has(folder.path);
                         if (isExpanded) {
                             // Collapse the folder
                             handleExpandCollapse(item, false);
@@ -231,7 +239,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                         }
                     } else if (item.type === 'tag') {
                         const tag = item.data as TagTreeNode;
-                        const isExpanded = appState.expandedTags.has(tag.path);
+                        const isExpanded = expansionState.expandedTags.has(tag.path);
                         if (isExpanded) {
                             // Collapse the tag
                             handleExpandCollapse(item, false);
@@ -259,7 +267,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             case 'Tab':
                 e.preventDefault();
                 // Switch focus between panes
-                dispatch({ 
+                uiDispatch({ 
                     type: 'SET_FOCUSED_PANE', 
                     pane: focusedPane === 'folders' ? 'files' : 'folders' 
                 });
@@ -277,7 +285,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 
             case 'Delete':
             case 'Backspace':
-                if (!isTypingInInput(e) && appState.selectedFile) {
+                if (!isTypingInInput(e) && selectionState.selectedFile) {
                     e.preventDefault();
                     handleDelete();
                 }
@@ -296,7 +304,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             
             scrollVirtualItemIntoView(virtualizer, targetIndex, 'auto', 3, isFirstInGroup);
         }
-    }, [items, virtualizer, focusedPane, appState, dispatch, plugin, app, isMobile]);
+    }, [items, virtualizer, focusedPane, selectionState, expansionState, selectionDispatch, expansionDispatch, uiDispatch, plugin, app, isMobile]);
     
     // Helper function to find next selectable item
     const findNextSelectableIndex = (items: VirtualItem[], currentIndex: number, pane: string): number => {
@@ -405,7 +413,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             const fileItem = item as FileListItem;
             if (fileItem.type === 'file') {
                 const file = fileItem.data as TFile;
-                dispatch({ type: 'SET_SELECTED_FILE', file });
+                selectionDispatch({ type: 'SET_SELECTED_FILE', file });
                 
                 // Open the file in the editor but keep focus in file list
                 const leaf = app.workspace.getLeaf(false);
@@ -416,10 +424,10 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         } else {
             const leftPaneItem = item as CombinedLeftPaneItem;
             if (leftPaneItem.type === 'folder') {
-                dispatch({ type: 'SET_SELECTED_FOLDER', folder: leftPaneItem.data });
+                selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: leftPaneItem.data });
             } else if (leftPaneItem.type === 'tag' || leftPaneItem.type === 'untagged') {
                 const tagNode = leftPaneItem.data as TagTreeNode;
-                dispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path });
+                selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path });
             }
         }
     };
@@ -431,19 +439,19 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         const leftPaneItem = item as CombinedLeftPaneItem;
         if (leftPaneItem.type === 'folder') {
             const folder = leftPaneItem.data;
-            const isExpanded = appState.expandedFolders.has(folder.path);
+            const isExpanded = expansionState.expandedFolders.has(folder.path);
             if (expand && !isExpanded && folder.children.length > 0) {
-                dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
+                expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
             } else if (!expand && isExpanded) {
-                dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
+                expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
             }
         } else if (leftPaneItem.type === 'tag') {
             const tag = leftPaneItem.data as TagTreeNode;
-            const isExpanded = appState.expandedTags.has(tag.path);
+            const isExpanded = expansionState.expandedTags.has(tag.path);
             if (expand && !isExpanded && tag.children.size > 0) {
-                dispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tag.path });
+                expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tag.path });
             } else if (!expand && isExpanded) {
-                dispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tag.path });
+                expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tag.path });
             }
         }
     };
@@ -477,11 +485,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     
     // Handle Delete key
     const handleDelete = async () => {
-        if (!appState.selectedFile) return;
+        if (!selectionState.selectedFile) return;
         
         // Use the centralized file deletion service
         await fileSystemOps.deleteFile(
-            appState.selectedFile,
+            selectionState.selectedFile,
             plugin.settings.confirmBeforeDelete
         );
     };

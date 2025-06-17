@@ -18,7 +18,7 @@
 
 import React, { useCallback } from 'react';
 import { Menu } from 'obsidian';
-import { useStableContext } from '../context/StableContext';
+import { useServices } from '../context/ServicesContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
@@ -44,7 +44,7 @@ interface PaneHeaderProps {
  * @returns A header element with context-appropriate action buttons
  */
 export function PaneHeader({ type }: PaneHeaderProps) {
-    const { app, isMobile, plugin } = useStableContext();
+    const { app, isMobile, plugin } = useServices();
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
     const selectionState = useSelectionState();

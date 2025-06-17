@@ -18,7 +18,7 @@
 
 import React, { useEffect, useState, useRef, useMemo, memo } from 'react';
 import { TFile } from 'obsidian';
-import { useStableContext } from '../context/StableContext';
+import { useServices } from '../context/ServicesContext';
 import { DateUtils } from '../utils/DateUtils';
 import { PreviewTextUtils } from '../utils/PreviewTextUtils';
 import { getDateField } from '../utils/sortUtils';
@@ -48,7 +48,7 @@ interface FileItemProps {
  * @returns A file item element with name, date, preview and optional image
  */
 function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate, parentFolder }: FileItemProps) {
-    const { app, plugin, isMobile, refreshCounter } = useStableContext();
+    const { app, plugin, isMobile } = useServices();
     const [previewText, setPreviewText] = useState('');
     const fileRef = useRef<HTMLDivElement>(null);
     
@@ -97,7 +97,7 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
         }
 
         return null;
-    }, [file.path, file.stat.mtime, plugin.settings.showFeatureImage, plugin.settings.featureImageProperty, app.metadataCache, app.vault, refreshCounter]);
+    }, [file.path, file.stat.mtime, plugin.settings.showFeatureImage, plugin.settings.featureImageProperty, app.metadataCache, app.vault]);
 
     // Load preview text
     useEffect(() => {
@@ -159,7 +159,7 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
         return () => { 
             isCancelled = true;
         };
-    }, [file.path, file.stat.mtime, app.vault, plugin.settings.showFilePreview, plugin.settings.skipHeadingsInPreview, plugin.settings.skipNonTextInPreview, refreshCounter]); // Include mtime to detect file changes
+    }, [file.path, file.stat.mtime, app.vault, plugin.settings.showFilePreview, plugin.settings.skipHeadingsInPreview, plugin.settings.skipNonTextInPreview]); // Include mtime to detect file changes
     
     // Detect slim mode when all display options are disabled
     const isSlimMode = !plugin.settings.showDate && 

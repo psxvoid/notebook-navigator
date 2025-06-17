@@ -19,7 +19,7 @@
 import React, { useMemo, useLayoutEffect, useCallback, useRef, useEffect, useState } from 'react';
 import { TFile, TFolder, TAbstractFile, getAllTags, Platform } from 'obsidian';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { useStableContext } from '../context/StableContext';
+import { useServices } from '../context/ServicesContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { FileItem } from './FileItem';
@@ -141,7 +141,7 @@ function collectFilesFromFolder(folder: TFolder, includeSubfolders: boolean): TF
  * @returns A scrollable list of files grouped by date (if enabled) with empty state handling
  */
 export function FileList() {
-    const { app, plugin, refreshCounter, isMobile } = useStableContext();
+    const { app, plugin, isMobile } = useServices();
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
@@ -289,8 +289,7 @@ export function FileList() {
         plugin.settings.showNotesFromSubfolders,
         plugin.settings.pinnedNotes,
         plugin.settings.excludedFiles,
-        app, 
-        refreshCounter
+        app
     ]);
     
     // Auto-open file when it's selected via folder/tag change (not user click)
@@ -636,87 +635,19 @@ export function FileList() {
     }, [isMobile, scrollStateKey, selectedFilePath]);
     */
     
-    // Mobile scroll to selected file when the view changes or file changes
-    // This is one of the key mobile-specific behaviors:
-    // - On desktop: We scroll when file selection changes (user clicks)
-    // - On mobile: We scroll when the files view appears (user navigates back from editor)
-    // 
-    // The lastScrollKeyRef prevents duplicate scrolls for the same view+file combination,
-    // which is important because mobile can trigger multiple layout effects when switching views
-    const lastScrollKeyRef = useRef<string>('');
-    
-    useLayoutEffect(() => {
-        if (!isMobile || !selectedFilePath || uiState.currentMobileView !== 'files') return;
-        
-        // Create a unique key for this scroll scenario
-        // This key combines view state and file to ensure we only scroll once per unique state
-        const scrollKey = `${uiState.currentMobileView}-${selectedFilePath}`;
-        
-        // Skip if we already scrolled for this exact scenario
-        // This prevents jarring repeated scrolls when the component re-renders
-        if (lastScrollKeyRef.current === scrollKey) return;
-        
-        if (Platform.isMobile && plugin.settings.debugMobile) {
-            debugLog.debug('FileList: Should scroll immediately', {
-                reason: 'view or file changed',
-                file: selectedFilePath
-            });
-        }
-        
-        const fileIndex = filePathToIndex.get(selectedFilePath);
-        if (fileIndex === undefined || fileIndex < 0) return;
-        
-        // Scroll immediately when conditions are met
-        const scrollToFile = () => {
-            if (!scrollContainerRef.current || !rowVirtualizer) return;
-            
-            const virtualItems = rowVirtualizer.getVirtualItems();
-            if (virtualItems.length === 0) {
-                // Wait for virtualizer to initialize
-                requestAnimationFrame(scrollToFile);
-                return;
-            }
-            
-            rowVirtualizer.scrollToIndex(fileIndex, {
-                align: 'center',
-                behavior: 'auto'
-            });
-            
-            lastScrollKeyRef.current = scrollKey;
-            
-            if (Platform.isMobile && plugin.settings.debugMobile) {
-                debugLog.debug('FileList: Scrolled to selected file', {
-                    file: selectedFilePath,
-                    index: fileIndex
-                });
-            }
-        };
-        
-        // Execute immediately, no delays
-        scrollToFile();
-        
-    }, [isMobile, uiState.currentMobileView, selectedFilePath, filePathToIndex, rowVirtualizer, plugin.settings.debugMobile]);
-    
-    // Listen for layout changes to reset scroll key when sidebar is hidden
-    // Mobile-specific: When the user opens a file (collapsing the sidebar), we need
-    // to reset our scroll tracking so that when they return to the file list,
-    // we'll scroll to the selected file again. This creates a consistent experience
-    // where the selected file is always visible when returning from the editor.
+    // Mobile: Calculate and dispatch scroll index when view becomes visible
     useEffect(() => {
-        if (!isMobile) return;
-        
-        const handleLayoutChange = () => {
-            const isCollapsed = app.workspace.leftSplit?.collapsed ?? false;
-            if (isCollapsed) {
-                // Reset scroll key when sidebar is hidden so we scroll next time
-                // This ensures the file list shows the selected file when reopened
-                lastScrollKeyRef.current = '';
+        if (isMobile && uiState.currentMobileView === 'files' && selectedFilePath) {
+            const fileIndex = filePathToIndex.get(selectedFilePath);
+            if (fileIndex !== undefined && fileIndex >= 0) {
+                // Dispatch predictive scroll to the selected file
+                uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: fileIndex });
             }
-        };
-        
-        const eventRef = app.workspace.on('layout-change', handleLayoutChange);
-        return () => app.workspace.offref(eventRef);
-    }, [isMobile, app.workspace]);
+        }
+    }, [isMobile, uiState.currentMobileView, selectedFilePath, filePathToIndex, uiDispatch]);
+    
+    // REMOVED: Old layout-change handler for scroll tracking
+    // Predictive scrolling now handles this automatically
     
     // Track scroll events and calculate velocity on mobile
     useEffect(() => {
@@ -805,44 +736,24 @@ export function FileList() {
         };
     }, [isMobile, VELOCITY_THRESHOLD, SCROLL_END_DELAY, MOMENTUM_DURATION, VELOCITY_CALC_MAX_DIFF]);
     
-    // Handle programmatic scrolling (DESKTOP ONLY)
-    useEffect(() => {
-        if (!isMobile && uiState.scrollToFileIndex !== null && scrollContainerRef.current && rowVirtualizer) {
-            debugLog.debug('FileList: Programmatic scroll to index', { index: uiState.scrollToFileIndex });
-            const cleanup = scrollVirtualItemIntoView(rowVirtualizer, uiState.scrollToFileIndex);
-            // Clear the scroll request
+    // THIS IS THE ONLY SCROLL EFFECT - Predictive state-driven scrolling
+    useLayoutEffect(() => {
+        // If the state has a valid index...
+        if (uiState.scrollToFileIndex !== null && uiState.scrollToFileIndex >= 0 && rowVirtualizer) {
+            // ...then scroll to it immediately.
+            rowVirtualizer.scrollToIndex(uiState.scrollToFileIndex, {
+                align: 'center',
+                behavior: 'auto' // 'auto' is crucial for instant, pre-paint scrolling
+            });
+
+            // And immediately dispatch an action to reset the index in the state.
+            // This prevents re-scrolling on subsequent renders.
             uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: null });
-            return cleanup;
         }
-    }, [isMobile, uiState.scrollToFileIndex, rowVirtualizer, uiDispatch]);
+    }, [uiState.scrollToFileIndex, rowVirtualizer, uiDispatch]); // This effect ONLY runs when the scroll target changes.
     
-    // Scroll to selected file when it changes (DESKTOP ONLY)
-    useEffect(() => {
-        if (!isMobile && selectedFilePath && scrollContainerRef.current && rowVirtualizer) {
-            const fileIndex = filePathToIndex.get(selectedFilePath);
-            
-            if (fileIndex !== undefined && fileIndex >= 0) {
-                debugLog.debug('FileList: Scrolling to selected file', {
-                    file: selectedFilePath,
-                    index: fileIndex
-                });
-                // Only scroll to header when it's the first file (auto-selection)
-                // Don't do it during normal navigation to avoid jumping
-                const firstItem = listItems[0];
-                const isFirstFile = fileIndex === 0 || (fileIndex === 1 && firstItem && firstItem.type === 'header');
-                const isFirstInGroup = isFirstFile && fileIndex > 0 && listItems[fileIndex - 1]?.type === 'header';
-                
-                const cleanup = scrollVirtualItemIntoView(
-                    rowVirtualizer, 
-                    fileIndex,
-                    'auto',
-                    3,
-                    isFirstInGroup
-                );
-                return cleanup;
-            }
-        }
-    }, [isMobile, selectedFilePath, filePathToIndex, rowVirtualizer, listItems]);
+    // REMOVED: Old imperative scrolling based on file selection
+    // This is now handled by predictive scrolling through SCROLL_TO_FILE_INDEX actions
     
     // Mobile: Scroll to selected file when view changes
     // This is a backup scroll mechanism for mobile that ensures the selected file
@@ -953,7 +864,7 @@ export function FileList() {
             }
         });
         return dateMap;
-    }, [listItems, dateField, plugin.settings.showDate, plugin.settings.dateFormat, plugin.settings.timeFormat, plugin.settings.useFrontmatterDates, plugin.settings.frontmatterCreatedField, plugin.settings.frontmatterModifiedField, plugin.settings.frontmatterDateFormat, strings.fileList.pinnedSection, app.metadataCache, refreshCounter]);
+    }, [listItems, dateField, plugin.settings.showDate, plugin.settings.dateFormat, plugin.settings.timeFormat, plugin.settings.useFrontmatterDates, plugin.settings.frontmatterCreatedField, plugin.settings.frontmatterModifiedField, plugin.settings.frontmatterDateFormat, strings.fileList.pinnedSection, app.metadataCache]);
     
     // Helper function for safe array access
     const safeGetItem = <T,>(array: T[], index: number): T | undefined => {

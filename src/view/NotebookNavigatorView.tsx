@@ -22,7 +22,6 @@ import { Root, createRoot } from 'react-dom/client';
 import React from 'react';
 import NotebookNavigatorPlugin from '../main';
 import { ServicesProvider } from '../context/ServicesContext';
-import { StableProvider } from '../context/StableContext';
 import { ExpansionProvider } from '../context/ExpansionContext';
 import { SelectionProvider } from '../context/SelectionContext';
 import { UIStateProvider } from '../context/UIStateContext';
@@ -102,15 +101,13 @@ export class NotebookNavigatorView extends ItemView {
         this.root.render(
             <React.StrictMode>
                 <ServicesProvider plugin={this.plugin}>
-                    <StableProvider plugin={this.plugin} isMobile={isMobile}>
-                        <ExpansionProvider>
-                            <SelectionProvider app={this.plugin.app} plugin={this.plugin} isMobile={isMobile}>
-                                <UIStateProvider isMobile={isMobile}>
-                                    <NotebookNavigatorComponent ref={this.componentRef} />
-                                </UIStateProvider>
-                            </SelectionProvider>
-                        </ExpansionProvider>
-                    </StableProvider>
+                    <ExpansionProvider>
+                        <SelectionProvider app={this.plugin.app} plugin={this.plugin} isMobile={isMobile}>
+                            <UIStateProvider isMobile={isMobile}>
+                                <NotebookNavigatorComponent ref={this.componentRef} />
+                            </UIStateProvider>
+                        </SelectionProvider>
+                    </ExpansionProvider>
                 </ServicesProvider>
             </React.StrictMode>
         );

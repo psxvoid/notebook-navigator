@@ -21,7 +21,7 @@ import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState } f
 import { TFile, TFolder, WorkspaceLeaf, debounce, Platform } from 'obsidian';
 import { LeftPaneVirtualized } from './LeftPaneVirtualized';
 import { FileList } from './FileList';
-import { useStableContext } from '../context/StableContext';
+import { useServices } from '../context/ServicesContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
@@ -51,7 +51,7 @@ export interface NotebookNavigatorHandle {
  * @returns A split-pane container with folder tree and file list
  */
 export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_, ref) => {
-    const { app, plugin, refreshCounter, isMobile, triggerRefresh } = useStableContext();
+    const { app, plugin, isMobile } = useServices();
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
     const selectionState = useSelectionState();
@@ -163,8 +163,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             if (Platform.isMobile && plugin.settings.debugMobile) {
                 debugLog.debug('NotebookNavigatorComponent: refresh called');
             }
-            // Trigger a re-render by updating refresh counter
-            triggerRefresh();
+            // TODO: Remove this method entirely. Components should re-render based on state changes,
+            // not manual refresh triggers. For now, this is a no-op.
+            // The vault events should trigger state updates that cause natural re-renders.
         },
         focusFilePane: () => {
             if (Platform.isMobile && plugin.settings.debugMobile) {
@@ -174,7 +175,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             // Focus the container to ensure keyboard navigation works
             containerRef.current?.focus();
         }
-    }), [app, selectionDispatch, expansionDispatch, uiDispatch, triggerRefresh, plugin.settings.debugMobile]);
+    }), [app, selectionDispatch, expansionDispatch, uiDispatch, plugin.settings.debugMobile]);
 
     // Handle focus/blur events to track when navigator has focus
     useEffect(() => {
@@ -402,6 +403,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                         debugLog.info('NotebookNavigatorComponent: Sidebar expanded (returning to navigator)');
                     }
                 }
+                
+                // When returning to navigator (sidebar expanded), FileList will handle
+                // dispatching the appropriate SCROLL_TO_FILE_INDEX action
             }
         });
 

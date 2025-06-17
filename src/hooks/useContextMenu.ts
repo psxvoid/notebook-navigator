@@ -19,8 +19,9 @@
 // src/hooks/useContextMenu.ts
 import { useEffect, useCallback } from 'react';
 import { Menu, MenuItem, TFile, TFolder, Notice } from 'obsidian';
-import { useAppContext } from '../context/AppContext';
-import { useFileSystemOps, useMetadataService } from '../context/ServicesContext';
+import { useServices, useFileSystemOps, useMetadataService } from '../context/ServicesContext';
+import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { isFolderAncestor, getInternalPlugin, isTFolder, isTFile } from '../utils/typeGuards';
 import { strings } from '../i18n';
 
@@ -50,9 +51,13 @@ interface MenuConfig {
  * ```
  */
 export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, config: MenuConfig | null) {
-    const { app, plugin, dispatch, appState, isMobile } = useAppContext();
+    const { app, plugin, isMobile } = useServices();
     const fileSystemOps = useFileSystemOps();
     const metadataService = useMetadataService();
+    const { selectedFolder } = useSelectionState();
+    const { expandedFolders } = useExpansionState();
+    const selectionDispatch = useSelectionDispatch();
+    const expansionDispatch = useExpansionDispatch();
     
     /**
      * Handles the context menu event.
@@ -105,8 +110,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     .onClick(async () => {
                         await fileSystemOps.createNewFolder(folder, () => {
                             // Expand the parent folder to show the newly created folder
-                            if (!appState.expandedFolders.has(folder.path)) {
-                                dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
+                            if (!expandedFolders.has(folder.path)) {
+                                expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
                             }
                         });
                     });
@@ -193,7 +198,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                             
                             modal.onChooseIcon = (iconId) => {
                                 if (iconId) {
-                                    dispatch({ type: 'FORCE_REFRESH' });
+                                    // The metadata change will trigger a re-render naturally
+                                    // through Obsidian's metadata events
                                 }
                             };
                             
@@ -210,7 +216,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                             .setIcon('x')
                             .onClick(async () => {
                                 await metadataService.removeFolderIcon(folder.path);
-                                dispatch({ type: 'FORCE_REFRESH' });
+                                // The metadata change will trigger a re-render naturally
                             });
                     });
                 }
@@ -227,7 +233,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                         const { ColorPickerModal } = await import('../modals/ColorPickerModal');
                         const modal = new ColorPickerModal(app, metadataService, folder.path);
                         modal.onChooseColor = () => {
-                            dispatch({ type: 'FORCE_REFRESH' });
+                            // The metadata change will trigger a re-render naturally
                         };
                         modal.open();
                     });
@@ -242,7 +248,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                         .setIcon('x')
                         .onClick(async () => {
                             await metadataService.removeFolderColor(folder.path);
-                            dispatch({ type: 'FORCE_REFRESH' });
+                            // The metadata change will trigger a re-render naturally
                         });
                 });
             }
@@ -269,17 +275,17 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                         
                         await fileSystemOps.deleteFolder(folder, plugin.settings.confirmBeforeDelete, () => {
                             // Check if we need to update selection
-                            if (appState.selectedFolder) {
-                                const isSelectedFolderDeleted = folder.path === appState.selectedFolder.path;
-                                const isAncestorDeleted = isFolderAncestor(folder, appState.selectedFolder);
+                            if (selectedFolder) {
+                                const isSelectedFolderDeleted = folder.path === selectedFolder.path;
+                                const isAncestorDeleted = isFolderAncestor(folder, selectedFolder);
                                 
                                 if (isSelectedFolderDeleted || isAncestorDeleted) {
                                     // If parent exists and is not root (or root is visible), select it
                                     if (parentFolder && (parentFolder.path !== '' || plugin.settings.showRootFolder)) {
-                                        dispatch({ type: 'SET_SELECTED_FOLDER', folder: parentFolder });
+                                        selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: parentFolder });
                                     } else {
                                         // Clear selection if no valid parent
-                                        dispatch({ type: 'SET_SELECTED_FOLDER', folder: null });
+                                        selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: null });
                                     }
                                 }
                             }
@@ -335,7 +341,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                         if (!file.parent) return;
                         
                         await metadataService.togglePinnedNote(folderPath, file.path);
-                        dispatch({ type: 'FORCE_REFRESH' });
+                        // The metadata change will trigger a re-render naturally
                     });
             });
             
@@ -414,7 +420,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
         }
         
         menu.showAtMouseEvent(e);
-    }, [config?.type, config?.item, app, plugin.settings.confirmBeforeDelete, plugin.settings.showFolderIcons, dispatch, fileSystemOps, metadataService, appState.selectedFolder, appState.expandedFolders]);
+    }, [config?.type, config?.item, app, plugin.settings.confirmBeforeDelete, plugin.settings.showFolderIcons, fileSystemOps, metadataService, selectedFolder, expandedFolders, selectionDispatch, expansionDispatch]);
     
     useEffect(() => {
         const element = elementRef.current;

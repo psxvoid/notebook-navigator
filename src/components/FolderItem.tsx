@@ -18,7 +18,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { TFolder } from 'obsidian';
-import { useStableContext } from '../context/StableContext';
+import { useServices } from '../context/ServicesContext';
 import { setIcon } from 'obsidian';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 import { useContextMenu } from '../hooks/useContextMenu';
@@ -49,7 +49,7 @@ interface FolderItemProps {
  * @returns A folder item element with chevron, icon, name and optional file count
  */
 export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick }: FolderItemProps) {
-    const { app, plugin, refreshCounter, isMobile } = useStableContext();
+    const { app, plugin, isMobile } = useServices();
     const folderRef = useRef<HTMLDivElement>(null);
     
     // Enable context menu
@@ -80,7 +80,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
         };
         
         return countFiles(folder);
-    }, [folder.path, folder.children.length, plugin.settings.showFolderFileCount, plugin.settings.showNotesFromSubfolders, plugin.settings.excludedFiles, app, refreshCounter]);
+    }, [folder.path, folder.children.length, plugin.settings.showFolderFileCount, plugin.settings.showNotesFromSubfolders, plugin.settings.excludedFiles, app]);
 
     const hasChildren = folder.children.some(isTFolder);
     
@@ -113,7 +113,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
                 setIcon(iconRef.current, iconName);
             }
         }
-    }, [isExpanded, folder.path, plugin.settings.folderIcons, hasChildren, refreshCounter, plugin.settings.showFolderIcons]);
+    }, [isExpanded, folder.path, plugin.settings.folderIcons, hasChildren, plugin.settings.showFolderIcons]);
 
     return (
         <div 
