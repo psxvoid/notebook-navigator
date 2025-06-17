@@ -82,9 +82,17 @@ export default class NotebookNavigatorPlugin extends Plugin {
         this.metadataService = new MetadataService(
             this.app,
             this.settings,
-            (updater) => { // Provide the updater function it expects
+            async (updater) => {
+                // Update settings
                 updater(this.settings);
-                return this.saveSettings();
+                await this.saveSettings();
+                
+                // Refresh all navigator views to reflect the changes
+                this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT).forEach(leaf => {
+                    if (leaf.view instanceof NotebookNavigatorView) {
+                        leaf.view.refresh();
+                    }
+                });
             }
         );
         

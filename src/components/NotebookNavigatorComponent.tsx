@@ -23,6 +23,7 @@ import { LeftPaneVirtualized } from './LeftPaneVirtualized';
 import { FileList } from './FileList';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useServices } from '../context/ServicesContext';
+import { useSettings } from '../context/SettingsContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
@@ -38,6 +39,7 @@ import { parseExcludedFolders } from '../utils/fileFilters';
 export interface NotebookNavigatorHandle {
     revealFile: (file: TFile) => void;
     focusFilePane: () => void;
+    refresh: () => void;
 }
 
 /**
@@ -111,6 +113,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         enabled: isMobile
     });
     
+    // Get updateSettings from SettingsContext for refresh
+    const { updateSettings } = useSettings();
+    
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
         revealFile: (file: TFile) => {
@@ -127,8 +132,12 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             // Focus the container to ensure keyboard navigation works
             containerRef.current?.focus();
+        },
+        refresh: () => {
+            // A no-op update will increment the version and force a re-render
+            updateSettings(settings => {});
         }
-    }), [selectionDispatch, uiDispatch, plugin.settings.debugMobile]);
+    }), [selectionDispatch, uiDispatch, plugin.settings.debugMobile, updateSettings]);
 
     // Handle file reveal - expand folders and scroll when a file is revealed
     useEffect(() => {
@@ -153,7 +162,12 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             
             // Focus the files pane
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-            
+        }
+    }, [selectionState.selectedFolder, selectionState.selectedFile, expansionDispatch, uiDispatch]);
+    
+    // Separate effect to handle scrolling after expansion state updates
+    useEffect(() => {
+        if (selectionState.selectedFolder) {
             // Calculate and dispatch scroll to folder
             const vault = app.vault;
             const root = vault.getRoot();
@@ -161,7 +175,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 ? [root]
                 : root.children.filter(child => isTFolder(child)).sort((a, b) => a.name.localeCompare(b.name)) as TFolder[];
             
-            // Use the current expansion state (will include newly expanded folders)
+            // Use the current expansion state which now includes any newly expanded folders
             const flattened = flattenFolderTree(
                 rootFolders,
                 expansionState.expandedFolders,
@@ -173,9 +187,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: folderIndex });
             }
         }
-    }, [selectionState.selectedFolder, selectionState.selectedFile, expansionState.expandedFolders, 
-        expansionDispatch, uiDispatch, app.vault, plugin.settings.showRootFolder, 
-        plugin.settings.ignoreFolders]);
+    }, [selectionState.selectedFolder, expansionState.expandedFolders, uiDispatch, 
+        app.vault, plugin.settings.showRootFolder, plugin.settings.ignoreFolders]);
 
     // Handle focus/blur events to track when navigator has focus
     useEffect(() => {
