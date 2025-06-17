@@ -125,6 +125,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             }
             // Simply dispatch the reveal action - effects will handle the rest
             selectionDispatch({ type: 'REVEAL_FILE', file });
+            // ADD THIS: Explicitly set focus only when revealFile is called.
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         },
         focusFilePane: () => {
             if (Platform.isMobile && plugin.settings.debugMobile) {
@@ -142,8 +144,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
 
     // Handle file reveal - expand folders and scroll when a file is revealed
     useEffect(() => {
-        // This effect runs when selectedFolder changes due to REVEAL_FILE
-        if (selectionState.selectedFolder && selectionState.selectedFile) {
+        // ONLY expand folders if this is a reveal operation, not normal keyboard navigation
+        if (selectionState.isRevealOperation && selectionState.selectedFolder && selectionState.selectedFile) {
             const file = selectionState.selectedFile;
             
             // Build folder path to expand
@@ -160,11 +162,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             if (needsExpansion) {
                 expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
             }
-            
-            // Focus the files pane
-            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         }
-    }, [selectionState.selectedFolder, selectionState.selectedFile, expansionDispatch, uiDispatch]);
+    }, [selectionState.isRevealOperation, selectionState.selectedFolder, selectionState.selectedFile, expansionDispatch]);
     
     // Separate effect to handle scrolling after expansion state updates
     useEffect(() => {
@@ -224,6 +223,16 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             container.removeEventListener('focusout', handleBlur);
         };
     }, []);
+
+    // ADD THIS NEW EFFECT
+    // When the focused pane changes programmatically via the state,
+    // we must ensure the main container element has DOM focus so it can
+    // receive and correctly delegate keyboard events.
+    useEffect(() => {
+        if (uiState.focusedPane) {
+            containerRef.current?.focus();
+        }
+    }, [uiState.focusedPane]);
 
     // Track navigator interaction time for smarter auto-reveal
     const navigatorInteractionRef = useRef(0);

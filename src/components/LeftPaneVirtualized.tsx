@@ -191,7 +191,7 @@ export const LeftPaneVirtualized: React.FC = () => {
         if (uiState.scrollToFolderIndex !== null && uiState.scrollToFolderIndex >= 0 && rowVirtualizer) {
             // ...then scroll to it immediately.
             rowVirtualizer.scrollToIndex(uiState.scrollToFolderIndex, {
-                align: 'center',
+                align: isMobile ? 'center' : 'auto', // Use 'auto' on desktop
                 behavior: 'auto' // 'auto' is crucial for instant, pre-paint scrolling
             });
 
@@ -203,7 +203,7 @@ export const LeftPaneVirtualized: React.FC = () => {
                 }
             });
         }
-    }, [uiState.scrollToFolderIndex, rowVirtualizer, uiDispatch]); // This effect ONLY runs when the scroll target changes.
+    }, [uiState.scrollToFolderIndex, rowVirtualizer, uiDispatch, isMobile]); // Add isMobile dependency
     
     // Create a map for O(1) item lookups
     const pathToIndex = useMemo(() => {
@@ -226,7 +226,7 @@ export const LeftPaneVirtualized: React.FC = () => {
     // Desktop scrolling is now handled through predictive SCROLL_TO_FOLDER_INDEX actions
     
     // Add keyboard navigation
-    const { handleKeyDown } = useVirtualKeyboardNavigation({
+    useVirtualKeyboardNavigation({
         items: items,
         virtualizer: rowVirtualizer,
         focusedPane: 'folders',
@@ -339,8 +339,6 @@ export const LeftPaneVirtualized: React.FC = () => {
                 className="nn-left-pane-scroller"
                 data-pane="folders"
                 role="tree"
-                aria-label="Folder and tag navigation"
-                onKeyDown={handleKeyDown as any}
             >
                 <div
                     style={{

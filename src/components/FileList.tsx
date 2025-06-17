@@ -22,6 +22,7 @@ import { useVirtualizer } from '@tanstack/react-virtual';
 import { useServices } from '../context/ServicesContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
+import { useSettingsState } from '../context/SettingsContext';
 import { FileItem } from './FileItem';
 import { DateUtils } from '../utils/DateUtils';
 import { isTFile, isTFolder } from '../utils/typeGuards';
@@ -144,6 +145,7 @@ export function FileList() {
     const { app, plugin, isMobile } = useServices();
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
+    const settings = useSettingsState();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const { selectionType, selectedFolder, selectedTag, selectedFile } = selectionState;
@@ -289,6 +291,7 @@ export function FileList() {
         plugin.settings.showNotesFromSubfolders,
         plugin.settings.pinnedNotes,
         plugin.settings.excludedFiles,
+        settings,
         app
     ]);
     
@@ -733,7 +736,7 @@ export function FileList() {
         if (uiState.scrollToFileIndex !== null && uiState.scrollToFileIndex >= 0 && rowVirtualizer) {
             // ...then scroll to it immediately.
             rowVirtualizer.scrollToIndex(uiState.scrollToFileIndex, {
-                align: 'center',
+                align: isMobile ? 'center' : 'auto', // Use 'auto' on desktop
                 behavior: 'auto' // 'auto' is crucial for instant, pre-paint scrolling
             });
 
@@ -745,7 +748,7 @@ export function FileList() {
                 }
             });
         }
-    }, [uiState.scrollToFileIndex, rowVirtualizer, uiDispatch]); // This effect ONLY runs when the scroll target changes.
+    }, [uiState.scrollToFileIndex, rowVirtualizer, uiDispatch, isMobile]); // Add isMobile dependency
     
     
     // Scroll to selected file when it changes (e.g., from REVEAL_FILE action)
@@ -763,7 +766,7 @@ export function FileList() {
     }, [selectedFilePath, filePathToIndex, uiDispatch]);
     
     // Add keyboard navigation
-    const { handleKeyDown } = useVirtualKeyboardNavigation({
+    useVirtualKeyboardNavigation({
         items: listItems,
         virtualizer: rowVirtualizer,
         focusedPane: 'files',
@@ -839,8 +842,6 @@ export function FileList() {
                 className="nn-file-list"
                 data-pane="files"
                 role="list"
-                aria-label="File list"
-                onKeyDown={handleKeyDown as any}
             >
                 {/* Virtual list */}
                 {listItems.length > 0 && (

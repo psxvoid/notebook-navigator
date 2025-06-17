@@ -16,6 +16,7 @@ interface SelectionState {
     selectedFolder: TFolder | null;
     selectedTag: string | null;
     selectedFile: TFile | null;
+    isRevealOperation: boolean; // Flag to track if the current selection is from a REVEAL_FILE action
 }
 
 // Action types
@@ -47,7 +48,8 @@ function selectionReducer(
                 ...state,
                 selectedFolder: action.folder,
                 selectedTag: null,
-                selectionType: 'folder'
+                selectionType: 'folder',
+                isRevealOperation: false // Clear flag for normal navigation
             };
 
             // Mobile: Always clear file selection when changing folders
@@ -74,7 +76,8 @@ function selectionReducer(
                 ...state,
                 selectedTag: action.tag,
                 selectedFolder: null,
-                selectionType: 'tag'
+                selectionType: 'tag',
+                isRevealOperation: false // Clear flag for normal navigation
             };
 
             // Mobile: Always clear file selection when changing tags
@@ -97,17 +100,18 @@ function selectionReducer(
         }
             
         case 'SET_SELECTED_FILE':
-            return { ...state, selectedFile: action.file };
+            return { ...state, selectedFile: action.file, isRevealOperation: false };
         
         case 'SET_SELECTION_TYPE':
-            return { ...state, selectionType: action.selectionType };
+            return { ...state, selectionType: action.selectionType, isRevealOperation: false };
         
         case 'CLEAR_SELECTION':
             return {
                 ...state,
                 selectedFolder: null,
                 selectedTag: null,
-                selectedFile: null
+                selectedFile: null,
+                isRevealOperation: false
             };
         
         case 'REVEAL_FILE': {
@@ -120,7 +124,8 @@ function selectionReducer(
                 selectionType: 'folder',
                 selectedFolder: action.file.parent,
                 selectedTag: null,
-                selectedFile: action.file
+                selectedFile: action.file,
+                isRevealOperation: true // Set flag to indicate this is a reveal operation
             };
         }
         
@@ -202,7 +207,8 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             selectionType: 'folder',
             selectedFolder,
             selectedTag: null,
-            selectedFile
+            selectedFile,
+            isRevealOperation: false
         };
     }, [app.vault]);
     

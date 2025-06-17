@@ -44,9 +44,25 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
         setVersion(v => v + 1);
     }, [plugin]);
     
+    // Listen for settings updates from the plugin (e.g., from settings tab)
+    useEffect(() => {
+        const id = `settings-provider-${Date.now()}`;
+        
+        const handleSettingsUpdate = () => {
+            // Force re-render by incrementing version
+            setVersion(v => v + 1);
+        };
+        
+        plugin.registerSettingsUpdateListener(id, handleSettingsUpdate);
+        
+        return () => {
+            plugin.unregisterSettingsUpdateListener(id);
+        };
+    }, [plugin]);
+    
     // Create a stable settings object that changes reference when version changes
     // This ensures components using SettingsStateContext re-render when settings change
-    const settingsValue = React.useMemo(() => plugin.settings, [plugin.settings, version]);
+    const settingsValue = React.useMemo(() => plugin.settings, [version]);
     
     return (
         <SettingsStateContext.Provider value={settingsValue}>

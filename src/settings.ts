@@ -190,8 +190,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                             setValue(value);
                             await this.plugin.saveSettings();
                             
-                            // Settings changes are automatically propagated through context providers
-                            // No manual refresh needed
+                            // Add this line to trigger the refresh:
+                            this.plugin.onSettingsUpdate();
                         }
                         
                         this.debounceTimers.delete(timerId);
@@ -216,8 +216,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
      */
     private async saveAndRefresh(): Promise<void> {
         await this.plugin.saveSettings();
-        // The SettingsProvider will automatically handle the update,
-        // so no manual refresh call is needed here.
+        // Now, explicitly tell the plugin UI to update itself.
+        this.plugin.onSettingsUpdate();
     }
 
     /**

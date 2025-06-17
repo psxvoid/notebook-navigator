@@ -45,10 +45,9 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         return index >= 0 && index < array.length ? array[index] : undefined;
     };
     
-    const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLElement>) => {
+    const handleKeyDown = useCallback((e: KeyboardEvent) => {
         // Skip if typing in input
-        const nativeEvent = 'nativeEvent' in e ? e.nativeEvent : e;
-        if (isTypingInInput(nativeEvent as KeyboardEvent)) return;
+        if (isTypingInInput(e)) return;
         
         // Skip if the focused element is inside a modal
         const activeElement = document.activeElement as HTMLElement;
@@ -137,68 +136,61 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
 
             case 'PageUp': {
                 e.preventDefault();
+                if (currentIndex === -1) break; // Cannot PageUp if nothing is selected.
+
                 const pageSize = getVisiblePageSize(virtualizer);
-
-                if (currentIndex === -1) break; // Do nothing if at top with no selection.
-
                 const newIndex = Math.max(0, currentIndex - pageSize);
-                
-                // Find the previous selectable item at or before our jump point.
-                targetIndex = findPreviousSelectableIndex(items, newIndex, focusedPane, true);
+
+                // Find the previous selectable item starting from the new position.
+                let newTargetIndex = findPreviousSelectableIndex(items, newIndex + 1, focusedPane);
+
+                // FIX: If we didn't move, it means we are near the top.
+                // In this case, ensure we go to the very first selectable item.
+                if (newTargetIndex === currentIndex && currentIndex !== 0) {
+                    newTargetIndex = findNextSelectableIndex(items, -1, focusedPane);
+                }
+
+                targetIndex = newTargetIndex;
                 break;
             }
                 
             case 'ArrowRight':
                 e.preventDefault();
-                if (focusedPane === 'folders') {
-                    if (currentIndex >= 0) {
-                        const item = safeGetItem(items, currentIndex) as CombinedLeftPaneItem | undefined;
-                        if (!item) {
-                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                            return;
-                        }
+                if (focusedPane === 'folders' && currentIndex >= 0) {
+                    const item = safeGetItem(items, currentIndex) as CombinedLeftPaneItem | undefined;
+                    if (!item) break;
+
+                    let shouldSwitchPane = false;
+                    if (item.type === 'folder') {
+                        const folder = item.data;
+                        const isExpanded = expansionState.expandedFolders.has(folder.path);
+                        const hasChildren = folder.children.some(child => isTFolder(child));
                         
-                        // Check if we should expand instead of switching panes
-                        if (item.type === 'folder') {
-                            const folder = item.data;
-                            const isExpanded = expansionState.expandedFolders.has(folder.path);
-                            const hasChildren = folder.children.some(child => isTFolder(child));
-                            
-                            // Only expand if: has children AND not already expanded
-                            if (hasChildren && !isExpanded) {
-                                handleExpandCollapse(item, true);
-                                return; // Don't switch panes
-                            }
-                        } else if (item.type === 'tag') {
-                            const tag = item.data as TagTreeNode;
-                            const isExpanded = expansionState.expandedTags.has(tag.path);
-                            const hasChildren = tag.children.size > 0;
-                            
-                            // Only expand if: has children AND not already expanded
-                            if (hasChildren && !isExpanded) {
-                                handleExpandCollapse(item, true);
-                                return; // Don't switch panes
-                            }
+                        if (hasChildren && !isExpanded) {
+                            // If it has children and is collapsed, expand it.
+                            handleExpandCollapse(item, true);
+                        } else {
+                            // If it has no children, or is already expanded, switch to the file pane.
+                            shouldSwitchPane = true;
                         }
-                        
-                        // If we get here, either no children or already expanded, so switch to files pane
-                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                        return; // Stop execution here to prevent race condition
+                    } else if (item.type === 'tag') {
+                        // Similarly for tags
+                        const tag = item.data as TagTreeNode;
+                        const isExpanded = expansionState.expandedTags.has(tag.path);
+                        const hasChildren = tag.children.size > 0;
+
+                        if (hasChildren && !isExpanded) {
+                            handleExpandCollapse(item, true);
+                        } else {
+                            shouldSwitchPane = true;
+                        }
                     } else {
-                        // No selection, just switch pane
-                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                        return; // Stop execution here to prevent race condition
+                        // For items with no children like 'untagged', just switch.
+                        shouldSwitchPane = true;
                     }
-                } else if (focusedPane === 'files' && selectionState.selectedFile) {
-                    // Move focus to edit view showing the selected file
-                    const leaves = app.workspace.getLeavesOfType('markdown')
-                        .concat(app.workspace.getLeavesOfType('canvas'))
-                        .concat(app.workspace.getLeavesOfType('pdf'));
-                    
-                    // Find leaf showing our file
-                    const targetLeaf = leaves.find(leaf => (leaf.view as any).file?.path === selectionState.selectedFile?.path);
-                    if (targetLeaf) {
-                        app.workspace.setActiveLeaf(targetLeaf, { focus: true });
+
+                    if (shouldSwitchPane) {
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                     }
                 }
                 break;
@@ -261,14 +253,32 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 }
                 break;
                 
-            case 'Tab':
+            case 'Tab': {
                 e.preventDefault();
-                // Switch focus between panes
-                uiDispatch({ 
-                    type: 'SET_FOCUSED_PANE', 
-                    pane: focusedPane === 'folders' ? 'files' : 'folders' 
-                });
+                if (e.shiftKey) {
+                    // Shift+Tab: Move focus backwards (Editor -> Files -> Folders)
+                    if (focusedPane === 'files') {
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+                    }
+                    // Note: There is no logic here to go from Editor -> Files,
+                    // as that is outside the scope of this hook. Obsidian handles that.
+                } else {
+                    // Tab: Move focus forwards (Folders -> Files -> Editor)
+                    if (focusedPane === 'folders') {
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                    } else if (focusedPane === 'files' && selectionState.selectedFile) {
+                        // This is the logic moved from ArrowRight to focus the editor
+                        const leaves = app.workspace.getLeavesOfType('markdown')
+                            .concat(app.workspace.getLeavesOfType('canvas'))
+                            .concat(app.workspace.getLeavesOfType('pdf'));
+                        const targetLeaf = leaves.find(leaf => (leaf.view as any).file?.path === selectionState.selectedFile?.path);
+                        if (targetLeaf) {
+                            app.workspace.setActiveLeaf(targetLeaf, { focus: true });
+                        }
+                    }
+                }
                 break;
+            }
                 
             case 'Enter':
                 if (currentIndex >= 0) {
@@ -282,7 +292,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 
             case 'Delete':
             case 'Backspace':
-                if (!isTypingInInput(nativeEvent as KeyboardEvent) && selectionState.selectedFile) {
+                if (!isTypingInInput(e) && selectionState.selectedFile) {
                     e.preventDefault();
                     handleDelete();
                 }
@@ -303,7 +313,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: targetIndex });
             }
         }
-    }, [items, virtualizer, focusedPane, selectionState, expansionState, selectionDispatch, expansionDispatch, uiDispatch, plugin, app, isMobile]);
+    }, [items, virtualizer, focusedPane, selectionState, expansionState, selectionDispatch, expansionDispatch, uiState, uiDispatch, plugin, app, isMobile]);
     
     // Helper function to find next selectable item
     const findNextSelectableIndex = (items: VirtualItem[], currentIndex: number, pane: string, includeCurrent: boolean = false): number => {
@@ -495,6 +505,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         );
     };
     
-    // Return the handler to be attached at the component level
-    return { handleKeyDown };
+    // Add global event listener
+    useEffect(() => {
+        document.addEventListener('keydown', handleKeyDown);
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown);
+        };
+    }, [handleKeyDown]);
 }

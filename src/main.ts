@@ -88,9 +88,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 // Update settings
                 updater(this.settings);
                 await this.saveSettings();
-                
-                // Notify all registered listeners about the change
-                this.settingsUpdateListeners.forEach(callback => callback());
+                // Call our new, centralized notification method
+                this.onSettingsUpdate();
             }
         );
         
@@ -271,6 +270,14 @@ export default class NotebookNavigatorPlugin extends Plugin {
      */
     async saveSettings() {
         await this.saveData(this.settings);
+    }
+
+    /**
+     * Notifies all running views that the settings have been updated.
+     * This triggers a re-render in the React components.
+     */
+    public onSettingsUpdate() {
+        this.settingsUpdateListeners.forEach(callback => callback());
     }
 
     /**
