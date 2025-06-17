@@ -287,30 +287,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         const handleActiveLeafChange = (leaf: WorkspaceLeaf | null) => {
             if (!leaf) return;
             
-            // Check if returning to navigator on mobile
-            if (isMobile && leaf.view.getViewType() === VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT) {
-                // User is back in the navigator - scroll to selected file if exists
-                if (selectionState.selectedFile) {
-                    // Calculate the file list based on current selection
-                    let files: TFile[] = [];
-                    if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
-                        files = getFilesForFolder(selectionState.selectedFolder, plugin.settings, app);
-                    } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
-                        files = getFilesForTag(selectionState.selectedTag, plugin.settings, app);
-                    }
-                    
-                    // Find the index of selected file
-                    const fileIndex = files.findIndex(f => f.path === selectionState.selectedFile?.path);
-                    if (fileIndex !== -1) {
-                        // Note: This is a simplified calculation. In FileList, the actual index
-                        // might be different due to headers (Pinned, date groups).
-                        // For now, dispatch with the raw index and let FileList handle it
-                        uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: fileIndex });
-                    }
-                }
-                return;
-            }
-            
             // Only process leaves in the main editor area
             if (leaf.getRoot() !== app.workspace.rootSplit) {
                 return;

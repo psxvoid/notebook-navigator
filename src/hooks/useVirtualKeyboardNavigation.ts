@@ -131,7 +131,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 const newIndex = Math.min(startIndex + pageSize, items.length - 1);
                 
                 // Find the next selectable item at or after our jump point.
-                targetIndex = findNextSelectableIndex(items, newIndex - 1, focusedPane);
+                targetIndex = findNextSelectableIndex(items, newIndex, focusedPane, true);
                 break;
             }
 
@@ -144,7 +144,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 const newIndex = Math.max(0, currentIndex - pageSize);
                 
                 // Find the previous selectable item at or before our jump point.
-                targetIndex = findPreviousSelectableIndex(items, newIndex + 1, focusedPane);
+                targetIndex = findPreviousSelectableIndex(items, newIndex, focusedPane, true);
                 break;
             }
                 
@@ -306,7 +306,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     }, [items, virtualizer, focusedPane, selectionState, expansionState, selectionDispatch, expansionDispatch, uiDispatch, plugin, app, isMobile]);
     
     // Helper function to find next selectable item
-    const findNextSelectableIndex = (items: VirtualItem[], currentIndex: number, pane: string): number => {
+    const findNextSelectableIndex = (items: VirtualItem[], currentIndex: number, pane: string, includeCurrent: boolean = false): number => {
         // If no items, return -1
         if (items.length === 0) return -1;
         
@@ -321,7 +321,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             return -1; // No selectable items found
         }
         
-        for (let i = currentIndex + 1; i < items.length; i++) {
+        const start = includeCurrent ? currentIndex : currentIndex + 1;
+        for (let i = start; i < items.length; i++) {
             const item = safeGetItem(items, i);
             if (item && isSelectableItem(item, pane)) {
                 return i;
@@ -332,11 +333,12 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     };
     
     // Helper function to find previous selectable item
-    const findPreviousSelectableIndex = (items: VirtualItem[], currentIndex: number, pane: string): number => {
+    const findPreviousSelectableIndex = (items: VirtualItem[], currentIndex: number, pane: string, includeCurrent: boolean = false): number => {
         // If no items or invalid index, return -1
         if (items.length === 0 || currentIndex < 0) return -1;
         
-        for (let i = currentIndex - 1; i >= 0; i--) {
+        const start = includeCurrent ? currentIndex : currentIndex - 1;
+        for (let i = start; i >= 0; i--) {
             const item = safeGetItem(items, i);
             if (item && isSelectableItem(item, pane)) {
                 return i;
