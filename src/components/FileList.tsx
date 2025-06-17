@@ -752,79 +752,23 @@ export function FileList() {
         }
     }, [uiState.scrollToFileIndex, rowVirtualizer, uiDispatch]); // This effect ONLY runs when the scroll target changes.
     
-    // REMOVED: Old imperative scrolling based on file selection
-    // This is now handled by predictive scrolling through SCROLL_TO_FILE_INDEX actions
-    
-    // Mobile: Scroll to selected file when view changes
-    // This is a backup scroll mechanism for mobile that ensures the selected file
-    // is visible when switching to the files view. It's separate from the main
-    // scroll logic above to handle edge cases where the initial scroll might fail.
-    const lastScrolledFileRef = useRef<string | null>(null);
-    
-    useLayoutEffect(() => {
-        if (!isMobile || uiState.currentMobileView !== 'files' || !selectedFilePath || !scrollContainerRef.current) {
-            return;
-        }
-        
-        // Skip if we already scrolled to this file
-        // This ref tracks which file we last scrolled to, preventing duplicate scrolls
-        if (lastScrolledFileRef.current === selectedFilePath) {
-            return;
-        }
-        
-        const selectedIndex = filePathToIndex.get(selectedFilePath);
-        if (selectedIndex === undefined) {
-            return;
-        }
-        
-        // Mark as scrolled immediately to prevent multiple attempts
-        // This is important because the effect might fire multiple times
-        lastScrolledFileRef.current = selectedFilePath;
-        
-        if (Platform.isMobile && plugin.settings.debugMobile) {
-            debugLog.info('FileList: Mobile scroll to selected file on view change', {
-                selectedFile: selectedFilePath,
-                selectedIndex,
-                currentView: uiState.currentMobileView
-            });
-        }
-        
-        // Use requestAnimationFrame to ensure DOM is ready
-        requestAnimationFrame(() => {
-            if (scrollContainerRef.current && rowVirtualizer) {
-                scrollVirtualItemIntoView(rowVirtualizer, selectedIndex, 'auto');
-            }
-        });
-    }, [isMobile, uiState.currentMobileView, selectedFilePath, filePathToIndex, rowVirtualizer]);
-    
-    // Reset when view changes away from files
-    // Mobile-specific: When we navigate away from the files view (back to folders/tags),
-    // we clear our scroll tracking. This ensures that when we return to the files view,
-    // we'll scroll to the selected file again, even if it's the same file as before.
+    // Mobile: Calculate and dispatch scroll index when view becomes visible
     useEffect(() => {
-        if (isMobile && uiState.currentMobileView !== 'files') {
-            lastScrolledFileRef.current = null;
+        if (isMobile && uiState.currentMobileView === 'files' && selectedFilePath) {
+            const fileIndex = filePathToIndex.get(selectedFilePath);
+            if (fileIndex !== undefined && fileIndex >= 0) {
+                // Dispatch scroll action - the single predictive effect above will handle it
+                uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: fileIndex });
+            }
         }
-    }, [isMobile, uiState.currentMobileView]);
+    }, [isMobile, uiState.currentMobileView, selectedFilePath, filePathToIndex, uiDispatch]);
     
     // Reset scroll position when folder/tag changes
-    // This ensures a consistent experience where each folder/tag starts at the top
-    // Mobile-specific timing: We use useLayoutEffect to reset scroll before paint,
-    // preventing a flash of the old scroll position
-    useLayoutEffect(() => {
-        if (!scrollContainerRef.current) return;
-        
-        // Reset scroll to top when folder or tag changes
-        // This gives users a predictable starting point for each new list
-        scrollContainerRef.current.scrollTop = 0;
-        
-        if (plugin.settings.debugMobile) {
-            debugLog.debug('FileList: Reset scroll position on folder/tag change', {
-                folder: selectedFolder?.path,
-                tag: selectedTag
-            });
-        }
-    }, [selectedFolder?.path, selectedTag, plugin.settings.debugMobile]);
+    // Dispatch scroll to first item (index 0) for consistent experience
+    useEffect(() => {
+        // Dispatch scroll to top when folder or tag changes
+        uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: 0 });
+    }, [selectedFolder?.path, selectedTag, uiDispatch]);
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({

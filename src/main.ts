@@ -162,8 +162,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
             this.app.vault.on('rename', async (file, oldPath) => {
                 if (file instanceof TFolder) {
                     await this.metadataService.handleFolderRename(oldPath, file.path);
-                    // Use onSettingsChange to refresh views - it handles batching and timing
-                    this.onSettingsChange();
+                    // The metadata service saves settings which triggers reactive updates
                 }
             })
         );
@@ -338,21 +337,11 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
     /**
      * Called when plugin settings change
-     * Refreshes all navigator views to reflect the new settings
-     * Includes delay to ensure smooth UI updates
+     * Settings changes are now handled reactively through context providers
      */
     onSettingsChange() {
-        // Refresh all open navigator views
-        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-        
-        // Use a small delay to batch multiple setting changes
-        setTimeout(() => {
-            leaves.forEach(leaf => {
-                const view = leaf.view;
-                if (view instanceof NotebookNavigatorView) {
-                    view.refresh();
-                }
-            });
-        }, 50);
+        // Settings changes are automatically propagated through the context providers
+        // Components re-render based on the new settings values
+        // No manual refresh is needed
     }
 }

@@ -36,7 +36,6 @@ import { parseExcludedFolders } from '../utils/fileFilters';
 
 export interface NotebookNavigatorHandle {
     revealFile: (file: TFile) => void;
-    refresh: () => void;
     focusFilePane: () => void;
 }
 
@@ -117,55 +116,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             if (Platform.isMobile && plugin.settings.debugMobile) {
                 debugLog.debug('NotebookNavigatorComponent: revealFile called', { file: file.path });
             }
-            // For REVEAL_FILE, we need to expand folders and update selection
-            if (file.parent) {
-                const foldersToExpand: string[] = [];
-                let currentFolder: TFolder | null = file.parent;
-                while (currentFolder) {
-                    foldersToExpand.unshift(currentFolder.path);
-                    if (currentFolder.path === '/') break;
-                    currentFolder = currentFolder.parent;
-                }
-                
-                // First expand folders
-                expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
-                selectionDispatch({ type: 'REVEAL_FILE', file });
-                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                
-                // Calculate the folder index for predictive scrolling
-                // We need to build the flattened tree with the new expansion state
-                const newExpandedFolders = new Set(expansionState.expandedFolders);
-                foldersToExpand.forEach(path => newExpandedFolders.add(path));
-                
-                // Get root folders
-                const vault = app.vault;
-                const root = vault.getRoot();
-                const rootFolders = plugin.settings.showRootFolder 
-                    ? [root]
-                    : root.children.filter(child => isTFolder(child)).sort((a, b) => a.name.localeCompare(b.name)) as TFolder[];
-                
-                // Flatten the tree with the new expansion state
-                const flattened = flattenFolderTree(
-                    rootFolders,
-                    newExpandedFolders,
-                    parseExcludedFolders(plugin.settings.ignoreFolders || '')
-                );
-                
-                // Find the index of the target folder
-                const folderIndex = findFolderIndex(flattened, file.parent.path);
-                if (folderIndex !== -1) {
-                    // Dispatch scroll to folder index
-                    uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: folderIndex });
-                }
-            }
-        },
-        refresh: () => {
-            if (Platform.isMobile && plugin.settings.debugMobile) {
-                debugLog.debug('NotebookNavigatorComponent: refresh called');
-            }
-            // TODO: Remove this method entirely. Components should re-render based on state changes,
-            // not manual refresh triggers. For now, this is a no-op.
-            // The vault events should trigger state updates that cause natural re-renders.
+            // Simply dispatch the reveal action - effects will handle the rest
+            selectionDispatch({ type: 'REVEAL_FILE', file });
         },
         focusFilePane: () => {
             if (Platform.isMobile && plugin.settings.debugMobile) {
@@ -175,7 +127,54 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             // Focus the container to ensure keyboard navigation works
             containerRef.current?.focus();
         }
-    }), [app, selectionDispatch, expansionDispatch, uiDispatch, plugin.settings.debugMobile]);
+    }), [selectionDispatch, plugin.settings.debugMobile]);
+
+    // Handle file reveal - expand folders and scroll when a file is revealed
+    useEffect(() => {
+        // This effect runs when selectedFolder changes due to REVEAL_FILE
+        if (selectionState.selectedFolder && selectionState.selectedFile) {
+            const file = selectionState.selectedFile;
+            
+            // Build folder path to expand
+            const foldersToExpand: string[] = [];
+            let currentFolder: TFolder | null = file.parent;
+            while (currentFolder) {
+                foldersToExpand.unshift(currentFolder.path);
+                if (currentFolder.path === '/') break;
+                currentFolder = currentFolder.parent;
+            }
+            
+            // Expand folders if needed
+            const needsExpansion = foldersToExpand.some(path => !expansionState.expandedFolders.has(path));
+            if (needsExpansion) {
+                expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
+            }
+            
+            // Focus the files pane
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+            
+            // Calculate and dispatch scroll to folder
+            const vault = app.vault;
+            const root = vault.getRoot();
+            const rootFolders = plugin.settings.showRootFolder 
+                ? [root]
+                : root.children.filter(child => isTFolder(child)).sort((a, b) => a.name.localeCompare(b.name)) as TFolder[];
+            
+            // Use the current expansion state (will include newly expanded folders)
+            const flattened = flattenFolderTree(
+                rootFolders,
+                expansionState.expandedFolders,
+                parseExcludedFolders(plugin.settings.ignoreFolders || '')
+            );
+            
+            const folderIndex = findFolderIndex(flattened, selectionState.selectedFolder.path);
+            if (folderIndex !== -1) {
+                uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: folderIndex });
+            }
+        }
+    }, [selectionState.selectedFolder, selectionState.selectedFile, expansionState.expandedFolders, 
+        expansionDispatch, uiDispatch, app.vault, plugin.settings.showRootFolder, 
+        plugin.settings.ignoreFolders]);
 
     // Handle focus/blur events to track when navigator has focus
     useEffect(() => {
@@ -208,13 +207,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
 
     // Track navigator interaction time for smarter auto-reveal
     const navigatorInteractionRef = useRef(0);
-    
-    // Track last processed file to prevent duplicates on mobile
-    const lastProcessedFileRef = useRef<string | null>(null);
-    const lastProcessedTimeRef = useRef<number>(0);
-    
-    // Track sidebar state to filter out toggle events
-    const sidebarStateRef = useRef<boolean>(false);
     
     // Add this useEffect to handle active leaf changes and file-open events
     useEffect(() => {
@@ -280,85 +272,12 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         };
 
         const handleActiveLeafChange = (leaf: WorkspaceLeaf | null) => {
-            // Mobile-specific optimizations
-            if (Platform.isMobile) {
-                // Early exit for sidebar events
-                if (leaf && leaf.getRoot() !== app.workspace.rootSplit) {
-                    if (plugin.settings.debugMobile) {
-                        debugLog.debug('NotebookNavigatorComponent: Ignoring sidebar leaf change');
-                    }
-                    return;
-                }
-                
-                // Get current file from the leaf
-                const view = leaf?.view as any;
-                const currentFile = view?.file;
-                
-                // Check for duplicate events within 100ms window
-                if (currentFile instanceof TFile) {
-                    const now = Date.now();
-                    if (lastProcessedFileRef.current === currentFile.path && 
-                        (now - lastProcessedTimeRef.current) < 100) {
-                        if (plugin.settings.debugMobile) {
-                            debugLog.debug('NotebookNavigatorComponent: Skipping duplicate active-leaf event', {
-                                file: currentFile.path,
-                                timeDiff: now - lastProcessedTimeRef.current
-                            });
-                        }
-                        return;
-                    }
-                    lastProcessedFileRef.current = currentFile.path;
-                    lastProcessedTimeRef.current = now;
-                }
-                
-                // Log the event if debug is enabled
-                if (plugin.settings.debugMobile && leaf) {
-                    const viewType = leaf.view?.getViewType();
-                    const isNavigator = viewType === VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT;
-                    const isEditor = viewType === 'markdown' || viewType === 'canvas';
-                    
-                    debugLog.info('NotebookNavigatorComponent: Active leaf changed', {
-                        viewType,
-                        isNavigator,
-                        isEditor,
-                        leafLocation: 'main',
-                        currentFile: currentFile?.path
-                    });
-                    
-                    if (isEditor) {
-                        debugLog.info('NotebookNavigatorComponent: Switched to editor view');
-                    }
-                }
-            } else {
-                // Desktop behavior - log all transitions
-                if (plugin.settings.debugMobile && leaf) {
-                    const viewType = leaf.view?.getViewType();
-                    const isNavigator = viewType === VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT;
-                    const isEditor = viewType === 'markdown' || viewType === 'canvas';
-                    const leafLocation = leaf.getRoot() === app.workspace.rootSplit ? 'main' : 'sidebar';
-                    
-                    debugLog.info('NotebookNavigatorComponent: Active leaf changed', {
-                        viewType,
-                        isNavigator,
-                        isEditor,
-                        leafLocation,
-                        currentFile: (leaf.view as any)?.file?.path
-                    });
-                    
-                    if (isNavigator && leafLocation === 'sidebar') {
-                        debugLog.info('NotebookNavigatorComponent: Returned to file navigator');
-                    } else if (isEditor && leafLocation === 'main') {
-                        debugLog.info('NotebookNavigatorComponent: Switched to editor view');
-                    }
-                }
-            }
-            
-            // Only trigger for leaves in the main editor area
+            // Only process leaves in the main editor area
             if (!leaf || leaf.getRoot() !== app.workspace.rootSplit) {
                 return;
             }
             
-            // Note: Accessing view.file via 'any' as it's not in Obsidian's public TypeScript API
+            // Get the file from the active view
             const view = leaf.view as any;
             if (view && view.file && view.file instanceof TFile) {
                 handleFileChange(view.file);
@@ -375,51 +294,14 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             }
         };
 
-        // Create debounced version for mobile to prevent duplicate events
-        const debouncedHandleActiveLeafChange = Platform.isMobile ? 
-            debounce(handleActiveLeafChange, 50, true) : 
-            handleActiveLeafChange;
+        const activeLeafEventRef = app.workspace.on('active-leaf-change', handleActiveLeafChange);
+        const fileOpenEventRef = app.workspace.on('file-open', handleFileOpen);
         
-        const activeLeafEventRef = app.workspace.on('active-leaf-change', debouncedHandleActiveLeafChange);
-        // Remove file-open listener on mobile - it's redundant with active-leaf-change
-        const fileOpenEventRef = Platform.isMobile ? null : app.workspace.on('file-open', handleFileOpen);
-        
-        // Add layout change listener for mobile sidebar collapse/expand
-        const layoutChangeEventRef = app.workspace.on('layout-change', () => {
-            if (Platform.isMobile) {
-                const leftSplit = app.workspace.leftSplit;
-                const isCollapsed = leftSplit?.collapsed ?? false;
-                
-                // Track sidebar state
-                sidebarStateRef.current = !isCollapsed;
-                
-                if (plugin.settings.debugMobile) {
-                    debugLog.info('NotebookNavigatorComponent: Layout changed', {
-                        leftSidebarCollapsed: isCollapsed,
-                        activeView: app.workspace.activeLeaf?.view?.getViewType()
-                    });
-                    
-                    if (!isCollapsed) {
-                        debugLog.info('NotebookNavigatorComponent: Sidebar expanded (returning to navigator)');
-                    }
-                }
-                
-                // When returning to navigator (sidebar expanded), FileList will handle
-                // dispatching the appropriate SCROLL_TO_FILE_INDEX action
-            }
-        });
+        // No longer needed - FileList handles scrolling when mobile view changes
 
         return () => {
-            // Cancel any pending debounced calls
-            if (Platform.isMobile && typeof (debouncedHandleActiveLeafChange as any).cancel === 'function') {
-                (debouncedHandleActiveLeafChange as any).cancel();
-            }
-            
             app.workspace.offref(activeLeafEventRef);
-            if (fileOpenEventRef) {
-                app.workspace.offref(fileOpenEventRef);
-            }
-            app.workspace.offref(layoutChangeEventRef);
+            app.workspace.offref(fileOpenEventRef);
         };
     }, [app.workspace, selectionDispatch, expansionDispatch, plugin.settings.autoRevealActiveFile, plugin.settings.showNotesFromSubfolders, selectionState.selectedFile, selectionState.selectedFolder, isMobile]);
 

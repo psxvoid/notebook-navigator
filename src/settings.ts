@@ -190,9 +190,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                             setValue(value);
                             await this.plugin.saveSettings();
                             
-                            if (refreshView) {
-                                this.plugin.onSettingsChange();
-                            }
+                            // Settings changes are automatically propagated through context providers
+                            // No manual refresh needed
                         }
                         
                         this.debounceTimers.delete(timerId);
@@ -212,14 +211,13 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
     }
 
     /**
-     * Helper to save settings and optionally refresh the view
-     * @param refresh - Whether to refresh the navigator view after saving
+     * Helper to save settings
+     * Settings changes are automatically propagated through context providers
      */
-    private async saveAndRefresh(refresh: boolean = true): Promise<void> {
+    private async saveAndRefresh(): Promise<void> {
         await this.plugin.saveSettings();
-        if (refresh) {
-            this.plugin.onSettingsChange();
-        }
+        // Settings changes are automatically propagated through context providers
+        // No manual refresh needed
     }
 
     /**
@@ -307,7 +305,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.autoRevealActiveFile)
                 .onChange(async (value) => {
                     this.plugin.settings.autoRevealActiveFile = value;
-                    await this.saveAndRefresh(false);
+                    await this.saveAndRefresh();
                 }));
 
         new Setting(containerEl)
@@ -317,7 +315,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.autoSelectFirstFile)
                 .onChange(async (value) => {
                     this.plugin.settings.autoSelectFirstFile = value;
-                    await this.saveAndRefresh(false);
+                    await this.saveAndRefresh();
                 }));
 
         this.createDebouncedTextSetting(
@@ -546,7 +544,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.confirmBeforeDelete)
                 .onChange(async (value) => {
                     this.plugin.settings.confirmBeforeDelete = value;
-                    await this.saveAndRefresh(false);
+                    await this.saveAndRefresh();
                 }));
 
         const useFrontmatterDatesSetting = new Setting(containerEl)
@@ -603,7 +601,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.debugMobile)
                 .onChange(async (value) => {
                     this.plugin.settings.debugMobile = value;
-                    await this.saveAndRefresh(false);
+                    await this.saveAndRefresh();
                     // Notify about the change
                     new Notice('Debug logging change will take effect on next restart');
                 }));

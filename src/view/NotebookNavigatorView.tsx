@@ -139,12 +139,6 @@ export class NotebookNavigatorView extends ItemView {
         this.componentRef.current?.revealFile(file);
     }
     
-    /**
-     * Refreshes the navigator view (e.g., after settings change)
-     */
-    refresh() {
-        this.componentRef.current?.refresh();
-    }
     
     /**
      * Moves focus to the file pane for keyboard navigation
