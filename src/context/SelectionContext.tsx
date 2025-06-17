@@ -1,6 +1,8 @@
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode, useCallback } from 'react';
 import { TFile, TFolder } from 'obsidian';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { useSettingsState } from './SettingsContext';
+import { NotebookNavigatorSettings } from '../settings';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -25,125 +27,134 @@ type SelectionAction =
     | { type: 'CLEAR_SELECTION' }
     | { type: 'REVEAL_FILE'; file: TFile }
     | { type: 'CLEANUP_DELETED_FOLDER'; deletedPath: string }
-    | { type: 'CLEANUP_DELETED_FILE'; deletedPath: string };
+    | { type: 'CLEANUP_DELETED_FILE'; deletedPath: string; nextFileToSelect?: TFile | null };
 
 // Create contexts
 const SelectionContext = createContext<SelectionState | null>(null);
 const SelectionDispatchContext = createContext<React.Dispatch<SelectionAction> | null>(null);
 
-// Helper to create a reducer with dependencies
-function createSelectionReducer(plugin: any, app: any, isMobile: boolean) {
-    return function selectionReducer(state: SelectionState, action: SelectionAction): SelectionState {
-        switch (action.type) {
-            case 'SET_SELECTED_FOLDER': {
-                const newState: SelectionState = {
-                    ...state,
-                    selectedFolder: action.folder,
-                    selectedTag: null,
-                    selectionType: 'folder'
-                };
+// Pure reducer function that accepts settings as a parameter
+function selectionReducer(
+    state: SelectionState, 
+    action: SelectionAction, 
+    settings: NotebookNavigatorSettings, 
+    app: any, 
+    isMobile: boolean
+): SelectionState {
+    switch (action.type) {
+        case 'SET_SELECTED_FOLDER': {
+            const newState: SelectionState = {
+                ...state,
+                selectedFolder: action.folder,
+                selectedTag: null,
+                selectionType: 'folder'
+            };
 
-                // Mobile: Always clear file selection when changing folders
-                if (isMobile) {
+            // Mobile: Always clear file selection when changing folders
+            if (isMobile) {
+                newState.selectedFile = null;
+            }
+            // Desktop: Handle auto-select first file if enabled
+            else if (action.folder && settings.autoSelectFirstFile) {
+                const filesInFolder = getFilesForFolder(action.folder, settings, app);
+                if (filesInFolder.length > 0) {
+                    newState.selectedFile = filesInFolder[0];
+                } else {
                     newState.selectedFile = null;
                 }
-                // Desktop: Handle auto-select first file if enabled
-                else if (action.folder && plugin.settings.autoSelectFirstFile) {
-                    const filesInFolder = getFilesForFolder(action.folder, plugin.settings, app);
-                    if (filesInFolder.length > 0) {
-                        newState.selectedFile = filesInFolder[0];
-                    } else {
-                        newState.selectedFile = null;
-                    }
-                } else if (!action.folder) {
-                    newState.selectedFile = null;
-                }
+            } else if (!action.folder) {
+                newState.selectedFile = null;
+            }
 
-                return newState;
-            }
-            
-            case 'SET_SELECTED_TAG': {
-                const newState: SelectionState = {
-                    ...state,
-                    selectedTag: action.tag,
-                    selectedFolder: null,
-                    selectionType: 'tag'
-                };
-
-                // Mobile: Always clear file selection when changing tags
-                if (isMobile) {
-                    newState.selectedFile = null;
-                }
-                // Desktop: Handle auto-select first file if enabled
-                else if (action.tag && plugin.settings.autoSelectFirstFile) {
-                    const filesForTag = getFilesForTag(action.tag, plugin.settings, app);
-                    if (filesForTag.length > 0) {
-                        newState.selectedFile = filesForTag[0];
-                    } else {
-                        newState.selectedFile = null;
-                    }
-                } else if (!action.tag) {
-                    newState.selectedFile = null;
-                }
-
-                return newState;
-            }
-            
-            case 'SET_SELECTED_FILE':
-                return { ...state, selectedFile: action.file };
-            
-            case 'SET_SELECTION_TYPE':
-                return { ...state, selectionType: action.selectionType };
-            
-            case 'CLEAR_SELECTION':
-                return {
-                    ...state,
-                    selectedFolder: null,
-                    selectedTag: null,
-                    selectedFile: null
-                };
-            
-            case 'REVEAL_FILE': {
-                if (!action.file.parent) {
-                    return state;
-                }
-                
-                return {
-                    ...state,
-                    selectionType: 'folder',
-                    selectedFolder: action.file.parent,
-                    selectedTag: null,
-                    selectedFile: action.file
-                };
-            }
-            
-            case 'CLEANUP_DELETED_FOLDER': {
-                const newState = { ...state };
-                
-                // Clear selected folder if it was deleted
-                if (state.selectedFolder && state.selectedFolder.path === action.deletedPath) {
-                    newState.selectedFolder = null;
-                    newState.selectedFile = null; // Also clear file selection
-                }
-                
-                return newState;
-            }
-            
-            case 'CLEANUP_DELETED_FILE': {
-                const newState = { ...state };
-                
-                // Clear selected file if it was deleted
-                if (state.selectedFile && state.selectedFile.path === action.deletedPath) {
-                    newState.selectedFile = null;
-                }
-                
-                return newState;
-            }
-            
-            default:
-                return state;
+            return newState;
         }
-    };
+        
+        case 'SET_SELECTED_TAG': {
+            const newState: SelectionState = {
+                ...state,
+                selectedTag: action.tag,
+                selectedFolder: null,
+                selectionType: 'tag'
+            };
+
+            // Mobile: Always clear file selection when changing tags
+            if (isMobile) {
+                newState.selectedFile = null;
+            }
+            // Desktop: Handle auto-select first file if enabled
+            else if (action.tag && settings.autoSelectFirstFile) {
+                const filesForTag = getFilesForTag(action.tag, settings, app);
+                if (filesForTag.length > 0) {
+                    newState.selectedFile = filesForTag[0];
+                } else {
+                    newState.selectedFile = null;
+                }
+            } else if (!action.tag) {
+                newState.selectedFile = null;
+            }
+
+            return newState;
+        }
+            
+        case 'SET_SELECTED_FILE':
+            return { ...state, selectedFile: action.file };
+        
+        case 'SET_SELECTION_TYPE':
+            return { ...state, selectionType: action.selectionType };
+        
+        case 'CLEAR_SELECTION':
+            return {
+                ...state,
+                selectedFolder: null,
+                selectedTag: null,
+                selectedFile: null
+            };
+        
+        case 'REVEAL_FILE': {
+            if (!action.file.parent) {
+                return state;
+            }
+            
+            return {
+                ...state,
+                selectionType: 'folder',
+                selectedFolder: action.file.parent,
+                selectedTag: null,
+                selectedFile: action.file
+            };
+        }
+        
+        case 'CLEANUP_DELETED_FOLDER': {
+            const newState = { ...state };
+            
+            // Clear selected folder if it was deleted
+            if (state.selectedFolder && state.selectedFolder.path === action.deletedPath) {
+                newState.selectedFolder = null;
+                newState.selectedFile = null; // Also clear file selection
+            }
+            
+            return newState;
+        }
+        
+        case 'CLEANUP_DELETED_FILE': {
+            const newState = { ...state };
+            
+            // Clear selected file if it was deleted
+            if (state.selectedFile && state.selectedFile.path === action.deletedPath) {
+                // If a next file to select was provided and we're not on mobile, select it
+                if (action.nextFileToSelect !== undefined && !isMobile) {
+                    newState.selectedFile = action.nextFileToSelect;
+                } else {
+                    newState.selectedFile = null;
+                }
+            }
+            
+            return newState;
+        }
+        
+        default:
+            return state;
+    }
 }
 
 // Provider component
@@ -155,8 +166,11 @@ interface SelectionProviderProps {
 }
 
 export function SelectionProvider({ children, app, plugin, isMobile }: SelectionProviderProps) {
+    // Get current settings from SettingsContext
+    const settings = useSettingsState();
+    
     // Load initial state from localStorage and vault
-    const loadInitialState = (): SelectionState => {
+    const loadInitialState = useCallback((): SelectionState => {
         const vault = app.vault;
         
         // Load saved folder path
@@ -190,9 +204,13 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             selectedTag: null,
             selectedFile
         };
-    };
+    }, [app.vault]);
     
-    const reducer = createSelectionReducer(plugin, app, isMobile);
+    // Wrap the reducer with useCallback to recreate it when settings change
+    const reducer = useCallback((state: SelectionState, action: SelectionAction) => {
+        return selectionReducer(state, action, settings, app, isMobile);
+    }, [settings, app, isMobile]);
+    
     const [state, dispatch] = useReducer(reducer, undefined, loadInitialState);
     
     // Persist selected folder to localStorage

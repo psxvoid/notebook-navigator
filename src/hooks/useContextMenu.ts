@@ -23,6 +23,7 @@ import { useServices, useFileSystemOps, useMetadataService } from '../context/Se
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { isFolderAncestor, getInternalPlugin, isTFolder, isTFile } from '../utils/typeGuards';
+import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { strings } from '../i18n';
 
 /**
@@ -54,7 +55,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
     const { app, plugin, isMobile } = useServices();
     const fileSystemOps = useFileSystemOps();
     const metadataService = useMetadataService();
-    const { selectedFolder } = useSelectionState();
+    const selectionState = useSelectionState();
+    const { selectedFolder } = selectionState;
     const { expandedFolders } = useExpansionState();
     const selectionDispatch = useSelectionDispatch();
     const expansionDispatch = useExpansionDispatch();
@@ -429,13 +431,47 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     .setTitle(strings.contextMenu.file.deleteNote)
                     .setIcon('trash')
                     .onClick(async () => {
-                        await fileSystemOps.deleteFile(file, plugin.settings.confirmBeforeDelete);
+                        // Calculate next file to select before deletion (desktop only)
+                        let nextFileToSelect: TFile | null = null;
+                        
+                        if (!isMobile && selectionState.selectedFile?.path === file.path) {
+                            // Get current file list based on selection type
+                            let currentFiles: TFile[] = [];
+                            if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+                                currentFiles = getFilesForFolder(selectionState.selectedFolder, plugin.settings, app);
+                            } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
+                                currentFiles = getFilesForTag(selectionState.selectedTag, plugin.settings, app);
+                            }
+                            
+                            // Find current file index
+                            const currentIndex = currentFiles.findIndex(f => f.path === file.path);
+                            
+                            if (currentIndex !== -1 && currentFiles.length > 1) {
+                                // Determine next file to select
+                                if (currentIndex < currentFiles.length - 1) {
+                                    // Select next file
+                                    nextFileToSelect = currentFiles[currentIndex + 1];
+                                } else if (currentIndex > 0) {
+                                    // Was last file, select previous
+                                    nextFileToSelect = currentFiles[currentIndex - 1];
+                                }
+                            }
+                        }
+                        
+                        await fileSystemOps.deleteFile(file, plugin.settings.confirmBeforeDelete, () => {
+                            // Dispatch cleanup with next file to select
+                            selectionDispatch({ 
+                                type: 'CLEANUP_DELETED_FILE', 
+                                deletedPath: file.path,
+                                nextFileToSelect
+                            });
+                        });
                     });
             });
         }
         
         menu.showAtMouseEvent(e);
-    }, [config?.type, config?.item, app, plugin.settings.confirmBeforeDelete, plugin.settings.showFolderIcons, fileSystemOps, metadataService, selectedFolder, expandedFolders, selectionDispatch, expansionDispatch]);
+    }, [config?.type, config?.item, app, plugin.settings, fileSystemOps, metadataService, selectionState, expandedFolders, selectionDispatch, expansionDispatch, isMobile]);
     
     useEffect(() => {
         const element = elementRef.current;
