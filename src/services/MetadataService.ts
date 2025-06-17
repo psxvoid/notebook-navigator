@@ -25,39 +25,17 @@ import { NotebookNavigatorSettings, SortOption } from '../settings';
  * Provides cleanup operations for deleted files/folders
  */
 export class MetadataService {
-    private app: any;
-    private settings: NotebookNavigatorSettings;
-    private updateSettings: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>;
-    
     /**
      * Creates a new MetadataService instance
-     * Can be called with either:
-     * - A plugin instance (for non-React usage)
-     * - App, settings, and updateSettings (for React context usage)
+     * @param app - The Obsidian app instance
+     * @param settings - The current plugin settings
+     * @param updateSettings - Function to update and persist settings
      */
     constructor(
-        appOrPlugin: any,
-        settings?: NotebookNavigatorSettings,
-        updateSettings?: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>
-    ) {
-        // Handle both constructor signatures
-        if (settings && updateSettings) {
-            // New signature for React context
-            this.app = appOrPlugin;
-            this.settings = settings;
-            this.updateSettings = updateSettings;
-        } else {
-            // Old signature for plugin usage
-            const plugin = appOrPlugin;
-            this.app = plugin.app;
-            this.settings = plugin.settings;
-            // Create a simple updateSettings that directly modifies and saves
-            this.updateSettings = async (updater) => {
-                updater(plugin.settings);
-                await plugin.saveSettings();
-            };
-        }
-    }
+        private app: any,
+        private settings: NotebookNavigatorSettings,
+        private updateSettings: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>
+    ) {}
     
     /**
      * Saves settings and triggers UI update

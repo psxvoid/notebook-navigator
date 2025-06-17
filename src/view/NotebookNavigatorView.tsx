@@ -149,11 +149,4 @@ export class NotebookNavigatorView extends ItemView {
     focusFilePane() {
         this.componentRef.current?.focusFilePane();
     }
-    
-    /**
-     * Refreshes the navigator view (e.g., after settings change)
-     */
-    refresh() {
-        this.componentRef.current?.refresh();
-    }
 }

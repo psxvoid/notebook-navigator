@@ -79,7 +79,14 @@ export default class NotebookNavigatorPlugin extends Plugin {
         await this.loadSettings();
         
         // Initialize metadata service for handling vault events
-        this.metadataService = new MetadataService(this);
+        this.metadataService = new MetadataService(
+            this.app,
+            this.settings,
+            (updater) => { // Provide the updater function it expects
+                updater(this.settings);
+                return this.saveSettings();
+            }
+        );
         
         this.registerView(
             VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT,
@@ -159,7 +166,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 if (file instanceof TFolder) {
                     await this.metadataService.handleFolderRename(oldPath, file.path);
                     // The metadata service saves settings which triggers reactive updates
-                    this.onSettingsChange();
                 }
             })
         );
@@ -172,7 +178,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 } else if (file instanceof TFile) {
                     await this.metadataService.handleFileDelete(file.path);
                 }
-                this.onSettingsChange();
+                // The metadata service saves settings which triggers reactive updates
             })
         );
         
@@ -287,19 +293,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
         return leaf;
     }
 
-    /**
-     * Called when settings change to refresh all navigator views
-     * Ensures React components re-render with updated settings
-     */
-    onSettingsChange() {
-        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-        leaves.forEach(leaf => {
-            const view = leaf.view;
-            if (view instanceof NotebookNavigatorView) {
-                view.refresh();
-            }
-        });
-    }
 
     /**
      * Reveals a specific file in the navigator, opening the view if needed
