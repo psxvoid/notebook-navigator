@@ -290,12 +290,14 @@ export function FileList() {
                 setFiles(allFiles);
             }
             
-            debugLog.info("FileList: File list rebuilt.", {
-                count: allFiles.length,
-                selectionType,
-                selectedFolder: selectedFolder?.path,
-                selectedTag
-            });
+            if (plugin.settings.debugMobile) {
+                debugLog.info("FileList: File list rebuilt.", {
+                    count: allFiles.length,
+                    selectionType,
+                    selectedFolder: selectedFolder?.path,
+                    selectedTag
+                });
+            }
         }, 300, true);
         
         // Initial build
@@ -332,8 +334,8 @@ export function FileList() {
         plugin.settings.showNotesFromSubfolders,
         plugin.settings.pinnedNotes,
         plugin.settings.excludedFiles,
-        plugin.settings.useFrontmatterDates,
-        app
+        plugin.settings.useFrontmatterDates
+        // REMOVED: app - This was causing unnecessary rebuilds when navigating
     ]);
     // =================================================================================
     // END: FILE LIST STABILIZATION FIX
@@ -459,10 +461,12 @@ export function FileList() {
             }
             
             setListItems(items);
-            debugLog.info("FileList: List items rebuilt.", {
-                itemCount: items.length,
-                hasDateGroups: plugin.settings.groupByDate && !sortOption.startsWith('title')
-            });
+            if (plugin.settings.debugMobile) {
+                debugLog.info("FileList: List items rebuilt.", {
+                    itemCount: items.length,
+                    hasDateGroups: plugin.settings.groupByDate && !sortOption.startsWith('title')
+                });
+            }
         };
         
         // Rebuild list items when files or relevant settings change
@@ -477,8 +481,8 @@ export function FileList() {
         selectionType,
         selectedFolder,
         selectedTag,
-        strings.fileList.pinnedSection,
-        app.metadataCache
+        strings.fileList.pinnedSection
+        // REMOVED: app.metadataCache - This was causing unnecessary rebuilds
     ]);
     // =================================================================================
     // END: LIST ITEMS STABILIZATION FIX
@@ -596,23 +600,22 @@ export function FileList() {
     // THIS IS THE ONLY SCROLL EFFECT - Predictive state-driven scrolling
     useLayoutEffect(() => {
         if (uiState.scrollToFileIndex !== null && uiState.scrollToFileIndex >= 0 && rowVirtualizer) {
-            // Capture the index value to ensure it's available in the timeout
             const targetIndex = uiState.scrollToFileIndex;
-            
-            // Use setTimeout to defer the scroll until after the current render cycle.
-            // This gives the virtualizer time to register the layout changes of its container.
-            const timer = setTimeout(() => {
+
+            // Use requestAnimationFrame to sync with the browser's repaint cycle.
+            // This ensures the virtualizer's container has the correct dimensions before we scroll.
+            const frameId = requestAnimationFrame(() => {
                 rowVirtualizer.scrollToIndex(targetIndex, {
                     align: isMobile ? 'center' : 'auto',
                     behavior: 'auto'
                 });
+            });
 
-                // Reset the scroll index immediately after.
-                uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: null });
-            }, 0);
+            // Reset the scroll index immediately after dispatching.
+            uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: null });
 
-            // Cleanup the timer if the component unmounts or dependencies change
-            return () => clearTimeout(timer);
+            // Cleanup the animation frame request if the component unmounts
+            return () => cancelAnimationFrame(frameId);
         }
     }, [uiState.scrollToFileIndex, rowVirtualizer, uiDispatch, isMobile]);
     
@@ -683,7 +686,7 @@ export function FileList() {
             }
         });
         return dateMap;
-    }, [listItems, dateField, plugin.settings.showDate, plugin.settings.dateFormat, plugin.settings.timeFormat, plugin.settings.useFrontmatterDates, plugin.settings.frontmatterCreatedField, plugin.settings.frontmatterModifiedField, plugin.settings.frontmatterDateFormat, strings.fileList.pinnedSection, app.metadataCache]);
+    }, [listItems, dateField, plugin.settings.showDate, plugin.settings.dateFormat, plugin.settings.timeFormat, plugin.settings.useFrontmatterDates, plugin.settings.frontmatterCreatedField, plugin.settings.frontmatterModifiedField, plugin.settings.frontmatterDateFormat, strings.fileList.pinnedSection]);
     
     // Helper function for safe array access
     const safeGetItem = <T,>(array: T[], index: number): T | undefined => {

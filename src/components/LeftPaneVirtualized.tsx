@@ -80,7 +80,9 @@ export const LeftPaneVirtualized: React.FC = () => {
             }
             
             setRootFolders(folders);
-            debugLog.info("LeftPaneVirtualized: Root folders rebuilt.");
+            if (plugin.settings.debugMobile) {
+                debugLog.info("LeftPaneVirtualized: Root folders rebuilt.");
+            }
         }, 300, true);
         
         // Initial build
@@ -135,7 +137,9 @@ export const LeftPaneVirtualized: React.FC = () => {
             }
             
             setTagData({ tree: newTree, untagged: newUntagged });
-            debugLog.info("LeftPaneVirtualized: Tag tree rebuilt.");
+            if (plugin.settings.debugMobile) {
+                debugLog.info("LeftPaneVirtualized: Tag tree rebuilt.");
+            }
 
         }, 300, true);
 
@@ -153,7 +157,7 @@ export const LeftPaneVirtualized: React.FC = () => {
         return () => {
             events.forEach(eventRef => app.vault.offref(eventRef));
         };
-    }, [app, plugin.settings.showTags, plugin.settings.showUntagged, plugin.settings.excludedFiles]);
+    }, [plugin.settings.showTags, plugin.settings.showUntagged, plugin.settings.excludedFiles]); // REMOVED 'app' dependency to prevent constant rebuilds
     // =================================================================================
     // END: TAG STABILIZATION FIX
     // =================================================================================
@@ -219,7 +223,9 @@ export const LeftPaneVirtualized: React.FC = () => {
         });
         
             setItems(allItems);
-            debugLog.info("LeftPaneVirtualized: Items list rebuilt.", { count: allItems.length });
+            if (plugin.settings.debugMobile) {
+                debugLog.info("LeftPaneVirtualized: Items list rebuilt.", { count: allItems.length });
+            }
         };
         
         rebuildItems();
@@ -248,23 +254,22 @@ export const LeftPaneVirtualized: React.FC = () => {
     // THIS IS THE ONLY SCROLL EFFECT - Predictive state-driven scrolling
     useLayoutEffect(() => {
         if (uiState.scrollToFolderIndex !== null && uiState.scrollToFolderIndex >= 0 && rowVirtualizer) {
-            // Capture the index value to ensure it's available in the timeout
             const targetIndex = uiState.scrollToFolderIndex;
             
-            // Use setTimeout to defer the scroll until after the current render cycle.
-            // This gives the virtualizer time to register the layout changes of its container.
-            const timer = setTimeout(() => {
+            // Use requestAnimationFrame to sync with the browser's repaint cycle.
+            // This is the correct, timer-free way to handle layout-dependent actions.
+            const frameId = requestAnimationFrame(() => {
                 rowVirtualizer.scrollToIndex(targetIndex, {
                     align: isMobile ? 'center' : 'auto',
                     behavior: 'auto'
                 });
+            });
 
-                // Reset the scroll index immediately after.
-                uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: null });
-            }, 0);
+            // Reset the scroll index immediately after dispatching.
+            uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: null });
 
-            // Cleanup the timer if the component unmounts or dependencies change
-            return () => clearTimeout(timer);
+            // Cleanup the animation frame request if the component unmounts
+            return () => cancelAnimationFrame(frameId);
         }
     }, [uiState.scrollToFolderIndex, rowVirtualizer, uiDispatch, isMobile]);
     
