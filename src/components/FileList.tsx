@@ -17,6 +17,7 @@
  */
 
 import React, { useMemo, useLayoutEffect, useCallback, useRef, useEffect, useState } from 'react';
+import { debounce } from 'obsidian';
 import { TFile, TFolder, TAbstractFile, getAllTags, Platform } from 'obsidian';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { useServices } from '../context/ServicesContext';
@@ -208,80 +209,120 @@ export function FileList() {
         }
     }, [app.workspace, uiDispatch, isMobile]);
     
-    // Get files from selected folder or tag
-    const files = useMemo(() => {
-        let allFiles: TFile[] = [];
-        const excludedProperties = parseExcludedProperties(plugin.settings.excludedFiles);
+    // =================================================================================
+    // START: FILE LIST STABILIZATION FIX
+    // We use useState to hold the file list data. This makes it stable across re-renders.
+    // =================================================================================
+    const [files, setFiles] = useState<TFile[]>([]);
+    
+    useEffect(() => {
+        const rebuildFileList = debounce(() => {
+            let allFiles: TFile[] = [];
+            const excludedProperties = parseExcludedProperties(plugin.settings.excludedFiles);
 
-        if (selectionType === 'folder' && selectedFolder) {
-            allFiles = collectFilesFromFolder(selectedFolder, plugin.settings.showNotesFromSubfolders);
-            
-        } else if (selectionType === 'tag' && selectedTag) {
-            // Get all markdown files that aren't excluded
-            const allMarkdownFiles = app.vault.getMarkdownFiles()
-                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-            
-            // Special case for untagged files
-            if (selectedTag === UNTAGGED_TAG_ID) {
-                allFiles = allMarkdownFiles.filter(file => {
-                    const cache = app.metadataCache.getFileCache(file);
-                    const fileTags = cache ? getAllTags(cache) : null;
-                    return !fileTags || fileTags.length === 0;
-                });
-            } else {
-                // Build the tag tree (memoization happens at the component level)
-                const tagTree = buildTagTree(allMarkdownFiles, app);
+            if (selectionType === 'folder' && selectedFolder) {
+                allFiles = collectFilesFromFolder(selectedFolder, plugin.settings.showNotesFromSubfolders);
                 
-                // Find the selected tag node
-                const selectedNode = findTagNode(selectedTag, tagTree);
+            } else if (selectionType === 'tag' && selectedTag) {
+                // Get all markdown files that aren't excluded
+                const allMarkdownFiles = app.vault.getMarkdownFiles()
+                    .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
                 
-                if (selectedNode) {
-                    // Collect all tags to include (selected tag and all children)
-                    const tagsToInclude = collectAllTagPaths(selectedNode);
-                    
-                    // Create a lowercase set for case-insensitive comparison
-                    const tagsToIncludeLower = new Set(
-                        Array.from(tagsToInclude).map(tag => tag.toLowerCase())
-                    );
-                    
-                    // Filter files that have any of the collected tags (case-insensitive)
+                // Special case for untagged files
+                if (selectedTag === UNTAGGED_TAG_ID) {
                     allFiles = allMarkdownFiles.filter(file => {
                         const cache = app.metadataCache.getFileCache(file);
                         const fileTags = cache ? getAllTags(cache) : null;
-                        return fileTags && fileTags.some(tag => tagsToIncludeLower.has(tag.toLowerCase()));
+                        return !fileTags || fileTags.length === 0;
                     });
                 } else {
-                    // Fallback to empty if tag not found
-                    allFiles = [];
+                    // Build the tag tree
+                    const tagTree = buildTagTree(allMarkdownFiles, app);
+                    
+                    // Find the selected tag node
+                    const selectedNode = findTagNode(selectedTag, tagTree);
+                    
+                    if (selectedNode) {
+                        // Collect all tags to include (selected tag and all children)
+                        const tagsToInclude = collectAllTagPaths(selectedNode);
+                        
+                        // Create a lowercase set for case-insensitive comparison
+                        const tagsToIncludeLower = new Set(
+                            Array.from(tagsToInclude).map(tag => tag.toLowerCase())
+                        );
+                        
+                        // Filter files that have any of the collected tags (case-insensitive)
+                        allFiles = allMarkdownFiles.filter(file => {
+                            const cache = app.metadataCache.getFileCache(file);
+                            const fileTags = cache ? getAllTags(cache) : null;
+                            return fileTags && fileTags.some(tag => tagsToIncludeLower.has(tag.toLowerCase()));
+                        });
+                    } else {
+                        // Fallback to empty if tag not found
+                        allFiles = [];
+                    }
                 }
             }
-        }
+            
+            // Filter out excluded files based on frontmatter properties
+            if (excludedProperties.length > 0) {
+                allFiles = allFiles.filter(file => !shouldExcludeFile(file, excludedProperties, app));
+            }
+            
+            // Determine which sort option to use and apply it
+            const sortOption = getEffectiveSortOption(plugin.settings, selectionType, selectedFolder);
+            sortFiles(allFiles, sortOption, plugin.settings, app.metadataCache);
+            
+            // Handle pinned notes
+            if (selectionType === 'folder' && selectedFolder) {
+                // Folder view: collect pinned notes from the selected folder (and subfolders if enabled)
+                const pinnedPaths = collectPinnedPaths(
+                    plugin.settings.pinnedNotes, 
+                    selectedFolder, 
+                    plugin.settings.showNotesFromSubfolders
+                );
+                setFiles(separatePinnedFiles(allFiles, pinnedPaths));
+            } else if (selectionType === 'tag') {
+                // Tag view: collect ALL pinned notes from all folders
+                const pinnedPaths = collectPinnedPaths(plugin.settings.pinnedNotes);
+                setFiles(separatePinnedFiles(allFiles, pinnedPaths));
+            } else {
+                setFiles(allFiles);
+            }
+            
+            debugLog.info("FileList: File list rebuilt.", {
+                count: allFiles.length,
+                selectionType,
+                selectedFolder: selectedFolder?.path,
+                selectedTag
+            });
+        }, 300, true);
         
-        // Filter out excluded files based on frontmatter properties
-        if (excludedProperties.length > 0) {
-            allFiles = allFiles.filter(file => !shouldExcludeFile(file, excludedProperties, app));
-        }
+        // Initial build
+        rebuildFileList();
         
-        // Determine which sort option to use and apply it
-        const sortOption = getEffectiveSortOption(plugin.settings, selectionType, selectedFolder);
-        sortFiles(allFiles, sortOption, plugin.settings, app.metadataCache);
+        // Listen to vault events that should trigger rebuild
+        const events = [
+            app.vault.on('create', (file) => {
+                if (isTFile(file)) rebuildFileList();
+            }),
+            app.vault.on('delete', (file) => {
+                if (isTFile(file)) rebuildFileList();
+            }),
+            app.vault.on('rename', (file) => {
+                if (isTFile(file)) rebuildFileList();
+            }),
+            app.metadataCache.on('changed', (file) => {
+                // Only rebuild if we're in tag view or if frontmatter dates are enabled
+                if (selectionType === 'tag' || plugin.settings.useFrontmatterDates) {
+                    rebuildFileList();
+                }
+            })
+        ];
         
-        // Handle pinned notes
-        if (selectionType === 'folder' && selectedFolder) {
-            // Folder view: collect pinned notes from the selected folder (and subfolders if enabled)
-            const pinnedPaths = collectPinnedPaths(
-                plugin.settings.pinnedNotes, 
-                selectedFolder, 
-                plugin.settings.showNotesFromSubfolders
-            );
-            return separatePinnedFiles(allFiles, pinnedPaths);
-        } else if (selectionType === 'tag') {
-            // Tag view: collect ALL pinned notes from all folders
-            const pinnedPaths = collectPinnedPaths(plugin.settings.pinnedNotes);
-            return separatePinnedFiles(allFiles, pinnedPaths);
-        }
-        
-        return allFiles;
+        return () => {
+            events.forEach(eventRef => app.vault.offref(eventRef));
+        };
     }, [
         selectionType,
         selectedFolder,
@@ -291,9 +332,12 @@ export function FileList() {
         plugin.settings.showNotesFromSubfolders,
         plugin.settings.pinnedNotes,
         plugin.settings.excludedFiles,
-        settings,
+        plugin.settings.useFrontmatterDates,
         app
     ]);
+    // =================================================================================
+    // END: FILE LIST STABILIZATION FIX
+    // =================================================================================
     
     // Auto-open file when it's selected via folder/tag change (not user click)
     useEffect(() => {
@@ -323,92 +367,106 @@ export function FileList() {
         }
     }, [isMobile, uiState.focusedPane, selectedFile, files, selectionDispatch, app.workspace]);
     
-    // Create flattened list items for virtualization
-    const listItems = useMemo((): FileListItem[] => {
-        const items: FileListItem[] = [];
-        
-        // Get the appropriate pinned paths based on selection type
-        let pinnedPaths: Set<string>;
-        
-        if (selectionType === 'folder' && selectedFolder) {
-            pinnedPaths = collectPinnedPaths(
-                plugin.settings.pinnedNotes,
-                selectedFolder,
-                plugin.settings.showNotesFromSubfolders
-            );
-        } else if (selectionType === 'tag') {
-            pinnedPaths = collectPinnedPaths(plugin.settings.pinnedNotes);
-        } else {
-            pinnedPaths = new Set<string>();
-        }
-        
-        // Separate pinned and unpinned files
-        const pinnedFiles = files.filter(f => pinnedPaths.has(f.path));
-        const unpinnedFiles = files.filter(f => !pinnedPaths.has(f.path));
-        
-        // Add pinned files
-        if (pinnedFiles.length > 0) {
-            items.push({ 
-                type: 'header', 
-                data: strings.fileList.pinnedSection,
-                key: `header-pinned-${selectedFolder?.path || 'root'}`
-            });
-            pinnedFiles.forEach(file => {
-                items.push({ 
-                    type: 'file', 
-                    data: file,
-                    parentFolder: selectedFolder?.path,
-                    key: file.path
-                });
-            });
-        }
-        
-        // Determine which sort option to use
-        const sortOption = getEffectiveSortOption(plugin.settings, selectionType, selectedFolder);
-        
-        // Add unpinned files with date grouping if enabled
-        if (!plugin.settings.groupByDate || sortOption.startsWith('title')) {
-            // No date grouping
-            unpinnedFiles.forEach(file => {
-                items.push({ 
-                    type: 'file', 
-                    data: file,
-                    parentFolder: selectedFolder?.path,
-                    key: file.path
-                });
-            });
-        } else {
-            // Group by date
-            let currentGroup: string | null = null;
-            unpinnedFiles.forEach(file => {
-                const dateField = getDateField(sortOption);
-                const timestamp = DateUtils.getFileTimestamp(
-                    file, 
-                    dateField === 'ctime' ? 'created' : 'modified',
-                    plugin.settings,
-                    app.metadataCache
+    // =================================================================================
+    // START: LIST ITEMS STABILIZATION FIX
+    // We use useState to hold the list items. This prevents unnecessary virtualizer updates.
+    // =================================================================================
+    const [listItems, setListItems] = useState<FileListItem[]>([]);
+    
+    useEffect(() => {
+        const rebuildListItems = () => {
+            const items: FileListItem[] = [];
+            
+            // Get the appropriate pinned paths based on selection type
+            let pinnedPaths: Set<string>;
+            
+            if (selectionType === 'folder' && selectedFolder) {
+                pinnedPaths = collectPinnedPaths(
+                    plugin.settings.pinnedNotes,
+                    selectedFolder,
+                    plugin.settings.showNotesFromSubfolders
                 );
-                const groupTitle = DateUtils.getDateGroup(timestamp);
-                
-                if (groupTitle !== currentGroup) {
-                    currentGroup = groupTitle;
-                    items.push({ 
-                        type: 'header', 
-                        data: groupTitle,
-                        key: `header-${selectedFolder?.path || selectedTag || 'root'}-${groupTitle}`
-                    });
-                }
-                
+            } else if (selectionType === 'tag') {
+                pinnedPaths = collectPinnedPaths(plugin.settings.pinnedNotes);
+            } else {
+                pinnedPaths = new Set<string>();
+            }
+            
+            // Separate pinned and unpinned files
+            const pinnedFiles = files.filter(f => pinnedPaths.has(f.path));
+            const unpinnedFiles = files.filter(f => !pinnedPaths.has(f.path));
+            
+            // Add pinned files
+            if (pinnedFiles.length > 0) {
                 items.push({ 
-                    type: 'file', 
-                    data: file,
-                    parentFolder: selectedFolder?.path,
-                    key: file.path
+                    type: 'header', 
+                    data: strings.fileList.pinnedSection,
+                    key: `header-pinned-${selectedFolder?.path || 'root'}`
                 });
+                pinnedFiles.forEach(file => {
+                    items.push({ 
+                        type: 'file', 
+                        data: file,
+                        parentFolder: selectedFolder?.path,
+                        key: file.path
+                    });
+                });
+            }
+            
+            // Determine which sort option to use
+            const sortOption = getEffectiveSortOption(plugin.settings, selectionType, selectedFolder);
+            
+            // Add unpinned files with date grouping if enabled
+            if (!plugin.settings.groupByDate || sortOption.startsWith('title')) {
+                // No date grouping
+                unpinnedFiles.forEach(file => {
+                    items.push({ 
+                        type: 'file', 
+                        data: file,
+                        parentFolder: selectedFolder?.path,
+                        key: file.path
+                    });
+                });
+            } else {
+                // Group by date
+                let currentGroup: string | null = null;
+                unpinnedFiles.forEach(file => {
+                    const dateField = getDateField(sortOption);
+                    const timestamp = DateUtils.getFileTimestamp(
+                        file, 
+                        dateField === 'ctime' ? 'created' : 'modified',
+                        plugin.settings,
+                        app.metadataCache
+                    );
+                    const groupTitle = DateUtils.getDateGroup(timestamp);
+                    
+                    if (groupTitle !== currentGroup) {
+                        currentGroup = groupTitle;
+                        items.push({ 
+                            type: 'header', 
+                            data: groupTitle,
+                            key: `header-${selectedFolder?.path || selectedTag || 'root'}-${groupTitle}`
+                        });
+                    }
+                    
+                    items.push({ 
+                        type: 'file', 
+                        data: file,
+                        parentFolder: selectedFolder?.path,
+                        key: file.path
+                    });
+                });
+            }
+            
+            setListItems(items);
+            debugLog.info("FileList: List items rebuilt.", {
+                itemCount: items.length,
+                hasDateGroups: plugin.settings.groupByDate && !sortOption.startsWith('title')
             });
-        }
+        };
         
-        return items;
+        // Rebuild list items when files or relevant settings change
+        rebuildListItems();
     }, [
         files, 
         plugin.settings.groupByDate,
@@ -418,9 +476,13 @@ export function FileList() {
         plugin.settings.showNotesFromSubfolders,
         selectionType,
         selectedFolder,
+        selectedTag,
         strings.fileList.pinnedSection,
         app.metadataCache
     ]);
+    // =================================================================================
+    // END: LIST ITEMS STABILIZATION FIX
+    // =================================================================================
     
     // Add ref for scroll container
     const scrollContainerRef = useRef<HTMLDivElement>(null);

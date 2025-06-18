@@ -1,4 +1,5 @@
 import React, { useMemo, useRef, useEffect, useLayoutEffect, useCallback, useState } from 'react';
+import { debounce } from 'obsidian';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { TFolder, TFile, App, getAllTags, Platform, View } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
@@ -58,51 +59,116 @@ export const LeftPaneVirtualized: React.FC = () => {
     }, [plugin.settings.debugMobile]);
     
     
-    // Get root folders to display
-    const rootFolders = useMemo(() => {
-        const vault = app.vault;
-        const root = vault.getRoot();
-        
-        // If showing root folder, return it as single item
-        if (plugin.settings.showRootFolder) {
-            return [root];
-        }
-        
-        // Otherwise return children folders
-        return root.children
-            .filter(child => isTFolder(child))
-            .sort((a, b) => a.name.localeCompare(b.name)) as TFolder[];
-    }, [app.vault, plugin.settings.showRootFolder]);
+    // =================================================================================
+    // START: FOLDER STABILIZATION FIX
+    // We use useState to hold stable folder data across re-renders
+    // =================================================================================
+    const [rootFolders, setRootFolders] = useState<TFolder[]>([]);
     
-    // Build tag tree if tags are enabled
-    const { tagTree, untaggedCount } = useMemo(() => {
-        if (!plugin.settings.showTags) {
-            return { tagTree: new Map<string, TagTreeNode>(), untaggedCount: 0 };
-        }
+    useEffect(() => {
+        const rebuildFolders = debounce(() => {
+            const vault = app.vault;
+            const root = vault.getRoot();
+            
+            let folders: TFolder[];
+            if (plugin.settings.showRootFolder) {
+                folders = [root];
+            } else {
+                folders = root.children
+                    .filter(child => isTFolder(child))
+                    .sort((a, b) => a.name.localeCompare(b.name)) as TFolder[];
+            }
+            
+            setRootFolders(folders);
+            debugLog.info("LeftPaneVirtualized: Root folders rebuilt.");
+        }, 300, true);
         
-        const excludedProperties = parseExcludedProperties(plugin.settings.excludedFiles);
-        const allFiles = app.vault.getMarkdownFiles()
-            .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
+        // Initial build
+        rebuildFolders();
         
-        // Build tag tree from all files
-        const tree = buildTagTree(allFiles, app);
+        // Listen to vault events for folder changes
+        const events = [
+            app.vault.on('create', (file) => {
+                if (isTFolder(file)) rebuildFolders();
+            }),
+            app.vault.on('delete', (file) => {
+                if (isTFolder(file)) rebuildFolders();
+            }),
+            app.vault.on('rename', (file) => {
+                if (isTFolder(file)) rebuildFolders();
+            })
+        ];
         
-        // Count untagged files if needed
-        let untagged = 0;
-        if (plugin.settings.showUntagged) {
-            untagged = allFiles.filter(file => {
-                const cache = app.metadataCache.getFileCache(file);
-                const fileTags = cache ? getAllTags(cache) : null;
-                return !fileTags || fileTags.length === 0;
-            }).length;
-        }
-        
-        return { tagTree: tree, untaggedCount: untagged };
-    }, [app, plugin.settings.showTags, plugin.settings.showUntagged, 
-        plugin.settings.excludedFiles]);
+        return () => {
+            events.forEach(eventRef => app.vault.offref(eventRef));
+        };
+    }, [app, plugin.settings.showRootFolder]);
+    // =================================================================================
+    // END: FOLDER STABILIZATION FIX
+    // =================================================================================
     
-    // Flatten all visible items
-    const items = useMemo((): CombinedLeftPaneItem[] => {
+    // =================================================================================
+    // START: TAG STABILIZATION FIX
+    // We use useState to hold the tag tree data. This makes it stable across re-renders.
+    // =================================================================================
+    const [tagData, setTagData] = useState<{ tree: Map<string, TagTreeNode>, untagged: number }>({ tree: new Map(), untagged: 0 });
+
+    useEffect(() => {
+        const rebuildTagTree = debounce(() => {
+            if (!plugin.settings.showTags) {
+                setTagData({ tree: new Map(), untagged: 0 });
+                return;
+            }
+
+            const excludedProperties = parseExcludedProperties(plugin.settings.excludedFiles);
+            const allFiles = app.vault.getMarkdownFiles()
+                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
+            
+            const newTree = buildTagTree(allFiles, app);
+            
+            let newUntagged = 0;
+            if (plugin.settings.showUntagged) {
+                newUntagged = allFiles.filter(file => {
+                    const cache = app.metadataCache.getFileCache(file);
+                    return !cache || !getAllTags(cache)?.length;
+                }).length;
+            }
+            
+            setTagData({ tree: newTree, untagged: newUntagged });
+            debugLog.info("LeftPaneVirtualized: Tag tree rebuilt.");
+
+        }, 300, true);
+
+        // Initial build
+        rebuildTagTree();
+
+        // Listen to specific vault and metadata events
+        const events = [
+            app.vault.on('create', rebuildTagTree),
+            app.vault.on('delete', rebuildTagTree),
+            app.vault.on('rename', rebuildTagTree),
+            app.metadataCache.on('changed', rebuildTagTree)
+        ];
+
+        return () => {
+            events.forEach(eventRef => app.vault.offref(eventRef));
+        };
+    }, [app, plugin.settings.showTags, plugin.settings.showUntagged, plugin.settings.excludedFiles]);
+    // =================================================================================
+    // END: TAG STABILIZATION FIX
+    // =================================================================================
+    
+    const tagTree = tagData.tree;
+    const untaggedCount = tagData.untagged;
+    
+    // =================================================================================
+    // START: ITEMS STABILIZATION FIX
+    // We use useState to hold flattened items to prevent virtualizer re-initialization
+    // =================================================================================
+    const [items, setItems] = useState<CombinedLeftPaneItem[]>([]);
+    
+    useEffect(() => {
+        const rebuildItems = () => {
         const allItems: CombinedLeftPaneItem[] = [];
         
         // Add folders
@@ -152,10 +218,17 @@ export const LeftPaneVirtualized: React.FC = () => {
             key: 'bottom-spacer'
         });
         
-        return allItems;
+            setItems(allItems);
+            debugLog.info("LeftPaneVirtualized: Items list rebuilt.", { count: allItems.length });
+        };
+        
+        rebuildItems();
     }, [rootFolders, expansionState.expandedFolders, expansionState.expandedTags, 
         plugin.settings.ignoreFolders, plugin.settings.showTags, 
         plugin.settings.showUntagged, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
+    // =================================================================================
+    // END: ITEMS STABILIZATION FIX
+    // =================================================================================
     
     // Initialize virtualizer
     const rowVirtualizer = useVirtualizer({
