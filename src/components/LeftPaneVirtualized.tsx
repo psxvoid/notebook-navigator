@@ -1,6 +1,6 @@
-import React, { useMemo, useRef, useEffect, useLayoutEffect, useCallback, useState } from 'react';
+import React, { useMemo, useRef, useEffect, useLayoutEffect, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
 import { debounce } from 'obsidian';
-import { useVirtualizer } from '@tanstack/react-virtual';
+import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { TFolder, TFile, App, getAllTags, Platform, View } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
@@ -21,7 +21,12 @@ import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
 import { debugLog } from '../utils/debugLog';
 
-export const LeftPaneVirtualized: React.FC = () => {
+export interface LeftPaneHandle {
+    virtualizer: Virtualizer<HTMLDivElement, Element> | null;
+    items: CombinedLeftPaneItem[];
+}
+
+export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
     const { app, plugin, isMobile } = useServices();
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
@@ -251,27 +256,13 @@ export const LeftPaneVirtualized: React.FC = () => {
         overscan: 10,
     });
     
-    // THIS IS THE ONLY SCROLL EFFECT - Predictive state-driven scrolling
-    useLayoutEffect(() => {
-        if (uiState.scrollToFolderIndex !== null && uiState.scrollToFolderIndex >= 0 && rowVirtualizer) {
-            const targetIndex = uiState.scrollToFolderIndex;
-            
-            // Use requestAnimationFrame to sync with the browser's repaint cycle.
-            // This is the correct, timer-free way to handle layout-dependent actions.
-            const frameId = requestAnimationFrame(() => {
-                rowVirtualizer.scrollToIndex(targetIndex, {
-                    align: isMobile ? 'center' : 'auto',
-                    behavior: 'auto'
-                });
-            });
-
-            // Reset the scroll index immediately after dispatching.
-            uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: null });
-
-            // Cleanup the animation frame request if the component unmounts
-            return () => cancelAnimationFrame(frameId);
-        }
-    }, [uiState.scrollToFolderIndex, rowVirtualizer, uiDispatch, isMobile]);
+    // Expose the virtualizer instance and items via the ref
+    useImperativeHandle(ref, () => ({
+        virtualizer: rowVirtualizer,
+        items: items
+    }), [rowVirtualizer, items]);
+    
+    // REMOVED: State-driven scroll effect - now handled imperatively via ref
     
     // Create a map for O(1) item lookups
     const pathToIndex = useMemo(() => {
@@ -301,19 +292,7 @@ export const LeftPaneVirtualized: React.FC = () => {
         containerRef: scrollContainerRef
     });
     
-    // On mobile, when this view becomes active, scroll to the selected item
-    useLayoutEffect(() => {
-        if (isMobile && uiState.currentMobileView === 'list' && selectedPath) {
-            const itemIndex = pathToIndex.get(selectedPath);
-            if (itemIndex !== undefined && itemIndex >= 0) {
-                debugLog.info('LeftPaneVirtualized: Mobile view became active, scrolling to selected item.', {
-                    path: selectedPath,
-                    index: itemIndex
-                });
-                uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: itemIndex });
-            }
-        }
-    }, [isMobile, uiState.currentMobileView, selectedPath, pathToIndex, uiDispatch, uiState.activeViewScrollTrigger]);
+    // REMOVED: Mobile view scroll effect - now handled imperatively via ref
     
     // Handle folder toggle
     const handleFolderToggle = useCallback((path: string) => {
@@ -460,4 +439,4 @@ export const LeftPaneVirtualized: React.FC = () => {
         </>
         </ErrorBoundary>
     );
-};
+});

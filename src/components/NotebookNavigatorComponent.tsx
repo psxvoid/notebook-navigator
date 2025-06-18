@@ -19,8 +19,8 @@
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState } from 'react';
 import { TFile, TFolder, TAbstractFile, WorkspaceLeaf, debounce, Platform } from 'obsidian';
-import { LeftPaneVirtualized } from './LeftPaneVirtualized';
-import { FileList } from './FileList';
+import { LeftPaneVirtualized, LeftPaneHandle } from './LeftPaneVirtualized';
+import { FileList, FileListHandle } from './FileList';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsUpdate } from '../context/SettingsContext';
@@ -64,6 +64,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const uiDispatch = useUIDispatch();
     const containerRef = useRef<HTMLDivElement>(null);
     const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
+    const leftPaneRef = useRef<LeftPaneHandle>(null);
+    const fileListRef = useRef<FileListHandle>(null);
     
     // Only set up logging effects if debug is enabled
     useEffect(() => {
@@ -143,11 +145,37 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         },
         handleBecomeActive: () => {
             if (isMobile) {
-                debugLog.info('NotebookNavigatorComponent: View became active, dispatching scroll trigger.');
-                uiDispatch({ type: 'TRIGGER_ACTIVE_VIEW_SCROLL' });
+                debugLog.info('NotebookNavigatorComponent: View became active, using direct scroll.');
+                const leftVirt = leftPaneRef.current?.virtualizer;
+                const rightVirt = fileListRef.current?.virtualizer;
+
+                if (uiState.currentMobileView === 'list' && leftVirt && selectionState.selectedFolder) {
+                    // Find the folder index in the flattened items
+                    const items = leftPaneRef.current?.items || [];
+                    const folderIndex = items.findIndex(item => 
+                        item.type === 'folder' && item.data.path === selectionState.selectedFolder?.path
+                    );
+                    if (folderIndex !== -1) {
+                        leftVirt.scrollToIndex(folderIndex, { align: 'center', behavior: 'auto' });
+                    }
+                } else if (uiState.currentMobileView === 'files' && rightVirt && selectionState.selectedFile) {
+                    const fileIndex = fileListRef.current?.getIndexOfFile(selectionState.selectedFile.path);
+                    if (fileIndex !== undefined && fileIndex !== -1) {
+                        rightVirt.scrollToIndex(fileIndex, { align: 'center', behavior: 'auto' });
+                    }
+                }
             }
         }
-    }), [selectionDispatch, uiDispatch, plugin.settings.debugMobile, updateSettings, isMobile]);
+    }), [
+        selectionDispatch, 
+        uiDispatch, 
+        plugin.settings.debugMobile, 
+        updateSettings, 
+        isMobile,
+        uiState.currentMobileView,
+        selectionState.selectedFolder,
+        selectionState.selectedFile
+    ]);
 
     // Handle file reveal - expand folders and scroll when a file is revealed
     useEffect(() => {
@@ -389,11 +417,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             }}
         >
             <div className="nn-left-pane" style={{ width: isMobile ? '100%' : `${paneWidth}px` }}>
-                <LeftPaneVirtualized />
+                <LeftPaneVirtualized ref={leftPaneRef} />
             </div>
             {!isMobile && <div className="nn-resize-handle" {...resizeHandleProps} />}
             <ErrorBoundary componentName="FileList">
-                <FileList />
+                <FileList ref={fileListRef} />
             </ErrorBoundary>
         </div>
     );

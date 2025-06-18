@@ -16,10 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useMemo, useLayoutEffect, useCallback, useRef, useEffect, useState } from 'react';
+import React, { useMemo, useLayoutEffect, useCallback, useRef, useEffect, useState, useImperativeHandle, forwardRef } from 'react';
 import { debounce } from 'obsidian';
 import { TFile, TFolder, TAbstractFile, getAllTags, Platform } from 'obsidian';
-import { useVirtualizer } from '@tanstack/react-virtual';
+import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { useServices } from '../context/ServicesContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
@@ -142,7 +142,12 @@ function collectFilesFromFolder(folder: TFolder, includeSubfolders: boolean): TF
  * 
  * @returns A scrollable list of files grouped by date (if enabled) with empty state handling
  */
-export function FileList() {
+export interface FileListHandle {
+    virtualizer: Virtualizer<HTMLDivElement, Element> | null;
+    getIndexOfFile: (path: string) => number;
+}
+
+export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const { app, plugin, isMobile } = useServices();
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
@@ -546,6 +551,14 @@ export function FileList() {
         scrollPaddingEnd: 0,
     });
     
+    // Expose the virtualizer instance and file lookup method via the ref
+    useImperativeHandle(ref, () => ({
+        virtualizer: rowVirtualizer,
+        getIndexOfFile: (path: string) => {
+            return filePathToIndex.get(path) ?? -1;
+        }
+    }), [rowVirtualizer, filePathToIndex]);
+    
     
     // Create a unique key for storing scroll state based on current selection
     const scrollStateKey = useMemo(() => {
@@ -597,27 +610,7 @@ export function FileList() {
     // Predictive scrolling now handles this automatically
     
     
-    // THIS IS THE ONLY SCROLL EFFECT - Predictive state-driven scrolling
-    useLayoutEffect(() => {
-        if (uiState.scrollToFileIndex !== null && uiState.scrollToFileIndex >= 0 && rowVirtualizer) {
-            const targetIndex = uiState.scrollToFileIndex;
-
-            // Use requestAnimationFrame to sync with the browser's repaint cycle.
-            // This ensures the virtualizer's container has the correct dimensions before we scroll.
-            const frameId = requestAnimationFrame(() => {
-                rowVirtualizer.scrollToIndex(targetIndex, {
-                    align: isMobile ? 'center' : 'auto',
-                    behavior: 'auto'
-                });
-            });
-
-            // Reset the scroll index immediately after dispatching.
-            uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: null });
-
-            // Cleanup the animation frame request if the component unmounts
-            return () => cancelAnimationFrame(frameId);
-        }
-    }, [uiState.scrollToFileIndex, rowVirtualizer, uiDispatch, isMobile]);
+    // REMOVED: State-driven scroll effect - now handled imperatively via ref
     
     
     // Scroll to selected file when it changes (e.g., from REVEAL_FILE action)
@@ -642,19 +635,7 @@ export function FileList() {
         containerRef: scrollContainerRef
     });
     
-    // On mobile, when this view becomes active, scroll to the selected file
-    useLayoutEffect(() => {
-        if (isMobile && uiState.currentMobileView === 'files' && selectedFilePath) {
-            const fileIndex = filePathToIndex.get(selectedFilePath);
-            if (fileIndex !== undefined && fileIndex >= 0) {
-                debugLog.info('FileList: Mobile view became active, scrolling to selected file.', {
-                    file: selectedFilePath,
-                    index: fileIndex
-                });
-                uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: fileIndex });
-            }
-        }
-    }, [isMobile, uiState.currentMobileView, selectedFilePath, filePathToIndex, uiDispatch, uiState.activeViewScrollTrigger]);
+    // REMOVED: Mobile view scroll effect - now handled imperatively via ref
     
     // Pre-calculate date field for all files in the group
     const dateField = useMemo(() => {
@@ -805,4 +786,4 @@ export function FileList() {
         </div>
         </ErrorBoundary>
     );
-}
+});
