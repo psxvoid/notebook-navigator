@@ -334,6 +334,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Track navigator interaction time for smarter auto-reveal
     const navigatorInteractionRef = useRef(0);
     const isDeletingFileRef = useRef(false);
+    const revealedFilesRef = useRef(new Set<string>());
+    const isRevealingNewFileRef = useRef(false);
     
     // Track when the navigator is being hidden to ensure consistent state
     useEffect(() => {
@@ -382,10 +384,36 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         const handleFileChange = (file: TFile | null) => {
             if (!file) return;
             
+            // Check if this is a file we just created via the plugin
+            const creatingFilePath = (app.workspace as any).notebookNavigatorCreatingFile;
+            const isNewlyCreatedFile = creatingFilePath && file.path === creatingFilePath;
+            
+            
             // Skip auto-reveal if navigator was recently interacted with (within 300ms)
-            // BUT allow it if we just deleted a file
-            if (Date.now() - navigatorInteractionRef.current < 300 && !isDeletingFileRef.current) {
+            // BUT allow it if we just deleted a file or this is a newly created file
+            if (Date.now() - navigatorInteractionRef.current < 300 && !isDeletingFileRef.current && !isNewlyCreatedFile) {
                 return;
+            }
+            
+            // For newly created files, handle them specially
+            if (isNewlyCreatedFile && file.parent) {
+                // Check if we've already revealed this file
+                if (!revealedFilesRef.current.has(file.path)) {
+                    revealedFilesRef.current.add(file.path);
+                    
+                    // Store the current interaction time to prevent interference
+                    navigatorInteractionRef.current = Date.now();
+                    
+                    // Always reveal newly created files
+                    selectionDispatch({ type: 'REVEAL_FILE', file });
+                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                    
+                    // Cleanup tracking after creation flag timeout
+                    setTimeout(() => {
+                        revealedFilesRef.current.delete(file.path);
+                    }, 1000);
+                }
+                return; // Don't process normal reveal logic for new files
             }
             
             // Always update selected file if it's different
@@ -411,6 +439,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                         }
                     }
                 }
+                
                 
                 // Only reveal if the file is not already visible in the current view
                 if (needsReveal && file.parent) {

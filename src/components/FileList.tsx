@@ -349,7 +349,13 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         // Listen to vault events that should trigger rebuild
         const events = [
             app.vault.on('create', (file) => {
-                if (isTFile(file)) debouncedRebuild();
+                if (isTFile(file)) {
+                    // Only rebuild if the created file is in the current folder or if we're in tag view
+                    if (selectionType === 'tag' || 
+                        (selectionType === 'folder' && selectedFolder && file.parent?.path === selectedFolder.path)) {
+                        debouncedRebuild();
+                    }
+                }
             }),
             app.vault.on('delete', (file) => {
                 if (isTFile(file)) {
