@@ -205,6 +205,11 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         
         // Collapse left sidebar on mobile after opening file
         if (isMobile && app.workspace.leftSplit) {
+            // Scroll to top before collapsing to prevent virtualization issues
+            if (scrollContainerRef.current) {
+                scrollContainerRef.current.scrollTop = 0;
+            }
+            
             if (plugin.settings.debugMobile) {
                 // Log state before collapse
                 const scrollContainer = scrollContainerRef.current;
