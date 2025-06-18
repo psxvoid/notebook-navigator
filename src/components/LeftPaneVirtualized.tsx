@@ -32,19 +32,6 @@ export const LeftPaneVirtualized: React.FC = () => {
     const spacerHeight = isMobile ? 40 : 25; // More space on mobile
     // Removed: lastScrolledPath - no longer needed with predictive scrolling
     
-    // Track expanded folders size to detect expand/collapse actions on mobile
-    // This is a critical mobile-specific optimization that solves a UX problem:
-    // 
-    // Problem: On mobile, we want to scroll to the selected folder when returning
-    // from the file editor, but NOT when the user is just expanding/collapsing folders.
-    // Both actions trigger the same currentMobileView === 'list' condition.
-    // 
-    // Solution: Track the size of expandedFolders. If it changes, we know the user
-    // expanded/collapsed a folder and we should skip scrolling. If it stays the same,
-    // we're returning from the editor and should scroll to show the selected item.
-    // 
-    // Desktop doesn't need this because it scrolls on selection change, not view appearance.
-    const prevExpandedFoldersSize = useRef(isMobile ? expansionState.expandedFolders.size : 0);
     
     // Cache selected folder/tag path to avoid repeated property access
     const selectedPath = selectionState.selectionType === 'folder' && selectionState.selectedFolder 
@@ -233,6 +220,20 @@ export const LeftPaneVirtualized: React.FC = () => {
         containerRef: scrollContainerRef
     });
     
+    // On mobile, when this view becomes active, scroll to the selected item
+    useLayoutEffect(() => {
+        if (isMobile && uiState.currentMobileView === 'list' && selectedPath) {
+            const itemIndex = pathToIndex.get(selectedPath);
+            if (itemIndex !== undefined && itemIndex >= 0) {
+                debugLog.info('LeftPaneVirtualized: Mobile view became active, scrolling to selected item.', {
+                    path: selectedPath,
+                    index: itemIndex
+                });
+                uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: itemIndex });
+            }
+        }
+    }, [isMobile, uiState.currentMobileView, selectedPath, pathToIndex, uiDispatch]);
+    
     // Handle folder toggle
     const handleFolderToggle = useCallback((path: string) => {
         expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: path });
@@ -248,11 +249,12 @@ export const LeftPaneVirtualized: React.FC = () => {
         selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         
-        // Switch to files view on mobile with predictive scroll to first file
+        // Switch to files view on mobile
         if (isMobile) {
             uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
-            // Scroll to the first file (index 0) when switching to files view
-            uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: 0 });
+            // The scroll trigger in FileList.tsx will handle scrolling to the
+            // correct file (which will be the first file on a new folder selection).
+            // No explicit scroll dispatch is needed here anymore.
         }
     }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView]);
     
@@ -273,11 +275,12 @@ export const LeftPaneVirtualized: React.FC = () => {
         selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         
-        // Switch to files view on mobile with predictive scroll to first file
+        // Switch to files view on mobile
         if (isMobile) {
             uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
-            // Scroll to the first file (index 0) when switching to files view
-            uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: 0 });
+            // The scroll trigger in FileList.tsx will handle scrolling to the
+            // correct file (which will be the first file on a new tag selection).
+            // No explicit scroll dispatch is needed here anymore.
         }
     }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView, plugin.settings.debugMobile]);
     
