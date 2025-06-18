@@ -512,13 +512,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 expansionDispatch({ type: 'CLEANUP_DELETED_FOLDERS', existingPaths });
                 selectionDispatch({ type: 'CLEANUP_DELETED_FOLDER', deletedPath: file.path });
             } else if (file instanceof TFile) {
-                console.log('NotebookNavigator: File deletion detected', {
-                    file: file.path,
-                    fileParent: file.parent?.path,
-                    currentFolder: selectionState.selectedFolder?.path,
-                    autoReveal: plugin.settings.autoRevealActiveFile
-                });
-                
                 // Mark that we're deleting a file
                 isDeletingFileRef.current = true;
                 
@@ -531,7 +524,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 
                 // Clear the deletion flag after a short delay
                 setTimeout(() => {
-                    console.log('NotebookNavigator: Clearing deletion flag');
                     isDeletingFileRef.current = false;
                 }, 500);
                 

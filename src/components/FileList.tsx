@@ -257,12 +257,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     
     useEffect(() => {
         const rebuildFileList = () => {
-            console.log('FileList: Rebuilding file list', {
-                selectionType,
-                selectedFolder: selectedFolder?.path,
-                selectedTag
-            });
-            
             let allFiles: TFile[] = [];
             const excludedProperties = parseExcludedProperties(plugin.settings.excludedFiles);
 
@@ -364,21 +358,10 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                     const isInRoot = !file.path.includes('/');
                     const fileParentPath = isInRoot ? '/' : file.parent?.path;
                     
-                    console.log('FileList: Delete event', {
-                        deletedFile: file.path,
-                        fileParentPath,
-                        isInRoot,
-                        currentFolder: selectedFolder?.path,
-                        selectionType,
-                        willRebuild: selectionType === 'folder' && selectedFolder && 
-                            fileParentPath === selectedFolder.path
-                    });
-                    
                     // Only rebuild if the deleted file was in the current folder
                     // This handles the case where we stay in the same folder after deletion
                     if (selectionType === 'folder' && selectedFolder && 
                         fileParentPath === selectedFolder.path) {
-                        console.log('FileList: Triggering rebuild after delete');
                         debouncedRebuild();
                     }
                 }
