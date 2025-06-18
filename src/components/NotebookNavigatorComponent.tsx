@@ -73,6 +73,55 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Removed: scrollTo - no longer needed with centralized scroll logic
     const becomeActiveCountRef = useRef(0);
     
+    // --- START NEW CODE ---
+    // State to trigger scroll restoration effect
+    const [scrollRequest, setScrollRequest] = useState<{ view: 'list' | 'files', timestamp: number } | null>(null);
+
+    // This effect will run AFTER React has rendered, ensuring the DOM is stable
+    useEffect(() => {
+        if (!scrollRequest) return;
+
+        const { view } = scrollRequest;
+        const virtualizer = view === 'list'
+            ? leftPaneRef.current?.virtualizer
+            : fileListRef.current?.virtualizer;
+
+        if (!virtualizer) {
+            debugLog.warn('Scroll requested but virtualizer not available.');
+            return;
+        }
+
+        // A short timeout is still a good idea to let swipe animations finish.
+        const timer = setTimeout(() => {
+            debugLog.info(`Executing scroll request for view: ${view}`);
+            virtualizer.measure(); // Force re-measure now that the DOM is stable
+
+            requestAnimationFrame(() => {
+                let path: string | null = null;
+                let index = -1;
+
+                if (view === 'list' && selectionState.selectedFolder) {
+                    path = selectionState.selectedFolder.path;
+                    index = leftPaneRef.current?.getIndexOfPath(path) ?? -1;
+                } else if (view === 'files' && selectionState.selectedFile) {
+                    path = selectionState.selectedFile.path;
+                    index = fileListRef.current?.getIndexOfPath(path) ?? -1;
+                }
+
+                if (index !== -1) {
+                    debugLog.info(`Scrolling to ${path} at index ${index}.`);
+                    virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' });
+                } else {
+                    debugLog.warn(`Could not find index for path: ${path}`);
+                }
+            });
+        }, 100); // Increased timeout slightly to be safer.
+
+        return () => clearTimeout(timer);
+
+    }, [scrollRequest, selectionState.selectedFolder, selectionState.selectedFile]); // This effect runs whenever a new scroll is requested.
+    // --- END NEW CODE ---
+    
     // Only set up logging effects if debug is enabled
     useEffect(() => {
         if (Platform.isMobile && plugin.settings.debugMobile) {
@@ -206,57 +255,13 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             // A no-op update will increment the version and force a re-render
             updateSettings(settings => {});
         },
-        /**
-         * This is the new, robust implementation. It's called by the Obsidian view
-         * when the user swipes back to the plugin.
-         */
+        // --- MODIFIED handleBecomeActive ---
         handleBecomeActive: () => {
             if (!isMobile) return;
-
-            debugLog.info('NotebookNavigatorComponent: view became active.');
-
-            // Determine which pane is currently visible on mobile
-            const view = uiState.currentMobileView;
-            const scrollContainer = view === 'list' 
-                ? leftPaneRef.current?.scrollContainerRef
-                : fileListRef.current?.scrollContainerRef;
-            
-            const virtualizer = view === 'list' 
-                ? leftPaneRef.current?.virtualizer 
-                : fileListRef.current?.virtualizer;
-
-            if (!scrollContainer || !virtualizer) {
-                debugLog.warn('NotebookNavigatorComponent: Cannot restore scroll, container or virtualizer not ready.');
-                return;
-            }
-
-            // The key to the fix: wait a short moment for the container to regain its
-            // dimensions, then force the virtualizer to re-measure everything.
-            setTimeout(() => {
-                // Step 1: Force the virtualizer to measure its elements now that the container is visible.
-                virtualizer.measure();
-                debugLog.info(`NotebookNavigatorComponent: Forced remeasure on ${view} pane.`);
-
-                // Step 2: Use requestAnimationFrame to schedule the scroll for the next paint.
-                // This ensures all measurements from Step 1 have been processed by the browser.
-                requestAnimationFrame(() => {
-                    let path: string | null = null;
-                    let index = -1;
-
-                    if (view === 'list' && selectionState.selectedFolder) {
-                        path = selectionState.selectedFolder.path;
-                        index = leftPaneRef.current?.getIndexOfPath(path) ?? -1;
-                    } else if (view === 'files' && selectionState.selectedFile) {
-                        path = selectionState.selectedFile.path;
-                        index = fileListRef.current?.getIndexOfPath(path) ?? -1;
-                    }
-
-                    if (index !== -1) {
-                        debugLog.info(`NotebookNavigatorComponent: Scrolling to ${path} at index ${index}.`);
-                        virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' });
-                    }
-                });
-            }, 50); // A small 50ms delay is a pragmatic choice to ensure the swipe animation is complete.
+            // Instead of doing the work here, we just set a state to trigger our useEffect.
+            // This ensures the work happens within the React lifecycle.
+            debugLog.info(`NotebookNavigatorComponent: view became active, requesting scroll for ${uiState.currentMobileView} view.`);
+            setScrollRequest({ view: uiState.currentMobileView, timestamp: Date.now() });
         }
     }), [
         selectionDispatch, 
