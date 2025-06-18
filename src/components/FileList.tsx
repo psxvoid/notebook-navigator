@@ -789,10 +789,8 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         if (selectedFilePath) {
             const index = filePathToIndex.get(selectedFilePath);
             if (index !== undefined && index !== -1) {
-                // Small delay to ensure the list has rendered
-                setTimeout(() => {
-                    rowVirtualizer.scrollToIndex(index, { align: 'center' });
-                }, 50);
+                // Scroll immediately to prevent flicker
+                rowVirtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' });
             }
         }
     }, [selectedFilePath, filePathToIndex, rowVirtualizer]);
