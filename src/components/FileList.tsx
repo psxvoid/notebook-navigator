@@ -359,10 +359,17 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             }),
             app.vault.on('delete', (file) => {
                 if (isTFile(file)) {
-                    // Get parent folder - files in root have undefined parent
-                    // but root folder path is '/'
-                    const isInRoot = !file.path.includes('/');
-                    const fileParentPath = isInRoot ? '/' : file.parent?.path;
+                    // Get parent folder from the path since file.parent might be null after deletion
+                    // For files in root, the parent path is '/'
+                    let fileParentPath: string;
+                    const lastSlashIndex = file.path.lastIndexOf('/');
+                    if (lastSlashIndex === -1) {
+                        // File is in root
+                        fileParentPath = '/';
+                    } else {
+                        // Extract parent path from file path
+                        fileParentPath = file.path.substring(0, lastSlashIndex) || '/';
+                    }
                     
                     // Only rebuild if the deleted file was in the current folder
                     // This handles the case where we stay in the same folder after deletion
@@ -869,10 +876,14 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             const index = filePathToIndex.get(selectedFilePath);
             if (index !== undefined && index !== -1) {
                 // Scroll immediately to prevent flicker
-                rowVirtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' });
+                // Use center alignment on mobile for better visibility, auto on desktop
+                rowVirtualizer.scrollToIndex(index, { 
+                    align: isMobile ? 'center' : 'auto', 
+                    behavior: 'auto' 
+                });
             }
         }
-    }, [selectedFilePath, filePathToIndex, rowVirtualizer]);
+    }, [selectedFilePath, filePathToIndex, rowVirtualizer, isMobile]);
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
