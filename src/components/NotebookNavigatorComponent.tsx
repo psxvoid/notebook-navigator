@@ -19,8 +19,10 @@
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState } from 'react';
 import { TFile, TFolder, TAbstractFile, WorkspaceLeaf, debounce, Platform } from 'obsidian';
-import { LeftPaneVirtualized, LeftPaneHandle } from './LeftPaneVirtualized';
-import { FileList, FileListHandle } from './FileList';
+import { LeftPaneVirtualized } from './LeftPaneVirtualized';
+import { FileList } from './FileList';
+import type { LeftPaneHandle } from './LeftPaneVirtualized';
+import type { FileListHandle } from './FileList';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsUpdate } from '../context/SettingsContext';
@@ -36,6 +38,8 @@ import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { debugLog } from '../utils/debugLog';
 import { flattenFolderTree, findFolderIndex } from '../utils/treeFlattener';
 import { parseExcludedFolders } from '../utils/fileFilters';
+import { useVirtualScroller } from '../hooks/useVirtualScroller';
+import { Virtualizer } from '@tanstack/react-virtual';
 
 export interface NotebookNavigatorHandle {
     revealFile: (file: TFile) => void;
@@ -66,6 +70,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
     const leftPaneRef = useRef<LeftPaneHandle>(null);
     const fileListRef = useRef<FileListHandle>(null);
+    const { scrollTo } = useVirtualScroller();
     
     // Only set up logging effects if debug is enabled
     useEffect(() => {
@@ -123,13 +128,44 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
         revealFile: (file: TFile) => {
-            if (Platform.isMobile && plugin.settings.debugMobile) {
-                debugLog.debug('NotebookNavigatorComponent: revealFile called', { file: file.path });
+            if (!file.parent) return;
+
+            const doReveal = () => {
+                selectionDispatch({ type: 'REVEAL_FILE', file });
+                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                
+                // After the state is updated, find the new index and scroll
+                // Defer this to ensure the list has re-rendered with the new selection
+                setTimeout(() => {
+                    const folderIndex = leftPaneRef.current?.getIndexOfPath(file.parent!.path);
+                    if (folderIndex !== undefined && folderIndex !== -1) {
+                        scrollTo(leftPaneRef.current?.virtualizer, folderIndex);
+                    }
+                    const fileIndex = fileListRef.current?.getIndexOfPath(file.path);
+                    if (fileIndex !== undefined && fileIndex !== -1) {
+                        scrollTo(fileListRef.current?.virtualizer, fileIndex);
+                    }
+                }, 0);
+            };
+
+            // This part handles expanding the folders to make the file visible
+            const foldersToExpand: string[] = [];
+            let currentFolder: TFolder | null = file.parent;
+            while (currentFolder) {
+                foldersToExpand.unshift(currentFolder.path);
+                if (currentFolder.path === '/') break;
+                currentFolder = currentFolder.parent;
             }
-            // Simply dispatch the reveal action - effects will handle the rest
-            selectionDispatch({ type: 'REVEAL_FILE', file });
-            // ADD THIS: Explicitly set focus only when revealFile is called.
-            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+            
+            // Check if we need to expand any folders
+            const needsExpansion = foldersToExpand.some(path => !expansionState.expandedFolders.has(path));
+            if (needsExpansion) {
+                expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
+                // Allow expansion state to apply, then reveal
+                setTimeout(doReveal, 50);
+            } else {
+                doReveal();
+            }
         },
         focusFilePane: () => {
             if (Platform.isMobile && plugin.settings.debugMobile) {
@@ -144,25 +180,17 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             updateSettings(settings => {});
         },
         handleBecomeActive: () => {
-            if (isMobile) {
-                debugLog.info('NotebookNavigatorComponent: View became active, using direct scroll.');
-                const leftVirt = leftPaneRef.current?.virtualizer;
-                const rightVirt = fileListRef.current?.virtualizer;
-
-                if (uiState.currentMobileView === 'list' && leftVirt && selectionState.selectedFolder) {
-                    // Find the folder index in the flattened items
-                    const items = leftPaneRef.current?.items || [];
-                    const folderIndex = items.findIndex(item => 
-                        item.type === 'folder' && item.data.path === selectionState.selectedFolder?.path
-                    );
-                    if (folderIndex !== -1) {
-                        leftVirt.scrollToIndex(folderIndex, { align: 'center', behavior: 'auto' });
-                    }
-                } else if (uiState.currentMobileView === 'files' && rightVirt && selectionState.selectedFile) {
-                    const fileIndex = fileListRef.current?.getIndexOfFile(selectionState.selectedFile.path);
-                    if (fileIndex !== undefined && fileIndex !== -1) {
-                        rightVirt.scrollToIndex(fileIndex, { align: 'center', behavior: 'auto' });
-                    }
+            if (!isMobile) return;
+            
+            if (uiState.currentMobileView === 'list' && selectionState.selectedFolder) {
+                const index = leftPaneRef.current?.getIndexOfPath(selectionState.selectedFolder.path);
+                if (index !== undefined && index !== -1) {
+                    scrollTo(leftPaneRef.current?.virtualizer, index);
+                }
+            } else if (uiState.currentMobileView === 'files' && selectionState.selectedFile) {
+                const index = fileListRef.current?.getIndexOfPath(selectionState.selectedFile.path);
+                if (index !== undefined && index !== -1) {
+                    scrollTo(fileListRef.current?.virtualizer, index);
                 }
             }
         }
@@ -174,7 +202,10 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         isMobile,
         uiState.currentMobileView,
         selectionState.selectedFolder,
-        selectionState.selectedFile
+        selectionState.selectedFile,
+        expansionState.expandedFolders,
+        expansionDispatch,
+        scrollTo
     ]);
 
     // Handle file reveal - expand folders and scroll when a file is revealed
@@ -200,35 +231,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         }
     }, [selectionState.isRevealOperation, selectionState.selectedFolder, selectionState.selectedFile, expansionDispatch]);
     
-    // Separate effect to handle scrolling after expansion state updates
-    useEffect(() => {
-        if (selectionState.selectedFolder) {
-            // Defer the scroll calculation to next tick to ensure expansion state is updated
-            const timeoutId = setTimeout(() => {
-                // Calculate and dispatch scroll to folder
-                const vault = app.vault;
-                const root = vault.getRoot();
-                const rootFolders = plugin.settings.showRootFolder 
-                    ? [root]
-                    : root.children.filter(child => isTFolder(child)).sort((a, b) => a.name.localeCompare(b.name)) as TFolder[];
-                
-                // Use the current expansion state which now includes any newly expanded folders
-                const flattened = flattenFolderTree(
-                    rootFolders,
-                    expansionState.expandedFolders,
-                    parseExcludedFolders(plugin.settings.ignoreFolders || '')
-                );
-                
-                const folderIndex = findFolderIndex(flattened, selectionState.selectedFolder?.path || '');
-                if (folderIndex !== -1) {
-                    uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: folderIndex });
-                }
-            }, 0);
-            
-            return () => clearTimeout(timeoutId);
-        }
-    }, [selectionState.selectedFolder, expansionState.expandedFolders, uiDispatch, 
-        app.vault, plugin.settings.showRootFolder, plugin.settings.ignoreFolders]);
+    // REMOVED: Old scroll effect - now handled imperatively in revealFile
 
     // Handle focus/blur events to track when navigator has focus
     useEffect(() => {

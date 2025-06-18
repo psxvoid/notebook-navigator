@@ -143,8 +143,8 @@ function collectFilesFromFolder(folder: TFolder, includeSubfolders: boolean): TF
  * @returns A scrollable list of files grouped by date (if enabled) with empty state handling
  */
 export interface FileListHandle {
+    getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
-    getIndexOfFile: (path: string) => number;
 }
 
 export const FileList = forwardRef<FileListHandle>((props, ref) => {
@@ -553,11 +553,9 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     
     // Expose the virtualizer instance and file lookup method via the ref
     useImperativeHandle(ref, () => ({
-        virtualizer: rowVirtualizer,
-        getIndexOfFile: (path: string) => {
-            return filePathToIndex.get(path) ?? -1;
-        }
-    }), [rowVirtualizer, filePathToIndex]);
+        getIndexOfPath: (path: string) => filePathToIndex.get(path) ?? -1,
+        virtualizer: rowVirtualizer
+    }), [filePathToIndex, rowVirtualizer]);
     
     
     // Create a unique key for storing scroll state based on current selection
@@ -613,19 +611,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     // REMOVED: State-driven scroll effect - now handled imperatively via ref
     
     
-    // Scroll to selected file when it changes (e.g., from REVEAL_FILE action)
-    useEffect(() => {
-        if (selectedFilePath) {
-            const fileIndex = filePathToIndex.get(selectedFilePath);
-            if (fileIndex !== undefined && fileIndex >= 0) {
-                // Dispatch scroll to the selected file
-                uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: fileIndex });
-            }
-        } else {
-            // No file selected, scroll to top
-            uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: 0 });
-        }
-    }, [selectedFilePath, filePathToIndex, uiDispatch]);
+    // REMOVED: Scroll to selected file effect - now handled imperatively via ref
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({

@@ -22,8 +22,8 @@ import { ErrorBoundary } from './ErrorBoundary';
 import { debugLog } from '../utils/debugLog';
 
 export interface LeftPaneHandle {
+    getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
-    items: CombinedLeftPaneItem[];
 }
 
 export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
@@ -256,14 +256,6 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
         overscan: 10,
     });
     
-    // Expose the virtualizer instance and items via the ref
-    useImperativeHandle(ref, () => ({
-        virtualizer: rowVirtualizer,
-        items: items
-    }), [rowVirtualizer, items]);
-    
-    // REMOVED: State-driven scroll effect - now handled imperatively via ref
-    
     // Create a map for O(1) item lookups
     const pathToIndex = useMemo(() => {
         const map = new Map<string, number>();
@@ -277,6 +269,12 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
         });
         return map;
     }, [items]);
+    
+    // Expose the virtualizer instance and path lookup method via the ref
+    useImperativeHandle(ref, () => ({
+        getIndexOfPath: (path: string) => pathToIndex.get(path) ?? -1,
+        virtualizer: rowVirtualizer
+    }), [pathToIndex, rowVirtualizer]);
 
     // REMOVED: Complex mobile scroll logic
     // Mobile scrolling is now handled through predictive SCROLL_TO_FOLDER_INDEX actions

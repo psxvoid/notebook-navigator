@@ -222,7 +222,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                                 const parentItem = safeGetItem(items, parentIndex);
                                 if (parentItem) {
                                     selectItemAtIndex(parentItem);
-                                    uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: parentIndex });
+                                    // Scrolling now handled by virtualizer.scrollToIndex
                                 }
                             }
                         }
@@ -244,7 +244,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                                     const parentItem = safeGetItem(items, parentIndex);
                                     if (parentItem) {
                                         selectItemAtIndex(parentItem);
-                                        uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: parentIndex });
+                                        // Scrolling now handled by virtualizer.scrollToIndex
                                     }
                                 }
                             }
@@ -306,12 +306,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 selectItemAtIndex(item);
             }
             
-            // Dispatch state-driven scroll action
-            if (focusedPane === 'folders') {
-                uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: targetIndex });
-            } else {
-                uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: targetIndex });
-            }
+            // Scroll directly using virtualizer
+            virtualizer.scrollToIndex(targetIndex, {
+                align: 'auto',
+                behavior: 'auto'
+            });
         }
     }, [items, virtualizer, focusedPane, selectionState, expansionState, selectionDispatch, expansionDispatch, uiState, uiDispatch, plugin, app, isMobile]);
     

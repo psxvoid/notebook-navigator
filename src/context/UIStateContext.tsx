@@ -17,19 +17,15 @@ interface UIState {
     focusedPane: 'folders' | 'files';
     currentMobileView: 'list' | 'files';
     paneWidth: number;
-    scrollToFolderIndex: number | null;
-    scrollToFileIndex: number | null;
-    activeViewScrollTrigger: number; // New trigger
+    // REMOVED: scrollToFolderIndex, scrollToFileIndex, activeViewScrollTrigger
 }
 
 // Action types
 type UIAction = 
     | { type: 'SET_FOCUSED_PANE'; pane: 'folders' | 'files' }
     | { type: 'SET_MOBILE_VIEW'; view: 'list' | 'files' }
-    | { type: 'SET_PANE_WIDTH'; width: number }
-    | { type: 'SCROLL_TO_FOLDER_INDEX'; index: number | null }
-    | { type: 'SCROLL_TO_FILE_INDEX'; index: number | null }
-    | { type: 'TRIGGER_ACTIVE_VIEW_SCROLL' }; // New action
+    | { type: 'SET_PANE_WIDTH'; width: number };
+    // REMOVED: All scroll-related actions
 
 // Create contexts
 const UIStateContext = createContext<UIState | null>(null);
@@ -46,15 +42,6 @@ function uiStateReducer(state: UIState, action: UIAction): UIState {
         
         case 'SET_PANE_WIDTH':
             return { ...state, paneWidth: action.width };
-        
-        case 'SCROLL_TO_FOLDER_INDEX':
-            return { ...state, scrollToFolderIndex: action.index };
-        
-        case 'SCROLL_TO_FILE_INDEX':
-            return { ...state, scrollToFileIndex: action.index };
-        
-        case 'TRIGGER_ACTIVE_VIEW_SCROLL':
-            return { ...state, activeViewScrollTrigger: state.activeViewScrollTrigger + 1 };
         
         default:
             return state;
@@ -76,10 +63,8 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         return {
             focusedPane: 'folders',
             currentMobileView: 'list',
-            paneWidth: Math.max(PANE_DIMENSIONS.MIN_WIDTH, Math.min(paneWidth, PANE_DIMENSIONS.MAX_WIDTH)),
-            scrollToFolderIndex: null,
-            scrollToFileIndex: null,
-            activeViewScrollTrigger: 0 // New property
+            paneWidth: Math.max(PANE_DIMENSIONS.MIN_WIDTH, Math.min(paneWidth, PANE_DIMENSIONS.MAX_WIDTH))
+            // REMOVED: scroll properties
         };
     };
     
