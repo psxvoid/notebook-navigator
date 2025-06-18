@@ -554,7 +554,8 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         return map;
     }, [listItems]);
     
-    // Track visibility changes and trigger pending scroll actions
+    // REMOVED: Complex observer logic. Scroll restoration is now handled by NotebookNavigatorComponent
+    /* Removed observer effect
     useEffect(() => {
         if (!isMobile || !scrollContainerRef.current) return;
         
@@ -672,6 +673,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             resizeObserver.disconnect();
         };
     }, [isMobile, plugin.settings.debugMobile, selectedFilePath, uiState.currentMobileView, filePathToIndex]);
+    */
     
     // Initialize virtualizer
     const rowVirtualizer = useVirtualizer({
@@ -823,7 +825,8 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         return index >= 0 && index < array.length ? array[index] : undefined;
     };
     
-    // Separate effect to handle view activation scrolling with proper measurement
+    // REMOVED: View activation effect. Scroll restoration is now handled by NotebookNavigatorComponent
+    /* Removed view activation effect
     useEffect(() => {
         if (!isMobile || !scrollContainerRef.current) return;
         if (uiState.currentMobileView !== 'files') return;
@@ -863,6 +866,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         
         return () => clearTimeout(timer);
     }, [uiState.currentMobileView, isMobile, selectedFilePath, filePathToIndex, rowVirtualizer, plugin.settings.debugMobile]);
+    */
     
     // Early returns MUST come after all hooks
     if (!selectedFolder && !selectedTag) {

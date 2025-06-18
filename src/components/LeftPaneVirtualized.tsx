@@ -25,7 +25,6 @@ export interface LeftPaneHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
     scrollContainerRef: HTMLDivElement | null;
-    lastScrollPosition?: number;
 }
 
 export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
@@ -37,9 +36,8 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-    const lastScrollPositionRef = useRef(0);
+    // Removed: lastScrollPositionRef and savedScrollTopRef - no longer needed with centralized scroll restoration
     const spacerHeight = isMobile ? 40 : 25; // More space on mobile
-    const savedScrollTopRef = useRef(0);
     // Removed: lastScrolledPath - no longer needed with predictive scrolling
     
     
@@ -296,167 +294,12 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
     useImperativeHandle(ref, () => ({
         getIndexOfPath: (path: string) => pathToIndex.get(path) ?? -1,
         virtualizer: rowVirtualizer,
-        scrollContainerRef: scrollContainerRef.current,
-        lastScrollPosition: lastScrollPositionRef.current
+        scrollContainerRef: scrollContainerRef.current
     }), [pathToIndex, rowVirtualizer]);
 
-    // Track visibility changes and trigger pending scroll actions
-    useEffect(() => {
-        if (!isMobile || !scrollContainerRef.current) return;
-        
-        const container = scrollContainerRef.current;
-        let lastVisibleState = container.offsetParent !== null;
-        let hasPendingScroll = false;
-        let pendingScrollPath: string | null = null;
-        
-        // Function to check and execute pending scroll
-        const checkPendingScroll = () => {
-            if (hasPendingScroll && pendingScrollPath) {
-                const index = pathToIndex.get(pendingScrollPath);
-                if (index !== undefined && index !== -1) {
-                    debugLog.info('LeftPaneVirtualized: Executing pending scroll after visibility', {
-                        path: pendingScrollPath,
-                        index
-                    });
-                    rowVirtualizer.scrollToIndex(index, { align: 'center' });
-                    hasPendingScroll = false;
-                    pendingScrollPath = null;
-                }
-            }
-        };
-        
-        // Create an observer to detect when the container becomes visible/hidden
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const isVisible = entry.isIntersecting && entry.intersectionRatio > 0;
-                const hasSize = entry.boundingClientRect.width > 0 && entry.boundingClientRect.height > 0;
-                
-                if (plugin.settings.debugMobile) {
-                    debugLog.info('LeftPaneVirtualized: Visibility changed', {
-                        isIntersecting: entry.isIntersecting,
-                        intersectionRatio: entry.intersectionRatio,
-                        hasSize,
-                        boundingRect: {
-                            width: entry.boundingClientRect.width,
-                            height: entry.boundingClientRect.height
-                        },
-                        scrollHeight: container.scrollHeight,
-                        offsetHeight: container.offsetHeight,
-                        offsetParent: container.offsetParent !== null
-                    });
-                }
-                
-                // Detect transition from not visible to visible
-                if (isVisible && hasSize && !lastVisibleState) {
-                    if (plugin.settings.debugMobile) {
-                        debugLog.info('LeftPaneVirtualized: Container became visible', {
-                            scrollTop: container.scrollTop,
-                            scrollHeight: container.scrollHeight,
-                            offsetHeight: container.offsetHeight,
-                            hasPendingScroll
-                        });
-                    }
-                    
-                    // Execute any pending scroll action immediately
-                    checkPendingScroll();
-                }
-                
-                lastVisibleState = isVisible && hasSize;
-            });
-        }, {
-            threshold: [0, 0.1, 0.5, 1.0] // Multiple thresholds to catch partial visibility
-        });
-        
-        observer.observe(container);
-        
-        // Also observe resize events
-        const resizeObserver = new ResizeObserver((entries) => {
-            entries.forEach(entry => {
-                if (plugin.settings.debugMobile) {
-                    debugLog.info('LeftPaneVirtualized: Container resized', {
-                        width: entry.contentRect.width,
-                        height: entry.contentRect.height,
-                        scrollHeight: container.scrollHeight,
-                        offsetHeight: container.offsetHeight
-                    });
-                }
-                
-                // Check if we now have size and should scroll
-                if (entry.contentRect.height > 0) {
-                    checkPendingScroll();
-                }
-            });
-        });
-        
-        resizeObserver.observe(container);
-        
-        // Mark that we need to scroll when selection changes
-        if (selectedPath && uiState.currentMobileView === 'list') {
-            const index = pathToIndex.get(selectedPath);
-            if (index !== undefined && index !== -1) {
-                hasPendingScroll = true;
-                pendingScrollPath = selectedPath;
-                debugLog.info('LeftPaneVirtualized: Marking pending scroll', {
-                    path: selectedPath,
-                    index,
-                    containerVisible: container.offsetParent !== null
-                });
-                
-                // If container is already visible, execute immediately
-                if (container.offsetParent !== null && container.offsetHeight > 0) {
-                    checkPendingScroll();
-                }
-            }
-        }
-        
-        // The actual scroll handling is done in a separate effect below
-        
-        return () => {
-            observer.disconnect();
-            resizeObserver.disconnect();
-        };
-    }, [isMobile, plugin.settings.debugMobile, selectedPath, uiState.currentMobileView, items, rowVirtualizer, pathToIndex]);
+    // REMOVED: Complex observer logic. Scroll restoration is now handled by NotebookNavigatorComponent
     
-    // Separate effect to handle view activation scrolling with proper measurement
-    useEffect(() => {
-        if (!isMobile || !scrollContainerRef.current) return;
-        if (uiState.currentMobileView !== 'list') return;
-        
-        const container = scrollContainerRef.current;
-        
-        // Add a small delay to ensure the view is fully transitioned
-        const timer = setTimeout(() => {
-            if (container.offsetParent === null || container.offsetHeight === 0) {
-                debugLog.info('LeftPaneVirtualized: Container not ready for scroll on view activation');
-                return;
-            }
-            
-            // Force virtualizer to fully remeasure
-            rowVirtualizer.measure();
-            
-            // Trigger a DOM reflow to ensure measurements are up to date
-            const _forceReflow = container.offsetHeight;
-            
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    if (selectedPath) {
-                        const index = pathToIndex.get(selectedPath);
-                        if (index !== undefined && index !== -1) {
-                            debugLog.info('LeftPaneVirtualized: View activated, forcing scroll', {
-                                path: selectedPath,
-                                index,
-                                containerHeight: container.offsetHeight,
-                                scrollHeight: container.scrollHeight
-                            });
-                            rowVirtualizer.scrollToIndex(index, { align: 'center' });
-                        }
-                    }
-                });
-            });
-        }, 50); // Small delay to ensure view transition is complete
-        
-        return () => clearTimeout(timer);
-    }, [uiState.currentMobileView, isMobile, selectedPath, pathToIndex, rowVirtualizer]);
+    // REMOVED: View activation effect. Scroll restoration is now handled by NotebookNavigatorComponent
 
     // REMOVED: Complex mobile scroll logic
     // Mobile scrolling is now handled through predictive SCROLL_TO_FOLDER_INDEX actions
@@ -464,7 +307,8 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
     // REMOVED: Old desktop scroll effect  
     // Desktop scrolling is now handled through predictive SCROLL_TO_FOLDER_INDEX actions
     
-    // Track scroll position
+    // REMOVED: Scroll position tracking. No longer needed with centralized scroll restoration
+    /* Removed scroll tracking
     useEffect(() => {
         const container = scrollContainerRef.current;
         if (!container) return;
@@ -488,8 +332,10 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
         container.addEventListener('scroll', handleScroll);
         return () => container.removeEventListener('scroll', handleScroll);
     }, [plugin.settings.debugMobile]);
+    */
     
-    // Save/restore scroll position when visibility changes on mobile
+    // REMOVED: Scroll position restore. Now handled by NotebookNavigatorComponent
+    /* Removed scroll restore
     useEffect(() => {
         if (!isMobile) return;
         
@@ -511,6 +357,7 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
             });
         }
     }, [isMobile, uiState.currentMobileView]);
+    */
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({

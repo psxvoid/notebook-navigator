@@ -38,7 +38,7 @@ import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { debugLog } from '../utils/debugLog';
 import { flattenFolderTree, findFolderIndex } from '../utils/treeFlattener';
 import { parseExcludedFolders } from '../utils/fileFilters';
-import { useVirtualScroller } from '../hooks/useVirtualScroller';
+// Removed: useVirtualScroller - scroll logic is now centralized in handleBecomeActive
 import { Virtualizer } from '@tanstack/react-virtual';
 
 export interface NotebookNavigatorHandle {
@@ -70,7 +70,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
     const leftPaneRef = useRef<LeftPaneHandle>(null);
     const fileListRef = useRef<FileListHandle>(null);
-    const { scrollTo } = useVirtualScroller();
+    // Removed: scrollTo - no longer needed with centralized scroll logic
     const becomeActiveCountRef = useRef(0);
     
     // Only set up logging effects if debug is enabled
@@ -100,7 +100,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                     folder: selectionState.selectedFolder.path,
                     index
                 });
-                scrollTo(leftPaneRef.current?.virtualizer, index);
+                leftPaneRef.current?.virtualizer?.scrollToIndex(index, { align: 'center' });
             }
         } else if (uiState.currentMobileView === 'files' && selectionState.selectedFile) {
             const index = fileListRef.current?.getIndexOfPath(selectionState.selectedFile.path);
@@ -109,7 +109,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                     file: selectionState.selectedFile.path,
                     index
                 });
-                scrollTo(fileListRef.current?.virtualizer, index);
+                fileListRef.current?.virtualizer?.scrollToIndex(index, { align: 'center' });
             }
         }
     }, [isMobile, uiState.currentMobileView]); // Trigger when mobile view changes
@@ -166,11 +166,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 setTimeout(() => {
                     const folderIndex = leftPaneRef.current?.getIndexOfPath(file.parent!.path);
                     if (folderIndex !== undefined && folderIndex !== -1) {
-                        scrollTo(leftPaneRef.current?.virtualizer, folderIndex);
+                        leftPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: 'center' });
                     }
                     const fileIndex = fileListRef.current?.getIndexOfPath(file.path);
                     if (fileIndex !== undefined && fileIndex !== -1) {
-                        scrollTo(fileListRef.current?.virtualizer, fileIndex);
+                        fileListRef.current?.virtualizer?.scrollToIndex(fileIndex, { align: 'center' });
                     }
                 }, 0);
             };
@@ -206,146 +206,57 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             // A no-op update will increment the version and force a re-render
             updateSettings(settings => {});
         },
+        /**
+         * This is the new, robust implementation. It's called by the Obsidian view
+         * when the user swipes back to the plugin.
+         */
         handleBecomeActive: () => {
-            becomeActiveCountRef.current++;
-            const now = Date.now();
-            const lastCallTime = (window as any).lastBecomeActiveCall || 0;
-            const timeSinceLastCall = now - lastCallTime;
-            
-            debugLog.info('NotebookNavigatorComponent: handleBecomeActive called', {
-                isMobile,
-                currentMobileView: uiState.currentMobileView,
-                hasSelectedFolder: !!selectionState.selectedFolder,
-                hasSelectedFile: !!selectionState.selectedFile,
-                timestamp: now,
-                callCount: becomeActiveCountRef.current,
-                timeSinceLastCall
-            });
-            
             if (!isMobile) return;
+
+            debugLog.info('NotebookNavigatorComponent: view became active.');
+
+            // Determine which pane is currently visible on mobile
+            const view = uiState.currentMobileView;
+            const scrollContainer = view === 'list' 
+                ? leftPaneRef.current?.scrollContainerRef
+                : fileListRef.current?.scrollContainerRef;
             
-            // Prevent rapid successive calls (within 100ms)
-            if (timeSinceLastCall < 100 && lastCallTime > 0) {
-                debugLog.info('NotebookNavigatorComponent: Skipping rapid call', {
-                    timeSinceLastCall,
-                    callCount: becomeActiveCountRef.current
-                });
+            const virtualizer = view === 'list' 
+                ? leftPaneRef.current?.virtualizer 
+                : fileListRef.current?.virtualizer;
+
+            if (!scrollContainer || !virtualizer) {
+                debugLog.warn('NotebookNavigatorComponent: Cannot restore scroll, container or virtualizer not ready.');
                 return;
             }
-            
-            (window as any).lastBecomeActiveCall = now;
-            
-            // Function to check if container is visible and has dimensions
-            const isContainerReady = (container: HTMLElement | null): boolean => {
-                if (!container) return false;
-                // On mobile, containers might be transitioning, so be more lenient
-                const hasSize = container.offsetHeight > 0 || container.clientHeight > 0;
-                const hasScrollContent = container.scrollHeight > 0;
-                const isVisible = container.offsetParent !== null || 
-                                container.getBoundingClientRect().width > 0;
-                return hasSize && hasScrollContent && isVisible;
-            };
-            
-            // Function to attempt scrolling with retry logic
-            const attemptScroll = (retryCount = 0) => {
-                const maxRetries = 10;
-                const baseDelay = 50;
-                const retryDelay = baseDelay + (retryCount * 50); // Progressive delay: 50, 100, 150...
-                
-                const view = uiState.currentMobileView;
-                const scrollContainer = view === 'list'
-                    ? leftPaneRef.current?.scrollContainerRef
-                    : fileListRef.current?.scrollContainerRef;
-                const virtualizer = view === 'list'
-                    ? leftPaneRef.current?.virtualizer
-                    : fileListRef.current?.virtualizer;
-                
-                debugLog.info(`NotebookNavigatorComponent: Attempt ${retryCount + 1} to scroll`, {
-                    view,
-                    hasContainer: !!scrollContainer,
-                    hasVirtualizer: !!virtualizer,
-                    containerReady: isContainerReady(scrollContainer || null)
-                });
-                
-                if (!scrollContainer || !virtualizer) {
-                    debugLog.warn('NotebookNavigatorComponent: Missing container or virtualizer', {
-                        view,
-                        hasContainer: !!scrollContainer,
-                        hasVirtualizer: !!virtualizer
-                    });
-                    return;
-                }
-                
-                // Check if container is ready
-                if (!isContainerReady(scrollContainer)) {
-                    if (retryCount < maxRetries) {
-                        debugLog.info('NotebookNavigatorComponent: Container not ready, scheduling retry', {
-                            retryCount,
-                            nextDelay: retryDelay * (retryCount + 1),
-                            scrollHeight: scrollContainer.scrollHeight,
-                            offsetHeight: scrollContainer.offsetHeight,
-                            isVisible: scrollContainer.offsetParent !== null
-                        });
-                        setTimeout(() => attemptScroll(retryCount + 1), retryDelay * (retryCount + 1));
-                        return;
-                    } else {
-                        debugLog.error('NotebookNavigatorComponent: Max retries reached, container still not ready');
-                        return;
-                    }
-                }
-                
-                // Container is ready, log state and perform scroll
-                debugLog.info('NotebookNavigatorComponent: Container ready, proceeding with scroll', {
-                    view,
-                    scrollTop: scrollContainer.scrollTop,
-                    scrollHeight: scrollContainer.scrollHeight,
-                    offsetHeight: scrollContainer.offsetHeight,
-                    clientHeight: scrollContainer.clientHeight,
-                    isVisible: scrollContainer.offsetParent !== null,
-                    virtualizerItemCount: virtualizer.options.count || 0,
-                    retryCount
-                });
-                
-                // Force virtualizer to remeasure all items
+
+            // The key to the fix: wait a short moment for the container to regain its
+            // dimensions, then force the virtualizer to re-measure everything.
+            setTimeout(() => {
+                // Step 1: Force the virtualizer to measure its elements now that the container is visible.
                 virtualizer.measure();
-                
-                // Use requestAnimationFrame to ensure DOM has settled
+                debugLog.info(`NotebookNavigatorComponent: Forced remeasure on ${view} pane.`);
+
+                // Step 2: Use requestAnimationFrame to schedule the scroll for the next paint.
+                // This ensures all measurements from Step 1 have been processed by the browser.
                 requestAnimationFrame(() => {
-                    // Double RAF to ensure we're after the next paint
-                    requestAnimationFrame(() => {
-                        if (view === 'list' && selectionState.selectedFolder) {
-                            const index = leftPaneRef.current?.getIndexOfPath(selectionState.selectedFolder.path);
-                            debugLog.info('NotebookNavigatorComponent: Scrolling to folder after RAF', {
-                                folder: selectionState.selectedFolder.path,
-                                index,
-                                hasVirtualizer: !!leftPaneRef.current?.virtualizer,
-                                retryCount,
-                                scrollTop: scrollContainer.scrollTop
-                            });
-                            if (index !== undefined && index !== -1) {
-                                // Force scroll even if virtualizer thinks we're already there
-                                leftPaneRef.current?.virtualizer?.scrollToIndex(index, { align: 'center' });
-                            }
-                        } else if (view === 'files' && selectionState.selectedFile) {
-                            const index = fileListRef.current?.getIndexOfPath(selectionState.selectedFile.path);
-                            debugLog.info('NotebookNavigatorComponent: Scrolling to file after RAF', {
-                                file: selectionState.selectedFile.path,
-                                index,
-                                hasVirtualizer: !!fileListRef.current?.virtualizer,
-                                retryCount,
-                                scrollTop: scrollContainer.scrollTop
-                            });
-                            if (index !== undefined && index !== -1) {
-                                // Force scroll even if virtualizer thinks we're already there
-                                fileListRef.current?.virtualizer?.scrollToIndex(index, { align: 'center' });
-                            }
-                        }
-                    });
+                    let path: string | null = null;
+                    let index = -1;
+
+                    if (view === 'list' && selectionState.selectedFolder) {
+                        path = selectionState.selectedFolder.path;
+                        index = leftPaneRef.current?.getIndexOfPath(path) ?? -1;
+                    } else if (view === 'files' && selectionState.selectedFile) {
+                        path = selectionState.selectedFile.path;
+                        index = fileListRef.current?.getIndexOfPath(path) ?? -1;
+                    }
+
+                    if (index !== -1) {
+                        debugLog.info(`NotebookNavigatorComponent: Scrolling to ${path} at index ${index}.`);
+                        virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' });
+                    }
                 });
-            };
-            
-            // Start the scroll attempt immediately
-            attemptScroll(0);
+            }, 50); // A small 50ms delay is a pragmatic choice to ensure the swipe animation is complete.
         }
     }), [
         selectionDispatch, 
@@ -358,7 +269,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         selectionState.selectedFile,
         expansionState.expandedFolders,
         expansionDispatch,
-        scrollTo
     ]);
 
     // Handle file reveal - expand folders and scroll when a file is revealed
