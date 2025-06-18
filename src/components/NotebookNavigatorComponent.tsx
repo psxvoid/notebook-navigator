@@ -18,7 +18,7 @@
 
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState } from 'react';
-import { TFile, TFolder, TAbstractFile, WorkspaceLeaf, debounce, Platform } from 'obsidian';
+import { TFile, TFolder, TAbstractFile, WorkspaceLeaf, debounce, Platform, ItemView } from 'obsidian';
 import { LeftPaneVirtualized } from './LeftPaneVirtualized';
 import { FileList } from './FileList';
 import type { LeftPaneHandle } from './LeftPaneVirtualized';
@@ -71,6 +71,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const leftPaneRef = useRef<LeftPaneHandle>(null);
     const fileListRef = useRef<FileListHandle>(null);
     const { scrollTo } = useVirtualScroller();
+    const becomeActiveCountRef = useRef(0);
     
     // Only set up logging effects if debug is enabled
     useEffect(() => {
@@ -206,34 +207,106 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             updateSettings(settings => {});
         },
         handleBecomeActive: () => {
+            becomeActiveCountRef.current++;
+            const now = Date.now();
+            const lastCallTime = (window as any).lastBecomeActiveCall || 0;
+            const timeSinceLastCall = now - lastCallTime;
+            
             debugLog.info('NotebookNavigatorComponent: handleBecomeActive called', {
                 isMobile,
                 currentMobileView: uiState.currentMobileView,
                 hasSelectedFolder: !!selectionState.selectedFolder,
-                hasSelectedFile: !!selectionState.selectedFile
+                hasSelectedFile: !!selectionState.selectedFile,
+                timestamp: now,
+                callCount: becomeActiveCountRef.current,
+                timeSinceLastCall
             });
             
             if (!isMobile) return;
             
-            if (uiState.currentMobileView === 'list' && selectionState.selectedFolder) {
-                const index = leftPaneRef.current?.getIndexOfPath(selectionState.selectedFolder.path);
-                debugLog.info('NotebookNavigatorComponent: Scrolling to folder', {
-                    folder: selectionState.selectedFolder.path,
-                    index
+            // Prevent rapid successive calls (within 100ms)
+            if (timeSinceLastCall < 100 && lastCallTime > 0) {
+                debugLog.info('NotebookNavigatorComponent: Skipping rapid call', {
+                    timeSinceLastCall,
+                    callCount: becomeActiveCountRef.current
                 });
-                if (index !== undefined && index !== -1) {
-                    scrollTo(leftPaneRef.current?.virtualizer, index);
-                }
-            } else if (uiState.currentMobileView === 'files' && selectionState.selectedFile) {
-                const index = fileListRef.current?.getIndexOfPath(selectionState.selectedFile.path);
-                debugLog.info('NotebookNavigatorComponent: Scrolling to file', {
-                    file: selectionState.selectedFile.path,
-                    index
-                });
-                if (index !== undefined && index !== -1) {
-                    scrollTo(fileListRef.current?.virtualizer, index);
-                }
+                return;
             }
+            
+            (window as any).lastBecomeActiveCall = now;
+            
+            // Use a timeout to ensure the DOM has had a chance to become visible
+            setTimeout(() => {
+                const view = uiState.currentMobileView;
+                const scrollContainer = view === 'list'
+                    ? leftPaneRef.current?.scrollContainerRef
+                    : fileListRef.current?.scrollContainerRef;
+                const virtualizer = view === 'list'
+                    ? leftPaneRef.current?.virtualizer
+                    : fileListRef.current?.virtualizer;
+                
+                if (scrollContainer) {
+                    // Log detailed state before any changes
+                    const timeSinceLastCall = becomeActiveCountRef.current > 1 
+                        ? Date.now() - (window as any).lastBecomeActiveTime || 0 
+                        : 0;
+                    (window as any).lastBecomeActiveTime = Date.now();
+                    
+                    debugLog.info('NotebookNavigatorComponent: Container state (BEFORE)', {
+                        view,
+                        scrollTop: scrollContainer.scrollTop,
+                        scrollHeight: scrollContainer.scrollHeight,
+                        offsetHeight: scrollContainer.offsetHeight,
+                        clientHeight: scrollContainer.clientHeight,
+                        isVisible: scrollContainer.offsetParent !== null,
+                        hasVirtualizer: !!virtualizer,
+                        virtualizerItemCount: virtualizer?.options.count || 0,
+                        timeSinceLastCall,
+                        callCount: becomeActiveCountRef.current
+                    });
+                    
+                    // Test the scroll reset theory
+                    const oldScrollTop = scrollContainer.scrollTop;
+                    scrollContainer.scrollTop = 0;
+                    
+                    debugLog.info('NotebookNavigatorComponent: Reset scrollTop', {
+                        view,
+                        oldScrollTop,
+                        newScrollTop: scrollContainer.scrollTop
+                    });
+                    
+                    // Nudge the virtualizer
+                    scrollContainer.dispatchEvent(new Event('scroll', { bubbles: true }));
+                    
+                    debugLog.info('NotebookNavigatorComponent: Container state (AFTER NUDGE)', {
+                        view,
+                        scrollTop: scrollContainer.scrollTop
+                    });
+                }
+                
+                // Now perform the scroll with fresh measurements
+                if (view === 'list' && selectionState.selectedFolder) {
+                    const index = leftPaneRef.current?.getIndexOfPath(selectionState.selectedFolder.path);
+                    debugLog.info('NotebookNavigatorComponent: Scrolling to folder', {
+                        folder: selectionState.selectedFolder.path,
+                        index,
+                        hasVirtualizer: !!leftPaneRef.current?.virtualizer
+                    });
+                    if (index !== undefined && index !== -1) {
+                        scrollTo(leftPaneRef.current?.virtualizer, index);
+                    }
+                } else if (view === 'files' && selectionState.selectedFile) {
+                    const index = fileListRef.current?.getIndexOfPath(selectionState.selectedFile.path);
+                    debugLog.info('NotebookNavigatorComponent: Scrolling to file', {
+                        file: selectionState.selectedFile.path,
+                        index,
+                        hasVirtualizer: !!fileListRef.current?.virtualizer
+                    });
+                    if (index !== undefined && index !== -1) {
+                        scrollTo(fileListRef.current?.virtualizer, index);
+                    }
+                }
+            }, 50); // 50ms delay
         }
     }), [
         selectionDispatch, 
@@ -315,6 +388,46 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
 
     // Track navigator interaction time for smarter auto-reveal
     const navigatorInteractionRef = useRef(0);
+    
+    // Track when the navigator is being hidden to ensure consistent state
+    useEffect(() => {
+        if (!isMobile) return;
+        
+        let hideCount = 0;
+        
+        const handleVisibilityChange = (leaf: WorkspaceLeaf | null) => {
+            if (!leaf) return;
+            
+            const isNavigatorView = leaf.view?.getViewType() === VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT;
+            const leftSplit = app.workspace.leftSplit;
+            
+            debugLog.info('NotebookNavigatorComponent: Active leaf changed', {
+                viewType: leaf.view?.getViewType(),
+                isNavigatorView,
+                leftSplitCollapsed: leftSplit?.collapsed,
+                hideCount
+            });
+            
+            // If we're switching away from navigator and sidebar is not collapsed
+            if (!isNavigatorView && leftSplit && !leftSplit.collapsed) {
+                hideCount++;
+                debugLog.info('NotebookNavigatorComponent: Navigator being hidden, calling collapse()', {
+                    hideCount,
+                    viewType: leaf.view?.getViewType()
+                });
+                
+                // Call collapse to ensure consistent state
+                leftSplit.collapse();
+            }
+        };
+        
+        // Listen to active leaf changes
+        const leafChangeRef = app.workspace.on('active-leaf-change', handleVisibilityChange);
+        
+        return () => {
+            app.workspace.offref(leafChangeRef);
+        };
+    }, [app.workspace, isMobile]);
     
     // Add this useEffect to handle active leaf changes and file-open events
     useEffect(() => {

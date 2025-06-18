@@ -145,6 +145,7 @@ function collectFilesFromFolder(folder: TFolder, includeSubfolders: boolean): TF
 export interface FileListHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
+    scrollContainerRef: HTMLDivElement | null;
 }
 
 export const FileList = forwardRef<FileListHandle>((props, ref) => {
@@ -205,12 +206,38 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         // Collapse left sidebar on mobile after opening file
         if (isMobile && app.workspace.leftSplit) {
             if (plugin.settings.debugMobile) {
+                // Log state before collapse
+                const scrollContainer = scrollContainerRef.current;
+                if (scrollContainer) {
+                    debugLog.info('FileList: State BEFORE collapse', {
+                        scrollTop: scrollContainer.scrollTop,
+                        scrollHeight: scrollContainer.scrollHeight,
+                        offsetHeight: scrollContainer.offsetHeight,
+                        isVisible: scrollContainer.offsetParent !== null
+                    });
+                }
+                
                 debugLog.info('FileList: Opening file in editor (collapsing sidebar)', {
                     file: file.path,
                     openInNewTab
                 });
             }
             app.workspace.leftSplit.collapse();
+            
+            // Log state after collapse
+            if (plugin.settings.debugMobile && scrollContainerRef.current) {
+                setTimeout(() => {
+                    const scrollContainer = scrollContainerRef.current;
+                    if (scrollContainer) {
+                        debugLog.info('FileList: State AFTER collapse', {
+                            scrollTop: scrollContainer.scrollTop,
+                            scrollHeight: scrollContainer.scrollHeight,
+                            offsetHeight: scrollContainer.offsetHeight,
+                            isVisible: scrollContainer.offsetParent !== null
+                        });
+                    }
+                }, 100);
+            }
         }
     }, [app.workspace, uiDispatch, isMobile]);
     
@@ -554,7 +581,8 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     // Expose the virtualizer instance and file lookup method via the ref
     useImperativeHandle(ref, () => ({
         getIndexOfPath: (path: string) => filePathToIndex.get(path) ?? -1,
-        virtualizer: rowVirtualizer
+        virtualizer: rowVirtualizer,
+        scrollContainerRef: scrollContainerRef.current
     }), [filePathToIndex, rowVirtualizer]);
     
     

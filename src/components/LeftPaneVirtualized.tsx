@@ -24,6 +24,7 @@ import { debugLog } from '../utils/debugLog';
 export interface LeftPaneHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
+    scrollContainerRef: HTMLDivElement | null;
 }
 
 export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
@@ -288,10 +289,11 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
         return map;
     }, [items]);
     
-    // Expose the virtualizer instance and path lookup method via the ref
+    // Expose the virtualizer instance, path lookup method, and scroll container via the ref
     useImperativeHandle(ref, () => ({
         getIndexOfPath: (path: string) => pathToIndex.get(path) ?? -1,
-        virtualizer: rowVirtualizer
+        virtualizer: rowVirtualizer,
+        scrollContainerRef: scrollContainerRef.current
     }), [pathToIndex, rowVirtualizer]);
 
     // REMOVED: Complex mobile scroll logic
