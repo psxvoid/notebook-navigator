@@ -784,8 +784,8 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     // REMOVED: State-driven scroll effect - now handled imperatively via ref
     
     
-    // Scroll to selected file when it changes
-    useEffect(() => {
+    // Scroll to selected file when it changes - use useLayoutEffect to happen before paint
+    useLayoutEffect(() => {
         if (selectedFilePath) {
             const index = filePathToIndex.get(selectedFilePath);
             if (index !== undefined && index !== -1) {
