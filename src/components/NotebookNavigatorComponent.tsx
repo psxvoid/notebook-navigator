@@ -32,7 +32,7 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useSwipeGesture } from '../hooks/useSwipeGesture';
-import { isTFolder } from '../utils/typeGuards';
+import { isTFile, isTFolder } from '../utils/typeGuards';
 import { STORAGE_KEYS, PANE_DIMENSIONS, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { debugLog } from '../utils/debugLog';
@@ -333,6 +333,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
 
     // Track navigator interaction time for smarter auto-reveal
     const navigatorInteractionRef = useRef(0);
+    const isDeletingFileRef = useRef(false);
     
     // Track when the navigator is being hidden to ensure consistent state
     useEffect(() => {
@@ -382,7 +383,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             if (!file) return;
             
             // Skip auto-reveal if navigator was recently interacted with (within 300ms)
-            if (Date.now() - navigatorInteractionRef.current < 300) {
+            // BUT allow it if we just deleted a file
+            if (Date.now() - navigatorInteractionRef.current < 300 && !isDeletingFileRef.current) {
                 return;
             }
             
@@ -510,7 +512,30 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 expansionDispatch({ type: 'CLEANUP_DELETED_FOLDERS', existingPaths });
                 selectionDispatch({ type: 'CLEANUP_DELETED_FOLDER', deletedPath: file.path });
             } else if (file instanceof TFile) {
-                selectionDispatch({ type: 'CLEANUP_DELETED_FILE', deletedPath: file.path });
+                console.log('NotebookNavigator: File deletion detected', {
+                    file: file.path,
+                    fileParent: file.parent?.path,
+                    currentFolder: selectionState.selectedFolder?.path,
+                    autoReveal: plugin.settings.autoRevealActiveFile
+                });
+                
+                // Mark that we're deleting a file
+                isDeletingFileRef.current = true;
+                
+                // Just cleanup the deleted file
+                selectionDispatch({ 
+                    type: 'CLEANUP_DELETED_FILE', 
+                    deletedPath: file.path,
+                    nextFileToSelect: null
+                });
+                
+                // Clear the deletion flag after a short delay
+                setTimeout(() => {
+                    console.log('NotebookNavigator: Clearing deletion flag');
+                    isDeletingFileRef.current = false;
+                }, 500);
+                
+                // Let auto-reveal handle the selection of the new active file
             }
         };
         
@@ -519,7 +544,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         return () => {
             app.vault.offref(deleteEventRef);
         };
-    }, [app.vault, expansionDispatch, selectionDispatch]);
+    }, [app.vault, expansionDispatch, selectionDispatch, selectionState, plugin.settings, isMobile]);
 
     // Determine CSS classes for mobile view state
     const containerClasses = ['nn-split-container'];
