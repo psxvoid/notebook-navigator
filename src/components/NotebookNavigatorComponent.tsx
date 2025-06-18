@@ -412,6 +412,24 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 
                 // Only reveal if the file is not already visible in the current view
                 if (needsReveal && file.parent) {
+                    // Create the same reveal logic as in revealFile
+                    const doReveal = () => {
+                        selectionDispatch({ type: 'REVEAL_FILE', file });
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                        
+                        // After the state is updated, find the new index and scroll
+                        setTimeout(() => {
+                            const folderIndex = leftPaneRef.current?.getIndexOfPath(file.parent!.path);
+                            if (folderIndex !== undefined && folderIndex !== -1) {
+                                leftPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: 'center' });
+                            }
+                            const fileIndex = fileListRef.current?.getIndexOfPath(file.path);
+                            if (fileIndex !== undefined && fileIndex !== -1) {
+                                fileListRef.current?.virtualizer?.scrollToIndex(fileIndex, { align: 'center' });
+                            }
+                        }, 0);
+                    };
+
                     const foldersToExpand: string[] = [];
                     let currentFolder: TFolder | null = file.parent;
                     while (currentFolder) {
@@ -419,8 +437,16 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                         if (currentFolder.path === '/') break;
                         currentFolder = currentFolder.parent;
                     }
-                    expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
-                    selectionDispatch({ type: 'REVEAL_FILE', file });
+                    
+                    // Check if we need to expand any folders
+                    const needsExpansion = foldersToExpand.some(path => !expansionState.expandedFolders.has(path));
+                    if (needsExpansion) {
+                        expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
+                        // Allow expansion state to apply, then reveal
+                        setTimeout(doReveal, 50);
+                    } else {
+                        doReveal();
+                    }
                 }
             }
         };

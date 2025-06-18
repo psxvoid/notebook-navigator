@@ -784,7 +784,18 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     // REMOVED: State-driven scroll effect - now handled imperatively via ref
     
     
-    // REMOVED: Scroll to selected file effect - now handled imperatively via ref
+    // Scroll to selected file when it changes
+    useEffect(() => {
+        if (selectedFilePath) {
+            const index = filePathToIndex.get(selectedFilePath);
+            if (index !== undefined && index !== -1) {
+                // Small delay to ensure the list has rendered
+                setTimeout(() => {
+                    rowVirtualizer.scrollToIndex(index, { align: 'center' });
+                }, 50);
+            }
+        }
+    }, [selectedFilePath, filePathToIndex, rowVirtualizer]);
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
