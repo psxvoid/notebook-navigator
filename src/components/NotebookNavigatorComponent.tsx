@@ -41,6 +41,7 @@ export interface NotebookNavigatorHandle {
     revealFile: (file: TFile) => void;
     focusFilePane: () => void;
     refresh: () => void;
+    handleBecomeActive: () => void;
 }
 
 /**
@@ -139,8 +140,14 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         refresh: () => {
             // A no-op update will increment the version and force a re-render
             updateSettings(settings => {});
+        },
+        handleBecomeActive: () => {
+            if (isMobile) {
+                debugLog.info('NotebookNavigatorComponent: View became active, dispatching scroll trigger.');
+                uiDispatch({ type: 'TRIGGER_ACTIVE_VIEW_SCROLL' });
+            }
         }
-    }), [selectionDispatch, uiDispatch, plugin.settings.debugMobile, updateSettings]);
+    }), [selectionDispatch, uiDispatch, plugin.settings.debugMobile, updateSettings, isMobile]);
 
     // Handle file reveal - expand folders and scroll when a file is revealed
     useEffect(() => {

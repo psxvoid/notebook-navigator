@@ -19,7 +19,7 @@ interface UIState {
     paneWidth: number;
     scrollToFolderIndex: number | null;
     scrollToFileIndex: number | null;
-    scrollToFolderTrigger: number;
+    activeViewScrollTrigger: number; // New trigger
 }
 
 // Action types
@@ -29,7 +29,7 @@ type UIAction =
     | { type: 'SET_PANE_WIDTH'; width: number }
     | { type: 'SCROLL_TO_FOLDER_INDEX'; index: number | null }
     | { type: 'SCROLL_TO_FILE_INDEX'; index: number | null }
-    | { type: 'TRIGGER_SCROLL_TO_FOLDER' };
+    | { type: 'TRIGGER_ACTIVE_VIEW_SCROLL' }; // New action
 
 // Create contexts
 const UIStateContext = createContext<UIState | null>(null);
@@ -53,8 +53,8 @@ function uiStateReducer(state: UIState, action: UIAction): UIState {
         case 'SCROLL_TO_FILE_INDEX':
             return { ...state, scrollToFileIndex: action.index };
         
-        case 'TRIGGER_SCROLL_TO_FOLDER':
-            return { ...state, scrollToFolderTrigger: state.scrollToFolderTrigger + 1 };
+        case 'TRIGGER_ACTIVE_VIEW_SCROLL':
+            return { ...state, activeViewScrollTrigger: state.activeViewScrollTrigger + 1 };
         
         default:
             return state;
@@ -79,7 +79,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
             paneWidth: Math.max(PANE_DIMENSIONS.MIN_WIDTH, Math.min(paneWidth, PANE_DIMENSIONS.MAX_WIDTH)),
             scrollToFolderIndex: null,
             scrollToFileIndex: null,
-            scrollToFolderTrigger: 0
+            activeViewScrollTrigger: 0 // New property
         };
     };
     

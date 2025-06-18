@@ -156,4 +156,11 @@ export class NotebookNavigatorView extends ItemView {
     refresh() {
         this.componentRef.current?.refresh();
     }
+    
+    /**
+     * Handles when the view becomes active (e.g., when returning from editor)
+     */
+    public handleViewBecomeActive() {
+        this.componentRef.current?.handleBecomeActive();
+    }
 }

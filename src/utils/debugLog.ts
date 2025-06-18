@@ -185,6 +185,10 @@ class DebugLogger {
         this.enabled = false;
     }
 
+    isLogFile(path: string): boolean {
+        return this.logFilePath !== null && path === this.logFilePath;
+    }
+
     private sanitizeData(data: any): any {
         try {
             // Create a copy to avoid any reference issues

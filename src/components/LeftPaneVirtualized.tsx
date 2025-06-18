@@ -174,23 +174,26 @@ export const LeftPaneVirtualized: React.FC = () => {
     
     // THIS IS THE ONLY SCROLL EFFECT - Predictive state-driven scrolling
     useLayoutEffect(() => {
-        // If the state has a valid index...
         if (uiState.scrollToFolderIndex !== null && uiState.scrollToFolderIndex >= 0 && rowVirtualizer) {
-            // ...then scroll to it immediately.
-            rowVirtualizer.scrollToIndex(uiState.scrollToFolderIndex, {
-                align: isMobile ? 'center' : 'auto', // Use 'auto' on desktop
-                behavior: 'auto' // 'auto' is crucial for instant, pre-paint scrolling
-            });
+            // Capture the index value to ensure it's available in the timeout
+            const targetIndex = uiState.scrollToFolderIndex;
+            
+            // Use setTimeout to defer the scroll until after the current render cycle.
+            // This gives the virtualizer time to register the layout changes of its container.
+            const timer = setTimeout(() => {
+                rowVirtualizer.scrollToIndex(targetIndex, {
+                    align: isMobile ? 'center' : 'auto',
+                    behavior: 'auto'
+                });
 
-            // Add a microtask to ensure the scroll completes before resetting
-            queueMicrotask(() => {
-                // Check if component is still mounted by verifying uiDispatch exists
-                if (uiDispatch) {
-                    uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: null });
-                }
-            });
+                // Reset the scroll index immediately after.
+                uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: null });
+            }, 0);
+
+            // Cleanup the timer if the component unmounts or dependencies change
+            return () => clearTimeout(timer);
         }
-    }, [uiState.scrollToFolderIndex, rowVirtualizer, uiDispatch, isMobile]); // Add isMobile dependency
+    }, [uiState.scrollToFolderIndex, rowVirtualizer, uiDispatch, isMobile]);
     
     // Create a map for O(1) item lookups
     const pathToIndex = useMemo(() => {
@@ -232,7 +235,7 @@ export const LeftPaneVirtualized: React.FC = () => {
                 uiDispatch({ type: 'SCROLL_TO_FOLDER_INDEX', index: itemIndex });
             }
         }
-    }, [isMobile, uiState.currentMobileView, selectedPath, pathToIndex, uiDispatch]);
+    }, [isMobile, uiState.currentMobileView, selectedPath, pathToIndex, uiDispatch, uiState.activeViewScrollTrigger]);
     
     // Handle folder toggle
     const handleFolderToggle = useCallback((path: string) => {

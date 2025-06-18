@@ -533,23 +533,26 @@ export function FileList() {
     
     // THIS IS THE ONLY SCROLL EFFECT - Predictive state-driven scrolling
     useLayoutEffect(() => {
-        // If the state has a valid index...
         if (uiState.scrollToFileIndex !== null && uiState.scrollToFileIndex >= 0 && rowVirtualizer) {
-            // ...then scroll to it immediately.
-            rowVirtualizer.scrollToIndex(uiState.scrollToFileIndex, {
-                align: isMobile ? 'center' : 'auto', // Use 'auto' on desktop
-                behavior: 'auto' // 'auto' is crucial for instant, pre-paint scrolling
-            });
+            // Capture the index value to ensure it's available in the timeout
+            const targetIndex = uiState.scrollToFileIndex;
+            
+            // Use setTimeout to defer the scroll until after the current render cycle.
+            // This gives the virtualizer time to register the layout changes of its container.
+            const timer = setTimeout(() => {
+                rowVirtualizer.scrollToIndex(targetIndex, {
+                    align: isMobile ? 'center' : 'auto',
+                    behavior: 'auto'
+                });
 
-            // Add a microtask to ensure the scroll completes before resetting
-            queueMicrotask(() => {
-                // Check if component is still mounted by verifying uiDispatch exists
-                if (uiDispatch) {
-                    uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: null });
-                }
-            });
+                // Reset the scroll index immediately after.
+                uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: null });
+            }, 0);
+
+            // Cleanup the timer if the component unmounts or dependencies change
+            return () => clearTimeout(timer);
         }
-    }, [uiState.scrollToFileIndex, rowVirtualizer, uiDispatch, isMobile]); // Add isMobile dependency
+    }, [uiState.scrollToFileIndex, rowVirtualizer, uiDispatch, isMobile]);
     
     
     // Scroll to selected file when it changes (e.g., from REVEAL_FILE action)
@@ -586,7 +589,7 @@ export function FileList() {
                 uiDispatch({ type: 'SCROLL_TO_FILE_INDEX', index: fileIndex });
             }
         }
-    }, [isMobile, uiState.currentMobileView, selectedFilePath, filePathToIndex, uiDispatch]);
+    }, [isMobile, uiState.currentMobileView, selectedFilePath, filePathToIndex, uiDispatch, uiState.activeViewScrollTrigger]);
     
     // Pre-calculate date field for all files in the group
     const dateField = useMemo(() => {
