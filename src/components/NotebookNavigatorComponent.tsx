@@ -38,7 +38,6 @@ import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { debugLog } from '../utils/debugLog';
 import { flattenFolderTree, findFolderIndex } from '../utils/treeFlattener';
 import { parseExcludedFolders } from '../utils/fileFilters';
-// Removed: useVirtualScroller - scroll logic is now centralized in handleBecomeActive
 import { Virtualizer } from '@tanstack/react-virtual';
 
 export interface NotebookNavigatorHandle {
@@ -206,39 +205,36 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             // A no-op update will increment the version and force a re-render
             updateSettings(settings => {});
         },
-        /**
-         * This is the new, robust implementation. It's called by the Obsidian view
-         * when the user swipes back to the plugin.
-         */
+        // Replace the existing handleBecomeActive with this
         handleBecomeActive: () => {
             if (!isMobile) return;
+            becomeActiveCountRef.current += 1;
+            debugLog.info(`NotebookNavigatorComponent: view became active (count: ${becomeActiveCountRef.current}).`);
 
-            debugLog.info('NotebookNavigatorComponent: view became active.');
+            // Only run the complex scroll restoration logic on the very first activation.
+            // This preserves the initial scroll-to-item behavior without causing issues on subsequent returns.
+            if (becomeActiveCountRef.current > 1) {
+                debugLog.info('Skipping scroll restoration for subsequent activations.');
+                return;
+            }
 
-            // Determine which pane is currently visible on mobile
+            // The original logic to wait for the container to regain dimensions
+            // and then scroll. This is reliable for the first load.
             const view = uiState.currentMobileView;
             const scrollContainer = view === 'list' 
                 ? leftPaneRef.current?.scrollContainerRef
                 : fileListRef.current?.scrollContainerRef;
-            
             const virtualizer = view === 'list' 
                 ? leftPaneRef.current?.virtualizer 
                 : fileListRef.current?.virtualizer;
 
             if (!scrollContainer || !virtualizer) {
-                debugLog.warn('NotebookNavigatorComponent: Cannot restore scroll, container or virtualizer not ready.');
+                debugLog.warn('Cannot perform initial scroll, container or virtualizer not ready.');
                 return;
             }
 
-            // The key to the fix: wait a short moment for the container to regain its
-            // dimensions, then force the virtualizer to re-measure everything.
             setTimeout(() => {
-                // Step 1: Force the virtualizer to measure its elements now that the container is visible.
                 virtualizer.measure();
-                debugLog.info(`NotebookNavigatorComponent: Forced remeasure on ${view} pane.`);
-
-                // Step 2: Use requestAnimationFrame to schedule the scroll for the next paint.
-                // This ensures all measurements from Step 1 have been processed by the browser.
                 requestAnimationFrame(() => {
                     let path: string | null = null;
                     let index = -1;
@@ -252,11 +248,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                     }
 
                     if (index !== -1) {
-                        debugLog.info(`NotebookNavigatorComponent: Scrolling to ${path} at index ${index}.`);
+                        debugLog.info(`Performing initial scroll to ${path} at index ${index}.`);
                         virtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' });
                     }
                 });
-            }, 50); // A small 50ms delay is a pragmatic choice to ensure the swipe animation is complete.
+            }, 100); // A slightly longer delay ensures everything is ready on first load.
         }
     }), [
         selectionDispatch, 
