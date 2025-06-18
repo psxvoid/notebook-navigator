@@ -401,6 +401,19 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         }
     }, [isMobile, uiState.focusedPane, selectedFile, files, selectionDispatch, app.workspace]);
     
+    // Auto-select first file on mobile when folder changes and we're in files view
+    useEffect(() => {
+        if (isMobile && uiState.currentMobileView === 'files' && !selectedFile && files.length > 0) {
+            const firstFile = files[0];
+            debugLog.info('FileList: Auto-selecting first file on mobile', {
+                file: firstFile.path,
+                folderChanged: true
+            });
+            // Select the first file
+            selectionDispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
+        }
+    }, [isMobile, uiState.currentMobileView, files, selectionDispatch]);
+    
     // =================================================================================
     // START: LIST ITEMS STABILIZATION FIX
     // We use useState to hold the list items. This prevents unnecessary virtualizer updates.
@@ -523,7 +536,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     // Add ref for scroll container
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     
-    
     // Cache selected file path to avoid repeated property access
     const selectedFilePath = selectedFile?.path;
     
@@ -537,6 +549,133 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         });
         return map;
     }, [listItems]);
+    
+    // Track visibility changes and trigger pending scroll actions
+    useEffect(() => {
+        if (!isMobile || !scrollContainerRef.current) return;
+        
+        const container = scrollContainerRef.current;
+        let lastVisibleState = container.offsetParent !== null;
+        let hasPendingScroll = false;
+        let pendingScrollPath: string | null = null;
+        
+        // Function to check and execute pending scroll
+        const checkPendingScroll = () => {
+            if (hasPendingScroll && pendingScrollPath) {
+                const index = filePathToIndex.get(pendingScrollPath);
+                if (index !== undefined && index !== -1) {
+                    debugLog.info('FileList: Executing pending scroll after visibility', {
+                        file: pendingScrollPath,
+                        index
+                    });
+                    rowVirtualizer.scrollToIndex(index, { align: 'center' });
+                    hasPendingScroll = false;
+                    pendingScrollPath = null;
+                }
+            }
+        };
+        
+        // Create an observer to detect when the container becomes visible/hidden
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const isVisible = entry.isIntersecting && entry.intersectionRatio > 0;
+                const hasSize = entry.boundingClientRect.width > 0 && entry.boundingClientRect.height > 0;
+                
+                if (plugin.settings.debugMobile) {
+                    debugLog.info('FileList: Visibility changed', {
+                        isIntersecting: entry.isIntersecting,
+                        intersectionRatio: entry.intersectionRatio,
+                        hasSize,
+                        boundingRect: {
+                            width: entry.boundingClientRect.width,
+                            height: entry.boundingClientRect.height
+                        },
+                        scrollHeight: container.scrollHeight,
+                        offsetHeight: container.offsetHeight,
+                        offsetParent: container.offsetParent !== null
+                    });
+                }
+                
+                // Detect transition from not visible to visible
+                if (isVisible && hasSize && !lastVisibleState) {
+                    if (plugin.settings.debugMobile) {
+                        debugLog.info('FileList: Container became visible', {
+                            scrollTop: container.scrollTop,
+                            scrollHeight: container.scrollHeight,
+                            offsetHeight: container.offsetHeight,
+                            hasPendingScroll
+                        });
+                    }
+                    
+                    // Execute any pending scroll action immediately
+                    checkPendingScroll();
+                }
+                
+                lastVisibleState = isVisible && hasSize;
+            });
+        }, {
+            threshold: [0, 0.1, 0.5, 1.0] // Multiple thresholds to catch partial visibility
+        });
+        
+        observer.observe(container);
+        
+        // Also observe resize events
+        const resizeObserver = new ResizeObserver((entries) => {
+            entries.forEach(entry => {
+                if (plugin.settings.debugMobile) {
+                    debugLog.info('FileList: Container resized', {
+                        width: entry.contentRect.width,
+                        height: entry.contentRect.height,
+                        scrollHeight: container.scrollHeight,
+                        offsetHeight: container.offsetHeight
+                    });
+                }
+                
+                // Check if we now have size and should scroll
+                if (entry.contentRect.height > 0) {
+                    checkPendingScroll();
+                }
+            });
+        });
+        
+        resizeObserver.observe(container);
+        
+        // Mark that we need to scroll when selection changes
+        if (selectedFilePath && uiState.currentMobileView === 'files') {
+            const currentScrollTop = container.scrollTop;
+            const index = filePathToIndex.get(selectedFilePath);
+            if (index !== undefined && index !== -1) {
+                // Always mark pending scroll for selected file
+                hasPendingScroll = true;
+                pendingScrollPath = selectedFilePath;
+                debugLog.info('FileList: Marking pending scroll', {
+                    file: selectedFilePath,
+                    index,
+                    containerVisible: container.offsetParent !== null
+                });
+                
+                // If container is already visible, execute immediately
+                if (container.offsetParent !== null && container.offsetHeight > 0) {
+                    checkPendingScroll();
+                }
+            }
+        }
+        
+        // Also check when we become the active view
+        if (uiState.currentMobileView === 'files' && container.offsetParent !== null) {
+            // Small delay to ensure DOM is stable
+            setTimeout(() => {
+                if (hasPendingScroll) {
+                    checkPendingScroll();
+                }
+            }, 50);
+        }
+        
+        return () => {
+            observer.disconnect();
+            resizeObserver.disconnect();
+        };
+    }, [isMobile, plugin.settings.debugMobile, selectedFilePath, uiState.currentMobileView, filePathToIndex]);
     
     // Initialize virtualizer
     const rowVirtualizer = useVirtualizer({

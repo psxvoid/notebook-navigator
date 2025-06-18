@@ -1258,6 +1258,9 @@ body.nn-resizing {
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    /* Preserve content when off-screen */
+    will-change: transform;
+    transform: translateZ(0); /* Force GPU layer */
 }
 
 /* Optimize mobile view transitions */

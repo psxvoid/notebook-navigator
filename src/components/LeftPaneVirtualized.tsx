@@ -25,6 +25,7 @@ export interface LeftPaneHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
     scrollContainerRef: HTMLDivElement | null;
+    lastScrollPosition?: number;
 }
 
 export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
@@ -36,7 +37,9 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    const lastScrollPositionRef = useRef(0);
     const spacerHeight = isMobile ? 40 : 25; // More space on mobile
+    const savedScrollTopRef = useRef(0);
     // Removed: lastScrolledPath - no longer needed with predictive scrolling
     
     
@@ -272,7 +275,7 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
             // Desktop uses smaller heights for denser display
             return isMobile ? 40 : 28;
         },
-        overscan: 10,
+        overscan: isMobile ? 50 : 10, // Match FileList's mobile overscan
     });
     
     // Create a map for O(1) item lookups
@@ -293,14 +296,188 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
     useImperativeHandle(ref, () => ({
         getIndexOfPath: (path: string) => pathToIndex.get(path) ?? -1,
         virtualizer: rowVirtualizer,
-        scrollContainerRef: scrollContainerRef.current
+        scrollContainerRef: scrollContainerRef.current,
+        lastScrollPosition: lastScrollPositionRef.current
     }), [pathToIndex, rowVirtualizer]);
+
+    // Track visibility changes and trigger pending scroll actions
+    useEffect(() => {
+        if (!isMobile || !scrollContainerRef.current) return;
+        
+        const container = scrollContainerRef.current;
+        let lastVisibleState = container.offsetParent !== null;
+        let hasPendingScroll = false;
+        let pendingScrollPath: string | null = null;
+        
+        // Function to check and execute pending scroll
+        const checkPendingScroll = () => {
+            if (hasPendingScroll && pendingScrollPath) {
+                const index = pathToIndex.get(pendingScrollPath);
+                if (index !== undefined && index !== -1) {
+                    debugLog.info('LeftPaneVirtualized: Executing pending scroll after visibility', {
+                        path: pendingScrollPath,
+                        index
+                    });
+                    rowVirtualizer.scrollToIndex(index, { align: 'center' });
+                    hasPendingScroll = false;
+                    pendingScrollPath = null;
+                }
+            }
+        };
+        
+        // Create an observer to detect when the container becomes visible/hidden
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                const isVisible = entry.isIntersecting && entry.intersectionRatio > 0;
+                const hasSize = entry.boundingClientRect.width > 0 && entry.boundingClientRect.height > 0;
+                
+                if (plugin.settings.debugMobile) {
+                    debugLog.info('LeftPaneVirtualized: Visibility changed', {
+                        isIntersecting: entry.isIntersecting,
+                        intersectionRatio: entry.intersectionRatio,
+                        hasSize,
+                        boundingRect: {
+                            width: entry.boundingClientRect.width,
+                            height: entry.boundingClientRect.height
+                        },
+                        scrollHeight: container.scrollHeight,
+                        offsetHeight: container.offsetHeight,
+                        offsetParent: container.offsetParent !== null
+                    });
+                }
+                
+                // Detect transition from not visible to visible
+                if (isVisible && hasSize && !lastVisibleState) {
+                    if (plugin.settings.debugMobile) {
+                        debugLog.info('LeftPaneVirtualized: Container became visible', {
+                            scrollTop: container.scrollTop,
+                            scrollHeight: container.scrollHeight,
+                            offsetHeight: container.offsetHeight,
+                            hasPendingScroll
+                        });
+                    }
+                    
+                    // Execute any pending scroll action immediately
+                    checkPendingScroll();
+                }
+                
+                lastVisibleState = isVisible && hasSize;
+            });
+        }, {
+            threshold: [0, 0.1, 0.5, 1.0] // Multiple thresholds to catch partial visibility
+        });
+        
+        observer.observe(container);
+        
+        // Also observe resize events
+        const resizeObserver = new ResizeObserver((entries) => {
+            entries.forEach(entry => {
+                if (plugin.settings.debugMobile) {
+                    debugLog.info('LeftPaneVirtualized: Container resized', {
+                        width: entry.contentRect.width,
+                        height: entry.contentRect.height,
+                        scrollHeight: container.scrollHeight,
+                        offsetHeight: container.offsetHeight
+                    });
+                }
+                
+                // Check if we now have size and should scroll
+                if (entry.contentRect.height > 0) {
+                    checkPendingScroll();
+                }
+            });
+        });
+        
+        resizeObserver.observe(container);
+        
+        // Mark that we need to scroll when selection changes
+        if (selectedPath && uiState.currentMobileView === 'list') {
+            const index = pathToIndex.get(selectedPath);
+            if (index !== undefined && index !== -1) {
+                hasPendingScroll = true;
+                pendingScrollPath = selectedPath;
+                debugLog.info('LeftPaneVirtualized: Marking pending scroll', {
+                    path: selectedPath,
+                    index,
+                    containerVisible: container.offsetParent !== null
+                });
+                
+                // If container is already visible, execute immediately
+                if (container.offsetParent !== null && container.offsetHeight > 0) {
+                    checkPendingScroll();
+                }
+            }
+        }
+        
+        // Also check when we become the active view
+        if (uiState.currentMobileView === 'list' && container.offsetParent !== null) {
+            // Small delay to ensure DOM is stable
+            setTimeout(() => {
+                if (hasPendingScroll) {
+                    checkPendingScroll();
+                }
+            }, 50);
+        }
+        
+        return () => {
+            observer.disconnect();
+            resizeObserver.disconnect();
+        };
+    }, [isMobile, plugin.settings.debugMobile, selectedPath, uiState.currentMobileView, items, rowVirtualizer, pathToIndex]);
 
     // REMOVED: Complex mobile scroll logic
     // Mobile scrolling is now handled through predictive SCROLL_TO_FOLDER_INDEX actions
     
     // REMOVED: Old desktop scroll effect  
     // Desktop scrolling is now handled through predictive SCROLL_TO_FOLDER_INDEX actions
+    
+    // Track scroll position
+    useEffect(() => {
+        const container = scrollContainerRef.current;
+        if (!container) return;
+        
+        const handleScroll = () => {
+            const scrollTop = container.scrollTop;
+            lastScrollPositionRef.current = scrollTop;
+            // Always save the scroll position when it changes
+            if (scrollTop > 0) {
+                savedScrollTopRef.current = scrollTop;
+            }
+            
+            if (plugin.settings.debugMobile) {
+                debugLog.debug('LeftPaneVirtualized: Scroll position changed', {
+                    scrollTop: scrollTop,
+                    scrollHeight: container.scrollHeight
+                });
+            }
+        };
+        
+        container.addEventListener('scroll', handleScroll);
+        return () => container.removeEventListener('scroll', handleScroll);
+    }, [plugin.settings.debugMobile]);
+    
+    // Save/restore scroll position when visibility changes on mobile
+    useEffect(() => {
+        if (!isMobile) return;
+        
+        const container = scrollContainerRef.current;
+        if (!container) return;
+        
+        const isVisible = uiState.currentMobileView === 'list';
+        
+        if (isVisible && savedScrollTopRef.current > 0 && container.scrollTop === 0) {
+            // We just became visible and lost our scroll position, restore it
+            debugLog.info('LeftPaneVirtualized: Restoring scroll position on visibility change', {
+                savedScrollTop: savedScrollTopRef.current,
+                currentScrollTop: container.scrollTop
+            });
+            
+            // Use requestAnimationFrame to ensure DOM is ready
+            requestAnimationFrame(() => {
+                container.scrollTop = savedScrollTopRef.current;
+            });
+        }
+    }, [isMobile, uiState.currentMobileView]);
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({

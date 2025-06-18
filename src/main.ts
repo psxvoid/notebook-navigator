@@ -214,8 +214,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
             
             // Log total startup time
             const totalTime = performance.now() - startTime;
-            console.log(`Plugin loaded in ${totalTime.toFixed(2)}ms`);
-            if (Platform.isMobile && this.settings.debugMobile) {
+            if (this.settings.debugMobile) {
                 debugLog.info(`NotebookNavigatorPlugin: Plugin loaded in ${totalTime.toFixed(2)}ms`);
             }
         });

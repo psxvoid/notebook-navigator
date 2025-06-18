@@ -20,7 +20,7 @@ export function useVirtualScroller() {
                     behavior: 'auto'
                 });
             } catch (e) {
-                console.error("Failed to scroll to virtual index.", { index, error: e });
+                // Silently ignore scroll errors - they can occur during rapid state changes
             }
         }, 0);
 
