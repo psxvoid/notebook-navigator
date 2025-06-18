@@ -386,11 +386,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 return;
             }
             
-            // On mobile, skip auto-reveal when the navigator is visible
-            if (isMobile && !app.workspace.leftSplit?.collapsed) {
-                return;
-            }
-            
             // Always update selected file if it's different
             if (selectionState.selectedFile?.path !== file.path) {
                 selectionDispatch({ type: 'SET_SELECTED_FILE', file });
@@ -458,7 +453,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         const activeLeafEventRef = app.workspace.on('active-leaf-change', handleActiveLeafChange);
         const fileOpenEventRef = app.workspace.on('file-open', handleFileOpen);
         
-        // No longer needed - FileList handles scrolling when mobile view changes
+        // Check for currently active file on mount
+        const activeFile = app.workspace.getActiveFile();
+        if (activeFile) {
+            handleFileChange(activeFile);
+        }
 
         return () => {
             app.workspace.offref(activeLeafEventRef);
