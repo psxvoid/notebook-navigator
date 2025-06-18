@@ -86,6 +86,32 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             };
         }
     }, [plugin.settings.debugMobile]);
+
+    // Handle scrolling when mobile view changes or on initial mount
+    useEffect(() => {
+        if (!isMobile) return;
+        
+        // Scroll to the appropriate item based on current view
+        if (uiState.currentMobileView === 'list' && selectionState.selectedFolder) {
+            const index = leftPaneRef.current?.getIndexOfPath(selectionState.selectedFolder.path);
+            if (index !== undefined && index !== -1) {
+                debugLog.info('NotebookNavigatorComponent: Scrolling to folder on view change', {
+                    folder: selectionState.selectedFolder.path,
+                    index
+                });
+                scrollTo(leftPaneRef.current?.virtualizer, index);
+            }
+        } else if (uiState.currentMobileView === 'files' && selectionState.selectedFile) {
+            const index = fileListRef.current?.getIndexOfPath(selectionState.selectedFile.path);
+            if (index !== undefined && index !== -1) {
+                debugLog.info('NotebookNavigatorComponent: Scrolling to file on view change', {
+                    file: selectionState.selectedFile.path,
+                    index
+                });
+                scrollTo(fileListRef.current?.virtualizer, index);
+            }
+        }
+    }, [isMobile, uiState.currentMobileView]); // Trigger when mobile view changes
     
     
     // Enable drag and drop only on desktop
@@ -180,15 +206,30 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             updateSettings(settings => {});
         },
         handleBecomeActive: () => {
+            debugLog.info('NotebookNavigatorComponent: handleBecomeActive called', {
+                isMobile,
+                currentMobileView: uiState.currentMobileView,
+                hasSelectedFolder: !!selectionState.selectedFolder,
+                hasSelectedFile: !!selectionState.selectedFile
+            });
+            
             if (!isMobile) return;
             
             if (uiState.currentMobileView === 'list' && selectionState.selectedFolder) {
                 const index = leftPaneRef.current?.getIndexOfPath(selectionState.selectedFolder.path);
+                debugLog.info('NotebookNavigatorComponent: Scrolling to folder', {
+                    folder: selectionState.selectedFolder.path,
+                    index
+                });
                 if (index !== undefined && index !== -1) {
                     scrollTo(leftPaneRef.current?.virtualizer, index);
                 }
             } else if (uiState.currentMobileView === 'files' && selectionState.selectedFile) {
                 const index = fileListRef.current?.getIndexOfPath(selectionState.selectedFile.path);
+                debugLog.info('NotebookNavigatorComponent: Scrolling to file', {
+                    file: selectionState.selectedFile.path,
+                    index
+                });
                 if (index !== undefined && index !== -1) {
                     scrollTo(fileListRef.current?.virtualizer, index);
                 }

@@ -9,18 +9,21 @@ export function useVirtualScroller() {
     ) => {
         if (!virtualizer || index < 0) return;
 
-        // Using a double requestAnimationFrame is the most robust way to ensure
-        // the browser has completed layout and paint cycles before scrolling,
-        // which is critical on mobile. This is a standard pattern for
-        // solving this exact type of race condition without timers.
-        requestAnimationFrame(() => {
-            requestAnimationFrame(() => {
+        // Use setTimeout with a delay of 0. This pushes the scroll command to the
+        // end of the event queue, ensuring it runs after React has finished its
+        // current render and the DOM has been updated. This is a robust way to
+        // handle scrolling immediately after a state change without a visible delay.
+        setTimeout(() => {
+            try {
                 virtualizer.scrollToIndex(index, {
                     align: align,
                     behavior: 'auto'
                 });
-            });
-        });
+            } catch (e) {
+                console.error("Failed to scroll to virtual index.", { index, error: e });
+            }
+        }, 0);
+
     }, []);
 
     return { scrollTo };

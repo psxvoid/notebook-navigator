@@ -71,7 +71,8 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
     const [rootFolders, setRootFolders] = useState<TFolder[]>([]);
     
     useEffect(() => {
-        const rebuildFolders = debounce(() => {
+        // Function to build folders
+        const buildFolders = () => {
             const vault = app.vault;
             const root = vault.getRoot();
             
@@ -88,10 +89,13 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
             if (plugin.settings.debugMobile) {
                 debugLog.info("LeftPaneVirtualized: Root folders rebuilt.");
             }
-        }, 300, true);
+        };
         
-        // Initial build
-        rebuildFolders();
+        // Build immediately on mount
+        buildFolders();
+        
+        // Create debounced version for vault events
+        const rebuildFolders = debounce(buildFolders, 300, true);
         
         // Listen to vault events for folder changes
         const events = [
@@ -121,7 +125,8 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
     const [tagData, setTagData] = useState<{ tree: Map<string, TagTreeNode>, untagged: number }>({ tree: new Map(), untagged: 0 });
 
     useEffect(() => {
-        const rebuildTagTree = debounce(() => {
+        // Function to build tag tree
+        const buildTags = () => {
             if (!plugin.settings.showTags) {
                 setTagData({ tree: new Map(), untagged: 0 });
                 return;
@@ -145,18 +150,31 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
             if (plugin.settings.debugMobile) {
                 debugLog.info("LeftPaneVirtualized: Tag tree rebuilt.");
             }
+        };
 
-        }, 300, true);
-
-        // Initial build
-        rebuildTagTree();
+        // Build immediately on mount
+        buildTags();
+        
+        // Create debounced version for events
+        const rebuildTagTree = debounce(buildTags, 300, true);
 
         // Listen to specific vault and metadata events
         const events = [
             app.vault.on('create', rebuildTagTree),
             app.vault.on('delete', rebuildTagTree),
             app.vault.on('rename', rebuildTagTree),
-            app.metadataCache.on('changed', rebuildTagTree)
+            // Only rebuild if the changed file has tags
+            app.metadataCache.on('changed', (file) => {
+                if (file) {
+                    const cache = app.metadataCache.getFileCache(file);
+                    if (cache) {
+                        const tags = getAllTags(cache);
+                        if (tags && tags.length > 0) {
+                            rebuildTagTree();
+                        }
+                    }
+                }
+            })
         ];
 
         return () => {
