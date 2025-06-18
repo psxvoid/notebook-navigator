@@ -306,33 +306,42 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                     retryCount
                 });
                 
-                // Force virtualizer measurement
+                // Force virtualizer to remeasure all items
                 virtualizer.measure();
                 
-                // Perform scroll immediately
-                if (view === 'list' && selectionState.selectedFolder) {
-                    const index = leftPaneRef.current?.getIndexOfPath(selectionState.selectedFolder.path);
-                    debugLog.info('NotebookNavigatorComponent: Scrolling to folder', {
-                        folder: selectionState.selectedFolder.path,
-                        index,
-                        hasVirtualizer: !!leftPaneRef.current?.virtualizer,
-                        retryCount
+                // Use requestAnimationFrame to ensure DOM has settled
+                requestAnimationFrame(() => {
+                    // Double RAF to ensure we're after the next paint
+                    requestAnimationFrame(() => {
+                        if (view === 'list' && selectionState.selectedFolder) {
+                            const index = leftPaneRef.current?.getIndexOfPath(selectionState.selectedFolder.path);
+                            debugLog.info('NotebookNavigatorComponent: Scrolling to folder after RAF', {
+                                folder: selectionState.selectedFolder.path,
+                                index,
+                                hasVirtualizer: !!leftPaneRef.current?.virtualizer,
+                                retryCount,
+                                scrollTop: scrollContainer.scrollTop
+                            });
+                            if (index !== undefined && index !== -1) {
+                                // Force scroll even if virtualizer thinks we're already there
+                                leftPaneRef.current?.virtualizer?.scrollToIndex(index, { align: 'center' });
+                            }
+                        } else if (view === 'files' && selectionState.selectedFile) {
+                            const index = fileListRef.current?.getIndexOfPath(selectionState.selectedFile.path);
+                            debugLog.info('NotebookNavigatorComponent: Scrolling to file after RAF', {
+                                file: selectionState.selectedFile.path,
+                                index,
+                                hasVirtualizer: !!fileListRef.current?.virtualizer,
+                                retryCount,
+                                scrollTop: scrollContainer.scrollTop
+                            });
+                            if (index !== undefined && index !== -1) {
+                                // Force scroll even if virtualizer thinks we're already there
+                                fileListRef.current?.virtualizer?.scrollToIndex(index, { align: 'center' });
+                            }
+                        }
                     });
-                    if (index !== undefined && index !== -1) {
-                        scrollTo(leftPaneRef.current?.virtualizer, index);
-                    }
-                } else if (view === 'files' && selectionState.selectedFile) {
-                    const index = fileListRef.current?.getIndexOfPath(selectionState.selectedFile.path);
-                    debugLog.info('NotebookNavigatorComponent: Scrolling to file', {
-                        file: selectionState.selectedFile.path,
-                        index,
-                        hasVirtualizer: !!fileListRef.current?.virtualizer,
-                        retryCount
-                    });
-                    if (index !== undefined && index !== -1) {
-                        scrollTo(fileListRef.current?.virtualizer, index);
-                    }
-                }
+                });
             };
             
             // Start the scroll attempt immediately

@@ -409,21 +409,54 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
             }
         }
         
-        // Also check when we become the active view
-        if (uiState.currentMobileView === 'list' && container.offsetParent !== null) {
-            // Small delay to ensure DOM is stable
-            setTimeout(() => {
-                if (hasPendingScroll) {
-                    checkPendingScroll();
-                }
-            }, 50);
-        }
+        // The actual scroll handling is done in a separate effect below
         
         return () => {
             observer.disconnect();
             resizeObserver.disconnect();
         };
     }, [isMobile, plugin.settings.debugMobile, selectedPath, uiState.currentMobileView, items, rowVirtualizer, pathToIndex]);
+    
+    // Separate effect to handle view activation scrolling with proper measurement
+    useEffect(() => {
+        if (!isMobile || !scrollContainerRef.current) return;
+        if (uiState.currentMobileView !== 'list') return;
+        
+        const container = scrollContainerRef.current;
+        
+        // Add a small delay to ensure the view is fully transitioned
+        const timer = setTimeout(() => {
+            if (container.offsetParent === null || container.offsetHeight === 0) {
+                debugLog.info('LeftPaneVirtualized: Container not ready for scroll on view activation');
+                return;
+            }
+            
+            // Force virtualizer to fully remeasure
+            rowVirtualizer.measure();
+            
+            // Trigger a DOM reflow to ensure measurements are up to date
+            const _forceReflow = container.offsetHeight;
+            
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    if (selectedPath) {
+                        const index = pathToIndex.get(selectedPath);
+                        if (index !== undefined && index !== -1) {
+                            debugLog.info('LeftPaneVirtualized: View activated, forcing scroll', {
+                                path: selectedPath,
+                                index,
+                                containerHeight: container.offsetHeight,
+                                scrollHeight: container.scrollHeight
+                            });
+                            rowVirtualizer.scrollToIndex(index, { align: 'center' });
+                        }
+                    }
+                });
+            });
+        }, 50); // Small delay to ensure view transition is complete
+        
+        return () => clearTimeout(timer);
+    }, [uiState.currentMobileView, isMobile, selectedPath, pathToIndex, rowVirtualizer]);
 
     // REMOVED: Complex mobile scroll logic
     // Mobile scrolling is now handled through predictive SCROLL_TO_FOLDER_INDEX actions

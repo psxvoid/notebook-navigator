@@ -52,9 +52,10 @@ function selectionReducer(
                 isRevealOperation: false // Clear flag for normal navigation
             };
 
-            // Mobile: Always clear file selection when changing folders
+            // Mobile: Keep the selected file when changing folders
+            // The file list will handle scrolling to it if it exists in the new folder
             if (isMobile) {
-                newState.selectedFile = null;
+                // Don't clear selectedFile - keep it as is
             }
             // Desktop: Handle auto-select first file if enabled
             else if (action.folder && settings.autoSelectFirstFile) {
@@ -80,9 +81,10 @@ function selectionReducer(
                 isRevealOperation: false // Clear flag for normal navigation
             };
 
-            // Mobile: Always clear file selection when changing tags
+            // Mobile: Keep the selected file when changing tags
+            // The file list will handle scrolling to it if it exists in the new tag
             if (isMobile) {
-                newState.selectedFile = null;
+                // Don't clear selectedFile - keep it as is
             }
             // Desktop: Handle auto-select first file if enabled
             else if (action.tag && settings.autoSelectFirstFile) {

@@ -401,18 +401,22 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         }
     }, [isMobile, uiState.focusedPane, selectedFile, files, selectionDispatch, app.workspace]);
     
-    // Auto-select first file on mobile when folder changes and we're in files view
+    // Check if selected file exists in current folder/tag view
     useEffect(() => {
-        if (isMobile && uiState.currentMobileView === 'files' && !selectedFile && files.length > 0) {
-            const firstFile = files[0];
-            debugLog.info('FileList: Auto-selecting first file on mobile', {
-                file: firstFile.path,
-                folderChanged: true
-            });
-            // Select the first file
-            selectionDispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
+        if (isMobile && uiState.currentMobileView === 'files' && selectedFile) {
+            // Check if the selected file exists in the current file list
+            const fileExists = files.some(f => f.path === selectedFile.path);
+            if (!fileExists && files.length > 0) {
+                // Selected file doesn't exist in current view, select first file
+                const firstFile = files[0];
+                debugLog.info('FileList: Selected file not in current view, selecting first file', {
+                    previousFile: selectedFile.path,
+                    newFile: firstFile.path
+                });
+                selectionDispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
+            }
         }
-    }, [isMobile, uiState.currentMobileView, files, selectionDispatch]);
+    }, [isMobile, uiState.currentMobileView, files, selectedFile, selectionDispatch]);
     
     // =================================================================================
     // START: LIST ITEMS STABILIZATION FIX
@@ -661,15 +665,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             }
         }
         
-        // Also check when we become the active view
-        if (uiState.currentMobileView === 'files' && container.offsetParent !== null) {
-            // Small delay to ensure DOM is stable
-            setTimeout(() => {
-                if (hasPendingScroll) {
-                    checkPendingScroll();
-                }
-            }, 50);
-        }
+        // The actual scroll handling is done in a separate effect below
         
         return () => {
             observer.disconnect();
@@ -826,6 +822,47 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const safeGetItem = <T,>(array: T[], index: number): T | undefined => {
         return index >= 0 && index < array.length ? array[index] : undefined;
     };
+    
+    // Separate effect to handle view activation scrolling with proper measurement
+    useEffect(() => {
+        if (!isMobile || !scrollContainerRef.current) return;
+        if (uiState.currentMobileView !== 'files') return;
+        
+        const container = scrollContainerRef.current;
+        
+        // Add a small delay to ensure the view is fully transitioned
+        const timer = setTimeout(() => {
+            if (container.offsetParent === null || container.offsetHeight === 0) {
+                debugLog.info('FileList: Container not ready for scroll on view activation');
+                return;
+            }
+            
+            // Force virtualizer to fully remeasure
+            rowVirtualizer.measure();
+            
+            // Trigger a DOM reflow to ensure measurements are up to date
+            const _forceReflow = container.offsetHeight;
+            
+            requestAnimationFrame(() => {
+                requestAnimationFrame(() => {
+                    if (selectedFilePath) {
+                        const index = filePathToIndex.get(selectedFilePath);
+                        if (index !== undefined && index !== -1) {
+                            debugLog.info('FileList: View activated, forcing scroll', {
+                                file: selectedFilePath,
+                                index,
+                                containerHeight: container.offsetHeight,
+                                scrollHeight: container.scrollHeight
+                            });
+                            rowVirtualizer.scrollToIndex(index, { align: 'center' });
+                        }
+                    }
+                });
+            });
+        }, 50); // Small delay to ensure view transition is complete
+        
+        return () => clearTimeout(timer);
+    }, [uiState.currentMobileView, isMobile, selectedFilePath, filePathToIndex, rowVirtualizer, plugin.settings.debugMobile]);
     
     // Early returns MUST come after all hooks
     if (!selectedFolder && !selectedTag) {
