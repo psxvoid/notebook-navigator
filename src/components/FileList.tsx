@@ -442,14 +442,12 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         if (isMobile && uiState.currentMobileView === 'files' && selectedFile) {
             // Check if the selected file exists in the current file list
             const fileExists = files.some(f => f.path === selectedFile.path);
-            if (!fileExists && files.length > 0) {
-                // Selected file doesn't exist in current view, select first file
-                const firstFile = files[0];
-                debugLog.info('FileList: Selected file not in current view, selecting first file', {
-                    previousFile: selectedFile.path,
-                    newFile: firstFile.path
+            if (!fileExists) {
+                // Selected file doesn't exist in current view, clear selection
+                debugLog.info('FileList: Selected file not in current view, clearing selection', {
+                    previousFile: selectedFile.path
                 });
-                selectionDispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
+                selectionDispatch({ type: 'SET_SELECTED_FILE', file: null });
             }
         }
     }, [isMobile, uiState.currentMobileView, files, selectedFile, selectionDispatch]);

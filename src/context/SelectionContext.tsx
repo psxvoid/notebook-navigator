@@ -52,10 +52,10 @@ function selectionReducer(
                 isRevealOperation: false // Clear flag for normal navigation
             };
 
-            // Mobile: Keep the selected file when changing folders
-            // The file list will handle scrolling to it if it exists in the new folder
+            // Mobile: Clear selected file when changing folders
+            // No auto-selection on mobile
             if (isMobile) {
-                // Don't clear selectedFile - keep it as is
+                newState.selectedFile = null;
             }
             // Desktop: Handle auto-select first file if enabled
             else if (action.folder && settings.autoSelectFirstFile) {
