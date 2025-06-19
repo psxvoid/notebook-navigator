@@ -85,6 +85,8 @@ export const STRINGS_FR = {
             newBase: 'Nouvelle base de données',
             duplicateFolder: 'Dupliquer le dossier',
             searchInFolder: 'Rechercher dans le dossier',
+            createFolderNote: 'Créer une note de dossier',
+            deleteFolderNote: 'Supprimer la note de dossier',
             changeIcon: 'Changer l\'icône',
             removeIcon: 'Supprimer l\'icône',
             changeColor: 'Changer la couleur',
@@ -212,6 +214,7 @@ export const STRINGS_FR = {
             noteDisplay: 'Affichage des notes',
             folderDisplay: 'Affichage des dossiers',
             tagDisplay: 'Affichage des étiquettes',
+            folderNotes: 'Notes de dossier',
             advanced: 'Avancé',
         },
         items: {
@@ -334,6 +337,19 @@ export const STRINGS_FR = {
             showUntagged: {
                 name: 'Afficher les notes sans étiquette',
                 desc: 'Afficher l\'élément "Sans étiquette" pour les notes sans aucune étiquette.',
+            },
+            enableFolderNotes: {
+                name: 'Activer les notes de dossier',
+                desc: 'Cliquer sur les dossiers pour ouvrir leurs notes au lieu d\'afficher la liste des fichiers.',
+            },
+            folderNoteName: {
+                name: 'Nom de la note de dossier',
+                desc: 'Nom du fichier de note de dossier. Laisser vide pour utiliser le même nom que le dossier.',
+                placeholder: 'Laisser vide pour le nom du dossier',
+            },
+            hideFolderNoteInList: {
+                name: 'Masquer les notes de dossier dans la liste des fichiers',
+                desc: 'Masquer la note de dossier pour qu\'elle n\'apparaisse pas dans la liste des fichiers du dossier.',
             },
             confirmBeforeDelete: {
                 name: 'Confirmer avant de supprimer les notes',

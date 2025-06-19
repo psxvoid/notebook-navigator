@@ -85,6 +85,8 @@ export const STRINGS_ES = {
             newBase: 'Nueva base de datos',
             duplicateFolder: 'Duplicar carpeta',
             searchInFolder: 'Buscar en carpeta',
+            createFolderNote: 'Crear nota de carpeta',
+            deleteFolderNote: 'Eliminar nota de carpeta',
             changeIcon: 'Cambiar icono',
             removeIcon: 'Quitar icono',
             changeColor: 'Cambiar color',
@@ -212,6 +214,7 @@ export const STRINGS_ES = {
             noteDisplay: 'Visualización de notas',
             folderDisplay: 'Visualización de carpetas',
             tagDisplay: 'Visualización de etiquetas',
+            folderNotes: 'Notas de carpeta',
             advanced: 'Avanzado',
         },
         items: {
@@ -334,6 +337,19 @@ export const STRINGS_ES = {
             showUntagged: {
                 name: 'Mostrar notas sin etiquetas',
                 desc: 'Muestra el elemento "Sin etiquetas" para notas sin ninguna etiqueta.',
+            },
+            enableFolderNotes: {
+                name: 'Habilitar notas de carpeta',
+                desc: 'Hacer clic en las carpetas para abrir sus notas en lugar de mostrar la lista de archivos.',
+            },
+            folderNoteName: {
+                name: 'Nombre de la nota de carpeta',
+                desc: 'Nombre del archivo de nota de carpeta. Dejar vacío para usar el mismo nombre que la carpeta.',
+                placeholder: 'Dejar vacío para el nombre de la carpeta',
+            },
+            hideFolderNoteInList: {
+                name: 'Ocultar notas de carpeta en la lista de archivos',
+                desc: 'Ocultar la nota de carpeta para que no aparezca en la lista de archivos de la carpeta.',
             },
             confirmBeforeDelete: {
                 name: 'Confirmar antes de eliminar notas',

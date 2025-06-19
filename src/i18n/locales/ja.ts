@@ -85,6 +85,8 @@ export const STRINGS_JA = {
             newBase: '新規データベース',
             duplicateFolder: 'フォルダを複製',
             searchInFolder: 'フォルダ内を検索',
+            createFolderNote: 'フォルダノートを作成',
+            deleteFolderNote: 'フォルダーノートを削除',
             changeIcon: 'アイコンを変更',
             removeIcon: 'アイコンを削除',
             changeColor: '色を変更',
@@ -212,6 +214,7 @@ export const STRINGS_JA = {
             noteDisplay: 'ノート表示',
             folderDisplay: 'フォルダ表示',
             tagDisplay: 'タグ表示',
+            folderNotes: 'フォルダノート',
             advanced: '詳細設定',
         },
         items: {
@@ -334,6 +337,19 @@ export const STRINGS_JA = {
             showUntagged: {
                 name: 'タグなしノートを表示',
                 desc: 'タグのないノート用に「タグなし」項目を表示します。',
+            },
+            enableFolderNotes: {
+                name: 'フォルダノートを有効化',
+                desc: 'フォルダをクリックしてファイルリストの代わりにノートを開きます。',
+            },
+            folderNoteName: {
+                name: 'フォルダノート名',
+                desc: 'フォルダノートファイルの名前。空のままにするとフォルダと同じ名前を使用します。',
+                placeholder: 'フォルダ名には空のまま',
+            },
+            hideFolderNoteInList: {
+                name: 'ファイルリストでフォルダノートを非表示',
+                desc: 'フォルダのファイルリストにフォルダノートが表示されないようにします。',
             },
             confirmBeforeDelete: {
                 name: 'ノート削除前に確認',

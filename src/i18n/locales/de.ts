@@ -85,6 +85,8 @@ export const STRINGS_DE = {
             newBase: 'Neue Datenbank',
             duplicateFolder: 'Ordner duplizieren',
             searchInFolder: 'In Ordner suchen',
+            createFolderNote: 'Ordnernotiz erstellen',
+            deleteFolderNote: 'Ordnernotiz löschen',
             changeIcon: 'Symbol ändern',
             removeIcon: 'Symbol entfernen',
             changeColor: 'Farbe ändern',
@@ -212,6 +214,7 @@ export const STRINGS_DE = {
             noteDisplay: 'Notizenanzeige',
             folderDisplay: 'Ordneranzeige',
             tagDisplay: 'Tag-Anzeige',
+            folderNotes: 'Ordnernotizen',
             advanced: 'Erweitert',
         },
         items: {
@@ -334,6 +337,19 @@ export const STRINGS_DE = {
             showUntagged: {
                 name: 'Ungetaggte Notizen anzeigen',
                 desc: '"Ohne Tag" für Notizen ohne Tags anzeigen.',
+            },
+            enableFolderNotes: {
+                name: 'Ordnernotizen aktivieren',
+                desc: 'Klicken Sie auf Ordner, um deren Notizen zu öffnen, anstatt die Dateiliste anzuzeigen.',
+            },
+            folderNoteName: {
+                name: 'Name der Ordnernotiz',
+                desc: 'Name der Ordnernotiz-Datei. Leer lassen, um denselben Namen wie der Ordner zu verwenden.',
+                placeholder: 'Leer lassen für Ordnernamen',
+            },
+            hideFolderNoteInList: {
+                name: 'Ordnernotizen in Dateiliste ausblenden',
+                desc: 'Die Ordnernotiz in der Dateiliste des Ordners ausblenden.',
             },
             confirmBeforeDelete: {
                 name: 'Vor dem Löschen von Notizen bestätigen',

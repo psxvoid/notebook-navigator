@@ -284,6 +284,11 @@ button.nn-icon-button {
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
 
+/* Folder with folder note - underlined */
+.nn-folder-name.nn-has-folder-note {
+    text-decoration: underline;
+}
+
 /* Spacer element to push count to the end */
 .nn-folder-spacer {
     flex: 1;

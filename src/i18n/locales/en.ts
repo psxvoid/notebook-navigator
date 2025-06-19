@@ -85,6 +85,8 @@ export const STRINGS_EN = {
             newBase: 'New base',
             duplicateFolder: 'Duplicate folder',
             searchInFolder: 'Search in folder',
+            createFolderNote: 'Create folder note',
+            deleteFolderNote: 'Delete folder note',
             changeIcon: 'Change icon',
             removeIcon: 'Remove icon',
             changeColor: 'Change color',
@@ -212,6 +214,7 @@ export const STRINGS_EN = {
             noteDisplay: 'Note display',
             folderDisplay: 'Folder display',
             tagDisplay: 'Tag display',
+            folderNotes: 'Folder notes',
             advanced: 'Advanced',
         },
         items: {
@@ -334,6 +337,19 @@ export const STRINGS_EN = {
             showUntagged: {
                 name: 'Show untagged notes',
                 desc: 'Display "Untagged" item for notes without any tags.',
+            },
+            enableFolderNotes: {
+                name: 'Enable folder notes',
+                desc: 'Click on folders to open their notes instead of showing file list.',
+            },
+            folderNoteName: {
+                name: 'Folder note name',
+                desc: 'Name of the folder note file without extension. Leave empty to use the same name as the folder.',
+                placeholder: 'index',
+            },
+            hideFolderNoteInList: {
+                name: 'Hide folder notes in file list',
+                desc: 'Hide the folder note from appearing in the folder\'s file list.',
             },
             confirmBeforeDelete: {
                 name: 'Confirm before deleting notes',

@@ -24,6 +24,7 @@ import { setIcon } from 'obsidian';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
+import { getFolderNote } from '../utils/fileFinder';
 import { strings } from '../i18n';
 
 interface FolderItemProps {
@@ -96,6 +97,9 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
     const chevronRef = React.useRef<HTMLDivElement>(null);
     const iconRef = React.useRef<HTMLSpanElement>(null);
     const customColor = settings.folderColors?.[folder.path];
+    
+    // Check if folder has a folder note
+    const hasFolderNote = settings.enableFolderNotes && getFolderNote(folder, settings, app) !== null;
 
     useEffect(() => {
         if (chevronRef.current) {
@@ -156,7 +160,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
                     ></span>
                 )}
                 <span 
-                    className="nn-folder-name"
+                    className={`nn-folder-name ${hasFolderNote ? 'nn-has-folder-note' : ''}`}
                     style={customColor ? { color: customColor, fontWeight: 600 } : undefined}
                 >{folder.path === '/' || folder.path === '' ? strings.folderTree.rootFolderName : folder.name}</span>
                 <span className="nn-folder-spacer" />

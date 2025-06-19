@@ -69,6 +69,10 @@ export interface NotebookNavigatorSettings {
     // Tag display
     showTags: boolean;
     showUntagged: boolean;
+    // Folder notes
+    enableFolderNotes: boolean;
+    folderNoteName: string;
+    hideFolderNoteInList: boolean;
     // Advanced
     confirmBeforeDelete: boolean;
     useFrontmatterDates: boolean;
@@ -116,6 +120,10 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Tag display
     showTags: true,
     showUntagged: false,
+    // Folder notes
+    enableFolderNotes: false,
+    folderNoteName: '',
+    hideFolderNoteInList: true,
     // Advanced
     confirmBeforeDelete: true,
     useFrontmatterDates: false,
@@ -553,6 +561,40 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                 }));
 
+        const enableFolderNotesSetting = new Setting(containerEl)
+            .setName(strings.settings.items.enableFolderNotes.name)
+            .setDesc(strings.settings.items.enableFolderNotes.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.enableFolderNotes)
+                .onChange(async (value) => {
+                    this.plugin.settings.enableFolderNotes = value;
+                    await this.saveAndRefresh();
+                    // Update folder notes sub-settings visibility
+                    this.setElementVisibility(folderNotesSettingsEl, value);
+                }));
+
+        // Container for folder notes sub-settings
+        const folderNotesSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+        this.createDebouncedTextSetting(
+            folderNotesSettingsEl,
+            strings.settings.items.folderNoteName.name,
+            strings.settings.items.folderNoteName.desc,
+            strings.settings.items.folderNoteName.placeholder,
+            () => this.plugin.settings.folderNoteName,
+            (value) => { this.plugin.settings.folderNoteName = value; }
+        );
+
+        new Setting(folderNotesSettingsEl)
+            .setName(strings.settings.items.hideFolderNoteInList.name)
+            .setDesc(strings.settings.items.hideFolderNoteInList.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.hideFolderNoteInList)
+                .onChange(async (value) => {
+                    this.plugin.settings.hideFolderNoteInList = value;
+                    await this.saveAndRefresh();
+                }));
+
         // Section 4: Tag display
         new Setting(containerEl)
             .setName(strings.settings.sections.tagDisplay)
@@ -610,6 +652,17 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .buttonEl.addClass('nn-sponsor-button');
             });
 
+        // Copyright notice
+        const copyrightEl = containerEl.createDiv('nn-copyright');
+        copyrightEl.innerHTML = `
+            <div style="text-align: center; margin-top: 40px; color: var(--text-muted); font-size: var(--font-ui-smaller);">
+                Notebook Navigator © 2025 
+                <a href="https://www.linkedin.com/in/johansan/" target="_blank" style="color: var(--text-accent);">Johan Sanneblad</a> 
+                @ 
+                <a href="https://tokentek.ai" target="_blank" style="color: var(--text-accent);">TokenTek</a>
+            </div>
+        `;
+
         // Set initial visibility
         this.setElementVisibility(dateGroupingEl, shouldShowDateGrouping(this.plugin.settings.defaultFolderSort));
         this.setElementVisibility(previewSettingsEl, this.plugin.settings.showFilePreview);
@@ -617,6 +670,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         this.setElementVisibility(dateFormatSettingEl, this.plugin.settings.showDate);
         this.setElementVisibility(untaggedSettingEl, this.plugin.settings.showTags);
         this.setElementVisibility(frontmatterSettingsEl, this.plugin.settings.useFrontmatterDates);
+        this.setElementVisibility(folderNotesSettingsEl, this.plugin.settings.enableFolderNotes);
     }
 
     /**

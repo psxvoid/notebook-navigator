@@ -18,14 +18,14 @@
 
 // src/hooks/useContextMenu.ts
 import { useEffect, useCallback } from 'react';
-import { Menu, MenuItem, TFile, TFolder, Notice } from 'obsidian';
+import { Menu, MenuItem, TFile, TFolder, Notice, normalizePath } from 'obsidian';
 import { useServices, useFileSystemOps, useMetadataService } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useUIDispatch } from '../context/UIStateContext';
 import { isFolderAncestor, getInternalPlugin, isTFolder, isTFile } from '../utils/typeGuards';
-import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { getFilesForFolder, getFilesForTag, getFolderNote } from '../utils/fileFinder';
 import { strings } from '../i18n';
 
 /**
@@ -185,6 +185,56 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     });
             });
             
+            // Folder note operations
+            if (settings.enableFolderNotes) {
+                menu.addSeparator();
+                
+                const folderNote = getFolderNote(folder, settings, app);
+                
+                if (folderNote) {
+                    // Delete folder note option
+                    menu.addItem((item: MenuItem) => {
+                        item
+                            .setTitle(strings.contextMenu.folder.deleteFolderNote)
+                            .setIcon('trash')
+                            .onClick(async () => {
+                                await fileSystemOps.deleteFile(folderNote, settings.confirmBeforeDelete);
+                            });
+                    });
+                } else {
+                    // Create folder note option
+                    menu.addItem((item: MenuItem) => {
+                        item
+                            .setTitle(strings.contextMenu.folder.createFolderNote)
+                            .setIcon('file-plus')
+                            .onClick(async () => {
+                                // Use folderNoteName if set, otherwise use folder name
+                                const noteName = (settings.folderNoteName || folder.name) + '.md';
+                                const notePath = normalizePath(`${folder.path}/${noteName}`);
+                                
+                                // Check if file already exists
+                                const existingFile = app.vault.getAbstractFileByPath(notePath);
+                                if (existingFile) {
+                                    new Notice('Folder note already exists');
+                                    return;
+                                }
+                                
+                                const file = await app.vault.create(notePath, '');
+                                
+                                // Set a temporary flag to prevent auto-reveal
+                                (window as any).notebookNavigatorOpeningFolderNote = true;
+                                
+                                await app.workspace.getLeaf().openFile(file);
+                                
+                                // Clear the flag after a short delay
+                                setTimeout(() => {
+                                    delete (window as any).notebookNavigatorOpeningFolderNote;
+                                }, 100);
+                            });
+                    });
+                }
+            }
+            
             // Only show icon options if folder icons are enabled
             if (settings.showFolderIcons) {
                 menu.addSeparator();
@@ -268,7 +318,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     .setTitle(strings.contextMenu.folder.renameFolder)
                     .setIcon('pencil')
                     .onClick(async () => {
-                        await fileSystemOps.renameFolder(folder);
+                        await fileSystemOps.renameFolder(folder, settings);
                     });
             });
             

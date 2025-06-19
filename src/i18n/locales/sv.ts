@@ -85,6 +85,8 @@ export const STRINGS_SV = {
             newBase: 'Ny databas',
             duplicateFolder: 'Duplicera mapp',
             searchInFolder: 'Sök i mapp',
+            createFolderNote: 'Skapa mappanteckning',
+            deleteFolderNote: 'Ta bort mappnot',
             changeIcon: 'Ändra ikon',
             removeIcon: 'Ta bort ikon',
             changeColor: 'Ändra färg',
@@ -212,6 +214,7 @@ export const STRINGS_SV = {
             noteDisplay: 'Anteckningar',
             folderDisplay: 'Mappar',
             tagDisplay: 'Taggar',
+            folderNotes: 'Mappanteckningar',
             advanced: 'Avancerat',
         },
         items: {
@@ -334,6 +337,19 @@ export const STRINGS_SV = {
             showUntagged: {
                 name: 'Visa otaggade anteckningar',
                 desc: 'Visa "Otaggade" för anteckningar utan några taggar.',
+            },
+            enableFolderNotes: {
+                name: 'Aktivera mappanteckningar',
+                desc: 'Klicka på mappar för att öppna deras anteckningar istället för att visa fillistan.',
+            },
+            folderNoteName: {
+                name: 'Mappanteckningsnamn',
+                desc: 'Namnet på mappanteckningsfilen. Lämna tomt för att använda samma namn som mappen.',
+                placeholder: 'Lämna tomt för mappnamn',
+            },
+            hideFolderNoteInList: {
+                name: 'Dölj mappanteckningar i fillistan',
+                desc: 'Dölj mappanteckningen från att visas i mappens fillista.',
             },
             confirmBeforeDelete: {
                 name: 'Bekräfta innan borttagning',

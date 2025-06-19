@@ -158,7 +158,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         
         if (!hasNavigatorFocus && !isOpeningVersionHistory) {
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-        } else {
         }
     };
     
@@ -226,8 +225,13 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
      * - Now only runs when there's an actual reveal operation or selection change
      */
     useEffect(() => {
+        console.log('[NotebookNavigatorComponent] Reveal effect - isRevealOperation:', selectionState.isRevealOperation, 
+                    'selectedFolder:', selectionState.selectedFolder?.path, 
+                    'selectedFile:', selectionState.selectedFile?.path);
+        
         // ONLY process if this is a reveal operation, not normal keyboard navigation
         if (selectionState.isRevealOperation && selectionState.selectedFolder && selectionState.selectedFile) {
+            console.log('[NotebookNavigatorComponent] Processing reveal operation');
             const file = selectionState.selectedFile;
             
             // Build folder path to expand
@@ -248,9 +252,14 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             // Scroll to revealed items after a brief delay to ensure rendering is complete
             // This replaces the imperative setTimeout approach with a declarative effect
             const scrollTimer = setTimeout(() => {
+                console.log('[NotebookNavigatorComponent] Scrolling to revealed items');
+                
                 // Scroll to folder in left pane
                 const folderIndex = leftPaneRef.current?.getIndexOfPath(file.parent!.path);
+                console.log('[NotebookNavigatorComponent] Folder index:', folderIndex);
+                
                 if (folderIndex !== undefined && folderIndex !== -1) {
+                    console.log('[NotebookNavigatorComponent] Scrolling to folder at index:', folderIndex);
                     leftPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: 'center', behavior: 'auto' });
                 }
                 

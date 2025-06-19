@@ -25,6 +25,38 @@ import { buildTagTree, findTagNode, collectAllTagPaths } from './tagUtils';
 import { UNTAGGED_TAG_ID } from '../types';
 
 /**
+ * Checks if a file is a folder note for the given folder
+ */
+export function isFolderNote(file: TFile, folder: TFolder, folderNoteName: string): boolean {
+    // Must be directly in the folder
+    if (file.parent?.path !== folder.path) {
+        return false;
+    }
+    
+    // If folderNoteName is empty, use the folder name
+    const expectedName = folderNoteName || folder.name;
+    return file.basename === expectedName;
+}
+
+/**
+ * Gets the folder note for a folder if it exists
+ */
+export function getFolderNote(folder: TFolder, settings: NotebookNavigatorSettings, app: App): TFile | null {
+    if (!settings.enableFolderNotes) {
+        return null;
+    }
+
+    // Look for the folder note in the folder
+    for (const child of folder.children) {
+        if (isTFile(child) && isFolderNote(child, folder, settings.folderNoteName)) {
+            return child;
+        }
+    }
+    
+    return null;
+}
+
+/**
  * Collects files from a folder and optionally its subfolders
  */
 export function collectFilesFromFolder(folder: TFolder, includeSubfolders: boolean): TFile[] {
@@ -122,6 +154,17 @@ export function getFilesForFolder(
     
     let allFiles = collectFilesFromFolder(folder, settings.showNotesFromSubfolders)
         .filter(file => !shouldExcludeFile(file, excludedProperties, app));
+    
+    // Filter out folder notes if enabled and set to hide
+    if (settings.enableFolderNotes && settings.hideFolderNoteInList) {
+        allFiles = allFiles.filter(file => {
+            // Check if this file is a folder note for its parent folder
+            if (file.parent && isTFolder(file.parent)) {
+                return !isFolderNote(file, file.parent, settings.folderNoteName);
+            }
+            return true;
+        });
+    }
     
     const sortOption = getEffectiveSortOption(settings, 'folder', folder);
     sortFiles(allFiles, sortOption, settings, app.metadataCache);

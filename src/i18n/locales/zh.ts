@@ -85,6 +85,8 @@ export const STRINGS_ZH = {
             newBase: '新建数据库',
             duplicateFolder: '复制文件夹',
             searchInFolder: '在文件夹中搜索',
+            createFolderNote: '创建文件夹笔记',
+            deleteFolderNote: '删除文件夹笔记',
             changeIcon: '更改图标',
             removeIcon: '移除图标',
             changeColor: '更改颜色',
@@ -212,6 +214,7 @@ export const STRINGS_ZH = {
             noteDisplay: '笔记显示',
             folderDisplay: '文件夹显示',
             tagDisplay: '标签显示',
+            folderNotes: '文件夹笔记',
             advanced: '高级',
         },
         items: {
@@ -334,6 +337,19 @@ export const STRINGS_ZH = {
             showUntagged: {
                 name: '显示无标签笔记',
                 desc: '为没有任何标签的笔记显示"无标签"项目。',
+            },
+            enableFolderNotes: {
+                name: '启用文件夹笔记',
+                desc: '点击文件夹打开其笔记，而不是显示文件列表。',
+            },
+            folderNoteName: {
+                name: '文件夹笔记名称',
+                desc: '文件夹笔记文件的名称。留空以使用与文件夹相同的名称。',
+                placeholder: '留空以使用文件夹名称',
+            },
+            hideFolderNoteInList: {
+                name: '在文件列表中隐藏文件夹笔记',
+                desc: '隐藏文件夹笔记，使其不出现在文件夹的文件列表中。',
             },
             confirmBeforeDelete: {
                 name: '删除笔记前确认',

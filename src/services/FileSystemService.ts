@@ -21,6 +21,8 @@ import { InputModal } from '../modals/InputModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
 import { executeCommand } from '../utils/typeGuards';
 import { strings } from '../i18n';
+import { getFolderNote } from '../utils/fileFinder';
+import { NotebookNavigatorSettings } from '../settings';
 
 /**
  * Handles all file system operations for the Notebook Navigator
@@ -105,16 +107,38 @@ export class FileSystemOperations {
      * Renames a folder with user-provided name
      * Shows input modal pre-filled with current name
      * Validates that new name is different from current
+     * Also renames associated folder note if it exists
      * @param folder - The folder to rename
+     * @param settings - The plugin settings (optional)
      */
-    async renameFolder(folder: TFolder): Promise<void> {
+    async renameFolder(folder: TFolder, settings?: NotebookNavigatorSettings): Promise<void> {
         const modal = new InputModal(this.app, strings.modals.fileSystem.renameFolderTitle, strings.modals.fileSystem.renamePrompt, async (newName) => {
             if (newName && newName !== folder.name) {
                 try {
+                    // Check for folder note before renaming
+                    let folderNote: TFile | null = null;
+                    if (settings?.enableFolderNotes) {
+                        folderNote = getFolderNote(folder, settings, this.app);
+                    }
+                    
+                    // Rename the folder
                     const newPath = normalizePath(folder.parent?.path 
                         ? `${folder.parent.path}/${newName}` 
                         : newName);
                     await this.app.fileManager.renameFile(folder, newPath);
+                    
+                    // Rename the folder note if it exists and uses the same name as folder
+                    if (folderNote && settings && !settings.folderNoteName) {
+                        // Only rename if folderNoteName is empty (meaning it uses folder name)
+                        try {
+                            const newNoteName = `${newName}.${folderNote.extension}`;
+                            const newNotePath = normalizePath(`${newPath}/${newNoteName}`);
+                            await this.app.fileManager.renameFile(folderNote, newNotePath);
+                        } catch (error) {
+                            // Silently fail folder note rename - the main folder rename succeeded
+                            console.error('Failed to rename folder note:', error);
+                        }
+                    }
                 } catch (error) {
                     new Notice(strings.fileSystem.errors.renameFolder.replace('{error}', error.message));
                 }

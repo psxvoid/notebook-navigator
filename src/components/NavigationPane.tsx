@@ -34,6 +34,7 @@ import { isTFolder } from '../utils/typeGuards';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import { buildTagTree, TagTreeNode, getTotalNoteCount, clearNoteCountCache } from '../utils/tagUtils';
 import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders } from '../utils/fileFilters';
+import { getFolderNote } from '../utils/fileFinder';
 import { UNTAGGED_TAG_ID } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
@@ -328,6 +329,30 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     
     // Handle folder click
     const handleFolderClick = useCallback((folder: TFolder) => {
+        // Check if we should open a folder note instead
+        if (settings.enableFolderNotes) {
+            const folderNote = getFolderNote(folder, settings, app);
+            
+            if (folderNote) {
+                // Set folder as selected without auto-selecting first file
+                selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder, autoSelectedFile: null });
+                
+                // Set a temporary flag to prevent auto-reveal
+                (window as any).notebookNavigatorOpeningFolderNote = true;
+                
+                // Open the folder note
+                app.workspace.getLeaf().openFile(folderNote).then(() => {
+                    // Clear the flag after a short delay
+                    setTimeout(() => {
+                        delete (window as any).notebookNavigatorOpeningFolderNote;
+                    }, 100);
+                });
+                
+                return;
+            }
+        }
+        
+        // Normal folder selection behavior
         selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         
@@ -338,7 +363,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             // correct file (which will be the first file on a new folder selection).
             // No explicit scroll dispatch is needed here anymore.
         }
-    }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView, uiState.focusedPane]);
+    }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView, uiState.focusedPane, settings, app]);
     
     // Handle tag toggle
     const handleTagToggle = useCallback((path: string) => {
