@@ -87,6 +87,7 @@ johansan-notebook-navigator/
 │   │   ├── domUtils.ts                       # DOM helpers & data attribute access
 │   │   ├── fileFilters.ts                    # File/folder exclusion pattern matching
 │   │   ├── fileFinder.ts                     # File retrieval with sort/filter/pin logic
+│   │   ├── fileNameUtils.ts                  # File name display logic with extension handling
 │   │   ├── sortUtils.ts                      # File sorting comparators & overrides
 │   │   ├── tagUtils.ts                       # Tag tree building & hierarchy parsing
 │   │   ├── treeFlattener.ts                  # Tree to flat array for virtualization
@@ -323,6 +324,7 @@ This section provides a detailed breakdown of each file in the project, explaini
 
 #### Utility Functions
 - **`src/utils/fileFinder.ts`**: Contains the main logic (`getFilesForFolder`, `getFilesForTag`) for retrieving the correct list of files based on the current selection and all relevant settings (sorting, pinning, exclusions).
+- **`src/utils/fileNameUtils.ts`**: Handles file name display logic, including showing/hiding file extensions based on user settings and Obsidian's internal settings. Provides the `getFileDisplayName` function used throughout the UI.
 - **`src/utils/treeFlattener.ts`**: A critical utility for virtualization. It takes a hierarchical data structure (like nested folders) and converts it into a flat array with level information, which is what the `useVirtualizer` hook needs to render the list.
 - **`src/utils/sortUtils.ts`**: Contains all file sorting logic. It determines the effective sort option (global default vs. folder-specific override) and provides the comparison functions for `Array.sort()`.
 - **`src/utils/tagUtils.ts`**: Contains the logic for parsing all tags from the vault and building the hierarchical tag tree that is displayed in the left pane.
