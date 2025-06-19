@@ -35,13 +35,15 @@ interface UIState {
     focusedPane: 'folders' | 'files';
     currentMobileView: 'list' | 'files';
     paneWidth: number;
+    newlyCreatedPath: string | null;
 }
 
 // Action types
 type UIAction = 
     | { type: 'SET_FOCUSED_PANE'; pane: 'folders' | 'files' }
     | { type: 'SET_MOBILE_VIEW'; view: 'list' | 'files' }
-    | { type: 'SET_PANE_WIDTH'; width: number };
+    | { type: 'SET_PANE_WIDTH'; width: number }
+    | { type: 'SET_NEWLY_CREATED_PATH'; path: string | null };
     
 // Create contexts
 const UIStateContext = createContext<UIState | null>(null);
@@ -58,6 +60,9 @@ function uiStateReducer(state: UIState, action: UIAction): UIState {
         
         case 'SET_PANE_WIDTH':
             return { ...state, paneWidth: action.width };
+        
+        case 'SET_NEWLY_CREATED_PATH':
+            return { ...state, newlyCreatedPath: action.path };
         
         default:
             return state;
@@ -79,7 +84,8 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         return {
             focusedPane: 'folders',
             currentMobileView: 'list',
-            paneWidth: Math.max(PANE_DIMENSIONS.MIN_WIDTH, Math.min(paneWidth, PANE_DIMENSIONS.MAX_WIDTH))
+            paneWidth: Math.max(PANE_DIMENSIONS.MIN_WIDTH, Math.min(paneWidth, PANE_DIMENSIONS.MAX_WIDTH)),
+            newlyCreatedPath: null
         };
     };
     

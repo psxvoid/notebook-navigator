@@ -18,6 +18,7 @@
 
 import { useEffect, useState, useRef } from 'react';
 import { TFile, WorkspaceLeaf, App } from 'obsidian';
+import { useUIState, useUIDispatch } from '../context/UIStateContext';
 
 interface UseAutoRevealSettings {
     autoRevealActiveFile: boolean;
@@ -40,6 +41,8 @@ export function useAutoReveal(
     const lastRevealedFileRef = useRef<string | null>(null);
     const isUserInteractingRef = useRef(false);
     const isDeletingFileRef = useRef(false);
+    const uiState = useUIState();
+    const uiDispatch = useUIDispatch();
 
     // Reset fileToReveal after it's been consumed
     useEffect(() => {
@@ -100,13 +103,14 @@ export function useAutoReveal(
             }
             
             // Check if this is a file we just created via the plugin
-            const creatingFilePath = (app.workspace as any).notebookNavigatorCreatingFile;
-            const isNewlyCreatedFile = creatingFilePath && file.path === creatingFilePath;
+            const isNewlyCreatedFile = uiState.newlyCreatedPath && file.path === uiState.newlyCreatedPath;
             
             // Always reveal newly created files
             if (isNewlyCreatedFile) {
                 setFileToReveal(file);
                 lastRevealedFileRef.current = file.path;
+                // Clear the newly created path after consuming it
+                uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: null });
                 return;
             }
             
@@ -158,7 +162,7 @@ export function useAutoReveal(
             app.workspace.offref(activeLeafEventRef);
             app.workspace.offref(fileOpenEventRef);
         };
-    }, [app.workspace, settings.autoRevealActiveFile]);
+    }, [app.workspace, settings.autoRevealActiveFile, uiState.newlyCreatedPath, uiDispatch]);
 
     return { fileToReveal };
 }

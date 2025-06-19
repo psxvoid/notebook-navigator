@@ -81,22 +81,9 @@ export class FileSystemOperations {
             // Create the file
             const file = await this.app.vault.create(path, '');
             
-            // Mark that we're creating a file from the plugin
-            // This will be checked by the auto-reveal logic
-            (this.app.workspace as any).notebookNavigatorCreatingFile = file.path;
-            
             // Open the file and trigger rename mode
             const leaf = this.app.workspace.getLeaf(false);
             await leaf.openFile(file);
-            
-            // Clear the creation tracking flag after a short delay.
-            // This flag is used by the auto-reveal feature to distinguish between
-            // files created by this plugin vs files opened by other means.
-            // The 500ms delay ensures the flag persists long enough for the auto-reveal
-            // logic to detect and handle the newly created file.
-            setTimeout(() => {
-                delete (this.app.workspace as any).notebookNavigatorCreatingFile;
-            }, 500);
             
             // Trigger rename mode.
             // We use setTimeout to push this command to the end of the event queue.

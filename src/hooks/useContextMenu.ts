@@ -22,6 +22,7 @@ import { Menu, MenuItem, TFile, TFolder, Notice } from 'obsidian';
 import { useServices, useFileSystemOps, useMetadataService } from '../context/ServicesContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
+import { useUIDispatch } from '../context/UIStateContext';
 import { isFolderAncestor, getInternalPlugin, isTFolder, isTFile } from '../utils/typeGuards';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { strings } from '../i18n';
@@ -60,6 +61,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
     const { expandedFolders } = useExpansionState();
     const selectionDispatch = useSelectionDispatch();
     const expansionDispatch = useExpansionDispatch();
+    const uiDispatch = useUIDispatch();
     
     /**
      * Handles the context menu event.
@@ -94,7 +96,10 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     .setTitle(strings.contextMenu.folder.newNote)
                     .setIcon('file-plus')
                     .onClick(async () => {
-                        await fileSystemOps.createNewFile(folder);
+                        const file = await fileSystemOps.createNewFile(folder);
+                        if (file) {
+                            uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: file.path });
+                        }
                     });
             });
             

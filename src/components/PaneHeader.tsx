@@ -106,11 +106,14 @@ export function PaneHeader({ type }: PaneHeaderProps) {
         if (type !== 'file' || !selectionState.selectedFolder) return;
         
         try {
-            await fileSystemOps.createNewFile(selectionState.selectedFolder);
+            const file = await fileSystemOps.createNewFile(selectionState.selectedFolder);
+            if (file) {
+                uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: file.path });
+            }
         } catch (error) {
             // Error is handled by FileSystemOperations with user notification
         }
-    }, [selectionState.selectedFolder, fileSystemOps, type]);
+    }, [selectionState.selectedFolder, fileSystemOps, type, uiDispatch]);
     
     const getCurrentSortOption = useCallback((): SortOption => {
         return getEffectiveSortOption(settings, selectionState.selectionType, selectionState.selectedFolder);
