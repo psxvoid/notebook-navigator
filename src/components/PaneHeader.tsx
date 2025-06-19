@@ -56,12 +56,46 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     const uiDispatch = useUIDispatch();
     const fileSystemOps = useFileSystemOps();
     
+    /**
+     * Handles the expand/collapse all button click.
+     * 
+     * BEHAVIOR:
+     * - When collapsing: Sets expanded folders to show only the top level
+     *   - If showRootFolder is true: Keeps root folder ('/') expanded
+     *   - If showRootFolder is false: Collapses all folders (root children still visible)
+     * - When expanding: Expands all folders in the vault recursively
+     * 
+     * FIX HISTORY:
+     * - Previously set expanded folders to empty Set(), which was destructive
+     * - This caused auto-reveal to immediately re-expand folders to show selected file
+     * - Now properly maintains top-level visibility after collapse
+     */
     const handleExpandCollapseAll = useCallback(() => {
         if (type !== 'folder') return;
         
-        // If we have any expanded folders, collapse all
-        if (expansionState.expandedFolders.size > 0) {
-            expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: new Set() });
+        // Determine if we should collapse or expand
+        const rootFolder = app.vault.getRoot();
+        let shouldCollapse = false;
+        
+        if (settings.showRootFolder) {
+            // If showing root folder, check if anything beyond root is expanded
+            shouldCollapse = Array.from(expansionState.expandedFolders).some(path => path !== '/');
+        } else {
+            // If not showing root folder, check if any folders are expanded
+            shouldCollapse = expansionState.expandedFolders.size > 0;
+        }
+        
+        if (shouldCollapse) {
+            const collapsedState = new Set<string>();
+            
+            if (settings.showRootFolder) {
+                // Show just the root folder expanded
+                collapsedState.add('/');
+            } else {
+                // Don't expand anything - root level folders will still be visible
+            }
+            
+            expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: collapsedState });
         } else {
             // Otherwise, expand all folders
             const allFolders = new Set<string>();
@@ -86,6 +120,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
             
             expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: allFolders });
         }
+        
     }, [app, expansionState.expandedFolders.size, expansionDispatch, type, settings.showRootFolder]);
     
     const handleNewFolder = useCallback(async () => {

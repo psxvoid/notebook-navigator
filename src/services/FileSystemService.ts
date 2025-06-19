@@ -430,11 +430,34 @@ export class FileSystemOperations {
     }
 
     /**
-     * Opens version history for a file using Obsidian Sync
-     * Only available when Sync plugin is enabled
+     * Opens version history for a file using Obsidian Sync.
+     * 
+     * FOCUS ISSUE FIX:
+     * Problem: Version history modal requires editor to have focus to display
+     * 
+     * When working (e.g., second click):
+     * 1. File is already open and editor has focus
+     * 2. User right-clicks and selects "Version History"
+     * 3. Command executes successfully
+     * 4. Modal displays properly
+     * 
+     * When failing (e.g., first click on non-selected file):
+     * 1. User right-clicks non-selected file in navigator
+     * 2. Our code opens the file
+     * 3. Auto-reveal detects file change and calls revealFile()
+     * 4. revealFile() changes focus back to files pane (stealing from editor)
+     * 5. Version history command executes but modal can't show (no editor focus)
+     * 6. Command returns true but nothing visible happens
+     * 
+     * Solution: Set a flag to prevent revealFile() from changing focus
+     * when we're opening version history
+     * 
      * @param file - The file to view version history for
      */
     async openVersionHistory(file: TFile): Promise<void> {
+        // Set a flag to prevent focus stealing during reveal
+        (window as any).notebookNavigatorOpeningVersionHistory = true;
+        
         try {
             // Check if the file is already open in any leaf
             const leaves = this.app.workspace.getLeavesOfType('markdown');
@@ -446,19 +469,62 @@ export class FileSystemOperations {
             });
             const isAlreadyOpen = !!fileLeaf;
             
-            if (!isAlreadyOpen) {
-                // Only open the file if it's not already open
-                const leaf = this.app.workspace.getLeaf(false);
-                await leaf.openFile(file);
+            // Check if the file is the active file
+            const activeFile = this.app.workspace.getActiveFile();
+            const isActiveFile = activeFile?.path === file.path;
+            
+            if (!isActiveFile) {
+                // File needs to be opened or activated
+                console.log('[FileSystemService] File needs to be activated');
                 
-                // Wait for the file to be fully loaded in the editor
-                await new Promise(resolve => setTimeout(resolve, 200));
-            } else {
-                // Make sure the leaf with the file is active
-                if (fileLeaf) {
+                // Create a promise that resolves when the file becomes active
+                const waitForFileActive = new Promise<void>((resolve) => {
+                    let resolved = false;
+                    
+                    // Set up a listener for active leaf change
+                    const eventRef = this.app.workspace.on('active-leaf-change', () => {
+                        const activeFile = this.app.workspace.getActiveFile();
+                        if (activeFile?.path === file.path && !resolved) {
+                            resolved = true;
+                            this.app.workspace.offref(eventRef);
+                            resolve();
+                        }
+                    });
+                    
+                    // Timeout after 1 second
+                    setTimeout(() => {
+                        if (!resolved) {
+                            resolved = true;
+                            this.app.workspace.offref(eventRef);
+                            resolve();
+                        }
+                    }, 1000);
+                });
+                
+                if (!isAlreadyOpen) {
+                    // File is not open at all, open it
+                    const leaf = this.app.workspace.getLeaf(false);
+                    await leaf.openFile(file);
+                } else if (fileLeaf) {
+                    // File is open but not active, activate it
                     this.app.workspace.setActiveLeaf(fileLeaf, { focus: true });
-                    // Small delay to ensure the leaf is focused
-                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
+                
+                // Wait for the file to become active
+                await waitForFileActive;
+                
+            }
+            
+            // CRITICAL: Focus the editor view, not just activate the file
+            const activeLeaf = this.app.workspace.activeLeaf;
+            
+            if (activeLeaf && activeLeaf.view) {
+                activeLeaf.view.containerEl.focus();
+                
+                // Also try to focus the content element if it exists
+                const contentEl = (activeLeaf.view as any).contentEl;
+                if (contentEl) {
+                    contentEl.focus();
                 }
             }
             
@@ -483,8 +549,13 @@ export class FileSystemOperations {
             if (!executed) {
                 new Notice(strings.fileSystem.errors.versionHistoryNotFound);
             }
+            
+            // Clear the flag immediately after command execution
+            delete (window as any).notebookNavigatorOpeningVersionHistory;
         } catch (error) {
             new Notice(strings.fileSystem.errors.openVersionHistory.replace('{error}', error.message));
+            // Clear the flag on error too
+            delete (window as any).notebookNavigatorOpeningVersionHistory;
         }
     }
 

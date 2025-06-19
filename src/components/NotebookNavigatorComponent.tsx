@@ -177,14 +177,18 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         debugLog.debug('[NotebookNavigator] Dispatching REVEAL_FILE action');
         selectionDispatch({ type: 'REVEAL_FILE', file });
         
-        // Only change focus if we're not already in the navigator
+        // Only change focus if we're not already in the navigator AND not opening version history
         const navigatorEl = document.querySelector('.nn-split-container');
         const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
-        if (!hasNavigatorFocus) {
+        const isOpeningVersionHistory = (window as any).notebookNavigatorOpeningVersionHistory;
+        
+        if (!hasNavigatorFocus && !isOpeningVersionHistory) {
             debugLog.debug('[NotebookNavigator] Changing focus to files pane');
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         } else {
-            debugLog.debug('[NotebookNavigator] Keeping focus in navigator');
+            debugLog.debug('[NotebookNavigator] Keeping focus in navigator', {
+                hasNavigatorFocus,
+                isOpeningVersionHistory
         }
     };
     
@@ -248,7 +252,15 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         revealFile
     ]);
 
-    // Handle file reveal - expand folders and scroll when a file is revealed
+    /**
+     * Handle file reveal - expand folders and scroll when a file is revealed.
+     * 
+     * DEPENDENCY FIX:
+     * - Removed expansionState.expandedFolders from dependencies
+     * - This prevents the effect from re-running when folders are collapsed/expanded
+     * - Previously caused auto-reveal to fire after expand/collapse operations
+     * - Now only runs when there's an actual reveal operation or selection change
+     */
     useEffect(() => {
         // ONLY process if this is a reveal operation, not normal keyboard navigation
         if (selectionState.isRevealOperation && selectionState.selectedFolder && selectionState.selectedFile) {
@@ -335,7 +347,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             
             return () => clearTimeout(scrollTimer);
         }
-    }, [selectionState.isRevealOperation, selectionState.selectedFolder, selectionState.selectedFile, expansionDispatch, expansionState.expandedFolders]);
+    }, [selectionState.isRevealOperation, selectionState.selectedFolder, selectionState.selectedFile, expansionDispatch]);
     
 
     // Handle focus/blur events to track when navigator has focus
