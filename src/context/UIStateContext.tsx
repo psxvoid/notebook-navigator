@@ -35,17 +35,13 @@ interface UIState {
     focusedPane: 'folders' | 'files';
     currentMobileView: 'list' | 'files';
     paneWidth: number;
-    listScrollTop: number;
-    filesScrollTop: number;
 }
 
 // Action types
 type UIAction = 
     | { type: 'SET_FOCUSED_PANE'; pane: 'folders' | 'files' }
     | { type: 'SET_MOBILE_VIEW'; view: 'list' | 'files' }
-    | { type: 'SET_PANE_WIDTH'; width: number }
-    | { type: 'SET_LIST_SCROLL_TOP'; scrollTop: number }
-    | { type: 'SET_FILES_SCROLL_TOP'; scrollTop: number };
+    | { type: 'SET_PANE_WIDTH'; width: number };
     
 // Create contexts
 const UIStateContext = createContext<UIState | null>(null);
@@ -62,12 +58,6 @@ function uiStateReducer(state: UIState, action: UIAction): UIState {
         
         case 'SET_PANE_WIDTH':
             return { ...state, paneWidth: action.width };
-        
-        case 'SET_LIST_SCROLL_TOP':
-            return { ...state, listScrollTop: action.scrollTop };
-        
-        case 'SET_FILES_SCROLL_TOP':
-            return { ...state, filesScrollTop: action.scrollTop };
         
         default:
             return state;
@@ -89,9 +79,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         return {
             focusedPane: 'folders',
             currentMobileView: 'list',
-            paneWidth: Math.max(PANE_DIMENSIONS.MIN_WIDTH, Math.min(paneWidth, PANE_DIMENSIONS.MAX_WIDTH)),
-            listScrollTop: 0,
-            filesScrollTop: 0
+            paneWidth: Math.max(PANE_DIMENSIONS.MIN_WIDTH, Math.min(paneWidth, PANE_DIMENSIONS.MAX_WIDTH))
         };
     };
     

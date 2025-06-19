@@ -477,6 +477,22 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         scrollContainerRef: scrollContainerRef.current
     }), [filePathToIndex, rowVirtualizer]);
     
+    // Reset scroll position to top when folder/tag changes
+    useEffect(() => {
+        // Scroll to top when switching folders or tags
+        if (rowVirtualizer && scrollContainerRef.current) {
+            rowVirtualizer.scrollToIndex(0, { align: 'start', behavior: 'auto' });
+            
+            if (plugin.settings.debugMobile) {
+                debugLog.info('FileList: Reset scroll to top on folder/tag change', {
+                    selectionType,
+                    selectedFolder: selectedFolder?.path,
+                    selectedTag
+                });
+            }
+        }
+    }, [selectedFolder, selectedTag, rowVirtualizer]);
+    
     // Preserve scroll position when items are added on mobile
     useLayoutEffect(() => {
         if (!isMobile || !scrollContainerRef.current || !rowVirtualizer) return;
