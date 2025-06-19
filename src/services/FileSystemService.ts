@@ -89,13 +89,20 @@ export class FileSystemOperations {
             const leaf = this.app.workspace.getLeaf(false);
             await leaf.openFile(file);
             
-            // Clear the flag after a short delay
+            // Clear the creation tracking flag after a short delay.
+            // This flag is used by the auto-reveal feature to distinguish between
+            // files created by this plugin vs files opened by other means.
+            // The 500ms delay ensures the flag persists long enough for the auto-reveal
+            // logic to detect and handle the newly created file.
             setTimeout(() => {
                 delete (this.app.workspace as any).notebookNavigatorCreatingFile;
             }, 500);
             
-            // Trigger rename mode after the file is loaded
-            // We need to wait for the next event loop to ensure the editor is ready
+            // Trigger rename mode.
+            // We use setTimeout to push this command to the end of the event queue.
+            // This gives Obsidian's workspace time to finish opening the file and rendering the editor,
+            // making it more likely that the 'edit-file-title' command will find an active editor title to focus.
+            // Note: This is a known workaround for a race condition in Obsidian and may fail on slower systems.
             setTimeout(() => {
                 executeCommand(this.app, 'workspace:edit-file-title');
             }, 0);
@@ -296,7 +303,11 @@ export class FileSystemOperations {
             const leaf = this.app.workspace.getLeaf(false);
             await leaf.openFile(file);
             
-            // Trigger rename mode
+            // Trigger rename mode.
+            // We use setTimeout to push this command to the end of the event queue.
+            // This gives Obsidian's workspace time to finish opening the file and rendering the editor,
+            // making it more likely that the 'edit-file-title' command will find an active editor title to focus.
+            // Note: This is a known workaround for a race condition in Obsidian and may fail on slower systems.
             setTimeout(() => {
                 executeCommand(this.app, 'workspace:edit-file-title');
             }, 0);
@@ -334,7 +345,11 @@ export class FileSystemOperations {
             const leaf = this.app.workspace.getLeaf(false);
             await leaf.openFile(file);
             
-            // Trigger rename mode
+            // Trigger rename mode.
+            // We use setTimeout to push this command to the end of the event queue.
+            // This gives Obsidian's workspace time to finish opening the file and rendering the editor,
+            // making it more likely that the 'edit-file-title' command will find an active editor title to focus.
+            // Note: This is a known workaround for a race condition in Obsidian and may fail on slower systems.
             setTimeout(() => {
                 executeCommand(this.app, 'workspace:edit-file-title');
             }, 0);
@@ -438,7 +453,12 @@ export class FileSystemOperations {
             const leaf = this.app.workspace.getLeaf(false);
             await leaf.openFile(file);
             
-            // Wait a bit for the file to be fully loaded
+            // Wait for the file to be fully loaded in the editor.
+            // This delay is necessary because Obsidian needs time to:
+            // 1. Load the file content
+            // 2. Initialize the editor view
+            // 3. Make the title element available for renaming
+            // Without this delay, the rename command may fail to find the title element.
             await new Promise(resolve => setTimeout(resolve, 200));
             
             // Try both possible command IDs
