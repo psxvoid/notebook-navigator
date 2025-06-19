@@ -53,40 +53,6 @@ export function useAutoReveal(
         }
     }, [fileToReveal]);
     
-    // Log focus/defocus events for debugging
-    useEffect(() => {
-        const handleFocusIn = (e: FocusEvent) => {
-            const target = e.target as HTMLElement;
-            const navigatorEl = document.querySelector('.nn-split-container');
-            if (navigatorEl && navigatorEl.contains(target)) {
-                debugLog.debug('[AutoReveal] Navigator gained focus', {
-                    element: target.tagName,
-                    className: target.className,
-                    id: target.id
-                });
-            }
-        };
-        
-        const handleFocusOut = (e: FocusEvent) => {
-            const target = e.target as HTMLElement;
-            const navigatorEl = document.querySelector('.nn-split-container');
-            if (navigatorEl && navigatorEl.contains(target)) {
-                debugLog.debug('[AutoReveal] Navigator lost focus', {
-                    element: target.tagName,
-                    className: target.className,
-                    id: target.id
-                });
-            }
-        };
-        
-        document.addEventListener('focusin', handleFocusIn);
-        document.addEventListener('focusout', handleFocusOut);
-        
-        return () => {
-            document.removeEventListener('focusin', handleFocusIn);
-            document.removeEventListener('focusout', handleFocusOut);
-        };
-    }, []);
 
 
     // Main effect for detecting which file to reveal
@@ -103,13 +69,12 @@ export function useAutoReveal(
             // Check if this is a file we just created via the plugin
             const isNewlyCreatedFile = uiState.newlyCreatedPath && file.path === uiState.newlyCreatedPath;
             
-            // Check if this is a newly created file (Untitled files created with CMD+N)
-            const isUntitledNewFile = file.basename.startsWith('Untitled') && 
-                                     file.stat.ctime === file.stat.mtime &&
-                                     (Date.now() - file.stat.ctime) < 100; // Created within last 100ms
+            // Check if this is a newly created file (any file created within last 200ms)
+            const isRecentlyCreated = file.stat.ctime === file.stat.mtime &&
+                                     (Date.now() - file.stat.ctime) < 200;
             
             // Always reveal newly created files
-            if (isNewlyCreatedFile || isUntitledNewFile) {
+            if (isNewlyCreatedFile || isRecentlyCreated) {
                 setFileToReveal(file);
                 lastRevealedFileRef.current = file.path;
                 // Clear the newly created path after consuming it
