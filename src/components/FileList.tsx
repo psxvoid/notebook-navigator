@@ -167,6 +167,13 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         };
     }, [app]);
 
+    // Scroll to top handler for mobile header click
+    const handleScrollToTop = useCallback(() => {
+        if (isMobile && scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [isMobile]);
+    
     // Calculate files synchronously with useMemo
     const files = useMemo(() => {
         let allFiles: TFile[] = [];
@@ -803,7 +810,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     if (!selectedFolder && !selectedTag) {
         return (
             <div className="nn-right-pane">
-                <PaneHeader type="file" />
+                <PaneHeader type="file" onHeaderClick={handleScrollToTop} />
                 <div className="nn-file-list nn-empty-state">
                     <div className="nn-empty-message">{strings.fileList.emptyStateNoSelection}</div>
                 </div>
@@ -814,7 +821,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     if (files.length === 0) {
         return (
             <div className="nn-right-pane">
-                <PaneHeader type="file" />
+                <PaneHeader type="file" onHeaderClick={handleScrollToTop} />
                 <div className="nn-file-list nn-empty-state">
                     <div className="nn-empty-message">{strings.fileList.emptyStateNoNotes}</div>
                 </div>
@@ -825,7 +832,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     return (
         <ErrorBoundary componentName="FileList">
             <div className="nn-right-pane">
-                <PaneHeader type="file" />
+                <PaneHeader type="file" onHeaderClick={handleScrollToTop} />
             <div 
                 ref={scrollContainerRef}
                 className="nn-file-list"

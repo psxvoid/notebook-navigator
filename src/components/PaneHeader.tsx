@@ -33,6 +33,7 @@ import type { SortOption } from '../settings';
 
 interface PaneHeaderProps {
     type: 'folder' | 'file';
+    onHeaderClick?: () => void;
 }
 
 /**
@@ -44,7 +45,7 @@ interface PaneHeaderProps {
  * @param props.type - Whether this is the header for the 'folder' or 'file' pane
  * @returns A header element with context-appropriate action buttons
  */
-export function PaneHeader({ type }: PaneHeaderProps) {
+export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     const { app, isMobile } = useServices();
     const { settings, updateSettings } = useSettings();
     const expansionState = useExpansionState();
@@ -193,7 +194,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
         // For file pane header on mobile
         if (type === 'file') {
             return (
-                <div className="nn-pane-header">
+                <div className="nn-pane-header" onClick={onHeaderClick}>
                     <div className="nn-header-actions" style={{ width: '100%', justifyContent: 'space-between' }}>
                         <div className="nn-mobile-back">
                             <button
@@ -233,7 +234,7 @@ export function PaneHeader({ type }: PaneHeaderProps) {
         
         // For folder pane header on mobile
         return (
-            <div className="nn-pane-header">
+            <div className="nn-pane-header" onClick={onHeaderClick}>
                 <div className="nn-header-actions" style={{ width: '100%', justifyContent: 'flex-end' }}>
                     <button
                         className="nn-icon-button"

@@ -402,6 +402,13 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         }
     }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView, plugin.settings.debugMobile]);
     
+    // Scroll to top handler for mobile header click
+    const handleScrollToTop = useCallback(() => {
+        if (isMobile && scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [isMobile]);
+    
     // Render individual item
     const renderItem = useCallback((item: CombinedNavigationItem): React.ReactNode => {
         switch (item.type) {
@@ -455,7 +462,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     return (
         <ErrorBoundary componentName="LeftPaneVirtualized">
             <>
-                <PaneHeader type="folder" />
+                <PaneHeader type="folder" onHeaderClick={handleScrollToTop} />
             <div 
                 ref={scrollContainerRef}
                 className="nn-left-pane-scroller"
