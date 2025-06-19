@@ -189,6 +189,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             debugLog.debug('[NotebookNavigator] Keeping focus in navigator', {
                 hasNavigatorFocus,
                 isOpeningVersionHistory
+            });
         }
     };
     
