@@ -62,7 +62,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     
     // Log component mount/unmount only if debug is enabled
     useEffect(() => {
-        if (Platform.isMobile && plugin.settings.debugMobile) {
+        if (Platform.isMobile && settings.debugMobile) {
             debugLog.info('FileList: Mounted', {
                 selectionType,
                 selectedFolder: selectedFolder?.path,
@@ -75,7 +75,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 debugLog.info('FileList: Unmounted');
             };
         }
-    }, [plugin.settings.debugMobile]);
+    }, [settings.debugMobile]);
     
     
     // Track if the file selection is from user click vs auto-selection
@@ -114,7 +114,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 scrollContainerRef.current.scrollTop = 0;
             }
             
-            if (plugin.settings.debugMobile) {
+            if (settings.debugMobile) {
                 // Log state before collapse
                 const scrollContainer = scrollContainerRef.current;
                 if (scrollContainer) {
@@ -134,7 +134,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             app.workspace.leftSplit.collapse();
             
             // Log state after collapse
-            if (plugin.settings.debugMobile && scrollContainerRef.current) {
+            if (settings.debugMobile && scrollContainerRef.current) {
                 setTimeout(() => {
                     const scrollContainer = scrollContainerRef.current;
                     if (scrollContainer) {
@@ -179,12 +179,12 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         let allFiles: TFile[] = [];
 
         if (selectionType === 'folder' && selectedFolder) {
-            allFiles = getFilesForFolder(selectedFolder, plugin.settings, app);
+            allFiles = getFilesForFolder(selectedFolder, settings, app);
         } else if (selectionType === 'tag' && selectedTag) {
-            allFiles = getFilesForTag(selectedTag, plugin.settings, app);
+            allFiles = getFilesForTag(selectedTag, settings, app);
         }
         
-        if (plugin.settings.debugMobile) {
+        if (settings.debugMobile) {
             debugLog.info("FileList: File list calculated.", {
                 count: allFiles.length,
                 selectionType,
@@ -194,7 +194,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         }
         
         return allFiles;
-    }, [selectionType, selectedFolder, selectedTag, plugin.settings, app, fileVersion]);
+    }, [selectionType, selectedFolder, selectedTag, settings, app, fileVersion]);
     
     // Auto-open file when it's selected via folder/tag change (not user click)
     useEffect(() => {
@@ -207,7 +207,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             isUserSelection: isUserSelectionRef.current,
             isRevealOperation,
             isFolderChangeWithAutoSelect,
-            autoSelectFirstFile: plugin.settings.autoSelectFirstFile,
+            autoSelectFirstFile: settings.autoSelectFirstFile,
             isMobile
         });
         
@@ -217,7 +217,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             return;
         }
         
-        if (selectedFile && !isUserSelectionRef.current && plugin.settings.autoSelectFirstFile && !isMobile) {
+        if (selectedFile && !isUserSelectionRef.current && settings.autoSelectFirstFile && !isMobile) {
             // Check if we're actively navigating the navigator
             const navigatorEl = document.querySelector('.nn-split-container');
             const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
@@ -241,7 +241,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         }
         // Reset the flag after processing
         isUserSelectionRef.current = false;
-    }, [selectedFile, app.workspace, plugin.settings.autoSelectFirstFile, isMobile, selectionState.isRevealOperation, selectionState.isFolderChangeWithAutoSelect]);
+    }, [selectedFile, app.workspace, settings.autoSelectFirstFile, isMobile, selectionState.isRevealOperation, selectionState.isFolderChangeWithAutoSelect]);
     
     // Auto-select first file when files pane gains focus and no file is selected (desktop only)
     useEffect(() => {
@@ -284,12 +284,12 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             
             if (selectionType === 'folder' && selectedFolder) {
                 pinnedPaths = collectPinnedPaths(
-                    plugin.settings.pinnedNotes,
+                    settings.pinnedNotes,
                     selectedFolder,
-                    plugin.settings.showNotesFromSubfolders
+                    settings.showNotesFromSubfolders
                 );
             } else if (selectionType === 'tag') {
-                pinnedPaths = collectPinnedPaths(plugin.settings.pinnedNotes);
+                pinnedPaths = collectPinnedPaths(settings.pinnedNotes);
             } else {
                 pinnedPaths = new Set<string>();
             }
@@ -316,10 +316,10 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             }
             
             // Determine which sort option to use
-            const sortOption = getEffectiveSortOption(plugin.settings, selectionType, selectedFolder);
+            const sortOption = getEffectiveSortOption(settings, selectionType, selectedFolder);
             
             // Add unpinned files with date grouping if enabled
-            if (!plugin.settings.groupByDate || sortOption.startsWith('title')) {
+            if (!settings.groupByDate || sortOption.startsWith('title')) {
                 // No date grouping
                 unpinnedFiles.forEach(file => {
                     items.push({ 
@@ -337,7 +337,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                     const timestamp = DateUtils.getFileTimestamp(
                         file, 
                         dateField === 'ctime' ? 'created' : 'modified',
-                        plugin.settings,
+                        settings,
                         app.metadataCache
                     );
                     const groupTitle = DateUtils.getDateGroup(timestamp);
@@ -361,10 +361,10 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             }
             
             setListItems(items);
-            if (plugin.settings.debugMobile) {
+            if (settings.debugMobile) {
                 debugLog.info("FileList: List items rebuilt.", {
                     itemCount: items.length,
-                    hasDateGroups: plugin.settings.groupByDate && !sortOption.startsWith('title')
+                    hasDateGroups: settings.groupByDate && !sortOption.startsWith('title')
                 });
             }
         };
@@ -373,11 +373,11 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         rebuildListItems();
     }, [
         files, 
-        plugin.settings.groupByDate,
-        plugin.settings.defaultFolderSort,
-        plugin.settings.folderSortOverrides,
-        plugin.settings.pinnedNotes,
-        plugin.settings.showNotesFromSubfolders,
+        settings.groupByDate,
+        settings.defaultFolderSort,
+        settings.folderSortOverrides,
+        settings.pinnedNotes,
+        settings.showNotesFromSubfolders,
         selectionType,
         selectedFolder,
         selectedTag,
@@ -453,7 +453,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             }
 
             // For file items
-            const { showDate, showFilePreview, showFeatureImage, fileNameRows, previewRows, showSubfolderNamesInList } = plugin.settings;
+            const { showDate, showFilePreview, showFeatureImage, fileNameRows, previewRows, showSubfolderNamesInList } = settings;
             
             // Check if we're in slim mode (no date, preview, or image)
             const isSlimMode = !showDate && !showFilePreview && !showFeatureImage;
@@ -486,7 +486,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             
             // Add height for subfolder indicator if shown
             // This only shows when file is in a subfolder
-            if (showSubfolderNamesInList && plugin.settings.showNotesFromSubfolders) {
+            if (showSubfolderNamesInList && settings.showNotesFromSubfolders) {
                 // We can't know if this specific file is in a subfolder without more context
                 // So we add a conservative estimate
                 estimatedHeight += 8; // Average across files (some have it, some don't)
@@ -531,7 +531,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         if (rowVirtualizer && scrollContainerRef.current) {
             rowVirtualizer.scrollToIndex(0, { align: 'start', behavior: 'auto' });
             
-            if (plugin.settings.debugMobile) {
+            if (settings.debugMobile) {
                 debugLog.info('FileList: Reset scroll to top on folder/tag change', {
                     selectionType,
                     selectedFolder: selectedFolder?.path,
@@ -683,12 +683,12 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     
     // Pre-calculate date field for all files in the group
     const dateField = useMemo(() => {
-        return getDateField(plugin.settings.defaultFolderSort);
-    }, [plugin.settings.defaultFolderSort]);
+        return getDateField(settings.defaultFolderSort);
+    }, [settings.defaultFolderSort]);
     
     // Pre-compute formatted dates for all files to avoid doing it in render
     const filesWithDates = useMemo(() => {
-        if (!plugin.settings.showDate) return null;
+        if (!settings.showDate) return null;
         
         const dateMap = new Map<string, string>();
         let currentGroup: string | null = null;
@@ -701,17 +701,17 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 const timestamp = DateUtils.getFileTimestamp(
                     file,
                     dateField === 'ctime' ? 'created' : 'modified',
-                    plugin.settings,
+                    settings,
                     app.metadataCache
                 );
                 const formatted = currentGroup && currentGroup !== strings.fileList.pinnedSection
-                    ? DateUtils.formatDateForGroup(timestamp, currentGroup, plugin.settings.dateFormat, plugin.settings.timeFormat)
-                    : DateUtils.formatDate(timestamp, plugin.settings.dateFormat);
+                    ? DateUtils.formatDateForGroup(timestamp, currentGroup, settings.dateFormat, settings.timeFormat)
+                    : DateUtils.formatDate(timestamp, settings.dateFormat);
                 dateMap.set(file.path, formatted);
             }
         });
         return dateMap;
-    }, [listItems, dateField, plugin.settings.showDate, plugin.settings.dateFormat, plugin.settings.timeFormat, plugin.settings.useFrontmatterDates, plugin.settings.frontmatterCreatedField, plugin.settings.frontmatterModifiedField, plugin.settings.frontmatterDateFormat, strings.fileList.pinnedSection]);
+    }, [listItems, dateField, settings.showDate, settings.dateFormat, settings.timeFormat, settings.useFrontmatterDates, settings.frontmatterCreatedField, settings.frontmatterModifiedField, settings.frontmatterDateFormat, strings.fileList.pinnedSection]);
     
     // Track scroll events and calculate velocity on mobile
     useEffect(() => {
