@@ -26,11 +26,9 @@ import { useSettingsState } from '../context/SettingsContext';
 import { FileItem } from './FileItem';
 import { DateUtils } from '../utils/DateUtils';
 import { isTFile, isTFolder } from '../utils/typeGuards';
-import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 import { getFileFromElement } from '../utils/domUtils';
-import { buildTagTree, findTagNode, collectAllTagPaths, TagTreeNode } from '../utils/tagUtils';
-import { getEffectiveSortOption, sortFiles, getDateField } from '../utils/sortUtils';
-import { UNTAGGED_TAG_ID } from '../types';
+import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
+import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
 import { strings } from '../i18n';
 import type { FileListItem } from '../types/virtualization';
 import { PaneHeader } from './PaneHeader';
@@ -39,100 +37,6 @@ import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
 import { debugLog } from '../utils/debugLog';
 
-/**
- * Collects all pinned note paths from settings
- * @param pinnedNotes - The pinned notes settings object
- * @param folder - Optional folder to limit collection to (with subfolders if enabled)
- * @param includeSubfolders - Whether to include pinned notes from subfolders
- * @returns A Set of pinned file paths for O(1) lookup performance
- */
-function collectPinnedPaths(
-    pinnedNotes: Record<string, string[]>, 
-    folder?: TFolder, 
-    includeSubfolders = false
-): Set<string> {
-    const allPinnedPaths = new Set<string>();
-    
-    if (folder) {
-        // Collect from specific folder and optionally its subfolders
-        const collectFromFolder = (f: TFolder): void => {
-            const paths = pinnedNotes[f.path] || [];
-            paths.forEach(p => allPinnedPaths.add(p));
-            
-            if (includeSubfolders) {
-                for (const child of f.children) {
-                    if (isTFolder(child)) {
-                        collectFromFolder(child);
-                    }
-                }
-            }
-        };
-        
-        collectFromFolder(folder);
-    } else {
-        // Collect from all folders
-        for (const folderPath in pinnedNotes) {
-            const pinnedInFolder = pinnedNotes[folderPath];
-            if (pinnedInFolder && pinnedInFolder.length > 0) {
-                pinnedInFolder.forEach(path => allPinnedPaths.add(path));
-            }
-        }
-    }
-    
-    return allPinnedPaths;
-}
-
-/**
- * Separates files into pinned and unpinned arrays based on pinned paths
- * @param files - All files to separate
- * @param pinnedPaths - Set of pinned file paths
- * @returns Concatenated array with pinned files first, then unpinned files
- */
-function separatePinnedFiles(files: TFile[], pinnedPaths: Set<string>): TFile[] {
-    if (pinnedPaths.size === 0) {
-        return files;
-    }
-    
-    const pinnedFiles: TFile[] = [];
-    const unpinnedFiles: TFile[] = [];
-    
-    for (const file of files) {
-        if (pinnedPaths.has(file.path)) {
-            pinnedFiles.push(file);
-        } else {
-            unpinnedFiles.push(file);
-        }
-    }
-    
-    return [...pinnedFiles, ...unpinnedFiles];
-}
-
-/**
- * Collects files from a folder and optionally its subfolders
- * @param folder - The folder to collect files from
- * @param includeSubfolders - Whether to include files from subfolders
- * @returns Array of files
- */
-function collectFilesFromFolder(folder: TFolder, includeSubfolders: boolean): TFile[] {
-    const files: TFile[] = [];
-    
-    const collectFiles = (f: TFolder): void => {
-        for (const child of f.children) {
-            if (isTFile(child)) {
-                // Only include supported file types
-                if (child.extension === 'md' || child.extension === 'canvas' || 
-                    child.extension === 'base' || child.extension === 'pdf') {
-                    files.push(child);
-                }
-            } else if (includeSubfolders && isTFolder(child)) {
-                collectFiles(child);
-            }
-        }
-    };
-    
-    collectFiles(folder);
-    return files;
-}
 
 /**
  * Renders the file list pane displaying files from the selected folder.
@@ -253,77 +157,14 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     useEffect(() => {
         const rebuildFileList = () => {
             let allFiles: TFile[] = [];
-            const excludedProperties = parseExcludedProperties(plugin.settings.excludedFiles);
 
             if (selectionType === 'folder' && selectedFolder) {
-                allFiles = collectFilesFromFolder(selectedFolder, plugin.settings.showNotesFromSubfolders);
-                
+                allFiles = getFilesForFolder(selectedFolder, plugin.settings, app);
             } else if (selectionType === 'tag' && selectedTag) {
-                // Get all markdown files that aren't excluded
-                const allMarkdownFiles = app.vault.getMarkdownFiles()
-                    .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-                
-                // Special case for untagged files
-                if (selectedTag === UNTAGGED_TAG_ID) {
-                    allFiles = allMarkdownFiles.filter(file => {
-                        const cache = app.metadataCache.getFileCache(file);
-                        const fileTags = cache ? getAllTags(cache) : null;
-                        return !fileTags || fileTags.length === 0;
-                    });
-                } else {
-                    // Build the tag tree
-                    const tagTree = buildTagTree(allMarkdownFiles, app);
-                    
-                    // Find the selected tag node
-                    const selectedNode = findTagNode(selectedTag, tagTree);
-                    
-                    if (selectedNode) {
-                        // Collect all tags to include (selected tag and all children)
-                        const tagsToInclude = collectAllTagPaths(selectedNode);
-                        
-                        // Create a lowercase set for case-insensitive comparison
-                        const tagsToIncludeLower = new Set(
-                            Array.from(tagsToInclude).map(tag => tag.toLowerCase())
-                        );
-                        
-                        // Filter files that have any of the collected tags (case-insensitive)
-                        allFiles = allMarkdownFiles.filter(file => {
-                            const cache = app.metadataCache.getFileCache(file);
-                            const fileTags = cache ? getAllTags(cache) : null;
-                            return fileTags && fileTags.some(tag => tagsToIncludeLower.has(tag.toLowerCase()));
-                        });
-                    } else {
-                        // Fallback to empty if tag not found
-                        allFiles = [];
-                    }
-                }
+                allFiles = getFilesForTag(selectedTag, plugin.settings, app);
             }
             
-            // Filter out excluded files based on frontmatter properties
-            if (excludedProperties.length > 0) {
-                allFiles = allFiles.filter(file => !shouldExcludeFile(file, excludedProperties, app));
-            }
-            
-            // Determine which sort option to use and apply it
-            const sortOption = getEffectiveSortOption(plugin.settings, selectionType, selectedFolder);
-            sortFiles(allFiles, sortOption, plugin.settings, app.metadataCache);
-            
-            // Handle pinned notes
-            if (selectionType === 'folder' && selectedFolder) {
-                // Folder view: collect pinned notes from the selected folder (and subfolders if enabled)
-                const pinnedPaths = collectPinnedPaths(
-                    plugin.settings.pinnedNotes, 
-                    selectedFolder, 
-                    plugin.settings.showNotesFromSubfolders
-                );
-                setFiles(separatePinnedFiles(allFiles, pinnedPaths));
-            } else if (selectionType === 'tag') {
-                // Tag view: collect ALL pinned notes from all folders
-                const pinnedPaths = collectPinnedPaths(plugin.settings.pinnedNotes);
-                setFiles(separatePinnedFiles(allFiles, pinnedPaths));
-            } else {
-                setFiles(allFiles);
-            }
+            setFiles(allFiles);
             
             if (plugin.settings.debugMobile) {
                 debugLog.info("FileList: File list rebuilt.", {
@@ -412,16 +253,10 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         };
     }, [
         app,
-        plugin,
+        plugin.settings,
         selectionType,
         selectedFolder,
-        selectedTag,
-        plugin.settings.defaultFolderSort,
-        plugin.settings.folderSortOverrides,
-        plugin.settings.showNotesFromSubfolders,
-        plugin.settings.pinnedNotes,
-        plugin.settings.excludedFiles,
-        plugin.settings.useFrontmatterDates
+        selectedTag
     ]);
     
     // Auto-open file when it's selected via folder/tag change (not user click)
