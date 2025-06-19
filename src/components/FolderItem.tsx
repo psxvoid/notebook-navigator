@@ -33,6 +33,7 @@ interface FolderItemProps {
     isSelected: boolean;
     onToggle: () => void;
     onClick: () => void;
+    icon?: string;
 }
 
 /**
@@ -49,7 +50,7 @@ interface FolderItemProps {
  * @param props.onClick - Handler called when the folder is clicked
  * @returns A folder item element with chevron, icon, name and optional file count
  */
-export const FolderItem = React.memo(function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick }: FolderItemProps) {
+export const FolderItem = React.memo(function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick, icon }: FolderItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
     const folderRef = useRef<HTMLDivElement>(null);
@@ -105,17 +106,16 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
     // Add this useEffect for the folder icon
     useEffect(() => {
         if (iconRef.current && settings.showFolderIcons) {
-            const customIcon = settings.folderIcons?.[folder.path];
-            if (customIcon) {
+            if (icon) {
                 // Custom icon is set - always show it, never toggle
-                setIcon(iconRef.current, customIcon);
+                setIcon(iconRef.current, icon);
             } else {
                 // Default icon - show open folder only if has children AND is expanded
                 const iconName = (hasChildren && isExpanded) ? 'folder-open' : 'folder-closed';
                 setIcon(iconRef.current, iconName);
             }
         }
-    }, [isExpanded, folder.path, settings.folderIcons, hasChildren, settings.showFolderIcons]);
+    }, [isExpanded, icon, hasChildren, settings.showFolderIcons]);
 
     return (
         <div 

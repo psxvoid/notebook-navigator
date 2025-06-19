@@ -389,6 +389,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                             selectionState.selectedFolder?.path === item.data.path}
                         onToggle={() => handleFolderToggle(item.data.path)}
                         onClick={() => handleFolderClick(item.data)}
+                        icon={settings.folderIcons?.[item.data.path]}
                     />
                 );
                 
@@ -423,7 +424,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             default:
                 return null;
         }
-    }, [expansionState.expandedFolders, expansionState.expandedTags, selectionState.selectionType, selectionState.selectedFolder?.path, selectionState.selectedTag, handleFolderToggle, handleFolderClick, handleTagToggle, handleTagClick, untaggedCount, settings, spacerHeight]);
+    }, [expansionState.expandedFolders, expansionState.expandedTags, selectionState.selectionType, selectionState.selectedFolder?.path, selectionState.selectedTag, handleFolderToggle, handleFolderClick, handleTagToggle, handleTagClick, untaggedCount, settings, spacerHeight, settings.folderIcons]);
     
     return (
         <ErrorBoundary componentName="LeftPaneVirtualized">
