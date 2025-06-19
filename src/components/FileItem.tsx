@@ -178,9 +178,11 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
                                 </div>
                             )}
                         </div>
-                        {featureImageUrl && (
-                            <div className="nn-feature-image">
-                                <img src={featureImageUrl} alt={strings.common.featureImageAlt} className="nn-feature-image-img" />
+                        {settings.showFeatureImage && (
+                            <div className={`nn-feature-image ${!featureImageUrl ? 'nn-feature-image-placeholder' : ''}`}>
+                                {featureImageUrl ? (
+                                    <img src={featureImageUrl} alt={strings.common.featureImageAlt} className="nn-feature-image-img" />
+                                ) : null}
                             </div>
                         )}
                     </>
