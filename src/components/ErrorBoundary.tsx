@@ -83,8 +83,18 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
     render() {
         if (this.state.hasError && this.state.errorCount >= 3) {
-            // After 3 failed attempts, render nothing (fail silently)
-            return null;
+            // After 3 failed attempts, show a minimal error message
+            const componentName = this.props.componentName || 'Component';
+            return (
+                <div className="nn-error-boundary-message">
+                    <div className="nn-error-icon">⚠️</div>
+                    <div className="nn-error-text">
+                        {componentName} failed to load.
+                        <br />
+                        <small>Check console for details.</small>
+                    </div>
+                </div>
+            );
         }
 
         return this.props.children;

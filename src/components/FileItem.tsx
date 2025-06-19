@@ -156,7 +156,14 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
                 abortController = new AbortController();
                 
                 // Add a small delay to debounce rapid file changes
-                await new Promise(resolve => setTimeout(resolve, 50));
+                await new Promise((resolve, reject) => {
+                    const timer = setTimeout(resolve, 50);
+                    // Store cleanup function
+                    abortController!.signal.addEventListener('abort', () => {
+                        clearTimeout(timer);
+                        reject(new Error('Cancelled'));
+                    });
+                });
                 
                 if (isCancelled) return;
                 

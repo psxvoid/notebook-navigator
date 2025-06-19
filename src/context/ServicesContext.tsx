@@ -37,7 +37,7 @@ interface Services {
     /** File system operations service for creating, renaming, and deleting files/folders */
     fileSystemOps: FileSystemOperations;
     /** Metadata service for managing folder colors, icons, sorts, and pinned notes */
-    metadataService: MetadataService;
+    metadataService: MetadataService | null;
 }
 
 /**
@@ -106,5 +106,8 @@ export function useFileSystemOps() {
  */
 export function useMetadataService() {
     const { metadataService } = useServices();
+    if (!metadataService) {
+        throw new Error('MetadataService not initialized');
+    }
     return metadataService;
 }

@@ -31,7 +31,7 @@ import { PaneHeader } from './PaneHeader';
 import { strings } from '../i18n';
 import { isTFolder } from '../utils/typeGuards';
 import type { CombinedLeftPaneItem } from '../types/virtualization';
-import { buildTagTree, TagTreeNode, getTotalNoteCount } from '../utils/tagUtils';
+import { buildTagTree, TagTreeNode, getTotalNoteCount, clearNoteCountCache } from '../utils/tagUtils';
 import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders } from '../utils/fileFilters';
 import { UNTAGGED_TAG_ID } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
@@ -152,6 +152,9 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
             const excludedProperties = parseExcludedProperties(plugin.settings.excludedFiles);
             const allFiles = app.vault.getMarkdownFiles()
                 .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
+            
+            // Clear the cache before rebuilding to prevent memory accumulation
+            clearNoteCountCache();
             
             const newTree = buildTagTree(allFiles, app);
             

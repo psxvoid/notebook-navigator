@@ -210,11 +210,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
         );
         
         // Clean up settings after workspace is ready
-        // Use registerEvent to ensure proper cleanup
-        const layoutReadyRef = this.app.workspace.on('layout-ready', async () => {
-            // Only run once
-            this.app.workspace.offref(layoutReadyRef);
-            
+        // Use onLayoutReady for more reliable initialization
+        this.app.workspace.onLayoutReady(async () => {
             const cleanupStartTime = performance.now();
             if (this.metadataService && !this.isUnloading) {
                 await this.metadataService.cleanupAllMetadata();
@@ -232,7 +229,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 debugLog.info(`NotebookNavigatorPlugin: Plugin loaded in ${totalTime.toFixed(2)}ms`);
             }
         });
-        this.registerEvent(layoutReadyRef);
     }
 
     /**
