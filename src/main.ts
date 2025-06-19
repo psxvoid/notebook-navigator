@@ -422,7 +422,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         
         if (leaves.length === 0 && !this.ribbonIconEl) {
             // Add ribbon icon only if no navigator view exists
-            this.ribbonIconEl = this.addRibbonIcon('folder-tree', strings.plugin.ribbonTooltip, async () => {
+            this.ribbonIconEl = this.addRibbonIcon('notebook', strings.plugin.ribbonTooltip, async () => {
                 await this.activateView(true);
             });
         } else if (leaves.length > 0 && this.ribbonIconEl) {
