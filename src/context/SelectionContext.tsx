@@ -207,7 +207,6 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
     
     // Create an enhanced dispatch that handles side effects
     const enhancedDispatch = useCallback((action: SelectionAction) => {
-        debugLog.debug('[SelectionContext] Action dispatched:', {
         
         // Handle auto-select logic for folder selection
         if (action.type === 'SET_SELECTED_FOLDER' && !isMobile && action.autoSelectedFile === undefined) {
