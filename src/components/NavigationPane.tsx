@@ -40,6 +40,22 @@ import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
 import { debugLog } from '../utils/debugLog';
 
+// Item height constants for accurate virtualization
+const ITEM_HEIGHTS = {
+  desktop: {
+    folder: 32,      // Accounts for padding + line-height 1.4
+    tag: 32,         // Matches folder height
+    header: 35,      // Tag section header
+    spacer: 25       // Bottom spacer
+  },
+  mobile: {
+    folder: 44,      // Accounts for larger padding + min-height 40px
+    tag: 44,         // Matches folder height
+    header: 38,      // Slightly larger for mobile font sizes
+    spacer: 40       // Larger touch target
+  }
+};
+
 export interface NavigationPaneHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
@@ -280,11 +296,21 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         getScrollElement: () => scrollContainerRef.current,
         estimateSize: (index) => {
             const item = items[index];
-            if (item.type === 'tag-header') return 35; // Header height
-            if (item.type === 'spacer') return spacerHeight; // Bottom spacer height
-            // Mobile has larger touch targets with min-height: 40px
-            // Desktop uses smaller heights for denser display
-            return isMobile ? 40 : 28;
+            const heights = isMobile ? ITEM_HEIGHTS.mobile : ITEM_HEIGHTS.desktop;
+            
+            switch (item.type) {
+                case 'tag-header':
+                    return heights.header;
+                case 'spacer':
+                    return heights.spacer;
+                case 'folder':
+                    return heights.folder;
+                case 'tag':
+                case 'untagged':
+                    return heights.tag;
+                default:
+                    return heights.folder; // fallback
+            }
         },
         overscan: isMobile ? 50 : 10, // Match FileList's mobile overscan
     });
