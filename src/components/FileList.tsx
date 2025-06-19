@@ -658,34 +658,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         return dateMap;
     }, [listItems, dateField, plugin.settings.showDate, plugin.settings.dateFormat, plugin.settings.timeFormat, plugin.settings.useFrontmatterDates, plugin.settings.frontmatterCreatedField, plugin.settings.frontmatterModifiedField, plugin.settings.frontmatterDateFormat, strings.fileList.pinnedSection]);
     
-    // Helper function for safe array access
-    const safeGetItem = <T,>(array: T[], index: number): T | undefined => {
-        return index >= 0 && index < array.length ? array[index] : undefined;
-    };
-    
-    // Early returns MUST come after all hooks
-    if (!selectedFolder && !selectedTag) {
-        return (
-            <div className="nn-right-pane">
-                <PaneHeader type="file" />
-                <div className="nn-file-list nn-empty-state">
-                    <div className="nn-empty-message">{strings.fileList.emptyStateNoSelection}</div>
-                </div>
-            </div>
-        );
-    }
-    
-    if (files.length === 0) {
-        return (
-            <div className="nn-right-pane">
-                <PaneHeader type="file" />
-                <div className="nn-file-list nn-empty-state">
-                    <div className="nn-empty-message">{strings.fileList.emptyStateNoNotes}</div>
-                </div>
-            </div>
-        );
-    }
-    
     // Track scroll events and calculate velocity on mobile
     useEffect(() => {
         if (!isMobile || !scrollContainerRef.current) return;
@@ -714,9 +686,12 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         const handleTouchEnd = () => {
             // Keep scrolling state active for momentum duration
             scrollStateRef.current.scrollEndTimeoutId = window.setTimeout(() => {
-                scrollStateRef.current.isScrolling = false;
-                scrollStateRef.current.scrollVelocity = 0;
-                scrollStateRef.current.scrollEndTimeoutId = 0;
+                // Check if component is still mounted by verifying ref exists
+                if (scrollContainerRef.current) {
+                    scrollStateRef.current.isScrolling = false;
+                    scrollStateRef.current.scrollVelocity = 0;
+                    scrollStateRef.current.scrollEndTimeoutId = 0;
+                }
             }, MOMENTUM_DURATION);
         };
         
@@ -746,11 +721,14 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             // Set new timeout for scroll end detection
             scrollStateRef.current.animationFrameId = requestAnimationFrame(() => {
                 scrollStateRef.current.scrollEndTimeoutId = window.setTimeout(() => {
-                    // Only stop if velocity is low
-                    if (Math.abs(scrollStateRef.current.scrollVelocity) < VELOCITY_THRESHOLD) {
-                        scrollStateRef.current.isScrolling = false;
-                        scrollStateRef.current.scrollVelocity = 0;
-                        scrollStateRef.current.scrollEndTimeoutId = 0;
+                    // Check if component is still mounted
+                    if (scrollContainerRef.current) {
+                        // Only stop if velocity is low
+                        if (Math.abs(scrollStateRef.current.scrollVelocity) < VELOCITY_THRESHOLD) {
+                            scrollStateRef.current.isScrolling = false;
+                            scrollStateRef.current.scrollVelocity = 0;
+                            scrollStateRef.current.scrollEndTimeoutId = 0;
+                        }
                     }
                 }, SCROLL_END_DELAY);
             });
@@ -761,9 +739,13 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
         
         return () => {
-            scrollContainer.removeEventListener('touchstart', handleTouchStart);
-            scrollContainer.removeEventListener('touchend', handleTouchEnd);
-            scrollContainer.removeEventListener('scroll', handleScroll);
+            // Use current ref value in cleanup to ensure we remove from correct element
+            const container = scrollContainerRef.current;
+            if (container) {
+                container.removeEventListener('touchstart', handleTouchStart);
+                container.removeEventListener('touchend', handleTouchEnd);
+                container.removeEventListener('scroll', handleScroll);
+            }
             if (scrollStateRef.current.animationFrameId) {
                 cancelAnimationFrame(scrollStateRef.current.animationFrameId);
             }
@@ -771,7 +753,35 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 clearTimeout(scrollStateRef.current.scrollEndTimeoutId);
             }
         };
-    }, [isMobile, VELOCITY_THRESHOLD, SCROLL_END_DELAY, MOMENTUM_DURATION, VELOCITY_CALC_MAX_DIFF]);
+    }, [isMobile]);
+    
+    // Helper function for safe array access
+    const safeGetItem = <T,>(array: T[], index: number): T | undefined => {
+        return index >= 0 && index < array.length ? array[index] : undefined;
+    };
+    
+    // Early returns MUST come after all hooks
+    if (!selectedFolder && !selectedTag) {
+        return (
+            <div className="nn-right-pane">
+                <PaneHeader type="file" />
+                <div className="nn-file-list nn-empty-state">
+                    <div className="nn-empty-message">{strings.fileList.emptyStateNoSelection}</div>
+                </div>
+            </div>
+        );
+    }
+    
+    if (files.length === 0) {
+        return (
+            <div className="nn-right-pane">
+                <PaneHeader type="file" />
+                <div className="nn-file-list nn-empty-state">
+                    <div className="nn-empty-message">{strings.fileList.emptyStateNoNotes}</div>
+                </div>
+            </div>
+        );
+    }
     
     return (
         <ErrorBoundary componentName="FileList">
