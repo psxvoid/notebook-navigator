@@ -17,7 +17,7 @@
  */
 
 // src/components/NotebookNavigatorComponent.tsx
-import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useReducer } from 'react';
+import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState } from 'react';
 import { TFile, TFolder, TAbstractFile, WorkspaceLeaf, debounce, Platform, ItemView } from 'obsidian';
 import { LeftPaneVirtualized } from './LeftPaneVirtualized';
 import { FileList } from './FileList';
@@ -39,7 +39,7 @@ import { debugLog } from '../utils/debugLog';
 import { flattenFolderTree, findFolderIndex } from '../utils/treeFlattener';
 import { parseExcludedFolders } from '../utils/fileFilters';
 import { Virtualizer } from '@tanstack/react-virtual';
-import { autoRevealReducer, initialAutoRevealState, shouldAutoReveal } from '../reducers/autoRevealReducer';
+import { useAutoReveal } from '../hooks/useAutoReveal';
 
 export interface NotebookNavigatorHandle {
     revealFile: (file: TFile) => void;
@@ -245,19 +245,29 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                     // Re-measure to ensure accurate dimensions
                     virtualizer.measure();
                     
-                    // Scroll to the selected item
+                    // Log container dimensions for debugging
+                    const scrollContainer = virtualizer.scrollElement;
+                    if (scrollContainer) {
+                        debugLog.info(`Scroll container dimensions: offsetHeight=${scrollContainer.offsetHeight}, scrollHeight=${scrollContainer.scrollHeight}`);
+                    }
+                    
+                    // Use nested requestAnimationFrame to ensure layout is complete
                     requestAnimationFrame(() => {
-                        debugLog.info(`Initial scroll to ${selectedPath} at index ${selectedIndex}`);
-                        virtualizer.scrollToIndex(selectedIndex, { 
-                            align: 'center', 
-                            behavior: 'auto' // Instant scroll for initial positioning
+                        requestAnimationFrame(() => {
+                            debugLog.info(`Initial scroll to ${selectedPath} at index ${selectedIndex}`);
+                            virtualizer.scrollToIndex(selectedIndex, { 
+                                align: 'center', 
+                                behavior: 'auto' // Instant scroll for initial positioning
+                            });
                         });
                     });
                 }
             };
             
-            // Delay to ensure view has regained dimensions
-            setTimeout(performInitialScroll, 100);
+            // Use setTimeout with requestAnimationFrame for more reliable timing
+            setTimeout(() => {
+                requestAnimationFrame(performInitialScroll);
+            }, 100);
         }
     }), [
         selectionDispatch, 
@@ -353,8 +363,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         }
     }, [uiState.focusedPane]);
 
-    // Use reducer for auto-reveal state machine
-    const [autoRevealState, autoRevealDispatch] = useReducer(autoRevealReducer, initialAutoRevealState);
+    // Use auto-reveal hook for cleaner code organization
+    const autoRevealDispatch = useAutoReveal({
+        autoRevealActiveFile: plugin.settings.autoRevealActiveFile,
+        showNotesFromSubfolders: plugin.settings.showNotesFromSubfolders
+    });
     
     // Track when the navigator is being hidden to ensure consistent state
     useEffect(() => {
@@ -396,130 +409,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         };
     }, [app.workspace, isMobile]);
     
-    // Add this useEffect to handle active leaf changes and file-open events
-    useEffect(() => {
-        if (!plugin.settings.autoRevealActiveFile) return;
-
-        const handleFileChange = (file: TFile | null) => {
-            if (!file) return;
-            
-            // Check if this is a file we just created via the plugin
-            const creatingFilePath = (app.workspace as any).notebookNavigatorCreatingFile;
-            const isNewlyCreatedFile = creatingFilePath && file.path === creatingFilePath;
-            
-            // Check if auto-reveal should proceed
-            if (!shouldAutoReveal(autoRevealState, isNewlyCreatedFile)) {
-                return;
-            }
-            
-            // For newly created files, handle them specially
-            if (isNewlyCreatedFile && file.parent) {
-                // Check if we've already revealed this file
-                if (!autoRevealState.revealedFiles.has(file.path)) {
-                    autoRevealDispatch({ type: 'REVEAL_FILE_START', file });
-                    
-                    // Always reveal newly created files
-                    selectionDispatch({ type: 'REVEAL_FILE', file });
-                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                    
-                    // Cleanup tracking after creation flag timeout
-                    setTimeout(() => {
-                        autoRevealDispatch({ type: 'CLEAR_REVEALED_FILE', filePath: file.path });
-                    }, 1000);
-                    
-                    autoRevealDispatch({ type: 'REVEAL_FILE_END', filePath: file.path });
-                }
-                return; // Don't process normal reveal logic for new files
-            }
-            
-            // Always update selected file if it's different
-            if (selectionState.selectedFile?.path !== file.path) {
-                selectionDispatch({ type: 'SET_SELECTED_FILE', file });
-                
-                // Check if we need to reveal the file in the folder tree
-                let needsReveal = true;
-                
-                if (selectionState.selectedFolder && file.parent) {
-                    // Check if file is in the selected folder
-                    if (selectionState.selectedFolder.path === file.parent.path) {
-                        needsReveal = false;
-                    }
-                    
-                    // If showing notes from subfolders, check if file is in a subfolder
-                    if (plugin.settings.showNotesFromSubfolders) {
-                        // Check if the file's parent is a descendant of the currently selected folder
-                        if (file.parent.path.startsWith(selectionState.selectedFolder.path + '/') || 
-                            file.parent.path === selectionState.selectedFolder.path) {
-                            // The file is visible in the current view. Do nothing else.
-                            needsReveal = false;
-                        }
-                    }
-                }
-                
-                
-                // Only reveal if the file is not already visible in the current view
-                if (needsReveal && file.parent) {
-                    // Build the folder path hierarchy to expand
-                    const foldersToExpand: string[] = [];
-                    let currentFolder: TFolder | null = file.parent;
-                    while (currentFolder) {
-                        foldersToExpand.unshift(currentFolder.path);
-                        if (currentFolder.path === '/') break;
-                        currentFolder = currentFolder.parent;
-                    }
-                    
-                    // Expand folders if needed
-                    const needsExpansion = foldersToExpand.some(path => !expansionState.expandedFolders.has(path));
-                    if (needsExpansion) {
-                        expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
-                    }
-                    
-                    // Trigger the reveal - scrolling will happen via the reveal effect
-                    selectionDispatch({ type: 'REVEAL_FILE', file });
-                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                }
-            }
-        };
-
-        const handleActiveLeafChange = (leaf: WorkspaceLeaf | null) => {
-            if (!leaf) return;
-            
-            // Only process leaves in the main editor area
-            if (leaf.getRoot() !== app.workspace.rootSplit) {
-                return;
-            }
-            
-            // Get the file from the active view
-            const view = leaf.view as any;
-            if (view && view.file && view.file instanceof TFile) {
-                handleFileChange(view.file);
-            }
-        };
-
-        const handleFileOpen = (file: TFile | null) => {
-            if (file instanceof TFile) {
-                // Only process if the file is opened in the main editor area
-                const activeLeaf = app.workspace.activeLeaf;
-                if (activeLeaf && activeLeaf.getRoot() === app.workspace.rootSplit) {
-                    handleFileChange(file);
-                }
-            }
-        };
-
-        const activeLeafEventRef = app.workspace.on('active-leaf-change', handleActiveLeafChange);
-        const fileOpenEventRef = app.workspace.on('file-open', handleFileOpen);
-        
-        // Check for currently active file on mount
-        const activeFile = app.workspace.getActiveFile();
-        if (activeFile) {
-            handleFileChange(activeFile);
-        }
-
-        return () => {
-            app.workspace.offref(activeLeafEventRef);
-            app.workspace.offref(fileOpenEventRef);
-        };
-    }, [app.workspace, selectionDispatch, expansionDispatch, uiDispatch, plugin.settings.autoRevealActiveFile, plugin.settings.showNotesFromSubfolders, isMobile, autoRevealState, autoRevealDispatch]);
     
     // Handle delete events to clean up stale state
     useEffect(() => {

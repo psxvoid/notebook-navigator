@@ -115,11 +115,13 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         }
         
         // Swap left/right arrow behavior for RTL layouts
-        const effectiveKey = isRTL ? (
-            e.key === 'ArrowLeft' ? 'ArrowRight' : 
-            e.key === 'ArrowRight' ? 'ArrowLeft' : 
-            e.key
-        ) : e.key;
+        let effectiveKey = e.key;
+        if (isRTL) {
+            switch(e.key) {
+                case 'ArrowLeft': effectiveKey = 'ArrowRight'; break;
+                case 'ArrowRight': effectiveKey = 'ArrowLeft'; break;
+            }
+        }
         
         switch (effectiveKey) {
             case 'ArrowDown':

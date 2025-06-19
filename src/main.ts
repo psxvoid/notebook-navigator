@@ -373,8 +373,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
             }
         }
 
-        // No need to store reference anymore
-
         return leaf;
     }
 

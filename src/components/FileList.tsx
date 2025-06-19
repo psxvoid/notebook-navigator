@@ -17,7 +17,6 @@
  */
 
 import React, { useMemo, useLayoutEffect, useCallback, useRef, useEffect, useState, useImperativeHandle, forwardRef } from 'react';
-import { debounce } from 'obsidian';
 import { TFile, TFolder, TAbstractFile, getAllTags, Platform } from 'obsidian';
 import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { useServices } from '../context/ServicesContext';
@@ -339,8 +338,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         // Initial build
         rebuildFileList();
         
-        // Create a debounced version only for vault events to prevent rapid rebuilds
-        const debouncedRebuild = debounce(rebuildFileList, 300);
         
         // Listen to vault events that should trigger rebuild
         const vaultEvents = [
@@ -349,7 +346,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                     // Only rebuild if the created file is in the current folder or if we're in tag view
                     if (selectionType === 'tag' || 
                         (selectionType === 'folder' && selectedFolder && file.parent?.path === selectedFolder.path)) {
-                        debouncedRebuild();
+                        rebuildFileList();
                     }
                 }
             }),
@@ -357,7 +354,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 if (isTFile(file)) {
                     // Always rebuild if we're in tag view
                     if (selectionType === 'tag') {
-                        debouncedRebuild();
+                        rebuildFileList();
                         return;
                     }
                     
@@ -372,16 +369,16 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                             
                             // For root folder, all files are considered to be "within" it
                             if (folderPath === '') {
-                                debouncedRebuild();
+                                rebuildFileList();
                             } else if (filePath.startsWith(folderPath + '/')) {
                                 // File is in a subfolder
-                                debouncedRebuild();
+                                rebuildFileList();
                             } else {
                                 // Check if file is directly in the selected folder
                                 const lastSlashIndex = filePath.lastIndexOf('/');
                                 const fileParentPath = lastSlashIndex === -1 ? '' : filePath.substring(0, lastSlashIndex);
                                 if (fileParentPath === folderPath) {
-                                    debouncedRebuild();
+                                    rebuildFileList();
                                 }
                             }
                         } else {
@@ -391,21 +388,21 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                             const fileParentPath = lastSlashIndex === -1 ? '' : file.path.substring(0, lastSlashIndex);
                             
                             if (fileParentPath === selectedFolder.path) {
-                                debouncedRebuild();
+                                rebuildFileList();
                             }
                         }
                     }
                 }
             }),
             app.vault.on('rename', (file) => {
-                if (isTFile(file)) debouncedRebuild();
+                if (isTFile(file)) rebuildFileList();
             })
         ];
         
         const metadataEvent = app.metadataCache.on('changed', (file) => {
             // Only rebuild if we're in tag view or if frontmatter dates are enabled
             if (selectionType === 'tag' || plugin.settings.useFrontmatterDates) {
-                debouncedRebuild();
+                rebuildFileList();
             }
         });
         
