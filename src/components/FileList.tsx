@@ -93,14 +93,8 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             
             app.workspace.leftSplit.collapse();
             
-            // Trigger a reveal operation after a short delay to ensure the virtualizer
-            // state is updated while the view is hidden. This ensures the file list
-            // shows the selected file when returning from the editor.
-            setTimeout(() => {
-                selectionDispatch({ type: 'REVEAL_FILE', file });
-            }, 100);
         }
-    }, [app.workspace, selectionDispatch, uiDispatch, isMobile]);
+    }, [app.workspace, uiDispatch, isMobile]);
     
     // This effect now only listens for vault events to trigger a refresh
     useEffect(() => {
