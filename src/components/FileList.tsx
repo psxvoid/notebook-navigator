@@ -618,14 +618,23 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     // Scroll to selected file when it changes - use useLayoutEffect to happen before paint
     useLayoutEffect(() => {
         if (selectedFilePath) {
-            const index = filePathToIndex.get(selectedFilePath);
-            if (index !== undefined && index !== -1) {
+            const fileIndex = filePathToIndex.get(selectedFilePath);
+            if (fileIndex !== undefined && fileIndex !== -1) {
+                // Check if there's a header immediately before this file
+                // If so, scroll to the header instead to ensure it's visible
+                let scrollToIndex = fileIndex;
+                if (fileIndex > 0 && listItems[fileIndex - 1]?.type === 'header') {
+                    scrollToIndex = fileIndex - 1;
+                }
+                
                 // Get current scroll position before scrolling
                 const scrollBefore = scrollContainerRef.current?.scrollTop || 0;
                 
                 debugLog.debug('[FileList] Scroll to selected file triggered', {
                     selectedFilePath,
-                    index,
+                    fileIndex,
+                    scrollToIndex,
+                    hasHeaderBefore: scrollToIndex !== fileIndex,
                     isMobile,
                     alignment: isMobile ? 'center' : 'auto',
                     scrollBefore,
@@ -643,7 +652,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 
                 // Scroll immediately to prevent flicker
                 // Use center alignment on mobile for better visibility, auto on desktop
-                rowVirtualizer.scrollToIndex(index, { 
+                rowVirtualizer.scrollToIndex(scrollToIndex, { 
                     align: isMobile ? 'center' : 'auto', 
                     behavior: 'auto' 
                 });
@@ -661,7 +670,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 }, 0);
             }
         }
-    }, [selectedFilePath, filePathToIndex, rowVirtualizer, isMobile]);
+    }, [selectedFilePath, filePathToIndex, rowVirtualizer, isMobile, listItems]);
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
