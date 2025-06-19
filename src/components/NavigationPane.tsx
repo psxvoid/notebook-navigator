@@ -30,7 +30,7 @@ import { TagTreeItem } from './TagTreeItem';
 import { PaneHeader } from './PaneHeader';
 import { strings } from '../i18n';
 import { isTFolder } from '../utils/typeGuards';
-import type { CombinedLeftPaneItem } from '../types/virtualization';
+import type { CombinedNavigationItem } from '../types/virtualization';
 import { buildTagTree, TagTreeNode, getTotalNoteCount, clearNoteCountCache } from '../utils/tagUtils';
 import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders } from '../utils/fileFilters';
 import { UNTAGGED_TAG_ID } from '../types';
@@ -39,13 +39,13 @@ import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
 import { debugLog } from '../utils/debugLog';
 
-export interface LeftPaneHandle {
+export interface NavigationPaneHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
     scrollContainerRef: HTMLDivElement | null;
 }
 
-export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
+export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     const { app, plugin, isMobile } = useServices();
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
@@ -206,11 +206,11 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
     // =================================================================================
     // We use useState to hold flattened items to prevent virtualizer re-initialization
     // =================================================================================
-    const [items, setItems] = useState<CombinedLeftPaneItem[]>([]);
+    const [items, setItems] = useState<CombinedNavigationItem[]>([]);
     
     useEffect(() => {
         const rebuildItems = () => {
-        const allItems: CombinedLeftPaneItem[] = [];
+        const allItems: CombinedNavigationItem[] = [];
         
         // Add folders
         const folderItems = flattenFolderTree(
@@ -261,7 +261,7 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
         
             setItems(allItems);
             if (plugin.settings.debugMobile) {
-                debugLog.info("LeftPaneVirtualized: Items list rebuilt.", { count: allItems.length });
+                debugLog.info("NavigationPane: Items list rebuilt.", { count: allItems.length });
             }
         };
         
@@ -325,7 +325,7 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
     
     // Handle folder click
     const handleFolderClick = useCallback((folder: TFolder) => {
-        debugLog.debug('LeftPaneVirtualized: Folder clicked', {
+        debugLog.debug('NavigationPane: Folder clicked', {
             folder: folder.path,
             isMobile,
             currentMobileView: uiState.currentMobileView
@@ -350,7 +350,7 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
     // Handle tag click
     const handleTagClick = useCallback((tagPath: string) => {
         if (Platform.isMobile && plugin.settings.debugMobile) {
-            debugLog.debug('LeftPaneVirtualized: Tag clicked', {
+            debugLog.debug('NavigationPane: Tag clicked', {
                 tag: tagPath,
                 isMobile,
                 currentMobileView: uiState.currentMobileView
@@ -369,7 +369,7 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
     }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView, plugin.settings.debugMobile]);
     
     // Render individual item
-    const renderItem = useCallback((item: CombinedLeftPaneItem): React.ReactNode => {
+    const renderItem = useCallback((item: CombinedNavigationItem): React.ReactNode => {
         switch (item.type) {
             case 'folder':
                 return (

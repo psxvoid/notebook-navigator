@@ -19,9 +19,9 @@
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState } from 'react';
 import { TFile, TFolder, TAbstractFile, WorkspaceLeaf, debounce, Platform, ItemView } from 'obsidian';
-import { LeftPaneVirtualized } from './LeftPaneVirtualized';
+import { NavigationPane } from './NavigationPane';
 import { FileList } from './FileList';
-import type { LeftPaneHandle } from './LeftPaneVirtualized';
+import type { NavigationPaneHandle } from './NavigationPane';
 import type { FileListHandle } from './FileList';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useServices } from '../context/ServicesContext';
@@ -68,7 +68,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const uiDispatch = useUIDispatch();
     const containerRef = useRef<HTMLDivElement>(null);
     const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
-    const leftPaneRef = useRef<LeftPaneHandle>(null);
+    const leftPaneRef = useRef<NavigationPaneHandle>(null);
     const fileListRef = useRef<FileListHandle>(null);
     
     // Only set up logging effects if debug is enabled
@@ -416,7 +416,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             }}
         >
             <div className="nn-left-pane" style={{ width: isMobile ? '100%' : `${paneWidth}px` }}>
-                <LeftPaneVirtualized ref={leftPaneRef} />
+                <NavigationPane ref={leftPaneRef} />
             </div>
             {!isMobile && <div className="nn-resize-handle" {...resizeHandleProps} />}
             <ErrorBoundary componentName="FileList">

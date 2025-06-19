@@ -44,7 +44,7 @@ johansan-notebook-navigator/
 │   ├── settings.ts
 │   ├── components/
 │   │   ├── NotebookNavigatorComponent.tsx
-│   │   ├── LeftPaneVirtualized.tsx
+│   │   ├── NavigationPane.tsx
 │   │   ├── FileList.tsx
 │   │   ├── FolderItem.tsx
 │   │   ├── FileItem.tsx
@@ -120,7 +120,7 @@ NotebookNavigatorView (Obsidian ItemView)
                     └── UIStateProvider
                         └── NotebookNavigatorComponent
                             ├── PaneHeader (left)
-                            ├── LeftPaneVirtualized
+                            ├── NavigationPane
                             │   └── FolderItem / TagTreeItem
                             ├── PaneHeader (right)
                             └── FileList
@@ -245,8 +245,8 @@ This section provides a detailed breakdown of each file in the project, explaini
 - Implements mobile navigation using the `useSwipeGesture` hook.
 - Implements drag-and-drop functionality using the `useDragAndDrop` hook.
 - Contains the primary `useEffect` hooks for handling the `autoRevealActiveFile` setting by listening to workspace events.
-- **`src/components/LeftPaneVirtualized.tsx`**
-- **Purpose**: Renders the virtualized left pane, which contains both the folder tree and the tag tree.
+- **`src/components/NavigationPane.tsx`**
+- **Purpose**: Renders the virtualized navigation pane, which contains both the folder tree and the tag tree.
 - **Responsibilities**:
 - Uses `@tanstack/react-virtual` (`useVirtualizer`) to efficiently render long lists of folders and tags.
 - Uses `flattenFolderTree` and `flattenTagTree` utilities to convert the hierarchical data into a flat array for the virtualizer.

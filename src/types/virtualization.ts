@@ -49,7 +49,7 @@ export interface TagTreeItem {
   key: string;
 }
 
-export type CombinedLeftPaneItem = 
+export type CombinedNavigationItem = 
   | FolderTreeItem
   | { type: 'tag-header'; key: string }
   | TagTreeItem
