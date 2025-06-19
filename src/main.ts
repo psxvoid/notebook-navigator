@@ -47,9 +47,11 @@ import { debugLog } from './utils/debugLog';
 export default class NotebookNavigatorPlugin extends Plugin {
     settings: NotebookNavigatorSettings;
     ribbonIconEl: HTMLElement | undefined = undefined;
-    metadataService: MetadataService;
+    metadataService: MetadataService | null = null;
     // A map of callbacks to notify open React views of changes
     private settingsUpdateListeners = new Map<string, () => void>();
+    // Track if we're in the process of unloading
+    private isUnloading = false;
 
     // LocalStorage keys for state persistence
     // These keys are used to save and restore the plugin's state between sessions
@@ -64,7 +66,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
         const startTime = performance.now();
         
         // Initialize debug logger with vault - delay to ensure vault is ready
-        setTimeout(async () => {
+        // Store timeout ID for cleanup if needed
+        const debugInitTimeout = setTimeout(async () => {
             try {
                 await debugLog.initialize(this.app.vault, Platform.isMobile && this.settings.debugMobile);
                 debugLog.info('NotebookNavigatorPlugin: Starting plugin load', {
@@ -77,6 +80,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 console.error('Debug logger initialization failed:', error);
             }
         }, 500);
+        
+        // Store timeout for potential early cleanup
+        (this as any)._debugInitTimeout = debugInitTimeout;
         
         await this.loadSettings();
         
@@ -182,7 +188,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         // Register rename event handler to update folder metadata
         this.registerEvent(
             this.app.vault.on('rename', async (file, oldPath) => {
-                if (file instanceof TFolder) {
+                if (file instanceof TFolder && this.metadataService && !this.isUnloading) {
                     await this.metadataService.handleFolderRename(oldPath, file.path);
                     // The metadata service saves settings which triggers reactive updates
                 }
@@ -192,6 +198,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
         // Register delete event handler to clean up folder metadata
         this.registerEvent(
             this.app.vault.on('delete', async (file) => {
+                if (!this.metadataService || this.isUnloading) return;
+                
                 if (file instanceof TFolder) {
                     await this.metadataService.handleFolderDelete(file.path);
                 } else if (file instanceof TFile) {
@@ -202,13 +210,19 @@ export default class NotebookNavigatorPlugin extends Plugin {
         );
         
         // Clean up settings after workspace is ready
-        this.app.workspace.onLayoutReady(async () => {
+        // Use registerEvent to ensure proper cleanup
+        const layoutReadyRef = this.app.workspace.on('layout-ready', async () => {
+            // Only run once
+            this.app.workspace.offref(layoutReadyRef);
+            
             const cleanupStartTime = performance.now();
-            await this.metadataService.cleanupAllMetadata();
+            if (this.metadataService && !this.isUnloading) {
+                await this.metadataService.cleanupAllMetadata();
+            }
             
             // Always open the view if it doesn't exist
             const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-            if (leaves.length === 0) {
+            if (leaves.length === 0 && !this.isUnloading) {
                 await this.activateView(true);
             }
             
@@ -218,6 +232,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 debugLog.info(`NotebookNavigatorPlugin: Plugin loaded in ${totalTime.toFixed(2)}ms`);
             }
         });
+        this.registerEvent(layoutReadyRef);
     }
 
     /**
@@ -242,15 +257,34 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * Per Obsidian guidelines: leaves should not be detached in onunload
      */
     onunload() {
+        // Set unloading flag to prevent any new operations
+        this.isUnloading = true;
+        
         if (Platform.isMobile && this.settings.debugMobile) {
             debugLog.info('NotebookNavigatorPlugin: Unloading plugin');
         }
+        
+        // Clear any pending timeouts
+        if ((this as any)._debugInitTimeout) {
+            clearTimeout((this as any)._debugInitTimeout);
+            (this as any)._debugInitTimeout = null;
+        }
+        
+        // Clear all listeners first to prevent any callbacks during cleanup
+        this.settingsUpdateListeners.clear();
+        
+        // Clean up the metadata service
+        if (this.metadataService) {
+            // Clear the reference to break circular dependencies
+            this.metadataService = null;
+        }
+        
         // Close the debug log file
         debugLog.close();
+        
         // Clean up the ribbon icon
         this.ribbonIconEl?.remove();
-        // Clear all listeners to prevent memory leaks
-        this.settingsUpdateListeners.clear();
+        this.ribbonIconEl = undefined;
     }
 
     /**
@@ -290,7 +324,17 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * This triggers a re-render in the React components.
      */
     public onSettingsUpdate() {
-        this.settingsUpdateListeners.forEach(callback => callback());
+        if (this.isUnloading) return;
+        
+        // Create a copy of listeners to avoid issues if a callback modifies the map
+        const listeners = Array.from(this.settingsUpdateListeners.values());
+        listeners.forEach(callback => {
+            try {
+                callback();
+            } catch (error) {
+                console.error('Error in settings update listener:', error);
+            }
+        });
     }
 
     /**

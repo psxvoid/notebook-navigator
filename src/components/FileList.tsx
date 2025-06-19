@@ -340,10 +340,10 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         rebuildFileList();
         
         // Create a debounced version only for vault events to prevent rapid rebuilds
-        const debouncedRebuild = debounce(rebuildFileList, 300, true);
+        const debouncedRebuild = debounce(rebuildFileList, 300);
         
         // Listen to vault events that should trigger rebuild
-        const events = [
+        const vaultEvents = [
             app.vault.on('create', (file) => {
                 if (isTFile(file)) {
                     // Only rebuild if the created file is in the current folder or if we're in tag view
@@ -377,19 +377,23 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             }),
             app.vault.on('rename', (file) => {
                 if (isTFile(file)) debouncedRebuild();
-            }),
-            app.metadataCache.on('changed', (file) => {
-                // Only rebuild if we're in tag view or if frontmatter dates are enabled
-                if (selectionType === 'tag' || plugin.settings.useFrontmatterDates) {
-                    debouncedRebuild();
-                }
             })
         ];
         
+        const metadataEvent = app.metadataCache.on('changed', (file) => {
+            // Only rebuild if we're in tag view or if frontmatter dates are enabled
+            if (selectionType === 'tag' || plugin.settings.useFrontmatterDates) {
+                debouncedRebuild();
+            }
+        });
+        
         return () => {
-            events.forEach(eventRef => app.vault.offref(eventRef));
+            vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
+            app.metadataCache.offref(metadataEvent);
         };
     }, [
+        app,
+        plugin,
         selectionType,
         selectedFolder,
         selectedTag,

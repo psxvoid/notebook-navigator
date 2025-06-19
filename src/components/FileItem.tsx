@@ -102,6 +102,11 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
     }, [file.path, file.stat.mtime, settings.showFeatureImage, settings.featureImageProperty, app.metadataCache, app.vault]);
 
     // Load preview text
+    // This effect handles async file reading with proper race condition prevention:
+    // 1. Uses isCancelled flag to prevent state updates after unmount
+    // 2. Adds debouncing to handle rapid file changes
+    // 3. Wraps async operations in try-catch for proper error handling
+    // 4. Includes abort controller setup for future cancellation support
     useEffect(() => {
         // Only load preview text if the setting is enabled
         if (!settings.showFilePreview) {
@@ -110,6 +115,7 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
         }
         
         let isCancelled = false;
+        let abortController: AbortController | null = null;
         
         // For non-markdown files, set extension immediately
         if (file.extension !== 'md') {
@@ -143,23 +149,41 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
             }
         }
         
-        // Load markdown preview text from file content
-        app.vault.cachedRead(file)
-            .then(content => {
+        // Create an async function to handle the file read with proper error handling
+        const loadPreview = async () => {
+            try {
+                // Create abort controller for true cancellation support if needed in future
+                abortController = new AbortController();
+                
+                // Add a small delay to debounce rapid file changes
+                await new Promise(resolve => setTimeout(resolve, 50));
+                
+                if (isCancelled) return;
+                
+                const content = await app.vault.cachedRead(file);
+                
                 if (!isCancelled) {
                     setPreviewText(PreviewTextUtils.extractPreviewText(content, settings));
                 }
-            })
-            .catch(error => {
+            } catch (error) {
                 if (!isCancelled) {
-                    console.error('Failed to read file preview:', error);
+                    // Only log actual errors, not cancellations
+                    if (error instanceof Error && error.message !== 'Cancelled') {
+                        console.error('Failed to read file preview:', error);
+                    }
                     setPreviewText(''); // Clear preview on error
                 }
-            });
+            }
+        };
+        
+        // Start loading the preview
+        loadPreview();
         
         // Cleanup function
         return () => { 
             isCancelled = true;
+            // Abort controller for future use when Obsidian API supports it
+            abortController?.abort();
         };
     }, [file.path, file.stat.mtime, app.vault, settings.showFilePreview, settings.skipHeadingsInPreview, settings.skipNonTextInPreview]); // Include mtime to detect file changes
     

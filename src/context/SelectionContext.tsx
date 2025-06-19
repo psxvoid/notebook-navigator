@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { createContext, useContext, useReducer, useEffect, ReactNode, useCallback } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode, useCallback, useRef } from 'react';
 import { TFile, TFolder } from 'obsidian';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { useSettingsState } from './SettingsContext';
@@ -198,8 +198,14 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
     const loadInitialState = useCallback((): SelectionState => {
         const vault = app.vault;
         
-        // Load saved folder path
-        const savedFolderPath = localStorage.getItem(STORAGE_KEYS.SELECTED_FOLDER);
+        // Load saved folder path with error handling
+        let savedFolderPath: string | null = null;
+        try {
+            savedFolderPath = localStorage.getItem(STORAGE_KEYS.SELECTED_FOLDER);
+        } catch (error) {
+            console.error('Failed to load selected folder from localStorage:', error);
+        }
+        
         let selectedFolder: TFolder | null = null;
         if (savedFolderPath) {
             const folder = vault.getAbstractFileByPath(savedFolderPath);
@@ -208,8 +214,14 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             }
         }
         
-        // Load saved file path
-        const savedFilePath = localStorage.getItem(STORAGE_KEYS.SELECTED_FILE);
+        // Load saved file path with error handling
+        let savedFilePath: string | null = null;
+        try {
+            savedFilePath = localStorage.getItem(STORAGE_KEYS.SELECTED_FILE);
+        } catch (error) {
+            console.error('Failed to load selected file from localStorage:', error);
+        }
+        
         let selectedFile: TFile | null = null;
         if (savedFilePath) {
             const file = vault.getAbstractFileByPath(savedFilePath);
@@ -232,28 +244,48 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
         };
     }, [app.vault]);
     
-    // Wrap the reducer with useCallback to recreate it when settings change
-    const reducer = useCallback((state: SelectionState, action: SelectionAction) => {
-        return selectionReducer(state, action, settings, app, isMobile);
+    // Use refs to access current values in reducer since useReducer doesn't update the reducer function
+    const settingsRef = useRef(settings);
+    const appRef = useRef(app);
+    const isMobileRef = useRef(isMobile);
+    
+    // Update refs when values change
+    useEffect(() => {
+        settingsRef.current = settings;
+        appRef.current = app;
+        isMobileRef.current = isMobile;
     }, [settings, app, isMobile]);
+    
+    // Stable reducer that uses refs to access current values
+    const reducer = useCallback((state: SelectionState, action: SelectionAction) => {
+        return selectionReducer(state, action, settingsRef.current, appRef.current, isMobileRef.current);
+    }, []);
     
     const [state, dispatch] = useReducer(reducer, undefined, loadInitialState);
     
-    // Persist selected folder to localStorage
+    // Persist selected folder to localStorage with error handling
     useEffect(() => {
-        if (state.selectedFolder) {
-            localStorage.setItem(STORAGE_KEYS.SELECTED_FOLDER, state.selectedFolder.path);
-        } else {
-            localStorage.removeItem(STORAGE_KEYS.SELECTED_FOLDER);
+        try {
+            if (state.selectedFolder) {
+                localStorage.setItem(STORAGE_KEYS.SELECTED_FOLDER, state.selectedFolder.path);
+            } else {
+                localStorage.removeItem(STORAGE_KEYS.SELECTED_FOLDER);
+            }
+        } catch (error) {
+            console.error('Failed to save selected folder to localStorage:', error);
         }
     }, [state.selectedFolder]);
     
-    // Persist selected file to localStorage
+    // Persist selected file to localStorage with error handling
     useEffect(() => {
-        if (state.selectedFile) {
-            localStorage.setItem(STORAGE_KEYS.SELECTED_FILE, state.selectedFile.path);
-        } else {
-            localStorage.removeItem(STORAGE_KEYS.SELECTED_FILE);
+        try {
+            if (state.selectedFile) {
+                localStorage.setItem(STORAGE_KEYS.SELECTED_FILE, state.selectedFile.path);
+            } else {
+                localStorage.removeItem(STORAGE_KEYS.SELECTED_FILE);
+            }
+        } catch (error) {
+            console.error('Failed to save selected file to localStorage:', error);
         }
     }, [state.selectedFile]);
     

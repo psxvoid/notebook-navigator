@@ -114,7 +114,7 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
         buildFolders();
         
         // Create debounced version for vault events
-        const rebuildFolders = debounce(buildFolders, 300, true);
+        const rebuildFolders = debounce(buildFolders, 300);
         
         // Listen to vault events for folder changes
         const events = [
@@ -173,31 +173,27 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
         buildTags();
         
         // Create debounced version for events
-        const rebuildTagTree = debounce(buildTags, 300, true);
+        const rebuildTagTree = debounce(buildTags, 300);
 
         // Listen to specific vault and metadata events
-        const events = [
+        const vaultEvents = [
             app.vault.on('create', rebuildTagTree),
             app.vault.on('delete', rebuildTagTree),
-            app.vault.on('rename', rebuildTagTree),
-            // Only rebuild if the changed file has tags
-            app.metadataCache.on('changed', (file) => {
-                if (file) {
-                    const cache = app.metadataCache.getFileCache(file);
-                    if (cache) {
-                        const tags = getAllTags(cache);
-                        if (tags && tags.length > 0) {
-                            rebuildTagTree();
-                        }
-                    }
-                }
-            })
+            app.vault.on('rename', rebuildTagTree)
         ];
+        
+        // Always rebuild on metadata changes - tags might have been added OR removed
+        const metadataEvent = app.metadataCache.on('changed', (file) => {
+            if (file && file.extension === 'md') {
+                rebuildTagTree();
+            }
+        });
 
         return () => {
-            events.forEach(eventRef => app.vault.offref(eventRef));
+            vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
+            app.metadataCache.offref(metadataEvent);
         };
-    }, [plugin.settings.showTags, plugin.settings.showUntagged, plugin.settings.excludedFiles]); // REMOVED 'app' dependency to prevent constant rebuilds
+    }, [app, plugin.settings.showTags, plugin.settings.showUntagged, plugin.settings.excludedFiles]);
     // =================================================================================
     // =================================================================================
     
