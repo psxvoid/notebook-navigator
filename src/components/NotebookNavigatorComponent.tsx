@@ -519,7 +519,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             app.workspace.offref(activeLeafEventRef);
             app.workspace.offref(fileOpenEventRef);
         };
-    }, [app.workspace, selectionDispatch, expansionDispatch, plugin.settings.autoRevealActiveFile, plugin.settings.showNotesFromSubfolders, selectionState.selectedFile, selectionState.selectedFolder, isMobile]);
+    }, [app.workspace, selectionDispatch, expansionDispatch, uiDispatch, plugin.settings.autoRevealActiveFile, plugin.settings.showNotesFromSubfolders, isMobile]);
     
     // Handle delete events to clean up stale state
     useEffect(() => {

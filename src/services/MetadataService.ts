@@ -25,6 +25,8 @@ import { NotebookNavigatorSettings, SortOption } from '../settings';
  * Provides cleanup operations for deleted files/folders
  */
 export class MetadataService {
+    private updateQueue: Promise<void> = Promise.resolve();
+    
     /**
      * Creates a new MetadataService instance
      * @param app - The Obsidian app instance
@@ -39,10 +41,20 @@ export class MetadataService {
     
     /**
      * Saves settings and triggers UI update
-     * Uses the updateSettings function for reactive updates
+     * Uses a queue to serialize updates and prevent race conditions
      */
     private async saveAndUpdate(updater: (settings: NotebookNavigatorSettings) => void): Promise<void> {
-        await this.updateSettings(updater);
+        // Queue this update to run after any pending updates
+        this.updateQueue = this.updateQueue.then(async () => {
+            try {
+                await this.updateSettings(updater);
+            } catch (error) {
+                console.error('MetadataService: Failed to save settings:', error);
+                throw error;
+            }
+        });
+        
+        return this.updateQueue;
     }
 
     // ========== Folder Color Management ==========
@@ -53,6 +65,20 @@ export class MetadataService {
      * @param color - CSS color value
      */
     async setFolderColor(folderPath: string, color: string): Promise<void> {
+        // Validate that the folder exists
+        const folder = this.app.vault.getAbstractFileByPath(folderPath);
+        if (!folder || !(folder instanceof TFolder)) {
+            console.warn(`MetadataService: Cannot set color for non-existent folder: ${folderPath}`);
+            return;
+        }
+        
+        // Basic color validation - check if it's a valid CSS color format
+        const colorRegex = /^(#[0-9A-Fa-f]{3,8}|rgb\(|rgba\(|hsl\(|hsla\(|[a-zA-Z]+)$/;
+        if (!colorRegex.test(color)) {
+            console.warn(`MetadataService: Invalid color format: ${color}`);
+            return;
+        }
+        
         await this.saveAndUpdate(settings => {
             if (!settings.folderColors) {
                 settings.folderColors = {};
@@ -259,6 +285,12 @@ export class MetadataService {
             if (settings.pinnedNotes) {
                 for (const folderPath in settings.pinnedNotes) {
                     const filePaths = settings.pinnedNotes[folderPath];
+                    if (!Array.isArray(filePaths)) {
+                        // Remove invalid entry
+                        delete settings.pinnedNotes[folderPath];
+                        continue;
+                    }
+                    
                     const validFiles = filePaths.filter((filePath: string) => {
                         const file = this.app.vault.getAbstractFileByPath(filePath);
                         return file instanceof TFile;
