@@ -284,20 +284,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         }
     }, [isMobile, uiState.focusedPane, selectedFile, files, selectionDispatch, app.workspace]);
     
-    // Check if selected file exists in current folder/tag view
-    useEffect(() => {
-        if (isMobile && uiState.currentMobileView === 'files' && selectedFile) {
-            // Check if the selected file exists in the current file list
-            const fileExists = files.some(f => f.path === selectedFile.path);
-            if (!fileExists) {
-                // Selected file doesn't exist in current view, clear selection
-                debugLog.info('FileList: Selected file not in current view, clearing selection', {
-                    previousFile: selectedFile.path
-                });
-                selectionDispatch({ type: 'SET_SELECTED_FILE', file: null });
-            }
-        }
-    }, [isMobile, uiState.currentMobileView, files, selectedFile, selectionDispatch]);
     
     const [listItems, setListItems] = useState<FileListItem[]>([]);
     
