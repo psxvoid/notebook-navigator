@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile, TFolder, TAbstractFile, Notice, normalizePath, Platform } from 'obsidian';
+import { App, TFile, TFolder, TAbstractFile, Notice, normalizePath, Platform, MarkdownView } from 'obsidian';
 import { InputModal } from '../modals/InputModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
 import { executeCommand } from '../utils/typeGuards';
@@ -436,17 +436,31 @@ export class FileSystemOperations {
      */
     async openVersionHistory(file: TFile): Promise<void> {
         try {
-            // Ensure the file is open and active first
-            const leaf = this.app.workspace.getLeaf(false);
-            await leaf.openFile(file);
+            // Check if the file is already open in any leaf
+            const leaves = this.app.workspace.getLeavesOfType('markdown');
             
-            // Wait for the file to be fully loaded in the editor.
-            // This delay is necessary because Obsidian needs time to:
-            // 1. Load the file content
-            // 2. Initialize the editor view
-            // 3. Make the title element available for renaming
-            // Without this delay, the rename command may fail to find the title element.
-            await new Promise(resolve => setTimeout(resolve, 200));
+            // Find if our file is open in any leaf
+            const fileLeaf = leaves.find(leaf => {
+                const view = leaf.view as any;
+                return view && 'file' in view && view.file?.path === file.path;
+            });
+            const isAlreadyOpen = !!fileLeaf;
+            
+            if (!isAlreadyOpen) {
+                // Only open the file if it's not already open
+                const leaf = this.app.workspace.getLeaf(false);
+                await leaf.openFile(file);
+                
+                // Wait for the file to be fully loaded in the editor
+                await new Promise(resolve => setTimeout(resolve, 200));
+            } else {
+                // Make sure the leaf with the file is active
+                if (fileLeaf) {
+                    this.app.workspace.setActiveLeaf(fileLeaf, { focus: true });
+                    // Small delay to ensure the leaf is focused
+                    await new Promise(resolve => setTimeout(resolve, 50));
+                }
+            }
             
             // Try both possible command IDs
             const commandIds = ['sync:show-sync-history', 'sync:view-version-history'];
@@ -455,6 +469,7 @@ export class FileSystemOperations {
             for (const commandId of commandIds) {
                 try {
                     const success = executeCommand(this.app, commandId);
+                    
                     if (success) {
                         executed = true;
                         break;
