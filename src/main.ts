@@ -94,8 +94,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 // Update settings
                 updater(this.settings);
                 await this.saveSettings();
-                // Call our new, centralized notification method
-                this.onSettingsUpdate();
+                // The SettingsContext will handle updates through its listener
             }
         );
         
@@ -313,6 +312,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
      */
     async saveSettings() {
         await this.saveData(this.settings);
+        // Notify all listeners that settings have been updated
+        this.onSettingsUpdate();
     }
 
     /**

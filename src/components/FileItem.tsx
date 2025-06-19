@@ -16,14 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useEffect, useState, useRef, useMemo, memo } from 'react';
+import React, { useRef, useMemo, memo } from 'react';
 import { TFile } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { DateUtils } from '../utils/DateUtils';
-import { PreviewTextUtils } from '../utils/PreviewTextUtils';
 import { getDateField } from '../utils/sortUtils';
 import { useContextMenu } from '../hooks/useContextMenu';
+import { useFilePreview } from '../hooks/useFilePreview';
 import { strings } from '../i18n';
 import { ObsidianIcon } from './ObsidianIcon';
 
@@ -51,8 +51,13 @@ interface FileItemProps {
 function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate, parentFolder }: FileItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
-    const [previewText, setPreviewText] = useState('');
     const fileRef = useRef<HTMLDivElement>(null);
+    
+    // Get file metadata for preview
+    const metadata = app.metadataCache.getFileCache(file);
+    
+    // Use the custom hook for preview text
+    const previewText = useFilePreview({ file, metadata, settings, app });
     
     // Enable context menu
     useContextMenu(fileRef, { type: 'file', item: file });
@@ -76,7 +81,6 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
             return null;
         }
 
-        const metadata = app.metadataCache.getFileCache(file);
         const imagePath = metadata?.frontmatter?.[settings.featureImageProperty];
 
         if (!imagePath) {
@@ -99,100 +103,7 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
         }
 
         return null;
-    }, [file.path, file.stat.mtime, settings.showFeatureImage, settings.featureImageProperty, app.metadataCache, app.vault]);
-
-    // Load preview text
-    // This effect handles async file reading with proper race condition prevention:
-    // 1. Uses isCancelled flag to prevent state updates after unmount
-    // 2. Adds debouncing to handle rapid file changes
-    // 3. Wraps async operations in try-catch for proper error handling
-    // 4. Includes abort controller setup for future cancellation support
-    useEffect(() => {
-        // Only load preview text if the setting is enabled
-        if (!settings.showFilePreview) {
-            setPreviewText('');
-            return;
-        }
-        
-        let isCancelled = false;
-        let abortController: AbortController | null = null;
-        
-        // For non-markdown files, set extension immediately
-        if (file.extension !== 'md') {
-            setPreviewText(file.extension.toUpperCase());
-            return;
-        }
-        
-        // Check if this is an Excalidraw file
-        const metadata = app.metadataCache.getFileCache(file);
-        
-        // Method 1: Check by filename pattern
-        if (file.name.endsWith('.excalidraw.md')) {
-            setPreviewText('EXCALIDRAW');
-            return;
-        }
-        
-        // Method 2: Check by frontmatter excalidraw-plugin key
-        if (metadata?.frontmatter?.['excalidraw-plugin']) {
-            setPreviewText('EXCALIDRAW');
-            return;
-        }
-        
-        // Method 3: Check by frontmatter tags
-        const frontmatterTags = metadata?.frontmatter?.tags;
-        if (frontmatterTags) {
-            // Handle both array format and single string format
-            const tags = Array.isArray(frontmatterTags) ? frontmatterTags : [frontmatterTags];
-            if (tags.includes('excalidraw')) {
-                setPreviewText('EXCALIDRAW');
-                return;
-            }
-        }
-        
-        // Create an async function to handle the file read with proper error handling
-        const loadPreview = async () => {
-            try {
-                // Create abort controller for true cancellation support if needed in future
-                abortController = new AbortController();
-                
-                // Add a small delay to debounce rapid file changes
-                await new Promise((resolve, reject) => {
-                    const timer = setTimeout(resolve, 50);
-                    // Store cleanup function
-                    abortController!.signal.addEventListener('abort', () => {
-                        clearTimeout(timer);
-                        reject(new Error('Cancelled'));
-                    });
-                });
-                
-                if (isCancelled) return;
-                
-                const content = await app.vault.cachedRead(file);
-                
-                if (!isCancelled) {
-                    setPreviewText(PreviewTextUtils.extractPreviewText(content, settings));
-                }
-            } catch (error) {
-                if (!isCancelled) {
-                    // Only log actual errors, not cancellations
-                    if (error instanceof Error && error.message !== 'Cancelled') {
-                        console.error('Failed to read file preview:', error);
-                    }
-                    setPreviewText(''); // Clear preview on error
-                }
-            }
-        };
-        
-        // Start loading the preview
-        loadPreview();
-        
-        // Cleanup function
-        return () => { 
-            isCancelled = true;
-            // Abort controller for future use when Obsidian API supports it
-            abortController?.abort();
-        };
-    }, [file.path, file.stat.mtime, app.vault, settings.showFilePreview, settings.skipHeadingsInPreview, settings.skipNonTextInPreview]); // Include mtime to detect file changes
+    }, [file.path, file.stat.mtime, metadata, settings.showFeatureImage, settings.featureImageProperty, app.metadataCache, app.vault]);
     
     // Detect slim mode when all display options are disabled
     const isSlimMode = !settings.showDate && 

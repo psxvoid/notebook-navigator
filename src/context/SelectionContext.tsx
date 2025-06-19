@@ -39,8 +39,8 @@ interface SelectionState {
 
 // Action types
 type SelectionAction = 
-    | { type: 'SET_SELECTED_FOLDER'; folder: TFolder | null }
-    | { type: 'SET_SELECTED_TAG'; tag: string | null }
+    | { type: 'SET_SELECTED_FOLDER'; folder: TFolder | null; autoSelectedFile?: TFile | null }
+    | { type: 'SET_SELECTED_TAG'; tag: string | null; autoSelectedFile?: TFile | null }
     | { type: 'SET_SELECTED_FILE'; file: TFile | null }
     | { type: 'SET_SELECTION_TYPE'; selectionType: 'folder' | 'tag' }
     | { type: 'CLEAR_SELECTION' }
@@ -52,71 +52,29 @@ type SelectionAction =
 const SelectionContext = createContext<SelectionState | null>(null);
 const SelectionDispatchContext = createContext<React.Dispatch<SelectionAction> | null>(null);
 
-// Pure reducer function that accepts settings as a parameter
-function selectionReducer(
-    state: SelectionState, 
-    action: SelectionAction, 
-    settings: NotebookNavigatorSettings, 
-    app: any, 
-    isMobile: boolean
-): SelectionState {
+// Pure reducer function - no side effects or external dependencies
+function selectionReducer(state: SelectionState, action: SelectionAction): SelectionState {
     switch (action.type) {
         case 'SET_SELECTED_FOLDER': {
-            const newState: SelectionState = {
+            return {
                 ...state,
                 selectedFolder: action.folder,
                 selectedTag: null,
                 selectionType: 'folder',
-                isRevealOperation: false // Clear flag for normal navigation
+                selectedFile: action.autoSelectedFile !== undefined ? action.autoSelectedFile : state.selectedFile,
+                isRevealOperation: false
             };
-
-            // Mobile: Clear selected file when changing folders
-            // No auto-selection on mobile
-            if (isMobile) {
-                newState.selectedFile = null;
-            }
-            // Desktop: Handle auto-select first file if enabled
-            else if (action.folder && settings.autoSelectFirstFile) {
-                const filesInFolder = getFilesForFolder(action.folder, settings, app);
-                if (filesInFolder.length > 0) {
-                    newState.selectedFile = filesInFolder[0];
-                } else {
-                    newState.selectedFile = null;
-                }
-            } else if (!action.folder) {
-                newState.selectedFile = null;
-            }
-
-            return newState;
         }
         
         case 'SET_SELECTED_TAG': {
-            const newState: SelectionState = {
+            return {
                 ...state,
                 selectedTag: action.tag,
                 selectedFolder: null,
                 selectionType: 'tag',
-                isRevealOperation: false // Clear flag for normal navigation
+                selectedFile: action.autoSelectedFile !== undefined ? action.autoSelectedFile : state.selectedFile,
+                isRevealOperation: false
             };
-
-            // Mobile: Keep the selected file when changing tags
-            // The file list will handle scrolling to it if it exists in the new tag
-            if (isMobile) {
-                // Don't clear selectedFile - keep it as is
-            }
-            // Desktop: Handle auto-select first file if enabled
-            else if (action.tag && settings.autoSelectFirstFile) {
-                const filesForTag = getFilesForTag(action.tag, settings, app);
-                if (filesForTag.length > 0) {
-                    newState.selectedFile = filesForTag[0];
-                } else {
-                    newState.selectedFile = null;
-                }
-            } else if (!action.tag) {
-                newState.selectedFile = null;
-            }
-
-            return newState;
         }
             
         case 'SET_SELECTED_FILE':
@@ -145,36 +103,29 @@ function selectionReducer(
                 selectedFolder: action.file.parent,
                 selectedTag: null,
                 selectedFile: action.file,
-                isRevealOperation: true // Set flag to indicate this is a reveal operation
+                isRevealOperation: true
             };
         }
         
         case 'CLEANUP_DELETED_FOLDER': {
-            const newState = { ...state };
-            
-            // Clear selected folder if it was deleted
             if (state.selectedFolder && state.selectedFolder.path === action.deletedPath) {
-                newState.selectedFolder = null;
-                newState.selectedFile = null; // Also clear file selection
+                return {
+                    ...state,
+                    selectedFolder: null,
+                    selectedFile: null
+                };
             }
-            
-            return newState;
+            return state;
         }
         
         case 'CLEANUP_DELETED_FILE': {
-            const newState = { ...state };
-            
-            // Clear selected file if it was deleted
             if (state.selectedFile && state.selectedFile.path === action.deletedPath) {
-                // If a next file to select was provided and we're not on mobile, select it
-                if (action.nextFileToSelect !== undefined && !isMobile) {
-                    newState.selectedFile = action.nextFileToSelect;
-                } else {
-                    newState.selectedFile = null;
-                }
+                return {
+                    ...state,
+                    selectedFile: action.nextFileToSelect !== undefined ? action.nextFileToSelect : null
+                };
             }
-            
-            return newState;
+            return state;
         }
         
         default:
@@ -244,24 +195,40 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
         };
     }, [app.vault]);
     
-    // Use refs to access current values in reducer since useReducer doesn't update the reducer function
-    const settingsRef = useRef(settings);
-    const appRef = useRef(app);
-    const isMobileRef = useRef(isMobile);
+    const [state, dispatch] = useReducer(selectionReducer, undefined, loadInitialState);
     
-    // Update refs when values change
-    useEffect(() => {
-        settingsRef.current = settings;
-        appRef.current = app;
-        isMobileRef.current = isMobile;
-    }, [settings, app, isMobile]);
-    
-    // Stable reducer that uses refs to access current values
-    const reducer = useCallback((state: SelectionState, action: SelectionAction) => {
-        return selectionReducer(state, action, settingsRef.current, appRef.current, isMobileRef.current);
-    }, []);
-    
-    const [state, dispatch] = useReducer(reducer, undefined, loadInitialState);
+    // Create an enhanced dispatch that handles side effects
+    const enhancedDispatch = useCallback((action: SelectionAction) => {
+        // Handle auto-select logic for folder selection
+        if (action.type === 'SET_SELECTED_FOLDER' && !isMobile && action.autoSelectedFile === undefined) {
+            if (action.folder && settings.autoSelectFirstFile) {
+                const filesInFolder = getFilesForFolder(action.folder, settings, app);
+                const autoSelectedFile = filesInFolder.length > 0 ? filesInFolder[0] : null;
+                dispatch({ ...action, autoSelectedFile });
+            } else {
+                dispatch({ ...action, autoSelectedFile: null });
+            }
+        }
+        // Handle auto-select logic for tag selection
+        else if (action.type === 'SET_SELECTED_TAG' && !isMobile && action.autoSelectedFile === undefined) {
+            if (action.tag && settings.autoSelectFirstFile) {
+                const filesForTag = getFilesForTag(action.tag, settings, app);
+                const autoSelectedFile = filesForTag.length > 0 ? filesForTag[0] : null;
+                dispatch({ ...action, autoSelectedFile });
+            } else {
+                dispatch({ ...action, autoSelectedFile: null });
+            }
+        }
+        // Handle cleanup for deleted files on mobile
+        else if (action.type === 'CLEANUP_DELETED_FILE' && isMobile) {
+            // On mobile, never auto-select next file
+            dispatch({ ...action, nextFileToSelect: null });
+        }
+        // For all other actions, dispatch as-is
+        else {
+            dispatch(action);
+        }
+    }, [app, settings, isMobile, dispatch]);
     
     // Persist selected folder to localStorage with error handling
     useEffect(() => {
@@ -291,7 +258,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
     
     return (
         <SelectionContext.Provider value={state}>
-            <SelectionDispatchContext.Provider value={dispatch}>
+            <SelectionDispatchContext.Provider value={enhancedDispatch}>
                 {children}
             </SelectionDispatchContext.Provider>
         </SelectionContext.Provider>

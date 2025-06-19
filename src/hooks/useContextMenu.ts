@@ -76,34 +76,13 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
         e.preventDefault();
         e.stopPropagation();
 
-        // Add this line to apply the class
-        const element = elementRef.current;
-        element.classList.add('nn-context-menu-active');
-        
         const menu = new Menu();
         
-        // Ensure cleanup happens no matter what
-        const cleanup = () => {
-            element.classList.remove('nn-context-menu-active');
-            // Remove the global click listener
-            document.removeEventListener('click', globalClickHandler);
-        };
-        
-        // Add global click listener to ensure cleanup
-        const globalClickHandler = (e: MouseEvent) => {
-            // Since we can't check if the click is inside the menu,
-            // we'll just cleanup on any click outside our element
-            if (!element.contains(e.target as Node)) {
-                cleanup();
-            }
-        };
-        
-        // Add listener after a short delay to avoid immediate trigger
-        setTimeout(() => {
-            document.addEventListener('click', globalClickHandler);
-        }, 0);
-        
-        menu.onHide(cleanup); // Also use the built-in onHide callback
+        // Let Obsidian's Menu handle all cleanup internally
+        menu.onHide(() => {
+            // If needed, we can dispatch a state update here instead of DOM manipulation
+            // For now, we'll rely on CSS :hover and :active states
+        });
         
         if (config.type === 'folder') {
             if (!isTFolder(config.item)) return;

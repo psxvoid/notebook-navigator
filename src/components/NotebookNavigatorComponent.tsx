@@ -119,7 +119,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     useDragAndDrop(containerRef);
     
     // Enable resizable pane
-    const { paneWidth, resizeHandleProps } = useResizablePane({
+    const { paneWidth, isResizing, resizeHandleProps } = useResizablePane({
         initialWidth: PANE_DIMENSIONS.defaultWidth,
         min: PANE_DIMENSIONS.minWidth,
         max: PANE_DIMENSIONS.maxWidth,
@@ -572,6 +572,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         containerClasses.push(uiState.currentMobileView === 'list' ? 'show-list' : 'show-files');
     } else {
         containerClasses.push('nn-desktop');
+    }
+    if (isResizing) {
+        containerClasses.push('nn-resizing');
     }
     
     return (
