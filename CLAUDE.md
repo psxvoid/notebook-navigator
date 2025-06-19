@@ -38,60 +38,65 @@ Notebook Navigator is an Obsidian plugin that replaces the default file explorer
 
 ```
 johansan-notebook-navigator/
-├── .github/workflows/release.yml
+├── .github/workflows/release.yml              # GitHub Actions for automated releases
 ├── src/
-│   ├── main.ts
-│   ├── settings.ts
+│   ├── main.ts                                # Plugin entry point, event handlers, lifecycle
+│   ├── settings.ts                            # Settings interface, defaults, settings tab UI
 │   ├── components/
-│   │   ├── NotebookNavigatorComponent.tsx
-│   │   ├── NavigationPane.tsx
-│   │   ├── FileList.tsx
-│   │   ├── FolderItem.tsx
-│   │   ├── FileItem.tsx
-│   │   ├── TagTreeItem.tsx
-│   │   ├── PaneHeader.tsx
-│   │   ├── ObsidianIcon.tsx
-│   │   └── ErrorBoundary.tsx
+│   │   ├── NotebookNavigatorComponent.tsx    # Main component, two-pane layout orchestration
+│   │   ├── NavigationPane.tsx                # Left pane virtualized folder/tag tree
+│   │   ├── FileList.tsx                       # Right pane virtualized file list with headers
+│   │   ├── FolderItem.tsx                     # Single folder row with icon/color/chevron
+│   │   ├── FileItem.tsx                       # Single file row with preview/date/image
+│   │   ├── TagTreeItem.tsx                    # Single tag row in hierarchical tree
+│   │   ├── PaneHeader.tsx                     # Header with title, actions, mobile nav
+│   │   ├── ObsidianIcon.tsx                  # Lucide icon wrapper for Obsidian
+│   │   └── ErrorBoundary.tsx                  # React error boundary with fallback UI
 │   ├── context/
-│   │   ├── ExpansionContext.tsx
-│   │   ├── SelectionContext.tsx
-│   │   ├── ServicesContext.tsx
-│   │   ├── SettingsContext.tsx
-│   │   └── UIStateContext.tsx
+│   │   ├── ExpansionContext.tsx              # Tracks expanded/collapsed folders & tags
+│   │   ├── SelectionContext.tsx              # Current selection state & navigation logic
+│   │   ├── ServicesContext.tsx               # Dependency injection for services
+│   │   ├── SettingsContext.tsx               # Global settings provider with versioning
+│   │   └── UIStateContext.tsx                # UI state: focus, pane width, mobile view
 │   ├── hooks/
-│   │   ├── useContextMenu.ts
-│   │   ├── useDragAndDrop.ts
-│   │   ├── useResizablePane.ts
-│   │   ├── useSwipeGesture.ts
-│   │   └── useVirtualKeyboardNavigation.ts
+│   │   ├── useContextMenu.ts                 # Right-click menu creation & handling
+│   │   ├── useDragAndDrop.ts                 # File/folder drag & drop with visual feedback
+│   │   ├── useResizablePane.ts               # Pane resizing with mouse/touch support
+│   │   ├── useSwipeGesture.ts                # Mobile swipe navigation between panes
+│   │   ├── useVirtualKeyboardNavigation.ts   # Keyboard nav with smart PageUp/PageDown
+│   │   ├── useAutoReveal.ts                  # Auto-reveal active file with state machine
+│   │   └── useFilePreview.ts                 # Async file preview generation & caching
 │   ├── i18n/
-│   │   └── index.ts
+│   │   └── index.ts                          # Internationalization system & translations
 │   ├── modals/
-│   │   ├── ColorPickerModal.ts
-│   │   ├── ConfirmModal.ts
-│   │   ├── IconPickerModal.ts
-│   │   └── InputModal.ts
+│   │   ├── ColorPickerModal.ts               # Folder color selection dialog
+│   │   ├── ConfirmModal.ts                   # Generic confirmation dialog
+│   │   ├── IconPickerModal.ts                # Lucide icon picker for folders
+│   │   └── InputModal.ts                     # Text input dialog for names/paths
+│   ├── reducers/
+│   │   └── autoRevealReducer.ts              # State machine for auto-reveal logic
 │   ├── services/
-│   │   ├── FileSystemService.ts
-│   │   └── MetadataService.ts
+│   │   ├── FileSystemService.ts              # File/folder CRUD operations with modals
+│   │   └── MetadataService.ts                # Folder metadata & settings with queue
 │   ├── types/
-│   │   ├── index.ts
-│   │   └── virtualization.ts
+│   │   ├── index.ts                          # Core TypeScript interfaces & constants
+│   │   └── virtualization.ts                 # Types for virtualized list items
 │   ├── utils/
-│   │   ├── DateUtils.ts
-│   │   ├── PreviewTextUtils.ts
-│   │   ├── domUtils.ts
-│   │   ├── fileFilters.ts
-│   │   ├── fileFinder.ts
-│   │   ├── sortUtils.ts
-│   │   ├── tagUtils.ts
-│   │   ├── treeFlattener.ts
-│   │   ├── typeGuards.ts
-│   │   └── virtualUtils.ts
+│   │   ├── DateUtils.ts                      # i18n date formatting & grouping logic
+│   │   ├── PreviewTextUtils.ts               # Markdown stripping for file previews
+│   │   ├── domUtils.ts                       # DOM helpers & data attribute access
+│   │   ├── fileFilters.ts                    # File/folder exclusion pattern matching
+│   │   ├── fileFinder.ts                     # File retrieval with sort/filter/pin logic
+│   │   ├── sortUtils.ts                      # File sorting comparators & overrides
+│   │   ├── tagUtils.ts                       # Tag tree building & hierarchy parsing
+│   │   ├── treeFlattener.ts                  # Tree to flat array for virtualization
+│   │   ├── typeGuards.ts                     # Type guards for TFile/TFolder/etc
+│   │   ├── virtualUtils.ts                   # Virtualizer scroll & index helpers
+│   │   └── debugLog.ts                       # File-based debug logging for mobile
 │   └── view/
-│       └── NotebookNavigatorView.tsx
-├── styles.css
-└── manifest.json
+│       └── NotebookNavigatorView.tsx         # Obsidian ItemView & React root mounting
+├── styles.css                                # All plugin styles with nn- prefix
+└── manifest.json                             # Plugin metadata for Obsidian
 ```
 
 ### Metadata Synchronization Flow
@@ -105,6 +110,14 @@ A key challenge is ensuring the React UI updates when changes happen outside of 
 5. **React Re-render**: The version increment causes the settings value to be recreated with a new object reference (using spread syntax), triggering a re-render of all components that consume the settings, thus refreshing the UI with the latest data.
 
 This one-way data flow ensures the UI "reacts" to external changes without `main.ts` needing any direct reference to the React components.
+
+### Architectural Improvements
+
+#### MetadataService Promise Queue
+The `MetadataService` now uses a promise queue to serialize all settings updates. This critical improvement prevents race conditions when multiple events try to modify settings simultaneously (e.g., rapid file operations or batch renames). All update operations are queued and processed sequentially, ensuring data integrity.
+
+#### FileList Mobile Scroll Momentum
+The `FileList` component includes a sophisticated system to preserve scroll momentum on mobile devices. When new items are virtualized during scrolling, the component carefully manages scroll events to prevent interrupting the native "inertial" scrolling. This provides a smooth, native-feeling scrolling experience even with large file lists.
 
 ## React Architecture
 
@@ -131,8 +144,8 @@ NotebookNavigatorView (Obsidian ItemView)
 - **SettingsContext**: Provides and updates plugin settings.
 - **ServicesContext**: Injects business logic services (e.g., file operations).
 - **ExpansionContext**: Tracks expanded folders and tags.
-- **SelectionContext**: Tracks selected folder, tag, or file.
-- **UIStateContext**: Manages UI state like focused pane, pane width, scroll targets.
+- **SelectionContext**: Tracks selected folder, tag, or file. Includes flags `isRevealOperation` and `isFolderChangeWithAutoSelect` for coordinating complex state updates and preventing unwanted side effects.
+- **UIStateContext**: Manages UI state like focused pane, pane width, current mobile view ('list' or 'files'), and tracking newly created paths to ensure proper reveal and selection.
     
 
 ### Local Storage Keys
@@ -194,14 +207,11 @@ NotebookNavigatorView (Obsidian ItemView)
 # Install dependencies
 npm install --legacy-peer-deps
 
-# Production build
+# Production build - run this every time you finish working tasks
 npm run build
 
 # Development mode
 npm run dev
-
-# Bump plugin version
-npm run version
 ```
 
 Releases are automated via GitHub Actions in `.github/workflows/release.yml`. Output assets include `main.js`, `manifest.json`, and `styles.css`.
@@ -279,10 +289,10 @@ This section provides a detailed breakdown of each file in the project, explaini
 
 #### State Management (Contexts)
 - **`src/context/ExpansionContext.tsx`**: Manages the state of expanded/collapsed folders and tags (`expandedFolders: Set<string>`, `expandedTags: Set<string>`). Persists this state to `localStorage`.
-- **`src/context/SelectionContext.tsx`**: Manages what is currently selected (`selectedFolder`, `selectedTag`, `selectedFile`). It contains the core logic for what happens when a selection changes, such as auto-selecting the first file in a folder. Persists selection to `localStorage`.
+- **`src/context/SelectionContext.tsx`**: Manages what is currently selected (`selectedFolder`, `selectedTag`, `selectedFile`). It contains the core logic for what happens when a selection changes, such as auto-selecting the first file in a folder. Includes flags `isRevealOperation` and `isFolderChangeWithAutoSelect` for coordinating complex state updates and preventing unwanted side effects, like files being automatically opened when navigating. Persists selection to `localStorage`.
 - **`src/context/SettingsContext.tsx`**: Provides the global `NotebookNavigatorSettings` object to the entire React component tree. Uses a version counter to trigger re-renders when settings change. When the version increments, it creates a new settings object reference using spread syntax, ensuring React detects the change and re-renders dependent components.
 - **`src/context/ServicesContext.tsx`**: Acts as a dependency injection container. It instantiates business logic services (`FileSystemService`, `MetadataService`) and makes them available to any component via custom hooks.
-- **`src/context/UIStateContext.tsx`**: Manages state related to the UI's appearance and behavior, such as which pane has keyboard focus (`focusedPane`), the width of the resizable pane, the current view on mobile (`currentMobileView`), and triggers for programmatic scrolling (`scrollToFolderIndex`, `scrollToFileIndex`).
+- **`src/context/UIStateContext.tsx`**: Manages state related to the UI's appearance and behavior, such as which pane has keyboard focus (`focusedPane`), the width of the resizable pane, the current view on mobile (`currentMobileView` - 'list' or 'files'), and tracking newly created paths (`newlyCreatedPath`) to ensure they are properly revealed and selected. Scrolling is now handled declaratively within components using the virtualizer's `scrollToIndex` method, triggered by changes in `SelectionContext`.
     
 
 #### Business Logic (Services)
@@ -291,10 +301,25 @@ This section provides a detailed breakdown of each file in the project, explaini
 - **Responsibilities**: Encapsulates logic for creating, renaming, and deleting files and folders. It is responsible for launching the appropriate `InputModal` or `ConfirmModal` to get user input or confirmation before performing an action.
 - **`src/services/MetadataService.ts`**
 - **Purpose**: Manages all custom metadata associated with folders (colors, icons, sort overrides, pinned notes).
-- **Responsibilities**: All reads and writes to this metadata (which is stored in the main settings object) go through this service. It includes crucial cleanup logic to handle file/folder renames and deletions, ensuring no stale metadata is left behind.
+- **Responsibilities**: All reads and writes to this metadata (which is stored in the main settings object) go through this service. It includes crucial cleanup logic to handle file/folder renames and deletions, ensuring no stale metadata is left behind. Uses a promise queue to serialize all updates, preventing race conditions when multiple events try to modify settings simultaneously.
         
 
 #### Custom Hooks
+- **`src/hooks/useAutoReveal.ts`**
+  - **Purpose**: Manages the sophisticated logic for auto-revealing the active file in the navigator.
+  - **Responsibilities**: Checks if the user is actively interacting with the navigator (to avoid interrupting workflows), listens to workspace events, and triggers reveal operations when appropriate. Uses a state machine approach with `autoRevealReducer` to track states (IDLE, USER_INTERACTING, AUTO_REVEALING).
+- **`src/hooks/useFilePreview.ts`**
+  - **Purpose**: Encapsulates the asynchronous logic for reading file content and generating clean previews.
+  - **Responsibilities**: Reads file content, handles special file types like Excalidraw drawings, strips markdown using `PreviewTextUtils`, and manages loading states. This separation of concerns keeps the `FileItem` component focused on rendering.
+- **`src/hooks/useVirtualKeyboardNavigation.ts`**
+  - **Purpose**: Implements comprehensive keyboard navigation for the virtualized lists.
+  - **Responsibilities**: Handles arrow keys, Tab, Enter, and PageUp/PageDown. The PageUp/PageDown implementation intelligently calculates the number of visible items based on viewport geometry and average item height, providing natural page-wise navigation.
+
+#### Reducers
+- **`src/reducers/autoRevealReducer.ts`**
+  - **Purpose**: Formalizes the state machine for auto-reveal logic.
+  - **States**: IDLE (no reveal operation), USER_INTERACTING (user is actively using the navigator), AUTO_REVEALING (automatic reveal in progress).
+  - **Benefits**: Makes the auto-reveal behavior more predictable and easier to debug.
 
 #### Utility Functions
 - **`src/utils/fileFinder.ts`**: Contains the main logic (`getFilesForFolder`, `getFilesForTag`) for retrieving the correct list of files based on the current selection and all relevant settings (sorting, pinning, exclusions).
