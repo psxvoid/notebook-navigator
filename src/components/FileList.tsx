@@ -60,9 +60,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const uiDispatch = useUIDispatch();
     const { selectionType, selectedFolder, selectedTag, selectedFile } = selectionState;
     
-    // Track previous item count to detect when items are added (for mobile scroll preservation)
-    const prevItemCountRef = useRef(0);
-    
     // Log component mount/unmount only if debug is enabled
     useEffect(() => {
         if (Platform.isMobile && plugin.settings.debugMobile) {
@@ -430,6 +427,41 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         return map;
     }, [listItems]);
     
+    /**
+     * Mobile scroll momentum preservation system
+     * 
+     * Problem: On mobile, when items are added to the top of a virtualized list during 
+     * momentum scrolling (inertia scrolling), the browser stops the scroll abruptly.
+     * This happens because the DOM changes under the user's finger, breaking the native
+     * scroll behavior.
+     * 
+     * Solution: We track scroll state, velocity, and item count changes. When new items
+     * are added during scrolling, we calculate their height and adjust the scroll position
+     * to maintain visual continuity without interrupting the momentum.
+     * 
+     * Mobile-specific because:
+     * - Desktop uses mouse wheel or scrollbar, which don't have momentum
+     * - Mobile touch scrolling has native momentum that we need to preserve
+     * - The issue only manifests on mobile devices with touch interfaces
+     */
+    const scrollStateRef = useRef({
+        isScrolling: false,
+        lastScrollTop: 0,
+        scrollVelocity: 0,
+        lastTimestamp: 0,
+        animationFrameId: 0,
+        scrollEndTimeoutId: 0
+    });
+    
+    // Constants for mobile scroll handling
+    const VELOCITY_THRESHOLD = 0.1;        // Minimum velocity to consider as momentum scrolling
+    const SCROLL_END_DELAY = 150;          // Delay before marking scroll as ended
+    const MOMENTUM_DURATION = 500;         // How long to preserve state after touch end
+    const VELOCITY_CALC_MAX_DIFF = 100;    // Max time diff (ms) for velocity calculation
+    
+    // Track previous item count to detect when items are added
+    const prevItemCountRef = useRef(listItems.length);
+    
     // Initialize virtualizer
     const rowVirtualizer = useVirtualizer({
         count: listItems.length,
@@ -468,6 +500,23 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         overscan: isMobile ? 50 : 5, // Render more items on mobile to ensure selected item is rendered
         scrollPaddingStart: 0,
         scrollPaddingEnd: 0,
+        // Custom scroll function that preserves momentum on mobile
+        scrollToFn: (offset, options, instance) => {
+            if (isMobile && scrollStateRef.current.isScrolling && 
+                Math.abs(scrollStateRef.current.scrollVelocity) > VELOCITY_THRESHOLD) {
+                // Don't interrupt momentum scrolling on mobile
+                return;
+            }
+            
+            // Use default scrolling behavior
+            const scrollEl = instance.scrollElement;
+            if (scrollEl) {
+                scrollEl.scrollTo({
+                    top: offset,
+                    behavior: options?.behavior || 'auto'
+                });
+            }
+        },
     });
     
     // Expose the virtualizer instance and file lookup method via the ref
@@ -506,8 +555,8 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             return;
         }
         
-        // Only adjust when files view is visible
-        if (isMobile && uiState.currentMobileView !== 'files') {
+        // Only preserve position during active scrolling AND when files view is visible
+        if (!scrollStateRef.current.isScrolling || (isMobile && uiState.currentMobileView !== 'files')) {
             prevItemCountRef.current = currentCount;
             return;
         }
@@ -544,12 +593,17 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             
             if (heightAdjustment > 0) {
                 // Apply position adjustment immediately to prevent visual jump
-                scrollContainer.scrollTop = currentScrollTop + heightAdjustment;
+                queueMicrotask(() => {
+                    // Check if component is still mounted by verifying scrollContainer exists
+                    if (scrollContainer && scrollContainer.isConnected && scrollStateRef.current.isScrolling) {
+                        scrollContainer.scrollTop = currentScrollTop + heightAdjustment;
+                    }
+                });
             }
         }
         
         prevItemCountRef.current = currentCount;
-    }, [listItems.length, isMobile, rowVirtualizer, uiState.currentMobileView]);
+    }, [listItems.length, isMobile, rowVirtualizer]);
     
     
     // Create a unique key for storing scroll state based on current selection
@@ -645,6 +699,93 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             </div>
         );
     }
+    
+    // Track scroll events and calculate velocity on mobile
+    useEffect(() => {
+        if (!isMobile || !scrollContainerRef.current) return;
+        
+        const scrollContainer = scrollContainerRef.current;
+        
+        // Reset scroll state when effect runs (e.g., switching to mobile)
+        scrollStateRef.current = {
+            isScrolling: false,
+            lastScrollTop: 0,
+            scrollVelocity: 0,
+            lastTimestamp: 0,
+            animationFrameId: 0,
+            scrollEndTimeoutId: 0
+        };
+        
+        const handleTouchStart = () => {
+            scrollStateRef.current.isScrolling = true;
+            // Clear any pending scroll end timeout
+            if (scrollStateRef.current.scrollEndTimeoutId) {
+                clearTimeout(scrollStateRef.current.scrollEndTimeoutId);
+                scrollStateRef.current.scrollEndTimeoutId = 0;
+            }
+        };
+        
+        const handleTouchEnd = () => {
+            // Keep scrolling state active for momentum duration
+            scrollStateRef.current.scrollEndTimeoutId = window.setTimeout(() => {
+                scrollStateRef.current.isScrolling = false;
+                scrollStateRef.current.scrollVelocity = 0;
+                scrollStateRef.current.scrollEndTimeoutId = 0;
+            }, MOMENTUM_DURATION);
+        };
+        
+        const handleScroll = () => {
+            const currentScrollTop = scrollContainer.scrollTop;
+            const currentTime = performance.now();
+            const timeDiff = currentTime - scrollStateRef.current.lastTimestamp;
+            
+            if (timeDiff > 0 && timeDiff < VELOCITY_CALC_MAX_DIFF) {
+                scrollStateRef.current.scrollVelocity = 
+                    (currentScrollTop - scrollStateRef.current.lastScrollTop) / timeDiff;
+            }
+            
+            scrollStateRef.current.lastScrollTop = currentScrollTop;
+            scrollStateRef.current.lastTimestamp = currentTime;
+            scrollStateRef.current.isScrolling = true;
+            
+            // Clear existing timeouts
+            if (scrollStateRef.current.animationFrameId) {
+                cancelAnimationFrame(scrollStateRef.current.animationFrameId);
+            }
+            if (scrollStateRef.current.scrollEndTimeoutId) {
+                clearTimeout(scrollStateRef.current.scrollEndTimeoutId);
+                scrollStateRef.current.scrollEndTimeoutId = 0;
+            }
+            
+            // Set new timeout for scroll end detection
+            scrollStateRef.current.animationFrameId = requestAnimationFrame(() => {
+                scrollStateRef.current.scrollEndTimeoutId = window.setTimeout(() => {
+                    // Only stop if velocity is low
+                    if (Math.abs(scrollStateRef.current.scrollVelocity) < VELOCITY_THRESHOLD) {
+                        scrollStateRef.current.isScrolling = false;
+                        scrollStateRef.current.scrollVelocity = 0;
+                        scrollStateRef.current.scrollEndTimeoutId = 0;
+                    }
+                }, SCROLL_END_DELAY);
+            });
+        };
+        
+        scrollContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
+        scrollContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
+        scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+        
+        return () => {
+            scrollContainer.removeEventListener('touchstart', handleTouchStart);
+            scrollContainer.removeEventListener('touchend', handleTouchEnd);
+            scrollContainer.removeEventListener('scroll', handleScroll);
+            if (scrollStateRef.current.animationFrameId) {
+                cancelAnimationFrame(scrollStateRef.current.animationFrameId);
+            }
+            if (scrollStateRef.current.scrollEndTimeoutId) {
+                clearTimeout(scrollStateRef.current.scrollEndTimeoutId);
+            }
+        };
+    }, [isMobile, VELOCITY_THRESHOLD, SCROLL_END_DELAY, MOMENTUM_DURATION, VELOCITY_CALC_MAX_DIFF]);
     
     return (
         <ErrorBoundary componentName="FileList">
