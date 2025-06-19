@@ -340,8 +340,13 @@ export const STRINGS_FR = {
                 desc: 'Afficher une boîte de dialogue de confirmation lors de la suppression de notes ou de dossiers',
             },
             useFrontmatterDates: {
-                name: 'Essayer de lire les horodatages du frontmatter',
-                desc: 'Lire les horodatages de création et de modification du frontmatter lorsqu\'ils sont disponibles, sinon utiliser les dates du système',
+                name: 'Lire les métadonnées du frontmatter',
+                desc: 'Lire les noms de notes et horodatages du frontmatter lorsqu\'ils sont disponibles, sinon utiliser les valeurs du système',
+            },
+            frontmatterNameField: {
+                name: 'Champ de nom',
+                desc: 'Champ frontmatter à utiliser comme nom d\'affichage de la note. Laisser vide pour utiliser le nom du fichier.',
+                placeholder: 'title',
             },
             frontmatterCreatedField: {
                 name: 'Champ d\'horodatage de création',

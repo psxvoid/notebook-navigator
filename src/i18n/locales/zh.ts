@@ -340,8 +340,13 @@ export const STRINGS_ZH = {
                 desc: '删除笔记或文件夹时显示确认对话框',
             },
             useFrontmatterDates: {
-                name: '尝试从前言读取时间戳',
-                desc: '如果可用，从笔记的前言读取创建和修改时间戳，否则回退到文件系统日期',
+                name: '从前言读取元数据',
+                desc: '如果可用，从前言读取笔记名称和时间戳，否则使用文件系统值',
+            },
+            frontmatterNameField: {
+                name: '名称字段',
+                desc: '用作笔记显示名称的前言字段。留空使用文件名。',
+                placeholder: 'title',
             },
             frontmatterCreatedField: {
                 name: '创建时间戳字段',

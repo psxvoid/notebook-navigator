@@ -340,8 +340,13 @@ export const STRINGS_ES = {
                 desc: 'Muestra un diálogo de confirmación al eliminar notas o carpetas',
             },
             useFrontmatterDates: {
-                name: 'Intentar leer marcas de tiempo del frontmatter',
-                desc: 'Leer las marcas de tiempo de creación y modificación del frontmatter cuando estén disponibles, usando las fechas del sistema como respaldo',
+                name: 'Leer metadatos del frontmatter',
+                desc: 'Leer nombres de notas y marcas de tiempo del frontmatter cuando estén disponibles, usando valores del sistema como respaldo',
+            },
+            frontmatterNameField: {
+                name: 'Campo de nombre',
+                desc: 'Campo del frontmatter para usar como nombre de la nota. Dejar vacío para usar el nombre del archivo.',
+                placeholder: 'title',
             },
             frontmatterCreatedField: {
                 name: 'Campo de marca de tiempo de creación',

@@ -340,8 +340,13 @@ export const STRINGS_EN = {
                 desc: 'Show confirmation dialog when deleting notes or folders',
             },
             useFrontmatterDates: {
-                name: 'Try to read timestamps from frontmatter',
-                desc: 'Read created and modified timestamps from note frontmatter when available, falling back to file system dates',
+                name: 'Read metadata from frontmatter',
+                desc: 'Read note names and timestamps from frontmatter when available, falling back to file system values',
+            },
+            frontmatterNameField: {
+                name: 'Name field',
+                desc: 'Frontmatter field to use as the note display name. Leave empty to use the file name.',
+                placeholder: 'title',
             },
             frontmatterCreatedField: {
                 name: 'Created timestamp field',

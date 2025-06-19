@@ -24,6 +24,7 @@ import { DateUtils } from '../utils/DateUtils';
 import { getDateField } from '../utils/sortUtils';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { useFilePreview } from '../hooks/useFilePreview';
+import { getFileDisplayName } from '../utils/fileNameUtils';
 import { strings } from '../i18n';
 import { ObsidianIcon } from './ObsidianIcon';
 
@@ -55,6 +56,12 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
     
     // Get file metadata for preview
     const metadata = app.metadataCache.getFileCache(file);
+    
+    // Get display name
+    const displayName = useMemo(() => 
+        getFileDisplayName(file, settings, app.metadataCache),
+        [file, settings, app.metadataCache]
+    );
     
     // Use the custom hook for preview text
     const previewText = useFilePreview({ file, metadata, settings, app });
@@ -129,7 +136,7 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
                     <div 
                         className="nn-file-name"
                         style={{ '--filename-rows': settings.fileNameRows } as React.CSSProperties}
-                    >{file.basename}</div>
+                    >{displayName}</div>
                 ) : (
                     // Normal mode: Show all enabled elements
                     <>
@@ -137,7 +144,7 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
                             <div 
                                 className="nn-file-name"
                                 style={{ '--filename-rows': settings.fileNameRows } as React.CSSProperties}
-                            >{file.basename}</div>
+                            >{displayName}</div>
                             {/* Show preview and date on same line when preview is 1 row */}
                             {settings.previewRows < 2 && (settings.showDate || settings.showFilePreview) && (
                                 <div className="nn-file-second-line">

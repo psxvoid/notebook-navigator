@@ -68,6 +68,7 @@ export interface NotebookNavigatorSettings {
     // Advanced
     confirmBeforeDelete: boolean;
     useFrontmatterDates: boolean;
+    frontmatterNameField: string;
     frontmatterCreatedField: string;
     frontmatterModifiedField: string;
     frontmatterDateFormat: string;
@@ -116,6 +117,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Advanced
     confirmBeforeDelete: true,
     useFrontmatterDates: false,
+    frontmatterNameField: '',
     frontmatterCreatedField: 'created',
     frontmatterModifiedField: 'modified',
     frontmatterDateFormat: "yyyy-MM-dd'T'HH:mm:ss",
@@ -339,6 +341,61 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .setName(strings.settings.sections.noteDisplay)
             .setHeading();
 
+        const useFrontmatterDatesSetting = new Setting(containerEl)
+            .setName(strings.settings.items.useFrontmatterDates.name)
+            .setDesc(strings.settings.items.useFrontmatterDates.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.useFrontmatterDates)
+                .onChange(async (value) => {
+                    this.plugin.settings.useFrontmatterDates = value;
+                    await this.saveAndRefresh();
+                    this.setElementVisibility(frontmatterSettingsEl, value);
+                }));
+
+        // Container for frontmatter settings
+        const frontmatterSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+        this.createDebouncedTextSetting(
+            frontmatterSettingsEl,
+            strings.settings.items.frontmatterNameField.name,
+            strings.settings.items.frontmatterNameField.desc,
+            strings.settings.items.frontmatterNameField.placeholder,
+            () => this.plugin.settings.frontmatterNameField,
+            (value) => { this.plugin.settings.frontmatterNameField = value || ''; }
+        );
+
+        this.createDebouncedTextSetting(
+            frontmatterSettingsEl,
+            strings.settings.items.frontmatterCreatedField.name,
+            strings.settings.items.frontmatterCreatedField.desc,
+            strings.settings.items.frontmatterCreatedField.placeholder,
+            () => this.plugin.settings.frontmatterCreatedField,
+            (value) => { this.plugin.settings.frontmatterCreatedField = value || 'created'; }
+        );
+
+        this.createDebouncedTextSetting(
+            frontmatterSettingsEl,
+            strings.settings.items.frontmatterModifiedField.name,
+            strings.settings.items.frontmatterModifiedField.desc,
+            strings.settings.items.frontmatterModifiedField.placeholder,
+            () => this.plugin.settings.frontmatterModifiedField,
+            (value) => { this.plugin.settings.frontmatterModifiedField = value || 'modified'; }
+        );
+
+        this.createDebouncedTextSetting(
+            frontmatterSettingsEl,
+            strings.settings.items.frontmatterDateFormat.name,
+            strings.settings.items.frontmatterDateFormat.desc,
+            strings.settings.items.frontmatterDateFormat.placeholder,
+            () => this.plugin.settings.frontmatterDateFormat,
+            (value) => { this.plugin.settings.frontmatterDateFormat = value || "yyyy-MM-dd'T'HH:mm:ss"; }
+        ).addExtraButton(button => button
+            .setIcon('help')
+            .setTooltip(strings.settings.items.frontmatterDateFormat.helpTooltip)
+            .onClick(() => {
+                new Notice(strings.settings.items.frontmatterDateFormat.help, 10000);
+            }));
+
         new Setting(containerEl)
             .setName(strings.settings.items.fileNameRows.name)
             .setDesc(strings.settings.items.fileNameRows.desc)
@@ -544,52 +601,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     this.plugin.settings.confirmBeforeDelete = value;
                     await this.saveAndRefresh();
                 }));
-
-        const useFrontmatterDatesSetting = new Setting(containerEl)
-            .setName(strings.settings.items.useFrontmatterDates.name)
-            .setDesc(strings.settings.items.useFrontmatterDates.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.useFrontmatterDates)
-                .onChange(async (value) => {
-                    this.plugin.settings.useFrontmatterDates = value;
-                    await this.saveAndRefresh();
-                    this.setElementVisibility(frontmatterSettingsEl, value);
-                }));
-
-        // Container for frontmatter settings
-        const frontmatterSettingsEl = containerEl.createDiv('nn-sub-settings');
-
-        this.createDebouncedTextSetting(
-            frontmatterSettingsEl,
-            strings.settings.items.frontmatterCreatedField.name,
-            strings.settings.items.frontmatterCreatedField.desc,
-            strings.settings.items.frontmatterCreatedField.placeholder,
-            () => this.plugin.settings.frontmatterCreatedField,
-            (value) => { this.plugin.settings.frontmatterCreatedField = value || 'created'; }
-        );
-
-        this.createDebouncedTextSetting(
-            frontmatterSettingsEl,
-            strings.settings.items.frontmatterModifiedField.name,
-            strings.settings.items.frontmatterModifiedField.desc,
-            strings.settings.items.frontmatterModifiedField.placeholder,
-            () => this.plugin.settings.frontmatterModifiedField,
-            (value) => { this.plugin.settings.frontmatterModifiedField = value || 'modified'; }
-        );
-
-        this.createDebouncedTextSetting(
-            frontmatterSettingsEl,
-            strings.settings.items.frontmatterDateFormat.name,
-            strings.settings.items.frontmatterDateFormat.desc,
-            strings.settings.items.frontmatterDateFormat.placeholder,
-            () => this.plugin.settings.frontmatterDateFormat,
-            (value) => { this.plugin.settings.frontmatterDateFormat = value || "yyyy-MM-dd'T'HH:mm:ss"; }
-        ).addExtraButton(button => button
-            .setIcon('help')
-            .setTooltip(strings.settings.items.frontmatterDateFormat.helpTooltip)
-            .onClick(() => {
-                new Notice(strings.settings.items.frontmatterDateFormat.help, 10000);
-            }));
 
         // Debug settings - only show in development mode
         if (process.env.NODE_ENV === 'development') {
