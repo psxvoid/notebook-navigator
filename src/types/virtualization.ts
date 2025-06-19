@@ -27,7 +27,7 @@ export interface VirtualItem<T> {
 }
 
 export interface FileListItem {
-  type: 'header' | 'file';
+  type: 'header' | 'file' | 'spacer';
   data: TFile | string; // File or header text
   parentFolder?: string | null;
   key: string;

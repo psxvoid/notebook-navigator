@@ -360,6 +360,13 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 });
             }
             
+            // Add spacer at the end for better visibility of last item
+            items.push({
+                type: 'spacer',
+                data: '',
+                key: 'bottom-spacer'
+            });
+            
             setListItems(items);
             if (settings.debugMobile) {
                 debugLog.info("FileList: List items rebuilt.", {
@@ -450,6 +457,10 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                     return 35; // First header: less top padding
                 }
                 return 50; // Subsequent headers: extra top margin + padding
+            }
+            
+            if (item.type === 'spacer') {
+                return 20; // Fixed height for spacer
             }
 
             // For file items
@@ -909,6 +920,8 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                         <div className={`nn-date-group-header ${isFirstHeader ? 'nn-first-header' : ''}`}>
                                             {item.data as string}
                                         </div>
+                                    ) : item.type === 'spacer' ? (
+                                        <div className="nn-file-list-spacer" style={{ height: '20px' }} />
                                     ) : (
                                         <FileItem
                                             key={(item.data as TFile).path}

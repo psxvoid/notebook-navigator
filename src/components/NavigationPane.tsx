@@ -46,13 +46,13 @@ const ITEM_HEIGHTS = {
     folder: 32,      // Accounts for padding + line-height 1.4
     tag: 32,         // Matches folder height
     header: 35,      // Tag section header
-    spacer: 25       // Bottom spacer
+    spacer: 20       // Bottom spacer - matches FileList
   },
   mobile: {
     folder: 44,      // Accounts for larger padding + min-height 40px
     tag: 44,         // Matches folder height
     header: 38,      // Slightly larger for mobile font sizes
-    spacer: 40       // Larger touch target
+    spacer: 20       // Bottom spacer - matches FileList
   }
 };
 
@@ -73,7 +73,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     const uiDispatch = useUIDispatch();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     // Removed: lastScrollPositionRef and savedScrollTopRef - no longer needed with centralized scroll restoration
-    const spacerHeight = isMobile ? 40 : 25; // More space on mobile
+    const spacerHeight = 20; // Consistent spacer height - matches FileList
     // Removed: lastScrolledPath - no longer needed with predictive scrolling
     
     
