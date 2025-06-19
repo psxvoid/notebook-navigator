@@ -130,6 +130,11 @@
     outline: none !important;
 }
 
+/* Reduce button padding in headers to prevent overflow */
+.nn-header-actions button.nn-icon-button {
+    padding: 0 var(--size-4-1);
+}
+
 /* Ensure button element itself has no default styles */
 button.nn-icon-button {
     background: transparent !important;
