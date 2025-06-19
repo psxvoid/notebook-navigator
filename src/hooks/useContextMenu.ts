@@ -80,10 +80,14 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
 
         const menu = new Menu();
         
-        // Let Obsidian's Menu handle all cleanup internally
+        // Add context menu active class to show outline
+        elementRef.current.classList.add('nn-context-menu-active');
+        
+        // Remove the class when menu is hidden
         menu.onHide(() => {
-            // If needed, we can dispatch a state update here instead of DOM manipulation
-            // For now, we'll rely on CSS :hover and :active states
+            if (elementRef.current) {
+                elementRef.current.classList.remove('nn-context-menu-active');
+            }
         });
         
         if (config.type === 'folder') {
@@ -465,6 +469,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
         
         return () => {
             element.removeEventListener('contextmenu', handleContextMenu);
+            // Clean up any lingering context menu active class
+            element.classList.remove('nn-context-menu-active');
         };
     }, [elementRef, handleContextMenu, config, isMobile]);
 }

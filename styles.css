@@ -885,7 +885,7 @@ body.nn-resizing {
     border: 2px solid var(--text-selection);
     border-radius: var(--radius-s);
     pointer-events: none;
-    z-index: 2;
+    z-index: 10;
 }
 
 /* Dark mode context menu outline for folders */
@@ -910,7 +910,7 @@ body.nn-resizing {
     border: 2px solid var(--text-selection);
     border-radius: var(--radius-m);
     pointer-events: none;
-    z-index: 2;
+    z-index: 10;
 }
 
 /* Dark mode context menu outline for files */
