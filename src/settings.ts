@@ -591,29 +591,37 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 new Notice(strings.settings.items.frontmatterDateFormat.help, 10000);
             }));
 
-        // Debug mobile setting
-        new Setting(containerEl)
-            .setName('Enable debug logging (mobile only)')
-            .setDesc('Creates a debug log file in vault root to help diagnose issues. Currently only works on mobile devices. Requires restart.')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.debugMobile)
-                .onChange(async (value) => {
-                    this.plugin.settings.debugMobile = value;
-                    await this.saveAndRefresh();
-                    // Notify about the change
-                    new Notice('Debug logging change will take effect on next restart');
-                }));
+        // Debug settings - only show in development mode
+        if (process.env.NODE_ENV === 'development') {
+            new Setting(containerEl)
+                .setName('Debug settings')
+                .setDesc('Development-only settings for debugging')
+                .setHeading();
+            
+            // Debug desktop setting
+            new Setting(containerEl)
+                .setName('Enable debug logging (Desktop)')
+                .setDesc('Outputs debug information to the browser console. Useful for troubleshooting issues.')
+                .addToggle(toggle => toggle
+                    .setValue(this.plugin.settings.debugDesktop)
+                    .onChange(async (value) => {
+                        this.plugin.settings.debugDesktop = value;
+                        await this.saveAndRefresh();
+                    }));
 
-        // Debug desktop setting
-        new Setting(containerEl)
-            .setName('Enable console logging (desktop)')
-            .setDesc('Shows debug information in the browser console to help diagnose issues. Only works on desktop.')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.debugDesktop)
-                .onChange(async (value) => {
-                    this.plugin.settings.debugDesktop = value;
-                    await this.saveAndRefresh();
-                }));
+            // Debug mobile setting
+            new Setting(containerEl)
+                .setName('Enable debug logging (Mobile)')
+                .setDesc('Creates a debug log file in your vault root folder. Useful for troubleshooting issues on mobile devices. Requires app restart.')
+                .addToggle(toggle => toggle
+                    .setValue(this.plugin.settings.debugMobile)
+                    .onChange(async (value) => {
+                        this.plugin.settings.debugMobile = value;
+                        await this.saveAndRefresh();
+                        // Notify about the change
+                        new Notice('Debug logging change will take effect on next restart');
+                    }));
+        }
 
         // Sponsor section
         new Setting(containerEl)
