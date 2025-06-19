@@ -83,13 +83,13 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const [fileVersion, setFileVersion] = useState(0);
     
     const handleFileClick = useCallback((file: TFile, e: React.MouseEvent) => {
-        if (Platform.isMobile && plugin.settings.debugMobile) {
-            debugLog.debug('FileList: File clicked', { 
-                file: file.path,
-                isUserSelection: true,
-                isMobile
-            });
-        }
+        debugLog.debug('[FileList] handleFileClick called', { 
+            file: file.path,
+            currentSelected: selectedFile?.path,
+            isUserSelection: true,
+            isMobile
+        });
+        
         isUserSelectionRef.current = true;  // Mark this as a user selection
         selectionDispatch({ type: 'SET_SELECTED_FILE', file });
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
@@ -589,12 +589,45 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         if (selectedFilePath) {
             const index = filePathToIndex.get(selectedFilePath);
             if (index !== undefined && index !== -1) {
+                // Get current scroll position before scrolling
+                const scrollBefore = scrollContainerRef.current?.scrollTop || 0;
+                
+                debugLog.debug('[FileList] Scroll to selected file triggered', {
+                    selectedFilePath,
+                    index,
+                    isMobile,
+                    alignment: isMobile ? 'center' : 'auto',
+                    scrollBefore,
+                    virtualizerState: {
+                        scrollOffset: rowVirtualizer.scrollOffset,
+                        totalSize: rowVirtualizer.getTotalSize(),
+                        virtualItems: rowVirtualizer.getVirtualItems().map(item => ({
+                            index: item.index,
+                            start: item.start,
+                            end: item.end,
+                            size: item.size
+                        }))
+                    }
+                });
+                
                 // Scroll immediately to prevent flicker
                 // Use center alignment on mobile for better visibility, auto on desktop
                 rowVirtualizer.scrollToIndex(index, { 
                     align: isMobile ? 'center' : 'auto', 
                     behavior: 'auto' 
                 });
+                
+                // Log scroll position after (in next tick)
+                setTimeout(() => {
+                    const scrollAfter = scrollContainerRef.current?.scrollTop || 0;
+                    if (scrollAfter !== scrollBefore) {
+                        debugLog.debug('[FileList] Scroll position changed', {
+                            scrollBefore,
+                            scrollAfter,
+                            difference: scrollAfter - scrollBefore
+                        });
+                    }
+                }, 0);
             }
         }
     }, [selectedFilePath, filePathToIndex, rowVirtualizer, isMobile]);

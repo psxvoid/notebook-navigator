@@ -289,8 +289,46 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                     fileIndex,
                     hasVirtualizer: !!fileListRef.current?.virtualizer
                 });
-                if (fileIndex !== undefined && fileIndex !== -1) {
-                    fileListRef.current?.virtualizer?.scrollToIndex(fileIndex, { align: 'center', behavior: 'auto' });
+                if (fileIndex !== undefined && fileIndex !== -1 && fileListRef.current?.virtualizer) {
+                    const virtualizer = fileListRef.current.virtualizer;
+                    const scrollElement = fileListRef.current.scrollContainerRef;
+                    
+                    if (scrollElement) {
+                        // Check if the file is already visible
+                        const virtualItems = virtualizer.getVirtualItems();
+                        const virtualItem = virtualItems.find(item => item.index === fileIndex);
+                        
+                        if (virtualItem) {
+                            // Check if the item is fully visible in the viewport
+                            const containerHeight = scrollElement.offsetHeight;
+                            const scrollTop = scrollElement.scrollTop;
+                            const itemTop = virtualItem.start;
+                            const itemBottom = virtualItem.end;
+                            
+                            const isFullyVisible = itemTop >= scrollTop && itemBottom <= (scrollTop + containerHeight);
+                            
+                            debugLog.debug('[NotebookNavigator] File visibility check', {
+                                fileIndex,
+                                itemTop,
+                                itemBottom,
+                                scrollTop,
+                                containerHeight,
+                                isFullyVisible
+                            });
+                            
+                            // Only scroll if the item is not fully visible
+                            if (!isFullyVisible) {
+                                debugLog.debug('[NotebookNavigator] Scrolling file to center - not fully visible');
+                                virtualizer.scrollToIndex(fileIndex, { align: 'center', behavior: 'auto' });
+                            } else {
+                                debugLog.debug('[NotebookNavigator] Skipping scroll - file already visible');
+                            }
+                        } else {
+                            // Item is not in virtual items, so it's definitely not visible
+                            debugLog.debug('[NotebookNavigator] Scrolling file to center - not in virtual items');
+                            virtualizer.scrollToIndex(fileIndex, { align: 'center', behavior: 'auto' });
+                        }
+                    }
                 }
             }, 50); // Small delay to ensure DOM updates are complete
             
