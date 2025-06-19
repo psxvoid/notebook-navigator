@@ -24,6 +24,7 @@ import { useServices } from '../context/ServicesContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
+import { useSettingsState } from '../context/SettingsContext';
 import { flattenFolderTree, flattenTagTree, findFolderIndex } from '../utils/treeFlattener';
 import { FolderItem } from './FolderItem';
 import { TagTreeItem } from './TagTreeItem';
@@ -51,6 +52,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     const expansionDispatch = useExpansionDispatch();
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
+    const settings = useSettingsState();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -404,7 +406,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                         onToggle={() => handleTagToggle(tagNode.path)}
                         onClick={() => handleTagClick(tagNode.path)}
                         fileCount={item.type === 'untagged' ? untaggedCount : getTotalNoteCount(tagNode)}
-                        showFileCount={plugin.settings.showFolderFileCount}
+                        showFileCount={settings.showFolderFileCount}
                     />
                 );
             }
@@ -415,7 +417,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             default:
                 return null;
         }
-    }, [expansionState.expandedFolders, expansionState.expandedTags, selectionState.selectionType, selectionState.selectedFolder?.path, selectionState.selectedTag, handleFolderToggle, handleFolderClick, handleTagToggle, handleTagClick, untaggedCount, plugin.settings.showFolderFileCount, spacerHeight]);
+    }, [expansionState.expandedFolders, expansionState.expandedTags, selectionState.selectionType, selectionState.selectedFolder?.path, selectionState.selectedTag, handleFolderToggle, handleFolderClick, handleTagToggle, handleTagClick, untaggedCount, settings, spacerHeight]);
     
     return (
         <ErrorBoundary componentName="LeftPaneVirtualized">

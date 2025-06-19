@@ -80,6 +80,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     
     // Track if the file selection is from user click vs auto-selection
     const isUserSelectionRef = useRef(false);
+    const [fileVersion, setFileVersion] = useState(0);
     
     const handleFileClick = useCallback((file: TFile, e: React.MouseEvent) => {
         if (Platform.isMobile && plugin.settings.debugMobile) {
@@ -149,112 +150,44 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         }
     }, [app.workspace, uiDispatch, isMobile]);
     
-    const [files, setFiles] = useState<TFile[]>([]);
-    
+    // This effect now only listens for vault events to trigger a refresh
     useEffect(() => {
-        const rebuildFileList = () => {
-            let allFiles: TFile[] = [];
+        const forceUpdate = () => setFileVersion(v => v + 1);
 
-            if (selectionType === 'folder' && selectedFolder) {
-                allFiles = getFilesForFolder(selectedFolder, plugin.settings, app);
-            } else if (selectionType === 'tag' && selectedTag) {
-                allFiles = getFilesForTag(selectedTag, plugin.settings, app);
-            }
-            
-            setFiles(allFiles);
-            
-            if (plugin.settings.debugMobile) {
-                debugLog.info("FileList: File list rebuilt.", {
-                    count: allFiles.length,
-                    selectionType,
-                    selectedFolder: selectedFolder?.path,
-                    selectedTag
-                });
-            }
-        };
-        
-        // Initial build
-        rebuildFileList();
-        
-        
-        // Listen to vault events that should trigger rebuild
         const vaultEvents = [
-            app.vault.on('create', (file) => {
-                if (isTFile(file)) {
-                    // Only rebuild if the created file is in the current folder or if we're in tag view
-                    if (selectionType === 'tag' || 
-                        (selectionType === 'folder' && selectedFolder && file.parent?.path === selectedFolder.path)) {
-                        rebuildFileList();
-                    }
-                }
-            }),
-            app.vault.on('delete', (file) => {
-                if (isTFile(file)) {
-                    // Always rebuild if we're in tag view
-                    if (selectionType === 'tag') {
-                        rebuildFileList();
-                        return;
-                    }
-                    
-                    // For folder view
-                    if (selectionType === 'folder' && selectedFolder) {
-                        // If showing subfolders, check if file is anywhere in the folder hierarchy
-                        if (plugin.settings.showNotesFromSubfolders) {
-                            // Check if the file is in the selected folder or any of its subfolders
-                            // Handle root folder case where path might be empty
-                            const folderPath = selectedFolder.path || '';
-                            const filePath = file.path;
-                            
-                            // For root folder, all files are considered to be "within" it
-                            if (folderPath === '') {
-                                rebuildFileList();
-                            } else if (filePath.startsWith(folderPath + '/')) {
-                                // File is in a subfolder
-                                rebuildFileList();
-                            } else {
-                                // Check if file is directly in the selected folder
-                                const lastSlashIndex = filePath.lastIndexOf('/');
-                                const fileParentPath = lastSlashIndex === -1 ? '' : filePath.substring(0, lastSlashIndex);
-                                if (fileParentPath === folderPath) {
-                                    rebuildFileList();
-                                }
-                            }
-                        } else {
-                            // Only showing direct children - check if parent matches
-                            // Extract parent path from file path since file.parent might be null after deletion
-                            const lastSlashIndex = file.path.lastIndexOf('/');
-                            const fileParentPath = lastSlashIndex === -1 ? '' : file.path.substring(0, lastSlashIndex);
-                            
-                            if (fileParentPath === selectedFolder.path) {
-                                rebuildFileList();
-                            }
-                        }
-                    }
-                }
-            }),
-            app.vault.on('rename', (file) => {
-                if (isTFile(file)) rebuildFileList();
-            })
+            app.vault.on('create', forceUpdate),
+            app.vault.on('delete', forceUpdate),
+            app.vault.on('rename', forceUpdate)
         ];
-        
-        const metadataEvent = app.metadataCache.on('changed', (file) => {
-            // Only rebuild if we're in tag view or if frontmatter dates are enabled
-            if (selectionType === 'tag' || plugin.settings.useFrontmatterDates) {
-                rebuildFileList();
-            }
-        });
-        
+        const metadataEvent = app.metadataCache.on('changed', forceUpdate);
+
         return () => {
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
             app.metadataCache.offref(metadataEvent);
         };
-    }, [
-        app,
-        plugin.settings,
-        selectionType,
-        selectedFolder,
-        selectedTag
-    ]);
+    }, [app]);
+
+    // Calculate files synchronously with useMemo
+    const files = useMemo(() => {
+        let allFiles: TFile[] = [];
+
+        if (selectionType === 'folder' && selectedFolder) {
+            allFiles = getFilesForFolder(selectedFolder, plugin.settings, app);
+        } else if (selectionType === 'tag' && selectedTag) {
+            allFiles = getFilesForTag(selectedTag, plugin.settings, app);
+        }
+        
+        if (plugin.settings.debugMobile) {
+            debugLog.info("FileList: File list calculated.", {
+                count: allFiles.length,
+                selectionType,
+                selectedFolder: selectedFolder?.path,
+                selectedTag
+            });
+        }
+        
+        return allFiles;
+    }, [selectionType, selectedFolder, selectedTag, plugin.settings, app, fileVersion]);
     
     // Auto-open file when it's selected via folder/tag change (not user click)
     useEffect(() => {

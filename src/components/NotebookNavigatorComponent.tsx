@@ -260,13 +260,13 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 // Scroll to folder in left pane
                 const folderIndex = leftPaneRef.current?.getIndexOfPath(file.parent!.path);
                 if (folderIndex !== undefined && folderIndex !== -1) {
-                    leftPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: 'center' });
+                    leftPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: isMobile ? 'center' : 'auto' });
                 }
                 
                 // Scroll to file in file list
                 const fileIndex = fileListRef.current?.getIndexOfPath(file.path);
                 if (fileIndex !== undefined && fileIndex !== -1) {
-                    fileListRef.current?.virtualizer?.scrollToIndex(fileIndex, { align: 'center' });
+                    fileListRef.current?.virtualizer?.scrollToIndex(fileIndex, { align: isMobile ? 'center' : 'auto' });
                 }
             }, 50); // Small delay to ensure DOM updates are complete
             

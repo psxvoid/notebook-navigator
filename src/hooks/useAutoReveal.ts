@@ -96,6 +96,13 @@ export function useAutoReveal(
 
         const handleFileChange = (file: TFile | null) => {
             if (!file) return;
+
+            // FIX: If focus is already within our plugin, don't auto-reveal.
+            // This prevents the focus jump during keyboard navigation.
+            const navigatorEl = document.querySelector('.nn-split-container');
+            if (navigatorEl && navigatorEl.contains(document.activeElement)) {
+                return;
+            }
             
             // Don't reveal during user interaction or file deletion
             if (isUserInteractingRef.current || isDeletingFileRef.current) {
