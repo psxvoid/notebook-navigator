@@ -437,33 +437,57 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         estimateSize: (index) => {
             const item = listItems[index];
             if (item.type === 'header') {
-                return 35; // Keep this for date headers
+                // Date group headers have different heights
+                const isFirstHeader = index === 0 || (index > 0 && listItems[index - 1].type !== 'header');
+                if (isFirstHeader) {
+                    return 35; // First header: less top padding
+                }
+                return 50; // Subsequent headers: extra top margin + padding
             }
 
-            // Base height for padding and margins
-            let estimatedHeight = 12; // Vertical padding/margin
+            // For file items
+            const { showDate, showFilePreview, showFeatureImage, fileNameRows, previewRows, showSubfolderNamesInList } = plugin.settings;
             
-            // Add height for file name (can be multi-line)
-            const fileNameLines = plugin.settings.fileNameRows || 1;
-            estimatedHeight += (18 * fileNameLines); // ~18px per line of text
+            // Check if we're in slim mode (no date, preview, or image)
+            const isSlimMode = !showDate && !showFilePreview && !showFeatureImage;
             
-            // Add height for the feature image if shown
-            if (plugin.settings.showFeatureImage) {
-                estimatedHeight += 20; // Approximate additional height for image
-            }
-
-            // Add height for the file preview if shown
-            if (plugin.settings.showFilePreview) {
-                // Add space for each potential line of the preview
-                estimatedHeight += (16 * plugin.settings.previewRows);
+            // Base height: padding (var(--size-4-2) * 2 ≈ 16px)
+            let estimatedHeight = 16;
+            
+            // Add height for file name
+            const nameLines = fileNameRows || 1;
+            estimatedHeight += (20 * nameLines); // ~20px per line with line-height 1.4
+            
+            if (!isSlimMode) {
+                // Check preview layout mode
+                if (showFilePreview && previewRows === 1) {
+                    // Single line preview: date and preview on same line
+                    if (showDate || showFilePreview) {
+                        estimatedHeight += 22; // Height for second line with date/preview
+                    }
+                } else if (showFilePreview && previewRows >= 2) {
+                    // Multi-line preview mode
+                    estimatedHeight += (19 * previewRows); // Preview lines
+                    if (showDate) {
+                        estimatedHeight += 20; // Date below preview
+                    }
+                } else if (showDate && !showFilePreview) {
+                    // Just date, no preview
+                    estimatedHeight += 20;
+                }
             }
             
             // Add height for subfolder indicator if shown
-            if (plugin.settings.showSubfolderNamesInList) {
-                estimatedHeight += 16; // Additional line for subfolder name
+            // This only shows when file is in a subfolder
+            if (showSubfolderNamesInList && plugin.settings.showNotesFromSubfolders) {
+                // We can't know if this specific file is in a subfolder without more context
+                // So we add a conservative estimate
+                estimatedHeight += 8; // Average across files (some have it, some don't)
             }
             
-            return estimatedHeight;
+            // Note: Feature image doesn't add height (it's inline with flex)
+            
+            return Math.max(estimatedHeight, 32); // Minimum height for touch targets
         },
         overscan: isMobile ? 50 : 5, // Render more items on mobile to ensure selected item is rendered
         scrollPaddingStart: 0,
