@@ -39,6 +39,7 @@ export function useAutoReveal(
 ): { fileToReveal: TFile | null } {
     const [fileToReveal, setFileToReveal] = useState<TFile | null>(null);
     const lastRevealedFileRef = useRef<string | null>(null);
+    const isInitialMount = useRef(true);
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
 
@@ -127,10 +128,13 @@ export function useAutoReveal(
         const activeLeafEventRef = app.workspace.on('active-leaf-change', handleActiveLeafChange);
         const fileOpenEventRef = app.workspace.on('file-open', handleFileOpen);
         
-        // Check for currently active file on mount
-        const activeFile = app.workspace.getActiveFile();
-        if (activeFile) {
-            handleFileChange(activeFile);
+        // Check for currently active file only on initial mount
+        if (isInitialMount.current) {
+            const activeFile = app.workspace.getActiveFile();
+            if (activeFile) {
+                handleFileChange(activeFile);
+            }
+            isInitialMount.current = false;
         }
 
         return () => {
