@@ -40,8 +40,8 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
         // Save to storage
         await plugin.saveSettings();
         
-        // Increment version to trigger re-renders of state consumers only
-        setVersion(v => v + 1);
+        // The listener registered in useEffect will handle the re-render
+        // by incrementing the version when onSettingsUpdate is called
     }, [plugin]);
     
     // Listen for settings updates from the plugin (e.g., from settings tab)

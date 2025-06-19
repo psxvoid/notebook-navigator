@@ -355,23 +355,45 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             }),
             app.vault.on('delete', (file) => {
                 if (isTFile(file)) {
-                    // Get parent folder from the path since file.parent might be null after deletion
-                    // For files in root, the parent path is '/'
-                    let fileParentPath: string;
-                    const lastSlashIndex = file.path.lastIndexOf('/');
-                    if (lastSlashIndex === -1) {
-                        // File is in root
-                        fileParentPath = '/';
-                    } else {
-                        // Extract parent path from file path
-                        fileParentPath = file.path.substring(0, lastSlashIndex) || '/';
+                    // Always rebuild if we're in tag view
+                    if (selectionType === 'tag') {
+                        debouncedRebuild();
+                        return;
                     }
                     
-                    // Only rebuild if the deleted file was in the current folder
-                    // This handles the case where we stay in the same folder after deletion
-                    if (selectionType === 'folder' && selectedFolder && 
-                        fileParentPath === selectedFolder.path) {
-                        debouncedRebuild();
+                    // For folder view
+                    if (selectionType === 'folder' && selectedFolder) {
+                        // If showing subfolders, check if file is anywhere in the folder hierarchy
+                        if (plugin.settings.showNotesFromSubfolders) {
+                            // Check if the file is in the selected folder or any of its subfolders
+                            // Handle root folder case where path might be empty
+                            const folderPath = selectedFolder.path || '';
+                            const filePath = file.path;
+                            
+                            // For root folder, all files are considered to be "within" it
+                            if (folderPath === '') {
+                                debouncedRebuild();
+                            } else if (filePath.startsWith(folderPath + '/')) {
+                                // File is in a subfolder
+                                debouncedRebuild();
+                            } else {
+                                // Check if file is directly in the selected folder
+                                const lastSlashIndex = filePath.lastIndexOf('/');
+                                const fileParentPath = lastSlashIndex === -1 ? '' : filePath.substring(0, lastSlashIndex);
+                                if (fileParentPath === folderPath) {
+                                    debouncedRebuild();
+                                }
+                            }
+                        } else {
+                            // Only showing direct children - check if parent matches
+                            // Extract parent path from file path since file.parent might be null after deletion
+                            const lastSlashIndex = file.path.lastIndexOf('/');
+                            const fileParentPath = lastSlashIndex === -1 ? '' : file.path.substring(0, lastSlashIndex);
+                            
+                            if (fileParentPath === selectedFolder.path) {
+                                debouncedRebuild();
+                            }
+                        }
                     }
                 }
             }),
