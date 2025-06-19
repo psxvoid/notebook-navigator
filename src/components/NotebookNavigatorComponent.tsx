@@ -152,30 +152,45 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Get updateSettings from SettingsContext for refresh
     const updateSettings = useSettingsUpdate();
     
+    // Define revealFile function that can be used both internally and via ref
+    const revealFile = (file: TFile) => {
+        if (!file || !file.parent) return;
+
+        // Build the folder path hierarchy to expand
+        const foldersToExpand: string[] = [];
+        let currentFolder: TFolder | null = file.parent;
+        while (currentFolder) {
+            foldersToExpand.unshift(currentFolder.path);
+            if (currentFolder.path === '/') break;
+            currentFolder = currentFolder.parent;
+        }
+        
+        // Expand folders if needed
+        const needsExpansion = foldersToExpand.some(path => !expansionState.expandedFolders.has(path));
+        if (needsExpansion) {
+            expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
+        }
+        
+        // Trigger the reveal - scrolling will happen via the effect that watches isRevealOperation
+        selectionDispatch({ type: 'REVEAL_FILE', file });
+        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+    };
+    
+    // Use auto-reveal hook to detect which file needs revealing
+    const { fileToReveal } = useAutoReveal(app, {
+        autoRevealActiveFile: plugin.settings.autoRevealActiveFile
+    });
+    
+    // Handle revealing the file when detected by the hook
+    useEffect(() => {
+        if (fileToReveal) {
+            revealFile(fileToReveal);
+        }
+    }, [fileToReveal, revealFile]);
+    
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
-        revealFile: (file: TFile) => {
-            if (!file.parent) return;
-
-            // Build the folder path hierarchy to expand
-            const foldersToExpand: string[] = [];
-            let currentFolder: TFolder | null = file.parent;
-            while (currentFolder) {
-                foldersToExpand.unshift(currentFolder.path);
-                if (currentFolder.path === '/') break;
-                currentFolder = currentFolder.parent;
-            }
-            
-            // Expand folders if needed
-            const needsExpansion = foldersToExpand.some(path => !expansionState.expandedFolders.has(path));
-            if (needsExpansion) {
-                expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
-            }
-            
-            // Trigger the reveal - scrolling will happen via the effect that watches isRevealOperation
-            selectionDispatch({ type: 'REVEAL_FILE', file });
-            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-        },
+        revealFile,
         focusFilePane: () => {
             if (Platform.isMobile && plugin.settings.debugMobile) {
                 debugLog.debug('NotebookNavigatorComponent: focusFilePane called');
@@ -280,6 +295,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         selectionState.selectedFile,
         expansionState.expandedFolders,
         expansionDispatch,
+        revealFile
     ]);
 
     // Handle file reveal - expand folders and scroll when a file is revealed
@@ -362,12 +378,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             containerRef.current?.focus();
         }
     }, [uiState.focusedPane]);
-
-    // Use auto-reveal hook for cleaner code organization
-    const autoRevealDispatch = useAutoReveal({
-        autoRevealActiveFile: plugin.settings.autoRevealActiveFile,
-        showNotesFromSubfolders: plugin.settings.showNotesFromSubfolders
-    });
     
     // Track when the navigator is being hidden to ensure consistent state
     useEffect(() => {
@@ -429,20 +439,12 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 expansionDispatch({ type: 'CLEANUP_DELETED_FOLDERS', existingPaths });
                 selectionDispatch({ type: 'CLEANUP_DELETED_FOLDER', deletedPath: file.path });
             } else if (file instanceof TFile) {
-                // Mark that we're deleting a file
-                autoRevealDispatch({ type: 'FILE_DELETE_START' });
-                
                 // Just cleanup the deleted file
                 selectionDispatch({ 
                     type: 'CLEANUP_DELETED_FILE', 
                     deletedPath: file.path,
                     nextFileToSelect: null
                 });
-                
-                // Clear the deletion flag after a short delay
-                setTimeout(() => {
-                    autoRevealDispatch({ type: 'FILE_DELETE_END' });
-                }, 500);
                 
                 // Let auto-reveal handle the selection of the new active file
             }
@@ -453,7 +455,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         return () => {
             app.vault.offref(deleteEventRef);
         };
-    }, [app.vault, expansionDispatch, selectionDispatch, selectionState, plugin.settings, isMobile, autoRevealDispatch]);
+    }, [app.vault, expansionDispatch, selectionDispatch, selectionState, plugin.settings, isMobile]);
 
     // Determine CSS classes for mobile view state
     const containerClasses = ['nn-split-container'];
@@ -473,9 +475,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             data-focus-pane={isMobile ? (uiState.currentMobileView === 'list' ? 'folders' : 'files') : uiState.focusedPane}
             data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}
             tabIndex={-1}
-            onMouseDown={() => autoRevealDispatch({ type: 'USER_INTERACTION' })}
             onKeyDown={(e) => {
-                autoRevealDispatch({ type: 'USER_INTERACTION' });
                 // Allow keyboard events to bubble up from child components
                 // The actual keyboard handling is done in LeftPaneVirtualized and FileList
             }}

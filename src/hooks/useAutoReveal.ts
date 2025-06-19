@@ -16,114 +16,108 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useEffect, useReducer } from 'react';
-import { TFile, TFolder, WorkspaceLeaf } from 'obsidian';
-import { useServices } from '../context/ServicesContext';
-import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
-import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
-import { useUIDispatch } from '../context/UIStateContext';
-import { autoRevealReducer, initialAutoRevealState, shouldAutoReveal } from '../reducers/autoRevealReducer';
-import { isTFolder } from '../utils/typeGuards';
+import { useEffect, useState, useRef } from 'react';
+import { TFile, WorkspaceLeaf, App } from 'obsidian';
+
+interface UseAutoRevealSettings {
+    autoRevealActiveFile: boolean;
+}
 
 /**
- * Custom hook that manages the auto-reveal functionality for the active file.
- * This hook listens to workspace events and automatically reveals the active file
- * in the navigator, expanding folders and scrolling as needed.
+ * Custom hook that detects which file should be revealed in the navigator.
+ * This hook listens to workspace events and returns the file that needs
+ * to be revealed, without handling any of the reveal logic itself.
  * 
- * @param settings - Plugin settings containing autoRevealActiveFile and showNotesFromSubfolders flags
- * @returns The auto-reveal dispatch function for manual control
+ * @param app - The Obsidian app instance
+ * @param settings - Plugin settings containing autoRevealActiveFile flag
+ * @returns Object containing the file to reveal (null if none)
  */
-export function useAutoReveal(settings: { autoRevealActiveFile: boolean; showNotesFromSubfolders: boolean }) {
-    const { app } = useServices();
-    const selectionState = useSelectionState();
-    const selectionDispatch = useSelectionDispatch();
-    const expansionState = useExpansionState();
-    const expansionDispatch = useExpansionDispatch();
-    const uiDispatch = useUIDispatch();
-    const [autoRevealState, autoRevealDispatch] = useReducer(autoRevealReducer, initialAutoRevealState);
+export function useAutoReveal(
+    app: App,
+    settings: UseAutoRevealSettings
+): { fileToReveal: TFile | null } {
+    const [fileToReveal, setFileToReveal] = useState<TFile | null>(null);
+    const lastRevealedFileRef = useRef<string | null>(null);
+    const isUserInteractingRef = useRef(false);
+    const isDeletingFileRef = useRef(false);
 
-    // Effect for handling active file changes
+    // Reset fileToReveal after it's been consumed
+    useEffect(() => {
+        if (fileToReveal) {
+            // Clear after a short delay to ensure the consumer has processed it
+            const timer = setTimeout(() => {
+                setFileToReveal(null);
+            }, 100);
+            return () => clearTimeout(timer);
+        }
+    }, [fileToReveal]);
+
+    // Track user interactions to prevent auto-reveal during manual navigation
+    useEffect(() => {
+        const handleUserInteraction = () => {
+            isUserInteractingRef.current = true;
+            // Reset after a short delay
+            setTimeout(() => {
+                isUserInteractingRef.current = false;
+            }, 500);
+        };
+
+        // Listen for user interactions
+        document.addEventListener('mousedown', handleUserInteraction);
+        document.addEventListener('keydown', handleUserInteraction);
+
+        return () => {
+            document.removeEventListener('mousedown', handleUserInteraction);
+            document.removeEventListener('keydown', handleUserInteraction);
+        };
+    }, []);
+
+    // Listen for file deletions
+    useEffect(() => {
+        const handleDelete = () => {
+            isDeletingFileRef.current = true;
+            setTimeout(() => {
+                isDeletingFileRef.current = false;
+            }, 500);
+        };
+
+        const deleteEventRef = app.vault.on('delete', handleDelete);
+        return () => {
+            app.vault.offref(deleteEventRef);
+        };
+    }, [app.vault]);
+
+    // Main effect for detecting which file to reveal
     useEffect(() => {
         if (!settings.autoRevealActiveFile) return;
 
         const handleFileChange = (file: TFile | null) => {
             if (!file) return;
             
+            // Don't reveal during user interaction or file deletion
+            if (isUserInteractingRef.current || isDeletingFileRef.current) {
+                return;
+            }
+            
             // Check if this is a file we just created via the plugin
             const creatingFilePath = (app.workspace as any).notebookNavigatorCreatingFile;
             const isNewlyCreatedFile = creatingFilePath && file.path === creatingFilePath;
             
-            // Check if auto-reveal should proceed
-            if (!shouldAutoReveal(autoRevealState, isNewlyCreatedFile)) {
+            // Always reveal newly created files
+            if (isNewlyCreatedFile) {
+                setFileToReveal(file);
+                lastRevealedFileRef.current = file.path;
                 return;
             }
             
-            // For newly created files, handle them specially
-            if (isNewlyCreatedFile && file.parent) {
-                // Check if we've already revealed this file
-                if (!autoRevealState.revealedFiles.has(file.path)) {
-                    autoRevealDispatch({ type: 'REVEAL_FILE_START', file });
-                    
-                    // Always reveal newly created files
-                    selectionDispatch({ type: 'REVEAL_FILE', file });
-                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                    
-                    // Cleanup tracking after creation flag timeout
-                    setTimeout(() => {
-                        autoRevealDispatch({ type: 'CLEAR_REVEALED_FILE', filePath: file.path });
-                    }, 1000);
-                    
-                    autoRevealDispatch({ type: 'REVEAL_FILE_END', filePath: file.path });
-                }
-                return; // Don't process normal reveal logic for new files
+            // Don't reveal the same file twice in a row
+            if (lastRevealedFileRef.current === file.path) {
+                return;
             }
             
-            // Always update selected file if it's different
-            if (selectionState.selectedFile?.path !== file.path) {
-                selectionDispatch({ type: 'SET_SELECTED_FILE', file });
-                
-                // Check if we need to reveal the file in the folder tree
-                let needsReveal = true;
-                
-                if (selectionState.selectedFolder && file.parent) {
-                    // Check if file is in the selected folder
-                    if (selectionState.selectedFolder.path === file.parent.path) {
-                        needsReveal = false;
-                    }
-                    
-                    // If showing notes from subfolders, check if file is in a subfolder
-                    if (settings.showNotesFromSubfolders) {
-                        // Check if the file's parent is a descendant of the currently selected folder
-                        if (file.parent.path.startsWith(selectionState.selectedFolder.path + '/') || 
-                            file.parent.path === selectionState.selectedFolder.path) {
-                            // The file is visible in the current view. Do nothing else.
-                            needsReveal = false;
-                        }
-                    }
-                }
-                
-                // Only reveal if the file is not already visible in the current view
-                if (needsReveal && file.parent) {
-                    // Build the folder path hierarchy to expand
-                    const foldersToExpand: string[] = [];
-                    let currentFolder: TFolder | null = file.parent;
-                    while (currentFolder) {
-                        foldersToExpand.unshift(currentFolder.path);
-                        if (currentFolder.path === '/') break;
-                        currentFolder = currentFolder.parent;
-                    }
-                    
-                    // Expand folders if needed
-                    const needsExpansion = foldersToExpand.some(path => !expansionState.expandedFolders.has(path));
-                    if (needsExpansion) {
-                        expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
-                    }
-                    
-                    // Trigger the reveal - scrolling will happen via the reveal effect
-                    selectionDispatch({ type: 'REVEAL_FILE', file });
-                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                }
-            }
+            // Set the file to reveal
+            setFileToReveal(file);
+            lastRevealedFileRef.current = file.path;
         };
 
         const handleActiveLeafChange = (leaf: WorkspaceLeaf | null) => {
@@ -156,7 +150,7 @@ export function useAutoReveal(settings: { autoRevealActiveFile: boolean; showNot
         
         // Check for currently active file on mount
         const activeFile = app.workspace.getActiveFile();
-        if (activeFile) {
+        if (activeFile && !isUserInteractingRef.current) {
             handleFileChange(activeFile);
         }
 
@@ -164,17 +158,7 @@ export function useAutoReveal(settings: { autoRevealActiveFile: boolean; showNot
             app.workspace.offref(activeLeafEventRef);
             app.workspace.offref(fileOpenEventRef);
         };
-    }, [
-        app.workspace,
-        selectionDispatch,
-        expansionDispatch,
-        uiDispatch,
-        settings.autoRevealActiveFile,
-        settings.showNotesFromSubfolders,
-        selectionState,
-        expansionState.expandedFolders,
-        autoRevealState
-    ]);
+    }, [app.workspace, settings.autoRevealActiveFile]);
 
-    return autoRevealDispatch;
+    return { fileToReveal };
 }
