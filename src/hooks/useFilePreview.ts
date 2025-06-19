@@ -84,23 +84,6 @@ export function useFilePreview({ file, metadata, settings, app }: UseFilePreview
         // Create an async function to handle the file read
         const loadPreview = async () => {
             try {
-                // Add a small delay to debounce rapid file changes
-                await new Promise<void>((resolve, reject) => {
-                    const timer = setTimeout(resolve, 50);
-                    
-                    // Listen for abort signal
-                    const abortHandler = () => {
-                        clearTimeout(timer);
-                        reject(new Error('Cancelled'));
-                    };
-                    
-                    if (abortController.signal.aborted) {
-                        abortHandler();
-                    } else {
-                        abortController.signal.addEventListener('abort', abortHandler, { once: true });
-                    }
-                });
-                
                 if (isCancelled) return;
                 
                 const content = await app.vault.cachedRead(file);
@@ -110,10 +93,7 @@ export function useFilePreview({ file, metadata, settings, app }: UseFilePreview
                 }
             } catch (error) {
                 if (!isCancelled) {
-                    // Only log actual errors, not cancellations
-                    if (error instanceof Error && error.message !== 'Cancelled') {
-                        console.error('Failed to read file preview:', error);
-                    }
+                    console.error('Failed to read file preview:', error);
                     setPreviewText(''); // Clear preview on error
                 }
             }

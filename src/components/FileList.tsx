@@ -193,11 +193,13 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     useEffect(() => {
         // Check if this is a reveal operation - if so, skip auto-open
         const isRevealOperation = selectionState.isRevealOperation;
+        const isFolderChangeWithAutoSelect = selectionState.isFolderChangeWithAutoSelect;
         
         console.log('[FileList] Auto-open effect:', {
             hasSelectedFile: !!selectedFile,
             isUserSelection: isUserSelectionRef.current,
             isRevealOperation,
+            isFolderChangeWithAutoSelect,
             autoSelectFirstFile: plugin.settings.autoSelectFirstFile,
             isMobile
         });
@@ -216,11 +218,12 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             console.log('[FileList] Auto-open check:', {
                 file: selectedFile.path,
                 hasNavigatorFocus,
-                willOpen: !hasNavigatorFocus
+                isFolderChangeWithAutoSelect,
+                willOpen: !hasNavigatorFocus || isFolderChangeWithAutoSelect
             });
             
-            // Only open the file if we're not actively using the navigator
-            if (!hasNavigatorFocus) {
+            // Open the file if we're not actively using the navigator OR if this is a folder change with auto-select
+            if (!hasNavigatorFocus || isFolderChangeWithAutoSelect) {
                 // This is an auto-selection from folder/tag change
                 console.log('[FileList] Opening auto-selected file:', selectedFile.path);
                 const leaf = app.workspace.getLeaf(false);
@@ -231,7 +234,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         }
         // Reset the flag after processing
         isUserSelectionRef.current = false;
-    }, [selectedFile, app.workspace, plugin.settings.autoSelectFirstFile, isMobile, selectionState.isRevealOperation]);
+    }, [selectedFile, app.workspace, plugin.settings.autoSelectFirstFile, isMobile, selectionState.isRevealOperation, selectionState.isFolderChangeWithAutoSelect]);
     
     // Auto-select first file when files pane gains focus and no file is selected (desktop only)
     useEffect(() => {

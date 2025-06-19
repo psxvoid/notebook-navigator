@@ -35,6 +35,7 @@ interface SelectionState {
     selectedTag: string | null;
     selectedFile: TFile | null;
     isRevealOperation: boolean; // Flag to track if the current selection is from a REVEAL_FILE action
+    isFolderChangeWithAutoSelect: boolean; // Flag to track if we just changed folders and auto-selected a file
 }
 
 // Action types
@@ -62,7 +63,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction): Selec
                 selectedTag: null,
                 selectionType: 'folder',
                 selectedFile: action.autoSelectedFile !== undefined ? action.autoSelectedFile : state.selectedFile,
-                isRevealOperation: false
+                isRevealOperation: false,
+                isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null
             };
         }
         
@@ -73,15 +75,16 @@ function selectionReducer(state: SelectionState, action: SelectionAction): Selec
                 selectedFolder: null,
                 selectionType: 'tag',
                 selectedFile: action.autoSelectedFile !== undefined ? action.autoSelectedFile : state.selectedFile,
-                isRevealOperation: false
+                isRevealOperation: false,
+                isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null
             };
         }
             
         case 'SET_SELECTED_FILE':
-            return { ...state, selectedFile: action.file, isRevealOperation: false };
+            return { ...state, selectedFile: action.file, isRevealOperation: false, isFolderChangeWithAutoSelect: false };
         
         case 'SET_SELECTION_TYPE':
-            return { ...state, selectionType: action.selectionType, isRevealOperation: false };
+            return { ...state, selectionType: action.selectionType, isRevealOperation: false, isFolderChangeWithAutoSelect: false };
         
         case 'CLEAR_SELECTION':
             return {
@@ -89,7 +92,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction): Selec
                 selectedFolder: null,
                 selectedTag: null,
                 selectedFile: null,
-                isRevealOperation: false
+                isRevealOperation: false,
+                isFolderChangeWithAutoSelect: false
             };
         
         case 'REVEAL_FILE': {
@@ -103,7 +107,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction): Selec
                 selectedFolder: action.file.parent,
                 selectedTag: null,
                 selectedFile: action.file,
-                isRevealOperation: true
+                isRevealOperation: true,
+                isFolderChangeWithAutoSelect: false
             };
         }
         
@@ -112,7 +117,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction): Selec
                 return {
                     ...state,
                     selectedFolder: null,
-                    selectedFile: null
+                    selectedFile: null,
+                    isFolderChangeWithAutoSelect: false
                 };
             }
             return state;
@@ -122,7 +128,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction): Selec
             if (state.selectedFile && state.selectedFile.path === action.deletedPath) {
                 return {
                     ...state,
-                    selectedFile: action.nextFileToSelect !== undefined ? action.nextFileToSelect : null
+                    selectedFile: action.nextFileToSelect !== undefined ? action.nextFileToSelect : null,
+                    isFolderChangeWithAutoSelect: false
                 };
             }
             return state;
@@ -191,7 +198,8 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             selectedFolder,
             selectedTag: null,
             selectedFile,
-            isRevealOperation: false
+            isRevealOperation: false,
+            isFolderChangeWithAutoSelect: false
         };
     }, [app.vault]);
     

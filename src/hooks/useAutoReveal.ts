@@ -42,7 +42,6 @@ export function useAutoReveal(
     const isUserInteractingRef = useRef(false);
     const isDeletingFileRef = useRef(false);
     const lastNavigatorInteractionRef = useRef<number>(0);
-    const revealTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const ignoreRevealUntilRef = useRef<number>(0);
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
@@ -173,20 +172,10 @@ export function useAutoReveal(
                 return;
             }
             
-            // Set the file to reveal with proper debouncing
+            // Set the file to reveal immediately
             console.log('[AutoReveal] Setting file to reveal:', file.path);
-            
-            // Cancel any pending reveal
-            if (revealTimeoutRef.current) {
-                clearTimeout(revealTimeoutRef.current);
-            }
-            
-            // Set new timeout to debounce multiple file-open events
-            revealTimeoutRef.current = setTimeout(() => {
-                setFileToReveal(file);
-                lastRevealedFileRef.current = file.path;
-                revealTimeoutRef.current = null;
-            }, 200); // Increased debounce to 200ms for better stability
+            setFileToReveal(file);
+            lastRevealedFileRef.current = file.path;
         };
 
         const handleActiveLeafChange = (leaf: WorkspaceLeaf | null) => {
@@ -226,10 +215,6 @@ export function useAutoReveal(
         return () => {
             app.workspace.offref(activeLeafEventRef);
             app.workspace.offref(fileOpenEventRef);
-            // Clean up any pending timeout
-            if (revealTimeoutRef.current) {
-                clearTimeout(revealTimeoutRef.current);
-            }
         };
     }, [app.workspace, settings.autoRevealActiveFile, uiState.newlyCreatedPath, uiDispatch]);
 
