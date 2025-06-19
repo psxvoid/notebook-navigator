@@ -144,16 +144,28 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 
             case 'PageDown': {
                 e.preventDefault();
-                // This is the fix: Use the new geometry-based page size calculation.
+                if (currentIndex === -1) break; // Cannot PageDown if nothing is selected.
+
                 const pageSize = getVisiblePageSize(virtualizer);
+                const newIndex = Math.min(currentIndex + pageSize, items.length - 1);
 
-                // If nothing is selected, start from the first item.
-                const startIndex = currentIndex === -1 ? 0 : currentIndex;
+                // Find the next selectable item starting from the new position.
+                let newTargetIndex = findNextSelectableIndex(items, newIndex - 1, focusedPane);
 
-                const newIndex = Math.min(startIndex + pageSize, items.length - 1);
-                
-                // Find the next selectable item at or after our jump point.
-                targetIndex = findNextSelectableIndex(items, newIndex, focusedPane, true);
+                // FIX: If we didn't move, it means we are near the bottom.
+                // In this case, ensure we go to the very last selectable item.
+                if (newTargetIndex === currentIndex && currentIndex !== items.length - 1) {
+                    // Find the last selectable item
+                    for (let i = items.length - 1; i >= 0; i--) {
+                        const item = safeGetItem(items, i);
+                        if (item && isSelectableItem(item, focusedPane)) {
+                            newTargetIndex = i;
+                            break;
+                        }
+                    }
+                }
+
+                targetIndex = newTargetIndex;
                 break;
             }
 
