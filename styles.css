@@ -54,6 +54,7 @@
 /* Right pane - contains the file list */
 .nn-right-pane {
     flex: 1;
+    min-width: 150px;
     background-color: var(--background-primary);
     display: flex;
     flex-direction: column;
