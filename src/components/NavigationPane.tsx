@@ -87,7 +87,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     
     // Log component mount/unmount only if debug is enabled
     useEffect(() => {
-        if (Platform.isMobile && plugin.settings.debugMobile) {
+        if (Platform.isMobile && settings.debugMobile) {
             debugLog.info('LeftPaneVirtualized: Mounted', {
                 isMobile,
                 selectedFolder: selectionState.selectedFolder?.path,
@@ -99,7 +99,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                 debugLog.info('LeftPaneVirtualized: Unmounted');
             };
         }
-    }, [plugin.settings.debugMobile]);
+    }, [settings.debugMobile]);
     
     
     // =================================================================================
@@ -114,7 +114,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             const root = vault.getRoot();
             
             let folders: TFolder[];
-            if (plugin.settings.showRootFolder) {
+            if (settings.showRootFolder) {
                 folders = [root];
             } else {
                 folders = root.children
@@ -123,7 +123,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             }
             
             setRootFolders(folders);
-            if (plugin.settings.debugMobile) {
+            if (settings.debugMobile) {
                 debugLog.info("LeftPaneVirtualized: Root folders rebuilt.");
             }
         };
@@ -150,7 +150,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         return () => {
             events.forEach(eventRef => app.vault.offref(eventRef));
         };
-    }, [app, plugin.settings.showRootFolder]);
+    }, [app, settings.showRootFolder]);
     // =================================================================================
     // =================================================================================
     
@@ -162,12 +162,12 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     useEffect(() => {
         // Function to build tag tree
         const buildTags = () => {
-            if (!plugin.settings.showTags) {
+            if (!settings.showTags) {
                 setTagData({ tree: new Map(), untagged: 0 });
                 return;
             }
 
-            const excludedProperties = parseExcludedProperties(plugin.settings.excludedFiles);
+            const excludedProperties = parseExcludedProperties(settings.excludedFiles);
             const allFiles = app.vault.getMarkdownFiles()
                 .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
             
@@ -177,7 +177,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             const newTree = buildTagTree(allFiles, app);
             
             let newUntagged = 0;
-            if (plugin.settings.showUntagged) {
+            if (settings.showUntagged) {
                 newUntagged = allFiles.filter(file => {
                     const cache = app.metadataCache.getFileCache(file);
                     return !cache || !getAllTags(cache)?.length;
@@ -185,7 +185,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             }
             
             setTagData({ tree: newTree, untagged: newUntagged });
-            if (plugin.settings.debugMobile) {
+            if (settings.debugMobile) {
                 debugLog.info("LeftPaneVirtualized: Tag tree rebuilt.");
             }
         };
@@ -214,7 +214,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
             app.metadataCache.offref(metadataEvent);
         };
-    }, [app, plugin.settings.showTags, plugin.settings.showUntagged, plugin.settings.excludedFiles]);
+    }, [app, settings.showTags, settings.showUntagged, settings.excludedFiles]);
     // =================================================================================
     // =================================================================================
     
@@ -234,12 +234,12 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         const folderItems = flattenFolderTree(
             rootFolders,
             expansionState.expandedFolders,
-            parseExcludedFolders(plugin.settings.ignoreFolders || '')
+            parseExcludedFolders(settings.ignoreFolders || '')
         );
         allItems.push(...folderItems);
         
         // Add tag section if enabled
-        if (plugin.settings.showTags) {
+        if (settings.showTags) {
             // Add header
             allItems.push({ 
                 type: 'tag-header', 
@@ -254,7 +254,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             allItems.push(...tagItems);
             
             // Add untagged if enabled
-            if (plugin.settings.showUntagged && untaggedCount > 0) {
+            if (settings.showUntagged && untaggedCount > 0) {
                 // Create untagged node
                 const untaggedNode: TagTreeNode = {
                     path: UNTAGGED_TAG_ID,
@@ -278,15 +278,15 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         });
         
             setItems(allItems);
-            if (plugin.settings.debugMobile) {
+            if (settings.debugMobile) {
                 debugLog.info("NavigationPane: Items list rebuilt.", { count: allItems.length });
             }
         };
         
         rebuildItems();
     }, [rootFolders, expansionState.expandedFolders, expansionState.expandedTags, 
-        plugin.settings.ignoreFolders, plugin.settings.showTags, 
-        plugin.settings.showUntagged, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
+        settings.ignoreFolders, settings.showTags, 
+        settings.showUntagged, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
     // =================================================================================
     // =================================================================================
     
@@ -383,7 +383,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     
     // Handle tag click
     const handleTagClick = useCallback((tagPath: string) => {
-        if (Platform.isMobile && plugin.settings.debugMobile) {
+        if (Platform.isMobile && settings.debugMobile) {
             debugLog.debug('NavigationPane: Tag clicked', {
                 tag: tagPath,
                 isMobile,
@@ -400,7 +400,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             // correct file (which will be the first file on a new tag selection).
             // No explicit scroll dispatch is needed here anymore.
         }
-    }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView, plugin.settings.debugMobile]);
+    }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView, settings.debugMobile]);
     
     // Scroll to top handler for mobile header click
     const handleScrollToTop = useCallback(() => {

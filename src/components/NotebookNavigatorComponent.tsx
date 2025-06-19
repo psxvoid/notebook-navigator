@@ -25,7 +25,7 @@ import type { NavigationPaneHandle } from './NavigationPane';
 import type { FileListHandle } from './FileList';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useServices } from '../context/ServicesContext';
-import { useSettingsUpdate } from '../context/SettingsContext';
+import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
@@ -60,6 +60,7 @@ export interface NotebookNavigatorHandle {
  */
 export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_, ref) => {
     const { app, plugin, isMobile } = useServices();
+    const settings = useSettingsState();
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
     const selectionState = useSelectionState();
@@ -73,7 +74,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     
     // Only set up logging effects if debug is enabled
     useEffect(() => {
-        if (Platform.isMobile && plugin.settings.debugMobile) {
+        if (Platform.isMobile && settings.debugMobile) {
             debugLog.info('NotebookNavigatorComponent: Mounted', { 
                 isMobile,
                 initialView: uiState.currentMobileView,
@@ -84,7 +85,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 debugLog.info('NotebookNavigatorComponent: Unmounted');
             };
         }
-    }, [plugin.settings.debugMobile]);
+    }, [settings.debugMobile]);
 
     // Handle scrolling when mobile view changes or on initial mount
     useEffect(() => {
@@ -189,7 +190,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     
     // Use auto-reveal hook to detect which file needs revealing
     const { fileToReveal } = useAutoReveal(app, {
-        autoRevealActiveFile: plugin.settings.autoRevealActiveFile
+        autoRevealActiveFile: settings.autoRevealActiveFile
     });
     
     // Handle revealing the file when detected by the hook
@@ -204,7 +205,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     useImperativeHandle(ref, () => ({
         revealFile,
         focusFilePane: () => {
-            if (Platform.isMobile && plugin.settings.debugMobile) {
+            if (Platform.isMobile && settings.debugMobile) {
                 debugLog.debug('NotebookNavigatorComponent: focusFilePane called');
             }
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
@@ -236,7 +237,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     }), [
         selectionDispatch, 
         uiDispatch, 
-        plugin.settings.debugMobile, 
+        settings.debugMobile, 
         updateSettings, 
         isMobile,
         uiState.currentMobileView,
@@ -455,7 +456,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         return () => {
             app.vault.offref(deleteEventRef);
         };
-    }, [app.vault, expansionDispatch, selectionDispatch, selectionState, plugin.settings, isMobile]);
+    }, [app.vault, expansionDispatch, selectionDispatch, selectionState, settings, isMobile]);
 
     // Determine CSS classes for mobile view state
     const containerClasses = ['nn-split-container'];

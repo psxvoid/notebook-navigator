@@ -24,6 +24,7 @@ import { TagTreeNode } from '../utils/tagUtils';
 import { isTypingInInput } from '../utils/domUtils';
 import { isTFolder } from '../utils/typeGuards';
 import { useServices, useFileSystemOps } from '../context/ServicesContext';
+import { useSettingsState } from '../context/SettingsContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
@@ -50,6 +51,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     containerRef
 }: UseVirtualKeyboardNavigationProps<T>) {
     const { app, plugin, isMobile } = useServices();
+    const settings = useSettingsState();
     const fileSystemOps = useFileSystemOps();
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
@@ -239,7 +241,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                         if (isExpanded) {
                             // Collapse the folder
                             handleExpandCollapse(item, false);
-                        } else if (folder.parent && (!plugin.settings.showRootFolder || folder.path !== '/')) {
+                        } else if (folder.parent && (!settings.showRootFolder || folder.path !== '/')) {
                             // Navigate to parent folder
                             const parentIndex = items.findIndex(i => {
                                 if (i.type === 'folder' && i.data && typeof i.data === 'object') {
@@ -532,7 +534,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         // Use the centralized file deletion service
         await fileSystemOps.deleteFile(
             selectionState.selectedFile,
-            plugin.settings.confirmBeforeDelete
+            settings.confirmBeforeDelete
         );
     };
     

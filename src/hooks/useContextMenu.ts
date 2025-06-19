@@ -20,6 +20,7 @@
 import { useEffect, useCallback } from 'react';
 import { Menu, MenuItem, TFile, TFolder, Notice } from 'obsidian';
 import { useServices, useFileSystemOps, useMetadataService } from '../context/ServicesContext';
+import { useSettingsState } from '../context/SettingsContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useUIDispatch } from '../context/UIStateContext';
@@ -54,6 +55,7 @@ interface MenuConfig {
  */
 export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, config: MenuConfig | null) {
     const { app, plugin, isMobile } = useServices();
+    const settings = useSettingsState();
     const fileSystemOps = useFileSystemOps();
     const metadataService = useMetadataService();
     const selectionState = useSelectionState();
@@ -184,7 +186,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             });
             
             // Only show icon options if folder icons are enabled
-            if (plugin.settings.showFolderIcons) {
+            if (settings.showFolderIcons) {
                 menu.addSeparator();
                 
                 // Change icon
@@ -198,7 +200,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                                 app, 
                                 metadataService, 
                                 folder.path,
-                                plugin.settings.recentlyUsedIcons || []
+                                settings.recentlyUsedIcons || []
                             );
                             
                             modal.onChooseIcon = (iconId) => {
@@ -278,7 +280,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     .onClick(async () => {
                         const parentFolder = folder.parent;
                         
-                        await fileSystemOps.deleteFolder(folder, plugin.settings.confirmBeforeDelete, () => {
+                        await fileSystemOps.deleteFolder(folder, settings.confirmBeforeDelete, () => {
                             // Check if we need to update selection
                             if (selectedFolder) {
                                 const isSelectedFolderDeleted = folder.path === selectedFolder.path;
@@ -286,7 +288,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                                 
                                 if (isSelectedFolderDeleted || isAncestorDeleted) {
                                     // If parent exists and is not root (or root is visible), select it
-                                    if (parentFolder && (parentFolder.path !== '' || plugin.settings.showRootFolder)) {
+                                    if (parentFolder && (parentFolder.path !== '' || settings.showRootFolder)) {
                                         selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: parentFolder });
                                     } else {
                                         // Clear selection if no valid parent
@@ -426,9 +428,9 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                             // Get current file list based on selection type
                             let currentFiles: TFile[] = [];
                             if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
-                                currentFiles = getFilesForFolder(selectionState.selectedFolder, plugin.settings, app);
+                                currentFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
                             } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
-                                currentFiles = getFilesForTag(selectionState.selectedTag, plugin.settings, app);
+                                currentFiles = getFilesForTag(selectionState.selectedTag, settings, app);
                             }
                             
                             // Find current file index
@@ -446,7 +448,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                             }
                         }
                         
-                        await fileSystemOps.deleteFile(file, plugin.settings.confirmBeforeDelete, () => {
+                        await fileSystemOps.deleteFile(file, settings.confirmBeforeDelete, () => {
                             // Dispatch cleanup with next file to select
                             selectionDispatch({ 
                                 type: 'CLEANUP_DELETED_FILE', 
@@ -459,7 +461,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
         }
         
         menu.showAtMouseEvent(e);
-    }, [config?.type, config?.item, app, plugin.settings, fileSystemOps, metadataService, selectionState, expandedFolders, selectionDispatch, expansionDispatch, isMobile]);
+    }, [config?.type, config?.item, app, settings, fileSystemOps, metadataService, selectionState, expandedFolders, selectionDispatch, expansionDispatch, isMobile]);
     
     useEffect(() => {
         const element = elementRef.current;
