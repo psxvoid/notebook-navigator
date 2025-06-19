@@ -28,6 +28,7 @@ interface UseResizablePaneConfig {
 
 interface UseResizablePaneResult {
     paneWidth: number;
+    isResizing: boolean;
     resizeHandleProps: {
         onMouseDown: (e: React.MouseEvent) => void;
     };
@@ -63,6 +64,9 @@ export function useResizablePane({
         }
         return initialWidth;
     });
+    
+    // Track resizing state
+    const [isResizing, setIsResizing] = useState(false);
 
     // Save width to localStorage when it changes
     useEffect(() => {
@@ -78,6 +82,9 @@ export function useResizablePane({
         
         // Check if RTL mode is active
         const isRTL = document.body.classList.contains('mod-rtl');
+        
+        // Set resizing state
+        setIsResizing(true);
 
         const handleMouseMove = (moveEvent: MouseEvent) => {
             let deltaX = moveEvent.clientX - startX;
@@ -92,14 +99,11 @@ export function useResizablePane({
         const handleMouseUp = () => {
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
-            // Remove resizing class to restore text selection
-            document.body.classList.remove('nn-resizing');
+            // Clear resizing state
+            setIsResizing(false);
             // Clear the cleanup ref since we've already cleaned up
             cleanupRef.current = null;
         };
-
-        // Add resizing class to prevent text selection during drag
-        document.body.classList.add('nn-resizing');
         
         document.addEventListener('mousemove', handleMouseMove);
         document.addEventListener('mouseup', handleMouseUp);
@@ -108,7 +112,7 @@ export function useResizablePane({
         cleanupRef.current = () => {
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
-            document.body.classList.remove('nn-resizing');
+            setIsResizing(false);
         };
     }, [paneWidth, min, max]);
     
@@ -124,6 +128,7 @@ export function useResizablePane({
 
     return {
         paneWidth,
+        isResizing,
         resizeHandleProps: {
             onMouseDown: handleResizeMouseDown
         }

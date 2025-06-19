@@ -16,13 +16,15 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useEffect, useState, useRef, useMemo, memo } from 'react';
+import React, { useRef, useMemo, memo } from 'react';
 import { TFile } from 'obsidian';
-import { useStableAppContext, useAppContext } from '../context/AppContext';
+import { useServices } from '../context/ServicesContext';
+import { useSettingsState } from '../context/SettingsContext';
 import { DateUtils } from '../utils/DateUtils';
-import { PreviewTextUtils } from '../utils/PreviewTextUtils';
 import { getDateField } from '../utils/sortUtils';
 import { useContextMenu } from '../hooks/useContextMenu';
+import { useFilePreview } from '../hooks/useFilePreview';
+import { getFileDisplayName } from '../utils/fileNameUtils';
 import { strings } from '../i18n';
 import { ObsidianIcon } from './ObsidianIcon';
 
@@ -48,10 +50,21 @@ interface FileItemProps {
  * @returns A file item element with name, date, preview and optional image
  */
 function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate, parentFolder }: FileItemProps) {
-    const { app, plugin, isMobile } = useStableAppContext();
-    const { refreshCounter } = useAppContext();
-    const [previewText, setPreviewText] = useState('');
+    const { app, isMobile } = useServices();
+    const settings = useSettingsState();
     const fileRef = useRef<HTMLDivElement>(null);
+    
+    // Get file metadata for preview
+    const metadata = app.metadataCache.getFileCache(file);
+    
+    // Get display name
+    const displayName = useMemo(() => 
+        getFileDisplayName(file, settings, app.metadataCache),
+        [file, settings, app.metadataCache]
+    );
+    
+    // Use the custom hook for preview text
+    const previewText = useFilePreview({ file, metadata, settings, app });
     
     // Enable context menu
     useContextMenu(fileRef, { type: 'file', item: file });
@@ -59,24 +72,23 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
     // Use pre-formatted date if provided, otherwise format it ourselves
     const displayDate = useMemo(() => {
         if (formattedDate !== undefined) return formattedDate;
-        if (!plugin.settings.showDate) return '';
+        if (!settings.showDate) return '';
         
-        const dateField = getDateField(plugin.settings.defaultFolderSort);
+        const dateField = getDateField(settings.defaultFolderSort);
         const dateToShow = file.stat[dateField];
         return dateGroup 
-            ? DateUtils.formatDateForGroup(dateToShow, dateGroup, plugin.settings.dateFormat, plugin.settings.timeFormat)
-            : DateUtils.formatDate(dateToShow, plugin.settings.dateFormat);
-    }, [formattedDate, plugin.settings.showDate, plugin.settings.defaultFolderSort, 
-        plugin.settings.dateFormat, plugin.settings.timeFormat, file.stat.mtime, file.stat.ctime, dateGroup]);
+            ? DateUtils.formatDateForGroup(dateToShow, dateGroup, settings.dateFormat, settings.timeFormat)
+            : DateUtils.formatDate(dateToShow, settings.dateFormat);
+    }, [formattedDate, settings.showDate, settings.defaultFolderSort, 
+        settings.dateFormat, settings.timeFormat, file.stat.mtime, file.stat.ctime, dateGroup]);
 
     // Calculate feature image URL if enabled
     const featureImageUrl = useMemo(() => {
-        if (!plugin.settings.showFeatureImage) {
+        if (!settings.showFeatureImage) {
             return null;
         }
 
-        const metadata = app.metadataCache.getFileCache(file);
-        const imagePath = metadata?.frontmatter?.[plugin.settings.featureImageProperty];
+        const imagePath = metadata?.frontmatter?.[settings.featureImageProperty];
 
         if (!imagePath) {
             return null;
@@ -98,74 +110,12 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
         }
 
         return null;
-    }, [file.path, file.stat.mtime, plugin.settings.showFeatureImage, plugin.settings.featureImageProperty, app.metadataCache, app.vault, refreshCounter]);
-
-    // Load preview text
-    useEffect(() => {
-        // Only load preview text if the setting is enabled
-        if (!plugin.settings.showFilePreview) {
-            setPreviewText('');
-            return;
-        }
-        
-        let isCancelled = false;
-        
-        // For non-markdown files, set extension immediately
-        if (file.extension !== 'md') {
-            setPreviewText(file.extension.toUpperCase());
-            return;
-        }
-        
-        // Check if this is an Excalidraw file
-        const metadata = app.metadataCache.getFileCache(file);
-        
-        // Method 1: Check by filename pattern
-        if (file.name.endsWith('.excalidraw.md')) {
-            setPreviewText('EXCALIDRAW');
-            return;
-        }
-        
-        // Method 2: Check by frontmatter excalidraw-plugin key
-        if (metadata?.frontmatter?.['excalidraw-plugin']) {
-            setPreviewText('EXCALIDRAW');
-            return;
-        }
-        
-        // Method 3: Check by frontmatter tags
-        const frontmatterTags = metadata?.frontmatter?.tags;
-        if (frontmatterTags) {
-            // Handle both array format and single string format
-            const tags = Array.isArray(frontmatterTags) ? frontmatterTags : [frontmatterTags];
-            if (tags.includes('excalidraw')) {
-                setPreviewText('EXCALIDRAW');
-                return;
-            }
-        }
-        
-        // Load markdown preview text from file content
-        app.vault.cachedRead(file)
-            .then(content => {
-                if (!isCancelled) {
-                    setPreviewText(PreviewTextUtils.extractPreviewText(content, plugin.settings));
-                }
-            })
-            .catch(error => {
-                if (!isCancelled) {
-                    console.error('Failed to read file preview:', error);
-                    setPreviewText(''); // Clear preview on error
-                }
-            });
-        
-        // Cleanup function
-        return () => { 
-            isCancelled = true;
-        };
-    }, [file.path, file.stat.mtime, app.vault, plugin.settings.showFilePreview, plugin.settings.skipHeadingsInPreview, plugin.settings.skipNonTextInPreview, refreshCounter]); // Include mtime to detect file changes
+    }, [file.path, file.stat.mtime, metadata, settings.showFeatureImage, settings.featureImageProperty, app.metadataCache, app.vault]);
     
     // Detect slim mode when all display options are disabled
-    const isSlimMode = !plugin.settings.showDate && 
-                       !plugin.settings.showFilePreview && 
-                       !plugin.settings.showFeatureImage;
+    const isSlimMode = !settings.showDate && 
+                       !settings.showFilePreview && 
+                       !settings.showFeatureImage;
     
     const className = `nn-file-item ${isSelected ? 'nn-selected' : ''} ${isSlimMode ? 'nn-slim' : ''}`;
 
@@ -185,52 +135,54 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
                     // Slim mode: Only show file name with minimal styling
                     <div 
                         className="nn-file-name"
-                        style={{ '--filename-rows': plugin.settings.fileNameRows } as React.CSSProperties}
-                    >{file.basename}</div>
+                        style={{ '--filename-rows': settings.fileNameRows } as React.CSSProperties}
+                    >{displayName}</div>
                 ) : (
                     // Normal mode: Show all enabled elements
                     <>
                         <div className="nn-file-text-content">
                             <div 
                                 className="nn-file-name"
-                                style={{ '--filename-rows': plugin.settings.fileNameRows } as React.CSSProperties}
-                            >{file.basename}</div>
+                                style={{ '--filename-rows': settings.fileNameRows } as React.CSSProperties}
+                            >{displayName}</div>
                             {/* Show preview and date on same line when preview is 1 row */}
-                            {plugin.settings.previewRows < 2 && (plugin.settings.showDate || plugin.settings.showFilePreview) && (
+                            {settings.previewRows < 2 && (settings.showDate || settings.showFilePreview) && (
                                 <div className="nn-file-second-line">
-                                    {plugin.settings.showDate && (
+                                    {settings.showDate && (
                                         <div className="nn-file-date">{displayDate}</div>
                                     )}
-                                    {plugin.settings.showFilePreview && (
+                                    {settings.showFilePreview && (
                                         <div 
                                             className="nn-file-preview" 
-                                            style={{ '--preview-rows': plugin.settings.previewRows } as React.CSSProperties}
+                                            style={{ '--preview-rows': settings.previewRows } as React.CSSProperties}
                                         >{previewText}</div>
                                     )}
                                 </div>
                             )}
                             {/* Show preview vertically when 2+ rows */}
-                            {plugin.settings.previewRows >= 2 && plugin.settings.showFilePreview && (
+                            {settings.previewRows >= 2 && settings.showFilePreview && (
                                 <div 
                                     className="nn-file-preview" 
-                                    style={{ '--preview-rows': plugin.settings.previewRows } as React.CSSProperties}
+                                    style={{ '--preview-rows': settings.previewRows } as React.CSSProperties}
                                 >{previewText}</div>
                             )}
                             {/* Show date below preview when 2+ rows */}
-                            {plugin.settings.previewRows >= 2 && plugin.settings.showDate && (
+                            {settings.previewRows >= 2 && settings.showDate && (
                                 <div className="nn-file-date nn-file-date-below">{displayDate}</div>
                             )}
                             {/* Show folder indicator */}
-                            {plugin.settings.showNotesFromSubfolders && plugin.settings.showSubfolderNamesInList && parentFolder && file.parent && file.parent.path !== parentFolder && (
+                            {settings.showNotesFromSubfolders && settings.showSubfolderNamesInList && parentFolder && file.parent && file.parent.path !== parentFolder && (
                                 <div className="nn-file-folder">
                                     <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
                                     <span>{file.parent.name}</span>
                                 </div>
                             )}
                         </div>
-                        {featureImageUrl && (
-                            <div className="nn-feature-image">
-                                <img src={featureImageUrl} alt={strings.common.featureImageAlt} className="nn-feature-image-img" />
+                        {settings.showFeatureImage && (
+                            <div className={`nn-feature-image ${!featureImageUrl ? 'nn-feature-image-placeholder' : ''}`}>
+                                {featureImageUrl ? (
+                                    <img src={featureImageUrl} alt={strings.common.featureImageAlt} className="nn-feature-image-img" />
+                                ) : null}
                             </div>
                         )}
                     </>
@@ -255,8 +207,9 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
 export const FileItem = memo(FileItemInternal, (prevProps, nextProps) => {
     // Return true if props are equal (skip re-render)
     // Return false if props changed (do re-render)
-    return (
+    const isEqual = (
         prevProps.file.path === nextProps.file.path &&
+        prevProps.file.name === nextProps.file.name &&
         prevProps.file.stat.mtime === nextProps.file.stat.mtime &&
         prevProps.isSelected === nextProps.isSelected &&
         prevProps.dateGroup === nextProps.dateGroup &&
@@ -264,4 +217,6 @@ export const FileItem = memo(FileItemInternal, (prevProps, nextProps) => {
         prevProps.formattedDate === nextProps.formattedDate &&
         prevProps.parentFolder === nextProps.parentFolder
     );
+    
+    return isEqual;
 });

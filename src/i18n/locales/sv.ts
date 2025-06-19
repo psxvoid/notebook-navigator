@@ -340,8 +340,13 @@ export const STRINGS_SV = {
                 desc: 'Visa dialog innan anteckningar eller mappar tas bort',
             },
             useFrontmatterDates: {
-                name: 'Försök läsa tidsstämplar från frontmatter',
-                desc: 'Läs skapad och ändrad tidsstämpel från anteckningens frontmatter när de finns, annars använd filsystemets datum',
+                name: 'Läs metadata från frontmatter',
+                desc: 'Läs anteckningsnamn och tidsstämplar från frontmatter när de finns, annars använd filsystemets värden',
+            },
+            frontmatterNameField: {
+                name: 'Namnfält',
+                desc: 'Frontmatter-fält att använda som anteckningens visningsnamn. Lämna tomt för att använda filnamnet.',
+                placeholder: 'title',
             },
             frontmatterCreatedField: {
                 name: 'Fält för skapad tidsstämpel',

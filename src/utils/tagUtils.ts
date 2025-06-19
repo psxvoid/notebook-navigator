@@ -115,6 +115,25 @@ export function buildTagTree(allFiles: TFile[], app: App): Map<string, TagTreeNo
 const noteCountCache = new WeakMap<TagTreeNode, number>();
 
 /**
+ * Clears the note count cache. Should be called when rebuilding the tag tree
+ * to prevent memory accumulation from old TagTreeNode references.
+ */
+export function clearNoteCountCache(): void {
+    // WeakMap doesn't have a clear method, so we create a new instance
+    // The old cache will be garbage collected when all references are gone
+    // This is a workaround but necessary for proper memory management
+    (globalThis as any).__tagUtilsNoteCountCache = new WeakMap<TagTreeNode, number>();
+}
+
+// Use the global cache instance
+function getNoteCountCache(): WeakMap<TagTreeNode, number> {
+    if (!(globalThis as any).__tagUtilsNoteCountCache) {
+        (globalThis as any).__tagUtilsNoteCountCache = new WeakMap<TagTreeNode, number>();
+    }
+    return (globalThis as any).__tagUtilsNoteCountCache;
+}
+
+/**
  * Gets the total count of notes for a tag node including all its children.
  * This is useful for showing aggregate counts in parent tags.
  * Uses memoization to improve performance.
@@ -123,8 +142,10 @@ const noteCountCache = new WeakMap<TagTreeNode, number>();
  * @returns Total number of notes with this tag or any child tags
  */
 export function getTotalNoteCount(node: TagTreeNode): number {
+    const cache = getNoteCountCache();
+    
     // Check cache first
-    const cached = noteCountCache.get(node);
+    const cached = cache.get(node);
     if (cached !== undefined) {
         return cached;
     }
@@ -136,7 +157,7 @@ export function getTotalNoteCount(node: TagTreeNode): number {
     }
     
     // Cache the result
-    noteCountCache.set(node, count);
+    cache.set(node, count);
     
     return count;
 }

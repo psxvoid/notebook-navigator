@@ -68,10 +68,9 @@ export function scrollVirtualItemIntoView(
             // Retry if we haven't exceeded max retries
             if (retryCount < maxRetries) {
                 retryCount++;
-                console.debug(`Retrying scroll to virtual item (attempt ${retryCount}/${maxRetries}):`, error);
                 timeoutId = setTimeout(attemptScroll, 50 * retryCount);
             } else {
-                console.debug('Failed to scroll to virtual item after max retries:', error);
+                // Failed to scroll after max retries
             }
         }
     };

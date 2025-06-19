@@ -37,7 +37,6 @@ import { FileSystemOperations } from './services/FileSystemService';
 import { MetadataService } from './services/MetadataService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings } from './i18n';
-import { debugLog } from './utils/debugLog';
 
 /**
  * Main plugin class for Notebook Navigator
@@ -47,7 +46,11 @@ import { debugLog } from './utils/debugLog';
 export default class NotebookNavigatorPlugin extends Plugin {
     settings: NotebookNavigatorSettings;
     ribbonIconEl: HTMLElement | undefined = undefined;
-    metadataService: MetadataService;
+    metadataService: MetadataService | null = null;
+    // A map of callbacks to notify open React views of changes
+    private settingsUpdateListeners = new Map<string, () => void>();
+    // Track if we're in the process of unloading
+    private isUnloading = false;
 
     // LocalStorage keys for state persistence
     // These keys are used to save and restore the plugin's state between sessions
@@ -61,28 +64,19 @@ export default class NotebookNavigatorPlugin extends Plugin {
     async onload() {
         const startTime = performance.now();
         
-        // Initialize debug logger with vault - delay to ensure vault is ready
-        setTimeout(async () => {
-            try {
-                await debugLog.initialize(this.app.vault, Platform.isMobile && this.settings.debugMobile);
-                debugLog.info('NotebookNavigatorPlugin: Starting plugin load', {
-                    isMobile: Platform.isMobile,
-                    platform: navigator.platform,
-                    timestamp: new Date().toISOString(),
-                    debugMobile: this.settings.debugMobile
-                });
-            } catch (error: any) {
-                console.error('Debug logger initialization failed:', error);
-            }
-        }, 500);
         
         await this.loadSettings();
         
-        // Initialize metadata service
+        // Initialize metadata service for handling vault events
         this.metadataService = new MetadataService(
             this.app,
             this.settings,
-            () => this.saveSettings()
+            async (updater) => {
+                // Update settings
+                updater(this.settings);
+                await this.saveSettings();
+                // The SettingsContext will handle updates through its listener
+            }
         );
         
         this.registerView(
@@ -136,6 +130,20 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
         this.addSettingTab(new NotebookNavigatorSettingTab(this.app, this));
 
+        // Listen for when the navigator view becomes active to restore scroll position
+        this.registerEvent(
+            this.app.workspace.on('active-leaf-change', (leaf) => {
+                if (!leaf) return;
+
+                // When the active leaf is our view, tell it to handle the event.
+                // This is for restoring scroll state on mobile when returning from the editor.
+                if (leaf.view instanceof NotebookNavigatorView) {
+                    // The view itself will handle the logic.
+                    leaf.view.handleViewBecomeActive();
+                }
+            })
+        );
+
         // Register editor context menu
         this.registerEvent(
             this.app.workspace.on('editor-menu', (menu, editor, view) => {
@@ -160,10 +168,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
         // Register rename event handler to update folder metadata
         this.registerEvent(
             this.app.vault.on('rename', async (file, oldPath) => {
-                if (file instanceof TFolder) {
+                if (file instanceof TFolder && this.metadataService && !this.isUnloading) {
                     await this.metadataService.handleFolderRename(oldPath, file.path);
-                    // Use onSettingsChange to refresh views - it handles batching and timing
-                    this.onSettingsChange();
+                    // The metadata service saves settings which triggers reactive updates
                 }
             })
         );
@@ -171,32 +178,48 @@ export default class NotebookNavigatorPlugin extends Plugin {
         // Register delete event handler to clean up folder metadata
         this.registerEvent(
             this.app.vault.on('delete', async (file) => {
+                if (!this.metadataService || this.isUnloading) return;
+                
                 if (file instanceof TFolder) {
                     await this.metadataService.handleFolderDelete(file.path);
                 } else if (file instanceof TFile) {
                     await this.metadataService.handleFileDelete(file.path);
                 }
+                // The metadata service saves settings which triggers reactive updates
             })
         );
         
         // Clean up settings after workspace is ready
+        // Use onLayoutReady for more reliable initialization
         this.app.workspace.onLayoutReady(async () => {
             const cleanupStartTime = performance.now();
-            await this.metadataService.cleanupAllMetadata();
+            if (this.metadataService && !this.isUnloading) {
+                await this.metadataService.cleanupAllMetadata();
+            }
             
             // Always open the view if it doesn't exist
             const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-            if (leaves.length === 0) {
+            if (leaves.length === 0 && !this.isUnloading) {
                 await this.activateView(true);
             }
             
-            // Log total startup time
-            const totalTime = performance.now() - startTime;
-            console.log(`Plugin loaded in ${totalTime.toFixed(2)}ms`);
-            if (Platform.isMobile && this.settings.debugMobile) {
-                debugLog.info(`NotebookNavigatorPlugin: Plugin loaded in ${totalTime.toFixed(2)}ms`);
-            }
         });
+    }
+
+    /**
+     * Register a callback to be notified when settings are updated
+     * Used by React views to trigger re-renders
+     */
+    public registerSettingsUpdateListener(id: string, callback: () => void): void {
+        this.settingsUpdateListeners.set(id, callback);
+    }
+
+    /**
+     * Unregister a settings update callback
+     * Called when React views unmount to prevent memory leaks
+     */
+    public unregisterSettingsUpdateListener(id: string): void {
+        this.settingsUpdateListeners.delete(id);
     }
 
     /**
@@ -205,13 +228,24 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * Per Obsidian guidelines: leaves should not be detached in onunload
      */
     onunload() {
-        if (Platform.isMobile && this.settings.debugMobile) {
-            debugLog.info('NotebookNavigatorPlugin: Unloading plugin');
+        // Set unloading flag to prevent any new operations
+        this.isUnloading = true;
+        
+        
+        
+        // Clear all listeners first to prevent any callbacks during cleanup
+        this.settingsUpdateListeners.clear();
+        
+        // Clean up the metadata service
+        if (this.metadataService) {
+            // Clear the reference to break circular dependencies
+            this.metadataService = null;
         }
-        // Close the debug log file
-        debugLog.close();
+        
+        
         // Clean up the ribbon icon
         this.ribbonIconEl?.remove();
+        this.ribbonIconEl = undefined;
     }
 
     /**
@@ -244,6 +278,26 @@ export default class NotebookNavigatorPlugin extends Plugin {
      */
     async saveSettings() {
         await this.saveData(this.settings);
+        // Notify all listeners that settings have been updated
+        this.onSettingsUpdate();
+    }
+
+    /**
+     * Notifies all running views that the settings have been updated.
+     * This triggers a re-render in the React components.
+     */
+    public onSettingsUpdate() {
+        if (this.isUnloading) return;
+        
+        
+        // Create a copy of listeners to avoid issues if a callback modifies the map
+        const listeners = Array.from(this.settingsUpdateListeners.values());
+        listeners.forEach(callback => {
+            try {
+                callback();
+            } catch (error) {
+            }
+        });
     }
 
     /**
@@ -255,9 +309,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
     async activateView(showAfterAttach = true) {
         const { workspace } = this.app;
 
-        if (Platform.isMobile && this.settings.debugMobile) {
-            debugLog.info('NotebookNavigatorPlugin: Activating view', { showAfterAttach });
-        }
 
         let leaf: WorkspaceLeaf | null = null;
         const leaves = workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
@@ -265,9 +316,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
         if (leaves.length > 0) {
             // View already exists - just reveal it
             leaf = leaves[0];
-            if (Platform.isMobile && this.settings.debugMobile) {
-                debugLog.info('NotebookNavigatorPlugin: Found existing view');
-            }
             if (showAfterAttach) {
                 workspace.revealLeaf(leaf);
             }
@@ -275,9 +323,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
             // Create new leaf only if none exists
             leaf = workspace.getLeftLeaf(false);
             if (leaf) {
-                if (Platform.isMobile && this.settings.debugMobile) {
-                    debugLog.info('NotebookNavigatorPlugin: Creating new view');
-                }
                 await leaf.setViewState({ type: VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, active: true });
                 if (showAfterAttach) {
                     workspace.revealLeaf(leaf);
@@ -285,10 +330,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
             }
         }
 
-        // No need to store reference anymore
-
         return leaf;
     }
+
 
     /**
      * Reveals a specific file in the navigator, opening the view if needed
@@ -297,9 +341,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * @param file - The file to reveal in the navigator
      */
     private async revealFileInNavigator(file: TFile) {
-        if (Platform.isMobile && this.settings.debugMobile) {
-            debugLog.info('NotebookNavigatorPlugin: Revealing file', { path: file.path });
-        }
         // Ensure navigator is open
         const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         if (leaves.length === 0) {
@@ -326,7 +367,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         
         if (leaves.length === 0 && !this.ribbonIconEl) {
             // Add ribbon icon only if no navigator view exists
-            this.ribbonIconEl = this.addRibbonIcon('folder-tree', strings.plugin.ribbonTooltip, async () => {
+            this.ribbonIconEl = this.addRibbonIcon('notebook', strings.plugin.ribbonTooltip, async () => {
                 await this.activateView(true);
             });
         } else if (leaves.length > 0 && this.ribbonIconEl) {
@@ -336,23 +377,4 @@ export default class NotebookNavigatorPlugin extends Plugin {
         }
     }
 
-    /**
-     * Called when plugin settings change
-     * Refreshes all navigator views to reflect the new settings
-     * Includes delay to ensure smooth UI updates
-     */
-    onSettingsChange() {
-        // Refresh all open navigator views
-        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-        
-        // Use a small delay to batch multiple setting changes
-        setTimeout(() => {
-            leaves.forEach(leaf => {
-                const view = leaf.view;
-                if (view instanceof NotebookNavigatorView) {
-                    view.refresh();
-                }
-            });
-        }, 50);
-    }
 }

@@ -19,9 +19,13 @@
 // src/hooks/useContextMenu.ts
 import { useEffect, useCallback } from 'react';
 import { Menu, MenuItem, TFile, TFolder, Notice } from 'obsidian';
-import { useAppContext } from '../context/AppContext';
-import { useFileSystemOps, useMetadataService } from '../context/ServicesContext';
+import { useServices, useFileSystemOps, useMetadataService } from '../context/ServicesContext';
+import { useSettingsState } from '../context/SettingsContext';
+import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
+import { useUIDispatch } from '../context/UIStateContext';
 import { isFolderAncestor, getInternalPlugin, isTFolder, isTFile } from '../utils/typeGuards';
+import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { strings } from '../i18n';
 
 /**
@@ -50,9 +54,16 @@ interface MenuConfig {
  * ```
  */
 export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, config: MenuConfig | null) {
-    const { app, plugin, dispatch, appState, isMobile } = useAppContext();
+    const { app, plugin, isMobile } = useServices();
+    const settings = useSettingsState();
     const fileSystemOps = useFileSystemOps();
     const metadataService = useMetadataService();
+    const selectionState = useSelectionState();
+    const { selectedFolder } = selectionState;
+    const { expandedFolders } = useExpansionState();
+    const selectionDispatch = useSelectionDispatch();
+    const expansionDispatch = useExpansionDispatch();
+    const uiDispatch = useUIDispatch();
     
     /**
      * Handles the context menu event.
@@ -69,19 +80,17 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
         e.preventDefault();
         e.stopPropagation();
 
-        // Add this line to apply the class
-        const element = elementRef.current;
-        element.classList.add('nn-context-menu-active');
-        
         const menu = new Menu();
         
-        // This is a handler to clean up the class
-        const cleanup = () => {
-            element.classList.remove('nn-context-menu-active');
-            menu.hide();
-        };
-
-        menu.onHide(cleanup); // Use the built-in onHide callback
+        // Add context menu active class to show outline
+        elementRef.current.classList.add('nn-context-menu-active');
+        
+        // Remove the class when menu is hidden
+        menu.onHide(() => {
+            if (elementRef.current) {
+                elementRef.current.classList.remove('nn-context-menu-active');
+            }
+        });
         
         if (config.type === 'folder') {
             if (!isTFolder(config.item)) return;
@@ -93,7 +102,10 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     .setTitle(strings.contextMenu.folder.newNote)
                     .setIcon('file-plus')
                     .onClick(async () => {
-                        await fileSystemOps.createNewFile(folder);
+                        const file = await fileSystemOps.createNewFile(folder);
+                        if (file) {
+                            uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: file.path });
+                        }
                     });
             });
             
@@ -105,8 +117,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     .onClick(async () => {
                         await fileSystemOps.createNewFolder(folder, () => {
                             // Expand the parent folder to show the newly created folder
-                            if (!appState.expandedFolders.has(folder.path)) {
-                                dispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
+                            if (!expandedFolders.has(folder.path)) {
+                                expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
                             }
                         });
                     });
@@ -174,7 +186,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             });
             
             // Only show icon options if folder icons are enabled
-            if (plugin.settings.showFolderIcons) {
+            if (settings.showFolderIcons) {
                 menu.addSeparator();
                 
                 // Change icon
@@ -188,12 +200,13 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                                 app, 
                                 metadataService, 
                                 folder.path,
-                                plugin.settings.recentlyUsedIcons || []
+                                settings.recentlyUsedIcons || []
                             );
                             
                             modal.onChooseIcon = (iconId) => {
                                 if (iconId) {
-                                    dispatch({ type: 'FORCE_REFRESH' });
+                                    // The metadata change will trigger a re-render naturally
+                                    // through Obsidian's metadata events
                                 }
                             };
                             
@@ -210,7 +223,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                             .setIcon('x')
                             .onClick(async () => {
                                 await metadataService.removeFolderIcon(folder.path);
-                                dispatch({ type: 'FORCE_REFRESH' });
+                                // The metadata change will trigger a re-render naturally
                             });
                     });
                 }
@@ -227,7 +240,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                         const { ColorPickerModal } = await import('../modals/ColorPickerModal');
                         const modal = new ColorPickerModal(app, metadataService, folder.path);
                         modal.onChooseColor = () => {
-                            dispatch({ type: 'FORCE_REFRESH' });
+                            // The metadata change will trigger a re-render naturally
                         };
                         modal.open();
                     });
@@ -242,7 +255,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                         .setIcon('x')
                         .onClick(async () => {
                             await metadataService.removeFolderColor(folder.path);
-                            dispatch({ type: 'FORCE_REFRESH' });
+                            // The metadata change will trigger a re-render naturally
                         });
                 });
             }
@@ -267,19 +280,19 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     .onClick(async () => {
                         const parentFolder = folder.parent;
                         
-                        await fileSystemOps.deleteFolder(folder, plugin.settings.confirmBeforeDelete, () => {
+                        await fileSystemOps.deleteFolder(folder, settings.confirmBeforeDelete, () => {
                             // Check if we need to update selection
-                            if (appState.selectedFolder) {
-                                const isSelectedFolderDeleted = folder.path === appState.selectedFolder.path;
-                                const isAncestorDeleted = isFolderAncestor(folder, appState.selectedFolder);
+                            if (selectedFolder) {
+                                const isSelectedFolderDeleted = folder.path === selectedFolder.path;
+                                const isAncestorDeleted = isFolderAncestor(folder, selectedFolder);
                                 
                                 if (isSelectedFolderDeleted || isAncestorDeleted) {
                                     // If parent exists and is not root (or root is visible), select it
-                                    if (parentFolder && (parentFolder.path !== '' || plugin.settings.showRootFolder)) {
-                                        dispatch({ type: 'SET_SELECTED_FOLDER', folder: parentFolder });
+                                    if (parentFolder && (parentFolder.path !== '' || settings.showRootFolder)) {
+                                        selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: parentFolder });
                                     } else {
                                         // Clear selection if no valid parent
-                                        dispatch({ type: 'SET_SELECTED_FOLDER', folder: null });
+                                        selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: null });
                                     }
                                 }
                             }
@@ -335,7 +348,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                         if (!file.parent) return;
                         
                         await metadataService.togglePinnedNote(folderPath, file.path);
-                        dispatch({ type: 'FORCE_REFRESH' });
+                        // The metadata change will trigger a re-render naturally
                     });
             });
             
@@ -408,13 +421,47 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     .setTitle(strings.contextMenu.file.deleteNote)
                     .setIcon('trash')
                     .onClick(async () => {
-                        await fileSystemOps.deleteFile(file, plugin.settings.confirmBeforeDelete);
+                        // Calculate next file to select before deletion (desktop only)
+                        let nextFileToSelect: TFile | null = null;
+                        
+                        if (!isMobile && selectionState.selectedFile?.path === file.path) {
+                            // Get current file list based on selection type
+                            let currentFiles: TFile[] = [];
+                            if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+                                currentFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
+                            } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
+                                currentFiles = getFilesForTag(selectionState.selectedTag, settings, app);
+                            }
+                            
+                            // Find current file index
+                            const currentIndex = currentFiles.findIndex(f => f.path === file.path);
+                            
+                            if (currentIndex !== -1 && currentFiles.length > 1) {
+                                // Determine next file to select
+                                if (currentIndex < currentFiles.length - 1) {
+                                    // Select next file
+                                    nextFileToSelect = currentFiles[currentIndex + 1];
+                                } else if (currentIndex > 0) {
+                                    // Was last file, select previous
+                                    nextFileToSelect = currentFiles[currentIndex - 1];
+                                }
+                            }
+                        }
+                        
+                        await fileSystemOps.deleteFile(file, settings.confirmBeforeDelete, () => {
+                            // Dispatch cleanup with next file to select
+                            selectionDispatch({ 
+                                type: 'CLEANUP_DELETED_FILE', 
+                                deletedPath: file.path,
+                                nextFileToSelect
+                            });
+                        });
                     });
             });
         }
         
         menu.showAtMouseEvent(e);
-    }, [config?.type, config?.item, app, plugin.settings.confirmBeforeDelete, plugin.settings.showFolderIcons, dispatch, fileSystemOps, metadataService, appState.selectedFolder, appState.expandedFolders]);
+    }, [config?.type, config?.item, app, settings, fileSystemOps, metadataService, selectionState, expandedFolders, selectionDispatch, expansionDispatch, isMobile]);
     
     useEffect(() => {
         const element = elementRef.current;
@@ -424,6 +471,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
         
         return () => {
             element.removeEventListener('contextmenu', handleContextMenu);
+            // Clean up any lingering context menu active class
+            element.classList.remove('nn-context-menu-active');
         };
     }, [elementRef, handleContextMenu, config, isMobile]);
 }

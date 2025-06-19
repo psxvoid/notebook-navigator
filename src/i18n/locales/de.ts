@@ -340,8 +340,13 @@ export const STRINGS_DE = {
                 desc: 'Bestätigungsdialog beim Löschen von Notizen oder Ordnern anzeigen',
             },
             useFrontmatterDates: {
-                name: 'Versuche Zeitstempel aus Frontmatter zu lesen',
-                desc: 'Erstellungs- und Änderungszeitstempel aus dem Frontmatter der Notiz lesen, falls vorhanden, ansonsten Dateisystemdaten verwenden',
+                name: 'Metadaten aus Frontmatter lesen',
+                desc: 'Notiznamen und Zeitstempel aus dem Frontmatter lesen, falls vorhanden, ansonsten Dateisystemwerte verwenden',
+            },
+            frontmatterNameField: {
+                name: 'Namensfeld',
+                desc: 'Frontmatter-Feld für den angezeigten Notiznamen. Leer lassen, um den Dateinamen zu verwenden.',
+                placeholder: 'title',
             },
             frontmatterCreatedField: {
                 name: 'Feld für Erstellungszeitstempel',

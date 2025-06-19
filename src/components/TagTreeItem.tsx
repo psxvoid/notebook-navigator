@@ -46,7 +46,7 @@ interface TagTreeItemProps {
  * Component that renders a single tag in the hierarchical tag tree.
  * Handles indentation, expand/collapse state, and selection state.
  */
-export function TagTreeItem({ 
+export const TagTreeItem = React.memo(function TagTreeItem({ 
     tagNode, 
     level, 
     isExpanded, 
@@ -104,4 +104,4 @@ export function TagTreeItem({
             </div>
         </div>
     );
-}
+});

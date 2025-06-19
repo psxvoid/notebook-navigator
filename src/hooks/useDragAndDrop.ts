@@ -19,8 +19,7 @@
 // src/hooks/useDragAndDrop.ts
 import { useCallback, useEffect, useRef } from 'react';
 import { TFolder, TFile, Notice } from 'obsidian';
-import { useAppContext } from '../context/AppContext';
-import { useFileSystemOps } from '../context/ServicesContext';
+import { useServices, useFileSystemOps } from '../context/ServicesContext';
 import { isTFolder } from '../utils/typeGuards';
 import { getPathFromDataAttribute, getAbstractFileFromElement } from '../utils/domUtils';
 import { strings } from '../i18n';
@@ -67,7 +66,7 @@ import { strings } from '../i18n';
  * ```
  */
 export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>) {
-    const { app, dispatch, isMobile } = useAppContext();
+    const { app, isMobile } = useServices();
     const fileSystemOps = useFileSystemOps();
     const dragOverElement = useRef<HTMLElement | null>(null);
 
@@ -150,12 +149,31 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
         try {
             await app.fileManager.renameFile(sourceItem, newPath);
-            // Force refresh to update folder counts
-            dispatch({ type: 'FORCE_REFRESH' });
+            // The file move will trigger Obsidian's file events, which will update
+            // the state naturally through proper event handling
         } catch (error) {
             new Notice(strings.dragDrop.errors.failedToMove.replace('{error}', error.message));
         }
-    }, [app, fileSystemOps, dispatch]);
+    }, [app, fileSystemOps]);
+    
+    /**
+     * Handles the drag leave event.
+     * Removes drag-over styling when leaving a drop zone.
+     * 
+     * @param e - The drag event
+     */
+    const handleDragLeave = useCallback((e: DragEvent) => {
+        const target = e.target as HTMLElement;
+        const dropZone = target.closest('[data-drop-zone]') as HTMLElement;
+        if (dropZone && dropZone === dragOverElement.current) {
+            // Only remove if we're actually leaving the drop zone, not just moving to a child
+            const relatedTarget = e.relatedTarget as HTMLElement;
+            if (!dropZone.contains(relatedTarget)) {
+                dropZone.classList.remove('nn-drag-over');
+                dragOverElement.current = null;
+            }
+        }
+    }, []);
     
     /**
      * Handles the drag end event.
@@ -169,6 +187,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         draggable?.classList.remove('nn-dragging');
         if (dragOverElement.current) {
             dragOverElement.current.classList.remove('nn-drag-over');
+            dragOverElement.current = null;
         }
     }, []);
 
@@ -178,14 +197,16 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
         container.addEventListener('dragstart', handleDragStart);
         container.addEventListener('dragover', handleDragOver);
+        container.addEventListener('dragleave', handleDragLeave);
         container.addEventListener('drop', handleDrop);
         container.addEventListener('dragend', handleDragEnd);
 
         return () => {
             container.removeEventListener('dragstart', handleDragStart);
             container.removeEventListener('dragover', handleDragOver);
+            container.removeEventListener('dragleave', handleDragLeave);
             container.removeEventListener('drop', handleDrop);
             container.removeEventListener('dragend', handleDragEnd);
         };
-    }, [containerRef, handleDragStart, handleDragOver, handleDrop, handleDragEnd, isMobile]);
+    }, [containerRef, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd, isMobile]);
 }

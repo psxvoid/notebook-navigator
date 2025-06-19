@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile, TFolder, TAbstractFile, Notice, normalizePath, Platform } from 'obsidian';
+import { App, TFile, TFolder, TAbstractFile, Notice, normalizePath, Platform, MarkdownView } from 'obsidian';
 import { InputModal } from '../modals/InputModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
 import { executeCommand } from '../utils/typeGuards';
@@ -85,8 +85,11 @@ export class FileSystemOperations {
             const leaf = this.app.workspace.getLeaf(false);
             await leaf.openFile(file);
             
-            // Trigger rename mode after the file is loaded
-            // We need to wait for the next event loop to ensure the editor is ready
+            // Trigger rename mode.
+            // We use setTimeout to push this command to the end of the event queue.
+            // This gives Obsidian's workspace time to finish opening the file and rendering the editor,
+            // making it more likely that the 'edit-file-title' command will find an active editor title to focus.
+            // Note: This is a known workaround for a race condition in Obsidian and may fail on slower systems.
             setTimeout(() => {
                 executeCommand(this.app, 'workspace:edit-file-title');
             }, 0);
@@ -287,7 +290,11 @@ export class FileSystemOperations {
             const leaf = this.app.workspace.getLeaf(false);
             await leaf.openFile(file);
             
-            // Trigger rename mode
+            // Trigger rename mode.
+            // We use setTimeout to push this command to the end of the event queue.
+            // This gives Obsidian's workspace time to finish opening the file and rendering the editor,
+            // making it more likely that the 'edit-file-title' command will find an active editor title to focus.
+            // Note: This is a known workaround for a race condition in Obsidian and may fail on slower systems.
             setTimeout(() => {
                 executeCommand(this.app, 'workspace:edit-file-title');
             }, 0);
@@ -325,7 +332,11 @@ export class FileSystemOperations {
             const leaf = this.app.workspace.getLeaf(false);
             await leaf.openFile(file);
             
-            // Trigger rename mode
+            // Trigger rename mode.
+            // We use setTimeout to push this command to the end of the event queue.
+            // This gives Obsidian's workspace time to finish opening the file and rendering the editor,
+            // making it more likely that the 'edit-file-title' command will find an active editor title to focus.
+            // Note: This is a known workaround for a race condition in Obsidian and may fail on slower systems.
             setTimeout(() => {
                 executeCommand(this.app, 'workspace:edit-file-title');
             }, 0);
@@ -419,18 +430,102 @@ export class FileSystemOperations {
     }
 
     /**
-     * Opens version history for a file using Obsidian Sync
-     * Only available when Sync plugin is enabled
+     * Opens version history for a file using Obsidian Sync.
+     * 
+     * FOCUS ISSUE FIX:
+     * Problem: Version history modal requires editor to have focus to display
+     * 
+     * When working (e.g., second click):
+     * 1. File is already open and editor has focus
+     * 2. User right-clicks and selects "Version History"
+     * 3. Command executes successfully
+     * 4. Modal displays properly
+     * 
+     * When failing (e.g., first click on non-selected file):
+     * 1. User right-clicks non-selected file in navigator
+     * 2. Our code opens the file
+     * 3. Auto-reveal detects file change and calls revealFile()
+     * 4. revealFile() changes focus back to files pane (stealing from editor)
+     * 5. Version history command executes but modal can't show (no editor focus)
+     * 6. Command returns true but nothing visible happens
+     * 
+     * Solution: Set a flag to prevent revealFile() from changing focus
+     * when we're opening version history
+     * 
      * @param file - The file to view version history for
      */
     async openVersionHistory(file: TFile): Promise<void> {
+        // Set a flag to prevent focus stealing during reveal
+        (window as any).notebookNavigatorOpeningVersionHistory = true;
+        
         try {
-            // Ensure the file is open and active first
-            const leaf = this.app.workspace.getLeaf(false);
-            await leaf.openFile(file);
+            // Check if the file is already open in any leaf
+            const leaves = this.app.workspace.getLeavesOfType('markdown');
             
-            // Wait a bit for the file to be fully loaded
-            await new Promise(resolve => setTimeout(resolve, 200));
+            // Find if our file is open in any leaf
+            const fileLeaf = leaves.find(leaf => {
+                const view = leaf.view as any;
+                return view && 'file' in view && view.file?.path === file.path;
+            });
+            const isAlreadyOpen = !!fileLeaf;
+            
+            // Check if the file is the active file
+            const activeFile = this.app.workspace.getActiveFile();
+            const isActiveFile = activeFile?.path === file.path;
+            
+            if (!isActiveFile) {
+                // File needs to be opened or activated
+                
+                // Create a promise that resolves when the file becomes active
+                const waitForFileActive = new Promise<void>((resolve) => {
+                    let resolved = false;
+                    
+                    // Set up a listener for active leaf change
+                    const eventRef = this.app.workspace.on('active-leaf-change', () => {
+                        const activeFile = this.app.workspace.getActiveFile();
+                        if (activeFile?.path === file.path && !resolved) {
+                            resolved = true;
+                            this.app.workspace.offref(eventRef);
+                            resolve();
+                        }
+                    });
+                    
+                    // Timeout after 1 second
+                    setTimeout(() => {
+                        if (!resolved) {
+                            resolved = true;
+                            this.app.workspace.offref(eventRef);
+                            resolve();
+                        }
+                    }, 1000);
+                });
+                
+                if (!isAlreadyOpen) {
+                    // File is not open at all, open it
+                    const leaf = this.app.workspace.getLeaf(false);
+                    await leaf.openFile(file);
+                } else if (fileLeaf) {
+                    // File is open but not active, activate it
+                    this.app.workspace.setActiveLeaf(fileLeaf, { focus: true });
+                }
+                
+                // Wait for the file to become active
+                await waitForFileActive;
+                
+            }
+            
+            // CRITICAL: Focus the editor view, not just activate the file
+            const activeLeaf = this.app.workspace.activeLeaf;
+            
+            if (activeLeaf && activeLeaf.view) {
+                activeLeaf.view.containerEl.focus();
+                
+                // Also try to focus the content element if it exists
+                const contentEl = (activeLeaf.view as any).contentEl;
+                if (contentEl) {
+                    contentEl.focus();
+                }
+            }
             
             // Try both possible command IDs
             const commandIds = ['sync:show-sync-history', 'sync:view-version-history'];
@@ -439,6 +534,7 @@ export class FileSystemOperations {
             for (const commandId of commandIds) {
                 try {
                     const success = executeCommand(this.app, commandId);
+                    
                     if (success) {
                         executed = true;
                         break;
@@ -452,8 +548,13 @@ export class FileSystemOperations {
             if (!executed) {
                 new Notice(strings.fileSystem.errors.versionHistoryNotFound);
             }
+            
+            // Clear the flag immediately after command execution
+            delete (window as any).notebookNavigatorOpeningVersionHistory;
         } catch (error) {
             new Notice(strings.fileSystem.errors.openVersionHistory.replace('{error}', error.message));
+            // Clear the flag on error too
+            delete (window as any).notebookNavigatorOpeningVersionHistory;
         }
     }
 
@@ -539,7 +640,6 @@ tags: [excalidraw]
                 new Notice('A drawing with this name already exists');
             } else {
                 new Notice('Failed to create drawing');
-                console.error('Error creating drawing:', error);
             }
             return null;
         }

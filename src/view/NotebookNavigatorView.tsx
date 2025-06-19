@@ -21,12 +21,14 @@ import { ItemView, WorkspaceLeaf, TFile, Platform } from 'obsidian';
 import { Root, createRoot } from 'react-dom/client';
 import React from 'react';
 import NotebookNavigatorPlugin from '../main';
-import { AppProvider } from '../context/AppContext';
 import { ServicesProvider } from '../context/ServicesContext';
+import { SettingsProvider } from '../context/SettingsContext';
+import { ExpansionProvider } from '../context/ExpansionContext';
+import { SelectionProvider } from '../context/SelectionContext';
+import { UIStateProvider } from '../context/UIStateContext';
 import { NotebookNavigatorComponent, NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
 import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 import { strings } from '../i18n';
-import { debugLog } from '../utils/debugLog';
 
 /**
  * Custom Obsidian view that hosts the React-based Notebook Navigator interface
@@ -78,9 +80,6 @@ export class NotebookNavigatorView extends ItemView {
      * Sets up the component hierarchy with necessary context providers
      */
     async onOpen() {
-        if (Platform.isMobile && this.plugin.settings.debugMobile) {
-            debugLog.info('NotebookNavigatorView: Opening view');
-        }
         const container = this.containerEl.children[1];
         container.empty(); // Clear previous content
         container.classList.add('notebook-navigator');
@@ -90,19 +89,21 @@ export class NotebookNavigatorView extends ItemView {
         if (isMobile) {
             container.classList.add('notebook-navigator-mobile');
         }
-        
-        if (Platform.isMobile && this.plugin.settings.debugMobile) {
-            debugLog.info('NotebookNavigatorView: Rendering React app', { isMobile });
-        }
 
         this.root = createRoot(container);
         this.root.render(
             <React.StrictMode>
-                <ServicesProvider plugin={this.plugin}>
-                    <AppProvider plugin={this.plugin} isMobile={isMobile}>
-                        <NotebookNavigatorComponent ref={this.componentRef} />
-                    </AppProvider>
-                </ServicesProvider>
+                <SettingsProvider plugin={this.plugin}>
+                    <ServicesProvider plugin={this.plugin}>
+                        <ExpansionProvider>
+                            <SelectionProvider app={this.plugin.app} plugin={this.plugin} isMobile={isMobile}>
+                                <UIStateProvider isMobile={isMobile}>
+                                    <NotebookNavigatorComponent ref={this.componentRef} />
+                                </UIStateProvider>
+                            </SelectionProvider>
+                        </ExpansionProvider>
+                    </ServicesProvider>
+                </SettingsProvider>
             </React.StrictMode>
         );
     }
@@ -113,9 +114,6 @@ export class NotebookNavigatorView extends ItemView {
      * Cleans up any view-specific classes and resources
      */
     async onClose() {
-        if (Platform.isMobile && this.plugin.settings.debugMobile) {
-            debugLog.info('NotebookNavigatorView: Closing view');
-        }
         // Unmount the React app when the view is closed to prevent memory leaks
         const container = this.containerEl.children[1];
         container.classList.remove('notebook-navigator');
@@ -127,23 +125,28 @@ export class NotebookNavigatorView extends ItemView {
      * Reveals a file in the navigator by selecting it and its parent folder
      */
     revealFile(file: TFile) {
-        if (Platform.isMobile && this.plugin.settings.debugMobile) {
-            debugLog.info('NotebookNavigatorView: Revealing file', { path: file.path });
-        }
         this.componentRef.current?.revealFile(file);
     }
     
-    /**
-     * Refreshes the navigator view (e.g., after settings change)
-     */
-    refresh() {
-        this.componentRef.current?.refresh();
-    }
     
     /**
      * Moves focus to the file pane for keyboard navigation
      */
     focusFilePane() {
         this.componentRef.current?.focusFilePane();
+    }
+    
+    /**
+     * Refreshes the UI by triggering a settings version update
+     */
+    refresh() {
+        this.componentRef.current?.refresh();
+    }
+    
+    /**
+     * Handles when the view becomes active (e.g., when returning from editor)
+     */
+    public handleViewBecomeActive() {
+        this.componentRef.current?.handleBecomeActive();
     }
 }

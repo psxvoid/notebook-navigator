@@ -27,7 +27,7 @@ import { UNTAGGED_TAG_ID } from '../types';
 /**
  * Collects files from a folder and optionally its subfolders
  */
-function collectFilesFromFolder(folder: TFolder, includeSubfolders: boolean): TFile[] {
+export function collectFilesFromFolder(folder: TFolder, includeSubfolders: boolean): TFile[] {
     const files: TFile[] = [];
     
     const collectFiles = (f: TFolder): void => {
@@ -51,7 +51,7 @@ function collectFilesFromFolder(folder: TFolder, includeSubfolders: boolean): TF
 /**
  * Separates files into pinned and unpinned arrays based on pinned paths
  */
-function separatePinnedFiles(files: TFile[], pinnedPaths: Set<string>): TFile[] {
+export function separatePinnedFiles(files: TFile[], pinnedPaths: Set<string>): TFile[] {
     if (pinnedPaths.size === 0) {
         return files;
     }
@@ -73,7 +73,7 @@ function separatePinnedFiles(files: TFile[], pinnedPaths: Set<string>): TFile[] 
 /**
  * Collects all pinned note paths from settings
  */
-function collectPinnedPaths(
+export function collectPinnedPaths(
     pinnedNotes: Record<string, string[]>, 
     folder?: TFolder, 
     includeSubfolders = false

@@ -54,6 +54,7 @@
 /* Right pane - contains the file list */
 .nn-right-pane {
     flex: 1;
+    min-width: 150px;
     background-color: var(--background-primary);
     display: flex;
     flex-direction: column;
@@ -128,6 +129,11 @@
     justify-content: center;
     box-shadow: none !important;
     outline: none !important;
+}
+
+/* Reduce button padding in headers to prevent overflow */
+.nn-header-actions button.nn-icon-button {
+    padding: 0 var(--size-4-1);
 }
 
 /* Ensure button element itself has no default styles */
@@ -461,7 +467,7 @@ button.nn-icon-button {
 
 /* File content wrapper - contains all file information */
 .nn-file-content {
-    padding: var(--size-4-3) var(--size-4-3);
+    padding: var(--size-4-2) var(--size-4-3);
     margin: 0px var(--size-4-2);
     border-radius: var(--radius-m);
     background: transparent;
@@ -470,11 +476,6 @@ button.nn-icon-button {
     gap: var(--size-4-1);
     align-items: center;
     position: relative;
-}
-
-/* File content with image - reduced padding for consistent height */
-.nn-file-content:has(.nn-feature-image) {
-    padding: var(--size-4-2) var(--size-4-3);
 }
 
 /* Virtual list file separator */
@@ -650,6 +651,11 @@ button.nn-icon-button {
 /* Selected file image - slightly transparent when selected */
 .nn-file-item.nn-selected .nn-feature-image {
     opacity: 0.9;
+}
+
+/* Feature image placeholder - maintains layout when no image */
+.nn-feature-image-placeholder {
+    visibility: hidden;
 }
 
 /* ========================================================================
@@ -885,7 +891,7 @@ body.nn-resizing {
     border: 2px solid var(--text-selection);
     border-radius: var(--radius-s);
     pointer-events: none;
-    z-index: 2;
+    z-index: 10;
 }
 
 /* Dark mode context menu outline for folders */
@@ -910,7 +916,7 @@ body.nn-resizing {
     border: 2px solid var(--text-selection);
     border-radius: var(--radius-m);
     pointer-events: none;
-    z-index: 2;
+    z-index: 10;
 }
 
 /* Dark mode context menu outline for files */
@@ -1258,6 +1264,9 @@ body.nn-resizing {
     flex: 1;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
+    /* Preserve content when off-screen */
+    will-change: transform;
+    transform: translateZ(0); /* Force GPU layer */
 }
 
 /* Optimize mobile view transitions */
@@ -1517,6 +1526,36 @@ body.nn-resizing {
 
 /* Fix icon mirroring - Obsidian auto-mirrors icons, but we may need to prevent it for some icons */
 /* Currently, all our icons (chevrons, folders, etc.) should be mirrored in RTL, so no overrides needed */
+
+/* =================================================================================
+   Error Boundary
+   ================================================================================= */
+
+.nn-error-boundary-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    color: var(--text-muted);
+    text-align: center;
+    min-height: 100px;
+}
+
+.nn-error-icon {
+    font-size: 24px;
+    margin-bottom: 8px;
+}
+
+.nn-error-text {
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+.nn-error-text small {
+    font-size: 12px;
+    opacity: 0.8;
+}
 
 
 

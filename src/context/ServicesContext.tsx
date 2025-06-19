@@ -18,20 +18,26 @@
 
 // src/context/ServicesContext.tsx
 import React, { createContext, useContext, useMemo } from 'react';
-import { App } from 'obsidian';
+import { App, Platform } from 'obsidian';
 import { FileSystemOperations } from '../services/FileSystemService';
 import { MetadataService } from '../services/MetadataService';
 import NotebookNavigatorPlugin from '../main';
 
 /**
- * Interface defining all services available through the context.
+ * Interface defining all services and stable dependencies available through the context.
  * Services provide business logic separated from UI components.
  */
 interface Services {
+    /** The Obsidian App instance */
+    app: App;
+    /** The plugin instance */
+    plugin: NotebookNavigatorPlugin;
+    /** Whether the app is running on a mobile device */
+    isMobile: boolean;
     /** File system operations service for creating, renaming, and deleting files/folders */
     fileSystemOps: FileSystemOperations;
     /** Metadata service for managing folder colors, icons, sorts, and pinned notes */
-    metadataService: MetadataService;
+    metadataService: MetadataService | null;
 }
 
 /**
@@ -49,14 +55,19 @@ const ServicesContext = createContext<Services>(null!);
  * @param props.plugin - The plugin instance providing app and metadata service
  */
 export function ServicesProvider({ children, plugin }: { children: React.ReactNode, plugin: NotebookNavigatorPlugin }) {
+    const isMobile = Platform.isMobile;
+    
     /**
-     * Instantiate services once and memoize them.
-     * Services are only recreated if the app instance changes (which shouldn't happen).
+     * Use the single MetadataService instance from the plugin
+     * This ensures consistency between vault event handlers and UI
      */
     const services = useMemo(() => ({
+        app: plugin.app,
+        plugin,
+        isMobile,
         fileSystemOps: new FileSystemOperations(plugin.app),
-        metadataService: plugin.metadataService
-    }), [plugin]);
+        metadataService: plugin.metadataService // Use the single instance from plugin
+    }), [plugin, isMobile]);
 
     return (
         <ServicesContext.Provider value={services}>
@@ -95,5 +106,8 @@ export function useFileSystemOps() {
  */
 export function useMetadataService() {
     const { metadataService } = useServices();
+    if (!metadataService) {
+        throw new Error('MetadataService not initialized');
+    }
     return metadataService;
 }

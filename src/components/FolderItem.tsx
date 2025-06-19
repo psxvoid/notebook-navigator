@@ -18,7 +18,8 @@
 
 import React, { useRef, useEffect } from 'react';
 import { TFolder } from 'obsidian';
-import { useAppContext } from '../context/AppContext';
+import { useServices } from '../context/ServicesContext';
+import { useSettingsState } from '../context/SettingsContext';
 import { setIcon } from 'obsidian';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 import { useContextMenu } from '../hooks/useContextMenu';
@@ -32,6 +33,7 @@ interface FolderItemProps {
     isSelected: boolean;
     onToggle: () => void;
     onClick: () => void;
+    icon?: string;
 }
 
 /**
@@ -48,8 +50,9 @@ interface FolderItemProps {
  * @param props.onClick - Handler called when the folder is clicked
  * @returns A folder item element with chevron, icon, name and optional file count
  */
-export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick }: FolderItemProps) {
-    const { app, plugin, refreshCounter, appState, isMobile } = useAppContext();
+export const FolderItem = React.memo(function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick, icon }: FolderItemProps) {
+    const { app, isMobile } = useServices();
+    const settings = useSettingsState();
     const folderRef = useRef<HTMLDivElement>(null);
     
     // Enable context menu
@@ -57,10 +60,10 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
     
     // Count files in folder (including subfolders if setting enabled)
     const fileCount = React.useMemo(() => {
-        if (!plugin.settings.showFolderFileCount) return 0;
+        if (!settings.showFolderFileCount) return 0;
         
         // Parse excluded properties
-        const excludedProperties = parseExcludedProperties(plugin.settings.excludedFiles);
+        const excludedProperties = parseExcludedProperties(settings.excludedFiles);
         
         const countFiles = (folder: TFolder): number => {
             let count = 0;
@@ -72,7 +75,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
                             count++;
                         }
                     }
-                } else if (plugin.settings.showNotesFromSubfolders && isTFolder(child)) {
+                } else if (settings.showNotesFromSubfolders && isTFolder(child)) {
                     count += countFiles(child);
                 }
             }
@@ -80,7 +83,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
         };
         
         return countFiles(folder);
-    }, [folder.path, folder.children.length, plugin.settings.showFolderFileCount, plugin.settings.showNotesFromSubfolders, plugin.settings.excludedFiles, app, refreshCounter]);
+    }, [folder.path, folder.children.length, settings.showFolderFileCount, settings.showNotesFromSubfolders, settings.excludedFiles, app]);
 
     const hasChildren = folder.children.some(isTFolder);
     
@@ -92,7 +95,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
     
     const chevronRef = React.useRef<HTMLDivElement>(null);
     const iconRef = React.useRef<HTMLSpanElement>(null);
-    const customColor = plugin.settings.folderColors?.[folder.path];
+    const customColor = settings.folderColors?.[folder.path];
 
     useEffect(() => {
         if (chevronRef.current) {
@@ -102,18 +105,17 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
 
     // Add this useEffect for the folder icon
     useEffect(() => {
-        if (iconRef.current && plugin.settings.showFolderIcons) {
-            const customIcon = plugin.settings.folderIcons?.[folder.path];
-            if (customIcon) {
+        if (iconRef.current && settings.showFolderIcons) {
+            if (icon) {
                 // Custom icon is set - always show it, never toggle
-                setIcon(iconRef.current, customIcon);
+                setIcon(iconRef.current, icon);
             } else {
                 // Default icon - show open folder only if has children AND is expanded
                 const iconName = (hasChildren && isExpanded) ? 'folder-open' : 'folder-closed';
                 setIcon(iconRef.current, iconName);
             }
         }
-    }, [isExpanded, folder.path, plugin.settings.folderIcons, hasChildren, refreshCounter, plugin.settings.showFolderIcons]);
+    }, [isExpanded, icon, hasChildren, settings.showFolderIcons]);
 
     return (
         <div 
@@ -146,7 +148,7 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
                         cursor: hasChildren ? 'pointer' : 'default'
                     }}
                 />
-                {plugin.settings.showFolderIcons && (
+                {settings.showFolderIcons && (
                     <span 
                         className="nn-folder-icon" 
                         ref={iconRef}
@@ -158,10 +160,10 @@ export function FolderItem({ folder, level, isExpanded, isSelected, onToggle, on
                     style={customColor ? { color: customColor, fontWeight: 600 } : undefined}
                 >{folder.path === '/' || folder.path === '' ? strings.folderTree.rootFolderName : folder.name}</span>
                 <span className="nn-folder-spacer" />
-                {plugin.settings.showFolderFileCount && fileCount > 0 && (
+                {settings.showFolderFileCount && fileCount > 0 && (
                     <span className="nn-folder-count">{fileCount}</span>
                 )}
             </div>
         </div>
     );
-}
+});

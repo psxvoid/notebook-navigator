@@ -48,6 +48,10 @@ export interface NotebookNavigatorSettings {
     excludedFiles: string;
     ignoreFolders: string;
     // Note display
+    frontmatterNameField: string;
+    frontmatterCreatedField: string;
+    frontmatterModifiedField: string;
+    frontmatterDateFormat: string;
     fileNameRows: number;
     showDate: boolean;
     dateFormat: string;
@@ -68,10 +72,6 @@ export interface NotebookNavigatorSettings {
     // Advanced
     confirmBeforeDelete: boolean;
     useFrontmatterDates: boolean;
-    frontmatterCreatedField: string;
-    frontmatterModifiedField: string;
-    frontmatterDateFormat: string;
-    debugMobile: boolean;
     // Internal
     pinnedNotes: Record<string, string[]>;
     folderIcons: Record<string, string>;
@@ -88,13 +88,17 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     defaultFolderSort: 'modified-desc',
     folderSortOverrides: {},
     groupByDate: true,
-    showNotesFromSubfolders: false,
+    showNotesFromSubfolders: true,
     showSubfolderNamesInList: true,
     autoRevealActiveFile: true,
     autoSelectFirstFile: true,
     excludedFiles: '',
     ignoreFolders: '',
     // Note display
+    frontmatterNameField: '',
+    frontmatterCreatedField: 'created',
+    frontmatterModifiedField: 'modified',
+    frontmatterDateFormat: "yyyy-MM-dd'T'HH:mm:ss",
     fileNameRows: 1,
     showDate: true,
     dateFormat: 'MMM d, yyyy',
@@ -115,10 +119,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Advanced
     confirmBeforeDelete: true,
     useFrontmatterDates: false,
-    frontmatterCreatedField: 'created',
-    frontmatterModifiedField: 'modified',
-    frontmatterDateFormat: "yyyy-MM-dd'T'HH:mm:ss",
-    debugMobile: false,
     // Internal
     pinnedNotes: {},
     folderIcons: {},
@@ -190,9 +190,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                             setValue(value);
                             await this.plugin.saveSettings();
                             
-                            if (refreshView) {
-                                this.plugin.onSettingsChange();
-                            }
+                            // Add this line to trigger the refresh:
+                            this.plugin.onSettingsUpdate();
                         }
                         
                         this.debounceTimers.delete(timerId);
@@ -212,14 +211,13 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
     }
 
     /**
-     * Helper to save settings and optionally refresh the view
-     * @param refresh - Whether to refresh the navigator view after saving
+     * Helper to save settings
+     * Settings changes are automatically propagated through context providers
      */
-    private async saveAndRefresh(refresh: boolean = true): Promise<void> {
+    private async saveAndRefresh(): Promise<void> {
         await this.plugin.saveSettings();
-        if (refresh) {
-            this.plugin.onSettingsChange();
-        }
+        // Now, explicitly tell the plugin UI to update itself.
+        this.plugin.onSettingsUpdate();
     }
 
     /**
@@ -236,10 +234,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         containerEl.empty();
 
         // Section 1: File organization
-        // Not shown to follow Obsidian plugin guidelines
-        // new Setting(containerEl)
-        //     .setName('File organization')
-        //     .setHeading();
 
         const sortSetting = new Setting(containerEl)
             .setName(strings.settings.items.sortNotesBy.name)
@@ -307,7 +301,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.autoRevealActiveFile)
                 .onChange(async (value) => {
                     this.plugin.settings.autoRevealActiveFile = value;
-                    await this.saveAndRefresh(false);
+                    await this.saveAndRefresh();
                 }));
 
         new Setting(containerEl)
@@ -317,7 +311,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.autoSelectFirstFile)
                 .onChange(async (value) => {
                     this.plugin.settings.autoSelectFirstFile = value;
-                    await this.saveAndRefresh(false);
+                    await this.saveAndRefresh();
                 }));
 
         this.createDebouncedTextSetting(
@@ -342,6 +336,61 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName(strings.settings.sections.noteDisplay)
             .setHeading();
+
+        const useFrontmatterDatesSetting = new Setting(containerEl)
+            .setName(strings.settings.items.useFrontmatterDates.name)
+            .setDesc(strings.settings.items.useFrontmatterDates.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.useFrontmatterDates)
+                .onChange(async (value) => {
+                    this.plugin.settings.useFrontmatterDates = value;
+                    await this.saveAndRefresh();
+                    this.setElementVisibility(frontmatterSettingsEl, value);
+                }));
+
+        // Container for frontmatter settings
+        const frontmatterSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+        this.createDebouncedTextSetting(
+            frontmatterSettingsEl,
+            strings.settings.items.frontmatterNameField.name,
+            strings.settings.items.frontmatterNameField.desc,
+            strings.settings.items.frontmatterNameField.placeholder,
+            () => this.plugin.settings.frontmatterNameField,
+            (value) => { this.plugin.settings.frontmatterNameField = value || ''; }
+        );
+
+        this.createDebouncedTextSetting(
+            frontmatterSettingsEl,
+            strings.settings.items.frontmatterCreatedField.name,
+            strings.settings.items.frontmatterCreatedField.desc,
+            strings.settings.items.frontmatterCreatedField.placeholder,
+            () => this.plugin.settings.frontmatterCreatedField,
+            (value) => { this.plugin.settings.frontmatterCreatedField = value || 'created'; }
+        );
+
+        this.createDebouncedTextSetting(
+            frontmatterSettingsEl,
+            strings.settings.items.frontmatterModifiedField.name,
+            strings.settings.items.frontmatterModifiedField.desc,
+            strings.settings.items.frontmatterModifiedField.placeholder,
+            () => this.plugin.settings.frontmatterModifiedField,
+            (value) => { this.plugin.settings.frontmatterModifiedField = value || 'modified'; }
+        );
+
+        this.createDebouncedTextSetting(
+            frontmatterSettingsEl,
+            strings.settings.items.frontmatterDateFormat.name,
+            strings.settings.items.frontmatterDateFormat.desc,
+            strings.settings.items.frontmatterDateFormat.placeholder,
+            () => this.plugin.settings.frontmatterDateFormat,
+            (value) => { this.plugin.settings.frontmatterDateFormat = value || "yyyy-MM-dd'T'HH:mm:ss"; }
+        ).addExtraButton(button => button
+            .setIcon('help')
+            .setTooltip(strings.settings.items.frontmatterDateFormat.helpTooltip)
+            .onClick(() => {
+                new Notice(strings.settings.items.frontmatterDateFormat.help, 10000);
+            }));
 
         new Setting(containerEl)
             .setName(strings.settings.items.fileNameRows.name)
@@ -546,67 +595,9 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.confirmBeforeDelete)
                 .onChange(async (value) => {
                     this.plugin.settings.confirmBeforeDelete = value;
-                    await this.saveAndRefresh(false);
-                }));
-
-        const useFrontmatterDatesSetting = new Setting(containerEl)
-            .setName(strings.settings.items.useFrontmatterDates.name)
-            .setDesc(strings.settings.items.useFrontmatterDates.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.useFrontmatterDates)
-                .onChange(async (value) => {
-                    this.plugin.settings.useFrontmatterDates = value;
                     await this.saveAndRefresh();
-                    this.setElementVisibility(frontmatterSettingsEl, value);
                 }));
 
-        // Container for frontmatter settings
-        const frontmatterSettingsEl = containerEl.createDiv('nn-sub-settings');
-
-        this.createDebouncedTextSetting(
-            frontmatterSettingsEl,
-            strings.settings.items.frontmatterCreatedField.name,
-            strings.settings.items.frontmatterCreatedField.desc,
-            strings.settings.items.frontmatterCreatedField.placeholder,
-            () => this.plugin.settings.frontmatterCreatedField,
-            (value) => { this.plugin.settings.frontmatterCreatedField = value || 'created'; }
-        );
-
-        this.createDebouncedTextSetting(
-            frontmatterSettingsEl,
-            strings.settings.items.frontmatterModifiedField.name,
-            strings.settings.items.frontmatterModifiedField.desc,
-            strings.settings.items.frontmatterModifiedField.placeholder,
-            () => this.plugin.settings.frontmatterModifiedField,
-            (value) => { this.plugin.settings.frontmatterModifiedField = value || 'modified'; }
-        );
-
-        this.createDebouncedTextSetting(
-            frontmatterSettingsEl,
-            strings.settings.items.frontmatterDateFormat.name,
-            strings.settings.items.frontmatterDateFormat.desc,
-            strings.settings.items.frontmatterDateFormat.placeholder,
-            () => this.plugin.settings.frontmatterDateFormat,
-            (value) => { this.plugin.settings.frontmatterDateFormat = value || "yyyy-MM-dd'T'HH:mm:ss"; }
-        ).addExtraButton(button => button
-            .setIcon('help')
-            .setTooltip(strings.settings.items.frontmatterDateFormat.helpTooltip)
-            .onClick(() => {
-                new Notice(strings.settings.items.frontmatterDateFormat.help, 10000);
-            }));
-
-        // Debug mobile setting
-        new Setting(containerEl)
-            .setName('Enable debug logging (mobile only)')
-            .setDesc('Creates a debug log file in vault root to help diagnose issues. Currently only works on mobile devices. Requires restart.')
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.debugMobile)
-                .onChange(async (value) => {
-                    this.plugin.settings.debugMobile = value;
-                    await this.saveAndRefresh(false);
-                    // Notify about the change
-                    new Notice('Debug logging change will take effect on next restart');
-                }));
 
         // Sponsor section
         new Setting(containerEl)
