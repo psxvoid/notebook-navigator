@@ -279,7 +279,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                     hasVirtualizer: !!leftPaneRef.current?.virtualizer
                 });
                 if (folderIndex !== undefined && folderIndex !== -1) {
-                    leftPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: 'start', behavior: 'auto' });
+                    leftPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: 'center', behavior: 'auto' });
                 }
                 
                 // Scroll to file in file list
@@ -290,7 +290,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                     hasVirtualizer: !!fileListRef.current?.virtualizer
                 });
                 if (fileIndex !== undefined && fileIndex !== -1) {
-                    fileListRef.current?.virtualizer?.scrollToIndex(fileIndex, { align: 'start', behavior: 'auto' });
+                    fileListRef.current?.virtualizer?.scrollToIndex(fileIndex, { align: 'center', behavior: 'auto' });
                 }
             }, 50); // Small delay to ensure DOM updates are complete
             
