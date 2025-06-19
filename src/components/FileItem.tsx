@@ -205,7 +205,7 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
 export const FileItem = memo(FileItemInternal, (prevProps, nextProps) => {
     // Return true if props are equal (skip re-render)
     // Return false if props changed (do re-render)
-    return (
+    const isEqual = (
         prevProps.file.path === nextProps.file.path &&
         prevProps.file.name === nextProps.file.name &&
         prevProps.file.stat.mtime === nextProps.file.stat.mtime &&
@@ -215,4 +215,6 @@ export const FileItem = memo(FileItemInternal, (prevProps, nextProps) => {
         prevProps.formattedDate === nextProps.formattedDate &&
         prevProps.parentFolder === nextProps.parentFolder
     );
+    
+    return isEqual;
 });

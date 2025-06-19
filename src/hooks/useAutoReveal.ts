@@ -19,7 +19,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { TFile, WorkspaceLeaf, App } from 'obsidian';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
-import { debugLog } from '../utils/debugLog';
 
 interface UseAutoRevealSettings {
     autoRevealActiveFile: boolean;
@@ -101,40 +100,36 @@ export function useAutoReveal(
             const navigatorEl = document.querySelector('.nn-split-container');
             const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
             
-            debugLog.debug('[AutoReveal] File change detected:', {
-                file: file.path,
-                hasNavigatorFocus,
-                lastRevealed: lastRevealedFileRef.current,
-                isNewlyCreated: uiState.newlyCreatedPath === file.path
-            });
-            
             // Check if this is a file we just created via the plugin
             const isNewlyCreatedFile = uiState.newlyCreatedPath && file.path === uiState.newlyCreatedPath;
             
+            // Check if this is a newly created file (Untitled files created with CMD+N)
+            const isUntitledNewFile = file.basename.startsWith('Untitled') && 
+                                     file.stat.ctime === file.stat.mtime &&
+                                     (Date.now() - file.stat.ctime) < 100; // Created within last 100ms
+            
             // Always reveal newly created files
-            if (isNewlyCreatedFile) {
-                debugLog.debug('[AutoReveal] Revealing newly created file:', file.path);
+            if (isNewlyCreatedFile || isUntitledNewFile) {
                 setFileToReveal(file);
                 lastRevealedFileRef.current = file.path;
                 // Clear the newly created path after consuming it
-                uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: null });
+                if (isNewlyCreatedFile) {
+                    uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: null });
+                }
                 return;
             }
             
             // Don't reveal if navigator has focus (user is actively using it)
             if (hasNavigatorFocus) {
-                debugLog.debug('[AutoReveal] Skipping - navigator has focus');
                 return;
             }
             
             // Don't reveal the same file twice in a row
             if (lastRevealedFileRef.current === file.path) {
-                debugLog.debug('[AutoReveal] Skipping - same file as last reveal');
                 return;
             }
             
             // Reveal the file
-            debugLog.debug('[AutoReveal] Setting file to reveal:', file.path);
             setFileToReveal(file);
             lastRevealedFileRef.current = file.path;
         };

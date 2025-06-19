@@ -911,6 +911,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                         </div>
                                     ) : (
                                         <FileItem
+                                            key={(item.data as TFile).path}
                                             file={item.data as TFile}
                                             isSelected={isSelected}
                                             onClick={(e) => handleFileClick(item.data as TFile, e)}
