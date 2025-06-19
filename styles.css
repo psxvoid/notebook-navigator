@@ -461,7 +461,7 @@ button.nn-icon-button {
 
 /* File content wrapper - contains all file information */
 .nn-file-content {
-    padding: var(--size-4-3) var(--size-4-3);
+    padding: var(--size-4-2) var(--size-4-3);
     margin: 0px var(--size-4-2);
     border-radius: var(--radius-m);
     background: transparent;
@@ -470,11 +470,6 @@ button.nn-icon-button {
     gap: var(--size-4-1);
     align-items: center;
     position: relative;
-}
-
-/* File content with image - reduced padding for consistent height */
-.nn-file-content:has(.nn-feature-image) {
-    padding: var(--size-4-2) var(--size-4-3);
 }
 
 /* Virtual list file separator */
