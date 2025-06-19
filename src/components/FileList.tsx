@@ -191,30 +191,75 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     
     // Auto-open file when it's selected via folder/tag change (not user click)
     useEffect(() => {
+        // Check if this is a reveal operation - if so, skip auto-open
+        const isRevealOperation = selectionState.isRevealOperation;
+        
+        console.log('[FileList] Auto-open effect:', {
+            hasSelectedFile: !!selectedFile,
+            isUserSelection: isUserSelectionRef.current,
+            isRevealOperation,
+            autoSelectFirstFile: plugin.settings.autoSelectFirstFile,
+            isMobile
+        });
+        
+        // Skip auto-open if this is a reveal operation
+        if (isRevealOperation) {
+            console.log('[FileList] Skipping auto-open - reveal operation in progress');
+            return;
+        }
+        
         if (selectedFile && !isUserSelectionRef.current && plugin.settings.autoSelectFirstFile && !isMobile) {
-            // This is an auto-selection from folder/tag change
-            const leaf = app.workspace.getLeaf(false);
-            if (leaf) {
-                leaf.openFile(selectedFile!, { active: false });
+            // Check if we're actively navigating the navigator
+            const navigatorEl = document.querySelector('.nn-split-container');
+            const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
+            
+            console.log('[FileList] Auto-open check:', {
+                file: selectedFile.path,
+                hasNavigatorFocus,
+                willOpen: !hasNavigatorFocus
+            });
+            
+            // Only open the file if we're not actively using the navigator
+            if (!hasNavigatorFocus) {
+                // This is an auto-selection from folder/tag change
+                console.log('[FileList] Opening auto-selected file:', selectedFile.path);
+                const leaf = app.workspace.getLeaf(false);
+                if (leaf) {
+                    leaf.openFile(selectedFile!, { active: false });
+                }
             }
         }
         // Reset the flag after processing
         isUserSelectionRef.current = false;
-    }, [selectedFile, app.workspace, plugin.settings.autoSelectFirstFile, isMobile]);
+    }, [selectedFile, app.workspace, plugin.settings.autoSelectFirstFile, isMobile, selectionState.isRevealOperation]);
     
     // Auto-select first file when files pane gains focus and no file is selected (desktop only)
     useEffect(() => {
+        console.log('[FileList] Auto-select effect triggered:', {
+            isMobile,
+            focusedPane: uiState.focusedPane,
+            hasSelectedFile: !!selectedFile,
+            filesCount: files.length,
+            firstFile: files[0]?.path
+        });
+        
+        // This effect is causing issues when rapidly navigating
+        // Commenting out for now - the SelectionContext already handles auto-selecting first file
+        /*
         if (!isMobile && uiState.focusedPane === 'files' && !selectedFile && files.length > 0) {
             const firstFile = files[0];
+            console.log('[FileList] Auto-selecting first file:', firstFile.path);
             // Select the first file when focus switches to files pane
             selectionDispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
             
             // Open the file in the editor but keep focus in file list
             const leaf = app.workspace.getLeaf(false);
             if (leaf) {
+                console.log('[FileList] Opening file in editor:', firstFile.path);
                 leaf.openFile(firstFile, { active: false });
             }
         }
+        */
     }, [isMobile, uiState.focusedPane, selectedFile, files, selectionDispatch, app.workspace]);
     
     

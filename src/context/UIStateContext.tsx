@@ -53,6 +53,7 @@ const UIDispatchContext = createContext<React.Dispatch<UIAction> | null>(null);
 function uiStateReducer(state: UIState, action: UIAction): UIState {
     switch (action.type) {
         case 'SET_FOCUSED_PANE':
+            console.log('[UIStateContext] Focus changed from', state.focusedPane, 'to', action.pane);
             return { ...state, focusedPane: action.pane };
         
         case 'SET_MOBILE_VIEW':

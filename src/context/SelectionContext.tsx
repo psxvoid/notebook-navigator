@@ -199,11 +199,24 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
     
     // Create an enhanced dispatch that handles side effects
     const enhancedDispatch = useCallback((action: SelectionAction) => {
+        console.log('[SelectionContext] Action dispatched:', action.type, {
+            folder: (action as any).folder?.path,
+            tag: (action as any).tag,
+            file: (action as any).file?.path,
+            autoSelectFirstFile: settings.autoSelectFirstFile,
+            isMobile
+        });
+        
         // Handle auto-select logic for folder selection
         if (action.type === 'SET_SELECTED_FOLDER' && !isMobile && action.autoSelectedFile === undefined) {
             if (action.folder && settings.autoSelectFirstFile) {
                 const filesInFolder = getFilesForFolder(action.folder, settings, app);
                 const autoSelectedFile = filesInFolder.length > 0 ? filesInFolder[0] : null;
+                console.log('[SelectionContext] Auto-selecting file for folder:', {
+                    folder: action.folder.path,
+                    autoSelectedFile: autoSelectedFile?.path,
+                    filesCount: filesInFolder.length
+                });
                 dispatch({ ...action, autoSelectedFile });
             } else {
                 dispatch({ ...action, autoSelectedFile: null });

@@ -153,6 +153,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Define revealFile function that can be used both internally and via ref
     const revealFile = (file: TFile) => {
         if (!file || !file.parent) return;
+        
+        console.log('[NotebookNavigator] revealFile called for:', file.path, 'in folder:', file.parent.path);
 
         // Build the folder path hierarchy to expand
         const foldersToExpand: string[] = [];
@@ -166,12 +168,23 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         // Expand folders if needed
         const needsExpansion = foldersToExpand.some(path => !expansionState.expandedFolders.has(path));
         if (needsExpansion) {
+            console.log('[NotebookNavigator] Expanding folders:', foldersToExpand);
             expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
         }
         
         // Trigger the reveal - scrolling will happen via the effect that watches isRevealOperation
+        console.log('[NotebookNavigator] Dispatching REVEAL_FILE action');
         selectionDispatch({ type: 'REVEAL_FILE', file });
-        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+        
+        // Only change focus if we're not already in the navigator
+        const navigatorEl = document.querySelector('.nn-split-container');
+        const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
+        if (!hasNavigatorFocus) {
+            console.log('[NotebookNavigator] Changing focus to files pane');
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+        } else {
+            console.log('[NotebookNavigator] Keeping focus in navigator');
+        }
     };
     
     // Use auto-reveal hook to detect which file needs revealing
@@ -182,9 +195,10 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Handle revealing the file when detected by the hook
     useEffect(() => {
         if (fileToReveal) {
+            console.log('[NotebookNavigator] Auto-reveal triggered for file:', fileToReveal.path);
             revealFile(fileToReveal);
         }
-    }, [fileToReveal, revealFile]);
+    }, [fileToReveal]); // Remove revealFile from deps to prevent infinite loop
     
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
@@ -259,14 +273,24 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             const scrollTimer = setTimeout(() => {
                 // Scroll to folder in left pane
                 const folderIndex = leftPaneRef.current?.getIndexOfPath(file.parent!.path);
+                console.log('[NotebookNavigator] Auto-reveal scroll - folder:', {
+                    folderPath: file.parent!.path,
+                    folderIndex,
+                    hasVirtualizer: !!leftPaneRef.current?.virtualizer
+                });
                 if (folderIndex !== undefined && folderIndex !== -1) {
-                    leftPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: isMobile ? 'center' : 'auto' });
+                    leftPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: 'start', behavior: 'auto' });
                 }
                 
                 // Scroll to file in file list
                 const fileIndex = fileListRef.current?.getIndexOfPath(file.path);
+                console.log('[NotebookNavigator] Auto-reveal scroll - file:', {
+                    filePath: file.path,
+                    fileIndex,
+                    hasVirtualizer: !!fileListRef.current?.virtualizer
+                });
                 if (fileIndex !== undefined && fileIndex !== -1) {
-                    fileListRef.current?.virtualizer?.scrollToIndex(fileIndex, { align: isMobile ? 'center' : 'auto' });
+                    fileListRef.current?.virtualizer?.scrollToIndex(fileIndex, { align: 'start', behavior: 'auto' });
                 }
             }, 50); // Small delay to ensure DOM updates are complete
             

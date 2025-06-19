@@ -327,6 +327,12 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     
     // Handle folder click
     const handleFolderClick = useCallback((folder: TFolder) => {
+        console.log('[NavigationPane] Folder clicked:', {
+            folder: folder.path,
+            isMobile,
+            currentMobileView: uiState.currentMobileView,
+            currentFocusedPane: uiState.focusedPane
+        });
         debugLog.debug('NavigationPane: Folder clicked', {
             folder: folder.path,
             isMobile,
@@ -342,7 +348,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             // correct file (which will be the first file on a new folder selection).
             // No explicit scroll dispatch is needed here anymore.
         }
-    }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView]);
+    }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView, uiState.focusedPane]);
     
     // Handle tag toggle
     const handleTagToggle = useCallback((path: string) => {
