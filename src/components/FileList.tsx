@@ -195,7 +195,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         const isRevealOperation = selectionState.isRevealOperation;
         const isFolderChangeWithAutoSelect = selectionState.isFolderChangeWithAutoSelect;
         
-        console.log('[FileList] Auto-open effect:', {
+        debugLog.debug('[FileList] Auto-open effect:', {
             hasSelectedFile: !!selectedFile,
             isUserSelection: isUserSelectionRef.current,
             isRevealOperation,
@@ -206,7 +206,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         
         // Skip auto-open if this is a reveal operation
         if (isRevealOperation) {
-            console.log('[FileList] Skipping auto-open - reveal operation in progress');
+            debugLog.debug('[FileList] Skipping auto-open - reveal operation in progress');
             return;
         }
         
@@ -215,7 +215,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             const navigatorEl = document.querySelector('.nn-split-container');
             const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
             
-            console.log('[FileList] Auto-open check:', {
+            debugLog.debug('[FileList] Auto-open check:', {
                 file: selectedFile.path,
                 hasNavigatorFocus,
                 isFolderChangeWithAutoSelect,
@@ -225,7 +225,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             // Open the file if we're not actively using the navigator OR if this is a folder change with auto-select
             if (!hasNavigatorFocus || isFolderChangeWithAutoSelect) {
                 // This is an auto-selection from folder/tag change
-                console.log('[FileList] Opening auto-selected file:', selectedFile.path);
+                debugLog.debug('[FileList] Opening auto-selected file:', selectedFile.path);
                 const leaf = app.workspace.getLeaf(false);
                 if (leaf) {
                     leaf.openFile(selectedFile!, { active: false });
@@ -238,7 +238,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     
     // Auto-select first file when files pane gains focus and no file is selected (desktop only)
     useEffect(() => {
-        console.log('[FileList] Auto-select effect triggered:', {
+        debugLog.debug('[FileList] Auto-select effect triggered:', {
             isMobile,
             focusedPane: uiState.focusedPane,
             hasSelectedFile: !!selectedFile,
@@ -428,6 +428,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     
     // Track previous item count to detect when items are added
     const prevItemCountRef = useRef(listItems.length);
+    
     
     // Initialize virtualizer
     const rowVirtualizer = useVirtualizer({
@@ -777,6 +778,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 {/* Virtual list */}
                 {listItems.length > 0 && (
                     <div
+                        key={`${files.length}-${selectedFolder?.path || selectedTag || 'root'}`}
                         style={{
                             height: `${rowVirtualizer.getTotalSize()}px`,
                             width: '100%',

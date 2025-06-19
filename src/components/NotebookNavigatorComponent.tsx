@@ -154,7 +154,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const revealFile = (file: TFile) => {
         if (!file || !file.parent) return;
         
-        console.log('[NotebookNavigator] revealFile called for:', file.path, 'in folder:', file.parent.path);
+        debugLog.debug('[NotebookNavigator] revealFile called', { file: file.path, folder: file.parent.path });
 
         // Build the folder path hierarchy to expand
         const foldersToExpand: string[] = [];
@@ -168,22 +168,22 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         // Expand folders if needed
         const needsExpansion = foldersToExpand.some(path => !expansionState.expandedFolders.has(path));
         if (needsExpansion) {
-            console.log('[NotebookNavigator] Expanding folders:', foldersToExpand);
+            debugLog.debug('[NotebookNavigator] Expanding folders:', foldersToExpand);
             expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
         }
         
         // Trigger the reveal - scrolling will happen via the effect that watches isRevealOperation
-        console.log('[NotebookNavigator] Dispatching REVEAL_FILE action');
+        debugLog.debug('[NotebookNavigator] Dispatching REVEAL_FILE action');
         selectionDispatch({ type: 'REVEAL_FILE', file });
         
         // Only change focus if we're not already in the navigator
         const navigatorEl = document.querySelector('.nn-split-container');
         const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
         if (!hasNavigatorFocus) {
-            console.log('[NotebookNavigator] Changing focus to files pane');
+            debugLog.debug('[NotebookNavigator] Changing focus to files pane');
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         } else {
-            console.log('[NotebookNavigator] Keeping focus in navigator');
+            debugLog.debug('[NotebookNavigator] Keeping focus in navigator');
         }
     };
     
@@ -195,7 +195,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Handle revealing the file when detected by the hook
     useEffect(() => {
         if (fileToReveal) {
-            console.log('[NotebookNavigator] Auto-reveal triggered for file:', fileToReveal.path);
+            debugLog.debug('[NotebookNavigator] Auto-reveal triggered for file:', fileToReveal.path);
             revealFile(fileToReveal);
         }
     }, [fileToReveal]); // Remove revealFile from deps to prevent infinite loop
@@ -273,7 +273,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             const scrollTimer = setTimeout(() => {
                 // Scroll to folder in left pane
                 const folderIndex = leftPaneRef.current?.getIndexOfPath(file.parent!.path);
-                console.log('[NotebookNavigator] Auto-reveal scroll - folder:', {
+                debugLog.debug('[NotebookNavigator] Auto-reveal scroll - folder:', {
                     folderPath: file.parent!.path,
                     folderIndex,
                     hasVirtualizer: !!leftPaneRef.current?.virtualizer
@@ -284,7 +284,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 
                 // Scroll to file in file list
                 const fileIndex = fileListRef.current?.getIndexOfPath(file.path);
-                console.log('[NotebookNavigator] Auto-reveal scroll - file:', {
+                debugLog.debug('[NotebookNavigator] Auto-reveal scroll - file:', {
                     filePath: file.path,
                     fileIndex,
                     hasVirtualizer: !!fileListRef.current?.virtualizer
@@ -398,6 +398,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 expansionDispatch({ type: 'CLEANUP_DELETED_FOLDERS', existingPaths });
                 selectionDispatch({ type: 'CLEANUP_DELETED_FOLDER', deletedPath: file.path });
             } else if (file instanceof TFile) {
+                debugLog.debug('[NotebookNavigator] File deleted:', file.path);
+                
                 // Just cleanup the deleted file
                 selectionDispatch({ 
                     type: 'CLEANUP_DELETED_FILE', 
@@ -406,6 +408,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 });
                 
                 // Let auto-reveal handle the selection of the new active file
+                debugLog.debug('[NotebookNavigator] Waiting for auto-reveal to handle new file selection');
             }
         };
         

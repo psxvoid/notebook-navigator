@@ -27,6 +27,7 @@ import { useServices, useFileSystemOps } from '../context/ServicesContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
+import { debugLog } from '../utils/debugLog';
 
 type VirtualItem = CombinedNavigationItem | FileListItem;
 
@@ -211,6 +212,15 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
 
                     if (shouldSwitchPane) {
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                    }
+                } else if (focusedPane === 'files' && selectionState.selectedFile) {
+                    // RIGHT arrow from files pane should focus the editor (same as TAB)
+                    const leaves = app.workspace.getLeavesOfType('markdown')
+                        .concat(app.workspace.getLeavesOfType('canvas'))
+                        .concat(app.workspace.getLeavesOfType('pdf'));
+                    const targetLeaf = leaves.find(leaf => (leaf.view as any).file?.path === selectionState.selectedFile?.path);
+                    if (targetLeaf) {
+                        app.workspace.setActiveLeaf(targetLeaf, { focus: true });
                     }
                 }
                 break;
@@ -454,11 +464,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         } else {
             const leftPaneItem = item as CombinedNavigationItem;
             if (leftPaneItem.type === 'folder') {
-                console.log('[KeyboardNav] Selecting folder via keyboard:', leftPaneItem.data.path);
+                debugLog.debug('[KeyboardNav] Selecting folder via keyboard:', leftPaneItem.data.path);
                 selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: leftPaneItem.data });
             } else if (leftPaneItem.type === 'tag' || leftPaneItem.type === 'untagged') {
                 const tagNode = leftPaneItem.data as TagTreeNode;
-                console.log('[KeyboardNav] Selecting tag via keyboard:', tagNode.path);
+                debugLog.debug('[KeyboardNav] Selecting tag via keyboard:', tagNode.path);
                 selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path });
             }
         }

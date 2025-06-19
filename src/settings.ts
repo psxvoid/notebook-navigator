@@ -72,6 +72,7 @@ export interface NotebookNavigatorSettings {
     frontmatterModifiedField: string;
     frontmatterDateFormat: string;
     debugMobile: boolean;
+    debugDesktop: boolean;
     // Internal
     pinnedNotes: Record<string, string[]>;
     folderIcons: Record<string, string>;
@@ -119,6 +120,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     frontmatterModifiedField: 'modified',
     frontmatterDateFormat: "yyyy-MM-dd'T'HH:mm:ss",
     debugMobile: false,
+    debugDesktop: false,
     // Internal
     pinnedNotes: {},
     folderIcons: {},
@@ -600,6 +602,17 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                     // Notify about the change
                     new Notice('Debug logging change will take effect on next restart');
+                }));
+
+        // Debug desktop setting
+        new Setting(containerEl)
+            .setName('Enable console logging (desktop)')
+            .setDesc('Shows debug information in the browser console to help diagnose issues. Only works on desktop.')
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.debugDesktop)
+                .onChange(async (value) => {
+                    this.plugin.settings.debugDesktop = value;
+                    await this.saveAndRefresh();
                 }));
 
         // Sponsor section

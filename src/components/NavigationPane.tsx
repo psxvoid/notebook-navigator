@@ -327,7 +327,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     
     // Handle folder click
     const handleFolderClick = useCallback((folder: TFolder) => {
-        console.log('[NavigationPane] Folder clicked:', {
+        debugLog.debug('[NavigationPane] Folder clicked:', {
             folder: folder.path,
             isMobile,
             currentMobileView: uiState.currentMobileView,

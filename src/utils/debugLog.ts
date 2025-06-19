@@ -29,13 +29,16 @@ class DebugLogger {
     private earlyLogs: Array<{type: string, message: string, data?: any}> = [];
     private maxEarlyLogs = 100; // Prevent memory issues
     private debugMobileEnabled = false;
+    private debugDesktopEnabled = false;
 
-    async initialize(vault: Vault, debugMobileEnabled: boolean) {
+    async initialize(vault: Vault, debugMobileEnabled: boolean, debugDesktopEnabled: boolean = false) {
         this.vault = vault;
         this.debugMobileEnabled = debugMobileEnabled;
+        this.debugDesktopEnabled = debugDesktopEnabled;
         
-        // Only actually initialize if debugging is enabled
+        // Only actually initialize file logging if mobile debugging is enabled
         if (!debugMobileEnabled) {
+            this.initialized = true; // Mark as initialized even if we're not creating a file
             return;
         }
         
@@ -141,8 +144,30 @@ class DebugLogger {
     }
 
     log(type: string, message: string, data?: any) {
-        // Check if debugging is enabled
-        if (!this.enabled || !this.debugMobileEnabled) {
+        // Check if any debugging is enabled
+        if (!this.enabled) {
+            return;
+        }
+        
+        const shouldLogToConsole = this.debugDesktopEnabled;
+        const shouldLogToFile = this.debugMobileEnabled;
+        
+        if (!shouldLogToConsole && !shouldLogToFile) {
+            return;
+        }
+        
+        // Log to console if desktop debugging is enabled
+        if (shouldLogToConsole) {
+            const prefix = `[${type}]`;
+            if (data !== undefined) {
+                console.log(prefix, message, data);
+            } else {
+                console.log(prefix, message);
+            }
+        }
+        
+        // Only proceed with file logging if mobile debugging is enabled
+        if (!shouldLogToFile) {
             return;
         }
         
@@ -190,7 +215,7 @@ class DebugLogger {
     }
 
     isEnabled() {
-        return this.enabled && this.debugMobileEnabled;
+        return this.enabled && (this.debugMobileEnabled || this.debugDesktopEnabled);
     }
 
     enable() {
@@ -205,6 +230,19 @@ class DebugLogger {
 
     isLogFile(path: string): boolean {
         return this.logFilePath !== null && path === this.logFilePath;
+    }
+    
+    updateSettings(debugMobileEnabled: boolean, debugDesktopEnabled: boolean) {
+        this.debugMobileEnabled = debugMobileEnabled;
+        this.debugDesktopEnabled = debugDesktopEnabled;
+        
+        // Log the settings change
+        if (this.isEnabled()) {
+            this.debug('Debug settings updated:', {
+                debugMobile: debugMobileEnabled,
+                debugDesktop: debugDesktopEnabled
+            });
+        }
     }
 
     private sanitizeData(data: any): any {

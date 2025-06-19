@@ -17,6 +17,7 @@
  */
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import { debugLog } from '../utils/debugLog';
 
 // Constants for pane dimensions
 const PANE_DIMENSIONS = {
@@ -53,7 +54,7 @@ const UIDispatchContext = createContext<React.Dispatch<UIAction> | null>(null);
 function uiStateReducer(state: UIState, action: UIAction): UIState {
     switch (action.type) {
         case 'SET_FOCUSED_PANE':
-            console.log('[UIStateContext] Focus changed from', state.focusedPane, 'to', action.pane);
+            debugLog.debug('[UIStateContext] Focus changed', { from: state.focusedPane, to: action.pane });
             return { ...state, focusedPane: action.pane };
         
         case 'SET_MOBILE_VIEW':

@@ -69,7 +69,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         // Store timeout ID for cleanup if needed
         const debugInitTimeout = setTimeout(async () => {
             try {
-                await debugLog.initialize(this.app.vault, Platform.isMobile && this.settings.debugMobile);
+                await debugLog.initialize(this.app.vault, Platform.isMobile && this.settings.debugMobile, this.settings.debugDesktop);
                 debugLog.info('NotebookNavigatorPlugin: Starting plugin load', {
                     isMobile: Platform.isMobile,
                     platform: navigator.platform,
@@ -116,8 +116,14 @@ export default class NotebookNavigatorPlugin extends Plugin {
             name: strings.commands.revealActiveFile,
             checkCallback: (checking: boolean) => {
                 const activeFile = this.app.workspace.getActiveFile();
+                debugLog.debug('[RevealCommand] Active file check:', {
+                    activeFile: activeFile?.path,
+                    hasParent: activeFile?.parent ? true : false,
+                    checking
+                });
                 if (activeFile && activeFile.parent) {
                     if (!checking) {
+                        debugLog.debug('[RevealCommand] Executing reveal for:', activeFile.path);
                         this.revealFileInNavigator(activeFile);
                     }
                     return true;
@@ -322,6 +328,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
      */
     public onSettingsUpdate() {
         if (this.isUnloading) return;
+        
+        // Update debug log settings
+        debugLog.updateSettings(Platform.isMobile && this.settings.debugMobile, this.settings.debugDesktop);
         
         // Create a copy of listeners to avoid issues if a callback modifies the map
         const listeners = Array.from(this.settingsUpdateListeners.values());

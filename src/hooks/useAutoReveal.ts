@@ -19,6 +19,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { TFile, WorkspaceLeaf, App } from 'obsidian';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
+import { debugLog } from '../utils/debugLog';
 
 interface UseAutoRevealSettings {
     autoRevealActiveFile: boolean;
@@ -39,10 +40,6 @@ export function useAutoReveal(
 ): { fileToReveal: TFile | null } {
     const [fileToReveal, setFileToReveal] = useState<TFile | null>(null);
     const lastRevealedFileRef = useRef<string | null>(null);
-    const isUserInteractingRef = useRef(false);
-    const isDeletingFileRef = useRef(false);
-    const lastNavigatorInteractionRef = useRef<number>(0);
-    const ignoreRevealUntilRef = useRef<number>(0);
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
 
@@ -56,57 +53,41 @@ export function useAutoReveal(
             return () => clearTimeout(timer);
         }
     }, [fileToReveal]);
-
-    // Track user interactions to prevent auto-reveal during manual navigation
+    
+    // Log focus/defocus events for debugging
     useEffect(() => {
-        const handleUserInteraction = (e: Event) => {
+        const handleFocusIn = (e: FocusEvent) => {
             const target = e.target as HTMLElement;
             const navigatorEl = document.querySelector('.nn-split-container');
-            
-            // Only treat it as user interaction if it's within the navigator
-            if (navigatorEl && (navigatorEl.contains(target) || navigatorEl === target)) {
-                isUserInteractingRef.current = true;
-                lastNavigatorInteractionRef.current = Date.now();
-                
-                // If this is a click on a file item, ignore auto-reveal for a short period
-                if (target.closest('.nn-file-item')) {
-                    ignoreRevealUntilRef.current = Date.now() + 100; // Ignore for 100ms after clicking a file
-                    console.log('[AutoReveal] File click detected, ignoring auto-reveal for 100ms');
-                } else {
-                    console.log('[AutoReveal] Navigator interaction detected');
-                }
-                
-                // Reset after a short delay
-                setTimeout(() => {
-                    isUserInteractingRef.current = false;
-                }, 500);
+            if (navigatorEl && navigatorEl.contains(target)) {
+                debugLog.debug('[AutoReveal] Navigator gained focus', {
+                    element: target.tagName,
+                    className: target.className,
+                    id: target.id
+                });
             }
         };
-
-        // Listen for user interactions
-        document.addEventListener('mousedown', handleUserInteraction);
-        document.addEventListener('keydown', handleUserInteraction);
-
+        
+        const handleFocusOut = (e: FocusEvent) => {
+            const target = e.target as HTMLElement;
+            const navigatorEl = document.querySelector('.nn-split-container');
+            if (navigatorEl && navigatorEl.contains(target)) {
+                debugLog.debug('[AutoReveal] Navigator lost focus', {
+                    element: target.tagName,
+                    className: target.className,
+                    id: target.id
+                });
+            }
+        };
+        
+        document.addEventListener('focusin', handleFocusIn);
+        document.addEventListener('focusout', handleFocusOut);
+        
         return () => {
-            document.removeEventListener('mousedown', handleUserInteraction);
-            document.removeEventListener('keydown', handleUserInteraction);
+            document.removeEventListener('focusin', handleFocusIn);
+            document.removeEventListener('focusout', handleFocusOut);
         };
     }, []);
-
-    // Listen for file deletions
-    useEffect(() => {
-        const handleDelete = () => {
-            isDeletingFileRef.current = true;
-            setTimeout(() => {
-                isDeletingFileRef.current = false;
-            }, 500);
-        };
-
-        const deleteEventRef = app.vault.on('delete', handleDelete);
-        return () => {
-            app.vault.offref(deleteEventRef);
-        };
-    }, [app.vault]);
 
 
     // Main effect for detecting which file to reveal
@@ -116,49 +97,23 @@ export function useAutoReveal(
         const handleFileChange = (file: TFile | null) => {
             if (!file) return;
             
-            // Check if we should ignore auto-reveal (e.g., after clicking a file)
-            if (Date.now() < ignoreRevealUntilRef.current) {
-                console.log('[AutoReveal] Skipping - within ignore period after file click');
-                return;
-            }
-            
-            // Check if we recently had navigator interaction (within 1 second)
-            const timeSinceNavigatorInteraction = Date.now() - lastNavigatorInteractionRef.current;
-            const recentNavigatorInteraction = timeSinceNavigatorInteraction < 1000;
-            
-            // Check if focus is within our plugin
+            // Simple rule: Don't reveal if navigator has focus
             const navigatorEl = document.querySelector('.nn-split-container');
             const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
             
-            console.log('[AutoReveal] File change detected:', {
+            debugLog.debug('[AutoReveal] File change detected:', {
                 file: file.path,
-                isUserInteracting: isUserInteractingRef.current,
-                isDeletingFile: isDeletingFileRef.current,
                 hasNavigatorFocus,
-                recentNavigatorInteraction,
-                timeSinceNavigatorInteraction,
                 lastRevealed: lastRevealedFileRef.current,
                 isNewlyCreated: uiState.newlyCreatedPath === file.path
             });
-            
-            // Don't reveal if we recently interacted with navigator or focus is within it
-            if (hasNavigatorFocus || recentNavigatorInteraction) {
-                console.log('[AutoReveal] Skipping - navigator interaction detected');
-                return;
-            }
-            
-            // Don't reveal during user interaction or file deletion
-            if (isUserInteractingRef.current || isDeletingFileRef.current) {
-                console.log('[AutoReveal] Skipping - user interaction or deletion in progress');
-                return;
-            }
             
             // Check if this is a file we just created via the plugin
             const isNewlyCreatedFile = uiState.newlyCreatedPath && file.path === uiState.newlyCreatedPath;
             
             // Always reveal newly created files
             if (isNewlyCreatedFile) {
-                console.log('[AutoReveal] Revealing newly created file:', file.path);
+                debugLog.debug('[AutoReveal] Revealing newly created file:', file.path);
                 setFileToReveal(file);
                 lastRevealedFileRef.current = file.path;
                 // Clear the newly created path after consuming it
@@ -166,14 +121,20 @@ export function useAutoReveal(
                 return;
             }
             
-            // Don't reveal the same file twice in a row
-            if (lastRevealedFileRef.current === file.path) {
-                console.log('[AutoReveal] Skipping - same file as last reveal');
+            // Don't reveal if navigator has focus (user is actively using it)
+            if (hasNavigatorFocus) {
+                debugLog.debug('[AutoReveal] Skipping - navigator has focus');
                 return;
             }
             
-            // Set the file to reveal immediately
-            console.log('[AutoReveal] Setting file to reveal:', file.path);
+            // Don't reveal the same file twice in a row
+            if (lastRevealedFileRef.current === file.path) {
+                debugLog.debug('[AutoReveal] Skipping - same file as last reveal');
+                return;
+            }
+            
+            // Reveal the file
+            debugLog.debug('[AutoReveal] Setting file to reveal:', file.path);
             setFileToReveal(file);
             lastRevealedFileRef.current = file.path;
         };
@@ -208,7 +169,7 @@ export function useAutoReveal(
         
         // Check for currently active file on mount
         const activeFile = app.workspace.getActiveFile();
-        if (activeFile && !isUserInteractingRef.current) {
+        if (activeFile) {
             handleFileChange(activeFile);
         }
 

@@ -21,6 +21,7 @@ import { TFile, TFolder } from 'obsidian';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
+import { debugLog } from '../utils/debugLog';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -207,7 +208,8 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
     
     // Create an enhanced dispatch that handles side effects
     const enhancedDispatch = useCallback((action: SelectionAction) => {
-        console.log('[SelectionContext] Action dispatched:', action.type, {
+        debugLog.debug('[SelectionContext] Action dispatched:', {
+            type: action.type,
             folder: (action as any).folder?.path,
             tag: (action as any).tag,
             file: (action as any).file?.path,
@@ -220,7 +222,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             if (action.folder && settings.autoSelectFirstFile) {
                 const filesInFolder = getFilesForFolder(action.folder, settings, app);
                 const autoSelectedFile = filesInFolder.length > 0 ? filesInFolder[0] : null;
-                console.log('[SelectionContext] Auto-selecting file for folder:', {
+                debugLog.debug('[SelectionContext] Auto-selecting file for folder:', {
                     folder: action.folder.path,
                     autoSelectedFile: autoSelectedFile?.path,
                     filesCount: filesInFolder.length
