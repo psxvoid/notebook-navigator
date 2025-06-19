@@ -35,9 +35,10 @@ If you love using Notebook Navigator, please consider supporting its continued d
 
 ### File Display
 - **🔍 Smart previews** - See content snippets without opening files
-- **🖼️ Thumbnails** - Display feature images from frontmatter
+- **🖼️ Feature images** - Display thumbnail images from note frontmatter
 - **📅 Date grouping** - Organize by Today, Yesterday, This Week
 - **🔄 Custom sorting** - Per-folder sort preferences
+- **📄 Folder notes** - Click folders to open associated notes
 
 ### Productivity
 - **🎯 Drag & drop** - Move files between folders (desktop)
@@ -151,6 +152,9 @@ Until the plugin is approved in the Community Plugins directory, you can install
 - **Show root folder:** Display "Vault" as the root folder in the tree
 - **Show folder note count:** Display the number of notes in each folder
 - **Show folder icons:** Display folder icons in the folder tree
+- **Enable folder notes:** Allow folders to have associated notes that open when clicking the folder
+  - **Folder note name:** Name for folder notes (default: `index`). Leave empty to use the folder name
+  - **Hide folder notes in file list:** Hide folder notes from the file list when displaying folder contents
 
 ### Tag Display
 
@@ -186,6 +190,26 @@ Then in Notebook Navigator settings:
 - **Feature image property:** `featureResized`
 
 This creates optimized 42px thumbnails that load quickly and display perfectly in the file list, rather than loading full-size images.
+
+### Using folder notes
+
+Turn any folder into a clickable note for better organization:
+
+1. Enable "Folder notes" in settings
+2. Right-click a folder and select "Create folder note"
+3. Now clicking the folder opens its note instead of just selecting it
+4. Folders with notes are visually distinguished with an underline
+
+Folder notes are perfect for:
+- Project overviews and documentation
+- Category descriptions
+- Table of contents for folder contents
+- Meeting notes or journals organized by folder
+
+**Tips:**
+- Set a custom folder note name like "index" or "readme" in settings
+- Hide folder notes from file lists to keep things clean
+- When you rename a folder, its folder note is automatically renamed too (if using folder name)
 
 ### Organizing with pins
 
