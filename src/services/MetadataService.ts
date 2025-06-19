@@ -49,7 +49,7 @@ export class MetadataService {
             try {
                 await this.updateSettings(updater);
             } catch (error) {
-                console.error('MetadataService: Failed to save settings:', error);
+                // Failed to save settings, re-throw to propagate
                 throw error;
             }
         });
@@ -68,14 +68,14 @@ export class MetadataService {
         // Validate that the folder exists
         const folder = this.app.vault.getAbstractFileByPath(folderPath);
         if (!folder || !(folder instanceof TFolder)) {
-            console.warn(`MetadataService: Cannot set color for non-existent folder: ${folderPath}`);
+            // Cannot set color for non-existent folder
             return;
         }
         
         // Basic color validation - check if it's a valid CSS color format
         const colorRegex = /^(#[0-9A-Fa-f]{3,8}|rgb\(|rgba\(|hsl\(|hsla\(|[a-zA-Z]+)$/;
         if (!colorRegex.test(color)) {
-            console.warn(`MetadataService: Invalid color format: ${color}`);
+            // Invalid color format
             return;
         }
         

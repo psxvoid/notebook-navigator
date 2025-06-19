@@ -37,7 +37,6 @@ import { FileSystemOperations } from './services/FileSystemService';
 import { MetadataService } from './services/MetadataService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings } from './i18n';
-import { debugLog } from './utils/debugLog';
 
 /**
  * Main plugin class for Notebook Navigator
@@ -65,24 +64,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
     async onload() {
         const startTime = performance.now();
         
-        // Initialize debug logger with vault - delay to ensure vault is ready
-        // Store timeout ID for cleanup if needed
-        const debugInitTimeout = setTimeout(async () => {
-            try {
-                await debugLog.initialize(this.app.vault, Platform.isMobile && this.settings.debugMobile, this.settings.debugDesktop);
-                debugLog.info('NotebookNavigatorPlugin: Starting plugin load', {
-                    isMobile: Platform.isMobile,
-                    platform: navigator.platform,
-                    timestamp: new Date().toISOString(),
-                    debugMobile: this.settings.debugMobile
-                });
-            } catch (error: any) {
-                console.error('Debug logger initialization failed:', error);
-            }
-        }, 500);
-        
-        // Store timeout for potential early cleanup
-        (this as any)._debugInitTimeout = debugInitTimeout;
         
         await this.loadSettings();
         
@@ -116,14 +97,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
             name: strings.commands.revealActiveFile,
             checkCallback: (checking: boolean) => {
                 const activeFile = this.app.workspace.getActiveFile();
-                debugLog.debug('[RevealCommand] Active file check:', {
-                    activeFile: activeFile?.path,
-                    hasParent: activeFile?.parent ? true : false,
-                    checking
-                });
                 if (activeFile && activeFile.parent) {
                     if (!checking) {
-                        debugLog.debug('[RevealCommand] Executing reveal for:', activeFile.path);
                         this.revealFileInNavigator(activeFile);
                     }
                     return true;
@@ -228,11 +203,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 await this.activateView(true);
             }
             
-            // Log total startup time
-            const totalTime = performance.now() - startTime;
-            if (this.settings.debugMobile) {
-                debugLog.info(`NotebookNavigatorPlugin: Plugin loaded in ${totalTime.toFixed(2)}ms`);
-            }
         });
     }
 
@@ -261,15 +231,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         // Set unloading flag to prevent any new operations
         this.isUnloading = true;
         
-        if (Platform.isMobile && this.settings.debugMobile) {
-            debugLog.info('NotebookNavigatorPlugin: Unloading plugin');
-        }
         
-        // Clear any pending timeouts
-        if ((this as any)._debugInitTimeout) {
-            clearTimeout((this as any)._debugInitTimeout);
-            (this as any)._debugInitTimeout = null;
-        }
         
         // Clear all listeners first to prevent any callbacks during cleanup
         this.settingsUpdateListeners.clear();
@@ -280,8 +242,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
             this.metadataService = null;
         }
         
-        // Close the debug log file
-        debugLog.close();
         
         // Clean up the ribbon icon
         this.ribbonIconEl?.remove();
@@ -329,8 +289,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
     public onSettingsUpdate() {
         if (this.isUnloading) return;
         
-        // Update debug log settings
-        debugLog.updateSettings(Platform.isMobile && this.settings.debugMobile, this.settings.debugDesktop);
         
         // Create a copy of listeners to avoid issues if a callback modifies the map
         const listeners = Array.from(this.settingsUpdateListeners.values());
@@ -338,7 +296,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
             try {
                 callback();
             } catch (error) {
-                console.error('Error in settings update listener:', error);
             }
         });
     }
@@ -352,9 +309,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
     async activateView(showAfterAttach = true) {
         const { workspace } = this.app;
 
-        if (Platform.isMobile && this.settings.debugMobile) {
-            debugLog.info('NotebookNavigatorPlugin: Activating view', { showAfterAttach });
-        }
 
         let leaf: WorkspaceLeaf | null = null;
         const leaves = workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
@@ -362,9 +316,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
         if (leaves.length > 0) {
             // View already exists - just reveal it
             leaf = leaves[0];
-            if (Platform.isMobile && this.settings.debugMobile) {
-                debugLog.info('NotebookNavigatorPlugin: Found existing view');
-            }
             if (showAfterAttach) {
                 workspace.revealLeaf(leaf);
             }
@@ -372,9 +323,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
             // Create new leaf only if none exists
             leaf = workspace.getLeftLeaf(false);
             if (leaf) {
-                if (Platform.isMobile && this.settings.debugMobile) {
-                    debugLog.info('NotebookNavigatorPlugin: Creating new view');
-                }
                 await leaf.setViewState({ type: VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, active: true });
                 if (showAfterAttach) {
                     workspace.revealLeaf(leaf);
@@ -393,9 +341,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * @param file - The file to reveal in the navigator
      */
     private async revealFileInNavigator(file: TFile) {
-        if (Platform.isMobile && this.settings.debugMobile) {
-            debugLog.info('NotebookNavigatorPlugin: Revealing file', { path: file.path });
-        }
         // Ensure navigator is open
         const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         if (leaves.length === 0) {

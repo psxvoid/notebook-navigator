@@ -35,7 +35,6 @@ import { PaneHeader } from './PaneHeader';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
-import { debugLog } from '../utils/debugLog';
 
 
 /**
@@ -60,22 +59,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const uiDispatch = useUIDispatch();
     const { selectionType, selectedFolder, selectedTag, selectedFile } = selectionState;
     
-    // Log component mount/unmount only if debug is enabled
-    useEffect(() => {
-        if (Platform.isMobile && settings.debugMobile) {
-            debugLog.info('FileList: Mounted', {
-                selectionType,
-                selectedFolder: selectedFolder?.path,
-                selectedTag,
-                selectedFile: selectedFile?.path,
-                isMobile,
-                currentMobileView: uiState.currentMobileView
-            });
-            return () => {
-                debugLog.info('FileList: Unmounted');
-            };
-        }
-    }, [settings.debugMobile]);
     
     
     // Track if the file selection is from user click vs auto-selection
@@ -83,12 +66,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const [fileVersion, setFileVersion] = useState(0);
     
     const handleFileClick = useCallback((file: TFile, e: React.MouseEvent) => {
-        debugLog.debug('[FileList] handleFileClick called', { 
-            file: file.path,
-            currentSelected: selectedFile?.path,
-            isUserSelection: true,
-            isMobile
-        });
         
         isUserSelectionRef.current = true;  // Mark this as a user selection
         selectionDispatch({ type: 'SET_SELECTED_FILE', file });
@@ -114,39 +91,8 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 scrollContainerRef.current.scrollTop = 0;
             }
             
-            if (settings.debugMobile) {
-                // Log state before collapse
-                const scrollContainer = scrollContainerRef.current;
-                if (scrollContainer) {
-                    debugLog.info('FileList: State BEFORE collapse', {
-                        scrollTop: scrollContainer.scrollTop,
-                        scrollHeight: scrollContainer.scrollHeight,
-                        offsetHeight: scrollContainer.offsetHeight,
-                        isVisible: scrollContainer.offsetParent !== null
-                    });
-                }
-                
-                debugLog.info('FileList: Opening file in editor (collapsing sidebar)', {
-                    file: file.path,
-                    openInNewTab
-                });
-            }
             app.workspace.leftSplit.collapse();
             
-            // Log state after collapse
-            if (settings.debugMobile && scrollContainerRef.current) {
-                setTimeout(() => {
-                    const scrollContainer = scrollContainerRef.current;
-                    if (scrollContainer) {
-                        debugLog.info('FileList: State AFTER collapse', {
-                            scrollTop: scrollContainer.scrollTop,
-                            scrollHeight: scrollContainer.scrollHeight,
-                            offsetHeight: scrollContainer.offsetHeight,
-                            isVisible: scrollContainer.offsetParent !== null
-                        });
-                    }
-                }, 100);
-            }
         }
     }, [app.workspace, uiDispatch, isMobile]);
     
@@ -184,14 +130,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             allFiles = getFilesForTag(selectedTag, settings, app);
         }
         
-        if (settings.debugMobile) {
-            debugLog.info("FileList: File list calculated.", {
-                count: allFiles.length,
-                selectionType,
-                selectedFolder: selectedFolder?.path,
-                selectedTag
-            });
-        }
         
         return allFiles;
     }, [selectionType, selectedFolder, selectedTag, settings, app, fileVersion]);
@@ -202,18 +140,9 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         const isRevealOperation = selectionState.isRevealOperation;
         const isFolderChangeWithAutoSelect = selectionState.isFolderChangeWithAutoSelect;
         
-        debugLog.debug('[FileList] Auto-open effect:', {
-            hasSelectedFile: !!selectedFile,
-            isUserSelection: isUserSelectionRef.current,
-            isRevealOperation,
-            isFolderChangeWithAutoSelect,
-            autoSelectFirstFile: settings.autoSelectFirstFile,
-            isMobile
-        });
         
         // Skip auto-open if this is a reveal operation
         if (isRevealOperation) {
-            debugLog.debug('[FileList] Skipping auto-open - reveal operation in progress');
             return;
         }
         
@@ -222,17 +151,10 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             const navigatorEl = document.querySelector('.nn-split-container');
             const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
             
-            debugLog.debug('[FileList] Auto-open check:', {
-                file: selectedFile.path,
-                hasNavigatorFocus,
-                isFolderChangeWithAutoSelect,
-                willOpen: !hasNavigatorFocus || isFolderChangeWithAutoSelect
-            });
             
             // Open the file if we're not actively using the navigator OR if this is a folder change with auto-select
             if (!hasNavigatorFocus || isFolderChangeWithAutoSelect) {
                 // This is an auto-selection from folder/tag change
-                debugLog.debug('[FileList] Opening auto-selected file:', selectedFile.path);
                 const leaf = app.workspace.getLeaf(false);
                 if (leaf) {
                     leaf.openFile(selectedFile!, { active: false });
@@ -245,31 +167,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     
     // Auto-select first file when files pane gains focus and no file is selected (desktop only)
     useEffect(() => {
-        debugLog.debug('[FileList] Auto-select effect triggered:', {
-            isMobile,
-            focusedPane: uiState.focusedPane,
-            hasSelectedFile: !!selectedFile,
-            filesCount: files.length,
-            firstFile: files[0]?.path
-        });
         
-        // This effect is causing issues when rapidly navigating
-        // Commenting out for now - the SelectionContext already handles auto-selecting first file
-        /*
-        if (!isMobile && uiState.focusedPane === 'files' && !selectedFile && files.length > 0) {
-            const firstFile = files[0];
-            console.log('[FileList] Auto-selecting first file:', firstFile.path);
-            // Select the first file when focus switches to files pane
-            selectionDispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
-            
-            // Open the file in the editor but keep focus in file list
-            const leaf = app.workspace.getLeaf(false);
-            if (leaf) {
-                console.log('[FileList] Opening file in editor:', firstFile.path);
-                leaf.openFile(firstFile, { active: false });
-            }
-        }
-        */
     }, [isMobile, uiState.focusedPane, selectedFile, files, selectionDispatch, app.workspace]);
     
     
@@ -368,12 +266,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             });
             
             setListItems(items);
-            if (settings.debugMobile) {
-                debugLog.info("FileList: List items rebuilt.", {
-                    itemCount: items.length,
-                    hasDateGroups: settings.groupByDate && !sortOption.startsWith('title')
-                });
-            }
         };
         
         // Rebuild list items when files or relevant settings change
@@ -542,13 +434,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         if (rowVirtualizer && scrollContainerRef.current) {
             rowVirtualizer.scrollToIndex(0, { align: 'start', behavior: 'auto' });
             
-            if (settings.debugMobile) {
-                debugLog.info('FileList: Reset scroll to top on folder/tag change', {
-                    selectionType,
-                    selectedFolder: selectedFolder?.path,
-                    selectedTag
-                });
-            }
         }
     }, [selectedFolder, selectedTag, rowVirtualizer]);
     
@@ -641,25 +526,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 // Get current scroll position before scrolling
                 const scrollBefore = scrollContainerRef.current?.scrollTop || 0;
                 
-                debugLog.debug('[FileList] Scroll to selected file triggered', {
-                    selectedFilePath,
-                    fileIndex,
-                    scrollToIndex,
-                    hasHeaderBefore: scrollToIndex !== fileIndex,
-                    isMobile,
-                    alignment: isMobile ? 'center' : 'auto',
-                    scrollBefore,
-                    virtualizerState: {
-                        scrollOffset: rowVirtualizer.scrollOffset,
-                        totalSize: rowVirtualizer.getTotalSize(),
-                        virtualItems: rowVirtualizer.getVirtualItems().map(item => ({
-                            index: item.index,
-                            start: item.start,
-                            end: item.end,
-                            size: item.size
-                        }))
-                    }
-                });
                 
                 // Scroll immediately to prevent flicker
                 // Use center alignment on mobile for better visibility, auto on desktop
@@ -668,17 +534,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                     behavior: 'auto' 
                 });
                 
-                // Log scroll position after (in next tick)
-                setTimeout(() => {
-                    const scrollAfter = scrollContainerRef.current?.scrollTop || 0;
-                    if (scrollAfter !== scrollBefore) {
-                        debugLog.debug('[FileList] Scroll position changed', {
-                            scrollBefore,
-                            scrollAfter,
-                            difference: scrollAfter - scrollBefore
-                        });
-                    }
-                }, 0);
             }
         }
     }, [selectedFilePath, filePathToIndex, rowVirtualizer, isMobile, listItems]);

@@ -38,7 +38,6 @@ import { UNTAGGED_TAG_ID } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
-import { debugLog } from '../utils/debugLog';
 
 // Item height constants for accurate virtualization
 const ITEM_HEIGHTS = {
@@ -85,21 +84,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         : null;
     
     
-    // Log component mount/unmount only if debug is enabled
-    useEffect(() => {
-        if (Platform.isMobile && settings.debugMobile) {
-            debugLog.info('LeftPaneVirtualized: Mounted', {
-                isMobile,
-                selectedFolder: selectionState.selectedFolder?.path,
-                selectedTag: selectionState.selectedTag,
-                expandedFoldersCount: expansionState.expandedFolders.size,
-                expandedTagsCount: expansionState.expandedTags.size
-            });
-            return () => {
-                debugLog.info('LeftPaneVirtualized: Unmounted');
-            };
-        }
-    }, [settings.debugMobile]);
     
     
     // =================================================================================
@@ -123,9 +107,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             }
             
             setRootFolders(folders);
-            if (settings.debugMobile) {
-                debugLog.info("LeftPaneVirtualized: Root folders rebuilt.");
-            }
         };
         
         // Build immediately on mount
@@ -185,9 +166,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             }
             
             setTagData({ tree: newTree, untagged: newUntagged });
-            if (settings.debugMobile) {
-                debugLog.info("LeftPaneVirtualized: Tag tree rebuilt.");
-            }
         };
 
         // Build immediately on mount
@@ -278,9 +256,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         });
         
             setItems(allItems);
-            if (settings.debugMobile) {
-                debugLog.info("NavigationPane: Items list rebuilt.", { count: allItems.length });
-            }
         };
         
         rebuildItems();
@@ -353,17 +328,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     
     // Handle folder click
     const handleFolderClick = useCallback((folder: TFolder) => {
-        debugLog.debug('[NavigationPane] Folder clicked:', {
-            folder: folder.path,
-            isMobile,
-            currentMobileView: uiState.currentMobileView,
-            currentFocusedPane: uiState.focusedPane
-        });
-        debugLog.debug('NavigationPane: Folder clicked', {
-            folder: folder.path,
-            isMobile,
-            currentMobileView: uiState.currentMobileView
-        });
         selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         
@@ -383,13 +347,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     
     // Handle tag click
     const handleTagClick = useCallback((tagPath: string) => {
-        if (Platform.isMobile && settings.debugMobile) {
-            debugLog.debug('NavigationPane: Tag clicked', {
-                tag: tagPath,
-                isMobile,
-                currentMobileView: uiState.currentMobileView
-            });
-        }
         selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         
@@ -400,7 +357,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             // correct file (which will be the first file on a new tag selection).
             // No explicit scroll dispatch is needed here anymore.
         }
-    }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView, settings.debugMobile]);
+    }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView]);
     
     // Scroll to top handler for mobile header click
     const handleScrollToTop = useCallback(() => {

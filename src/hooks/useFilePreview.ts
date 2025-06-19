@@ -93,8 +93,8 @@ export function useFilePreview({ file, metadata, settings, app }: UseFilePreview
                 }
             } catch (error) {
                 if (!isCancelled) {
-                    console.error('Failed to read file preview:', error);
-                    setPreviewText(''); // Clear preview on error
+                    // Failed to read file preview - clear preview on error
+                    setPreviewText('');
                 }
             }
         };

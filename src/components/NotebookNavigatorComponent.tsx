@@ -35,7 +35,6 @@ import { useSwipeGesture } from '../hooks/useSwipeGesture';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 import { STORAGE_KEYS, PANE_DIMENSIONS, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
-import { debugLog } from '../utils/debugLog';
 import { flattenFolderTree, findFolderIndex } from '../utils/treeFlattener';
 import { parseExcludedFolders } from '../utils/fileFilters';
 import { Virtualizer } from '@tanstack/react-virtual';
@@ -72,20 +71,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const leftPaneRef = useRef<NavigationPaneHandle>(null);
     const fileListRef = useRef<FileListHandle>(null);
     
-    // Only set up logging effects if debug is enabled
-    useEffect(() => {
-        if (Platform.isMobile && settings.debugMobile) {
-            debugLog.info('NotebookNavigatorComponent: Mounted', { 
-                isMobile,
-                initialView: uiState.currentMobileView,
-                selectedFolder: selectionState.selectedFolder?.path,
-                selectedFile: selectionState.selectedFile?.path
-            });
-            return () => {
-                debugLog.info('NotebookNavigatorComponent: Unmounted');
-            };
-        }
-    }, [settings.debugMobile]);
 
     // Handle scrolling when mobile view changes or on initial mount
     useEffect(() => {
@@ -95,19 +80,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         if (uiState.currentMobileView === 'list' && selectionState.selectedFolder) {
             const index = leftPaneRef.current?.getIndexOfPath(selectionState.selectedFolder.path);
             if (index !== undefined && index !== -1) {
-                debugLog.info('NotebookNavigatorComponent: Scrolling to folder on view change', {
-                    folder: selectionState.selectedFolder.path,
-                    index
-                });
                 leftPaneRef.current?.virtualizer?.scrollToIndex(index, { align: 'center' });
             }
         } else if (uiState.currentMobileView === 'files' && selectionState.selectedFile) {
             const index = fileListRef.current?.getIndexOfPath(selectionState.selectedFile.path);
             if (index !== undefined && index !== -1) {
-                debugLog.info('NotebookNavigatorComponent: Scrolling to file on view change', {
-                    file: selectionState.selectedFile.path,
-                    index
-                });
                 fileListRef.current?.virtualizer?.scrollToIndex(index, { align: 'center' });
             }
         }
@@ -155,7 +132,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const revealFile = (file: TFile) => {
         if (!file || !file.parent) return;
         
-        debugLog.debug('[NotebookNavigator] revealFile called', { file: file.path, folder: file.parent.path });
 
         // Build the folder path hierarchy to expand
         const foldersToExpand: string[] = [];
@@ -169,12 +145,10 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         // Expand folders if needed
         const needsExpansion = foldersToExpand.some(path => !expansionState.expandedFolders.has(path));
         if (needsExpansion) {
-            debugLog.debug('[NotebookNavigator] Expanding folders:', foldersToExpand);
             expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
         }
         
         // Trigger the reveal - scrolling will happen via the effect that watches isRevealOperation
-        debugLog.debug('[NotebookNavigator] Dispatching REVEAL_FILE action');
         selectionDispatch({ type: 'REVEAL_FILE', file });
         
         // Only change focus if we're not already in the navigator AND not opening version history
@@ -183,13 +157,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         const isOpeningVersionHistory = (window as any).notebookNavigatorOpeningVersionHistory;
         
         if (!hasNavigatorFocus && !isOpeningVersionHistory) {
-            debugLog.debug('[NotebookNavigator] Changing focus to files pane');
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         } else {
-            debugLog.debug('[NotebookNavigator] Keeping focus in navigator', {
-                hasNavigatorFocus,
-                isOpeningVersionHistory
-            });
         }
     };
     
@@ -201,7 +170,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Handle revealing the file when detected by the hook
     useEffect(() => {
         if (fileToReveal) {
-            debugLog.debug('[NotebookNavigator] Auto-reveal triggered for file:', fileToReveal.path);
             revealFile(fileToReveal);
         }
     }, [fileToReveal]); // Remove revealFile from deps to prevent infinite loop
@@ -210,9 +178,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     useImperativeHandle(ref, () => ({
         revealFile,
         focusFilePane: () => {
-            if (Platform.isMobile && settings.debugMobile) {
-                debugLog.debug('NotebookNavigatorComponent: focusFilePane called');
-            }
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             // Focus the container to ensure keyboard navigation works
             containerRef.current?.focus();
@@ -234,7 +199,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         handleBecomeActive: () => {
             if (!isMobile) return;
             
-            debugLog.info('NotebookNavigatorComponent: view became active (no action taken)');
             
             // Do nothing - scroll manipulation doesn't work reliably on mobile
             // when the view becomes active after being hidden
@@ -242,7 +206,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     }), [
         selectionDispatch, 
         uiDispatch, 
-        settings.debugMobile, 
         updateSettings, 
         isMobile,
         uiState.currentMobileView,
@@ -287,22 +250,12 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             const scrollTimer = setTimeout(() => {
                 // Scroll to folder in left pane
                 const folderIndex = leftPaneRef.current?.getIndexOfPath(file.parent!.path);
-                debugLog.debug('[NotebookNavigator] Auto-reveal scroll - folder:', {
-                    folderPath: file.parent!.path,
-                    folderIndex,
-                    hasVirtualizer: !!leftPaneRef.current?.virtualizer
-                });
                 if (folderIndex !== undefined && folderIndex !== -1) {
                     leftPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: 'center', behavior: 'auto' });
                 }
                 
                 // Scroll to file in file list
                 const fileIndex = fileListRef.current?.getIndexOfPath(file.path);
-                debugLog.debug('[NotebookNavigator] Auto-reveal scroll - file:', {
-                    filePath: file.path,
-                    fileIndex,
-                    hasVirtualizer: !!fileListRef.current?.virtualizer
-                });
                 if (fileIndex !== undefined && fileIndex !== -1 && fileListRef.current?.virtualizer) {
                     const virtualizer = fileListRef.current.virtualizer;
                     const scrollElement = fileListRef.current.scrollContainerRef;
@@ -321,25 +274,14 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                             
                             const isFullyVisible = itemTop >= scrollTop && itemBottom <= (scrollTop + containerHeight);
                             
-                            debugLog.debug('[NotebookNavigator] File visibility check', {
-                                fileIndex,
-                                itemTop,
-                                itemBottom,
-                                scrollTop,
-                                containerHeight,
-                                isFullyVisible
-                            });
                             
                             // Only scroll if the item is not fully visible
                             if (!isFullyVisible) {
-                                debugLog.debug('[NotebookNavigator] Scrolling file to center - not fully visible');
                                 virtualizer.scrollToIndex(fileIndex, { align: 'center', behavior: 'auto' });
                             } else {
-                                debugLog.debug('[NotebookNavigator] Skipping scroll - file already visible');
                             }
                         } else {
                             // Item is not in virtual items, so it's definitely not visible
-                            debugLog.debug('[NotebookNavigator] Scrolling file to center - not in virtual items');
                             virtualizer.scrollToIndex(fileIndex, { align: 'center', behavior: 'auto' });
                         }
                     }
@@ -402,20 +344,10 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             const isNavigatorView = leaf.view?.getViewType() === VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT;
             const leftSplit = app.workspace.leftSplit;
             
-            debugLog.info('NotebookNavigatorComponent: Active leaf changed', {
-                viewType: leaf.view?.getViewType(),
-                isNavigatorView,
-                leftSplitCollapsed: leftSplit?.collapsed,
-                hideCount
-            });
             
             // If we're switching away from navigator and sidebar is not collapsed
             if (!isNavigatorView && leftSplit && !leftSplit.collapsed) {
                 hideCount++;
-                debugLog.info('NotebookNavigatorComponent: Navigator being hidden, calling collapse()', {
-                    hideCount,
-                    viewType: leaf.view?.getViewType()
-                });
                 
                 // Call collapse to ensure consistent state
                 leftSplit.collapse();
@@ -450,7 +382,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 expansionDispatch({ type: 'CLEANUP_DELETED_FOLDERS', existingPaths });
                 selectionDispatch({ type: 'CLEANUP_DELETED_FOLDER', deletedPath: file.path });
             } else if (file instanceof TFile) {
-                debugLog.debug('[NotebookNavigator] File deleted:', file.path);
                 
                 // Just cleanup the deleted file
                 selectionDispatch({ 
@@ -460,7 +391,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 });
                 
                 // Let auto-reveal handle the selection of the new active file
-                debugLog.debug('[NotebookNavigator] Waiting for auto-reveal to handle new file selection');
             }
         };
         

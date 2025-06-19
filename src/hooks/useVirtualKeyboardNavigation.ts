@@ -28,7 +28,6 @@ import { useSettingsState } from '../context/SettingsContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
-import { debugLog } from '../utils/debugLog';
 
 type VirtualItem = CombinedNavigationItem | FileListItem;
 
@@ -478,11 +477,9 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         } else {
             const leftPaneItem = item as CombinedNavigationItem;
             if (leftPaneItem.type === 'folder') {
-                debugLog.debug('[KeyboardNav] Selecting folder via keyboard:', leftPaneItem.data.path);
                 selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: leftPaneItem.data });
             } else if (leftPaneItem.type === 'tag' || leftPaneItem.type === 'untagged') {
                 const tagNode = leftPaneItem.data as TagTreeNode;
-                debugLog.debug('[KeyboardNav] Selecting tag via keyboard:', tagNode.path);
                 selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path });
             }
         }

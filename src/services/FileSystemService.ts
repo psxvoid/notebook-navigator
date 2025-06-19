@@ -475,7 +475,6 @@ export class FileSystemOperations {
             
             if (!isActiveFile) {
                 // File needs to be opened or activated
-                console.log('[FileSystemService] File needs to be activated');
                 
                 // Create a promise that resolves when the file becomes active
                 const waitForFileActive = new Promise<void>((resolve) => {
@@ -641,7 +640,6 @@ tags: [excalidraw]
                 new Notice('A drawing with this name already exists');
             } else {
                 new Notice('Failed to create drawing');
-                console.error('Error creating drawing:', error);
             }
             return null;
         }

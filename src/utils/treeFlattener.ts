@@ -44,7 +44,7 @@ export function flattenFolderTree(
     folders.forEach(folder => {
         // Prevent circular references
         if (visitedPaths.has(folder.path)) {
-            console.warn(`Circular reference detected for folder: ${folder.path}`);
+            // Circular reference detected, skip this folder
             return;
         }
         

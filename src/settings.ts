@@ -48,6 +48,10 @@ export interface NotebookNavigatorSettings {
     excludedFiles: string;
     ignoreFolders: string;
     // Note display
+    frontmatterNameField: string;
+    frontmatterCreatedField: string;
+    frontmatterModifiedField: string;
+    frontmatterDateFormat: string;
     fileNameRows: number;
     showDate: boolean;
     dateFormat: string;
@@ -68,12 +72,6 @@ export interface NotebookNavigatorSettings {
     // Advanced
     confirmBeforeDelete: boolean;
     useFrontmatterDates: boolean;
-    frontmatterNameField: string;
-    frontmatterCreatedField: string;
-    frontmatterModifiedField: string;
-    frontmatterDateFormat: string;
-    debugMobile: boolean;
-    debugDesktop: boolean;
     // Internal
     pinnedNotes: Record<string, string[]>;
     folderIcons: Record<string, string>;
@@ -90,13 +88,17 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     defaultFolderSort: 'modified-desc',
     folderSortOverrides: {},
     groupByDate: true,
-    showNotesFromSubfolders: false,
+    showNotesFromSubfolders: true,
     showSubfolderNamesInList: true,
     autoRevealActiveFile: true,
     autoSelectFirstFile: true,
     excludedFiles: '',
     ignoreFolders: '',
     // Note display
+    frontmatterNameField: '',
+    frontmatterCreatedField: 'created',
+    frontmatterModifiedField: 'modified',
+    frontmatterDateFormat: "yyyy-MM-dd'T'HH:mm:ss",
     fileNameRows: 1,
     showDate: true,
     dateFormat: 'MMM d, yyyy',
@@ -117,12 +119,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Advanced
     confirmBeforeDelete: true,
     useFrontmatterDates: false,
-    frontmatterNameField: '',
-    frontmatterCreatedField: 'created',
-    frontmatterModifiedField: 'modified',
-    frontmatterDateFormat: "yyyy-MM-dd'T'HH:mm:ss",
-    debugMobile: false,
-    debugDesktop: false,
     // Internal
     pinnedNotes: {},
     folderIcons: {},
@@ -602,37 +598,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                 }));
 
-        // Debug settings - only show in development mode
-        if (process.env.NODE_ENV === 'development') {
-            new Setting(containerEl)
-                .setName('Debug settings')
-                .setDesc('Development-only settings for debugging')
-                .setHeading();
-            
-            // Debug desktop setting
-            new Setting(containerEl)
-                .setName('Enable debug logging (Desktop)')
-                .setDesc('Outputs debug information to the browser console. Useful for troubleshooting issues.')
-                .addToggle(toggle => toggle
-                    .setValue(this.plugin.settings.debugDesktop)
-                    .onChange(async (value) => {
-                        this.plugin.settings.debugDesktop = value;
-                        await this.saveAndRefresh();
-                    }));
-
-            // Debug mobile setting
-            new Setting(containerEl)
-                .setName('Enable debug logging (Mobile)')
-                .setDesc('Creates a debug log file in your vault root folder. Useful for troubleshooting issues on mobile devices. Requires app restart.')
-                .addToggle(toggle => toggle
-                    .setValue(this.plugin.settings.debugMobile)
-                    .onChange(async (value) => {
-                        this.plugin.settings.debugMobile = value;
-                        await this.saveAndRefresh();
-                        // Notify about the change
-                        new Notice('Debug logging change will take effect on next restart');
-                    }));
-        }
 
         // Sponsor section
         new Setting(containerEl)

@@ -255,14 +255,14 @@ export class DateUtils {
                         
                         // Check if parsing failed
                         if (isNaN(parsedDate.getTime())) {
-                            console.error(`Failed to parse frontmatter ${dateType} timestamp for ${file.path}: Invalid format or value "${frontmatterValue}" (expected format: ${settings.frontmatterDateFormat} or ISO 8601)`);
+                            // Failed to parse frontmatter timestamp - invalid format or value
                         } else {
                             return parsedDate.getTime();
                         }
                     }
                 } catch (e) {
                     // If parsing fails, fall back to file system timestamp
-                    console.error(`Failed to parse frontmatter ${dateType} timestamp for ${file.path}:`, e);
+                    // Failed to parse frontmatter timestamp - fall back to file system timestamp
                 }
             }
         }
