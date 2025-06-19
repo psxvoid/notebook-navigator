@@ -1,3 +1,21 @@
+/*
+ * Notebook Navigator - Plugin for Obsidian
+ * Copyright (c) 2025 Johan Sanneblad
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 
 // Constants for pane dimensions
@@ -17,7 +35,6 @@ interface UIState {
     focusedPane: 'folders' | 'files';
     currentMobileView: 'list' | 'files';
     paneWidth: number;
-    // REMOVED: scrollToFolderIndex, scrollToFileIndex, activeViewScrollTrigger
 }
 
 // Action types
@@ -25,8 +42,7 @@ type UIAction =
     | { type: 'SET_FOCUSED_PANE'; pane: 'folders' | 'files' }
     | { type: 'SET_MOBILE_VIEW'; view: 'list' | 'files' }
     | { type: 'SET_PANE_WIDTH'; width: number };
-    // REMOVED: All scroll-related actions
-
+    
 // Create contexts
 const UIStateContext = createContext<UIState | null>(null);
 const UIDispatchContext = createContext<React.Dispatch<UIAction> | null>(null);
@@ -64,7 +80,6 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
             focusedPane: 'folders',
             currentMobileView: 'list',
             paneWidth: Math.max(PANE_DIMENSIONS.MIN_WIDTH, Math.min(paneWidth, PANE_DIMENSIONS.MAX_WIDTH))
-            // REMOVED: scroll properties
         };
     };
     

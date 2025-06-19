@@ -1,3 +1,21 @@
+/*
+ * Notebook Navigator - Plugin for Obsidian
+ * Copyright (c) 2025 Johan Sanneblad
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import React, { useMemo, useRef, useEffect, useLayoutEffect, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
 import { debounce } from 'obsidian';
 import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
@@ -67,7 +85,6 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
     
     
     // =================================================================================
-    // START: FOLDER STABILIZATION FIX
     // We use useState to hold stable folder data across re-renders
     // =================================================================================
     const [rootFolders, setRootFolders] = useState<TFolder[]>([]);
@@ -117,11 +134,9 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
         };
     }, [app, plugin.settings.showRootFolder]);
     // =================================================================================
-    // END: FOLDER STABILIZATION FIX
     // =================================================================================
     
     // =================================================================================
-    // START: TAG STABILIZATION FIX
     // We use useState to hold the tag tree data. This makes it stable across re-renders.
     // =================================================================================
     const [tagData, setTagData] = useState<{ tree: Map<string, TagTreeNode>, untagged: number }>({ tree: new Map(), untagged: 0 });
@@ -184,14 +199,12 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
         };
     }, [plugin.settings.showTags, plugin.settings.showUntagged, plugin.settings.excludedFiles]); // REMOVED 'app' dependency to prevent constant rebuilds
     // =================================================================================
-    // END: TAG STABILIZATION FIX
     // =================================================================================
     
     const tagTree = tagData.tree;
     const untaggedCount = tagData.untagged;
     
     // =================================================================================
-    // START: ITEMS STABILIZATION FIX
     // We use useState to hold flattened items to prevent virtualizer re-initialization
     // =================================================================================
     const [items, setItems] = useState<CombinedLeftPaneItem[]>([]);
@@ -258,7 +271,6 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
         plugin.settings.ignoreFolders, plugin.settings.showTags, 
         plugin.settings.showUntagged, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
     // =================================================================================
-    // END: ITEMS STABILIZATION FIX
     // =================================================================================
     
     // Initialize virtualizer
@@ -297,67 +309,6 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
         scrollContainerRef: scrollContainerRef.current
     }), [pathToIndex, rowVirtualizer]);
 
-    // REMOVED: Complex observer logic. Scroll restoration is now handled by NotebookNavigatorComponent
-    
-    // REMOVED: View activation effect. Scroll restoration is now handled by NotebookNavigatorComponent
-
-    // REMOVED: Complex mobile scroll logic
-    // Mobile scrolling is now handled through predictive SCROLL_TO_FOLDER_INDEX actions
-    
-    // REMOVED: Old desktop scroll effect  
-    // Desktop scrolling is now handled through predictive SCROLL_TO_FOLDER_INDEX actions
-    
-    // REMOVED: Scroll position tracking. No longer needed with centralized scroll restoration
-    /* Removed scroll tracking
-    useEffect(() => {
-        const container = scrollContainerRef.current;
-        if (!container) return;
-        
-        const handleScroll = () => {
-            const scrollTop = container.scrollTop;
-            lastScrollPositionRef.current = scrollTop;
-            // Always save the scroll position when it changes
-            if (scrollTop > 0) {
-                savedScrollTopRef.current = scrollTop;
-            }
-            
-            if (plugin.settings.debugMobile) {
-                debugLog.debug('LeftPaneVirtualized: Scroll position changed', {
-                    scrollTop: scrollTop,
-                    scrollHeight: container.scrollHeight
-                });
-            }
-        };
-        
-        container.addEventListener('scroll', handleScroll);
-        return () => container.removeEventListener('scroll', handleScroll);
-    }, [plugin.settings.debugMobile]);
-    */
-    
-    // REMOVED: Scroll position restore. Now handled by NotebookNavigatorComponent
-    /* Removed scroll restore
-    useEffect(() => {
-        if (!isMobile) return;
-        
-        const container = scrollContainerRef.current;
-        if (!container) return;
-        
-        const isVisible = uiState.currentMobileView === 'list';
-        
-        if (isVisible && savedScrollTopRef.current > 0 && container.scrollTop === 0) {
-            // We just became visible and lost our scroll position, restore it
-            debugLog.info('LeftPaneVirtualized: Restoring scroll position on visibility change', {
-                savedScrollTop: savedScrollTopRef.current,
-                currentScrollTop: container.scrollTop
-            });
-            
-            // Use requestAnimationFrame to ensure DOM is ready
-            requestAnimationFrame(() => {
-                container.scrollTop = savedScrollTopRef.current;
-            });
-        }
-    }, [isMobile, uiState.currentMobileView]);
-    */
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
@@ -367,7 +318,6 @@ export const LeftPaneVirtualized = forwardRef<LeftPaneHandle>((props, ref) => {
         containerRef: scrollContainerRef
     });
     
-    // REMOVED: Mobile view scroll effect - now handled imperatively via ref
     
     // Handle folder toggle
     const handleFolderToggle = useCallback((path: string) => {

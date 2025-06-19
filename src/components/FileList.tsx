@@ -249,10 +249,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         }
     }, [app.workspace, uiDispatch, isMobile]);
     
-    // =================================================================================
-    // START: FILE LIST STABILIZATION FIX
-    // We use useState to hold the file list data. This makes it stable across re-renders.
-    // =================================================================================
     const [files, setFiles] = useState<TFile[]>([]);
     
     useEffect(() => {
@@ -403,11 +399,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         plugin.settings.pinnedNotes,
         plugin.settings.excludedFiles,
         plugin.settings.useFrontmatterDates
-        // REMOVED: app - This was causing unnecessary rebuilds when navigating
     ]);
-    // =================================================================================
-    // END: FILE LIST STABILIZATION FIX
-    // =================================================================================
     
     // Auto-open file when it's selected via folder/tag change (not user click)
     useEffect(() => {
@@ -452,10 +444,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         }
     }, [isMobile, uiState.currentMobileView, files, selectedFile, selectionDispatch]);
     
-    // =================================================================================
-    // START: LIST ITEMS STABILIZATION FIX
-    // We use useState to hold the list items. This prevents unnecessary virtualizer updates.
-    // =================================================================================
     const [listItems, setListItems] = useState<FileListItem[]>([]);
     
     useEffect(() => {
@@ -565,11 +553,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         selectedFolder,
         selectedTag,
         strings.fileList.pinnedSection
-        // REMOVED: app.metadataCache - This was causing unnecessary rebuilds
     ]);
-    // =================================================================================
-    // END: LIST ITEMS STABILIZATION FIX
-    // =================================================================================
     
     // Add ref for scroll container
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -587,127 +571,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         });
         return map;
     }, [listItems]);
-    
-    // REMOVED: Complex observer logic. Scroll restoration is now handled by NotebookNavigatorComponent
-    /* Removed observer effect
-    useEffect(() => {
-        if (!isMobile || !scrollContainerRef.current) return;
-        
-        const container = scrollContainerRef.current;
-        let lastVisibleState = container.offsetParent !== null;
-        let hasPendingScroll = false;
-        let pendingScrollPath: string | null = null;
-        
-        // Function to check and execute pending scroll
-        const checkPendingScroll = () => {
-            if (hasPendingScroll && pendingScrollPath) {
-                const index = filePathToIndex.get(pendingScrollPath);
-                if (index !== undefined && index !== -1) {
-                    debugLog.info('FileList: Executing pending scroll after visibility', {
-                        file: pendingScrollPath,
-                        index
-                    });
-                    rowVirtualizer.scrollToIndex(index, { align: 'center' });
-                    hasPendingScroll = false;
-                    pendingScrollPath = null;
-                }
-            }
-        };
-        
-        // Create an observer to detect when the container becomes visible/hidden
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                const isVisible = entry.isIntersecting && entry.intersectionRatio > 0;
-                const hasSize = entry.boundingClientRect.width > 0 && entry.boundingClientRect.height > 0;
-                
-                if (plugin.settings.debugMobile) {
-                    debugLog.info('FileList: Visibility changed', {
-                        isIntersecting: entry.isIntersecting,
-                        intersectionRatio: entry.intersectionRatio,
-                        hasSize,
-                        boundingRect: {
-                            width: entry.boundingClientRect.width,
-                            height: entry.boundingClientRect.height
-                        },
-                        scrollHeight: container.scrollHeight,
-                        offsetHeight: container.offsetHeight,
-                        offsetParent: container.offsetParent !== null
-                    });
-                }
-                
-                // Detect transition from not visible to visible
-                if (isVisible && hasSize && !lastVisibleState) {
-                    if (plugin.settings.debugMobile) {
-                        debugLog.info('FileList: Container became visible', {
-                            scrollTop: container.scrollTop,
-                            scrollHeight: container.scrollHeight,
-                            offsetHeight: container.offsetHeight,
-                            hasPendingScroll
-                        });
-                    }
-                    
-                    // Execute any pending scroll action immediately
-                    checkPendingScroll();
-                }
-                
-                lastVisibleState = isVisible && hasSize;
-            });
-        }, {
-            threshold: [0, 0.1, 0.5, 1.0] // Multiple thresholds to catch partial visibility
-        });
-        
-        observer.observe(container);
-        
-        // Also observe resize events
-        const resizeObserver = new ResizeObserver((entries) => {
-            entries.forEach(entry => {
-                if (plugin.settings.debugMobile) {
-                    debugLog.info('FileList: Container resized', {
-                        width: entry.contentRect.width,
-                        height: entry.contentRect.height,
-                        scrollHeight: container.scrollHeight,
-                        offsetHeight: container.offsetHeight
-                    });
-                }
-                
-                // Check if we now have size and should scroll
-                if (entry.contentRect.height > 0) {
-                    checkPendingScroll();
-                }
-            });
-        });
-        
-        resizeObserver.observe(container);
-        
-        // Mark that we need to scroll when selection changes
-        if (selectedFilePath && uiState.currentMobileView === 'files') {
-            const currentScrollTop = container.scrollTop;
-            const index = filePathToIndex.get(selectedFilePath);
-            if (index !== undefined && index !== -1) {
-                // Always mark pending scroll for selected file
-                hasPendingScroll = true;
-                pendingScrollPath = selectedFilePath;
-                debugLog.info('FileList: Marking pending scroll', {
-                    file: selectedFilePath,
-                    index,
-                    containerVisible: container.offsetParent !== null
-                });
-                
-                // If container is already visible, execute immediately
-                if (container.offsetParent !== null && container.offsetHeight > 0) {
-                    checkPendingScroll();
-                }
-            }
-        }
-        
-        // The actual scroll handling is done in a separate effect below
-        
-        return () => {
-            observer.disconnect();
-            resizeObserver.disconnect();
-        };
-    }, [isMobile, plugin.settings.debugMobile, selectedFilePath, uiState.currentMobileView, filePathToIndex]);
-    */
     
     // Initialize virtualizer
     const rowVirtualizer = useVirtualizer({
@@ -825,49 +688,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         return null;
     }, [selectionType, selectedFolder, selectedTag]);
     
-    // DISABLED - This was conflicting with scroll-to-selected
-    // Save scroll position to localStorage on mobile when scrolling or unmounting
-    /*
-    useEffect(() => {
-        if (!isMobile || !scrollContainerRef.current || !scrollStateKey) return;
-        
-        const container = scrollContainerRef.current;
-        let scrollTimeout: NodeJS.Timeout;
-        
-        const saveScrollPosition = () => {
-            const scrollData = {
-                scrollTop: container.scrollTop,
-                selectedFile: selectedFilePath,
-                timestamp: Date.now()
-            };
-            localStorage.setItem(scrollStateKey, JSON.stringify(scrollData));
-        };
-        
-        const handleScroll = () => {
-            // Debounce saving to localStorage
-            clearTimeout(scrollTimeout);
-            scrollTimeout = setTimeout(saveScrollPosition, 100);
-        };
-        
-        container.addEventListener('scroll', handleScroll, { passive: true });
-        
-        // Save when component unmounts
-        return () => {
-            container.removeEventListener('scroll', handleScroll);
-            clearTimeout(scrollTimeout);
-            saveScrollPosition();
-        };
-    }, [isMobile, scrollStateKey, selectedFilePath]);
-    */
-    
-    
-    // REMOVED: Old layout-change handler for scroll tracking
-    // Predictive scrolling now handles this automatically
-    
-    
-    // REMOVED: State-driven scroll effect - now handled imperatively via ref
-    
-    
     // Scroll to selected file when it changes - use useLayoutEffect to happen before paint
     useLayoutEffect(() => {
         if (selectedFilePath) {
@@ -891,7 +711,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         containerRef: scrollContainerRef
     });
     
-    // REMOVED: Mobile view scroll effect - now handled imperatively via ref
     
     // Pre-calculate date field for all files in the group
     const dateField = useMemo(() => {
@@ -929,49 +748,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const safeGetItem = <T,>(array: T[], index: number): T | undefined => {
         return index >= 0 && index < array.length ? array[index] : undefined;
     };
-    
-    // REMOVED: View activation effect. Scroll restoration is now handled by NotebookNavigatorComponent
-    /* Removed view activation effect
-    useEffect(() => {
-        if (!isMobile || !scrollContainerRef.current) return;
-        if (uiState.currentMobileView !== 'files') return;
-        
-        const container = scrollContainerRef.current;
-        
-        // Add a small delay to ensure the view is fully transitioned
-        const timer = setTimeout(() => {
-            if (container.offsetParent === null || container.offsetHeight === 0) {
-                debugLog.info('FileList: Container not ready for scroll on view activation');
-                return;
-            }
-            
-            // Force virtualizer to fully remeasure
-            rowVirtualizer.measure();
-            
-            // Trigger a DOM reflow to ensure measurements are up to date
-            const _forceReflow = container.offsetHeight;
-            
-            requestAnimationFrame(() => {
-                requestAnimationFrame(() => {
-                    if (selectedFilePath) {
-                        const index = filePathToIndex.get(selectedFilePath);
-                        if (index !== undefined && index !== -1) {
-                            debugLog.info('FileList: View activated, forcing scroll', {
-                                file: selectedFilePath,
-                                index,
-                                containerHeight: container.offsetHeight,
-                                scrollHeight: container.scrollHeight
-                            });
-                            rowVirtualizer.scrollToIndex(index, { align: 'center' });
-                        }
-                    }
-                });
-            });
-        }, 50); // Small delay to ensure view transition is complete
-        
-        return () => clearTimeout(timer);
-    }, [uiState.currentMobileView, isMobile, selectedFilePath, filePathToIndex, rowVirtualizer, plugin.settings.debugMobile]);
-    */
     
     // Early returns MUST come after all hooks
     if (!selectedFolder && !selectedTag) {

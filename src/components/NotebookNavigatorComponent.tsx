@@ -290,7 +290,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         }
     }, [selectionState.isRevealOperation, selectionState.selectedFolder, selectionState.selectedFile, expansionDispatch]);
     
-    // REMOVED: Old scroll effect - now handled imperatively in revealFile
 
     // Handle focus/blur events to track when navigator has focus
     useEffect(() => {

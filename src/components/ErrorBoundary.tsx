@@ -59,7 +59,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
         
         // Auto-retry after a delay (unless we've retried too many times)
         if (this.state.errorCount < 3) {
-            console.log(`[${componentName}] Will retry rendering in 100ms (attempt ${this.state.errorCount + 1}/3)`);
+            console.warn(`[${componentName}] Will retry rendering in 100ms (attempt ${this.state.errorCount + 1}/3)`);
             
             if (this.retryTimeoutId) {
                 clearTimeout(this.retryTimeoutId);
