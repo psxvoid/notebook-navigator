@@ -207,6 +207,7 @@ export const FileItem = memo(FileItemInternal, (prevProps, nextProps) => {
     // Return false if props changed (do re-render)
     return (
         prevProps.file.path === nextProps.file.path &&
+        prevProps.file.name === nextProps.file.name &&
         prevProps.file.stat.mtime === nextProps.file.stat.mtime &&
         prevProps.isSelected === nextProps.isSelected &&
         prevProps.dateGroup === nextProps.dateGroup &&
