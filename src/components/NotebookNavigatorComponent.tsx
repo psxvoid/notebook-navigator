@@ -205,16 +205,15 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         },
         /**
          * Handles when the navigator view becomes active on mobile.
-         * This is crucial for restoring scroll position when returning from the editor.
+         * This restores the saved scroll position when returning from the editor.
          * 
          * Mobile Behavior:
-         * - First activation: Scrolls to the selected item to ensure it's visible
-         * - Subsequent activations: Preserves user's manual scroll position
+         * - Always attempts to restore the saved scroll position
+         * - Falls back to scrolling to selected item if no position is saved (first load)
+         * - Respects user's manual scroll position across view switches
          * 
-         * This solves a mobile-specific issue where the view would lose its dimensions
-         * when hidden, causing the scroll position to reset. By only restoring scroll
-         * on the first activation, we respect the user's manual scrolling while still
-         * ensuring the initial selection is visible.
+         * This solves a mobile-specific issue where the view loses its dimensions
+         * when hidden, causing the scroll position to reset to top.
          */
         handleBecomeActive: () => {
             if (!isMobile) return;
@@ -222,66 +221,67 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             becomeActiveCountRef.current += 1;
             const isFirstActivation = becomeActiveCountRef.current === 1;
             
-            debugLog.info(`NotebookNavigatorComponent: view became active (count: ${becomeActiveCountRef.current}, first: ${isFirstActivation})`);
+            debugLog.info(`NotebookNavigatorComponent: view became active (count: ${becomeActiveCountRef.current})`);
 
-            // Only restore scroll position on first activation
-            // This preserves the user's manual scroll position on subsequent returns
-            if (!isFirstActivation) {
-                debugLog.info('Preserving user scroll position for subsequent activation');
-                return;
-            }
-
-            // Initial scroll restoration for first load
             // Wait for the container to regain dimensions after becoming visible
-            const performInitialScroll = () => {
+            const restoreScrollPosition = () => {
                 const view = uiState.currentMobileView;
                 const virtualizer = view === 'list' 
                     ? leftPaneRef.current?.virtualizer 
                     : fileListRef.current?.virtualizer;
                 
-                if (!virtualizer) {
-                    debugLog.warn('Cannot perform initial scroll, virtualizer not ready');
+                if (!virtualizer || !virtualizer.scrollElement) {
+                    debugLog.warn('Cannot restore scroll, virtualizer not ready');
                     return;
                 }
                 
-                // Get the selected item to scroll to
-                let selectedPath: string | null = null;
-                let selectedIndex = -1;
+                // Re-measure to ensure accurate dimensions
+                virtualizer.measure();
                 
-                if (view === 'list' && selectionState.selectedFolder) {
-                    selectedPath = selectionState.selectedFolder.path;
-                    selectedIndex = leftPaneRef.current?.getIndexOfPath(selectedPath) ?? -1;
-                } else if (view === 'files' && selectionState.selectedFile) {
-                    selectedPath = selectionState.selectedFile.path;
-                    selectedIndex = fileListRef.current?.getIndexOfPath(selectedPath) ?? -1;
-                }
+                const scrollContainer = virtualizer.scrollElement;
+                const savedScrollTop = view === 'list' ? uiState.listScrollTop : uiState.filesScrollTop;
                 
-                if (selectedIndex !== -1) {
-                    // Re-measure to ensure accurate dimensions
-                    virtualizer.measure();
+                debugLog.info(`Restoring scroll position`, {
+                    view,
+                    savedScrollTop,
+                    containerHeight: scrollContainer.offsetHeight,
+                    scrollHeight: scrollContainer.scrollHeight
+                });
+                
+                // Restore saved scroll position
+                if (savedScrollTop > 0) {
+                    // Use requestAnimationFrame to ensure the scroll happens after layout
+                    requestAnimationFrame(() => {
+                        scrollContainer.scrollTop = savedScrollTop;
+                        debugLog.info(`Restored scroll position to ${savedScrollTop}`);
+                    });
+                } else if (isFirstActivation) {
+                    // First activation with no saved position - scroll to selected item
+                    let selectedIndex = -1;
                     
-                    // Log container dimensions for debugging
-                    const scrollContainer = virtualizer.scrollElement;
-                    if (scrollContainer) {
-                        debugLog.info(`Scroll container dimensions: offsetHeight=${scrollContainer.offsetHeight}, scrollHeight=${scrollContainer.scrollHeight}`);
+                    if (view === 'list' && selectionState.selectedFolder) {
+                        selectedIndex = leftPaneRef.current?.getIndexOfPath(selectionState.selectedFolder.path) ?? -1;
+                    } else if (view === 'files' && selectionState.selectedFile) {
+                        selectedIndex = fileListRef.current?.getIndexOfPath(selectionState.selectedFile.path) ?? -1;
                     }
                     
-                    // Use nested requestAnimationFrame to ensure layout is complete
-                    requestAnimationFrame(() => {
+                    if (selectedIndex !== -1) {
                         requestAnimationFrame(() => {
-                            debugLog.info(`Initial scroll to ${selectedPath} at index ${selectedIndex}`);
-                            virtualizer.scrollToIndex(selectedIndex, { 
-                                align: 'center', 
-                                behavior: 'auto' // Instant scroll for initial positioning
+                            requestAnimationFrame(() => {
+                                debugLog.info(`Initial scroll to selected item at index ${selectedIndex}`);
+                                virtualizer.scrollToIndex(selectedIndex, { 
+                                    align: 'center', 
+                                    behavior: 'auto'
+                                });
                             });
                         });
-                    });
+                    }
                 }
             };
             
             // Use setTimeout with requestAnimationFrame for more reliable timing
             setTimeout(() => {
-                requestAnimationFrame(performInitialScroll);
+                requestAnimationFrame(restoreScrollPosition);
             }, 100);
         }
     }), [
@@ -291,6 +291,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         updateSettings, 
         isMobile,
         uiState.currentMobileView,
+        uiState.listScrollTop,
+        uiState.filesScrollTop,
         selectionState.selectedFolder,
         selectionState.selectedFile,
         expansionState.expandedFolders,
@@ -401,10 +403,21 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             // If we're switching away from navigator and sidebar is not collapsed
             if (!isNavigatorView && leftSplit && !leftSplit.collapsed) {
                 hideCount++;
-                debugLog.info('NotebookNavigatorComponent: Navigator being hidden, calling collapse()', {
+                debugLog.info('NotebookNavigatorComponent: Navigator being hidden, saving scroll position', {
                     hideCount,
                     viewType: leaf.view?.getViewType()
                 });
+                
+                // Save scroll positions before hiding
+                if (uiState.currentMobileView === 'list' && leftPaneRef.current?.virtualizer?.scrollElement) {
+                    const scrollTop = leftPaneRef.current.virtualizer.scrollElement.scrollTop;
+                    uiDispatch({ type: 'SET_LIST_SCROLL_TOP', scrollTop });
+                    debugLog.info('Saved list scroll position', { scrollTop });
+                } else if (uiState.currentMobileView === 'files' && fileListRef.current?.virtualizer?.scrollElement) {
+                    const scrollTop = fileListRef.current.virtualizer.scrollElement.scrollTop;
+                    uiDispatch({ type: 'SET_FILES_SCROLL_TOP', scrollTop });
+                    debugLog.info('Saved files scroll position', { scrollTop });
+                }
                 
                 // Call collapse to ensure consistent state
                 leftSplit.collapse();
@@ -417,7 +430,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         return () => {
             app.workspace.offref(leafChangeRef);
         };
-    }, [app.workspace, isMobile]);
+    }, [app.workspace, isMobile, uiState.currentMobileView, uiDispatch]);
     
     
     // Handle delete events to clean up stale state
