@@ -31,6 +31,13 @@ import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 import { strings } from '../i18n';
 
 /**
+ * State interface for view persistence
+ */
+interface NotebookNavigatorViewState {
+    activeFilePath?: string;
+}
+
+/**
  * Custom Obsidian view that hosts the React-based Notebook Navigator interface
  * Manages the lifecycle of the React application and provides integration between
  * Obsidian's view system and the React component tree
@@ -148,5 +155,39 @@ export class NotebookNavigatorView extends ItemView {
      */
     public handleViewBecomeActive() {
         this.componentRef.current?.handleBecomeActive();
+    }
+
+    /**
+     * Gets the current view state for persistence
+     * Called by Obsidian when saving the workspace layout (e.g. when swiping away on mobile)
+     * Saves the currently active file path so it can be restored later
+     */
+    getState(): Record<string, unknown> {
+        const activeFile = this.app.workspace.getActiveFile();
+        return {
+            activeFilePath: activeFile?.path
+        };
+    }
+    
+    /**
+     * Restores the view state from persistence
+     * Called by Obsidian when deserializing the workspace layout (e.g. when swiping back on mobile)
+     * Triggers a file-open event to simulate the same behavior as when changing files in the editor,
+     * which causes the virtualizers to update and reveal the file properly
+     * 
+     * NOTE: We cannot make this work directly with our virtualizers on mobile due to technical limitations.
+     * However, changing files in Obsidian editor on mobile does trigger a file reveal that makes our plugin
+     * show proper state when revealed. 
+     */
+    async setState(state: NotebookNavigatorViewState, result: any): Promise<void> {
+        if (state.activeFilePath) {
+            const file = this.app.vault.getAbstractFileByPath(state.activeFilePath);
+            if (file instanceof TFile) {
+                // Trigger file-open event instead of direct reveal
+                // This mimics what happens when user changes files in editor
+                // and ensures virtualizers are ready before reveal happens
+                this.app.workspace.trigger('file-open', file);
+            }
+        }
     }
 }
