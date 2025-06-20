@@ -329,8 +329,23 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     
     // Handle folder click
     const handleFolderClick = useCallback((folder: TFolder) => {
-        // Check if we should open a folder note instead (desktop only)
-        if (settings.enableFolderNotes && !isMobile) {
+        // Normal folder selection behavior
+        selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
+        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+        
+        // Switch to files view on mobile
+        if (isMobile) {
+            uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
+            // The scroll trigger in FileList.tsx will handle scrolling to the
+            // correct file (which will be the first file on a new folder selection).
+            // No explicit scroll dispatch is needed here anymore.
+        }
+    }, [selectionDispatch, uiDispatch, isMobile]);
+    
+    // Handle folder name click (for folder notes)
+    const handleFolderNameClick = useCallback((folder: TFolder) => {
+        // Check if we should open a folder note instead
+        if (settings.enableFolderNotes) {
             const folderNote = getFolderNote(folder, settings, app);
             
             if (folderNote) {
@@ -352,18 +367,9 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             }
         }
         
-        // Normal folder selection behavior (also used on mobile for folders with folder notes)
-        selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
-        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
-        
-        // Switch to files view on mobile
-        if (isMobile) {
-            uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
-            // The scroll trigger in FileList.tsx will handle scrolling to the
-            // correct file (which will be the first file on a new folder selection).
-            // No explicit scroll dispatch is needed here anymore.
-        }
-    }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView, uiState.focusedPane, settings, app]);
+        // If no folder note, fall back to normal folder click behavior
+        handleFolderClick(folder);
+    }, [settings, app, selectionDispatch, handleFolderClick]);
     
     // Handle tag toggle
     const handleTagToggle = useCallback((path: string) => {
@@ -404,6 +410,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                             selectionState.selectedFolder?.path === item.data.path}
                         onToggle={() => handleFolderToggle(item.data.path)}
                         onClick={() => handleFolderClick(item.data)}
+                        onNameClick={() => handleFolderNameClick(item.data)}
                         icon={settings.folderIcons?.[item.data.path]}
                     />
                 );
@@ -439,7 +446,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             default:
                 return null;
         }
-    }, [expansionState.expandedFolders, expansionState.expandedTags, selectionState.selectionType, selectionState.selectedFolder?.path, selectionState.selectedTag, handleFolderToggle, handleFolderClick, handleTagToggle, handleTagClick, untaggedCount, settings, spacerHeight, settings.folderIcons]);
+    }, [expansionState.expandedFolders, expansionState.expandedTags, selectionState.selectionType, selectionState.selectedFolder?.path, selectionState.selectedTag, handleFolderToggle, handleFolderClick, handleFolderNameClick, handleTagToggle, handleTagClick, untaggedCount, settings, spacerHeight, settings.folderIcons]);
     
     return (
         <ErrorBoundary componentName="LeftPaneVirtualized">

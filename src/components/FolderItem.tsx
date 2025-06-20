@@ -34,6 +34,7 @@ interface FolderItemProps {
     isSelected: boolean;
     onToggle: () => void;
     onClick: () => void;
+    onNameClick?: () => void;
     icon?: string;
 }
 
@@ -51,7 +52,7 @@ interface FolderItemProps {
  * @param props.onClick - Handler called when the folder is clicked
  * @returns A folder item element with chevron, icon, name and optional file count
  */
-export const FolderItem = React.memo(function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick, icon }: FolderItemProps) {
+export const FolderItem = React.memo(function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick, onNameClick, icon }: FolderItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
     const folderRef = useRef<HTMLDivElement>(null);
@@ -162,6 +163,12 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
                 <span 
                     className={`nn-folder-name ${hasFolderNote ? 'nn-has-folder-note' : ''}`}
                     style={customColor ? { color: customColor, fontWeight: 600 } : undefined}
+                    onClick={(e) => {
+                        if (onNameClick) {
+                            e.stopPropagation();
+                            onNameClick();
+                        }
+                    }}
                 >{folder.path === '/' || folder.path === '' ? strings.folderTree.rootFolderName : folder.name}</span>
                 <span className="nn-folder-spacer" />
                 {settings.showFolderFileCount && fileCount > 0 && (

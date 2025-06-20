@@ -37,7 +37,6 @@ export const STRINGS_DE = {
         emptyStateNoSelection: 'Wählen Sie einen Ordner oder Tag aus, um Notizen anzuzeigen', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'Keine Notizen', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 Angeheftet', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
-        folderNoteSection: 'Ordnernotiz', // Header for the folder note section at the top of file list (English: Folder note)
     },
 
     // Folder tree

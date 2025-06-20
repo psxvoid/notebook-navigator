@@ -37,7 +37,6 @@ export const STRINGS_ES = {
         emptyStateNoSelection: 'Selecciona una carpeta o etiqueta para ver las notas', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'Sin notas', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 Fijadas', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
-        folderNoteSection: 'Nota de carpeta', // Header for the folder note section at the top of file list (English: Folder note)
     },
 
     // Folder tree

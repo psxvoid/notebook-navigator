@@ -37,7 +37,6 @@ export const STRINGS_JA = {
         emptyStateNoSelection: 'フォルダまたはタグを選択してノートを表示', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'ノートなし', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 ピン留め', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
-        folderNoteSection: 'フォルダノート', // Header for the folder note section at the top of file list (English: Folder note)
     },
 
     // Folder tree

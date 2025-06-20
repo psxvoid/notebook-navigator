@@ -37,7 +37,6 @@ export const STRINGS_ZH = {
         emptyStateNoSelection: '选择文件夹或标签以查看笔记', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: '无笔记', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 已固定', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
-        folderNoteSection: '文件夹笔记', // Header for the folder note section at the top of file list (English: Folder note)
     },
 
     // Folder tree

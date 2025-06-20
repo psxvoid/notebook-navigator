@@ -37,7 +37,6 @@ export const STRINGS_SV = {
         emptyStateNoSelection: 'Välj en mapp eller tagg för att visa anteckningar', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'Inga anteckningar', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 Fastnålat', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
-        folderNoteSection: 'Mappanteckning', // Header for the folder note section at the top of file list (English: Folder note)
     },
 
     // Folder tree
