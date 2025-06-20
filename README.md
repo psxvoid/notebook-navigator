@@ -39,6 +39,7 @@ If you love using Notebook Navigator, please consider supporting its continued d
 - **📅 Date grouping** - Organize by Today, Yesterday, This Week
 - **🔄 Custom sorting** - Per-folder sort preferences
 - **📄 Folder notes** - Click folders to open associated notes
+- **📝 Frontmatter support** - Read note names and timestamps from frontmatter
 
 ### Productivity
 - **🎯 Drag & drop** - Move files between folders (desktop)
@@ -114,47 +115,41 @@ Until the plugin is approved in the Community Plugins directory, you can install
 
 ### File Organization
 
-- **Default sort order:** Choose the default sorting for all folders - modified date (newest/oldest), created date (newest/oldest), or title (A-Z/Z-A). This can be overridden on a per-folder basis using the sort button above the file list
-  - **Group notes by date:** When sorted by date, group notes under date headers like "Today", "Yesterday", etc.
+- **Sort notes by:** Choose how notes are sorted in the note list - Date edited (newest/oldest first), Date created (newest/oldest first), or Title (A/Z first)
+  - **Group notes by date:** When sorted by date, group notes under date headers
 - **Show notes from subfolders:** Display all notes from subfolders in the current folder view
-  - **Show parent folder names:** When showing notes from subfolders, display the parent folder name for each note
+  - **Show parent folder names:** Display the parent folder name for notes from subfolders
 - **Auto-reveal active note:** Automatically reveal and select notes when opened from Quick Switcher, links, or search
 - **Auto-select first file on folder change:** Automatically select and open the first file when switching folders
-- **Excluded notes:** Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., `draft, private, archived`)
-- **Excluded folders:** Comma-separated list of folders to hide with wildcard support:
-  - Simple names: `resources, templates`
-  - Wildcards: `*-archive, temp-*, _*` (matches folders like `2023-archive`, `temp-notes`, `_private`)
+- **Excluded notes:** Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived)
+- **Excluded folders:** Comma-separated list of folders to hide. Supports wildcards: assets* (starts with), *_temp (ends with)
 
 ### Note Display
 
-- **Title rows:** Display note titles in 1 or 2 rows (default: 1 row). Use 2 rows for longer titles
+- **Read metadata from frontmatter:** Read note names and timestamps from frontmatter when available, falling back to file system values
+  - **Name field:** Frontmatter field to use as the note display name. Leave empty to use the file name
+  - **Created timestamp field:** Frontmatter field name for the created timestamp. Leave empty to only use file system date
+  - **Modified timestamp field:** Frontmatter field name for the modified timestamp. Leave empty to only use file system date
+  - **Timestamp format:** Format used to parse timestamps in frontmatter
+- **Title rows:** Number of rows to display for note titles
 - **Show date:** Display the date below note names
   - **Date format:** Format for displaying dates (uses date-fns format)
-    - Common formats:
-      - `MMM d, yyyy` = Jan 5, 2024
-      - `dd/MM/yyyy` = 05/01/2024
-      - `yyyy-MM-dd` = 2024-01-05
-  - **Time format:** Format for displaying time (uses date-fns format)
-    - Common formats:
-      - `h:mm a` = 3:30 PM (12-hour)
-      - `HH:mm` = 15:30 (24-hour)
+  - **Time format:** Format for displaying times in Today and Yesterday groups (uses date-fns format)
 - **Show note preview:** Display preview text beneath note names
   - **Skip headings in preview:** Skip heading lines when generating preview text
   - **Skip non-text in preview:** Skip images, embeds, and other non-text elements from preview text
-  - **Preview rows:** Number of rows to display for preview text (1-5 rows)
-- **Show feature image:** Display thumbnail images from frontmatter properties
-  - **Feature image property:** The frontmatter property name for thumbnails (default: `feature`)
-    - **Tip:** Use the [Featured Image plugin](https://github.com/johansan/obsidian-featured-image) (also available in community plugins) to automatically set feature images for all your notes based on the first image in each document!
-    - **Important!** In Featured Image plugin you can choose to create resized thumbnails, this will significantly improve performance! Use 42 pixels for maximum performance, or 84 pixels for retina displays. The resized property is called `featureResized` by default.
+  - **Preview rows:** Number of rows to display for preview text
+- **Show feature image:** Display thumbnail images from frontmatter. Tip: Use the "Featured Image" plugin to automatically set feature images for all your documents
+  - **Feature image property:** The frontmatter property name for thumbnail images. Important! In Featured Image plugin you can choose to create resized thumbnails, this will significantly improve performance! Use 42 pixels for maximum performance, or 84 pixels for retina displays. The resized property is called "featureResized" by default
 
 ### Folder Display
 
 - **Show root folder:** Display "Vault" as the root folder in the tree
 - **Show folder note count:** Display the number of notes in each folder
-- **Show folder icons:** Display folder icons in the folder tree
-- **Enable folder notes:** Allow folders to have associated notes that open when clicking the folder
-  - **Folder note name:** Name for folder notes (default: `index`). Leave empty to use the folder name
-  - **Hide folder notes in file list:** Hide folder notes from the file list when displaying folder contents
+- **Show folder icons:** Display icons next to folder names in the tree
+- **Enable folder notes:** Click on folders to open their notes instead of showing file list
+  - **Folder note name:** Name of the folder note file without extension. Leave empty to use the same name as the folder
+  - **Hide folder notes in file list:** Hide the folder note from appearing in the folder's file list
 
 ### Tag Display
 
@@ -164,7 +159,6 @@ Until the plugin is approved in the Community Plugins directory, you can install
 ### Advanced
 
 - **Confirm before deleting notes:** Show confirmation dialog when deleting notes or folders
-- **Try to read timestamps from frontmatter:** Use created/modified frontmatter properties for date display and sorting when available
 
 ## Tips and Tricks
 
