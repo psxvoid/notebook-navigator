@@ -329,8 +329,8 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     
     // Handle folder click
     const handleFolderClick = useCallback((folder: TFolder) => {
-        // Check if we should open a folder note instead
-        if (settings.enableFolderNotes) {
+        // Check if we should open a folder note instead (desktop only)
+        if (settings.enableFolderNotes && !isMobile) {
             const folderNote = getFolderNote(folder, settings, app);
             
             if (folderNote) {
@@ -352,7 +352,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             }
         }
         
-        // Normal folder selection behavior
+        // Normal folder selection behavior (also used on mobile for folders with folder notes)
         selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         

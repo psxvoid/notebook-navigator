@@ -37,6 +37,7 @@ export const STRINGS_FR = {
         emptyStateNoSelection: 'Sélectionnez un dossier ou une étiquette pour afficher les notes', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'Aucune note', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 Épinglées', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        folderNoteSection: 'Note de dossier', // Header for the folder note section at the top of file list (English: Folder note)
     },
 
     // Folder tree

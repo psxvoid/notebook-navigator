@@ -28,7 +28,7 @@ import { DateUtils } from '../utils/DateUtils';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 import { getFileFromElement } from '../utils/domUtils';
 import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
-import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
+import { getFilesForFolder, getFilesForTag, collectPinnedPaths, getFolderNote } from '../utils/fileFinder';
 import { strings } from '../i18n';
 import type { FileListItem } from '../types/virtualization';
 import { PaneHeader } from './PaneHeader';
@@ -177,6 +177,12 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         const rebuildListItems = () => {
             const items: FileListItem[] = [];
             
+            // Check for folder note (mobile only, when viewing a folder)
+            let folderNote: TFile | null = null;
+            if (isMobile && selectionType === 'folder' && selectedFolder && settings.enableFolderNotes) {
+                folderNote = getFolderNote(selectedFolder, settings, app);
+            }
+            
             // Get the appropriate pinned paths based on selection type
             let pinnedPaths: Set<string>;
             
@@ -192,9 +198,30 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 pinnedPaths = new Set<string>();
             }
             
+            // Filter out folder note from regular files if it exists (to avoid duplication)
+            let filteredFiles = files;
+            if (folderNote) {
+                filteredFiles = files.filter(f => f.path !== folderNote!.path);
+            }
+            
             // Separate pinned and unpinned files
-            const pinnedFiles = files.filter(f => pinnedPaths.has(f.path));
-            const unpinnedFiles = files.filter(f => !pinnedPaths.has(f.path));
+            const pinnedFiles = filteredFiles.filter(f => pinnedPaths.has(f.path));
+            const unpinnedFiles = filteredFiles.filter(f => !pinnedPaths.has(f.path));
+            
+            // Add folder note section first (mobile only)
+            if (folderNote) {
+                items.push({ 
+                    type: 'header', 
+                    data: strings.fileList.folderNoteSection,
+                    key: `header-folder-note-${selectedFolder?.path || 'root'}`
+                });
+                items.push({ 
+                    type: 'file', 
+                    data: folderNote,
+                    parentFolder: selectedFolder?.path,
+                    key: folderNote.path
+                });
+            }
             
             // Add pinned files
             if (pinnedFiles.length > 0) {
@@ -277,10 +304,14 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         settings.folderSortOverrides,
         settings.pinnedNotes,
         settings.showNotesFromSubfolders,
+        settings.enableFolderNotes,
         selectionType,
         selectedFolder,
         selectedTag,
-        strings.fileList.pinnedSection
+        strings.fileList.pinnedSection,
+        strings.fileList.folderNoteSection,
+        isMobile,
+        app
     ]);
     
     // Add ref for scroll container

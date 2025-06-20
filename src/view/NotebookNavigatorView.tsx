@@ -162,12 +162,12 @@ export class NotebookNavigatorView extends ItemView {
      * Called by Obsidian when saving the workspace layout (e.g. when swiping away on mobile)
      * Saves the currently active file path so it can be restored later
      */
-    getState(): Record<string, unknown> {
-        const activeFile = this.app.workspace.getActiveFile();
-        return {
-            activeFilePath: activeFile?.path
-        };
-    }
+    // getState(): Record<string, unknown> {
+    //     const activeFile = this.app.workspace.getActiveFile();
+    //     return {
+    //         activeFilePath: activeFile?.path
+    //     };
+    // }
     
     /**
      * Restores the view state from persistence
@@ -179,15 +179,15 @@ export class NotebookNavigatorView extends ItemView {
      * However, changing files in Obsidian editor on mobile does trigger a file reveal that makes our plugin
      * show proper state when revealed. 
      */
-    async setState(state: NotebookNavigatorViewState, result: any): Promise<void> {
-        if (state.activeFilePath) {
-            const file = this.app.vault.getAbstractFileByPath(state.activeFilePath);
-            if (file instanceof TFile) {
-                // Trigger file-open event instead of direct reveal
-                // This mimics what happens when user changes files in editor
-                // and ensures virtualizers are ready before reveal happens
-                this.app.workspace.trigger('file-open', file);
-            }
-        }
-    }
+    // async setState(state: NotebookNavigatorViewState, result: any): Promise<void> {
+    //     if (state.activeFilePath) {
+    //         const file = this.app.vault.getAbstractFileByPath(state.activeFilePath);
+    //         if (file instanceof TFile) {
+    //             // Trigger file-open event instead of direct reveal
+    //             // This mimics what happens when user changes files in editor
+    //             // and ensures virtualizers are ready before reveal happens
+    //             this.app.workspace.trigger('file-open', file);
+    //         }
+    //     }
+    // }
 }
