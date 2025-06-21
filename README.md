@@ -120,6 +120,7 @@ Until the plugin is approved in the Community Plugins directory, you can install
 - **Show notes from subfolders:** Display all notes from subfolders in the current folder view
   - **Show parent folder names:** Display the parent folder name for notes from subfolders
 - **Auto-reveal active note:** Automatically reveal and select notes when opened from Quick Switcher, links, or search
+  - **Note:** When "Show notes from subfolders" is enabled, auto-reveal will keep you in the parent folder if the note is visible there. To reveal a note in its actual folder, use the command "Notebook Navigator: Reveal active file" instead
 - **Auto-select first file on folder change:** Automatically select and open the first file when switching folders
 - **Excluded notes:** Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived)
 - **Excluded folders:** Comma-separated list of folders to hide. Supports wildcards: assets* (starts with), *_temp (ends with)
