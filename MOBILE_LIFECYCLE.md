@@ -70,31 +70,19 @@ The auto-reveal logic has a fundamental issue on mobile:
 - This causes the virtualizers to not update properly
 - The navigator shows the wrong scroll position
 
-## Implemented Solutions
+## Attempted Solutions
 
-### 1. Delayed File Open on Mobile Clicks
+### 1. Delayed File Open on Mobile Clicks (REMOVED)
 
-When a user clicks a file in the navigator on mobile, we:
+We attempted to implement a "magic pattern" where clicking a file would:
 1. Collapse the sidebar first (to ensure navigator loses focus)
 2. Wait 100ms for the focus change to complete
 3. Then open the file
 
-This ensures the file-open event happens while the navigator is not active, triggering the "magic pattern":
-
-```typescript
-if (isMobile && app.workspace.leftSplit) {
-    // Collapse sidebar first
-    app.workspace.leftSplit.collapse();
-    
-    // Then open file after a delay to ensure navigator has lost focus
-    setTimeout(() => {
-        const leaf = openInNewTab ? app.workspace.getLeaf('tab') : app.workspace.getLeaf(false);
-        if (leaf) {
-            leaf.openFile(file, { active: true });
-        }
-    }, 100); // Increased delay to ensure focus change
-}
-```
+The theory was that the file-open event happening while the navigator is not active would trigger proper auto-reveal. However, this approach:
+- Only worked when debug logging was enabled (likely due to timing changes from logging operations)
+- Did not work reliably in production without logging
+- Was removed as it provided no benefit and added unnecessary complexity
 
 
 
@@ -196,10 +184,10 @@ These competing updates create race conditions that are impossible to resolve re
 
 Throughout development, we tried numerous approaches to solve this problem:
 
-1. **Delayed File Open on Click (PARTIALLY WORKING)**
-   - Collapse sidebar first, then open file after 100ms delay
-   - Works reliably for revealing the correct file when clicking
-   - Does NOT preserve scroll position when swiping back
+1. **Delayed File Open on Click (REMOVED)**
+   - Attempted to collapse sidebar first, then open file after 100ms delay
+   - Only worked when debug logging was enabled
+   - Removed as it provided no benefit without logging
 
 2. **Force Reveal on Navigator Activation**
    - Attempted to track when navigator becomes active with `navigatorWasActiveRef`
@@ -216,8 +204,8 @@ Throughout development, we tried numerous approaches to solve this problem:
 ## Current Status
 
 The plugin currently implements:
-- ✅ Delayed file open on mobile clicks (100ms) - ensures correct file is shown
-- ✅ Mobile scroll momentum preservation - smooth scrolling experience
+- ✅ Mobile scroll momentum preservation - smooth scrolling experience during active scrolling
+- ✅ Auto-reveal functionality - the correct file is shown when returning from editor
 - ❌ Scroll position preservation when swiping between views - fundamentally unsolvable
 
 The user experience is that the navigator always shows the correct file when returning from the editor, but the scroll position resets to show that file at the top or center of the view.

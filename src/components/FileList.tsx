@@ -77,32 +77,20 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         // Check if CMD (Mac) or Ctrl (Windows/Linux) is pressed
         const openInNewTab = e.metaKey || e.ctrlKey;
         
+        // Open file in new tab or current tab based on modifier key
+        const leaf = openInNewTab ? app.workspace.getLeaf('tab') : app.workspace.getLeaf(false);
+        if (leaf) {
+            leaf.openFile(file, { active: false });
+        }
+        
+        // Collapse left sidebar on mobile after opening file
         if (isMobile && app.workspace.leftSplit) {
-            // Mobile: Simulate the "magic pattern" by collapsing sidebar first,
-            // then opening file after a delay. This ensures the navigator loses focus
-            // before file-open event, triggering auto-reveal while inactive.
-            
             // Scroll to top before collapsing to prevent virtualization issues
             if (scrollContainerRef.current) {
                 scrollContainerRef.current.scrollTop = 0;
             }
             
-            // Collapse sidebar first
             app.workspace.leftSplit.collapse();
-            
-            // Then open file after a small delay to ensure navigator has lost focus
-            setTimeout(() => {
-                const leaf = openInNewTab ? app.workspace.getLeaf('tab') : app.workspace.getLeaf(false);
-                if (leaf) {
-                    leaf.openFile(file, { active: true });
-                }
-            }, 100); // Increased delay to ensure focus change
-        } else {
-            // Desktop: Keep immediate behavior
-            const leaf = openInNewTab ? app.workspace.getLeaf('tab') : app.workspace.getLeaf(false);
-            if (leaf) {
-                leaf.openFile(file, { active: false });
-            }
         }
     }, [app.workspace, selectionDispatch, uiDispatch, isMobile]);
     
