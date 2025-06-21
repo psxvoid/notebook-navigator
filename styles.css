@@ -136,6 +136,21 @@
     padding: 0 var(--size-4-1);
 }
 
+/* iPad-specific adjustment for icon buttons in headers */
+@media (min-width: 768px) {
+    .notebook-navigator-mobile .nn-header-actions button.nn-icon-button {
+        /* Use clamp to scale padding appropriately for tablets */
+        padding: 0 clamp(4px, 1vw, 8px);
+    }
+    
+    /* Ensure icon doesn't add extra space */
+    .notebook-navigator-mobile .nn-header-actions button.nn-icon-button > span {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
 /* Ensure button element itself has no default styles */
 button.nn-icon-button {
     background: transparent !important;
