@@ -87,6 +87,7 @@ export class NotebookNavigatorView extends ItemView {
      * Sets up the component hierarchy with necessary context providers
      */
     async onOpen() {
+        
         const container = this.containerEl.children[1];
         container.empty(); // Clear previous content
         container.classList.add('notebook-navigator');
@@ -96,7 +97,7 @@ export class NotebookNavigatorView extends ItemView {
         if (isMobile) {
             container.classList.add('notebook-navigator-mobile');
         }
-
+        
         this.root = createRoot(container);
         this.root.render(
             <React.StrictMode>
@@ -159,35 +160,38 @@ export class NotebookNavigatorView extends ItemView {
 
     /**
      * Gets the current view state for persistence
-     * Called by Obsidian when saving the workspace layout (e.g. when swiping away on mobile)
-     * Saves the currently active file path so it can be restored later
+     * 
+     * This is called when swiping away on mobile or saving workspace on desktop.
+     * Despite being called, it's effectively useless on mobile because setState 
+     * is NEVER called when returning to the view.
+     * 
+     * Mobile lifecycle when swiping away:
+     * 1. active-leaf-change event fires (leaf: "markdown")
+     * 2. getState called on navigator view
+     * 3. Navigator focus changes from true to false
+     * 4. View becomes inactive
      */
-    // getState(): Record<string, unknown> {
-    //     const activeFile = this.app.workspace.getActiveFile();
-    //     return {
-    //         activeFilePath: activeFile?.path
-    //     };
-    // }
+    getState(): Record<string, unknown> {
+        // Return empty state as setState is never called on mobile anyway
+        return {};
+    }
     
     /**
      * Restores the view state from persistence
-     * Called by Obsidian when deserializing the workspace layout (e.g. when swiping back on mobile)
-     * Triggers a file-open event to simulate the same behavior as when changing files in the editor,
-     * which causes the virtualizers to update and reveal the file properly
      * 
-     * NOTE: We cannot make this work directly with our virtualizers on mobile due to technical limitations.
-     * However, changing files in Obsidian editor on mobile does trigger a file reveal that makes our plugin
-     * show proper state when revealed. 
+     * This is NEVER called on mobile when returning to the view.
+     * This is a critical limitation that prevents any state restoration.
+     * 
+     * Mobile lifecycle when returning to navigator from editor:
+     * 1. Navigator view became active
+     * 2. handleViewBecomeActive called
+     * 3. getState called (multiple times)
+     * 4. active-leaf-change event fires (leaf: "notebook-navigator-react-view")
+     * 5. Auto-reveal logic triggers
+     * 
+     * Notice setState is NOT in this list - it's simply never called on mobile.
      */
-    // async setState(state: NotebookNavigatorViewState, result: any): Promise<void> {
-    //     if (state.activeFilePath) {
-    //         const file = this.app.vault.getAbstractFileByPath(state.activeFilePath);
-    //         if (file instanceof TFile) {
-    //             // Trigger file-open event instead of direct reveal
-    //             // This mimics what happens when user changes files in editor
-    //             // and ensures virtualizers are ready before reveal happens
-    //             this.app.workspace.trigger('file-open', file);
-    //         }
-    //     }
-    // }
+    async setState(state: NotebookNavigatorViewState, result: any): Promise<void> {
+        // No implementation as this is never called on mobile where we need it most
+    }
 }

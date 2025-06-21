@@ -110,13 +110,16 @@ export function ExpansionProvider({ children }: ExpansionProviderProps) {
         const expandedFoldersData = localStorage.getItem(STORAGE_KEYS.EXPANDED_FOLDERS);
         const expandedTagsData = localStorage.getItem(STORAGE_KEYS.EXPANDED_TAGS);
         
-        return {
-            expandedFolders: new Set(expandedFoldersData ? JSON.parse(expandedFoldersData) : []),
-            expandedTags: new Set(expandedTagsData ? JSON.parse(expandedTagsData) : [])
+        const initialState = {
+            expandedFolders: new Set<string>(expandedFoldersData ? JSON.parse(expandedFoldersData) : []),
+            expandedTags: new Set<string>(expandedTagsData ? JSON.parse(expandedTagsData) : [])
         };
+        
+        return initialState;
     };
     
     const [state, dispatch] = useReducer(expansionReducer, undefined, loadInitialState);
+    
     
     // Persist to localStorage
     useEffect(() => {
