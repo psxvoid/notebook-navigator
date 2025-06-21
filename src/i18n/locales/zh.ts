@@ -159,6 +159,7 @@ export const STRINGS_ZH = {
             openVersionHistory: '打开版本历史失败：{error}',
             versionHistoryNotFound: '未找到版本历史命令。请确保已启用 Obsidian 同步。',
             revealInExplorer: '在系统资源管理器中显示文件失败：{error}',
+            folderNoteAlreadyExists: '文件夹笔记已存在',
         },
         defaultNames: {
             untitled: '无标题',
@@ -340,7 +341,7 @@ export const STRINGS_ZH = {
             },
             enableFolderNotes: {
                 name: '启用文件夹笔记',
-                desc: '点击文件夹打开其笔记，而不是显示文件列表。',
+                desc: '启用后，具有关联笔记的文件夹将显示为可点击的链接。',
             },
             folderNoteName: {
                 name: '文件夹笔记名称',

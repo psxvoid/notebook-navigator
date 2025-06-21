@@ -159,6 +159,7 @@ export const STRINGS_JA = {
             openVersionHistory: 'バージョン履歴を開くのに失敗しました：{error}',
             versionHistoryNotFound: 'バージョン履歴コマンドが見つかりません。Obsidian Syncが有効になっていることを確認してください。',
             revealInExplorer: 'システムエクスプローラーでファイルを表示できませんでした：{error}',
+            folderNoteAlreadyExists: 'フォルダノートはすでに存在します',
         },
         defaultNames: {
             untitled: '無題',
@@ -340,7 +341,7 @@ export const STRINGS_JA = {
             },
             enableFolderNotes: {
                 name: 'フォルダノートを有効化',
-                desc: 'フォルダをクリックしてファイルリストの代わりにノートを開きます。',
+                desc: '有効にすると、関連するノートを持つフォルダがクリック可能なリンクとして表示されます。',
             },
             folderNoteName: {
                 name: 'フォルダノート名',

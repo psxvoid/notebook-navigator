@@ -38,7 +38,7 @@ If you love using Notebook Navigator, please consider supporting its continued d
 - **🖼️ Feature images** - Display thumbnail images from note frontmatter
 - **📅 Date grouping** - Organize by Today, Yesterday, This Week
 - **🔄 Custom sorting** - Per-folder sort preferences
-- **📄 Folder notes** - Click folders to open associated notes
+- **📄 Folder notes** - Folders with notes are displayed as clickable links
 - **📝 Frontmatter support** - Read note names and timestamps from frontmatter
 
 ### Productivity
@@ -147,7 +147,7 @@ Until the plugin is approved in the Community Plugins directory, you can install
 - **Show root folder:** Display "Vault" as the root folder in the tree
 - **Show folder note count:** Display the number of notes in each folder
 - **Show folder icons:** Display icons next to folder names in the tree
-- **Enable folder notes:** Click on folders to open their notes instead of showing file list
+- **Enable folder notes:** When enabled, folders with associated notes are displayed as clickable links
   - **Folder note name:** Name of the folder note file without extension. Leave empty to use the same name as the folder
   - **Hide folder notes in file list:** Hide the folder note from appearing in the folder's file list
 
@@ -187,12 +187,14 @@ This creates optimized 42px thumbnails that load quickly and display perfectly i
 
 ### Using folder notes
 
-Turn any folder into a clickable note for better organization:
+Turn folders into clickable links for better organization:
 
-1. Enable "Folder notes" in settings
-2. Right-click a folder and select "Create folder note"
-3. Now clicking the folder opens its note instead of just selecting it
-4. Folders with notes are visually distinguished with an underline
+1. Enable "Enable folder notes" in settings
+2. Right-click a folder and select "Create folder note" to create an associated note
+3. Folders with notes appear as clickable links (visually distinguished with an underline)
+4. Click the folder name to open its note directly
+5. Click anywhere else on the folder row to view the folder's file list as usual
+6. Right-click and select "Delete folder note" to remove the association
 
 Folder notes are perfect for:
 - Project overviews and documentation
@@ -204,6 +206,7 @@ Folder notes are perfect for:
 - Set a custom folder note name like "index" or "readme" in settings
 - Hide folder notes from file lists to keep things clean
 - When you rename a folder, its folder note is automatically renamed too (if using folder name)
+- Folders without notes still work normally - click to select and view their files
 
 ### Organizing with pins
 

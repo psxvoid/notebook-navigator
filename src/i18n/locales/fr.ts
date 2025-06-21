@@ -159,6 +159,7 @@ export const STRINGS_FR = {
             openVersionHistory: 'Échec de l\'ouverture de l\'historique des versions : {error}',
             versionHistoryNotFound: 'Commande d\'historique des versions introuvable. Assurez-vous qu\'Obsidian Sync est activé.',
             revealInExplorer: 'Échec de l\'affichage du fichier dans l\'explorateur système : {error}',
+            folderNoteAlreadyExists: 'La note de dossier existe déjà',
         },
         defaultNames: {
             untitled: 'Sans titre',
@@ -340,7 +341,7 @@ export const STRINGS_FR = {
             },
             enableFolderNotes: {
                 name: 'Activer les notes de dossier',
-                desc: 'Cliquer sur les dossiers pour ouvrir leurs notes au lieu d\'afficher la liste des fichiers.',
+                desc: 'Lorsqu\'activé, les dossiers avec des notes associées sont affichés comme des liens cliquables.',
             },
             folderNoteName: {
                 name: 'Nom de la note de dossier',

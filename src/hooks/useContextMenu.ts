@@ -215,7 +215,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                                 // Check if file already exists
                                 const existingFile = app.vault.getAbstractFileByPath(notePath);
                                 if (existingFile) {
-                                    new Notice('Folder note already exists');
+                                    new Notice(strings.fileSystem.errors.folderNoteAlreadyExists);
                                     return;
                                 }
                                 

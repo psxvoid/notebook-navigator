@@ -159,6 +159,7 @@ export const STRINGS_SV = {
             openVersionHistory: 'Kunde inte öppna versionshistorik: {error}',
             versionHistoryNotFound: 'Versionshistorik-kommando hittades inte. Se till att Obsidian Sync är aktiverat.',
             revealInExplorer: 'Kunde inte visa fil i filutforskaren: {error}',
+            folderNoteAlreadyExists: 'Mappanteckning finns redan',
         },
         defaultNames: {
             untitled: 'Namnlös',
@@ -340,7 +341,7 @@ export const STRINGS_SV = {
             },
             enableFolderNotes: {
                 name: 'Aktivera mappanteckningar',
-                desc: 'Klicka på mappar för att öppna deras anteckningar istället för att visa fillistan.',
+                desc: 'När aktiverat visas mappar med tillhörande anteckningar som klickbara länkar.',
             },
             folderNoteName: {
                 name: 'Mappanteckningsnamn',

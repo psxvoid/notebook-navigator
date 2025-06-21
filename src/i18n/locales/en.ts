@@ -159,6 +159,7 @@ export const STRINGS_EN = {
             openVersionHistory: 'Failed to open version history: {error}',
             versionHistoryNotFound: 'Version history command not found. Ensure Obsidian Sync is enabled.',
             revealInExplorer: 'Failed to reveal file in system explorer: {error}',
+            folderNoteAlreadyExists: 'Folder note already exists',
         },
         defaultNames: {
             untitled: 'Untitled',
@@ -340,7 +341,7 @@ export const STRINGS_EN = {
             },
             enableFolderNotes: {
                 name: 'Enable folder notes',
-                desc: 'Click on folders to open their notes instead of showing file list.',
+                desc: 'When enabled, folders with associated notes are displayed as clickable links.',
             },
             folderNoteName: {
                 name: 'Folder note name',

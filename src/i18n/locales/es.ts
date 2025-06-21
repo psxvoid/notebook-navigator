@@ -159,6 +159,7 @@ export const STRINGS_ES = {
             openVersionHistory: 'Error al abrir el historial de versiones: {error}',
             versionHistoryNotFound: 'Comando de historial de versiones no encontrado. Asegúrate de que Obsidian Sync esté habilitado.',
             revealInExplorer: 'Error al mostrar el archivo en el explorador del sistema: {error}',
+            folderNoteAlreadyExists: 'La nota de carpeta ya existe',
         },
         defaultNames: {
             untitled: 'Sin título',
@@ -340,7 +341,7 @@ export const STRINGS_ES = {
             },
             enableFolderNotes: {
                 name: 'Habilitar notas de carpeta',
-                desc: 'Hacer clic en las carpetas para abrir sus notas en lugar de mostrar la lista de archivos.',
+                desc: 'Cuando está habilitado, las carpetas con notas asociadas se muestran como enlaces clicables.',
             },
             folderNoteName: {
                 name: 'Nombre de la nota de carpeta',

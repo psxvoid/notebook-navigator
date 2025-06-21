@@ -159,6 +159,7 @@ export const STRINGS_DE = {
             openVersionHistory: 'Versionsverlauf konnte nicht geöffnet werden: {error}',
             versionHistoryNotFound: 'Versionsverlauf-Befehl nicht gefunden. Stellen Sie sicher, dass Obsidian Sync aktiviert ist.',
             revealInExplorer: 'Datei konnte nicht im Explorer angezeigt werden: {error}',
+            folderNoteAlreadyExists: 'Ordnernotiz existiert bereits',
         },
         defaultNames: {
             untitled: 'Ohne Titel',
@@ -340,7 +341,7 @@ export const STRINGS_DE = {
             },
             enableFolderNotes: {
                 name: 'Ordnernotizen aktivieren',
-                desc: 'Klicken Sie auf Ordner, um deren Notizen zu öffnen, anstatt die Dateiliste anzuzeigen.',
+                desc: 'Wenn aktiviert, werden Ordner mit zugehörigen Notizen als anklickbare Links angezeigt.',
             },
             folderNoteName: {
                 name: 'Name der Ordnernotiz',
