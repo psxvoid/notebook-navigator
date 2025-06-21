@@ -60,13 +60,11 @@ export function useAutoReveal(
         if (!settings.autoRevealActiveFile) return;
 
         const handleFileChange = (file: TFile | null) => {
-            console.log('[useAutoReveal] handleFileChange called for:', file?.path);
             if (!file) return;
             
             // Simple rule: Don't reveal if navigator has focus
             const navigatorEl = document.querySelector('.nn-split-container');
             const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
-            console.log('[useAutoReveal] hasNavigatorFocus:', hasNavigatorFocus);
             
             // Check if this is a file we just created via the plugin
             const isNewlyCreatedFile = uiState.newlyCreatedPath && file.path === uiState.newlyCreatedPath;
@@ -75,11 +73,8 @@ export function useAutoReveal(
             const isRecentlyCreated = file.stat.ctime === file.stat.mtime &&
                                      (Date.now() - file.stat.ctime) < 200;
             
-            console.log('[useAutoReveal] isNewlyCreatedFile:', isNewlyCreatedFile, 'isRecentlyCreated:', isRecentlyCreated);
-            
             // Always reveal newly created files
             if (isNewlyCreatedFile || isRecentlyCreated) {
-                console.log('[useAutoReveal] Revealing newly created file');
                 setFileToReveal(file);
                 lastRevealedFileRef.current = file.path;
                 // Clear the newly created path after consuming it
@@ -91,30 +86,28 @@ export function useAutoReveal(
             
             // Don't reveal if navigator has focus (user is actively using it)
             if (hasNavigatorFocus) {
-                console.log('[useAutoReveal] Skipping reveal - navigator has focus');
                 return;
             }
             
             // Don't reveal if we're opening a folder note
             if ((window as any).notebookNavigatorOpeningFolderNote) {
-                console.log('[useAutoReveal] Skipping reveal - opening folder note');
                 return;
             }
             
+            
             // Don't reveal the same file twice in a row
             if (lastRevealedFileRef.current === file.path) {
-                console.log('[useAutoReveal] Skipping reveal - same file as last time');
                 return;
             }
             
             // Reveal the file
-            console.log('[useAutoReveal] Revealing file');
             setFileToReveal(file);
             lastRevealedFileRef.current = file.path;
         };
 
         const handleActiveLeafChange = (leaf: WorkspaceLeaf | null) => {
             if (!leaf) return;
+            
             
             // Only process leaves in the main editor area
             if (leaf.getRoot() !== app.workspace.rootSplit) {

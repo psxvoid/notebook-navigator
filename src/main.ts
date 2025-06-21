@@ -64,7 +64,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
     async onload() {
         const startTime = performance.now();
         
-        
         await this.loadSettings();
         
         // Initialize metadata service for handling vault events
@@ -81,7 +80,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
         
         this.registerView(
             VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT,
-            (leaf) => new NotebookNavigatorView(leaf, this)
+            (leaf) => {
+                return new NotebookNavigatorView(leaf, this);
+            }
         );
 
         this.addCommand({
@@ -193,6 +194,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         // Use onLayoutReady for more reliable initialization
         this.app.workspace.onLayoutReady(async () => {
             const cleanupStartTime = performance.now();
+            
             if (this.metadataService && !this.isUnloading) {
                 await this.metadataService.cleanupAllMetadata();
             }
@@ -202,7 +204,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
             if (leaves.length === 0 && !this.isUnloading) {
                 await this.activateView(true);
             }
-            
         });
     }
 
@@ -230,8 +231,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
     onunload() {
         // Set unloading flag to prevent any new operations
         this.isUnloading = true;
-        
-        
         
         // Clear all listeners first to prevent any callbacks during cleanup
         this.settingsUpdateListeners.clear();
@@ -308,7 +307,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
      */
     async activateView(showAfterAttach = true) {
         const { workspace } = this.app;
-
 
         let leaf: WorkspaceLeaf | null = null;
         const leaves = workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);

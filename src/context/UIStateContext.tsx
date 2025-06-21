@@ -81,12 +81,14 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         const savedWidth = localStorage.getItem(STORAGE_KEYS.LEFT_PANE_WIDTH);
         const paneWidth = savedWidth ? parseInt(savedWidth) : PANE_DIMENSIONS.DEFAULT_WIDTH;
         
-        return {
-            focusedPane: 'folders',
-            currentMobileView: 'list',
+        const initialState = {
+            focusedPane: 'folders' as const,
+            currentMobileView: 'list' as const,
             paneWidth: Math.max(PANE_DIMENSIONS.MIN_WIDTH, Math.min(paneWidth, PANE_DIMENSIONS.MAX_WIDTH)),
             newlyCreatedPath: null
         };
+        
+        return initialState;
     };
     
     const [state, dispatch] = useReducer(uiStateReducer, undefined, loadInitialState);

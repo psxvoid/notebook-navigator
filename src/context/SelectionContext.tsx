@@ -45,7 +45,7 @@ type SelectionAction =
     | { type: 'SET_SELECTED_FILE'; file: TFile | null }
     | { type: 'SET_SELECTION_TYPE'; selectionType: 'folder' | 'tag' }
     | { type: 'CLEAR_SELECTION' }
-    | { type: 'REVEAL_FILE'; file: TFile }
+    | { type: 'REVEAL_FILE'; file: TFile; preserveFolder?: boolean }
     | { type: 'CLEANUP_DELETED_FOLDER'; deletedPath: string }
     | { type: 'CLEANUP_DELETED_FILE'; deletedPath: string; nextFileToSelect?: TFile | null };
 
@@ -101,10 +101,15 @@ function selectionReducer(state: SelectionState, action: SelectionAction): Selec
                 return state;
             }
             
+            // If preserveFolder is true and we have a selected folder, keep it
+            const newFolder = action.preserveFolder && state.selectedFolder 
+                ? state.selectedFolder 
+                : action.file.parent;
+            
             return {
                 ...state,
                 selectionType: 'folder',
-                selectedFolder: action.file.parent,
+                selectedFolder: newFolder,
                 selectedTag: null,
                 selectedFile: action.file,
                 isRevealOperation: true,
@@ -207,7 +212,6 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
     
     // Create an enhanced dispatch that handles side effects
     const enhancedDispatch = useCallback((action: SelectionAction) => {
-        
         // Handle auto-select logic for folder selection
         if (action.type === 'SET_SELECTED_FOLDER' && !isMobile && action.autoSelectedFile === undefined) {
             if (action.folder && settings.autoSelectFirstFile) {

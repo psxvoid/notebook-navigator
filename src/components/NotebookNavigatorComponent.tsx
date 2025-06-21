@@ -71,6 +71,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const leftPaneRef = useRef<NavigationPaneHandle>(null);
     const fileListRef = useRef<FileListHandle>(null);
     
+    
 
     // Handle scrolling when mobile view changes or on initial mount
     useEffect(() => {
@@ -132,7 +133,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const revealFile = (file: TFile) => {
         if (!file || !file.parent) return;
         
-
         // Build the folder path hierarchy to expand
         const foldersToExpand: string[] = [];
         let currentFolder: TFolder | null = file.parent;
@@ -148,8 +148,24 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
         }
         
+        // Check if we should preserve the current folder selection
+        // If showNotesFromSubfoldersEnabled is true and the file is in a subfolder of the current folder,
+        // don't change the folder selection
+        let preserveFolder = false;
+        if (settings.showNotesFromSubfolders && selectionState.selectedFolder && file.parent) {
+            // Check if the file's parent is a descendant of the currently selected folder
+            let currentParent: TFolder | null = file.parent;
+            while (currentParent) {
+                if (currentParent.path === selectionState.selectedFolder.path) {
+                    preserveFolder = true;
+                    break;
+                }
+                currentParent = currentParent.parent;
+            }
+        }
+        
         // Trigger the reveal - scrolling will happen via the effect that watches isRevealOperation
-        selectionDispatch({ type: 'REVEAL_FILE', file });
+        selectionDispatch({ type: 'REVEAL_FILE', file, preserveFolder });
         
         // Only change focus if we're not already in the navigator AND not opening version history
         const navigatorEl = document.querySelector('.nn-split-container');
@@ -225,13 +241,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
      * - Now only runs when there's an actual reveal operation or selection change
      */
     useEffect(() => {
-        console.log('[NotebookNavigatorComponent] Reveal effect - isRevealOperation:', selectionState.isRevealOperation, 
-                    'selectedFolder:', selectionState.selectedFolder?.path, 
-                    'selectedFile:', selectionState.selectedFile?.path);
-        
         // ONLY process if this is a reveal operation, not normal keyboard navigation
         if (selectionState.isRevealOperation && selectionState.selectedFolder && selectionState.selectedFile) {
-            console.log('[NotebookNavigatorComponent] Processing reveal operation');
             const file = selectionState.selectedFile;
             
             // Build folder path to expand
@@ -252,14 +263,10 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             // Scroll to revealed items after a brief delay to ensure rendering is complete
             // This replaces the imperative setTimeout approach with a declarative effect
             const scrollTimer = setTimeout(() => {
-                console.log('[NotebookNavigatorComponent] Scrolling to revealed items');
-                
                 // Scroll to folder in left pane
                 const folderIndex = leftPaneRef.current?.getIndexOfPath(file.parent!.path);
-                console.log('[NotebookNavigatorComponent] Folder index:', folderIndex);
                 
                 if (folderIndex !== undefined && folderIndex !== -1) {
-                    console.log('[NotebookNavigatorComponent] Scrolling to folder at index:', folderIndex);
                     leftPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: 'center', behavior: 'auto' });
                 }
                 
