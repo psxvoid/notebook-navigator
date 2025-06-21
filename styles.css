@@ -979,9 +979,10 @@ body.nn-resizing {
    Icon Picker Modal
    ======================================================================== */
 
-/* Icon picker modal width */
-.nn-icon-picker-modal {
-    width: 500px;
+/* Icon picker modal width - adjust for mobile */
+.modal.nn-icon-picker-modal {
+    width: 480px;
+    max-width: calc(100vw - 40px);
 }
 
 /* Icon picker content layout */
@@ -1029,7 +1030,7 @@ body.nn-resizing {
     height: 400px;
     min-height: 400px;
     overflow-y: auto;
-    padding: var(--size-4-4);
+    padding: var(--size-4-3);
     flex: 0 0 auto;
 }
 

@@ -368,21 +368,23 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             menu.addItem((item: MenuItem) => {
                 item
                     .setTitle(strings.contextMenu.file.openToRight)
-                    .setIcon('layout-sidebar-right')
+                    .setIcon('vertical-three-dots')
                     .onClick(() => {
                         app.workspace.getLeaf('split').openFile(file);
                     });
             });
             
-            // Open in new window
-            menu.addItem((item: MenuItem) => {
-                item
-                    .setTitle(strings.contextMenu.file.openInNewWindow)
-                    .setIcon('monitor')
-                    .onClick(() => {
-                        app.workspace.getLeaf('window').openFile(file);
-                    });
-            });
+            // Open in new window - desktop only
+            if (!isMobile) {
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(strings.contextMenu.file.openInNewWindow)
+                        .setIcon('monitor')
+                        .onClick(() => {
+                            app.workspace.getLeaf('window').openFile(file);
+                        });
+                });
+            }
             
             menu.addSeparator();
             
@@ -393,7 +395,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             menu.addItem((item: MenuItem) => {
                 item
                     .setTitle(isPinned ? strings.contextMenu.file.unpinNote : strings.contextMenu.file.pinNote)
-                    .setIcon(isPinned ? 'unpin' : 'pin')
+                    .setIcon('pin')
                     .onClick(async () => {
                         if (!file.parent) return;
                         
@@ -412,30 +414,34 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     });
             });
             
-            // Open version history (if Sync is enabled)
-            const syncPlugin = getInternalPlugin(app, 'sync');
-            if (syncPlugin && 'enabled' in syncPlugin && syncPlugin.enabled) {
-                menu.addItem((item: MenuItem) => {
-                    item
-                        .setTitle(strings.contextMenu.file.openVersionHistory)
-                        .setIcon('history')
-                        .onClick(async () => {
-                            await fileSystemOps.openVersionHistory(file);
-                        });
-                });
+            // Open version history (if Sync is enabled) - desktop only
+            if (!isMobile) {
+                const syncPlugin = getInternalPlugin(app, 'sync');
+                if (syncPlugin && 'enabled' in syncPlugin && syncPlugin.enabled) {
+                    menu.addItem((item: MenuItem) => {
+                        item
+                            .setTitle(strings.contextMenu.file.openVersionHistory)
+                            .setIcon('history')
+                            .onClick(async () => {
+                                await fileSystemOps.openVersionHistory(file);
+                            });
+                    });
+                }
             }
             
             menu.addSeparator();
             
-            // Reveal in system explorer
-            menu.addItem((item: MenuItem) => {
-                item
-                    .setTitle(fileSystemOps.getRevealInSystemExplorerText())
-                    .setIcon('folder-open')
-                    .onClick(async () => {
-                        await fileSystemOps.revealInSystemExplorer(file);
-                    });
-            });
+            // Reveal in system explorer - desktop only
+            if (!isMobile) {
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(fileSystemOps.getRevealInSystemExplorerText())
+                        .setIcon('folder-open')
+                        .onClick(async () => {
+                            await fileSystemOps.revealInSystemExplorer(file);
+                        });
+                });
+            }
             
             // Copy deep link
             menu.addItem((item: MenuItem) => {
@@ -498,7 +504,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
     
     useEffect(() => {
         const element = elementRef.current;
-        if (!element || !config || isMobile) return;
+        if (!element || !config) return;
         
         element.addEventListener('contextmenu', handleContextMenu);
         
@@ -507,5 +513,5 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // Clean up any lingering context menu active class
             element.classList.remove('nn-context-menu-active');
         };
-    }, [elementRef, handleContextMenu, config, isMobile]);
+    }, [elementRef, handleContextMenu, config]);
 }
