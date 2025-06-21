@@ -41,7 +41,7 @@ import { Virtualizer } from '@tanstack/react-virtual';
 import { useAutoReveal } from '../hooks/useAutoReveal';
 
 export interface NotebookNavigatorHandle {
-    revealFile: (file: TFile) => void;
+    revealFile: (file: TFile, isManualReveal?: boolean) => void;
     focusFilePane: () => void;
     refresh: () => void;
     handleBecomeActive: () => void;
@@ -130,7 +130,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const updateSettings = useSettingsUpdate();
     
     // Define revealFile function that can be used both internally and via ref
-    const revealFile = (file: TFile) => {
+    const revealFile = (file: TFile, isManualReveal?: boolean) => {
         if (!file || !file.parent) return;
         
         // Build the folder path hierarchy to expand
@@ -151,8 +151,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         // Check if we should preserve the current folder selection
         // If showNotesFromSubfoldersEnabled is true and the file is in a subfolder of the current folder,
         // don't change the folder selection
+        // EXCEPT when this is a manual reveal (user explicitly requested to reveal the file)
         let preserveFolder = false;
-        if (settings.showNotesFromSubfolders && selectionState.selectedFolder && file.parent) {
+        if (!isManualReveal && settings.showNotesFromSubfolders && selectionState.selectedFolder && file.parent) {
             // Check if the file's parent is a descendant of the currently selected folder
             let currentParent: TFolder | null = file.parent;
             while (currentParent) {
@@ -263,11 +264,17 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             // Scroll to revealed items after a brief delay to ensure rendering is complete
             // This replaces the imperative setTimeout approach with a declarative effect
             const scrollTimer = setTimeout(() => {
-                // Scroll to folder in left pane
-                const folderIndex = leftPaneRef.current?.getIndexOfPath(file.parent!.path);
+                // Scroll to folder in left pane - but only if we're not preserving the current folder
+                // When preserveFolder is true (showNotesFromSubfolders), we don't want to jump to the subfolder
+                const shouldScrollToFolder = selectionState.selectedFolder && 
+                                            selectionState.selectedFolder.path === file.parent!.path;
                 
-                if (folderIndex !== undefined && folderIndex !== -1) {
-                    leftPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: 'center', behavior: 'auto' });
+                if (shouldScrollToFolder) {
+                    const folderIndex = leftPaneRef.current?.getIndexOfPath(file.parent!.path);
+                    
+                    if (folderIndex !== undefined && folderIndex !== -1) {
+                        leftPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: 'center', behavior: 'auto' });
+                    }
                 }
                 
                 // Scroll to file in file list

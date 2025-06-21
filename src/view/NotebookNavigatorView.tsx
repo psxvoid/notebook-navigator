@@ -132,8 +132,8 @@ export class NotebookNavigatorView extends ItemView {
     /**
      * Reveals a file in the navigator by selecting it and its parent folder
      */
-    revealFile(file: TFile) {
-        this.componentRef.current?.revealFile(file);
+    revealFile(file: TFile, isManualReveal?: boolean) {
+        this.componentRef.current?.revealFile(file, isManualReveal);
     }
     
     

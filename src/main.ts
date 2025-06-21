@@ -350,7 +350,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         navigatorLeaves.forEach(leaf => {
             const view = leaf.view;
             if (view instanceof NotebookNavigatorView) {
-                view.revealFile(file);
+                view.revealFile(file, true); // Pass true for isManualReveal
             }
         });
     }
