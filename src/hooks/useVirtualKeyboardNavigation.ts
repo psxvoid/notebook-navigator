@@ -335,9 +335,14 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 
             case 'Delete':
             case 'Backspace':
-                if (!isTypingInInput(e) && selectionState.selectedFile) {
-                    e.preventDefault();
-                    handleDelete();
+                if (!isTypingInInput(e)) {
+                    if (focusedPane === 'files' && selectionState.selectedFile) {
+                        e.preventDefault();
+                        handleDelete();
+                    } else if (focusedPane === 'folders' && selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+                        e.preventDefault();
+                        handleDeleteFolder();
+                    }
                 }
                 break;
         }
@@ -355,7 +360,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 behavior: 'auto'
             });
         }
-    }, [items, virtualizer, focusedPane, selectionState, expansionState, selectionDispatch, expansionDispatch, uiState, uiDispatch, plugin, app, isMobile]);
+    }, [items, virtualizer, focusedPane, selectionState, expansionState, selectionDispatch, expansionDispatch, uiState, uiDispatch, plugin, app, isMobile, settings, fileSystemOps]);
     
     // Helper function to find next selectable item
     const findNextSelectableIndex = (items: VirtualItem[], currentIndex: number, pane: string, includeCurrent: boolean = false): number => {
@@ -536,14 +541,82 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         }
     };
     
-    // Handle Delete key
+    // Handle Delete key for files
     const handleDelete = async () => {
-        if (!selectionState.selectedFile) return;
+        if (!selectionState.selectedFile || focusedPane !== 'files') return;
         
-        // Use the centralized file deletion service
-        await fileSystemOps.deleteFile(
+        // Use the centralized delete handler
+        await fileSystemOps.deleteSelectedFile(
             selectionState.selectedFile,
+            settings,
+            {
+                selectionType: selectionState.selectionType,
+                selectedFolder: selectionState.selectedFolder || undefined,
+                selectedTag: selectionState.selectedTag || undefined
+            },
+            selectionDispatch,
             settings.confirmBeforeDelete
+        );
+    };
+    
+    // Handle Delete key for folders
+    const handleDeleteFolder = async () => {
+        if (!selectionState.selectedFolder || focusedPane !== 'folders') return;
+        
+        const folderToDelete = selectionState.selectedFolder;
+        
+        // Don't allow deleting the root folder
+        if (folderToDelete.path === '' || folderToDelete.path === '/') {
+            return;
+        }
+        
+        // Find the next folder to select before deletion
+        let nextFolderToSelect: TFolder | null = null;
+        
+        // Try to find next sibling folder
+        const parentFolder = folderToDelete.parent;
+        if (parentFolder && isTFolder(parentFolder)) {
+            const siblings = parentFolder.children
+                .filter(child => isTFolder(child))
+                .sort((a, b) => a.name.localeCompare(b.name)) as TFolder[];
+            
+            const currentIndex = siblings.findIndex(f => f.path === folderToDelete.path);
+            
+            if (currentIndex !== -1) {
+                // Try next sibling
+                if (currentIndex < siblings.length - 1) {
+                    nextFolderToSelect = siblings[currentIndex + 1];
+                } else if (currentIndex > 0) {
+                    // No next sibling, try previous
+                    nextFolderToSelect = siblings[currentIndex - 1];
+                } else {
+                    // No siblings, select parent
+                    nextFolderToSelect = parentFolder;
+                }
+            }
+        } else {
+            // No parent folder (root level folder)
+            // Try to find any other root folder
+            const rootFolder = app.vault.getRoot();
+            const rootFolders = rootFolder.children
+                .filter(child => isTFolder(child) && child.path !== folderToDelete.path)
+                .sort((a, b) => a.name.localeCompare(b.name)) as TFolder[];
+            
+            if (rootFolders.length > 0) {
+                nextFolderToSelect = rootFolders[0];
+            }
+        }
+        
+        // Delete the folder
+        await fileSystemOps.deleteFolder(
+            folderToDelete,
+            settings.confirmBeforeDelete,
+            () => {
+                // After deletion, select the next folder
+                if (nextFolderToSelect) {
+                    selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: nextFolderToSelect });
+                }
+            }
         );
     };
     

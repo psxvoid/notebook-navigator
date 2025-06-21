@@ -23,6 +23,18 @@ import { executeCommand } from '../utils/typeGuards';
 import { strings } from '../i18n';
 import { getFolderNote } from '../utils/fileFinder';
 import { NotebookNavigatorSettings } from '../settings';
+import { NavigationItemType } from '../types';
+import type { SelectionDispatch } from '../context/SelectionContext';
+
+/**
+ * Selection context for file operations
+ * Contains the current selection state needed for smart deletion
+ */
+interface SelectionContext {
+    selectionType: NavigationItemType;
+    selectedFolder?: TFolder;
+    selectedTag?: string;
+}
 
 /**
  * Handles all file system operations for the Notebook Navigator
@@ -218,37 +230,145 @@ export class FileSystemOperations {
      * @param file - The file to delete
      * @param confirmBeforeDelete - Whether to show confirmation dialog
      * @param onSuccess - Optional callback on successful deletion
+     * @param preDeleteAction - Optional action to run BEFORE the file is deleted (e.g., to select next file)
      */
-    async deleteFile(file: TFile, confirmBeforeDelete: boolean, onSuccess?: () => void): Promise<void> {
-        if (confirmBeforeDelete) {
-            const confirmModal = new ConfirmModal(
-                this.app,
-                strings.modals.fileSystem.deleteFileTitle.replace('{name}', file.basename),
-                strings.modals.fileSystem.deleteFileConfirm,
-                async () => {
-                    try {
-                        await this.app.fileManager.trashFile(file);
-                        if (onSuccess) {
-                            onSuccess();
-                        }
-                    } catch (error) {
-                        new Notice(strings.fileSystem.errors.deleteFile.replace('{error}', error.message));
-                    }
-                }
-            );
-            confirmModal.open();
-        } else {
-            // Direct deletion without confirmation
+    async deleteFile(
+        file: TFile, 
+        confirmBeforeDelete: boolean, 
+        onSuccess?: () => void,
+        preDeleteAction?: () => Promise<void>
+    ): Promise<void> {
+        const performDelete = async () => {
             try {
+                // Run pre-delete action if provided
+                if (preDeleteAction) {
+                    await preDeleteAction();
+                }
+                
                 await this.app.fileManager.trashFile(file);
+                
                 if (onSuccess) {
                     onSuccess();
                 }
             } catch (error) {
                 new Notice(strings.fileSystem.errors.deleteFile.replace('{error}', error.message));
             }
+        };
+        
+        if (confirmBeforeDelete) {
+            const confirmModal = new ConfirmModal(
+                this.app,
+                strings.modals.fileSystem.deleteFileTitle.replace('{name}', file.basename),
+                strings.modals.fileSystem.deleteFileConfirm,
+                performDelete
+            );
+            confirmModal.open();
+        } else {
+            // Direct deletion without confirmation
+            await performDelete();
         }
     }
+
+    /**
+     * Smart delete handler for the currently selected file in the Navigator
+     * Automatically selects the next file in the same folder before deletion
+     * Used by both keyboard shortcuts and context menu
+     * 
+     * @param file - The file to delete
+     * @param settings - Plugin settings
+     * @param selectionContext - Current selection context (type, folder, tag)
+     * @param selectionDispatch - Selection dispatch function
+     * @param confirmBeforeDelete - Whether to show confirmation dialog
+     */
+    async deleteSelectedFile(
+        file: TFile,
+        settings: NotebookNavigatorSettings,
+        selectionContext: SelectionContext,
+        selectionDispatch: SelectionDispatch,
+        confirmBeforeDelete: boolean
+    ): Promise<void> {
+        // Get the file list based on selection type
+        let currentFiles: TFile[] = [];
+        if (selectionContext.selectionType === 'folder' && selectionContext.selectedFolder) {
+            const { getFilesForFolder } = await import('../utils/fileFinder');
+            currentFiles = getFilesForFolder(selectionContext.selectedFolder, settings, this.app);
+        } else if (selectionContext.selectionType === 'tag' && selectionContext.selectedTag) {
+            const { getFilesForTag } = await import('../utils/fileFinder');
+            currentFiles = getFilesForTag(selectionContext.selectedTag, settings, this.app);
+        }
+        
+        // When "show notes from subfolders" is enabled and we're in a folder view,
+        // filter to same parent folder to avoid jumping to files in other folders
+        if (settings.showNotesFromSubfolders && file.parent && selectionContext.selectionType === 'folder') {
+            const parentPath = file.parent.path;
+            currentFiles = currentFiles.filter(f => f.parent?.path === parentPath);
+        }
+        
+        // Find next file to select
+        let nextFileToSelect: TFile | null = null;
+        const currentIndex = currentFiles.findIndex(f => f.path === file.path);
+        
+        if (currentIndex !== -1 && currentFiles.length > 1) {
+            // Try next file first
+            if (currentIndex < currentFiles.length - 1) {
+                nextFileToSelect = currentFiles[currentIndex + 1];
+            } else if (currentIndex > 0) {
+                // No next file, use previous
+                nextFileToSelect = currentFiles[currentIndex - 1];
+            }
+        }
+        
+        // Perform the delete with pre-selection
+        await this.deleteFile(
+            file,
+            confirmBeforeDelete,
+            undefined,
+            async () => {
+                // Pre-delete action: select next file or close editor
+                if (nextFileToSelect) {
+                    // Verify the next file still exists (in case of concurrent deletions)
+                    const stillExists = this.app.vault.getAbstractFileByPath(nextFileToSelect.path);
+                    if (stillExists) {
+                        // Update selection state first
+                        selectionDispatch({ type: 'SET_SELECTED_FILE', file: nextFileToSelect });
+                        
+                        // Open the next file only if workspace is ready
+                        const leaf = this.app.workspace.getLeaf(false);
+                        if (leaf) {
+                            try {
+                                await leaf.openFile(nextFileToSelect, { active: false });
+                            } catch (error) {
+                                // File might not be accessible, continue anyway
+                                console.error('Failed to open next file:', error);
+                            }
+                        }
+                    } else {
+                        // Next file was deleted, clear selection
+                        selectionDispatch({ type: 'SET_SELECTED_FILE', file: null });
+                    }
+                } else {
+                    // No other files in folder, close the editor if it's showing the deleted file
+                    const leaves = this.app.workspace.getLeavesOfType('markdown')
+                        .concat(this.app.workspace.getLeavesOfType('canvas'))
+                        .concat(this.app.workspace.getLeavesOfType('pdf'));
+                    const currentLeaf = leaves.find(leaf => (leaf.view as any).file?.path === file.path);
+                    if (currentLeaf) {
+                        currentLeaf.detach();
+                    }
+                    selectionDispatch({ type: 'SET_SELECTED_FILE', file: null });
+                }
+                
+                // Try to maintain focus on file list using a more reliable method
+                setTimeout(() => {
+                    const fileListEl = document.querySelector('.nn-file-list-virtualizer') as HTMLElement;
+                    if (fileListEl) {
+                        fileListEl.focus();
+                    }
+                }, 100);
+            }
+        );
+    }
+    
 
     /**
      * Checks if one file/folder is a descendant of another

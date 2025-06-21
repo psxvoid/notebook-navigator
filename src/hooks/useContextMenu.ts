@@ -471,41 +471,24 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     .setTitle(strings.contextMenu.file.deleteNote)
                     .setIcon('trash')
                     .onClick(async () => {
-                        // Calculate next file to select before deletion (desktop only)
-                        let nextFileToSelect: TFile | null = null;
-                        
+                        // Check if this is the currently selected file
                         if (!isMobile && selectionState.selectedFile?.path === file.path) {
-                            // Get current file list based on selection type
-                            let currentFiles: TFile[] = [];
-                            if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
-                                currentFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
-                            } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
-                                currentFiles = getFilesForTag(selectionState.selectedTag, settings, app);
-                            }
-                            
-                            // Find current file index
-                            const currentIndex = currentFiles.findIndex(f => f.path === file.path);
-                            
-                            if (currentIndex !== -1 && currentFiles.length > 1) {
-                                // Determine next file to select
-                                if (currentIndex < currentFiles.length - 1) {
-                                    // Select next file
-                                    nextFileToSelect = currentFiles[currentIndex + 1];
-                                } else if (currentIndex > 0) {
-                                    // Was last file, select previous
-                                    nextFileToSelect = currentFiles[currentIndex - 1];
-                                }
-                            }
+                            // Use the smart delete handler
+                            await fileSystemOps.deleteSelectedFile(
+                                file,
+                                settings,
+                                {
+                                    selectionType: selectionState.selectionType,
+                                    selectedFolder: selectionState.selectedFolder || undefined,
+                                    selectedTag: selectionState.selectedTag || undefined
+                                },
+                                selectionDispatch,
+                                settings.confirmBeforeDelete
+                            );
+                        } else {
+                            // Normal deletion - not the currently selected file
+                            await fileSystemOps.deleteFile(file, settings.confirmBeforeDelete);
                         }
-                        
-                        await fileSystemOps.deleteFile(file, settings.confirmBeforeDelete, () => {
-                            // Dispatch cleanup with next file to select
-                            selectionDispatch({ 
-                                type: 'CLEANUP_DELETED_FILE', 
-                                deletedPath: file.path,
-                                nextFileToSelect
-                            });
-                        });
                     });
             });
         }

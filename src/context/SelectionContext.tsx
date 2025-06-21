@@ -21,6 +21,7 @@ import { TFile, TFolder } from 'obsidian';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
+import { NavigationItemType } from '../types';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -29,8 +30,8 @@ const STORAGE_KEYS = {
 };
 
 // State interface
-interface SelectionState {
-    selectionType: 'folder' | 'tag';
+export interface SelectionState {
+    selectionType: NavigationItemType;
     selectedFolder: TFolder | null;
     selectedTag: string | null;
     selectedFile: TFile | null;
@@ -39,15 +40,18 @@ interface SelectionState {
 }
 
 // Action types
-type SelectionAction = 
+export type SelectionAction = 
     | { type: 'SET_SELECTED_FOLDER'; folder: TFolder | null; autoSelectedFile?: TFile | null }
     | { type: 'SET_SELECTED_TAG'; tag: string | null; autoSelectedFile?: TFile | null }
     | { type: 'SET_SELECTED_FILE'; file: TFile | null }
-    | { type: 'SET_SELECTION_TYPE'; selectionType: 'folder' | 'tag' }
+    | { type: 'SET_SELECTION_TYPE'; selectionType: NavigationItemType }
     | { type: 'CLEAR_SELECTION' }
     | { type: 'REVEAL_FILE'; file: TFile; preserveFolder?: boolean }
     | { type: 'CLEANUP_DELETED_FOLDER'; deletedPath: string }
     | { type: 'CLEANUP_DELETED_FILE'; deletedPath: string; nextFileToSelect?: TFile | null };
+
+// Dispatch function type
+export type SelectionDispatch = React.Dispatch<SelectionAction>;
 
 // Create contexts
 const SelectionContext = createContext<SelectionState | null>(null);

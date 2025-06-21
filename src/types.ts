@@ -40,6 +40,12 @@ export const UNTAGGED_TAG_ID = '__untagged__';
 export type FocusedPane = 'folders' | 'files';
 
 /**
+ * Types of items that can be selected in the navigation pane
+ * Either a folder from the file tree or a tag from the tag tree
+ */
+export type NavigationItemType = 'folder' | 'tag';
+
+/**
  * Keys used for persisting state in browser localStorage
  * Ensures consistent key naming across the plugin
  */
