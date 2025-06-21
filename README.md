@@ -142,6 +142,8 @@ Until the plugin is approved in the Community Plugins directory, you can install
 - **Show feature image:** Display thumbnail images from frontmatter. Tip: Use the "Featured Image" plugin to automatically set feature images for all your documents
   - **Feature image property:** The frontmatter property name for thumbnail images. Important! In Featured Image plugin you can choose to create resized thumbnails, this will significantly improve performance! Use 42 pixels for maximum performance, or 84 pixels for retina displays. The resized property is called "featureResized" by default
 
+**Note:** When date, preview, and feature image are all disabled, the file list displays in a compact "slim mode" with only file names, providing a cleaner, more minimal interface.
+
 ### Folder Display
 
 - **Show root folder:** Display "Vault" as the root folder in the tree
