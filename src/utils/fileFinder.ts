@@ -22,7 +22,7 @@ import { isTFile, isTFolder } from './typeGuards';
 import { parseExcludedProperties, shouldExcludeFile } from './fileFilters';
 import { getEffectiveSortOption, sortFiles } from './sortUtils';
 import { buildTagTree, findTagNode, collectAllTagPaths } from './tagUtils';
-import { UNTAGGED_TAG_ID } from '../types';
+import { UNTAGGED_TAG_ID, isSupportedFileExtension } from '../types';
 
 /**
  * Checks if a file is a folder note for the given folder
@@ -72,8 +72,7 @@ export function collectFilesFromFolder(folder: TFolder, includeSubfolders: boole
         for (const child of f.children) {
             if (isTFile(child)) {
                 // Only include supported file types
-                if (child.extension === 'md' || child.extension === 'canvas' || 
-                    child.extension === 'base' || child.extension === 'pdf') {
+                if (isSupportedFileExtension(child.extension)) {
                     files.push(child);
                 }
             } else if (includeSubfolders && isTFolder(child)) {

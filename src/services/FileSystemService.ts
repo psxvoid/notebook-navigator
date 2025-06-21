@@ -23,7 +23,7 @@ import { executeCommand } from '../utils/typeGuards';
 import { strings } from '../i18n';
 import { getFolderNote } from '../utils/fileFinder';
 import { NotebookNavigatorSettings } from '../settings';
-import { NavigationItemType } from '../types';
+import { NavigationItemType, getSupportedLeaves } from '../types';
 import type { SelectionDispatch } from '../context/SelectionContext';
 
 /**
@@ -328,7 +328,7 @@ export class FileSystemOperations {
                 if (nextFileToSelect) {
                     // Verify the next file still exists (in case of concurrent deletions)
                     const stillExists = this.app.vault.getAbstractFileByPath(nextFileToSelect.path);
-                    if (stillExists) {
+                    if (stillExists && stillExists instanceof TFile) {
                         // Update selection state first
                         selectionDispatch({ type: 'SET_SELECTED_FILE', file: nextFileToSelect });
                         
@@ -348,10 +348,14 @@ export class FileSystemOperations {
                     }
                 } else {
                     // No other files in folder, close the editor if it's showing the deleted file
-                    const leaves = this.app.workspace.getLeavesOfType('markdown')
-                        .concat(this.app.workspace.getLeavesOfType('canvas'))
-                        .concat(this.app.workspace.getLeavesOfType('pdf'));
-                    const currentLeaf = leaves.find(leaf => (leaf.view as any).file?.path === file.path);
+                    // Get all leaves with supported file types
+                    const allLeaves = getSupportedLeaves(this.app);
+                    
+                    // Find any leaf showing the file being deleted
+                    const currentLeaf = allLeaves.find(leaf => {
+                        const view = leaf.view as any;
+                        return view && view.file && view.file.path === file.path;
+                    });
                     if (currentLeaf) {
                         currentLeaf.detach();
                     }

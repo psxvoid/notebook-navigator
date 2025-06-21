@@ -26,6 +26,7 @@ import { useContextMenu } from '../hooks/useContextMenu';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
 import { strings } from '../i18n';
+import { isSupportedFileExtension } from '../types';
 
 interface FolderItemProps {
     folder: TFolder;
@@ -71,7 +72,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
             let count = 0;
             for (const child of folder.children) {
                 if (isTFile(child)) {
-                    if (child.extension === 'md' || child.extension === 'canvas' || child.extension === 'base' || child.extension === 'pdf') {
+                    if (isSupportedFileExtension(child.extension)) {
                         // Check if file should be excluded
                         if (!shouldExcludeFile(child, excludedProperties, app)) {
                             count++;

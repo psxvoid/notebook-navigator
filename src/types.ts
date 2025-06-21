@@ -80,6 +80,55 @@ export const PANE_DIMENSIONS = {
 };
 
 /**
+ * Supported file types in Notebook Navigator
+ * Maps file extensions to their corresponding Obsidian leaf types
+ */
+export const SUPPORTED_FILE_TYPES = {
+    // Extension to leaf type mapping
+    md: 'markdown',
+    canvas: 'canvas',
+    pdf: 'pdf',
+    base: 'base'
+} as const;
+
+/**
+ * Array of supported file extensions (derived from SUPPORTED_FILE_TYPES keys)
+ */
+export const SUPPORTED_EXTENSIONS = Object.keys(SUPPORTED_FILE_TYPES) as (keyof typeof SUPPORTED_FILE_TYPES)[];
+
+/**
+ * Array of supported leaf types (derived from SUPPORTED_FILE_TYPES values)
+ */
+export const SUPPORTED_LEAF_TYPES = Object.values(SUPPORTED_FILE_TYPES);
+
+/**
+ * Type for supported file extensions
+ */
+export type SupportedFileExtension = keyof typeof SUPPORTED_FILE_TYPES;
+
+/**
+ * Type for supported leaf types
+ */
+export type SupportedLeafType = typeof SUPPORTED_FILE_TYPES[SupportedFileExtension];
+
+/**
+ * Helper function to check if a file extension is supported
+ */
+export function isSupportedFileExtension(extension: string): extension is SupportedFileExtension {
+    return extension in SUPPORTED_FILE_TYPES;
+}
+
+/**
+ * Helper function to get all leaves with supported file types
+ */
+export function getSupportedLeaves(app: any): any[] {
+    return SUPPORTED_LEAF_TYPES.flatMap(type => 
+        app.workspace.getLeavesOfType(type)
+    );
+}
+
+
+/**
  * Data attributes for drag-and-drop functionality using event delegation
  * These attributes are added to DOM elements to enable drag-drop without individual event listeners
  */

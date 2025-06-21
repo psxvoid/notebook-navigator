@@ -28,6 +28,7 @@ import { useSettingsState } from '../context/SettingsContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
+import { getSupportedLeaves } from '../types';
 
 type VirtualItem = CombinedNavigationItem | FileListItem;
 
@@ -228,9 +229,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     }
                 } else if (focusedPane === 'files' && selectionState.selectedFile) {
                     // RIGHT arrow from files pane should focus the editor (same as TAB)
-                    const leaves = app.workspace.getLeavesOfType('markdown')
-                        .concat(app.workspace.getLeavesOfType('canvas'))
-                        .concat(app.workspace.getLeavesOfType('pdf'));
+                    const leaves = getSupportedLeaves(app);
                     const targetLeaf = leaves.find(leaf => (leaf.view as any).file?.path === selectionState.selectedFile?.path);
                     if (targetLeaf) {
                         app.workspace.setActiveLeaf(targetLeaf, { focus: true });
@@ -311,9 +310,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                     } else if (focusedPane === 'files' && selectionState.selectedFile) {
                         // This is the logic moved from ArrowRight to focus the editor
-                        const leaves = app.workspace.getLeavesOfType('markdown')
-                            .concat(app.workspace.getLeavesOfType('canvas'))
-                            .concat(app.workspace.getLeavesOfType('pdf'));
+                        const leaves = getSupportedLeaves(app);
                         const targetLeaf = leaves.find(leaf => (leaf.view as any).file?.path === selectionState.selectedFile?.path);
                         if (targetLeaf) {
                             app.workspace.setActiveLeaf(targetLeaf, { focus: true });
