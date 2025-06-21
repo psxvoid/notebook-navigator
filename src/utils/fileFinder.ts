@@ -33,6 +33,11 @@ export function isFolderNote(file: TFile, folder: TFolder, folderNoteName: strin
         return false;
     }
     
+    // Only markdown files can be folder notes
+    if (file.extension !== 'md') {
+        return false;
+    }
+    
     // If folderNoteName is empty, use the folder name
     const expectedName = folderNoteName || folder.name;
     return file.basename === expectedName;
@@ -48,6 +53,7 @@ export function getFolderNote(folder: TFolder, settings: NotebookNavigatorSettin
 
     // Look for the folder note in the folder
     for (const child of folder.children) {
+        // Only check files, not folders
         if (isTFile(child) && isFolderNote(child, folder, settings.folderNoteName)) {
             return child;
         }

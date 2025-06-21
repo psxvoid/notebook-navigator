@@ -100,7 +100,8 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
     const customColor = settings.folderColors?.[folder.path];
     
     // Check if folder has a folder note
-    const hasFolderNote = settings.enableFolderNotes && getFolderNote(folder, settings, app) !== null;
+    const folderNote = settings.enableFolderNotes ? getFolderNote(folder, settings, app) : null;
+    const hasFolderNote = folderNote !== null;
 
     useEffect(() => {
         if (chevronRef.current) {
