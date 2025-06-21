@@ -656,7 +656,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         const copyrightEl = containerEl.createDiv('nn-copyright');
         copyrightEl.innerHTML = `
             <div style="text-align: center; margin-top: 40px; color: var(--text-muted); font-size: var(--font-ui-smaller);">
-                Notebook Navigator © 2025 
+                Notebook Navigator<br>
+                Copyright © 2025 
                 <a href="https://www.linkedin.com/in/johansan/" target="_blank" style="color: var(--text-accent);">Johan Sanneblad</a> 
                 @ 
                 <a href="https://tokentek.ai" target="_blank" style="color: var(--text-accent);">TokenTek</a>
