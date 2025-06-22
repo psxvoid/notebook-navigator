@@ -73,29 +73,31 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
     
     // Add Obsidian tooltip
     useEffect(() => {
-        if (fileRef.current) {
-            const dateTimeFormat = settings.timeFormat ? `${settings.dateFormat} ${settings.timeFormat}` : settings.dateFormat;
-            const createdDate = DateUtils.formatDate(file.stat.ctime, dateTimeFormat);
-            const modifiedDate = DateUtils.formatDate(file.stat.mtime, dateTimeFormat);
-            
-            // Get effective sort option to determine date order
-            const effectiveSort = getEffectiveSortOption(settings, selectionType, selectedFolder);
-            const isCreatedSort = effectiveSort.startsWith('created-');
-            
-            // Build tooltip with proper order based on sort
-            const tooltip = isCreatedSort
-                ? `${strings.tooltips.createdAt} ${createdDate}\n${strings.tooltips.lastModifiedAt} ${modifiedDate}`
-                : `${strings.tooltips.lastModifiedAt} ${modifiedDate}\n${strings.tooltips.createdAt} ${createdDate}`;
-            
-            // Check if RTL mode is active
-            const isRTL = document.body.classList.contains('mod-rtl');
-            
-            // Set placement to the right (left in RTL)
-            setTooltip(fileRef.current, tooltip, { 
-                placement: isRTL ? 'left' : 'right'
-            } as any);
-        }
-    }, [file.stat.ctime, file.stat.mtime, settings, selectionType, selectedFolder]);
+        if (!fileRef.current) return;
+        
+        const dateTimeFormat = settings.timeFormat ? `${settings.dateFormat} ${settings.timeFormat}` : settings.dateFormat;
+        const createdDate = DateUtils.formatDate(file.stat.ctime, dateTimeFormat);
+        const modifiedDate = DateUtils.formatDate(file.stat.mtime, dateTimeFormat);
+        // Get effective sort option to determine date order
+        const effectiveSort = getEffectiveSortOption(settings, selectionType, selectedFolder);
+        const isCreatedSort = effectiveSort.startsWith('created-');
+        
+        // Build tooltip with filename and dates
+        const datesTooltip = isCreatedSort
+            ? `${strings.tooltips.createdAt} ${createdDate}\n${strings.tooltips.lastModifiedAt} ${modifiedDate}`
+            : `${strings.tooltips.lastModifiedAt} ${modifiedDate}\n${strings.tooltips.createdAt} ${createdDate}`;
+        
+        // Always include filename at the top
+        const tooltip = `${displayName}\n\n${datesTooltip}`;
+        
+        // Check if RTL mode is active
+        const isRTL = document.body.classList.contains('mod-rtl');
+        
+        // Set placement to the right (left in RTL)
+        setTooltip(fileRef.current, tooltip, { 
+            placement: isRTL ? 'left' : 'right'
+        } as any);
+    }, [file.stat.ctime, file.stat.mtime, settings, selectionType, selectedFolder, displayName]);
 
     // Use pre-formatted date if provided, otherwise format it ourselves
     const displayDate = useMemo(() => {

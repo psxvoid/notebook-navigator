@@ -81,25 +81,28 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
     
     // Add Obsidian tooltip
     useEffect(() => {
-        if (folderRef.current) {
-            // Build tooltip with proper singular/plural forms
-            const fileText = folderStats.fileCount === 1 
-                ? `${folderStats.fileCount} ${strings.tooltips.file}`
-                : `${folderStats.fileCount} ${strings.tooltips.files}`;
-            const folderText = folderStats.folderCount === 1
-                ? `${folderStats.folderCount} ${strings.tooltips.folder}`
-                : `${folderStats.folderCount} ${strings.tooltips.folders}`;
-            const tooltip = `${fileText}, ${folderText}`;
-            
-            // Check if RTL mode is active
-            const isRTL = document.body.classList.contains('mod-rtl');
-            
-            // Set placement to the right (left in RTL)
-            setTooltip(folderRef.current, tooltip, { 
-                placement: isRTL ? 'left' : 'right'
-            } as any);
-        }
-    }, [folderStats.fileCount, folderStats.folderCount]);
+        if (!folderRef.current) return;
+        
+        // Build tooltip with proper singular/plural forms
+        const fileText = folderStats.fileCount === 1 
+            ? `${folderStats.fileCount} ${strings.tooltips.file}`
+            : `${folderStats.fileCount} ${strings.tooltips.files}`;
+        const folderText = folderStats.folderCount === 1
+            ? `${folderStats.folderCount} ${strings.tooltips.folder}`
+            : `${folderStats.folderCount} ${strings.tooltips.folders}`;
+        const statsTooltip = `${fileText}, ${folderText}`;
+        
+        // Always include folder name at the top
+        const tooltip = `${folder.name}\n\n${statsTooltip}`;
+        
+        // Check if RTL mode is active
+        const isRTL = document.body.classList.contains('mod-rtl');
+        
+        // Set placement to the right (left in RTL)
+        setTooltip(folderRef.current, tooltip, { 
+            placement: isRTL ? 'left' : 'right'
+        } as any);
+    }, [folderStats.fileCount, folderStats.folderCount, folder.name]);
     
     // Count files in folder (including subfolders if setting enabled)
     const fileCount = React.useMemo(() => {
