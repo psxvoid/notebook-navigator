@@ -209,9 +209,20 @@ export const STRINGS_FR = {
         revealInNavigator: 'Révéler dans le Navigateur de Carnets', // Context menu item to reveal a file in the navigator (English: Reveal in Notebook Navigator)
     },
 
+    // Tooltips
+    tooltips: {
+        lastModifiedAt: 'Dernière modification le',
+        createdAt: 'Créé le',
+        file: 'fichier',
+        files: 'fichiers',
+        folder: 'dossier',
+        folders: 'dossiers',
+    },
+
     // Settings
     settings: {
         sections: {
+            timeDisplay: 'Affichage du temps',
             noteDisplay: 'Affichage des notes',
             folderDisplay: 'Affichage des dossiers',
             tagDisplay: 'Affichage des étiquettes',

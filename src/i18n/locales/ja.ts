@@ -209,9 +209,20 @@ export const STRINGS_JA = {
         revealInNavigator: 'ノートブックナビゲーターで表示', // Context menu item to reveal a file in the navigator (English: Reveal in Notebook Navigator)
     },
 
+    // Tooltips
+    tooltips: {
+        lastModifiedAt: '最終更新',
+        createdAt: '作成日時',
+        file: 'ファイル',
+        files: 'ファイル',
+        folder: 'フォルダ',
+        folders: 'フォルダ',
+    },
+
     // Settings
     settings: {
         sections: {
+            timeDisplay: '時刻表示',
             noteDisplay: 'ノート表示',
             folderDisplay: 'フォルダ表示',
             tagDisplay: 'タグ表示',

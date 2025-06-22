@@ -209,9 +209,20 @@ export const STRINGS_SV = {
         revealInNavigator: 'Visa i Notebook Navigator', // Context menu item to reveal a file in the navigator (English: Reveal in Notebook Navigator)
     },
 
+    // Tooltips
+    tooltips: {
+        lastModifiedAt: 'Senast ändrad',
+        createdAt: 'Skapad',
+        file: 'fil',
+        files: 'filer',
+        folder: 'mapp',
+        folders: 'mappar',
+    },
+
     // Settings
     settings: {
         sections: {
+            timeDisplay: 'Tidsvisning',
             noteDisplay: 'Anteckningar',
             folderDisplay: 'Mappar',
             tagDisplay: 'Taggar',

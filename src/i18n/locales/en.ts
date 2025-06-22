@@ -209,9 +209,20 @@ export const STRINGS_EN = {
         revealInNavigator: 'Reveal in Notebook Navigator', // Context menu item to reveal a file in the navigator (English: Reveal in Notebook Navigator)
     },
 
+    // Tooltips
+    tooltips: {
+        lastModifiedAt: 'Last modified at',
+        createdAt: 'Created at',
+        file: 'file',
+        files: 'files',
+        folder: 'folder',
+        folders: 'folders',
+    },
+
     // Settings
     settings: {
         sections: {
+            timeDisplay: 'Time display',
             noteDisplay: 'Note display',
             folderDisplay: 'Folder display',
             tagDisplay: 'Tag display',

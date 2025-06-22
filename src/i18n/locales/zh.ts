@@ -209,9 +209,20 @@ export const STRINGS_ZH = {
         revealInNavigator: '在笔记本导航器中显示', // Context menu item to reveal a file in the navigator (English: Reveal in Notebook Navigator)
     },
 
+    // Tooltips
+    tooltips: {
+        lastModifiedAt: '最后修改于',
+        createdAt: '创建于',
+        file: '个文件',
+        files: '个文件',
+        folder: '个文件夹',
+        folders: '个文件夹',
+    },
+
     // Settings
     settings: {
         sections: {
+            timeDisplay: '时间显示',
             noteDisplay: '笔记显示',
             folderDisplay: '文件夹显示',
             tagDisplay: '标签显示',

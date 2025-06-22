@@ -47,6 +47,9 @@ export interface NotebookNavigatorSettings {
     autoSelectFirstFile: boolean;
     excludedFiles: string;
     ignoreFolders: string;
+    // Time display
+    dateFormat: string;
+    timeFormat: string;
     // Note display
     frontmatterNameField: string;
     frontmatterCreatedField: string;
@@ -54,8 +57,6 @@ export interface NotebookNavigatorSettings {
     frontmatterDateFormat: string;
     fileNameRows: number;
     showDate: boolean;
-    dateFormat: string;
-    timeFormat: string;
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;
     skipNonTextInPreview: boolean;
@@ -98,6 +99,9 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     autoSelectFirstFile: true,
     excludedFiles: '',
     ignoreFolders: '',
+    // Time display
+    dateFormat: 'MMM d, yyyy',
+    timeFormat: 'h:mm a',
     // Note display
     frontmatterNameField: '',
     frontmatterCreatedField: 'created',
@@ -105,8 +109,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     frontmatterDateFormat: "yyyy-MM-dd'T'HH:mm:ss",
     fileNameRows: 1,
     showDate: true,
-    dateFormat: 'MMM d, yyyy',
-    timeFormat: 'h:mm a',
     showFilePreview: true,
     skipHeadingsInPreview: false,
     skipNonTextInPreview: true,
@@ -340,7 +342,40 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             (value) => { this.plugin.settings.ignoreFolders = value; }
         );
 
-        // Section 2: Note display
+        // Section 2: Time display
+        new Setting(containerEl)
+            .setName(strings.settings.sections.timeDisplay)
+            .setHeading();
+
+        this.createDebouncedTextSetting(
+            containerEl,
+            strings.settings.items.dateFormat.name,
+            strings.settings.items.dateFormat.desc,
+            strings.settings.items.dateFormat.placeholder,
+            () => this.plugin.settings.dateFormat,
+            (value) => { this.plugin.settings.dateFormat = value || 'MMM d, yyyy'; }
+        ).addExtraButton(button => button
+            .setIcon('help')
+            .setTooltip(strings.settings.items.dateFormat.helpTooltip)
+            .onClick(() => {
+                new Notice(strings.settings.items.dateFormat.help, 10000);
+            }));
+
+        this.createDebouncedTextSetting(
+            containerEl,
+            strings.settings.items.timeFormat.name,
+            strings.settings.items.timeFormat.desc,
+            strings.settings.items.timeFormat.placeholder,
+            () => this.plugin.settings.timeFormat,
+            (value) => { this.plugin.settings.timeFormat = value || 'h:mm a'; }
+        ).addExtraButton(button => button
+            .setIcon('help')
+            .setTooltip(strings.settings.items.timeFormat.helpTooltip)
+            .onClick(() => {
+                new Notice(strings.settings.items.timeFormat.help, 10000);
+            }));
+
+        // Section 3: Note display
         new Setting(containerEl)
             .setName(strings.settings.sections.noteDisplay)
             .setHeading();
@@ -420,39 +455,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .onChange(async (value) => {
                     this.plugin.settings.showDate = value;
                     await this.saveAndRefresh();
-                    this.setElementVisibility(dateFormatSettingEl, value);
                 }));
-
-        // Container for date format setting
-        const dateFormatSettingEl = containerEl.createDiv('nn-sub-settings');
-
-        this.createDebouncedTextSetting(
-            dateFormatSettingEl,
-            strings.settings.items.dateFormat.name,
-            strings.settings.items.dateFormat.desc,
-            strings.settings.items.dateFormat.placeholder,
-            () => this.plugin.settings.dateFormat,
-            (value) => { this.plugin.settings.dateFormat = value || 'MMM d, yyyy'; }
-        ).addExtraButton(button => button
-            .setIcon('help')
-            .setTooltip(strings.settings.items.dateFormat.helpTooltip)
-            .onClick(() => {
-                new Notice(strings.settings.items.dateFormat.help, 10000);
-            }));
-
-        this.createDebouncedTextSetting(
-            dateFormatSettingEl,
-            strings.settings.items.timeFormat.name,
-            strings.settings.items.timeFormat.desc,
-            strings.settings.items.timeFormat.placeholder,
-            () => this.plugin.settings.timeFormat,
-            (value) => { this.plugin.settings.timeFormat = value || 'h:mm a'; }
-        ).addExtraButton(button => button
-            .setIcon('help')
-            .setTooltip(strings.settings.items.timeFormat.helpTooltip)
-            .onClick(() => {
-                new Notice(strings.settings.items.timeFormat.help, 10000);
-            }));
 
         const showPreviewSetting = new Setting(containerEl)
             .setName(strings.settings.items.showFilePreview.name)
@@ -526,7 +529,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             (value) => { this.plugin.settings.featureImageProperty = value || 'feature'; }
         );
 
-        // Section 3: Folder display
+        // Section 4: Folder display
         new Setting(containerEl)
             .setName(strings.settings.sections.folderDisplay)
             .setHeading();
@@ -595,7 +598,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                 }));
 
-        // Section 4: Tag display
+        // Section 5: Tag display
         new Setting(containerEl)
             .setName(strings.settings.sections.tagDisplay)
             .setHeading();
@@ -625,7 +628,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                 }));
 
-        // Section 5: Advanced
+        // Section 6: Advanced
         new Setting(containerEl)
             .setName(strings.settings.sections.advanced)
             .setHeading();
@@ -668,7 +671,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         this.setElementVisibility(dateGroupingEl, shouldShowDateGrouping(this.plugin.settings.defaultFolderSort));
         this.setElementVisibility(previewSettingsEl, this.plugin.settings.showFilePreview);
         this.setElementVisibility(featureImageSettingsEl, this.plugin.settings.showFeatureImage);
-        this.setElementVisibility(dateFormatSettingEl, this.plugin.settings.showDate);
         this.setElementVisibility(untaggedSettingEl, this.plugin.settings.showTags);
         this.setElementVisibility(frontmatterSettingsEl, this.plugin.settings.useFrontmatterDates);
         this.setElementVisibility(folderNotesSettingsEl, this.plugin.settings.enableFolderNotes);

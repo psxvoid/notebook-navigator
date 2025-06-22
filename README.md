@@ -125,6 +125,11 @@ Until the plugin is approved in the Community Plugins directory, you can install
 - **Excluded notes:** Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived)
 - **Excluded folders:** Comma-separated list of folders to hide. Supports wildcards: assets* (starts with), *_temp (ends with)
 
+### Time Display
+
+- **Date format:** Format for displaying dates (uses date-fns format)
+- **Time format:** Format for displaying times in Today and Yesterday groups (uses date-fns format)
+
 ### Note Display
 
 - **Read metadata from frontmatter:** Read note names and timestamps from frontmatter when available, falling back to file system values
@@ -134,8 +139,6 @@ Until the plugin is approved in the Community Plugins directory, you can install
   - **Timestamp format:** Format used to parse timestamps in frontmatter
 - **Title rows:** Number of rows to display for note titles
 - **Show date:** Display the date below note names
-  - **Date format:** Format for displaying dates (uses date-fns format)
-  - **Time format:** Format for displaying times in Today and Yesterday groups (uses date-fns format)
 - **Show note preview:** Display preview text beneath note names
   - **Skip headings in preview:** Skip heading lines when generating preview text
   - **Skip non-text in preview:** Skip images, embeds, and other non-text elements from preview text
