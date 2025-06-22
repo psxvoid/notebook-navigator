@@ -235,14 +235,20 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                             <button
                                 className="nn-icon-button"
                                 aria-label={strings.paneHeader.mobileBackToFolders}
-                                onClick={() => uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'list' })}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
+                                }}
                                 tabIndex={-1}
                             >
                                 <ObsidianIcon name="arrow-left" />
                             </button>
                             <span 
                                 className="nn-mobile-title"
-                                onClick={() => uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'list' })}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
+                                }}
                             >
                                 {headerTitle}
                             </span>
@@ -251,7 +257,10 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                             <button
                                 className="nn-icon-button"
                                 aria-label={strings.paneHeader.changeSortOrder}
-                                onClick={handleSortMenu}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleSortMenu(e);
+                                }}
                                 disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
                                 tabIndex={-1}
                             >
@@ -260,7 +269,10 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                             <button
                                 className="nn-icon-button"
                                 aria-label={strings.paneHeader.newNote}
-                                onClick={handleNewFile}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleNewFile();
+                                }}
                                 disabled={!selectionState.selectedFolder}
                                 tabIndex={-1}
                             >
@@ -279,7 +291,10 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                     <button
                         className="nn-icon-button"
                         aria-label={expansionState.expandedFolders.size > 0 ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
-                        onClick={handleExpandCollapseAll}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleExpandCollapseAll();
+                        }}
                         tabIndex={-1}
                     >
                         <ObsidianIcon 
@@ -289,7 +304,10 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                     <button
                         className="nn-icon-button"
                         aria-label={strings.paneHeader.newFolder}
-                        onClick={handleNewFolder}
+                        onClick={(e) => {
+                            e.stopPropagation();
+                            handleNewFolder();
+                        }}
                         disabled={!selectionState.selectedFolder}
                         tabIndex={-1}
                     >
