@@ -240,7 +240,12 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                             >
                                 <ObsidianIcon name="arrow-left" />
                             </button>
-                            <span className="nn-mobile-title">{headerTitle}</span>
+                            <span 
+                                className="nn-mobile-title"
+                                onClick={() => uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'list' })}
+                            >
+                                {headerTitle}
+                            </span>
                         </div>
                         <div className="nn-header-actions">
                             <button
