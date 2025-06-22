@@ -478,7 +478,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     .setIcon('trash')
                     .onClick(async () => {
                         // Check if this is the currently selected file
-                        if (!isMobile && selectionState.selectedFile?.path === file.path) {
+                        if (selectionState.selectedFile?.path === file.path) {
                             // Use the smart delete handler
                             await fileSystemOps.deleteSelectedFile(
                                 file,
