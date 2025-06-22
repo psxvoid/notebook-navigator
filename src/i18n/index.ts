@@ -61,3 +61,23 @@ function getObsidianLanguage(): string {
 
 // Export the appropriate language strings based on Obsidian's setting
 export const strings: TranslationStrings = LANGUAGE_MAP[getObsidianLanguage()];
+
+/**
+ * Get the default date format for the current language
+ * Falls back to 'MMM d, yyyy' if not found
+ */
+export function getDefaultDateFormat(): string {
+    const lang = getObsidianLanguage();
+    const localeStrings = LANGUAGE_MAP[lang] || LANGUAGE_MAP.en;
+    return localeStrings.settings.items.dateFormat.placeholder;
+}
+
+/**
+ * Get the default time format for the current language
+ * Falls back to 'h:mm a' if not found
+ */
+export function getDefaultTimeFormat(): string {
+    const lang = getObsidianLanguage();
+    const localeStrings = LANGUAGE_MAP[lang] || LANGUAGE_MAP.en;
+    return localeStrings.settings.items.timeFormat.placeholder;
+}

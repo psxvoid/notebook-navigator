@@ -36,7 +36,7 @@ import { PreviewTextUtils } from './utils/PreviewTextUtils';
 import { FileSystemOperations } from './services/FileSystemService';
 import { MetadataService } from './services/MetadataService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
-import { strings } from './i18n';
+import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 
 /**
  * Main plugin class for Notebook Navigator
@@ -267,7 +267,17 @@ export default class NotebookNavigatorPlugin extends Plugin {
     async loadSettings() {
         const data = await this.loadData();
         const isFirstLaunch = !data; // No saved data means first launch
+        
+        // Start with default settings
         this.settings = Object.assign({}, DEFAULT_SETTINGS, data || {});
+        
+        // On first launch, set language-specific date/time formats
+        if (isFirstLaunch || !data?.dateFormat) {
+            this.settings.dateFormat = getDefaultDateFormat();
+        }
+        if (isFirstLaunch || !data?.timeFormat) {
+            this.settings.timeFormat = getDefaultTimeFormat();
+        }
         
         // On first launch, if showRootFolder is enabled by default, 
         // ensure the root folder is in the expanded folders list
