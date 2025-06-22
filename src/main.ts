@@ -57,6 +57,18 @@ export default class NotebookNavigatorPlugin extends Plugin {
     keys: LocalStorageKeys = STORAGE_KEYS;
 
     /**
+     * Called when external changes to settings are detected (e.g., from sync)
+     * This method is called automatically by Obsidian when the data.json file
+     * is modified externally while the plugin is running
+     */
+    async onExternalSettingsChange() {
+        if (!this.isUnloading) {
+            await this.loadSettings();
+            this.onSettingsUpdate();
+        }
+    }
+
+    /**
      * Plugin initialization - called when plugin is enabled
      * Sets up views, commands, event handlers, and UI elements
      * Ensures proper initialization order for all plugin components
@@ -250,7 +262,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
     /**
      * Loads plugin settings from Obsidian's data storage
      * Merges saved settings with default settings to ensure all required fields exist
-     * Called during plugin initialization
+     * Called during plugin initialization and when external changes are detected
      */
     async loadSettings() {
         const data = await this.loadData();
@@ -269,6 +281,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
             }
         }
     }
+
 
     /**
      * Saves current plugin settings to Obsidian's data storage
