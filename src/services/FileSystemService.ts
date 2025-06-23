@@ -297,13 +297,6 @@ export class FileSystemOperations {
             currentFiles = getFilesForTag(selectionContext.selectedTag, settings, this.app);
         }
         
-        // When "show notes from subfolders" is enabled and we're in a folder view,
-        // filter to same parent folder to avoid jumping to files in other folders
-        if (settings.showNotesFromSubfolders && file.parent && selectionContext.selectionType === 'folder') {
-            const parentPath = file.parent.path;
-            currentFiles = currentFiles.filter(f => f.parent?.path === parentPath);
-        }
-        
         // Find next file to select
         let nextFileToSelect: TFile | null = null;
         const currentIndex = currentFiles.findIndex(f => f.path === file.path);
