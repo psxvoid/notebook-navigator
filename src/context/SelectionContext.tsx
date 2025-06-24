@@ -34,9 +34,14 @@ export interface SelectionState {
     selectionType: NavigationItemType;
     selectedFolder: TFolder | null;
     selectedTag: string | null;
-    selectedFile: TFile | null;
+    selectedFiles: Set<string>; // Changed from single file to Set of file paths
+    anchorIndex: number | null; // Anchor position for multi-selection
+    lastMovementDirection: 'up' | 'down' | null; // Track direction for expand/contract
     isRevealOperation: boolean; // Flag to track if the current selection is from a REVEAL_FILE action
     isFolderChangeWithAutoSelect: boolean; // Flag to track if we just changed folders and auto-selected a file
+    
+    // Computed property for backward compatibility
+    selectedFile: TFile | null; // First file in selection or null
 }
 
 // Action types
@@ -48,7 +53,14 @@ export type SelectionAction =
     | { type: 'CLEAR_SELECTION' }
     | { type: 'REVEAL_FILE'; file: TFile; preserveFolder?: boolean }
     | { type: 'CLEANUP_DELETED_FOLDER'; deletedPath: string }
-    | { type: 'CLEANUP_DELETED_FILE'; deletedPath: string; nextFileToSelect?: TFile | null };
+    | { type: 'CLEANUP_DELETED_FILE'; deletedPath: string; nextFileToSelect?: TFile | null }
+    // Multi-selection actions
+    | { type: 'TOGGLE_FILE_SELECTION'; file: TFile; anchorIndex?: number }
+    | { type: 'EXTEND_SELECTION'; toIndex: number; files: TFile[]; allFiles: TFile[] }
+    | { type: 'CLEAR_FILE_SELECTION' }
+    | { type: 'SET_ANCHOR_INDEX'; index: number | null }
+    | { type: 'SET_MOVEMENT_DIRECTION'; direction: 'up' | 'down' | null }
+    | { type: 'UPDATE_CURRENT_FILE'; file: TFile }; // Update current file without changing selection
 
 // Dispatch function type
 export type SelectionDispatch = React.Dispatch<SelectionAction>;
@@ -57,35 +69,82 @@ export type SelectionDispatch = React.Dispatch<SelectionAction>;
 const SelectionContext = createContext<SelectionState | null>(null);
 const SelectionDispatchContext = createContext<React.Dispatch<SelectionAction> | null>(null);
 
+// Helper function to get first file from selection (for backward compatibility)
+function getFirstSelectedFile(selectedFiles: Set<string>, app: any): TFile | null {
+    if (selectedFiles.size === 0) return null;
+    const firstPath = Array.from(selectedFiles)[0];
+    const file = app.vault.getAbstractFileByPath(firstPath);
+    return file instanceof TFile ? file : null;
+}
+
 // Pure reducer function - no side effects or external dependencies
-function selectionReducer(state: SelectionState, action: SelectionAction): SelectionState {
+function selectionReducer(state: SelectionState, action: SelectionAction, app?: any): SelectionState {
     switch (action.type) {
         case 'SET_SELECTED_FOLDER': {
+            const newSelectedFiles = new Set<string>();
+            if (action.autoSelectedFile) {
+                newSelectedFiles.add(action.autoSelectedFile.path);
+            }
             return {
                 ...state,
                 selectedFolder: action.folder,
                 selectedTag: null,
                 selectionType: 'folder',
-                selectedFile: action.autoSelectedFile !== undefined ? action.autoSelectedFile : state.selectedFile,
+                selectedFiles: newSelectedFiles,
+                selectedFile: action.autoSelectedFile || null,
+                anchorIndex: null,
+                lastMovementDirection: null,
                 isRevealOperation: false,
                 isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null
             };
         }
         
         case 'SET_SELECTED_TAG': {
+            const newSelectedFiles = new Set<string>();
+            if (action.autoSelectedFile) {
+                newSelectedFiles.add(action.autoSelectedFile.path);
+            }
             return {
                 ...state,
                 selectedTag: action.tag,
                 selectedFolder: null,
                 selectionType: 'tag',
-                selectedFile: action.autoSelectedFile !== undefined ? action.autoSelectedFile : state.selectedFile,
+                selectedFiles: newSelectedFiles,
+                selectedFile: action.autoSelectedFile || null,
+                anchorIndex: null,
+                lastMovementDirection: null,
                 isRevealOperation: false,
                 isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null
             };
         }
             
-        case 'SET_SELECTED_FILE':
-            return { ...state, selectedFile: action.file, isRevealOperation: false, isFolderChangeWithAutoSelect: false };
+        case 'SET_SELECTED_FILE': {
+            // If we have multiple files selected and are setting a file that's already selected,
+            // this is probably navigation within multi-selection, don't clear the selection
+            if (state.selectedFiles.size > 1 && action.file && state.selectedFiles.has(action.file.path)) {
+                return {
+                    ...state,
+                    selectedFile: action.file,
+                    isRevealOperation: false,
+                    isFolderChangeWithAutoSelect: false
+                };
+            }
+            
+            // Normal case - clear selection and select only this file
+            const newSelectedFiles = new Set<string>();
+            if (action.file) {
+                newSelectedFiles.add(action.file.path);
+            }
+            return { 
+                ...state, 
+                selectedFiles: newSelectedFiles,
+                selectedFile: action.file,
+                anchorIndex: null,
+                lastMovementDirection: null,
+                isRevealOperation: false, 
+                isFolderChangeWithAutoSelect: false 
+            };
+        }
         
         case 'SET_SELECTION_TYPE':
             return { ...state, selectionType: action.selectionType, isRevealOperation: false, isFolderChangeWithAutoSelect: false };
@@ -95,7 +154,10 @@ function selectionReducer(state: SelectionState, action: SelectionAction): Selec
                 ...state,
                 selectedFolder: null,
                 selectedTag: null,
+                selectedFiles: new Set<string>(),
                 selectedFile: null,
+                anchorIndex: null,
+                lastMovementDirection: null,
                 isRevealOperation: false,
                 isFolderChangeWithAutoSelect: false
             };
@@ -110,12 +172,18 @@ function selectionReducer(state: SelectionState, action: SelectionAction): Selec
                 ? state.selectedFolder 
                 : action.file.parent;
             
+            const newSelectedFiles = new Set<string>();
+            newSelectedFiles.add(action.file.path);
+            
             return {
                 ...state,
                 selectionType: 'folder',
                 selectedFolder: newFolder,
                 selectedTag: null,
+                selectedFiles: newSelectedFiles,
                 selectedFile: action.file,
+                anchorIndex: null,
+                lastMovementDirection: null,
                 isRevealOperation: true,
                 isFolderChangeWithAutoSelect: false
             };
@@ -126,7 +194,10 @@ function selectionReducer(state: SelectionState, action: SelectionAction): Selec
                 return {
                     ...state,
                     selectedFolder: null,
+                    selectedFiles: new Set<string>(),
                     selectedFile: null,
+                    anchorIndex: null,
+                    lastMovementDirection: null,
                     isFolderChangeWithAutoSelect: false
                 };
             }
@@ -134,14 +205,108 @@ function selectionReducer(state: SelectionState, action: SelectionAction): Selec
         }
         
         case 'CLEANUP_DELETED_FILE': {
-            if (state.selectedFile && state.selectedFile.path === action.deletedPath) {
-                return {
-                    ...state,
-                    selectedFile: action.nextFileToSelect !== undefined ? action.nextFileToSelect : null,
-                    isFolderChangeWithAutoSelect: false
-                };
+            const newSelectedFiles = new Set(state.selectedFiles);
+            newSelectedFiles.delete(action.deletedPath);
+            
+            // If we deleted files from multi-selection, update anchor
+            let newAnchorIndex = state.anchorIndex;
+            if (state.anchorIndex !== null && newSelectedFiles.size === 0) {
+                newAnchorIndex = null;
             }
-            return state;
+            
+            if (action.nextFileToSelect) {
+                newSelectedFiles.add(action.nextFileToSelect.path);
+            }
+            
+            return {
+                ...state,
+                selectedFiles: newSelectedFiles,
+                selectedFile: action.nextFileToSelect || (app ? getFirstSelectedFile(newSelectedFiles, app) : null),
+                anchorIndex: newAnchorIndex,
+                isFolderChangeWithAutoSelect: false
+            };
+        }
+        
+        // Multi-selection actions
+        case 'TOGGLE_FILE_SELECTION': {
+            const newSelectedFiles = new Set(state.selectedFiles);
+            if (newSelectedFiles.has(action.file.path)) {
+                newSelectedFiles.delete(action.file.path);
+            } else {
+                newSelectedFiles.add(action.file.path);
+            }
+            
+            console.log('[MULTI-SELECT] Toggle file selection:', action.file.path, 'Selected count:', newSelectedFiles.size);
+            
+            return {
+                ...state,
+                selectedFiles: newSelectedFiles,
+                selectedFile: newSelectedFiles.size > 0 ? action.file : null, // Keep the clicked file as current
+                anchorIndex: action.anchorIndex !== undefined ? action.anchorIndex : state.anchorIndex,
+                lastMovementDirection: null
+            };
+        }
+        
+        case 'EXTEND_SELECTION': {
+            const { toIndex, files, allFiles } = action;
+            if (state.anchorIndex === null) return state;
+            
+            // This action should only select from anchor to current, not replace everything
+            // For now, just select the range from anchor to toIndex
+            const minIndex = Math.min(state.anchorIndex, toIndex);
+            const maxIndex = Math.max(state.anchorIndex, toIndex);
+            
+            // Create new selection with files in range
+            const newSelectedFiles = new Set<string>();
+            for (let i = minIndex; i <= maxIndex && i < allFiles.length; i++) {
+                if (allFiles[i]) {
+                    newSelectedFiles.add(allFiles[i].path);
+                }
+            }
+            
+            console.log('[MULTI-SELECT] Extended selection from', state.anchorIndex, 'to', toIndex, 'Selected count:', newSelectedFiles.size);
+            
+            return {
+                ...state,
+                selectedFiles: newSelectedFiles,
+                selectedFile: allFiles[toIndex] || null,
+                lastMovementDirection: null
+            };
+        }
+        
+        case 'CLEAR_FILE_SELECTION': {
+            console.log('[MULTI-SELECT] Clearing file selection');
+            return {
+                ...state,
+                selectedFiles: new Set<string>(),
+                selectedFile: null,
+                anchorIndex: null,
+                lastMovementDirection: null
+            };
+        }
+        
+        case 'SET_ANCHOR_INDEX': {
+            console.log('[MULTI-SELECT] Setting anchor index to', action.index);
+            return {
+                ...state,
+                anchorIndex: action.index
+            };
+        }
+        
+        case 'SET_MOVEMENT_DIRECTION': {
+            console.log('[MULTI-SELECT] Setting movement direction to', action.direction);
+            return {
+                ...state,
+                lastMovementDirection: action.direction
+            };
+        }
+        
+        case 'UPDATE_CURRENT_FILE': {
+            console.log('[MULTI-SELECT] Updating current file to', action.file.name);
+            return {
+                ...state,
+                selectedFile: action.file
+            };
         }
         
         default:
@@ -190,10 +355,12 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
         }
         
         let selectedFile: TFile | null = null;
+        const selectedFiles = new Set<string>();
         if (savedFilePath) {
             const file = vault.getAbstractFileByPath(savedFilePath);
             if (file instanceof TFile) {
                 selectedFile = file;
+                selectedFiles.add(file.path);
             }
         }
         
@@ -206,13 +373,20 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             selectionType: 'folder',
             selectedFolder,
             selectedTag: null,
+            selectedFiles,
             selectedFile,
+            anchorIndex: null,
+            lastMovementDirection: null,
             isRevealOperation: false,
             isFolderChangeWithAutoSelect: false
         };
     }, [app.vault]);
     
-    const [state, dispatch] = useReducer(selectionReducer, undefined, loadInitialState);
+    const [state, dispatch] = useReducer(
+        (state: SelectionState, action: SelectionAction) => selectionReducer(state, action, app),
+        undefined,
+        loadInitialState
+    );
     
     // Create an enhanced dispatch that handles side effects
     const enhancedDispatch = useCallback((action: SelectionAction) => {
@@ -221,6 +395,8 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             if (action.folder && settings.autoSelectFirstFile) {
                 const filesInFolder = getFilesForFolder(action.folder, settings, app);
                 const autoSelectedFile = filesInFolder.length > 0 ? filesInFolder[0] : null;
+                // Clear multi-selection when changing folders
+                dispatch({ type: 'CLEAR_FILE_SELECTION' });
                 dispatch({ ...action, autoSelectedFile });
             } else {
                 dispatch({ ...action, autoSelectedFile: null });
@@ -231,6 +407,8 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             if (action.tag && settings.autoSelectFirstFile) {
                 const filesForTag = getFilesForTag(action.tag, settings, app);
                 const autoSelectedFile = filesForTag.length > 0 ? filesForTag[0] : null;
+                // Clear multi-selection when changing tags
+                dispatch({ type: 'CLEAR_FILE_SELECTION' });
                 dispatch({ ...action, autoSelectedFile });
             } else {
                 dispatch({ ...action, autoSelectedFile: null });
@@ -263,15 +441,17 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
     // Persist selected file to localStorage with error handling
     useEffect(() => {
         try {
-            if (state.selectedFile) {
-                localStorage.setItem(STORAGE_KEYS.SELECTED_FILE, state.selectedFile.path);
+            // Save the first selected file for backward compatibility
+            const firstFile = state.selectedFile || getFirstSelectedFile(state.selectedFiles, app);
+            if (firstFile) {
+                localStorage.setItem(STORAGE_KEYS.SELECTED_FILE, firstFile.path);
             } else {
                 localStorage.removeItem(STORAGE_KEYS.SELECTED_FILE);
             }
         } catch (error) {
             console.error('Failed to save selected file to localStorage:', error);
         }
-    }, [state.selectedFile]);
+    }, [state.selectedFile, state.selectedFiles, app]);
     
     return (
         <SelectionContext.Provider value={state}>

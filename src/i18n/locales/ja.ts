@@ -161,6 +161,10 @@ export const STRINGS_JA = {
             revealInExplorer: 'システムエクスプローラーでファイルを表示できませんでした：{error}',
             folderNoteAlreadyExists: 'フォルダノートはすでに存在します',
         },
+        confirmations: {
+            deleteMultipleFiles: 'Are you sure you want to delete {count} files?',
+            deleteConfirmation: 'This action cannot be undone.',
+        },
         defaultNames: {
             untitled: '無題',
             untitledNumber: '無題 {number}',

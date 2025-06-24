@@ -526,6 +526,51 @@ export class FileSystemOperations {
         }
     }
 
+    /**
+     * Deletes multiple files with confirmation
+     * @param files - Array of files to delete
+     * @param confirmBeforeDelete - Whether to show confirmation dialog
+     */
+    async deleteMultipleFiles(files: TFile[], confirmBeforeDelete = true): Promise<void> {
+        if (files.length === 0) return;
+        
+        if (confirmBeforeDelete) {
+            // Import dynamically to avoid circular dependencies
+            const { ConfirmModal } = await import('../modals/ConfirmModal');
+            
+            const modal = new ConfirmModal(
+                this.app,
+                strings.fileSystem.confirmations.deleteMultipleFiles
+                    .replace('{count}', files.length.toString()),
+                strings.fileSystem.confirmations.deleteConfirmation,
+                async () => {
+                    // Delete all files
+                    for (const file of files) {
+                        try {
+                            await this.app.vault.delete(file);
+                        } catch (error) {
+                            console.error('Error deleting file:', file.path, error);
+                            new Notice(`Failed to delete ${file.name}: ${error.message}`);
+                        }
+                    }
+                    new Notice(`Deleted ${files.length} files`);
+                }
+            );
+            modal.open();
+        } else {
+            // Delete without confirmation
+            for (const file of files) {
+                try {
+                    await this.app.vault.delete(file);
+                } catch (error) {
+                    console.error('Error deleting file:', file.path, error);
+                    new Notice(`Failed to delete ${file.name}: ${error.message}`);
+                }
+            }
+            new Notice(`Deleted ${files.length} files`);
+        }
+    }
+
     // Alias methods for backward compatibility
     /**
      * Creates a new note in the specified parent folder

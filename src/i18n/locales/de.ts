@@ -161,6 +161,10 @@ export const STRINGS_DE = {
             revealInExplorer: 'Datei konnte nicht im Explorer angezeigt werden: {error}',
             folderNoteAlreadyExists: 'Ordnernotiz existiert bereits',
         },
+        confirmations: {
+            deleteMultipleFiles: 'Are you sure you want to delete {count} files?',
+            deleteConfirmation: 'This action cannot be undone.',
+        },
         defaultNames: {
             untitled: 'Ohne Titel',
             untitledNumber: 'Ohne Titel {number}',

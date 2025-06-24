@@ -35,6 +35,7 @@ import { PaneHeader } from './PaneHeader';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
+import { useMultiSelectionDebug } from '../hooks/useMultiSelectionDebug';
 
 
 /**
@@ -57,7 +58,10 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const settings = useSettingsState();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
-    const { selectionType, selectedFolder, selectedTag, selectedFile } = selectionState;
+    const { selectionType, selectedFolder, selectedTag, selectedFile, selectedFiles } = selectionState;
+    
+    // Use the debug hook
+    useMultiSelectionDebug(selectionState);
     
     
     
@@ -65,26 +69,51 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const isUserSelectionRef = useRef(false);
     const [fileVersion, setFileVersion] = useState(0);
     
-    const handleFileClick = useCallback((file: TFile, e: React.MouseEvent) => {
+    const handleFileClick = useCallback((file: TFile, e: React.MouseEvent, fileIndex?: number) => {
         isUserSelectionRef.current = true;  // Mark this as a user selection
-        selectionDispatch({ type: 'SET_SELECTED_FILE', file });
+        
+        // Check if CMD (Mac) or Ctrl (Windows/Linux) is pressed for multi-select
+        const isMultiSelectModifier = e.metaKey || e.ctrlKey;
+        const isShiftKey = e.shiftKey;
+        
+        // Don't enable multi-select on mobile
+        if (!isMobile && isMultiSelectModifier) {
+            // Toggle selection with Cmd/Ctrl+Click
+            console.log(`[MULTI-SELECT] Cmd+Click on file at index ${fileIndex}: ${file.name}`);
+            selectionDispatch({ type: 'TOGGLE_FILE_SELECTION', file, anchorIndex: fileIndex });
+        } else if (!isMobile && isShiftKey && fileIndex !== undefined) {
+            // Extend selection from anchor to clicked file
+            console.log('[MULTI-SELECT] Shift+Click on file at index', fileIndex);
+            
+            // Initialize anchor if not set
+            if (selectionState.anchorIndex === null) {
+                selectionDispatch({ type: 'SET_ANCHOR_INDEX', index: fileIndex });
+            }
+            
+            // Extend selection from anchor to clicked file
+            selectionDispatch({ type: 'EXTEND_SELECTION', toIndex: fileIndex, files, allFiles: files });
+        } else {
+            // Normal click - select only this file
+            selectionDispatch({ type: 'SET_SELECTED_FILE', file });
+        }
+        
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         
         // Focus the container
         const container = document.querySelector('.nn-split-container') as HTMLElement;
         if (container) container.focus();
         
-        // Check if CMD (Mac) or Ctrl (Windows/Linux) is pressed
-        const openInNewTab = e.metaKey || e.ctrlKey;
-        
-        // Open file in new tab or current tab based on modifier key
-        const leaf = openInNewTab ? app.workspace.getLeaf('tab') : app.workspace.getLeaf(false);
-        if (leaf) {
-            leaf.openFile(file, { active: false });
+        // Only open file if not multi-selecting
+        if (!isMultiSelectModifier && !isShiftKey) {
+            // Open file in current tab
+            const leaf = app.workspace.getLeaf(false);
+            if (leaf) {
+                leaf.openFile(file, { active: false });
+            }
         }
         
         // Collapse left sidebar on mobile after opening file
-        if (isMobile && app.workspace.leftSplit) {
+        if (isMobile && app.workspace.leftSplit && !isMultiSelectModifier && !isShiftKey) {
             // Scroll to top before collapsing to prevent virtualization issues
             if (scrollContainerRef.current) {
                 scrollContainerRef.current.scrollTop = 0;
@@ -726,7 +755,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                             const item = safeGetItem(listItems, virtualItem.index);
                             if (!item) return null;
                             const isSelected = item.type === 'file' && 
-                                selectedFilePath === (item.data as TFile).path;
+                                selectedFiles.has((item.data as TFile).path);
                             
                             // Check if this is the last file item
                             const nextItem = safeGetItem(listItems, virtualItem.index + 1);
@@ -740,7 +769,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                             // Check if next item is selected (for hiding separator)
                             const nextItemSelected = nextItem && 
                                 nextItem.type === 'file' && 
-                                selectedFilePath === (nextItem.data as TFile).path;
+                                selectedFiles.has((nextItem.data as TFile).path);
                             
                             // Find current date group for file items
                             let dateGroup: string | null = null;
@@ -780,7 +809,11 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                             key={(item.data as TFile).path}
                                             file={item.data as TFile}
                                             isSelected={isSelected}
-                                            onClick={(e) => handleFileClick(item.data as TFile, e)}
+                                            onClick={(e) => {
+                                                // Find the actual index of this file in the files array
+                                                const fileIndex = files.findIndex(f => f.path === (item.data as TFile).path);
+                                                handleFileClick(item.data as TFile, e, fileIndex);
+                                            }}
                                             dateGroup={dateGroup}
                                             formattedDate={filesWithDates?.get((item.data as TFile).path)}
                                             parentFolder={item.parentFolder}

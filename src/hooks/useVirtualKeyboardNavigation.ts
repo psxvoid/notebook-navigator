@@ -26,6 +26,7 @@ import { isTFolder } from '../utils/typeGuards';
 import { useServices, useFileSystemOps } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useMultiSelectionDebug } from './useMultiSelectionDebug';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { getSupportedLeaves } from '../types';
@@ -60,6 +61,9 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const lastKeyPressTime = useRef(0);
+    
+    // Use debug hook for multi-selection
+    useMultiSelectionDebug(selectionState);
     
     // Helper function for safe array access
     const safeGetItem = <T,>(array: T[], index: number): T | undefined => {
@@ -129,16 +133,27 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         switch (effectiveKey) {
             case 'ArrowDown':
                 e.preventDefault();
-                targetIndex = findNextSelectableIndex(items, currentIndex, focusedPane);
+                if (e.shiftKey && focusedPane === 'files' && !isMobile) {
+                    // Multi-selection with Shift+Down
+                    handleShiftArrowSelection('down', currentIndex, items);
+                } else {
+                    targetIndex = findNextSelectableIndex(items, currentIndex, focusedPane);
+                }
                 break;
                 
             case 'ArrowUp':
                 e.preventDefault();
-                // If nothing is selected, select the first item
-                if (currentIndex === -1) {
-                    targetIndex = findNextSelectableIndex(items, -1, focusedPane);
+                if (e.shiftKey && focusedPane === 'files' && !isMobile && currentIndex !== -1) {
+                    // Multi-selection with Shift+Up
+                    handleShiftArrowSelection('up', currentIndex, items);
+                    return; // Don't process normal navigation
                 } else {
-                    targetIndex = findPreviousSelectableIndex(items, currentIndex, focusedPane);
+                    // If nothing is selected, select the first item
+                    if (currentIndex === -1) {
+                        targetIndex = findNextSelectableIndex(items, -1, focusedPane);
+                    } else {
+                        targetIndex = findPreviousSelectableIndex(items, currentIndex, focusedPane);
+                    }
                 }
                 break;
                 
@@ -333,12 +348,45 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             case 'Delete':
             case 'Backspace':
                 if (!isTypingInInput(e)) {
-                    if (focusedPane === 'files' && selectionState.selectedFile) {
+                    if (focusedPane === 'files' && (selectionState.selectedFile || selectionState.selectedFiles.size > 0)) {
                         e.preventDefault();
                         handleDelete();
                     } else if (focusedPane === 'folders' && selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
                         e.preventDefault();
                         handleDeleteFolder();
+                    }
+                }
+                break;
+                
+            case 'a':
+            case 'A':
+                // Cmd+A (Mac) or Ctrl+A (Windows/Linux) for Select All
+                if ((e.metaKey || e.ctrlKey) && focusedPane === 'files') {
+                    e.preventDefault();
+                    console.log('[MULTI-SELECT] Select All triggered');
+                    
+                    // Get all files in the current view
+                    const allFiles: TFile[] = [];
+                    items.forEach(item => {
+                        if (item.type === 'file') {
+                            allFiles.push(item.data as TFile);
+                        }
+                    });
+                    
+                    if (allFiles.length > 0) {
+                        // Clear current selection and select all files
+                        selectionDispatch({ type: 'CLEAR_FILE_SELECTION' });
+                        allFiles.forEach(file => {
+                            selectionDispatch({ type: 'TOGGLE_FILE_SELECTION', file });
+                        });
+                        
+                        // Keep cursor on current file or first file if none selected
+                        const currentFile = selectionState.selectedFile || allFiles[0];
+                        if (currentFile) {
+                            selectionDispatch({ type: 'UPDATE_CURRENT_FILE', file: currentFile });
+                        }
+                        
+                        console.log(`[MULTI-SELECT] Selected all ${allFiles.length} files`);
                     }
                 }
                 break;
@@ -358,6 +406,138 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             });
         }
     }, [items, virtualizer, focusedPane, selectionState, expansionState, selectionDispatch, expansionDispatch, uiState, uiDispatch, plugin, app, isMobile, settings, fileSystemOps]);
+    
+    /**
+     * Handle Shift+Arrow selection with Apple Notes-style anchor jumping
+     */
+    const handleShiftArrowSelection = useCallback((direction: 'up' | 'down', currentIndex: number, items: VirtualItem[]) => {
+        console.log(`[MULTI-SELECT] Shift+${direction} from virtualized index ${currentIndex}`);
+        
+        // Can't extend selection if nothing is selected
+        if (currentIndex === -1) {
+            console.log('[MULTI-SELECT] No current selection, cannot extend');
+            return;
+        }
+        
+        // Get current item
+        const currentItem = items[currentIndex];
+        if (!currentItem || currentItem.type !== 'file') {
+            console.log('[MULTI-SELECT] Current item is not a file');
+            return;
+        }
+        
+        const currentFile = currentItem.data as TFile;
+        console.log('[MULTI-SELECT] Current file:', currentFile.path);
+        
+        // Get files from the file list
+        const fileItems: TFile[] = [];
+        const fileIndexMap = new Map<string, number>();
+        let fileIndex = 0;
+        
+        items.forEach((item, idx) => {
+            if (item.type === 'file') {
+                const file = item.data as TFile;
+                fileItems.push(file);
+                fileIndexMap.set(file.path, fileIndex);
+                fileIndex++;
+            }
+        });
+        
+        if (fileItems.length === 0) {
+            console.log('[MULTI-SELECT] No files found in list');
+            return;
+        }
+        
+        // Find current file index in the files array
+        const currentFileIndex = fileIndexMap.get(currentFile.path);
+        if (currentFileIndex === undefined) {
+            console.log('[MULTI-SELECT] Could not find current file in file list');
+            return;
+        }
+        console.log(`[MULTI-SELECT] Current file index in files array: ${currentFileIndex}`);
+        console.log(`[MULTI-SELECT] Currently selected files:`, Array.from(selectionState.selectedFiles).map(path => path.split('/').pop()));
+        
+        // Calculate next position
+        const nextFileIndex = direction === 'down' 
+            ? Math.min(currentFileIndex + 1, fileItems.length - 1)
+            : Math.max(currentFileIndex - 1, 0);
+        
+        // Check if we're at boundary
+        if (nextFileIndex === currentFileIndex) {
+            console.log('[MULTI-SELECT] At boundary');
+            return;
+        }
+        
+        // Get the next file we're moving to
+        const nextFile = fileItems[nextFileIndex];
+        let jumpingEnabled = true;
+        
+        // STEP 1: Check if we need to deselect current item
+        if (selectionState.selectedFiles.has(currentFile.path)) {
+            // Check where we're moving TO
+            if (selectionState.selectedFiles.has(nextFile.path)) {
+                // Moving FROM selected item TO another selected item - deselect current
+                console.log('[MULTI-SELECT] Moving to already selected item, deselecting current and disabling jumping');
+                selectionDispatch({ type: 'TOGGLE_FILE_SELECTION', file: currentFile });
+                jumpingEnabled = false;
+            } else {
+                // Moving FROM selected item TO unselected item - keep current selected
+                console.log('[MULTI-SELECT] Moving to unselected item, keeping current selected');
+            }
+        }
+        
+        // STEP 2: Check the cell we arrived at
+        let arrivedAtWasSelected = selectionState.selectedFiles.has(nextFile.path);
+        
+        if (!arrivedAtWasSelected) {
+            // This new cell is unselected, select it
+            console.log('[MULTI-SELECT] Next item is not selected, selecting it:', nextFile.name);
+            selectionDispatch({ type: 'TOGGLE_FILE_SELECTION', file: nextFile });
+        } else {
+            console.log('[MULTI-SELECT] Next item is already selected');
+        }
+        
+        // STEP 3: Jumping logic (only if enabled)
+        let finalIndex = nextFileIndex;
+        
+        if (jumpingEnabled) {
+            // Jump if either:
+            // 1. We arrived at an already selected item, OR
+            // 2. We just selected a new item and should check for more selected items beyond
+            console.log('[MULTI-SELECT] Jumping enabled, checking for consecutive selected items');
+            let jumpIndex = direction === 'down' ? nextFileIndex + 1 : nextFileIndex - 1;
+            
+            while (jumpIndex >= 0 && jumpIndex < fileItems.length) {
+                const jumpFile = fileItems[jumpIndex];
+                if (selectionState.selectedFiles.has(jumpFile.path)) {
+                    console.log(`[MULTI-SELECT] Jumping to selected item at index ${jumpIndex}`);
+                    finalIndex = jumpIndex;
+                    jumpIndex = direction === 'down' ? jumpIndex + 1 : jumpIndex - 1;
+                } else {
+                    // Next item is not selected, stop here
+                    break;
+                }
+            }
+        }
+        
+        // STEP 4: Move cursor to final position
+        const finalFile = fileItems[finalIndex];
+        const virtualIndex = items.findIndex(item => 
+            item.type === 'file' && (item.data as TFile).path === finalFile.path
+        );
+        
+        if (virtualIndex !== -1) {
+            virtualizer.scrollToIndex(virtualIndex, {
+                align: 'auto',
+                behavior: 'auto'
+            });
+            
+            selectionDispatch({ type: 'UPDATE_CURRENT_FILE', file: finalFile });
+        }
+        
+        // Update movement direction
+        selectionDispatch({ type: 'SET_MOVEMENT_DIRECTION', direction });
+    }, [selectionState, selectionDispatch, virtualizer]);
     
     // Helper function to find next selectable item
     const findNextSelectableIndex = (items: VirtualItem[], currentIndex: number, pane: string, includeCurrent: boolean = false): number => {
@@ -468,6 +648,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             const fileItem = item as FileListItem;
             if (fileItem.type === 'file') {
                 const file = fileItem.data as TFile;
+                // Normal navigation clears multi-selection
                 selectionDispatch({ type: 'SET_SELECTED_FILE', file });
                 
                 // Open the file in the editor but keep focus in file list
@@ -540,20 +721,33 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     
     // Handle Delete key for files
     const handleDelete = async () => {
-        if (!selectionState.selectedFile || focusedPane !== 'files') return;
+        if (focusedPane !== 'files') return;
         
-        // Use the centralized delete handler
-        await fileSystemOps.deleteSelectedFile(
-            selectionState.selectedFile,
-            settings,
-            {
-                selectionType: selectionState.selectionType,
-                selectedFolder: selectionState.selectedFolder || undefined,
-                selectedTag: selectionState.selectedTag || undefined
-            },
-            selectionDispatch,
-            settings.confirmBeforeDelete
-        );
+        // Check if multiple files are selected
+        if (selectionState.selectedFiles.size > 1) {
+            // Delete multiple files
+            const filesToDelete = Array.from(selectionState.selectedFiles)
+                .map(path => app.vault.getAbstractFileByPath(path))
+                .filter((f): f is TFile => f instanceof TFile);
+                
+            await fileSystemOps.deleteMultipleFiles(filesToDelete, settings.confirmBeforeDelete);
+            
+            // Clear selection after bulk delete
+            selectionDispatch({ type: 'CLEAR_FILE_SELECTION' });
+        } else if (selectionState.selectedFile) {
+            // Use the centralized delete handler for single file
+            await fileSystemOps.deleteSelectedFile(
+                selectionState.selectedFile,
+                settings,
+                {
+                    selectionType: selectionState.selectionType,
+                    selectedFolder: selectionState.selectedFolder || undefined,
+                    selectedTag: selectionState.selectedTag || undefined
+                },
+                selectionDispatch,
+                settings.confirmBeforeDelete
+            );
+        }
     };
     
     // Handle Delete key for folders

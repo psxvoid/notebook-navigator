@@ -161,6 +161,10 @@ export const STRINGS_FR = {
             revealInExplorer: 'Échec de l\'affichage du fichier dans l\'explorateur système : {error}',
             folderNoteAlreadyExists: 'La note de dossier existe déjà',
         },
+        confirmations: {
+            deleteMultipleFiles: 'Are you sure you want to delete {count} files?',
+            deleteConfirmation: 'This action cannot be undone.',
+        },
         defaultNames: {
             untitled: 'Sans titre',
             untitledNumber: 'Sans titre {number}',
