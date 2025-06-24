@@ -531,7 +531,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             }
             
             // Open version history (if Sync is enabled) - desktop only, single selection only
-            if (!isMobile && !isMultipleSelected) {
+            if (!isMobile && !shouldShowMultiOptions) {
                 const syncPlugin = getInternalPlugin(app, 'sync');
                 if (syncPlugin && 'enabled' in syncPlugin && syncPlugin.enabled) {
                     menu.addItem((item: MenuItem) => {
@@ -548,7 +548,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             menu.addSeparator();
             
             // Reveal in system explorer - desktop only, single selection only
-            if (!isMobile && !isMultipleSelected) {
+            if (!isMobile && !shouldShowMultiOptions) {
                 menu.addItem((item: MenuItem) => {
                     item
                         .setTitle(fileSystemOps.getRevealInSystemExplorerText())
@@ -560,7 +560,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             }
             
             // Copy deep link - single selection only
-            if (!isMultipleSelected) {
+            if (!shouldShowMultiOptions) {
                 menu.addItem((item: MenuItem) => {
                     item
                         .setTitle(strings.contextMenu.file.copyDeepLink)
@@ -580,7 +580,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             menu.addSeparator();
             
             // Rename note - single selection only
-            if (!isMultipleSelected) {
+            if (!shouldShowMultiOptions) {
                 menu.addItem((item: MenuItem) => {
                     item
                         .setTitle(strings.contextMenu.file.renameNote)
@@ -592,7 +592,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             }
             
             // Delete note(s)
-            if (!isMultipleSelected) {
+            if (!shouldShowMultiOptions) {
                 menu.addItem((item: MenuItem) => {
                     item
                         .setTitle(strings.contextMenu.file.deleteNote)
