@@ -354,68 +354,184 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             if (!isTFile(config.item)) return;
             const file = config.item;
             
-            // Open in new tab
-            menu.addItem((item: MenuItem) => {
-                item
-                    .setTitle(strings.contextMenu.file.openInNewTab)
-                    .setIcon('file-plus')
-                    .onClick(() => {
-                        app.workspace.getLeaf('tab').openFile(file);
-                    });
-            });
+            // Check if multiple files are selected
+            const selectedCount = selectionState.selectedFiles.size;
+            const isMultipleSelected = selectedCount > 1;
+            const isFileSelected = selectionState.selectedFiles.has(file.path);
             
-            // Open to the right
-            menu.addItem((item: MenuItem) => {
-                item
-                    .setTitle(strings.contextMenu.file.openToRight)
-                    .setIcon('vertical-three-dots')
-                    .onClick(() => {
-                        app.workspace.getLeaf('split').openFile(file);
-                    });
-            });
+            // If right-clicking on an unselected file while having multi-selection,
+            // treat it as a single file operation
+            const shouldShowMultiOptions = isMultipleSelected && isFileSelected;
             
-            // Open in new window - desktop only
-            if (!isMobile) {
+            // Open options - show for single or multiple selection
+            if (!shouldShowMultiOptions) {
+                // Open in new tab
                 menu.addItem((item: MenuItem) => {
                     item
-                        .setTitle(strings.contextMenu.file.openInNewWindow)
-                        .setIcon('monitor')
+                        .setTitle(strings.contextMenu.file.openInNewTab)
+                        .setIcon('file-plus')
                         .onClick(() => {
-                            app.workspace.getLeaf('window').openFile(file);
+                            app.workspace.getLeaf('tab').openFile(file);
                         });
                 });
+                
+                // Open to the right
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(strings.contextMenu.file.openToRight)
+                        .setIcon('vertical-three-dots')
+                        .onClick(() => {
+                            app.workspace.getLeaf('split').openFile(file);
+                        });
+                });
+                
+                // Open in new window - desktop only
+                if (!isMobile) {
+                    menu.addItem((item: MenuItem) => {
+                        item
+                            .setTitle(strings.contextMenu.file.openInNewWindow)
+                            .setIcon('monitor')
+                            .onClick(() => {
+                                app.workspace.getLeaf('window').openFile(file);
+                            });
+                    });
+                }
+            } else {
+                // Multiple files selected - show open options with count
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(`Open ${selectedCount} notes in new tabs`)
+                        .setIcon('file-plus')
+                        .onClick(async () => {
+                            const selectedFiles = Array.from(selectionState.selectedFiles)
+                                .map(path => app.vault.getAbstractFileByPath(path))
+                                .filter((f): f is TFile => f instanceof TFile);
+                            
+                            for (const selectedFile of selectedFiles) {
+                                await app.workspace.getLeaf('tab').openFile(selectedFile);
+                            }
+                        });
+                });
+                
+                // Open to the right
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(`Open ${selectedCount} notes to the right`)
+                        .setIcon('vertical-three-dots')
+                        .onClick(async () => {
+                            const selectedFiles = Array.from(selectionState.selectedFiles)
+                                .map(path => app.vault.getAbstractFileByPath(path))
+                                .filter((f): f is TFile => f instanceof TFile);
+                            
+                            for (const selectedFile of selectedFiles) {
+                                await app.workspace.getLeaf('split').openFile(selectedFile);
+                            }
+                        });
+                });
+                
+                // Open in new windows - desktop only
+                if (!isMobile) {
+                    menu.addItem((item: MenuItem) => {
+                        item
+                            .setTitle(`Open ${selectedCount} notes in new windows`)
+                            .setIcon('monitor')
+                            .onClick(async () => {
+                                const selectedFiles = Array.from(selectionState.selectedFiles)
+                                    .map(path => app.vault.getAbstractFileByPath(path))
+                                    .filter((f): f is TFile => f instanceof TFile);
+                                
+                                for (const selectedFile of selectedFiles) {
+                                    await app.workspace.getLeaf('window').openFile(selectedFile);
+                                }
+                            });
+                    });
+                }
             }
             
             menu.addSeparator();
             
-            // Pin/Unpin note
-            const folderPath = file.parent?.path || '';
-            const isPinned = metadataService.isPinned(folderPath, file.path);
+            // Pin/Unpin note(s)
+            if (!shouldShowMultiOptions) {
+                const folderPath = file.parent?.path || '';
+                const isPinned = metadataService.isPinned(folderPath, file.path);
+                
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(isPinned ? strings.contextMenu.file.unpinNote : strings.contextMenu.file.pinNote)
+                        .setIcon('pin')
+                        .onClick(async () => {
+                            if (!file.parent) return;
+                            
+                            await metadataService.togglePinnedNote(folderPath, file.path);
+                            // The metadata change will trigger a re-render naturally
+                        });
+                });
+            } else {
+                // Multiple files selected - pin/unpin all
+                // Check if any selected files are unpinned
+                const selectedFiles = Array.from(selectionState.selectedFiles)
+                    .map(path => app.vault.getAbstractFileByPath(path))
+                    .filter((f): f is TFile => f instanceof TFile);
+                
+                const anyUnpinned = selectedFiles.some(f => {
+                    const folderPath = f.parent?.path || '';
+                    return !metadataService.isPinned(folderPath, f.path);
+                });
+                
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(anyUnpinned ? `Pin ${selectedCount} notes` : `Unpin ${selectedCount} notes`)
+                        .setIcon('pin')
+                        .onClick(async () => {
+                            for (const selectedFile of selectedFiles) {
+                                if (!selectedFile.parent) continue;
+                                const folderPath = selectedFile.parent.path;
+                                
+                                if (anyUnpinned) {
+                                    // Pin all unpinned files
+                                    if (!metadataService.isPinned(folderPath, selectedFile.path)) {
+                                        await metadataService.togglePinnedNote(folderPath, selectedFile.path);
+                                    }
+                                } else {
+                                    // Unpin all files
+                                    await metadataService.togglePinnedNote(folderPath, selectedFile.path);
+                                }
+                            }
+                        });
+                });
+            }
             
-            menu.addItem((item: MenuItem) => {
-                item
-                    .setTitle(isPinned ? strings.contextMenu.file.unpinNote : strings.contextMenu.file.pinNote)
-                    .setIcon('pin')
-                    .onClick(async () => {
-                        if (!file.parent) return;
-                        
-                        await metadataService.togglePinnedNote(folderPath, file.path);
-                        // The metadata change will trigger a re-render naturally
-                    });
-            });
+            // Duplicate note(s)
+            if (!shouldShowMultiOptions) {
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(strings.contextMenu.file.duplicateNote)
+                        .setIcon('documents')
+                        .onClick(async () => {
+                            await fileSystemOps.duplicateNote(file);
+                        });
+                });
+            } else {
+                // Multiple files selected - duplicate all
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(`Duplicate ${selectedCount} notes`)
+                        .setIcon('documents')
+                        .onClick(async () => {
+                            // Duplicate all selected files
+                            const selectedFiles = Array.from(selectionState.selectedFiles)
+                                .map(path => app.vault.getAbstractFileByPath(path))
+                                .filter((f): f is TFile => f instanceof TFile);
+                            
+                            for (const selectedFile of selectedFiles) {
+                                await fileSystemOps.duplicateNote(selectedFile);
+                            }
+                        });
+                });
+            }
             
-            // Duplicate note
-            menu.addItem((item: MenuItem) => {
-                item
-                    .setTitle(strings.contextMenu.file.duplicateNote)
-                    .setIcon('documents')
-                    .onClick(async () => {
-                        await fileSystemOps.duplicateNote(file);
-                    });
-            });
-            
-            // Open version history (if Sync is enabled) - desktop only
-            if (!isMobile) {
+            // Open version history (if Sync is enabled) - desktop only, single selection only
+            if (!isMobile && !shouldShowMultiOptions) {
                 const syncPlugin = getInternalPlugin(app, 'sync');
                 if (syncPlugin && 'enabled' in syncPlugin && syncPlugin.enabled) {
                     menu.addItem((item: MenuItem) => {
@@ -431,8 +547,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             
             menu.addSeparator();
             
-            // Reveal in system explorer - desktop only
-            if (!isMobile) {
+            // Reveal in system explorer - desktop only, single selection only
+            if (!isMobile && !shouldShowMultiOptions) {
                 menu.addItem((item: MenuItem) => {
                     item
                         .setTitle(fileSystemOps.getRevealInSystemExplorerText())
@@ -443,45 +559,84 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 });
             }
             
-            // Copy deep link
-            menu.addItem((item: MenuItem) => {
-                item
-                    .setTitle(strings.contextMenu.file.copyDeepLink)
-                    .setIcon('link')
-                    .onClick(async () => {
-                        const vaultName = app.vault.getName();
-                        const encodedVault = encodeURIComponent(vaultName);
-                        const encodedFile = encodeURIComponent(file.path);
-                        const deepLink = `obsidian://open?vault=${encodedVault}&file=${encodedFile}`;
-                        
-                        await navigator.clipboard.writeText(deepLink);
-                        new Notice('Deep link copied to clipboard');
-                    });
-            });
+            // Copy deep link - single selection only
+            if (!shouldShowMultiOptions) {
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(strings.contextMenu.file.copyDeepLink)
+                        .setIcon('link')
+                        .onClick(async () => {
+                            const vaultName = app.vault.getName();
+                            const encodedVault = encodeURIComponent(vaultName);
+                            const encodedFile = encodeURIComponent(file.path);
+                            const deepLink = `obsidian://open?vault=${encodedVault}&file=${encodedFile}`;
+                            
+                            await navigator.clipboard.writeText(deepLink);
+                            new Notice('Deep link copied to clipboard');
+                        });
+                });
+            }
             
             menu.addSeparator();
             
-            // Rename note
-            menu.addItem((item: MenuItem) => {
-                item
-                    .setTitle(strings.contextMenu.file.renameNote)
-                    .setIcon('pencil')
-                    .onClick(async () => {
-                        await fileSystemOps.renameFile(file);
-                    });
-            });
+            // Rename note - single selection only
+            if (!shouldShowMultiOptions) {
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(strings.contextMenu.file.renameNote)
+                        .setIcon('pencil')
+                        .onClick(async () => {
+                            await fileSystemOps.renameFile(file);
+                        });
+                });
+            }
             
-            // Delete note
-            menu.addItem((item: MenuItem) => {
-                item
-                    .setTitle(strings.contextMenu.file.deleteNote)
-                    .setIcon('trash')
-                    .onClick(async () => {
-                        // Check if this is the currently selected file
-                        if (selectionState.selectedFile?.path === file.path) {
-                            // Use the smart delete handler
-                            await fileSystemOps.deleteSelectedFile(
-                                file,
+            // Delete note(s)
+            if (!shouldShowMultiOptions) {
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(strings.contextMenu.file.deleteNote)
+                        .setIcon('trash')
+                        .onClick(async () => {
+                            // Check if this is the currently selected file
+                            if (selectionState.selectedFile?.path === file.path) {
+                                // Use the smart delete handler
+                                await fileSystemOps.deleteSelectedFile(
+                                    file,
+                                    settings,
+                                    {
+                                        selectionType: selectionState.selectionType,
+                                        selectedFolder: selectionState.selectedFolder || undefined,
+                                        selectedTag: selectionState.selectedTag || undefined
+                                    },
+                                    selectionDispatch,
+                                    settings.confirmBeforeDelete
+                                );
+                            } else {
+                                // Normal deletion - not the currently selected file
+                                await fileSystemOps.deleteFile(file, settings.confirmBeforeDelete);
+                            }
+                        });
+                });
+            } else {
+                // Multiple files selected - delete all
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(`Delete ${selectedCount} notes`)
+                        .setIcon('trash')
+                        .onClick(async () => {
+                            // Get all files in the current view for smart selection
+                            let allFiles: TFile[] = [];
+                            if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+                                allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
+                            } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
+                                allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
+                            }
+                            
+                            // Use centralized delete method with smart selection
+                            await fileSystemOps.deleteFilesWithSmartSelection(
+                                selectionState.selectedFiles,
+                                allFiles,
                                 settings,
                                 {
                                     selectionType: selectionState.selectionType,
@@ -491,12 +646,9 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                                 selectionDispatch,
                                 settings.confirmBeforeDelete
                             );
-                        } else {
-                            // Normal deletion - not the currently selected file
-                            await fileSystemOps.deleteFile(file, settings.confirmBeforeDelete);
-                        }
-                    });
-            });
+                        });
+                });
+            }
         }
         
         menu.showAtMouseEvent(e);

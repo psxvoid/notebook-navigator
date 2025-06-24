@@ -161,6 +161,10 @@ export const STRINGS_ZH = {
             revealInExplorer: '在系统资源管理器中显示文件失败：{error}',
             folderNoteAlreadyExists: '文件夹笔记已存在',
         },
+        confirmations: {
+            deleteMultipleFiles: 'Are you sure you want to delete {count} files?',
+            deleteConfirmation: 'This action cannot be undone.',
+        },
         defaultNames: {
             untitled: '无标题',
             untitledNumber: '无标题 {number}',

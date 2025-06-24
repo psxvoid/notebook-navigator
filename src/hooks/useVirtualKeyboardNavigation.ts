@@ -29,6 +29,8 @@ import { useSelectionState, useSelectionDispatch } from '../context/SelectionCon
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { getSupportedLeaves } from '../types';
+import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { useMultiSelection } from './useMultiSelection';
 
 type VirtualItem = CombinedNavigationItem | FileListItem;
 
@@ -60,6 +62,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const lastKeyPressTime = useRef(0);
+    const multiSelection = useMultiSelection(virtualizer);
+    
     
     // Helper function for safe array access
     const safeGetItem = <T,>(array: T[], index: number): T | undefined => {
@@ -129,11 +133,45 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         switch (effectiveKey) {
             case 'ArrowDown':
                 e.preventDefault();
+                if (e.shiftKey && focusedPane === 'files' && !isMobile) {
+                    // Multi-selection with Shift+Down
+                    // Extract only file items from the items array
+                    const fileItems = items
+                        .filter(item => item.type === 'file')
+                        .map(item => (item as FileListItem).data as TFile);
+                    
+                    const currentFileIndex = fileItems.findIndex(f => 
+                        f.path === selectionState.selectedFile?.path
+                    );
+                    
+                    if (currentFileIndex !== -1) {
+                        multiSelection.handleShiftArrowSelection('down', currentFileIndex, fileItems);
+                    }
+                    return; // Don't process normal navigation
+                }
+                
                 targetIndex = findNextSelectableIndex(items, currentIndex, focusedPane);
                 break;
                 
             case 'ArrowUp':
                 e.preventDefault();
+                if (e.shiftKey && focusedPane === 'files' && !isMobile && currentIndex !== -1) {
+                    // Multi-selection with Shift+Up
+                    // Extract only file items from the items array
+                    const fileItems = items
+                        .filter(item => item.type === 'file')
+                        .map(item => (item as FileListItem).data as TFile);
+                    
+                    const currentFileIndex = fileItems.findIndex(f => 
+                        f.path === selectionState.selectedFile?.path
+                    );
+                    
+                    if (currentFileIndex !== -1) {
+                        multiSelection.handleShiftArrowSelection('up', currentFileIndex, fileItems);
+                    }
+                    return; // Don't process normal navigation
+                }
+                
                 // If nothing is selected, select the first item
                 if (currentIndex === -1) {
                     targetIndex = findNextSelectableIndex(items, -1, focusedPane);
@@ -333,13 +371,28 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             case 'Delete':
             case 'Backspace':
                 if (!isTypingInInput(e)) {
-                    if (focusedPane === 'files' && selectionState.selectedFile) {
+                    if (focusedPane === 'files' && (selectionState.selectedFile || selectionState.selectedFiles.size > 0)) {
                         e.preventDefault();
                         handleDelete();
                     } else if (focusedPane === 'folders' && selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
                         e.preventDefault();
                         handleDeleteFolder();
                     }
+                }
+                break;
+                
+            case 'a':
+            case 'A':
+                // Cmd+A (Mac) or Ctrl+A (Windows/Linux) for Select All
+                if ((e.metaKey || e.ctrlKey) && focusedPane === 'files') {
+                    e.preventDefault();
+                    
+                    // Get all files in the current view
+                    const allFiles = items
+                        .filter(item => item.type === 'file')
+                        .map(item => (item as FileListItem).data as TFile);
+                    
+                    multiSelection.selectAll(allFiles);
                 }
                 break;
         }
@@ -357,7 +410,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 behavior: 'auto'
             });
         }
-    }, [items, virtualizer, focusedPane, selectionState, expansionState, selectionDispatch, expansionDispatch, uiState, uiDispatch, plugin, app, isMobile, settings, fileSystemOps]);
+    }, [items, virtualizer, focusedPane, selectionState, expansionState, selectionDispatch, expansionDispatch, uiState, uiDispatch, plugin, app, isMobile, settings, fileSystemOps, multiSelection]);
     
     // Helper function to find next selectable item
     const findNextSelectableIndex = (items: VirtualItem[], currentIndex: number, pane: string, includeCurrent: boolean = false): number => {
@@ -468,6 +521,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             const fileItem = item as FileListItem;
             if (fileItem.type === 'file') {
                 const file = fileItem.data as TFile;
+                // Normal navigation clears multi-selection
                 selectionDispatch({ type: 'SET_SELECTED_FILE', file });
                 
                 // Open the file in the editor but keep focus in file list
@@ -540,20 +594,45 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     
     // Handle Delete key for files
     const handleDelete = async () => {
-        if (!selectionState.selectedFile || focusedPane !== 'files') return;
+        if (focusedPane !== 'files') return;
         
-        // Use the centralized delete handler
-        await fileSystemOps.deleteSelectedFile(
-            selectionState.selectedFile,
-            settings,
-            {
-                selectionType: selectionState.selectionType,
-                selectedFolder: selectionState.selectedFolder || undefined,
-                selectedTag: selectionState.selectedTag || undefined
-            },
-            selectionDispatch,
-            settings.confirmBeforeDelete
-        );
+        // Check if multiple files are selected
+        if (selectionState.selectedFiles.size > 1) {
+            // Get all files in the current view for smart selection
+            let allFiles: TFile[] = [];
+            if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+                allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
+            } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
+                allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
+            }
+            
+            // Use centralized delete method with smart selection
+            await fileSystemOps.deleteFilesWithSmartSelection(
+                selectionState.selectedFiles,
+                allFiles,
+                settings,
+                {
+                    selectionType: selectionState.selectionType,
+                    selectedFolder: selectionState.selectedFolder || undefined,
+                    selectedTag: selectionState.selectedTag || undefined
+                },
+                selectionDispatch,
+                settings.confirmBeforeDelete
+            );
+        } else if (selectionState.selectedFile) {
+            // Use the centralized delete handler for single file
+            await fileSystemOps.deleteSelectedFile(
+                selectionState.selectedFile,
+                settings,
+                {
+                    selectionType: selectionState.selectionType,
+                    selectedFolder: selectionState.selectedFolder || undefined,
+                    selectedTag: selectionState.selectedTag || undefined
+                },
+                selectionDispatch,
+                settings.confirmBeforeDelete
+            );
+        }
     };
     
     // Handle Delete key for folders

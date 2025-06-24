@@ -161,6 +161,10 @@ export const STRINGS_SV = {
             revealInExplorer: 'Kunde inte visa fil i filutforskaren: {error}',
             folderNoteAlreadyExists: 'Mappanteckning finns redan',
         },
+        confirmations: {
+            deleteMultipleFiles: 'Are you sure you want to delete {count} files?',
+            deleteConfirmation: 'This action cannot be undone.',
+        },
         defaultNames: {
             untitled: 'Namnlös',
             untitledNumber: 'Namnlös {number}',

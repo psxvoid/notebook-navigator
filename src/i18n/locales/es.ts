@@ -161,6 +161,10 @@ export const STRINGS_ES = {
             revealInExplorer: 'Error al mostrar el archivo en el explorador del sistema: {error}',
             folderNoteAlreadyExists: 'La nota de carpeta ya existe',
         },
+        confirmations: {
+            deleteMultipleFiles: 'Are you sure you want to delete {count} files?',
+            deleteConfirmation: 'This action cannot be undone.',
+        },
         defaultNames: {
             untitled: 'Sin título',
             untitledNumber: 'Sin título {number}',

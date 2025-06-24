@@ -32,6 +32,7 @@ If you love using Notebook Navigator, please consider supporting its continued d
 - **📌 Pin notes** - Keep important files at the top of folders
 - **🚀 Auto-reveal** - Find your current file instantly
 - **⌨️ Keyboard first** - Full navigation with arrow keys and Tab
+- **✅ Multi-selection** - Select multiple files with Cmd/Ctrl+Click and Shift+Click
 
 ### File Display
 - **🔍 Smart previews** - See content snippets without opening files
@@ -53,6 +54,8 @@ If you love using Notebook Navigator, please consider supporting its continued d
 2. The navigator will replace your default file explorer
 3. Navigate using:
    - **Click** to select folders, tags, and files
+   - **Cmd/Ctrl+Click** to add files to selection
+   - **Shift+Click** to select a range of files
    - **Double-click** folders and tags to expand/collapse
    - **Arrow keys** for navigation
    - **Tab** to switch between folder/tag and file panes
@@ -79,6 +82,10 @@ If you love using Notebook Navigator, please consider supporting its continued d
 | Shift+Tab | Switch from files to folders/tags pane |
 | PageUp/PageDown | Scroll up/down in folder tree and file list |
 | Delete (Windows/Linux)<br>Backspace (macOS) | Delete selected item |
+| Cmd/Ctrl+A | Select all files in current folder |
+| Cmd/Ctrl+Click | Toggle file selection |
+| Shift+Click | Select range of files |
+| Shift+↑/↓ | Extend selection up/down |
 
 ### Commands
 

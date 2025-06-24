@@ -20,7 +20,8 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { TFolder, TFile, Notice } from 'obsidian';
 import { useServices, useFileSystemOps } from '../context/ServicesContext';
-import { isTFolder } from '../utils/typeGuards';
+import { useSelectionState } from '../context/SelectionContext';
+import { isTFolder, isTFile } from '../utils/typeGuards';
 import { getPathFromDataAttribute, getAbstractFileFromElement } from '../utils/domUtils';
 import { strings } from '../i18n';
 
@@ -68,6 +69,7 @@ import { strings } from '../i18n';
 export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>) {
     const { app, isMobile } = useServices();
     const fileSystemOps = useFileSystemOps();
+    const selectionState = useSelectionState();
     const dragOverElement = useRef<HTMLElement | null>(null);
 
     /**
@@ -84,11 +86,66 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         const path = getPathFromDataAttribute(draggable as HTMLElement, 'data-drag-path');
         const type = draggable.getAttribute('data-drag-type');
         if (path && e.dataTransfer) {
-            e.dataTransfer.setData('text/plain', path);
-            e.dataTransfer.effectAllowed = 'move';
-            draggable.classList.add('nn-dragging');
+            // Check if dragging a selected file
+            if (type === 'file' && selectionState.selectedFiles.has(path)) {
+                // Store all selected file paths
+                const selectedPaths = Array.from(selectionState.selectedFiles);
+                e.dataTransfer.setData('text/plain', JSON.stringify({
+                    type: 'multiple-files',
+                    paths: selectedPaths
+                }));
+                e.dataTransfer.effectAllowed = 'move';
+                
+                // Add dragging class to all selected files
+                selectedPaths.forEach(selectedPath => {
+                    const el = containerRef.current?.querySelector(`[data-drag-path="${selectedPath}"]`);
+                    el?.classList.add('nn-dragging');
+                });
+                
+                // Show count in drag image
+                if (selectedPaths.length > 1) {
+                    // Create a container to position the badge
+                    const dragContainer = document.createElement('div');
+                    dragContainer.style.cssText = `
+                        position: absolute;
+                        left: -9999px;
+                        width: 48px;
+                        height: 48px;
+                    `;
+                    
+                    // Create the badge inside the container
+                    const dragInfo = document.createElement('div');
+                    dragInfo.textContent = `${selectedPaths.length}`;
+                    dragInfo.style.cssText = `
+                        position: absolute;
+                        bottom: 4px;
+                        right: 4px;
+                        background-color: #dc3545;
+                        color: white;
+                        font-weight: bold;
+                        font-size: 14px;
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 12px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                    `;
+                    
+                    dragContainer.appendChild(dragInfo);
+                    document.body.appendChild(dragContainer);
+                    e.dataTransfer.setDragImage(dragContainer, 5, 5);
+                    setTimeout(() => document.body.removeChild(dragContainer), 0);
+                }
+            } else {
+                // Single item drag
+                e.dataTransfer.setData('text/plain', path);
+                e.dataTransfer.effectAllowed = 'move';
+                draggable.classList.add('nn-dragging');
+            }
         }
-    }, []);
+    }, [selectionState, containerRef]);
 
     /**
      * Handles the drag over event.
@@ -126,14 +183,54 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         }
 
         const targetPath = getPathFromDataAttribute(dragOverElement.current, 'data-drop-path');
-        const sourcePath = e.dataTransfer?.getData('text/plain');
+        const dragData = e.dataTransfer?.getData('text/plain');
 
-        if (!sourcePath || !targetPath) return;
+        if (!dragData || !targetPath) return;
 
-        const sourceItem = app.vault.getAbstractFileByPath(sourcePath);
         const targetFolder = app.vault.getAbstractFileByPath(targetPath);
+        if (!isTFolder(targetFolder)) return;
 
-        if (!sourceItem || !isTFolder(targetFolder)) return;
+        try {
+            // Check if dragging multiple files
+            const parsedData = JSON.parse(dragData);
+            if (parsedData.type === 'multiple-files' && Array.isArray(parsedData.paths)) {
+                // Moving multiple files
+                let movedCount = 0;
+                let skippedCount = 0;
+                
+                for (const sourcePath of parsedData.paths) {
+                    const sourceItem = app.vault.getAbstractFileByPath(sourcePath);
+                    if (!sourceItem || !isTFile(sourceItem)) continue;
+                    
+                    const newPath = `${targetFolder.path}/${sourceItem.name}`;
+                    if (app.vault.getAbstractFileByPath(newPath)) {
+                        skippedCount++;
+                        continue;
+                    }
+                    
+                    try {
+                        await app.fileManager.renameFile(sourceItem, newPath);
+                        movedCount++;
+                    } catch (error) {
+                        console.error('Error moving file:', sourceItem.path, error);
+                    }
+                }
+                
+                if (movedCount > 0) {
+                    new Notice(`Moved ${movedCount} files`);
+                }
+                if (skippedCount > 0) {
+                    new Notice(`${skippedCount} files already exist in destination`, 2000);
+                }
+                return;
+            }
+        } catch {
+            // Not JSON, treat as single path
+        }
+
+        // Single item drop (existing behavior)
+        const sourceItem = app.vault.getAbstractFileByPath(dragData);
+        if (!sourceItem) return;
 
         // Prevent dropping a folder into itself or its own children
         if (sourceItem.path === targetFolder.path || (sourceItem instanceof TFolder && fileSystemOps.isDescendant(sourceItem, targetFolder))) {
@@ -184,12 +281,23 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const handleDragEnd = useCallback((e: DragEvent) => {
         const target = e.target as HTMLElement;
         const draggable = target.closest('[data-draggable="true"]');
-        draggable?.classList.remove('nn-dragging');
+        const path = getPathFromDataAttribute(draggable as HTMLElement, 'data-drag-path');
+        
+        // Remove dragging class from all selected files if dragging multiple
+        if (path && selectionState.selectedFiles.has(path)) {
+            selectionState.selectedFiles.forEach(selectedPath => {
+                const el = containerRef.current?.querySelector(`[data-drag-path="${selectedPath}"]`);
+                el?.classList.remove('nn-dragging');
+            });
+        } else {
+            draggable?.classList.remove('nn-dragging');
+        }
+        
         if (dragOverElement.current) {
             dragOverElement.current.classList.remove('nn-drag-over');
             dragOverElement.current = null;
         }
-    }, []);
+    }, [selectionState, containerRef]);
 
     useEffect(() => {
         const container = containerRef.current;

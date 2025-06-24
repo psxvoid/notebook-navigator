@@ -161,6 +161,10 @@ export const STRINGS_EN = {
             revealInExplorer: 'Failed to reveal file in system explorer: {error}',
             folderNoteAlreadyExists: 'Folder note already exists',
         },
+        confirmations: {
+            deleteMultipleFiles: 'Are you sure you want to delete {count} files?',
+            deleteConfirmation: 'This action cannot be undone.',
+        },
         defaultNames: {
             untitled: 'Untitled',
             untitledNumber: 'Untitled {number}',

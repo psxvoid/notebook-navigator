@@ -33,6 +33,7 @@ import { strings } from '../i18n';
 import type { FileListItem } from '../types/virtualization';
 import { PaneHeader } from './PaneHeader';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
+import { useMultiSelection } from '../hooks/useMultiSelection';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
 
@@ -57,7 +58,8 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const settings = useSettingsState();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
-    const { selectionType, selectedFolder, selectedTag, selectedFile } = selectionState;
+    const { selectionType, selectedFolder, selectedTag, selectedFile, selectedFiles } = selectionState;
+    
     
     
     
@@ -65,26 +67,44 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const isUserSelectionRef = useRef(false);
     const [fileVersion, setFileVersion] = useState(0);
     
-    const handleFileClick = useCallback((file: TFile, e: React.MouseEvent) => {
+    // Initialize multi-selection hook
+    const multiSelection = useMultiSelection();
+    
+    const handleFileClick = useCallback((file: TFile, e: React.MouseEvent, fileIndex?: number, orderedFiles?: TFile[]) => {
         isUserSelectionRef.current = true;  // Mark this as a user selection
-        selectionDispatch({ type: 'SET_SELECTED_FILE', file });
+        
+        // Check if CMD (Mac) or Ctrl (Windows/Linux) is pressed for multi-select
+        const isMultiSelectModifier = e.metaKey || e.ctrlKey;
+        const isShiftKey = e.shiftKey;
+        
+        // Don't enable multi-select on mobile
+        if (!isMobile && isMultiSelectModifier) {
+            multiSelection.handleMultiSelectClick(file, fileIndex);
+        } else if (!isMobile && isShiftKey && fileIndex !== undefined && orderedFiles) {
+            multiSelection.handleRangeSelectClick(file, fileIndex, orderedFiles);
+        } else {
+            // Normal click - always clear multi-selection and select only this file
+            multiSelection.clearSelection();
+            selectionDispatch({ type: 'SET_SELECTED_FILE', file });
+        }
+        
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         
         // Focus the container
         const container = document.querySelector('.nn-split-container') as HTMLElement;
         if (container) container.focus();
         
-        // Check if CMD (Mac) or Ctrl (Windows/Linux) is pressed
-        const openInNewTab = e.metaKey || e.ctrlKey;
-        
-        // Open file in new tab or current tab based on modifier key
-        const leaf = openInNewTab ? app.workspace.getLeaf('tab') : app.workspace.getLeaf(false);
-        if (leaf) {
-            leaf.openFile(file, { active: false });
+        // Only open file if not multi-selecting
+        if (!isMultiSelectModifier && !isShiftKey) {
+            // Open file in current tab
+            const leaf = app.workspace.getLeaf(false);
+            if (leaf) {
+                leaf.openFile(file, { active: false });
+            }
         }
         
         // Collapse left sidebar on mobile after opening file
-        if (isMobile && app.workspace.leftSplit) {
+        if (isMobile && app.workspace.leftSplit && !isMultiSelectModifier && !isShiftKey) {
             // Scroll to top before collapsing to prevent virtualization issues
             if (scrollContainerRef.current) {
                 scrollContainerRef.current.scrollTop = 0;
@@ -92,7 +112,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             
             app.workspace.leftSplit.collapse();
         }
-    }, [app.workspace, selectionDispatch, uiDispatch, isMobile]);
+    }, [app.workspace, selectionDispatch, uiDispatch, isMobile, multiSelection]);
     
     // This effect now only listens for vault events to trigger a refresh
     useEffect(() => {
@@ -702,6 +722,17 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         );
     }
     
+    // Build ordered files list for Shift+Click functionality
+    const orderedFiles = useMemo(() => {
+        const files: TFile[] = [];
+        listItems.forEach(item => {
+            if (item.type === 'file') {
+                files.push(item.data as TFile);
+            }
+        });
+        return files;
+    }, [listItems]);
+    
     return (
         <ErrorBoundary componentName="FileList">
             <div className="nn-right-pane">
@@ -726,7 +757,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                             const item = safeGetItem(listItems, virtualItem.index);
                             if (!item) return null;
                             const isSelected = item.type === 'file' && 
-                                selectedFilePath === (item.data as TFile).path;
+                                multiSelection.isFileSelected(item.data as TFile);
                             
                             // Check if this is the last file item
                             const nextItem = safeGetItem(listItems, virtualItem.index + 1);
@@ -740,7 +771,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                             // Check if next item is selected (for hiding separator)
                             const nextItemSelected = nextItem && 
                                 nextItem.type === 'file' && 
-                                selectedFilePath === (nextItem.data as TFile).path;
+                                multiSelection.isFileSelected(nextItem.data as TFile);
                             
                             // Find current date group for file items
                             let dateGroup: string | null = null;
@@ -780,7 +811,17 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                             key={(item.data as TFile).path}
                                             file={item.data as TFile}
                                             isSelected={isSelected}
-                                            onClick={(e) => handleFileClick(item.data as TFile, e)}
+                                            onClick={(e) => {
+                                                // Find the actual index of this file in the display order
+                                                // Count only file items, not headers or spacers
+                                                let fileIndex = 0;
+                                                for (let i = 0; i < virtualItem.index; i++) {
+                                                    if (listItems[i]?.type === 'file') {
+                                                        fileIndex++;
+                                                    }
+                                                }
+                                                handleFileClick(item.data as TFile, e, fileIndex, orderedFiles);
+                                            }}
                                             dateGroup={dateGroup}
                                             formattedDate={filesWithDates?.get((item.data as TFile).path)}
                                             parentFolder={item.parentFolder}
