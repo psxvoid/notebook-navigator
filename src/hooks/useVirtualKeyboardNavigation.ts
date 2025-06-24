@@ -26,7 +26,6 @@ import { isTFolder } from '../utils/typeGuards';
 import { useServices, useFileSystemOps } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
-import { useMultiSelectionDebug } from './useMultiSelectionDebug';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { getSupportedLeaves } from '../types';
@@ -62,8 +61,6 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     const uiDispatch = useUIDispatch();
     const lastKeyPressTime = useRef(0);
     
-    // Use debug hook for multi-selection
-    useMultiSelectionDebug(selectionState);
     
     // Helper function for safe array access
     const safeGetItem = <T,>(array: T[], index: number): T | undefined => {
@@ -363,7 +360,6 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 // Cmd+A (Mac) or Ctrl+A (Windows/Linux) for Select All
                 if ((e.metaKey || e.ctrlKey) && focusedPane === 'files') {
                     e.preventDefault();
-                    console.log('[MULTI-SELECT] Select All triggered');
                     
                     // Get all files in the current view
                     const allFiles: TFile[] = [];
@@ -386,7 +382,6 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                             selectionDispatch({ type: 'UPDATE_CURRENT_FILE', file: currentFile });
                         }
                         
-                        console.log(`[MULTI-SELECT] Selected all ${allFiles.length} files`);
                     }
                 }
                 break;
@@ -411,23 +406,19 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
      * Handle Shift+Arrow selection with Apple Notes-style anchor jumping
      */
     const handleShiftArrowSelection = useCallback((direction: 'up' | 'down', currentIndex: number, items: VirtualItem[]) => {
-        console.log(`[MULTI-SELECT] Shift+${direction} from virtualized index ${currentIndex}`);
         
         // Can't extend selection if nothing is selected
         if (currentIndex === -1) {
-            console.log('[MULTI-SELECT] No current selection, cannot extend');
             return;
         }
         
         // Get current item
         const currentItem = items[currentIndex];
         if (!currentItem || currentItem.type !== 'file') {
-            console.log('[MULTI-SELECT] Current item is not a file');
             return;
         }
         
         const currentFile = currentItem.data as TFile;
-        console.log('[MULTI-SELECT] Current file:', currentFile.path);
         
         // Get files from the file list
         const fileItems: TFile[] = [];
@@ -444,18 +435,14 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         });
         
         if (fileItems.length === 0) {
-            console.log('[MULTI-SELECT] No files found in list');
             return;
         }
         
         // Find current file index in the files array
         const currentFileIndex = fileIndexMap.get(currentFile.path);
         if (currentFileIndex === undefined) {
-            console.log('[MULTI-SELECT] Could not find current file in file list');
             return;
         }
-        console.log(`[MULTI-SELECT] Current file index in files array: ${currentFileIndex}`);
-        console.log(`[MULTI-SELECT] Currently selected files:`, Array.from(selectionState.selectedFiles).map(path => path.split('/').pop()));
         
         // Calculate next position
         const nextFileIndex = direction === 'down' 
@@ -464,7 +451,6 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         
         // Check if we're at boundary
         if (nextFileIndex === currentFileIndex) {
-            console.log('[MULTI-SELECT] At boundary');
             return;
         }
         
@@ -477,12 +463,10 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             // Check where we're moving TO
             if (selectionState.selectedFiles.has(nextFile.path)) {
                 // Moving FROM selected item TO another selected item - deselect current
-                console.log('[MULTI-SELECT] Moving to already selected item, deselecting current and disabling jumping');
                 selectionDispatch({ type: 'TOGGLE_FILE_SELECTION', file: currentFile });
                 jumpingEnabled = false;
             } else {
                 // Moving FROM selected item TO unselected item - keep current selected
-                console.log('[MULTI-SELECT] Moving to unselected item, keeping current selected');
             }
         }
         
@@ -491,10 +475,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         
         if (!arrivedAtWasSelected) {
             // This new cell is unselected, select it
-            console.log('[MULTI-SELECT] Next item is not selected, selecting it:', nextFile.name);
             selectionDispatch({ type: 'TOGGLE_FILE_SELECTION', file: nextFile });
         } else {
-            console.log('[MULTI-SELECT] Next item is already selected');
         }
         
         // STEP 3: Jumping logic (only if enabled)
@@ -504,13 +486,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             // Jump if either:
             // 1. We arrived at an already selected item, OR
             // 2. We just selected a new item and should check for more selected items beyond
-            console.log('[MULTI-SELECT] Jumping enabled, checking for consecutive selected items');
             let jumpIndex = direction === 'down' ? nextFileIndex + 1 : nextFileIndex - 1;
             
             while (jumpIndex >= 0 && jumpIndex < fileItems.length) {
                 const jumpFile = fileItems[jumpIndex];
                 if (selectionState.selectedFiles.has(jumpFile.path)) {
-                    console.log(`[MULTI-SELECT] Jumping to selected item at index ${jumpIndex}`);
                     finalIndex = jumpIndex;
                     jumpIndex = direction === 'down' ? jumpIndex + 1 : jumpIndex - 1;
                 } else {

@@ -60,7 +60,8 @@ export type SelectionAction =
     | { type: 'CLEAR_FILE_SELECTION' }
     | { type: 'SET_ANCHOR_INDEX'; index: number | null }
     | { type: 'SET_MOVEMENT_DIRECTION'; direction: 'up' | 'down' | null }
-    | { type: 'UPDATE_CURRENT_FILE'; file: TFile }; // Update current file without changing selection
+    | { type: 'UPDATE_CURRENT_FILE'; file: TFile } // Update current file without changing selection
+    | { type: 'TOGGLE_WITH_CURSOR'; file: TFile; anchorIndex?: number }; // Toggle selection and update cursor
 
 // Dispatch function type
 export type SelectionDispatch = React.Dispatch<SelectionAction>;
@@ -236,12 +237,11 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 newSelectedFiles.add(action.file.path);
             }
             
-            console.log('[MULTI-SELECT] Toggle file selection:', action.file.path, 'Selected count:', newSelectedFiles.size);
             
             return {
                 ...state,
                 selectedFiles: newSelectedFiles,
-                selectedFile: newSelectedFiles.size > 0 ? action.file : null, // Keep the clicked file as current
+                selectedFile: state.selectedFile, // Don't change cursor position when toggling
                 anchorIndex: action.anchorIndex !== undefined ? action.anchorIndex : state.anchorIndex,
                 lastMovementDirection: null
             };
@@ -264,7 +264,6 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 }
             }
             
-            console.log('[MULTI-SELECT] Extended selection from', state.anchorIndex, 'to', toIndex, 'Selected count:', newSelectedFiles.size);
             
             return {
                 ...state,
@@ -275,7 +274,6 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
         }
         
         case 'CLEAR_FILE_SELECTION': {
-            console.log('[MULTI-SELECT] Clearing file selection');
             return {
                 ...state,
                 selectedFiles: new Set<string>(),
@@ -286,7 +284,6 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
         }
         
         case 'SET_ANCHOR_INDEX': {
-            console.log('[MULTI-SELECT] Setting anchor index to', action.index);
             return {
                 ...state,
                 anchorIndex: action.index
@@ -294,7 +291,6 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
         }
         
         case 'SET_MOVEMENT_DIRECTION': {
-            console.log('[MULTI-SELECT] Setting movement direction to', action.direction);
             return {
                 ...state,
                 lastMovementDirection: action.direction
@@ -302,10 +298,27 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
         }
         
         case 'UPDATE_CURRENT_FILE': {
-            console.log('[MULTI-SELECT] Updating current file to', action.file.name);
             return {
                 ...state,
                 selectedFile: action.file
+            };
+        }
+        
+        case 'TOGGLE_WITH_CURSOR': {
+            const newSelectedFiles = new Set(state.selectedFiles);
+            if (newSelectedFiles.has(action.file.path)) {
+                newSelectedFiles.delete(action.file.path);
+            } else {
+                newSelectedFiles.add(action.file.path);
+            }
+            
+            
+            return {
+                ...state,
+                selectedFiles: newSelectedFiles,
+                selectedFile: action.file, // Always update cursor to the clicked file
+                anchorIndex: action.anchorIndex !== undefined ? action.anchorIndex : state.anchorIndex,
+                lastMovementDirection: null
             };
         }
         

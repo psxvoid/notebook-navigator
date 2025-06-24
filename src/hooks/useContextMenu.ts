@@ -359,7 +359,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             const isMultipleSelected = selectedCount > 1;
             const isFileSelected = selectionState.selectedFiles.has(file.path);
             
-            // Show open options only for single selection
+            // Open options - show for single or multiple selection
             if (!isMultipleSelected) {
                 // Open in new tab
                 menu.addItem((item: MenuItem) => {
@@ -392,11 +392,61 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                             });
                     });
                 }
+            } else if (isFileSelected) {
+                // Multiple files selected - show open options with count
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(`Open ${selectedCount} notes in new tabs`)
+                        .setIcon('file-plus')
+                        .onClick(async () => {
+                            const selectedFiles = Array.from(selectionState.selectedFiles)
+                                .map(path => app.vault.getAbstractFileByPath(path))
+                                .filter((f): f is TFile => f instanceof TFile);
+                            
+                            for (const selectedFile of selectedFiles) {
+                                await app.workspace.getLeaf('tab').openFile(selectedFile);
+                            }
+                        });
+                });
+                
+                // Open to the right
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(`Open ${selectedCount} notes to the right`)
+                        .setIcon('vertical-three-dots')
+                        .onClick(async () => {
+                            const selectedFiles = Array.from(selectionState.selectedFiles)
+                                .map(path => app.vault.getAbstractFileByPath(path))
+                                .filter((f): f is TFile => f instanceof TFile);
+                            
+                            for (const selectedFile of selectedFiles) {
+                                await app.workspace.getLeaf('split').openFile(selectedFile);
+                            }
+                        });
+                });
+                
+                // Open in new windows - desktop only
+                if (!isMobile) {
+                    menu.addItem((item: MenuItem) => {
+                        item
+                            .setTitle(`Open ${selectedCount} notes in new windows`)
+                            .setIcon('monitor')
+                            .onClick(async () => {
+                                const selectedFiles = Array.from(selectionState.selectedFiles)
+                                    .map(path => app.vault.getAbstractFileByPath(path))
+                                    .filter((f): f is TFile => f instanceof TFile);
+                                
+                                for (const selectedFile of selectedFiles) {
+                                    await app.workspace.getLeaf('window').openFile(selectedFile);
+                                }
+                            });
+                    });
+                }
             }
             
             menu.addSeparator();
             
-            // Pin/Unpin note - only for single selection
+            // Pin/Unpin note(s)
             if (!isMultipleSelected) {
                 const folderPath = file.parent?.path || '';
                 const isPinned = metadataService.isPinned(folderPath, file.path);
@@ -410,6 +460,39 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                             
                             await metadataService.togglePinnedNote(folderPath, file.path);
                             // The metadata change will trigger a re-render naturally
+                        });
+                });
+            } else if (isFileSelected) {
+                // Multiple files selected - pin/unpin all
+                // Check if any selected files are unpinned
+                const selectedFiles = Array.from(selectionState.selectedFiles)
+                    .map(path => app.vault.getAbstractFileByPath(path))
+                    .filter((f): f is TFile => f instanceof TFile);
+                
+                const anyUnpinned = selectedFiles.some(f => {
+                    const folderPath = f.parent?.path || '';
+                    return !metadataService.isPinned(folderPath, f.path);
+                });
+                
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(anyUnpinned ? `Pin ${selectedCount} notes` : `Unpin ${selectedCount} notes`)
+                        .setIcon('pin')
+                        .onClick(async () => {
+                            for (const selectedFile of selectedFiles) {
+                                if (!selectedFile.parent) continue;
+                                const folderPath = selectedFile.parent.path;
+                                
+                                if (anyUnpinned) {
+                                    // Pin all unpinned files
+                                    if (!metadataService.isPinned(folderPath, selectedFile.path)) {
+                                        await metadataService.togglePinnedNote(folderPath, selectedFile.path);
+                                    }
+                                } else {
+                                    // Unpin all files
+                                    await metadataService.togglePinnedNote(folderPath, selectedFile.path);
+                                }
+                            }
                         });
                 });
             }
@@ -428,7 +511,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 // Multiple files selected - duplicate all
                 menu.addItem((item: MenuItem) => {
                     item
-                        .setTitle(`Duplicate ${selectedCount} files`)
+                        .setTitle(`Duplicate ${selectedCount} notes`)
                         .setIcon('documents')
                         .onClick(async () => {
                             // Duplicate all selected files
@@ -535,7 +618,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 // Multiple files selected - delete all
                 menu.addItem((item: MenuItem) => {
                     item
-                        .setTitle(`Delete ${selectedCount} files`)
+                        .setTitle(`Delete ${selectedCount} notes`)
                         .setIcon('trash')
                         .onClick(async () => {
                             // Get all selected files
