@@ -35,7 +35,6 @@ import { PaneHeader } from './PaneHeader';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
-import { useMultiSelectionDebug } from '../hooks/useMultiSelectionDebug';
 
 
 /**
@@ -60,8 +59,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const uiDispatch = useUIDispatch();
     const { selectionType, selectedFolder, selectedTag, selectedFile, selectedFiles } = selectionState;
     
-    // Use the debug hook
-    useMultiSelectionDebug(selectionState);
     
     
     
@@ -69,7 +66,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const isUserSelectionRef = useRef(false);
     const [fileVersion, setFileVersion] = useState(0);
     
-    const handleFileClick = useCallback((file: TFile, e: React.MouseEvent, fileIndex?: number) => {
+    const handleFileClick = useCallback((file: TFile, e: React.MouseEvent, fileIndex?: number, orderedFiles?: TFile[]) => {
         isUserSelectionRef.current = true;  // Mark this as a user selection
         
         // Check if CMD (Mac) or Ctrl (Windows/Linux) is pressed for multi-select
@@ -79,21 +76,55 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         // Don't enable multi-select on mobile
         if (!isMobile && isMultiSelectModifier) {
             // Toggle selection with Cmd/Ctrl+Click
-            console.log(`[MULTI-SELECT] Cmd+Click on file at index ${fileIndex}: ${file.name}`);
-            selectionDispatch({ type: 'TOGGLE_FILE_SELECTION', file, anchorIndex: fileIndex });
-        } else if (!isMobile && isShiftKey && fileIndex !== undefined) {
-            // Extend selection from anchor to clicked file
-            console.log('[MULTI-SELECT] Shift+Click on file at index', fileIndex);
             
-            // Initialize anchor if not set
-            if (selectionState.anchorIndex === null) {
-                selectionDispatch({ type: 'SET_ANCHOR_INDEX', index: fileIndex });
+            // Check if we're trying to deselect
+            const isDeselecting = selectionState.selectedFiles.has(file.path);
+            
+            // Don't allow deselecting if it's the last selected item
+            if (isDeselecting && selectionState.selectedFiles.size === 1) {
+                return;
             }
             
-            // Extend selection from anchor to clicked file
-            selectionDispatch({ type: 'EXTEND_SELECTION', toIndex: fileIndex, files, allFiles: files });
+            // If deselecting, don't move cursor
+            if (isDeselecting) {
+                selectionDispatch({ type: 'TOGGLE_FILE_SELECTION', file });
+            } else {
+                // If selecting, update cursor
+                selectionDispatch({ type: 'TOGGLE_WITH_CURSOR', file, anchorIndex: fileIndex });
+            }
+        } else if (!isMobile && isShiftKey && fileIndex !== undefined && orderedFiles) {
+            // Range selection with Shift+Click
+            
+            // Find cursor position in the orderedFiles array
+            let cursorIndex = -1;
+            
+            if (selectionState.selectedFile) {
+                cursorIndex = orderedFiles.findIndex(f => f.path === selectionState.selectedFile?.path);
+            }
+            
+            // If no cursor position (no selection), use the clicked position
+            if (cursorIndex === -1) {
+                selectionDispatch({ type: 'SET_SELECTED_FILE', file });
+                return;
+            }
+            
+            
+            // Don't clear selection - add to it
+            // Select all files in range from cursor to clicked position
+            const startIndex = Math.min(cursorIndex, fileIndex);
+            const endIndex = Math.max(cursorIndex, fileIndex);
+            
+            for (let i = startIndex; i <= endIndex; i++) {
+                if (orderedFiles[i] && !selectionState.selectedFiles.has(orderedFiles[i].path)) {
+                    selectionDispatch({ type: 'TOGGLE_FILE_SELECTION', file: orderedFiles[i] });
+                }
+            }
+            
+            // Move cursor to the clicked position
+            selectionDispatch({ type: 'UPDATE_CURRENT_FILE', file });
         } else {
-            // Normal click - select only this file
+            // Normal click - always clear multi-selection and select only this file
+            selectionDispatch({ type: 'CLEAR_FILE_SELECTION' });
             selectionDispatch({ type: 'SET_SELECTED_FILE', file });
         }
         
@@ -121,7 +152,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             
             app.workspace.leftSplit.collapse();
         }
-    }, [app.workspace, selectionDispatch, uiDispatch, isMobile]);
+    }, [app.workspace, selectionDispatch, uiDispatch, isMobile, selectionState]);
     
     // This effect now only listens for vault events to trigger a refresh
     useEffect(() => {
@@ -731,6 +762,17 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         );
     }
     
+    // Build ordered files list for Shift+Click functionality
+    const orderedFiles = useMemo(() => {
+        const files: TFile[] = [];
+        listItems.forEach(item => {
+            if (item.type === 'file') {
+                files.push(item.data as TFile);
+            }
+        });
+        return files;
+    }, [listItems]);
+    
     return (
         <ErrorBoundary componentName="FileList">
             <div className="nn-right-pane">
@@ -810,9 +852,15 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                             file={item.data as TFile}
                                             isSelected={isSelected}
                                             onClick={(e) => {
-                                                // Find the actual index of this file in the files array
-                                                const fileIndex = files.findIndex(f => f.path === (item.data as TFile).path);
-                                                handleFileClick(item.data as TFile, e, fileIndex);
+                                                // Find the actual index of this file in the display order
+                                                // Count only file items, not headers or spacers
+                                                let fileIndex = 0;
+                                                for (let i = 0; i < virtualItem.index; i++) {
+                                                    if (listItems[i]?.type === 'file') {
+                                                        fileIndex++;
+                                                    }
+                                                }
+                                                handleFileClick(item.data as TFile, e, fileIndex, orderedFiles);
                                             }}
                                             dateGroup={dateGroup}
                                             formattedDate={filesWithDates?.get((item.data as TFile).path)}
