@@ -33,6 +33,7 @@ import { strings } from '../i18n';
 import type { FileListItem } from '../types/virtualization';
 import { PaneHeader } from './PaneHeader';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
+import { useMultiSelection } from '../hooks/useMultiSelection';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
 
@@ -66,6 +67,9 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const isUserSelectionRef = useRef(false);
     const [fileVersion, setFileVersion] = useState(0);
     
+    // Initialize multi-selection hook
+    const multiSelection = useMultiSelection();
+    
     const handleFileClick = useCallback((file: TFile, e: React.MouseEvent, fileIndex?: number, orderedFiles?: TFile[]) => {
         isUserSelectionRef.current = true;  // Mark this as a user selection
         
@@ -75,56 +79,12 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         
         // Don't enable multi-select on mobile
         if (!isMobile && isMultiSelectModifier) {
-            // Toggle selection with Cmd/Ctrl+Click
-            
-            // Check if we're trying to deselect
-            const isDeselecting = selectionState.selectedFiles.has(file.path);
-            
-            // Don't allow deselecting if it's the last selected item
-            if (isDeselecting && selectionState.selectedFiles.size === 1) {
-                return;
-            }
-            
-            // If deselecting, don't move cursor
-            if (isDeselecting) {
-                selectionDispatch({ type: 'TOGGLE_FILE_SELECTION', file });
-            } else {
-                // If selecting, update cursor
-                selectionDispatch({ type: 'TOGGLE_WITH_CURSOR', file, anchorIndex: fileIndex });
-            }
+            multiSelection.handleMultiSelectClick(file, fileIndex);
         } else if (!isMobile && isShiftKey && fileIndex !== undefined && orderedFiles) {
-            // Range selection with Shift+Click
-            
-            // Find cursor position in the orderedFiles array
-            let cursorIndex = -1;
-            
-            if (selectionState.selectedFile) {
-                cursorIndex = orderedFiles.findIndex(f => f.path === selectionState.selectedFile?.path);
-            }
-            
-            // If no cursor position (no selection), use the clicked position
-            if (cursorIndex === -1) {
-                selectionDispatch({ type: 'SET_SELECTED_FILE', file });
-                return;
-            }
-            
-            
-            // Don't clear selection - add to it
-            // Select all files in range from cursor to clicked position
-            const startIndex = Math.min(cursorIndex, fileIndex);
-            const endIndex = Math.max(cursorIndex, fileIndex);
-            
-            for (let i = startIndex; i <= endIndex; i++) {
-                if (orderedFiles[i] && !selectionState.selectedFiles.has(orderedFiles[i].path)) {
-                    selectionDispatch({ type: 'TOGGLE_FILE_SELECTION', file: orderedFiles[i] });
-                }
-            }
-            
-            // Move cursor to the clicked position
-            selectionDispatch({ type: 'UPDATE_CURRENT_FILE', file });
+            multiSelection.handleRangeSelectClick(file, fileIndex, orderedFiles);
         } else {
             // Normal click - always clear multi-selection and select only this file
-            selectionDispatch({ type: 'CLEAR_FILE_SELECTION' });
+            multiSelection.clearSelection();
             selectionDispatch({ type: 'SET_SELECTED_FILE', file });
         }
         
@@ -152,7 +112,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             
             app.workspace.leftSplit.collapse();
         }
-    }, [app.workspace, selectionDispatch, uiDispatch, isMobile, selectionState]);
+    }, [app.workspace, selectionDispatch, uiDispatch, isMobile, multiSelection]);
     
     // This effect now only listens for vault events to trigger a refresh
     useEffect(() => {
@@ -797,7 +757,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                             const item = safeGetItem(listItems, virtualItem.index);
                             if (!item) return null;
                             const isSelected = item.type === 'file' && 
-                                selectedFiles.has((item.data as TFile).path);
+                                multiSelection.isFileSelected(item.data as TFile);
                             
                             // Check if this is the last file item
                             const nextItem = safeGetItem(listItems, virtualItem.index + 1);
@@ -811,7 +771,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                             // Check if next item is selected (for hiding separator)
                             const nextItemSelected = nextItem && 
                                 nextItem.type === 'file' && 
-                                selectedFiles.has((nextItem.data as TFile).path);
+                                multiSelection.isFileSelected(nextItem.data as TFile);
                             
                             // Find current date group for file items
                             let dateGroup: string | null = null;

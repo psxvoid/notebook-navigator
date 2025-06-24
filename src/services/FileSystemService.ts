@@ -530,9 +530,31 @@ export class FileSystemOperations {
      * Deletes multiple files with confirmation
      * @param files - Array of files to delete
      * @param confirmBeforeDelete - Whether to show confirmation dialog
+     * @param onSuccess - Optional callback to run after successful deletion
      */
-    async deleteMultipleFiles(files: TFile[], confirmBeforeDelete = true): Promise<void> {
+    async deleteMultipleFiles(
+        files: TFile[], 
+        confirmBeforeDelete = true,
+        onSuccess?: () => void
+    ): Promise<void> {
         if (files.length === 0) return;
+        
+        const performDelete = async () => {
+            // Delete all files
+            for (const file of files) {
+                try {
+                    await this.app.vault.delete(file);
+                } catch (error) {
+                    console.error('Error deleting file:', file.path, error);
+                    new Notice(`Failed to delete ${file.name}: ${error.message}`);
+                }
+            }
+            new Notice(`Deleted ${files.length} files`);
+            
+            if (onSuccess) {
+                onSuccess();
+            }
+        };
         
         if (confirmBeforeDelete) {
             // Import dynamically to avoid circular dependencies
@@ -543,32 +565,55 @@ export class FileSystemOperations {
                 strings.fileSystem.confirmations.deleteMultipleFiles
                     .replace('{count}', files.length.toString()),
                 strings.fileSystem.confirmations.deleteConfirmation,
-                async () => {
-                    // Delete all files
-                    for (const file of files) {
-                        try {
-                            await this.app.vault.delete(file);
-                        } catch (error) {
-                            console.error('Error deleting file:', file.path, error);
-                            new Notice(`Failed to delete ${file.name}: ${error.message}`);
-                        }
-                    }
-                    new Notice(`Deleted ${files.length} files`);
-                }
+                performDelete
             );
             modal.open();
         } else {
-            // Delete without confirmation
-            for (const file of files) {
-                try {
-                    await this.app.vault.delete(file);
-                } catch (error) {
-                    console.error('Error deleting file:', file.path, error);
-                    new Notice(`Failed to delete ${file.name}: ${error.message}`);
+            await performDelete();
+        }
+    }
+
+    /**
+     * Deletes selected files with smart selection of next file
+     * Centralizes the delete logic used by both keyboard shortcuts and context menu
+     * @param selectedFiles - Set of selected file paths
+     * @param allFiles - All files in the current view (for finding next file)
+     * @param settings - Plugin settings
+     * @param selectionContext - Current selection context
+     * @param selectionDispatch - Selection dispatch function
+     * @param confirmBeforeDelete - Whether to show confirmation dialog
+     */
+    async deleteFilesWithSmartSelection(
+        selectedFiles: Set<string>,
+        allFiles: TFile[],
+        settings: NotebookNavigatorSettings,
+        selectionContext: SelectionContext,
+        selectionDispatch: SelectionDispatch,
+        confirmBeforeDelete: boolean
+    ): Promise<void> {
+        // Convert selected paths to files
+        const filesToDelete = Array.from(selectedFiles)
+            .map(path => this.app.vault.getAbstractFileByPath(path))
+            .filter((f): f is TFile => f instanceof TFile);
+        
+        if (filesToDelete.length === 0) return;
+        
+        // Find next file to select using utility
+        const { findNextFileAfterDelete } = await import('../utils/selectionUtils');
+        const nextFileToSelect = findNextFileAfterDelete(allFiles, selectedFiles);
+        
+        // Delete the files with callback to update selection
+        await this.deleteMultipleFiles(
+            filesToDelete,
+            confirmBeforeDelete,
+            () => {
+                // Update selection after deletion
+                selectionDispatch({ type: 'CLEAR_FILE_SELECTION' });
+                if (nextFileToSelect) {
+                    selectionDispatch({ type: 'SET_SELECTED_FILE', file: nextFileToSelect });
                 }
             }
-            new Notice(`Deleted ${files.length} files`);
-        }
+        );
     }
 
     // Alias methods for backward compatibility

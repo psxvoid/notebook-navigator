@@ -625,11 +625,6 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                         .setTitle(`Delete ${selectedCount} notes`)
                         .setIcon('trash')
                         .onClick(async () => {
-                            // Get all selected files
-                            const selectedFiles = Array.from(selectionState.selectedFiles)
-                                .map(path => app.vault.getAbstractFileByPath(path))
-                                .filter((f): f is TFile => f instanceof TFile);
-                            
                             // Get all files in the current view for smart selection
                             let allFiles: TFile[] = [];
                             if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
@@ -638,46 +633,19 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                                 allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
                             }
                             
-                            // Find the first selected file's index
-                            let firstSelectedIndex = -1;
-                            const selectedPaths = new Set(selectedFiles.map(f => f.path));
-                            
-                            for (let i = 0; i < allFiles.length; i++) {
-                                if (selectedPaths.has(allFiles[i].path)) {
-                                    firstSelectedIndex = i;
-                                    break;
-                                }
-                            }
-                            
-                            // Delete all selected files
-                            await fileSystemOps.deleteMultipleFiles(selectedFiles, settings.confirmBeforeDelete);
-                            
-                            // Smart selection after delete
-                            let nextFileToSelect: TFile | null = null;
-                            
-                            // Strategy 1: Find first unselected file starting from first selected position
-                            for (let i = firstSelectedIndex; i < allFiles.length; i++) {
-                                if (!selectedPaths.has(allFiles[i].path)) {
-                                    nextFileToSelect = allFiles[i];
-                                    break;
-                                }
-                            }
-                            
-                            // Strategy 2: If no file found after, look for first file before the selection
-                            if (!nextFileToSelect && firstSelectedIndex > 0) {
-                                for (let i = firstSelectedIndex - 1; i >= 0; i--) {
-                                    if (!selectedPaths.has(allFiles[i].path)) {
-                                        nextFileToSelect = allFiles[i];
-                                        break;
-                                    }
-                                }
-                            }
-                            
-                            // Update selection
-                            selectionDispatch({ type: 'CLEAR_FILE_SELECTION' });
-                            if (nextFileToSelect) {
-                                selectionDispatch({ type: 'SET_SELECTED_FILE', file: nextFileToSelect });
-                            }
+                            // Use centralized delete method with smart selection
+                            await fileSystemOps.deleteFilesWithSmartSelection(
+                                selectionState.selectedFiles,
+                                allFiles,
+                                settings,
+                                {
+                                    selectionType: selectionState.selectionType,
+                                    selectedFolder: selectionState.selectedFolder || undefined,
+                                    selectedTag: selectionState.selectedTag || undefined
+                                },
+                                selectionDispatch,
+                                settings.confirmBeforeDelete
+                            );
                         });
                 });
             }
