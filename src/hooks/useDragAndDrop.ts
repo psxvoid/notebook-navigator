@@ -109,8 +109,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     dragContainer.style.cssText = `
                         position: absolute;
                         left: -9999px;
-                        width: 40px;
-                        height: 40px;
+                        width: 48px;
+                        height: 48px;
                     `;
                     
                     // Create the badge inside the container
@@ -118,8 +118,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     dragInfo.textContent = `${selectedPaths.length}`;
                     dragInfo.style.cssText = `
                         position: absolute;
-                        bottom: 0;
-                        right: 0;
+                        bottom: 4px;
+                        right: 4px;
                         background-color: #dc3545;
                         color: white;
                         font-weight: bold;

@@ -359,8 +359,12 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             const isMultipleSelected = selectedCount > 1;
             const isFileSelected = selectionState.selectedFiles.has(file.path);
             
+            // If right-clicking on an unselected file while having multi-selection,
+            // treat it as a single file operation
+            const shouldShowMultiOptions = isMultipleSelected && isFileSelected;
+            
             // Open options - show for single or multiple selection
-            if (!isMultipleSelected) {
+            if (!shouldShowMultiOptions) {
                 // Open in new tab
                 menu.addItem((item: MenuItem) => {
                     item
@@ -392,7 +396,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                             });
                     });
                 }
-            } else if (isFileSelected) {
+            } else {
                 // Multiple files selected - show open options with count
                 menu.addItem((item: MenuItem) => {
                     item
@@ -447,7 +451,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             menu.addSeparator();
             
             // Pin/Unpin note(s)
-            if (!isMultipleSelected) {
+            if (!shouldShowMultiOptions) {
                 const folderPath = file.parent?.path || '';
                 const isPinned = metadataService.isPinned(folderPath, file.path);
                 
@@ -462,7 +466,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                             // The metadata change will trigger a re-render naturally
                         });
                 });
-            } else if (isFileSelected) {
+            } else {
                 // Multiple files selected - pin/unpin all
                 // Check if any selected files are unpinned
                 const selectedFiles = Array.from(selectionState.selectedFiles)
@@ -498,7 +502,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             }
             
             // Duplicate note(s)
-            if (!isMultipleSelected) {
+            if (!shouldShowMultiOptions) {
                 menu.addItem((item: MenuItem) => {
                     item
                         .setTitle(strings.contextMenu.file.duplicateNote)
@@ -507,7 +511,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                             await fileSystemOps.duplicateNote(file);
                         });
                 });
-            } else if (isFileSelected) {
+            } else {
                 // Multiple files selected - duplicate all
                 menu.addItem((item: MenuItem) => {
                     item
@@ -614,7 +618,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                             }
                         });
                 });
-            } else if (isFileSelected) {
+            } else {
                 // Multiple files selected - delete all
                 menu.addItem((item: MenuItem) => {
                     item
