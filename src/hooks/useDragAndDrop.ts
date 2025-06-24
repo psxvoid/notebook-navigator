@@ -104,13 +104,39 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 
                 // Show count in drag image
                 if (selectedPaths.length > 1) {
+                    // Create a container to position the badge
+                    const dragContainer = document.createElement('div');
+                    dragContainer.style.cssText = `
+                        position: absolute;
+                        left: -9999px;
+                        width: 40px;
+                        height: 40px;
+                    `;
+                    
+                    // Create the badge inside the container
                     const dragInfo = document.createElement('div');
-                    dragInfo.textContent = `${selectedPaths.length} files`;
-                    dragInfo.style.position = 'absolute';
-                    dragInfo.style.left = '-9999px';
-                    document.body.appendChild(dragInfo);
-                    e.dataTransfer.setDragImage(dragInfo, 0, 0);
-                    setTimeout(() => document.body.removeChild(dragInfo), 0);
+                    dragInfo.textContent = `${selectedPaths.length}`;
+                    dragInfo.style.cssText = `
+                        position: absolute;
+                        bottom: 0;
+                        right: 0;
+                        background-color: #dc3545;
+                        color: white;
+                        font-weight: bold;
+                        font-size: 14px;
+                        width: 24px;
+                        height: 24px;
+                        border-radius: 12px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+                    `;
+                    
+                    dragContainer.appendChild(dragInfo);
+                    document.body.appendChild(dragContainer);
+                    e.dataTransfer.setDragImage(dragContainer, 5, 5);
+                    setTimeout(() => document.body.removeChild(dragContainer), 0);
                 }
             } else {
                 // Single item drag
