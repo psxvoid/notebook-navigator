@@ -9,8 +9,9 @@ Notebook Navigator is an Obsidian plugin that replaces the default file explorer
 - **File Previews**: Shows stripped markdown previews and feature images from frontmatter.
 - **Tag Browse**: Supports hierarchical tags (e.g., `#inbox/processing`) and untagged note filtering.
 - **Full Keyboard Navigation**: Navigate using arrow keys, `Tab`, `Enter`, `PageUp`, and `PageDown`.
-- **Drag & Drop**: Move files and folders with visual feedback (desktop only).
-- **Context Menus**: Right-click menus for files and folders.
+- **Multi-Selection**: Select multiple files using Cmd/Ctrl+Click, Shift+Click, Shift+Arrow keys, and Cmd/Ctrl+A.
+- **Drag & Drop**: Move files and folders with visual feedback (desktop only). Supports dragging multiple selected files.
+- **Context Menus**: Right-click menus for files and folders, with support for bulk operations on multi-selection.
 - **Customization**:
 - **Folder Icons**: Pick custom Lucide icons per folder.
 - **Folder Colors**: Customize folder name/icon colors.
@@ -145,7 +146,7 @@ NotebookNavigatorView (Obsidian ItemView)
 - **SettingsContext**: Provides and updates plugin settings.
 - **ServicesContext**: Injects business logic services (e.g., file operations).
 - **ExpansionContext**: Tracks expanded folders and tags.
-- **SelectionContext**: Tracks selected folder, tag, or file. Includes flags `isRevealOperation` and `isFolderChangeWithAutoSelect` for coordinating complex state updates and preventing unwanted side effects.
+- **SelectionContext**: Tracks selected folder, tag, and files (supports multi-selection). Maintains `selectedFiles` as a Set for multi-selection, `selectedFile` as the cursor position for keyboard navigation. Includes flags `isRevealOperation` and `isFolderChangeWithAutoSelect` for coordinating complex state updates and preventing unwanted side effects.
 - **UIStateContext**: Manages UI state like focused pane, pane width, current mobile view ('list' or 'files'), and tracking newly created paths to ensure proper reveal and selection.
     
 
@@ -200,6 +201,14 @@ NotebookNavigatorView (Obsidian ItemView)
     1. Use the correct context (e.g., `SelectionContext`).
     2. Dispatch an action.
     3. If missing, extend the reducer and action type.
+
+- **Working with Multi-Selection**
+    1. Use `selectedFiles` Set from `SelectionContext` to track selected files.
+    2. Use `selectedFile` as the cursor position for keyboard navigation.
+    3. Dispatch `TOGGLE_FILE_SELECTION` to add/remove files from selection.
+    4. Dispatch `TOGGLE_WITH_CURSOR` when you need to both toggle selection and update cursor.
+    5. Use `CLEAR_FILE_SELECTION` to clear all selections.
+    6. Context menus should check `selectedFiles.size` for bulk operations.
         
 
 ## Build & Development
@@ -290,7 +299,7 @@ This section provides a detailed breakdown of each file in the project, explaini
 
 #### State Management (Contexts)
 - **`src/context/ExpansionContext.tsx`**: Manages the state of expanded/collapsed folders and tags (`expandedFolders: Set<string>`, `expandedTags: Set<string>`). Persists this state to `localStorage`.
-- **`src/context/SelectionContext.tsx`**: Manages what is currently selected (`selectedFolder`, `selectedTag`, `selectedFile`). It contains the core logic for what happens when a selection changes, such as auto-selecting the first file in a folder. Includes flags `isRevealOperation` and `isFolderChangeWithAutoSelect` for coordinating complex state updates and preventing unwanted side effects, like files being automatically opened when navigating. Persists selection to `localStorage`.
+- **`src/context/SelectionContext.tsx`**: Manages what is currently selected (`selectedFolder`, `selectedTag`, `selectedFiles` Set for multi-selection, and `selectedFile` as cursor position). It contains the core logic for what happens when a selection changes, such as auto-selecting the first file in a folder. Supports multi-selection actions: `TOGGLE_FILE_SELECTION` (add/remove from selection), `TOGGLE_WITH_CURSOR` (toggle selection and update cursor), `CLEAR_FILE_SELECTION` (clear all selections), and `UPDATE_CURRENT_FILE` (move cursor without changing selection). Includes flags `isRevealOperation` and `isFolderChangeWithAutoSelect` for coordinating complex state updates and preventing unwanted side effects, like files being automatically opened when navigating. Persists selection to `localStorage`.
 - **`src/context/SettingsContext.tsx`**: Provides the global `NotebookNavigatorSettings` object to the entire React component tree. Uses a version counter to trigger re-renders when settings change. When the version increments, it creates a new settings object reference using spread syntax, ensuring React detects the change and re-renders dependent components.
 - **`src/context/ServicesContext.tsx`**: Acts as a dependency injection container. It instantiates business logic services (`FileSystemService`, `MetadataService`) and makes them available to any component via custom hooks.
 - **`src/context/UIStateContext.tsx`**: Manages state related to the UI's appearance and behavior, such as which pane has keyboard focus (`focusedPane`), the width of the resizable pane, the current view on mobile (`currentMobileView` - 'list' or 'files'), and tracking newly created paths (`newlyCreatedPath`) to ensure they are properly revealed and selected. Scrolling is now handled declaratively within components using the virtualizer's `scrollToIndex` method, triggered by changes in `SelectionContext`.
@@ -314,7 +323,7 @@ This section provides a detailed breakdown of each file in the project, explaini
   - **Responsibilities**: Reads file content, handles special file types like Excalidraw drawings, strips markdown using `PreviewTextUtils`, and manages loading states. This separation of concerns keeps the `FileItem` component focused on rendering.
 - **`src/hooks/useVirtualKeyboardNavigation.ts`**
   - **Purpose**: Implements comprehensive keyboard navigation for the virtualized lists.
-  - **Responsibilities**: Handles arrow keys, Tab, Enter, and PageUp/PageDown. The PageUp/PageDown implementation intelligently calculates the number of visible items based on viewport geometry and average item height, providing natural page-wise navigation.
+  - **Responsibilities**: Handles arrow keys, Tab, Enter, and PageUp/PageDown. Supports multi-selection with Shift+Arrow keys (Apple Notes-style behavior where cursor jumps through selected items), Cmd/Ctrl+A for select all. The PageUp/PageDown implementation intelligently calculates the number of visible items based on viewport geometry and average item height, providing natural page-wise navigation.
 
 #### Reducers
 - **`src/reducers/autoRevealReducer.ts`**
