@@ -507,7 +507,8 @@ button.nn-icon-button {
     inset-inline-end: var(--size-4-5);
     height: 1px;
     background-color: var(--background-modifier-border);
-    z-index: 1;
+    z-index: 2; /* Above selection background */
+    pointer-events: none; /* Ensure it doesn't interfere with clicks */
 }
 
 /* File text content - left side container for name and preview */
@@ -788,15 +789,33 @@ button.nn-icon-button {
     border-radius: var(--radius-m);
 }
 
-/* Virtual list: Remove separator below selected item */
-.nn-virtual-file-item.nn-item-selected::after {
-    display: none;
+/* Unified selection appearance - Single selected item */
+.nn-file-item.nn-selected.nn-selection-single .nn-file-content::before {
+    border-radius: var(--radius-m);
 }
 
-/* Virtual list: Remove separator above selected item (on the item before) */
-.nn-virtual-file-item.nn-before-selected::after {
-    display: none;
+/* Unified selection appearance - Top of selection group */
+.nn-file-item.nn-selected.nn-selection-top .nn-file-content::before {
+    border-radius: var(--radius-m) var(--radius-m) 0 0;
+    bottom: -1px; /* Extend slightly past bottom to connect with next item */
 }
+
+/* Unified selection appearance - Middle of selection group */
+.nn-file-item.nn-selected.nn-selection-middle .nn-file-content::before {
+    border-radius: 0;
+    top: 0; /* Start at normal position */
+    bottom: -1px; /* Extend slightly past bottom to connect with next item */
+}
+
+/* Unified selection appearance - Bottom of selection group */
+.nn-file-item.nn-selected.nn-selection-bottom .nn-file-content::before {
+    border-radius: 0 0 var(--radius-m) var(--radius-m);
+    top: 0; /* Start at normal position */
+    bottom: 1px; /* Stop above the separator line as usual */
+}
+
+/* Keep separators visible but ensure they appear above selection backgrounds */
+/* Removed rules that hide separators for selected items */
 
 
 /* Selected file content z-index - ensures content above background */

@@ -773,6 +773,27 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                 nextItem.type === 'file' && 
                                 multiSelection.isFileSelected(nextItem.data as TFile);
                             
+                            // Calculate selection position classes for unified selection appearance
+                            let selectionPositionClass = '';
+                            if (item.type === 'file' && isSelected) {
+                                // Check previous item
+                                const prevItem = safeGetItem(listItems, virtualItem.index - 1);
+                                const prevItemSelected = prevItem && 
+                                    prevItem.type === 'file' && 
+                                    multiSelection.isFileSelected(prevItem.data as TFile);
+                                
+                                // Determine position in selection group
+                                if (prevItemSelected && nextItemSelected) {
+                                    selectionPositionClass = 'nn-selection-middle';
+                                } else if (prevItemSelected && !nextItemSelected) {
+                                    selectionPositionClass = 'nn-selection-bottom';
+                                } else if (!prevItemSelected && nextItemSelected) {
+                                    selectionPositionClass = 'nn-selection-top';
+                                } else {
+                                    selectionPositionClass = 'nn-selection-single';
+                                }
+                            }
+                            
                             // Find current date group for file items
                             let dateGroup: string | null = null;
                             if (item.type === 'file') {
@@ -791,7 +812,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                     key={virtualItem.key}
                                     data-index={virtualItem.index}
                                     ref={rowVirtualizer.measureElement}
-                                    className={`nn-virtual-item ${item.type === 'file' ? 'nn-virtual-file-item' : ''} ${isLastFile ? 'nn-last-file' : ''} ${isSelected ? 'nn-item-selected' : ''} ${nextItemSelected ? 'nn-before-selected' : ''}`}
+                                    className={`nn-virtual-item ${item.type === 'file' ? 'nn-virtual-file-item' : ''} ${isLastFile ? 'nn-last-file' : ''} ${isSelected ? 'nn-item-selected' : ''} ${nextItemSelected ? 'nn-before-selected' : ''} ${selectionPositionClass}`}
                                     style={{
                                         position: 'absolute',
                                         top: 0,
@@ -811,6 +832,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                             key={item.key}
                                             file={item.data}
                                             isSelected={isSelected}
+                                            selectionPositionClass={selectionPositionClass}
                                             onClick={(e) => {
                                                 // Find the actual index of this file in the display order
                                                 // Count only file items, not headers or spacers

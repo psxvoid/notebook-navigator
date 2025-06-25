@@ -36,6 +36,7 @@ interface FileItemProps {
     dateGroup?: string | null;
     formattedDate?: string;
     parentFolder?: string | null;
+    selectionPositionClass?: string;
 }
 
 /**
@@ -50,7 +51,7 @@ interface FileItemProps {
  * @param props.onClick - Handler called when the file is clicked
  * @returns A file item element with name, date, preview and optional image
  */
-function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate, parentFolder }: FileItemProps) {
+function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate, parentFolder, selectionPositionClass }: FileItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
     const { selectedFolder, selectionType } = useSelectionState();
@@ -147,7 +148,7 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
                        !settings.showFilePreview && 
                        !settings.showFeatureImage;
     
-    const className = `nn-file-item ${isSelected ? 'nn-selected' : ''} ${isSlimMode ? 'nn-slim' : ''}`;
+    const className = `nn-file-item ${isSelected ? 'nn-selected' : ''} ${isSlimMode ? 'nn-slim' : ''} ${selectionPositionClass || ''}`;
 
     return (
         <div 
@@ -245,7 +246,8 @@ export const FileItem = memo(FileItemInternal, (prevProps, nextProps) => {
         prevProps.dateGroup === nextProps.dateGroup &&
         prevProps.onClick === nextProps.onClick &&
         prevProps.formattedDate === nextProps.formattedDate &&
-        prevProps.parentFolder === nextProps.parentFolder
+        prevProps.parentFolder === nextProps.parentFolder &&
+        prevProps.selectionPositionClass === nextProps.selectionPositionClass
     );
     
     return isEqual;
