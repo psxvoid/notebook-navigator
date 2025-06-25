@@ -281,6 +281,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     }
 
                     if (shouldSwitchPane) {
+                        selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                     }
                 } else if (focusedPane === 'files' && selectionState.selectedFile) {
@@ -364,6 +365,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 } else {
                     // Tab: Move focus forwards (Folders -> Files -> Editor)
                     if (focusedPane === 'folders') {
+                        selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                     } else if (focusedPane === 'files' && selectionState.selectedFile) {
                         // This is the logic moved from ArrowRight to focus the editor

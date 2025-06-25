@@ -39,6 +39,7 @@ export interface SelectionState {
     lastMovementDirection: 'up' | 'down' | null; // Track direction for expand/contract
     isRevealOperation: boolean; // Flag to track if the current selection is from a REVEAL_FILE action
     isFolderChangeWithAutoSelect: boolean; // Flag to track if we just changed folders and auto-selected a file
+    isKeyboardNavigation: boolean; // Flag to track if selection is from Tab/Right arrow navigation
     
     // Computed property for backward compatibility
     selectedFile: TFile | null; // First file in selection or null
@@ -61,7 +62,8 @@ export type SelectionAction =
     | { type: 'SET_ANCHOR_INDEX'; index: number | null }
     | { type: 'SET_MOVEMENT_DIRECTION'; direction: 'up' | 'down' | null }
     | { type: 'UPDATE_CURRENT_FILE'; file: TFile } // Update current file without changing selection
-    | { type: 'TOGGLE_WITH_CURSOR'; file: TFile; anchorIndex?: number }; // Toggle selection and update cursor
+    | { type: 'TOGGLE_WITH_CURSOR'; file: TFile; anchorIndex?: number } // Toggle selection and update cursor
+    | { type: 'SET_KEYBOARD_NAVIGATION'; isKeyboardNavigation: boolean }; // Set keyboard navigation flag
 
 // Dispatch function type
 export type SelectionDispatch = React.Dispatch<SelectionAction>;
@@ -96,7 +98,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 anchorIndex: null,
                 lastMovementDirection: null,
                 isRevealOperation: false,
-                isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null
+                isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null,
+                isKeyboardNavigation: false
             };
         }
         
@@ -115,7 +118,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 anchorIndex: null,
                 lastMovementDirection: null,
                 isRevealOperation: false,
-                isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null
+                isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null,
+                isKeyboardNavigation: false
             };
         }
             
@@ -132,12 +136,13 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 anchorIndex: null,
                 lastMovementDirection: null,
                 isRevealOperation: false, 
-                isFolderChangeWithAutoSelect: false 
+                isFolderChangeWithAutoSelect: false,
+                isKeyboardNavigation: false 
             };
         }
         
         case 'SET_SELECTION_TYPE':
-            return { ...state, selectionType: action.selectionType, isRevealOperation: false, isFolderChangeWithAutoSelect: false };
+            return { ...state, selectionType: action.selectionType, isRevealOperation: false, isFolderChangeWithAutoSelect: false, isKeyboardNavigation: false };
         
         case 'CLEAR_SELECTION':
             return {
@@ -149,7 +154,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 anchorIndex: null,
                 lastMovementDirection: null,
                 isRevealOperation: false,
-                isFolderChangeWithAutoSelect: false
+                isFolderChangeWithAutoSelect: false,
+                isKeyboardNavigation: false
             };
         
         case 'REVEAL_FILE': {
@@ -175,7 +181,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 anchorIndex: null,
                 lastMovementDirection: null,
                 isRevealOperation: true,
-                isFolderChangeWithAutoSelect: false
+                isFolderChangeWithAutoSelect: false,
+                isKeyboardNavigation: false
             };
         }
         
@@ -188,7 +195,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                     selectedFile: null,
                     anchorIndex: null,
                     lastMovementDirection: null,
-                    isFolderChangeWithAutoSelect: false
+                    isFolderChangeWithAutoSelect: false,
+                    isKeyboardNavigation: false
                 };
             }
             return state;
@@ -213,7 +221,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 selectedFiles: newSelectedFiles,
                 selectedFile: action.nextFileToSelect || (app ? getFirstSelectedFile(newSelectedFiles, app) : null),
                 anchorIndex: newAnchorIndex,
-                isFolderChangeWithAutoSelect: false
+                isFolderChangeWithAutoSelect: false,
+                isKeyboardNavigation: false
             };
         }
         
@@ -311,6 +320,13 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             };
         }
         
+        case 'SET_KEYBOARD_NAVIGATION': {
+            return {
+                ...state,
+                isKeyboardNavigation: action.isKeyboardNavigation
+            };
+        }
+        
         default:
             return state;
     }
@@ -380,7 +396,8 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             anchorIndex: null,
             lastMovementDirection: null,
             isRevealOperation: false,
-            isFolderChangeWithAutoSelect: false
+            isFolderChangeWithAutoSelect: false,
+            isKeyboardNavigation: false
         };
     }, [app.vault]);
     
@@ -393,25 +410,57 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
     // Create an enhanced dispatch that handles side effects
     const enhancedDispatch = useCallback((action: SelectionAction) => {
         // Handle auto-select logic for folder selection
-        if (action.type === 'SET_SELECTED_FOLDER' && !isMobile && action.autoSelectedFile === undefined) {
-            if (action.folder && settings.autoSelectFirstFile) {
+        if (action.type === 'SET_SELECTED_FOLDER' && action.autoSelectedFile === undefined) {
+            // Clear multi-selection when changing folders
+            dispatch({ type: 'CLEAR_FILE_SELECTION' });
+            
+            if (action.folder) {
                 const filesInFolder = getFilesForFolder(action.folder, settings, app);
-                const autoSelectedFile = filesInFolder.length > 0 ? filesInFolder[0] : null;
-                // Clear multi-selection when changing folders
-                dispatch({ type: 'CLEAR_FILE_SELECTION' });
-                dispatch({ ...action, autoSelectedFile });
+                
+                // Desktop with autoSelectFirstFile enabled: ALWAYS select first file
+                if (!isMobile && settings.autoSelectFirstFile && filesInFolder.length > 0) {
+                    dispatch({ ...action, autoSelectedFile: filesInFolder[0] });
+                } else {
+                    // Otherwise, check for active file
+                    const activeFile = app.workspace.getActiveFile();
+                    const activeFileInFolder = activeFile && filesInFolder.some(f => f.path === activeFile.path);
+                    
+                    if (activeFileInFolder) {
+                        // Select the active file if it's in the folder (mobile always, desktop when autoSelect is off)
+                        dispatch({ ...action, autoSelectedFile: activeFile });
+                    } else {
+                        // No auto-selection
+                        dispatch({ ...action, autoSelectedFile: null });
+                    }
+                }
             } else {
                 dispatch({ ...action, autoSelectedFile: null });
             }
         }
         // Handle auto-select logic for tag selection
-        else if (action.type === 'SET_SELECTED_TAG' && !isMobile && action.autoSelectedFile === undefined) {
-            if (action.tag && settings.autoSelectFirstFile) {
+        else if (action.type === 'SET_SELECTED_TAG' && action.autoSelectedFile === undefined) {
+            // Clear multi-selection when changing tags
+            dispatch({ type: 'CLEAR_FILE_SELECTION' });
+            
+            if (action.tag) {
                 const filesForTag = getFilesForTag(action.tag, settings, app);
-                const autoSelectedFile = filesForTag.length > 0 ? filesForTag[0] : null;
-                // Clear multi-selection when changing tags
-                dispatch({ type: 'CLEAR_FILE_SELECTION' });
-                dispatch({ ...action, autoSelectedFile });
+                
+                // Desktop with autoSelectFirstFile enabled: ALWAYS select first file
+                if (!isMobile && settings.autoSelectFirstFile && filesForTag.length > 0) {
+                    dispatch({ ...action, autoSelectedFile: filesForTag[0] });
+                } else {
+                    // Otherwise, check for active file
+                    const activeFile = app.workspace.getActiveFile();
+                    const activeFileInTag = activeFile && filesForTag.some(f => f.path === activeFile.path);
+                    
+                    if (activeFileInTag) {
+                        // Select the active file if it's in the tag view (mobile always, desktop when autoSelect is off)
+                        dispatch({ ...action, autoSelectedFile: activeFile });
+                    } else {
+                        // No auto-selection
+                        dispatch({ ...action, autoSelectedFile: null });
+                    }
+                }
             } else {
                 dispatch({ ...action, autoSelectedFile: null });
             }

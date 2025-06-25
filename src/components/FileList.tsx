@@ -152,15 +152,20 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         return allFiles;
     }, [selectionType, selectedFolder, selectedTag, settings, app, fileVersion]);
     
-    // Auto-open file when it's selected via folder/tag change (not user click)
+    // Auto-open file when it's selected via folder/tag change (not user click or keyboard navigation)
     useEffect(() => {
         // Check if this is a reveal operation - if so, skip auto-open
         const isRevealOperation = selectionState.isRevealOperation;
         const isFolderChangeWithAutoSelect = selectionState.isFolderChangeWithAutoSelect;
+        const isKeyboardNavigation = selectionState.isKeyboardNavigation;
         
         
-        // Skip auto-open if this is a reveal operation
-        if (isRevealOperation) {
+        // Skip auto-open if this is a reveal operation or keyboard navigation
+        if (isRevealOperation || isKeyboardNavigation) {
+            // Clear the keyboard navigation flag after processing
+            if (isKeyboardNavigation) {
+                selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: false });
+            }
             return;
         }
         
@@ -181,12 +186,52 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         }
         // Reset the flag after processing
         isUserSelectionRef.current = false;
-    }, [selectedFile, app.workspace, settings.autoSelectFirstFile, isMobile, selectionState.isRevealOperation, selectionState.isFolderChangeWithAutoSelect]);
+    }, [selectedFile, app.workspace, settings.autoSelectFirstFile, isMobile, selectionState.isRevealOperation, selectionState.isFolderChangeWithAutoSelect, selectionState.isKeyboardNavigation, selectionDispatch]);
     
-    // Auto-select first file when files pane gains focus and no file is selected (desktop only)
+    // Auto-select active file or first file when files pane gains focus
     useEffect(() => {
+        // Only run when files pane gains focus (desktop only - mobile doesn't have focus states)
+        if (uiState.focusedPane !== 'files' || isMobile) return;
         
+        // Check if we already have a file selected
+        if (selectedFile) return;
+        
+        // This is keyboard navigation (Tab/Right), don't auto-open files
+        isUserSelectionRef.current = false;
+        
+        // Try to select the currently active file in the workspace
+        const activeFile = app.workspace.getActiveFile();
+        if (activeFile && files.includes(activeFile)) {
+            // The active file is in the current folder/tag view - select it
+            selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
+            selectionDispatch({ type: 'SET_SELECTED_FILE', file: activeFile });
+        } else if (files.length > 0) {
+            // No active file in current view, select AND open the first file
+            // (regardless of autoSelectFirstFile setting when navigating with keyboard)
+            selectionDispatch({ type: 'SET_SELECTED_FILE', file: files[0] });
+            // Open the file
+            const leaf = app.workspace.getLeaf(false);
+            if (leaf) {
+                leaf.openFile(files[0], { active: false });
+            }
+        }
     }, [isMobile, uiState.focusedPane, selectedFile, files, selectionDispatch, app.workspace]);
+    
+    // On mobile: check if active file should be shown as selected (but don't auto-focus/scroll)
+    useEffect(() => {
+        if (!isMobile) return;
+        
+        // Get the currently active file
+        const activeFile = app.workspace.getActiveFile();
+        
+        // If active file is in current view and not already selected, select it
+        if (activeFile && files.includes(activeFile) && selectedFile?.path !== activeFile.path) {
+            // Don't trigger auto-open on mobile
+            selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
+            selectionDispatch({ type: 'SET_SELECTED_FILE', file: activeFile });
+            isUserSelectionRef.current = false;
+        }
+    }, [isMobile, files, selectedFile, selectionDispatch, app.workspace]);
     
     
     const [listItems, setListItems] = useState<FileListItem[]>([]);
@@ -699,6 +744,17 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         return index >= 0 && index < array.length ? array[index] : undefined;
     };
     
+    // Build ordered files list for Shift+Click functionality - MUST be before early returns
+    const orderedFiles = useMemo(() => {
+        const files: TFile[] = [];
+        listItems.forEach(item => {
+            if (item.type === 'file') {
+                files.push(item.data as TFile);
+            }
+        });
+        return files;
+    }, [listItems]);
+    
     // Early returns MUST come after all hooks
     if (!selectedFolder && !selectedTag) {
         return (
@@ -721,17 +777,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             </div>
         );
     }
-    
-    // Build ordered files list for Shift+Click functionality
-    const orderedFiles = useMemo(() => {
-        const files: TFile[] = [];
-        listItems.forEach(item => {
-            if (item.type === 'file') {
-                files.push(item.data as TFile);
-            }
-        });
-        return files;
-    }, [listItems]);
     
     return (
         <ErrorBoundary componentName="FileList">
