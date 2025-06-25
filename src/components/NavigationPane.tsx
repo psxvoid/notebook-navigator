@@ -103,8 +103,8 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                 folders = [root];
             } else {
                 folders = root.children
-                    .filter(child => isTFolder(child))
-                    .sort((a, b) => a.name.localeCompare(b.name)) as TFolder[];
+                    .filter((child): child is TFolder => isTFolder(child))
+                    .sort((a, b) => a.name.localeCompare(b.name));
             }
             
             setRootFolders(folders);

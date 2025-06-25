@@ -22,7 +22,7 @@ import { Virtualizer } from '@tanstack/react-virtual';
 import { CombinedNavigationItem, FileListItem } from '../types/virtualization';
 import { TagTreeNode } from '../utils/tagUtils';
 import { isTypingInInput } from '../utils/domUtils';
-import { isTFolder } from '../utils/typeGuards';
+import { isTFolder, isTFile } from '../utils/typeGuards';
 import { useServices, useFileSystemOps } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -138,7 +138,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     // Extract only file items from the items array
                     const fileItems = items
                         .filter(item => item.type === 'file')
-                        .map(item => (item as FileListItem).data as TFile);
+                        .map(item => {
+                        const fileItem = item as FileListItem;
+                        return isTFile(fileItem.data) ? fileItem.data : null;
+                    })
+                    .filter((file): file is TFile => file !== null);
                     
                     const currentFileIndex = fileItems.findIndex(f => 
                         f.path === selectionState.selectedFile?.path
@@ -160,7 +164,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     // Extract only file items from the items array
                     const fileItems = items
                         .filter(item => item.type === 'file')
-                        .map(item => (item as FileListItem).data as TFile);
+                        .map(item => {
+                        const fileItem = item as FileListItem;
+                        return isTFile(fileItem.data) ? fileItem.data : null;
+                    })
+                    .filter((file): file is TFile => file !== null);
                     
                     const currentFileIndex = fileItems.findIndex(f => 
                         f.path === selectionState.selectedFile?.path
@@ -293,7 +301,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                             // Navigate to parent folder
                             const parentIndex = items.findIndex(i => {
                                 if (i.type === 'folder' && i.data && typeof i.data === 'object') {
-                                    const folderData = i.data as TFolder;
+                                    const folderData = isTFolder(i.data) ? i.data : null;
+                if (!folderData) return;
                                     return folderData.path === folder.parent!.path;
                                 }
                                 return false;
@@ -390,7 +399,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     // Get all files in the current view
                     const allFiles = items
                         .filter(item => item.type === 'file')
-                        .map(item => (item as FileListItem).data as TFile);
+                        .map(item => {
+                        const fileItem = item as FileListItem;
+                        return isTFile(fileItem.data) ? fileItem.data : null;
+                    })
+                    .filter((file): file is TFile => file !== null);
                     
                     multiSelection.selectAll(allFiles);
                 }
@@ -520,7 +533,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         if (focusedPane === 'files') {
             const fileItem = item as FileListItem;
             if (fileItem.type === 'file') {
-                const file = fileItem.data as TFile;
+                const file = isTFile(fileItem.data) ? fileItem.data : null;
+                if (!file) return;
                 // Normal navigation clears multi-selection
                 selectionDispatch({ type: 'SET_SELECTED_FILE', file });
                 
@@ -572,7 +586,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         if (focusedPane === 'files') {
             const fileItem = item as FileListItem;
             if (fileItem.type === 'file') {
-                const file = fileItem.data as TFile;
+                const file = isTFile(fileItem.data) ? fileItem.data : null;
+                if (!file) return;
                 const leaf = app.workspace.getLeaf(false);
                 if (leaf) {
                     leaf.openFile(file);
@@ -653,8 +668,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         const parentFolder = folderToDelete.parent;
         if (parentFolder && isTFolder(parentFolder)) {
             const siblings = parentFolder.children
-                .filter(child => isTFolder(child))
-                .sort((a, b) => a.name.localeCompare(b.name)) as TFolder[];
+                .filter((child): child is TFolder => isTFolder(child))
+                .sort((a, b) => a.name.localeCompare(b.name));
             
             const currentIndex = siblings.findIndex(f => f.path === folderToDelete.path);
             
@@ -675,8 +690,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             // Try to find any other root folder
             const rootFolder = app.vault.getRoot();
             const rootFolders = rootFolder.children
-                .filter(child => isTFolder(child) && child.path !== folderToDelete.path)
-                .sort((a, b) => a.name.localeCompare(b.name)) as TFolder[];
+                .filter((child): child is TFolder => isTFolder(child) && child.path !== folderToDelete.path)
+                .sort((a, b) => a.name.localeCompare(b.name));
             
             if (rootFolders.length > 0) {
                 nextFolderToSelect = rootFolders[0];

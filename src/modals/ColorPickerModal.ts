@@ -23,6 +23,10 @@ import { strings } from '../i18n';
 /**
  * Color palette for folder colors
  * Carefully selected to work well in both light and dark themes
+ * 
+ * NOTE: These colors must be duplicated in styles.css as attribute selectors
+ * This duplication is required for Obsidian plugin compliance (no JS styles)
+ * If you modify colors here, update the corresponding CSS rules
  */
 const COLOR_PALETTE = [
     { name: strings.modals.colorPicker.colors.red, value: '#ef4444' },
@@ -131,7 +135,7 @@ export class ColorPickerModal extends Modal {
         
         // Color preview
         const colorPreview = colorItem.createDiv('nn-color-preview');
-        colorPreview.style.backgroundColor = color.value;
+        colorPreview.setAttribute('data-color-value', color.value);
         
         // Color name
         const colorName = colorItem.createDiv('nn-color-name');

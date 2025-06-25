@@ -152,7 +152,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             if (isExcalidrawInstalled) {
                 menu.addItem((item: MenuItem) => {
                     item
-                        .setTitle('New drawing')
+                        .setTitle(strings.contextMenu.folder.newDrawing)
                         .setIcon('pencil')
                         .onClick(async () => {
                             await fileSystemOps.createNewDrawing(folder);
@@ -400,7 +400,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 // Multiple files selected - show open options with count
                 menu.addItem((item: MenuItem) => {
                     item
-                        .setTitle(`Open ${selectedCount} notes in new tabs`)
+                        .setTitle(strings.contextMenu.file.openMultipleInNewTabs.replace('{count}', selectedCount.toString()))
                         .setIcon('file-plus')
                         .onClick(async () => {
                             const selectedFiles = Array.from(selectionState.selectedFiles)
@@ -416,7 +416,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 // Open to the right
                 menu.addItem((item: MenuItem) => {
                     item
-                        .setTitle(`Open ${selectedCount} notes to the right`)
+                        .setTitle(strings.contextMenu.file.openMultipleToRight.replace('{count}', selectedCount.toString()))
                         .setIcon('vertical-three-dots')
                         .onClick(async () => {
                             const selectedFiles = Array.from(selectionState.selectedFiles)
@@ -433,7 +433,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 if (!isMobile) {
                     menu.addItem((item: MenuItem) => {
                         item
-                            .setTitle(`Open ${selectedCount} notes in new windows`)
+                            .setTitle(strings.contextMenu.file.openMultipleInNewWindows.replace('{count}', selectedCount.toString()))
                             .setIcon('monitor')
                             .onClick(async () => {
                                 const selectedFiles = Array.from(selectionState.selectedFiles)
@@ -480,7 +480,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 
                 menu.addItem((item: MenuItem) => {
                     item
-                        .setTitle(anyUnpinned ? `Pin ${selectedCount} notes` : `Unpin ${selectedCount} notes`)
+                        .setTitle(anyUnpinned ? strings.contextMenu.file.pinMultipleNotes.replace('{count}', selectedCount.toString()) : strings.contextMenu.file.unpinMultipleNotes.replace('{count}', selectedCount.toString()))
                         .setIcon('pin')
                         .onClick(async () => {
                             for (const selectedFile of selectedFiles) {
@@ -515,7 +515,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 // Multiple files selected - duplicate all
                 menu.addItem((item: MenuItem) => {
                     item
-                        .setTitle(`Duplicate ${selectedCount} notes`)
+                        .setTitle(strings.contextMenu.file.duplicateMultipleNotes.replace('{count}', selectedCount.toString()))
                         .setIcon('documents')
                         .onClick(async () => {
                             // Duplicate all selected files
@@ -572,7 +572,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                             const deepLink = `obsidian://open?vault=${encodedVault}&file=${encodedFile}`;
                             
                             await navigator.clipboard.writeText(deepLink);
-                            new Notice('Deep link copied to clipboard');
+                            new Notice(strings.fileSystem.notifications.deepLinkCopied);
                         });
                 });
             }
@@ -622,7 +622,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 // Multiple files selected - delete all
                 menu.addItem((item: MenuItem) => {
                     item
-                        .setTitle(`Delete ${selectedCount} notes`)
+                        .setTitle(strings.contextMenu.file.deleteMultipleNotes.replace('{count}', selectedCount.toString()))
                         .setIcon('trash')
                         .onClick(async () => {
                             // Get all files in the current view for smart selection

@@ -546,10 +546,10 @@ export class FileSystemOperations {
                     await this.app.vault.delete(file);
                 } catch (error) {
                     console.error('Error deleting file:', file.path, error);
-                    new Notice(`Failed to delete ${file.name}: ${error.message}`);
+                    new Notice(strings.fileSystem.errors.failedToDeleteFile.replace('{name}', file.name).replace('{error}', error.message));
                 }
             }
-            new Notice(`Deleted ${files.length} files`);
+            new Notice(strings.fileSystem.notifications.deletedMultipleFiles.replace('{count}', files.length.toString()));
             
             if (onSuccess) {
                 onSuccess();
@@ -868,9 +868,9 @@ tags: [excalidraw]
             return file;
         } catch (error) {
             if (error.message?.includes('already exists')) {
-                new Notice('A drawing with this name already exists');
+                new Notice(strings.fileSystem.errors.drawingAlreadyExists);
             } else {
-                new Notice('Failed to create drawing');
+                new Notice(strings.fileSystem.errors.failedToCreateDrawing);
             }
             return null;
         }

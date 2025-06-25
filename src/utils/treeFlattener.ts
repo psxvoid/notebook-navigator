@@ -65,7 +65,7 @@ export function flattenFolderTree(
         // Add children if expanded
         if (expandedFolders.has(folder.path) && folder.children && folder.children.length > 0) {
             const childFolders = folder.children
-                .filter(child => child instanceof TFolder) as TFolder[];
+                .filter((child): child is TFolder => child instanceof TFolder);
             
             // Get the current language from Obsidian to sort correctly for that locale. 
             const lang = window.localStorage.getItem('language') || 'en';

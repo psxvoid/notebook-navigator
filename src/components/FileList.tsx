@@ -802,14 +802,14 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                 >
                                     {item.type === 'header' ? (
                                         <div className={`nn-date-group-header ${isFirstHeader ? 'nn-first-header' : ''}`}>
-                                            {item.data as string}
+                                            {typeof item.data === 'string' ? item.data : ''}
                                         </div>
                                     ) : item.type === 'spacer' ? (
                                         <div className="nn-file-list-spacer" style={{ height: '20px' }} />
-                                    ) : (
+                                    ) : item.type === 'file' && isTFile(item.data) ? (
                                         <FileItem
-                                            key={(item.data as TFile).path}
-                                            file={item.data as TFile}
+                                            key={item.key}
+                                            file={item.data}
                                             isSelected={isSelected}
                                             onClick={(e) => {
                                                 // Find the actual index of this file in the display order
@@ -820,13 +820,15 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                                         fileIndex++;
                                                     }
                                                 }
-                                                handleFileClick(item.data as TFile, e, fileIndex, orderedFiles);
+                                                if (isTFile(item.data)) {
+                                                    handleFileClick(item.data, e, fileIndex, orderedFiles);
+                                                }
                                             }}
                                             dateGroup={dateGroup}
-                                            formattedDate={filesWithDates?.get((item.data as TFile).path)}
+                                            formattedDate={isTFile(item.data) ? filesWithDates?.get(item.data.path) : undefined}
                                             parentFolder={item.parentFolder}
                                         />
-                                    )}
+                                    ) : null}
                                 </div>
                             );
                         })}

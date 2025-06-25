@@ -655,18 +655,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .buttonEl.addClass('nn-sponsor-button');
             });
 
-        // Copyright notice
-        const copyrightEl = containerEl.createDiv('nn-copyright');
-        copyrightEl.innerHTML = `
-            <div style="text-align: center; margin-top: 40px; color: var(--text-muted); font-size: var(--font-ui-smaller);">
-                Notebook Navigator<br>
-                Copyright © 2025 
-                <a href="https://www.linkedin.com/in/johansan/" target="_blank" style="color: var(--text-accent);">Johan Sanneblad</a> 
-                @ 
-                <a href="https://tokentek.ai" target="_blank" style="color: var(--text-accent);">TokenTek</a>
-            </div>
-        `;
-
         // Set initial visibility
         this.setElementVisibility(dateGroupingEl, shouldShowDateGrouping(this.plugin.settings.defaultFolderSort));
         this.setElementVisibility(previewSettingsEl, this.plugin.settings.showFilePreview);

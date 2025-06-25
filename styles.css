@@ -1395,6 +1395,31 @@ body.nn-resizing {
     transition: transform 0.15s ease;
 }
 
+/* Apply background colors based on data attribute 
+ * NOTE: These colors must match COLOR_PALETTE in ColorPickerModal.ts
+ * This duplication is required for Obsidian plugin compliance (no JS styles)
+ */
+.nn-color-preview[data-color-value="#ef4444"] { background-color: #ef4444; }
+.nn-color-preview[data-color-value="#f97316"] { background-color: #f97316; }
+.nn-color-preview[data-color-value="#f59e0b"] { background-color: #f59e0b; }
+.nn-color-preview[data-color-value="#eab308"] { background-color: #eab308; }
+.nn-color-preview[data-color-value="#84cc16"] { background-color: #84cc16; }
+.nn-color-preview[data-color-value="#22c55e"] { background-color: #22c55e; }
+.nn-color-preview[data-color-value="#10b981"] { background-color: #10b981; }
+.nn-color-preview[data-color-value="#14b8a6"] { background-color: #14b8a6; }
+.nn-color-preview[data-color-value="#06b6d4"] { background-color: #06b6d4; }
+.nn-color-preview[data-color-value="#0ea5e9"] { background-color: #0ea5e9; }
+.nn-color-preview[data-color-value="#3b82f6"] { background-color: #3b82f6; }
+.nn-color-preview[data-color-value="#6366f1"] { background-color: #6366f1; }
+.nn-color-preview[data-color-value="#8b5cf6"] { background-color: #8b5cf6; }
+.nn-color-preview[data-color-value="#a855f7"] { background-color: #a855f7; }
+.nn-color-preview[data-color-value="#d946ef"] { background-color: #d946ef; }
+.nn-color-preview[data-color-value="#ec4899"] { background-color: #ec4899; }
+.nn-color-preview[data-color-value="#f43f5e"] { background-color: #f43f5e; }
+.nn-color-preview[data-color-value="#6b7280"] { background-color: #6b7280; }
+.nn-color-preview[data-color-value="#64748b"] { background-color: #64748b; }
+.nn-color-preview[data-color-value="#78716c"] { background-color: #78716c; }
+
 /* Color name label */
 .nn-color-name {
     font-size: var(--font-ui-smaller);

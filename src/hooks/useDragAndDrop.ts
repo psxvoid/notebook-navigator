@@ -217,10 +217,10 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 }
                 
                 if (movedCount > 0) {
-                    new Notice(`Moved ${movedCount} files`);
+                    new Notice(strings.dragDrop.notifications.movedMultipleFiles.replace('{count}', movedCount.toString()));
                 }
                 if (skippedCount > 0) {
-                    new Notice(`${skippedCount} files already exist in destination`, 2000);
+                    new Notice(strings.dragDrop.notifications.filesAlreadyExist.replace('{count}', skippedCount.toString()), 2000);
                 }
                 return;
             }

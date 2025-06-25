@@ -33,8 +33,10 @@ const REGEX_BOLD_ITALIC_STARS = /\*\*\*([^\*]+)\*\*\*/g;
 const REGEX_BOLD_ITALIC_UNDERSCORES = /___([^_]+)___/g;
 const REGEX_BOLD_STARS = /\*\*([^\*]+)\*\*/g;
 const REGEX_BOLD_UNDERSCORES = /__([^_]+)__/g;
-const REGEX_ITALIC_STARS = /(?<!\d)\*([^\*\n]+)\*(?!\d)/g;
-const REGEX_ITALIC_UNDERSCORES = /(?<![a-zA-Z0-9])_([^_\n]+)_(?![a-zA-Z0-9])/g;
+// iOS compatible: match italic stars that aren't surrounded by digits
+const REGEX_ITALIC_STARS = /(^|[^\d])\*([^\*\n]+)\*(?!\d)/g;
+// iOS compatible: match italic underscores that aren't surrounded by alphanumeric
+const REGEX_ITALIC_UNDERSCORES = /(^|[^a-zA-Z0-9])_([^_\n]+)_(?![a-zA-Z0-9])/g;
 const REGEX_STRIKETHROUGH = /~~([^~]+)~~/g;
 const REGEX_HIGHLIGHT = /==([^=]+)==/g;
 
@@ -68,10 +70,10 @@ const COMBINED_MARKDOWN_REGEX = new RegExp(
         /\*\*([^\*]+)\*\*/.source,
         // Group 6: Bold underscores
         /__([^_]+)__/.source,
-        // Group 7: Italic stars (with negative lookbehind/ahead for digits)
-        /(?<!\d)\*([^\*\n]+)\*(?!\d)/.source,
-        // Group 8: Italic underscores (with negative lookbehind/ahead for alphanumeric)
-        /(?<![a-zA-Z0-9])_([^_\n]+)_(?![a-zA-Z0-9])/.source,
+        // Group 7: Italic stars (iOS compatible - not surrounded by digits)
+        /(^|[^\d])\*([^\*\n]+)\*(?!\d)/.source,
+        // Group 8: Italic underscores (iOS compatible - not surrounded by alphanumeric)
+        /(^|[^a-zA-Z0-9])_([^_\n]+)_(?![a-zA-Z0-9])/.source,
         // Group 9: Strikethrough
         /~~([^~]+)~~/.source,
         // Group 10: Highlight
@@ -97,17 +99,55 @@ export class PreviewTextUtils {
      */
     static stripMarkdownSyntax(text: string): string {
         return text.replace(COMBINED_MARKDOWN_REGEX, (...args) => {
-            // args = [fullMatch, g1, g2, g3, ..., g14, offset, originalString]
-            // Groups 1-13 contain captured text content we want to keep
+            // args = [fullMatch, g1, g2, g3, ..., offset, originalString]
             
-            // Find the first non-undefined capture group (1-13)
-            for (let i = 1; i <= 13; i++) {
-                if (args[i] !== undefined) {
-                    return args[i];
-                }
+            // Special handling for italic patterns (groups 7 and 8)
+            // These now have two capture groups each: prefix and content
+            
+            // Group 1: Escape characters
+            if (args[1] !== undefined) return args[1];
+            
+            // Group 2: Inline code
+            if (args[2] !== undefined) return args[2];
+            
+            // Group 3: Bold italic stars
+            if (args[3] !== undefined) return args[3];
+            
+            // Group 4: Bold italic underscores
+            if (args[4] !== undefined) return args[4];
+            
+            // Group 5: Bold stars
+            if (args[5] !== undefined) return args[5];
+            
+            // Group 6: Bold underscores
+            if (args[6] !== undefined) return args[6];
+            
+            // Group 7: Italic stars (prefix + content)
+            if (args[7] !== undefined && args[8] !== undefined) {
+                return args[7] + args[8]; // Keep prefix and content
             }
             
-            // Group 14 (line start patterns) has no capture - remove entirely
+            // Group 9: Italic underscores (prefix + content)
+            if (args[9] !== undefined && args[10] !== undefined) {
+                return args[9] + args[10]; // Keep prefix and content
+            }
+            
+            // Group 11: Strikethrough
+            if (args[11] !== undefined) return args[11];
+            
+            // Group 12: Highlight
+            if (args[12] !== undefined) return args[12];
+            
+            // Group 13: Links
+            if (args[13] !== undefined) return args[13];
+            
+            // Group 14: Wiki links with display
+            if (args[14] !== undefined) return args[14];
+            
+            // Group 15: Wiki links
+            if (args[15] !== undefined) return args[15];
+            
+            // Line start patterns - remove entirely
             if (args[0].match(/^(?:#+\s+|[-*+]\s+|\d+\.\s+|>\s+)/)) {
                 return '';
             }
