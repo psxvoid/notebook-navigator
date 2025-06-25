@@ -580,10 +580,15 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             const fileIndex = filePathToIndex.get(selectedFilePath);
             if (fileIndex !== undefined && fileIndex !== -1) {
                 // Check if there's a header immediately before this file
-                // If so, scroll to the header instead to ensure it's visible
+                // Only scroll to header if this is the first file in the list
                 let scrollToIndex = fileIndex;
                 if (fileIndex > 0 && listItems[fileIndex - 1]?.type === 'header') {
-                    scrollToIndex = fileIndex - 1;
+                    // Only scroll to header if this is the first file in the list
+                    const isFirstFileInList = fileIndex === 1 || (fileIndex === 2 && listItems[0]?.type === 'header');
+                    
+                    if (isFirstFileInList) {
+                        scrollToIndex = fileIndex - 1;
+                    }
                 }
                 
                 // Get current scroll position before scrolling
