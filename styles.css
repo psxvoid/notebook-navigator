@@ -814,8 +814,17 @@ button.nn-icon-button {
     bottom: 1px; /* Stop above the separator line as usual */
 }
 
-/* Keep separators visible but ensure they appear above selection backgrounds */
-/* Removed rules that hide separators for selected items */
+/* Hide separator above the top selected item */
+.nn-virtual-file-item:has(+ .nn-file-item.nn-selected.nn-selection-top)::after,
+.nn-virtual-file-item:has(+ .nn-file-item.nn-selected.nn-selection-single)::after {
+    display: none;
+}
+
+/* Hide separator for the bottom selected item */
+.nn-virtual-file-item:has(.nn-file-item.nn-selected.nn-selection-bottom)::after,
+.nn-virtual-file-item:has(.nn-file-item.nn-selected.nn-selection-single)::after {
+    display: none;
+}
 
 
 /* Selected file content z-index - ensures content above background */
