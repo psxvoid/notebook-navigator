@@ -120,18 +120,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
         }
             
         case 'SET_SELECTED_FILE': {
-            // If we have multiple files selected and are setting a file that's already selected,
-            // this is probably navigation within multi-selection, don't clear the selection
-            if (state.selectedFiles.size > 1 && action.file && state.selectedFiles.has(action.file.path)) {
-                return {
-                    ...state,
-                    selectedFile: action.file,
-                    isRevealOperation: false,
-                    isFolderChangeWithAutoSelect: false
-                };
-            }
-            
-            // Normal case - clear selection and select only this file
+            // Always clear selection and select only this file
             const newSelectedFiles = new Set<string>();
             if (action.file) {
                 newSelectedFiles.add(action.file.path);

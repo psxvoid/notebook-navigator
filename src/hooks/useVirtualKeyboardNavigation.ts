@@ -155,6 +155,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 }
                 
                 targetIndex = findNextSelectableIndex(items, currentIndex, focusedPane);
+                
+                // Don't clear selection if we're at the bottom boundary
+                if (targetIndex === currentIndex && currentIndex >= 0) {
+                    return; // Do nothing, stay at current position with selection intact
+                }
                 break;
                 
             case 'ArrowUp':
@@ -185,6 +190,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     targetIndex = findNextSelectableIndex(items, -1, focusedPane);
                 } else {
                     targetIndex = findPreviousSelectableIndex(items, currentIndex, focusedPane);
+                    
+                    // Don't clear selection if we're at the top boundary
+                    if (targetIndex === currentIndex && currentIndex >= 0) {
+                        return; // Do nothing, stay at current position with selection intact
+                    }
                 }
                 break;
                 
