@@ -815,34 +815,17 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                 (virtualItem.index === listItems.length - 1 || 
                                  (nextItem && nextItem.type === 'header'));
                             
+                            // Check if adjacent items are selected (for styling purposes)
+                            const prevItem = safeGetItem(listItems, virtualItem.index - 1);
+                            const hasSelectedAbove = item.type === 'file' && prevItem?.type === 'file' && 
+                                multiSelection.isFileSelected(prevItem.data as TFile);
+                            const hasSelectedBelow = item.type === 'file' && nextItem?.type === 'file' && 
+                                multiSelection.isFileSelected(nextItem.data as TFile);
+                            
                             // Check if this is the first header
                             const isFirstHeader = item.type === 'header' && virtualItem.index === 0;
                             
-                            // Check if next item is selected (for hiding separator)
-                            const nextItemSelected = nextItem && 
-                                nextItem.type === 'file' && 
-                                multiSelection.isFileSelected(nextItem.data as TFile);
                             
-                            // Calculate selection position classes for unified selection appearance
-                            let selectionPositionClass = '';
-                            if (item.type === 'file' && isSelected) {
-                                // Check previous item
-                                const prevItem = safeGetItem(listItems, virtualItem.index - 1);
-                                const prevItemSelected = prevItem && 
-                                    prevItem.type === 'file' && 
-                                    multiSelection.isFileSelected(prevItem.data as TFile);
-                                
-                                // Determine position in selection group
-                                if (prevItemSelected && nextItemSelected) {
-                                    selectionPositionClass = 'nn-selection-middle';
-                                } else if (prevItemSelected && !nextItemSelected) {
-                                    selectionPositionClass = 'nn-selection-bottom';
-                                } else if (!prevItemSelected && nextItemSelected) {
-                                    selectionPositionClass = 'nn-selection-top';
-                                } else {
-                                    selectionPositionClass = 'nn-selection-single';
-                                }
-                            }
                             
                             // Find current date group for file items
                             let dateGroup: string | null = null;
@@ -862,7 +845,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                     key={virtualItem.key}
                                     data-index={virtualItem.index}
                                     ref={rowVirtualizer.measureElement}
-                                    className={`nn-virtual-item ${item.type === 'file' ? 'nn-virtual-file-item' : ''} ${isLastFile ? 'nn-last-file' : ''} ${isSelected ? 'nn-item-selected' : ''} ${nextItemSelected ? 'nn-before-selected' : ''} ${selectionPositionClass}`}
+                                    className={`nn-virtual-item ${item.type === 'file' ? 'nn-virtual-file-item' : ''} ${isLastFile ? 'nn-last-file' : ''}`}
                                     style={{
                                         position: 'absolute',
                                         top: 0,
@@ -882,7 +865,8 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                             key={item.key}
                                             file={item.data}
                                             isSelected={isSelected}
-                                            selectionPositionClass={selectionPositionClass}
+                                            hasSelectedAbove={hasSelectedAbove}
+                                            hasSelectedBelow={hasSelectedBelow}
                                             onClick={(e) => {
                                                 // Find the actual index of this file in the display order
                                                 // Count only file items, not headers or spacers

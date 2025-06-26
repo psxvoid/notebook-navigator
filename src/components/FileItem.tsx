@@ -32,11 +32,12 @@ import { useSelectionState } from '../context/SelectionContext';
 interface FileItemProps {
     file: TFile;
     isSelected: boolean;
+    hasSelectedAbove?: boolean;
+    hasSelectedBelow?: boolean;
     onClick: (e: React.MouseEvent) => void;
     dateGroup?: string | null;
     formattedDate?: string;
     parentFolder?: string | null;
-    selectionPositionClass?: string;
 }
 
 /**
@@ -51,7 +52,7 @@ interface FileItemProps {
  * @param props.onClick - Handler called when the file is clicked
  * @returns A file item element with name, date, preview and optional image
  */
-function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate, parentFolder, selectionPositionClass }: FileItemProps) {
+function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow, onClick, dateGroup, formattedDate, parentFolder }: FileItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
     const { selectedFolder, selectionType } = useSelectionState();
@@ -148,7 +149,7 @@ function FileItemInternal({ file, isSelected, onClick, dateGroup, formattedDate,
                        !settings.showFilePreview && 
                        !settings.showFeatureImage;
     
-    const className = `nn-file-item ${isSelected ? 'nn-selected' : ''} ${isSlimMode ? 'nn-slim' : ''} ${selectionPositionClass || ''}`;
+    const className = `nn-file-item ${isSelected ? 'nn-selected' : ''} ${isSlimMode ? 'nn-slim' : ''} ${isSelected && hasSelectedAbove ? 'nn-has-selected-above' : ''} ${isSelected && hasSelectedBelow ? 'nn-has-selected-below' : ''}`;
 
     return (
         <div 
@@ -243,11 +244,12 @@ export const FileItem = memo(FileItemInternal, (prevProps, nextProps) => {
         prevProps.file.name === nextProps.file.name &&
         prevProps.file.stat.mtime === nextProps.file.stat.mtime &&
         prevProps.isSelected === nextProps.isSelected &&
+        prevProps.hasSelectedAbove === nextProps.hasSelectedAbove &&
+        prevProps.hasSelectedBelow === nextProps.hasSelectedBelow &&
         prevProps.dateGroup === nextProps.dateGroup &&
         prevProps.onClick === nextProps.onClick &&
         prevProps.formattedDate === nextProps.formattedDate &&
-        prevProps.parentFolder === nextProps.parentFolder &&
-        prevProps.selectionPositionClass === nextProps.selectionPositionClass
+        prevProps.parentFolder === nextProps.parentFolder
     );
     
     return isEqual;

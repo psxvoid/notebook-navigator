@@ -507,7 +507,7 @@ button.nn-icon-button {
     inset-inline-end: var(--size-4-5);
     height: 1px;
     background-color: var(--background-modifier-border);
-    z-index: 2; /* Above selection background */
+    z-index: 100; /* Very high to ensure it's always on top */
     pointer-events: none; /* Ensure it doesn't interfere with clicks */
 }
 
@@ -730,6 +730,30 @@ button.nn-icon-button {
    Selection States
    ======================================================================== */
 
+/* Selected file background pseudo-element - better control over styling */
+.nn-file-item.nn-selected .nn-file-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
+    bottom: 0; /* Extend all the way down */
+    background-color: var(--text-selection);
+    border-radius: var(--radius-m);
+    z-index: 0; /* Below separator lines */
+}
+
+/* Adjust rounded corners for multiselection */
+.nn-file-item.nn-selected.nn-has-selected-above .nn-file-content::before {
+    border-top-left-radius: 0;
+    border-top-right-radius: 0;
+}
+
+.nn-file-item.nn-selected.nn-has-selected-below .nn-file-content::before {
+    border-bottom-left-radius: 0;
+    border-bottom-right-radius: 0;
+}
+
 /* Selected folder - transparent background for pseudo-element approach */
 .nn-folder-item.nn-selected > .nn-folder-content {
     position: relative;
@@ -771,77 +795,15 @@ button.nn-icon-button {
     color: var(--text-muted);
 }
 
-/* Selected file background */
-.nn-file-item.nn-selected .nn-file-content {
-    background-color: var(--text-selection);
-}
 
-
-/* Selected file background pseudo-element - better control over styling */
-.nn-file-item.nn-selected .nn-file-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    inset-inline-start: 0;
-    inset-inline-end: 0;
-    bottom: 1px; /* Stop above the separator line */
-    background-color: var(--text-selection);
-    border-radius: var(--radius-m);
-}
-
-/* Unified selection appearance - Single selected item */
-.nn-file-item.nn-selected.nn-selection-single .nn-file-content::before {
-    border-radius: var(--radius-m);
-}
-
-/* Unified selection appearance - Top of selection group */
-.nn-file-item.nn-selected.nn-selection-top .nn-file-content::before {
-    border-radius: var(--radius-m) var(--radius-m) 0 0;
-    bottom: -1px; /* Extend slightly past bottom to connect with next item */
-}
-
-/* Unified selection appearance - Middle of selection group */
-.nn-file-item.nn-selected.nn-selection-middle .nn-file-content::before {
-    border-radius: 0;
-    top: 0; /* Start at normal position */
-    bottom: -1px; /* Extend slightly past bottom to connect with next item */
-}
-
-/* Unified selection appearance - Bottom of selection group */
-.nn-file-item.nn-selected.nn-selection-bottom .nn-file-content::before {
-    border-radius: 0 0 var(--radius-m) var(--radius-m);
-    top: 0; /* Start at normal position */
-    bottom: 1px; /* Stop above the separator line as usual */
-}
-
-/* Hide separator above the top selected item */
-.nn-virtual-file-item:has(+ .nn-file-item.nn-selected.nn-selection-top)::after,
-.nn-virtual-file-item:has(+ .nn-file-item.nn-selected.nn-selection-single)::after {
-    display: none;
-}
-
-/* Hide separator for the bottom selected item */
-.nn-virtual-file-item:has(.nn-file-item.nn-selected.nn-selection-bottom)::after,
-.nn-virtual-file-item:has(.nn-file-item.nn-selected.nn-selection-single)::after {
-    display: none;
-}
 
 
 /* Selected file content z-index - ensures content above background */
 .nn-file-item.nn-selected .nn-file-content > * {
     position: relative;
-    z-index: 1;
+    z-index: 5; /* Above selection background but below separators */
 }
 
-/* Override background for pseudo-element approach */
-.nn-file-item.nn-selected .nn-file-content {
-    background-color: transparent;
-}
-
-.theme-dark .nn-file-item.nn-selected .nn-file-content {
-    background-color: transparent;
-    filter: none;
-}
 
 /* Selected file text colors - maintains readability */
 .nn-file-item.nn-selected .nn-file-name {
@@ -885,6 +847,7 @@ button.nn-icon-button {
 .nn-split-container[data-navigator-focused="true"][data-focus-pane="files"] .nn-tag-item.nn-selected {
     background-color: var(--background-modifier-hover);
 }
+
 
 /* ========================================================================
    Hover States
