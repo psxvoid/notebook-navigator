@@ -511,6 +511,16 @@ button.nn-icon-button {
     pointer-events: none; /* Ensure it doesn't interfere with clicks */
 }
 
+/* Hide separator when current item is selected but doesn't have selected below */
+.nn-virtual-file-item:has(.nn-file-item.nn-selected:not(.nn-has-selected-below))::after {
+    display: none;
+}
+
+/* Hide separator of previous item when current is selected but doesn't have selected above */
+.nn-virtual-file-item:has(+ .nn-virtual-file-item .nn-file-item.nn-selected:not(.nn-has-selected-above))::after {
+    display: none;
+}
+
 /* File text content - left side container for name and preview */
 .nn-file-text-content {
     flex: 1;
