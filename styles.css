@@ -965,8 +965,8 @@ body.nn-resizing {
     position: absolute;
     bottom: 4px;
     right: 4px;
-    background-color: var(--background-modifier-error);
-    color: var(--text-on-accent);
+    background-color: #dc3545;
+    color: white;
     font-weight: bold;
     font-size: 14px;
     width: 24px;
@@ -975,7 +975,7 @@ body.nn-resizing {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 4px var(--background-modifier-border-focus);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
 }
 
 /* File list spacer - adds spacing at the bottom of file lists */
