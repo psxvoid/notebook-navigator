@@ -3,6 +3,26 @@
    ======================================================================== */
 
 /* ========================================================================
+   Fixed Height Variables for Pixel-Perfect Rendering
+   ======================================================================== */
+
+:root {
+    /* File item heights - fixed pixel values to prevent fractional rendering */
+    --nn-file-line-height: 20px;  /* Height of single line of text */
+    --nn-file-padding-vertical: 8px;  /* var(--size-4-2) typically equals 8px */
+    --nn-file-second-line-height: 22px;  /* Height for date/preview line */
+    --nn-file-preview-line-height: 19px;  /* Height for each preview line */
+    
+    /* Font sizes - using rem for consistent scaling but ensuring whole pixels */
+    --nn-file-name-size: 0.875rem;  /* 14px at default scale */
+    --nn-file-small-size: 0.8125rem;  /* 13px at default scale */
+    
+    /* Date header heights */
+    --nn-date-header-height: 35px;  /* First header */
+    --nn-date-header-height-subsequent: 50px;  /* Headers with margin */
+}
+
+/* ========================================================================
    Base Layout & Container Styles
    ======================================================================== */
 
@@ -289,12 +309,12 @@ button.nn-icon-button {
 
 /* Folder name text - truncates with ellipsis on overflow */
 .nn-folder-name {
-    font-size: var(--font-ui-small);
+    font-size: var(--nn-file-small-size);
     font-weight: 400;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.5; /* Normal line height for proper text rendering */
+    line-height: var(--nn-file-line-height);
     color: var(--text-normal);
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
@@ -403,11 +423,11 @@ button.nn-icon-button {
 
 /* Tag name text */
 .nn-tag-name {
-    font-size: var(--font-ui-small);
+    font-size: var(--nn-file-small-size);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.5; /* Match folder name line-height to prevent descender cutoff */
+    line-height: var(--nn-file-line-height);
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
 
@@ -487,7 +507,7 @@ button.nn-icon-button {
 
 /* File content wrapper - contains all file information */
 .nn-file-content {
-    padding: var(--size-4-2) var(--size-4-3);
+    padding: var(--nn-file-padding-vertical) var(--size-4-3);
     margin: 0px var(--size-4-2);
     border-radius: var(--radius-m);
     background: transparent;
@@ -496,6 +516,9 @@ button.nn-icon-button {
     gap: var(--size-4-1);
     align-items: center;
     position: relative;
+    /* Force pixel snapping on retina displays */
+    transform: translateZ(0);
+    will-change: transform;
 }
 
 /* Virtual list file separator */
@@ -533,7 +556,7 @@ button.nn-icon-button {
 
 /* File name - primary text with ellipsis overflow */
 .nn-file-name {
-    font-size: calc(var(--font-ui-small) + 1px);
+    font-size: var(--nn-file-name-size);
     font-weight: 600;
     color: var(--text-normal);
     overflow: hidden;
@@ -542,6 +565,7 @@ button.nn-icon-button {
     display: -webkit-box;
     -webkit-line-clamp: var(--filename-rows, 1);
     -webkit-box-orient: vertical;
+    line-height: var(--nn-file-line-height);
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
 
@@ -559,7 +583,7 @@ button.nn-icon-button {
 
 /* File date - modification date display */
 .nn-file-date {
-    font-size: var(--font-ui-small);
+    font-size: var(--nn-file-small-size);
     color: var(--text-normal);
     flex-shrink: 1; /* Allow date to shrink when space is limited */
     white-space: nowrap;
@@ -568,6 +592,7 @@ button.nn-icon-button {
     text-overflow: ellipsis;
     min-width: 0; /* Allow shrinking below content size */
     max-width: 150px; /* Reasonable max width for dates */
+    line-height: var(--nn-file-second-line-height);
 }
 
 /* Dark mode file date */
@@ -577,9 +602,9 @@ button.nn-icon-button {
 
 /* File preview text - secondary line showing file content */
 .nn-file-preview {
-    font-size: var(--font-ui-small);
+    font-size: var(--nn-file-small-size);
     color: var(--text-muted);
-    line-height: 1.4;
+    line-height: var(--nn-file-preview-line-height);
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -597,12 +622,13 @@ button.nn-icon-button {
 
 /* Folder indicator - shows parent folder for files from subfolders */
 .nn-file-folder {
-    font-size: var(--font-ui-small);
+    font-size: var(--nn-file-small-size);
     color: var(--text-muted);
     display: flex;
     align-items: center;
     gap: var(--size-4-1);
     overflow: hidden;
+    line-height: var(--nn-file-line-height);
 }
 
 /* Dark mode folder indicator */
@@ -633,15 +659,15 @@ button.nn-icon-button {
 
 /* Slim file item - more compact list appearance */
 .nn-file-item.nn-slim .nn-file-content {
-    padding: var(--size-4-2) var(--size-4-3);
+    padding: var(--nn-file-padding-vertical) var(--size-4-3);
 }
 
 /* Slim file name - no bold, smaller font like folder items */
 .nn-file-item.nn-slim .nn-file-name {
-    font-size: var(--font-ui-small);
+    font-size: var(--nn-file-small-size);
     font-weight: 400;
     margin-bottom: 0;
-    line-height: 1.5;
+    line-height: var(--nn-file-line-height);
 }
 
 /* Selected slim file - maintain selection styles */
@@ -695,25 +721,35 @@ button.nn-icon-button {
 
 /* Date group headers - sticky headers for grouped files */
 .nn-date-group-header {
-    padding: var(--size-4-2) var(--size-4-3);
-    padding-top: calc(var(--size-4-2) * 2);
-    font-size: var(--font-ui-small);
+    height: var(--nn-date-header-height-subsequent);
+    box-sizing: border-box;
+    padding: 0 var(--size-4-3);
+    font-size: var(--nn-file-small-size);
     font-weight: 600;
     color: var(--text-muted);
     background-color: var(--background-primary);
     border-bottom: 1px solid var(--background-modifier-border);
-    margin-top: var(--size-4-4);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    /* Force pixel snapping */
+    transform: translateZ(0);
 }
 
 /* First date header - no top margin or extra padding for first group */
 .nn-date-group-header.nn-first-header {
-    margin-top: 0;
-    padding-top: var(--size-4-2);
+    height: var(--nn-date-header-height);
 }
 
+
+/* Virtual item wrapper - ensures proper rendering for virtualized items */
+.nn-virtual-item {
+    /* Force pixel snapping for crisp rendering */
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+}
 
 /* ========================================================================
    Empty State

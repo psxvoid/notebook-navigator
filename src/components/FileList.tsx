@@ -408,12 +408,12 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         estimateSize: (index) => {
             const item = listItems[index];
             if (item.type === 'header') {
-                // Date group headers have different heights
+                // Date group headers have fixed heights from CSS
                 const isFirstHeader = index === 0 || (index > 0 && listItems[index - 1].type !== 'header');
                 if (isFirstHeader) {
-                    return 35; // First header: less top padding
+                    return 35; // var(--nn-date-header-height)
                 }
-                return 50; // Subsequent headers: extra top margin + padding
+                return 50; // var(--nn-date-header-height-subsequent)
             }
             
             if (item.type === 'spacer') {
@@ -426,29 +426,29 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             // Check if we're in slim mode (no date, preview, or image)
             const isSlimMode = !showDate && !showFilePreview && !showFeatureImage;
             
-            // Base height: padding (var(--size-4-2) * 2 ≈ 16px)
+            // Base height: padding (var(--nn-file-padding-vertical) * 2 = 16px)
             let estimatedHeight = 16;
             
-            // Add height for file name
+            // Add height for file name (var(--nn-file-line-height) = 20px per line)
             const nameLines = fileNameRows || 1;
-            estimatedHeight += (20 * nameLines); // ~20px per line with line-height 1.4
+            estimatedHeight += (20 * nameLines);
             
             if (!isSlimMode) {
                 // Check preview layout mode
                 if (showFilePreview && previewRows === 1) {
                     // Single line preview: date and preview on same line
                     if (showDate || showFilePreview) {
-                        estimatedHeight += 22; // Height for second line with date/preview
+                        estimatedHeight += 22; // var(--nn-file-second-line-height)
                     }
                 } else if (showFilePreview && previewRows >= 2) {
-                    // Multi-line preview mode
-                    estimatedHeight += (19 * previewRows); // Preview lines
+                    // Multi-line preview mode (var(--nn-file-preview-line-height) = 19px per line)
+                    estimatedHeight += (19 * previewRows);
                     if (showDate) {
-                        estimatedHeight += 20; // Date below preview
+                        estimatedHeight += 20; // Date below preview (using line-height)
                     }
                 } else if (showDate && !showFilePreview) {
                     // Just date, no preview
-                    estimatedHeight += 20;
+                    estimatedHeight += 20; // Using line-height
                 }
             }
             
