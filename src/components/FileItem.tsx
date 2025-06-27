@@ -210,11 +210,9 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
                                 </div>
                             )}
                         </div>
-                        {settings.showFeatureImage && (
-                            <div className={`nn-feature-image ${!featureImageUrl ? 'nn-feature-image-placeholder' : ''}`}>
-                                {featureImageUrl ? (
-                                    <img src={featureImageUrl} alt={strings.common.featureImageAlt} className="nn-feature-image-img" />
-                                ) : null}
+                        {settings.showFeatureImage && featureImageUrl && (
+                            <div className="nn-feature-image">
+                                <img src={featureImageUrl} alt={strings.common.featureImageAlt} className="nn-feature-image-img" />
                             </div>
                         )}
                     </>

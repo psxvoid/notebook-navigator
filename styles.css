@@ -737,10 +737,6 @@ button.nn-icon-button {
     opacity: 0.9;
 }
 
-/* Feature image placeholder - maintains layout when no image */
-.nn-feature-image-placeholder {
-    display: none;
-}
 
 /* ========================================================================
    Date Group Headers
