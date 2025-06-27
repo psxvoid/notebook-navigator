@@ -19,6 +19,7 @@
 import { useCallback } from 'react';
 import { TFile } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useServices } from '../context/ServicesContext';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { findFileIndex, getFilesInRange } from '../utils/selectionUtils';
 
@@ -29,6 +30,7 @@ import { findFileIndex, getFilesInRange } from '../utils/selectionUtils';
 export function useMultiSelection(virtualizer?: Virtualizer<HTMLDivElement, Element>) {
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
+    const { app } = useServices();
     
     /**
      * Handle Cmd/Ctrl+Click for toggling individual file selection
@@ -48,6 +50,12 @@ export function useMultiSelection(virtualizer?: Virtualizer<HTMLDivElement, Elem
         } else {
             // If selecting, update cursor
             selectionDispatch({ type: 'TOGGLE_WITH_CURSOR', file, anchorIndex: fileIndex });
+            
+            // Open the file without changing focus
+            const leaf = app.workspace.getLeaf(false);
+            if (leaf) {
+                leaf.openFile(file, { active: false });
+            }
         }
     }, [selectionState.selectedFiles, selectionDispatch]);
     
@@ -80,6 +88,12 @@ export function useMultiSelection(virtualizer?: Virtualizer<HTMLDivElement, Elem
         
         // Move cursor to the clicked position
         selectionDispatch({ type: 'UPDATE_CURRENT_FILE', file });
+        
+        // Open the file without changing focus
+        const leaf = app.workspace.getLeaf(false);
+        if (leaf) {
+            leaf.openFile(file, { active: false });
+        }
     }, [selectionState.selectedFile, selectionState.selectedFiles, selectionDispatch]);
     
     /**
@@ -154,6 +168,12 @@ export function useMultiSelection(virtualizer?: Virtualizer<HTMLDivElement, Elem
         
         // Update movement direction
         selectionDispatch({ type: 'SET_MOVEMENT_DIRECTION', direction });
+        
+        // Open the file at cursor without changing focus
+        const leaf = app.workspace.getLeaf(false);
+        if (leaf) {
+            leaf.openFile(finalFile, { active: false });
+        }
         
         // Scroll to the final position if virtualizer is provided
         if (virtualizer) {
