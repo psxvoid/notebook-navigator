@@ -35,7 +35,7 @@ export function useMultiSelection(virtualizer?: Virtualizer<HTMLDivElement, Elem
     /**
      * Handle Cmd/Ctrl+Click for toggling individual file selection
      */
-    const handleMultiSelectClick = useCallback((file: TFile, fileIndex?: number) => {
+    const handleMultiSelectClick = useCallback((file: TFile, fileIndex?: number, orderedFiles?: TFile[]) => {
         // Check if we're trying to deselect
         const isDeselecting = selectionState.selectedFiles.has(file.path);
         
@@ -44,9 +44,38 @@ export function useMultiSelection(virtualizer?: Virtualizer<HTMLDivElement, Elem
             return;
         }
         
+        // Get the currently active file in editor
+        const activeFile = app.workspace.getActiveFile();
+        
         // If deselecting, don't move cursor
         if (isDeselecting) {
             selectionDispatch({ type: 'TOGGLE_FILE_SELECTION', file });
+            
+            // If the cursor is on the file we're deselecting, we need to move it
+            if (selectionState.selectedFile && selectionState.selectedFile.path === file.path && orderedFiles) {
+                // Find the first selected file in the current file list
+                const firstSelectedFile = orderedFiles.find(f => 
+                    selectionState.selectedFiles.has(f.path) && f.path !== file.path
+                );
+                
+                if (firstSelectedFile) {
+                    // Move cursor to the first selected file in the list
+                    selectionDispatch({ type: 'UPDATE_CURRENT_FILE', file: firstSelectedFile });
+                    // Open that file in editor
+                    const leaf = app.workspace.getLeaf(false);
+                    if (leaf) {
+                        leaf.openFile(firstSelectedFile, { active: false });
+                    }
+                }
+            }
+            // If we're deselecting a file that's open in editor but cursor is elsewhere,
+            // open the file where the cursor is
+            else if (activeFile && activeFile.path === file.path && selectionState.selectedFile) {
+                const leaf = app.workspace.getLeaf(false);
+                if (leaf) {
+                    leaf.openFile(selectionState.selectedFile, { active: false });
+                }
+            }
         } else {
             // If selecting, update cursor
             selectionDispatch({ type: 'TOGGLE_WITH_CURSOR', file, anchorIndex: fileIndex });
@@ -57,7 +86,7 @@ export function useMultiSelection(virtualizer?: Virtualizer<HTMLDivElement, Elem
                 leaf.openFile(file, { active: false });
             }
         }
-    }, [selectionState.selectedFiles, selectionDispatch]);
+    }, [selectionState.selectedFiles, selectionState.selectedFile, selectionDispatch, app.workspace]);
     
     /**
      * Handle Shift+Click for range selection
@@ -124,6 +153,10 @@ export function useMultiSelection(virtualizer?: Virtualizer<HTMLDivElement, Elem
         const nextFile = files[nextIndex];
         let jumpingEnabled = true;
         
+        // Get the currently active file in editor
+        const activeFile = app.workspace.getActiveFile();
+        let deselectedActiveFile = false;
+        
         // STEP 1: Check if we need to deselect current item
         if (selectionState.selectedFiles.has(currentFile.path)) {
             // Check where we're moving TO
@@ -131,6 +164,11 @@ export function useMultiSelection(virtualizer?: Virtualizer<HTMLDivElement, Elem
                 // Moving FROM selected item TO another selected item - deselect current
                 selectionDispatch({ type: 'TOGGLE_FILE_SELECTION', file: currentFile });
                 jumpingEnabled = false;
+                
+                // Check if we deselected the active file
+                if (activeFile && activeFile.path === currentFile.path) {
+                    deselectedActiveFile = true;
+                }
             }
             // else: Moving FROM selected item TO unselected item - keep current selected
         }
@@ -170,9 +208,12 @@ export function useMultiSelection(virtualizer?: Virtualizer<HTMLDivElement, Elem
         selectionDispatch({ type: 'SET_MOVEMENT_DIRECTION', direction });
         
         // Open the file at cursor without changing focus
-        const leaf = app.workspace.getLeaf(false);
-        if (leaf) {
-            leaf.openFile(finalFile, { active: false });
+        // Always open if we deselected the active file, or if cursor moved to a different file
+        if (deselectedActiveFile || !activeFile || activeFile.path !== finalFile.path) {
+            const leaf = app.workspace.getLeaf(false);
+            if (leaf) {
+                leaf.openFile(finalFile, { active: false });
+            }
         }
         
         // Scroll to the final position if virtualizer is provided
@@ -182,7 +223,7 @@ export function useMultiSelection(virtualizer?: Virtualizer<HTMLDivElement, Elem
                 behavior: 'auto'
             });
         }
-    }, [selectionState.selectedFile, selectionState.selectedFiles, selectionDispatch, virtualizer]);
+    }, [selectionState.selectedFile, selectionState.selectedFiles, selectionDispatch, virtualizer, app.workspace]);
     
     /**
      * Select all files in the current view

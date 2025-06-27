@@ -79,7 +79,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         
         // Don't enable multi-select on mobile
         if (!isMobile && isMultiSelectModifier) {
-            multiSelection.handleMultiSelectClick(file, fileIndex);
+            multiSelection.handleMultiSelectClick(file, fileIndex, orderedFiles);
         } else if (!isMobile && isShiftKey && fileIndex !== undefined && orderedFiles) {
             multiSelection.handleRangeSelectClick(file, fileIndex, orderedFiles);
         } else {
