@@ -230,7 +230,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
         if (type === 'file') {
             return (
                 <div className="nn-pane-header" onClick={onHeaderClick}>
-                    <div className="nn-header-actions" style={{ width: '100%', justifyContent: 'space-between' }}>
+                    <div className="nn-header-actions nn-header-actions--space-between">
                         <div className="nn-mobile-back">
                             <button
                                 className="nn-icon-button"
@@ -287,7 +287,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
         // For folder pane header on mobile
         return (
             <div className="nn-pane-header" onClick={onHeaderClick}>
-                <div className="nn-header-actions" style={{ width: '100%', justifyContent: 'flex-end' }}>
+                <div className="nn-header-actions nn-header-actions--flex-end">
                     <button
                         className="nn-icon-button"
                         aria-label={expansionState.expandedFolders.size > 0 ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}

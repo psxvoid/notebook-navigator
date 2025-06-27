@@ -892,6 +892,56 @@ body.nn-resizing {
     background-color: var(--interactive-accent-hover);
 }
 
+/* Drag image container - positions the custom drag image off-screen */
+.nn-drag-image-container {
+    position: absolute;
+    left: -9999px;
+    width: 48px;
+    height: 48px;
+}
+
+/* Drag count badge - shows number of items being dragged */
+.nn-drag-count-badge {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    background-color: var(--background-modifier-error);
+    color: var(--text-on-accent);
+    font-weight: bold;
+    font-size: 14px;
+    width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px var(--background-modifier-border-focus);
+}
+
+/* File list spacer - adds spacing at the bottom of file lists */
+.nn-file-list-spacer {
+    height: 20px;
+}
+
+/* Header actions layout variations 
+   Different layouts are needed for mobile vs desktop views:
+   - space-between: Mobile file pane (back button + folder name + actions)
+   - flex-end: Mobile folder pane (actions only, aligned right)
+*/
+.nn-header-actions--full-width {
+    width: 100%;
+}
+
+.nn-header-actions--space-between {
+    width: 100%;
+    justify-content: space-between;
+}
+
+.nn-header-actions--flex-end {
+    width: 100%;
+    justify-content: flex-end;
+}
+
 /* ========================================================================
    Context Menu States
    ======================================================================== */

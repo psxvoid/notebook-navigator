@@ -864,7 +864,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                             {typeof item.data === 'string' ? item.data : ''}
                                         </div>
                                     ) : item.type === 'spacer' ? (
-                                        <div className="nn-file-list-spacer" style={{ height: '20px' }} />
+                                        <div className="nn-file-list-spacer" />
                                     ) : item.type === 'file' && isTFile(item.data) ? (
                                         <FileItem
                                             key={item.key}

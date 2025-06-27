@@ -106,32 +106,12 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 if (selectedPaths.length > 1) {
                     // Create a container to position the badge
                     const dragContainer = document.createElement('div');
-                    dragContainer.style.cssText = `
-                        position: absolute;
-                        left: -9999px;
-                        width: 48px;
-                        height: 48px;
-                    `;
+                    dragContainer.className = 'nn-drag-image-container';
                     
                     // Create the badge inside the container
                     const dragInfo = document.createElement('div');
+                    dragInfo.className = 'nn-drag-count-badge';
                     dragInfo.textContent = `${selectedPaths.length}`;
-                    dragInfo.style.cssText = `
-                        position: absolute;
-                        bottom: 4px;
-                        right: 4px;
-                        background-color: #dc3545;
-                        color: white;
-                        font-weight: bold;
-                        font-size: 14px;
-                        width: 24px;
-                        height: 24px;
-                        border-radius: 12px;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-                    `;
                     
                     dragContainer.appendChild(dragInfo);
                     document.body.appendChild(dragContainer);

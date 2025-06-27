@@ -220,6 +220,67 @@ The codebase provides type guard functions in `src/utils/typeGuards.ts`:
 These functions perform runtime checks to ensure type safety and satisfy Obsidian's review requirements.
     
 
+## Obsidian Plugin Style Requirements
+
+Per Obsidian's plugin review guidelines, inline styles should be avoided. All styles should be defined in CSS files to allow themes and snippets to customize the appearance.
+
+### ❌ Don't use inline styles:
+```javascript
+// Bad - will fail Obsidian review
+element.style.cssText = `
+    position: absolute;
+    background-color: #dc3545;
+    color: white;
+`;
+
+// Bad - also avoid individual style properties
+element.style.backgroundColor = '#dc3545';
+element.style.position = 'absolute';
+```
+
+### ✅ Do use CSS classes:
+```javascript
+// Good - define styles in CSS
+element.className = 'nn-drag-count-badge';
+
+// Good - use multiple classes for variations
+element.className = 'nn-header-actions nn-header-actions--space-between';
+```
+
+```css
+/* In styles.css */
+.nn-drag-count-badge {
+    position: absolute;
+    background-color: var(--background-modifier-error);
+    color: var(--text-on-accent);
+}
+```
+
+### When Inline Styles Are Acceptable
+Inline styles are only acceptable for truly dynamic values that cannot be predefined:
+- Virtual scrolling positions (transform values)
+- User-customizable colors from settings
+- Calculated dimensions based on runtime state
+- CSS custom properties for dynamic values
+
+```javascript
+// Acceptable - dynamic transform for virtual scrolling
+style={{ transform: `translateY(${virtualItem.start}px)` }}
+
+// Acceptable - user-defined color from settings
+style={{ color: userSelectedColor }}
+
+// Acceptable - CSS custom property
+style={{ '--preview-rows': settings.previewRows } as React.CSSProperties}
+```
+
+### Best Practices
+1. Use CSS variables (`var(--variable-name)`) for theme compatibility
+2. Create modifier classes for variations (e.g., `nn-header--mobile`)
+3. Avoid hardcoded colors - use Obsidian's CSS variables
+4. Test with multiple themes to ensure compatibility
+    
+
 ## Common Development Tasks
 
 - **Add a New Setting**
