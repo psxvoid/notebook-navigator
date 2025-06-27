@@ -20,6 +20,19 @@
     /* Date header heights */
     --nn-date-header-height: 35px;  /* First header */
     --nn-date-header-height-subsequent: 50px;  /* Headers with margin */
+    
+    /* Navigation item heights - fixed pixel values to prevent fractional rendering */
+    --nn-nav-line-height: 18px;  /* Fixed line height for folder/tag names */
+    --nn-nav-padding-vertical: 7px;  /* Padding to achieve 32px total height */
+    --nn-nav-item-height: 32px;  /* Total height: 7px + 18px + 7px = 32px */
+    
+    /* Mobile navigation heights */
+    --nn-nav-item-height-mobile: 44px;  /* Total height for mobile */
+    --nn-nav-padding-vertical-mobile: 13px;  /* (44px - 18px) / 2 = 13px */
+    
+    /* Navigation font sizes - fixed for pixel-perfect rendering */
+    --nn-nav-font-size: 0.8125rem;  /* 13px at default scale */
+    --nn-nav-icon-size: 16px;  /* Fixed icon size */
 }
 
 /* ========================================================================
@@ -232,7 +245,7 @@ button.nn-icon-button {
     flex-direction: column;
     padding: var(--size-4-1) 0;
     background-color: var(--background-secondary);
-    line-height: 1.4; /* Increased from 1 to prevent text cutoff on Windows */
+    line-height: 1; /* Reset to 1 - we'll use fixed line-heights on individual elements */
     /* Ensure scroll events work properly with virtualization */
     position: relative;
 }
@@ -259,7 +272,7 @@ button.nn-icon-button {
 .nn-folder-content {
     display: flex;
     align-items: center;
-    padding: var(--nav-item-padding);
+    padding: var(--nn-nav-padding-vertical) var(--size-4-2);
     padding-inline-start: 0; /* Remove start padding since it's on the parent */
     cursor: pointer;
     transition: background-color 0.15s ease;
@@ -269,6 +282,8 @@ button.nn-icon-button {
     position: relative;
     flex: 1;
     min-width: 0; /* Critical: allows flex children to shrink below their min-content width */
+    height: var(--nn-nav-item-height); /* Fixed height for pixel-perfect rendering */
+    box-sizing: border-box;
 }
 
 /* Folder content hover state - desktop only */
@@ -279,8 +294,8 @@ button.nn-icon-button {
 /* Folder chevron/arrow - expand/collapse indicator */
 .nn-folder-arrow,
 .nn-folder-chevron {
-    width: var(--icon-size);
-    height: var(--icon-size);
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
     margin-inline-end: var(--size-4-1);
     display: inline-flex;
     align-items: center;
@@ -293,8 +308,8 @@ button.nn-icon-button {
 
 /* Folder icon - displays folder open/closed or custom icons */
 .nn-folder-icon {
-    width: var(--icon-size);
-    height: var(--icon-size);
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
     margin-inline-end: var(--size-4-2);
     flex-shrink: 0;
     color: var(--text-muted);
@@ -309,12 +324,12 @@ button.nn-icon-button {
 
 /* Folder name text - truncates with ellipsis on overflow */
 .nn-folder-name {
-    font-size: var(--nn-file-small-size);
+    font-size: var(--nn-nav-font-size);
     font-weight: 400;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: var(--nn-file-line-height);
+    line-height: var(--nn-nav-line-height);
     color: var(--text-normal);
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
@@ -390,13 +405,15 @@ button.nn-icon-button {
 .nn-tag-content {
     display: flex;
     align-items: center;
-    padding: var(--nav-item-padding);
+    padding: var(--nn-nav-padding-vertical) var(--size-4-2);
     padding-inline-start: 0;
     cursor: pointer;
     transition: background-color 0.15s ease;
     border-radius: var(--radius-s);
     flex: 1;
     min-width: 0;
+    height: var(--nn-nav-item-height); /* Fixed height for pixel-perfect rendering */
+    box-sizing: border-box;
 }
 
 /* Tag content hover state - desktop only */
@@ -423,11 +440,11 @@ button.nn-icon-button {
 
 /* Tag name text */
 .nn-tag-name {
-    font-size: var(--nn-file-small-size);
+    font-size: var(--nn-nav-font-size);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: var(--nn-file-line-height);
+    line-height: var(--nn-nav-line-height);
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
 
@@ -447,8 +464,8 @@ button.nn-icon-button {
 
 /* Tag arrow - expand/collapse indicator for hierarchical tags */
 .nn-tag-arrow {
-    width: var(--icon-size);
-    height: var(--icon-size);
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
     margin-inline-end: var(--size-4-1);
     display: inline-flex;
     align-items: center;
@@ -1553,8 +1570,10 @@ body.nn-resizing {
 
 /* Mobile folder content padding adjustment for proper selection height */
 .notebook-navigator-mobile .nn-folder-content {
-    padding: var(--size-4-1) var(--size-4-2) var(--size-4-1) var(--size-4-1); /* Slightly reduced vertical padding */
-    min-height: 40px; /* Slightly reduced min-height */
+    padding: var(--nn-nav-padding-vertical-mobile) var(--size-4-2);
+    padding-inline-start: var(--size-4-1);
+    height: var(--nn-nav-item-height-mobile); /* Fixed height for mobile */
+    min-height: unset; /* Remove min-height in favor of fixed height */
 }
 
 /* ========================================================================
@@ -1625,9 +1644,10 @@ body.nn-resizing {
 }
 
 /* Mobile tag item padding adjustment to match folder padding */
-.notebook-navigator-mobile .nn-tag-item {
-    padding: var(--size-4-1) var(--size-4-2) var(--size-4-1) var(--size-4-1);
-    min-height: 40px;
+.notebook-navigator-mobile .nn-tag-content {
+    padding: var(--nn-nav-padding-vertical-mobile) var(--size-4-2);
+    padding-inline-start: var(--size-4-1);
+    height: var(--nn-nav-item-height-mobile); /* Fixed height for mobile */
 }
 
 /* ========================================================================
