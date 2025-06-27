@@ -181,6 +181,45 @@ NotebookNavigatorView (Obsidian ItemView)
 - **i18n**: Strings stored in `src/i18n/locales/`.
     
 
+## Obsidian Plugin Type Safety Requirements
+
+Per Obsidian's plugin review guidelines, type casting with `as` should be avoided for Obsidian file types. Instead, use `instanceof` checks or type guard functions:
+
+### ❌ Don't use type assertions:
+```typescript
+// Bad - will fail Obsidian review
+const file = item.data as TFile;
+const folder = item.data as TFolder;
+```
+
+### ✅ Do use instanceof checks or type guards:
+```typescript
+// Good - using type guard functions
+if (isTFile(item.data)) {
+    // item.data is now safely typed as TFile
+    console.log(item.data.path);
+}
+
+// Good - using instanceof directly
+if (item.data instanceof TFile) {
+    // item.data is now safely typed as TFile
+    console.log(item.data.path);
+}
+
+// Good - early return pattern
+const file = item.data;
+if (!isTFile(file)) return;
+// file is now safely typed as TFile
+```
+
+### Type Guard Functions
+The codebase provides type guard functions in `src/utils/typeGuards.ts`:
+- `isTFile(obj: unknown): obj is TFile` - Checks if object is a TFile
+- `isTFolder(obj: unknown): obj is TFolder` - Checks if object is a TFolder
+
+These functions perform runtime checks to ensure type safety and satisfy Obsidian's review requirements.
+    
+
 ## Common Development Tasks
 
 - **Add a New Setting**

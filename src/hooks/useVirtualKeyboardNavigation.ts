@@ -101,7 +101,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             currentIndex = items.findIndex(item => {
                 if ('type' in item && item.type === 'file') {
                     const fileItem = item as FileListItem;
-                    return (fileItem.data as TFile).path === selectionState.selectedFile?.path;
+                    return isTFile(fileItem.data) && fileItem.data.path === selectionState.selectedFile?.path;
                 }
                 return false;
             });

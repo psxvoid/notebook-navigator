@@ -357,7 +357,9 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         const map = new Map<string, number>();
         listItems.forEach((item, index) => {
             if (item.type === 'file') {
-                map.set((item.data as TFile).path, index);
+                if (isTFile(item.data)) {
+                    map.set(item.data.path, index);
+                }
             }
         });
         return map;
@@ -631,7 +633,8 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             if (item.type === 'header') {
                 currentGroup = item.data as string;
             } else if (item.type === 'file') {
-                const file = item.data as TFile;
+                const file = item.data;
+                if (!isTFile(file)) return;
                 const timestamp = DateUtils.getFileTimestamp(
                     file,
                     dateField === 'ctime' ? 'created' : 'modified',
@@ -754,7 +757,9 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         const files: TFile[] = [];
         listItems.forEach(item => {
             if (item.type === 'file') {
-                files.push(item.data as TFile);
+                if (isTFile(item.data)) {
+                    files.push(item.data);
+                }
             }
         });
         return files;
@@ -807,7 +812,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                             const item = safeGetItem(listItems, virtualItem.index);
                             if (!item) return null;
                             const isSelected = item.type === 'file' && 
-                                multiSelection.isFileSelected(item.data as TFile);
+                                isTFile(item.data) && multiSelection.isFileSelected(item.data);
                             
                             // Check if this is the last file item
                             const nextItem = safeGetItem(listItems, virtualItem.index + 1);
@@ -818,9 +823,9 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                             // Check if adjacent items are selected (for styling purposes)
                             const prevItem = safeGetItem(listItems, virtualItem.index - 1);
                             const hasSelectedAbove = item.type === 'file' && prevItem?.type === 'file' && 
-                                multiSelection.isFileSelected(prevItem.data as TFile);
+                                isTFile(prevItem.data) && multiSelection.isFileSelected(prevItem.data);
                             const hasSelectedBelow = item.type === 'file' && nextItem?.type === 'file' && 
-                                multiSelection.isFileSelected(nextItem.data as TFile);
+                                isTFile(nextItem.data) && multiSelection.isFileSelected(nextItem.data);
                             
                             // Check if this is the first header
                             const isFirstHeader = item.type === 'header' && virtualItem.index === 0;
