@@ -569,6 +569,8 @@ button.nn-icon-button {
     flex-direction: column;
     gap: 0;
     order: 1; /* Ensure it appears on the left */
+    min-height: 42px; /* Match feature image height for consistent item heights */
+    justify-content: center; /* Center content vertically */
 }
 
 /* File name - primary text with ellipsis overflow */
@@ -721,6 +723,7 @@ button.nn-icon-button {
     order: 2; /* Ensure it appears on the right */
 }
 
+
 /* Feature image element - covers container with proper aspect ratio */
 .nn-feature-image-img {
     width: 100%;
@@ -736,7 +739,7 @@ button.nn-icon-button {
 
 /* Feature image placeholder - maintains layout when no image */
 .nn-feature-image-placeholder {
-    visibility: hidden;
+    display: none;
 }
 
 /* ========================================================================
