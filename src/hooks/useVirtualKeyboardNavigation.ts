@@ -420,6 +420,24 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     multiSelection.selectAll(allFiles);
                 }
                 break;
+                
+            case 'Home':
+                e.preventDefault();
+                // Find the first selectable item
+                targetIndex = findNextSelectableIndex(items, -1, focusedPane);
+                break;
+                
+            case 'End':
+                e.preventDefault();
+                // Find the last selectable item
+                for (let i = items.length - 1; i >= 0; i--) {
+                    const item = safeGetItem(items, i);
+                    if (item && isSelectableItem(item, focusedPane)) {
+                        targetIndex = i;
+                        break;
+                    }
+                }
+                break;
         }
         
         // Scroll to and select new item
