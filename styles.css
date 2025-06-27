@@ -3,6 +3,39 @@
    ======================================================================== */
 
 /* ========================================================================
+   Fixed Height Variables for Pixel-Perfect Rendering
+   ======================================================================== */
+
+:root {
+    /* File item heights - fixed pixel values to prevent fractional rendering */
+    --nn-file-line-height: 20px;  /* Height of single line of text */
+    --nn-file-padding-vertical: 8px;  /* var(--size-4-2) typically equals 8px */
+    --nn-file-second-line-height: 19px;  /* Height for date/preview line - tighter spacing */
+    --nn-file-preview-line-height: 18px;  /* Height for multi-line preview only */
+    
+    /* Font sizes - using rem for consistent scaling but ensuring whole pixels */
+    --nn-file-name-size: 0.875rem;  /* 14px at default scale */
+    --nn-file-small-size: 0.8125rem;  /* 13px at default scale */
+    
+    /* Date header heights */
+    --nn-date-header-height: 35px;  /* First header */
+    --nn-date-header-height-subsequent: 50px;  /* Headers with margin */
+    
+    /* Navigation item heights - fixed pixel values to prevent fractional rendering */
+    --nn-nav-line-height: 18px;  /* Fixed line height for folder/tag names */
+    --nn-nav-padding-vertical: 5px;  /* Padding to achieve 28px total height */
+    --nn-nav-item-height: 28px;  /* Total height: 5px + 18px + 5px = 28px */
+    
+    /* Mobile navigation heights */
+    --nn-nav-item-height-mobile: 40px;  /* Total height for mobile */
+    --nn-nav-padding-vertical-mobile: 11px;  /* (40px - 18px) / 2 = 11px */
+    
+    /* Navigation font sizes - fixed for pixel-perfect rendering */
+    --nn-nav-font-size: 0.8125rem;  /* 13px at default scale */
+    --nn-nav-icon-size: 16px;  /* Fixed icon size */
+}
+
+/* ========================================================================
    Base Layout & Container Styles
    ======================================================================== */
 
@@ -212,7 +245,7 @@ button.nn-icon-button {
     flex-direction: column;
     padding: var(--size-4-1) 0;
     background-color: var(--background-secondary);
-    line-height: 1.4; /* Increased from 1 to prevent text cutoff on Windows */
+    line-height: 1; /* Reset to 1 - we'll use fixed line-heights on individual elements */
     /* Ensure scroll events work properly with virtualization */
     position: relative;
 }
@@ -239,7 +272,7 @@ button.nn-icon-button {
 .nn-folder-content {
     display: flex;
     align-items: center;
-    padding: var(--nav-item-padding);
+    padding: var(--nn-nav-padding-vertical) var(--size-4-2);
     padding-inline-start: 0; /* Remove start padding since it's on the parent */
     cursor: pointer;
     transition: background-color 0.15s ease;
@@ -249,6 +282,8 @@ button.nn-icon-button {
     position: relative;
     flex: 1;
     min-width: 0; /* Critical: allows flex children to shrink below their min-content width */
+    height: var(--nn-nav-item-height); /* Fixed height for pixel-perfect rendering */
+    box-sizing: border-box;
 }
 
 /* Folder content hover state - desktop only */
@@ -259,8 +294,8 @@ button.nn-icon-button {
 /* Folder chevron/arrow - expand/collapse indicator */
 .nn-folder-arrow,
 .nn-folder-chevron {
-    width: var(--icon-size);
-    height: var(--icon-size);
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
     margin-inline-end: var(--size-4-1);
     display: inline-flex;
     align-items: center;
@@ -273,8 +308,8 @@ button.nn-icon-button {
 
 /* Folder icon - displays folder open/closed or custom icons */
 .nn-folder-icon {
-    width: var(--icon-size);
-    height: var(--icon-size);
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
     margin-inline-end: var(--size-4-2);
     flex-shrink: 0;
     color: var(--text-muted);
@@ -289,12 +324,12 @@ button.nn-icon-button {
 
 /* Folder name text - truncates with ellipsis on overflow */
 .nn-folder-name {
-    font-size: var(--font-ui-small);
+    font-size: var(--nn-nav-font-size);
     font-weight: 400;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.5; /* Normal line height for proper text rendering */
+    line-height: var(--nn-nav-line-height);
     color: var(--text-normal);
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
@@ -370,13 +405,15 @@ button.nn-icon-button {
 .nn-tag-content {
     display: flex;
     align-items: center;
-    padding: var(--nav-item-padding);
+    padding: var(--nn-nav-padding-vertical) var(--size-4-2);
     padding-inline-start: 0;
     cursor: pointer;
     transition: background-color 0.15s ease;
     border-radius: var(--radius-s);
     flex: 1;
     min-width: 0;
+    height: var(--nn-nav-item-height); /* Fixed height for pixel-perfect rendering */
+    box-sizing: border-box;
 }
 
 /* Tag content hover state - desktop only */
@@ -403,11 +440,11 @@ button.nn-icon-button {
 
 /* Tag name text */
 .nn-tag-name {
-    font-size: var(--font-ui-small);
+    font-size: var(--nn-nav-font-size);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
-    line-height: 1.5; /* Match folder name line-height to prevent descender cutoff */
+    line-height: var(--nn-nav-line-height);
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
 
@@ -427,8 +464,8 @@ button.nn-icon-button {
 
 /* Tag arrow - expand/collapse indicator for hierarchical tags */
 .nn-tag-arrow {
-    width: var(--icon-size);
-    height: var(--icon-size);
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
     margin-inline-end: var(--size-4-1);
     display: inline-flex;
     align-items: center;
@@ -487,7 +524,7 @@ button.nn-icon-button {
 
 /* File content wrapper - contains all file information */
 .nn-file-content {
-    padding: var(--size-4-2) var(--size-4-3);
+    padding: var(--nn-file-padding-vertical) var(--size-4-3);
     margin: 0px var(--size-4-2);
     border-radius: var(--radius-m);
     background: transparent;
@@ -496,6 +533,9 @@ button.nn-icon-button {
     gap: var(--size-4-1);
     align-items: center;
     position: relative;
+    /* Force pixel snapping on retina displays */
+    transform: translateZ(0);
+    will-change: transform;
 }
 
 /* Virtual list file separator */
@@ -533,7 +573,7 @@ button.nn-icon-button {
 
 /* File name - primary text with ellipsis overflow */
 .nn-file-name {
-    font-size: calc(var(--font-ui-small) + 1px);
+    font-size: var(--nn-file-name-size);
     font-weight: 600;
     color: var(--text-normal);
     overflow: hidden;
@@ -542,6 +582,7 @@ button.nn-icon-button {
     display: -webkit-box;
     -webkit-line-clamp: var(--filename-rows, 1);
     -webkit-box-orient: vertical;
+    line-height: var(--nn-file-line-height);
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
 
@@ -553,13 +594,13 @@ button.nn-icon-button {
 /* Second line container - holds date and preview text */
 .nn-file-second-line {
     display: flex;
-    align-items: flex-start;
+    align-items: baseline; /* Align text on same baseline */
     gap: var(--size-4-1);
 }
 
 /* File date - modification date display */
 .nn-file-date {
-    font-size: var(--font-ui-small);
+    font-size: var(--nn-file-small-size);
     color: var(--text-normal);
     flex-shrink: 1; /* Allow date to shrink when space is limited */
     white-space: nowrap;
@@ -568,6 +609,7 @@ button.nn-icon-button {
     text-overflow: ellipsis;
     min-width: 0; /* Allow shrinking below content size */
     max-width: 150px; /* Reasonable max width for dates */
+    line-height: var(--nn-file-second-line-height);
 }
 
 /* Dark mode file date */
@@ -577,9 +619,9 @@ button.nn-icon-button {
 
 /* File preview text - secondary line showing file content */
 .nn-file-preview {
-    font-size: var(--font-ui-small);
+    font-size: var(--nn-file-small-size);
     color: var(--text-muted);
-    line-height: 1.4;
+    line-height: var(--nn-file-preview-line-height);
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -589,20 +631,28 @@ button.nn-icon-button {
     flex: 1;
 }
 
+/* Preview on same line as date - match date line-height for alignment */
+.nn-file-second-line .nn-file-preview {
+    line-height: var(--nn-file-second-line-height);
+}
+
+
 /* Date below preview - when preview has 2+ lines */
 .nn-file-date-below {
     margin-right: 0;
     max-width: none;
+    line-height: var(--nn-file-second-line-height); /* Consistent line height */
 }
 
 /* Folder indicator - shows parent folder for files from subfolders */
 .nn-file-folder {
-    font-size: var(--font-ui-small);
+    font-size: var(--nn-file-small-size);
     color: var(--text-muted);
     display: flex;
     align-items: center;
     gap: var(--size-4-1);
     overflow: hidden;
+    line-height: var(--nn-file-second-line-height); /* Use second line height for consistent spacing */
 }
 
 /* Dark mode folder indicator */
@@ -633,15 +683,15 @@ button.nn-icon-button {
 
 /* Slim file item - more compact list appearance */
 .nn-file-item.nn-slim .nn-file-content {
-    padding: var(--size-4-2) var(--size-4-3);
+    padding: var(--nn-file-padding-vertical) var(--size-4-3);
 }
 
 /* Slim file name - no bold, smaller font like folder items */
 .nn-file-item.nn-slim .nn-file-name {
-    font-size: var(--font-ui-small);
+    font-size: var(--nn-file-small-size);
     font-weight: 400;
     margin-bottom: 0;
-    line-height: 1.5;
+    line-height: var(--nn-file-line-height);
 }
 
 /* Selected slim file - maintain selection styles */
@@ -695,25 +745,35 @@ button.nn-icon-button {
 
 /* Date group headers - sticky headers for grouped files */
 .nn-date-group-header {
-    padding: var(--size-4-2) var(--size-4-3);
-    padding-top: calc(var(--size-4-2) * 2);
-    font-size: var(--font-ui-small);
+    height: var(--nn-date-header-height-subsequent);
+    box-sizing: border-box;
+    padding: 0 var(--size-4-3);
+    font-size: var(--nn-file-small-size);
     font-weight: 600;
     color: var(--text-muted);
     background-color: var(--background-primary);
     border-bottom: 1px solid var(--background-modifier-border);
-    margin-top: var(--size-4-4);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    align-items: center;
+    /* Force pixel snapping */
+    transform: translateZ(0);
 }
 
 /* First date header - no top margin or extra padding for first group */
 .nn-date-group-header.nn-first-header {
-    margin-top: 0;
-    padding-top: var(--size-4-2);
+    height: var(--nn-date-header-height);
 }
 
+
+/* Virtual item wrapper - ensures proper rendering for virtualized items */
+.nn-virtual-item {
+    /* Force pixel snapping for crisp rendering */
+    transform-style: preserve-3d;
+    backface-visibility: hidden;
+}
 
 /* ========================================================================
    Empty State
@@ -1517,8 +1577,10 @@ body.nn-resizing {
 
 /* Mobile folder content padding adjustment for proper selection height */
 .notebook-navigator-mobile .nn-folder-content {
-    padding: var(--size-4-1) var(--size-4-2) var(--size-4-1) var(--size-4-1); /* Slightly reduced vertical padding */
-    min-height: 40px; /* Slightly reduced min-height */
+    padding: var(--nn-nav-padding-vertical-mobile) var(--size-4-2);
+    padding-inline-start: var(--size-4-1);
+    height: var(--nn-nav-item-height-mobile); /* Fixed height for mobile */
+    min-height: unset; /* Remove min-height in favor of fixed height */
 }
 
 /* ========================================================================
@@ -1589,9 +1651,10 @@ body.nn-resizing {
 }
 
 /* Mobile tag item padding adjustment to match folder padding */
-.notebook-navigator-mobile .nn-tag-item {
-    padding: var(--size-4-1) var(--size-4-2) var(--size-4-1) var(--size-4-1);
-    min-height: 40px;
+.notebook-navigator-mobile .nn-tag-content {
+    padding: var(--nn-nav-padding-vertical-mobile) var(--size-4-2);
+    padding-inline-start: var(--size-4-1);
+    height: var(--nn-nav-item-height-mobile); /* Fixed height for mobile */
 }
 
 /* ========================================================================
