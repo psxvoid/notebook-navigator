@@ -543,7 +543,7 @@ export class FileSystemOperations {
             // Delete all files
             for (const file of files) {
                 try {
-                    await this.app.vault.delete(file);
+                    await this.app.fileManager.trashFile(file);
                 } catch (error) {
                     console.error('Error deleting file:', file.path, error);
                     new Notice(strings.fileSystem.errors.failedToDeleteFile.replace('{name}', file.name).replace('{error}', error.message));

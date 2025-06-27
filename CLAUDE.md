@@ -281,6 +281,25 @@ style={{ '--preview-rows': settings.previewRows } as React.CSSProperties}
 4. Test with multiple themes to ensure compatibility
     
 
+## Obsidian Plugin File Deletion Requirements
+
+Per Obsidian's plugin review guidelines, use `app.fileManager.trashFile()` instead of `app.vault.delete()` for file deletion. This ensures files are deleted according to the user's preferences (trash vs permanent delete).
+
+### ❌ Don't use vault.delete:
+```typescript
+// Bad - will fail Obsidian review
+await this.app.vault.delete(file);
+```
+
+### ✅ Do use fileManager.trashFile:
+```typescript
+// Good - respects user's trash preferences
+await this.app.fileManager.trashFile(file);
+```
+
+This applies to both individual file deletions and bulk operations. The `trashFile` method works with both `TFile` and `TFolder` instances.
+    
+
 ## Common Development Tasks
 
 - **Add a New Setting**
