@@ -43,14 +43,14 @@ import { ErrorBoundary } from './ErrorBoundary';
 // Item height constants for accurate virtualization
 const ITEM_HEIGHTS = {
   desktop: {
-    folder: 32,      // Fixed height: 7px padding + 18px line-height + 7px padding
-    tag: 32,         // Matches folder height
+    folder: 28,      // Fixed height: 5px padding + 18px line-height + 5px padding
+    tag: 28,         // Matches folder height
     header: 35,      // Tag section header
     spacer: 20       // Bottom spacer - matches FileList
   },
   mobile: {
-    folder: 44,      // Fixed height: 13px padding + 18px line-height + 13px padding
-    tag: 44,         // Matches folder height
+    folder: 40,      // Fixed height: 11px padding + 18px line-height + 11px padding
+    tag: 40,         // Matches folder height
     header: 38,      // Slightly larger for mobile font sizes
     spacer: 20       // Bottom spacer - matches FileList
   }

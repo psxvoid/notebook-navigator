@@ -10,8 +10,8 @@
     /* File item heights - fixed pixel values to prevent fractional rendering */
     --nn-file-line-height: 20px;  /* Height of single line of text */
     --nn-file-padding-vertical: 8px;  /* var(--size-4-2) typically equals 8px */
-    --nn-file-second-line-height: 22px;  /* Height for date/preview line */
-    --nn-file-preview-line-height: 19px;  /* Height for each preview line */
+    --nn-file-second-line-height: 19px;  /* Height for date/preview line - tighter spacing */
+    --nn-file-preview-line-height: 18px;  /* Height for multi-line preview only */
     
     /* Font sizes - using rem for consistent scaling but ensuring whole pixels */
     --nn-file-name-size: 0.875rem;  /* 14px at default scale */
@@ -23,12 +23,12 @@
     
     /* Navigation item heights - fixed pixel values to prevent fractional rendering */
     --nn-nav-line-height: 18px;  /* Fixed line height for folder/tag names */
-    --nn-nav-padding-vertical: 7px;  /* Padding to achieve 32px total height */
-    --nn-nav-item-height: 32px;  /* Total height: 7px + 18px + 7px = 32px */
+    --nn-nav-padding-vertical: 5px;  /* Padding to achieve 28px total height */
+    --nn-nav-item-height: 28px;  /* Total height: 5px + 18px + 5px = 28px */
     
     /* Mobile navigation heights */
-    --nn-nav-item-height-mobile: 44px;  /* Total height for mobile */
-    --nn-nav-padding-vertical-mobile: 13px;  /* (44px - 18px) / 2 = 13px */
+    --nn-nav-item-height-mobile: 40px;  /* Total height for mobile */
+    --nn-nav-padding-vertical-mobile: 11px;  /* (40px - 18px) / 2 = 11px */
     
     /* Navigation font sizes - fixed for pixel-perfect rendering */
     --nn-nav-font-size: 0.8125rem;  /* 13px at default scale */
@@ -594,7 +594,7 @@ button.nn-icon-button {
 /* Second line container - holds date and preview text */
 .nn-file-second-line {
     display: flex;
-    align-items: flex-start;
+    align-items: baseline; /* Align text on same baseline */
     gap: var(--size-4-1);
 }
 
@@ -631,10 +631,17 @@ button.nn-icon-button {
     flex: 1;
 }
 
+/* Preview on same line as date - match date line-height for alignment */
+.nn-file-second-line .nn-file-preview {
+    line-height: var(--nn-file-second-line-height);
+}
+
+
 /* Date below preview - when preview has 2+ lines */
 .nn-file-date-below {
     margin-right: 0;
     max-width: none;
+    line-height: var(--nn-file-second-line-height); /* Consistent line height */
 }
 
 /* Folder indicator - shows parent folder for files from subfolders */
@@ -645,7 +652,7 @@ button.nn-icon-button {
     align-items: center;
     gap: var(--size-4-1);
     overflow: hidden;
-    line-height: var(--nn-file-line-height);
+    line-height: var(--nn-file-second-line-height); /* Use second line height for consistent spacing */
 }
 
 /* Dark mode folder indicator */
