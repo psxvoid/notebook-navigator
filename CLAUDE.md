@@ -301,6 +301,40 @@ await this.app.fileManager.trashFile(file);
 This applies to both individual file deletions and bulk operations. The `trashFile` method works with both `TFile` and `TFolder` instances.
     
 
+## UI Text Letter Casing Convention
+
+All UI text should use sentence case (only first letter capitalized) for consistency and readability:
+
+### ❌ Don't use Title Case or ALL CAPS:
+```typescript
+// Bad - avoid Title Case
+'Copy Image'
+'Remove Custom Size'
+'Open In New Tab'
+
+// Bad - avoid ALL CAPS
+'COPY IMAGE'
+```
+
+### ✅ Do use sentence case:
+```typescript
+// Good - sentence case
+'Copy image'
+'Remove custom size'
+'Open in new tab'
+```
+
+### Exceptions:
+- Proper nouns keep their capitalization (e.g., 'Finder', 'Explorer', 'Photoshop')
+- Acronyms remain capitalized (e.g., 'CMD', 'CTRL', 'URL')
+- Operating system names (e.g., 'macOS', 'Windows')
+
+### Examples:
+- ✅ 'Show in Finder' (Finder is a proper noun)
+- ✅ 'CMD + click behavior' (CMD is an acronym)
+- ✅ 'External editor path (macOS)' (macOS is a proper noun with specific casing)
+    
+
 ## Common Development Tasks
 
 - **Add a New Setting**

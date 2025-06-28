@@ -297,7 +297,10 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             case 'ArrowLeft':
                 e.preventDefault();
                 if (focusedPane === 'files') {
-                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+                    // Only switch to folders pane if navigation pane is not collapsed
+                    if (!uiState.navigationPaneCollapsed) {
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+                    }
                 } else if (focusedPane === 'folders' && currentIndex >= 0) {
                     const item = safeGetItem(items, currentIndex) as CombinedNavigationItem | undefined;
                     if (!item) return;
@@ -358,7 +361,10 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 if (e.shiftKey) {
                     // Shift+Tab: Move focus backwards (Editor -> Files -> Folders)
                     if (focusedPane === 'files') {
-                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+                        // Only switch to folders pane if navigation pane is not collapsed
+                        if (!uiState.navigationPaneCollapsed) {
+                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+                        }
                     }
                     // Note: There is no logic here to go from Editor -> Files,
                     // as that is outside the scope of this hook. Obsidian handles that.

@@ -62,10 +62,6 @@ export function useAutoReveal(
         const handleFileChange = (file: TFile | null) => {
             if (!file) return;
             
-            // Simple rule: Don't reveal if navigator has focus
-            const navigatorEl = document.querySelector('.nn-split-container');
-            const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
-            
             // Check if this is a file we just created via the plugin
             const isNewlyCreatedFile = uiState.newlyCreatedPath && file.path === uiState.newlyCreatedPath;
             
@@ -84,7 +80,18 @@ export function useAutoReveal(
                 return;
             }
             
-            // Don't reveal if navigator has focus (user is actively using it)
+            // Simple rule: Don't reveal if navigator has focus
+            // This means auto-reveal only works when switching files from outside the navigator
+            // (e.g., via Quick Switcher, links in editor, etc.)
+            // 
+            // NOTE: Deep links (obsidian://open URLs) won't auto-reveal with this approach.
+            // We tried to support them by checking if clicks came from within the file list,
+            // but this created issues with folder clicks triggering unwanted auto-reveals.
+            // Until Obsidian provides a way to distinguish deep link opens from regular file opens,
+            // we're keeping this simple rule to avoid complex state tracking and timing issues.
+            const navigatorEl = document.querySelector('.nn-split-container');
+            const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
+            
             if (hasNavigatorFocus) {
                 return;
             }
@@ -93,7 +100,6 @@ export function useAutoReveal(
             if ((window as any).notebookNavigatorOpeningFolderNote) {
                 return;
             }
-            
             
             // Don't reveal the same file twice in a row
             if (lastRevealedFileRef.current === file.path) {
