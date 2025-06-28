@@ -70,13 +70,21 @@ export const STORAGE_KEYS: LocalStorageKeys = {
 };
 
 /**
- * Default dimensions for the resizable left pane
+ * Default dimensions for the navigation pane (folder/tag tree)
  * These values are used when no saved state exists
  */
-export const PANE_DIMENSIONS = {
+export const NAVIGATION_PANE_DIMENSIONS = {
     defaultWidth: 300,
     minWidth: 150,
     maxWidth: 600
+};
+
+/**
+ * Default dimensions for the file pane (file list)
+ * The file pane uses flex: 1 so it doesn't have a defaultWidth or maxWidth
+ */
+export const FILE_PANE_DIMENSIONS = {
+    minWidth: 150
 };
 
 /**

@@ -17,7 +17,7 @@
  */
 
 // src/components/NotebookNavigatorComponent.tsx
-import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState } from 'react';
+import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback } from 'react';
 import { TFile, TFolder, TAbstractFile, WorkspaceLeaf, debounce, Platform, ItemView } from 'obsidian';
 import { NavigationPane } from './NavigationPane';
 import { FileList } from './FileList';
@@ -33,7 +33,7 @@ import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useSwipeGesture } from '../hooks/useSwipeGesture';
 import { isTFile, isTFolder } from '../utils/typeGuards';
-import { STORAGE_KEYS, PANE_DIMENSIONS, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
+import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { flattenFolderTree, findFolderIndex } from '../utils/treeFlattener';
 import { parseExcludedFolders } from '../utils/fileFilters';
@@ -97,9 +97,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     
     // Enable resizable pane
     const { paneWidth, isResizing, resizeHandleProps } = useResizablePane({
-        initialWidth: PANE_DIMENSIONS.defaultWidth,
-        min: PANE_DIMENSIONS.minWidth,
-        max: PANE_DIMENSIONS.maxWidth,
+        initialWidth: NAVIGATION_PANE_DIMENSIONS.defaultWidth,
+        min: NAVIGATION_PANE_DIMENSIONS.minWidth,
+        max: NAVIGATION_PANE_DIMENSIONS.maxWidth,
         storageKey: STORAGE_KEYS.leftPaneWidthKey
     });
     
@@ -345,15 +345,31 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         };
     }, []);
 
-    // ADD THIS NEW EFFECT
-    // When the focused pane changes programmatically via the state,
-    // we must ensure the main container element has DOM focus so it can
-    // receive and correctly delegate keyboard events.
+    // Ensure the container has focus when the focused pane changes
     useEffect(() => {
         if (uiState.focusedPane) {
             containerRef.current?.focus();
         }
     }, [uiState.focusedPane]);
+    
+    // Track if initial visibility check has been performed
+    const hasCheckedInitialVisibility = useRef(false);
+    
+    // Container ref callback that checks if file list is visible on first mount
+    const containerCallbackRef = useCallback((node: HTMLDivElement | null) => {
+        containerRef.current = node;
+        
+        // Auto-collapse left pane on startup if viewport is too narrow for both panes
+        if (node && !isMobile && !hasCheckedInitialVisibility.current && !uiState.leftPaneCollapsed) {
+            hasCheckedInitialVisibility.current = true;
+            
+            const containerWidth = node.getBoundingClientRect().width;
+            // Check if container is too narrow to show both panes
+            if (containerWidth < paneWidth + FILE_PANE_DIMENSIONS.minWidth) {
+                uiDispatch({ type: 'TOGGLE_LEFT_PANE' });
+            }
+        }
+    }, [isMobile, paneWidth, uiDispatch]);
     
     // Track when the navigator is being hidden to ensure consistent state
     useEffect(() => {
@@ -440,7 +456,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     
     return (
         <div 
-            ref={containerRef}
+            ref={containerCallbackRef}
             className={containerClasses.join(' ')} 
             data-focus-pane={isMobile ? (uiState.currentMobileView === 'list' ? 'folders' : 'files') : uiState.focusedPane}
             data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}

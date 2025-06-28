@@ -18,6 +18,7 @@
 
 // src/hooks/useResizablePane.ts
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { NAVIGATION_PANE_DIMENSIONS } from '../types';
 
 interface UseResizablePaneConfig {
     initialWidth?: number;
@@ -43,9 +44,9 @@ interface UseResizablePaneResult {
  * @returns Current pane width and props to spread on the resize handle element
  */
 export function useResizablePane({
-    initialWidth = 300,
-    min = 150,
-    max = 600,
+    initialWidth = NAVIGATION_PANE_DIMENSIONS.defaultWidth,
+    min = NAVIGATION_PANE_DIMENSIONS.minWidth,
+    max = NAVIGATION_PANE_DIMENSIONS.maxWidth,
     storageKey
 }: UseResizablePaneConfig = {}): UseResizablePaneResult {
     // Track cleanup function for current resize operation

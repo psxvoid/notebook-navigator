@@ -17,13 +17,7 @@
  */
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-
-// Constants for pane dimensions
-const PANE_DIMENSIONS = {
-    DEFAULT_WIDTH: 300,
-    MIN_WIDTH: 150,
-    MAX_WIDTH: 600
-};
+import { NAVIGATION_PANE_DIMENSIONS } from '../types';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -85,7 +79,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
     // Load initial state
     const loadInitialState = (): UIState => {
         const savedWidth = localStorage.getItem(STORAGE_KEYS.LEFT_PANE_WIDTH);
-        const paneWidth = savedWidth ? parseInt(savedWidth) : PANE_DIMENSIONS.DEFAULT_WIDTH;
+        const paneWidth = savedWidth ? parseInt(savedWidth) : NAVIGATION_PANE_DIMENSIONS.defaultWidth;
         
         const savedCollapsed = localStorage.getItem(STORAGE_KEYS.LEFT_PANE_COLLAPSED);
         const leftPaneCollapsed = savedCollapsed === 'true';
@@ -93,7 +87,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         const initialState = {
             focusedPane: 'folders' as const,
             currentMobileView: 'list' as const,
-            paneWidth: Math.max(PANE_DIMENSIONS.MIN_WIDTH, Math.min(paneWidth, PANE_DIMENSIONS.MAX_WIDTH)),
+            paneWidth: Math.max(NAVIGATION_PANE_DIMENSIONS.minWidth, Math.min(paneWidth, NAVIGATION_PANE_DIMENSIONS.maxWidth)),
             newlyCreatedPath: null,
             leftPaneCollapsed
         };
