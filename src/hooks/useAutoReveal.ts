@@ -19,6 +19,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { TFile, WorkspaceLeaf, App } from 'obsidian';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
+import { useSelectionState } from '../context/SelectionContext';
 
 interface UseAutoRevealSettings {
     autoRevealActiveFile: boolean;
@@ -41,6 +42,7 @@ export function useAutoReveal(
     const lastRevealedFileRef = useRef<string | null>(null);
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
+    const selectionState = useSelectionState();
 
     // Reset fileToReveal after it's been consumed
     useEffect(() => {
@@ -103,6 +105,11 @@ export function useAutoReveal(
                 return;
             }
             
+            // Don't reveal if this file was auto-selected as part of a folder change
+            // This prevents auto-reveal from triggering when clicking folders with autoSelectFirstFile enabled
+            if (selectionState.isFolderChangeWithAutoSelect) {
+                return;
+            }
             
             // Don't reveal the same file twice in a row
             if (lastRevealedFileRef.current === file.path) {
@@ -153,7 +160,7 @@ export function useAutoReveal(
             app.workspace.offref(activeLeafEventRef);
             app.workspace.offref(fileOpenEventRef);
         };
-    }, [app.workspace, settings.autoRevealActiveFile, uiState.newlyCreatedPath, uiDispatch]);
+    }, [app.workspace, settings.autoRevealActiveFile, uiState.newlyCreatedPath, uiDispatch, selectionState.isFolderChangeWithAutoSelect]);
 
     return { fileToReveal };
 }
