@@ -84,9 +84,18 @@ export function useAutoReveal(
                 return;
             }
             
-            // Don't reveal if navigator has focus (user is actively using it)
+            // Don't reveal if navigator has focus AND the file was opened from within the navigator
+            // But always reveal for external opens (like deep links)
             if (hasNavigatorFocus) {
-                return;
+                // Check if the active element is within the file list - if so, the user clicked on a file
+                const fileListEl = document.querySelector('.nn-file-list');
+                const clickedInFileList = fileListEl && fileListEl.contains(document.activeElement);
+                
+                if (clickedInFileList) {
+                    // User clicked a file in the navigator - don't reveal (they already see it)
+                    return;
+                }
+                // Otherwise, this is likely an external open (deep link, command, etc.) - continue with reveal
             }
             
             // Don't reveal if we're opening a folder note
