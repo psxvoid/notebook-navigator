@@ -449,12 +449,12 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     }, [expansionState.expandedFolders, expansionState.expandedTags, selectionState.selectionType, selectionState.selectedFolder?.path, selectionState.selectedTag, handleFolderToggle, handleFolderClick, handleFolderNameClick, handleTagToggle, handleTagClick, untaggedCount, settings, spacerHeight, settings.folderIcons]);
     
     return (
-        <ErrorBoundary componentName="LeftPaneVirtualized">
+        <ErrorBoundary componentName="NavigationPane">
             <>
                 <PaneHeader type="folder" onHeaderClick={handleScrollToTop} />
             <div 
                 ref={scrollContainerRef}
-                className="nn-left-pane-scroller"
+                className="nn-navigation-pane-scroller"
                 data-pane="folders"
                 role="tree"
             >

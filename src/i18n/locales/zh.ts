@@ -60,8 +60,8 @@ export const STRINGS_ZH = {
         changeSortOrder: '更改排序方式', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: '默认', // Label for default sorting mode (English: Default)
         customSort: '自定义', // Label for custom sorting mode (English: Custom)
-        showFolders: '显示文件夹', // Tooltip for button to show the folders pane (English: Show Folders)
-        hideFolders: '隐藏文件夹', // Tooltip for button to hide the folders pane (English: Hide Folders)
+        showFolders: '显示导航', // Tooltip for button to show the navigation pane (English: Show navigation)
+        hideFolders: '隐藏导航', // Tooltip for button to hide the navigation pane (English: Hide navigation)
     },
 
     // Context menus

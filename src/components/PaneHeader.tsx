@@ -327,7 +327,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                         <button
                             className="nn-icon-button"
                             aria-label={strings.paneHeader.hideFolders}
-                            onClick={() => uiDispatch({ type: 'TOGGLE_LEFT_PANE' })}
+                            onClick={() => uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' })}
                             tabIndex={-1}
                         >
                             <ObsidianIcon name="sidebar-left" />
@@ -357,11 +357,11 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                 ) : (
                     <>
                         <div className="nn-header-actions">
-                            {uiState.leftPaneCollapsed && (
+                            {uiState.navigationPaneCollapsed && (
                                 <button
                                     className="nn-icon-button"
                                     aria-label={strings.paneHeader.showFolders}
-                                    onClick={() => uiDispatch({ type: 'TOGGLE_LEFT_PANE' })}
+                                    onClick={() => uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' })}
                                     tabIndex={-1}
                                 >
                                     <ObsidianIcon name="sidebar-left" />

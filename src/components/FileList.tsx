@@ -768,7 +768,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     // Early returns MUST come after all hooks
     if (!selectedFolder && !selectedTag) {
         return (
-            <div className="nn-right-pane">
+            <div className="nn-file-pane">
                 <PaneHeader type="file" onHeaderClick={handleScrollToTop} />
                 <div className="nn-file-list nn-empty-state">
                     <div className="nn-empty-message">{strings.fileList.emptyStateNoSelection}</div>
@@ -779,7 +779,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     
     if (files.length === 0) {
         return (
-            <div className="nn-right-pane">
+            <div className="nn-file-pane">
                 <PaneHeader type="file" onHeaderClick={handleScrollToTop} />
                 <div className="nn-file-list nn-empty-state">
                     <div className="nn-empty-message">{strings.fileList.emptyStateNoNotes}</div>
@@ -790,7 +790,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     
     return (
         <ErrorBoundary componentName="FileList">
-            <div className="nn-right-pane">
+            <div className="nn-file-pane">
                 <PaneHeader type="file" onHeaderClick={handleScrollToTop} />
             <div 
                 ref={scrollContainerRef}

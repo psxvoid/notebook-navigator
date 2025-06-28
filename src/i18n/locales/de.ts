@@ -60,8 +60,8 @@ export const STRINGS_DE = {
         changeSortOrder: 'Sortierreihenfolge ändern', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: 'Standard', // Label for default sorting mode (English: Default)
         customSort: 'Benutzerdefiniert', // Label for custom sorting mode (English: Custom)
-        showFolders: 'Ordner anzeigen', // Tooltip for button to show the folders pane (English: Show Folders)
-        hideFolders: 'Ordner ausblenden', // Tooltip for button to hide the folders pane (English: Hide Folders)
+        showFolders: 'Navigation anzeigen', // Tooltip for button to show the navigation pane (English: Show navigation)
+        hideFolders: 'Navigation ausblenden', // Tooltip for button to hide the navigation pane (English: Hide navigation)
     },
 
     // Context menus

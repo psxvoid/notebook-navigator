@@ -155,7 +155,7 @@ NotebookNavigatorView (Obsidian ItemView)
 - `notebook-navigator-expanded-tags`
 - `notebook-navigator-selected-folder`
 - `notebook-navigator-selected-file`
-- `notebook-navigator-left-pane-width`
+- `notebook-navigator-navigation-pane-width`
     
 
 ### Services

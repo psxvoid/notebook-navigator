@@ -21,8 +21,8 @@ import { NAVIGATION_PANE_DIMENSIONS } from '../types';
 
 // Storage keys
 const STORAGE_KEYS = {
-    LEFT_PANE_WIDTH: 'notebook-navigator-left-pane-width',
-    LEFT_PANE_COLLAPSED: 'notebook-navigator-left-pane-collapsed'
+    NAVIGATION_PANE_WIDTH: 'notebook-navigator-navigation-pane-width',
+    NAVIGATION_PANE_COLLAPSED: 'notebook-navigator-navigation-pane-collapsed'
 };
 
 // State interface
@@ -31,7 +31,7 @@ interface UIState {
     currentMobileView: 'list' | 'files';
     paneWidth: number;
     newlyCreatedPath: string | null;
-    leftPaneCollapsed: boolean;
+    navigationPaneCollapsed: boolean;
 }
 
 // Action types
@@ -40,7 +40,7 @@ type UIAction =
     | { type: 'SET_MOBILE_VIEW'; view: 'list' | 'files' }
     | { type: 'SET_PANE_WIDTH'; width: number }
     | { type: 'SET_NEWLY_CREATED_PATH'; path: string | null }
-    | { type: 'TOGGLE_LEFT_PANE' };
+    | { type: 'TOGGLE_NAVIGATION_PANE' };
     
 // Create contexts
 const UIStateContext = createContext<UIState | null>(null);
@@ -61,8 +61,8 @@ function uiStateReducer(state: UIState, action: UIAction): UIState {
         case 'SET_NEWLY_CREATED_PATH':
             return { ...state, newlyCreatedPath: action.path };
         
-        case 'TOGGLE_LEFT_PANE':
-            return { ...state, leftPaneCollapsed: !state.leftPaneCollapsed };
+        case 'TOGGLE_NAVIGATION_PANE':
+            return { ...state, navigationPaneCollapsed: !state.navigationPaneCollapsed };
         
         default:
             return state;
@@ -78,18 +78,18 @@ interface UIStateProviderProps {
 export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
     // Load initial state
     const loadInitialState = (): UIState => {
-        const savedWidth = localStorage.getItem(STORAGE_KEYS.LEFT_PANE_WIDTH);
+        const savedWidth = localStorage.getItem(STORAGE_KEYS.NAVIGATION_PANE_WIDTH);
         const paneWidth = savedWidth ? parseInt(savedWidth) : NAVIGATION_PANE_DIMENSIONS.defaultWidth;
         
-        const savedCollapsed = localStorage.getItem(STORAGE_KEYS.LEFT_PANE_COLLAPSED);
-        const leftPaneCollapsed = savedCollapsed === 'true';
+        const savedCollapsed = localStorage.getItem(STORAGE_KEYS.NAVIGATION_PANE_COLLAPSED);
+        const navigationPaneCollapsed = savedCollapsed === 'true';
         
         const initialState = {
             focusedPane: 'folders' as const,
             currentMobileView: 'list' as const,
             paneWidth: Math.max(NAVIGATION_PANE_DIMENSIONS.minWidth, Math.min(paneWidth, NAVIGATION_PANE_DIMENSIONS.maxWidth)),
             newlyCreatedPath: null,
-            leftPaneCollapsed
+            navigationPaneCollapsed
         };
         
         return initialState;
@@ -100,16 +100,16 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
     // Persist pane width to localStorage
     useEffect(() => {
         if (!isMobile) {
-            localStorage.setItem(STORAGE_KEYS.LEFT_PANE_WIDTH, state.paneWidth.toString());
+            localStorage.setItem(STORAGE_KEYS.NAVIGATION_PANE_WIDTH, state.paneWidth.toString());
         }
     }, [state.paneWidth, isMobile]);
     
     // Persist collapsed state to localStorage
     useEffect(() => {
         if (!isMobile) {
-            localStorage.setItem(STORAGE_KEYS.LEFT_PANE_COLLAPSED, state.leftPaneCollapsed.toString());
+            localStorage.setItem(STORAGE_KEYS.NAVIGATION_PANE_COLLAPSED, state.navigationPaneCollapsed.toString());
         }
-    }, [state.leftPaneCollapsed, isMobile]);
+    }, [state.navigationPaneCollapsed, isMobile]);
     
     return (
         <UIStateContext.Provider value={state}>

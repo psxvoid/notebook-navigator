@@ -71,7 +71,7 @@
    ======================================================================== */
 
 /* Left pane - contains the folder tree navigation */
-.nn-left-pane {
+.nn-navigation-pane {
     width: 300px;
     min-width: 150px;
     max-width: 600px;
@@ -85,7 +85,7 @@
 }
 
 /* Right pane - contains the file list */
-.nn-right-pane {
+.nn-file-pane {
     flex: 1;
     min-width: 150px;
     background-color: var(--background-primary);
@@ -134,7 +134,7 @@
 }
 
 /* Left pane header - matches folder tree background for visual consistency */
-.nn-left-pane .nn-pane-header {
+.nn-navigation-pane .nn-pane-header {
     background-color: var(--background-secondary);
 }
 
@@ -237,7 +237,7 @@ button.nn-icon-button {
    ======================================================================== */
 
 /* Scroller container for both folder tree and tag list */
-.nn-left-pane-scroller {
+.nn-navigation-pane-scroller {
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
@@ -1007,12 +1007,12 @@ body.nn-resizing {
    ======================================================================== */
 
 /* Hide the left pane when collapsed */
-.nn-split-container.nn-left-pane-collapsed .nn-left-pane {
+.nn-split-container.nn-navigation-pane-collapsed .nn-navigation-pane {
     display: none;
 }
 
 /* Hide resize handle when collapsed */
-.nn-split-container.nn-left-pane-collapsed .nn-resize-handle {
+.nn-split-container.nn-navigation-pane-collapsed .nn-resize-handle {
     display: none;
 }
 
@@ -1242,26 +1242,26 @@ body.nn-resizing {
 /* Custom scrollbar width 
    Note: Obsidian doesn't provide CSS variables for scrollbar dimensions yet,
    so we use a hardcoded value that matches the default Obsidian scrollbar width */
-.nn-left-pane-scroller::-webkit-scrollbar,
+.nn-navigation-pane-scroller::-webkit-scrollbar,
 .nn-file-list::-webkit-scrollbar {
     width: 8px;
 }
 
 /* Scrollbar track - transparent background */
-.nn-left-pane-scroller::-webkit-scrollbar-track,
+.nn-navigation-pane-scroller::-webkit-scrollbar-track,
 .nn-file-list::-webkit-scrollbar-track {
     background: transparent;
 }
 
 /* Scrollbar thumb - visible scroll indicator */
-.nn-left-pane-scroller::-webkit-scrollbar-thumb,
+.nn-navigation-pane-scroller::-webkit-scrollbar-thumb,
 .nn-file-list::-webkit-scrollbar-thumb {
     background-color: var(--background-modifier-border);
     border-radius: var(--radius-s);
 }
 
 /* Scrollbar thumb hover - darker on hover */
-.nn-left-pane-scroller::-webkit-scrollbar-thumb:hover,
+.nn-navigation-pane-scroller::-webkit-scrollbar-thumb:hover,
 .nn-file-list::-webkit-scrollbar-thumb:hover {
     background-color: var(--background-modifier-border-hover);
 }
@@ -1271,14 +1271,14 @@ body.nn-resizing {
    ======================================================================== */
 
 /* Virtual container wrapper - ensures proper absolute positioning context */
-.nn-left-pane-scroller > div:first-child,
+.nn-navigation-pane-scroller > div:first-child,
 .nn-file-list > div:first-child {
     position: relative;
     /* Remove overflow: hidden to allow scroll events to propagate properly */
 }
 
 /* Virtual items container */
-.nn-left-pane-scroller [data-index],
+.nn-navigation-pane-scroller [data-index],
 .nn-file-list [data-index] {
     position: absolute;
     top: 0;
@@ -1342,8 +1342,8 @@ body.nn-resizing {
 }
 
 /* Mobile panes - full width and positioned absolutely for sliding */
-.notebook-navigator-mobile .nn-left-pane,
-.notebook-navigator-mobile .nn-right-pane {
+.notebook-navigator-mobile .nn-navigation-pane,
+.notebook-navigator-mobile .nn-file-pane {
     width: 100% !important;
     max-width: 100% !important;
     height: 100%;
@@ -1364,18 +1364,18 @@ body.nn-resizing {
 }
 
 /* Mobile view states - show list view */
-.notebook-navigator-mobile .nn-split-container.show-list .nn-left-pane {
+.notebook-navigator-mobile .nn-split-container.show-list .nn-navigation-pane {
     transform: translateX(0%);
 }
-.notebook-navigator-mobile .nn-split-container.show-list .nn-right-pane {
+.notebook-navigator-mobile .nn-split-container.show-list .nn-file-pane {
     transform: translateX(100%);
 }
 
 /* Mobile view states - show files view */
-.notebook-navigator-mobile .nn-split-container.show-files .nn-left-pane {
+.notebook-navigator-mobile .nn-split-container.show-files .nn-navigation-pane {
     transform: translateX(-100%);
 }
-.notebook-navigator-mobile .nn-split-container.show-files .nn-right-pane {
+.notebook-navigator-mobile .nn-split-container.show-files .nn-file-pane {
     transform: translateX(0%);
 }
 
@@ -1405,7 +1405,7 @@ body.nn-resizing {
 }
 
 /* Ensure scrollers fill available space on mobile */
-.notebook-navigator-mobile .nn-left-pane-scroller,
+.notebook-navigator-mobile .nn-navigation-pane-scroller,
 .notebook-navigator-mobile .nn-file-list {
     flex: 1;
     overflow-y: auto;
@@ -1416,8 +1416,8 @@ body.nn-resizing {
 }
 
 /* Optimize mobile view transitions */
-.notebook-navigator-mobile .nn-left-pane,
-.notebook-navigator-mobile .nn-right-pane {
+.notebook-navigator-mobile .nn-navigation-pane,
+.notebook-navigator-mobile .nn-file-pane {
     will-change: transform;
 }
 
@@ -1676,17 +1676,17 @@ body.nn-resizing {
    ======================================================================== */
 
 /* Mobile slide animations for RTL */
-.mod-rtl .notebook-navigator-mobile .nn-split-container.show-list .nn-left-pane {
+.mod-rtl .notebook-navigator-mobile .nn-split-container.show-list .nn-navigation-pane {
     transform: translateX(0%);
 }
-.mod-rtl .notebook-navigator-mobile .nn-split-container.show-list .nn-right-pane {
+.mod-rtl .notebook-navigator-mobile .nn-split-container.show-list .nn-file-pane {
     transform: translateX(-100%);
 }
 
-.mod-rtl .notebook-navigator-mobile .nn-split-container.show-files .nn-left-pane {
+.mod-rtl .notebook-navigator-mobile .nn-split-container.show-files .nn-navigation-pane {
     transform: translateX(100%);
 }
-.mod-rtl .notebook-navigator-mobile .nn-split-container.show-files .nn-right-pane {
+.mod-rtl .notebook-navigator-mobile .nn-split-container.show-files .nn-file-pane {
     transform: translateX(0%);
 }
 
