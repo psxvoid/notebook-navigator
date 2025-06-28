@@ -81,6 +81,7 @@ If you love using Notebook Navigator, please consider supporting its continued d
 | Tab | In folders/tags: switch to file pane<br>In files: open selected file |
 | Shift+Tab | Switch from files to folders/tags pane |
 | PageUp/PageDown | Scroll up/down in folder tree and file list |
+| Home/End | Jump to first/last item in current pane |
 | Delete (Windows/Linux)<br>Backspace (macOS) | Delete selected item |
 | Cmd/Ctrl+A | Select all files in current folder |
 | Cmd/Ctrl+Click | Toggle file selection |
@@ -94,6 +95,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Open` Opens the Notebook Navigator view in the left sidebar
 - `Notebook Navigator: Reveal active file` Reveals the currently active file in the navigator, expanding parent folders and scrolling to it. Useful if you have the setting "Show notes from subfolders" enabled and want to find out the folder of a specific note.
 - `Notebook Navigator: Focus file list` Moves keyboard focus to the file list pane so you can navigate with arrow keys
+- `Notebook Navigator: Toggle navigation pane` Shows or hides the navigation pane (folder/tag tree) to maximize file list space
 
 ## Installation
 

@@ -60,6 +60,8 @@ export const STRINGS_ZH = {
         changeSortOrder: '更改排序方式', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: '默认', // Label for default sorting mode (English: Default)
         customSort: '自定义', // Label for custom sorting mode (English: Custom)
+        showFolders: '显示导航', // Tooltip for button to show the navigation pane (English: Show navigation)
+        hideFolders: '隐藏导航', // Tooltip for button to hide the navigation pane (English: Hide navigation)
     },
 
     // Context menus
@@ -223,6 +225,7 @@ export const STRINGS_ZH = {
         open: '打开', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealActiveFile: '定位当前文件', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal active file)
         focusFileList: '聚焦文件列表', // Command palette: Moves keyboard focus to the file list pane (English: Focus file list)
+        toggleNavigationPane: '切换导航面板', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
     },
 
     // Plugin UI
@@ -284,6 +287,10 @@ export const STRINGS_ZH = {
             autoSelectFirstFile: {
                 name: '切换文件夹时自动选择第一个文件',
                 desc: '切换文件夹时自动选择并打开第一个文件。',
+            },
+            showTooltips: {
+                name: '显示工具提示',
+                desc: '悬停时显示文件和文件夹的额外信息工具提示。',
             },
             excludedNotes: {
                 name: '排除的笔记',

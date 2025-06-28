@@ -54,7 +54,7 @@ export interface LocalStorageKeys {
     expandedTagsKey: string;
     selectedFolderKey: string;
     selectedFileKey: string;
-    leftPaneWidthKey: string;
+    navigationPaneWidthKey: string;
 }
 
 /**
@@ -66,17 +66,25 @@ export const STORAGE_KEYS: LocalStorageKeys = {
     expandedTagsKey: 'notebook-navigator-expanded-tags',
     selectedFolderKey: 'notebook-navigator-selected-folder',
     selectedFileKey: 'notebook-navigator-selected-file',
-    leftPaneWidthKey: 'notebook-navigator-left-pane-width'
+    navigationPaneWidthKey: 'notebook-navigator-navigation-pane-width'
 };
 
 /**
- * Default dimensions for the resizable left pane
+ * Default dimensions for the navigation pane (folder/tag tree)
  * These values are used when no saved state exists
  */
-export const PANE_DIMENSIONS = {
+export const NAVIGATION_PANE_DIMENSIONS = {
     defaultWidth: 300,
     minWidth: 150,
     maxWidth: 600
+};
+
+/**
+ * Default dimensions for the file pane (file list)
+ * The file pane uses flex: 1 so it doesn't have a defaultWidth or maxWidth
+ */
+export const FILE_PANE_DIMENSIONS = {
+    minWidth: 150
 };
 
 /**

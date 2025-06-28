@@ -60,6 +60,8 @@ export const STRINGS_DE = {
         changeSortOrder: 'Sortierreihenfolge ändern', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: 'Standard', // Label for default sorting mode (English: Default)
         customSort: 'Benutzerdefiniert', // Label for custom sorting mode (English: Custom)
+        showFolders: 'Navigation anzeigen', // Tooltip for button to show the navigation pane (English: Show navigation)
+        hideFolders: 'Navigation ausblenden', // Tooltip for button to hide the navigation pane (English: Hide navigation)
     },
 
     // Context menus
@@ -223,6 +225,7 @@ export const STRINGS_DE = {
         open: 'Öffnen', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealActiveFile: 'Aktive Datei anzeigen', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal active file)
         focusFileList: 'Dateiliste fokussieren', // Command palette: Moves keyboard focus to the file list pane (English: Focus file list)
+        toggleNavigationPane: 'Navigationsbereich umschalten', // Command palette: Shows or hides the navigation pane (English: Toggle navigation pane)
     },
 
     // Plugin UI
@@ -284,6 +287,10 @@ export const STRINGS_DE = {
             autoSelectFirstFile: {
                 name: 'Erste Datei beim Ordnerwechsel automatisch auswählen',
                 desc: 'Die erste Datei automatisch auswählen und öffnen, wenn Sie den Ordner wechseln.',
+            },
+            showTooltips: {
+                name: 'Tooltips anzeigen',
+                desc: 'Zeige Hover-Tooltips mit zusätzlichen Informationen für Dateien und Ordner an.',
             },
             excludedNotes: {
                 name: 'Ausgeschlossene Notizen',

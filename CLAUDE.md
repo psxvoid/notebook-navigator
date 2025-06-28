@@ -155,7 +155,8 @@ NotebookNavigatorView (Obsidian ItemView)
 - `notebook-navigator-expanded-tags`
 - `notebook-navigator-selected-folder`
 - `notebook-navigator-selected-file`
-- `notebook-navigator-left-pane-width`
+- `notebook-navigator-navigation-pane-width`
+- `notebook-navigator-navigation-pane-collapsed`
     
 
 ### Services
@@ -392,7 +393,7 @@ This section provides a detailed breakdown of each file in the project, explaini
 - Handles user interactions like clicks and toggles on folders and tags, dispatching actions to the `SelectionContext` and `ExpansionContext`.
 - Renders `FolderItem` or `TagTreeItem` components for each item in the virtualized list.
 - **`src/components/FileList.tsx`**
-- **Purpose**: Renders the virtualized right pane, which displays the list of files for the currently selected folder or tag.
+- **Purpose**: Renders the virtualized file pane, which displays the list of files for the currently selected folder or tag.
 - **Responsibilities**:
 - Also uses `useVirtualizer` for high-performance rendering of file lists.
 - Calculates the list of files to display by calling `getFilesForFolder` or `getFilesForTag`.
@@ -408,7 +409,7 @@ This section provides a detailed breakdown of each file in the project, explaini
 - Attaches a context menu using the `useContextMenu` hook.
 - It is heavily memoized (`React.memo`) for performance, only re-rendering when its specific props change.
 - **`src/components/FolderItem.tsx`**
-- **Purpose**: Renders a single folder in the left pane's tree.
+- **Purpose**: Renders a single folder in the navigation pane's tree.
 - **Responsibilities**:
 - Displays the folder's name, an expand/collapse chevron, an icon (custom or default), and an optional file count.
 - Applies custom colors and icons from the `MetadataService`.
@@ -455,7 +456,7 @@ This section provides a detailed breakdown of each file in the project, explaini
 - **`src/utils/fileNameUtils.ts`**: Handles file name display logic, including showing/hiding file extensions based on user settings and Obsidian's internal settings. Provides the `getFileDisplayName` function used throughout the UI.
 - **`src/utils/treeFlattener.ts`**: A critical utility for virtualization. It takes a hierarchical data structure (like nested folders) and converts it into a flat array with level information, which is what the `useVirtualizer` hook needs to render the list.
 - **`src/utils/sortUtils.ts`**: Contains all file sorting logic. It determines the effective sort option (global default vs. folder-specific override) and provides the comparison functions for `Array.sort()`.
-- **`src/utils/tagUtils.ts`**: Contains the logic for parsing all tags from the vault and building the hierarchical tag tree that is displayed in the left pane.
+- **`src/utils/tagUtils.ts`**: Contains the logic for parsing all tags from the vault and building the hierarchical tag tree that is displayed in the navigation pane.
 - **`src/utils/PreviewTextUtils.ts`**: Provides a high-performance, single-pass regex function to strip markdown syntax from text to generate clean file previews.
 - **`src/utils/DateUtils.ts`**: A centralized utility for all date and time operations, using the `date-fns` library for robust, i18n-aware date formatting and grouping.
 - **`src/utils/fileFilters.ts`**: Handles the logic for filtering out files and folders based on user-defined exclusion patterns in the settings.

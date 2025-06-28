@@ -60,6 +60,8 @@ export const STRINGS_JA = {
         changeSortOrder: '並び順を変更', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: 'デフォルト', // Label for default sorting mode (English: Default)
         customSort: 'カスタム', // Label for custom sorting mode (English: Custom)
+        showFolders: 'ナビゲーションを表示', // Tooltip for button to show the navigation pane (English: Show navigation)
+        hideFolders: 'ナビゲーションを非表示', // Tooltip for button to hide the navigation pane (English: Hide navigation)
     },
 
     // Context menus
@@ -223,6 +225,7 @@ export const STRINGS_JA = {
         open: '開く', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealActiveFile: 'アクティブファイルを表示', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal active file)
         focusFileList: 'ファイルリストにフォーカス', // Command palette: Moves keyboard focus to the file list pane (English: Focus file list)
+        toggleNavigationPane: 'ナビゲーションペインを切り替え', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
     },
 
     // Plugin UI
@@ -284,6 +287,10 @@ export const STRINGS_JA = {
             autoSelectFirstFile: {
                 name: 'フォルダ変更時に最初のファイルを自動選択',
                 desc: 'フォルダを切り替えた際に自動的に最初のファイルを選択して開きます。',
+            },
+            showTooltips: {
+                name: 'ツールチップを表示',
+                desc: 'ファイルとフォルダの追加情報をホバー時にツールチップで表示します。',
             },
             excludedNotes: {
                 name: '除外するノート',

@@ -17,7 +17,7 @@
  */
 
 // src/components/NotebookNavigatorComponent.tsx
-import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState } from 'react';
+import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback } from 'react';
 import { TFile, TFolder, TAbstractFile, WorkspaceLeaf, debounce, Platform, ItemView } from 'obsidian';
 import { NavigationPane } from './NavigationPane';
 import { FileList } from './FileList';
@@ -33,7 +33,7 @@ import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useSwipeGesture } from '../hooks/useSwipeGesture';
 import { isTFile, isTFolder } from '../utils/typeGuards';
-import { STORAGE_KEYS, PANE_DIMENSIONS, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
+import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { flattenFolderTree, findFolderIndex } from '../utils/treeFlattener';
 import { parseExcludedFolders } from '../utils/fileFilters';
@@ -45,6 +45,7 @@ export interface NotebookNavigatorHandle {
     focusFilePane: () => void;
     refresh: () => void;
     handleBecomeActive: () => void;
+    toggleNavigationPane: () => void;
 }
 
 /**
@@ -68,7 +69,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const uiDispatch = useUIDispatch();
     const containerRef = useRef<HTMLDivElement>(null);
     const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
-    const leftPaneRef = useRef<NavigationPaneHandle>(null);
+    const navigationPaneRef = useRef<NavigationPaneHandle>(null);
     const fileListRef = useRef<FileListHandle>(null);
     
     
@@ -79,9 +80,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         
         // Scroll to the appropriate item based on current view
         if (uiState.currentMobileView === 'list' && selectionState.selectedFolder) {
-            const index = leftPaneRef.current?.getIndexOfPath(selectionState.selectedFolder.path);
+            const index = navigationPaneRef.current?.getIndexOfPath(selectionState.selectedFolder.path);
             if (index !== undefined && index !== -1) {
-                leftPaneRef.current?.virtualizer?.scrollToIndex(index, { align: 'center' });
+                navigationPaneRef.current?.virtualizer?.scrollToIndex(index, { align: 'center' });
             }
         } else if (uiState.currentMobileView === 'files' && selectionState.selectedFile) {
             const index = fileListRef.current?.getIndexOfPath(selectionState.selectedFile.path);
@@ -97,10 +98,10 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     
     // Enable resizable pane
     const { paneWidth, isResizing, resizeHandleProps } = useResizablePane({
-        initialWidth: PANE_DIMENSIONS.defaultWidth,
-        min: PANE_DIMENSIONS.minWidth,
-        max: PANE_DIMENSIONS.maxWidth,
-        storageKey: STORAGE_KEYS.leftPaneWidthKey
+        initialWidth: NAVIGATION_PANE_DIMENSIONS.defaultWidth,
+        min: NAVIGATION_PANE_DIMENSIONS.minWidth,
+        max: NAVIGATION_PANE_DIMENSIONS.maxWidth,
+        storageKey: STORAGE_KEYS.navigationPaneWidthKey
     });
     
     // Enable swipe gestures on mobile
@@ -218,6 +219,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             
             // Do nothing - scroll manipulation doesn't work reliably on mobile
             // when the view becomes active after being hidden
+        },
+        toggleNavigationPane: () => {
+            uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' });
         }
     }), [
         selectionDispatch, 
@@ -264,16 +268,16 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             // Scroll to revealed items after a brief delay to ensure rendering is complete
             // This replaces the imperative setTimeout approach with a declarative effect
             const scrollTimer = setTimeout(() => {
-                // Scroll to folder in left pane - but only if we're not preserving the current folder
+                // Scroll to folder in navigation pane - but only if we're not preserving the current folder
                 // When preserveFolder is true (showNotesFromSubfolders), we don't want to jump to the subfolder
                 const shouldScrollToFolder = selectionState.selectedFolder && 
                                             selectionState.selectedFolder.path === file.parent!.path;
                 
                 if (shouldScrollToFolder) {
-                    const folderIndex = leftPaneRef.current?.getIndexOfPath(file.parent!.path);
+                    const folderIndex = navigationPaneRef.current?.getIndexOfPath(file.parent!.path);
                     
                     if (folderIndex !== undefined && folderIndex !== -1) {
-                        leftPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: 'center', behavior: 'auto' });
+                        navigationPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: 'center', behavior: 'auto' });
                     }
                 }
                 
@@ -345,15 +349,31 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         };
     }, []);
 
-    // ADD THIS NEW EFFECT
-    // When the focused pane changes programmatically via the state,
-    // we must ensure the main container element has DOM focus so it can
-    // receive and correctly delegate keyboard events.
+    // Ensure the container has focus when the focused pane changes
     useEffect(() => {
         if (uiState.focusedPane) {
             containerRef.current?.focus();
         }
     }, [uiState.focusedPane]);
+    
+    // Track if initial visibility check has been performed
+    const hasCheckedInitialVisibility = useRef(false);
+    
+    // Container ref callback that checks if file list is visible on first mount
+    const containerCallbackRef = useCallback((node: HTMLDivElement | null) => {
+        containerRef.current = node;
+        
+        // Auto-collapse navigation pane on startup if viewport is too narrow for both panes
+        if (node && !isMobile && !hasCheckedInitialVisibility.current && !uiState.navigationPaneCollapsed) {
+            hasCheckedInitialVisibility.current = true;
+            
+            const containerWidth = node.getBoundingClientRect().width;
+            // Check if container is too narrow to show both panes
+            if (containerWidth < paneWidth + FILE_PANE_DIMENSIONS.minWidth) {
+                uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' });
+            }
+        }
+    }, [isMobile, paneWidth, uiDispatch]);
     
     // Track when the navigator is being hidden to ensure consistent state
     useEffect(() => {
@@ -430,6 +450,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         containerClasses.push(uiState.currentMobileView === 'list' ? 'show-list' : 'show-files');
     } else {
         containerClasses.push('nn-desktop');
+        if (uiState.navigationPaneCollapsed) {
+            containerClasses.push('nn-navigation-pane-collapsed');
+        }
     }
     if (isResizing) {
         containerClasses.push('nn-resizing');
@@ -437,20 +460,29 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     
     return (
         <div 
-            ref={containerRef}
+            ref={containerCallbackRef}
             className={containerClasses.join(' ')} 
             data-focus-pane={isMobile ? (uiState.currentMobileView === 'list' ? 'folders' : 'files') : uiState.focusedPane}
             data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}
             tabIndex={-1}
             onKeyDown={(e) => {
                 // Allow keyboard events to bubble up from child components
-                // The actual keyboard handling is done in LeftPaneVirtualized and FileList
+                // The actual keyboard handling is done in NavigationPane and FileList
             }}
         >
-            <div className="nn-left-pane" style={{ width: isMobile ? '100%' : `${paneWidth}px` }}>
-                <NavigationPane ref={leftPaneRef} />
-            </div>
-            {!isMobile && <div className="nn-resize-handle" {...resizeHandleProps} />}
+            {(!isMobile && !uiState.navigationPaneCollapsed) && (
+                <>
+                    <div className="nn-navigation-pane" style={{ width: `${paneWidth}px` }}>
+                        <NavigationPane ref={navigationPaneRef} />
+                    </div>
+                    <div className="nn-resize-handle" {...resizeHandleProps} />
+                </>
+            )}
+            {isMobile && (
+                <div className="nn-navigation-pane" style={{ width: '100%' }}>
+                    <NavigationPane ref={navigationPaneRef} />
+                </div>
+            )}
             <ErrorBoundary componentName="FileList">
                 <FileList ref={fileListRef} />
             </ErrorBoundary>

@@ -83,6 +83,12 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
     useEffect(() => {
         if (!folderRef.current) return;
         
+        // Remove tooltip if disabled
+        if (!settings.showTooltips) {
+            setTooltip(folderRef.current, '');
+            return;
+        }
+        
         // Build tooltip with proper singular/plural forms
         const fileText = folderStats.fileCount === 1 
             ? `${folderStats.fileCount} ${strings.tooltips.file}`
@@ -102,7 +108,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
         setTooltip(folderRef.current, tooltip, { 
             placement: isRTL ? 'left' : 'right'
         } as any);
-    }, [folderStats.fileCount, folderStats.folderCount, folder.name]);
+    }, [folderStats.fileCount, folderStats.folderCount, folder.name, settings]);
     
     // Count files in folder (including subfolders if setting enabled)
     const fileCount = React.useMemo(() => {
