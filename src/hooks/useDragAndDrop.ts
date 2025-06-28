@@ -75,6 +75,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     /**
      * Handles the drag start event.
      * Extracts drag data from data attributes and sets drag effect.
+     * Also generates markdown links for dragging into editor panes.
      * 
      * @param e - The drag event
      */
@@ -90,11 +91,24 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             if (type === 'file' && selectionState.selectedFiles.has(path)) {
                 // Store all selected file paths
                 const selectedPaths = Array.from(selectionState.selectedFiles);
-                e.dataTransfer.setData('text/plain', JSON.stringify({
-                    type: 'multiple-files',
-                    paths: selectedPaths
-                }));
-                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('obsidian/files', JSON.stringify(selectedPaths));
+                e.dataTransfer.effectAllowed = 'copyMove';
+                
+                // Generate markdown links for all selected files
+                const markdownLinks: string[] = [];
+                selectedPaths.forEach(selectedPath => {
+                    const file = app.vault.getAbstractFileByPath(selectedPath);
+                    if (isTFile(file)) {
+                        // Generate markdown link respecting user's wikilink setting
+                        const link = app.fileManager.generateMarkdownLink(file, '');
+                        markdownLinks.push(link);
+                    }
+                });
+                
+                // Set markdown links for dragging into editor
+                if (markdownLinks.length > 0) {
+                    e.dataTransfer.setData('text/plain', markdownLinks.join('\n'));
+                }
                 
                 // Add dragging class to all selected files
                 selectedPaths.forEach(selectedPath => {
@@ -120,12 +134,22 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 }
             } else {
                 // Single item drag
-                e.dataTransfer.setData('text/plain', path);
-                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('obsidian/file', path);
+                e.dataTransfer.effectAllowed = 'copyMove';
+                
+                // Generate markdown link for single file
+                if (type === 'file') {
+                    const file = app.vault.getAbstractFileByPath(path);
+                    if (isTFile(file)) {
+                        const link = app.fileManager.generateMarkdownLink(file, '');
+                        e.dataTransfer.setData('text/plain', link);
+                    }
+                }
+                
                 draggable.classList.add('nn-dragging');
             }
         }
-    }, [selectionState, containerRef]);
+    }, [selectionState, containerRef, app]);
 
     /**
      * Handles the drag over event.
@@ -163,53 +187,57 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         }
 
         const targetPath = getPathFromDataAttribute(dragOverElement.current, 'data-drop-path');
-        const dragData = e.dataTransfer?.getData('text/plain');
-
-        if (!dragData || !targetPath) return;
+        if (!targetPath) return;
 
         const targetFolder = app.vault.getAbstractFileByPath(targetPath);
         if (!isTFolder(targetFolder)) return;
 
-        try {
-            // Check if dragging multiple files
-            const parsedData = JSON.parse(dragData);
-            if (parsedData.type === 'multiple-files' && Array.isArray(parsedData.paths)) {
-                // Moving multiple files
-                let movedCount = 0;
-                let skippedCount = 0;
-                
-                for (const sourcePath of parsedData.paths) {
-                    const sourceItem = app.vault.getAbstractFileByPath(sourcePath);
-                    if (!sourceItem || !isTFile(sourceItem)) continue;
+        // Check if dragging multiple files
+        const multipleFilesData = e.dataTransfer?.getData('obsidian/files');
+        if (multipleFilesData) {
+            try {
+                const selectedPaths = JSON.parse(multipleFilesData);
+                if (Array.isArray(selectedPaths)) {
+                    // Moving multiple files
+                    let movedCount = 0;
+                    let skippedCount = 0;
                     
-                    const newPath = `${targetFolder.path}/${sourceItem.name}`;
-                    if (app.vault.getAbstractFileByPath(newPath)) {
-                        skippedCount++;
-                        continue;
+                    for (const sourcePath of selectedPaths) {
+                        const sourceItem = app.vault.getAbstractFileByPath(sourcePath);
+                        if (!sourceItem || !isTFile(sourceItem)) continue;
+                        
+                        const newPath = `${targetFolder.path}/${sourceItem.name}`;
+                        if (app.vault.getAbstractFileByPath(newPath)) {
+                            skippedCount++;
+                            continue;
+                        }
+                        
+                        try {
+                            await app.fileManager.renameFile(sourceItem, newPath);
+                            movedCount++;
+                        } catch (error) {
+                            console.error('Error moving file:', sourceItem.path, error);
+                        }
                     }
                     
-                    try {
-                        await app.fileManager.renameFile(sourceItem, newPath);
-                        movedCount++;
-                    } catch (error) {
-                        console.error('Error moving file:', sourceItem.path, error);
+                    if (movedCount > 0) {
+                        new Notice(strings.dragDrop.notifications.movedMultipleFiles.replace('{count}', movedCount.toString()));
                     }
+                    if (skippedCount > 0) {
+                        new Notice(strings.dragDrop.notifications.filesAlreadyExist.replace('{count}', skippedCount.toString()), 2000);
+                    }
+                    return;
                 }
-                
-                if (movedCount > 0) {
-                    new Notice(strings.dragDrop.notifications.movedMultipleFiles.replace('{count}', movedCount.toString()));
-                }
-                if (skippedCount > 0) {
-                    new Notice(strings.dragDrop.notifications.filesAlreadyExist.replace('{count}', skippedCount.toString()), 2000);
-                }
-                return;
+            } catch (error) {
+                console.error('Error parsing multiple files data:', error);
             }
-        } catch {
-            // Not JSON, treat as single path
         }
 
-        // Single item drop (existing behavior)
-        const sourceItem = app.vault.getAbstractFileByPath(dragData);
+        // Check if dragging single file
+        const singleFileData = e.dataTransfer?.getData('obsidian/file');
+        if (!singleFileData) return;
+
+        const sourceItem = app.vault.getAbstractFileByPath(singleFileData);
         if (!sourceItem) return;
 
         // Prevent dropping a folder into itself or its own children
