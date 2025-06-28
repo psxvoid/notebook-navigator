@@ -287,6 +287,10 @@ export const STRINGS_FR = {
                 name: 'Sélectionner automatiquement le premier fichier lors du changement de dossier',
                 desc: 'Sélectionner et ouvrir automatiquement le premier fichier lors du changement de dossier.',
             },
+            showTooltips: {
+                name: 'Afficher les infobulles',
+                desc: 'Affiche des infobulles avec des informations supplémentaires pour les fichiers et dossiers au survol.',
+            },
             excludedNotes: {
                 name: 'Notes exclues',
                 desc: 'Liste de propriétés de métadonnées séparées par des virgules. Les notes contenant l\'une de ces propriétés seront masquées (ex. : draft, private, archived).',

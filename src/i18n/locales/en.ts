@@ -287,6 +287,10 @@ export const STRINGS_EN = {
                 name: 'Auto-select first file on folder change',
                 desc: 'Automatically select and open the first file when switching folders.',
             },
+            showTooltips: {
+                name: 'Show tooltips',
+                desc: 'Display hover tooltips with additional information for files and folders.',
+            },
             excludedNotes: {
                 name: 'Excluded notes',
                 desc: 'Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived).',

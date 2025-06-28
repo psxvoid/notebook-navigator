@@ -287,6 +287,10 @@ export const STRINGS_ES = {
                 name: 'Seleccionar automáticamente el primer archivo al cambiar de carpeta',
                 desc: 'Selecciona y abre automáticamente el primer archivo al cambiar de carpeta.',
             },
+            showTooltips: {
+                name: 'Mostrar tooltips',
+                desc: 'Muestra tooltips con información adicional para archivos y carpetas al pasar el cursor.',
+            },
             excludedNotes: {
                 name: 'Notas excluidas',
                 desc: 'Lista de propiedades del frontmatter separadas por comas. Las notas que contengan cualquiera de estas propiedades se ocultarán (ej.: draft, private, archived).',

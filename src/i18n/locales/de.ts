@@ -287,6 +287,10 @@ export const STRINGS_DE = {
                 name: 'Erste Datei beim Ordnerwechsel automatisch auswählen',
                 desc: 'Die erste Datei automatisch auswählen und öffnen, wenn Sie den Ordner wechseln.',
             },
+            showTooltips: {
+                name: 'Tooltips anzeigen',
+                desc: 'Zeige Hover-Tooltips mit zusätzlichen Informationen für Dateien und Ordner an.',
+            },
             excludedNotes: {
                 name: 'Ausgeschlossene Notizen',
                 desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften. Notizen mit diesen Eigenschaften werden ausgeblendet (z.B. Entwurf, privat, archiviert).',

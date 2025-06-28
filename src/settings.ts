@@ -45,6 +45,7 @@ export interface NotebookNavigatorSettings {
     showSubfolderNamesInList: boolean;
     autoRevealActiveFile: boolean;
     autoSelectFirstFile: boolean;
+    showTooltips: boolean;
     excludedFiles: string;
     ignoreFolders: string;
     // Time display
@@ -97,6 +98,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showSubfolderNamesInList: true,
     autoRevealActiveFile: true,
     autoSelectFirstFile: true,
+    showTooltips: true,
     excludedFiles: '',
     ignoreFolders: '',
     // Time display
@@ -321,6 +323,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.autoSelectFirstFile)
                 .onChange(async (value) => {
                     this.plugin.settings.autoSelectFirstFile = value;
+                    await this.saveAndRefresh();
+                }));
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.showTooltips.name)
+            .setDesc(strings.settings.items.showTooltips.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showTooltips)
+                .onChange(async (value) => {
+                    this.plugin.settings.showTooltips = value;
                     await this.saveAndRefresh();
                 }));
 

@@ -77,6 +77,12 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
     useEffect(() => {
         if (!fileRef.current) return;
         
+        // Remove tooltip if disabled
+        if (!settings.showTooltips) {
+            setTooltip(fileRef.current, '');
+            return;
+        }
+        
         const dateTimeFormat = settings.timeFormat ? `${settings.dateFormat} ${settings.timeFormat}` : settings.dateFormat;
         const createdDate = DateUtils.formatDate(file.stat.ctime, dateTimeFormat);
         const modifiedDate = DateUtils.formatDate(file.stat.mtime, dateTimeFormat);

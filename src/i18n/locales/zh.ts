@@ -287,6 +287,10 @@ export const STRINGS_ZH = {
                 name: '切换文件夹时自动选择第一个文件',
                 desc: '切换文件夹时自动选择并打开第一个文件。',
             },
+            showTooltips: {
+                name: '显示工具提示',
+                desc: '悬停时显示文件和文件夹的额外信息工具提示。',
+            },
             excludedNotes: {
                 name: '排除的笔记',
                 desc: '逗号分隔的前置元数据属性列表。包含任何这些属性的笔记将被隐藏（例如：draft, private, archived）。',
