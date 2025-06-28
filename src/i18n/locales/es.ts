@@ -225,6 +225,7 @@ export const STRINGS_ES = {
         open: 'Abrir', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealActiveFile: 'Mostrar archivo activo', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal active file)
         focusFileList: 'Enfocar lista de archivos', // Command palette: Moves keyboard focus to the file list pane (English: Focus file list)
+        toggleNavigationPane: 'Alternar panel de navegación', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
     },
 
     // Plugin UI

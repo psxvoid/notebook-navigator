@@ -141,6 +141,27 @@ export default class NotebookNavigatorPlugin extends Plugin {
             }
         });
 
+        this.addCommand({
+            id: 'toggle-navigation-pane',
+            name: strings.commands.toggleNavigationPane,
+            callback: async () => {
+                // Ensure navigator is open
+                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                if (leaves.length === 0) {
+                    await this.activateView(true);
+                }
+                
+                // Toggle the navigation pane in all navigator views
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                navigatorLeaves.forEach(leaf => {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        view.toggleNavigationPane();
+                    }
+                });
+            }
+        });
+
         this.addSettingTab(new NotebookNavigatorSettingTab(this.app, this));
 
         // Listen for when the navigator view becomes active to restore scroll position

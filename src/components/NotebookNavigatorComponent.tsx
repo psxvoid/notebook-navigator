@@ -45,6 +45,7 @@ export interface NotebookNavigatorHandle {
     focusFilePane: () => void;
     refresh: () => void;
     handleBecomeActive: () => void;
+    toggleNavigationPane: () => void;
 }
 
 /**
@@ -218,6 +219,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             
             // Do nothing - scroll manipulation doesn't work reliably on mobile
             // when the view becomes active after being hidden
+        },
+        toggleNavigationPane: () => {
+            uiDispatch({ type: 'TOGGLE_LEFT_PANE' });
         }
     }), [
         selectionDispatch, 

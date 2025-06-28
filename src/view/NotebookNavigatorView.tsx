@@ -152,6 +152,13 @@ export class NotebookNavigatorView extends ItemView {
     }
     
     /**
+     * Toggles the visibility of the navigation pane
+     */
+    toggleNavigationPane() {
+        this.componentRef.current?.toggleNavigationPane();
+    }
+    
+    /**
      * Handles when the view becomes active (e.g., when returning from editor)
      */
     public handleViewBecomeActive() {
