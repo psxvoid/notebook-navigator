@@ -321,49 +321,73 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     // Desktop header (original code)
     return (
         <div className="nn-pane-header">
-            <div className="nn-header-actions">
+            <div className="nn-header-actions nn-header-actions--space-between">
                 {type === 'folder' ? (
                     <>
                         <button
                             className="nn-icon-button"
-                            aria-label={expansionState.expandedFolders.size > 0 ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
-                            onClick={handleExpandCollapseAll}
+                            aria-label={strings.paneHeader.hideFolders}
+                            onClick={() => uiDispatch({ type: 'TOGGLE_LEFT_PANE' })}
                             tabIndex={-1}
                         >
-                            <ObsidianIcon 
-                                name={expansionState.expandedFolders.size > 0 ? 'chevrons-down-up' : 'chevrons-up-down'}
-                            />
+                            <ObsidianIcon name="sidebar-left" />
                         </button>
-                        <button
-                            className="nn-icon-button"
-                            aria-label={strings.paneHeader.newFolder}
-                            onClick={handleNewFolder}
-                            disabled={!selectionState.selectedFolder}
-                            tabIndex={-1}
-                        >
-                            <ObsidianIcon name="folder-plus" />
-                        </button>
+                        <div className="nn-header-actions">
+                            <button
+                                className="nn-icon-button"
+                                aria-label={expansionState.expandedFolders.size > 0 ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
+                                onClick={handleExpandCollapseAll}
+                                tabIndex={-1}
+                            >
+                                <ObsidianIcon 
+                                    name={expansionState.expandedFolders.size > 0 ? 'chevrons-down-up' : 'chevrons-up-down'}
+                                />
+                            </button>
+                            <button
+                                className="nn-icon-button"
+                                aria-label={strings.paneHeader.newFolder}
+                                onClick={handleNewFolder}
+                                disabled={!selectionState.selectedFolder}
+                                tabIndex={-1}
+                            >
+                                <ObsidianIcon name="folder-plus" />
+                            </button>
+                        </div>
                     </>
                 ) : (
                     <>
-                        <button
-                            className="nn-icon-button"
-                            aria-label={strings.paneHeader.changeSortOrder}
-                            onClick={handleSortMenu}
-                            disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
-                            tabIndex={-1}
-                        >
-                            <ObsidianIcon name={getSortIcon()} />
-                        </button>
-                        <button
-                            className="nn-icon-button"
-                            aria-label={strings.paneHeader.newNote}
-                            onClick={handleNewFile}
-                            disabled={!selectionState.selectedFolder}
-                            tabIndex={-1}
-                        >
-                            <ObsidianIcon name="file-plus" />
-                        </button>
+                        <div className="nn-header-actions">
+                            {uiState.leftPaneCollapsed && (
+                                <button
+                                    className="nn-icon-button"
+                                    aria-label={strings.paneHeader.showFolders}
+                                    onClick={() => uiDispatch({ type: 'TOGGLE_LEFT_PANE' })}
+                                    tabIndex={-1}
+                                >
+                                    <ObsidianIcon name="sidebar-left" />
+                                </button>
+                            )}
+                        </div>
+                        <div className="nn-header-actions">
+                            <button
+                                className="nn-icon-button"
+                                aria-label={strings.paneHeader.changeSortOrder}
+                                onClick={handleSortMenu}
+                                disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
+                                tabIndex={-1}
+                            >
+                                <ObsidianIcon name={getSortIcon()} />
+                            </button>
+                            <button
+                                className="nn-icon-button"
+                                aria-label={strings.paneHeader.newNote}
+                                onClick={handleNewFile}
+                                disabled={!selectionState.selectedFolder}
+                                tabIndex={-1}
+                            >
+                                <ObsidianIcon name="file-plus" />
+                            </button>
+                        </div>
                     </>
                 )}
             </div>

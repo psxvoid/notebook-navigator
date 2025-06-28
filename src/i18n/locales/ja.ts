@@ -60,6 +60,8 @@ export const STRINGS_JA = {
         changeSortOrder: '並び順を変更', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: 'デフォルト', // Label for default sorting mode (English: Default)
         customSort: 'カスタム', // Label for custom sorting mode (English: Custom)
+        showFolders: 'フォルダを表示', // Tooltip for button to show the folders pane (English: Show Folders)
+        hideFolders: 'フォルダを非表示', // Tooltip for button to hide the folders pane (English: Hide Folders)
     },
 
     // Context menus

@@ -430,6 +430,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         containerClasses.push(uiState.currentMobileView === 'list' ? 'show-list' : 'show-files');
     } else {
         containerClasses.push('nn-desktop');
+        if (uiState.leftPaneCollapsed) {
+            containerClasses.push('nn-left-pane-collapsed');
+        }
     }
     if (isResizing) {
         containerClasses.push('nn-resizing');
@@ -447,10 +450,19 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 // The actual keyboard handling is done in LeftPaneVirtualized and FileList
             }}
         >
-            <div className="nn-left-pane" style={{ width: isMobile ? '100%' : `${paneWidth}px` }}>
-                <NavigationPane ref={leftPaneRef} />
-            </div>
-            {!isMobile && <div className="nn-resize-handle" {...resizeHandleProps} />}
+            {(!isMobile && !uiState.leftPaneCollapsed) && (
+                <>
+                    <div className="nn-left-pane" style={{ width: `${paneWidth}px` }}>
+                        <NavigationPane ref={leftPaneRef} />
+                    </div>
+                    <div className="nn-resize-handle" {...resizeHandleProps} />
+                </>
+            )}
+            {isMobile && (
+                <div className="nn-left-pane" style={{ width: '100%' }}>
+                    <NavigationPane ref={leftPaneRef} />
+                </div>
+            )}
             <ErrorBoundary componentName="FileList">
                 <FileList ref={fileListRef} />
             </ErrorBoundary>

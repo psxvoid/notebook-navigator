@@ -1003,6 +1003,20 @@ body.nn-resizing {
 }
 
 /* ========================================================================
+   Collapsed Left Pane State
+   ======================================================================== */
+
+/* Hide the left pane when collapsed */
+.nn-split-container.nn-left-pane-collapsed .nn-left-pane {
+    display: none;
+}
+
+/* Hide resize handle when collapsed */
+.nn-split-container.nn-left-pane-collapsed .nn-resize-handle {
+    display: none;
+}
+
+/* ========================================================================
    Context Menu States
    ======================================================================== */
 
