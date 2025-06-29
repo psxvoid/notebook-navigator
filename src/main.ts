@@ -248,14 +248,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
             
             // Defer metadata cleanup to idle time
             requestIdleCallback(() => {
-                const cleanupStartTime = performance.now();
-                console.log('[NotebookNavigator] Starting metadata cleanup...');
-                
                 if (this.metadataService && !this.isUnloading) {
-                    this.metadataService.cleanupAllMetadata().then(() => {
-                        const cleanupTime = performance.now() - cleanupStartTime;
-                        console.log(`[NotebookNavigator] Metadata cleanup completed in ${cleanupTime.toFixed(2)}ms`);
-                    }).catch(error => {
+                    this.metadataService.cleanupAllMetadata().catch(error => {
                         console.error('[NotebookNavigator] Error during metadata cleanup:', error);
                     });
                 }

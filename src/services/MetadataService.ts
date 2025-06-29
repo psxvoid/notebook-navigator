@@ -248,15 +248,20 @@ export class MetadataService {
     /**
      * Comprehensive cleanup of all metadata on plugin startup
      * Removes references to deleted files and folders from all settings
+     * @returns True if any changes were made
      */
-    async cleanupAllMetadata(): Promise<void> {
-        await this.saveAndUpdate(settings => {
+    async cleanupAllMetadata(): Promise<boolean> {
+        let hasChanges = false;
+        
+        // First check if any cleanup is needed
+        const checkAndClean = (settings: NotebookNavigatorSettings) => {
             // Clean up folder colors
             if (settings.folderColors) {
                 for (const folderPath in settings.folderColors) {
                     const folder = this.app.vault.getAbstractFileByPath(folderPath);
                     if (!(folder instanceof TFolder)) {
                         delete settings.folderColors[folderPath];
+                        hasChanges = true;
                     }
                 }
             }
@@ -267,6 +272,7 @@ export class MetadataService {
                     const folder = this.app.vault.getAbstractFileByPath(folderPath);
                     if (!(folder instanceof TFolder)) {
                         delete settings.folderIcons[folderPath];
+                        hasChanges = true;
                     }
                 }
             }
@@ -277,6 +283,7 @@ export class MetadataService {
                     const folder = this.app.vault.getAbstractFileByPath(folderPath);
                     if (!(folder instanceof TFolder)) {
                         delete settings.folderSortOverrides[folderPath];
+                        hasChanges = true;
                     }
                 }
             }
@@ -288,6 +295,7 @@ export class MetadataService {
                     if (!Array.isArray(filePaths)) {
                         // Remove invalid entry
                         delete settings.pinnedNotes[folderPath];
+                        hasChanges = true;
                         continue;
                     }
                     
@@ -298,15 +306,27 @@ export class MetadataService {
 
                     if (validFiles.length !== filePaths.length) {
                         settings.pinnedNotes[folderPath] = validFiles;
+                        hasChanges = true;
                     }
 
                     // Remove empty entries
                     if (validFiles.length === 0) {
                         delete settings.pinnedNotes[folderPath];
+                        hasChanges = true;
                     }
                 }
             }
-        });
+        };
+        
+        // Run the cleanup check
+        checkAndClean(this.settings);
+        
+        // Only save if changes were made
+        if (hasChanges) {
+            await this.saveAndUpdate(checkAndClean);
+        }
+        
+        return hasChanges;
     }
 
     /**

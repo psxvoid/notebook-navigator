@@ -271,13 +271,11 @@ export function loadTagCache(): TagCache | null {
         
         // Validate cache version
         if (cache.version !== CACHE_VERSION) {
-            console.log(`[NotebookNavigator] Tag cache version mismatch (found: ${cache.version}, expected: ${CACHE_VERSION})`);
             return null;
         }
         
         // Validate that cache has required structure
         if (!cache.root || typeof cache.root !== 'object') {
-            console.log('[NotebookNavigator] Invalid cache structure, clearing cache');
             return null;
         }
         

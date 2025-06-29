@@ -105,14 +105,12 @@ interface TagCacheProviderProps {
 export function TagCacheProvider({ app, children }: TagCacheProviderProps) {
     const settings = useSettingsState();
     const [tagData, setTagData] = useState<TagData>({ tree: new Map(), untagged: 0 });
-    const [hasLoggedInitialLoad, setHasLoggedInitialLoad] = useState(false);
 
     useEffect(() => {
         // Function to build tag tree with caching
         const buildTags = async () => {
             if (!settings.showTags) {
                 // Clear tag cache when tags are disabled
-                console.log('[NotebookNavigator] Tags disabled, clearing tag cache');
                 localStorage.removeItem(STORAGE_KEYS.tagCacheKey);
                 setTagData({ tree: new Map(), untagged: 0 });
                 return;
@@ -132,10 +130,6 @@ export function TagCacheProvider({ app, children }: TagCacheProviderProps) {
                 const { tree: cachedTree, untagged: cachedUntagged } = buildTagTreeFromCache(cache);
                 setTagData({ tree: cachedTree, untagged: settings.showUntagged ? cachedUntagged : 0 });
                 
-                if (!hasLoggedInitialLoad) {
-                    console.log(`[NotebookNavigator] Loaded tag cache (${cachedTree.size} tag nodes, ${cachedUntagged} untagged)`);
-                    setHasLoggedInitialLoad(true);
-                }
                 
                 // Calculate diff in background
                 requestIdleCallback(async () => {
@@ -181,7 +175,6 @@ export function TagCacheProvider({ app, children }: TagCacheProviderProps) {
                 requestIdleCallback(async () => {
                     try {
                         const startTime = performance.now();
-                        console.log('[NotebookNavigator] No cache found, starting background tag tree build...');
                         
                         clearNoteCountCache();
                         const newTree = buildTagTree(allFiles, app);
@@ -209,7 +202,6 @@ export function TagCacheProvider({ app, children }: TagCacheProviderProps) {
                     
                     const elapsed = performance.now() - startTime;
                     const tagCount = countTotalTags(newTree);
-                    console.log(`[NotebookNavigator] Tag tree built from scratch in ${elapsed.toFixed(2)}ms (${tagCount} tags, ${newUntagged} untagged)`);
                     } catch (error) {
                         console.error('[NotebookNavigator] Error building tag tree:', error);
                         // Keep empty tag data on error
