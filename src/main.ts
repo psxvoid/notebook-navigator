@@ -38,6 +38,25 @@ import { MetadataService } from './services/MetadataService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 
+// Polyfill for requestIdleCallback (not supported on iOS Safari)
+// This ensures deferred operations work on all mobile devices
+if (typeof window !== 'undefined' && !window.requestIdleCallback) {
+    console.log('[NotebookNavigator] requestIdleCallback not supported, using polyfill');
+    window.requestIdleCallback = function(callback: IdleRequestCallback, options?: { timeout?: number }) {
+        const timeout = options?.timeout || 0;
+        return window.setTimeout(() => {
+            callback({
+                didTimeout: false,
+                timeRemaining: () => 50
+            } as IdleDeadline);
+        }, timeout) as unknown as number;
+    };
+    
+    window.cancelIdleCallback = function(id: number) {
+        clearTimeout(id);
+    };
+}
+
 /**
  * Main plugin class for Notebook Navigator
  * Provides a Notes-style file explorer for Obsidian with two-pane layout

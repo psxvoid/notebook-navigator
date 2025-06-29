@@ -81,6 +81,7 @@ export function TagCacheProvider({ app, children }: TagCacheProviderProps) {
             
             // Load cached tag data
             const cache = loadTagCache();
+            console.log('[NotebookNavigator] Loading tags, cache exists:', !!cache);
             
             if (cache && cache.fileData) {
                 // Use cached data immediately for instant UI
@@ -89,7 +90,7 @@ export function TagCacheProvider({ app, children }: TagCacheProviderProps) {
                 setTagData({ tree: cachedTree, untagged: settings.showUntagged ? cachedUntagged : 0 });
                 
                 const filesWithTags = Object.values(cache.fileData).filter(data => data.tags && data.tags.length > 0).length;
-                console.log(`[NotebookNavigator] Loaded tag cache (${filesWithTags} files with tags)`);
+                console.log(`[NotebookNavigator] Loaded tag cache (${filesWithTags} files with tags, ${cachedTree.size} tag nodes)`);
                 
                 // Calculate diff in background
                 requestIdleCallback(async () => {
