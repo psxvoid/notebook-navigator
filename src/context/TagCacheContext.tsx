@@ -81,7 +81,6 @@ export function TagCacheProvider({ app, children }: TagCacheProviderProps) {
             
             // Load cached tag data
             const cache = loadTagCache();
-            console.log('[NotebookNavigator] Loading tags, cache exists:', !!cache);
             
             if (cache && cache.fileData) {
                 // Use cached data immediately for instant UI
