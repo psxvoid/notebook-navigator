@@ -20,10 +20,7 @@ import React, { createContext, useContext, useReducer, useEffect, ReactNode } fr
 import { NAVIGATION_PANE_DIMENSIONS } from '../types';
 
 // Storage keys
-const STORAGE_KEYS = {
-    NAVIGATION_PANE_WIDTH: 'notebook-navigator-navigation-pane-width',
-    NAVIGATION_PANE_COLLAPSED: 'notebook-navigator-navigation-pane-collapsed'
-};
+import { STORAGE_KEYS } from '../types';
 
 // State interface
 interface UIState {
@@ -78,10 +75,10 @@ interface UIStateProviderProps {
 export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
     // Load initial state
     const loadInitialState = (): UIState => {
-        const savedWidth = localStorage.getItem(STORAGE_KEYS.NAVIGATION_PANE_WIDTH);
+        const savedWidth = localStorage.getItem(STORAGE_KEYS.navigationPaneWidthKey);
         const paneWidth = savedWidth ? parseInt(savedWidth) : NAVIGATION_PANE_DIMENSIONS.defaultWidth;
         
-        const savedCollapsed = localStorage.getItem(STORAGE_KEYS.NAVIGATION_PANE_COLLAPSED);
+        const savedCollapsed = localStorage.getItem(STORAGE_KEYS.navigationPaneCollapsedKey);
         const navigationPaneCollapsed = savedCollapsed === 'true';
         
         const initialState = {
@@ -100,14 +97,14 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
     // Persist pane width to localStorage
     useEffect(() => {
         if (!isMobile) {
-            localStorage.setItem(STORAGE_KEYS.NAVIGATION_PANE_WIDTH, state.paneWidth.toString());
+            localStorage.setItem(STORAGE_KEYS.navigationPaneWidthKey, state.paneWidth.toString());
         }
     }, [state.paneWidth, isMobile]);
     
     // Persist collapsed state to localStorage
     useEffect(() => {
         if (!isMobile) {
-            localStorage.setItem(STORAGE_KEYS.NAVIGATION_PANE_COLLAPSED, state.navigationPaneCollapsed.toString());
+            localStorage.setItem(STORAGE_KEYS.navigationPaneCollapsedKey, state.navigationPaneCollapsed.toString());
         }
     }, [state.navigationPaneCollapsed, isMobile]);
     

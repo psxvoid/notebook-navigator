@@ -26,6 +26,7 @@ import { SettingsProvider } from '../context/SettingsContext';
 import { ExpansionProvider } from '../context/ExpansionContext';
 import { SelectionProvider } from '../context/SelectionContext';
 import { UIStateProvider } from '../context/UIStateContext';
+import { TagCacheProvider } from '../context/TagCacheContext';
 import { NotebookNavigatorComponent, NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
 import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 import { strings } from '../i18n';
@@ -103,13 +104,15 @@ export class NotebookNavigatorView extends ItemView {
             <React.StrictMode>
                 <SettingsProvider plugin={this.plugin}>
                     <ServicesProvider plugin={this.plugin}>
-                        <ExpansionProvider>
-                            <SelectionProvider app={this.plugin.app} plugin={this.plugin} isMobile={isMobile}>
-                                <UIStateProvider isMobile={isMobile}>
-                                    <NotebookNavigatorComponent ref={this.componentRef} />
-                                </UIStateProvider>
-                            </SelectionProvider>
-                        </ExpansionProvider>
+                        <TagCacheProvider app={this.plugin.app}>
+                            <ExpansionProvider>
+                                <SelectionProvider app={this.plugin.app} plugin={this.plugin} isMobile={isMobile}>
+                                    <UIStateProvider isMobile={isMobile}>
+                                        <NotebookNavigatorComponent ref={this.componentRef} />
+                                    </UIStateProvider>
+                                </SelectionProvider>
+                            </ExpansionProvider>
+                        </TagCacheProvider>
                     </ServicesProvider>
                 </SettingsProvider>
             </React.StrictMode>

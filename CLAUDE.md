@@ -121,6 +121,49 @@ The `MetadataService` now uses a promise queue to serialize all settings updates
 #### FileList Mobile Scroll Momentum
 The `FileList` component includes a sophisticated system to preserve scroll momentum on mobile devices. When new items are virtualized during scrolling, the component carefully manages scroll events to prevent interrupting the native "inertial" scrolling. This provides a smooth, native-feeling scrolling experience even with large file lists.
 
+#### Tag Tree Cache System
+The plugin implements a sophisticated caching system for tag data to dramatically improve startup performance in large vaults. The cache stores file metadata and tags in localStorage, enabling instant UI display while processing changes in the background.
+
+**Cache Structure:**
+```typescript
+interface TagCache {
+    version: number;                          // For future migrations
+    lastModified: number;                     // Timestamp of last update
+    fileData: Record<string, {               // Keyed by file path
+        mtime: number;                        // File modification time
+        tags: string[];                       // Array of tags in file
+    }>;
+    untaggedCount: number;                    // Count of files without tags
+}
+```
+
+**How It Works:**
+1. **First Load**: Builds tag tree from scratch, saves to localStorage
+2. **Subsequent Loads**: 
+   - Loads cached data instantly for immediate UI display
+   - Calculates diff in background using `requestIdleCallback`
+   - Only processes new/modified/deleted files
+   - Updates cache with changes
+
+**Sync Safety:**
+- Event listeners update cache in real-time during usage
+- Modification time (mtime) checks detect external changes
+- Version checking handles cache format migrations
+- Graceful fallback to full rebuild if cache is invalid
+
+**Performance Impact:**
+- Tag tree appears instantly instead of processing all files
+- Background diff typically processes 0 files (when nothing changed)
+- Scales to large vaults without impacting startup time
+
+#### Deferred Initialization
+The plugin uses `requestIdleCallback` to defer non-critical startup operations:
+- **Metadata Cleanup**: Runs when browser is idle instead of blocking startup (2-second timeout)
+- **Tag Tree Diff**: Processes file changes in background (1-second timeout)
+- **Initial Tag Build**: Even first-time builds happen in background (1-second timeout)
+
+This approach follows modern web performance best practices: show UI immediately, enhance progressively.
+
 ## React Architecture
 
 ### Component Hierarchy
@@ -130,33 +173,54 @@ NotebookNavigatorView (Obsidian ItemView)
 └── React.StrictMode
     └── SettingsProvider
         └── ServicesProvider
-            └── ExpansionProvider
-                └── SelectionProvider
-                    └── UIStateProvider
-                        └── NotebookNavigatorComponent
-                            ├── PaneHeader (left)
-                            ├── NavigationPane
-                            │   └── FolderItem / TagTreeItem
-                            ├── PaneHeader (right)
-                            └── FileList
-                                └── FileItem
+            └── TagCacheProvider
+                └── ExpansionProvider
+                    └── SelectionProvider
+                        └── UIStateProvider
+                            └── NotebookNavigatorComponent
+                                ├── PaneHeader (left)
+                                ├── NavigationPane
+                                │   └── FolderItem / TagTreeItem
+                                ├── PaneHeader (right)
+                                └── FileList
+                                    └── FileItem
 ```
 
 ### State Management (Context API)
 - **SettingsContext**: Provides and updates plugin settings.
 - **ServicesContext**: Injects business logic services (e.g., file operations).
+- **TagCacheContext**: Manages tag tree caching and loading. Loads immediately on plugin startup (not when NavigationPane mounts) to ensure tags are ready when needed. Handles all tag building, caching, and diff calculations.
 - **ExpansionContext**: Tracks expanded folders and tags.
 - **SelectionContext**: Tracks selected folder, tag, and files (supports multi-selection). Maintains `selectedFiles` as a Set for multi-selection, `selectedFile` as the cursor position for keyboard navigation. Includes flags `isRevealOperation` and `isFolderChangeWithAutoSelect` for coordinating complex state updates and preventing unwanted side effects.
 - **UIStateContext**: Manages UI state like focused pane, pane width, current mobile view ('list' or 'files'), and tracking newly created paths to ensure proper reveal and selection.
     
 
 ### Local Storage Keys
-- `notebook-navigator-expanded-folders`
-- `notebook-navigator-expanded-tags`
-- `notebook-navigator-selected-folder`
-- `notebook-navigator-selected-file`
-- `notebook-navigator-navigation-pane-width`
-- `notebook-navigator-navigation-pane-collapsed`
+
+**IMPORTANT**: Always use the `STORAGE_KEYS` constant from `src/types.ts` instead of hard-coding localStorage key strings. This ensures consistency and makes it easy to track all localStorage usage.
+
+```typescript
+// ❌ DON'T hard-code keys
+localStorage.setItem('notebook-navigator-tag-cache', data);
+
+// ✅ DO use STORAGE_KEYS constant
+import { STORAGE_KEYS } from '../types';
+localStorage.setItem(STORAGE_KEYS.tagCacheKey, data);
+```
+
+**Current keys in STORAGE_KEYS:**
+- `expandedFoldersKey`: `'notebook-navigator-expanded-folders'`
+- `expandedTagsKey`: `'notebook-navigator-expanded-tags'`
+- `selectedFolderKey`: `'notebook-navigator-selected-folder'`
+- `selectedFileKey`: `'notebook-navigator-selected-file'`
+- `navigationPaneWidthKey`: `'notebook-navigator-navigation-pane-width'`
+- `navigationPaneCollapsedKey`: `'notebook-navigator-navigation-pane-collapsed'`
+- `tagCacheKey`: `'notebook-navigator-tag-cache'`
+
+When adding new localStorage keys:
+1. Add the key to the `LocalStorageKeys` interface in `src/types.ts`
+2. Add the actual key string to the `STORAGE_KEYS` constant
+3. Import and use `STORAGE_KEYS.yourNewKey` in your code
     
 
 ### Services

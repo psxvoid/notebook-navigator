@@ -226,11 +226,21 @@ export default class NotebookNavigatorPlugin extends Plugin {
         // Clean up settings after workspace is ready
         // Use onLayoutReady for more reliable initialization
         this.app.workspace.onLayoutReady(async () => {
-            const cleanupStartTime = performance.now();
             
-            if (this.metadataService && !this.isUnloading) {
-                await this.metadataService.cleanupAllMetadata();
-            }
+            // Defer metadata cleanup to idle time
+            requestIdleCallback(() => {
+                const cleanupStartTime = performance.now();
+                console.log('[NotebookNavigator] Starting metadata cleanup...');
+                
+                if (this.metadataService && !this.isUnloading) {
+                    this.metadataService.cleanupAllMetadata().then(() => {
+                        const cleanupTime = performance.now() - cleanupStartTime;
+                        console.log(`[NotebookNavigator] Metadata cleanup completed in ${cleanupTime.toFixed(2)}ms`);
+                    }).catch(error => {
+                        console.error('[NotebookNavigator] Error during metadata cleanup:', error);
+                    });
+                }
+            }, { timeout: 2000 }); // Fallback to 2 seconds if no idle time
             
             // Always open the view if it doesn't exist
             const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
@@ -281,6 +291,27 @@ export default class NotebookNavigatorPlugin extends Plugin {
     }
 
     /**
+     * Clears all localStorage data for the plugin
+     * Called on fresh install to ensure a clean start
+     */
+    private clearAllLocalStorage() {
+        // Clear all known localStorage keys
+        const keysToRemove = [
+            STORAGE_KEYS.expandedFoldersKey,
+            STORAGE_KEYS.expandedTagsKey,
+            STORAGE_KEYS.selectedFolderKey,
+            STORAGE_KEYS.selectedFileKey,
+            STORAGE_KEYS.navigationPaneWidthKey,
+            STORAGE_KEYS.navigationPaneCollapsedKey,
+            STORAGE_KEYS.tagCacheKey
+        ];
+        
+        keysToRemove.forEach(key => {
+            localStorage.removeItem(key);
+        });
+    }
+
+    /**
      * Loads plugin settings from Obsidian's data storage
      * Merges saved settings with default settings to ensure all required fields exist
      * Called during plugin initialization and when external changes are detected
@@ -288,6 +319,11 @@ export default class NotebookNavigatorPlugin extends Plugin {
     async loadSettings() {
         const data = await this.loadData();
         const isFirstLaunch = !data; // No saved data means first launch
+        
+        // Clear localStorage on fresh install/reinstall
+        if (isFirstLaunch) {
+            this.clearAllLocalStorage();
+        }
         
         // Start with default settings
         this.settings = Object.assign({}, DEFAULT_SETTINGS, data || {});

@@ -55,6 +55,8 @@ export interface LocalStorageKeys {
     selectedFolderKey: string;
     selectedFileKey: string;
     navigationPaneWidthKey: string;
+    navigationPaneCollapsedKey: string;
+    tagCacheKey: string;
 }
 
 /**
@@ -66,7 +68,9 @@ export const STORAGE_KEYS: LocalStorageKeys = {
     expandedTagsKey: 'notebook-navigator-expanded-tags',
     selectedFolderKey: 'notebook-navigator-selected-folder',
     selectedFileKey: 'notebook-navigator-selected-file',
-    navigationPaneWidthKey: 'notebook-navigator-navigation-pane-width'
+    navigationPaneWidthKey: 'notebook-navigator-navigation-pane-width',
+    navigationPaneCollapsedKey: 'notebook-navigator-navigation-pane-collapsed',
+    tagCacheKey: 'notebook-navigator-tag-cache'
 };
 
 /**

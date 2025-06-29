@@ -32,13 +32,17 @@ import { PaneHeader } from './PaneHeader';
 import { strings } from '../i18n';
 import { isTFolder } from '../utils/typeGuards';
 import type { CombinedNavigationItem } from '../types/virtualization';
-import { buildTagTree, TagTreeNode, getTotalNoteCount, clearNoteCountCache } from '../utils/tagUtils';
+import { 
+    TagTreeNode, 
+    getTotalNoteCount
+} from '../utils/tagUtils';
 import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
 import { UNTAGGED_TAG_ID } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
+import { useTagCache } from '../context/TagCacheContext';
 
 // Item height constants for accurate virtualization
 const ITEM_HEIGHTS = {
@@ -137,66 +141,9 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     // =================================================================================
     
     // =================================================================================
-    // We use useState to hold the tag tree data. This makes it stable across re-renders.
+    // Get tag data from the context
     // =================================================================================
-    const [tagData, setTagData] = useState<{ tree: Map<string, TagTreeNode>, untagged: number }>({ tree: new Map(), untagged: 0 });
-
-    useEffect(() => {
-        // Function to build tag tree
-        const buildTags = () => {
-            if (!settings.showTags) {
-                setTagData({ tree: new Map(), untagged: 0 });
-                return;
-            }
-
-            const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-            const allFiles = app.vault.getMarkdownFiles()
-                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-            
-            // Clear the cache before rebuilding to prevent memory accumulation
-            clearNoteCountCache();
-            
-            const newTree = buildTagTree(allFiles, app);
-            
-            let newUntagged = 0;
-            if (settings.showUntagged) {
-                newUntagged = allFiles.filter(file => {
-                    const cache = app.metadataCache.getFileCache(file);
-                    return !cache || !getAllTags(cache)?.length;
-                }).length;
-            }
-            
-            setTagData({ tree: newTree, untagged: newUntagged });
-        };
-
-        // Build immediately on mount
-        buildTags();
-        
-        // Create debounced version for events
-        const rebuildTagTree = debounce(buildTags, 300);
-
-        // Listen to specific vault and metadata events
-        const vaultEvents = [
-            app.vault.on('create', rebuildTagTree),
-            app.vault.on('delete', rebuildTagTree),
-            app.vault.on('rename', rebuildTagTree)
-        ];
-        
-        // Always rebuild on metadata changes - tags might have been added OR removed
-        const metadataEvent = app.metadataCache.on('changed', (file) => {
-            if (file && file.extension === 'md') {
-                rebuildTagTree();
-            }
-        });
-
-        return () => {
-            vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
-            app.metadataCache.offref(metadataEvent);
-        };
-    }, [app, settings.showTags, settings.showUntagged, settings.excludedFiles]);
-    // =================================================================================
-    // =================================================================================
-    
+    const { tagData } = useTagCache();
     const tagTree = tagData.tree;
     const untaggedCount = tagData.untagged;
     

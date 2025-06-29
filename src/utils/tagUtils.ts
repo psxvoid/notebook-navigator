@@ -17,6 +17,7 @@
  */
 
 import { TFile, App, getAllTags } from 'obsidian';
+import { STORAGE_KEYS } from '../types';
 
 /**
  * Represents a node in the hierarchical tag tree.
@@ -32,6 +33,32 @@ export interface TagTreeNode {
     /** Set of file paths that have this exact tag */
     notesWithTag: Set<string>;
 }
+
+/**
+ * Represents cached file metadata for tag processing
+ */
+interface CachedFileData {
+    /** Last modification time of the file */
+    mtime: number;
+    /** Array of tags found in the file */
+    tags: string[];
+}
+
+/**
+ * Structure for the tag cache stored in localStorage
+ */
+export interface TagCache {
+    /** Version number for cache format migrations */
+    version: number;
+    /** Timestamp when cache was last updated */
+    lastModified: number;
+    /** Map of file paths to their cached metadata */
+    fileData: Record<string, CachedFileData>;
+    /** Number of untagged files */
+    untaggedCount: number;
+}
+
+const CACHE_VERSION = 1;
 
 /**
  * Builds a hierarchical tree structure from flat tags.
@@ -210,4 +237,202 @@ export function findTagNode(path: string, tree: Map<string, TagTreeNode>): TagTr
     }
 
     return currentNode || null;
+}
+
+/**
+ * Loads the tag cache from localStorage
+ * @returns The cached data or null if not found/invalid
+ */
+export function loadTagCache(): TagCache | null {
+    try {
+        const cached = localStorage.getItem(STORAGE_KEYS.tagCacheKey);
+        if (!cached) {
+            return null;
+        }
+        
+        const cache = JSON.parse(cached) as TagCache;
+        
+        // Validate cache version
+        if (cache.version !== CACHE_VERSION) {
+            console.log(`[NotebookNavigator] Tag cache version mismatch (found: ${cache.version}, expected: ${CACHE_VERSION})`);
+            return null;
+        }
+        
+        return cache;
+    } catch (error) {
+        console.error('[NotebookNavigator] Error loading tag cache:', error);
+        return null;
+    }
+}
+
+/**
+ * Saves the tag cache to localStorage
+ * @param cache - The cache data to save
+ */
+export function saveTagCache(cache: TagCache): void {
+    try {
+        cache.version = CACHE_VERSION;
+        cache.lastModified = Date.now();
+        
+        const serialized = JSON.stringify(cache);
+        
+        // Check size before saving (localStorage typically has 5-10MB limit)
+        const sizeInBytes = new Blob([serialized]).size;
+        const sizeInMB = sizeInBytes / (1024 * 1024);
+        
+        if (sizeInMB > 4) {
+            console.warn(`[NotebookNavigator] Tag cache is large (${sizeInMB.toFixed(2)}MB), consider optimizing`);
+        }
+        
+        localStorage.setItem(STORAGE_KEYS.tagCacheKey, serialized);
+        
+    } catch (error) {
+        console.error('[NotebookNavigator] Error saving tag cache:', error);
+        // If localStorage is full, try to clear the cache and continue without it
+        if (error instanceof DOMException && error.name === 'QuotaExceededError') {
+            try {
+                localStorage.removeItem(STORAGE_KEYS.tagCacheKey);
+                console.warn('[NotebookNavigator] localStorage quota exceeded, cleared tag cache');
+            } catch (clearError) {
+                // Ignore if we can't even clear
+            }
+        }
+    }
+}
+
+/**
+ * Calculates the diff between cached data and current vault state
+ * @param cachedData - The cached file data
+ * @param currentFiles - Current markdown files in the vault
+ * @param app - Obsidian app instance
+ * @returns Files to add, update, and remove
+ */
+export function calculateTagCacheDiff(
+    cachedData: Record<string, CachedFileData>,
+    currentFiles: TFile[],
+    app: App
+): {
+    toAdd: TFile[];
+    toUpdate: TFile[];
+    toRemove: string[];
+} {
+    const toAdd: TFile[] = [];
+    const toUpdate: TFile[] = [];
+    const toRemove: string[] = [];
+    
+    // Create a set of current file paths for quick lookup
+    const currentPaths = new Set(currentFiles.map(f => f.path));
+    
+    // Check each current file
+    for (const file of currentFiles) {
+        const cached = cachedData[file.path];
+        
+        if (!cached) {
+            // New file not in cache
+            toAdd.push(file);
+        } else if (file.stat.mtime !== cached.mtime) {
+            // File modified since last cache
+            toUpdate.push(file);
+        }
+    }
+    
+    // Check for deleted files
+    for (const path in cachedData) {
+        if (!currentPaths.has(path)) {
+            toRemove.push(path);
+        }
+    }
+    
+    
+    return { toAdd, toUpdate, toRemove };
+}
+
+/**
+ * Builds tag tree from cached data
+ * @param fileData - Cached file data
+ * @returns Tag tree and untagged count
+ */
+export function buildTagTreeFromCache(
+    fileData: Record<string, CachedFileData>
+): { tree: Map<string, TagTreeNode>, untagged: number } {
+    const root = new Map<string, TagTreeNode>();
+    const casingMap = new Map<string, string>();
+    let untagged = 0;
+    
+    for (const [filePath, data] of Object.entries(fileData)) {
+        if (!data.tags || data.tags.length === 0) {
+            untagged++;
+            continue;
+        }
+        
+        for (const tag of data.tags) {
+            // Skip empty or invalid tags
+            if (!tag || tag.length <= 1) continue;
+            
+            // Remove the # prefix and split by /
+            const parts = tag.substring(1).split('/');
+            let currentLevel = root;
+            let pathParts: string[] = [];
+
+            parts.forEach((part, index) => {
+                const lowerPart = part.toLowerCase();
+                
+                // Track first-seen casing
+                if (!casingMap.has(lowerPart)) {
+                    casingMap.set(lowerPart, part);
+                }
+                
+                // Use the preserved casing
+                const displayPart = casingMap.get(lowerPart)!;
+                pathParts.push(displayPart);
+                
+                // Rebuild the full path up to this point with preserved casing
+                const currentPath = '#' + pathParts.join('/');
+
+                // Use lowercase key for case-insensitive lookup
+                let node = currentLevel.get(lowerPart);
+                
+                if (!node) {
+                    node = {
+                        name: displayPart,
+                        path: currentPath,
+                        children: new Map(),
+                        notesWithTag: new Set(),
+                    };
+                    currentLevel.set(lowerPart, node);
+                }
+
+                // If this is the last part, add the file to this tag
+                if (index === parts.length - 1) {
+                    node.notesWithTag.add(filePath);
+                }
+
+                currentLevel = node.children;
+            });
+        }
+    }
+    
+    return { tree: root, untagged };
+}
+
+/**
+ * Counts total number of tags in the tree (including nested tags)
+ * @param tree - The root tag tree
+ * @returns Total number of unique tags
+ */
+export function countTotalTags(tree: Map<string, TagTreeNode>): number {
+    let count = 0;
+    
+    function countNode(node: TagTreeNode): void {
+        count++;
+        for (const child of node.children.values()) {
+            countNode(child);
+        }
+    }
+    
+    for (const node of tree.values()) {
+        countNode(node);
+    }
+    
+    return count;
 }

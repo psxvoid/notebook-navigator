@@ -122,7 +122,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showFolderFileCount: true,
     showFolderIcons: true,
     // Tag display
-    showTags: false,
+    showTags: true,
     showUntagged: false,
     // Folder notes
     enableFolderNotes: false,
