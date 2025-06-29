@@ -105,6 +105,7 @@ interface TagCacheProviderProps {
 export function TagCacheProvider({ app, children }: TagCacheProviderProps) {
     const settings = useSettingsState();
     const [tagData, setTagData] = useState<TagData>({ tree: new Map(), untagged: 0 });
+    const [hasLoggedInitialLoad, setHasLoggedInitialLoad] = useState(false);
 
     useEffect(() => {
         // Function to build tag tree with caching
@@ -131,7 +132,10 @@ export function TagCacheProvider({ app, children }: TagCacheProviderProps) {
                 const { tree: cachedTree, untagged: cachedUntagged } = buildTagTreeFromCache(cache);
                 setTagData({ tree: cachedTree, untagged: settings.showUntagged ? cachedUntagged : 0 });
                 
-                console.log(`[NotebookNavigator] Loaded tag cache (${cachedTree.size} tag nodes, ${cachedUntagged} untagged)`);
+                if (!hasLoggedInitialLoad) {
+                    console.log(`[NotebookNavigator] Loaded tag cache (${cachedTree.size} tag nodes, ${cachedUntagged} untagged)`);
+                    setHasLoggedInitialLoad(true);
+                }
                 
                 // Calculate diff in background
                 requestIdleCallback(async () => {
@@ -165,7 +169,6 @@ export function TagCacheProvider({ app, children }: TagCacheProviderProps) {
                         
                     }
                     
-                    console.log(`[NotebookNavigator] Tag cache diff: ${toAdd.length} new, ${toUpdate.length} modified, ${toRemove.length} deleted`);
                     } catch (error) {
                         console.error('[NotebookNavigator] Error processing tag cache diff:', error);
                     }
