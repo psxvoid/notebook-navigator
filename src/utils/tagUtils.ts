@@ -35,13 +35,30 @@ export interface TagTreeNode {
 }
 
 /**
- * Represents cached file metadata for tag processing
+ * Represents cached file metadata for tag processing (used internally)
  */
 interface CachedFileData {
     /** Last modification time of the file */
     mtime: number;
     /** Array of tags found in the file */
     tags: string[];
+}
+
+/**
+ * Represents file data in the hierarchical cache
+ */
+interface FileData {
+    /** Last modification time (m for mtime) */
+    m: number;
+    /** Tags as comma-separated string (t for tags) */
+    t: string;
+}
+
+/**
+ * Represents a node in the hierarchical cache structure
+ */
+interface CacheNode {
+    [key: string]: CacheNode | FileData;
 }
 
 /**
@@ -52,8 +69,8 @@ export interface TagCache {
     version: number;
     /** Timestamp when cache was last updated */
     lastModified: number;
-    /** Map of file paths to their cached metadata */
-    fileData: Record<string, CachedFileData>;
+    /** Hierarchical tree structure of the cache */
+    root: CacheNode;
     /** Number of untagged files */
     untaggedCount: number;
 }
@@ -258,6 +275,12 @@ export function loadTagCache(): TagCache | null {
             return null;
         }
         
+        // Validate that cache has required structure
+        if (!cache.root || typeof cache.root !== 'object') {
+            console.log('[NotebookNavigator] Invalid cache structure, clearing cache');
+            return null;
+        }
+        
         return cache;
     } catch (error) {
         console.error('[NotebookNavigator] Error loading tag cache:', error);
@@ -301,14 +324,70 @@ export function saveTagCache(cache: TagCache): void {
 }
 
 /**
+ * Helper function to find a file in the hierarchical cache
+ * @param cache - The cache root node
+ * @param filePath - The file path to find
+ * @returns The file data if found, null otherwise
+ */
+function findFileInCache(cache: CacheNode, filePath: string): FileData | null {
+    const parts = filePath.split('/');
+    let current = cache;
+    
+    // Navigate through folders
+    for (let i = 0; i < parts.length - 1; i++) {
+        const folderName = parts[i];
+        const next = current[folderName];
+        
+        if (!next || typeof next !== 'object' || 'm' in next) {
+            // Folder not found or it's a file
+            return null;
+        }
+        
+        current = next as CacheNode;
+    }
+    
+    // Check for the file
+    const fileName = parts[parts.length - 1];
+    const fileNode = current[fileName];
+    
+    if (fileNode && typeof fileNode === 'object' && 'm' in fileNode) {
+        return fileNode as FileData;
+    }
+    
+    return null;
+}
+
+/**
+ * Collects all file paths from the hierarchical cache
+ * @param node - The cache node to traverse
+ * @param path - Current path being built
+ * @param paths - Set to collect paths into
+ */
+function collectAllPaths(node: CacheNode, path: string = '', paths: Set<string> = new Set()): Set<string> {
+    for (const [key, value] of Object.entries(node)) {
+        const fullPath = path ? `${path}/${key}` : key;
+        
+        if (typeof value === 'object' && 'm' in value) {
+            // It's a file
+            paths.add(fullPath);
+        } else {
+            // It's a folder
+            collectAllPaths(value as CacheNode, fullPath, paths);
+        }
+    }
+    
+    return paths;
+}
+
+/**
  * Calculates the diff between cached data and current vault state
- * @param cachedData - The cached file data
+ * @param cache - The hierarchical cache structure
  * @param currentFiles - Current markdown files in the vault
  * @param app - Obsidian app instance
  * @returns Files to add, update, and remove
  */
 export function calculateTagCacheDiff(
-    cachedData: Record<string, CachedFileData>,
+    cache: TagCache,
     currentFiles: TFile[],
     app: App
 ): {
@@ -325,19 +404,20 @@ export function calculateTagCacheDiff(
     
     // Check each current file
     for (const file of currentFiles) {
-        const cached = cachedData[file.path];
+        const cached = findFileInCache(cache.root, file.path);
         
         if (!cached) {
             // New file not in cache
             toAdd.push(file);
-        } else if (file.stat.mtime !== cached.mtime) {
+        } else if (file.stat.mtime !== cached.m) {
             // File modified since last cache
             toUpdate.push(file);
         }
     }
     
     // Check for deleted files
-    for (const path in cachedData) {
+    const cachedPaths = collectAllPaths(cache.root);
+    for (const path of cachedPaths) {
         if (!currentPaths.has(path)) {
             toRemove.push(path);
         }
@@ -349,68 +429,85 @@ export function calculateTagCacheDiff(
 
 /**
  * Builds tag tree from cached data
- * @param fileData - Cached file data
+ * @param cache - The hierarchical cache structure
  * @returns Tag tree and untagged count
  */
 export function buildTagTreeFromCache(
-    fileData: Record<string, CachedFileData>
+    cache: TagCache
 ): { tree: Map<string, TagTreeNode>, untagged: number } {
     const root = new Map<string, TagTreeNode>();
     const casingMap = new Map<string, string>();
     let untagged = 0;
     
-    for (const [filePath, data] of Object.entries(fileData)) {
-        if (!data.tags || data.tags.length === 0) {
-            untagged++;
-            continue;
-        }
-        
-        for (const tag of data.tags) {
-            // Skip empty or invalid tags
-            if (!tag || tag.length <= 1) continue;
+    // Process files directly from hierarchical cache
+    function processNode(node: CacheNode, path: string = ''): void {
+        for (const [key, value] of Object.entries(node)) {
+            const fullPath = path ? `${path}/${key}` : key;
             
-            // Remove the # prefix and split by /
-            const parts = tag.substring(1).split('/');
-            let currentLevel = root;
-            let pathParts: string[] = [];
-
-            parts.forEach((part, index) => {
-                const lowerPart = part.toLowerCase();
+            // Check if it's a file node (has 'm' property)
+            if (typeof value === 'object' && 'm' in value && typeof value.m === 'number') {
+                // It's a file
+                const fileData = value as FileData;
+                const tags = fileData.t ? fileData.t.split(',') : [];
                 
-                // Track first-seen casing
-                if (!casingMap.has(lowerPart)) {
-                    casingMap.set(lowerPart, part);
+                if (tags.length === 0) {
+                    untagged++;
+                    continue;
                 }
                 
-                // Use the preserved casing
-                const displayPart = casingMap.get(lowerPart)!;
-                pathParts.push(displayPart);
-                
-                // Rebuild the full path up to this point with preserved casing
-                const currentPath = '#' + pathParts.join('/');
+                for (const tag of tags) {
+                    // Skip empty or invalid tags
+                    if (!tag || tag.length <= 1) continue;
+                    
+                    // Remove the # prefix and split by /
+                    const parts = tag.substring(1).split('/');
+                    let currentLevel = root;
+                    let pathParts: string[] = [];
 
-                // Use lowercase key for case-insensitive lookup
-                let node = currentLevel.get(lowerPart);
-                
-                if (!node) {
-                    node = {
-                        name: displayPart,
-                        path: currentPath,
-                        children: new Map(),
-                        notesWithTag: new Set(),
-                    };
-                    currentLevel.set(lowerPart, node);
+                    parts.forEach((part, index) => {
+                        const lowerPart = part.toLowerCase();
+                        
+                        // Track first-seen casing
+                        if (!casingMap.has(lowerPart)) {
+                            casingMap.set(lowerPart, part);
+                        }
+                        
+                        // Use the preserved casing
+                        const displayPart = casingMap.get(lowerPart)!;
+                        pathParts.push(displayPart);
+                        
+                        // Rebuild the full path up to this point with preserved casing
+                        const currentPath = '#' + pathParts.join('/');
+
+                        // Use lowercase key for case-insensitive lookup
+                        let tagNode = currentLevel.get(lowerPart);
+                        
+                        if (!tagNode) {
+                            tagNode = {
+                                name: displayPart,
+                                path: currentPath,
+                                children: new Map(),
+                                notesWithTag: new Set(),
+                            };
+                            currentLevel.set(lowerPart, tagNode);
+                        }
+
+                        // If this is the last part, add the file to this tag
+                        if (index === parts.length - 1) {
+                            tagNode.notesWithTag.add(fullPath);
+                        }
+
+                        currentLevel = tagNode.children;
+                    });
                 }
-
-                // If this is the last part, add the file to this tag
-                if (index === parts.length - 1) {
-                    node.notesWithTag.add(filePath);
-                }
-
-                currentLevel = node.children;
-            });
+            } else {
+                // It's a folder, recurse
+                processNode(value as CacheNode, fullPath);
+            }
         }
     }
+    
+    processNode(cache.root);
     
     return { tree: root, untagged };
 }
@@ -436,3 +533,40 @@ export function countTotalTags(tree: Map<string, TagTreeNode>): number {
     
     return count;
 }
+
+/**
+ * Builds a hierarchical cache tree from files
+ * @param files - Array of files to cache
+ * @param app - Obsidian app instance
+ * @returns Hierarchical cache structure
+ */
+export function buildCacheTree(files: TFile[], app: App): CacheNode {
+    const root: CacheNode = {};
+    
+    for (const file of files) {
+        const parts = file.path.split('/');
+        let current = root;
+        
+        // Navigate/create folder structure
+        for (let i = 0; i < parts.length - 1; i++) {
+            const folderName = parts[i];
+            if (!current[folderName]) {
+                current[folderName] = {};
+            }
+            current = current[folderName] as CacheNode;
+        }
+        
+        // Add file data
+        const fileName = parts[parts.length - 1];
+        const cache = app.metadataCache.getFileCache(file);
+        const tags = cache ? getAllTags(cache) : [];
+        
+        current[fileName] = {
+            m: file.stat.mtime,
+            t: tags ? tags.join(',') : ''
+        };
+    }
+    
+    return root;
+}
+
