@@ -276,11 +276,11 @@ export const STRINGS_EN = {
     // Settings
     settings: {
         sections: {
-            timeDisplay: 'Time display',
-            noteDisplay: 'Note display',
-            folderDisplay: 'Folder display',
-            tagDisplay: 'Tag display',
-            folderNotes: 'Folder notes',
+            navigationPane: 'Navigation pane',
+            folders: 'Folders',
+            tags: 'Tags',
+            fileList: 'File list',
+            notes: 'Notes',
             advanced: 'Advanced',
         },
         items: {
@@ -304,7 +304,7 @@ export const STRINGS_EN = {
                 name: 'Show notes from subfolders',
                 desc: 'Display all notes from subfolders in the current folder view.',
             },
-            showSubfolderNamesInList: {
+            showParentFolderNames: {
                 name: 'Show parent folder names',
                 desc: 'Display the parent folder name for notes from subfolders.',
             },
@@ -312,9 +312,9 @@ export const STRINGS_EN = {
                 name: 'Auto-reveal active note',
                 desc: 'Automatically reveal and select notes when opened from Quick Switcher, links, or search.',
             },
-            autoSelectFirstFile: {
-                name: 'Auto-select first file on folder change',
-                desc: 'Automatically select and open the first file when switching folders.',
+            autoSelectFirstFileOnFocusChange: {
+                name: 'Auto-select first file on focus change',
+                desc: 'Automatically select and open the first file when switching folders or tags.',
             },
             showTooltips: {
                 name: 'Show tooltips',
@@ -392,13 +392,13 @@ export const STRINGS_EN = {
                 name: 'Show root folder',
                 desc: 'Display "Vault" as the root folder in the tree.',
             },
-            showFolderFileCount: {
-                name: 'Show folder note count',
-                desc: 'Display the number of notes in each folder.',
+            showNoteCount: {
+                name: 'Show note count',
+                desc: 'Display the number of notes in each folder and tag.',
             },
-            showFolderIcons: {
-                name: 'Show folder icons',
-                desc: 'Display icons next to folder names in the tree.',
+            showIcons: {
+                name: 'Show icons',
+                desc: 'Display icons next to folders and tags in the navigation pane.',
             },
             collapseButtonBehavior: {
                 name: 'Collapse button behavior',

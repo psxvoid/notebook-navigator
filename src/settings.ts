@@ -45,20 +45,32 @@ export type CollapseButtonBehavior =
  * These settings control the appearance and behavior of the navigator
  */
 export interface NotebookNavigatorSettings {
-    // File organization
+    // Top level settings (no category)
+    autoRevealActiveFile: boolean;
+    showTooltips: boolean;
+    excludedFolders: string;
+    excludedFiles: string;
+    // Navigation pane
+    autoSelectFirstFileOnFocusChange: boolean;
+    showNoteCount: boolean;
+    showIcons: boolean;
+    collapseButtonBehavior: CollapseButtonBehavior;
+    // Folders
+    showRootFolder: boolean;
+    enableFolderNotes: boolean;
+    folderNoteName: string;
+    hideFolderNoteInList: boolean;
+    // Tags
+    showTags: boolean;
+    showUntagged: boolean;
+    // File list
     defaultFolderSort: SortOption;
     groupByDate: boolean;
     showNotesFromSubfolders: boolean;
-    showSubfolderNamesInList: boolean;
-    autoRevealActiveFile: boolean;
-    autoSelectFirstFile: boolean;
-    showTooltips: boolean;
-    excludedFiles: string;
-    ignoreFolders: string;
-    // Time display
+    showParentFolderNames: boolean;
     dateFormat: string;
     timeFormat: string;
-    // Note display
+    // Notes
     frontmatterNameField: string;
     frontmatterCreatedField: string;
     frontmatterModifiedField: string;
@@ -71,21 +83,9 @@ export interface NotebookNavigatorSettings {
     previewRows: number;
     showFeatureImage: boolean;
     featureImageProperty: string;
-    // Folder display
-    showRootFolder: boolean;
-    showFolderFileCount: boolean;
-    showFolderIcons: boolean;
-    collapseButtonBehavior: CollapseButtonBehavior;
-    // Tag display
-    showTags: boolean;
-    showUntagged: boolean;
-    // Folder notes
-    enableFolderNotes: boolean;
-    folderNoteName: string;
-    hideFolderNoteInList: boolean;
+    useFrontmatterDates: boolean;
     // Advanced
     confirmBeforeDelete: boolean;
-    useFrontmatterDates: boolean;
     // Internal
     pinnedNotes: Record<string, string[]>;
     folderIcons: Record<string, string>;
@@ -102,20 +102,32 @@ export interface NotebookNavigatorSettings {
  * Used when plugin is first installed or settings are reset
  */
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
-    // File organization
+    // Top level settings (no category)
+    autoRevealActiveFile: true,
+    showTooltips: true,
+    excludedFolders: '',
+    excludedFiles: '',
+    // Navigation pane
+    autoSelectFirstFileOnFocusChange: true,
+    showNoteCount: true,
+    showIcons: true,
+    collapseButtonBehavior: 'all',
+    // Folders
+    showRootFolder: true,
+    enableFolderNotes: false,
+    folderNoteName: '',
+    hideFolderNoteInList: true,
+    // Tags
+    showTags: true,
+    showUntagged: false,
+    // File list
     defaultFolderSort: 'modified-desc',
     groupByDate: true,
     showNotesFromSubfolders: true,
-    showSubfolderNamesInList: true,
-    autoRevealActiveFile: true,
-    autoSelectFirstFile: true,
-    showTooltips: true,
-    excludedFiles: '',
-    ignoreFolders: '',
-    // Time display
+    showParentFolderNames: true,
     dateFormat: 'MMM d, yyyy',
     timeFormat: 'h:mm a',
-    // Note display
+    // Notes
     frontmatterNameField: '',
     frontmatterCreatedField: 'created',
     frontmatterModifiedField: 'modified',
@@ -128,21 +140,9 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     previewRows: 1,
     showFeatureImage: true,
     featureImageProperty: 'feature',
-    // Folder display
-    showRootFolder: true,
-    showFolderFileCount: true,
-    showFolderIcons: true,
-    collapseButtonBehavior: 'all',
-    // Tag display
-    showTags: true,
-    showUntagged: false,
-    // Folder notes
-    enableFolderNotes: false,
-    folderNoteName: '',
-    hideFolderNoteInList: true,
+    useFrontmatterDates: false,
     // Advanced
     confirmBeforeDelete: true,
-    useFrontmatterDates: false,
     // Internal
     pinnedNotes: {},
     folderIcons: {},
@@ -251,17 +251,189 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
     /**
      * Renders the settings tab UI
      * Organizes settings into logical sections:
-     * - File organization
-     * - File display
-     * - Folder display
-     * - Appearance
+     * - Top level (no header)
+     * - Navigation pane
+     * - Folders
+     * - Tags
+     * - File list
+     * - Notes
      * - Advanced
      */
     display(): void {
         const { containerEl } = this;
         containerEl.empty();
 
-        // Section 1: File organization
+        // Top level settings (no category header)
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.autoRevealActiveNote.name)
+            .setDesc(strings.settings.items.autoRevealActiveNote.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.autoRevealActiveFile)
+                .onChange(async (value) => {
+                    this.plugin.settings.autoRevealActiveFile = value;
+                    await this.saveAndRefresh();
+                }));
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.showTooltips.name)
+            .setDesc(strings.settings.items.showTooltips.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showTooltips)
+                .onChange(async (value) => {
+                    this.plugin.settings.showTooltips = value;
+                    await this.saveAndRefresh();
+                }));
+
+        this.createDebouncedTextSetting(
+            containerEl,
+            strings.settings.items.excludedFolders.name,
+            strings.settings.items.excludedFolders.desc,
+            strings.settings.items.excludedFolders.placeholder,
+            () => this.plugin.settings.excludedFolders,
+            (value) => { this.plugin.settings.excludedFolders = value; }
+        );
+
+        this.createDebouncedTextSetting(
+            containerEl,
+            strings.settings.items.excludedNotes.name,
+            strings.settings.items.excludedNotes.desc,
+            strings.settings.items.excludedNotes.placeholder,
+            () => this.plugin.settings.excludedFiles,
+            (value) => { this.plugin.settings.excludedFiles = value; }
+        );
+
+        // Section 1: Navigation pane
+        new Setting(containerEl)
+            .setName(strings.settings.sections.navigationPane)
+            .setHeading();
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.autoSelectFirstFileOnFocusChange.name)
+            .setDesc(strings.settings.items.autoSelectFirstFileOnFocusChange.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.autoSelectFirstFileOnFocusChange)
+                .onChange(async (value) => {
+                    this.plugin.settings.autoSelectFirstFileOnFocusChange = value;
+                    await this.saveAndRefresh();
+                }));
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.showNoteCount.name)
+            .setDesc(strings.settings.items.showNoteCount.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showNoteCount)
+                .onChange(async (value) => {
+                    this.plugin.settings.showNoteCount = value;
+                    await this.saveAndRefresh();
+                }));
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.showIcons.name)
+            .setDesc(strings.settings.items.showIcons.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showIcons)
+                .onChange(async (value) => {
+                    this.plugin.settings.showIcons = value;
+                    await this.saveAndRefresh();
+                }));
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.collapseButtonBehavior.name)
+            .setDesc(strings.settings.items.collapseButtonBehavior.desc)
+            .addDropdown(dropdown => dropdown
+                .addOption('all', strings.settings.items.collapseButtonBehavior.options.all)
+                .addOption('folders-only', strings.settings.items.collapseButtonBehavior.options.foldersOnly)
+                .addOption('tags-only', strings.settings.items.collapseButtonBehavior.options.tagsOnly)
+                .setValue(this.plugin.settings.collapseButtonBehavior)
+                .onChange(async (value: CollapseButtonBehavior) => {
+                    this.plugin.settings.collapseButtonBehavior = value;
+                    await this.saveAndRefresh();
+                }));
+
+        // Section 2: Folders
+        new Setting(containerEl)
+            .setName(strings.settings.sections.folders)
+            .setHeading();
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.showRootFolder.name)
+            .setDesc(strings.settings.items.showRootFolder.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showRootFolder)
+                .onChange(async (value) => {
+                    this.plugin.settings.showRootFolder = value;
+                    await this.saveAndRefresh();
+                }));
+
+        const enableFolderNotesSetting = new Setting(containerEl)
+            .setName(strings.settings.items.enableFolderNotes.name)
+            .setDesc(strings.settings.items.enableFolderNotes.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.enableFolderNotes)
+                .onChange(async (value) => {
+                    this.plugin.settings.enableFolderNotes = value;
+                    await this.saveAndRefresh();
+                    // Update folder notes sub-settings visibility
+                    this.setElementVisibility(folderNotesSettingsEl, value);
+                }));
+
+        // Container for folder notes sub-settings
+        const folderNotesSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+        this.createDebouncedTextSetting(
+            folderNotesSettingsEl,
+            strings.settings.items.folderNoteName.name,
+            strings.settings.items.folderNoteName.desc,
+            strings.settings.items.folderNoteName.placeholder,
+            () => this.plugin.settings.folderNoteName,
+            (value) => { this.plugin.settings.folderNoteName = value; }
+        );
+
+        new Setting(folderNotesSettingsEl)
+            .setName(strings.settings.items.hideFolderNoteInList.name)
+            .setDesc(strings.settings.items.hideFolderNoteInList.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.hideFolderNoteInList)
+                .onChange(async (value) => {
+                    this.plugin.settings.hideFolderNoteInList = value;
+                    await this.saveAndRefresh();
+                }));
+
+        // Section 3: Tags
+        new Setting(containerEl)
+            .setName(strings.settings.sections.tags)
+            .setHeading();
+
+        const showTagsSetting = new Setting(containerEl)
+            .setName(strings.settings.items.showTags.name)
+            .setDesc(strings.settings.items.showTags.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showTags)
+                .onChange(async (value) => {
+                    this.plugin.settings.showTags = value;
+                    await this.saveAndRefresh();
+                    // Update untagged visibility
+                    this.setElementVisibility(untaggedSettingEl, value);
+                }));
+
+        // Container for untagged setting
+        const untaggedSettingEl = containerEl.createDiv('nn-sub-settings');
+
+        new Setting(untaggedSettingEl)
+            .setName(strings.settings.items.showUntagged.name)
+            .setDesc(strings.settings.items.showUntagged.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showUntagged)
+                .onChange(async (value) => {
+                    this.plugin.settings.showUntagged = value;
+                    await this.saveAndRefresh();
+                }));
+
+        // Section 4: File list
+        new Setting(containerEl)
+            .setName(strings.settings.sections.fileList)
+            .setHeading();
 
         const sortSetting = new Setting(containerEl)
             .setName(strings.settings.items.sortNotesBy.name)
@@ -310,70 +482,17 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         const subfolderNamesEl = containerEl.createDiv('nn-sub-settings');
 
         new Setting(subfolderNamesEl)
-            .setName(strings.settings.items.showSubfolderNamesInList.name)
-            .setDesc(strings.settings.items.showSubfolderNamesInList.desc)
+            .setName(strings.settings.items.showParentFolderNames.name)
+            .setDesc(strings.settings.items.showParentFolderNames.desc)
             .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showSubfolderNamesInList)
+                .setValue(this.plugin.settings.showParentFolderNames)
                 .onChange(async (value) => {
-                    this.plugin.settings.showSubfolderNamesInList = value;
+                    this.plugin.settings.showParentFolderNames = value;
                     await this.saveAndRefresh();
                 }));
 
         // Set initial visibility
         this.setElementVisibility(subfolderNamesEl, this.plugin.settings.showNotesFromSubfolders);
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.autoRevealActiveNote.name)
-            .setDesc(strings.settings.items.autoRevealActiveNote.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.autoRevealActiveFile)
-                .onChange(async (value) => {
-                    this.plugin.settings.autoRevealActiveFile = value;
-                    await this.saveAndRefresh();
-                }));
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.autoSelectFirstFile.name)
-            .setDesc(strings.settings.items.autoSelectFirstFile.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.autoSelectFirstFile)
-                .onChange(async (value) => {
-                    this.plugin.settings.autoSelectFirstFile = value;
-                    await this.saveAndRefresh();
-                }));
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.showTooltips.name)
-            .setDesc(strings.settings.items.showTooltips.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showTooltips)
-                .onChange(async (value) => {
-                    this.plugin.settings.showTooltips = value;
-                    await this.saveAndRefresh();
-                }));
-
-        this.createDebouncedTextSetting(
-            containerEl,
-            strings.settings.items.excludedNotes.name,
-            strings.settings.items.excludedNotes.desc,
-            strings.settings.items.excludedNotes.placeholder,
-            () => this.plugin.settings.excludedFiles,
-            (value) => { this.plugin.settings.excludedFiles = value; }
-        );
-
-        this.createDebouncedTextSetting(
-            containerEl,
-            strings.settings.items.excludedFolders.name,
-            strings.settings.items.excludedFolders.desc,
-            strings.settings.items.excludedFolders.placeholder,
-            () => this.plugin.settings.ignoreFolders,
-            (value) => { this.plugin.settings.ignoreFolders = value; }
-        );
-
-        // Section 2: Time display
-        new Setting(containerEl)
-            .setName(strings.settings.sections.timeDisplay)
-            .setHeading();
 
         this.createDebouncedTextSetting(
             containerEl,
@@ -403,9 +522,9 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 new Notice(strings.settings.items.timeFormat.help, 10000);
             }));
 
-        // Section 3: Note display
+        // Section 5: Notes
         new Setting(containerEl)
-            .setName(strings.settings.sections.noteDisplay)
+            .setName(strings.settings.sections.notes)
             .setHeading();
 
         const useFrontmatterDatesSetting = new Setting(containerEl)
@@ -557,117 +676,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             (value) => { this.plugin.settings.featureImageProperty = value || 'feature'; }
         );
 
-        // Section 4: Folder display
-        new Setting(containerEl)
-            .setName(strings.settings.sections.folderDisplay)
-            .setHeading();
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.showRootFolder.name)
-            .setDesc(strings.settings.items.showRootFolder.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showRootFolder)
-                .onChange(async (value) => {
-                    this.plugin.settings.showRootFolder = value;
-                    await this.saveAndRefresh();
-                }));
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.showFolderFileCount.name)
-            .setDesc(strings.settings.items.showFolderFileCount.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showFolderFileCount)
-                .onChange(async (value) => {
-                    this.plugin.settings.showFolderFileCount = value;
-                    await this.saveAndRefresh();
-                }));
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.showFolderIcons.name)
-            .setDesc(strings.settings.items.showFolderIcons.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showFolderIcons)
-                .onChange(async (value) => {
-                    this.plugin.settings.showFolderIcons = value;
-                    await this.saveAndRefresh();
-                }));
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.collapseButtonBehavior.name)
-            .setDesc(strings.settings.items.collapseButtonBehavior.desc)
-            .addDropdown(dropdown => dropdown
-                .addOption('all', strings.settings.items.collapseButtonBehavior.options.all)
-                .addOption('folders-only', strings.settings.items.collapseButtonBehavior.options.foldersOnly)
-                .addOption('tags-only', strings.settings.items.collapseButtonBehavior.options.tagsOnly)
-                .setValue(this.plugin.settings.collapseButtonBehavior)
-                .onChange(async (value: CollapseButtonBehavior) => {
-                    this.plugin.settings.collapseButtonBehavior = value;
-                    await this.saveAndRefresh();
-                }));
-
-        const enableFolderNotesSetting = new Setting(containerEl)
-            .setName(strings.settings.items.enableFolderNotes.name)
-            .setDesc(strings.settings.items.enableFolderNotes.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.enableFolderNotes)
-                .onChange(async (value) => {
-                    this.plugin.settings.enableFolderNotes = value;
-                    await this.saveAndRefresh();
-                    // Update folder notes sub-settings visibility
-                    this.setElementVisibility(folderNotesSettingsEl, value);
-                }));
-
-        // Container for folder notes sub-settings
-        const folderNotesSettingsEl = containerEl.createDiv('nn-sub-settings');
-
-        this.createDebouncedTextSetting(
-            folderNotesSettingsEl,
-            strings.settings.items.folderNoteName.name,
-            strings.settings.items.folderNoteName.desc,
-            strings.settings.items.folderNoteName.placeholder,
-            () => this.plugin.settings.folderNoteName,
-            (value) => { this.plugin.settings.folderNoteName = value; }
-        );
-
-        new Setting(folderNotesSettingsEl)
-            .setName(strings.settings.items.hideFolderNoteInList.name)
-            .setDesc(strings.settings.items.hideFolderNoteInList.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.hideFolderNoteInList)
-                .onChange(async (value) => {
-                    this.plugin.settings.hideFolderNoteInList = value;
-                    await this.saveAndRefresh();
-                }));
-
-        // Section 5: Tag display
-        new Setting(containerEl)
-            .setName(strings.settings.sections.tagDisplay)
-            .setHeading();
-
-        const showTagsSetting = new Setting(containerEl)
-            .setName(strings.settings.items.showTags.name)
-            .setDesc(strings.settings.items.showTags.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showTags)
-                .onChange(async (value) => {
-                    this.plugin.settings.showTags = value;
-                    await this.saveAndRefresh();
-                    // Update untagged visibility
-                    this.setElementVisibility(untaggedSettingEl, value);
-                }));
-
-        // Container for untagged setting
-        const untaggedSettingEl = containerEl.createDiv();
-
-        new Setting(untaggedSettingEl)
-            .setName(strings.settings.items.showUntagged.name)
-            .setDesc(strings.settings.items.showUntagged.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showUntagged)
-                .onChange(async (value) => {
-                    this.plugin.settings.showUntagged = value;
-                    await this.saveAndRefresh();
-                }));
 
         // Section 6: Advanced
         new Setting(containerEl)

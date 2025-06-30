@@ -418,7 +418,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
                 const filesInFolder = getFilesForFolder(action.folder, settings, app);
                 
                 // Desktop with autoSelectFirstFile enabled: ALWAYS select first file
-                if (!isMobile && settings.autoSelectFirstFile && filesInFolder.length > 0) {
+                if (!isMobile && settings.autoSelectFirstFileOnFocusChange && filesInFolder.length > 0) {
                     dispatch({ ...action, autoSelectedFile: filesInFolder[0] });
                 } else {
                     // Otherwise, check for active file
@@ -446,7 +446,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
                 const filesForTag = getFilesForTag(action.tag, settings, app);
                 
                 // Desktop with autoSelectFirstFile enabled: ALWAYS select first file
-                if (!isMobile && settings.autoSelectFirstFile && filesForTag.length > 0) {
+                if (!isMobile && settings.autoSelectFirstFileOnFocusChange && filesForTag.length > 0) {
                     dispatch({ ...action, autoSelectedFile: filesForTag[0] });
                 } else {
                     // Otherwise, check for active file

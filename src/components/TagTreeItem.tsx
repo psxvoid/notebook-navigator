@@ -123,7 +123,7 @@ export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProp
                         e.preventDefault();
                     }}
                 />
-                {settings.showFolderIcons && (
+                {settings.showIcons && (
                     <span className="nn-folder-icon" style={{ color: customColor }}>
                         <ObsidianIcon name={customIcon || 'hash'} />
                     </span>

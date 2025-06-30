@@ -276,11 +276,11 @@ export const STRINGS_FR = {
     // Settings
     settings: {
         sections: {
-            timeDisplay: 'Affichage du temps',
-            noteDisplay: 'Affichage des notes',
-            folderDisplay: 'Affichage des dossiers',
-            tagDisplay: 'Affichage des étiquettes',
-            folderNotes: 'Notes de dossier',
+            notes: 'Affichage des notes',
+            navigationPane: 'Affichage des dossiers',
+            tags: 'Affichage des étiquettes',
+            folders: 'Notes de dossier',
+            fileList: 'Liste de fichiers',
             advanced: 'Avancé',
         },
         items: {
@@ -304,7 +304,7 @@ export const STRINGS_FR = {
                 name: 'Afficher les notes des sous-dossiers',
                 desc: 'Afficher toutes les notes des sous-dossiers dans la vue du dossier actuel.',
             },
-            showSubfolderNamesInList: {
+            showParentFolderNames: {
                 name: 'Afficher les noms des dossiers parents',
                 desc: 'Afficher le nom du dossier parent pour les notes provenant des sous-dossiers.',
             },
@@ -312,9 +312,9 @@ export const STRINGS_FR = {
                 name: 'Révéler automatiquement la note active',
                 desc: 'Révéler et sélectionner automatiquement les notes lorsqu\'elles sont ouvertes depuis le Commutateur rapide, les liens ou la recherche.',
             },
-            autoSelectFirstFile: {
-                name: 'Sélectionner automatiquement le premier fichier lors du changement de dossier',
-                desc: 'Sélectionner et ouvrir automatiquement le premier fichier lors du changement de dossier.',
+            autoSelectFirstFileOnFocusChange: {
+                name: 'Sélectionner automatiquement le premier fichier lors du changement de dossier ou d\'étiquette',
+                desc: 'Sélectionner et ouvrir automatiquement le premier fichier lors du changement de dossier ou d\'étiquette.',
             },
             showTooltips: {
                 name: 'Afficher les infobulles',
@@ -392,13 +392,13 @@ export const STRINGS_FR = {
                 name: 'Afficher le dossier racine',
                 desc: 'Afficher "Coffre" comme dossier racine dans l\'arborescence.',
             },
-            showFolderFileCount: {
-                name: 'Afficher le nombre de notes des dossiers',
-                desc: 'Afficher le nombre de notes dans chaque dossier.',
+            showNoteCount: {
+                name: 'Afficher le nombre de notes',
+                desc: 'Afficher le nombre de notes dans chaque dossier et étiquette.',
             },
-            showFolderIcons: {
-                name: 'Afficher les icônes de dossiers',
-                desc: 'Afficher les icônes à côté des noms de dossiers dans l\'arborescence.',
+            showIcons: {
+                name: 'Afficher les icônes',
+                desc: 'Afficher les icônes à côté des dossiers et étiquettes dans le panneau de navigation.',
             },
             collapseButtonBehavior: {
                 name: 'Comportement du bouton replier',

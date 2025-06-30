@@ -276,11 +276,11 @@ export const STRINGS_ES = {
     // Settings
     settings: {
         sections: {
-            timeDisplay: 'Visualización de tiempo',
-            noteDisplay: 'Visualización de notas',
-            folderDisplay: 'Visualización de carpetas',
-            tagDisplay: 'Visualización de etiquetas',
-            folderNotes: 'Notas de carpeta',
+            notes: 'Visualización de notas',
+            navigationPane: 'Visualización de carpetas',
+            tags: 'Visualización de etiquetas',
+            folders: 'Notas de carpeta',
+            fileList: 'Lista de archivos',
             advanced: 'Avanzado',
         },
         items: {
@@ -304,7 +304,7 @@ export const STRINGS_ES = {
                 name: 'Mostrar notas de subcarpetas',
                 desc: 'Muestra todas las notas de las subcarpetas en la vista de carpeta actual.',
             },
-            showSubfolderNamesInList: {
+            showParentFolderNames: {
                 name: 'Mostrar nombres de carpetas principales',
                 desc: 'Muestra el nombre de la carpeta principal para las notas de subcarpetas.',
             },
@@ -312,9 +312,9 @@ export const STRINGS_ES = {
                 name: 'Mostrar automáticamente la nota activa',
                 desc: 'Muestra y selecciona automáticamente las notas cuando se abren desde el Conmutador rápido, enlaces o búsqueda.',
             },
-            autoSelectFirstFile: {
-                name: 'Seleccionar automáticamente el primer archivo al cambiar de carpeta',
-                desc: 'Selecciona y abre automáticamente el primer archivo al cambiar de carpeta.',
+            autoSelectFirstFileOnFocusChange: {
+                name: 'Seleccionar automáticamente el primer archivo al cambiar de carpeta o etiqueta',
+                desc: 'Selecciona y abre automáticamente el primer archivo al cambiar de carpeta o etiqueta.',
             },
             showTooltips: {
                 name: 'Mostrar tooltips',
@@ -392,13 +392,13 @@ export const STRINGS_ES = {
                 name: 'Mostrar carpeta raíz',
                 desc: 'Muestra "Bóveda" como la carpeta raíz en el árbol.',
             },
-            showFolderFileCount: {
-                name: 'Mostrar conteo de notas en carpetas',
-                desc: 'Muestra el número de notas en cada carpeta.',
+            showNoteCount: {
+                name: 'Mostrar conteo de notas',
+                desc: 'Muestra el número de notas en cada carpeta y etiqueta.',
             },
-            showFolderIcons: {
-                name: 'Mostrar iconos de carpetas',
-                desc: 'Muestra iconos junto a los nombres de las carpetas en el árbol.',
+            showIcons: {
+                name: 'Mostrar iconos',
+                desc: 'Muestra iconos junto a las carpetas y etiquetas en el panel de navegación.',
             },
             collapseButtonBehavior: {
                 name: 'Comportamiento del botón contraer',

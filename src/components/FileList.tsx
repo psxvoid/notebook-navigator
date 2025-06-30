@@ -168,7 +168,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             return;
         }
         
-        if (selectedFile && !isUserSelectionRef.current && settings.autoSelectFirstFile && !isMobile) {
+        if (selectedFile && !isUserSelectionRef.current && settings.autoSelectFirstFileOnFocusChange && !isMobile) {
             // Check if we're actively navigating the navigator
             const navigatorEl = document.querySelector('.nn-split-container');
             const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
@@ -185,7 +185,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         }
         // Reset the flag after processing
         isUserSelectionRef.current = false;
-    }, [selectedFile, app.workspace, settings.autoSelectFirstFile, isMobile, selectionState.isRevealOperation, selectionState.isFolderChangeWithAutoSelect, selectionState.isKeyboardNavigation, selectionDispatch]);
+    }, [selectedFile, app.workspace, settings.autoSelectFirstFileOnFocusChange, isMobile, selectionState.isRevealOperation, selectionState.isFolderChangeWithAutoSelect, selectionState.isKeyboardNavigation, selectionDispatch]);
     
     // Auto-select active file or first file when files pane gains focus
     useEffect(() => {
@@ -420,7 +420,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             }
 
             // For file items
-            const { showDate, showFilePreview, showFeatureImage, fileNameRows, previewRows, showSubfolderNamesInList } = settings;
+            const { showDate, showFilePreview, showFeatureImage, fileNameRows, previewRows, showParentFolderNames } = settings;
             
             // Check if we're in slim mode (no date, preview, or image)
             const isSlimMode = !showDate && !showFilePreview && !showFeatureImage;
@@ -453,7 +453,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             
             // Add height for subfolder indicator if shown
             // This only shows when file is in a subfolder
-            if (showSubfolderNamesInList && settings.showNotesFromSubfolders) {
+            if (showParentFolderNames && settings.showNotesFromSubfolders) {
                 // We can't know if this specific file is in a subfolder without more context
                 // So we add a conservative estimate
                 estimatedHeight += 8; // Average across files (some have it, some don't)

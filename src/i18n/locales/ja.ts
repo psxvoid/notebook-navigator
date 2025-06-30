@@ -276,11 +276,11 @@ export const STRINGS_JA = {
     // Settings
     settings: {
         sections: {
-            timeDisplay: '時刻表示',
-            noteDisplay: 'ノート表示',
-            folderDisplay: 'フォルダ表示',
-            tagDisplay: 'タグ表示',
-            folderNotes: 'フォルダノート',
+            notes: 'ノート表示',
+            navigationPane: 'フォルダ表示',
+            tags: 'タグ表示',
+            folders: 'フォルダノート',
+            fileList: 'ファイルリスト',
             advanced: '詳細設定',
         },
         items: {
@@ -304,7 +304,7 @@ export const STRINGS_JA = {
                 name: 'サブフォルダのノートを表示',
                 desc: '現在のフォルダビューにすべてのサブフォルダのノートを表示します。',
             },
-            showSubfolderNamesInList: {
+            showParentFolderNames: {
                 name: '親フォルダ名を表示',
                 desc: 'サブフォルダのノートに親フォルダ名を表示します。',
             },
@@ -312,9 +312,9 @@ export const STRINGS_JA = {
                 name: 'アクティブなノートを自動表示',
                 desc: 'クイックスイッチャー、リンク、検索から開いたときに自動的にノートを表示して選択します。',
             },
-            autoSelectFirstFile: {
-                name: 'フォルダ変更時に最初のファイルを自動選択',
-                desc: 'フォルダを切り替えた際に自動的に最初のファイルを選択して開きます。',
+            autoSelectFirstFileOnFocusChange: {
+                name: 'フォルダまたはタグ変更時に最初のファイルを自動選択',
+                desc: 'フォルダまたはタグを切り替えた際に自動的に最初のファイルを選択して開きます。',
             },
             showTooltips: {
                 name: 'ツールチップを表示',
@@ -392,13 +392,13 @@ export const STRINGS_JA = {
                 name: 'ルートフォルダを表示',
                 desc: 'ツリーにルートフォルダとして「保管庫」を表示します。',
             },
-            showFolderFileCount: {
-                name: 'フォルダのノート数を表示',
-                desc: '各フォルダ内のノート数を表示します。',
+            showNoteCount: {
+                name: 'ノート数を表示',
+                desc: '各フォルダとタグのノート数を表示します。',
             },
-            showFolderIcons: {
-                name: 'フォルダアイコンを表示',
-                desc: 'ツリー内のフォルダ名の横にアイコンを表示します。',
+            showIcons: {
+                name: 'アイコンを表示',
+                desc: 'ナビゲーションパネルのフォルダとタグの横にアイコンを表示します。',
             },
             collapseButtonBehavior: {
                 name: '折りたたみボタンの動作',

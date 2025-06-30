@@ -276,11 +276,11 @@ export const STRINGS_DE = {
     // Settings
     settings: {
         sections: {
-            timeDisplay: 'Zeitanzeige',
-            noteDisplay: 'Notizenanzeige',
-            folderDisplay: 'Ordneranzeige',
-            tagDisplay: 'Tag-Anzeige',
-            folderNotes: 'Ordnernotizen',
+            notes: 'Notizenanzeige',
+            navigationPane: 'Ordneranzeige',
+            tags: 'Tag-Anzeige',
+            folders: 'Ordnernotizen',
+            fileList: 'Dateiliste',
             advanced: 'Erweitert',
         },
         items: {
@@ -304,7 +304,7 @@ export const STRINGS_DE = {
                 name: 'Notizen aus Unterordnern anzeigen',
                 desc: 'Alle Notizen aus Unterordnern in der aktuellen Ordneransicht anzeigen.',
             },
-            showSubfolderNamesInList: {
+            showParentFolderNames: {
                 name: 'Übergeordnete Ordnernamen anzeigen',
                 desc: 'Den übergeordneten Ordnernamen für Notizen aus Unterordnern anzeigen.',
             },
@@ -312,9 +312,9 @@ export const STRINGS_DE = {
                 name: 'Aktive Notiz automatisch anzeigen',
                 desc: 'Notizen automatisch anzeigen und auswählen, wenn sie über Schnellauswahl, Links oder Suche geöffnet werden.',
             },
-            autoSelectFirstFile: {
-                name: 'Erste Datei beim Ordnerwechsel automatisch auswählen',
-                desc: 'Die erste Datei automatisch auswählen und öffnen, wenn Sie den Ordner wechseln.',
+            autoSelectFirstFileOnFocusChange: {
+                name: 'Erste Datei beim Ordner- oder Tag-Wechsel automatisch auswählen',
+                desc: 'Die erste Datei automatisch auswählen und öffnen, wenn Sie den Ordner oder Tag wechseln.',
             },
             showTooltips: {
                 name: 'Tooltips anzeigen',
@@ -392,13 +392,13 @@ export const STRINGS_DE = {
                 name: 'Wurzelordner anzeigen',
                 desc: '"Tresor" als Wurzelordner im Baum anzeigen.',
             },
-            showFolderFileCount: {
-                name: 'Ordner-Notizenzahl anzeigen',
-                desc: 'Die Anzahl der Notizen in jedem Ordner anzeigen.',
+            showNoteCount: {
+                name: 'Notizenzahl anzeigen',
+                desc: 'Die Anzahl der Notizen in jedem Ordner und Tag anzeigen.',
             },
-            showFolderIcons: {
-                name: 'Ordnersymbole anzeigen',
-                desc: 'Symbole neben Ordnernamen im Baum anzeigen.',
+            showIcons: {
+                name: 'Symbole anzeigen',
+                desc: 'Symbole neben Ordnern und Tags im Navigationsbereich anzeigen.',
             },
             collapseButtonBehavior: {
                 name: 'Verhalten der Einklapp-Schaltfläche',

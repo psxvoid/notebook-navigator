@@ -276,11 +276,11 @@ export const STRINGS_ZH = {
     // Settings
     settings: {
         sections: {
-            timeDisplay: '时间显示',
-            noteDisplay: '笔记显示',
-            folderDisplay: '文件夹显示',
-            tagDisplay: '标签显示',
-            folderNotes: '文件夹笔记',
+            notes: '笔记显示',
+            navigationPane: '文件夹显示',
+            tags: '标签显示',
+            folders: '文件夹笔记',
+            fileList: '文件列表',
             advanced: '高级',
         },
         items: {
@@ -304,7 +304,7 @@ export const STRINGS_ZH = {
                 name: '显示子文件夹中的笔记',
                 desc: '在当前文件夹视图中显示所有子文件夹中的笔记。',
             },
-            showSubfolderNamesInList: {
+            showParentFolderNames: {
                 name: '显示父文件夹名称',
                 desc: '为子文件夹中的笔记显示父文件夹名称。',
             },
@@ -312,9 +312,9 @@ export const STRINGS_ZH = {
                 name: '自动定位活动笔记',
                 desc: '从快速切换器、链接或搜索打开笔记时自动显示并选择。',
             },
-            autoSelectFirstFile: {
-                name: '切换文件夹时自动选择第一个文件',
-                desc: '切换文件夹时自动选择并打开第一个文件。',
+            autoSelectFirstFileOnFocusChange: {
+                name: '切换文件夹或标签时自动选择第一个文件',
+                desc: '切换文件夹或标签时自动选择并打开第一个文件。',
             },
             showTooltips: {
                 name: '显示工具提示',
@@ -392,13 +392,13 @@ export const STRINGS_ZH = {
                 name: '显示根文件夹',
                 desc: '在树中显示"仓库"作为根文件夹。',
             },
-            showFolderFileCount: {
-                name: '显示文件夹笔记数',
-                desc: '显示每个文件夹中的笔记数量。',
+            showNoteCount: {
+                name: '显示笔记数',
+                desc: '显示每个文件夹和标签中的笔记数量。',
             },
-            showFolderIcons: {
-                name: '显示文件夹图标',
-                desc: '在树中的文件夹名称旁显示图标。',
+            showIcons: {
+                name: '显示图标',
+                desc: '在导航面板中的文件夹和标签旁显示图标。',
             },
             collapseButtonBehavior: {
                 name: '折叠按钮行为',

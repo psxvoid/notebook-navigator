@@ -210,7 +210,7 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
                                 <div className="nn-file-date nn-file-date-below">{displayDate}</div>
                             )}
                             {/* Show folder indicator */}
-                            {settings.showNotesFromSubfolders && settings.showSubfolderNamesInList && parentFolder && file.parent && file.parent.path !== parentFolder && (
+                            {settings.showNotesFromSubfolders && settings.showParentFolderNames && parentFolder && file.parent && file.parent.path !== parentFolder && (
                                 <div className="nn-file-folder">
                                     <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
                                     <span>{file.parent.name}</span>

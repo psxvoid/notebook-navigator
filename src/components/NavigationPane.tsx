@@ -162,7 +162,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         const folderItems = flattenFolderTree(
             rootFolders,
             expansionState.expandedFolders,
-            parseExcludedFolders(settings.ignoreFolders || '')
+            parseExcludedFolders(settings.excludedFolders || '')
         );
         allItems.push(...folderItems);
         
@@ -210,7 +210,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         
         rebuildItems();
     }, [rootFolders, expansionState.expandedFolders, expansionState.expandedTags, 
-        settings.ignoreFolders, settings.showTags, 
+        settings.excludedFolders, settings.showTags, 
         settings.showUntagged, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
     // =================================================================================
     // =================================================================================
@@ -384,7 +384,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                         onToggle={() => handleTagToggle(tagNode.path)}
                         onClick={() => handleTagClick(tagNode.path)}
                         fileCount={item.type === NavigationPaneItemType.UNTAGGED ? untaggedCount : getTotalNoteCount(tagNode)}
-                        showFileCount={settings.showFolderFileCount}
+                        showFileCount={settings.showNoteCount}
                         customIcon={metadataService.getTagIcon(tagNode.path)}
                         customColor={metadataService.getTagColor(tagNode.path)}
                     />
