@@ -125,7 +125,7 @@ export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProp
                 />
                 {settings.showIcons && (
                     <span className="nn-folder-icon" style={{ color: customColor }}>
-                        <ObsidianIcon name={customIcon || 'hash'} />
+                        <ObsidianIcon name={customIcon || (hasChildren ? 'tags' : 'tag')} />
                     </span>
                 )}
                 <span className="nn-folder-name" style={customColor ? { color: customColor, fontWeight: 600 } : undefined}>
