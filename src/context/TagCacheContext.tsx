@@ -74,6 +74,7 @@ import {
 } from '../utils/tagUtils';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 import { useSettingsState } from './SettingsContext';
+import { useServices } from './ServicesContext';
 import { STORAGE_KEYS } from '../types';
 
 /**
@@ -104,6 +105,7 @@ interface TagCacheProviderProps {
  */
 export function TagCacheProvider({ app, children }: TagCacheProviderProps) {
     const settings = useSettingsState();
+    const { metadataService } = useServices();
     const [tagData, setTagData] = useState<TagData>({ tree: new Map(), untagged: 0 });
 
     useEffect(() => {
@@ -161,6 +163,12 @@ export function TagCacheProvider({ app, children }: TagCacheProviderProps) {
                         // Save updated cache
                         saveTagCache(updatedCache);
                         
+                        // Clean up tag metadata after successful tree build
+                        if (metadataService) {
+                            metadataService.cleanupTagMetadata().catch(error => {
+                                console.error('[NotebookNavigator] Error during tag metadata cleanup:', error);
+                            });
+                        }
                     }
                     
                     } catch (error) {
@@ -202,6 +210,14 @@ export function TagCacheProvider({ app, children }: TagCacheProviderProps) {
                     
                     const elapsed = performance.now() - startTime;
                     const tagCount = countTotalTags(newTree);
+                    
+                    // Now that we have a complete tag tree, clean up tag metadata
+                    // This ensures we don't remove valid parent tags
+                    if (metadataService) {
+                        metadataService.cleanupTagMetadata().catch(error => {
+                            console.error('[NotebookNavigator] Error during tag metadata cleanup:', error);
+                        });
+                    }
                     } catch (error) {
                         console.error('[NotebookNavigator] Error building tag tree:', error);
                         // Keep empty tag data on error

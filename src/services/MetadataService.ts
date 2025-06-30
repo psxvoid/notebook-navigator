@@ -22,7 +22,7 @@ import { FolderMetadataService, TagMetadataService, FileMetadataService } from '
 /**
  * Service for managing all folder, tag, and file metadata operations
  * Delegates to specialized sub-services for better organization
- * Provides cleanup operations for deleted files/folders/tags
+ * Provides a unified API for metadata operations while maintaining backward compatibility
  */
 export class MetadataService {
     private folderService: FolderMetadataService;
@@ -162,18 +162,30 @@ export class MetadataService {
     // ========== Cleanup Operations ==========
 
     /**
-     * Comprehensive cleanup of all metadata on plugin startup
-     * Removes references to deleted files and folders from all settings
+     * Cleanup metadata for files and folders only
+     * Called on plugin startup to remove references to deleted files and folders
+     * Note: Tag cleanup is intentionally excluded and handled separately after tag tree building
      * @returns True if any changes were made
      */
     async cleanupAllMetadata(): Promise<boolean> {
-        // Run cleanup for each service and track if any changes were made
-        const [folderChanges, tagChanges, fileChanges] = await Promise.all([
+        // Run cleanup for folders and files only
+        // Tag cleanup is handled separately in TagCacheProvider after tag tree is built
+        // This ensures parent tags are properly identified before cleanup
+        const [folderChanges, fileChanges] = await Promise.all([
             this.folderService.cleanupFolderMetadata(),
-            this.tagService.cleanupTagMetadata(),
             this.fileService.cleanupPinnedNotes()
         ]);
         
-        return folderChanges || tagChanges || fileChanges;
+        return folderChanges || fileChanges;
+    }
+
+    /**
+     * Cleanup tag metadata for tags that no longer exist in the vault
+     * Called by TagCacheProvider after tag tree is successfully built
+     * This ensures the metadata cache is ready and all parent tags are identified
+     * @returns True if any changes were made
+     */
+    async cleanupTagMetadata(): Promise<boolean> {
+        return this.tagService.cleanupTagMetadata();
     }
 }

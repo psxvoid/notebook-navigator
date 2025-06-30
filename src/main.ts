@@ -251,7 +251,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
         // Use onLayoutReady for more reliable initialization
         this.app.workspace.onLayoutReady(async () => {
             
-            // Defer metadata cleanup to idle time
+            // Defer folder and file metadata cleanup to idle time
+            // Note: Tag metadata cleanup happens after tag tree is built to ensure accuracy
             requestIdleCallback(() => {
                 if (this.metadataService && !this.isUnloading) {
                     this.metadataService.cleanupAllMetadata().catch(error => {
