@@ -101,9 +101,12 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                 const modal = new TagOperationModal(app, {
                     operation: 'rename',
                     tagPath: tagPath,
+                    newTagPath: tagPath, // Pre-fill with current tag name (without #)
                     affectedFiles: affectedFiles,
                     onConfirm: async () => {
-                        if (!modal.newTagInput) return;
+                        if (!modal.newTagInput) {
+                            return;
+                        }
                         
                         const newTagPath = modal.newTagInput;
                         

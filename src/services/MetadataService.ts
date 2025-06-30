@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, TFolder } from 'obsidian';
+import { TFile, TFolder, getAllTags } from 'obsidian';
 import { NotebookNavigatorSettings, SortOption } from '../settings';
 import { ItemType } from '../types';
 
@@ -891,6 +891,58 @@ export class MetadataService {
                     if (validFiles.length === 0) {
                         delete settings.pinnedNotes[folderPath];
                         hasChanges = true;
+                    }
+                }
+            }
+
+            // Clean up tag metadata (colors, icons, sort overrides)
+            if (settings.tagColors || settings.tagIcons || settings.tagSortOverrides) {
+                // Collect all existing tags once
+                const validTags = new Set<string>();
+                const allFiles = this.app.vault.getMarkdownFiles();
+                
+                for (const file of allFiles) {
+                    const cache = this.app.metadataCache.getFileCache(file);
+                    if (cache) {
+                        // Use getAllTags to get both frontmatter and inline tags
+                        const tags = getAllTags(cache);
+                        if (tags && tags.length > 0) {
+                            tags.forEach((tag: string) => {
+                                // Remove # prefix for comparison
+                                const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
+                                validTags.add(cleanTag);
+                            });
+                        }
+                    }
+                }
+                
+                // Clean up tag colors
+                if (settings.tagColors) {
+                    for (const tagPath in settings.tagColors) {
+                        if (!validTags.has(tagPath)) {
+                            delete settings.tagColors[tagPath];
+                            hasChanges = true;
+                        }
+                    }
+                }
+                
+                // Clean up tag icons
+                if (settings.tagIcons) {
+                    for (const tagPath in settings.tagIcons) {
+                        if (!validTags.has(tagPath)) {
+                            delete settings.tagIcons[tagPath];
+                            hasChanges = true;
+                        }
+                    }
+                }
+                
+                // Clean up tag sort overrides
+                if (settings.tagSortOverrides) {
+                    for (const tagPath in settings.tagSortOverrides) {
+                        if (!validTags.has(tagPath)) {
+                            delete settings.tagSortOverrides[tagPath];
+                            hasChanges = true;
+                        }
                     }
                 }
             }

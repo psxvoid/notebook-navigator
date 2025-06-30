@@ -165,7 +165,7 @@ export class TagOperations {
      * Updates inline tags in content
      */
     private updateInlineTags(content: string, oldTag: string, newTag: string): string {
-        // Create regex patterns for the tag
+        // Create regex patterns for the tag (add # prefix for inline tags)
         const patterns = [
             // Standard tag format: #tag
             new RegExp(`#${this.escapeRegExp(oldTag)}\\b`, 'g'),

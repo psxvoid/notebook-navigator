@@ -125,8 +125,8 @@ export class TagOperationModal extends Modal {
                         // Remove # if user included it
                         const cleanTag = trimmedTag.startsWith('#') ? trimmedTag.substring(1) : trimmedTag;
                         
-                        // Pass the clean tag path
-                        this.options.newTagPath = cleanTag;
+                        // Update newTagInput with the clean tag
+                        this.newTagInput = cleanTag;
                     }
                     
                     this.close();
