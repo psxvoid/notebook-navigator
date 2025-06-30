@@ -100,6 +100,8 @@ export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProp
             ref={itemRef}
             className={`nn-folder-item ${isSelected ? 'nn-selected' : ''}`} 
             data-tag={tagNode.path}
+            data-drop-zone="tag"
+            data-drop-path={tagNode.path}
             style={{ paddingInlineStart: `${level * 20}px` }}
         >
             <div 
@@ -125,7 +127,7 @@ export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProp
                 />
                 {settings.showIcons && (
                     <span className="nn-folder-icon" style={{ color: customColor }}>
-                        <ObsidianIcon name={customIcon || (hasChildren ? 'tags' : 'tag')} />
+                        <ObsidianIcon name={customIcon || 'tags'} />
                     </span>
                 )}
                 <span className="nn-folder-name" style={customColor ? { color: customColor, fontWeight: 600 } : undefined}>

@@ -222,10 +222,16 @@ export const STRINGS_FR = {
             cannotMoveIntoSelf: 'Impossible de déplacer un dossier dans lui-même ou un sous-dossier.',
             itemAlreadyExists: 'Un élément nommé "{name}" existe déjà à cet emplacement.',
             failedToMove: 'Échec du déplacement : {error}',
+            failedToAddTag: 'Échec de l\'ajout de l\'étiquette "{tag}"',
+            failedToClearTags: 'Échec de la suppression des étiquettes',
         },
         notifications: {
             movedMultipleFiles: '{count} fichiers déplacés',
             filesAlreadyExist: '{count} fichiers existent déjà dans la destination',
+            addedTag: 'Étiquette "{tag}" ajoutée à {count} fichiers',
+            filesAlreadyHaveTag: '{count} fichiers ont déjà cette étiquette ou une plus spécifique',
+            clearedTags: 'Toutes les étiquettes supprimées de {count} fichiers',
+            noTagsToClear: 'Aucune étiquette à supprimer',
         },
     },
 

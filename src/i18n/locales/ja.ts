@@ -222,10 +222,16 @@ export const STRINGS_JA = {
             cannotMoveIntoSelf: 'フォルダを自分自身またはそのサブフォルダに移動することはできません。',
             itemAlreadyExists: 'この場所に "{name}" という名前のアイテムがすでに存在します。',
             failedToMove: '移動に失敗しました：{error}',
+            failedToAddTag: 'タグ "{tag}" の追加に失敗しました',
+            failedToClearTags: 'タグのクリアに失敗しました',
         },
         notifications: {
             movedMultipleFiles: '{count}個のファイルを移動しました',
             filesAlreadyExist: '{count}個のファイルが移動先に既に存在します',
+            addedTag: '{count}個のファイルにタグ "{tag}" を追加しました',
+            filesAlreadyHaveTag: '{count}個のファイルには既にこのタグまたはより具体的なタグがあります',
+            clearedTags: '{count}個のファイルからすべてのタグをクリアしました',
+            noTagsToClear: 'クリアするタグがありません',
         },
     },
 

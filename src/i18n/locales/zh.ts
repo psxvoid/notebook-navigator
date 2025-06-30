@@ -222,10 +222,16 @@ export const STRINGS_ZH = {
             cannotMoveIntoSelf: '无法将文件夹移动到自身或其子文件夹中。',
             itemAlreadyExists: '此位置已存在名为 "{name}" 的项目。',
             failedToMove: '移动失败：{error}',
+            failedToAddTag: '添加标签 "{tag}" 失败',
+            failedToClearTags: '清除标签失败',
         },
         notifications: {
             movedMultipleFiles: '已移动 {count} 个文件',
             filesAlreadyExist: '{count} 个文件在目标位置已存在',
+            addedTag: '已将标签 "{tag}" 添加到 {count} 个文件',
+            filesAlreadyHaveTag: '{count} 个文件已经有此标签或更具体的标签',
+            clearedTags: '已从 {count} 个文件中清除所有标签',
+            noTagsToClear: '没有要清除的标签',
         },
     },
 

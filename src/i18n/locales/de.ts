@@ -222,10 +222,16 @@ export const STRINGS_DE = {
             cannotMoveIntoSelf: 'Ein Ordner kann nicht in sich selbst oder einen Unterordner verschoben werden.',
             itemAlreadyExists: 'Ein Element mit dem Namen "{name}" existiert bereits an diesem Ort.',
             failedToMove: 'Verschieben fehlgeschlagen: {error}',
+            failedToAddTag: 'Hinzufügen des Tags "{tag}" fehlgeschlagen',
+            failedToClearTags: 'Entfernen der Tags fehlgeschlagen',
         },
         notifications: {
             movedMultipleFiles: '{count} Dateien verschoben',
             filesAlreadyExist: '{count} Dateien existieren bereits am Zielort',
+            addedTag: 'Tag "{tag}" zu {count} Dateien hinzugefügt',
+            filesAlreadyHaveTag: '{count} Dateien haben dieses Tag oder ein spezifischeres bereits',
+            clearedTags: 'Alle Tags von {count} Dateien entfernt',
+            noTagsToClear: 'Keine Tags zum Entfernen',
         },
     },
 

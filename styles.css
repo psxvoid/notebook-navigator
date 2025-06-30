@@ -862,6 +862,16 @@ body.nn-resizing {
     background-color: var(--interactive-accent-hover);
 }
 
+/* Special visual feedback for tag drop zones */
+[data-drop-zone="tag"].nn-drag-over .nn-folder-content {
+    background-color: var(--background-modifier-success);
+}
+
+/* Different style for untagged drop zone */
+[data-drop-zone="tag"][data-tag="__untagged__"].nn-drag-over .nn-folder-content {
+    background-color: var(--background-modifier-error-hover);
+}
+
 /* Drag image container - positions the custom drag image off-screen */
 .nn-drag-image-container {
     position: absolute;
