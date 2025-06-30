@@ -52,20 +52,14 @@ export class TagOperations {
      * Renames a tag in a single file
      */
     private async renameTagInFile(file: TFile, oldTag: string, newTag: string): Promise<void> {
+        // Handle frontmatter tags
+        await this.updateFrontmatterTags(file, oldTag, newTag);
+        
+        // Handle inline tags
         const content = await this.app.vault.read(file);
-        const metadata = this.app.metadataCache.getFileCache(file);
+        const newContent = this.updateInlineTags(content, oldTag, newTag);
         
-        let newContent = content;
-        
-        // Update frontmatter tags
-        if (metadata?.frontmatter?.tags) {
-            newContent = await this.updateFrontmatterTags(file, oldTag, newTag);
-        }
-        
-        // Update inline tags
-        newContent = this.updateInlineTags(newContent, oldTag, newTag);
-        
-        // Only write if content changed
+        // Only write if inline tags changed
         if (newContent !== content) {
             await this.app.vault.modify(file, newContent);
         }
@@ -75,20 +69,14 @@ export class TagOperations {
      * Deletes a tag from a single file
      */
     private async deleteTagFromFile(file: TFile, tag: string): Promise<void> {
+        // Handle frontmatter tags
+        await this.removeFrontmatterTag(file, tag);
+        
+        // Handle inline tags
         const content = await this.app.vault.read(file);
-        const metadata = this.app.metadataCache.getFileCache(file);
+        const newContent = this.removeInlineTags(content, tag);
         
-        let newContent = content;
-        
-        // Remove from frontmatter tags
-        if (metadata?.frontmatter?.tags) {
-            newContent = await this.removeFrontmatterTag(file, tag);
-        }
-        
-        // Remove inline tags
-        newContent = this.removeInlineTags(newContent, tag);
-        
-        // Only write if content changed
+        // Only write if inline tags changed
         if (newContent !== content) {
             await this.app.vault.modify(file, newContent);
         }
@@ -97,156 +85,80 @@ export class TagOperations {
     /**
      * Updates tags in frontmatter
      */
-    private async updateFrontmatterTags(file: TFile, oldTag: string, newTag: string): Promise<string> {
-        const content = await this.app.vault.read(file);
-        
-        return await this.app.vault.process(file, (data) => {
-            const metadata = this.app.metadataCache.getFileCache(file);
-            if (!metadata?.frontmatter?.tags) return data;
-            
-            // Parse frontmatter
-            const frontmatterMatch = data.match(/^---\n([\s\S]*?)\n---/);
-            if (!frontmatterMatch) return data;
-            
-            let frontmatter = frontmatterMatch[1];
-            
-            // Handle different tag formats in frontmatter
-            // Format 1: tags: [tag1, tag2]
-            const arrayMatch = frontmatter.match(/^tags:\s*\[(.*?)\]/m);
-            if (arrayMatch) {
-                const tagsStr = arrayMatch[1];
-                const tags = tagsStr.split(',').map(t => t.trim().replace(/["']/g, ''));
-                const newTags = tags.map(t => {
-                    const cleanTag = t.startsWith('#') ? t.substring(1) : t;
-                    return cleanTag === oldTag ? newTag : cleanTag;
-                });
+    private async updateFrontmatterTags(file: TFile, oldTag: string, newTag: string): Promise<void> {
+        try {
+            await this.app.fileManager.processFrontMatter(file, (fm) => {
+                if (!fm.tags) return;
                 
-                const newTagsStr = newTags.map(t => `"${t}"`).join(', ');
-                frontmatter = frontmatter.replace(arrayMatch[0], `tags: [${newTagsStr}]`);
-            }
-            
-            // Format 2: tags: tag1, tag2
-            const inlineMatch = frontmatter.match(/^tags:\s*(.+)$/m);
-            if (inlineMatch && !arrayMatch) {
-                const tagsStr = inlineMatch[1];
-                const tags = tagsStr.split(',').map(t => t.trim());
-                const newTags = tags.map(t => {
-                    const cleanTag = t.startsWith('#') ? t.substring(1) : t;
-                    return cleanTag === oldTag ? newTag : cleanTag;
-                });
-                
-                frontmatter = frontmatter.replace(inlineMatch[0], `tags: ${newTags.join(', ')}`);
-            }
-            
-            // Format 3: tags as list
-            if (!arrayMatch && !inlineMatch) {
-                // More careful regex to preserve exact formatting
-                const listMatch = frontmatter.match(/^(tags:\s*\n)((?:\s*-\s*.+(?:\n|$))+)/m);
-                if (listMatch) {
-                    const prefix = listMatch[1];  // "tags:\n"
-                    const tagsList = listMatch[2]; // the list items
-                    
-                    // Process each line, preserving exact indentation and line endings
-                    const processedList = tagsList.replace(/^(\s*-\s*)(.+)$/gm, (match, indent, tagValue) => {
-                        const tag = tagValue.trim().replace(/["']/g, '');
+                // Handle different tag formats
+                if (Array.isArray(fm.tags)) {
+                    // Tags as array
+                    fm.tags = fm.tags.map((tag: string) => {
                         const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
-                        const newTagValue = cleanTag === oldTag ? newTag : cleanTag;
-                        return `${indent}${newTagValue}`;
+                        return cleanTag === oldTag ? newTag : tag;
                     });
-                    
-                    frontmatter = frontmatter.replace(listMatch[0], prefix + processedList);
+                } else if (typeof fm.tags === 'string') {
+                    // Tags as string (single tag or comma-separated)
+                    const tags = fm.tags.split(',').map((t: string) => t.trim());
+                    const updatedTags = tags.map((tag: string) => {
+                        const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
+                        return cleanTag === oldTag ? newTag : tag;
+                    });
+                    fm.tags = updatedTags.length === 1 ? updatedTags[0] : updatedTags;
                 }
-            }
-            
-            // Reconstruct the content
-            return data.replace(frontmatterMatch[0], `---\n${frontmatter}\n---`);
-        });
+                
+                // Ensure uniqueness if array
+                if (Array.isArray(fm.tags)) {
+                    fm.tags = [...new Set(fm.tags)];
+                }
+            });
+        } catch (error) {
+            console.error('Error updating frontmatter tags:', error);
+            throw error;
+        }
     }
 
     /**
      * Removes a tag from frontmatter
      */
-    private async removeFrontmatterTag(file: TFile, tag: string): Promise<string> {
-        const content = await this.app.vault.read(file);
-        
-        return await this.app.vault.process(file, (data) => {
-            const metadata = this.app.metadataCache.getFileCache(file);
-            if (!metadata?.frontmatter?.tags) return data;
-            
-            // Parse frontmatter
-            const frontmatterMatch = data.match(/^---\n([\s\S]*?)\n---/);
-            if (!frontmatterMatch) return data;
-            
-            let frontmatter = frontmatterMatch[1];
-            
-            // Handle different tag formats in frontmatter
-            // Format 1: tags: [tag1, tag2]
-            const arrayMatch = frontmatter.match(/^tags:\s*\[(.*?)\]/m);
-            if (arrayMatch) {
-                const tagsStr = arrayMatch[1];
-                const tags = tagsStr.split(',').map(t => t.trim().replace(/["']/g, ''));
-                const newTags = tags.filter(t => {
-                    const cleanTag = t.startsWith('#') ? t.substring(1) : t;
-                    return cleanTag !== tag;
-                });
+    private async removeFrontmatterTag(file: TFile, tag: string): Promise<void> {
+        try {
+            await this.app.fileManager.processFrontMatter(file, (fm) => {
+                if (!fm.tags) return;
                 
-                if (newTags.length === 0) {
-                    // Remove the entire tags field if no tags left
-                    frontmatter = frontmatter.replace(/^tags:\s*\[.*?\]\n?/m, '');
-                } else {
-                    const newTagsStr = newTags.map(t => `"${t}"`).join(', ');
-                    frontmatter = frontmatter.replace(arrayMatch[0], `tags: [${newTagsStr}]`);
-                }
-            }
-            
-            // Format 2: tags: tag1, tag2
-            const inlineMatch = frontmatter.match(/^tags:\s*(.+)$/m);
-            if (inlineMatch && !arrayMatch) {
-                const tagsStr = inlineMatch[1];
-                const tags = tagsStr.split(',').map(t => t.trim());
-                const newTags = tags.filter(t => {
-                    const cleanTag = t.startsWith('#') ? t.substring(1) : t;
-                    return cleanTag !== tag;
-                });
-                
-                if (newTags.length === 0) {
-                    frontmatter = frontmatter.replace(/^tags:\s*.+\n?/m, '');
-                } else {
-                    frontmatter = frontmatter.replace(inlineMatch[0], `tags: ${newTags.join(', ')}`);
-                }
-            }
-            
-            // Format 3: tags as list
-            if (!arrayMatch && !inlineMatch) {
-                const listMatch = frontmatter.match(/^(tags:\s*\n)((?:\s*-\s*.+(?:\n|$))+)/m);
-                if (listMatch) {
-                    const prefix = listMatch[1];
-                    const tagsList = listMatch[2];
-                    
-                    // Split into lines, filter out the matching tag, preserve formatting
-                    const lines = tagsList.split('\n');
-                    const filteredLines = lines.filter(line => {
-                        const match = line.match(/^(\s*-\s*)(.+)$/);
-                        if (match) {
-                            const tagValue = match[2].trim().replace(/["']/g, '');
-                            const cleanTag = tagValue.startsWith('#') ? tagValue.substring(1) : tagValue;
-                            return cleanTag !== tag;
-                        }
-                        return line.trim() !== ''; // Keep non-empty lines
+                // Handle different tag formats
+                if (Array.isArray(fm.tags)) {
+                    // Tags as array
+                    const filteredTags = fm.tags.filter((t: string) => {
+                        const cleanTag = t.startsWith('#') ? t.substring(1) : t;
+                        return cleanTag !== tag;
                     });
                     
-                    if (filteredLines.length === 0) {
-                        // Remove the entire tags field if no tags left
-                        frontmatter = frontmatter.replace(listMatch[0], '');
+                    // Remove tags field if empty, otherwise update
+                    if (filteredTags.length === 0) {
+                        delete fm.tags;
                     } else {
-                        frontmatter = frontmatter.replace(listMatch[0], prefix + filteredLines.join('\n') + '\n');
+                        fm.tags = filteredTags;
+                    }
+                } else if (typeof fm.tags === 'string') {
+                    // Tags as string (single tag or comma-separated)
+                    const tags = fm.tags.split(',').map((t: string) => t.trim());
+                    const filteredTags = tags.filter((t: string) => {
+                        const cleanTag = t.startsWith('#') ? t.substring(1) : t;
+                        return cleanTag !== tag;
+                    });
+                    
+                    if (filteredTags.length === 0) {
+                        delete fm.tags;
+                    } else {
+                        fm.tags = filteredTags.length === 1 ? filteredTags[0] : filteredTags;
                     }
                 }
-            }
-            
-            // Reconstruct the content
-            return data.replace(frontmatterMatch[0], `---\n${frontmatter}\n---`);
-        });
+            });
+        } catch (error) {
+            console.error('Error removing tag from frontmatter:', error);
+            throw error;
+        }
     }
 
     /**
