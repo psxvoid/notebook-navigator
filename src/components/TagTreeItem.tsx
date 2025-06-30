@@ -22,6 +22,7 @@ import { TagTreeNode } from '../utils/tagUtils';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { ItemType } from '../types';
+import { useSettingsState } from '../context/SettingsContext';
 
 /**
  * Props for the TagTreeItem component
@@ -65,6 +66,7 @@ export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProp
     customIcon,
     customColor
 }, ref) {
+    const settings = useSettingsState();
     const chevronRef = React.useRef<HTMLDivElement>(null);
     const itemRef = React.useRef<HTMLDivElement>(null);
     const hasChildren = tagNode.children.size > 0;
@@ -96,26 +98,21 @@ export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProp
     return (
         <div 
             ref={itemRef}
-            className={`nn-tag-item ${isSelected ? 'nn-selected' : ''}`} 
+            className={`nn-folder-item ${isSelected ? 'nn-selected' : ''}`} 
             data-tag={tagNode.path}
             style={{ paddingInlineStart: `${level * 20}px` }}
         >
             <div 
-                className="nn-tag-content"
+                className="nn-folder-content"
                 onClick={onClick}
                 onDoubleClick={handleDoubleClick}
             >
                 <div
                     ref={chevronRef}
-                    className="nn-tag-arrow"
+                    className="nn-folder-chevron"
                     style={{ 
                         visibility: hasChildren ? 'visible' : 'hidden',
-                        cursor: hasChildren ? 'pointer' : 'default',
-                        width: '18px',
-                        minWidth: '18px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center'
+                        cursor: hasChildren ? 'pointer' : 'default'
                     }}
                     onClick={(e) => {
                         e.stopPropagation();
@@ -126,15 +123,17 @@ export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProp
                         e.preventDefault();
                     }}
                 />
-                <span className="nn-tag-icon" style={{ color: customColor }}>
-                    <ObsidianIcon name={customIcon || 'hash'} />
-                </span>
-                <span className="nn-tag-name" style={customColor ? { color: customColor, fontWeight: 600 } : undefined}>
+                {settings.showFolderIcons && (
+                    <span className="nn-folder-icon" style={{ color: customColor }}>
+                        <ObsidianIcon name={customIcon || 'hash'} />
+                    </span>
+                )}
+                <span className="nn-folder-name" style={customColor ? { color: customColor, fontWeight: 600 } : undefined}>
                     {tagNode.name}
                 </span>
-                <span className="nn-tag-spacer" />
+                <span className="nn-folder-spacer" />
                 {showFileCount && fileCount > 0 && (
-                    <span className="nn-tag-count">{fileCount}</span>
+                    <span className="nn-folder-count">{fileCount}</span>
                 )}
             </div>
         </div>

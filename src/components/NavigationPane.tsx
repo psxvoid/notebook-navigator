@@ -428,11 +428,8 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                                 key={virtualItem.key}
                                 data-index={virtualItem.index}
                                 ref={rowVirtualizer.measureElement}
+                                className="nn-virtual-nav-item"
                                 style={{
-                                    position: 'absolute',
-                                    top: 0,
-                                    left: 0,
-                                    width: '100%',
                                     transform: `translateY(${virtualItem.start}px)`,
                                 }}
                             >
