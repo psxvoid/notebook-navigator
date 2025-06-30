@@ -32,7 +32,7 @@ interface ExpansionState {
 }
 
 // Action types
-type ExpansionAction = 
+export type ExpansionAction = 
     | { type: 'SET_EXPANDED_FOLDERS'; folders: Set<string> }
     | { type: 'SET_EXPANDED_TAGS'; tags: Set<string> }
     | { type: 'TOGGLE_FOLDER_EXPANDED'; folderPath: string }
