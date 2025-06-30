@@ -19,6 +19,7 @@
 import { App, Modal, setIcon, getIconIds } from 'obsidian';
 import { MetadataService } from '../services/MetadataService';
 import { strings } from '../i18n';
+import { ItemType } from '../types';
 
 /**
  * Icon picker modal for selecting custom folder icons
@@ -37,7 +38,8 @@ import { strings } from '../i18n';
  */
 export class IconPickerModal extends Modal {
     private metadataService: MetadataService;
-    private folderPath: string;
+    private itemPath: string;
+    private itemType: typeof ItemType.FOLDER | typeof ItemType.TAG;
     private searchInput: HTMLInputElement;
     private resultsContainer: HTMLDivElement;
     private allIcons: string[];
@@ -54,14 +56,16 @@ export class IconPickerModal extends Modal {
     /**
      * Creates a new icon picker modal
      * @param app - The Obsidian app instance
-     * @param metadataService - The metadata service for managing folder icons
-     * @param folderPath - Path of the folder to set icon for
+     * @param metadataService - The metadata service for managing folder/tag icons
+     * @param itemPath - Path of the folder or tag to set icon for
      * @param recentlyUsedIcons - List of recently used icon IDs
+     * @param itemType - Whether this is for a folder or tag
      */
-    constructor(app: App, metadataService: MetadataService, folderPath: string, recentlyUsedIcons: string[] = []) {
+    constructor(app: App, metadataService: MetadataService, itemPath: string, recentlyUsedIcons: string[] = [], itemType: typeof ItemType.FOLDER | typeof ItemType.TAG = ItemType.FOLDER) {
         super(app);
         this.metadataService = metadataService;
-        this.folderPath = folderPath;
+        this.itemPath = itemPath;
+        this.itemType = itemType;
         
         // Get all available icons
         this.allIcons = getIconIds();
@@ -368,8 +372,12 @@ export class IconPickerModal extends Modal {
      * @param iconId - The selected icon identifier
      */
     private async selectIcon(iconId: string) {
-        // Set the folder icon using metadata service
-        await this.metadataService.setFolderIcon(this.folderPath, iconId);
+        // Set the icon based on item type
+        if (this.itemType === ItemType.TAG) {
+            await this.metadataService.setTagIcon(this.itemPath, iconId);
+        } else {
+            await this.metadataService.setFolderIcon(this.itemPath, iconId);
+        }
 
         // Notify callback and close
         this.onChooseIcon?.(iconId);

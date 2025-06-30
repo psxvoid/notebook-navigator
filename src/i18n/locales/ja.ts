@@ -52,8 +52,8 @@ export const STRINGS_JA = {
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: 'すべてのフォルダを折りたたむ', // Tooltip for button that collapses all expanded folders (English: Collapse all folders)
-        expandAllFolders: 'すべてのフォルダを展開', // Tooltip for button that expands all folders (English: Expand all folders)
+        collapseAllFolders: 'すべて折りたたむ', // Tooltip for button that collapses all expanded items (English: Collapse all)
+        expandAllFolders: 'すべて展開', // Tooltip for button that expands all items (English: Expand all)
         newFolder: '新規フォルダ', // Tooltip for create new folder button (English: New folder)
         newNote: '新規ノート', // Tooltip for create new note button (English: New note)
         mobileBackToFolders: 'フォルダに戻る', // Mobile-only back button text to return to folder list (English: Back to folders)
@@ -104,6 +104,12 @@ export const STRINGS_JA = {
             renameFolder: 'フォルダの名前を変更',
             deleteFolder: 'フォルダを削除',
         },
+        tag: {
+            changeIcon: 'アイコンを変更',
+            removeIcon: 'アイコンを削除',
+            changeColor: '色を変更',
+            removeColor: '色を削除',
+        },
     },
 
     // Modal dialogs
@@ -139,6 +145,21 @@ export const STRINGS_JA = {
                 slate: 'スレート',
                 stone: 'ストーン',
             },
+        },
+        tagOperation: {
+            renameTitle: 'タグの名前を変更',
+            deleteTitle: 'タグを削除',
+            newTagPrompt: '新しいタグ名を入力：',
+            newTagPlaceholder: '新しい名前',
+            renameWarning: 'これにより、影響を受けるすべてのノートでタグが名前変更されます。',
+            deleteWarning: 'これにより、影響を受けるすべてのノートからタグが削除されます。',
+            modificationWarning: 'タグの変更',
+            affectedFiles: '{count}個のファイルが影響を受けます',
+            andMore: 'さらに{count}個...',
+            confirmRename: 'タグを名前変更',
+            confirmDelete: 'タグを削除',
+            file: 'ファイル',
+            files: 'ファイル',
         },
         fileSystem: {
             newFolderTitle: '新規フォルダ',
@@ -194,10 +215,16 @@ export const STRINGS_JA = {
             cannotMoveIntoSelf: 'フォルダを自分自身またはそのサブフォルダに移動することはできません。',
             itemAlreadyExists: 'この場所に "{name}" という名前のアイテムがすでに存在します。',
             failedToMove: '移動に失敗しました：{error}',
+            failedToAddTag: 'タグ "{tag}" の追加に失敗しました',
+            failedToClearTags: 'タグのクリアに失敗しました',
         },
         notifications: {
             movedMultipleFiles: '{count}個のファイルを移動しました',
             filesAlreadyExist: '{count}個のファイルが移動先に既に存在します',
+            addedTag: '{count}個のファイルにタグ "{tag}" を追加しました',
+            filesAlreadyHaveTag: '{count}個のファイルには既にこのタグまたはより具体的なタグがあります',
+            clearedTags: '{count}個のファイルからすべてのタグをクリアしました',
+            noTagsToClear: 'クリアするタグがありません',
         },
     },
 
@@ -248,11 +275,11 @@ export const STRINGS_JA = {
     // Settings
     settings: {
         sections: {
-            timeDisplay: '時刻表示',
-            noteDisplay: 'ノート表示',
-            folderDisplay: 'フォルダ表示',
-            tagDisplay: 'タグ表示',
-            folderNotes: 'フォルダノート',
+            notes: 'ノート表示',
+            navigationPane: 'フォルダ表示',
+            tags: 'タグ表示',
+            folders: 'フォルダノート',
+            fileList: 'ファイルリスト',
             advanced: '詳細設定',
         },
         items: {
@@ -276,7 +303,7 @@ export const STRINGS_JA = {
                 name: 'サブフォルダのノートを表示',
                 desc: '現在のフォルダビューにすべてのサブフォルダのノートを表示します。',
             },
-            showSubfolderNamesInList: {
+            showParentFolderNames: {
                 name: '親フォルダ名を表示',
                 desc: 'サブフォルダのノートに親フォルダ名を表示します。',
             },
@@ -284,9 +311,9 @@ export const STRINGS_JA = {
                 name: 'アクティブなノートを自動表示',
                 desc: 'クイックスイッチャー、リンク、検索から開いたときに自動的にノートを表示して選択します。',
             },
-            autoSelectFirstFile: {
-                name: 'フォルダ変更時に最初のファイルを自動選択',
-                desc: 'フォルダを切り替えた際に自動的に最初のファイルを選択して開きます。',
+            autoSelectFirstFileOnFocusChange: {
+                name: 'フォルダまたはタグ変更時に最初のファイルを自動選択',
+                desc: 'フォルダまたはタグを切り替えた際に自動的に最初のファイルを選択して開きます。',
             },
             showTooltips: {
                 name: 'ツールチップを表示',
@@ -364,13 +391,22 @@ export const STRINGS_JA = {
                 name: 'ルートフォルダを表示',
                 desc: 'ツリーにルートフォルダとして「保管庫」を表示します。',
             },
-            showFolderFileCount: {
-                name: 'フォルダのノート数を表示',
-                desc: '各フォルダ内のノート数を表示します。',
+            showNoteCount: {
+                name: 'ノート数を表示',
+                desc: '各フォルダとタグのノート数を表示します。',
             },
-            showFolderIcons: {
-                name: 'フォルダアイコンを表示',
-                desc: 'ツリー内のフォルダ名の横にアイコンを表示します。',
+            showIcons: {
+                name: 'アイコンを表示',
+                desc: 'ナビゲーションパネルのフォルダとタグの横にアイコンを表示します。',
+            },
+            collapseButtonBehavior: {
+                name: '折りたたみボタンの動作',
+                desc: '展開/折りたたみボタンが影響する項目を選択します。',
+                options: {
+                    all: 'すべてのフォルダとタグ',
+                    foldersOnly: 'フォルダのみ',
+                    tagsOnly: 'タグのみ',
+                },
             },
             showTags: {
                 name: 'タグを表示',
@@ -394,7 +430,7 @@ export const STRINGS_JA = {
                 desc: 'フォルダのファイルリストにフォルダノートが表示されないようにします。',
             },
             confirmBeforeDelete: {
-                name: 'ノート削除前に確認',
+                name: '削除前に確認',
                 desc: 'ノートやフォルダを削除する際に確認ダイアログを表示',
             },
             useFrontmatterDates: {

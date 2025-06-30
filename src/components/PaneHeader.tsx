@@ -17,19 +17,21 @@
  */
 
 import React, { useCallback } from 'react';
-import { Menu } from 'obsidian';
+import { Menu, TFolder } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { useSettings } from '../context/SettingsContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
-import { useFileSystemOps } from '../context/ServicesContext';
+import { useFileSystemOps, useMetadataService } from '../context/ServicesContext';
 import { isTFolder } from '../utils/typeGuards';
 import { ObsidianIcon } from './ObsidianIcon';
 import { strings } from '../i18n';
-import { UNTAGGED_TAG_ID } from '../types';
+import { UNTAGGED_TAG_ID, ItemType } from '../types';
 import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } from '../utils/sortUtils';
 import type { SortOption } from '../settings';
+import { useTagCache } from '../context/TagCacheContext';
+import { collectAllTagPaths } from '../utils/tagUtils';
 
 interface PaneHeaderProps {
     type: 'folder' | 'file';
@@ -55,73 +57,103 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const fileSystemOps = useFileSystemOps();
+    const metadataService = useMetadataService();
+    const { tagData } = useTagCache();
+    
+    /**
+     * Determines whether the expand/collapse button should perform a collapse action
+     * based on the current expansion state and behavior setting
+     */
+    const shouldCollapseItems = useCallback(() => {
+        const behavior = settings.collapseButtonBehavior;
+        
+        // Check expansion state for folders and tags
+        const hasFoldersExpanded = settings.showRootFolder 
+            ? Array.from(expansionState.expandedFolders).some(path => path !== '/')
+            : expansionState.expandedFolders.size > 0;
+        const hasTagsExpanded = expansionState.expandedTags.size > 0;
+        
+        // Determine if we should collapse based on behavior setting
+        return behavior === 'all' ? (hasFoldersExpanded || hasTagsExpanded) :
+               behavior === 'folders-only' ? hasFoldersExpanded :
+               behavior === 'tags-only' ? hasTagsExpanded :
+               false;
+    }, [settings.collapseButtonBehavior, settings.showRootFolder, expansionState.expandedFolders, expansionState.expandedTags]);
     
     /**
      * Handles the expand/collapse all button click.
      * 
      * BEHAVIOR:
-     * - When collapsing: Sets expanded folders to show only the top level
-     *   - If showRootFolder is true: Keeps root folder ('/') expanded
-     *   - If showRootFolder is false: Collapses all folders (root children still visible)
-     * - When expanding: Expands all folders in the vault recursively
+     * - When collapsing: Sets expanded folders/tags based on collapseButtonBehavior setting
+     *   - 'all': Collapses both folders and tags
+     *   - 'folders-only': Collapses only folders
+     *   - 'tags-only': Collapses only tags
+     * - When expanding: Expands items recursively based on the same setting
      * 
-     * FIX HISTORY:
-     * - Previously set expanded folders to empty Set(), which was destructive
-     * - This caused auto-reveal to immediately re-expand folders to show selected file
-     * - Now properly maintains top-level visibility after collapse
+     * For folders:
+     *   - If showRootFolder is true: Keeps root folder ('/') expanded when collapsing
+     *   - If showRootFolder is false: Collapses all folders (root children still visible)
      */
     const handleExpandCollapseAll = useCallback(() => {
         if (type !== 'folder') return;
         
-        // Determine if we should collapse or expand
+        const behavior = settings.collapseButtonBehavior;
         const rootFolder = app.vault.getRoot();
-        let shouldCollapse = false;
+        const shouldCollapse = shouldCollapseItems();
         
-        if (settings.showRootFolder) {
-            // If showing root folder, check if anything beyond root is expanded
-            shouldCollapse = Array.from(expansionState.expandedFolders).some(path => path !== '/');
-        } else {
-            // If not showing root folder, check if any folders are expanded
-            shouldCollapse = expansionState.expandedFolders.size > 0;
-        }
+        // Check which types should be affected
+        const shouldAffectFolders = behavior === 'all' || behavior === 'folders-only';
+        const shouldAffectTags = behavior === 'all' || behavior === 'tags-only';
         
         if (shouldCollapse) {
-            const collapsedState = new Set<string>();
-            
-            if (settings.showRootFolder) {
-                // Show just the root folder expanded
-                collapsedState.add('/');
-            } else {
-                // Don't expand anything - root level folders will still be visible
+            // Collapse items
+            if (shouldAffectFolders) {
+                const collapsedFolders = new Set<string>();
+                if (settings.showRootFolder) {
+                    collapsedFolders.add('/');
+                }
+                expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: collapsedFolders });
             }
             
-            expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: collapsedState });
+            if (shouldAffectTags) {
+                expansionDispatch({ type: 'SET_EXPANDED_TAGS', tags: new Set() });
+            }
         } else {
-            // Otherwise, expand all folders
-            const allFolders = new Set<string>();
-            
-            const collectAllFolders = (folder: any) => {
-                folder.children.forEach((child: any) => {
-                    if (isTFolder(child)) {
-                        allFolders.add(child.path);
-                        collectAllFolders(child);
-                    }
-                });
-            };
-            
-            const rootFolder = app.vault.getRoot();
-            
-            // Add root folder itself if it's shown
-            if (settings.showRootFolder) {
-                allFolders.add(rootFolder.path);
+            // Expand items
+            if (shouldAffectFolders) {
+                const allFolders = new Set<string>();
+                
+                const collectAllFolders = (folder: TFolder) => {
+                    folder.children.forEach((child) => {
+                        if (isTFolder(child)) {
+                            allFolders.add(child.path);
+                            collectAllFolders(child);
+                        }
+                    });
+                };
+                
+                if (settings.showRootFolder) {
+                    allFolders.add(rootFolder.path);
+                }
+                
+                collectAllFolders(rootFolder);
+                expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: allFolders });
             }
             
-            collectAllFolders(rootFolder);
-            
-            expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: allFolders });
+            if (shouldAffectTags) {
+                // Collect all tag paths from the tag tree
+                const allTagPaths = new Set<string>();
+                
+                // Collect paths from all root-level tags
+                for (const tagNode of tagData.tree.values()) {
+                    collectAllTagPaths(tagNode, allTagPaths);
+                }
+                
+                expansionDispatch({ type: 'SET_EXPANDED_TAGS', tags: allTagPaths });
+            }
         }
         
-    }, [app, expansionState.expandedFolders.size, expansionDispatch, type, settings.showRootFolder]);
+    }, [app, expansionDispatch, type, settings.showRootFolder, settings.collapseButtonBehavior, tagData.tree, shouldCollapseItems]);
     
     const handleNewFolder = useCallback(async () => {
         if (type !== 'folder' || !selectionState.selectedFolder) return;
@@ -152,8 +184,8 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     }, [selectionState.selectedFolder, fileSystemOps, type, uiDispatch]);
     
     const getCurrentSortOption = useCallback((): SortOption => {
-        return getEffectiveSortOption(settings, selectionState.selectionType, selectionState.selectedFolder);
-    }, [settings, selectionState.selectionType, selectionState.selectedFolder]);
+        return getEffectiveSortOption(settings, selectionState.selectionType, selectionState.selectedFolder, selectionState.selectedTag);
+    }, [settings, selectionState.selectionType, selectionState.selectedFolder, selectionState.selectedTag]);
     
     const getSortIcon = useCallback(() => {
         return getSortIconName(getCurrentSortOption());
@@ -164,9 +196,12 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
         
         const menu = new Menu();
         const currentSort = getCurrentSortOption();
-        const isCustomSort = selectionState.selectionType === 'folder' && 
+        const isCustomSort = (selectionState.selectionType === ItemType.FOLDER && 
                            selectionState.selectedFolder && 
-                           settings.folderSortOverrides[selectionState.selectedFolder.path];
+                           settings.folderSortOverrides[selectionState.selectedFolder.path]) ||
+                           (selectionState.selectionType === ItemType.TAG && 
+                           selectionState.selectedTag && 
+                           settings.tagSortOverrides?.[selectionState.selectedTag]);
         
         // Default option
         menu.addItem((item) => {
@@ -174,11 +209,11 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                 .setTitle(`${strings.paneHeader.defaultSort}: ${strings.settings.items.sortNotesBy.options[settings.defaultFolderSort]}`)
                 .setChecked(!isCustomSort)
                 .onClick(async () => {
-                    await updateSettings((s) => {
-                        if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
-                            delete s.folderSortOverrides[selectionState.selectedFolder.path];
-                        }
-                    });
+                    if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+                        await metadataService.removeFolderSortOverride(selectionState.selectedFolder.path);
+                    } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+                        await metadataService.removeTagSortOverride(selectionState.selectedTag);
+                    }
                     // Trigger refresh by updating workspace
                     app.workspace.requestSaveLayout();
                 });
@@ -198,15 +233,18 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
             menu.addItem((item) => {
                 item
                     .setTitle(strings.settings.items.sortNotesBy.options[option])
-                    .setChecked(isCustomSort && currentSort === option)
+                    .setChecked(!!isCustomSort && currentSort === option)
                     .onClick(async () => {
-                        await updateSettings((s) => {
-                            if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
-                                s.folderSortOverrides[selectionState.selectedFolder.path] = option;
-                            } else {
+                        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+                            await metadataService.setFolderSortOverride(selectionState.selectedFolder.path, option);
+                        } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+                            await metadataService.setTagSortOverride(selectionState.selectedTag, option);
+                        } else {
+                            // Fallback to default sort if no folder or tag is selected
+                            await updateSettings((s) => {
                                 s.defaultFolderSort = option;
-                            }
-                        });
+                            });
+                        }
                         // Trigger refresh by updating workspace
                         app.workspace.requestSaveLayout();
                     });
@@ -214,15 +252,15 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
         });
         
         menu.showAtMouseEvent(event.nativeEvent);
-    }, [type, selectionState.selectionType, selectionState.selectedFolder, app, getCurrentSortOption, updateSettings]);
+    }, [type, selectionState.selectionType, selectionState.selectedFolder, selectionState.selectedTag, app, getCurrentSortOption, updateSettings, metadataService, settings]);
     
     // Mobile header with back button
     if (isMobile) {
         let headerTitle = strings.common.noSelection;
         
-        if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
             headerTitle = selectionState.selectedFolder.path === '/' ? strings.folderTree.rootFolderName : selectionState.selectedFolder.name;
-        } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
+        } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
             headerTitle = selectionState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : selectionState.selectedTag;
         }
         
@@ -290,7 +328,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                 <div className="nn-header-actions nn-header-actions--flex-end">
                     <button
                         className="nn-icon-button"
-                        aria-label={expansionState.expandedFolders.size > 0 ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
+                        aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
                         onClick={(e) => {
                             e.stopPropagation();
                             handleExpandCollapseAll();
@@ -298,7 +336,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                         tabIndex={-1}
                     >
                         <ObsidianIcon 
-                            name={expansionState.expandedFolders.size > 0 ? 'chevrons-down-up' : 'chevrons-up-down'}
+                            name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'}
                         />
                     </button>
                     <button
@@ -335,12 +373,12 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                         <div className="nn-header-actions">
                             <button
                                 className="nn-icon-button"
-                                aria-label={expansionState.expandedFolders.size > 0 ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
+                                aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
                                 onClick={handleExpandCollapseAll}
                                 tabIndex={-1}
                             >
                                 <ObsidianIcon 
-                                    name={expansionState.expandedFolders.size > 0 ? 'chevrons-down-up' : 'chevrons-up-down'}
+                                    name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'}
                                 />
                             </button>
                             <button

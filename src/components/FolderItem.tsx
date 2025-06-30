@@ -26,7 +26,7 @@ import { useContextMenu } from '../hooks/useContextMenu';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
 import { strings } from '../i18n';
-import { isSupportedFileExtension } from '../types';
+import { isSupportedFileExtension, ItemType } from '../types';
 
 interface FolderItemProps {
     folder: TFolder;
@@ -59,7 +59,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
     const folderRef = useRef<HTMLDivElement>(null);
     
     // Enable context menu
-    useContextMenu(folderRef, { type: 'folder', item: folder });
+    useContextMenu(folderRef, { type: ItemType.FOLDER, item: folder });
     
     // Count folders and files for tooltip
     const folderStats = React.useMemo(() => {
@@ -112,7 +112,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
     
     // Count files in folder (including subfolders if setting enabled)
     const fileCount = React.useMemo(() => {
-        if (!settings.showFolderFileCount) return 0;
+        if (!settings.showNoteCount) return 0;
         
         // Parse excluded properties
         const excludedProperties = parseExcludedProperties(settings.excludedFiles);
@@ -135,7 +135,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
         };
         
         return countFiles(folder);
-    }, [folder.path, folder.children.length, settings.showFolderFileCount, settings.showNotesFromSubfolders, settings.excludedFiles, app]);
+    }, [folder.path, folder.children.length, settings.showNoteCount, settings.showNotesFromSubfolders, settings.excludedFiles, app]);
 
     const hasChildren = folder.children.some(isTFolder);
     
@@ -161,7 +161,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
 
     // Add this useEffect for the folder icon
     useEffect(() => {
-        if (iconRef.current && settings.showFolderIcons) {
+        if (iconRef.current && settings.showIcons) {
             if (icon) {
                 // Custom icon is set - always show it, never toggle
                 setIcon(iconRef.current, icon);
@@ -171,7 +171,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
                 setIcon(iconRef.current, iconName);
             }
         }
-    }, [isExpanded, icon, hasChildren, settings.showFolderIcons]);
+    }, [isExpanded, icon, hasChildren, settings.showIcons]);
 
     return (
         <div 
@@ -199,12 +199,16 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
                         e.stopPropagation();
                         if (hasChildren) onToggle();
                     }}
+                    onDoubleClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }}
                     style={{ 
                         visibility: hasChildren ? 'visible' : 'hidden',
                         cursor: hasChildren ? 'pointer' : 'default'
                     }}
                 />
-                {settings.showFolderIcons && (
+                {settings.showIcons && (
                     <span 
                         className="nn-folder-icon" 
                         ref={iconRef}
@@ -222,7 +226,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
                     }}
                 >{folder.path === '/' || folder.path === '' ? strings.folderTree.rootFolderName : folder.name}</span>
                 <span className="nn-folder-spacer" />
-                {settings.showFolderFileCount && fileCount > 0 && (
+                {settings.showNoteCount && fileCount > 0 && (
                     <span className="nn-folder-count">{fileCount}</span>
                 )}
             </div>

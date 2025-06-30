@@ -52,8 +52,8 @@ export const STRINGS_DE = {
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: 'Alle Ordner einklappen', // Tooltip for button that collapses all expanded folders (English: Collapse all folders)
-        expandAllFolders: 'Alle Ordner ausklappen', // Tooltip for button that expands all folders (English: Expand all folders)
+        collapseAllFolders: 'Alle einklappen', // Tooltip for button that collapses all expanded items (English: Collapse all)
+        expandAllFolders: 'Alle ausklappen', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'Neuer Ordner', // Tooltip for create new folder button (English: New folder)
         newNote: 'Neue Notiz', // Tooltip for create new note button (English: New note)
         mobileBackToFolders: 'Zurück zu Ordnern', // Mobile-only back button text to return to folder list (English: Back to folders)
@@ -104,6 +104,12 @@ export const STRINGS_DE = {
             renameFolder: 'Ordner umbenennen',
             deleteFolder: 'Ordner löschen',
         },
+        tag: {
+            changeIcon: 'Symbol ändern',
+            removeIcon: 'Symbol entfernen',
+            changeColor: 'Farbe ändern',
+            removeColor: 'Farbe entfernen',
+        },
     },
 
     // Modal dialogs
@@ -139,6 +145,21 @@ export const STRINGS_DE = {
                 slate: 'Schiefer',
                 stone: 'Stein',
             },
+        },
+        tagOperation: {
+            renameTitle: 'Tag {tag} umbenennen',
+            deleteTitle: 'Tag {tag} löschen',
+            newTagPrompt: 'Neuer Tag-Name',
+            newTagPlaceholder: 'Neuen Tag-Namen eingeben',
+            renameWarning: 'Das Umbenennen des Tags {oldTag} wird {count} {files} ändern.',
+            deleteWarning: 'Das Löschen des Tags {tag} wird {count} {files} ändern.',
+            modificationWarning: 'Dies wird die Änderungsdaten der Dateien aktualisieren.',
+            affectedFiles: 'Betroffene Dateien:',
+            andMore: '...und {count} weitere',
+            confirmRename: 'Tag umbenennen',
+            confirmDelete: 'Tag löschen',
+            file: 'Datei',
+            files: 'Dateien',
         },
         fileSystem: {
             newFolderTitle: 'Neuer Ordner',
@@ -194,10 +215,16 @@ export const STRINGS_DE = {
             cannotMoveIntoSelf: 'Ein Ordner kann nicht in sich selbst oder einen Unterordner verschoben werden.',
             itemAlreadyExists: 'Ein Element mit dem Namen "{name}" existiert bereits an diesem Ort.',
             failedToMove: 'Verschieben fehlgeschlagen: {error}',
+            failedToAddTag: 'Hinzufügen des Tags "{tag}" fehlgeschlagen',
+            failedToClearTags: 'Entfernen der Tags fehlgeschlagen',
         },
         notifications: {
             movedMultipleFiles: '{count} Dateien verschoben',
             filesAlreadyExist: '{count} Dateien existieren bereits am Zielort',
+            addedTag: 'Tag "{tag}" zu {count} Dateien hinzugefügt',
+            filesAlreadyHaveTag: '{count} Dateien haben dieses Tag oder ein spezifischeres bereits',
+            clearedTags: 'Alle Tags von {count} Dateien entfernt',
+            noTagsToClear: 'Keine Tags zum Entfernen',
         },
     },
 
@@ -248,11 +275,11 @@ export const STRINGS_DE = {
     // Settings
     settings: {
         sections: {
-            timeDisplay: 'Zeitanzeige',
-            noteDisplay: 'Notizenanzeige',
-            folderDisplay: 'Ordneranzeige',
-            tagDisplay: 'Tag-Anzeige',
-            folderNotes: 'Ordnernotizen',
+            notes: 'Notizenanzeige',
+            navigationPane: 'Ordneranzeige',
+            tags: 'Tag-Anzeige',
+            folders: 'Ordnernotizen',
+            fileList: 'Dateiliste',
             advanced: 'Erweitert',
         },
         items: {
@@ -276,7 +303,7 @@ export const STRINGS_DE = {
                 name: 'Notizen aus Unterordnern anzeigen',
                 desc: 'Alle Notizen aus Unterordnern in der aktuellen Ordneransicht anzeigen.',
             },
-            showSubfolderNamesInList: {
+            showParentFolderNames: {
                 name: 'Übergeordnete Ordnernamen anzeigen',
                 desc: 'Den übergeordneten Ordnernamen für Notizen aus Unterordnern anzeigen.',
             },
@@ -284,9 +311,9 @@ export const STRINGS_DE = {
                 name: 'Aktive Notiz automatisch anzeigen',
                 desc: 'Notizen automatisch anzeigen und auswählen, wenn sie über Schnellauswahl, Links oder Suche geöffnet werden.',
             },
-            autoSelectFirstFile: {
-                name: 'Erste Datei beim Ordnerwechsel automatisch auswählen',
-                desc: 'Die erste Datei automatisch auswählen und öffnen, wenn Sie den Ordner wechseln.',
+            autoSelectFirstFileOnFocusChange: {
+                name: 'Erste Datei beim Ordner- oder Tag-Wechsel automatisch auswählen',
+                desc: 'Die erste Datei automatisch auswählen und öffnen, wenn Sie den Ordner oder Tag wechseln.',
             },
             showTooltips: {
                 name: 'Tooltips anzeigen',
@@ -364,13 +391,22 @@ export const STRINGS_DE = {
                 name: 'Wurzelordner anzeigen',
                 desc: '"Tresor" als Wurzelordner im Baum anzeigen.',
             },
-            showFolderFileCount: {
-                name: 'Ordner-Notizenzahl anzeigen',
-                desc: 'Die Anzahl der Notizen in jedem Ordner anzeigen.',
+            showNoteCount: {
+                name: 'Notizenzahl anzeigen',
+                desc: 'Die Anzahl der Notizen in jedem Ordner und Tag anzeigen.',
             },
-            showFolderIcons: {
-                name: 'Ordnersymbole anzeigen',
-                desc: 'Symbole neben Ordnernamen im Baum anzeigen.',
+            showIcons: {
+                name: 'Symbole anzeigen',
+                desc: 'Symbole neben Ordnern und Tags im Navigationsbereich anzeigen.',
+            },
+            collapseButtonBehavior: {
+                name: 'Verhalten der Einklapp-Schaltfläche',
+                desc: 'Wählen Sie, was die Schaltfläche zum Ein-/Ausklappen beeinflusst.',
+                options: {
+                    all: 'Alle Ordner und Tags',
+                    foldersOnly: 'Nur Ordner',
+                    tagsOnly: 'Nur Tags',
+                },
             },
             showTags: {
                 name: 'Tags anzeigen',
@@ -394,7 +430,7 @@ export const STRINGS_DE = {
                 desc: 'Die Ordnernotiz in der Dateiliste des Ordners ausblenden.',
             },
             confirmBeforeDelete: {
-                name: 'Vor dem Löschen von Notizen bestätigen',
+                name: 'Vor dem Löschen bestätigen',
                 desc: 'Bestätigungsdialog beim Löschen von Notizen oder Ordnern anzeigen',
             },
             useFrontmatterDates: {

@@ -52,8 +52,8 @@ export const STRINGS_FR = {
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: 'Replier tous les dossiers', // Tooltip for button that collapses all expanded folders (English: Collapse all folders)
-        expandAllFolders: 'Déplier tous les dossiers', // Tooltip for button that expands all folders (English: Expand all folders)
+        collapseAllFolders: 'Tout replier', // Tooltip for button that collapses all expanded items (English: Collapse all)
+        expandAllFolders: 'Tout déplier', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'Nouveau dossier', // Tooltip for create new folder button (English: New folder)
         newNote: 'Nouvelle note', // Tooltip for create new note button (English: New note)
         mobileBackToFolders: 'Retour aux dossiers', // Mobile-only back button text to return to folder list (English: Back to folders)
@@ -104,6 +104,12 @@ export const STRINGS_FR = {
             renameFolder: 'Renommer le dossier',
             deleteFolder: 'Supprimer le dossier',
         },
+        tag: {
+            changeIcon: 'Changer l\'icône',
+            removeIcon: 'Supprimer l\'icône',
+            changeColor: 'Changer la couleur',
+            removeColor: 'Supprimer la couleur',
+        },
     },
 
     // Modal dialogs
@@ -139,6 +145,21 @@ export const STRINGS_FR = {
                 slate: 'Ardoise',
                 stone: 'Pierre',
             },
+        },
+        tagOperation: {
+            renameTitle: 'Renommer l\'étiquette',
+            deleteTitle: 'Supprimer l\'étiquette',
+            newTagPrompt: 'Entrez le nouveau nom de l\'étiquette :',
+            newTagPlaceholder: 'nouveau-nom',
+            renameWarning: 'Cela renommera l\'étiquette dans toutes les notes affectées.',
+            deleteWarning: 'Cela supprimera l\'étiquette de toutes les notes affectées.',
+            modificationWarning: 'Modification de l\'étiquette',
+            affectedFiles: '{count} fichier(s) affecté(s)',
+            andMore: 'et {count} de plus...',
+            confirmRename: 'Renommer l\'étiquette',
+            confirmDelete: 'Supprimer l\'étiquette',
+            file: 'fichier',
+            files: 'fichiers',
         },
         fileSystem: {
             newFolderTitle: 'Nouveau dossier',
@@ -194,10 +215,16 @@ export const STRINGS_FR = {
             cannotMoveIntoSelf: 'Impossible de déplacer un dossier dans lui-même ou un sous-dossier.',
             itemAlreadyExists: 'Un élément nommé "{name}" existe déjà à cet emplacement.',
             failedToMove: 'Échec du déplacement : {error}',
+            failedToAddTag: 'Échec de l\'ajout de l\'étiquette "{tag}"',
+            failedToClearTags: 'Échec de la suppression des étiquettes',
         },
         notifications: {
             movedMultipleFiles: '{count} fichiers déplacés',
             filesAlreadyExist: '{count} fichiers existent déjà dans la destination',
+            addedTag: 'Étiquette "{tag}" ajoutée à {count} fichiers',
+            filesAlreadyHaveTag: '{count} fichiers ont déjà cette étiquette ou une plus spécifique',
+            clearedTags: 'Toutes les étiquettes supprimées de {count} fichiers',
+            noTagsToClear: 'Aucune étiquette à supprimer',
         },
     },
 
@@ -248,11 +275,11 @@ export const STRINGS_FR = {
     // Settings
     settings: {
         sections: {
-            timeDisplay: 'Affichage du temps',
-            noteDisplay: 'Affichage des notes',
-            folderDisplay: 'Affichage des dossiers',
-            tagDisplay: 'Affichage des étiquettes',
-            folderNotes: 'Notes de dossier',
+            notes: 'Affichage des notes',
+            navigationPane: 'Affichage des dossiers',
+            tags: 'Affichage des étiquettes',
+            folders: 'Notes de dossier',
+            fileList: 'Liste de fichiers',
             advanced: 'Avancé',
         },
         items: {
@@ -276,7 +303,7 @@ export const STRINGS_FR = {
                 name: 'Afficher les notes des sous-dossiers',
                 desc: 'Afficher toutes les notes des sous-dossiers dans la vue du dossier actuel.',
             },
-            showSubfolderNamesInList: {
+            showParentFolderNames: {
                 name: 'Afficher les noms des dossiers parents',
                 desc: 'Afficher le nom du dossier parent pour les notes provenant des sous-dossiers.',
             },
@@ -284,9 +311,9 @@ export const STRINGS_FR = {
                 name: 'Révéler automatiquement la note active',
                 desc: 'Révéler et sélectionner automatiquement les notes lorsqu\'elles sont ouvertes depuis le Commutateur rapide, les liens ou la recherche.',
             },
-            autoSelectFirstFile: {
-                name: 'Sélectionner automatiquement le premier fichier lors du changement de dossier',
-                desc: 'Sélectionner et ouvrir automatiquement le premier fichier lors du changement de dossier.',
+            autoSelectFirstFileOnFocusChange: {
+                name: 'Sélectionner automatiquement le premier fichier lors du changement de dossier ou d\'étiquette',
+                desc: 'Sélectionner et ouvrir automatiquement le premier fichier lors du changement de dossier ou d\'étiquette.',
             },
             showTooltips: {
                 name: 'Afficher les infobulles',
@@ -364,13 +391,22 @@ export const STRINGS_FR = {
                 name: 'Afficher le dossier racine',
                 desc: 'Afficher "Coffre" comme dossier racine dans l\'arborescence.',
             },
-            showFolderFileCount: {
-                name: 'Afficher le nombre de notes des dossiers',
-                desc: 'Afficher le nombre de notes dans chaque dossier.',
+            showNoteCount: {
+                name: 'Afficher le nombre de notes',
+                desc: 'Afficher le nombre de notes dans chaque dossier et étiquette.',
             },
-            showFolderIcons: {
-                name: 'Afficher les icônes de dossiers',
-                desc: 'Afficher les icônes à côté des noms de dossiers dans l\'arborescence.',
+            showIcons: {
+                name: 'Afficher les icônes',
+                desc: 'Afficher les icônes à côté des dossiers et étiquettes dans le panneau de navigation.',
+            },
+            collapseButtonBehavior: {
+                name: 'Comportement du bouton replier',
+                desc: 'Choisissez ce que le bouton déplier/replier tout affecte.',
+                options: {
+                    all: 'Tous les dossiers et étiquettes',
+                    foldersOnly: 'Dossiers uniquement',
+                    tagsOnly: 'Étiquettes uniquement',
+                },
             },
             showTags: {
                 name: 'Afficher les étiquettes',
@@ -394,7 +430,7 @@ export const STRINGS_FR = {
                 desc: 'Masquer la note de dossier pour qu\'elle n\'apparaisse pas dans la liste des fichiers du dossier.',
             },
             confirmBeforeDelete: {
-                name: 'Confirmer avant de supprimer les notes',
+                name: 'Confirmer avant de supprimer',
                 desc: 'Afficher une boîte de dialogue de confirmation lors de la suppression de notes ou de dossiers',
             },
             useFrontmatterDates: {

@@ -19,11 +19,12 @@
 // src/hooks/useDragAndDrop.ts
 import { useCallback, useEffect, useRef } from 'react';
 import { TFolder, TFile, Notice } from 'obsidian';
-import { useServices, useFileSystemOps } from '../context/ServicesContext';
+import { useServices, useFileSystemOps, useTagOperations } from '../context/ServicesContext';
 import { useSelectionState } from '../context/SelectionContext';
 import { isTFolder, isTFile } from '../utils/typeGuards';
 import { getPathFromDataAttribute, getAbstractFileFromElement } from '../utils/domUtils';
 import { strings } from '../i18n';
+import { ItemType, UNTAGGED_TAG_ID } from '../types';
 
 /**
  * Custom hook that enables drag and drop functionality for files and folders.
@@ -69,6 +70,7 @@ import { strings } from '../i18n';
 export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>) {
     const { app, isMobile } = useServices();
     const fileSystemOps = useFileSystemOps();
+    const tagOperations = useTagOperations();
     const selectionState = useSelectionState();
     const dragOverElement = useRef<HTMLElement | null>(null);
 
@@ -88,7 +90,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         const type = draggable.getAttribute('data-drag-type');
         if (path && e.dataTransfer) {
             // Check if dragging a selected file
-            if (type === 'file' && selectionState.selectedFiles.has(path)) {
+            if (type === ItemType.FILE && selectionState.selectedFiles.has(path)) {
                 // Store all selected file paths
                 const selectedPaths = Array.from(selectionState.selectedFiles);
                 e.dataTransfer.setData('obsidian/files', JSON.stringify(selectedPaths));
@@ -138,7 +140,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 e.dataTransfer.effectAllowed = 'copyMove';
                 
                 // Generate markdown link for single file
-                if (type === 'file') {
+                if (type === ItemType.FILE) {
                     const file = app.vault.getAbstractFileByPath(path);
                     if (isTFile(file)) {
                         const link = app.fileManager.generateMarkdownLink(file, '');
@@ -160,7 +162,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const handleDragOver = useCallback((e: DragEvent) => {
         e.preventDefault();
         const target = e.target as HTMLElement;
-        const dropZone = target.closest<HTMLElement>('[data-drop-zone="folder"]');
+        const dropZone = target.closest<HTMLElement>('[data-drop-zone="folder"],[data-drop-zone="tag"]');
 
         if (dragOverElement.current && dragOverElement.current !== dropZone) {
             dragOverElement.current.classList.remove('nn-drag-over');
@@ -170,13 +172,99 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         if (dropZone) {
             dropZone.classList.add('nn-drag-over');
             dragOverElement.current = dropZone;
-            if (e.dataTransfer) e.dataTransfer.dropEffect = 'move';
+            if (e.dataTransfer) {
+                const dropType = dropZone.getAttribute('data-drop-zone');
+                const targetPath = dropZone.getAttribute('data-drop-path');
+                
+                // Use 'move' for folders and untagged, 'copy' for regular tags
+                if (dropType === 'folder' || targetPath === UNTAGGED_TAG_ID) {
+                    e.dataTransfer.dropEffect = 'move';
+                } else {
+                    e.dataTransfer.dropEffect = 'copy';
+                }
+            }
         }
     }, []);
 
     /**
+     * Handles dropping files on a tag to add that tag to the files
+     * 
+     * @param e - The drag event
+     * @param targetTag - The tag to add (or UNTAGGED_TAG_ID to clear all tags)
+     */
+    const handleTagDrop = useCallback(async (e: DragEvent, targetTag: string) => {
+        // Get all files being dragged
+        const files: TFile[] = [];
+        
+        // Check if dragging multiple files
+        const multipleFilesData = e.dataTransfer?.getData('obsidian/files');
+        if (multipleFilesData) {
+            try {
+                const selectedPaths = JSON.parse(multipleFilesData);
+                if (Array.isArray(selectedPaths)) {
+                    for (const path of selectedPaths) {
+                        const file = app.vault.getAbstractFileByPath(path);
+                        if (isTFile(file)) {
+                            files.push(file);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error('Error parsing multiple files data:', error);
+            }
+        } else {
+            // Check if dragging single file
+            const singleFileData = e.dataTransfer?.getData('obsidian/file');
+            if (singleFileData) {
+                const file = app.vault.getAbstractFileByPath(singleFileData);
+                if (isTFile(file)) {
+                    files.push(file);
+                }
+            }
+        }
+
+        if (files.length === 0) return;
+
+        // Handle special "untagged" drop zone - clear all tags
+        if (targetTag === UNTAGGED_TAG_ID) {
+            try {
+                const clearedCount = await tagOperations.clearAllTagsFromFiles(files);
+                if (clearedCount > 0) {
+                    new Notice(strings.dragDrop.notifications.clearedTags.replace('{count}', clearedCount.toString()));
+                } else {
+                    new Notice(strings.dragDrop.notifications.noTagsToClear);
+                }
+            } catch (error) {
+                console.error('Error clearing tags:', error);
+                new Notice(strings.dragDrop.errors.failedToClearTags);
+            }
+        } else {
+            // Add tag to files
+            try {
+                const { added, skipped } = await tagOperations.addTagToFiles(targetTag, files);
+                
+                if (added > 0) {
+                    new Notice(strings.dragDrop.notifications.addedTag
+                        .replace('{tag}', targetTag)
+                        .replace('{count}', added.toString()));
+                }
+                if (skipped > 0) {
+                    new Notice(strings.dragDrop.notifications.filesAlreadyHaveTag
+                        .replace('{count}', skipped.toString()), 2000);
+                }
+            } catch (error) {
+                console.error('Error adding tag:', error);
+                new Notice(strings.dragDrop.errors.failedToAddTag.replace('{tag}', targetTag));
+            }
+        }
+    }, [app, tagOperations]);
+
+    /**
      * Handles the drop event.
-     * Validates the drop and performs the file/folder move operation.
+     * Validates the drop and performs the appropriate operation based on drop zone type.
+     * - For folders: moves files/folders
+     * - For tags: adds tag to files
+     * - For untagged: clears all tags from files
      * 
      * @param e - The drag event
      */
@@ -186,9 +274,21 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             dragOverElement.current.classList.remove('nn-drag-over');
         }
 
-        const targetPath = getPathFromDataAttribute(dragOverElement.current, 'data-drop-path');
-        if (!targetPath) return;
+        const dropZone = dragOverElement.current;
+        if (!dropZone) return;
 
+        const dropType = dropZone.getAttribute('data-drop-zone');
+        const targetPath = getPathFromDataAttribute(dropZone, 'data-drop-path');
+        
+        if (!dropType || !targetPath) return;
+
+        // Handle tag drops
+        if (dropType === 'tag') {
+            await handleTagDrop(e, targetPath);
+            return;
+        }
+
+        // Handle folder drops (existing logic)
         const targetFolder = app.vault.getAbstractFileByPath(targetPath);
         if (!isTFolder(targetFolder)) return;
 
@@ -259,7 +359,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         } catch (error) {
             new Notice(strings.dragDrop.errors.failedToMove.replace('{error}', error.message));
         }
-    }, [app, fileSystemOps]);
+    }, [app, fileSystemOps, tagOperations]);
     
     /**
      * Handles the drag leave event.

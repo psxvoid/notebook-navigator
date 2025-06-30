@@ -16,16 +16,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, TFolder } from 'obsidian';
 import { NotebookNavigatorSettings, SortOption } from '../settings';
+import { FolderMetadataService, TagMetadataService, FileMetadataService } from './metadata';
 
 /**
- * Service for managing all folder and file metadata operations
- * Centralizes handling of folder colors, icons, sort overrides, and pinned notes
- * Provides cleanup operations for deleted files/folders
+ * Service for managing all folder, tag, and file metadata operations
+ * Delegates to specialized sub-services for better organization
+ * Provides a unified API for metadata operations while maintaining backward compatibility
  */
 export class MetadataService {
-    private updateQueue: Promise<void> = Promise.resolve();
+    private folderService: FolderMetadataService;
+    private tagService: TagMetadataService;
+    private fileService: FileMetadataService;
     
     /**
      * Creates a new MetadataService instance
@@ -37,517 +39,145 @@ export class MetadataService {
         private app: any,
         private settings: NotebookNavigatorSettings,
         private updateSettings: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>
-    ) {}
-    
-    /**
-     * Saves settings and triggers UI update
-     * Uses a queue to serialize updates and prevent race conditions
-     */
-    private async saveAndUpdate(updater: (settings: NotebookNavigatorSettings) => void): Promise<void> {
-        // Queue this update to run after any pending updates
-        this.updateQueue = this.updateQueue.then(async () => {
-            try {
-                await this.updateSettings(updater);
-            } catch (error) {
-                // Failed to save settings, re-throw to propagate
-                throw error;
-            }
-        });
-        
-        return this.updateQueue;
+    ) {
+        // Initialize sub-services
+        this.folderService = new FolderMetadataService(app, settings, updateSettings);
+        this.tagService = new TagMetadataService(app, settings, updateSettings);
+        this.fileService = new FileMetadataService(app, settings, updateSettings);
     }
+    // ========== Folder Methods (delegated to FolderMetadataService) ==========
 
-    // ========== Folder Color Management ==========
-
-    /**
-     * Sets a custom color for a folder
-     * @param folderPath - Path of the folder
-     * @param color - CSS color value
-     */
     async setFolderColor(folderPath: string, color: string): Promise<void> {
-        // Validate that the folder exists
-        const folder = this.app.vault.getAbstractFileByPath(folderPath);
-        if (!folder || !(folder instanceof TFolder)) {
-            // Cannot set color for non-existent folder
-            return;
-        }
-        
-        // Basic color validation - check if it's a valid CSS color format
-        const colorRegex = /^(#[0-9A-Fa-f]{3,8}|rgb\(|rgba\(|hsl\(|hsla\(|[a-zA-Z]+)$/;
-        if (!colorRegex.test(color)) {
-            // Invalid color format
-            return;
-        }
-        
-        await this.saveAndUpdate(settings => {
-            if (!settings.folderColors) {
-                settings.folderColors = {};
-            }
-            settings.folderColors[folderPath] = color;
-        });
+        return this.folderService.setFolderColor(folderPath, color);
     }
 
-    /**
-     * Removes the custom color from a folder
-     * @param folderPath - Path of the folder
-     */
     async removeFolderColor(folderPath: string): Promise<void> {
-        if (this.settings.folderColors && this.settings.folderColors[folderPath]) {
-            await this.saveAndUpdate(settings => {
-                delete settings.folderColors![folderPath];
-            });
-        }
+        return this.folderService.removeFolderColor(folderPath);
     }
 
-    /**
-     * Gets the custom color for a folder
-     * @param folderPath - Path of the folder
-     * @returns The color value or undefined
-     */
     getFolderColor(folderPath: string): string | undefined {
-        return this.settings.folderColors?.[folderPath];
+        return this.folderService.getFolderColor(folderPath);
     }
 
-    // ========== Folder Icon Management ==========
-
-    /**
-     * Sets a custom icon for a folder
-     * @param folderPath - Path of the folder
-     * @param iconId - Lucide icon identifier
-     */
     async setFolderIcon(folderPath: string, iconId: string): Promise<void> {
-        await this.saveAndUpdate(settings => {
-            if (!settings.folderIcons) {
-                settings.folderIcons = {};
-            }
-            settings.folderIcons[folderPath] = iconId;
-            
-            // Update recently used icons
-            if (!settings.recentlyUsedIcons) {
-                settings.recentlyUsedIcons = [];
-            }
-            
-            // Remove if already exists and add to front
-            settings.recentlyUsedIcons = [
-                iconId,
-                ...settings.recentlyUsedIcons.filter((id: string) => id !== iconId)
-            ].slice(0, 10); // Keep only 10 most recent
-        });
+        return this.folderService.setFolderIcon(folderPath, iconId);
     }
 
-    /**
-     * Removes the custom icon from a folder
-     * @param folderPath - Path of the folder
-     */
     async removeFolderIcon(folderPath: string): Promise<void> {
-        if (this.settings.folderIcons && this.settings.folderIcons[folderPath]) {
-            await this.saveAndUpdate(settings => {
-                delete settings.folderIcons![folderPath];
-            });
-        }
+        return this.folderService.removeFolderIcon(folderPath);
     }
 
-    /**
-     * Gets the custom icon for a folder
-     * @param folderPath - Path of the folder
-     * @returns The icon ID or undefined
-     */
     getFolderIcon(folderPath: string): string | undefined {
-        return this.settings.folderIcons?.[folderPath];
+        return this.folderService.getFolderIcon(folderPath);
     }
 
-    // ========== Folder Sort Override Management ==========
-
-    /**
-     * Sets a custom sort order for a folder
-     * @param folderPath - Path of the folder
-     * @param sortOption - Sort option to apply
-     */
     async setFolderSortOverride(folderPath: string, sortOption: SortOption): Promise<void> {
-        await this.saveAndUpdate(settings => {
-            if (!settings.folderSortOverrides) {
-                settings.folderSortOverrides = {};
-            }
-            settings.folderSortOverrides[folderPath] = sortOption;
-        });
+        return this.folderService.setFolderSortOverride(folderPath, sortOption);
     }
 
-    /**
-     * Removes the custom sort order from a folder
-     * @param folderPath - Path of the folder
-     */
     async removeFolderSortOverride(folderPath: string): Promise<void> {
-        if (this.settings.folderSortOverrides && this.settings.folderSortOverrides[folderPath]) {
-            await this.saveAndUpdate(settings => {
-                delete settings.folderSortOverrides![folderPath];
-            });
-        }
+        return this.folderService.removeFolderSortOverride(folderPath);
     }
 
-    /**
-     * Gets the sort override for a folder
-     * @param folderPath - Path of the folder
-     * @returns The sort option or undefined
-     */
     getFolderSortOverride(folderPath: string): SortOption | undefined {
-        return this.settings.folderSortOverrides?.[folderPath];
+        return this.folderService.getFolderSortOverride(folderPath);
     }
 
-    // ========== Pinned Notes Management ==========
+    async handleFolderRename(oldPath: string, newPath: string): Promise<void> {
+        return this.folderService.handleFolderRename(oldPath, newPath);
+    }
 
-    /**
-     * Toggles the pinned state of a note in a folder
-     * @param folderPath - Path of the containing folder
-     * @param filePath - Path of the file to pin/unpin
-     */
+    async handleFolderDelete(folderPath: string): Promise<void> {
+        return this.folderService.handleFolderDelete(folderPath);
+    }
+
+    // ========== Tag Methods (delegated to TagMetadataService) ==========
+
+    async setTagColor(tagPath: string, color: string): Promise<void> {
+        return this.tagService.setTagColor(tagPath, color);
+    }
+
+    async removeTagColor(tagPath: string): Promise<void> {
+        return this.tagService.removeTagColor(tagPath);
+    }
+
+    getTagColor(tagPath: string): string | undefined {
+        return this.tagService.getTagColor(tagPath);
+    }
+
+    async setTagIcon(tagPath: string, iconId: string): Promise<void> {
+        return this.tagService.setTagIcon(tagPath, iconId);
+    }
+
+    async removeTagIcon(tagPath: string): Promise<void> {
+        return this.tagService.removeTagIcon(tagPath);
+    }
+
+    getTagIcon(tagPath: string): string | undefined {
+        return this.tagService.getTagIcon(tagPath);
+    }
+
+    async setTagSortOverride(tagPath: string, sortOption: SortOption): Promise<void> {
+        return this.tagService.setTagSortOverride(tagPath, sortOption);
+    }
+
+    async removeTagSortOverride(tagPath: string): Promise<void> {
+        return this.tagService.removeTagSortOverride(tagPath);
+    }
+
+    getTagSortOverride(tagPath: string): SortOption | undefined {
+        return this.tagService.getTagSortOverride(tagPath);
+    }
+
+    // ========== File/Pinned Notes Methods (delegated to FileMetadataService) ==========
+
     async togglePinnedNote(folderPath: string, filePath: string): Promise<void> {
-        await this.saveAndUpdate(settings => {
-            if (!settings.pinnedNotes) {
-                settings.pinnedNotes = {};
-            }
-
-            const currentPinned = settings.pinnedNotes[folderPath] || [];
-            const isPinned = currentPinned.includes(filePath);
-
-            if (isPinned) {
-                // Unpin
-                settings.pinnedNotes[folderPath] = currentPinned.filter((p: string) => p !== filePath);
-                // Remove empty entries
-                if (settings.pinnedNotes[folderPath].length === 0) {
-                    delete settings.pinnedNotes[folderPath];
-                }
-            } else {
-                // Pin
-                settings.pinnedNotes[folderPath] = [...currentPinned, filePath];
-            }
-        });
+        return this.fileService.togglePinnedNote(folderPath, filePath);
     }
 
-    /**
-     * Checks if a note is pinned in a folder
-     * @param folderPath - Path of the containing folder
-     * @param filePath - Path of the file to check
-     * @returns True if the note is pinned
-     */
     isPinned(folderPath: string, filePath: string): boolean {
-        const pinnedNotes = this.settings.pinnedNotes?.[folderPath] || [];
-        return pinnedNotes.includes(filePath);
+        return this.fileService.isPinned(folderPath, filePath);
     }
 
-    /**
-     * Gets all pinned notes for a folder
-     * @param folderPath - Path of the folder
-     * @returns Array of pinned file paths
-     */
     getPinnedNotes(folderPath: string): string[] {
-        return this.settings.pinnedNotes?.[folderPath] || [];
+        return this.fileService.getPinnedNotes(folderPath);
+    }
+
+    async handleFileDelete(filePath: string): Promise<void> {
+        return this.fileService.handleFileDelete(filePath);
+    }
+
+    async handleFileRename(oldPath: string, newPath: string): Promise<void> {
+        return this.fileService.handleFileRename(oldPath, newPath);
     }
 
     // ========== Cleanup Operations ==========
 
     /**
-     * Comprehensive cleanup of all metadata on plugin startup
-     * Removes references to deleted files and folders from all settings
+     * Cleanup metadata for files and folders only
+     * Called on plugin startup to remove references to deleted files and folders
+     * Note: Tag cleanup is intentionally excluded and handled separately after tag tree building
      * @returns True if any changes were made
      */
     async cleanupAllMetadata(): Promise<boolean> {
-        let hasChanges = false;
+        // Run cleanup for folders and files only
+        // Tag cleanup is handled separately in TagCacheProvider after tag tree is built
+        // This ensures parent tags are properly identified before cleanup
+        const [folderChanges, fileChanges] = await Promise.all([
+            this.folderService.cleanupFolderMetadata(),
+            this.fileService.cleanupPinnedNotes()
+        ]);
         
-        // First check if any cleanup is needed
-        const checkAndClean = (settings: NotebookNavigatorSettings) => {
-            // Clean up folder colors
-            if (settings.folderColors) {
-                for (const folderPath in settings.folderColors) {
-                    const folder = this.app.vault.getAbstractFileByPath(folderPath);
-                    if (!(folder instanceof TFolder)) {
-                        delete settings.folderColors[folderPath];
-                        hasChanges = true;
-                    }
-                }
-            }
-
-            // Clean up folder icons
-            if (settings.folderIcons) {
-                for (const folderPath in settings.folderIcons) {
-                    const folder = this.app.vault.getAbstractFileByPath(folderPath);
-                    if (!(folder instanceof TFolder)) {
-                        delete settings.folderIcons[folderPath];
-                        hasChanges = true;
-                    }
-                }
-            }
-
-            // Clean up folder sort overrides
-            if (settings.folderSortOverrides) {
-                for (const folderPath in settings.folderSortOverrides) {
-                    const folder = this.app.vault.getAbstractFileByPath(folderPath);
-                    if (!(folder instanceof TFolder)) {
-                        delete settings.folderSortOverrides[folderPath];
-                        hasChanges = true;
-                    }
-                }
-            }
-
-            // Clean up pinned notes
-            if (settings.pinnedNotes) {
-                for (const folderPath in settings.pinnedNotes) {
-                    const filePaths = settings.pinnedNotes[folderPath];
-                    if (!Array.isArray(filePaths)) {
-                        // Remove invalid entry
-                        delete settings.pinnedNotes[folderPath];
-                        hasChanges = true;
-                        continue;
-                    }
-                    
-                    const validFiles = filePaths.filter((filePath: string) => {
-                        const file = this.app.vault.getAbstractFileByPath(filePath);
-                        return file instanceof TFile;
-                    });
-
-                    if (validFiles.length !== filePaths.length) {
-                        settings.pinnedNotes[folderPath] = validFiles;
-                        hasChanges = true;
-                    }
-
-                    // Remove empty entries
-                    if (validFiles.length === 0) {
-                        delete settings.pinnedNotes[folderPath];
-                        hasChanges = true;
-                    }
-                }
-            }
-        };
-        
-        // Run the cleanup check
-        checkAndClean(this.settings);
-        
-        // Only save if changes were made
-        if (hasChanges) {
-            await this.saveAndUpdate(checkAndClean);
-        }
-        
-        return hasChanges;
+        return folderChanges || fileChanges;
     }
 
     /**
-     * Handles folder rename by updating all associated metadata
-     * @param oldPath - Previous folder path
-     * @param newPath - New folder path
+     * Cleanup tag metadata for tags that no longer exist in the vault
+     * Called by TagCacheProvider after tag tree is successfully built
+     * This ensures the metadata cache is ready and all parent tags are identified
+     * @returns True if any changes were made
      */
-    async handleFolderRename(oldPath: string, newPath: string): Promise<void> {
-        await this.saveAndUpdate(settings => {
-            // Ensure all metadata objects exist
-            if (!settings.folderColors) settings.folderColors = {};
-            if (!settings.folderIcons) settings.folderIcons = {};
-            if (!settings.folderSortOverrides) settings.folderSortOverrides = {};
-            if (!settings.pinnedNotes) settings.pinnedNotes = {};
-
-            // Update direct folder color
-            if (settings.folderColors[oldPath]) {
-                settings.folderColors[newPath] = settings.folderColors[oldPath];
-                delete settings.folderColors[oldPath];
-            }
-
-            // Update direct folder icon
-            if (settings.folderIcons[oldPath]) {
-                settings.folderIcons[newPath] = settings.folderIcons[oldPath];
-                delete settings.folderIcons[oldPath];
-            }
-
-            // Update direct folder sort override
-            if (settings.folderSortOverrides[oldPath]) {
-                settings.folderSortOverrides[newPath] = settings.folderSortOverrides[oldPath];
-                delete settings.folderSortOverrides[oldPath];
-            }
-
-            // Handle nested folders
-            const oldPathPrefix = oldPath + '/';
-            
-            // Update nested folder colors
-            const colorsToUpdate: Array<{oldPath: string, newPath: string, color: string}> = [];
-            for (const path in settings.folderColors) {
-                if (path.startsWith(oldPathPrefix)) {
-                    const newNestedPath = newPath + path.substring(oldPath.length);
-                    colorsToUpdate.push({
-                        oldPath: path,
-                        newPath: newNestedPath,
-                        color: settings.folderColors[path]
-                    });
-                }
-            }
-            
-            for (const update of colorsToUpdate) {
-                settings.folderColors[update.newPath] = update.color;
-                delete settings.folderColors[update.oldPath];
-            }
-
-            // Update nested folder icons
-            const iconsToUpdate: Array<{oldPath: string, newPath: string, icon: string}> = [];
-            for (const path in settings.folderIcons) {
-                if (path.startsWith(oldPathPrefix)) {
-                    const newNestedPath = newPath + path.substring(oldPath.length);
-                    iconsToUpdate.push({
-                        oldPath: path,
-                        newPath: newNestedPath,
-                        icon: settings.folderIcons[path]
-                    });
-                }
-            }
-            
-            for (const update of iconsToUpdate) {
-                settings.folderIcons[update.newPath] = update.icon;
-                delete settings.folderIcons[update.oldPath];
-            }
-
-            // Update nested folder sort overrides
-            const sortOverridesToUpdate: Array<{oldPath: string, newPath: string, sort: SortOption}> = [];
-            for (const path in settings.folderSortOverrides) {
-                if (path.startsWith(oldPathPrefix)) {
-                    const newNestedPath = newPath + path.substring(oldPath.length);
-                    sortOverridesToUpdate.push({
-                        oldPath: path,
-                        newPath: newNestedPath,
-                        sort: settings.folderSortOverrides[path]
-                    });
-                }
-            }
-            
-            for (const update of sortOverridesToUpdate) {
-                settings.folderSortOverrides[update.newPath] = update.sort;
-                delete settings.folderSortOverrides[update.oldPath];
-            }
-
-            // Update pinned notes for the renamed folder and its subfolders
-            const pinnedNotesToUpdate: Array<{oldPath: string, newPath: string, notes: string[]}> = [];
-            
-            // Handle direct folder pinned notes
-            if (settings.pinnedNotes[oldPath]) {
-                const updatedNotes = settings.pinnedNotes[oldPath].map((notePath: string) => {
-                    if (notePath.startsWith(oldPath + '/')) {
-                        return newPath + notePath.substring(oldPath.length);
-                    }
-                    return notePath;
-                });
-                pinnedNotesToUpdate.push({
-                    oldPath: oldPath,
-                    newPath: newPath,
-                    notes: updatedNotes
-                });
-            }
-            
-            // Handle nested folder pinned notes
-            for (const path in settings.pinnedNotes) {
-                if (path.startsWith(oldPathPrefix)) {
-                    const newNestedPath = newPath + path.substring(oldPath.length);
-                    const updatedNotes = settings.pinnedNotes[path].map((notePath: string) => {
-                        if (notePath.startsWith(oldPath + '/')) {
-                            return newPath + notePath.substring(oldPath.length);
-                        }
-                        return notePath;
-                    });
-                    pinnedNotesToUpdate.push({
-                        oldPath: path,
-                        newPath: newNestedPath,
-                        notes: updatedNotes
-                    });
-                }
-            }
-            
-            for (const update of pinnedNotesToUpdate) {
-                settings.pinnedNotes[update.newPath] = update.notes;
-                delete settings.pinnedNotes[update.oldPath];
-            }
-        });
-    }
-
-    /**
-     * Handles folder deletion by removing all associated metadata
-     * @param folderPath - Path of the deleted folder
-     */
-    async handleFolderDelete(folderPath: string): Promise<void> {
-        await this.saveAndUpdate(settings => {
-            // Remove folder color
-            if (settings.folderColors?.[folderPath]) {
-                delete settings.folderColors[folderPath];
-            }
-
-            // Remove folder icon
-            if (settings.folderIcons?.[folderPath]) {
-                delete settings.folderIcons[folderPath];
-            }
-
-            // Remove folder sort override
-            if (settings.folderSortOverrides?.[folderPath]) {
-                delete settings.folderSortOverrides[folderPath];
-            }
-
-            // Remove pinned notes for this folder
-            if (settings.pinnedNotes?.[folderPath]) {
-                delete settings.pinnedNotes[folderPath];
-            }
-
-            // Clean up nested folders
-            const folderPrefix = folderPath + '/';
-
-            // Clean up nested folder colors
-            if (settings.folderColors) {
-                for (const path in settings.folderColors) {
-                    if (path.startsWith(folderPrefix)) {
-                        delete settings.folderColors[path];
-                    }
-                }
-            }
-
-            // Clean up nested folder icons
-            if (settings.folderIcons) {
-                for (const path in settings.folderIcons) {
-                    if (path.startsWith(folderPrefix)) {
-                        delete settings.folderIcons[path];
-                    }
-                }
-            }
-
-            // Clean up nested folder sort overrides
-            if (settings.folderSortOverrides) {
-                for (const path in settings.folderSortOverrides) {
-                    if (path.startsWith(folderPrefix)) {
-                        delete settings.folderSortOverrides[path];
-                    }
-                }
-            }
-
-            // Clean up pinned notes for nested folders
-            if (settings.pinnedNotes) {
-                for (const path in settings.pinnedNotes) {
-                    if (path.startsWith(folderPrefix)) {
-                        delete settings.pinnedNotes[path];
-                    }
-                }
-            }
-        });
-    }
-
-    /**
-     * Handles file deletion by removing it from pinned notes
-     * @param filePath - Path of the deleted file
-     */
-    async handleFileDelete(filePath: string): Promise<void> {
-        await this.saveAndUpdate(settings => {
-            // Remove file from pinned notes in all folders
-            if (settings.pinnedNotes) {
-                for (const folderPath in settings.pinnedNotes) {
-                    const pinnedFiles = settings.pinnedNotes[folderPath];
-                    const index = pinnedFiles.indexOf(filePath);
-                    if (index > -1) {
-                        pinnedFiles.splice(index, 1);
-
-                        // Remove the folder entry if no more pinned files
-                        if (pinnedFiles.length === 0) {
-                            delete settings.pinnedNotes[folderPath];
-                        }
-                    }
-                }
-            }
-        });
+    async cleanupTagMetadata(): Promise<boolean> {
+        return this.tagService.cleanupTagMetadata();
     }
 }

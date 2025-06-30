@@ -52,8 +52,8 @@ export const STRINGS_ES = {
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: 'Contraer todas las carpetas', // Tooltip for button that collapses all expanded folders (English: Collapse all folders)
-        expandAllFolders: 'Expandir todas las carpetas', // Tooltip for button that expands all folders (English: Expand all folders)
+        collapseAllFolders: 'Contraer todo', // Tooltip for button that collapses all expanded items (English: Collapse all)
+        expandAllFolders: 'Expandir todo', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'Nueva carpeta', // Tooltip for create new folder button (English: New folder)
         newNote: 'Nueva nota', // Tooltip for create new note button (English: New note)
         mobileBackToFolders: 'Volver a carpetas', // Mobile-only back button text to return to folder list (English: Back to folders)
@@ -104,6 +104,12 @@ export const STRINGS_ES = {
             renameFolder: 'Renombrar carpeta',
             deleteFolder: 'Eliminar carpeta',
         },
+        tag: {
+            changeIcon: 'Cambiar icono',
+            removeIcon: 'Quitar icono',
+            changeColor: 'Cambiar color',
+            removeColor: 'Quitar color',
+        },
     },
 
     // Modal dialogs
@@ -139,6 +145,21 @@ export const STRINGS_ES = {
                 slate: 'Pizarra',
                 stone: 'Piedra',
             },
+        },
+        tagOperation: {
+            renameTitle: 'Renombrar etiqueta',
+            deleteTitle: 'Eliminar etiqueta',
+            newTagPrompt: 'Introduce el nuevo nombre de la etiqueta:',
+            newTagPlaceholder: 'nuevo-nombre',
+            renameWarning: 'Esto renombrará la etiqueta en todas las notas afectadas.',
+            deleteWarning: 'Esto eliminará la etiqueta de todas las notas afectadas.',
+            modificationWarning: 'Modificación de etiqueta',
+            affectedFiles: '{count} archivo(s) afectado(s)',
+            andMore: 'y {count} más...',
+            confirmRename: 'Renombrar etiqueta',
+            confirmDelete: 'Eliminar etiqueta',
+            file: 'archivo',
+            files: 'archivos',
         },
         fileSystem: {
             newFolderTitle: 'Nueva carpeta',
@@ -194,10 +215,16 @@ export const STRINGS_ES = {
             cannotMoveIntoSelf: 'No se puede mover una carpeta dentro de sí misma o una subcarpeta.',
             itemAlreadyExists: 'Ya existe un elemento llamado "{name}" en esta ubicación.',
             failedToMove: 'Error al mover: {error}',
+            failedToAddTag: 'Error al agregar la etiqueta "{tag}"',
+            failedToClearTags: 'Error al eliminar las etiquetas',
         },
         notifications: {
             movedMultipleFiles: '{count} archivos movidos',
             filesAlreadyExist: '{count} archivos ya existen en el destino',
+            addedTag: 'Etiqueta "{tag}" agregada a {count} archivos',
+            filesAlreadyHaveTag: '{count} archivos ya tienen esta etiqueta o una más específica',
+            clearedTags: 'Se eliminaron todas las etiquetas de {count} archivos',
+            noTagsToClear: 'No hay etiquetas para eliminar',
         },
     },
 
@@ -248,11 +275,11 @@ export const STRINGS_ES = {
     // Settings
     settings: {
         sections: {
-            timeDisplay: 'Visualización de tiempo',
-            noteDisplay: 'Visualización de notas',
-            folderDisplay: 'Visualización de carpetas',
-            tagDisplay: 'Visualización de etiquetas',
-            folderNotes: 'Notas de carpeta',
+            notes: 'Visualización de notas',
+            navigationPane: 'Visualización de carpetas',
+            tags: 'Visualización de etiquetas',
+            folders: 'Notas de carpeta',
+            fileList: 'Lista de archivos',
             advanced: 'Avanzado',
         },
         items: {
@@ -276,7 +303,7 @@ export const STRINGS_ES = {
                 name: 'Mostrar notas de subcarpetas',
                 desc: 'Muestra todas las notas de las subcarpetas en la vista de carpeta actual.',
             },
-            showSubfolderNamesInList: {
+            showParentFolderNames: {
                 name: 'Mostrar nombres de carpetas principales',
                 desc: 'Muestra el nombre de la carpeta principal para las notas de subcarpetas.',
             },
@@ -284,9 +311,9 @@ export const STRINGS_ES = {
                 name: 'Mostrar automáticamente la nota activa',
                 desc: 'Muestra y selecciona automáticamente las notas cuando se abren desde el Conmutador rápido, enlaces o búsqueda.',
             },
-            autoSelectFirstFile: {
-                name: 'Seleccionar automáticamente el primer archivo al cambiar de carpeta',
-                desc: 'Selecciona y abre automáticamente el primer archivo al cambiar de carpeta.',
+            autoSelectFirstFileOnFocusChange: {
+                name: 'Seleccionar automáticamente el primer archivo al cambiar de carpeta o etiqueta',
+                desc: 'Selecciona y abre automáticamente el primer archivo al cambiar de carpeta o etiqueta.',
             },
             showTooltips: {
                 name: 'Mostrar tooltips',
@@ -364,13 +391,22 @@ export const STRINGS_ES = {
                 name: 'Mostrar carpeta raíz',
                 desc: 'Muestra "Bóveda" como la carpeta raíz en el árbol.',
             },
-            showFolderFileCount: {
-                name: 'Mostrar conteo de notas en carpetas',
-                desc: 'Muestra el número de notas en cada carpeta.',
+            showNoteCount: {
+                name: 'Mostrar conteo de notas',
+                desc: 'Muestra el número de notas en cada carpeta y etiqueta.',
             },
-            showFolderIcons: {
-                name: 'Mostrar iconos de carpetas',
-                desc: 'Muestra iconos junto a los nombres de las carpetas en el árbol.',
+            showIcons: {
+                name: 'Mostrar iconos',
+                desc: 'Muestra iconos junto a las carpetas y etiquetas en el panel de navegación.',
+            },
+            collapseButtonBehavior: {
+                name: 'Comportamiento del botón contraer',
+                desc: 'Elige qué afecta el botón de expandir/contraer todo.',
+                options: {
+                    all: 'Todas las carpetas y etiquetas',
+                    foldersOnly: 'Solo carpetas',
+                    tagsOnly: 'Solo etiquetas',
+                },
             },
             showTags: {
                 name: 'Mostrar etiquetas',
@@ -394,7 +430,7 @@ export const STRINGS_ES = {
                 desc: 'Ocultar la nota de carpeta para que no aparezca en la lista de archivos de la carpeta.',
             },
             confirmBeforeDelete: {
-                name: 'Confirmar antes de eliminar notas',
+                name: 'Confirmar antes de eliminar',
                 desc: 'Muestra un diálogo de confirmación al eliminar notas o carpetas',
             },
             useFrontmatterDates: {

@@ -52,8 +52,8 @@ export const STRINGS_EN = {
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: 'Collapse all folders', // Tooltip for button that collapses all expanded folders (English: Collapse all folders)
-        expandAllFolders: 'Expand all folders', // Tooltip for button that expands all folders (English: Expand all folders)
+        collapseAllFolders: 'Collapse all', // Tooltip for button that collapses all expanded items (English: Collapse all)
+        expandAllFolders: 'Expand all', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'New folder', // Tooltip for create new folder button (English: New folder)
         newNote: 'New note', // Tooltip for create new note button (English: New note)
         mobileBackToFolders: 'Back to folders', // Mobile-only back button text to return to folder list (English: Back to folders)
@@ -104,6 +104,12 @@ export const STRINGS_EN = {
             renameFolder: 'Rename folder',
             deleteFolder: 'Delete folder',
         },
+        tag: {
+            changeIcon: 'Change icon',
+            removeIcon: 'Remove icon',
+            changeColor: 'Change color',
+            removeColor: 'Remove color',
+        },
     },
 
     // Modal dialogs
@@ -139,6 +145,21 @@ export const STRINGS_EN = {
                 slate: 'Slate',
                 stone: 'Stone',
             },
+        },
+        tagOperation: {
+            renameTitle: 'Rename tag {tag}',
+            deleteTitle: 'Delete tag {tag}',
+            newTagPrompt: 'New tag name',
+            newTagPlaceholder: 'Enter new tag name',
+            renameWarning: 'Renaming tag {oldTag} will modify {count} {files}.',
+            deleteWarning: 'Deleting tag {tag} will modify {count} {files}.',
+            modificationWarning: 'This will update file modification dates.',
+            affectedFiles: 'Affected files:',
+            andMore: '...and {count} more',
+            confirmRename: 'Rename tag',
+            confirmDelete: 'Delete tag',
+            file: 'file',
+            files: 'files',
         },
         fileSystem: {
             newFolderTitle: 'New folder',
@@ -194,10 +215,16 @@ export const STRINGS_EN = {
             cannotMoveIntoSelf: 'Cannot move a folder into itself or a subfolder.',
             itemAlreadyExists: 'An item named "{name}" already exists in this location.',
             failedToMove: 'Failed to move: {error}',
+            failedToAddTag: 'Failed to add tag "{tag}"',
+            failedToClearTags: 'Failed to clear tags',
         },
         notifications: {
             movedMultipleFiles: 'Moved {count} files',
             filesAlreadyExist: '{count} files already exist in destination',
+            addedTag: 'Added tag "{tag}" to {count} files',
+            filesAlreadyHaveTag: '{count} files already have this tag or a more specific one',
+            clearedTags: 'Cleared all tags from {count} files',
+            noTagsToClear: 'No tags to clear',
         },
     },
 
@@ -248,11 +275,11 @@ export const STRINGS_EN = {
     // Settings
     settings: {
         sections: {
-            timeDisplay: 'Time display',
-            noteDisplay: 'Note display',
-            folderDisplay: 'Folder display',
-            tagDisplay: 'Tag display',
-            folderNotes: 'Folder notes',
+            navigationPane: 'Navigation pane',
+            folders: 'Folders',
+            tags: 'Tags',
+            fileList: 'File list',
+            notes: 'Notes',
             advanced: 'Advanced',
         },
         items: {
@@ -276,7 +303,7 @@ export const STRINGS_EN = {
                 name: 'Show notes from subfolders',
                 desc: 'Display all notes from subfolders in the current folder view.',
             },
-            showSubfolderNamesInList: {
+            showParentFolderNames: {
                 name: 'Show parent folder names',
                 desc: 'Display the parent folder name for notes from subfolders.',
             },
@@ -284,9 +311,9 @@ export const STRINGS_EN = {
                 name: 'Auto-reveal active note',
                 desc: 'Automatically reveal and select notes when opened from Quick Switcher, links, or search.',
             },
-            autoSelectFirstFile: {
-                name: 'Auto-select first file on folder change',
-                desc: 'Automatically select and open the first file when switching folders.',
+            autoSelectFirstFileOnFocusChange: {
+                name: 'Auto-select first file on focus change',
+                desc: 'Automatically select and open the first file when switching folders or tags.',
             },
             showTooltips: {
                 name: 'Show tooltips',
@@ -364,13 +391,22 @@ export const STRINGS_EN = {
                 name: 'Show root folder',
                 desc: 'Display "Vault" as the root folder in the tree.',
             },
-            showFolderFileCount: {
-                name: 'Show folder note count',
-                desc: 'Display the number of notes in each folder.',
+            showNoteCount: {
+                name: 'Show note count',
+                desc: 'Display the number of notes in each folder and tag.',
             },
-            showFolderIcons: {
-                name: 'Show folder icons',
-                desc: 'Display icons next to folder names in the tree.',
+            showIcons: {
+                name: 'Show icons',
+                desc: 'Display icons next to folders and tags in the navigation pane.',
+            },
+            collapseButtonBehavior: {
+                name: 'Collapse button behavior',
+                desc: 'Choose what the expand/collapse all button affects.',
+                options: {
+                    all: 'All folders and tags',
+                    foldersOnly: 'Folders only',
+                    tagsOnly: 'Tags only',
+                },
             },
             showTags: {
                 name: 'Show tags',
@@ -394,7 +430,7 @@ export const STRINGS_EN = {
                 desc: 'Hide the folder note from appearing in the folder\'s file list.',
             },
             confirmBeforeDelete: {
-                name: 'Confirm before deleting notes',
+                name: 'Confirm before deleting',
                 desc: 'Show confirmation dialog when deleting notes or folders',
             },
             useFrontmatterDates: {

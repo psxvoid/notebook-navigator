@@ -23,7 +23,7 @@ import { executeCommand } from '../utils/typeGuards';
 import { strings } from '../i18n';
 import { getFolderNote } from '../utils/fileFinder';
 import { NotebookNavigatorSettings } from '../settings';
-import { NavigationItemType, getSupportedLeaves } from '../types';
+import { NavigationItemType, getSupportedLeaves, ItemType } from '../types';
 import type { SelectionDispatch } from '../context/SelectionContext';
 
 /**
@@ -289,10 +289,10 @@ export class FileSystemOperations {
     ): Promise<void> {
         // Get the file list based on selection type
         let currentFiles: TFile[] = [];
-        if (selectionContext.selectionType === 'folder' && selectionContext.selectedFolder) {
+        if (selectionContext.selectionType === ItemType.FOLDER && selectionContext.selectedFolder) {
             const { getFilesForFolder } = await import('../utils/fileFinder');
             currentFiles = getFilesForFolder(selectionContext.selectedFolder, settings, this.app);
-        } else if (selectionContext.selectionType === 'tag' && selectionContext.selectedTag) {
+        } else if (selectionContext.selectionType === ItemType.TAG && selectionContext.selectedTag) {
             const { getFilesForTag } = await import('../utils/fileFinder');
             currentFiles = getFilesForTag(selectionContext.selectedTag, settings, this.app);
         }

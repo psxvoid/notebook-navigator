@@ -19,7 +19,7 @@
 import { TFile, TFolder, MetadataCache } from 'obsidian';
 import type { SortOption, NotebookNavigatorSettings } from '../settings';
 import { DateUtils } from './DateUtils';
-import { NavigationItemType } from '../types';
+import { NavigationItemType, ItemType } from '../types';
 
 /**
  * Available sort options in order they appear in menus
@@ -38,15 +38,20 @@ export const SORT_OPTIONS: SortOption[] = [
  * @param settings - Plugin settings
  * @param selectionType - Whether folder or tag is selected
  * @param selectedFolder - The currently selected folder (if any)
+ * @param selectedTag - The currently selected tag (if any)
  * @returns The sort option to use
  */
 export function getEffectiveSortOption(
     settings: NotebookNavigatorSettings,
     selectionType: NavigationItemType,
-    selectedFolder: TFolder | null
+    selectedFolder: TFolder | null,
+    selectedTag?: string | null
 ): SortOption {
-    if (selectionType === 'folder' && selectedFolder && settings.folderSortOverrides[selectedFolder.path]) {
+    if (selectionType === ItemType.FOLDER && selectedFolder && settings.folderSortOverrides?.[selectedFolder.path]) {
         return settings.folderSortOverrides[selectedFolder.path];
+    }
+    if (selectionType === ItemType.TAG && selectedTag && settings.tagSortOverrides?.[selectedTag]) {
+        return settings.tagSortOverrides[selectedTag];
     }
     return settings.defaultFolderSort;
 }

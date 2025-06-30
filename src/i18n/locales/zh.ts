@@ -52,8 +52,8 @@ export const STRINGS_ZH = {
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: '折叠所有文件夹', // Tooltip for button that collapses all expanded folders (English: Collapse all folders)
-        expandAllFolders: '展开所有文件夹', // Tooltip for button that expands all folders (English: Expand all folders)
+        collapseAllFolders: '全部折叠', // Tooltip for button that collapses all expanded items (English: Collapse all)
+        expandAllFolders: '全部展开', // Tooltip for button that expands all items (English: Expand all)
         newFolder: '新建文件夹', // Tooltip for create new folder button (English: New folder)
         newNote: '新建笔记', // Tooltip for create new note button (English: New note)
         mobileBackToFolders: '返回文件夹', // Mobile-only back button text to return to folder list (English: Back to folders)
@@ -104,6 +104,12 @@ export const STRINGS_ZH = {
             renameFolder: '重命名文件夹',
             deleteFolder: '删除文件夹',
         },
+        tag: {
+            changeIcon: '更改图标',
+            removeIcon: '移除图标',
+            changeColor: '更改颜色',
+            removeColor: '移除颜色',
+        },
     },
 
     // Modal dialogs
@@ -139,6 +145,21 @@ export const STRINGS_ZH = {
                 slate: '石板色',
                 stone: '石灰色',
             },
+        },
+        tagOperation: {
+            renameTitle: '重命名标签',
+            deleteTitle: '删除标签',
+            newTagPrompt: '输入新的标签名称：',
+            newTagPlaceholder: '新名称',
+            renameWarning: '这将重命名所有受影响笔记中的标签。',
+            deleteWarning: '这将从所有受影响笔记中删除标签。',
+            modificationWarning: '标签修改',
+            affectedFiles: '{count} 个文件受影响',
+            andMore: '以及 {count} 个更多...',
+            confirmRename: '重命名标签',
+            confirmDelete: '删除标签',
+            file: '个文件',
+            files: '个文件',
         },
         fileSystem: {
             newFolderTitle: '新建文件夹',
@@ -194,10 +215,16 @@ export const STRINGS_ZH = {
             cannotMoveIntoSelf: '无法将文件夹移动到自身或其子文件夹中。',
             itemAlreadyExists: '此位置已存在名为 "{name}" 的项目。',
             failedToMove: '移动失败：{error}',
+            failedToAddTag: '添加标签 "{tag}" 失败',
+            failedToClearTags: '清除标签失败',
         },
         notifications: {
             movedMultipleFiles: '已移动 {count} 个文件',
             filesAlreadyExist: '{count} 个文件在目标位置已存在',
+            addedTag: '已将标签 "{tag}" 添加到 {count} 个文件',
+            filesAlreadyHaveTag: '{count} 个文件已经有此标签或更具体的标签',
+            clearedTags: '已从 {count} 个文件中清除所有标签',
+            noTagsToClear: '没有要清除的标签',
         },
     },
 
@@ -248,11 +275,11 @@ export const STRINGS_ZH = {
     // Settings
     settings: {
         sections: {
-            timeDisplay: '时间显示',
-            noteDisplay: '笔记显示',
-            folderDisplay: '文件夹显示',
-            tagDisplay: '标签显示',
-            folderNotes: '文件夹笔记',
+            notes: '笔记显示',
+            navigationPane: '文件夹显示',
+            tags: '标签显示',
+            folders: '文件夹笔记',
+            fileList: '文件列表',
             advanced: '高级',
         },
         items: {
@@ -276,7 +303,7 @@ export const STRINGS_ZH = {
                 name: '显示子文件夹中的笔记',
                 desc: '在当前文件夹视图中显示所有子文件夹中的笔记。',
             },
-            showSubfolderNamesInList: {
+            showParentFolderNames: {
                 name: '显示父文件夹名称',
                 desc: '为子文件夹中的笔记显示父文件夹名称。',
             },
@@ -284,9 +311,9 @@ export const STRINGS_ZH = {
                 name: '自动定位活动笔记',
                 desc: '从快速切换器、链接或搜索打开笔记时自动显示并选择。',
             },
-            autoSelectFirstFile: {
-                name: '切换文件夹时自动选择第一个文件',
-                desc: '切换文件夹时自动选择并打开第一个文件。',
+            autoSelectFirstFileOnFocusChange: {
+                name: '切换文件夹或标签时自动选择第一个文件',
+                desc: '切换文件夹或标签时自动选择并打开第一个文件。',
             },
             showTooltips: {
                 name: '显示工具提示',
@@ -364,13 +391,22 @@ export const STRINGS_ZH = {
                 name: '显示根文件夹',
                 desc: '在树中显示"仓库"作为根文件夹。',
             },
-            showFolderFileCount: {
-                name: '显示文件夹笔记数',
-                desc: '显示每个文件夹中的笔记数量。',
+            showNoteCount: {
+                name: '显示笔记数',
+                desc: '显示每个文件夹和标签中的笔记数量。',
             },
-            showFolderIcons: {
-                name: '显示文件夹图标',
-                desc: '在树中的文件夹名称旁显示图标。',
+            showIcons: {
+                name: '显示图标',
+                desc: '在导航面板中的文件夹和标签旁显示图标。',
+            },
+            collapseButtonBehavior: {
+                name: '折叠按钮行为',
+                desc: '选择展开/折叠全部按钮影响的内容。',
+                options: {
+                    all: '所有文件夹和标签',
+                    foldersOnly: '仅文件夹',
+                    tagsOnly: '仅标签',
+                },
             },
             showTags: {
                 name: '显示标签',
@@ -394,7 +430,7 @@ export const STRINGS_ZH = {
                 desc: '隐藏文件夹笔记，使其不出现在文件夹的文件列表中。',
             },
             confirmBeforeDelete: {
-                name: '删除笔记前确认',
+                name: '删除前确认',
                 desc: '删除笔记或文件夹时显示确认对话框',
             },
             useFrontmatterDates: {

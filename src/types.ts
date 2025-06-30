@@ -40,10 +40,77 @@ export const UNTAGGED_TAG_ID = '__untagged__';
 export type FocusedPane = 'folders' | 'files';
 
 /**
+ * Enum for all item types in the navigator
+ * Using const enum for better performance (inlined at compile time)
+ */
+export const ItemType = {
+    FILE: 'file',
+    FOLDER: 'folder',
+    TAG: 'tag'
+} as const;
+
+/**
+ * Enum for file list item types
+ * These are specific to the file list view
+ */
+export const FileListItemType = {
+    HEADER: 'header',
+    FILE: 'file',
+    SPACER: 'spacer'
+} as const;
+
+/**
+ * Type representing all possible file list item types
+ */
+export type FileListItemType = typeof FileListItemType[keyof typeof FileListItemType];
+
+/**
+ * Enum for navigation pane item types
+ * These are specific to the navigation pane (left side)
+ */
+export const NavigationPaneItemType = {
+    FOLDER: 'folder',
+    TAG_HEADER: 'tag-header',
+    TAG: 'tag',
+    UNTAGGED: 'untagged',
+    SPACER: 'spacer'
+} as const;
+
+/**
+ * Type representing all possible navigation pane item types
+ */
+export type NavigationPaneItemType = typeof NavigationPaneItemType[keyof typeof NavigationPaneItemType];
+
+/**
+ * Type representing all possible item types
+ */
+export type ItemType = typeof ItemType[keyof typeof ItemType];
+
+/**
  * Types of items that can be selected in the navigation pane
  * Either a folder from the file tree or a tag from the tag tree
+ * This is a subset of ItemType that excludes 'file'
  */
-export type NavigationItemType = 'folder' | 'tag';
+export type NavigationItemType = typeof ItemType.FOLDER | typeof ItemType.TAG;
+
+/**
+ * Type guards for item types
+ */
+export function isFileType(type: string): type is typeof ItemType.FILE {
+    return type === ItemType.FILE;
+}
+
+export function isFolderType(type: string): type is typeof ItemType.FOLDER {
+    return type === ItemType.FOLDER;
+}
+
+export function isTagType(type: string): type is typeof ItemType.TAG {
+    return type === ItemType.TAG;
+}
+
+export function isNavigationItemType(type: string): type is NavigationItemType {
+    return isFolderType(type) || isTagType(type);
+}
 
 /**
  * Keys used for persisting state in browser localStorage
@@ -147,20 +214,20 @@ export function getSupportedLeaves(app: any): any[] {
 export interface DragDropAttributes {
     // Draggable element attributes
     'data-draggable'?: 'true';
-    'data-drag-type'?: 'file' | 'folder';
+    'data-drag-type'?: ItemType;
     'data-drag-path'?: string;
     'data-drag-handle'?: 'true';
     
     // Drop zone attributes
-    'data-drop-zone'?: 'folder';
+    'data-drop-zone'?: typeof ItemType.FOLDER;
     'data-drop-path'?: string;
-    'data-drop-validator'?: 'folder';
+    'data-drop-validator'?: typeof ItemType.FOLDER;
     
     // Interaction attributes
-    'data-clickable'?: 'folder' | 'file';
+    'data-clickable'?: typeof ItemType.FOLDER | typeof ItemType.FILE;
     'data-click-path'?: string;
     'data-dblclick-action'?: 'expand' | 'preview';
-    'data-context-menu'?: 'folder' | 'file';
+    'data-context-menu'?: ItemType;
     
     // State attributes
     'data-expanded'?: 'true' | 'false';

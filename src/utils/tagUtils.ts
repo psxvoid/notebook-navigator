@@ -24,9 +24,9 @@ import { STORAGE_KEYS } from '../types';
  * Each node contains information about a tag and its nested children.
  */
 export interface TagTreeNode {
-    /** The name of this part of the tag (e.g., "processing" for "#inbox/processing") */
+    /** The name of this part of the tag (e.g., "processing" for "inbox/processing") */
     name: string;
-    /** The full path of the tag (e.g., "#inbox/processing") */
+    /** The full path of the tag without # prefix (e.g., "inbox/processing") */
     path: string;
     /** Map of child tag nodes, keyed by their name */
     children: Map<string, TagTreeNode>;
@@ -126,8 +126,8 @@ export function buildTagTree(allFiles: TFile[], app: App): Map<string, TagTreeNo
                 const displayPart = casingMap.get(lowerPart)!;
                 pathParts.push(displayPart);
                 
-                // Rebuild the full path up to this point with preserved casing
-                const currentPath = '#' + pathParts.join('/');
+                // Rebuild the full path up to this point with preserved casing (without #)
+                const currentPath = pathParts.join('/');
 
                 // Use lowercase key for case-insensitive lookup
                 let node = currentLevel.get(lowerPart);
@@ -228,17 +228,17 @@ export function collectAllTagPaths(node: TagTreeNode, paths: Set<string> = new S
  * Finds a tag node by its path in the tree.
  * Uses case-insensitive matching for tag paths.
  * 
- * @param path - The tag path to find (e.g., "#inbox/processing")
+ * @param path - The tag path to find (e.g., "inbox/processing")
  * @param tree - The root tree to search in
  * @returns The tag node if found, null otherwise
  */
 export function findTagNode(path: string, tree: Map<string, TagTreeNode>): TagTreeNode | null {
     // Validate input
-    if (!path || path.length <= 1 || !path.startsWith('#')) {
+    if (!path || path.length === 0) {
         return null;
     }
     
-    const parts = path.substring(1).split('/').filter(part => part.length > 0);
+    const parts = path.split('/').filter(part => part.length > 0);
     if (parts.length === 0) {
         return null;
     }
@@ -475,7 +475,7 @@ export function buildTagTreeFromCache(
                         pathParts.push(displayPart);
                         
                         // Rebuild the full path up to this point with preserved casing
-                        const currentPath = '#' + pathParts.join('/');
+                        const currentPath = pathParts.join('/');
 
                         // Use lowercase key for case-insensitive lookup
                         let tagNode = currentLevel.get(lowerPart);

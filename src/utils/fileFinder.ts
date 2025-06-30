@@ -223,7 +223,11 @@ export function getFilesForTag(
             allFiles = allMarkdownFiles.filter(file => {
                 const cache = app.metadataCache.getFileCache(file);
                 const fileTags = cache ? getAllTags(cache) : null;
-                return fileTags && fileTags.some(tag => tagsToIncludeLower.has(tag.toLowerCase()));
+                return fileTags && fileTags.some(tag => {
+                    // Remove # prefix from file tags before comparison
+                    const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
+                    return tagsToIncludeLower.has(cleanTag.toLowerCase());
+                });
             });
         } else {
             // Fallback to empty if tag not found
@@ -232,7 +236,7 @@ export function getFilesForTag(
     }
     
     // Sort files
-    const sortOption = getEffectiveSortOption(settings, 'tag', null);
+    const sortOption = getEffectiveSortOption(settings, 'tag', null, tag);
     sortFiles(allFiles, sortOption, settings, app.metadataCache);
     
     // Handle pinned notes - for tag view, collect ALL pinned notes from all folders

@@ -19,6 +19,7 @@
 import { App, Modal } from 'obsidian';
 import { MetadataService } from '../services/MetadataService';
 import { strings } from '../i18n';
+import { ItemType } from '../types';
 
 /**
  * Color palette for folder colors
@@ -64,7 +65,8 @@ const COLOR_PALETTE = [
  */
 export class ColorPickerModal extends Modal {
     private metadataService: MetadataService;
-    private folderPath: string;
+    private itemPath: string;
+    private itemType: typeof ItemType.FOLDER | typeof ItemType.TAG;
     private colorGrid: HTMLDivElement;
     private focusedIndex: number = -1;
     private gridColumns: number = 5;
@@ -75,13 +77,15 @@ export class ColorPickerModal extends Modal {
     /**
      * Creates a new color picker modal
      * @param app - The Obsidian app instance
-     * @param metadataService - The metadata service for managing folder colors
-     * @param folderPath - Path of the folder to set color for
+     * @param metadataService - The metadata service for managing folder/tag colors
+     * @param itemPath - Path of the folder or tag to set color for
+     * @param itemType - Whether this is for a folder or tag
      */
-    constructor(app: App, metadataService: MetadataService, folderPath: string) {
+    constructor(app: App, metadataService: MetadataService, itemPath: string, itemType: typeof ItemType.FOLDER | typeof ItemType.TAG = ItemType.FOLDER) {
         super(app);
         this.metadataService = metadataService;
-        this.folderPath = folderPath;
+        this.itemPath = itemPath;
+        this.itemType = itemType;
     }
 
     /**
@@ -235,8 +239,12 @@ export class ColorPickerModal extends Modal {
      * @param color - The selected color value
      */
     private async selectColor(color: string) {
-        // Set the folder color using metadata service
-        await this.metadataService.setFolderColor(this.folderPath, color);
+        // Set the color based on item type
+        if (this.itemType === ItemType.TAG) {
+            await this.metadataService.setTagColor(this.itemPath, color);
+        } else {
+            await this.metadataService.setFolderColor(this.itemPath, color);
+        }
 
         // Notify callback and close
         this.onChooseColor?.(color);

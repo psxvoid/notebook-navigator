@@ -32,7 +32,7 @@ interface UIState {
 }
 
 // Action types
-type UIAction = 
+export type UIAction = 
     | { type: 'SET_FOCUSED_PANE'; pane: 'folders' | 'files' }
     | { type: 'SET_MOBILE_VIEW'; view: 'list' | 'files' }
     | { type: 'SET_PANE_WIDTH'; width: number }

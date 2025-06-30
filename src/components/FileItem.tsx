@@ -28,6 +28,7 @@ import { getFileDisplayName } from '../utils/fileNameUtils';
 import { strings } from '../i18n';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useSelectionState } from '../context/SelectionContext';
+import { ItemType } from '../types';
 
 interface FileItemProps {
     file: TFile;
@@ -55,7 +56,7 @@ interface FileItemProps {
 function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow, onClick, dateGroup, formattedDate, parentFolder }: FileItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
-    const { selectedFolder, selectionType } = useSelectionState();
+    const { selectedFolder, selectedTag, selectionType } = useSelectionState();
     const fileRef = useRef<HTMLDivElement>(null);
     
     // Get file metadata for preview
@@ -71,7 +72,7 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
     const previewText = useFilePreview({ file, metadata, settings, app });
     
     // Enable context menu
-    useContextMenu(fileRef, { type: 'file', item: file });
+    useContextMenu(fileRef, { type: ItemType.FILE, item: file });
     
     // Add Obsidian tooltip
     useEffect(() => {
@@ -87,7 +88,7 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
         const createdDate = DateUtils.formatDate(file.stat.ctime, dateTimeFormat);
         const modifiedDate = DateUtils.formatDate(file.stat.mtime, dateTimeFormat);
         // Get effective sort option to determine date order
-        const effectiveSort = getEffectiveSortOption(settings, selectionType, selectedFolder);
+        const effectiveSort = getEffectiveSortOption(settings, selectionType, selectedFolder, selectedTag);
         const isCreatedSort = effectiveSort.startsWith('created-');
         
         // Build tooltip with filename and dates
@@ -209,7 +210,7 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
                                 <div className="nn-file-date nn-file-date-below">{displayDate}</div>
                             )}
                             {/* Show folder indicator */}
-                            {settings.showNotesFromSubfolders && settings.showSubfolderNamesInList && parentFolder && file.parent && file.parent.path !== parentFolder && (
+                            {settings.showNotesFromSubfolders && settings.showParentFolderNames && parentFolder && file.parent && file.parent.path !== parentFolder && (
                                 <div className="nn-file-folder">
                                     <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
                                     <span>{file.parent.name}</span>
