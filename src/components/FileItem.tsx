@@ -56,7 +56,7 @@ interface FileItemProps {
 function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow, onClick, dateGroup, formattedDate, parentFolder }: FileItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
-    const { selectedFolder, selectionType } = useSelectionState();
+    const { selectedFolder, selectedTag, selectionType } = useSelectionState();
     const fileRef = useRef<HTMLDivElement>(null);
     
     // Get file metadata for preview
@@ -88,7 +88,7 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
         const createdDate = DateUtils.formatDate(file.stat.ctime, dateTimeFormat);
         const modifiedDate = DateUtils.formatDate(file.stat.mtime, dateTimeFormat);
         // Get effective sort option to determine date order
-        const effectiveSort = getEffectiveSortOption(settings, selectionType, selectedFolder);
+        const effectiveSort = getEffectiveSortOption(settings, selectionType, selectedFolder, selectedTag);
         const isCreatedSort = effectiveSort.startsWith('created-');
         
         // Build tooltip with filename and dates

@@ -276,7 +276,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             }
             
             // Determine which sort option to use
-            const sortOption = getEffectiveSortOption(settings, selectionType, selectedFolder);
+            const sortOption = getEffectiveSortOption(settings, selectionType, selectedFolder, selectedTag);
             
             // Add unpinned files with date grouping if enabled
             if (!settings.groupByDate || sortOption.startsWith('title')) {

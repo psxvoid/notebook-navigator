@@ -236,7 +236,7 @@ export function getFilesForTag(
     }
     
     // Sort files
-    const sortOption = getEffectiveSortOption(settings, 'tag', null);
+    const sortOption = getEffectiveSortOption(settings, 'tag', null, tag);
     sortFiles(allFiles, sortOption, settings, app.metadataCache);
     
     // Handle pinned notes - for tag view, collect ALL pinned notes from all folders

@@ -23,7 +23,7 @@ import { useSettings } from '../context/SettingsContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
-import { useFileSystemOps } from '../context/ServicesContext';
+import { useFileSystemOps, useMetadataService } from '../context/ServicesContext';
 import { isTFolder } from '../utils/typeGuards';
 import { ObsidianIcon } from './ObsidianIcon';
 import { strings } from '../i18n';
@@ -57,6 +57,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const fileSystemOps = useFileSystemOps();
+    const metadataService = useMetadataService();
     const { tagData } = useTagCache();
     
     /**
@@ -183,8 +184,8 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     }, [selectionState.selectedFolder, fileSystemOps, type, uiDispatch]);
     
     const getCurrentSortOption = useCallback((): SortOption => {
-        return getEffectiveSortOption(settings, selectionState.selectionType, selectionState.selectedFolder);
-    }, [settings, selectionState.selectionType, selectionState.selectedFolder]);
+        return getEffectiveSortOption(settings, selectionState.selectionType, selectionState.selectedFolder, selectionState.selectedTag);
+    }, [settings, selectionState.selectionType, selectionState.selectedFolder, selectionState.selectedTag]);
     
     const getSortIcon = useCallback(() => {
         return getSortIconName(getCurrentSortOption());
@@ -195,9 +196,12 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
         
         const menu = new Menu();
         const currentSort = getCurrentSortOption();
-        const isCustomSort = selectionState.selectionType === ItemType.FOLDER && 
+        const isCustomSort = (selectionState.selectionType === ItemType.FOLDER && 
                            selectionState.selectedFolder && 
-                           settings.folderSortOverrides[selectionState.selectedFolder.path];
+                           settings.folderSortOverrides[selectionState.selectedFolder.path]) ||
+                           (selectionState.selectionType === ItemType.TAG && 
+                           selectionState.selectedTag && 
+                           settings.tagSortOverrides?.[selectionState.selectedTag]);
         
         // Default option
         menu.addItem((item) => {
@@ -205,11 +209,11 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                 .setTitle(`${strings.paneHeader.defaultSort}: ${strings.settings.items.sortNotesBy.options[settings.defaultFolderSort]}`)
                 .setChecked(!isCustomSort)
                 .onClick(async () => {
-                    await updateSettings((s) => {
-                        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-                            delete s.folderSortOverrides[selectionState.selectedFolder.path];
-                        }
-                    });
+                    if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+                        await metadataService.removeFolderSortOverride(selectionState.selectedFolder.path);
+                    } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+                        await metadataService.removeTagSortOverride(selectionState.selectedTag);
+                    }
                     // Trigger refresh by updating workspace
                     app.workspace.requestSaveLayout();
                 });
@@ -229,15 +233,18 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
             menu.addItem((item) => {
                 item
                     .setTitle(strings.settings.items.sortNotesBy.options[option])
-                    .setChecked(isCustomSort && currentSort === option)
+                    .setChecked(!!isCustomSort && currentSort === option)
                     .onClick(async () => {
-                        await updateSettings((s) => {
-                            if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-                                s.folderSortOverrides[selectionState.selectedFolder.path] = option;
-                            } else {
+                        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+                            await metadataService.setFolderSortOverride(selectionState.selectedFolder.path, option);
+                        } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+                            await metadataService.setTagSortOverride(selectionState.selectedTag, option);
+                        } else {
+                            // Fallback to default sort if no folder or tag is selected
+                            await updateSettings((s) => {
                                 s.defaultFolderSort = option;
-                            }
-                        });
+                            });
+                        }
                         // Trigger refresh by updating workspace
                         app.workspace.requestSaveLayout();
                     });
@@ -245,7 +252,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
         });
         
         menu.showAtMouseEvent(event.nativeEvent);
-    }, [type, selectionState.selectionType, selectionState.selectedFolder, app, getCurrentSortOption, updateSettings]);
+    }, [type, selectionState.selectionType, selectionState.selectedFolder, selectionState.selectedTag, app, getCurrentSortOption, updateSettings, metadataService, settings]);
     
     // Mobile header with back button
     if (isMobile) {
