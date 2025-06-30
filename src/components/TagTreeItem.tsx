@@ -19,7 +19,6 @@
 import React, { forwardRef } from 'react';
 import { setIcon } from 'obsidian';
 import { TagTreeNode } from '../utils/tagUtils';
-import { ObsidianIcon } from './ObsidianIcon';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { ItemType } from '../types';
 import { useSettingsState } from '../context/SettingsContext';
@@ -68,14 +67,15 @@ export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProp
 }, ref) {
     const settings = useSettingsState();
     const chevronRef = React.useRef<HTMLDivElement>(null);
+    const iconRef = React.useRef<HTMLSpanElement>(null);
     const itemRef = React.useRef<HTMLDivElement>(null);
     const hasChildren = tagNode.children.size > 0;
     
     // Set up forwarded ref
     React.useImperativeHandle(ref, () => itemRef.current as HTMLDivElement);
     
-    // Add context menu (excluding untagged which doesn't support operations)
-    useContextMenu(itemRef, tagNode.path === '__untagged__' ? null : {
+    // Add context menu
+    useContextMenu(itemRef, {
         type: ItemType.TAG,
         item: tagNode.path
     });
@@ -86,6 +86,13 @@ export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProp
             setIcon(chevronRef.current, isExpanded ? 'chevron-down' : 'chevron-right');
         }
     }, [isExpanded, hasChildren]);
+
+    // Update tag icon
+    React.useEffect(() => {
+        if (iconRef.current && settings.showIcons) {
+            setIcon(iconRef.current, customIcon || 'tags');
+        }
+    }, [customIcon, settings.showIcons]);
 
     // Handle double-click to toggle expansion
     const handleDoubleClick = React.useCallback((e: React.MouseEvent) => {
@@ -126,9 +133,11 @@ export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProp
                     }}
                 />
                 {settings.showIcons && (
-                    <span className="nn-folder-icon" style={{ color: customColor }}>
-                        <ObsidianIcon name={customIcon || 'tags'} />
-                    </span>
+                    <span 
+                        className="nn-folder-icon" 
+                        ref={iconRef}
+                        style={customColor ? { color: customColor } : undefined}
+                    />
                 )}
                 <span className="nn-folder-name" style={customColor ? { color: customColor, fontWeight: 600 } : undefined}>
                     {tagNode.name}
