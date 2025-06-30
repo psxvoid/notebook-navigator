@@ -109,8 +109,6 @@ export const STRINGS_ES = {
             removeIcon: 'Quitar icono',
             changeColor: 'Cambiar color',
             removeColor: 'Quitar color',
-            renameTag: 'Renombrar etiqueta',
-            deleteTag: 'Eliminar etiqueta',
         },
     },
 
@@ -196,15 +194,10 @@ export const STRINGS_ES = {
             failedToDeleteFile: 'Error al eliminar {name}: {error}',
             drawingAlreadyExists: 'Ya existe un dibujo con este nombre',
             failedToCreateDrawing: 'Error al crear el dibujo',
-            renameTag: 'Error al renombrar la etiqueta: {error}',
-            deleteTag: 'Error al eliminar la etiqueta: {error}',
-            tagAlreadyExists: 'Ya existe una etiqueta con este nombre',
         },
         notifications: {
             deletedMultipleFiles: '{count} archivos eliminados',
             deepLinkCopied: 'Enlace profundo copiado al portapapeles',
-            tagRenamed: 'Etiqueta renombrada exitosamente',
-            tagDeleted: 'Etiqueta eliminada exitosamente',
         },
         confirmations: {
             deleteMultipleFiles: '¿Está seguro de que desea eliminar {count} archivos?',

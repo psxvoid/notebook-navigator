@@ -19,192 +19,13 @@
 import { App, TFile, CachedMetadata } from 'obsidian';
 
 /**
- * Service for managing tag rename and delete operations.
- * Handles updating both frontmatter tags and inline tags in note content.
+ * Service for managing tag operations.
+ * Handles adding tags to files and managing tag hierarchies.
  */
 export class TagOperations {
     constructor(private app: App) {}
 
-    /**
-     * Renames a tag in all affected files
-     * @param oldTag - The current tag path (without #)
-     * @param newTag - The new tag path (without #)
-     * @param files - Files that contain the tag
-     */
-    async renameTag(oldTag: string, newTag: string, files: TFile[]): Promise<void> {
-        for (const file of files) {
-            await this.renameTagInFile(file, oldTag, newTag);
-        }
-    }
 
-    /**
-     * Deletes a tag from all affected files
-     * @param tag - The tag path to delete (without #)
-     * @param files - Files that contain the tag
-     */
-    async deleteTag(tag: string, files: TFile[]): Promise<void> {
-        for (const file of files) {
-            await this.deleteTagFromFile(file, tag);
-        }
-    }
-
-    /**
-     * Renames a tag in a single file
-     */
-    private async renameTagInFile(file: TFile, oldTag: string, newTag: string): Promise<void> {
-        // Handle frontmatter tags
-        await this.updateFrontmatterTags(file, oldTag, newTag);
-        
-        // Handle inline tags
-        const content = await this.app.vault.read(file);
-        const newContent = this.updateInlineTags(content, oldTag, newTag);
-        
-        // Only write if inline tags changed
-        if (newContent !== content) {
-            await this.app.vault.modify(file, newContent);
-        }
-    }
-
-    /**
-     * Deletes a tag from a single file
-     */
-    private async deleteTagFromFile(file: TFile, tag: string): Promise<void> {
-        // Handle frontmatter tags
-        await this.removeFrontmatterTag(file, tag);
-        
-        // Handle inline tags
-        const content = await this.app.vault.read(file);
-        const newContent = this.removeInlineTags(content, tag);
-        
-        // Only write if inline tags changed
-        if (newContent !== content) {
-            await this.app.vault.modify(file, newContent);
-        }
-    }
-
-    /**
-     * Updates tags in frontmatter
-     */
-    private async updateFrontmatterTags(file: TFile, oldTag: string, newTag: string): Promise<void> {
-        try {
-            await this.app.fileManager.processFrontMatter(file, (fm) => {
-                if (!fm.tags) return;
-                
-                // Handle different tag formats
-                if (Array.isArray(fm.tags)) {
-                    // Tags as array
-                    fm.tags = fm.tags.map((tag: string) => {
-                        const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
-                        return cleanTag === oldTag ? newTag : tag;
-                    });
-                } else if (typeof fm.tags === 'string') {
-                    // Tags as string (single tag or comma-separated)
-                    const tags = fm.tags.split(',').map((t: string) => t.trim());
-                    const updatedTags = tags.map((tag: string) => {
-                        const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
-                        return cleanTag === oldTag ? newTag : tag;
-                    });
-                    fm.tags = updatedTags.length === 1 ? updatedTags[0] : updatedTags;
-                }
-                
-                // Ensure uniqueness if array
-                if (Array.isArray(fm.tags)) {
-                    fm.tags = [...new Set(fm.tags)];
-                }
-            });
-        } catch (error) {
-            console.error('Error updating frontmatter tags:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Removes a tag from frontmatter
-     */
-    private async removeFrontmatterTag(file: TFile, tag: string): Promise<void> {
-        try {
-            await this.app.fileManager.processFrontMatter(file, (fm) => {
-                if (!fm.tags) return;
-                
-                // Handle different tag formats
-                if (Array.isArray(fm.tags)) {
-                    // Tags as array
-                    const filteredTags = fm.tags.filter((t: string) => {
-                        const cleanTag = t.startsWith('#') ? t.substring(1) : t;
-                        return cleanTag !== tag;
-                    });
-                    
-                    // Remove tags field if empty, otherwise update
-                    if (filteredTags.length === 0) {
-                        delete fm.tags;
-                    } else {
-                        fm.tags = filteredTags;
-                    }
-                } else if (typeof fm.tags === 'string') {
-                    // Tags as string (single tag or comma-separated)
-                    const tags = fm.tags.split(',').map((t: string) => t.trim());
-                    const filteredTags = tags.filter((t: string) => {
-                        const cleanTag = t.startsWith('#') ? t.substring(1) : t;
-                        return cleanTag !== tag;
-                    });
-                    
-                    if (filteredTags.length === 0) {
-                        delete fm.tags;
-                    } else {
-                        fm.tags = filteredTags.length === 1 ? filteredTags[0] : filteredTags;
-                    }
-                }
-            });
-        } catch (error) {
-            console.error('Error removing tag from frontmatter:', error);
-            throw error;
-        }
-    }
-
-    /**
-     * Updates inline tags in content
-     */
-    private updateInlineTags(content: string, oldTag: string, newTag: string): string {
-        // Create regex patterns for the tag (add # prefix for inline tags)
-        const patterns = [
-            // Standard tag format: #tag
-            new RegExp(`#${this.escapeRegExp(oldTag)}\\b`, 'g'),
-            // Tag with nested levels: #parent/child
-            new RegExp(`#${this.escapeRegExp(oldTag)}/`, 'g'),
-        ];
-        
-        let newContent = content;
-        
-        // Replace exact matches
-        newContent = newContent.replace(patterns[0], `#${newTag}`);
-        
-        // Replace parent tags in nested tags
-        newContent = newContent.replace(patterns[1], `#${newTag}/`);
-        
-        return newContent;
-    }
-
-    /**
-     * Removes inline tags from content
-     */
-    private removeInlineTags(content: string, tag: string): string {
-        // Create regex patterns for the tag
-        const patterns = [
-            // Standard tag format: #tag (with optional following space)
-            new RegExp(`#${this.escapeRegExp(tag)}\\b\\s?`, 'g'),
-            // Tag at end of line
-            new RegExp(`\\s*#${this.escapeRegExp(tag)}$`, 'gm'),
-        ];
-        
-        let newContent = content;
-        
-        // Remove tags
-        patterns.forEach(pattern => {
-            newContent = newContent.replace(pattern, '');
-        });
-        
-        return newContent;
-    }
 
     /**
      * Escapes special regex characters in a string
@@ -425,6 +246,18 @@ export class TagOperations {
         }
 
         return hadTags;
+    }
+
+    /**
+     * Removes a specific inline tag from content
+     */
+    private removeInlineTags(content: string, tag: string): string {
+        // Escape special regex characters in tag
+        const escapedTag = this.escapeRegExp(tag);
+        // Remove the specific tag (with or without #)
+        // Must be followed by whitespace or end of line
+        const regex = new RegExp(`#${escapedTag}(?=\\s|$)`, 'g');
+        return content.replace(regex, '');
     }
 
     /**

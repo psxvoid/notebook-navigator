@@ -109,8 +109,6 @@ export const STRINGS_ZH = {
             removeIcon: '移除图标',
             changeColor: '更改颜色',
             removeColor: '移除颜色',
-            renameTag: '重命名标签',
-            deleteTag: '删除标签',
         },
     },
 
@@ -196,15 +194,10 @@ export const STRINGS_ZH = {
             failedToDeleteFile: '删除 {name} 失败: {error}',
             drawingAlreadyExists: '同名绘图已存在',
             failedToCreateDrawing: '创建绘图失败',
-            renameTag: '重命名标签失败：{error}',
-            deleteTag: '删除标签失败：{error}',
-            tagAlreadyExists: '同名标签已存在',
         },
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',
             deepLinkCopied: '深层链接已复制到剪贴板',
-            tagRenamed: '标签重命名成功',
-            tagDeleted: '标签删除成功',
         },
         confirmations: {
             deleteMultipleFiles: '确定要删除 {count} 个文件吗？',

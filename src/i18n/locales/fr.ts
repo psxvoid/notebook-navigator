@@ -109,8 +109,6 @@ export const STRINGS_FR = {
             removeIcon: 'Supprimer l\'icône',
             changeColor: 'Changer la couleur',
             removeColor: 'Supprimer la couleur',
-            renameTag: 'Renommer l\'étiquette',
-            deleteTag: 'Supprimer l\'étiquette',
         },
     },
 
@@ -196,15 +194,10 @@ export const STRINGS_FR = {
             failedToDeleteFile: 'Échec de la suppression de {name} : {error}',
             drawingAlreadyExists: 'Un dessin avec ce nom existe déjà',
             failedToCreateDrawing: 'Échec de la création du dessin',
-            renameTag: 'Échec du renommage de l\'étiquette : {error}',
-            deleteTag: 'Échec de la suppression de l\'étiquette : {error}',
-            tagAlreadyExists: 'Une étiquette avec ce nom existe déjà',
         },
         notifications: {
             deletedMultipleFiles: '{count} fichiers supprimés',
             deepLinkCopied: 'Lien profond copié dans le presse-papiers',
-            tagRenamed: 'Étiquette renommée avec succès',
-            tagDeleted: 'Étiquette supprimée avec succès',
         },
         confirmations: {
             deleteMultipleFiles: 'Voulez-vous vraiment supprimer {count} fichiers ?',

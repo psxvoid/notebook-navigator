@@ -109,8 +109,6 @@ export const STRINGS_JA = {
             removeIcon: 'アイコンを削除',
             changeColor: '色を変更',
             removeColor: '色を削除',
-            renameTag: 'タグの名前を変更',
-            deleteTag: 'タグを削除',
         },
     },
 
@@ -196,15 +194,10 @@ export const STRINGS_JA = {
             failedToDeleteFile: '{name}の削除に失敗しました: {error}',
             drawingAlreadyExists: 'この名前の図面が既に存在します',
             failedToCreateDrawing: '図面の作成に失敗しました',
-            renameTag: 'タグの名前変更に失敗しました：{error}',
-            deleteTag: 'タグの削除に失敗しました：{error}',
-            tagAlreadyExists: 'この名前のタグが既に存在します',
         },
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',
             deepLinkCopied: 'ディープリンクをクリップボードにコピーしました',
-            tagRenamed: 'タグの名前変更が成功しました',
-            tagDeleted: 'タグの削除が成功しました',
         },
         confirmations: {
             deleteMultipleFiles: '本当に{count}個のファイルを削除しますか？',

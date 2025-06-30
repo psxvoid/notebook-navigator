@@ -109,8 +109,6 @@ export const STRINGS_EN = {
             removeIcon: 'Remove icon',
             changeColor: 'Change color',
             removeColor: 'Remove color',
-            renameTag: 'Rename tag',
-            deleteTag: 'Delete tag',
         },
     },
 
@@ -196,15 +194,10 @@ export const STRINGS_EN = {
             failedToDeleteFile: 'Failed to delete {name}: {error}',
             drawingAlreadyExists: 'A drawing with this name already exists',
             failedToCreateDrawing: 'Failed to create drawing',
-            renameTag: 'Failed to rename tag: {error}',
-            deleteTag: 'Failed to delete tag: {error}',
-            tagAlreadyExists: 'Tag {tag} already exists',
         },
         notifications: {
             deletedMultipleFiles: 'Deleted {count} files',
             deepLinkCopied: 'Deep link copied to clipboard',
-            tagRenamed: 'Tag renamed from {oldTag} to {newTag} in {count} files',
-            tagDeleted: 'Tag {tag} deleted from {count} files',
         },
         confirmations: {
             deleteMultipleFiles: 'Are you sure you want to delete {count} files?',

@@ -129,14 +129,6 @@ export class MetadataService {
         return this.tagService.getTagSortOverride(tagPath);
     }
 
-    async handleTagRename(oldPath: string, newPath: string): Promise<void> {
-        return this.tagService.handleTagRename(oldPath, newPath);
-    }
-
-    async handleTagDelete(tagPath: string): Promise<void> {
-        return this.tagService.handleTagDelete(tagPath);
-    }
-
     // ========== File/Pinned Notes Methods (delegated to FileMetadataService) ==========
 
     async togglePinnedNote(folderPath: string, filePath: string): Promise<void> {

@@ -109,8 +109,6 @@ export const STRINGS_DE = {
             removeIcon: 'Symbol entfernen',
             changeColor: 'Farbe ändern',
             removeColor: 'Farbe entfernen',
-            renameTag: 'Tag umbenennen',
-            deleteTag: 'Tag löschen',
         },
     },
 
@@ -196,15 +194,10 @@ export const STRINGS_DE = {
             failedToDeleteFile: 'Löschen von {name} fehlgeschlagen: {error}',
             drawingAlreadyExists: 'Eine Zeichnung mit diesem Namen existiert bereits',
             failedToCreateDrawing: 'Zeichnung konnte nicht erstellt werden',
-            renameTag: 'Tag konnte nicht umbenannt werden: {error}',
-            deleteTag: 'Tag konnte nicht gelöscht werden: {error}',
-            tagAlreadyExists: 'Tag {tag} existiert bereits',
         },
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',
             deepLinkCopied: 'Deep Link in die Zwischenablage kopiert',
-            tagRenamed: 'Tag umbenannt von {oldTag} zu {newTag} in {count} Dateien',
-            tagDeleted: 'Tag {tag} aus {count} Dateien gelöscht',
         },
         confirmations: {
             deleteMultipleFiles: 'Möchten Sie wirklich {count} Dateien löschen?',
