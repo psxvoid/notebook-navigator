@@ -430,7 +430,7 @@ export const STRINGS_JA = {
                 desc: 'フォルダのファイルリストにフォルダノートが表示されないようにします。',
             },
             confirmBeforeDelete: {
-                name: 'ノート削除前に確認',
+                name: '削除前に確認',
                 desc: 'ノートやフォルダを削除する際に確認ダイアログを表示',
             },
             useFrontmatterDates: {

@@ -430,7 +430,7 @@ export const STRINGS_DE = {
                 desc: 'Die Ordnernotiz in der Dateiliste des Ordners ausblenden.',
             },
             confirmBeforeDelete: {
-                name: 'Vor dem Löschen von Notizen bestätigen',
+                name: 'Vor dem Löschen bestätigen',
                 desc: 'Bestätigungsdialog beim Löschen von Notizen oder Ordnern anzeigen',
             },
             useFrontmatterDates: {

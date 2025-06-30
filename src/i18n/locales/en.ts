@@ -430,7 +430,7 @@ export const STRINGS_EN = {
                 desc: 'Hide the folder note from appearing in the folder\'s file list.',
             },
             confirmBeforeDelete: {
-                name: 'Confirm before deleting notes',
+                name: 'Confirm before deleting',
                 desc: 'Show confirmation dialog when deleting notes or folders',
             },
             useFrontmatterDates: {

@@ -430,7 +430,7 @@ export const STRINGS_ZH = {
                 desc: '隐藏文件夹笔记，使其不出现在文件夹的文件列表中。',
             },
             confirmBeforeDelete: {
-                name: '删除笔记前确认',
+                name: '删除前确认',
                 desc: '删除笔记或文件夹时显示确认对话框',
             },
             useFrontmatterDates: {

@@ -430,7 +430,7 @@ export const STRINGS_FR = {
                 desc: 'Masquer la note de dossier pour qu\'elle n\'apparaisse pas dans la liste des fichiers du dossier.',
             },
             confirmBeforeDelete: {
-                name: 'Confirmer avant de supprimer les notes',
+                name: 'Confirmer avant de supprimer',
                 desc: 'Afficher une boîte de dialogue de confirmation lors de la suppression de notes ou de dossiers',
             },
             useFrontmatterDates: {

@@ -430,7 +430,7 @@ export const STRINGS_ES = {
                 desc: 'Ocultar la nota de carpeta para que no aparezca en la lista de archivos de la carpeta.',
             },
             confirmBeforeDelete: {
-                name: 'Confirmar antes de eliminar notas',
+                name: 'Confirmar antes de eliminar',
                 desc: 'Muestra un diálogo de confirmación al eliminar notas o carpetas',
             },
             useFrontmatterDates: {
