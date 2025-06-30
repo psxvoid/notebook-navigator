@@ -126,13 +126,9 @@ export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProp
                         e.preventDefault();
                     }}
                 />
-                {customIcon ? (
-                    <span className="nn-tag-icon" style={{ color: customColor }}>
-                        <ObsidianIcon name={customIcon} />
-                    </span>
-                ) : (
-                    <span className="nn-tag-icon" style={{ color: customColor }}>#</span>
-                )}
+                <span className="nn-tag-icon" style={{ color: customColor }}>
+                    <ObsidianIcon name={customIcon || 'hash'} />
+                </span>
                 <span className="nn-tag-name" style={customColor ? { color: customColor, fontWeight: 600 } : undefined}>
                     {tagNode.name}
                 </span>

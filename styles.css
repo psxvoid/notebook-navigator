@@ -434,8 +434,14 @@ button.nn-icon-button {
 
 /* Tag icon (#) */
 .nn-tag-icon {
-    color: var(--text-muted);
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
     margin-inline-end: var(--size-4-2);
+    flex-shrink: 0;
+    color: var(--text-muted);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Tag name text */
@@ -1650,7 +1656,8 @@ body.nn-resizing {
 
 /* Increase tag icon size on mobile */
 .notebook-navigator-mobile .nn-tag-icon {
-    font-size: var(--font-ui-small);
+    width: 20px;
+    height: 20px;
 }
 
 /* Increase tag count text size on mobile to match folder count */
