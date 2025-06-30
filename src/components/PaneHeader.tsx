@@ -30,6 +30,8 @@ import { strings } from '../i18n';
 import { UNTAGGED_TAG_ID } from '../types';
 import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } from '../utils/sortUtils';
 import type { SortOption } from '../settings';
+import { useTagCache } from '../context/TagCacheContext';
+import { collectAllTagPaths } from '../utils/tagUtils';
 
 interface PaneHeaderProps {
     type: 'folder' | 'file';
@@ -55,73 +57,94 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const fileSystemOps = useFileSystemOps();
+    const { tagData } = useTagCache();
     
     /**
      * Handles the expand/collapse all button click.
      * 
      * BEHAVIOR:
-     * - When collapsing: Sets expanded folders to show only the top level
-     *   - If showRootFolder is true: Keeps root folder ('/') expanded
-     *   - If showRootFolder is false: Collapses all folders (root children still visible)
-     * - When expanding: Expands all folders in the vault recursively
+     * - When collapsing: Sets expanded folders/tags based on collapseButtonBehavior setting
+     *   - 'all': Collapses both folders and tags
+     *   - 'folders-only': Collapses only folders
+     *   - 'tags-only': Collapses only tags
+     * - When expanding: Expands items recursively based on the same setting
      * 
-     * FIX HISTORY:
-     * - Previously set expanded folders to empty Set(), which was destructive
-     * - This caused auto-reveal to immediately re-expand folders to show selected file
-     * - Now properly maintains top-level visibility after collapse
+     * For folders:
+     *   - If showRootFolder is true: Keeps root folder ('/') expanded when collapsing
+     *   - If showRootFolder is false: Collapses all folders (root children still visible)
      */
     const handleExpandCollapseAll = useCallback(() => {
         if (type !== 'folder') return;
         
-        // Determine if we should collapse or expand
+        const behavior = settings.collapseButtonBehavior;
         const rootFolder = app.vault.getRoot();
-        let shouldCollapse = false;
         
-        if (settings.showRootFolder) {
-            // If showing root folder, check if anything beyond root is expanded
-            shouldCollapse = Array.from(expansionState.expandedFolders).some(path => path !== '/');
-        } else {
-            // If not showing root folder, check if any folders are expanded
-            shouldCollapse = expansionState.expandedFolders.size > 0;
-        }
+        // Check expansion state for folders and tags
+        const hasFoldersExpanded = settings.showRootFolder 
+            ? Array.from(expansionState.expandedFolders).some(path => path !== '/')
+            : expansionState.expandedFolders.size > 0;
+        const hasTagsExpanded = expansionState.expandedTags.size > 0;
+        
+        // Determine if we should collapse based on behavior setting
+        const shouldCollapse = 
+            behavior === 'all' ? (hasFoldersExpanded || hasTagsExpanded) :
+            behavior === 'folders-only' ? hasFoldersExpanded :
+            behavior === 'tags-only' ? hasTagsExpanded :
+            false;
+        
+        // Check which types should be affected
+        const shouldAffectFolders = behavior === 'all' || behavior === 'folders-only';
+        const shouldAffectTags = behavior === 'all' || behavior === 'tags-only';
         
         if (shouldCollapse) {
-            const collapsedState = new Set<string>();
-            
-            if (settings.showRootFolder) {
-                // Show just the root folder expanded
-                collapsedState.add('/');
-            } else {
-                // Don't expand anything - root level folders will still be visible
+            // Collapse items
+            if (shouldAffectFolders) {
+                const collapsedFolders = new Set<string>();
+                if (settings.showRootFolder) {
+                    collapsedFolders.add('/');
+                }
+                expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: collapsedFolders });
             }
             
-            expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: collapsedState });
+            if (shouldAffectTags) {
+                expansionDispatch({ type: 'SET_EXPANDED_TAGS', tags: new Set() });
+            }
         } else {
-            // Otherwise, expand all folders
-            const allFolders = new Set<string>();
-            
-            const collectAllFolders = (folder: any) => {
-                folder.children.forEach((child: any) => {
-                    if (isTFolder(child)) {
-                        allFolders.add(child.path);
-                        collectAllFolders(child);
-                    }
-                });
-            };
-            
-            const rootFolder = app.vault.getRoot();
-            
-            // Add root folder itself if it's shown
-            if (settings.showRootFolder) {
-                allFolders.add(rootFolder.path);
+            // Expand items
+            if (shouldAffectFolders) {
+                const allFolders = new Set<string>();
+                
+                const collectAllFolders = (folder: any) => {
+                    folder.children.forEach((child: any) => {
+                        if (isTFolder(child)) {
+                            allFolders.add(child.path);
+                            collectAllFolders(child);
+                        }
+                    });
+                };
+                
+                if (settings.showRootFolder) {
+                    allFolders.add(rootFolder.path);
+                }
+                
+                collectAllFolders(rootFolder);
+                expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: allFolders });
             }
             
-            collectAllFolders(rootFolder);
-            
-            expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: allFolders });
+            if (shouldAffectTags) {
+                // Collect all tag paths from the tag tree
+                const allTagPaths = new Set<string>();
+                
+                // Collect paths from all root-level tags
+                for (const tagNode of tagData.tree.values()) {
+                    collectAllTagPaths(tagNode, allTagPaths);
+                }
+                
+                expansionDispatch({ type: 'SET_EXPANDED_TAGS', tags: allTagPaths });
+            }
         }
         
-    }, [app, expansionState.expandedFolders.size, expansionDispatch, type, settings.showRootFolder]);
+    }, [app, expansionState.expandedFolders, expansionState.expandedTags, expansionDispatch, type, settings.showRootFolder, settings.collapseButtonBehavior, tagData.tree]);
     
     const handleNewFolder = useCallback(async () => {
         if (type !== 'folder' || !selectionState.selectedFolder) return;

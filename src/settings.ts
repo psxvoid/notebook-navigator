@@ -33,6 +33,14 @@ export type SortOption =
     | 'title-desc';    // Title (Z first)
 
 /**
+ * Collapse button behavior options
+ */
+export type CollapseButtonBehavior = 
+    | 'all'           // Collapse/expand both folders and tags
+    | 'folders-only'  // Collapse/expand only folders
+    | 'tags-only';    // Collapse/expand only tags
+
+/**
  * Plugin settings interface defining all configurable options
  * These settings control the appearance and behavior of the navigator
  */
@@ -68,6 +76,7 @@ export interface NotebookNavigatorSettings {
     showRootFolder: boolean;
     showFolderFileCount: boolean;
     showFolderIcons: boolean;
+    collapseButtonBehavior: CollapseButtonBehavior;
     // Tag display
     showTags: boolean;
     showUntagged: boolean;
@@ -121,6 +130,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showRootFolder: true,
     showFolderFileCount: true,
     showFolderIcons: true,
+    collapseButtonBehavior: 'all',
     // Tag display
     showTags: true,
     showUntagged: false,
@@ -573,6 +583,19 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.showFolderIcons)
                 .onChange(async (value) => {
                     this.plugin.settings.showFolderIcons = value;
+                    await this.saveAndRefresh();
+                }));
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.collapseButtonBehavior.name)
+            .setDesc(strings.settings.items.collapseButtonBehavior.desc)
+            .addDropdown(dropdown => dropdown
+                .addOption('all', strings.settings.items.collapseButtonBehavior.options.all)
+                .addOption('folders-only', strings.settings.items.collapseButtonBehavior.options.foldersOnly)
+                .addOption('tags-only', strings.settings.items.collapseButtonBehavior.options.tagsOnly)
+                .setValue(this.plugin.settings.collapseButtonBehavior)
+                .onChange(async (value: CollapseButtonBehavior) => {
+                    this.plugin.settings.collapseButtonBehavior = value;
                     await this.saveAndRefresh();
                 }));
 

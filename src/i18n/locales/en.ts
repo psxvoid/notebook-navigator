@@ -52,8 +52,8 @@ export const STRINGS_EN = {
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: 'Collapse all folders', // Tooltip for button that collapses all expanded folders (English: Collapse all folders)
-        expandAllFolders: 'Expand all folders', // Tooltip for button that expands all folders (English: Expand all folders)
+        collapseAllFolders: 'Collapse all', // Tooltip for button that collapses all expanded items (English: Collapse all)
+        expandAllFolders: 'Expand all', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'New folder', // Tooltip for create new folder button (English: New folder)
         newNote: 'New note', // Tooltip for create new note button (English: New note)
         mobileBackToFolders: 'Back to folders', // Mobile-only back button text to return to folder list (English: Back to folders)
@@ -371,6 +371,15 @@ export const STRINGS_EN = {
             showFolderIcons: {
                 name: 'Show folder icons',
                 desc: 'Display icons next to folder names in the tree.',
+            },
+            collapseButtonBehavior: {
+                name: 'Collapse button behavior',
+                desc: 'Choose what the expand/collapse all button affects.',
+                options: {
+                    all: 'All folders and tags',
+                    foldersOnly: 'Folders only',
+                    tagsOnly: 'Tags only',
+                },
             },
             showTags: {
                 name: 'Show tags',

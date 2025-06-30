@@ -52,8 +52,8 @@ export const STRINGS_DE = {
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: 'Alle Ordner einklappen', // Tooltip for button that collapses all expanded folders (English: Collapse all folders)
-        expandAllFolders: 'Alle Ordner ausklappen', // Tooltip for button that expands all folders (English: Expand all folders)
+        collapseAllFolders: 'Alle einklappen', // Tooltip for button that collapses all expanded items (English: Collapse all)
+        expandAllFolders: 'Alle ausklappen', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'Neuer Ordner', // Tooltip for create new folder button (English: New folder)
         newNote: 'Neue Notiz', // Tooltip for create new note button (English: New note)
         mobileBackToFolders: 'Zurück zu Ordnern', // Mobile-only back button text to return to folder list (English: Back to folders)
@@ -371,6 +371,15 @@ export const STRINGS_DE = {
             showFolderIcons: {
                 name: 'Ordnersymbole anzeigen',
                 desc: 'Symbole neben Ordnernamen im Baum anzeigen.',
+            },
+            collapseButtonBehavior: {
+                name: 'Verhalten der Einklapp-Schaltfläche',
+                desc: 'Wählen Sie, was die Schaltfläche zum Ein-/Ausklappen beeinflusst.',
+                options: {
+                    all: 'Alle Ordner und Tags',
+                    foldersOnly: 'Nur Ordner',
+                    tagsOnly: 'Nur Tags',
+                },
             },
             showTags: {
                 name: 'Tags anzeigen',

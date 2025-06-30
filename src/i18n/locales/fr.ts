@@ -52,8 +52,8 @@ export const STRINGS_FR = {
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: 'Replier tous les dossiers', // Tooltip for button that collapses all expanded folders (English: Collapse all folders)
-        expandAllFolders: 'Déplier tous les dossiers', // Tooltip for button that expands all folders (English: Expand all folders)
+        collapseAllFolders: 'Tout replier', // Tooltip for button that collapses all expanded items (English: Collapse all)
+        expandAllFolders: 'Tout déplier', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'Nouveau dossier', // Tooltip for create new folder button (English: New folder)
         newNote: 'Nouvelle note', // Tooltip for create new note button (English: New note)
         mobileBackToFolders: 'Retour aux dossiers', // Mobile-only back button text to return to folder list (English: Back to folders)
@@ -371,6 +371,15 @@ export const STRINGS_FR = {
             showFolderIcons: {
                 name: 'Afficher les icônes de dossiers',
                 desc: 'Afficher les icônes à côté des noms de dossiers dans l\'arborescence.',
+            },
+            collapseButtonBehavior: {
+                name: 'Comportement du bouton replier',
+                desc: 'Choisissez ce que le bouton déplier/replier tout affecte.',
+                options: {
+                    all: 'Tous les dossiers et étiquettes',
+                    foldersOnly: 'Dossiers uniquement',
+                    tagsOnly: 'Étiquettes uniquement',
+                },
             },
             showTags: {
                 name: 'Afficher les étiquettes',

@@ -52,8 +52,8 @@ export const STRINGS_ZH = {
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: '折叠所有文件夹', // Tooltip for button that collapses all expanded folders (English: Collapse all folders)
-        expandAllFolders: '展开所有文件夹', // Tooltip for button that expands all folders (English: Expand all folders)
+        collapseAllFolders: '全部折叠', // Tooltip for button that collapses all expanded items (English: Collapse all)
+        expandAllFolders: '全部展开', // Tooltip for button that expands all items (English: Expand all)
         newFolder: '新建文件夹', // Tooltip for create new folder button (English: New folder)
         newNote: '新建笔记', // Tooltip for create new note button (English: New note)
         mobileBackToFolders: '返回文件夹', // Mobile-only back button text to return to folder list (English: Back to folders)
@@ -371,6 +371,15 @@ export const STRINGS_ZH = {
             showFolderIcons: {
                 name: '显示文件夹图标',
                 desc: '在树中的文件夹名称旁显示图标。',
+            },
+            collapseButtonBehavior: {
+                name: '折叠按钮行为',
+                desc: '选择展开/折叠全部按钮影响的内容。',
+                options: {
+                    all: '所有文件夹和标签',
+                    foldersOnly: '仅文件夹',
+                    tagsOnly: '仅标签',
+                },
             },
             showTags: {
                 name: '显示标签',

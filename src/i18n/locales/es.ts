@@ -52,8 +52,8 @@ export const STRINGS_ES = {
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: 'Contraer todas las carpetas', // Tooltip for button that collapses all expanded folders (English: Collapse all folders)
-        expandAllFolders: 'Expandir todas las carpetas', // Tooltip for button that expands all folders (English: Expand all folders)
+        collapseAllFolders: 'Contraer todo', // Tooltip for button that collapses all expanded items (English: Collapse all)
+        expandAllFolders: 'Expandir todo', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'Nueva carpeta', // Tooltip for create new folder button (English: New folder)
         newNote: 'Nueva nota', // Tooltip for create new note button (English: New note)
         mobileBackToFolders: 'Volver a carpetas', // Mobile-only back button text to return to folder list (English: Back to folders)
@@ -371,6 +371,15 @@ export const STRINGS_ES = {
             showFolderIcons: {
                 name: 'Mostrar iconos de carpetas',
                 desc: 'Muestra iconos junto a los nombres de las carpetas en el árbol.',
+            },
+            collapseButtonBehavior: {
+                name: 'Comportamiento del botón contraer',
+                desc: 'Elige qué afecta el botón de expandir/contraer todo.',
+                options: {
+                    all: 'Todas las carpetas y etiquetas',
+                    foldersOnly: 'Solo carpetas',
+                    tagsOnly: 'Solo etiquetas',
+                },
             },
             showTags: {
                 name: 'Mostrar etiquetas',

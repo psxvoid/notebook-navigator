@@ -52,8 +52,8 @@ export const STRINGS_JA = {
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: 'すべてのフォルダを折りたたむ', // Tooltip for button that collapses all expanded folders (English: Collapse all folders)
-        expandAllFolders: 'すべてのフォルダを展開', // Tooltip for button that expands all folders (English: Expand all folders)
+        collapseAllFolders: 'すべて折りたたむ', // Tooltip for button that collapses all expanded items (English: Collapse all)
+        expandAllFolders: 'すべて展開', // Tooltip for button that expands all items (English: Expand all)
         newFolder: '新規フォルダ', // Tooltip for create new folder button (English: New folder)
         newNote: '新規ノート', // Tooltip for create new note button (English: New note)
         mobileBackToFolders: 'フォルダに戻る', // Mobile-only back button text to return to folder list (English: Back to folders)
@@ -371,6 +371,15 @@ export const STRINGS_JA = {
             showFolderIcons: {
                 name: 'フォルダアイコンを表示',
                 desc: 'ツリー内のフォルダ名の横にアイコンを表示します。',
+            },
+            collapseButtonBehavior: {
+                name: '折りたたみボタンの動作',
+                desc: '展開/折りたたみボタンが影響する項目を選択します。',
+                options: {
+                    all: 'すべてのフォルダとタグ',
+                    foldersOnly: 'フォルダのみ',
+                    tagsOnly: 'タグのみ',
+                },
             },
             showTags: {
                 name: 'タグを表示',
