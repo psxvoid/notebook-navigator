@@ -17,7 +17,7 @@
  */
 
 import React, { useCallback } from 'react';
-import { Menu } from 'obsidian';
+import { Menu, TFolder } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { useSettings } from '../context/SettingsContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
@@ -60,6 +60,26 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     const { tagData } = useTagCache();
     
     /**
+     * Determines whether the expand/collapse button should perform a collapse action
+     * based on the current expansion state and behavior setting
+     */
+    const shouldCollapseItems = useCallback(() => {
+        const behavior = settings.collapseButtonBehavior;
+        
+        // Check expansion state for folders and tags
+        const hasFoldersExpanded = settings.showRootFolder 
+            ? Array.from(expansionState.expandedFolders).some(path => path !== '/')
+            : expansionState.expandedFolders.size > 0;
+        const hasTagsExpanded = expansionState.expandedTags.size > 0;
+        
+        // Determine if we should collapse based on behavior setting
+        return behavior === 'all' ? (hasFoldersExpanded || hasTagsExpanded) :
+               behavior === 'folders-only' ? hasFoldersExpanded :
+               behavior === 'tags-only' ? hasTagsExpanded :
+               false;
+    }, [settings.collapseButtonBehavior, settings.showRootFolder, expansionState.expandedFolders, expansionState.expandedTags]);
+    
+    /**
      * Handles the expand/collapse all button click.
      * 
      * BEHAVIOR:
@@ -78,19 +98,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
         
         const behavior = settings.collapseButtonBehavior;
         const rootFolder = app.vault.getRoot();
-        
-        // Check expansion state for folders and tags
-        const hasFoldersExpanded = settings.showRootFolder 
-            ? Array.from(expansionState.expandedFolders).some(path => path !== '/')
-            : expansionState.expandedFolders.size > 0;
-        const hasTagsExpanded = expansionState.expandedTags.size > 0;
-        
-        // Determine if we should collapse based on behavior setting
-        const shouldCollapse = 
-            behavior === 'all' ? (hasFoldersExpanded || hasTagsExpanded) :
-            behavior === 'folders-only' ? hasFoldersExpanded :
-            behavior === 'tags-only' ? hasTagsExpanded :
-            false;
+        const shouldCollapse = shouldCollapseItems();
         
         // Check which types should be affected
         const shouldAffectFolders = behavior === 'all' || behavior === 'folders-only';
@@ -114,8 +122,8 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
             if (shouldAffectFolders) {
                 const allFolders = new Set<string>();
                 
-                const collectAllFolders = (folder: any) => {
-                    folder.children.forEach((child: any) => {
+                const collectAllFolders = (folder: TFolder) => {
+                    folder.children.forEach((child) => {
                         if (isTFolder(child)) {
                             allFolders.add(child.path);
                             collectAllFolders(child);
@@ -144,7 +152,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
             }
         }
         
-    }, [app, expansionState.expandedFolders, expansionState.expandedTags, expansionDispatch, type, settings.showRootFolder, settings.collapseButtonBehavior, tagData.tree]);
+    }, [app, expansionDispatch, type, settings.showRootFolder, settings.collapseButtonBehavior, tagData.tree, shouldCollapseItems]);
     
     const handleNewFolder = useCallback(async () => {
         if (type !== 'folder' || !selectionState.selectedFolder) return;
@@ -313,7 +321,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                 <div className="nn-header-actions nn-header-actions--flex-end">
                     <button
                         className="nn-icon-button"
-                        aria-label={expansionState.expandedFolders.size > 0 ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
+                        aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
                         onClick={(e) => {
                             e.stopPropagation();
                             handleExpandCollapseAll();
@@ -321,7 +329,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                         tabIndex={-1}
                     >
                         <ObsidianIcon 
-                            name={expansionState.expandedFolders.size > 0 ? 'chevrons-down-up' : 'chevrons-up-down'}
+                            name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'}
                         />
                     </button>
                     <button
@@ -358,12 +366,12 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                         <div className="nn-header-actions">
                             <button
                                 className="nn-icon-button"
-                                aria-label={expansionState.expandedFolders.size > 0 ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
+                                aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
                                 onClick={handleExpandCollapseAll}
                                 tabIndex={-1}
                             >
                                 <ObsidianIcon 
-                                    name={expansionState.expandedFolders.size > 0 ? 'chevrons-down-up' : 'chevrons-up-down'}
+                                    name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'}
                                 />
                             </button>
                             <button
