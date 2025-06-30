@@ -213,6 +213,22 @@ export class TagOperations {
         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
 
+
+    /**
+     * Gets all parent tags of a given tag
+     * e.g., for "project/example/task" returns ["project", "project/example"]
+     */
+    private getParentTags(tag: string): string[] {
+        const parts = tag.split('/');
+        const parents: string[] = [];
+        
+        for (let i = 1; i < parts.length; i++) {
+            parents.push(parts.slice(0, i).join('/'));
+        }
+        
+        return parents;
+    }
+
     /**
      * Adds a tag to multiple files
      * @param tag - The tag to add (without #)
@@ -300,6 +316,9 @@ export class TagOperations {
      * Adds a tag to a single file's frontmatter
      */
     private async addTagToFile(file: TFile, tag: string): Promise<void> {
+        // First, remove any parent tags of the new tag
+        await this.removeParentTagsFromFile(file, tag);
+        
         try {
             await this.app.fileManager.processFrontMatter(file, (fm) => {
                 if (!fm.tags) {
@@ -320,6 +339,59 @@ export class TagOperations {
         } catch (error) {
             console.error('Error adding tag to frontmatter:', error);
             throw error;
+        }
+    }
+
+    /**
+     * Removes any parent tags of the given tag from a file
+     * e.g., if adding "project/example", removes "project"
+     */
+    private async removeParentTagsFromFile(file: TFile, childTag: string): Promise<void> {
+        const parentTags = this.getParentTags(childTag);
+        if (parentTags.length === 0) return;
+
+        // Remove parent tags from frontmatter
+        try {
+            await this.app.fileManager.processFrontMatter(file, (fm) => {
+                if (!fm.tags) return;
+                
+                if (Array.isArray(fm.tags)) {
+                    fm.tags = fm.tags.filter((tag: string) => {
+                        const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
+                        return !parentTags.includes(cleanTag);
+                    });
+                    
+                    if (fm.tags.length === 0) {
+                        delete fm.tags;
+                    }
+                } else if (typeof fm.tags === 'string') {
+                    const tags = fm.tags.split(',').map((t: string) => t.trim());
+                    const filteredTags = tags.filter((tag: string) => {
+                        const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
+                        return !parentTags.includes(cleanTag);
+                    });
+                    
+                    if (filteredTags.length === 0) {
+                        delete fm.tags;
+                    } else {
+                        fm.tags = filteredTags.length === 1 ? filteredTags[0] : filteredTags;
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error removing parent tags from frontmatter:', error);
+        }
+
+        // Remove parent tags from inline content
+        const content = await this.app.vault.read(file);
+        let newContent = content;
+        
+        for (const parentTag of parentTags) {
+            newContent = this.removeInlineTags(newContent, parentTag);
+        }
+        
+        if (newContent !== content) {
+            await this.app.vault.modify(file, newContent);
         }
     }
 
