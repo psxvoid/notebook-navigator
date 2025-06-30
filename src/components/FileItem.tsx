@@ -28,6 +28,7 @@ import { getFileDisplayName } from '../utils/fileNameUtils';
 import { strings } from '../i18n';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useSelectionState } from '../context/SelectionContext';
+import { ItemType } from '../types';
 
 interface FileItemProps {
     file: TFile;
@@ -71,7 +72,7 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
     const previewText = useFilePreview({ file, metadata, settings, app });
     
     // Enable context menu
-    useContextMenu(fileRef, { type: 'file', item: file });
+    useContextMenu(fileRef, { type: ItemType.FILE, item: file });
     
     // Add Obsidian tooltip
     useEffect(() => {

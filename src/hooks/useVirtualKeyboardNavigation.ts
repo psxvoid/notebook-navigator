@@ -28,7 +28,7 @@ import { useSettingsState } from '../context/SettingsContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
-import { getSupportedLeaves } from '../types';
+import { getSupportedLeaves, NavigationPaneItemType, FileListItemType, ItemType } from '../types';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { useMultiSelection } from './useMultiSelection';
 
@@ -99,7 +99,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         // Find current selection index
         if (focusedPane === 'files') {
             currentIndex = items.findIndex(item => {
-                if ('type' in item && item.type === 'file') {
+                if ('type' in item && item.type === FileListItemType.FILE) {
                     const fileItem = item as FileListItem;
                     return isTFile(fileItem.data) && fileItem.data.path === selectionState.selectedFile?.path;
                 }
@@ -109,10 +109,10 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             currentIndex = items.findIndex(item => {
                 if ('type' in item) {
                     const navigationPaneItem = item as CombinedNavigationItem;
-                    if (navigationPaneItem.type === 'folder' && selectionState.selectionType === 'folder') {
+                    if (navigationPaneItem.type === NavigationPaneItemType.FOLDER && selectionState.selectionType === ItemType.FOLDER) {
                         return navigationPaneItem.data.path === selectionState.selectedFolder?.path;
-                    } else if ((navigationPaneItem.type === 'tag' || navigationPaneItem.type === 'untagged') && 
-                               selectionState.selectionType === 'tag') {
+                    } else if ((navigationPaneItem.type === NavigationPaneItemType.TAG || navigationPaneItem.type === NavigationPaneItemType.UNTAGGED) && 
+                               selectionState.selectionType === ItemType.TAG) {
                         const tagNode = navigationPaneItem.data as TagTreeNode;
                         return tagNode.path === selectionState.selectedTag;
                     }
@@ -137,7 +137,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     // Multi-selection with Shift+Down
                     // Extract only file items from the items array
                     const fileItems = items
-                        .filter(item => item.type === 'file')
+                        .filter(item => item.type === FileListItemType.FILE)
                         .map(item => {
                         const fileItem = item as FileListItem;
                         return isTFile(fileItem.data) ? fileItem.data : null;
@@ -168,7 +168,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     // Multi-selection with Shift+Up
                     // Extract only file items from the items array
                     const fileItems = items
-                        .filter(item => item.type === 'file')
+                        .filter(item => item.type === FileListItemType.FILE)
                         .map(item => {
                         const fileItem = item as FileListItem;
                         return isTFile(fileItem.data) ? fileItem.data : null;
@@ -252,7 +252,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     if (!item) break;
 
                     let shouldSwitchPane = false;
-                    if (item.type === 'folder') {
+                    if (item.type === NavigationPaneItemType.FOLDER) {
                         const folder = item.data;
                         const isExpanded = expansionState.expandedFolders.has(folder.path);
                         const hasChildren = folder.children.some((child: any) => isTFolder(child));
@@ -264,7 +264,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                             // If it has no children, or is already expanded, switch to the file pane.
                             shouldSwitchPane = true;
                         }
-                    } else if (item.type === 'tag') {
+                    } else if (item.type === NavigationPaneItemType.TAG) {
                         // Similarly for tags
                         const tag = item.data as TagTreeNode;
                         const isExpanded = expansionState.expandedTags.has(tag.path);
@@ -305,7 +305,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     const item = safeGetItem(items, currentIndex) as CombinedNavigationItem | undefined;
                     if (!item) return;
                     
-                    if (item.type === 'folder') {
+                    if (item.type === NavigationPaneItemType.FOLDER) {
                         const folder = item.data;
                         const isExpanded = expansionState.expandedFolders.has(folder.path);
                         if (isExpanded) {
@@ -314,7 +314,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                         } else if (folder.parent && (!settings.showRootFolder || folder.path !== '/')) {
                             // Navigate to parent folder
                             const parentIndex = items.findIndex(i => {
-                                if (i.type === 'folder' && i.data && typeof i.data === 'object') {
+                                if (i.type === NavigationPaneItemType.FOLDER && i.data && typeof i.data === 'object') {
                                     const folderData = isTFolder(i.data) ? i.data : null;
                 if (!folderData) return;
                                     return folderData.path === folder.parent!.path;
@@ -329,7 +329,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                                 }
                             }
                         }
-                    } else if (item.type === 'tag') {
+                    } else if (item.type === NavigationPaneItemType.TAG) {
                         const tag = item.data as TagTreeNode;
                         const isExpanded = expansionState.expandedTags.has(tag.path);
                         if (isExpanded) {
@@ -341,7 +341,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                             if (lastSlashIndex > 0) {
                                 const parentPath = tag.path.substring(0, lastSlashIndex);
                                 const parentIndex = items.findIndex(i => 
-                                    i.type === 'tag' && (i.data as TagTreeNode).path === parentPath
+                                    i.type === NavigationPaneItemType.TAG && (i.data as TagTreeNode).path === parentPath
                                 );
                                 if (parentIndex >= 0) {
                                     const parentItem = safeGetItem(items, parentIndex);
@@ -401,7 +401,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     if (focusedPane === 'files' && (selectionState.selectedFile || selectionState.selectedFiles.size > 0)) {
                         e.preventDefault();
                         handleDelete();
-                    } else if (focusedPane === 'folders' && selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+                    } else if (focusedPane === 'folders' && selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                         e.preventDefault();
                         handleDeleteFolder();
                     }
@@ -416,7 +416,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     
                     // Get all files in the current view
                     const allFiles = items
-                        .filter(item => item.type === 'file')
+                        .filter(item => item.type === FileListItemType.FILE)
                         .map(item => {
                         const fileItem = item as FileListItem;
                         return isTFile(fileItem.data) ? fileItem.data : null;
@@ -510,12 +510,12 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         
         if (pane === 'files') {
             const fileItem = item as FileListItem;
-            return fileItem.type === 'file';
+            return fileItem.type === FileListItemType.FILE;
         } else {
             const navigationPaneItem = item as CombinedNavigationItem;
-            return navigationPaneItem.type === 'folder' || 
-                   navigationPaneItem.type === 'tag' || 
-                   navigationPaneItem.type === 'untagged';
+            return navigationPaneItem.type === NavigationPaneItemType.FOLDER || 
+                   navigationPaneItem.type === NavigationPaneItemType.TAG || 
+                   navigationPaneItem.type === NavigationPaneItemType.UNTAGGED;
         }
     };
     
@@ -568,7 +568,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         
         if (focusedPane === 'files') {
             const fileItem = item as FileListItem;
-            if (fileItem.type === 'file') {
+            if (fileItem.type === FileListItemType.FILE) {
                 const file = isTFile(fileItem.data) ? fileItem.data : null;
                 if (!file) return;
                 // Normal navigation clears multi-selection
@@ -582,9 +582,9 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             }
         } else {
             const navigationPaneItem = item as CombinedNavigationItem;
-            if (navigationPaneItem.type === 'folder') {
+            if (navigationPaneItem.type === NavigationPaneItemType.FOLDER) {
                 selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: navigationPaneItem.data });
-            } else if (navigationPaneItem.type === 'tag' || navigationPaneItem.type === 'untagged') {
+            } else if (navigationPaneItem.type === NavigationPaneItemType.TAG || navigationPaneItem.type === NavigationPaneItemType.UNTAGGED) {
                 const tagNode = navigationPaneItem.data as TagTreeNode;
                 selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path });
             }
@@ -596,7 +596,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         if (!item || !('type' in item)) return;
         
         const navigationPaneItem = item as CombinedNavigationItem;
-        if (navigationPaneItem.type === 'folder') {
+        if (navigationPaneItem.type === NavigationPaneItemType.FOLDER) {
             const folder = navigationPaneItem.data;
             const isExpanded = expansionState.expandedFolders.has(folder.path);
             if (expand && !isExpanded && folder.children.length > 0) {
@@ -604,7 +604,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             } else if (!expand && isExpanded) {
                 expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
             }
-        } else if (navigationPaneItem.type === 'tag') {
+        } else if (navigationPaneItem.type === NavigationPaneItemType.TAG) {
             const tag = navigationPaneItem.data as TagTreeNode;
             const isExpanded = expansionState.expandedTags.has(tag.path);
             if (expand && !isExpanded && tag.children.size > 0) {
@@ -621,7 +621,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         
         if (focusedPane === 'files') {
             const fileItem = item as FileListItem;
-            if (fileItem.type === 'file') {
+            if (fileItem.type === FileListItemType.FILE) {
                 const file = isTFile(fileItem.data) ? fileItem.data : null;
                 if (!file) return;
                 const leaf = app.workspace.getLeaf(false);
@@ -637,7 +637,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         } else {
             // Toggle expand/collapse on Enter for folders/tags
             const navigationPaneItem = item as CombinedNavigationItem;
-            if (navigationPaneItem.type === 'folder' || navigationPaneItem.type === 'tag') {
+            if (navigationPaneItem.type === NavigationPaneItemType.FOLDER || navigationPaneItem.type === NavigationPaneItemType.TAG) {
                 handleExpandCollapse(item, true);
             }
         }
@@ -651,9 +651,9 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         if (selectionState.selectedFiles.size > 1) {
             // Get all files in the current view for smart selection
             let allFiles: TFile[] = [];
-            if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+            if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                 allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
-            } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
+            } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
                 allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
             }
             

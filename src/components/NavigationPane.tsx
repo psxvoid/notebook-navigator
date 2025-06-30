@@ -28,6 +28,7 @@ import { useSettingsState } from '../context/SettingsContext';
 import { flattenFolderTree, flattenTagTree, findFolderIndex } from '../utils/treeFlattener';
 import { FolderItem } from './FolderItem';
 import { TagTreeItem } from './TagTreeItem';
+import { useMetadataService } from '../context/ServicesContext';
 import { PaneHeader } from './PaneHeader';
 import { strings } from '../i18n';
 import { isTFolder } from '../utils/typeGuards';
@@ -38,7 +39,7 @@ import {
 } from '../utils/tagUtils';
 import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
-import { UNTAGGED_TAG_ID } from '../types';
+import { UNTAGGED_TAG_ID, NavigationPaneItemType, ItemType } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -68,6 +69,7 @@ export interface NavigationPaneHandle {
 
 export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     const { app, plugin, isMobile } = useServices();
+    const metadataService = useMetadataService();
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
     const selectionState = useSelectionState();
@@ -82,9 +84,9 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     
     
     // Cache selected folder/tag path to avoid repeated property access
-    const selectedPath = selectionState.selectionType === 'folder' && selectionState.selectedFolder 
+    const selectedPath = selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder 
         ? selectionState.selectedFolder.path 
-        : selectionState.selectionType === 'tag' && selectionState.selectedTag 
+        : selectionState.selectionType === ItemType.TAG && selectionState.selectedTag 
         ? selectionState.selectedTag 
         : null;
     
@@ -168,7 +170,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         if (settings.showTags) {
             // Add header
             allItems.push({ 
-                type: 'tag-header', 
+                type: NavigationPaneItemType.TAG_HEADER, 
                 key: 'tag-header' 
             });
             
@@ -190,7 +192,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                 };
                 
                 allItems.push({
-                    type: 'untagged',
+                    type: NavigationPaneItemType.UNTAGGED,
                     data: untaggedNode,
                     key: UNTAGGED_TAG_ID
                 });
@@ -199,7 +201,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         
         // Add spacer at the end for better visibility
         allItems.push({
-            type: 'spacer',
+            type: NavigationPaneItemType.SPACER,
             key: 'bottom-spacer'
         });
         
@@ -222,14 +224,14 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             const heights = isMobile ? ITEM_HEIGHTS.mobile : ITEM_HEIGHTS.desktop;
             
             switch (item.type) {
-                case 'tag-header':
+                case NavigationPaneItemType.TAG_HEADER:
                     return heights.header;
-                case 'spacer':
+                case NavigationPaneItemType.SPACER:
                     return heights.spacer;
-                case 'folder':
+                case NavigationPaneItemType.FOLDER:
                     return heights.folder;
-                case 'tag':
-                case 'untagged':
+                case NavigationPaneItemType.TAG:
+                case NavigationPaneItemType.UNTAGGED:
                     return heights.tag;
                 default:
                     return heights.folder; // fallback
@@ -242,9 +244,9 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     const pathToIndex = useMemo(() => {
         const map = new Map<string, number>();
         items.forEach((item, index) => {
-            if (item.type === 'folder') {
+            if (item.type === NavigationPaneItemType.FOLDER) {
                 map.set(item.data.path, index);
-            } else if (item.type === 'tag' || item.type === 'untagged') {
+            } else if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
                 const tagNode = item.data as TagTreeNode;
                 map.set(tagNode.path, index);
             }
@@ -347,13 +349,13 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     // Render individual item
     const renderItem = useCallback((item: CombinedNavigationItem): React.ReactNode => {
         switch (item.type) {
-            case 'folder':
+            case NavigationPaneItemType.FOLDER:
                 return (
                     <FolderItem
                         folder={item.data}
                         level={item.level}
                         isExpanded={expansionState.expandedFolders.has(item.data.path)}
-                        isSelected={selectionState.selectionType === 'folder' && 
+                        isSelected={selectionState.selectionType === ItemType.FOLDER && 
                             selectionState.selectedFolder?.path === item.data.path}
                         onToggle={() => handleFolderToggle(item.data.path)}
                         onClick={() => handleFolderClick(item.data)}
@@ -362,38 +364,40 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                     />
                 );
                 
-            case 'tag-header':
+            case NavigationPaneItemType.TAG_HEADER:
                 return (
                     <div className="nn-section-header nn-tags-header">
                         {strings.tagList.sectionHeader}
                     </div>
                 );
                 
-            case 'tag':
-            case 'untagged': {
+            case NavigationPaneItemType.TAG:
+            case NavigationPaneItemType.UNTAGGED: {
                 const tagNode = item.data as TagTreeNode;
                 return (
                     <TagTreeItem
                         tagNode={tagNode}
-                        level={item.type === 'untagged' ? 0 : item.level}
+                        level={item.type === NavigationPaneItemType.UNTAGGED ? 0 : item.level}
                         isExpanded={expansionState.expandedTags.has(tagNode.path)}
-                        isSelected={selectionState.selectionType === 'tag' && 
+                        isSelected={selectionState.selectionType === ItemType.TAG && 
                             selectionState.selectedTag === tagNode.path}
                         onToggle={() => handleTagToggle(tagNode.path)}
                         onClick={() => handleTagClick(tagNode.path)}
-                        fileCount={item.type === 'untagged' ? untaggedCount : getTotalNoteCount(tagNode)}
+                        fileCount={item.type === NavigationPaneItemType.UNTAGGED ? untaggedCount : getTotalNoteCount(tagNode)}
                         showFileCount={settings.showFolderFileCount}
+                        customIcon={metadataService.getTagIcon(tagNode.path)}
+                        customColor={metadataService.getTagColor(tagNode.path)}
                     />
                 );
             }
                 
-            case 'spacer':
+            case NavigationPaneItemType.SPACER:
                 return <div style={{ height: `${spacerHeight}px` }} />; // Empty spacer
                 
             default:
                 return null;
         }
-    }, [expansionState.expandedFolders, expansionState.expandedTags, selectionState.selectionType, selectionState.selectedFolder?.path, selectionState.selectedTag, handleFolderToggle, handleFolderClick, handleFolderNameClick, handleTagToggle, handleTagClick, untaggedCount, settings, spacerHeight, settings.folderIcons]);
+    }, [expansionState.expandedFolders, expansionState.expandedTags, selectionState.selectionType, selectionState.selectedFolder?.path, selectionState.selectedTag, handleFolderToggle, handleFolderClick, handleFolderNameClick, handleTagToggle, handleTagClick, untaggedCount, settings, spacerHeight, settings.folderIcons, metadataService]);
     
     return (
         <ErrorBoundary componentName="NavigationPane">

@@ -47,7 +47,6 @@ export type CollapseButtonBehavior =
 export interface NotebookNavigatorSettings {
     // File organization
     defaultFolderSort: SortOption;
-    folderSortOverrides: Record<string, SortOption>;
     groupByDate: boolean;
     showNotesFromSubfolders: boolean;
     showSubfolderNamesInList: boolean;
@@ -91,6 +90,10 @@ export interface NotebookNavigatorSettings {
     pinnedNotes: Record<string, string[]>;
     folderIcons: Record<string, string>;
     folderColors: Record<string, string>;
+    folderSortOverrides: Record<string, SortOption>;
+    tagIcons: Record<string, string>;
+    tagColors: Record<string, string>;
+    tagSortOverrides: Record<string, SortOption>;
     recentlyUsedIcons: string[];
 }
 
@@ -101,7 +104,6 @@ export interface NotebookNavigatorSettings {
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // File organization
     defaultFolderSort: 'modified-desc',
-    folderSortOverrides: {},
     groupByDate: true,
     showNotesFromSubfolders: true,
     showSubfolderNamesInList: true,
@@ -145,6 +147,10 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     pinnedNotes: {},
     folderIcons: {},
     folderColors: {},
+    folderSortOverrides: {},
+    tagIcons: {},
+    tagColors: {},
+    tagSortOverrides: {},
     recentlyUsedIcons: []
 }
 

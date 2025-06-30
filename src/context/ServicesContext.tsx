@@ -21,6 +21,7 @@ import React, { createContext, useContext, useMemo } from 'react';
 import { App, Platform } from 'obsidian';
 import { FileSystemOperations } from '../services/FileSystemService';
 import { MetadataService } from '../services/MetadataService';
+import { TagOperations } from '../services/TagOperations';
 import NotebookNavigatorPlugin from '../main';
 
 /**
@@ -38,6 +39,8 @@ interface Services {
     fileSystemOps: FileSystemOperations;
     /** Metadata service for managing folder colors, icons, sorts, and pinned notes */
     metadataService: MetadataService | null;
+    /** Tag operations service for renaming and deleting tags */
+    tagOperations: TagOperations | null;
 }
 
 /**
@@ -66,7 +69,8 @@ export function ServicesProvider({ children, plugin }: { children: React.ReactNo
         plugin,
         isMobile,
         fileSystemOps: new FileSystemOperations(plugin.app),
-        metadataService: plugin.metadataService // Use the single instance from plugin
+        metadataService: plugin.metadataService, // Use the single instance from plugin
+        tagOperations: plugin.tagOperations // Use the single instance from plugin
     }), [plugin, isMobile]);
 
     return (
@@ -110,4 +114,18 @@ export function useMetadataService() {
         throw new Error('MetadataService not initialized');
     }
     return metadataService;
+}
+
+/**
+ * Convenience hook to access the TagOperations service directly.
+ * Use this when you need to rename or delete tags.
+ * 
+ * @returns The TagOperations service instance
+ */
+export function useTagOperations() {
+    const { tagOperations } = useServices();
+    if (!tagOperations) {
+        throw new Error('TagOperations not initialized');
+    }
+    return tagOperations;
 }

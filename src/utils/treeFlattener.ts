@@ -20,6 +20,7 @@ import { TFolder } from 'obsidian';
 import type { FolderTreeItem, TagTreeItem } from '../types/virtualization';
 import { TagTreeNode } from './tagUtils';
 import { shouldExcludeFolder } from './fileFilters';
+import { NavigationPaneItemType } from '../types';
 
 /**
  * Flattens a folder tree into a linear array for virtualization.
@@ -55,7 +56,7 @@ export function flattenFolderTree(
         
         // Add the folder itself
         items.push({
-            type: 'folder',
+            type: NavigationPaneItemType.FOLDER,
             data: folder,
             level,
             path: folder.path,
@@ -114,7 +115,7 @@ export function flattenTagTree(
     
     function addNode(node: TagTreeNode, currentLevel: number) {
         items.push({
-            type: 'tag',
+            type: NavigationPaneItemType.TAG,
             data: node,
             level: currentLevel,
             path: node.path,
@@ -150,7 +151,7 @@ export function findFolderIndex(
     if (!folderPath) return -1;
     
     return items.findIndex(item => 
-        item.type === 'folder' && item.data.path === folderPath
+        item.type === NavigationPaneItemType.FOLDER && item.data.path === folderPath
     );
 }
 
@@ -168,7 +169,7 @@ export function findTagIndex(
     if (!tagPath) return -1;
     
     return items.findIndex(item => {
-        if (item.type !== 'tag') return false;
+        if (item.type !== NavigationPaneItemType.TAG) return false;
         const tagNode = item.data as TagTreeNode;
         return tagNode.path === tagPath;
     });

@@ -18,12 +18,19 @@
 
 import { TFile, TFolder } from 'obsidian';
 import { NotebookNavigatorSettings, SortOption } from '../settings';
+import { ItemType } from '../types';
+
+/**
+ * Type for entity that can have metadata (folder or tag)
+ */
+type EntityType = typeof ItemType.FOLDER | typeof ItemType.TAG;
 
 /**
  * Service for managing all folder and file metadata operations
  * Centralizes handling of folder colors, icons, sort overrides, and pinned notes
  * Provides cleanup operations for deleted files/folders
  */
+
 export class MetadataService {
     private updateQueue: Promise<void> = Promise.resolve();
     
@@ -57,70 +64,108 @@ export class MetadataService {
         return this.updateQueue;
     }
 
-    // ========== Folder Color Management ==========
+    /**
+     * Validates that a folder exists in the vault
+     */
+    private validateFolder(folderPath: string): boolean {
+        const folder = this.app.vault.getAbstractFileByPath(folderPath);
+        return folder instanceof TFolder;
+    }
 
     /**
-     * Sets a custom color for a folder
-     * @param folderPath - Path of the folder
+     * Validates a CSS color format
+     */
+    private validateColor(color: string): boolean {
+        const colorRegex = /^(#[0-9A-Fa-f]{3,8}|rgb\(|rgba\(|hsl\(|hsla\(|[a-zA-Z]+)$/;
+        return colorRegex.test(color);
+    }
+
+    // ========== Generic Color Management ==========
+
+    /**
+     * Sets a custom color for an entity (folder or tag)
+     * @param entityType - Type of entity ('folder' or 'tag')
+     * @param path - Path of the entity
      * @param color - CSS color value
      */
-    async setFolderColor(folderPath: string, color: string): Promise<void> {
-        // Validate that the folder exists
-        const folder = this.app.vault.getAbstractFileByPath(folderPath);
-        if (!folder || !(folder instanceof TFolder)) {
-            // Cannot set color for non-existent folder
+    private async setEntityColor(entityType: EntityType, path: string, color: string): Promise<void> {
+        // Validate folder if it's a folder type
+        if (entityType === ItemType.FOLDER && !this.validateFolder(path)) {
             return;
         }
         
-        // Basic color validation - check if it's a valid CSS color format
-        const colorRegex = /^(#[0-9A-Fa-f]{3,8}|rgb\(|rgba\(|hsl\(|hsla\(|[a-zA-Z]+)$/;
-        if (!colorRegex.test(color)) {
-            // Invalid color format
+        // Validate color format
+        if (!this.validateColor(color)) {
             return;
         }
         
         await this.saveAndUpdate(settings => {
-            if (!settings.folderColors) {
-                settings.folderColors = {};
+            if (entityType === ItemType.FOLDER) {
+                if (!settings.folderColors) {
+                    settings.folderColors = {};
+                }
+                settings.folderColors[path] = color;
+            } else {
+                if (!settings.tagColors) {
+                    settings.tagColors = {};
+                }
+                settings.tagColors[path] = color;
             }
-            settings.folderColors[folderPath] = color;
         });
     }
 
     /**
-     * Removes the custom color from a folder
-     * @param folderPath - Path of the folder
+     * Removes the custom color from an entity
+     * @param entityType - Type of entity ('folder' or 'tag')
+     * @param path - Path of the entity
      */
-    async removeFolderColor(folderPath: string): Promise<void> {
-        if (this.settings.folderColors && this.settings.folderColors[folderPath]) {
+    private async removeEntityColor(entityType: EntityType, path: string): Promise<void> {
+        if (entityType === ItemType.FOLDER && this.settings.folderColors?.[path]) {
             await this.saveAndUpdate(settings => {
-                delete settings.folderColors![folderPath];
+                delete settings.folderColors![path];
+            });
+        } else if (entityType === ItemType.TAG && this.settings.tagColors?.[path]) {
+            await this.saveAndUpdate(settings => {
+                delete settings.tagColors![path];
             });
         }
     }
 
     /**
-     * Gets the custom color for a folder
-     * @param folderPath - Path of the folder
+     * Gets the custom color for an entity
+     * @param entityType - Type of entity ('folder' or 'tag')
+     * @param path - Path of the entity
      * @returns The color value or undefined
      */
-    getFolderColor(folderPath: string): string | undefined {
-        return this.settings.folderColors?.[folderPath];
+    private getEntityColor(entityType: EntityType, path: string): string | undefined {
+        if (entityType === ItemType.FOLDER) {
+            return this.settings.folderColors?.[path];
+        } else {
+            return this.settings.tagColors?.[path];
+        }
     }
 
-    // ========== Folder Icon Management ==========
+    // ========== Generic Icon Management ==========
 
     /**
-     * Sets a custom icon for a folder
-     * @param folderPath - Path of the folder
+     * Sets a custom icon for an entity (folder or tag)
+     * @param entityType - Type of entity ('folder' or 'tag')
+     * @param path - Path of the entity
      * @param iconId - Lucide icon identifier
      */
-    async setFolderIcon(folderPath: string, iconId: string): Promise<void> {
+    private async setEntityIcon(entityType: EntityType, path: string, iconId: string): Promise<void> {
         await this.saveAndUpdate(settings => {
-            if (!settings.folderIcons) {
-                settings.folderIcons = {};
+            if (entityType === ItemType.FOLDER) {
+                if (!settings.folderIcons) {
+                    settings.folderIcons = {};
+                }
+                settings.folderIcons[path] = iconId;
+            } else {
+                if (!settings.tagIcons) {
+                    settings.tagIcons = {};
+                }
+                settings.tagIcons[path] = iconId;
             }
-            settings.folderIcons[folderPath] = iconId;
             
             // Update recently used icons
             if (!settings.recentlyUsedIcons) {
@@ -136,15 +181,134 @@ export class MetadataService {
     }
 
     /**
+     * Removes the custom icon from an entity
+     * @param entityType - Type of entity ('folder' or 'tag')
+     * @param path - Path of the entity
+     */
+    private async removeEntityIcon(entityType: EntityType, path: string): Promise<void> {
+        if (entityType === ItemType.FOLDER && this.settings.folderIcons?.[path]) {
+            await this.saveAndUpdate(settings => {
+                delete settings.folderIcons![path];
+            });
+        } else if (entityType === ItemType.TAG && this.settings.tagIcons?.[path]) {
+            await this.saveAndUpdate(settings => {
+                delete settings.tagIcons![path];
+            });
+        }
+    }
+
+    /**
+     * Gets the custom icon for an entity
+     * @param entityType - Type of entity ('folder' or 'tag')
+     * @param path - Path of the entity
+     * @returns The icon ID or undefined
+     */
+    private getEntityIcon(entityType: EntityType, path: string): string | undefined {
+        if (entityType === ItemType.FOLDER) {
+            return this.settings.folderIcons?.[path];
+        } else {
+            return this.settings.tagIcons?.[path];
+        }
+    }
+
+    // ========== Generic Sort Override Management ==========
+
+    /**
+     * Sets a custom sort order for an entity (folder or tag)
+     * @param entityType - Type of entity ('folder' or 'tag')
+     * @param path - Path of the entity
+     * @param sortOption - Sort option to apply
+     */
+    private async setEntitySortOverride(entityType: EntityType, path: string, sortOption: SortOption): Promise<void> {
+        await this.saveAndUpdate(settings => {
+            if (entityType === ItemType.FOLDER) {
+                if (!settings.folderSortOverrides) {
+                    settings.folderSortOverrides = {};
+                }
+                settings.folderSortOverrides[path] = sortOption;
+            } else {
+                if (!settings.tagSortOverrides) {
+                    settings.tagSortOverrides = {};
+                }
+                settings.tagSortOverrides[path] = sortOption;
+            }
+        });
+    }
+
+    /**
+     * Removes the custom sort order from an entity
+     * @param entityType - Type of entity ('folder' or 'tag')
+     * @param path - Path of the entity
+     */
+    private async removeEntitySortOverride(entityType: EntityType, path: string): Promise<void> {
+        if (entityType === ItemType.FOLDER && this.settings.folderSortOverrides?.[path]) {
+            await this.saveAndUpdate(settings => {
+                delete settings.folderSortOverrides![path];
+            });
+        } else if (entityType === ItemType.TAG && this.settings.tagSortOverrides?.[path]) {
+            await this.saveAndUpdate(settings => {
+                delete settings.tagSortOverrides![path];
+            });
+        }
+    }
+
+    /**
+     * Gets the sort override for an entity
+     * @param entityType - Type of entity ('folder' or 'tag')
+     * @param path - Path of the entity
+     * @returns The sort option or undefined
+     */
+    private getEntitySortOverride(entityType: EntityType, path: string): SortOption | undefined {
+        if (entityType === ItemType.FOLDER) {
+            return this.settings.folderSortOverrides?.[path];
+        } else {
+            return this.settings.tagSortOverrides?.[path];
+        }
+    }
+
+    // ========== Public API - Folder Methods (for backward compatibility) ==========
+
+    /**
+     * Sets a custom color for a folder
+     * @param folderPath - Path of the folder
+     * @param color - CSS color value
+     */
+    async setFolderColor(folderPath: string, color: string): Promise<void> {
+        return this.setEntityColor(ItemType.FOLDER, folderPath, color);
+    }
+
+    /**
+     * Removes the custom color from a folder
+     * @param folderPath - Path of the folder
+     */
+    async removeFolderColor(folderPath: string): Promise<void> {
+        return this.removeEntityColor(ItemType.FOLDER, folderPath);
+    }
+
+    /**
+     * Gets the custom color for a folder
+     * @param folderPath - Path of the folder
+     * @returns The color value or undefined
+     */
+    getFolderColor(folderPath: string): string | undefined {
+        return this.getEntityColor(ItemType.FOLDER, folderPath);
+    }
+
+    /**
+     * Sets a custom icon for a folder
+     * @param folderPath - Path of the folder
+     * @param iconId - Lucide icon identifier
+     */
+    async setFolderIcon(folderPath: string, iconId: string): Promise<void> {
+        return this.setEntityIcon(ItemType.FOLDER, folderPath, iconId);
+    }
+
+    /**
      * Removes the custom icon from a folder
      * @param folderPath - Path of the folder
      */
     async removeFolderIcon(folderPath: string): Promise<void> {
-        if (this.settings.folderIcons && this.settings.folderIcons[folderPath]) {
-            await this.saveAndUpdate(settings => {
-                delete settings.folderIcons![folderPath];
-            });
-        }
+        return this.removeEntityIcon(ItemType.FOLDER, folderPath);
     }
 
     /**
@@ -153,10 +317,8 @@ export class MetadataService {
      * @returns The icon ID or undefined
      */
     getFolderIcon(folderPath: string): string | undefined {
-        return this.settings.folderIcons?.[folderPath];
+        return this.getEntityIcon(ItemType.FOLDER, folderPath);
     }
-
-    // ========== Folder Sort Override Management ==========
 
     /**
      * Sets a custom sort order for a folder
@@ -164,12 +326,7 @@ export class MetadataService {
      * @param sortOption - Sort option to apply
      */
     async setFolderSortOverride(folderPath: string, sortOption: SortOption): Promise<void> {
-        await this.saveAndUpdate(settings => {
-            if (!settings.folderSortOverrides) {
-                settings.folderSortOverrides = {};
-            }
-            settings.folderSortOverrides[folderPath] = sortOption;
-        });
+        return this.setEntitySortOverride(ItemType.FOLDER, folderPath, sortOption);
     }
 
     /**
@@ -177,11 +334,7 @@ export class MetadataService {
      * @param folderPath - Path of the folder
      */
     async removeFolderSortOverride(folderPath: string): Promise<void> {
-        if (this.settings.folderSortOverrides && this.settings.folderSortOverrides[folderPath]) {
-            await this.saveAndUpdate(settings => {
-                delete settings.folderSortOverrides![folderPath];
-            });
-        }
+        return this.removeEntitySortOverride(ItemType.FOLDER, folderPath);
     }
 
     /**
@@ -190,7 +343,87 @@ export class MetadataService {
      * @returns The sort option or undefined
      */
     getFolderSortOverride(folderPath: string): SortOption | undefined {
-        return this.settings.folderSortOverrides?.[folderPath];
+        return this.getEntitySortOverride(ItemType.FOLDER, folderPath);
+    }
+
+    // ========== Public API - Tag Methods (for backward compatibility) ==========
+
+    /**
+     * Sets a custom color for a tag
+     * @param tagPath - Path of the tag (e.g., "inbox/processing")
+     * @param color - CSS color value
+     */
+    async setTagColor(tagPath: string, color: string): Promise<void> {
+        return this.setEntityColor(ItemType.TAG, tagPath, color);
+    }
+
+    /**
+     * Removes the custom color from a tag
+     * @param tagPath - Path of the tag
+     */
+    async removeTagColor(tagPath: string): Promise<void> {
+        return this.removeEntityColor(ItemType.TAG, tagPath);
+    }
+
+    /**
+     * Gets the custom color for a tag
+     * @param tagPath - Path of the tag
+     * @returns The color value or undefined
+     */
+    getTagColor(tagPath: string): string | undefined {
+        return this.getEntityColor(ItemType.TAG, tagPath);
+    }
+
+    /**
+     * Sets a custom icon for a tag
+     * @param tagPath - Path of the tag (e.g., "inbox/processing")
+     * @param iconId - Lucide icon identifier
+     */
+    async setTagIcon(tagPath: string, iconId: string): Promise<void> {
+        return this.setEntityIcon(ItemType.TAG, tagPath, iconId);
+    }
+
+    /**
+     * Removes the custom icon from a tag
+     * @param tagPath - Path of the tag
+     */
+    async removeTagIcon(tagPath: string): Promise<void> {
+        return this.removeEntityIcon(ItemType.TAG, tagPath);
+    }
+
+    /**
+     * Gets the custom icon for a tag
+     * @param tagPath - Path of the tag
+     * @returns The icon ID or undefined
+     */
+    getTagIcon(tagPath: string): string | undefined {
+        return this.getEntityIcon(ItemType.TAG, tagPath);
+    }
+
+    /**
+     * Sets a custom sort order for a tag
+     * @param tagPath - Path of the tag
+     * @param sortOption - Sort option to apply
+     */
+    async setTagSortOverride(tagPath: string, sortOption: SortOption): Promise<void> {
+        return this.setEntitySortOverride(ItemType.TAG, tagPath, sortOption);
+    }
+
+    /**
+     * Removes the custom sort order from a tag
+     * @param tagPath - Path of the tag
+     */
+    async removeTagSortOverride(tagPath: string): Promise<void> {
+        return this.removeEntitySortOverride(ItemType.TAG, tagPath);
+    }
+
+    /**
+     * Gets the sort override for a tag
+     * @param tagPath - Path of the tag
+     * @returns The sort option or undefined
+     */
+    getTagSortOverride(tagPath: string): SortOption | undefined {
+        return this.getEntitySortOverride(ItemType.TAG, tagPath);
     }
 
     // ========== Pinned Notes Management ==========
@@ -241,6 +474,351 @@ export class MetadataService {
      */
     getPinnedNotes(folderPath: string): string[] {
         return this.settings.pinnedNotes?.[folderPath] || [];
+    }
+
+    // ========== Rename and Delete Handlers ==========
+
+    /**
+     * Generic handler for entity rename operations
+     * @param entityType - Type of entity ('folder' or 'tag')
+     * @param oldPath - Previous entity path
+     * @param newPath - New entity path
+     */
+    private async handleEntityRename(entityType: EntityType, oldPath: string, newPath: string): Promise<void> {
+        await this.saveAndUpdate(settings => {
+            if (entityType === ItemType.FOLDER) {
+                // Ensure all metadata objects exist
+                if (!settings.folderColors) settings.folderColors = {};
+                if (!settings.folderIcons) settings.folderIcons = {};
+                if (!settings.folderSortOverrides) settings.folderSortOverrides = {};
+                if (!settings.pinnedNotes) settings.pinnedNotes = {};
+
+                // Update direct folder metadata
+                if (settings.folderColors[oldPath]) {
+                    settings.folderColors[newPath] = settings.folderColors[oldPath];
+                    delete settings.folderColors[oldPath];
+                }
+                if (settings.folderIcons[oldPath]) {
+                    settings.folderIcons[newPath] = settings.folderIcons[oldPath];
+                    delete settings.folderIcons[oldPath];
+                }
+                if (settings.folderSortOverrides[oldPath]) {
+                    settings.folderSortOverrides[newPath] = settings.folderSortOverrides[oldPath];
+                    delete settings.folderSortOverrides[oldPath];
+                }
+
+                // Handle nested folders
+                const oldPathPrefix = oldPath + '/';
+                
+                // Update nested folder colors
+                const colorsToUpdate: Array<{oldPath: string, newPath: string, color: string}> = [];
+                for (const path in settings.folderColors) {
+                    if (path.startsWith(oldPathPrefix)) {
+                        const newNestedPath = newPath + path.substring(oldPath.length);
+                        colorsToUpdate.push({
+                            oldPath: path,
+                            newPath: newNestedPath,
+                            color: settings.folderColors[path]
+                        });
+                    }
+                }
+                for (const update of colorsToUpdate) {
+                    settings.folderColors[update.newPath] = update.color;
+                    delete settings.folderColors[update.oldPath];
+                }
+
+                // Update nested folder icons
+                const iconsToUpdate: Array<{oldPath: string, newPath: string, icon: string}> = [];
+                for (const path in settings.folderIcons) {
+                    if (path.startsWith(oldPathPrefix)) {
+                        const newNestedPath = newPath + path.substring(oldPath.length);
+                        iconsToUpdate.push({
+                            oldPath: path,
+                            newPath: newNestedPath,
+                            icon: settings.folderIcons[path]
+                        });
+                    }
+                }
+                for (const update of iconsToUpdate) {
+                    settings.folderIcons[update.newPath] = update.icon;
+                    delete settings.folderIcons[update.oldPath];
+                }
+
+                // Update nested folder sort overrides
+                const sortOverridesToUpdate: Array<{oldPath: string, newPath: string, sort: SortOption}> = [];
+                for (const path in settings.folderSortOverrides) {
+                    if (path.startsWith(oldPathPrefix)) {
+                        const newNestedPath = newPath + path.substring(oldPath.length);
+                        sortOverridesToUpdate.push({
+                            oldPath: path,
+                            newPath: newNestedPath,
+                            sort: settings.folderSortOverrides[path]
+                        });
+                    }
+                }
+                for (const update of sortOverridesToUpdate) {
+                    settings.folderSortOverrides[update.newPath] = update.sort;
+                    delete settings.folderSortOverrides[update.oldPath];
+                }
+
+                // Handle pinned notes
+                const pinnedNotesToUpdate: Array<{oldPath: string, newPath: string, notes: string[]}> = [];
+                
+                // Handle direct folder pinned notes
+                if (settings.pinnedNotes[oldPath]) {
+                    const updatedNotes = settings.pinnedNotes[oldPath].map((notePath: string) => {
+                        if (notePath.startsWith(oldPath + '/')) {
+                            return newPath + notePath.substring(oldPath.length);
+                        }
+                        return notePath;
+                    });
+                    pinnedNotesToUpdate.push({
+                        oldPath: oldPath,
+                        newPath: newPath,
+                        notes: updatedNotes
+                    });
+                }
+                
+                // Handle nested folder pinned notes
+                for (const path in settings.pinnedNotes) {
+                    if (path.startsWith(oldPathPrefix)) {
+                        const newNestedPath = newPath + path.substring(oldPath.length);
+                        const updatedNotes = settings.pinnedNotes[path].map((notePath: string) => {
+                            if (notePath.startsWith(oldPath + '/')) {
+                                return newPath + notePath.substring(oldPath.length);
+                            }
+                            return notePath;
+                        });
+                        pinnedNotesToUpdate.push({
+                            oldPath: path,
+                            newPath: newNestedPath,
+                            notes: updatedNotes
+                        });
+                    }
+                }
+                
+                for (const update of pinnedNotesToUpdate) {
+                    settings.pinnedNotes[update.newPath] = update.notes;
+                    delete settings.pinnedNotes[update.oldPath];
+                }
+            } else {
+                // Handle tag rename
+                // Ensure all metadata objects exist
+                if (!settings.tagColors) settings.tagColors = {};
+                if (!settings.tagIcons) settings.tagIcons = {};
+                if (!settings.tagSortOverrides) settings.tagSortOverrides = {};
+
+                // Update direct tag metadata
+                if (settings.tagColors[oldPath]) {
+                    settings.tagColors[newPath] = settings.tagColors[oldPath];
+                    delete settings.tagColors[oldPath];
+                }
+                if (settings.tagIcons[oldPath]) {
+                    settings.tagIcons[newPath] = settings.tagIcons[oldPath];
+                    delete settings.tagIcons[oldPath];
+                }
+                if (settings.tagSortOverrides[oldPath]) {
+                    settings.tagSortOverrides[newPath] = settings.tagSortOverrides[oldPath];
+                    delete settings.tagSortOverrides[oldPath];
+                }
+
+                // Handle nested tags
+                const oldPathPrefix = oldPath + '/';
+                
+                // Update nested tag colors
+                const colorsToUpdate: Array<{oldPath: string, newPath: string, color: string}> = [];
+                for (const path in settings.tagColors) {
+                    if (path.startsWith(oldPathPrefix)) {
+                        const newNestedPath = newPath + path.substring(oldPath.length);
+                        colorsToUpdate.push({
+                            oldPath: path,
+                            newPath: newNestedPath,
+                            color: settings.tagColors[path]
+                        });
+                    }
+                }
+                for (const update of colorsToUpdate) {
+                    settings.tagColors[update.newPath] = update.color;
+                    delete settings.tagColors[update.oldPath];
+                }
+
+                // Update nested tag icons
+                const iconsToUpdate: Array<{oldPath: string, newPath: string, icon: string}> = [];
+                for (const path in settings.tagIcons) {
+                    if (path.startsWith(oldPathPrefix)) {
+                        const newNestedPath = newPath + path.substring(oldPath.length);
+                        iconsToUpdate.push({
+                            oldPath: path,
+                            newPath: newNestedPath,
+                            icon: settings.tagIcons[path]
+                        });
+                    }
+                }
+                for (const update of iconsToUpdate) {
+                    settings.tagIcons[update.newPath] = update.icon;
+                    delete settings.tagIcons[update.oldPath];
+                }
+
+                // Update nested tag sort overrides
+                const sortOverridesToUpdate: Array<{oldPath: string, newPath: string, sort: SortOption}> = [];
+                for (const path in settings.tagSortOverrides) {
+                    if (path.startsWith(oldPathPrefix)) {
+                        const newNestedPath = newPath + path.substring(oldPath.length);
+                        sortOverridesToUpdate.push({
+                            oldPath: path,
+                            newPath: newNestedPath,
+                            sort: settings.tagSortOverrides[path]
+                        });
+                    }
+                }
+                for (const update of sortOverridesToUpdate) {
+                    settings.tagSortOverrides[update.newPath] = update.sort;
+                    delete settings.tagSortOverrides[update.oldPath];
+                }
+            }
+        });
+    }
+
+    /**
+     * Generic handler for entity deletion
+     * @param entityType - Type of entity ('folder' or 'tag')
+     * @param path - Path of the deleted entity
+     */
+    private async handleEntityDelete(entityType: EntityType, path: string): Promise<void> {
+        await this.saveAndUpdate(settings => {
+            const pathPrefix = path + '/';
+
+            if (entityType === ItemType.FOLDER) {
+                // Remove folder color
+                if (settings.folderColors?.[path]) {
+                    delete settings.folderColors[path];
+                }
+
+                // Remove folder icon
+                if (settings.folderIcons?.[path]) {
+                    delete settings.folderIcons[path];
+                }
+
+                // Remove folder sort override
+                if (settings.folderSortOverrides?.[path]) {
+                    delete settings.folderSortOverrides[path];
+                }
+
+                // Remove pinned notes for this folder
+                if (settings.pinnedNotes?.[path]) {
+                    delete settings.pinnedNotes[path];
+                }
+
+                // Clean up nested folders
+                if (settings.folderColors) {
+                    for (const nestedPath in settings.folderColors) {
+                        if (nestedPath.startsWith(pathPrefix)) {
+                            delete settings.folderColors[nestedPath];
+                        }
+                    }
+                }
+
+                if (settings.folderIcons) {
+                    for (const nestedPath in settings.folderIcons) {
+                        if (nestedPath.startsWith(pathPrefix)) {
+                            delete settings.folderIcons[nestedPath];
+                        }
+                    }
+                }
+
+                if (settings.folderSortOverrides) {
+                    for (const nestedPath in settings.folderSortOverrides) {
+                        if (nestedPath.startsWith(pathPrefix)) {
+                            delete settings.folderSortOverrides[nestedPath];
+                        }
+                    }
+                }
+
+                // Clean up pinned notes for nested folders
+                if (settings.pinnedNotes) {
+                    for (const folderPath in settings.pinnedNotes) {
+                        if (folderPath.startsWith(pathPrefix)) {
+                            delete settings.pinnedNotes[folderPath];
+                        }
+                    }
+                }
+            } else {
+                // Handle tag deletion
+                // Remove tag color
+                if (settings.tagColors?.[path]) {
+                    delete settings.tagColors[path];
+                }
+
+                // Remove tag icon
+                if (settings.tagIcons?.[path]) {
+                    delete settings.tagIcons[path];
+                }
+
+                // Remove tag sort override
+                if (settings.tagSortOverrides?.[path]) {
+                    delete settings.tagSortOverrides[path];
+                }
+
+                // Clean up nested tags
+                if (settings.tagColors) {
+                    for (const nestedPath in settings.tagColors) {
+                        if (nestedPath.startsWith(pathPrefix)) {
+                            delete settings.tagColors[nestedPath];
+                        }
+                    }
+                }
+
+                if (settings.tagIcons) {
+                    for (const nestedPath in settings.tagIcons) {
+                        if (nestedPath.startsWith(pathPrefix)) {
+                            delete settings.tagIcons[nestedPath];
+                        }
+                    }
+                }
+
+                if (settings.tagSortOverrides) {
+                    for (const nestedPath in settings.tagSortOverrides) {
+                        if (nestedPath.startsWith(pathPrefix)) {
+                            delete settings.tagSortOverrides[nestedPath];
+                        }
+                    }
+                }
+            }
+        });
+    }
+
+    /**
+     * Handles tag rename by updating all associated metadata
+     * @param oldPath - Previous tag path (without #)
+     * @param newPath - New tag path (without #)
+     */
+    async handleTagRename(oldPath: string, newPath: string): Promise<void> {
+        return this.handleEntityRename('tag', oldPath, newPath);
+    }
+
+    /**
+     * Handles tag deletion by removing all associated metadata
+     * @param tagPath - Path of the deleted tag (without #)
+     */
+    async handleTagDelete(tagPath: string): Promise<void> {
+        return this.handleEntityDelete('tag', tagPath);
+    }
+
+    /**
+     * Handles folder rename by updating all associated metadata
+     * @param oldPath - Previous folder path
+     * @param newPath - New folder path
+     */
+    async handleFolderRename(oldPath: string, newPath: string): Promise<void> {
+        return this.handleEntityRename('folder', oldPath, newPath);
+    }
+
+    /**
+     * Handles folder deletion by removing all associated metadata
+     * @param folderPath - Path of the deleted folder
+     */
+    async handleFolderDelete(folderPath: string): Promise<void> {
+        return this.handleEntityDelete('folder', folderPath);
     }
 
     // ========== Cleanup Operations ==========
@@ -327,204 +905,6 @@ export class MetadataService {
         }
         
         return hasChanges;
-    }
-
-    /**
-     * Handles folder rename by updating all associated metadata
-     * @param oldPath - Previous folder path
-     * @param newPath - New folder path
-     */
-    async handleFolderRename(oldPath: string, newPath: string): Promise<void> {
-        await this.saveAndUpdate(settings => {
-            // Ensure all metadata objects exist
-            if (!settings.folderColors) settings.folderColors = {};
-            if (!settings.folderIcons) settings.folderIcons = {};
-            if (!settings.folderSortOverrides) settings.folderSortOverrides = {};
-            if (!settings.pinnedNotes) settings.pinnedNotes = {};
-
-            // Update direct folder color
-            if (settings.folderColors[oldPath]) {
-                settings.folderColors[newPath] = settings.folderColors[oldPath];
-                delete settings.folderColors[oldPath];
-            }
-
-            // Update direct folder icon
-            if (settings.folderIcons[oldPath]) {
-                settings.folderIcons[newPath] = settings.folderIcons[oldPath];
-                delete settings.folderIcons[oldPath];
-            }
-
-            // Update direct folder sort override
-            if (settings.folderSortOverrides[oldPath]) {
-                settings.folderSortOverrides[newPath] = settings.folderSortOverrides[oldPath];
-                delete settings.folderSortOverrides[oldPath];
-            }
-
-            // Handle nested folders
-            const oldPathPrefix = oldPath + '/';
-            
-            // Update nested folder colors
-            const colorsToUpdate: Array<{oldPath: string, newPath: string, color: string}> = [];
-            for (const path in settings.folderColors) {
-                if (path.startsWith(oldPathPrefix)) {
-                    const newNestedPath = newPath + path.substring(oldPath.length);
-                    colorsToUpdate.push({
-                        oldPath: path,
-                        newPath: newNestedPath,
-                        color: settings.folderColors[path]
-                    });
-                }
-            }
-            
-            for (const update of colorsToUpdate) {
-                settings.folderColors[update.newPath] = update.color;
-                delete settings.folderColors[update.oldPath];
-            }
-
-            // Update nested folder icons
-            const iconsToUpdate: Array<{oldPath: string, newPath: string, icon: string}> = [];
-            for (const path in settings.folderIcons) {
-                if (path.startsWith(oldPathPrefix)) {
-                    const newNestedPath = newPath + path.substring(oldPath.length);
-                    iconsToUpdate.push({
-                        oldPath: path,
-                        newPath: newNestedPath,
-                        icon: settings.folderIcons[path]
-                    });
-                }
-            }
-            
-            for (const update of iconsToUpdate) {
-                settings.folderIcons[update.newPath] = update.icon;
-                delete settings.folderIcons[update.oldPath];
-            }
-
-            // Update nested folder sort overrides
-            const sortOverridesToUpdate: Array<{oldPath: string, newPath: string, sort: SortOption}> = [];
-            for (const path in settings.folderSortOverrides) {
-                if (path.startsWith(oldPathPrefix)) {
-                    const newNestedPath = newPath + path.substring(oldPath.length);
-                    sortOverridesToUpdate.push({
-                        oldPath: path,
-                        newPath: newNestedPath,
-                        sort: settings.folderSortOverrides[path]
-                    });
-                }
-            }
-            
-            for (const update of sortOverridesToUpdate) {
-                settings.folderSortOverrides[update.newPath] = update.sort;
-                delete settings.folderSortOverrides[update.oldPath];
-            }
-
-            // Update pinned notes for the renamed folder and its subfolders
-            const pinnedNotesToUpdate: Array<{oldPath: string, newPath: string, notes: string[]}> = [];
-            
-            // Handle direct folder pinned notes
-            if (settings.pinnedNotes[oldPath]) {
-                const updatedNotes = settings.pinnedNotes[oldPath].map((notePath: string) => {
-                    if (notePath.startsWith(oldPath + '/')) {
-                        return newPath + notePath.substring(oldPath.length);
-                    }
-                    return notePath;
-                });
-                pinnedNotesToUpdate.push({
-                    oldPath: oldPath,
-                    newPath: newPath,
-                    notes: updatedNotes
-                });
-            }
-            
-            // Handle nested folder pinned notes
-            for (const path in settings.pinnedNotes) {
-                if (path.startsWith(oldPathPrefix)) {
-                    const newNestedPath = newPath + path.substring(oldPath.length);
-                    const updatedNotes = settings.pinnedNotes[path].map((notePath: string) => {
-                        if (notePath.startsWith(oldPath + '/')) {
-                            return newPath + notePath.substring(oldPath.length);
-                        }
-                        return notePath;
-                    });
-                    pinnedNotesToUpdate.push({
-                        oldPath: path,
-                        newPath: newNestedPath,
-                        notes: updatedNotes
-                    });
-                }
-            }
-            
-            for (const update of pinnedNotesToUpdate) {
-                settings.pinnedNotes[update.newPath] = update.notes;
-                delete settings.pinnedNotes[update.oldPath];
-            }
-        });
-    }
-
-    /**
-     * Handles folder deletion by removing all associated metadata
-     * @param folderPath - Path of the deleted folder
-     */
-    async handleFolderDelete(folderPath: string): Promise<void> {
-        await this.saveAndUpdate(settings => {
-            // Remove folder color
-            if (settings.folderColors?.[folderPath]) {
-                delete settings.folderColors[folderPath];
-            }
-
-            // Remove folder icon
-            if (settings.folderIcons?.[folderPath]) {
-                delete settings.folderIcons[folderPath];
-            }
-
-            // Remove folder sort override
-            if (settings.folderSortOverrides?.[folderPath]) {
-                delete settings.folderSortOverrides[folderPath];
-            }
-
-            // Remove pinned notes for this folder
-            if (settings.pinnedNotes?.[folderPath]) {
-                delete settings.pinnedNotes[folderPath];
-            }
-
-            // Clean up nested folders
-            const folderPrefix = folderPath + '/';
-
-            // Clean up nested folder colors
-            if (settings.folderColors) {
-                for (const path in settings.folderColors) {
-                    if (path.startsWith(folderPrefix)) {
-                        delete settings.folderColors[path];
-                    }
-                }
-            }
-
-            // Clean up nested folder icons
-            if (settings.folderIcons) {
-                for (const path in settings.folderIcons) {
-                    if (path.startsWith(folderPrefix)) {
-                        delete settings.folderIcons[path];
-                    }
-                }
-            }
-
-            // Clean up nested folder sort overrides
-            if (settings.folderSortOverrides) {
-                for (const path in settings.folderSortOverrides) {
-                    if (path.startsWith(folderPrefix)) {
-                        delete settings.folderSortOverrides[path];
-                    }
-                }
-            }
-
-            // Clean up pinned notes for nested folders
-            if (settings.pinnedNotes) {
-                for (const path in settings.pinnedNotes) {
-                    if (path.startsWith(folderPrefix)) {
-                        delete settings.pinnedNotes[path];
-                    }
-                }
-            }
-        });
     }
 
     /**

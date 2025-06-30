@@ -16,9 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React from 'react';
+import React, { forwardRef } from 'react';
 import { setIcon } from 'obsidian';
 import { TagTreeNode } from '../utils/tagUtils';
+import { ObsidianIcon } from './ObsidianIcon';
+import { useContextMenu } from '../hooks/useContextMenu';
+import { ItemType } from '../types';
 
 /**
  * Props for the TagTreeItem component
@@ -40,13 +43,17 @@ interface TagTreeItemProps {
     fileCount: number;
     /** Whether to show file counts */
     showFileCount: boolean;
+    /** Custom icon for this tag (optional) */
+    customIcon?: string;
+    /** Custom color for this tag (optional) */
+    customColor?: string;
 }
 
 /**
  * Component that renders a single tag in the hierarchical tag tree.
  * Handles indentation, expand/collapse state, and selection state.
  */
-export const TagTreeItem = React.memo(function TagTreeItem({ 
+export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProps>(function TagTreeItem({ 
     tagNode, 
     level, 
     isExpanded, 
@@ -54,10 +61,22 @@ export const TagTreeItem = React.memo(function TagTreeItem({
     onToggle, 
     onClick, 
     fileCount,
-    showFileCount
-}: TagTreeItemProps) {
+    showFileCount,
+    customIcon,
+    customColor
+}, ref) {
     const chevronRef = React.useRef<HTMLDivElement>(null);
+    const itemRef = React.useRef<HTMLDivElement>(null);
     const hasChildren = tagNode.children.size > 0;
+    
+    // Set up forwarded ref
+    React.useImperativeHandle(ref, () => itemRef.current as HTMLDivElement);
+    
+    // Add context menu (excluding untagged which doesn't support operations)
+    useContextMenu(itemRef, tagNode.path === '__untagged__' ? null : {
+        type: ItemType.TAG,
+        item: tagNode.path
+    });
 
     // Update chevron icon based on expanded state
     React.useEffect(() => {
@@ -66,8 +85,17 @@ export const TagTreeItem = React.memo(function TagTreeItem({
         }
     }, [isExpanded, hasChildren]);
 
+    // Handle double-click to toggle expansion
+    const handleDoubleClick = React.useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        if (hasChildren) {
+            onToggle();
+        }
+    }, [hasChildren, onToggle]);
+
     return (
         <div 
+            ref={itemRef}
             className={`nn-tag-item ${isSelected ? 'nn-selected' : ''}`} 
             data-tag={tagNode.path}
             style={{ paddingInlineStart: `${level * 20}px` }}
@@ -75,6 +103,7 @@ export const TagTreeItem = React.memo(function TagTreeItem({
             <div 
                 className="nn-tag-content"
                 onClick={onClick}
+                onDoubleClick={handleDoubleClick}
             >
                 <div
                     ref={chevronRef}
@@ -92,9 +121,19 @@ export const TagTreeItem = React.memo(function TagTreeItem({
                         e.stopPropagation();
                         if (hasChildren) onToggle();
                     }}
+                    onDoubleClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
+                    }}
                 />
-                <span className="nn-tag-icon">#</span>
-                <span className="nn-tag-name">
+                {customIcon ? (
+                    <span className="nn-tag-icon" style={{ color: customColor }}>
+                        <ObsidianIcon name={customIcon} />
+                    </span>
+                ) : (
+                    <span className="nn-tag-icon" style={{ color: customColor }}>#</span>
+                )}
+                <span className="nn-tag-name" style={customColor ? { color: customColor, fontWeight: 600 } : undefined}>
                     {tagNode.name}
                 </span>
                 <span className="nn-tag-spacer" />
@@ -104,4 +143,4 @@ export const TagTreeItem = React.memo(function TagTreeItem({
             </div>
         </div>
     );
-});
+}));

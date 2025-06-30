@@ -104,6 +104,14 @@ export const STRINGS_DE = {
             renameFolder: 'Ordner umbenennen',
             deleteFolder: 'Ordner löschen',
         },
+        tag: {
+            changeIcon: 'Symbol ändern',
+            removeIcon: 'Symbol entfernen',
+            changeColor: 'Farbe ändern',
+            removeColor: 'Farbe entfernen',
+            renameTag: 'Tag umbenennen',
+            deleteTag: 'Tag löschen',
+        },
     },
 
     // Modal dialogs
@@ -140,6 +148,21 @@ export const STRINGS_DE = {
                 stone: 'Stein',
             },
         },
+        tagOperation: {
+            renameTitle: 'Tag {tag} umbenennen',
+            deleteTitle: 'Tag {tag} löschen',
+            newTagPrompt: 'Neuer Tag-Name',
+            newTagPlaceholder: 'Neuen Tag-Namen eingeben',
+            renameWarning: 'Das Umbenennen des Tags {oldTag} wird {count} {files} ändern.',
+            deleteWarning: 'Das Löschen des Tags {tag} wird {count} {files} ändern.',
+            modificationWarning: 'Dies wird die Änderungsdaten der Dateien aktualisieren.',
+            affectedFiles: 'Betroffene Dateien:',
+            andMore: '...und {count} weitere',
+            confirmRename: 'Tag umbenennen',
+            confirmDelete: 'Tag löschen',
+            file: 'Datei',
+            files: 'Dateien',
+        },
         fileSystem: {
             newFolderTitle: 'Neuer Ordner',
             renameFolderTitle: 'Ordner umbenennen',
@@ -173,10 +196,15 @@ export const STRINGS_DE = {
             failedToDeleteFile: 'Löschen von {name} fehlgeschlagen: {error}',
             drawingAlreadyExists: 'Eine Zeichnung mit diesem Namen existiert bereits',
             failedToCreateDrawing: 'Zeichnung konnte nicht erstellt werden',
+            renameTag: 'Tag konnte nicht umbenannt werden: {error}',
+            deleteTag: 'Tag konnte nicht gelöscht werden: {error}',
+            tagAlreadyExists: 'Tag {tag} existiert bereits',
         },
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',
             deepLinkCopied: 'Deep Link in die Zwischenablage kopiert',
+            tagRenamed: 'Tag umbenannt von {oldTag} zu {newTag} in {count} Dateien',
+            tagDeleted: 'Tag {tag} aus {count} Dateien gelöscht',
         },
         confirmations: {
             deleteMultipleFiles: 'Möchten Sie wirklich {count} Dateien löschen?',

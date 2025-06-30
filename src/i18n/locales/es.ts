@@ -104,6 +104,14 @@ export const STRINGS_ES = {
             renameFolder: 'Renombrar carpeta',
             deleteFolder: 'Eliminar carpeta',
         },
+        tag: {
+            changeIcon: 'Cambiar icono',
+            removeIcon: 'Quitar icono',
+            changeColor: 'Cambiar color',
+            removeColor: 'Quitar color',
+            renameTag: 'Renombrar etiqueta',
+            deleteTag: 'Eliminar etiqueta',
+        },
     },
 
     // Modal dialogs
@@ -140,6 +148,21 @@ export const STRINGS_ES = {
                 stone: 'Piedra',
             },
         },
+        tagOperation: {
+            renameTitle: 'Renombrar etiqueta',
+            deleteTitle: 'Eliminar etiqueta',
+            newTagPrompt: 'Introduce el nuevo nombre de la etiqueta:',
+            newTagPlaceholder: 'nuevo-nombre',
+            renameWarning: 'Esto renombrará la etiqueta en todas las notas afectadas.',
+            deleteWarning: 'Esto eliminará la etiqueta de todas las notas afectadas.',
+            modificationWarning: 'Modificación de etiqueta',
+            affectedFiles: '{count} archivo(s) afectado(s)',
+            andMore: 'y {count} más...',
+            confirmRename: 'Renombrar etiqueta',
+            confirmDelete: 'Eliminar etiqueta',
+            file: 'archivo',
+            files: 'archivos',
+        },
         fileSystem: {
             newFolderTitle: 'Nueva carpeta',
             renameFolderTitle: 'Renombrar carpeta',
@@ -173,10 +196,15 @@ export const STRINGS_ES = {
             failedToDeleteFile: 'Error al eliminar {name}: {error}',
             drawingAlreadyExists: 'Ya existe un dibujo con este nombre',
             failedToCreateDrawing: 'Error al crear el dibujo',
+            renameTag: 'Error al renombrar la etiqueta: {error}',
+            deleteTag: 'Error al eliminar la etiqueta: {error}',
+            tagAlreadyExists: 'Ya existe una etiqueta con este nombre',
         },
         notifications: {
             deletedMultipleFiles: '{count} archivos eliminados',
             deepLinkCopied: 'Enlace profundo copiado al portapapeles',
+            tagRenamed: 'Etiqueta renombrada exitosamente',
+            tagDeleted: 'Etiqueta eliminada exitosamente',
         },
         confirmations: {
             deleteMultipleFiles: '¿Está seguro de que desea eliminar {count} archivos?',

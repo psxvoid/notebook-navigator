@@ -104,6 +104,14 @@ export const STRINGS_FR = {
             renameFolder: 'Renommer le dossier',
             deleteFolder: 'Supprimer le dossier',
         },
+        tag: {
+            changeIcon: 'Changer l\'icône',
+            removeIcon: 'Supprimer l\'icône',
+            changeColor: 'Changer la couleur',
+            removeColor: 'Supprimer la couleur',
+            renameTag: 'Renommer l\'étiquette',
+            deleteTag: 'Supprimer l\'étiquette',
+        },
     },
 
     // Modal dialogs
@@ -140,6 +148,21 @@ export const STRINGS_FR = {
                 stone: 'Pierre',
             },
         },
+        tagOperation: {
+            renameTitle: 'Renommer l\'étiquette',
+            deleteTitle: 'Supprimer l\'étiquette',
+            newTagPrompt: 'Entrez le nouveau nom de l\'étiquette :',
+            newTagPlaceholder: 'nouveau-nom',
+            renameWarning: 'Cela renommera l\'étiquette dans toutes les notes affectées.',
+            deleteWarning: 'Cela supprimera l\'étiquette de toutes les notes affectées.',
+            modificationWarning: 'Modification de l\'étiquette',
+            affectedFiles: '{count} fichier(s) affecté(s)',
+            andMore: 'et {count} de plus...',
+            confirmRename: 'Renommer l\'étiquette',
+            confirmDelete: 'Supprimer l\'étiquette',
+            file: 'fichier',
+            files: 'fichiers',
+        },
         fileSystem: {
             newFolderTitle: 'Nouveau dossier',
             renameFolderTitle: 'Renommer le dossier',
@@ -173,10 +196,15 @@ export const STRINGS_FR = {
             failedToDeleteFile: 'Échec de la suppression de {name} : {error}',
             drawingAlreadyExists: 'Un dessin avec ce nom existe déjà',
             failedToCreateDrawing: 'Échec de la création du dessin',
+            renameTag: 'Échec du renommage de l\'étiquette : {error}',
+            deleteTag: 'Échec de la suppression de l\'étiquette : {error}',
+            tagAlreadyExists: 'Une étiquette avec ce nom existe déjà',
         },
         notifications: {
             deletedMultipleFiles: '{count} fichiers supprimés',
             deepLinkCopied: 'Lien profond copié dans le presse-papiers',
+            tagRenamed: 'Étiquette renommée avec succès',
+            tagDeleted: 'Étiquette supprimée avec succès',
         },
         confirmations: {
             deleteMultipleFiles: 'Voulez-vous vraiment supprimer {count} fichiers ?',

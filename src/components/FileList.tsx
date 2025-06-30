@@ -17,7 +17,7 @@
  */
 
 import React, { useMemo, useLayoutEffect, useCallback, useRef, useEffect, useState, useImperativeHandle, forwardRef } from 'react';
-import { TFile, TFolder, TAbstractFile, getAllTags, Platform } from 'obsidian';
+import { TFile } from 'obsidian';
 import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { useServices } from '../context/ServicesContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -25,16 +25,15 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { FileItem } from './FileItem';
 import { DateUtils } from '../utils/DateUtils';
-import { isTFile, isTFolder } from '../utils/typeGuards';
-import { getFileFromElement } from '../utils/domUtils';
+import { isTFile } from '../utils/typeGuards';
 import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
 import { strings } from '../i18n';
 import type { FileListItem } from '../types/virtualization';
 import { PaneHeader } from './PaneHeader';
+import { FileListItemType, ItemType } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { useMultiSelection } from '../hooks/useMultiSelection';
-import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
 
 
@@ -142,9 +141,9 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const files = useMemo(() => {
         let allFiles: TFile[] = [];
 
-        if (selectionType === 'folder' && selectedFolder) {
+        if (selectionType === ItemType.FOLDER && selectedFolder) {
             allFiles = getFilesForFolder(selectedFolder, settings, app);
-        } else if (selectionType === 'tag' && selectedTag) {
+        } else if (selectionType === ItemType.TAG && selectedTag) {
             allFiles = getFilesForTag(selectedTag, settings, app);
         }
         
@@ -243,13 +242,13 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             // Get the appropriate pinned paths based on selection type
             let pinnedPaths: Set<string>;
             
-            if (selectionType === 'folder' && selectedFolder) {
+            if (selectionType === ItemType.FOLDER && selectedFolder) {
                 pinnedPaths = collectPinnedPaths(
                     settings.pinnedNotes,
                     selectedFolder,
                     settings.showNotesFromSubfolders
                 );
-            } else if (selectionType === 'tag') {
+            } else if (selectionType === ItemType.TAG) {
                 pinnedPaths = collectPinnedPaths(settings.pinnedNotes);
             } else {
                 pinnedPaths = new Set<string>();
@@ -262,13 +261,13 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             // Add pinned files
             if (pinnedFiles.length > 0) {
                 items.push({ 
-                    type: 'header', 
+                    type: FileListItemType.HEADER, 
                     data: strings.fileList.pinnedSection,
                     key: `header-pinned-${selectedFolder?.path || 'root'}`
                 });
                 pinnedFiles.forEach(file => {
                     items.push({ 
-                        type: 'file', 
+                        type: FileListItemType.FILE, 
                         data: file,
                         parentFolder: selectedFolder?.path,
                         key: file.path
@@ -284,7 +283,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 // No date grouping
                 unpinnedFiles.forEach(file => {
                     items.push({ 
-                        type: 'file', 
+                        type: FileListItemType.FILE, 
                         data: file,
                         parentFolder: selectedFolder?.path,
                         key: file.path
@@ -306,14 +305,14 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                     if (groupTitle !== currentGroup) {
                         currentGroup = groupTitle;
                         items.push({ 
-                            type: 'header', 
+                            type: FileListItemType.HEADER, 
                             data: groupTitle,
                             key: `header-${selectedFolder?.path || selectedTag || 'root'}-${groupTitle}`
                         });
                     }
                     
                     items.push({ 
-                        type: 'file', 
+                        type: FileListItemType.FILE, 
                         data: file,
                         parentFolder: selectedFolder?.path,
                         key: file.path
@@ -323,7 +322,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             
             // Add spacer at the end for better visibility of last item
             items.push({
-                type: 'spacer',
+                type: FileListItemType.SPACER,
                 data: '',
                 key: 'bottom-spacer'
             });
@@ -356,7 +355,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const filePathToIndex = useMemo(() => {
         const map = new Map<string, number>();
         listItems.forEach((item, index) => {
-            if (item.type === 'file') {
+            if (item.type === FileListItemType.FILE) {
                 if (isTFile(item.data)) {
                     map.set(item.data.path, index);
                 }
@@ -407,16 +406,16 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         getScrollElement: () => scrollContainerRef.current,
         estimateSize: (index) => {
             const item = listItems[index];
-            if (item.type === 'header') {
+            if (item.type === FileListItemType.HEADER) {
                 // Date group headers have fixed heights from CSS
-                const isFirstHeader = index === 0 || (index > 0 && listItems[index - 1].type !== 'header');
+                const isFirstHeader = index === 0 || (index > 0 && listItems[index - 1].type !== FileListItemType.HEADER);
                 if (isFirstHeader) {
                     return 35; // var(--nn-date-header-height)
                 }
                 return 50; // var(--nn-date-header-height-subsequent)
             }
             
-            if (item.type === 'spacer') {
+            if (item.type === FileListItemType.SPACER) {
                 return 20; // Fixed height for spacer
             }
 
@@ -568,9 +567,9 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     
     // Create a unique key for storing scroll state based on current selection
     const scrollStateKey = useMemo(() => {
-        if (selectionType === 'folder' && selectedFolder) {
+        if (selectionType === ItemType.FOLDER && selectedFolder) {
             return `nn-scroll-${selectedFolder.path}`;
-        } else if (selectionType === 'tag' && selectedTag) {
+        } else if (selectionType === ItemType.TAG && selectedTag) {
             return `nn-scroll-tag-${selectedTag}`;
         }
         return null;
@@ -584,9 +583,9 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 // Check if there's a header immediately before this file
                 // Only scroll to header if this is the first file in the list
                 let scrollToIndex = fileIndex;
-                if (fileIndex > 0 && listItems[fileIndex - 1]?.type === 'header') {
+                if (fileIndex > 0 && listItems[fileIndex - 1]?.type === FileListItemType.HEADER) {
                     // Only scroll to header if this is the first file in the list
-                    const isFirstFileInList = fileIndex === 1 || (fileIndex === 2 && listItems[0]?.type === 'header');
+                    const isFirstFileInList = fileIndex === 1 || (fileIndex === 2 && listItems[0]?.type === FileListItemType.HEADER);
                     
                     if (isFirstFileInList) {
                         scrollToIndex = fileIndex - 1;
@@ -630,9 +629,9 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         let currentGroup: string | null = null;
         
         listItems.forEach(item => {
-            if (item.type === 'header') {
+            if (item.type === FileListItemType.HEADER) {
                 currentGroup = item.data as string;
-            } else if (item.type === 'file') {
+            } else if (item.type === FileListItemType.FILE) {
                 const file = item.data;
                 if (!isTFile(file)) return;
                 const timestamp = DateUtils.getFileTimestamp(
@@ -756,7 +755,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const orderedFiles = useMemo(() => {
         const files: TFile[] = [];
         listItems.forEach(item => {
-            if (item.type === 'file') {
+            if (item.type === FileListItemType.FILE) {
                 if (isTFile(item.data)) {
                     files.push(item.data);
                 }
@@ -811,34 +810,34 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                         {rowVirtualizer.getVirtualItems().map((virtualItem) => {
                             const item = safeGetItem(listItems, virtualItem.index);
                             if (!item) return null;
-                            const isSelected = item.type === 'file' && 
+                            const isSelected = item.type === FileListItemType.FILE && 
                                 isTFile(item.data) && multiSelection.isFileSelected(item.data);
                             
                             // Check if this is the last file item
                             const nextItem = safeGetItem(listItems, virtualItem.index + 1);
-                            const isLastFile = item.type === 'file' && 
+                            const isLastFile = item.type === FileListItemType.FILE && 
                                 (virtualItem.index === listItems.length - 1 || 
-                                 (nextItem && nextItem.type === 'header'));
+                                 (nextItem && nextItem.type === FileListItemType.HEADER));
                             
                             // Check if adjacent items are selected (for styling purposes)
                             const prevItem = safeGetItem(listItems, virtualItem.index - 1);
-                            const hasSelectedAbove = item.type === 'file' && prevItem?.type === 'file' && 
+                            const hasSelectedAbove = item.type === FileListItemType.FILE && prevItem?.type === FileListItemType.FILE && 
                                 isTFile(prevItem.data) && multiSelection.isFileSelected(prevItem.data);
-                            const hasSelectedBelow = item.type === 'file' && nextItem?.type === 'file' && 
+                            const hasSelectedBelow = item.type === FileListItemType.FILE && nextItem?.type === FileListItemType.FILE && 
                                 isTFile(nextItem.data) && multiSelection.isFileSelected(nextItem.data);
                             
                             // Check if this is the first header
-                            const isFirstHeader = item.type === 'header' && virtualItem.index === 0;
+                            const isFirstHeader = item.type === FileListItemType.HEADER && virtualItem.index === 0;
                             
                             
                             
                             // Find current date group for file items
                             let dateGroup: string | null = null;
-                            if (item.type === 'file') {
+                            if (item.type === FileListItemType.FILE) {
                                 // Look backwards to find the most recent header
                                 for (let i = virtualItem.index - 1; i >= 0; i--) {
                                     const prevItem = safeGetItem(listItems, i);
-                                    if (prevItem && prevItem.type === 'header') {
+                                    if (prevItem && prevItem.type === FileListItemType.HEADER) {
                                         dateGroup = prevItem.data as string;
                                         break;
                                     }
@@ -850,7 +849,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                     key={virtualItem.key}
                                     data-index={virtualItem.index}
                                     ref={rowVirtualizer.measureElement}
-                                    className={`nn-virtual-item ${item.type === 'file' ? 'nn-virtual-file-item' : ''} ${isLastFile ? 'nn-last-file' : ''}`}
+                                    className={`nn-virtual-item ${item.type === FileListItemType.FILE ? 'nn-virtual-file-item' : ''} ${isLastFile ? 'nn-last-file' : ''}`}
                                     style={{
                                         position: 'absolute',
                                         top: 0,
@@ -859,13 +858,13 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                         transform: `translateY(${virtualItem.start}px)`,
                                     }}
                                 >
-                                    {item.type === 'header' ? (
+                                    {item.type === FileListItemType.HEADER ? (
                                         <div className={`nn-date-group-header ${isFirstHeader ? 'nn-first-header' : ''}`}>
                                             {typeof item.data === 'string' ? item.data : ''}
                                         </div>
-                                    ) : item.type === 'spacer' ? (
+                                    ) : item.type === FileListItemType.SPACER ? (
                                         <div className="nn-file-list-spacer" />
-                                    ) : item.type === 'file' && isTFile(item.data) ? (
+                                    ) : item.type === FileListItemType.FILE && isTFile(item.data) ? (
                                         <FileItem
                                             key={item.key}
                                             file={item.data}
@@ -877,7 +876,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                                 // Count only file items, not headers or spacers
                                                 let fileIndex = 0;
                                                 for (let i = 0; i < virtualItem.index; i++) {
-                                                    if (listItems[i]?.type === 'file') {
+                                                    if (listItems[i]?.type === FileListItemType.FILE) {
                                                         fileIndex++;
                                                     }
                                                 }

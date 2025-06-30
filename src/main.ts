@@ -35,6 +35,7 @@ import { DateUtils } from './utils/DateUtils';
 import { PreviewTextUtils } from './utils/PreviewTextUtils';
 import { FileSystemOperations } from './services/FileSystemService';
 import { MetadataService } from './services/MetadataService';
+import { TagOperations } from './services/TagOperations';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 
@@ -66,6 +67,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
     settings: NotebookNavigatorSettings;
     ribbonIconEl: HTMLElement | undefined = undefined;
     metadataService: MetadataService | null = null;
+    tagOperations: TagOperations | null = null;
     // A map of callbacks to notify open React views of changes
     private settingsUpdateListeners = new Map<string, () => void>();
     // Track if we're in the process of unloading
@@ -108,6 +110,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 // The SettingsContext will handle updates through its listener
             }
         );
+        
+        // Initialize tag operations service
+        this.tagOperations = new TagOperations(this.app);
         
         this.registerView(
             VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT,
@@ -295,6 +300,11 @@ export default class NotebookNavigatorPlugin extends Plugin {
         if (this.metadataService) {
             // Clear the reference to break circular dependencies
             this.metadataService = null;
+        }
+        
+        // Clean up the tag operations service
+        if (this.tagOperations) {
+            this.tagOperations = null;
         }
         
         

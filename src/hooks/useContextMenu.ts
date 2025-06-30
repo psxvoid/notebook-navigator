@@ -19,7 +19,7 @@
 // src/hooks/useContextMenu.ts
 import { useEffect, useCallback } from 'react';
 import { Menu, MenuItem, TFile, TFolder, Notice, normalizePath } from 'obsidian';
-import { useServices, useFileSystemOps, useMetadataService } from '../context/ServicesContext';
+import { useServices, useFileSystemOps, useMetadataService, useTagOperations } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
@@ -27,15 +27,19 @@ import { useUIDispatch } from '../context/UIStateContext';
 import { isFolderAncestor, getInternalPlugin, isTFolder, isTFile } from '../utils/typeGuards';
 import { getFilesForFolder, getFilesForTag, getFolderNote } from '../utils/fileFinder';
 import { strings } from '../i18n';
+import { ColorPickerModal } from '../modals/ColorPickerModal';
+import { IconPickerModal } from '../modals/IconPickerModal';
+import { TagOperationModal } from '../modals/TagOperationModal';
+import { ItemType, isFileType, isFolderType, isTagType } from '../types';
 
 /**
  * Configuration for the context menu
  */
 interface MenuConfig {
     /** The type of item this menu is for */
-    type: 'file' | 'folder';
-    /** The file or folder item the menu operates on */
-    item: TFile | TFolder;
+    type: ItemType;
+    /** The file, folder, or tag path the menu operates on */
+    item: TFile | TFolder | string; // string for tag paths
 }
 
 /**
@@ -58,6 +62,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
     const settings = useSettingsState();
     const fileSystemOps = useFileSystemOps();
     const metadataService = useMetadataService();
+    const tagOperations = useTagOperations();
     const selectionState = useSelectionState();
     const { selectedFolder } = selectionState;
     const { expandedFolders } = useExpansionState();
@@ -92,7 +97,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             }
         });
         
-        if (config.type === 'folder') {
+        if (isFolderType(config.type)) {
             if (!isTFolder(config.item)) return;
             const folder = config.item;
             
@@ -252,14 +257,6 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                                 folder.path,
                                 settings.recentlyUsedIcons || []
                             );
-                            
-                            modal.onChooseIcon = (iconId) => {
-                                if (iconId) {
-                                    // The metadata change will trigger a re-render naturally
-                                    // through Obsidian's metadata events
-                                }
-                            };
-                            
                             modal.open();
                         });
                 });
@@ -273,7 +270,6 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                             .setIcon('x')
                             .onClick(async () => {
                                 await metadataService.removeFolderIcon(folder.path);
-                                // The metadata change will trigger a re-render naturally
                             });
                     });
                 }
@@ -289,9 +285,6 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     .onClick(async () => {
                         const { ColorPickerModal } = await import('../modals/ColorPickerModal');
                         const modal = new ColorPickerModal(app, metadataService, folder.path);
-                        modal.onChooseColor = () => {
-                            // The metadata change will trigger a re-render naturally
-                        };
                         modal.open();
                     });
             });
@@ -305,7 +298,6 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                         .setIcon('x')
                         .onClick(async () => {
                             await metadataService.removeFolderColor(folder.path);
-                            // The metadata change will trigger a re-render naturally
                         });
                 });
             }
@@ -347,6 +339,149 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                                 }
                             }
                         });
+                    });
+            });
+            
+        } else if (isTagType(config.type)) {
+            // Tag context menu
+            if (typeof config.item !== 'string') return;
+            const tagPath = config.item;
+            
+            // Change icon
+            menu.addItem((item: MenuItem) => {
+                item
+                    .setTitle(strings.contextMenu.tag.changeIcon)
+                    .setIcon('palette')
+                    .onClick(async () => {
+                        const modal = new IconPickerModal(
+                            app, 
+                            metadataService, 
+                            tagPath,
+                            settings.recentlyUsedIcons || [],
+                            'tag'
+                        );
+                        modal.open();
+                    });
+            });
+            
+            // Remove icon (only show if custom icon is set)
+            const currentIcon = metadataService.getTagIcon(tagPath);
+            if (currentIcon) {
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(strings.contextMenu.tag.removeIcon)
+                        .setIcon('x')
+                        .onClick(async () => {
+                            await metadataService.removeTagIcon(tagPath);
+                        });
+                });
+            }
+            
+            menu.addSeparator();
+            
+            // Change color
+            menu.addItem((item: MenuItem) => {
+                item
+                    .setTitle(strings.contextMenu.tag.changeColor)
+                    .setIcon('palette')
+                    .onClick(async () => {
+                        const modal = new ColorPickerModal(app, metadataService, tagPath, 'tag');
+                        modal.open();
+                    });
+            });
+            
+            // Remove color (only show if custom color is set)
+            const currentColor = metadataService.getTagColor(tagPath);
+            if (currentColor) {
+                menu.addItem((item: MenuItem) => {
+                    item
+                        .setTitle(strings.contextMenu.tag.removeColor)
+                        .setIcon('x')
+                        .onClick(async () => {
+                            await metadataService.removeTagColor(tagPath);
+                        });
+                });
+            }
+            
+            menu.addSeparator();
+            
+            // Rename tag
+            menu.addItem((item: MenuItem) => {
+                item
+                    .setTitle(strings.contextMenu.tag.renameTag)
+                    .setIcon('pencil')
+                    .onClick(async () => {
+                        // Find all files with this tag
+                        const affectedFiles = getFilesForTag(tagPath, settings, app);
+                        
+                        const modal = new TagOperationModal(app, {
+                            operation: 'rename',
+                            tagPath: tagPath,
+                            affectedFiles: affectedFiles,
+                            onConfirm: async () => {
+                                if (!modal.newTagInput) return;
+                                
+                                const newTagPath = modal.newTagInput;
+                                
+                                // Check if tag already exists
+                                const existingFiles = getFilesForTag(newTagPath, settings, app);
+                                if (existingFiles.length > 0) {
+                                    new Notice(strings.fileSystem.errors.tagAlreadyExists.replace('{tag}', '#' + newTagPath));
+                                    return;
+                                }
+                                
+                                try {
+                                    // Rename the tag in all affected files
+                                    await tagOperations.renameTag(tagPath, newTagPath, affectedFiles);
+                                    
+                                    // Update metadata for the tag
+                                    await metadataService.handleTagRename(tagPath, newTagPath);
+                                    
+                                    new Notice(strings.fileSystem.notifications.tagRenamed
+                                        .replace('{oldTag}', '#' + tagPath)
+                                        .replace('{newTag}', '#' + newTagPath)
+                                        .replace('{count}', affectedFiles.length.toString()));
+                                } catch (error) {
+                                    new Notice(strings.fileSystem.errors.renameTag.replace('{error}', error.message));
+                                }
+                            }
+                        });
+                        
+                        modal.open();
+                    });
+            });
+            
+            // Delete tag
+            menu.addItem((item: MenuItem) => {
+                item
+                    .setTitle(strings.contextMenu.tag.deleteTag)
+                    .setIcon('trash')
+                    .onClick(async () => {
+                        // Find all files with this tag
+                        const affectedFiles = getFilesForTag(tagPath, settings, app);
+                        
+                        const modal = new TagOperationModal(app, {
+                            operation: 'delete',
+                            tagPath: tagPath,
+                            affectedFiles: affectedFiles,
+                            onConfirm: async () => {
+                                try {
+                                    // Delete the tag from all affected files
+                                    await tagOperations.deleteTag(tagPath, affectedFiles);
+                                    
+                                    // Clean up metadata for the tag
+                                    await metadataService.handleTagDelete(tagPath);
+                                    
+                                    new Notice(strings.fileSystem.notifications.tagDeleted
+                                        .replace('{tag}', '#' + tagPath)
+                                        .replace('{count}', affectedFiles.length.toString()));
+                                } catch (error) {
+                                    new Notice(strings.fileSystem.errors.deleteTag.replace('{error}', error.message));
+                                }
+                            }
+                        });
+                        
+                        modal.open();
                     });
             });
             
@@ -627,9 +762,9 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                         .onClick(async () => {
                             // Get all files in the current view for smart selection
                             let allFiles: TFile[] = [];
-                            if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+                            if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                                 allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
-                            } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
+                            } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
                                 allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
                             }
                             

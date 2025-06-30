@@ -27,7 +27,7 @@ import { useFileSystemOps } from '../context/ServicesContext';
 import { isTFolder } from '../utils/typeGuards';
 import { ObsidianIcon } from './ObsidianIcon';
 import { strings } from '../i18n';
-import { UNTAGGED_TAG_ID } from '../types';
+import { UNTAGGED_TAG_ID, ItemType } from '../types';
 import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } from '../utils/sortUtils';
 import type { SortOption } from '../settings';
 import { useTagCache } from '../context/TagCacheContext';
@@ -195,7 +195,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
         
         const menu = new Menu();
         const currentSort = getCurrentSortOption();
-        const isCustomSort = selectionState.selectionType === 'folder' && 
+        const isCustomSort = selectionState.selectionType === ItemType.FOLDER && 
                            selectionState.selectedFolder && 
                            settings.folderSortOverrides[selectionState.selectedFolder.path];
         
@@ -206,7 +206,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                 .setChecked(!isCustomSort)
                 .onClick(async () => {
                     await updateSettings((s) => {
-                        if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+                        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                             delete s.folderSortOverrides[selectionState.selectedFolder.path];
                         }
                     });
@@ -232,7 +232,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                     .setChecked(isCustomSort && currentSort === option)
                     .onClick(async () => {
                         await updateSettings((s) => {
-                            if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+                            if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                                 s.folderSortOverrides[selectionState.selectedFolder.path] = option;
                             } else {
                                 s.defaultFolderSort = option;
@@ -251,9 +251,9 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     if (isMobile) {
         let headerTitle = strings.common.noSelection;
         
-        if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
             headerTitle = selectionState.selectedFolder.path === '/' ? strings.folderTree.rootFolderName : selectionState.selectedFolder.name;
-        } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
+        } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
             headerTitle = selectionState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : selectionState.selectedTag;
         }
         

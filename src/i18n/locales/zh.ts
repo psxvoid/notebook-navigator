@@ -104,6 +104,14 @@ export const STRINGS_ZH = {
             renameFolder: '重命名文件夹',
             deleteFolder: '删除文件夹',
         },
+        tag: {
+            changeIcon: '更改图标',
+            removeIcon: '移除图标',
+            changeColor: '更改颜色',
+            removeColor: '移除颜色',
+            renameTag: '重命名标签',
+            deleteTag: '删除标签',
+        },
     },
 
     // Modal dialogs
@@ -140,6 +148,21 @@ export const STRINGS_ZH = {
                 stone: '石灰色',
             },
         },
+        tagOperation: {
+            renameTitle: '重命名标签',
+            deleteTitle: '删除标签',
+            newTagPrompt: '输入新的标签名称：',
+            newTagPlaceholder: '新名称',
+            renameWarning: '这将重命名所有受影响笔记中的标签。',
+            deleteWarning: '这将从所有受影响笔记中删除标签。',
+            modificationWarning: '标签修改',
+            affectedFiles: '{count} 个文件受影响',
+            andMore: '以及 {count} 个更多...',
+            confirmRename: '重命名标签',
+            confirmDelete: '删除标签',
+            file: '个文件',
+            files: '个文件',
+        },
         fileSystem: {
             newFolderTitle: '新建文件夹',
             renameFolderTitle: '重命名文件夹',
@@ -173,10 +196,15 @@ export const STRINGS_ZH = {
             failedToDeleteFile: '删除 {name} 失败: {error}',
             drawingAlreadyExists: '同名绘图已存在',
             failedToCreateDrawing: '创建绘图失败',
+            renameTag: '重命名标签失败：{error}',
+            deleteTag: '删除标签失败：{error}',
+            tagAlreadyExists: '同名标签已存在',
         },
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',
             deepLinkCopied: '深层链接已复制到剪贴板',
+            tagRenamed: '标签重命名成功',
+            tagDeleted: '标签删除成功',
         },
         confirmations: {
             deleteMultipleFiles: '确定要删除 {count} 个文件吗？',

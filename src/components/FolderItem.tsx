@@ -26,7 +26,7 @@ import { useContextMenu } from '../hooks/useContextMenu';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
 import { strings } from '../i18n';
-import { isSupportedFileExtension } from '../types';
+import { isSupportedFileExtension, ItemType } from '../types';
 
 interface FolderItemProps {
     folder: TFolder;
@@ -59,7 +59,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
     const folderRef = useRef<HTMLDivElement>(null);
     
     // Enable context menu
-    useContextMenu(folderRef, { type: 'folder', item: folder });
+    useContextMenu(folderRef, { type: ItemType.FOLDER, item: folder });
     
     // Count folders and files for tooltip
     const folderStats = React.useMemo(() => {
@@ -198,6 +198,10 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
                     onClick={(e) => {
                         e.stopPropagation();
                         if (hasChildren) onToggle();
+                    }}
+                    onDoubleClick={(e) => {
+                        e.stopPropagation();
+                        e.preventDefault();
                     }}
                     style={{ 
                         visibility: hasChildren ? 'visible' : 'hidden',

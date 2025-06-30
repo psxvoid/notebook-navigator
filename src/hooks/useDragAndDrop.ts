@@ -24,6 +24,7 @@ import { useSelectionState } from '../context/SelectionContext';
 import { isTFolder, isTFile } from '../utils/typeGuards';
 import { getPathFromDataAttribute, getAbstractFileFromElement } from '../utils/domUtils';
 import { strings } from '../i18n';
+import { ItemType } from '../types';
 
 /**
  * Custom hook that enables drag and drop functionality for files and folders.
@@ -88,7 +89,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         const type = draggable.getAttribute('data-drag-type');
         if (path && e.dataTransfer) {
             // Check if dragging a selected file
-            if (type === 'file' && selectionState.selectedFiles.has(path)) {
+            if (type === ItemType.FILE && selectionState.selectedFiles.has(path)) {
                 // Store all selected file paths
                 const selectedPaths = Array.from(selectionState.selectedFiles);
                 e.dataTransfer.setData('obsidian/files', JSON.stringify(selectedPaths));
@@ -138,7 +139,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 e.dataTransfer.effectAllowed = 'copyMove';
                 
                 // Generate markdown link for single file
-                if (type === 'file') {
+                if (type === ItemType.FILE) {
                     const file = app.vault.getAbstractFileByPath(path);
                     if (isTFile(file)) {
                         const link = app.fileManager.generateMarkdownLink(file, '');

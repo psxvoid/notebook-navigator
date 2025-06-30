@@ -104,6 +104,14 @@ export const STRINGS_EN = {
             renameFolder: 'Rename folder',
             deleteFolder: 'Delete folder',
         },
+        tag: {
+            changeIcon: 'Change icon',
+            removeIcon: 'Remove icon',
+            changeColor: 'Change color',
+            removeColor: 'Remove color',
+            renameTag: 'Rename tag',
+            deleteTag: 'Delete tag',
+        },
     },
 
     // Modal dialogs
@@ -140,6 +148,21 @@ export const STRINGS_EN = {
                 stone: 'Stone',
             },
         },
+        tagOperation: {
+            renameTitle: 'Rename tag {tag}',
+            deleteTitle: 'Delete tag {tag}',
+            newTagPrompt: 'New tag name',
+            newTagPlaceholder: 'Enter new tag name',
+            renameWarning: 'Renaming tag {oldTag} will modify {count} {files}.',
+            deleteWarning: 'Deleting tag {tag} will modify {count} {files}.',
+            modificationWarning: 'This will update file modification dates.',
+            affectedFiles: 'Affected files:',
+            andMore: '...and {count} more',
+            confirmRename: 'Rename tag',
+            confirmDelete: 'Delete tag',
+            file: 'file',
+            files: 'files',
+        },
         fileSystem: {
             newFolderTitle: 'New folder',
             renameFolderTitle: 'Rename folder',
@@ -173,10 +196,15 @@ export const STRINGS_EN = {
             failedToDeleteFile: 'Failed to delete {name}: {error}',
             drawingAlreadyExists: 'A drawing with this name already exists',
             failedToCreateDrawing: 'Failed to create drawing',
+            renameTag: 'Failed to rename tag: {error}',
+            deleteTag: 'Failed to delete tag: {error}',
+            tagAlreadyExists: 'Tag {tag} already exists',
         },
         notifications: {
             deletedMultipleFiles: 'Deleted {count} files',
             deepLinkCopied: 'Deep link copied to clipboard',
+            tagRenamed: 'Tag renamed from {oldTag} to {newTag} in {count} files',
+            tagDeleted: 'Tag {tag} deleted from {count} files',
         },
         confirmations: {
             deleteMultipleFiles: 'Are you sure you want to delete {count} files?',
