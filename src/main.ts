@@ -133,7 +133,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
         this.addCommand({
             id: 'reveal-active-file',
-            name: strings.commands.revealActiveFile,
+            name: strings.commands.revealNote,
             checkCallback: (checking: boolean) => {
                 const activeFile = this.app.workspace.getActiveFile();
                 if (activeFile && activeFile.parent) {
@@ -148,7 +148,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
         this.addCommand({
             id: 'focus-file-list',
-            name: strings.commands.focusFileList,
+            name: strings.commands.focusNote,
             callback: async () => {
                 // Ensure navigator is open
                 const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);

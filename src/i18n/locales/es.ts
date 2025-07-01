@@ -250,8 +250,8 @@ export const STRINGS_ES = {
     // Plugin commands
     commands: {
         open: 'Abrir', // Command palette: Opens the Notebook Navigator view (English: Open)
-        revealActiveFile: 'Mostrar archivo activo', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal active file)
-        focusFileList: 'Enfocar nota', // Command palette: Moves keyboard focus to the file list pane (English: Focus file list)
+        revealNote: 'Revelar nota', // Command palette: Reveals and selects the currently active note in the navigator (English: Reveal note)
+        focusNote: 'Enfocar nota', // Command palette: Moves keyboard focus to the list pane (English: Focus note)
         toggleNavigationPane: 'Alternar panel de navegación', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
     },
 
@@ -312,12 +312,12 @@ export const STRINGS_ES = {
                 desc: 'Muestra y selecciona automáticamente las notas cuando se abren desde el Conmutador rápido, enlaces o búsqueda.',
             },
             autoSelectFirstFileOnFocusChange: {
-                name: 'Seleccionar automáticamente el primer archivo al cambiar de carpeta o etiqueta',
-                desc: 'Selecciona y abre automáticamente el primer archivo al cambiar de carpeta o etiqueta.',
+                name: 'Seleccionar automáticamente la primera nota al cambiar de carpeta o etiqueta',
+                desc: 'Selecciona y abre automáticamente la primera nota al cambiar de carpeta o etiqueta.',
             },
             showTooltips: {
                 name: 'Mostrar tooltips',
-                desc: 'Muestra tooltips con información adicional para archivos y carpetas al pasar el cursor.',
+                desc: 'Muestra tooltips con información adicional para notas y carpetas al pasar el cursor.',
             },
             excludedNotes: {
                 name: 'Notas excluidas',
@@ -422,12 +422,12 @@ export const STRINGS_ES = {
             },
             folderNoteName: {
                 name: 'Nombre de la nota de carpeta',
-                desc: 'Nombre del archivo de nota de carpeta. Dejar vacío para usar el mismo nombre que la carpeta.',
+                desc: 'Nombre de la nota de carpeta. Dejar vacío para usar el mismo nombre que la carpeta.',
                 placeholder: 'Dejar vacío para el nombre de la carpeta',
             },
             hideFolderNoteInList: {
-                name: 'Ocultar notas de carpeta en la lista de archivos',
-                desc: 'Ocultar la nota de carpeta para que no aparezca en la lista de archivos de la carpeta.',
+                name: 'Ocultar notas de carpeta en la lista',
+                desc: 'Ocultar la nota de carpeta para que no aparezca en la lista de notas de la carpeta.',
             },
             confirmBeforeDelete: {
                 name: 'Confirmar antes de eliminar',

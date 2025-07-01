@@ -250,8 +250,8 @@ export const STRINGS_EN = {
     // Plugin commands
     commands: {
         open: 'Open', // Command palette: Opens the Notebook Navigator view (English: Open)
-        revealActiveFile: 'Reveal active file', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal active file)
-        focusFileList: 'Focus note', // Command palette: Moves keyboard focus to the file list pane (English: Focus note)
+        revealNote: 'Reveal note', // Command palette: Reveals and selects the currently active note in the navigator (English: Reveal note)
+        focusNote: 'Focus note', // Command palette: Moves keyboard focus to the list pane (English: Focus note)
         toggleNavigationPane: 'Toggle navigation pane', // Command palette: Shows or hides the navigation pane (English: Toggle navigation pane)
     },
 
@@ -312,12 +312,12 @@ export const STRINGS_EN = {
                 desc: 'Automatically reveal and select notes when opened from Quick Switcher, links, or search.',
             },
             autoSelectFirstFileOnFocusChange: {
-                name: 'Auto-select first file on focus change',
-                desc: 'Automatically select and open the first file when switching folders or tags.',
+                name: 'Auto-select first note on focus change',
+                desc: 'Automatically select and open the first note when switching folders or tags.',
             },
             showTooltips: {
                 name: 'Show tooltips',
-                desc: 'Display hover tooltips with additional information for files and folders.',
+                desc: 'Display hover tooltips with additional information for notes and folders.',
             },
             excludedNotes: {
                 name: 'Excluded notes',
@@ -422,12 +422,12 @@ export const STRINGS_EN = {
             },
             folderNoteName: {
                 name: 'Folder note name',
-                desc: 'Name of the folder note file without extension. Leave empty to use the same name as the folder.',
+                desc: 'Name of the folder note without extension. Leave empty to use the same name as the folder.',
                 placeholder: 'index',
             },
             hideFolderNoteInList: {
-                name: 'Hide folder notes in file list',
-                desc: 'Hide the folder note from appearing in the folder\'s file list.',
+                name: 'Hide folder notes in list',
+                desc: 'Hide the folder note from appearing in the folder\'s note list.',
             },
             confirmBeforeDelete: {
                 name: 'Confirm before deleting',

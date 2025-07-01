@@ -250,8 +250,8 @@ export const STRINGS_JA = {
     // Plugin commands
     commands: {
         open: '開く', // Command palette: Opens the Notebook Navigator view (English: Open)
-        revealActiveFile: 'アクティブファイルを表示', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal active file)
-        focusFileList: 'ノートにフォーカス', // Command palette: Moves keyboard focus to the file list pane (English: Focus file list)
+        revealNote: 'ノートを表示', // Command palette: Reveals and selects the currently active note in the navigator (English: Reveal note)
+        focusNote: 'ノートにフォーカス', // Command palette: Moves keyboard focus to the list pane (English: Focus note)
         toggleNavigationPane: 'ナビゲーションペインを切り替え', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
     },
 
@@ -312,12 +312,12 @@ export const STRINGS_JA = {
                 desc: 'クイックスイッチャー、リンク、検索から開いたときに自動的にノートを表示して選択します。',
             },
             autoSelectFirstFileOnFocusChange: {
-                name: 'フォルダまたはタグ変更時に最初のファイルを自動選択',
-                desc: 'フォルダまたはタグを切り替えた際に自動的に最初のファイルを選択して開きます。',
+                name: 'フォルダまたはタグ変更時に最初のノートを自動選択',
+                desc: 'フォルダまたはタグを切り替えた際に自動的に最初のノートを選択して開きます。',
             },
             showTooltips: {
                 name: 'ツールチップを表示',
-                desc: 'ファイルとフォルダの追加情報をホバー時にツールチップで表示します。',
+                desc: 'ノートとフォルダの追加情報をホバー時にツールチップで表示します。',
             },
             excludedNotes: {
                 name: '除外するノート',
@@ -422,12 +422,12 @@ export const STRINGS_JA = {
             },
             folderNoteName: {
                 name: 'フォルダノート名',
-                desc: 'フォルダノートファイルの名前。空のままにするとフォルダと同じ名前を使用します。',
+                desc: 'フォルダノートの名前。空のままにするとフォルダと同じ名前を使用します。',
                 placeholder: 'フォルダ名には空のまま',
             },
             hideFolderNoteInList: {
-                name: 'ファイルリストでフォルダノートを非表示',
-                desc: 'フォルダのファイルリストにフォルダノートが表示されないようにします。',
+                name: 'リストでフォルダノートを非表示',
+                desc: 'フォルダのノートリストにフォルダノートが表示されないようにします。',
             },
             confirmBeforeDelete: {
                 name: '削除前に確認',

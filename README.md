@@ -91,7 +91,7 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - `Notebook Navigator: Open` Opens the Notebook Navigator view in the left sidebar
-- `Notebook Navigator: Reveal active file` Reveals the currently active file in the navigator, expanding parent folders and scrolling to it. Useful if you have the setting "Show notes from subfolders" enabled and want to find out the folder of a specific note.
+- `Notebook Navigator: Reveal note` Reveals the currently open note in the navigator, expanding parent folders and scrolling to it. Useful if you have the setting "Show notes from subfolders" enabled and want to find out the folder of a specific note.
 - `Notebook Navigator: Focus note` Moves keyboard focus to the list pane so you can navigate with arrow keys
 - `Notebook Navigator: Toggle navigation pane` Shows or hides the navigation pane (folder/tag tree) to maximize list pane space
 
@@ -158,7 +158,7 @@ Until the plugin is approved in the Community Plugins directory, you can install
 ### Notes
 
 - **Read metadata from frontmatter:** Read note names and timestamps from frontmatter when available, falling back to file system values
-  - **Name field:** Frontmatter field to use as the note display name. Leave empty to use the note name
+  - **Name field:** Frontmatter field to use as the note display name. Leave empty to use the file name
   - **Created timestamp field:** Frontmatter field name for the created timestamp (default: "created")
   - **Modified timestamp field:** Frontmatter field name for the modified timestamp (default: "modified")
   - **Timestamp format:** Format used to parse timestamps in frontmatter (default: "yyyy-MM-dd'T'HH:mm:ss")

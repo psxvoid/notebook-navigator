@@ -250,8 +250,8 @@ export const STRINGS_ZH = {
     // Plugin commands
     commands: {
         open: '打开', // Command palette: Opens the Notebook Navigator view (English: Open)
-        revealActiveFile: '定位当前文件', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal active file)
-        focusFileList: '聚焦笔记', // Command palette: Moves keyboard focus to the file list pane (English: Focus file list)
+        revealNote: '显示笔记', // Command palette: Reveals and selects the currently active note in the navigator (English: Reveal note)
+        focusNote: '聚焦笔记', // Command palette: Moves keyboard focus to the list pane (English: Focus note)
         toggleNavigationPane: '切换导航面板', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
     },
 
@@ -312,12 +312,12 @@ export const STRINGS_ZH = {
                 desc: '从快速切换器、链接或搜索打开笔记时自动显示并选择。',
             },
             autoSelectFirstFileOnFocusChange: {
-                name: '切换文件夹或标签时自动选择第一个文件',
-                desc: '切换文件夹或标签时自动选择并打开第一个文件。',
+                name: '切换文件夹或标签时自动选择第一个笔记',
+                desc: '切换文件夹或标签时自动选择并打开第一个笔记。',
             },
             showTooltips: {
                 name: '显示工具提示',
-                desc: '悬停时显示文件和文件夹的额外信息工具提示。',
+                desc: '悬停时显示笔记和文件夹的额外信息工具提示。',
             },
             excludedNotes: {
                 name: '排除的笔记',
@@ -422,12 +422,12 @@ export const STRINGS_ZH = {
             },
             folderNoteName: {
                 name: '文件夹笔记名称',
-                desc: '文件夹笔记文件的名称。留空以使用与文件夹相同的名称。',
+                desc: '文件夹笔记的名称。留空以使用与文件夹相同的名称。',
                 placeholder: '留空以使用文件夹名称',
             },
             hideFolderNoteInList: {
-                name: '在文件列表中隐藏文件夹笔记',
-                desc: '隐藏文件夹笔记，使其不出现在文件夹的文件列表中。',
+                name: '在列表中隐藏文件夹笔记',
+                desc: '隐藏文件夹笔记，使其不出现在文件夹的笔记列表中。',
             },
             confirmBeforeDelete: {
                 name: '删除前确认',

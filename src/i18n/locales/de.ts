@@ -250,8 +250,8 @@ export const STRINGS_DE = {
     // Plugin commands
     commands: {
         open: 'Öffnen', // Command palette: Opens the Notebook Navigator view (English: Open)
-        revealActiveFile: 'Aktive Datei anzeigen', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal active file)
-        focusFileList: 'Notiz fokussieren', // Command palette: Moves keyboard focus to the file list pane (English: Focus note)
+        revealNote: 'Notiz anzeigen', // Command palette: Reveals and selects the currently active note in the navigator (English: Reveal note)
+        focusNote: 'Notiz fokussieren', // Command palette: Moves keyboard focus to the list pane (English: Focus note)
         toggleNavigationPane: 'Navigationsbereich umschalten', // Command palette: Shows or hides the navigation pane (English: Toggle navigation pane)
     },
 
@@ -312,12 +312,12 @@ export const STRINGS_DE = {
                 desc: 'Notizen automatisch anzeigen und auswählen, wenn sie über Schnellauswahl, Links oder Suche geöffnet werden.',
             },
             autoSelectFirstFileOnFocusChange: {
-                name: 'Erste Datei beim Ordner- oder Tag-Wechsel automatisch auswählen',
-                desc: 'Die erste Datei automatisch auswählen und öffnen, wenn Sie den Ordner oder Tag wechseln.',
+                name: 'Erste Notiz beim Ordner- oder Tag-Wechsel automatisch auswählen',
+                desc: 'Die erste Notiz automatisch auswählen und öffnen, wenn Sie den Ordner oder Tag wechseln.',
             },
             showTooltips: {
                 name: 'Tooltips anzeigen',
-                desc: 'Zeige Hover-Tooltips mit zusätzlichen Informationen für Dateien und Ordner an.',
+                desc: 'Zeige Hover-Tooltips mit zusätzlichen Informationen für Notizen und Ordner an.',
             },
             excludedNotes: {
                 name: 'Ausgeschlossene Notizen',
@@ -422,12 +422,12 @@ export const STRINGS_DE = {
             },
             folderNoteName: {
                 name: 'Name der Ordnernotiz',
-                desc: 'Name der Ordnernotiz-Datei. Leer lassen, um denselben Namen wie der Ordner zu verwenden.',
+                desc: 'Name der Ordnernotiz. Leer lassen, um denselben Namen wie der Ordner zu verwenden.',
                 placeholder: 'Leer lassen für Ordnernamen',
             },
             hideFolderNoteInList: {
-                name: 'Ordnernotizen in Dateiliste ausblenden',
-                desc: 'Die Ordnernotiz in der Dateiliste des Ordners ausblenden.',
+                name: 'Ordnernotizen in Liste ausblenden',
+                desc: 'Die Ordnernotiz in der Notizliste des Ordners ausblenden.',
             },
             confirmBeforeDelete: {
                 name: 'Vor dem Löschen bestätigen',

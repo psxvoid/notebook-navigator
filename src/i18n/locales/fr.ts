@@ -250,8 +250,8 @@ export const STRINGS_FR = {
     // Plugin commands
     commands: {
         open: 'Ouvrir', // Command palette: Opens the Notebook Navigator view (English: Open)
-        revealActiveFile: 'Révéler le fichier actif', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal active file)
-        focusFileList: 'Focus sur la note', // Command palette: Moves keyboard focus to the file list pane (English: Focus file list)
+        revealNote: 'Révéler la note', // Command palette: Reveals and selects the currently active note in the navigator (English: Reveal note)
+        focusNote: 'Focus sur la note', // Command palette: Moves keyboard focus to the list pane (English: Focus note)
         toggleNavigationPane: 'Basculer le panneau de navigation', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
     },
 
@@ -312,12 +312,12 @@ export const STRINGS_FR = {
                 desc: 'Révéler et sélectionner automatiquement les notes lorsqu\'elles sont ouvertes depuis le Commutateur rapide, les liens ou la recherche.',
             },
             autoSelectFirstFileOnFocusChange: {
-                name: 'Sélectionner automatiquement le premier fichier lors du changement de dossier ou d\'étiquette',
-                desc: 'Sélectionner et ouvrir automatiquement le premier fichier lors du changement de dossier ou d\'étiquette.',
+                name: 'Sélectionner automatiquement la première note lors du changement de dossier ou d\'étiquette',
+                desc: 'Sélectionner et ouvrir automatiquement la première note lors du changement de dossier ou d\'étiquette.',
             },
             showTooltips: {
                 name: 'Afficher les infobulles',
-                desc: 'Affiche des infobulles avec des informations supplémentaires pour les fichiers et dossiers au survol.',
+                desc: 'Affiche des infobulles avec des informations supplémentaires pour les notes et dossiers au survol.',
             },
             excludedNotes: {
                 name: 'Notes exclues',
@@ -422,12 +422,12 @@ export const STRINGS_FR = {
             },
             folderNoteName: {
                 name: 'Nom de la note de dossier',
-                desc: 'Nom du fichier de note de dossier. Laisser vide pour utiliser le même nom que le dossier.',
+                desc: 'Nom de la note de dossier. Laisser vide pour utiliser le même nom que le dossier.',
                 placeholder: 'Laisser vide pour le nom du dossier',
             },
             hideFolderNoteInList: {
-                name: 'Masquer les notes de dossier dans la liste des fichiers',
-                desc: 'Masquer la note de dossier pour qu\'elle n\'apparaisse pas dans la liste des fichiers du dossier.',
+                name: 'Masquer les notes de dossier dans la liste',
+                desc: 'Masquer la note de dossier pour qu\'elle n\'apparaisse pas dans la liste des notes du dossier.',
             },
             confirmBeforeDelete: {
                 name: 'Confirmer avant de supprimer',
