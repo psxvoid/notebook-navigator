@@ -63,7 +63,8 @@ export type SelectionAction =
     | { type: 'SET_MOVEMENT_DIRECTION'; direction: 'up' | 'down' | null }
     | { type: 'UPDATE_CURRENT_FILE'; file: TFile } // Update current file without changing selection
     | { type: 'TOGGLE_WITH_CURSOR'; file: TFile; anchorIndex?: number } // Toggle selection and update cursor
-    | { type: 'SET_KEYBOARD_NAVIGATION'; isKeyboardNavigation: boolean }; // Set keyboard navigation flag
+    | { type: 'SET_KEYBOARD_NAVIGATION'; isKeyboardNavigation: boolean } // Set keyboard navigation flag
+    | { type: 'UPDATE_FILE_PATH'; oldPath: string; newPath: string }; // Update file path after rename
 
 // Dispatch function type
 export type SelectionDispatch = React.Dispatch<SelectionAction>;
@@ -327,6 +328,31 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             };
         }
         
+        case 'UPDATE_FILE_PATH': {
+            // Update the file path in selectedFiles set
+            const newSelectedFiles = new Set(state.selectedFiles);
+            if (newSelectedFiles.has(action.oldPath)) {
+                newSelectedFiles.delete(action.oldPath);
+                newSelectedFiles.add(action.newPath);
+            }
+            
+            // Update selectedFile if it matches the renamed file
+            let newSelectedFile = state.selectedFile;
+            if (state.selectedFile && state.selectedFile.path === action.oldPath) {
+                // Get the updated file reference from the vault
+                const updatedFile = app.vault.getAbstractFileByPath(action.newPath);
+                if (updatedFile && updatedFile instanceof TFile) {
+                    newSelectedFile = updatedFile;
+                }
+            }
+            
+            return {
+                ...state,
+                selectedFiles: newSelectedFiles,
+                selectedFile: newSelectedFile
+            };
+        }
+        
         default:
             return state;
     }
@@ -503,6 +529,21 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             console.error('Failed to save selected file to localStorage:', error);
         }
     }, [state.selectedFile, state.selectedFiles, app]);
+    
+    // Register file rename listener
+    useEffect(() => {
+        const listenerId = 'selection-context-' + Math.random().toString(36).substr(2, 9);
+        
+        const handleFileRename = (oldPath: string, newPath: string) => {
+            dispatch({ type: 'UPDATE_FILE_PATH', oldPath, newPath });
+        };
+        
+        plugin.registerFileRenameListener(listenerId, handleFileRename);
+        
+        return () => {
+            plugin.unregisterFileRenameListener(listenerId);
+        };
+    }, [plugin, dispatch]);
     
     return (
         <SelectionContext.Provider value={state}>

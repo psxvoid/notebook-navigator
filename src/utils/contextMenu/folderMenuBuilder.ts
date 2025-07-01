@@ -35,7 +35,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     menu.addItem((item: MenuItem) => {
         item
             .setTitle(strings.contextMenu.folder.newNote)
-            .setIcon('file-plus')
+            .setIcon('pen-box')
             .onClick(async () => {
                 const file = await fileSystemOps.createNewFile(folder);
                 if (file) {
@@ -141,7 +141,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
             menu.addItem((item: MenuItem) => {
                 item
                     .setTitle(strings.contextMenu.folder.createFolderNote)
-                    .setIcon('file-plus')
+                    .setIcon('pen-box')
                     .onClick(async () => {
                         // Use folderNoteName if set, otherwise use folder name
                         const noteName = (settings.folderNoteName || folder.name) + '.md';
