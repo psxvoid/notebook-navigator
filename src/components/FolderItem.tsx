@@ -193,7 +193,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
                 data-clickable="folder"
             >
                 <div 
-                    className="nn-folder-chevron"
+                    className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}
                     ref={chevronRef}
                     onClick={(e) => {
                         e.stopPropagation();
@@ -202,10 +202,6 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
                     onDoubleClick={(e) => {
                         e.stopPropagation();
                         e.preventDefault();
-                    }}
-                    style={{ 
-                        visibility: hasChildren ? 'visible' : 'hidden',
-                        cursor: hasChildren ? 'pointer' : 'default'
                     }}
                 />
                 {settings.showIcons && (

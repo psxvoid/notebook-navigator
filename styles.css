@@ -305,6 +305,18 @@ button.nn-icon-button {
     transition: transform 0.2s ease;
 }
 
+/* Chevron states for folders without children */
+.nn-folder-chevron--no-children {
+    visibility: hidden;
+    cursor: default;
+}
+
+/* Chevron states for folders with children */
+.nn-folder-chevron--has-children {
+    visibility: visible;
+    cursor: pointer;
+}
+
 
 /* Folder icon - displays folder open/closed or custom icons */
 .nn-folder-icon {

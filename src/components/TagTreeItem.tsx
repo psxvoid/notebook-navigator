@@ -118,11 +118,7 @@ export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProp
             >
                 <div
                     ref={chevronRef}
-                    className="nn-folder-chevron"
-                    style={{ 
-                        visibility: hasChildren ? 'visible' : 'hidden',
-                        cursor: hasChildren ? 'pointer' : 'default'
-                    }}
+                    className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}
                     onClick={(e) => {
                         e.stopPropagation();
                         if (hasChildren) onToggle();
