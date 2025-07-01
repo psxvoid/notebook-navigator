@@ -19,32 +19,32 @@ If you love using Notebook Navigator, please consider supporting its continued d
 ## Features
 
 ### Core Interface
-- **📁 Two-pane layout** - Folders on left, files on right (like Apple Notes)
-- **📱 Mobile optimized** - Touch gestures and single-pane navigation
-- **🌓 Theme support** - Seamlessly matches your Obsidian theme
-- **🌍 Multi-language support** - Available in English, German, Spanish, French, Japanese, and Chinese Simplified
-- **🌏 RTL language support** - Full support for right-to-left languages with proper layout mirroring and navigation
+- **Two-pane layout** - Folders on left, files on right (like Apple Notes)
+- **Mobile optimized** - Touch gestures and single-pane navigation
+- **Theme support** - Seamlessly matches your Obsidian theme
+- **Multi-language support** - Available in English, German, Spanish, French, Japanese, and Chinese Simplified
+- **RTL language support** - Full support for right-to-left languages with proper layout mirroring and navigation
 
 ### Navigation & Organization
-- **🏷️ Tag browser** - Hierarchical tag tree with nested tag support
-- **📌 Pin notes** - Keep important files at the top of folders
-- **🚀 Auto-reveal** - Find your current file instantly
-- **⌨️ Keyboard first** - Full navigation with arrow keys and Tab
-- **✅ Multi-selection** - Select multiple files with Cmd/Ctrl+Click and Shift+Click
+- **Tag browser** - Hierarchical tag tree with nested tag support
+- **Pin notes** - Keep important files at the top of folders
+- **Auto-reveal** - Find your current file instantly
+- **Keyboard first** - Full navigation with arrow keys and Tab
+- **Multi-selection** - Select multiple files with Cmd/Ctrl+Click and Shift+Click
 
 ### File Display
-- **🔍 Smart previews** - See content snippets without opening files
-- **🖼️ Feature images** - Display thumbnail images from note frontmatter
-- **📅 Date grouping** - Organize by Today, Yesterday, This Week
-- **🔄 Custom sorting** - Per-folder sort preferences
-- **📄 Folder notes** - Folders with notes are displayed as clickable links
-- **📝 Frontmatter support** - Read note names and timestamps from frontmatter
+- **Smart previews** - See content snippets without opening files
+- **Feature images** - Display thumbnail images from note frontmatter
+- **Date grouping** - Organize by Today, Yesterday, This Week
+- **Custom sorting** - Per-folder sort preferences
+- **Folder notes** - Folders with notes are displayed as clickable links
+- **Frontmatter support** - Read note names and timestamps from frontmatter
 
 ### Productivity
-- **🎯 Drag & drop** - Move files between folders (desktop)
-- **↔️ Resizable panes** - Adjust the layout to your needs
-- **🚫 Smart filtering** - Hide folders/files with patterns
-- **🎨 Visual customization** - Folder colors and icons
+- **Drag & drop** - Move files between folders (desktop)
+- **Resizable panes** - Adjust the layout to your needs
+- **Smart filtering** - Hide folders/files with patterns
+- **Visual customization** - Folder colors and icons
 
 ## How to Use
 
@@ -120,55 +120,58 @@ Until the plugin is approved in the Community Plugins directory, you can install
 
 ## Settings
 
-### File Organization
+### General
+
+- **Auto-reveal active note:** Automatically reveal and select notes when opened from Quick Switcher, links, or search
+- **Show tooltips:** Display hover tooltips with additional information for files and folders. When enabled, hovering over files shows their creation and modification dates, while hovering over folders shows file and subfolder counts
+- **Excluded folders:** Comma-separated list of folders to hide. Supports wildcards: assets* (starts with), *_temp (ends with)
+- **Excluded notes:** Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived)
+
+### Navigation Pane
+
+- **Auto-select first file on folder change:** Automatically select and open the first file when switching folders
+- **Show note count:** Display the number of notes in each folder
+- **Show icons:** Display icons next to folder names in the tree
+- **Collapse button behavior:** Control which items are affected by the collapse/expand all buttons - All items, Folders only, or Tags only
+
+### Folders
+
+- **Show root folder:** Display "Vault" as the root folder in the tree
+- **Enable folder notes:** When enabled, folders with associated notes are displayed as clickable links
+  - **Folder note name:** Name of the folder note file without extension. Leave empty to use the same name as the folder
+  - **Hide folder note in file list:** Hide the folder note from appearing in the folder's file list
+
+### Tags
+
+- **Show tags:** Display tags section below folders in the navigator
+  - **Show untagged notes:** Display "Untagged" item for notes without any tags
+
+### File List
 
 - **Sort notes by:** Choose how notes are sorted in the note list - Date edited (newest/oldest first), Date created (newest/oldest first), or Title (A/Z first)
   - **Group notes by date:** When sorted by date, group notes under date headers
 - **Show notes from subfolders:** Display all notes from subfolders in the current folder view
   - **Show parent folder names:** Display the parent folder name for notes from subfolders
-- **Auto-reveal active note:** Automatically reveal and select notes when opened from Quick Switcher, links, or search
-  - **Note:** When "Show notes from subfolders" is enabled, auto-reveal will keep you in the parent folder if the note is visible there. To always reveal a note in its actual folder, use the command "Notebook Navigator: Reveal active file"
-- **Auto-select first file on folder change:** Automatically select and open the first file when switching folders
-- **Excluded notes:** Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived)
-- **Excluded folders:** Comma-separated list of folders to hide. Supports wildcards: assets* (starts with), *_temp (ends with)
-
-### Time Display
-
 - **Date format:** Format for displaying dates (uses date-fns format)
 - **Time format:** Format for displaying times in Today and Yesterday groups (uses date-fns format)
 
-### Note Display
+### Notes
 
 - **Read metadata from frontmatter:** Read note names and timestamps from frontmatter when available, falling back to file system values
   - **Name field:** Frontmatter field to use as the note display name. Leave empty to use the file name
-  - **Created timestamp field:** Frontmatter field name for the created timestamp. Leave empty to only use file system date
-  - **Modified timestamp field:** Frontmatter field name for the modified timestamp. Leave empty to only use file system date
-  - **Timestamp format:** Format used to parse timestamps in frontmatter
-- **Title rows:** Number of rows to display for note titles
+  - **Created timestamp field:** Frontmatter field name for the created timestamp (default: "created")
+  - **Modified timestamp field:** Frontmatter field name for the modified timestamp (default: "modified")
+  - **Timestamp format:** Format used to parse timestamps in frontmatter (default: "yyyy-MM-dd'T'HH:mm:ss")
+- **Title rows:** Number of rows to display for note titles (1 or 2)
 - **Show date:** Display the date below note names
 - **Show note preview:** Display preview text beneath note names
   - **Skip headings in preview:** Skip heading lines when generating preview text
   - **Skip non-text in preview:** Skip images, embeds, and other non-text elements from preview text
-  - **Preview rows:** Number of rows to display for preview text
-- **Show feature image:** Display thumbnail images from frontmatter. Tip: Use the "Featured Image" plugin to automatically set feature images for all your documents
-  - **Feature image property:** The frontmatter property name for thumbnail images. Important! In Featured Image plugin you can choose to create resized thumbnails, this will significantly improve performance! Use 42 pixels for maximum performance, or 84 pixels for retina displays. The resized property is called "featureResized" by default
-- **Show tooltips:** Display hover tooltips with additional information for files and folders. When enabled, hovering over files shows their creation and modification dates, while hovering over folders shows file and subfolder counts
+  - **Preview rows:** Number of rows to display for preview text (1-5)
+- **Show feature image:** Display thumbnail images from frontmatter
+  - **Feature image property:** The frontmatter property name for thumbnail images (default: "feature")
 
 **Note:** When date, preview, and feature image are all disabled, the file list displays in a compact "slim mode" with only file names, providing a cleaner, more minimal interface.
-
-### Folder Display
-
-- **Show root folder:** Display "Vault" as the root folder in the tree
-- **Show folder note count:** Display the number of notes in each folder
-- **Show folder icons:** Display icons next to folder names in the tree
-- **Enable folder notes:** When enabled, folders with associated notes are displayed as clickable links
-  - **Folder note name:** Name of the folder note file without extension. Leave empty to use the same name as the folder
-  - **Hide folder notes in file list:** Hide the folder note from appearing in the folder's file list
-
-### Tag Display
-
-- **Show tags:** Display tags section below folders in the navigator
-  - **Show untagged notes:** Display "Untagged" item for notes without any tags
 
 ### Advanced
 
