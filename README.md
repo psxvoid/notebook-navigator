@@ -318,7 +318,7 @@ npm run build
 
 ## About
 
-Notebook Navigator is built and maintained by [Johan Sanneblad](https://www.linkedin.com/in/johansan/), CEO at [TokenTek](https://tokentek.ai). Johan has a PhD in Applied IT and has been programming for over 40 years. He has worked with innovation development for companies such as Apple, Google, Microsoft, Lego, SKF, Volvo Cars, Volvo Group and Yamaha, and is currently exploring how Transformer-based AI and AI agents can improve corporate productivity.
+Notebook Navigator is built and maintained by [Johan Sanneblad](https://www.linkedin.com/in/johansan/). Johan has a PhD in Applied IT and has worked with innovation development for companies such as Apple, Electronic Arts, Google, Microsoft, Lego, SKF, Volvo Cars, Volvo Group and Yamaha.
 
 Feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/johansan/).
 
