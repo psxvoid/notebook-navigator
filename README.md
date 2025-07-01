@@ -1,10 +1,10 @@
 # Notebook Navigator for Obsidian
 
-A plugin for [Obsidian](https://obsidian.md) that replaces the default file explorer with a clean, Notes-style interface featuring a two-pane layout with folders on the left and files on the right.
+A plugin for [Obsidian](https://obsidian.md) that replaces the default file explorer with a clean, Notes-style interface featuring a two-pane layout with navigation on the left and notes on the right.
 
-[❤️ Sponsor on GitHub](https://github.com/sponsors/johansan)
+If you love using Notebook Navigator, please consider [buying me a coffee](https://buymeacoffee.com/johansan) or [Sponsor on GitHub ❤️](https://github.com/sponsors/johansan).
 
-If you love using Notebook Navigator, please consider supporting its continued development.
+<a href="https://www.buymeacoffee.com/johansan" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
 ## Screenshots
 
@@ -19,7 +19,7 @@ If you love using Notebook Navigator, please consider supporting its continued d
 ## Features
 
 ### Core Interface
-- **Two-pane layout** - Folders on left, files on right (like Apple Notes)
+- **Two-pane layout** - Navigation on left, notes on right
 - **Mobile optimized** - Touch gestures and single-pane navigation
 - **Theme support** - Seamlessly matches your Obsidian theme
 - **Multi-language support** - Available in English, German, Spanish, French, Japanese, and Chinese Simplified
@@ -27,45 +27,45 @@ If you love using Notebook Navigator, please consider supporting its continued d
 
 ### Navigation & Organization
 - **Tag browser** - Hierarchical tag tree with nested tag support
-- **Pin notes** - Keep important files at the top of folders
-- **Auto-reveal** - Find your current file instantly
+- **Pin notes** - Keep important notes at the top of folders and tags
+- **Auto-reveal** - Automatically show the location of the current note
 - **Keyboard first** - Full navigation with arrow keys and Tab
-- **Multi-selection** - Select multiple files with Cmd/Ctrl+Click and Shift+Click
+- **Multi-selection** - Select multiple notes with Cmd/Ctrl+Click and Shift+Click
 
-### File Display
-- **Smart previews** - See content snippets without opening files
+### Notes Display
+- **Smart previews** - Preview 1-5 lines of text from each note
 - **Feature images** - Display thumbnail images from note frontmatter
 - **Date grouping** - Organize by Today, Yesterday, This Week
-- **Custom sorting** - Per-folder sort preferences
+- **Custom sorting** - Use custom sort preferences for each tag and folder
 - **Folder notes** - Folders with notes are displayed as clickable links
 - **Frontmatter support** - Read note names and timestamps from frontmatter
 
 ### Productivity
-- **Drag & drop** - Move files between folders (desktop)
+- **Drag & drop** - Move notes between folders, assign tags or remove tags
 - **Resizable panes** - Adjust the layout to your needs
-- **Smart filtering** - Hide folders/files with patterns
-- **Visual customization** - Folder colors and icons
+- **Smart filtering** - Exclude folders and notes with patterns
+- **Visual customization** - Folder and tag colors and icons
 
 ## How to Use
 
 1. Install the plugin from Obsidian's Community Plugins
 2. The navigator will replace your default file explorer
 3. Navigate using:
-   - **Click** to select folders, tags, and files
-   - **Cmd/Ctrl+Click** to add files to selection
-   - **Shift+Click** to select a range of files
+   - **Click** to select folders, tags, and notes
+   - **Cmd/Ctrl+Click** to add notes to selection
+   - **Shift+Click** to select a range of notes
    - **Double-click** folders and tags to expand/collapse
    - **Arrow keys** for navigation
-   - **Tab** to switch between folder/tag and file panes
+   - **Tab** to switch between navigation and list pane
    - **Delete/Backspace** to delete (with optional confirmation)
 4. Right-click for context menus:
-   - Create new files and folders
+   - Create new notes and folders
    - Rename items
    - Delete items
-   - Pin/unpin files
+   - Pin/unpin notes
    - Change folder colors
    - Remove folder colors
-5. Drag and drop files between folders to organize
+5. Drag and drop notes between folders to organize, drag to tags to assign tags, or drag to untagged to remove tags
 
 **Tip:** You can use the ribbon icon (folder tree icon) in the left sidebar to activate Notebook Navigator in case you close it by mistake.
 
@@ -74,16 +74,16 @@ If you love using Notebook Navigator, please consider supporting its continued d
 | Key | Action |
 |-----|---------|
 | ↑/↓ | Navigate up/down in current pane |
-| ← | In folders/tags: collapse or go to parent<br>In files: switch to folder/tag pane |
-| → | In folders/tags: expand or switch to file pane<br>In files: open selected file |
-| Tab | In folders/tags: switch to file pane<br>In files: open selected file |
-| Shift+Tab | Switch from files to folders/tags pane |
-| PageUp/PageDown | Scroll up/down in folder tree and file list |
+| ← | In folders/tags: collapse or go to parent<br>In notes: switch to navigation pane |
+| → | In folders/tags: expand or switch to list pane<br>In list pane: open selected note |
+| Tab | In folders/tags: switch to list pane<br>In list pane: open selected note |
+| Shift+Tab | Switch from list pane to navigation pane |
+| PageUp/PageDown | Scroll up/down in navigation pane and list pane |
 | Home/End | Jump to first/last item in current pane |
 | Delete (Windows/Linux)<br>Backspace (macOS) | Delete selected item |
-| Cmd/Ctrl+A | Select all files in current folder |
-| Cmd/Ctrl+Click | Toggle file selection |
-| Shift+Click | Select range of files |
+| Cmd/Ctrl+A | Select all notes in current folder |
+| Cmd/Ctrl+Click | Toggle notes selection |
+| Shift+Click | Select a range of notes |
 | Shift+↑/↓ | Extend selection up/down |
 
 ### Commands
@@ -92,7 +92,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - `Notebook Navigator: Open` Opens the Notebook Navigator view in the left sidebar
 - `Notebook Navigator: Reveal active file` Reveals the currently active file in the navigator, expanding parent folders and scrolling to it. Useful if you have the setting "Show notes from subfolders" enabled and want to find out the folder of a specific note.
-- `Notebook Navigator: Focus file list` Moves keyboard focus to the file list pane so you can navigate with arrow keys
+- `Notebook Navigator: Focus note` Moves keyboard focus to the list pane so you can navigate with arrow keys
 - `Notebook Navigator: Toggle navigation pane` Shows or hides the navigation pane (folder/tag tree) to maximize file list space
 
 ## Installation
@@ -146,7 +146,7 @@ Until the plugin is approved in the Community Plugins directory, you can install
 - **Show tags:** Display tags section below folders in the navigator
   - **Show untagged notes:** Display "Untagged" item for notes without any tags
 
-### File List
+### List Pane
 
 - **Sort notes by:** Choose how notes are sorted in the note list - Date edited (newest/oldest first), Date created (newest/oldest first), or Title (A/Z first)
   - **Group notes by date:** When sorted by date, group notes under date headers
