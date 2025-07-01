@@ -1,6 +1,6 @@
 # Notebook Navigator for Obsidian
 
-A plugin for [Obsidian](https://obsidian.md) that replaces the default file explorer with a clean, Notes-style interface featuring a two-pane layout with navigation on the left and notes on the right.
+A plugin for [Obsidian](https://obsidian.md) that replaces the default file explorer with a clean, Notes-style interface featuring a two-pane layout with navigation pane on the left (folders and tags) and list pane on the right (notes).
 
 If you love using Notebook Navigator, please consider [buying me a coffee](https://buymeacoffee.com/johansan) or [Sponsor on GitHub ❤️](https://github.com/sponsors/johansan).
 
@@ -19,7 +19,7 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 ## Features
 
 ### Core Interface
-- **Two-pane layout** - Navigation on left, notes on right
+- **Two-pane layout** - Navigation pane (folders and tags) on left, list pane (notes) on right
 - **Mobile optimized** - Touch gestures and single-pane navigation
 - **Theme support** - Seamlessly matches your Obsidian theme
 - **Multi-language support** - Available in English, German, Spanish, French, Japanese, and Chinese Simplified
@@ -36,12 +36,12 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 - **Smart previews** - Preview 1-5 lines of text from each note
 - **Feature images** - Display thumbnail images from note frontmatter
 - **Date grouping** - Organize by Today, Yesterday, This Week
-- **Custom sorting** - Use custom sort preferences for each tag and folder
+- **Custom sorting** - Use custom sort preferences for each folder and tag
 - **Folder notes** - Folders with notes are displayed as clickable links
 - **Frontmatter support** - Read note names and timestamps from frontmatter
 
 ### Productivity
-- **Drag & drop** - Move notes between folders, assign tags or remove tags
+- **Drag & drop** - Move notes between folders, drag to tags to add tags, drag to Untagged to remove all tags
 - **Resizable panes** - Adjust the layout to your needs
 - **Smart filtering** - Exclude folders and notes with patterns
 - **Visual customization** - Folder and tag colors and icons
@@ -56,7 +56,7 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
    - **Shift+Click** to select a range of notes
    - **Double-click** folders and tags to expand/collapse
    - **Arrow keys** for navigation
-   - **Tab** to switch between navigation and list pane
+   - **Tab** to switch between navigation pane and list pane
    - **Delete/Backspace** to delete (with optional confirmation)
 4. Right-click for context menus:
    - Create new notes and folders
@@ -65,7 +65,7 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
    - Pin/unpin notes
    - Change folder colors
    - Remove folder colors
-5. Drag and drop notes between folders to organize, drag to tags to assign tags, or drag to untagged to remove tags
+5. Drag and drop notes between folders to organize, drag to tags to add tags, or drag to Untagged to remove all tags
 
 **Tip:** You can use the ribbon icon (folder tree icon) in the left sidebar to activate Notebook Navigator in case you close it by mistake.
 
@@ -74,9 +74,9 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 | Key | Action |
 |-----|---------|
 | ↑/↓ | Navigate up/down in current pane |
-| ← | In folders/tags: collapse or go to parent<br>In notes: switch to navigation pane |
-| → | In folders/tags: expand or switch to list pane<br>In list pane: open selected note |
-| Tab | In folders/tags: switch to list pane<br>In list pane: open selected note |
+| ← | In navigation pane: collapse or go to parent<br>In list pane: switch to navigation pane |
+| → | In navigation pane: expand or switch to list pane<br>In list pane: open selected note |
+| Tab | In navigation pane: switch to list pane<br>In list pane: open selected note |
 | Shift+Tab | Switch from list pane to navigation pane |
 | PageUp/PageDown | Scroll up/down in navigation pane and list pane |
 | Home/End | Jump to first/last item in current pane |
@@ -93,7 +93,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Open` Opens the Notebook Navigator view in the left sidebar
 - `Notebook Navigator: Reveal active file` Reveals the currently active file in the navigator, expanding parent folders and scrolling to it. Useful if you have the setting "Show notes from subfolders" enabled and want to find out the folder of a specific note.
 - `Notebook Navigator: Focus note` Moves keyboard focus to the list pane so you can navigate with arrow keys
-- `Notebook Navigator: Toggle navigation pane` Shows or hides the navigation pane (folder/tag tree) to maximize file list space
+- `Notebook Navigator: Toggle navigation pane` Shows or hides the navigation pane (folder/tag tree) to maximize list pane space
 
 ## Installation
 
@@ -123,13 +123,13 @@ Until the plugin is approved in the Community Plugins directory, you can install
 ### General
 
 - **Auto-reveal active note:** Automatically reveal and select notes when opened from Quick Switcher, links, or search
-- **Show tooltips:** Display hover tooltips with additional information for files and folders. When enabled, hovering over files shows their creation and modification dates, while hovering over folders shows file and subfolder counts
+- **Show tooltips:** Display hover tooltips with additional information for notes and folders. When enabled, hovering over notes shows their creation and modification dates, while hovering over folders shows note and subfolder counts
 - **Excluded folders:** Comma-separated list of folders to hide. Supports wildcards: assets* (starts with), *_temp (ends with)
 - **Excluded notes:** Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived)
 
 ### Navigation Pane
 
-- **Auto-select first file on folder change:** Automatically select and open the first file when switching folders
+- **Auto-select first note on folder change:** Automatically select and open the first note when switching folders or tags
 - **Show note count:** Display the number of notes in each folder
 - **Show icons:** Display icons next to folder names in the tree
 - **Collapse button behavior:** Control which items are affected by the collapse/expand all buttons - All items, Folders only, or Tags only
@@ -139,7 +139,7 @@ Until the plugin is approved in the Community Plugins directory, you can install
 - **Show root folder:** Display "Vault" as the root folder in the tree
 - **Enable folder notes:** When enabled, folders with associated notes are displayed as clickable links
   - **Folder note name:** Name of the folder note file without extension. Leave empty to use the same name as the folder
-  - **Hide folder note in file list:** Hide the folder note from appearing in the folder's file list
+  - **Hide folder note in list:** Hide the folder note from appearing in the folder's note list
 
 ### Tags
 
@@ -158,7 +158,7 @@ Until the plugin is approved in the Community Plugins directory, you can install
 ### Notes
 
 - **Read metadata from frontmatter:** Read note names and timestamps from frontmatter when available, falling back to file system values
-  - **Name field:** Frontmatter field to use as the note display name. Leave empty to use the file name
+  - **Name field:** Frontmatter field to use as the note display name. Leave empty to use the note name
   - **Created timestamp field:** Frontmatter field name for the created timestamp (default: "created")
   - **Modified timestamp field:** Frontmatter field name for the modified timestamp (default: "modified")
   - **Timestamp format:** Format used to parse timestamps in frontmatter (default: "yyyy-MM-dd'T'HH:mm:ss")
@@ -171,7 +171,7 @@ Until the plugin is approved in the Community Plugins directory, you can install
 - **Show feature image:** Display thumbnail images from frontmatter
   - **Feature image property:** The frontmatter property name for thumbnail images (default: "feature")
 
-**Note:** When date, preview, and feature image are all disabled, the file list displays in a compact "slim mode" with only file names, providing a cleaner, more minimal interface.
+**Note:** When date, preview, and feature image are all disabled, the list pane displays in a compact "slim mode" with only note names, providing a cleaner, more minimal interface.
 
 ### Advanced
 
@@ -181,7 +181,7 @@ Until the plugin is approved in the Community Plugins directory, you can install
 
 ### Creating beautiful note lists
 
-Combine Notebook Navigator with the [Featured Image plugin](https://github.com/johansan/obsidian-featured-image) to display thumbnail previews in your file list:
+Combine Notebook Navigator with the [Featured Image plugin](https://github.com/johansan/obsidian-featured-image) to display thumbnail previews in your list pane:
 
 1. Install the Featured Image plugin
 2. Enable "Show feature image" in Notebook Navigator settings
@@ -200,7 +200,7 @@ For best performance with Notebook Navigator's 42px thumbnails, configure these 
 Then in Notebook Navigator settings:
 - **Feature image property:** `featureResized`
 
-This creates optimized 42px thumbnails that load quickly and display perfectly in the file list, rather than loading full-size images.
+This creates optimized 42px thumbnails that load quickly and display perfectly in the list pane, rather than loading full-size images.
 
 ### Using folder notes
 
@@ -210,7 +210,7 @@ Turn folders into clickable links for better organization:
 2. Right-click a folder and select "Create folder note" to create an associated note
 3. Folders with notes appear as clickable links (visually distinguished with an underline)
 4. Click the folder name to open its note directly
-5. Click anywhere else on the folder row to view the folder's file list as usual
+5. Click anywhere else on the folder row to view the folder's note list as usual
 6. Right-click and select "Delete folder note" to remove the association
 
 Folder notes are perfect for:
@@ -221,31 +221,42 @@ Folder notes are perfect for:
 
 **Tips:**
 - Set a custom folder note name like "index" or "readme" in settings
-- Hide folder notes from file lists to keep things clean
+- Hide folder notes from note lists to keep things clean
 - When you rename a folder, its folder note is automatically renamed too (if using folder name)
-- Folders without notes still work normally - click to select and view their files
+- Folders without notes still work normally - click to select and view their notes
 
 ### Organizing with pins
 
 Pin frequently accessed notes to keep them at the top:
-1. Right-click any file
+1. Right-click any note
 2. Select "Pin note"
 3. Pinned notes appear at the top with a 📌 icon
 
-### Customizing folder colors and icons
+### Customizing folders and tags
 
-Add visual organization to your folders with custom colors and icons:
+Add visual organization with custom colors and icons:
 
-1. Right-click any folder
+1. Right-click any folder or tag
 2. Select "Change color" or "Change icon"
 3. Choose from a palette of colors or variety of Lucide icons
 4. To remove, right-click and select "Remove color" or "Remove icon"
 
 Visual customization helps you:
 - Quickly identify different types of content at a glance
-- Highlight important project folders
+- Highlight important project folders and tags
 - Create a more personalized and intuitive navigation experience
-- Combine colors and icons for even better organization
+- Combine colors and icons for better organization
+
+### Custom sort order
+
+Each folder and tag can have its own sort preference:
+
+1. Select a folder or tag
+2. Click the sort button above the list pane (shows current sort mode)
+3. Toggle between:
+   - **Default**: Uses the global sort setting from preferences
+   - **Custom**: Choose a specific sort order for this folder/tag only
+4. Your custom sort preference is remembered for each folder and tag
 
 ### Using tags effectively
 
@@ -254,19 +265,21 @@ The tags section provides powerful ways to organize and find your notes:
 - **Hierarchical organization:** Use nested tags like `#project/work/urgent` to create tag hierarchies
 - **Quick filtering:** Click any tag to see all notes with that tag and its subtags
 - **Untagged notes:** Find notes without tags by clicking "Untagged"
+- **Drag to tag:** Drag notes onto tags to add that tag to the notes
+- **Remove tags:** Drag notes to "Untagged" to remove all tags from those notes
 
 ### Managing draft and private notes
 
-Use the "Excluded files" setting to hide notes with specific frontmatter properties:
+Use the "Excluded notes" setting to hide notes with specific frontmatter properties:
 
-1. Add properties like `draft, private, archived` to the excluded files list
+1. Add properties like `draft, private, archived` to the excluded notes list
 2. Add frontmatter to your notes:
    ```yaml
    ---
    draft: true
    ---
    ```
-3. These files will be automatically hidden from the navigator
+3. These notes will be automatically hidden from the navigator
 
 This is perfect for:
 - Work-in-progress notes
@@ -285,7 +298,7 @@ If you have any questions, suggestions, or issues, please open an issue on the [
 Notebook Navigator is built using React and TypeScript, providing:
 
 - ⚡ **Lightning-fast performance** with React's virtual DOM and optimized rendering
-- 🚀 **Virtualization** powered by TanStack Virtual for smooth scrolling with thousands of files
+- 🚀 **Virtualization** powered by TanStack Virtual for smooth scrolling with thousands of notes
 - 🏗️ **Modular architecture** with reusable components and custom hooks
 - 🔒 **Type safety** with TypeScript strict mode throughout the codebase
 - 🧠 **Smart state management** using React Context API for predictable updates

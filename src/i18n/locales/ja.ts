@@ -251,7 +251,7 @@ export const STRINGS_JA = {
     commands: {
         open: '開く', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealActiveFile: 'アクティブファイルを表示', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal active file)
-        focusFileList: 'ファイルリストにフォーカス', // Command palette: Moves keyboard focus to the file list pane (English: Focus file list)
+        focusFileList: 'ノートにフォーカス', // Command palette: Moves keyboard focus to the file list pane (English: Focus file list)
         toggleNavigationPane: 'ナビゲーションペインを切り替え', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
     },
 
@@ -279,7 +279,7 @@ export const STRINGS_JA = {
             navigationPane: 'フォルダ表示',
             tags: 'タグ表示',
             folders: 'フォルダノート',
-            fileList: 'ファイルリスト',
+            listPane: 'リストペイン',
             advanced: '詳細設定',
         },
         items: {

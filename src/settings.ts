@@ -63,7 +63,7 @@ export interface NotebookNavigatorSettings {
     // Tags
     showTags: boolean;
     showUntagged: boolean;
-    // File list
+    // List pane
     defaultFolderSort: SortOption;
     groupByDate: boolean;
     showNotesFromSubfolders: boolean;
@@ -120,7 +120,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Tags
     showTags: true,
     showUntagged: false,
-    // File list
+    // List pane
     defaultFolderSort: 'modified-desc',
     groupByDate: true,
     showNotesFromSubfolders: true,
@@ -430,9 +430,9 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                 }));
 
-        // Section 4: File list
+        // Section 4: List pane
         new Setting(containerEl)
-            .setName(strings.settings.sections.fileList)
+            .setName(strings.settings.sections.listPane)
             .setHeading();
 
         const sortSetting = new Setting(containerEl)

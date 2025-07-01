@@ -251,7 +251,7 @@ export const STRINGS_ZH = {
     commands: {
         open: '打开', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealActiveFile: '定位当前文件', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal active file)
-        focusFileList: '聚焦文件列表', // Command palette: Moves keyboard focus to the file list pane (English: Focus file list)
+        focusFileList: '聚焦笔记', // Command palette: Moves keyboard focus to the file list pane (English: Focus file list)
         toggleNavigationPane: '切换导航面板', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
     },
 
@@ -279,7 +279,7 @@ export const STRINGS_ZH = {
             navigationPane: '文件夹显示',
             tags: '标签显示',
             folders: '文件夹笔记',
-            fileList: '文件列表',
+            listPane: '列表窗格',
             advanced: '高级',
         },
         items: {

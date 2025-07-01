@@ -251,7 +251,7 @@ export const STRINGS_EN = {
     commands: {
         open: 'Open', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealActiveFile: 'Reveal active file', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal active file)
-        focusFileList: 'Focus file list', // Command palette: Moves keyboard focus to the file list pane (English: Focus file list)
+        focusFileList: 'Focus note', // Command palette: Moves keyboard focus to the file list pane (English: Focus note)
         toggleNavigationPane: 'Toggle navigation pane', // Command palette: Shows or hides the navigation pane (English: Toggle navigation pane)
     },
 
@@ -278,7 +278,7 @@ export const STRINGS_EN = {
             navigationPane: 'Navigation pane',
             folders: 'Folders',
             tags: 'Tags',
-            fileList: 'File list',
+            listPane: 'List pane',
             notes: 'Notes',
             advanced: 'Advanced',
         },
