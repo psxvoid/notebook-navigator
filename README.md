@@ -123,23 +123,23 @@ Until the plugin is approved in the Community Plugins directory, you can install
 ### General
 
 - **Auto-reveal active note:** Automatically reveal and select notes when opened from Quick Switcher, links, or search
-- **Show tooltips:** Display hover tooltips with additional information for notes and folders. When enabled, hovering over notes shows their creation and modification dates, while hovering over folders shows note and subfolder counts
+- **Show tooltips:** Display hover tooltips with additional information for notes and folders
 - **Excluded folders:** Comma-separated list of folders to hide. Supports wildcards: assets* (starts with), *_temp (ends with)
 - **Excluded notes:** Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived)
 
 ### Navigation Pane
 
-- **Auto-select first note on folder change:** Automatically select and open the first note when switching folders or tags
-- **Show note count:** Display the number of notes in each folder
-- **Show icons:** Display icons next to folder names in the tree
-- **Collapse button behavior:** Control which items are affected by the collapse/expand all buttons - All items, Folders only, or Tags only
+- **Auto-select first note on focus change:** Automatically select and open the first note when switching folders or tags
+- **Show note count:** Display the number of notes in each folder and tag
+- **Show icons:** Display icons next to folders and tags in the navigation pane
+- **Collapse button behavior:** Choose what the expand/collapse all button affects - All folders and tags, Folders only, or Tags only
 
 ### Folders
 
 - **Show root folder:** Display "Vault" as the root folder in the tree
 - **Enable folder notes:** When enabled, folders with associated notes are displayed as clickable links
-  - **Folder note name:** Name of the folder note file without extension. Leave empty to use the same name as the folder
-  - **Hide folder note in list:** Hide the folder note from appearing in the folder's note list
+  - **Folder note name:** Name of the folder note without extension. Leave empty to use the same name as the folder
+  - **Hide folder notes in list:** Hide the folder note from appearing in the folder's note list
 
 ### Tags
 
@@ -153,29 +153,29 @@ Until the plugin is approved in the Community Plugins directory, you can install
 - **Show notes from subfolders:** Display all notes from subfolders in the current folder view
   - **Show parent folder names:** Display the parent folder name for notes from subfolders
 - **Date format:** Format for displaying dates (uses date-fns format)
-- **Time format:** Format for displaying times in Today and Yesterday groups (uses date-fns format)
+- **Time format:** Format for displaying times (uses date-fns format)
 
 ### Notes
 
 - **Read metadata from frontmatter:** Read note names and timestamps from frontmatter when available, falling back to file system values
   - **Name field:** Frontmatter field to use as the note display name. Leave empty to use the file name
-  - **Created timestamp field:** Frontmatter field name for the created timestamp (default: "created")
-  - **Modified timestamp field:** Frontmatter field name for the modified timestamp (default: "modified")
-  - **Timestamp format:** Format used to parse timestamps in frontmatter (default: "yyyy-MM-dd'T'HH:mm:ss")
+  - **Created timestamp field:** Frontmatter field name for the created timestamp. Leave empty to only use file system date
+  - **Modified timestamp field:** Frontmatter field name for the modified timestamp. Leave empty to only use file system date
+  - **Timestamp format:** Format used to parse timestamps in frontmatter
 - **Title rows:** Number of rows to display for note titles (1 or 2)
 - **Show date:** Display the date below note names
 - **Show note preview:** Display preview text beneath note names
   - **Skip headings in preview:** Skip heading lines when generating preview text
   - **Skip non-text in preview:** Skip images, embeds, and other non-text elements from preview text
   - **Preview rows:** Number of rows to display for preview text (1-5)
-- **Show feature image:** Display thumbnail images from frontmatter
-  - **Feature image property:** The frontmatter property name for thumbnail images (default: "feature")
+- **Show feature image:** Display thumbnail images from frontmatter. Tip: Use the "Featured Image" plugin to automatically set feature images for all your documents
+  - **Feature image property:** The frontmatter property name for thumbnail images. Important! In Featured Image plugin you can choose to create resized thumbnails, this will significantly improve performance! Use 42 pixels for maximum performance, or 84 pixels for retina displays. The resized property is called "featureResized" by default
 
 **Note:** When date, preview, and feature image are all disabled, the list pane displays in a compact "slim mode" with only note names, providing a cleaner, more minimal interface.
 
 ### Advanced
 
-- **Confirm before deleting notes:** Show confirmation dialog when deleting notes or folders
+- **Confirm before deleting:** Show confirmation dialog when deleting notes or folders
 
 ## Tips and Tricks
 
