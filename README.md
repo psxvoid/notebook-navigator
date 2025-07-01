@@ -149,7 +149,7 @@ Until the plugin is approved in the Community Plugins directory, you can install
 ### List Pane
 
 - **Sort notes by:** Choose how notes are sorted in the note list - Date edited (newest/oldest first), Date created (newest/oldest first), or Title (A/Z first)
-  - **Group notes by date:** When sorted by date, group notes under date headers
+- **Group notes by date:** When sorted by date, group notes under date headers
 - **Show notes from subfolders:** Display all notes from subfolders in the current folder view
   - **Show parent folder names:** Display the parent folder name for notes from subfolders
 - **Date format:** Format for displaying dates (uses date-fns format)
