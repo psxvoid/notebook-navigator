@@ -449,14 +449,9 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .onChange(async (value: SortOption) => {
                     this.plugin.settings.defaultFolderSort = value;
                     await this.saveAndRefresh();
-                    // Update group by date visibility
-                    this.setElementVisibility(dateGroupingEl, shouldShowDateGrouping(value));
                 }));
 
-        // Container for conditional group by date setting
-        const dateGroupingEl = containerEl.createDiv('nn-sub-settings');
-
-        new Setting(dateGroupingEl)
+        new Setting(containerEl)
             .setName(strings.settings.items.groupByDate.name)
             .setDesc(strings.settings.items.groupByDate.desc)
             .addToggle(toggle => toggle
@@ -705,7 +700,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             });
 
         // Set initial visibility
-        this.setElementVisibility(dateGroupingEl, shouldShowDateGrouping(this.plugin.settings.defaultFolderSort));
         this.setElementVisibility(previewSettingsEl, this.plugin.settings.showFilePreview);
         this.setElementVisibility(featureImageSettingsEl, this.plugin.settings.showFeatureImage);
         this.setElementVisibility(untaggedSettingEl, this.plugin.settings.showTags);

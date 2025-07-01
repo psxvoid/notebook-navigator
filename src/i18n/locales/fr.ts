@@ -342,7 +342,7 @@ export const STRINGS_FR = {
             },
             timeFormat: {
                 name: 'Format d\'heure',
-                desc: 'Format pour afficher les heures dans les groupes Aujourd\'hui et Hier (utilise le format date-fns).',
+                desc: 'Format pour afficher les heures (utilise le format date-fns).',
                 placeholder: 'HH:mm',
                 help: 'Formats courants :\nHH:mm = 14:30 (24 heures)\nh:mm a = 2:30 PM (12 heures)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nJetons :\nHH/H = 24 heures\nhh/h = 12 heures\nmm = minutes\nss = secondes\na = AM/PM',
                 helpTooltip: 'Cliquez pour la référence du format',

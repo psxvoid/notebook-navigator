@@ -342,7 +342,7 @@ export const STRINGS_JA = {
             },
             timeFormat: {
                 name: '時刻形式',
-                desc: '今日と昨日のグループで時刻を表示する形式（date-fns形式を使用）。',
+                desc: '時刻を表示する形式（date-fns形式を使用）。',
                 placeholder: 'HH:mm',
                 help: '一般的な形式：\nHH:mm = 14:30（24時間制）\nh:mm a = 2:30 PM（12時間制）\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nトークン：\nHH/H = 24時間制\nhh/h = 12時間制\nmm = 分\nss = 秒\na = AM/PM',
                 helpTooltip: 'クリックして形式リファレンスを表示',

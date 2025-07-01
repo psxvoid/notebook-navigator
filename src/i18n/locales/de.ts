@@ -342,7 +342,7 @@ export const STRINGS_DE = {
             },
             timeFormat: {
                 name: 'Zeitformat',
-                desc: 'Format für die Zeitanzeige in Heute- und Gestern-Gruppen (verwendet date-fns Format).',
+                desc: 'Format für die Zeitanzeige (verwendet date-fns Format).',
                 placeholder: 'HH:mm',
                 help: 'Gängige Formate:\nHH:mm = 14:30 (24-Stunden)\nh:mm a = 2:30 PM (12-Stunden)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nTokens:\nHH/H = 24-Stunden\nhh/h = 12-Stunden\nmm = Minuten\nss = Sekunden\na = AM/PM',
                 helpTooltip: 'Klicken für Formatreferenz',

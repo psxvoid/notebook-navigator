@@ -342,7 +342,7 @@ export const STRINGS_ES = {
             },
             timeFormat: {
                 name: 'Formato de hora',
-                desc: 'Formato para mostrar horas en los grupos Hoy y Ayer (usa formato date-fns).',
+                desc: 'Formato para mostrar horas (usa formato date-fns).',
                 placeholder: 'HH:mm',
                 help: 'Formatos comunes:\nHH:mm = 14:30 (24 horas)\nh:mm a = 2:30 PM (12 horas)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nTokens:\nHH/H = 24 horas\nhh/h = 12 horas\nmm = minutos\nss = segundos\na = AM/PM',
                 helpTooltip: 'Clic para referencia de formato',

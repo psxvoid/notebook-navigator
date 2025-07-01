@@ -342,7 +342,7 @@ export const STRINGS_ZH = {
             },
             timeFormat: {
                 name: '时间格式',
-                desc: '用于在今天和昨天分组中显示时间的格式（使用 date-fns 格式）。',
+                desc: '用于显示时间的格式（使用 date-fns 格式）。',
                 placeholder: 'HH:mm',
                 help: '常用格式：\nHH:mm = 14:30（24小时制）\nh:mm a = 2:30 PM（12小时制）\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\n标记：\nHH/H = 24小时制\nhh/h = 12小时制\nmm = 分钟\nss = 秒\na = 上午/下午',
                 helpTooltip: '点击查看格式参考',
