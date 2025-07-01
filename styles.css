@@ -13,9 +13,9 @@
     --nn-file-second-line-height: 19px;  /* Height for date/preview line - tighter spacing */
     --nn-file-preview-line-height: 18px;  /* Height for multi-line preview only */
     
-    /* Font sizes - using rem for consistent scaling but ensuring whole pixels */
-    --nn-file-name-size: 0.875rem;  /* 14px at default scale */
-    --nn-file-small-size: 0.8125rem;  /* 13px at default scale */
+    /* Font sizes - fixed pixel values to prevent scaling with Obsidian font size */
+    --nn-file-name-size: 14px;  /* Fixed 14px */
+    --nn-file-small-size: 13px;  /* Fixed 13px */
     
     /* Date header heights */
     --nn-date-header-height: 35px;  /* First header */
@@ -31,7 +31,7 @@
     --nn-nav-padding-vertical-mobile: 11px;  /* (40px - 18px) / 2 = 11px */
     
     /* Navigation font sizes - fixed for pixel-perfect rendering */
-    --nn-nav-font-size: 0.8125rem;  /* 13px at default scale */
+    --nn-nav-font-size: 13px;  /* Fixed 13px */
     --nn-nav-icon-size: 16px;  /* Fixed icon size */
 }
 
@@ -347,7 +347,7 @@ button.nn-icon-button {
 
 /* Folder file count - shows number of files in folder */
 .nn-folder-count {
-    font-size: var(--font-ui-smaller);
+    font-size: 11px;
     color: var(--text-muted);
     margin-inline-end: var(--size-4-1);
     flex-shrink: 0;
@@ -379,7 +379,7 @@ button.nn-icon-button {
 /* Section header for Tags */
 .nn-section-header {
     padding: var(--size-4-3) var(--size-4-2) var(--size-4-1) var(--size-4-3);
-    font-size: var(--font-ui-smaller);
+    font-size: 11px;
     font-weight: 600;
     color: var(--text-muted);
     text-transform: uppercase;
@@ -700,7 +700,7 @@ button.nn-icon-button {
     padding: var(--size-4-10) var(--size-4-5);
     text-align: center;
     color: var(--text-muted);
-    font-size: var(--font-ui-medium);
+    font-size: 14px;
 }
 
 /* Empty state message text */
@@ -1003,7 +1003,7 @@ body.nn-resizing {
     border-radius: var(--radius-s);
     background-color: var(--background-primary);
     color: var(--text-normal);
-    font-size: var(--font-ui-medium);
+    font-size: 14px;
     margin: var(--size-4-4) 0;
 }
 
@@ -1059,7 +1059,7 @@ body.nn-resizing {
 .nn-icon-search-input {
     width: 100%;
     padding: var(--size-4-2) var(--size-4-3);
-    font-size: var(--font-ui-medium);
+    font-size: 14px;
     background: var(--background-primary);
     border: 1px solid var(--background-modifier-border);
     border-radius: var(--radius-s);
@@ -1082,7 +1082,7 @@ body.nn-resizing {
 
 /* Icon category headers */
 .nn-icon-section-header {
-    font-size: var(--font-ui-small);
+    font-size: 13px;
     font-weight: 500;
     color: var(--text-muted);
     text-transform: uppercase;
@@ -1139,7 +1139,7 @@ body.nn-resizing {
 
 /* Icon name label */
 .nn-icon-item-name {
-    font-size: var(--font-ui-smaller);
+    font-size: 11px;
     color: var(--text-muted);
     text-align: center;
     word-break: break-word;
@@ -1153,7 +1153,7 @@ body.nn-resizing {
     text-align: center;
     color: var(--text-muted);
     padding: var(--size-4-6);
-    font-size: var(--font-ui-medium);
+    font-size: 14px;
 }
 
 /* ========================================================================
@@ -1402,7 +1402,7 @@ body.nn-resizing {
 
 .nn-color-picker-header h3 {
     margin: 0;
-    font-size: var(--font-ui-medium);
+    font-size: 14px;
     font-weight: 600;
     color: var(--text-normal);
 }
@@ -1474,7 +1474,7 @@ body.nn-resizing {
 
 /* Color name label */
 .nn-color-name {
-    font-size: var(--font-ui-smaller);
+    font-size: 11px;
     color: var(--text-muted);
     text-align: center;
     font-weight: 500;
@@ -1502,7 +1502,7 @@ body.nn-resizing {
 
 /* Increase folder text size on mobile for better readability */
 .notebook-navigator-mobile .nn-folder-name {
-    font-size: calc(var(--font-ui-medium) + 1px);
+    font-size: 15px;
 }
 
 /* Increase folder icon size on mobile */
@@ -1513,7 +1513,7 @@ body.nn-resizing {
 
 /* Increase folder count size on mobile to match folder text */
 .notebook-navigator-mobile .nn-folder-count {
-    font-size: var(--font-ui-small);
+    font-size: 13px;
 }
 
 /* Mobile folder content padding adjustment for proper selection height */
@@ -1530,16 +1530,16 @@ body.nn-resizing {
 
 /* File name text size on mobile */
 .notebook-navigator-mobile .nn-file-name {
-    font-size: calc(var(--font-ui-medium) + 1px);
+    font-size: 15px;
 }
 
 /* Increase file date and preview text size on mobile */
 .notebook-navigator-mobile .nn-file-date {
-    font-size: var(--font-ui-medium);
+    font-size: 14px;
 }
 
 .notebook-navigator-mobile .nn-file-preview {
-    font-size: var(--font-ui-medium);
+    font-size: 14px;
 }
 
 /* Adjust file content padding on mobile for larger text */
@@ -1560,13 +1560,13 @@ body.nn-resizing {
 
 /* Increase date group header text size on mobile */
 .notebook-navigator-mobile .nn-date-group-header {
-    font-size: var(--font-ui-medium);
+    font-size: 14px;
     padding: var(--size-4-2) var(--size-4-4);
 }
 
 /* Increase tag section header text size on mobile to match date headers */
 .notebook-navigator-mobile .nn-section-header {
-    font-size: var(--font-ui-small);
+    font-size: 13px;
     padding: var(--size-4-3) var(--size-4-4) var(--size-4-1) var(--size-4-4);
 }
 
