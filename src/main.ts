@@ -70,6 +70,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
     tagOperations: TagOperations | null = null;
     // A map of callbacks to notify open React views of changes
     private settingsUpdateListeners = new Map<string, () => void>();
+    // A map of callbacks to notify open React views of file renames
+    private fileRenameListeners = new Map<string, (oldPath: string, newPath: string) => void>();
     // Track if we're in the process of unloading
     private isUnloading = false;
 
@@ -223,12 +225,39 @@ export default class NotebookNavigatorPlugin extends Plugin {
         // Ribbon Icon For Opening
         this.refreshIconRibbon();
         
-        // Register rename event handler to update folder metadata
+        // Register rename event handler to update folder metadata and notify file renames
+        // 
+        // ARCHITECTURAL NOTE: Why folders and files are handled differently
+        // 
+        // FOLDERS: Don't need a listener system because:
+        // 1. React components hold references to Obsidian's TFolder objects
+        // 2. When renamed, Obsidian automatically updates the TFolder's properties
+        // 3. handleFolderRename updates settings (colors, icons, etc.) to the new path
+        // 4. Settings update triggers re-render via SettingsContext version increment
+        // 5. During re-render, components get fresh TFolder objects with updated names
+        // 
+        // FILES: Need a listener system because:
+        // 1. SelectionContext stores file paths in state (selectedFiles Set, selectedFile)
+        // 2. These paths become stale after rename and must be manually updated
+        // 3. Without updating, the selection would reference non-existent files
+        // 4. The listener notifies SelectionContext to update stored paths
+        //
         this.registerEvent(
             this.app.vault.on('rename', async (file, oldPath) => {
-                if (file instanceof TFolder && this.metadataService && !this.isUnloading) {
+                if (this.isUnloading) return;
+                
+                if (file instanceof TFolder && this.metadataService) {
                     await this.metadataService.handleFolderRename(oldPath, file.path);
                     // The metadata service saves settings which triggers reactive updates
+                } else if (file instanceof TFile) {
+                    // Notify all listeners about the file rename
+                    this.fileRenameListeners.forEach((callback) => {
+                        try {
+                            callback(oldPath, file.path);
+                        } catch (error) {
+                            console.error('[NotebookNavigator] Error in file rename listener:', error);
+                        }
+                    });
                 }
             })
         );
@@ -286,6 +315,22 @@ export default class NotebookNavigatorPlugin extends Plugin {
     }
 
     /**
+     * Register a callback to be notified when files are renamed
+     * Used by React views to update selection state
+     */
+    public registerFileRenameListener(id: string, callback: (oldPath: string, newPath: string) => void): void {
+        this.fileRenameListeners.set(id, callback);
+    }
+
+    /**
+     * Unregister a file rename callback
+     * Called when React views unmount to prevent memory leaks
+     */
+    public unregisterFileRenameListener(id: string): void {
+        this.fileRenameListeners.delete(id);
+    }
+
+    /**
      * Plugin cleanup - called when plugin is disabled or updated
      * Removes ribbon icon but preserves open views to maintain user workspace
      * Per Obsidian guidelines: leaves should not be detached in onunload
@@ -296,6 +341,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         
         // Clear all listeners first to prevent any callbacks during cleanup
         this.settingsUpdateListeners.clear();
+        this.fileRenameListeners.clear();
         
         // Clean up the metadata service
         if (this.metadataService) {
