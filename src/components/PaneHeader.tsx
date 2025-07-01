@@ -314,7 +314,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                                 disabled={!selectionState.selectedFolder}
                                 tabIndex={-1}
                             >
-                                <ObsidianIcon name="file-plus" />
+                                <ObsidianIcon name="pen-box" />
                             </button>
                         </div>
                     </div>
@@ -423,7 +423,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                                 disabled={!selectionState.selectedFolder}
                                 tabIndex={-1}
                             >
-                                <ObsidianIcon name="file-plus" />
+                                <ObsidianIcon name="pen-box" />
                             </button>
                         </div>
                     </>
