@@ -241,12 +241,6 @@ Add visual organization with custom colors and icons:
 3. Choose from a palette of colors or variety of Lucide icons
 4. To remove, right-click and select "Remove color" or "Remove icon"
 
-Visual customization helps you:
-- Quickly identify different types of content at a glance
-- Highlight important project folders and tags
-- Create a more personalized and intuitive navigation experience
-- Combine colors and icons for better organization
-
 ### Custom sort order
 
 Each folder and tag can have its own sort preference:
