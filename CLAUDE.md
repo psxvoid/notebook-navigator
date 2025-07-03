@@ -27,7 +27,7 @@ Notebook Navigator is an Obsidian plugin that replaces the default file explorer
 - **Main Component**: `src/components/NotebookNavigatorComponent.tsx` (two-pane layout).
 - **Build Command**:
     1. `npm install --legacy-peer-deps`
-    2. `npm run build`
+    2. `./build.sh` (runs npm build and optional local deployment)
 - **Release Assets**: `main.js`, `manifest.json`, `styles.css`.
 - **Key Patterns**: Functional React components, modular state via Context API, strict TypeScript, virtualized lists.
 - **Testing**: Manual testing within an Obsidian vault.
@@ -436,11 +436,13 @@ All UI text should use sentence case (only first letter capitalized) for consist
 npm install --legacy-peer-deps
 
 # Production build - run this every time you finish working tasks
-npm run build
+./build.sh
 
 # Development mode
 npm run dev
 ```
+
+**Note**: Use `./build.sh` instead of `npm run build`. This script runs the build and checks for an optional `build-local.sh` file (gitignored) that can contain local deployment commands.
 
 Releases are automated via GitHub Actions in `.github/workflows/release.yml`. Output assets include `main.js`, `manifest.json`, and `styles.css`.
 
