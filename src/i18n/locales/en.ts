@@ -382,10 +382,10 @@ export const STRINGS_EN = {
                 name: 'Show feature image',
                 desc: 'Display thumbnail images from frontmatter. Tip: Use the "Featured Image" plugin to automatically set feature images for all your documents.',
             },
-            featureImageProperty: {
-                name: 'Feature image property',
-                desc: 'The frontmatter property name for thumbnail images. Important! In Featured Image plugin you can choose to create resized thumbnails, this will significantly improve performance! Use 42 pixels for maximum performance, or 84 pixels for retina displays. The resized property is called "featureResized" by default.',
-                placeholder: 'feature',
+            featureImageProperties: {
+                name: 'Image properties',
+                desc: 'Comma-separated list of frontmatter properties to check for thumbnail images. The first property with an image will be used. Tip: Use the "Featured Image" plugin to automatically set feature images. For best performance, use 42px thumbnails or 84px for retina displays.',
+                placeholder: 'featureResized, feature',
             },
             showRootFolder: {
                 name: 'Show root folder',

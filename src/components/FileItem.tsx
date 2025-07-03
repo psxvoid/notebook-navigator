@@ -127,29 +127,32 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
             return null;
         }
 
-        const imagePath = metadata?.frontmatter?.[settings.featureImageProperty];
+        // Try each property in order until we find an image
+        for (const property of settings.featureImageProperties) {
+            const imagePath = metadata?.frontmatter?.[property];
+            
+            if (!imagePath) {
+                continue;
+            }
 
-        if (!imagePath) {
-            return null;
-        }
+            // Handle wikilinks e.g., [[image.png]]
+            const resolvedPath = imagePath.startsWith('[[') && imagePath.endsWith(']]')
+                ? imagePath.slice(2, -2)
+                : imagePath;
 
-        // Handle wikilinks e.g., [[image.png]]
-        const resolvedPath = imagePath.startsWith('[[') && imagePath.endsWith(']]')
-            ? imagePath.slice(2, -2)
-            : imagePath;
-
-        const imageFile = app.metadataCache.getFirstLinkpathDest(resolvedPath, file.path);
-        if (imageFile) {
-            try {
-                return app.vault.getResourcePath(imageFile);
-            } catch (e) {
-                // Vault might not be ready, return null
-                return null;
+            const imageFile = app.metadataCache.getFirstLinkpathDest(resolvedPath, file.path);
+            if (imageFile) {
+                try {
+                    return app.vault.getResourcePath(imageFile);
+                } catch (e) {
+                    // Vault might not be ready, try next property
+                    continue;
+                }
             }
         }
 
         return null;
-    }, [file.path, file.stat.mtime, metadata, settings.showFeatureImage, settings.featureImageProperty, app.metadataCache, app.vault]);
+    }, [file.path, file.stat.mtime, metadata, settings.showFeatureImage, settings.featureImageProperties, app.metadataCache, app.vault]);
     
     // Detect slim mode when all display options are disabled
     const isSlimMode = !settings.showDate && 

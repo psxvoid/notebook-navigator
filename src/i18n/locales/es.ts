@@ -382,10 +382,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar imagen destacada',
                 desc: 'Muestra imágenes en miniatura desde el frontmatter. Consejo: Usa el plugin "Featured Image" para establecer automáticamente imágenes destacadas para todos tus documentos.',
             },
-            featureImageProperty: {
-                name: 'Propiedad de imagen destacada',
-                desc: 'El nombre de la propiedad del frontmatter para las imágenes en miniatura. ¡Importante! En el plugin Featured Image puedes elegir crear miniaturas redimensionadas, ¡esto mejorará significativamente el rendimiento! Usa 42 píxeles para máximo rendimiento, o 84 píxeles para pantallas retina. La propiedad redimensionada se llama "featureResized" por defecto.',
-                placeholder: 'feature',
+            featureImageProperties: {
+                name: 'Propiedades de imagen',
+                desc: 'Lista separada por comas de propiedades del frontmatter para imágenes en miniatura. Se usará la primera propiedad con una imagen. Consejo: Usa el plugin "Featured Image" para establecer imágenes automáticamente. Para mejor rendimiento, usa miniaturas de 42px o 84px para pantallas retina.',
+                placeholder: 'featureResized, feature',
             },
             showRootFolder: {
                 name: 'Mostrar carpeta raíz',

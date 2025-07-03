@@ -82,7 +82,7 @@ export interface NotebookNavigatorSettings {
     skipNonTextInPreview: boolean;
     previewRows: number;
     showFeatureImage: boolean;
-    featureImageProperty: string;
+    featureImageProperties: string[];
     useFrontmatterDates: boolean;
     // Advanced
     confirmBeforeDelete: boolean;
@@ -139,7 +139,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     skipNonTextInPreview: true,
     previewRows: 1,
     showFeatureImage: true,
-    featureImageProperty: 'feature',
+    featureImageProperties: ['featureResized', 'feature'],
     useFrontmatterDates: false,
     // Advanced
     confirmBeforeDelete: true,
@@ -664,11 +664,21 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         this.createDebouncedTextSetting(
             featureImageSettingsEl,
-            strings.settings.items.featureImageProperty.name,
-            strings.settings.items.featureImageProperty.desc,
-            strings.settings.items.featureImageProperty.placeholder,
-            () => this.plugin.settings.featureImageProperty,
-            (value) => { this.plugin.settings.featureImageProperty = value || 'feature'; }
+            strings.settings.items.featureImageProperties.name,
+            strings.settings.items.featureImageProperties.desc,
+            strings.settings.items.featureImageProperties.placeholder,
+            () => this.plugin.settings.featureImageProperties.join(', '),
+            (value) => { 
+                // Parse comma-separated values into array
+                this.plugin.settings.featureImageProperties = value
+                    .split(',')
+                    .map(prop => prop.trim())
+                    .filter(prop => prop.length > 0);
+                // Ensure at least one property
+                if (this.plugin.settings.featureImageProperties.length === 0) {
+                    this.plugin.settings.featureImageProperties = ['feature'];
+                }
+            }
         );
 
 

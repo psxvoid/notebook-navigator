@@ -169,7 +169,7 @@ Until the plugin is approved in the Community Plugins directory, you can install
   - **Skip non-text in preview:** Skip images, embeds, and other non-text elements from preview text
   - **Preview rows:** Number of rows to display for preview text (1-5)
 - **Show feature image:** Display thumbnail images from frontmatter. Tip: Use the "Featured Image" plugin to automatically set feature images for all your documents
-  - **Feature image property:** The frontmatter property name for thumbnail images. Important! In Featured Image plugin you can choose to create resized thumbnails, this will significantly improve performance! Use 42 pixels for maximum performance, or 84 pixels for retina displays. The resized property is called "featureResized" by default
+  - **Image properties:** Comma-separated list of frontmatter properties to check for thumbnail images. The first property with an image will be used. Tip: Use the "Featured Image" plugin to automatically set feature images. For best performance, use 42px thumbnails or 84px for retina displays
 
 **Note:** When date, preview, and feature image are all disabled, the list pane displays in a compact "slim mode" with only note names, providing a cleaner, more minimal interface.
 
@@ -198,9 +198,9 @@ For best performance with Notebook Navigator's 42px thumbnails, configure these 
 - **Fill resized dimensions:** `true`
 
 Then in Notebook Navigator settings:
-- **Feature image property:** `featureResized`
+- **Image properties:** `featureResized, feature`
 
-This creates optimized 42px thumbnails that load quickly and display perfectly in the list pane, rather than loading full-size images.
+This configuration first checks for optimized 42px thumbnails (featureResized), then falls back to the full-size feature image if no thumbnail exists. The optimized thumbnails load quickly and display perfectly in the list pane.
 
 ### Using folder notes
 

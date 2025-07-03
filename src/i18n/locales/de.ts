@@ -382,10 +382,10 @@ export const STRINGS_DE = {
                 name: 'Vorschaubild anzeigen',
                 desc: 'Miniaturbilder aus Frontmatter anzeigen. Tipp: Verwenden Sie das "Featured Image" Plugin, um automatisch Vorschaubilder für alle Ihre Dokumente festzulegen.',
             },
-            featureImageProperty: {
-                name: 'Vorschaubild-Eigenschaft',
-                desc: 'Der Name der Frontmatter-Eigenschaft für Miniaturbilder. Wichtig! Im Featured Image Plugin können Sie verkleinerte Thumbnails erstellen, was die Leistung erheblich verbessert! Verwenden Sie 42 Pixel für maximale Leistung oder 84 Pixel für Retina-Displays. Die verkleinerte Eigenschaft heißt standardmäßig "featureResized".',
-                placeholder: 'feature',
+            featureImageProperties: {
+                name: 'Bildeigenschaften',
+                desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften für Miniaturbilder. Die erste Eigenschaft mit einem Bild wird verwendet. Tipp: Verwenden Sie das "Featured Image" Plugin für automatische Vorschaubilder. Für beste Leistung verwenden Sie 42px Thumbnails oder 84px für Retina-Displays.',
+                placeholder: 'featureResized, feature',
             },
             showRootFolder: {
                 name: 'Wurzelordner anzeigen',
