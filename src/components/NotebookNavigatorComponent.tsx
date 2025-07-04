@@ -197,7 +197,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         focusFilePane: () => {
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             // Focus the container to ensure keyboard navigation works
-            containerRef.current?.focus();
+            // Don't steal focus if we're opening version history
+            const isOpeningVersionHistory = (window as any).notebookNavigatorOpeningVersionHistory;
+            if (!isOpeningVersionHistory) {
+                containerRef.current?.focus();
+            }
         },
         refresh: () => {
             // A no-op update will increment the version and force a re-render
@@ -351,7 +355,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
 
     // Ensure the container has focus when the focused pane changes
     useEffect(() => {
-        if (uiState.focusedPane) {
+        // Don't steal focus if we're opening version history
+        const isOpeningVersionHistory = (window as any).notebookNavigatorOpeningVersionHistory;
+        if (uiState.focusedPane && !isOpeningVersionHistory) {
             containerRef.current?.focus();
         }
     }, [uiState.focusedPane]);

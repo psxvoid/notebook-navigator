@@ -663,129 +663,51 @@ export class FileSystemOperations {
     /**
      * Opens version history for a file using Obsidian Sync.
      * 
-     * FOCUS ISSUE FIX:
-     * Problem: Version history modal requires editor to have focus to display
+     * The version history modal requires the editor to have focus when the command executes.
+     * The Notebook Navigator's aggressive focus management can interfere with this.
      * 
-     * When working (e.g., second click):
-     * 1. File is already open and editor has focus
-     * 2. User right-clicks and selects "Version History"
-     * 3. Command executes successfully
-     * 4. Modal displays properly
-     * 
-     * When failing (e.g., first click on non-selected file):
-     * 1. User right-clicks non-selected file in navigator
-     * 2. Our code opens the file
-     * 3. Auto-reveal detects file change and calls revealFile()
-     * 4. revealFile() changes focus back to files pane (stealing from editor)
-     * 5. Version history command executes but modal can't show (no editor focus)
-     * 6. Command returns true but nothing visible happens
-     * 
-     * Solution: Set a flag to prevent revealFile() from changing focus
-     * when we're opening version history
+     * Solution:
+     * 1. Set a flag to prevent the navigator from stealing focus
+     * 2. Always use openLinkText to open/re-open the file (ensures proper editor focus)
+     * 3. Wait briefly for the editor to be ready
+     * 4. Execute the version history command
+     * 5. Clear the flag after a delay
      * 
      * @param file - The file to view version history for
      */
     async openVersionHistory(file: TFile): Promise<void> {
-        // Set a flag to prevent focus stealing during reveal
+        // Set a flag to prevent the navigator from stealing focus back
         (window as any).notebookNavigatorOpeningVersionHistory = true;
         
         try {
-            // Check if the file is already open in any leaf
-            const leaves = this.app.workspace.getLeavesOfType('markdown');
+            // Always open/re-open the file to ensure proper focus
+            // This works for non-selected files, so let's use it for all files
+            await this.app.workspace.openLinkText(file.path, '', false);
             
-            // Find if our file is open in any leaf
-            const fileLeaf = leaves.find(leaf => {
-                const view = leaf.view as any;
-                return view && 'file' in view && view.file?.path === file.path;
-            });
-            const isAlreadyOpen = !!fileLeaf;
-            
-            // Check if the file is the active file
-            const activeFile = this.app.workspace.getActiveFile();
-            const isActiveFile = activeFile?.path === file.path;
-            
-            if (!isActiveFile) {
-                // File needs to be opened or activated
-                
-                // Create a promise that resolves when the file becomes active
-                const waitForFileActive = new Promise<void>((resolve) => {
-                    let resolved = false;
-                    
-                    // Set up a listener for active leaf change
-                    const eventRef = this.app.workspace.on('active-leaf-change', () => {
-                        const activeFile = this.app.workspace.getActiveFile();
-                        if (activeFile?.path === file.path && !resolved) {
-                            resolved = true;
-                            this.app.workspace.offref(eventRef);
-                            resolve();
-                        }
-                    });
-                    
-                    // Timeout after 1 second
-                    setTimeout(() => {
-                        if (!resolved) {
-                            resolved = true;
-                            this.app.workspace.offref(eventRef);
-                            resolve();
-                        }
-                    }, 1000);
-                });
-                
-                if (!isAlreadyOpen) {
-                    // File is not open at all, open it
-                    const leaf = this.app.workspace.getLeaf(false);
-                    await leaf.openFile(file);
-                } else if (fileLeaf) {
-                    // File is open but not active, activate it
-                    this.app.workspace.setActiveLeaf(fileLeaf, { focus: true });
-                }
-                
-                // Wait for the file to become active
-                await waitForFileActive;
-                
-            }
-            
-            // CRITICAL: Focus the editor view, not just activate the file
-            const activeLeaf = this.app.workspace.activeLeaf;
-            
-            if (activeLeaf && activeLeaf.view) {
-                activeLeaf.view.containerEl.focus();
-                
-                // Also try to focus the content element if it exists
-                const contentEl = (activeLeaf.view as any).contentEl;
-                if (contentEl) {
-                    contentEl.focus();
-                }
-            }
+            // Small delay to ensure the editor is ready
+            await new Promise(resolve => setTimeout(resolve, 100));
             
             // Try both possible command IDs
             const commandIds = ['sync:show-sync-history', 'sync:view-version-history'];
             let executed = false;
             
             for (const commandId of commandIds) {
-                try {
-                    const success = executeCommand(this.app, commandId);
-                    
-                    if (success) {
-                        executed = true;
-                        break;
-                    }
-                } catch (error) {
-                    // Continue to next command ID
-                    continue;
+                if (executeCommand(this.app, commandId)) {
+                    executed = true;
+                    break;
                 }
             }
             
             if (!executed) {
                 new Notice(strings.fileSystem.errors.versionHistoryNotFound);
             }
-            
-            // Clear the flag immediately after command execution
-            delete (window as any).notebookNavigatorOpeningVersionHistory;
         } catch (error) {
             new Notice(strings.fileSystem.errors.openVersionHistory.replace('{error}', error.message));
-            // Clear the flag on error too
-            delete (window as any).notebookNavigatorOpeningVersionHistory;
+        } finally {
+            // Clear the flag after a delay to ensure the modal has time to open
+            setTimeout(() => {
+                delete (window as any).notebookNavigatorOpeningVersionHistory;
+            }, 500);
         }
     }
 
