@@ -678,7 +678,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Container for feature image settings
         const featureImageSettingsEl = containerEl.createDiv('nn-sub-settings');
 
-        this.createDebouncedTextSetting(
+        const featurePropertiesSetting = this.createDebouncedTextSetting(
             featureImageSettingsEl,
             strings.settings.items.featureImageProperties.name,
             strings.settings.items.featureImageProperties.desc,
@@ -690,12 +690,14 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .split(',')
                     .map(prop => prop.trim())
                     .filter(prop => prop.length > 0);
-                // Ensure at least one property
-                if (this.plugin.settings.featureImageProperties.length === 0) {
-                    this.plugin.settings.featureImageProperties = ['feature'];
-                }
             }
         );
+        
+        // Add informational text about embed fallback
+        featurePropertiesSetting.descEl.createEl('div', {
+            text: strings.settings.items.featureImageProperties.embedFallback,
+            cls: 'nn-setting-info'
+        });
 
 
         // Section 6: Advanced

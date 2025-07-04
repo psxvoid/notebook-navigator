@@ -162,6 +162,26 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
                     }
                 }
             }
+            
+            // If no frontmatter image found, try embedded images as fallback
+            // This feature requires Obsidian 1.9.4+
+            if (metadata?.embeds && metadata.embeds.length > 0) {
+                for (const embed of metadata.embeds) {
+                    // Extract the link path from the embed
+                    const embedPath = embed.link;
+                    
+                    // Try to resolve the embed to a file
+                    const embedFile = app.metadataCache.getFirstLinkpathDest(embedPath, file.path);
+                    if (embedFile && isImageFile(embedFile)) {
+                        try {
+                            return app.vault.getResourcePath(embedFile);
+                        } catch (e) {
+                            // Continue to next embed
+                            continue;
+                        }
+                    }
+                }
+            }
         }
 
         return null;

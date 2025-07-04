@@ -394,6 +394,7 @@ export const STRINGS_ES = {
                 name: 'Propiedades de imagen',
                 desc: 'Lista separada por comas de propiedades del frontmatter para imágenes en miniatura. Se usará la primera propiedad con una imagen. Consejo: Usa el plugin "Featured Image" para establecer imágenes automáticamente. Para mejor rendimiento, usa miniaturas de 42px o 84px para pantallas retina.',
                 placeholder: 'featureResized, feature',
+                embedFallback: 'Si no se encuentra ninguna imagen en las propiedades anteriores, se utilizará la primera imagen incrustada en el documento (requiere Obsidian 1.9.4+)',
             },
             showRootFolder: {
                 name: 'Mostrar carpeta raíz',

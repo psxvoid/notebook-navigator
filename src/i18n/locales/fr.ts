@@ -394,6 +394,7 @@ export const STRINGS_FR = {
                 name: 'Propriétés d\'image',
                 desc: 'Liste de propriétés de métadonnées séparées par des virgules pour les images miniatures. La première propriété avec une image sera utilisée. Conseil : Utilisez le plugin "Featured Image" pour définir automatiquement des images. Pour de meilleures performances, utilisez des miniatures de 42px ou 84px pour les écrans Retina.',
                 placeholder: 'featureResized, feature',
+                embedFallback: 'Si aucune image n\'est trouvée dans les propriétés ci-dessus, la première image intégrée dans le document sera utilisée (nécessite Obsidian 1.9.4+)',
             },
             showRootFolder: {
                 name: 'Afficher le dossier racine',

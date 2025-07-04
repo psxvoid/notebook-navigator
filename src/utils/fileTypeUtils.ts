@@ -47,7 +47,7 @@ const CORE_OBSIDIAN_EXTENSIONS = new Set([
  * Limited to formats with reliable cross-platform support
  */
 export const IMAGE_EXTENSIONS = new Set([
-    'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp'
+    'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp'
 ]);
 
 /**

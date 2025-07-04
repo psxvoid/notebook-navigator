@@ -394,6 +394,7 @@ export const STRINGS_JA = {
                 name: '画像プロパティ',
                 desc: 'サムネイル画像用のフロントマタープロパティのカンマ区切りリスト。画像を持つ最初のプロパティが使用されます。ヒント：「Featured Image」プラグインを使用して自動的に画像を設定できます。最高のパフォーマンスには42pxのサムネイル、Retinaディスプレイには84pxを使用してください。',
                 placeholder: 'featureResized, feature',
+                embedFallback: '上記のプロパティに画像が見つからない場合、ドキュメント内の最初の埋め込み画像が使用されます（Obsidian 1.9.4以降が必要）',
             },
             showRootFolder: {
                 name: 'ルートフォルダを表示',

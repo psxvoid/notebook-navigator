@@ -176,7 +176,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             
             // Open the file if we're not actively using the navigator OR if this is a folder change with auto-select
             if (!hasNavigatorFocus || isFolderChangeWithAutoSelect) {
-                // This is an auto-selection from folder/tag change
                 const leaf = app.workspace.getLeaf(false);
                 if (leaf) {
                     leaf.openFile(selectedFile!, { active: false });
@@ -208,7 +207,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             // No active file in current view, select AND open the first file
             // (regardless of autoSelectFirstFile setting when navigating with keyboard)
             selectionDispatch({ type: 'SET_SELECTED_FILE', file: files[0] });
-            // Open the file
             const leaf = app.workspace.getLeaf(false);
             if (leaf) {
                 leaf.openFile(files[0], { active: false });
