@@ -329,6 +329,15 @@ export const STRINGS_FR = {
                 desc: 'Liste de dossiers à masquer séparés par des virgules. Supporte les caractères génériques : assets* (commence par), *_temp (finit par).',
                 placeholder: 'templates, assets*, *_temp',
             },
+            fileVisibility: {
+                name: 'Afficher les types de fichiers',
+                desc: 'Choisissez quels types de fichiers afficher dans le navigateur. Les fichiers non pris en charge par Obsidian s\'ouvriront dans l\'application par défaut de votre système.',
+                options: {
+                    markdownOnly: 'Markdown uniquement',
+                    supported: 'Fichiers pris en charge',
+                    all: 'Tous les fichiers',
+                },
+            },
             showDate: {
                 name: 'Afficher la date',
                 desc: 'Afficher la date sous les noms des notes.',
@@ -382,10 +391,10 @@ export const STRINGS_FR = {
                 name: 'Afficher l\'image vedette',
                 desc: 'Afficher les images miniatures depuis les métadonnées. Conseil : Utilisez le plugin "Featured Image" pour définir automatiquement des images vedettes pour tous vos documents.',
             },
-            featureImageProperty: {
-                name: 'Propriété d\'image vedette',
-                desc: 'Le nom de la propriété des métadonnées pour les images miniatures. Important ! Dans le plugin Featured Image, vous pouvez choisir de créer des miniatures redimensionnées, cela améliorera considérablement les performances ! Utilisez 42 pixels pour des performances maximales, ou 84 pixels pour les écrans Retina. La propriété redimensionnée s\'appelle "featureResized" par défaut.',
-                placeholder: 'feature',
+            featureImageProperties: {
+                name: 'Propriétés d\'image',
+                desc: 'Liste de propriétés de métadonnées séparées par des virgules pour les images miniatures. La première propriété avec une image sera utilisée. Conseil : Utilisez le plugin "Featured Image" pour définir automatiquement des images. Pour de meilleures performances, utilisez des miniatures de 42px ou 84px pour les écrans Retina.',
+                placeholder: 'featureResized, feature',
             },
             showRootFolder: {
                 name: 'Afficher le dossier racine',
