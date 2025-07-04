@@ -27,6 +27,7 @@ import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters
 import { getFolderNote } from '../utils/fileFinder';
 import { strings } from '../i18n';
 import { isSupportedFileExtension, ItemType } from '../types';
+import { shouldDisplayFile } from '../utils/fileTypeUtils';
 
 interface FolderItemProps {
     folder: TFolder;
@@ -121,7 +122,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
             let count = 0;
             for (const child of folder.children) {
                 if (isTFile(child)) {
-                    if (isSupportedFileExtension(child.extension)) {
+                    if (shouldDisplayFile(child, settings.fileVisibility, app)) {
                         // Check if file should be excluded
                         if (!shouldExcludeFile(child, excludedProperties, app)) {
                             count++;
@@ -135,7 +136,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
         };
         
         return countFiles(folder);
-    }, [folder.path, folder.children.length, settings.showNoteCount, settings.showNotesFromSubfolders, settings.excludedFiles, app]);
+    }, [folder.path, folder.children.length, settings.showNoteCount, settings.showNotesFromSubfolders, settings.excludedFiles, settings.fileVisibility, app]);
 
     const hasChildren = folder.children.some(isTFolder);
     

@@ -319,6 +319,15 @@ export const STRINGS_EN = {
                 name: 'Show tooltips',
                 desc: 'Display hover tooltips with additional information for notes and folders.',
             },
+            fileVisibility: {
+                name: 'Show file types',
+                desc: 'Choose which file types to display in the navigator. Files not supported by Obsidian will open in your system\'s default application.',
+                options: {
+                    markdownOnly: 'Markdown only',
+                    supported: 'Supported files',
+                    all: 'All files',
+                },
+            },
             excludedNotes: {
                 name: 'Excluded notes',
                 desc: 'Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived).',

@@ -329,6 +329,15 @@ export const STRINGS_ES = {
                 desc: 'Lista de carpetas a ocultar separadas por comas. Admite comodines: assets* (empieza con), *_temp (termina con).',
                 placeholder: 'templates, assets*, *_temp',
             },
+            fileVisibility: {
+                name: 'Mostrar tipos de archivo',
+                desc: 'Elija qué tipos de archivo mostrar en el navegador. Los archivos no soportados por Obsidian se abrirán en la aplicación predeterminada de su sistema.',
+                options: {
+                    markdownOnly: 'Solo Markdown',
+                    supported: 'Archivos soportados',
+                    all: 'Todos los archivos',
+                },
+            },
             showDate: {
                 name: 'Mostrar fecha',
                 desc: 'Muestra la fecha debajo de los nombres de las notas.',

@@ -28,6 +28,7 @@ import { getFileDisplayName } from '../utils/fileNameUtils';
 import { strings } from '../i18n';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useSelectionState } from '../context/SelectionContext';
+import { isImageFile } from '../utils/fileTypeUtils';
 import { ItemType } from '../types';
 
 interface FileItemProps {
@@ -127,26 +128,38 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
             return null;
         }
 
-        // Try each property in order until we find an image
-        for (const property of settings.featureImageProperties) {
-            const imagePath = metadata?.frontmatter?.[property];
-            
-            if (!imagePath) {
-                continue;
+        // First check if the file itself is an image
+        if (isImageFile(file)) {
+            try {
+                return app.vault.getResourcePath(file);
+            } catch (e) {
+                // Vault might not be ready
+                return null;
             }
+        }
 
-            // Handle wikilinks e.g., [[image.png]]
-            const resolvedPath = imagePath.startsWith('[[') && imagePath.endsWith(']]')
-                ? imagePath.slice(2, -2)
-                : imagePath;
-
-            const imageFile = app.metadataCache.getFirstLinkpathDest(resolvedPath, file.path);
-            if (imageFile) {
-                try {
-                    return app.vault.getResourcePath(imageFile);
-                } catch (e) {
-                    // Vault might not be ready, try next property
+        // For markdown files, try each property in order until we find an image
+        if (file.extension === 'md') {
+            for (const property of settings.featureImageProperties) {
+                const imagePath = metadata?.frontmatter?.[property];
+                
+                if (!imagePath) {
                     continue;
+                }
+
+                // Handle wikilinks e.g., [[image.png]]
+                const resolvedPath = imagePath.startsWith('[[') && imagePath.endsWith(']]')
+                    ? imagePath.slice(2, -2)
+                    : imagePath;
+
+                const imageFile = app.metadataCache.getFirstLinkpathDest(resolvedPath, file.path);
+                if (imageFile) {
+                    try {
+                        return app.vault.getResourcePath(imageFile);
+                    } catch (e) {
+                        // Vault might not be ready, try next property
+                        continue;
+                    }
                 }
             }
         }

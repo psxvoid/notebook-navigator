@@ -329,6 +329,15 @@ export const STRINGS_DE = {
                 desc: 'Kommagetrennte Liste von auszublendenden Ordnern. Unterstützt Platzhalter: assets* (beginnt mit), *_temp (endet mit).',
                 placeholder: 'vorlagen, assets*, *_temp',
             },
+            fileVisibility: {
+                name: 'Dateitypen anzeigen',
+                desc: 'Wählen Sie, welche Dateitypen im Navigator angezeigt werden sollen. Dateien, die von Obsidian nicht unterstützt werden, werden in der Standardanwendung Ihres Systems geöffnet.',
+                options: {
+                    markdownOnly: 'Nur Markdown',
+                    supported: 'Unterstützte Dateien',
+                    all: 'Alle Dateien',
+                },
+            },
             showDate: {
                 name: 'Datum anzeigen',
                 desc: 'Das Datum unter Notizennamen anzeigen.',

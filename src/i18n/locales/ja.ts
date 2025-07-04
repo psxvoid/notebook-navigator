@@ -329,6 +329,15 @@ export const STRINGS_JA = {
                 desc: '非表示にするフォルダのカンマ区切りリスト。ワイルドカード対応：assets*（で始まる）、*_temp（で終わる）。',
                 placeholder: 'templates, assets*, *_temp',
             },
+            fileVisibility: {
+                name: 'ファイルタイプを表示',
+                desc: 'ナビゲーターに表示するファイルタイプを選択します。Obsidianでサポートされていないファイルは、システムのデフォルトアプリケーションで開かれます。',
+                options: {
+                    markdownOnly: 'Markdownのみ',
+                    supported: 'サポートされているファイル',
+                    all: 'すべてのファイル',
+                },
+            },
             showDate: {
                 name: '日付を表示',
                 desc: 'ノート名の下に日付を表示します。',

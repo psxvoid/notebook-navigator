@@ -23,6 +23,7 @@ import { parseExcludedProperties, shouldExcludeFile } from './fileFilters';
 import { getEffectiveSortOption, sortFiles } from './sortUtils';
 import { buildTagTree, findTagNode, collectAllTagPaths } from './tagUtils';
 import { UNTAGGED_TAG_ID, isSupportedFileExtension } from '../types';
+import { shouldDisplayFile, FILE_VISIBILITY } from './fileTypeUtils';
 
 /**
  * Checks if a file is a folder note for the given folder
@@ -65,14 +66,14 @@ export function getFolderNote(folder: TFolder, settings: NotebookNavigatorSettin
 /**
  * Collects files from a folder and optionally its subfolders
  */
-export function collectFilesFromFolder(folder: TFolder, includeSubfolders: boolean): TFile[] {
+export function collectFilesFromFolder(folder: TFolder, includeSubfolders: boolean, settings: NotebookNavigatorSettings, app: App): TFile[] {
     const files: TFile[] = [];
     
     const collectFiles = (f: TFolder): void => {
         for (const child of f.children) {
             if (isTFile(child)) {
-                // Only include supported file types
-                if (isSupportedFileExtension(child.extension)) {
+                // Check if file should be displayed based on visibility setting
+                if (shouldDisplayFile(child, settings.fileVisibility, app)) {
                     files.push(child);
                 }
             } else if (includeSubfolders && isTFolder(child)) {
@@ -157,7 +158,7 @@ export function getFilesForFolder(
 ): TFile[] {
     const excludedProperties = parseExcludedProperties(settings.excludedFiles);
     
-    let allFiles = collectFilesFromFolder(folder, settings.showNotesFromSubfolders)
+    let allFiles = collectFilesFromFolder(folder, settings.showNotesFromSubfolders, settings, app)
         .filter(file => !shouldExcludeFile(file, excludedProperties, app));
     
     // Filter out folder notes if enabled and set to hide
@@ -190,22 +191,41 @@ export function getFilesForTag(
 ): TFile[] {
     const excludedProperties = parseExcludedProperties(settings.excludedFiles);
     
-    // Get all markdown files that aren't excluded
-    const allMarkdownFiles = app.vault.getMarkdownFiles()
-        .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-    
+    // Get all files based on visibility setting
     let allFiles: TFile[] = [];
+    
+    if (settings.fileVisibility === FILE_VISIBILITY.MARKDOWN) {
+        // Only markdown files
+        allFiles = app.vault.getMarkdownFiles();
+    } else {
+        // Get all files and filter based on visibility setting
+        allFiles = app.vault.getFiles()
+            .filter(file => shouldDisplayFile(file, settings.fileVisibility, app));
+    }
+    
+    // Apply exclusion filter
+    allFiles = allFiles.filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
+    
+    let filteredFiles: TFile[] = [];
     
     // Special case for untagged files
     if (tag === UNTAGGED_TAG_ID) {
-        allFiles = allMarkdownFiles.filter(file => {
+        filteredFiles = allFiles.filter(file => {
+            // Non-markdown files are always untagged
+            if (file.extension !== 'md') {
+                return true;
+            }
+            // For markdown files, check if they have tags
             const cache = app.metadataCache.getFileCache(file);
             const fileTags = cache ? getAllTags(cache) : null;
             return !fileTags || fileTags.length === 0;
         });
     } else {
+        // For regular tags, only consider markdown files since only they can have tags
+        const markdownFiles = allFiles.filter(file => file.extension === 'md');
+        
         // Build the tag tree
-        const tagTree = buildTagTree(allMarkdownFiles, app);
+        const tagTree = buildTagTree(markdownFiles, app);
         
         // Find the selected tag node
         const selectedNode = findTagNode(tag, tagTree);
@@ -220,7 +240,7 @@ export function getFilesForTag(
             );
             
             // Filter files that have any of the collected tags (case-insensitive)
-            allFiles = allMarkdownFiles.filter(file => {
+            filteredFiles = markdownFiles.filter(file => {
                 const cache = app.metadataCache.getFileCache(file);
                 const fileTags = cache ? getAllTags(cache) : null;
                 return fileTags && fileTags.some(tag => {
@@ -231,15 +251,15 @@ export function getFilesForTag(
             });
         } else {
             // Fallback to empty if tag not found
-            allFiles = [];
+            filteredFiles = [];
         }
     }
     
     // Sort files
     const sortOption = getEffectiveSortOption(settings, 'tag', null, tag);
-    sortFiles(allFiles, sortOption, settings, app.metadataCache);
+    sortFiles(filteredFiles, sortOption, settings, app.metadataCache);
     
     // Handle pinned notes - for tag view, collect ALL pinned notes from all folders
     const pinnedPaths = collectPinnedPaths(settings.pinnedNotes);
-    return separatePinnedFiles(allFiles, pinnedPaths);
+    return separatePinnedFiles(filteredFiles, pinnedPaths);
 }

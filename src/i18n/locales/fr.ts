@@ -329,6 +329,15 @@ export const STRINGS_FR = {
                 desc: 'Liste de dossiers à masquer séparés par des virgules. Supporte les caractères génériques : assets* (commence par), *_temp (finit par).',
                 placeholder: 'templates, assets*, *_temp',
             },
+            fileVisibility: {
+                name: 'Afficher les types de fichiers',
+                desc: 'Choisissez quels types de fichiers afficher dans le navigateur. Les fichiers non pris en charge par Obsidian s\'ouvriront dans l\'application par défaut de votre système.',
+                options: {
+                    markdownOnly: 'Markdown uniquement',
+                    supported: 'Fichiers pris en charge',
+                    all: 'Tous les fichiers',
+                },
+            },
             showDate: {
                 name: 'Afficher la date',
                 desc: 'Afficher la date sous les noms des notes.',

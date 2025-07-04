@@ -20,6 +20,7 @@ import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
 import NotebookNavigatorPlugin from './main';
 import { strings } from './i18n';
 import { shouldShowDateGrouping } from './utils/sortUtils';
+import { FileVisibility, FILE_VISIBILITY } from './utils/fileTypeUtils';
 
 /**
  * Available sort options for file listing
@@ -48,6 +49,7 @@ export interface NotebookNavigatorSettings {
     // Top level settings (no category)
     autoRevealActiveFile: boolean;
     showTooltips: boolean;
+    fileVisibility: FileVisibility;
     excludedFolders: string;
     excludedFiles: string;
     // Navigation pane
@@ -105,6 +107,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Top level settings (no category)
     autoRevealActiveFile: true,
     showTooltips: true,
+    fileVisibility: FILE_VISIBILITY.MARKDOWN,
     excludedFolders: '',
     excludedFiles: '',
     // Navigation pane
@@ -282,6 +285,19 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.showTooltips)
                 .onChange(async (value) => {
                     this.plugin.settings.showTooltips = value;
+                    await this.saveAndRefresh();
+                }));
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.fileVisibility.name)
+            .setDesc(strings.settings.items.fileVisibility.desc)
+            .addDropdown(dropdown => dropdown
+                .addOption(FILE_VISIBILITY.MARKDOWN, strings.settings.items.fileVisibility.options.markdownOnly)
+                .addOption(FILE_VISIBILITY.SUPPORTED, strings.settings.items.fileVisibility.options.supported)
+                .addOption(FILE_VISIBILITY.ALL, strings.settings.items.fileVisibility.options.all)
+                .setValue(this.plugin.settings.fileVisibility)
+                .onChange(async (value: FileVisibility) => {
+                    this.plugin.settings.fileVisibility = value;
                     await this.saveAndRefresh();
                 }));
 
