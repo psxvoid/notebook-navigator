@@ -219,7 +219,6 @@ export const STRINGS_FR = {
             failedToClearTags: 'Échec de la suppression des étiquettes',
         },
         notifications: {
-            movedMultipleFiles: '{count} fichiers déplacés',
             filesAlreadyExist: '{count} fichiers existent déjà dans la destination',
             addedTag: 'Étiquette "{tag}" ajoutée à {count} fichiers',
             filesAlreadyHaveTag: '{count} fichiers ont déjà cette étiquette ou une plus spécifique',

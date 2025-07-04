@@ -219,7 +219,6 @@ export const STRINGS_ZH = {
             failedToClearTags: '清除标签失败',
         },
         notifications: {
-            movedMultipleFiles: '已移动 {count} 个文件',
             filesAlreadyExist: '{count} 个文件在目标位置已存在',
             addedTag: '已将标签 "{tag}" 添加到 {count} 个文件',
             filesAlreadyHaveTag: '{count} 个文件已经有此标签或更具体的标签',

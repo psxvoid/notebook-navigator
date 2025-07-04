@@ -20,7 +20,7 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { TFolder, TFile, Notice } from 'obsidian';
 import { useServices, useFileSystemOps, useTagOperations } from '../context/ServicesContext';
-import { useSelectionState } from '../context/SelectionContext';
+import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { isTFolder, isTFile } from '../utils/typeGuards';
 import { getPathFromDataAttribute, getAbstractFileFromElement } from '../utils/domUtils';
 import { strings } from '../i18n';
@@ -72,6 +72,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const fileSystemOps = useFileSystemOps();
     const tagOperations = useTagOperations();
     const selectionState = useSelectionState();
+    const dispatch = useSelectionDispatch();
     const dragOverElement = useRef<HTMLElement | null>(null);
 
     /**
@@ -321,7 +322,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     }
                     
                     if (movedCount > 0) {
-                        new Notice(strings.dragDrop.notifications.movedMultipleFiles.replace('{count}', movedCount.toString()));
+                        // Clear the multi-selection after successfully moving files
+                        dispatch({ type: 'CLEAR_FILE_SELECTION' });
                     }
                     if (skippedCount > 0) {
                         new Notice(strings.dragDrop.notifications.filesAlreadyExist.replace('{count}', skippedCount.toString()), 2000);
@@ -356,10 +358,13 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             await app.fileManager.renameFile(sourceItem, newPath);
             // The file move will trigger Obsidian's file events, which will update
             // the state naturally through proper event handling
+            
+            // Clear any multi-selection after successfully moving the file
+            dispatch({ type: 'CLEAR_FILE_SELECTION' });
         } catch (error) {
             new Notice(strings.dragDrop.errors.failedToMove.replace('{error}', error.message));
         }
-    }, [app, fileSystemOps, tagOperations]);
+    }, [app, fileSystemOps, tagOperations, dispatch]);
     
     /**
      * Handles the drag leave event.

@@ -219,7 +219,6 @@ export const STRINGS_ES = {
             failedToClearTags: 'Error al eliminar las etiquetas',
         },
         notifications: {
-            movedMultipleFiles: '{count} archivos movidos',
             filesAlreadyExist: '{count} archivos ya existen en el destino',
             addedTag: 'Etiqueta "{tag}" agregada a {count} archivos',
             filesAlreadyHaveTag: '{count} archivos ya tienen esta etiqueta o una más específica',

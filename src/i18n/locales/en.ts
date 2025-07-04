@@ -219,7 +219,6 @@ export const STRINGS_EN = {
             failedToClearTags: 'Failed to clear tags',
         },
         notifications: {
-            movedMultipleFiles: 'Moved {count} files',
             filesAlreadyExist: '{count} files already exist in destination',
             addedTag: 'Added tag "{tag}" to {count} files',
             filesAlreadyHaveTag: '{count} files already have this tag or a more specific one',

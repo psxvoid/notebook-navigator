@@ -219,7 +219,6 @@ export const STRINGS_JA = {
             failedToClearTags: 'タグのクリアに失敗しました',
         },
         notifications: {
-            movedMultipleFiles: '{count}個のファイルを移動しました',
             filesAlreadyExist: '{count}個のファイルが移動先に既に存在します',
             addedTag: '{count}個のファイルにタグ "{tag}" を追加しました',
             filesAlreadyHaveTag: '{count}個のファイルには既にこのタグまたはより具体的なタグがあります',

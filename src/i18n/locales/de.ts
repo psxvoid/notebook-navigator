@@ -219,7 +219,6 @@ export const STRINGS_DE = {
             failedToClearTags: 'Entfernen der Tags fehlgeschlagen',
         },
         notifications: {
-            movedMultipleFiles: '{count} Dateien verschoben',
             filesAlreadyExist: '{count} Dateien existieren bereits am Zielort',
             addedTag: 'Tag "{tag}" zu {count} Dateien hinzugefügt',
             filesAlreadyHaveTag: '{count} Dateien haben dieses Tag oder ein spezifischeres bereits',
