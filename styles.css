@@ -510,6 +510,8 @@ button.nn-icon-button {
     -webkit-line-clamp: var(--filename-rows, 1);
     -webkit-box-orient: vertical;
     line-height: var(--nn-file-line-height);
+    word-break: break-word;
+    overflow-wrap: break-word;
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
 
@@ -555,6 +557,7 @@ button.nn-icon-button {
     -webkit-line-clamp: var(--preview-rows, 1);
     -webkit-box-orient: vertical;
     word-break: break-word;
+    overflow-wrap: break-word;
     flex: 1;
 }
 
