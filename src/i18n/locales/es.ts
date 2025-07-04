@@ -329,6 +329,15 @@ export const STRINGS_ES = {
                 desc: 'Lista de carpetas a ocultar separadas por comas. Admite comodines: assets* (empieza con), *_temp (termina con).',
                 placeholder: 'templates, assets*, *_temp',
             },
+            fileVisibility: {
+                name: 'Mostrar tipos de archivo',
+                desc: 'Elija qué tipos de archivo mostrar en el navegador. Los archivos no soportados por Obsidian se abrirán en la aplicación predeterminada de su sistema.',
+                options: {
+                    markdownOnly: 'Solo Markdown',
+                    supported: 'Archivos soportados',
+                    all: 'Todos los archivos',
+                },
+            },
             showDate: {
                 name: 'Mostrar fecha',
                 desc: 'Muestra la fecha debajo de los nombres de las notas.',
@@ -382,10 +391,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar imagen destacada',
                 desc: 'Muestra imágenes en miniatura desde el frontmatter. Consejo: Usa el plugin "Featured Image" para establecer automáticamente imágenes destacadas para todos tus documentos.',
             },
-            featureImageProperty: {
-                name: 'Propiedad de imagen destacada',
-                desc: 'El nombre de la propiedad del frontmatter para las imágenes en miniatura. ¡Importante! En el plugin Featured Image puedes elegir crear miniaturas redimensionadas, ¡esto mejorará significativamente el rendimiento! Usa 42 píxeles para máximo rendimiento, o 84 píxeles para pantallas retina. La propiedad redimensionada se llama "featureResized" por defecto.',
-                placeholder: 'feature',
+            featureImageProperties: {
+                name: 'Propiedades de imagen',
+                desc: 'Lista separada por comas de propiedades del frontmatter para imágenes en miniatura. Se usará la primera propiedad con una imagen. Consejo: Usa el plugin "Featured Image" para establecer imágenes automáticamente. Para mejor rendimiento, usa miniaturas de 42px o 84px para pantallas retina.',
+                placeholder: 'featureResized, feature',
             },
             showRootFolder: {
                 name: 'Mostrar carpeta raíz',

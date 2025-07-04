@@ -398,6 +398,12 @@ export default class NotebookNavigatorPlugin extends Plugin {
         // Start with default settings
         this.settings = Object.assign({}, DEFAULT_SETTINGS, data || {});
         
+        // Migrate old featureImageProperty to new featureImageProperties
+        // TODO: Remove this migration code in a future version (e.g., v2.0.0)
+        if (data && data.featureImageProperty && !data.featureImageProperties) {
+            this.settings.featureImageProperties = [data.featureImageProperty];
+        }
+        
         // On first launch, set language-specific date/time formats
         if (isFirstLaunch || !data?.dateFormat) {
             this.settings.dateFormat = getDefaultDateFormat();

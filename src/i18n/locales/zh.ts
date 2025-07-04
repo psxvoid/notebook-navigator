@@ -329,6 +329,15 @@ export const STRINGS_ZH = {
                 desc: '逗号分隔的要隐藏的文件夹列表。支持通配符：assets*（以...开头），*_temp（以...结尾）。',
                 placeholder: 'templates, assets*, *_temp',
             },
+            fileVisibility: {
+                name: '显示文件类型',
+                desc: '选择在导航器中显示哪些文件类型。Obsidian不支持的文件将在系统默认应用程序中打开。',
+                options: {
+                    markdownOnly: '仅 Markdown',
+                    supported: '支持的文件',
+                    all: '所有文件',
+                },
+            },
             showDate: {
                 name: '显示日期',
                 desc: '在笔记名称下方显示日期。',
@@ -382,10 +391,10 @@ export const STRINGS_ZH = {
                 name: '显示特色图片',
                 desc: '从前置元数据显示缩略图。提示：使用"Featured Image"插件自动为所有文档设置特色图片。',
             },
-            featureImageProperty: {
-                name: '特色图片属性',
-                desc: '缩略图的前置元数据属性名称。重要！在 Featured Image 插件中，您可以选择创建调整大小的缩略图，这将显著提高性能！使用 42 像素以获得最佳性能，或使用 84 像素用于视网膜显示器。调整大小的属性默认称为"featureResized"。',
-                placeholder: 'feature',
+            featureImageProperties: {
+                name: '图片属性',
+                desc: '用于缩略图的前置元数据属性的逗号分隔列表。将使用第一个包含图片的属性。提示：使用"Featured Image"插件自动设置图片。为获得最佳性能，请使用 42px 缩略图或 84px 用于视网膜显示器。',
+                placeholder: 'featureResized, feature',
             },
             showRootFolder: {
                 name: '显示根文件夹',

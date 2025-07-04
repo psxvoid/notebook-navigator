@@ -47,9 +47,9 @@ export function useFilePreview({ file, metadata, settings, app }: UseFilePreview
             return;
         }
         
-        // For non-markdown files, set extension immediately
+        // For non-markdown files, no preview text
         if (file.extension !== 'md') {
-            setPreviewText(file.extension.toUpperCase());
+            setPreviewText('');
             return;
         }
         

@@ -28,6 +28,7 @@ import { getFileDisplayName } from '../utils/fileNameUtils';
 import { strings } from '../i18n';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useSelectionState } from '../context/SelectionContext';
+import { isImageFile } from '../utils/fileTypeUtils';
 import { ItemType } from '../types';
 
 interface FileItemProps {
@@ -127,34 +128,55 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
             return null;
         }
 
-        const imagePath = metadata?.frontmatter?.[settings.featureImageProperty];
-
-        if (!imagePath) {
-            return null;
-        }
-
-        // Handle wikilinks e.g., [[image.png]]
-        const resolvedPath = imagePath.startsWith('[[') && imagePath.endsWith(']]')
-            ? imagePath.slice(2, -2)
-            : imagePath;
-
-        const imageFile = app.metadataCache.getFirstLinkpathDest(resolvedPath, file.path);
-        if (imageFile) {
+        // First check if the file itself is an image
+        if (isImageFile(file)) {
             try {
-                return app.vault.getResourcePath(imageFile);
+                return app.vault.getResourcePath(file);
             } catch (e) {
-                // Vault might not be ready, return null
+                // Vault might not be ready
                 return null;
             }
         }
 
+        // For markdown files, try each property in order until we find an image
+        if (file.extension === 'md') {
+            for (const property of settings.featureImageProperties) {
+                const imagePath = metadata?.frontmatter?.[property];
+                
+                if (!imagePath) {
+                    continue;
+                }
+
+                // Handle wikilinks e.g., [[image.png]]
+                const resolvedPath = imagePath.startsWith('[[') && imagePath.endsWith(']]')
+                    ? imagePath.slice(2, -2)
+                    : imagePath;
+
+                const imageFile = app.metadataCache.getFirstLinkpathDest(resolvedPath, file.path);
+                if (imageFile) {
+                    try {
+                        return app.vault.getResourcePath(imageFile);
+                    } catch (e) {
+                        // Vault might not be ready, try next property
+                        continue;
+                    }
+                }
+            }
+        }
+
         return null;
-    }, [file.path, file.stat.mtime, metadata, settings.showFeatureImage, settings.featureImageProperty, app.metadataCache, app.vault]);
+    }, [file.path, file.stat.mtime, metadata, settings.showFeatureImage, settings.featureImageProperties, app.metadataCache, app.vault]);
     
     // Detect slim mode when all display options are disabled
     const isSlimMode = !settings.showDate && 
                        !settings.showFilePreview && 
                        !settings.showFeatureImage;
+    
+    // Determine if we should show the feature image area (either with an image or extension badge)
+    const shouldShowFeatureImageArea = settings.showFeatureImage && (
+        featureImageUrl || // Has an actual image
+        (file.extension !== 'md' && !isImageFile(file)) // Non-markdown, non-image files show extension badge
+    );
     
     const className = `nn-file-item ${isSelected ? 'nn-selected' : ''} ${isSlimMode ? 'nn-slim' : ''} ${isSelected && hasSelectedAbove ? 'nn-has-selected-above' : ''} ${isSelected && hasSelectedBelow ? 'nn-has-selected-below' : ''}`;
 
@@ -217,9 +239,15 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
                                 </div>
                             )}
                         </div>
-                        {settings.showFeatureImage && featureImageUrl && (
+                        {shouldShowFeatureImageArea && (
                             <div className="nn-feature-image">
-                                <img src={featureImageUrl} alt={strings.common.featureImageAlt} className="nn-feature-image-img" />
+                                {featureImageUrl ? (
+                                    <img src={featureImageUrl} alt={strings.common.featureImageAlt} className="nn-feature-image-img" />
+                                ) : (
+                                    <div className="nn-file-extension-badge">
+                                        <span className="nn-file-extension-text">.{file.extension}</span>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </>

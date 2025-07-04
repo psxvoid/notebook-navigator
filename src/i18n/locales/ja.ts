@@ -329,6 +329,15 @@ export const STRINGS_JA = {
                 desc: '非表示にするフォルダのカンマ区切りリスト。ワイルドカード対応：assets*（で始まる）、*_temp（で終わる）。',
                 placeholder: 'templates, assets*, *_temp',
             },
+            fileVisibility: {
+                name: 'ファイルタイプを表示',
+                desc: 'ナビゲーターに表示するファイルタイプを選択します。Obsidianでサポートされていないファイルは、システムのデフォルトアプリケーションで開かれます。',
+                options: {
+                    markdownOnly: 'Markdownのみ',
+                    supported: 'サポートされているファイル',
+                    all: 'すべてのファイル',
+                },
+            },
             showDate: {
                 name: '日付を表示',
                 desc: 'ノート名の下に日付を表示します。',
@@ -382,10 +391,10 @@ export const STRINGS_JA = {
                 name: 'アイキャッチ画像を表示',
                 desc: 'フロントマターからサムネイル画像を表示します。ヒント：「Featured Image」プラグインを使用して、すべてのドキュメントに自動的にアイキャッチ画像を設定できます。',
             },
-            featureImageProperty: {
-                name: 'アイキャッチ画像プロパティ',
-                desc: 'サムネイル画像のフロントマタープロパティ名。重要！Featured Imageプラグインでは、リサイズされたサムネイルを作成することができ、パフォーマンスが大幅に向上します！最高のパフォーマンスには42ピクセル、Retinaディスプレイには84ピクセルを使用してください。リサイズされたプロパティはデフォルトで「featureResized」と呼ばれます。',
-                placeholder: 'feature',
+            featureImageProperties: {
+                name: '画像プロパティ',
+                desc: 'サムネイル画像用のフロントマタープロパティのカンマ区切りリスト。画像を持つ最初のプロパティが使用されます。ヒント：「Featured Image」プラグインを使用して自動的に画像を設定できます。最高のパフォーマンスには42pxのサムネイル、Retinaディスプレイには84pxを使用してください。',
+                placeholder: 'featureResized, feature',
             },
             showRootFolder: {
                 name: 'ルートフォルダを表示',
