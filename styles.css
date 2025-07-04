@@ -395,7 +395,7 @@ button.nn-icon-button {
     font-weight: 600;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.5px;
     margin-top: var(--size-4-2);
     border-top: 1px solid var(--background-modifier-border);
 }
@@ -661,6 +661,26 @@ button.nn-icon-button {
 .nn-file-item.nn-selected .nn-feature-image {
     opacity: 0.9;
 }
+
+/* File extension badge - shown for non-markdown/non-image files */
+.nn-file-extension-badge {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: var(--background-secondary);
+    font-family: var(--font-monospace);
+}
+
+.nn-file-extension-text {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.3px;
+}
+
 
 
 /* ========================================================================
@@ -1098,7 +1118,7 @@ body.nn-resizing {
     font-weight: 500;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.5px;
     margin-bottom: var(--size-4-3);
 }
 

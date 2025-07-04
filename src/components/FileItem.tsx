@@ -172,6 +172,12 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
                        !settings.showFilePreview && 
                        !settings.showFeatureImage;
     
+    // Determine if we should show the feature image area (either with an image or extension badge)
+    const shouldShowFeatureImageArea = settings.showFeatureImage && (
+        featureImageUrl || // Has an actual image
+        (file.extension !== 'md' && !isImageFile(file)) // Non-markdown, non-image files show extension badge
+    );
+    
     const className = `nn-file-item ${isSelected ? 'nn-selected' : ''} ${isSlimMode ? 'nn-slim' : ''} ${isSelected && hasSelectedAbove ? 'nn-has-selected-above' : ''} ${isSelected && hasSelectedBelow ? 'nn-has-selected-below' : ''}`;
 
     return (
@@ -233,9 +239,15 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
                                 </div>
                             )}
                         </div>
-                        {settings.showFeatureImage && featureImageUrl && (
+                        {shouldShowFeatureImageArea && (
                             <div className="nn-feature-image">
-                                <img src={featureImageUrl} alt={strings.common.featureImageAlt} className="nn-feature-image-img" />
+                                {featureImageUrl ? (
+                                    <img src={featureImageUrl} alt={strings.common.featureImageAlt} className="nn-feature-image-img" />
+                                ) : (
+                                    <div className="nn-file-extension-badge">
+                                        <span className="nn-file-extension-text">.{file.extension}</span>
+                                    </div>
+                                )}
                             </div>
                         )}
                     </>
