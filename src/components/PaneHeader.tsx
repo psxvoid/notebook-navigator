@@ -359,11 +359,25 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     // Desktop header (original code)
     // Prepare header title for file pane
     let headerTitle = '';
+    let folderIcon = '';
+    let folderColor: string | undefined;
+    
     if (type === 'file') {
         if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
             headerTitle = selectionState.selectedFolder.path === '/' ? strings.folderTree.rootFolderName : selectionState.selectedFolder.name;
+            
+            // Get folder icon and color if available
+            if (settings.showIcons) {
+                folderIcon = settings.folderIcons?.[selectionState.selectedFolder.path] || 'folder';
+                folderColor = settings.folderColors?.[selectionState.selectedFolder.path];
+            }
         } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
             headerTitle = selectionState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : selectionState.selectedTag;
+            
+            // Use hash icon for tags
+            if (settings.showIcons) {
+                folderIcon = 'hash';
+            }
         }
     }
     
@@ -415,7 +429,15 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                             </button>
                         )}
                         {headerTitle && (
-                            <span className="nn-pane-header-title">{headerTitle}</span>
+                            <span className="nn-pane-header-title">
+                                {folderIcon && (
+                                    <ObsidianIcon 
+                                        name={folderIcon} 
+                                        className="nn-pane-header-icon"
+                                    />
+                                )}
+                                <span className="nn-pane-header-text">{headerTitle}</span>
+                            </span>
                         )}
                         <div className="nn-header-actions">
                             <button

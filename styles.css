@@ -161,7 +161,7 @@
 
 /* Desktop pane header title */
 .nn-pane-header-title {
-    font-size: var(--nn-file-name-size);
+    font-size: var(--nn-nav-font-size); /* Use nav font size (13px) to match folder items */
     font-weight: 600;
     color: var(--text-normal);
     /* Match date header padding */
@@ -173,6 +173,23 @@
     flex: 1; /* Take remaining space */
     display: flex;
     align-items: center;
+}
+
+/* Icon in pane header */
+.nn-pane-header-icon {
+    width: var(--nn-nav-icon-size);
+    height: var(--nn-nav-icon-size);
+    margin-inline-end: var(--size-4-2);
+    flex-shrink: 0;
+    font-size: var(--nn-nav-font-size); /* Explicit 13px font-size for icon scaling */
+}
+
+/* Text in pane header - matches folder name styling */
+.nn-pane-header-text {
+    line-height: var(--nn-nav-line-height);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }
 
 /* ========================================================================
