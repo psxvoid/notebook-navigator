@@ -219,7 +219,6 @@ export const STRINGS_ZH = {
             failedToClearTags: '清除标签失败',
         },
         notifications: {
-            movedMultipleFiles: '已移动 {count} 个文件',
             filesAlreadyExist: '{count} 个文件在目标位置已存在',
             addedTag: '已将标签 "{tag}" 添加到 {count} 个文件',
             filesAlreadyHaveTag: '{count} 个文件已经有此标签或更具体的标签',
@@ -250,9 +249,10 @@ export const STRINGS_ZH = {
     // Plugin commands
     commands: {
         open: '打开', // Command palette: Opens the Notebook Navigator view (English: Open)
-        revealNote: '显示笔记', // Command palette: Reveals and selects the currently active note in the navigator (English: Reveal note)
-        focusNote: '聚焦笔记', // Command palette: Moves keyboard focus to the list pane (English: Focus note)
+        revealFile: '显示文件', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
+        focusFile: '聚焦文件', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: '切换导航面板', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
+        deleteFile: '删除文件', // Command palette: Deletes the currently active file (English: Delete file)
     },
 
     // Plugin UI
@@ -395,6 +395,7 @@ export const STRINGS_ZH = {
                 name: '图片属性',
                 desc: '用于缩略图的前置元数据属性的逗号分隔列表。将使用第一个包含图片的属性。提示：使用"Featured Image"插件自动设置图片。为获得最佳性能，请使用 42px 缩略图或 84px 用于视网膜显示器。',
                 placeholder: 'featureResized, feature',
+                embedFallback: '如果在上述属性中未找到图片，将使用文档中的第一个嵌入图片（需要 Obsidian 1.9.4+）',
             },
             showRootFolder: {
                 name: '显示根文件夹',

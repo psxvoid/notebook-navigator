@@ -91,9 +91,10 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - `Notebook Navigator: Open` Opens the Notebook Navigator view in the left sidebar
-- `Notebook Navigator: Reveal note` Reveals the currently open note in the navigator, expanding parent folders and scrolling to it. Useful if you have the setting "Show notes from subfolders" enabled and want to find out the folder of a specific note.
-- `Notebook Navigator: Focus note` Moves keyboard focus to the list pane so you can navigate with arrow keys
+- `Notebook Navigator: Reveal file` Reveals the currently open file in the navigator, expanding parent folders and scrolling to it. Useful if you have the setting "Show notes from subfolders" enabled and want to find out the folder of a specific note.
+- `Notebook Navigator: Focus file` Moves keyboard focus to the file list pane so you can navigate with arrow keys
 - `Notebook Navigator: Toggle navigation pane` Shows or hides the navigation pane (folder/tag tree) to maximize list pane space
+- `Notebook Navigator: Delete file` Deletes the currently active file using the navigator's smart selection (selects next file before deletion)
 
 ## Installation
 

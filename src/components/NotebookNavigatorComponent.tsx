@@ -46,6 +46,7 @@ export interface NotebookNavigatorHandle {
     refresh: () => void;
     handleBecomeActive: () => void;
     toggleNavigationPane: () => void;
+    deleteActiveFile: () => void;
 }
 
 /**
@@ -172,7 +173,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         // Only change focus if we're not already in the navigator AND not opening version history
         const navigatorEl = document.querySelector('.nn-split-container');
         const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
-        const isOpeningVersionHistory = (window as any).notebookNavigatorOpeningVersionHistory;
+        const isOpeningVersionHistory = window.notebookNavigatorOpeningVersionHistory;
         
         if (!hasNavigatorFocus && !isOpeningVersionHistory) {
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
@@ -197,7 +198,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         focusFilePane: () => {
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             // Focus the container to ensure keyboard navigation works
-            containerRef.current?.focus();
+            // Don't steal focus if we're opening version history
+            const isOpeningVersionHistory = window.notebookNavigatorOpeningVersionHistory;
+            if (!isOpeningVersionHistory) {
+                containerRef.current?.focus();
+            }
         },
         refresh: () => {
             // A no-op update will increment the version and force a re-render
@@ -222,6 +227,22 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         },
         toggleNavigationPane: () => {
             uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' });
+        },
+        deleteActiveFile: () => {
+            // First ensure the file pane is focused so the keyboard handler will process the event
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+            
+            // Then dispatch a Delete key event to trigger the existing keyboard handler
+            const deleteEvent = new KeyboardEvent('keydown', {
+                key: 'Delete',
+                bubbles: true,
+                cancelable: true
+            });
+            
+            // Small delay to ensure focus state is updated
+            setTimeout(() => {
+                document.dispatchEvent(deleteEvent);
+            }, 0);
         }
     }), [
         selectionDispatch, 
@@ -351,7 +372,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
 
     // Ensure the container has focus when the focused pane changes
     useEffect(() => {
-        if (uiState.focusedPane) {
+        // Don't steal focus if we're opening version history
+        const isOpeningVersionHistory = window.notebookNavigatorOpeningVersionHistory;
+        if (uiState.focusedPane && !isOpeningVersionHistory) {
             containerRef.current?.focus();
         }
     }, [uiState.focusedPane]);

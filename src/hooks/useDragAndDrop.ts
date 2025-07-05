@@ -20,11 +20,14 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { TFolder, TFile, Notice } from 'obsidian';
 import { useServices, useFileSystemOps, useTagOperations } from '../context/ServicesContext';
-import { useSelectionState } from '../context/SelectionContext';
+import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useSettingsState } from '../context/SettingsContext';
 import { isTFolder, isTFile } from '../utils/typeGuards';
 import { getPathFromDataAttribute, getAbstractFileFromElement } from '../utils/domUtils';
 import { strings } from '../i18n';
 import { ItemType, UNTAGGED_TAG_ID } from '../types';
+import { findNextFileAfterRemoval, updateSelectionAfterFileOperation } from '../utils/selectionUtils';
+import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 
 /**
  * Custom hook that enables drag and drop functionality for files and folders.
@@ -72,7 +75,21 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const fileSystemOps = useFileSystemOps();
     const tagOperations = useTagOperations();
     const selectionState = useSelectionState();
+    const dispatch = useSelectionDispatch();
+    const settings = useSettingsState();
     const dragOverElement = useRef<HTMLElement | null>(null);
+
+    /**
+     * Helper function to get current file list based on selection
+     */
+    const getCurrentFileList = useCallback((): TFile[] => {
+        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+            return getFilesForFolder(selectionState.selectedFolder, settings, app);
+        } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+            return getFilesForTag(selectionState.selectedTag, settings, app);
+        }
+        return [];
+    }, [selectionState, settings, app]);
 
     /**
      * Handles the drag start event.
@@ -298,6 +315,17 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             try {
                 const selectedPaths = JSON.parse(multipleFilesData);
                 if (Array.isArray(selectedPaths)) {
+                    // Check if we're moving the currently selected file
+                    const pathsToMove = new Set(selectedPaths);
+                    const isMovingSelectedFile = selectionState.selectedFile && pathsToMove.has(selectionState.selectedFile.path);
+                    
+                    // Only find next file if we're moving the selected file
+                    let nextFileToSelect: TFile | null = null;
+                    if (isMovingSelectedFile) {
+                        const currentFiles = getCurrentFileList();
+                        nextFileToSelect = findNextFileAfterRemoval(currentFiles, pathsToMove);
+                    }
+                    
                     // Moving multiple files
                     let movedCount = 0;
                     let skippedCount = 0;
@@ -320,8 +348,9 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         }
                     }
                     
-                    if (movedCount > 0) {
-                        new Notice(strings.dragDrop.notifications.movedMultipleFiles.replace('{count}', movedCount.toString()));
+                    if (movedCount > 0 && isMovingSelectedFile) {
+                        // Only update selection if we moved the selected file
+                        await updateSelectionAfterFileOperation(nextFileToSelect, dispatch, app);
                     }
                     if (skippedCount > 0) {
                         new Notice(strings.dragDrop.notifications.filesAlreadyExist.replace('{count}', skippedCount.toString()), 2000);
@@ -353,13 +382,31 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         }
 
         try {
+            // Check if we're moving the currently selected file
+            const isMovingSelectedFile = isTFile(sourceItem) && 
+                selectionState.selectedFile && 
+                selectionState.selectedFile.path === sourceItem.path;
+            
+            // Only find next file if we're moving the selected file
+            let nextFileToSelect: TFile | null = null;
+            if (isMovingSelectedFile) {
+                const currentFiles = getCurrentFileList();
+                const pathsToMove = new Set([sourceItem.path]);
+                nextFileToSelect = findNextFileAfterRemoval(currentFiles, pathsToMove);
+            }
+            
             await app.fileManager.renameFile(sourceItem, newPath);
             // The file move will trigger Obsidian's file events, which will update
             // the state naturally through proper event handling
+            
+            // Only update selection if we moved the selected file
+            if (isMovingSelectedFile) {
+                await updateSelectionAfterFileOperation(nextFileToSelect, dispatch, app);
+            }
         } catch (error) {
             new Notice(strings.dragDrop.errors.failedToMove.replace('{error}', error.message));
         }
-    }, [app, fileSystemOps, tagOperations]);
+    }, [app, fileSystemOps, tagOperations, selectionState, getCurrentFileList, dispatch]);
     
     /**
      * Handles the drag leave event.

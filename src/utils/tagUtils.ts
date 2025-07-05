@@ -34,6 +34,11 @@ export interface TagTreeNode {
     notesWithTag: Set<string>;
 }
 
+// Extend global type for our cache
+declare global {
+    var __tagUtilsNoteCountCache: WeakMap<TagTreeNode, number> | undefined;
+}
+
 /**
  * Represents cached file metadata for tag processing (used internally)
  */
@@ -166,15 +171,15 @@ export function clearNoteCountCache(): void {
     // WeakMap doesn't have a clear method, so we create a new instance
     // The old cache will be garbage collected when all references are gone
     // This is a workaround but necessary for proper memory management
-    (globalThis as any).__tagUtilsNoteCountCache = new WeakMap<TagTreeNode, number>();
+    globalThis.__tagUtilsNoteCountCache = new WeakMap<TagTreeNode, number>();
 }
 
 // Use the global cache instance
 function getNoteCountCache(): WeakMap<TagTreeNode, number> {
-    if (!(globalThis as any).__tagUtilsNoteCountCache) {
-        (globalThis as any).__tagUtilsNoteCountCache = new WeakMap<TagTreeNode, number>();
+    if (!globalThis.__tagUtilsNoteCountCache) {
+        globalThis.__tagUtilsNoteCountCache = new WeakMap<TagTreeNode, number>();
     }
-    return (globalThis as any).__tagUtilsNoteCountCache;
+    return globalThis.__tagUtilsNoteCountCache;
 }
 
 /**

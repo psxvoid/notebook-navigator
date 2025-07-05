@@ -38,19 +38,47 @@ import { MetadataService } from './services/MetadataService';
 import { TagOperations } from './services/TagOperations';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
+import { localStorage } from './utils/localStorage';
 
-// Polyfill for requestIdleCallback (not supported on iOS Safari)
-// This ensures deferred operations work on all mobile devices
+/**
+ * Polyfill for requestIdleCallback
+ * 
+ * The requestIdleCallback API allows scheduling non-critical work to be performed
+ * when the browser is idle, improving performance by not blocking user interactions.
+ * 
+ * Browser Support Issues:
+ * - Not supported in Safari (both desktop and iOS)
+ * - Not supported in older browsers
+ * 
+ * This polyfill provides a fallback implementation using setTimeout:
+ * - Executes the callback after the specified timeout (or immediately if no timeout)
+ * - Provides a mock IdleDeadline object with timeRemaining() returning 50ms
+ * - The 50ms value is a reasonable estimate for available idle time
+ * 
+ * Usage in the plugin:
+ * - Deferred metadata cleanup after plugin initialization
+ * - Background tag tree diff calculations
+ * - Other non-critical startup operations
+ */
 if (typeof window !== 'undefined' && !window.requestIdleCallback) {
     console.log('[NotebookNavigator] requestIdleCallback not supported, using polyfill');
+    
     window.requestIdleCallback = function(callback: IdleRequestCallback, options?: { timeout?: number }) {
         const timeout = options?.timeout || 0;
-        return window.setTimeout(() => {
-            callback({
-                didTimeout: false,
-                timeRemaining: () => 50
-            } as IdleDeadline);
-        }, timeout) as unknown as number;
+        
+        // setTimeout returns a number in browser environments
+        const timeoutId = window.setTimeout(() => {
+            // Create a mock IdleDeadline object
+            const deadline: IdleDeadline = {
+                didTimeout: timeout > 0,
+                timeRemaining: () => 50 // Conservative estimate of available time
+            };
+            
+            callback(deadline);
+        }, timeout);
+        
+        // Cast is safe because we're in a browser environment
+        return timeoutId as number;
     };
     
     window.cancelIdleCallback = function(id: number) {
@@ -132,8 +160,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
         });
 
         this.addCommand({
-            id: 'reveal-active-file',
-            name: strings.commands.revealNote,
+            id: 'reveal-file',
+            name: strings.commands.revealFile,
             checkCallback: (checking: boolean) => {
                 const activeFile = this.app.workspace.getActiveFile();
                 if (activeFile && activeFile.parent) {
@@ -147,8 +175,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
         });
 
         this.addCommand({
-            id: 'focus-file-list',
-            name: strings.commands.focusNote,
+            id: 'focus-file',
+            name: strings.commands.focusFile,
             callback: async () => {
                 // Ensure navigator is open
                 const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
@@ -183,6 +211,21 @@ export default class NotebookNavigatorPlugin extends Plugin {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
                         view.toggleNavigationPane();
+                    }
+                });
+            }
+        });
+
+        this.addCommand({
+            id: 'delete-file',
+            name: strings.commands.deleteFile,
+            callback: () => {
+                // Find and trigger delete in all navigator views
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                navigatorLeaves.forEach(leaf => {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        view.deleteActiveFile();
                     }
                 });
             }
@@ -377,7 +420,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         ];
         
         keysToRemove.forEach(key => {
-            localStorage.removeItem(key);
+            localStorage.remove(key);
         });
     }
 
@@ -399,7 +442,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         this.settings = Object.assign({}, DEFAULT_SETTINGS, data || {});
         
         // Migrate old featureImageProperty to new featureImageProperties
-        // TODO: Remove this migration code in a future version (e.g., v2.0.0)
+        // TODO: Remove this migration code in a future version
         if (data && data.featureImageProperty && !data.featureImageProperties) {
             this.settings.featureImageProperties = [data.featureImageProperty];
         }
@@ -415,12 +458,12 @@ export default class NotebookNavigatorPlugin extends Plugin {
         // On first launch, if showRootFolder is enabled by default, 
         // ensure the root folder is in the expanded folders list
         if (isFirstLaunch && this.settings.showRootFolder) {
-            const storedExpanded = localStorage.getItem(STORAGE_KEYS.expandedFoldersKey);
-            const expandedFolders = storedExpanded ? JSON.parse(storedExpanded) : [];
+            const oldExpanded = localStorage.get<string[]>(STORAGE_KEYS.expandedFoldersKey);
+            const expandedFolders = oldExpanded || [];
             
             if (!expandedFolders.includes('/')) {
                 expandedFolders.push('/');
-                localStorage.setItem(STORAGE_KEYS.expandedFoldersKey, JSON.stringify(expandedFolders));
+                localStorage.set(STORAGE_KEYS.expandedFoldersKey, expandedFolders);
             }
         }
     }

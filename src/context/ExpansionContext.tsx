@@ -18,6 +18,7 @@
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { TFolder } from 'obsidian';
+import { localStorage } from '../utils/localStorage';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -107,15 +108,13 @@ interface ExpansionProviderProps {
 export function ExpansionProvider({ children }: ExpansionProviderProps) {
     // Load initial state from localStorage
     const loadInitialState = (): ExpansionState => {
-        const expandedFoldersData = localStorage.getItem(STORAGE_KEYS.EXPANDED_FOLDERS);
-        const expandedTagsData = localStorage.getItem(STORAGE_KEYS.EXPANDED_TAGS);
+        const savedExpandedFolders = localStorage.get<string[]>(STORAGE_KEYS.EXPANDED_FOLDERS);
+        const savedExpandedTags = localStorage.get<string[]>(STORAGE_KEYS.EXPANDED_TAGS);
         
-        const initialState = {
-            expandedFolders: new Set<string>(expandedFoldersData ? JSON.parse(expandedFoldersData) : []),
-            expandedTags: new Set<string>(expandedTagsData ? JSON.parse(expandedTagsData) : [])
-        };
+        const expandedFolders = new Set<string>(savedExpandedFolders || []);
+        const expandedTags = new Set<string>(savedExpandedTags || []);
         
-        return initialState;
+        return { expandedFolders, expandedTags };
     };
     
     const [state, dispatch] = useReducer(expansionReducer, undefined, loadInitialState);
@@ -123,16 +122,16 @@ export function ExpansionProvider({ children }: ExpansionProviderProps) {
     
     // Persist to localStorage
     useEffect(() => {
-        localStorage.setItem(
-            STORAGE_KEYS.EXPANDED_FOLDERS, 
-            JSON.stringify(Array.from(state.expandedFolders))
+        localStorage.set(
+            STORAGE_KEYS.EXPANDED_FOLDERS,
+            Array.from(state.expandedFolders)
         );
     }, [state.expandedFolders]);
     
     useEffect(() => {
-        localStorage.setItem(
+        localStorage.set(
             STORAGE_KEYS.EXPANDED_TAGS,
-            JSON.stringify(Array.from(state.expandedTags))
+            Array.from(state.expandedTags)
         );
     }, [state.expandedTags]);
     

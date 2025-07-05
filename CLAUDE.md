@@ -45,7 +45,7 @@ johansan-notebook-navigator/
 │   ├── settings.ts                            # Settings interface, defaults, settings tab UI
 │   ├── components/
 │   │   ├── NotebookNavigatorComponent.tsx    # Main component, two-pane layout orchestration
-│   │   ├── NavigationPane.tsx                # Left pane virtualized folder/tag tree
+│   │   ├── NavigationPane.tsx                # Navigation pane virtualized folder/tag tree
 │   │   ├── FileList.tsx                       # Right pane virtualized file list with headers
 │   │   ├── FolderItem.tsx                     # Single folder row with icon/color/chevron
 │   │   ├── FileItem.tsx                       # Single file row with preview/date/image
@@ -284,6 +284,30 @@ The codebase provides type guard functions in `src/utils/typeGuards.ts`:
 
 These functions perform runtime checks to ensure type safety and satisfy Obsidian's review requirements.
     
+
+## Obsidian Icon Sizing Behavior
+
+Obsidian's `setIcon()` function creates SVG icons that scale with the font-size of their container, not just the width/height CSS properties. This is important to understand when trying to match icon sizes across different components.
+
+### Key Points:
+1. **Icons inherit font-size**: The actual rendered size of Obsidian icons depends on the font-size of their container
+2. **Container dimensions are constraints**: Setting width/height on the icon container (e.g., `.nn-folder-icon`) defines the maximum bounds, but the SVG may render smaller based on font-size
+3. **Navigation icons appear ~14px**: Even though `--nn-nav-icon-size` is 16px, folder icons in the navigation pane appear smaller (~14px) because they inherit the 13px font-size from their container
+
+### Example:
+```css
+/* Navigation folder items use 13px font */
+.nn-folder-name {
+    font-size: var(--nn-nav-font-size); /* 13px */
+}
+
+/* To match navigation icon size elsewhere: */
+.nn-pane-header-title {
+    font-size: var(--nn-nav-font-size); /* Use same 13px font-size */
+}
+```
+
+This explains why simply matching width/height properties isn't enough - you must also ensure the font-size context is the same for icons to appear the same size.
 
 ## Obsidian Plugin Style Requirements
 

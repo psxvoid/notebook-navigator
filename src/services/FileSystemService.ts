@@ -17,6 +17,7 @@
  */
 
 import { App, TFile, TFolder, TAbstractFile, Notice, normalizePath, Platform, MarkdownView } from 'obsidian';
+import { ExtendedApp, TIMEOUTS, OBSIDIAN_COMMANDS } from '../types/obsidian-extended';
 import { InputModal } from '../modals/InputModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
 import { executeCommand } from '../utils/typeGuards';
@@ -25,6 +26,8 @@ import { getFolderNote } from '../utils/fileFinder';
 import { NotebookNavigatorSettings } from '../settings';
 import { NavigationItemType, getSupportedLeaves, ItemType } from '../types';
 import type { SelectionDispatch } from '../context/SelectionContext';
+import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
+import { createFileWithOptions, createDatabaseContent } from '../utils/fileCreationUtils';
 
 /**
  * Selection context for file operations
@@ -79,40 +82,11 @@ export class FileSystemOperations {
      * @returns The created file or null if creation failed
      */
     async createNewFile(parent: TFolder): Promise<TFile | null> {
-        try {
-            // Generate unique "Untitled" name
-            let fileName = strings.fileSystem.defaultNames.untitled;
-            let counter = 1;
-            let path = normalizePath(parent.path ? `${parent.path}/${fileName}.md` : `${fileName}.md`);
-            
-            // Check if file exists and increment counter
-            while (this.app.vault.getAbstractFileByPath(path)) {
-                fileName = strings.fileSystem.defaultNames.untitledNumber.replace('{number}', counter.toString());
-                path = normalizePath(parent.path ? `${parent.path}/${fileName}.md` : `${fileName}.md`);
-                counter++;
-            }
-            
-            // Create the file
-            const file = await this.app.vault.create(path, '');
-            
-            // Open the file and trigger rename mode
-            const leaf = this.app.workspace.getLeaf(false);
-            await leaf.openFile(file);
-            
-            // Trigger rename mode.
-            // We use setTimeout to push this command to the end of the event queue.
-            // This gives Obsidian's workspace time to finish opening the file and rendering the editor,
-            // making it more likely that the 'edit-file-title' command will find an active editor title to focus.
-            // Note: This is a known workaround for a race condition in Obsidian and may fail on slower systems.
-            setTimeout(() => {
-                executeCommand(this.app, 'workspace:edit-file-title');
-            }, 0);
-            
-            return file;
-        } catch (error) {
-            new Notice(strings.fileSystem.errors.createFile.replace('{error}', error.message));
-            return null;
-        }
+        return createFileWithOptions(parent, this.app, {
+            extension: 'md',
+            content: '',
+            errorKey: 'createFile'
+        });
     }
 
     /**
@@ -322,22 +296,11 @@ export class FileSystemOperations {
                     // Verify the next file still exists (in case of concurrent deletions)
                     const stillExists = this.app.vault.getAbstractFileByPath(nextFileToSelect.path);
                     if (stillExists && stillExists instanceof TFile) {
-                        // Update selection state first
-                        selectionDispatch({ type: 'SET_SELECTED_FILE', file: nextFileToSelect });
-                        
-                        // Open the next file only if workspace is ready
-                        const leaf = this.app.workspace.getLeaf(false);
-                        if (leaf) {
-                            try {
-                                await leaf.openFile(nextFileToSelect, { active: false });
-                            } catch (error) {
-                                // File might not be accessible, continue anyway
-                                console.error('Failed to open next file:', error);
-                            }
-                        }
+                        // Update selection and open the file
+                        await updateSelectionAfterFileOperation(nextFileToSelect, selectionDispatch, this.app);
                     } else {
                         // Next file was deleted, clear selection
-                        selectionDispatch({ type: 'SET_SELECTED_FILE', file: null });
+                        await updateSelectionAfterFileOperation(null, selectionDispatch, this.app);
                     }
                 } else {
                     // No other files in folder, close the editor if it's showing the deleted file
@@ -346,8 +309,8 @@ export class FileSystemOperations {
                     
                     // Find any leaf showing the file being deleted
                     const currentLeaf = allLeaves.find(leaf => {
-                        const view = leaf.view as any;
-                        return view && view.file && view.file.path === file.path;
+                        const view = leaf.view;
+                        return view && 'file' in view && view.file && view.file.path === file.path;
                     });
                     if (currentLeaf) {
                         currentLeaf.detach();
@@ -361,7 +324,7 @@ export class FileSystemOperations {
                     if (fileListEl) {
                         fileListEl.focus();
                     }
-                }, 100);
+                }, TIMEOUTS.FOCUS_RESTORE_DELAY);
             }
         );
     }
@@ -416,32 +379,11 @@ export class FileSystemOperations {
      * @param parent - The parent folder
      */
     async createCanvas(parent: TFolder): Promise<void> {
-        try {
-            let fileName = strings.fileSystem.defaultNames.untitled;
-            let counter = 1;
-            let path = normalizePath(parent.path ? `${parent.path}/${fileName}.canvas` : `${fileName}.canvas`);
-            
-            while (this.app.vault.getAbstractFileByPath(path)) {
-                fileName = strings.fileSystem.defaultNames.untitledNumber.replace('{number}', counter.toString());
-                path = normalizePath(parent.path ? `${parent.path}/${fileName}.canvas` : `${fileName}.canvas`);
-                counter++;
-            }
-            
-            const file = await this.app.vault.create(path, '{}');
-            const leaf = this.app.workspace.getLeaf(false);
-            await leaf.openFile(file);
-            
-            // Trigger rename mode.
-            // We use setTimeout to push this command to the end of the event queue.
-            // This gives Obsidian's workspace time to finish opening the file and rendering the editor,
-            // making it more likely that the 'edit-file-title' command will find an active editor title to focus.
-            // Note: This is a known workaround for a race condition in Obsidian and may fail on slower systems.
-            setTimeout(() => {
-                executeCommand(this.app, 'workspace:edit-file-title');
-            }, 0);
-        } catch (error) {
-            new Notice(strings.fileSystem.errors.createCanvas.replace('{error}', error.message));
-        }
+        await createFileWithOptions(parent, this.app, {
+            extension: 'canvas',
+            content: '{}',
+            errorKey: 'createCanvas'
+        });
     }
 
     /**
@@ -449,41 +391,11 @@ export class FileSystemOperations {
      * @param parent - The parent folder
      */
     async createBase(parent: TFolder): Promise<void> {
-        try {
-            let fileName = strings.fileSystem.defaultNames.untitled;
-            let counter = 1;
-            let path = normalizePath(parent.path ? `${parent.path}/${fileName}.base` : `${fileName}.base`);
-            
-            while (this.app.vault.getAbstractFileByPath(path)) {
-                fileName = strings.fileSystem.defaultNames.untitledNumber.replace('{number}', counter.toString());
-                path = normalizePath(parent.path ? `${parent.path}/${fileName}.base` : `${fileName}.base`);
-                counter++;
-            }
-            
-            const content = JSON.stringify({
-                "model": {
-                    "version": 1,
-                    "kind": "Table",
-                    "columns": []
-                },
-                "pluginVersion": "1.0.0"
-            }, null, 2);
-            
-            const file = await this.app.vault.create(path, content);
-            const leaf = this.app.workspace.getLeaf(false);
-            await leaf.openFile(file);
-            
-            // Trigger rename mode.
-            // We use setTimeout to push this command to the end of the event queue.
-            // This gives Obsidian's workspace time to finish opening the file and rendering the editor,
-            // making it more likely that the 'edit-file-title' command will find an active editor title to focus.
-            // Note: This is a known workaround for a race condition in Obsidian and may fail on slower systems.
-            setTimeout(() => {
-                executeCommand(this.app, 'workspace:edit-file-title');
-            }, 0);
-        } catch (error) {
-            new Notice(strings.fileSystem.errors.createDatabase.replace('{error}', error.message));
-        }
+        await createFileWithOptions(parent, this.app, {
+            extension: 'base',
+            content: createDatabaseContent(),
+            errorKey: 'createDatabase'
+        });
     }
 
     /**
@@ -599,18 +511,23 @@ export class FileSystemOperations {
         if (filesToDelete.length === 0) return;
         
         // Find next file to select using utility
-        const { findNextFileAfterDelete } = await import('../utils/selectionUtils');
-        const nextFileToSelect = findNextFileAfterDelete(allFiles, selectedFiles);
+        const nextFileToSelect = findNextFileAfterRemoval(allFiles, selectedFiles);
         
         // Delete the files with callback to update selection
         await this.deleteMultipleFiles(
             filesToDelete,
             confirmBeforeDelete,
-            () => {
-                // Update selection after deletion
+            async () => {
+                // Clear multi-selection first
                 selectionDispatch({ type: 'CLEAR_FILE_SELECTION' });
+                // Update selection after deletion (don't open in editor for bulk operations)
                 if (nextFileToSelect) {
-                    selectionDispatch({ type: 'SET_SELECTED_FILE', file: nextFileToSelect });
+                    await updateSelectionAfterFileOperation(
+                        nextFileToSelect, 
+                        selectionDispatch, 
+                        this.app,
+                        { openInEditor: false }
+                    );
                 }
             }
         );
@@ -663,129 +580,51 @@ export class FileSystemOperations {
     /**
      * Opens version history for a file using Obsidian Sync.
      * 
-     * FOCUS ISSUE FIX:
-     * Problem: Version history modal requires editor to have focus to display
+     * The version history modal requires the editor to have focus when the command executes.
+     * The Notebook Navigator's aggressive focus management can interfere with this.
      * 
-     * When working (e.g., second click):
-     * 1. File is already open and editor has focus
-     * 2. User right-clicks and selects "Version History"
-     * 3. Command executes successfully
-     * 4. Modal displays properly
-     * 
-     * When failing (e.g., first click on non-selected file):
-     * 1. User right-clicks non-selected file in navigator
-     * 2. Our code opens the file
-     * 3. Auto-reveal detects file change and calls revealFile()
-     * 4. revealFile() changes focus back to files pane (stealing from editor)
-     * 5. Version history command executes but modal can't show (no editor focus)
-     * 6. Command returns true but nothing visible happens
-     * 
-     * Solution: Set a flag to prevent revealFile() from changing focus
-     * when we're opening version history
+     * Solution:
+     * 1. Set a flag to prevent the navigator from stealing focus
+     * 2. Always use openLinkText to open/re-open the file (ensures proper editor focus)
+     * 3. Wait briefly for the editor to be ready
+     * 4. Execute the version history command
+     * 5. Clear the flag after a delay
      * 
      * @param file - The file to view version history for
      */
     async openVersionHistory(file: TFile): Promise<void> {
-        // Set a flag to prevent focus stealing during reveal
-        (window as any).notebookNavigatorOpeningVersionHistory = true;
+        // Set a flag to prevent the navigator from stealing focus back
+        window.notebookNavigatorOpeningVersionHistory = true;
         
         try {
-            // Check if the file is already open in any leaf
-            const leaves = this.app.workspace.getLeavesOfType('markdown');
+            // Always open/re-open the file to ensure proper focus
+            // This works for non-selected files, so let's use it for all files
+            await this.app.workspace.openLinkText(file.path, '', false);
             
-            // Find if our file is open in any leaf
-            const fileLeaf = leaves.find(leaf => {
-                const view = leaf.view as any;
-                return view && 'file' in view && view.file?.path === file.path;
-            });
-            const isAlreadyOpen = !!fileLeaf;
-            
-            // Check if the file is the active file
-            const activeFile = this.app.workspace.getActiveFile();
-            const isActiveFile = activeFile?.path === file.path;
-            
-            if (!isActiveFile) {
-                // File needs to be opened or activated
-                
-                // Create a promise that resolves when the file becomes active
-                const waitForFileActive = new Promise<void>((resolve) => {
-                    let resolved = false;
-                    
-                    // Set up a listener for active leaf change
-                    const eventRef = this.app.workspace.on('active-leaf-change', () => {
-                        const activeFile = this.app.workspace.getActiveFile();
-                        if (activeFile?.path === file.path && !resolved) {
-                            resolved = true;
-                            this.app.workspace.offref(eventRef);
-                            resolve();
-                        }
-                    });
-                    
-                    // Timeout after 1 second
-                    setTimeout(() => {
-                        if (!resolved) {
-                            resolved = true;
-                            this.app.workspace.offref(eventRef);
-                            resolve();
-                        }
-                    }, 1000);
-                });
-                
-                if (!isAlreadyOpen) {
-                    // File is not open at all, open it
-                    const leaf = this.app.workspace.getLeaf(false);
-                    await leaf.openFile(file);
-                } else if (fileLeaf) {
-                    // File is open but not active, activate it
-                    this.app.workspace.setActiveLeaf(fileLeaf, { focus: true });
-                }
-                
-                // Wait for the file to become active
-                await waitForFileActive;
-                
-            }
-            
-            // CRITICAL: Focus the editor view, not just activate the file
-            const activeLeaf = this.app.workspace.activeLeaf;
-            
-            if (activeLeaf && activeLeaf.view) {
-                activeLeaf.view.containerEl.focus();
-                
-                // Also try to focus the content element if it exists
-                const contentEl = (activeLeaf.view as any).contentEl;
-                if (contentEl) {
-                    contentEl.focus();
-                }
-            }
+            // Small delay to ensure the editor is ready
+            await new Promise(resolve => setTimeout(resolve, 100));
             
             // Try both possible command IDs
-            const commandIds = ['sync:show-sync-history', 'sync:view-version-history'];
+            const commandIds = [OBSIDIAN_COMMANDS.SYNC_HISTORY, OBSIDIAN_COMMANDS.VERSION_HISTORY];
             let executed = false;
             
             for (const commandId of commandIds) {
-                try {
-                    const success = executeCommand(this.app, commandId);
-                    
-                    if (success) {
-                        executed = true;
-                        break;
-                    }
-                } catch (error) {
-                    // Continue to next command ID
-                    continue;
+                if (executeCommand(this.app, commandId)) {
+                    executed = true;
+                    break;
                 }
             }
             
             if (!executed) {
                 new Notice(strings.fileSystem.errors.versionHistoryNotFound);
             }
-            
-            // Clear the flag immediately after command execution
-            delete (window as any).notebookNavigatorOpeningVersionHistory;
         } catch (error) {
             new Notice(strings.fileSystem.errors.openVersionHistory.replace('{error}', error.message));
-            // Clear the flag on error too
-            delete (window as any).notebookNavigatorOpeningVersionHistory;
+        } finally {
+            // Clear the flag after a delay to ensure the modal has time to open
+            setTimeout(() => {
+                delete window.notebookNavigatorOpeningVersionHistory;
+            }, TIMEOUTS.VERSION_HISTORY_DELAY);
         }
     }
 
@@ -810,7 +649,8 @@ export class FileSystemOperations {
             // Use Obsidian's built-in method to reveal the file
             // Note: showInFolder is not in Obsidian's public TypeScript API, but is widely used by plugins
             // showInFolder expects the vault-relative path, not the full system path
-            await (this.app as any).showInFolder(file.path);
+            const extendedApp = this.app as ExtendedApp;
+            await extendedApp.showInFolder(file.path);
         } catch (error) {
             new Notice(strings.fileSystem.errors.revealInExplorer.replace('{error}', error.message));
         }

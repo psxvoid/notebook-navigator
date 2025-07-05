@@ -219,7 +219,6 @@ export const STRINGS_DE = {
             failedToClearTags: 'Entfernen der Tags fehlgeschlagen',
         },
         notifications: {
-            movedMultipleFiles: '{count} Dateien verschoben',
             filesAlreadyExist: '{count} Dateien existieren bereits am Zielort',
             addedTag: 'Tag "{tag}" zu {count} Dateien hinzugefügt',
             filesAlreadyHaveTag: '{count} Dateien haben dieses Tag oder ein spezifischeres bereits',
@@ -250,9 +249,10 @@ export const STRINGS_DE = {
     // Plugin commands
     commands: {
         open: 'Öffnen', // Command palette: Opens the Notebook Navigator view (English: Open)
-        revealNote: 'Notiz anzeigen', // Command palette: Reveals and selects the currently active note in the navigator (English: Reveal note)
-        focusNote: 'Notiz fokussieren', // Command palette: Moves keyboard focus to the list pane (English: Focus note)
+        revealFile: 'Datei anzeigen', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
+        focusFile: 'Datei fokussieren', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Navigationsbereich umschalten', // Command palette: Shows or hides the navigation pane (English: Toggle navigation pane)
+        deleteFile: 'Datei löschen', // Command palette: Deletes the currently active file (English: Delete file)
     },
 
     // Plugin UI
@@ -395,6 +395,7 @@ export const STRINGS_DE = {
                 name: 'Bildeigenschaften',
                 desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften für Miniaturbilder. Die erste Eigenschaft mit einem Bild wird verwendet. Tipp: Verwenden Sie das "Featured Image" Plugin für automatische Vorschaubilder. Für beste Leistung verwenden Sie 42px Thumbnails oder 84px für Retina-Displays.',
                 placeholder: 'featureResized, feature',
+                embedFallback: 'Wenn kein Bild in den obigen Eigenschaften gefunden wird, wird das erste eingebettete Bild im Dokument verwendet (erfordert Obsidian 1.9.4+)',
             },
             showRootFolder: {
                 name: 'Wurzelordner anzeigen',

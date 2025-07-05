@@ -219,7 +219,6 @@ export const STRINGS_EN = {
             failedToClearTags: 'Failed to clear tags',
         },
         notifications: {
-            movedMultipleFiles: 'Moved {count} files',
             filesAlreadyExist: '{count} files already exist in destination',
             addedTag: 'Added tag "{tag}" to {count} files',
             filesAlreadyHaveTag: '{count} files already have this tag or a more specific one',
@@ -250,9 +249,10 @@ export const STRINGS_EN = {
     // Plugin commands
     commands: {
         open: 'Open', // Command palette: Opens the Notebook Navigator view (English: Open)
-        revealNote: 'Reveal note', // Command palette: Reveals and selects the currently active note in the navigator (English: Reveal note)
-        focusNote: 'Focus note', // Command palette: Moves keyboard focus to the list pane (English: Focus note)
+        revealFile: 'Reveal file', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
+        focusFile: 'Focus file', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Toggle navigation pane', // Command palette: Shows or hides the navigation pane (English: Toggle navigation pane)
+        deleteFile: 'Delete file', // Command palette: Deletes the currently active file (English: Delete file)
     },
 
     // Plugin UI
@@ -395,6 +395,7 @@ export const STRINGS_EN = {
                 name: 'Image properties',
                 desc: 'Comma-separated list of frontmatter properties to check for thumbnail images. The first property with an image will be used. Tip: Use the "Featured Image" plugin to automatically set feature images. For best performance, use 42px thumbnails or 84px for retina displays.',
                 placeholder: 'featureResized, feature',
+                embedFallback: 'If no image is found in the properties above, the first embedded image in the document will be used (requires Obsidian 1.9.4+)',
             },
             showRootFolder: {
                 name: 'Show root folder',

@@ -67,10 +67,10 @@
 }
 
 /* ========================================================================
-   Pane Layout (Left/Right Panes)
+   Pane Layout
    ======================================================================== */
 
-/* Left pane - contains the folder tree navigation */
+/* Navigation pane - contains the folder tree navigation */
 .nn-navigation-pane {
     width: 300px;
     min-width: 150px;
@@ -96,7 +96,7 @@
     contain: layout style;
 }
 
-/* Resize handle - allows users to drag and resize the left pane */
+/* Resize handle - allows users to drag and resize the navigation pane */
 .nn-resize-handle {
     width: 5px;
     background-color: transparent;
@@ -123,7 +123,7 @@
 
 /* Pane headers - consistent header styling for both panes */
 .nn-pane-header {
-    padding: var(--size-4-2) var(--size-4-4);
+    padding: var(--size-4-2) var(--size-4-2);
     border-bottom: 1px solid var(--background-modifier-border);
     display: flex;
     justify-content: flex-end;
@@ -133,15 +133,88 @@
     height: 32px;
 }
 
-/* Left pane header - matches folder tree background for visual consistency */
+/* File pane header needs flex layout for title and buttons */
+.nn-file-pane .nn-pane-header > .nn-header-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+
+/* Navigation pane header - matches folder tree background for visual consistency */
 .nn-navigation-pane .nn-pane-header {
     background-color: var(--background-secondary);
+}
+
+/* Remove left padding from file pane header when navigation pane is visible */
+.nn-file-pane .nn-pane-header {
+    padding-left: 0;
+}
+
+/* Restore padding when navigation pane is collapsed (toggle button is showing) */
+.nn-split-container.nn-navigation-pane-collapsed .nn-file-pane .nn-pane-header {
+    padding-left: var(--size-4-2);
+}
+
+/* Remove left padding from pane header title when navigation pane is collapsed */
+.nn-split-container.nn-navigation-pane-collapsed .nn-file-pane .nn-pane-header-title {
+    padding-left: 0;
+}
+
+/* Hide folder icon when navigation pane is collapsed */
+.nn-split-container.nn-navigation-pane-collapsed .nn-file-pane .nn-pane-header-icon {
+    display: none;
 }
 
 /* Header actions container - groups action buttons in headers */
 .nn-header-actions {
     display: flex;
     gap: var(--size-4-2);
+    align-items: center;
+}
+
+
+/* Desktop pane header title */
+.nn-pane-header-title {
+    font-size: var(--nn-nav-font-size); /* Use nav font size (13px) to match folder items */
+    font-weight: 600;
+    color: var(--text-muted);
+    /* Match date header padding */
+    padding-left: var(--size-4-3);
+    /* Text overflow with ellipsis like file names */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1; /* Take remaining space */
+    display: flex;
+    align-items: center;
+}
+
+/* Icon in pane header */
+.nn-pane-header-icon {
+    width: var(--icon-size);
+    height: var(--icon-size);
+    margin-inline-end: var(--size-4-2);
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+}
+
+/* Ensure pane header icon SVG matches icon button size */
+.nn-pane-header-icon svg {
+    width: var(--icon-size);
+    height: var(--icon-size);
+}
+
+/* Text in pane header - matches folder name styling */
+.nn-pane-header-text {
+    line-height: var(--nn-nav-line-height);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    color: var(--text-muted);
 }
 
 /* ========================================================================
@@ -175,29 +248,12 @@
         /* Use clamp to scale padding appropriately for tablets */
         padding: 0 clamp(4px, 1vw, 8px);
     }
-    
-    /* Ensure icon doesn't add extra space */
-    .notebook-navigator-mobile .nn-header-actions button.nn-icon-button > span {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
 }
 
-/* Ensure button element itself has no default styles */
-button.nn-icon-button {
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-}
 
 /* Icon button hover state - subtle background on hover - desktop only */
 .nn-desktop .nn-icon-button:hover {
     background-color: var(--background-modifier-hover) !important;
-    border: none !important;
-    box-shadow: none !important;
 }
 
 /* Icon button active state - feedback on click */
@@ -231,9 +287,14 @@ button.nn-icon-button {
     fill: none;
 }
 
+/* Remove line-height from icon span to prevent vertical offset */
+.nn-icon-button > span {
+    line-height: 0;
+}
+
 
 /* ========================================================================
-   Left Pane Scroller
+   Navigation Pane Scroller
    ======================================================================== */
 
 /* Scroller container for both folder tree and tag list */
@@ -255,7 +316,7 @@ button.nn-icon-button {
    Folder Tree Styles
    ======================================================================== */
 
-/* Note: Left pane scroller styles are defined above in the Left Pane Scroller section */
+/* Note: Navigation pane scroller styles are defined above in the Navigation Pane Scroller section */
 
 /* Folder item - container for each folder in the tree */
 .nn-folder-item {
@@ -944,10 +1005,6 @@ body.nn-resizing {
    - space-between: Mobile file pane (back button + folder name + actions)
    - flex-end: Mobile folder pane (actions only, aligned right)
 */
-.nn-header-actions--full-width {
-    width: 100%;
-}
-
 .nn-header-actions--space-between {
     width: 100%;
     justify-content: space-between;
@@ -959,10 +1016,10 @@ body.nn-resizing {
 }
 
 /* ========================================================================
-   Collapsed Left Pane State
+   Collapsed Navigation Pane State
    ======================================================================== */
 
-/* Hide the left pane when collapsed */
+/* Hide the navigation pane when collapsed */
 .nn-split-container.nn-navigation-pane-collapsed .nn-navigation-pane {
     display: none;
 }
@@ -971,6 +1028,7 @@ body.nn-resizing {
 .nn-split-container.nn-navigation-pane-collapsed .nn-resize-handle {
     display: none;
 }
+
 
 /* ========================================================================
    Context Menu States
@@ -1279,17 +1337,26 @@ body.nn-resizing {
     display: none;
 }
 
+/* Informational text in settings */
+.nn-setting-info {
+    margin-top: var(--size-2-2);
+    font-size: var(--font-ui-smaller);
+    color: var(--text-normal);
+    font-weight: var(--font-semibold);
+    line-height: 1.4;
+}
+
 /* ========================================================================
    Sponsor Button Styles
    ======================================================================== */
 
-/* Sponsor button - minimal, clean styling */
-.nn-sponsor-button {
+/* Support buttons - minimal, clean styling */
+.nn-support-button {
     transition: opacity 0.2s ease;
 }
 
-/* Sponsor button hover - subtle opacity change */
-.nn-sponsor-button:hover {
+/* Support button hover - subtle opacity change */
+.nn-support-button:hover {
     opacity: 0.8;
 }
 

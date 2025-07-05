@@ -16,46 +16,47 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile } from 'obsidian';
+import { TFile, App } from 'obsidian';
+import { SelectionDispatch } from '../context/SelectionContext';
 
 /**
  * Utilities for managing file selection operations
  */
 
 /**
- * Find the next file to select after deleting files
+ * Find the next file to select after removing files (delete or move)
  * @param allFiles - All files in the current view
- * @param deletedPaths - Set of paths that are being deleted
- * @returns The file to select after deletion, or null if none
+ * @param removedPaths - Set of paths that are being removed (deleted or moved)
+ * @returns The file to select after removal, or null if none
  */
-export function findNextFileAfterDelete(
+export function findNextFileAfterRemoval(
     allFiles: TFile[], 
-    deletedPaths: Set<string>
+    removedPaths: Set<string>
 ): TFile | null {
     if (allFiles.length === 0) return null;
     
-    // Find the first deleted file's index
-    let firstDeletedIndex = -1;
+    // Find the first removed file's index
+    let firstRemovedIndex = -1;
     for (let i = 0; i < allFiles.length; i++) {
-        if (deletedPaths.has(allFiles[i].path)) {
-            firstDeletedIndex = i;
+        if (removedPaths.has(allFiles[i].path)) {
+            firstRemovedIndex = i;
             break;
         }
     }
     
-    if (firstDeletedIndex === -1) return null;
+    if (firstRemovedIndex === -1) return null;
     
-    // Strategy 1: Find first unselected file starting from first deleted position
-    for (let i = firstDeletedIndex; i < allFiles.length; i++) {
-        if (!deletedPaths.has(allFiles[i].path)) {
+    // Strategy 1: Find first unselected file starting from first removed position
+    for (let i = firstRemovedIndex; i < allFiles.length; i++) {
+        if (!removedPaths.has(allFiles[i].path)) {
             return allFiles[i];
         }
     }
     
     // Strategy 2: If no file found after, look for first file before the selection
-    if (firstDeletedIndex > 0) {
-        for (let i = firstDeletedIndex - 1; i >= 0; i--) {
-            if (!deletedPaths.has(allFiles[i].path)) {
+    if (firstRemovedIndex > 0) {
+        for (let i = firstRemovedIndex - 1; i >= 0; i--) {
+            if (!removedPaths.has(allFiles[i].path)) {
                 return allFiles[i];
             }
         }
@@ -111,4 +112,50 @@ export function shouldShowMultiSelectOptions(
     clickedFilePath: string
 ): boolean {
     return selectedFiles.size > 1 && selectedFiles.has(clickedFilePath);
+}
+
+/**
+ * Update selection after a file operation (delete, move, etc.)
+ * Handles both selection state update and opening the file in editor
+ * @param nextFile - The file to select, or null to clear selection
+ * @param dispatch - Selection dispatch function
+ * @param app - Obsidian app instance
+ * @param options - Optional configuration
+ */
+export async function updateSelectionAfterFileOperation(
+    nextFile: TFile | null,
+    dispatch: SelectionDispatch,
+    app: App,
+    options: {
+        openInEditor?: boolean;  // Whether to open the file in editor (default: true)
+        activeFile?: boolean;    // Whether to make the file active (default: false)
+    } = {}
+): Promise<void> {
+    const { openInEditor = true, activeFile = false } = options;
+    
+    // No file to select, clear selection and return
+    if (!nextFile) {
+        dispatch({ type: 'CLEAR_FILE_SELECTION' });
+        return;
+    }
+    
+    // Update selection state
+    dispatch({ type: 'SET_SELECTED_FILE', file: nextFile });
+    
+    // Skip opening file if not requested
+    if (!openInEditor) {
+        return;
+    }
+    
+    // Open the file in editor
+    const leaf = app.workspace.getLeaf(false);
+    if (!leaf) {
+        return;
+    }
+    
+    try {
+        await leaf.openFile(nextFile, { active: activeFile });
+    } catch (error) {
+        console.error('Failed to open next file:', error);
+    }
 }

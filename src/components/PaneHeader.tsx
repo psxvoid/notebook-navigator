@@ -268,7 +268,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
         if (type === 'file') {
             return (
                 <div className="nn-pane-header" onClick={onHeaderClick}>
-                    <div className="nn-header-actions nn-header-actions--space-between">
+                    <div className="nn-header-actions">
                         <div className="nn-mobile-back">
                             <button
                                 className="nn-icon-button"
@@ -357,6 +357,29 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     }
     
     // Desktop header (original code)
+    // Prepare header title for file pane
+    let headerTitle = '';
+    let folderIcon = '';
+    let folderColor: string | undefined;
+    
+    if (type === 'file') {
+        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+            headerTitle = selectionState.selectedFolder.path === '/' ? strings.folderTree.rootFolderName : selectionState.selectedFolder.name;
+            
+            // Get folder icon if available
+            if (settings.showIcons) {
+                folderIcon = settings.folderIcons?.[selectionState.selectedFolder.path] || 'folder';
+            }
+        } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+            headerTitle = selectionState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : selectionState.selectedTag;
+            
+            // Use tags icon or custom icon for tags
+            if (settings.showIcons) {
+                folderIcon = settings.tagIcons?.[selectionState.selectedTag] || 'tags';
+            }
+        }
+    }
+    
     return (
         <div className="nn-pane-header">
             <div className="nn-header-actions nn-header-actions--space-between">
@@ -394,18 +417,27 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                     </>
                 ) : (
                     <>
-                        <div className="nn-header-actions">
-                            {uiState.navigationPaneCollapsed && (
-                                <button
-                                    className="nn-icon-button"
-                                    aria-label={strings.paneHeader.showFolders}
-                                    onClick={() => uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' })}
-                                    tabIndex={-1}
-                                >
-                                    <ObsidianIcon name="sidebar-left" />
-                                </button>
-                            )}
-                        </div>
+                        {uiState.navigationPaneCollapsed && (
+                            <button
+                                className="nn-icon-button"
+                                aria-label={strings.paneHeader.showFolders}
+                                onClick={() => uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' })}
+                                tabIndex={-1}
+                            >
+                                <ObsidianIcon name="sidebar-left" />
+                            </button>
+                        )}
+                        {headerTitle && (
+                            <span className="nn-pane-header-title">
+                                {folderIcon && (
+                                    <ObsidianIcon 
+                                        name={folderIcon} 
+                                        className="nn-pane-header-icon"
+                                    />
+                                )}
+                                <span className="nn-pane-header-text">{headerTitle}</span>
+                            </span>
+                        )}
                         <div className="nn-header-actions">
                             <button
                                 className="nn-icon-button"

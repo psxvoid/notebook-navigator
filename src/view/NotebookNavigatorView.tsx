@@ -162,6 +162,13 @@ export class NotebookNavigatorView extends ItemView {
     }
     
     /**
+     * Deletes the currently active file using smart selection
+     */
+    deleteActiveFile() {
+        this.componentRef.current?.deleteActiveFile();
+    }
+    
+    /**
      * Handles when the view becomes active (e.g., when returning from editor)
      */
     public handleViewBecomeActive() {

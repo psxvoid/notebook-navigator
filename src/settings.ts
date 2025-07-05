@@ -678,7 +678,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Container for feature image settings
         const featureImageSettingsEl = containerEl.createDiv('nn-sub-settings');
 
-        this.createDebouncedTextSetting(
+        const featurePropertiesSetting = this.createDebouncedTextSetting(
             featureImageSettingsEl,
             strings.settings.items.featureImageProperties.name,
             strings.settings.items.featureImageProperties.desc,
@@ -690,12 +690,14 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .split(',')
                     .map(prop => prop.trim())
                     .filter(prop => prop.length > 0);
-                // Ensure at least one property
-                if (this.plugin.settings.featureImageProperties.length === 0) {
-                    this.plugin.settings.featureImageProperties = ['feature'];
-                }
             }
         );
+        
+        // Add informational text about embed fallback
+        featurePropertiesSetting.descEl.createEl('div', {
+            text: strings.settings.items.featureImageProperties.embedFallback,
+            cls: 'nn-setting-info'
+        });
 
 
         // Section 6: Advanced
@@ -715,15 +717,26 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
 
         // Sponsor section
-        new Setting(containerEl)
+        // Support development section with both buttons
+        const supportSetting = new Setting(containerEl)
             .setName(strings.settings.items.supportDevelopment.name)
-            .setDesc(strings.settings.items.supportDevelopment.desc)
-            .addButton((button) => {
-                button
-                    .setButtonText(strings.settings.items.supportDevelopment.buttonText)
-                    .onClick(() => window.open('https://github.com/sponsors/johansan/'))
-                    .buttonEl.addClass('nn-sponsor-button');
-            });
+            .setDesc(strings.settings.items.supportDevelopment.desc);
+        
+        // Buy me a coffee button
+        supportSetting.addButton((button) => {
+            button
+                .setButtonText('☕️ Buy me a coffee')
+                .onClick(() => window.open('https://buymeacoffee.com/johansan'))
+                .buttonEl.addClass('nn-support-button');
+        });
+        
+        // GitHub sponsor button
+        supportSetting.addButton((button) => {
+            button
+                .setButtonText(strings.settings.items.supportDevelopment.buttonText)
+                .onClick(() => window.open('https://github.com/sponsors/johansan/'))
+                .buttonEl.addClass('nn-support-button');
+        });
 
         // Set initial visibility
         this.setElementVisibility(previewSettingsEl, this.plugin.settings.showFilePreview);

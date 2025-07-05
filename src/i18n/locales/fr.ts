@@ -219,7 +219,6 @@ export const STRINGS_FR = {
             failedToClearTags: 'Échec de la suppression des étiquettes',
         },
         notifications: {
-            movedMultipleFiles: '{count} fichiers déplacés',
             filesAlreadyExist: '{count} fichiers existent déjà dans la destination',
             addedTag: 'Étiquette "{tag}" ajoutée à {count} fichiers',
             filesAlreadyHaveTag: '{count} fichiers ont déjà cette étiquette ou une plus spécifique',
@@ -250,9 +249,10 @@ export const STRINGS_FR = {
     // Plugin commands
     commands: {
         open: 'Ouvrir', // Command palette: Opens the Notebook Navigator view (English: Open)
-        revealNote: 'Révéler la note', // Command palette: Reveals and selects the currently active note in the navigator (English: Reveal note)
-        focusNote: 'Focus sur la note', // Command palette: Moves keyboard focus to the list pane (English: Focus note)
+        revealFile: 'Révéler le fichier', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
+        focusFile: 'Focus sur le fichier', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Basculer le panneau de navigation', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
+        deleteFile: 'Supprimer le fichier', // Command palette: Deletes the currently active file (English: Delete file)
     },
 
     // Plugin UI
@@ -395,6 +395,7 @@ export const STRINGS_FR = {
                 name: 'Propriétés d\'image',
                 desc: 'Liste de propriétés de métadonnées séparées par des virgules pour les images miniatures. La première propriété avec une image sera utilisée. Conseil : Utilisez le plugin "Featured Image" pour définir automatiquement des images. Pour de meilleures performances, utilisez des miniatures de 42px ou 84px pour les écrans Retina.',
                 placeholder: 'featureResized, feature',
+                embedFallback: 'Si aucune image n\'est trouvée dans les propriétés ci-dessus, la première image intégrée dans le document sera utilisée (nécessite Obsidian 1.9.4+)',
             },
             showRootFolder: {
                 name: 'Afficher le dossier racine',

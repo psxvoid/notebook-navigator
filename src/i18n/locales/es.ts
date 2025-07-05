@@ -219,7 +219,6 @@ export const STRINGS_ES = {
             failedToClearTags: 'Error al eliminar las etiquetas',
         },
         notifications: {
-            movedMultipleFiles: '{count} archivos movidos',
             filesAlreadyExist: '{count} archivos ya existen en el destino',
             addedTag: 'Etiqueta "{tag}" agregada a {count} archivos',
             filesAlreadyHaveTag: '{count} archivos ya tienen esta etiqueta o una más específica',
@@ -250,9 +249,10 @@ export const STRINGS_ES = {
     // Plugin commands
     commands: {
         open: 'Abrir', // Command palette: Opens the Notebook Navigator view (English: Open)
-        revealNote: 'Revelar nota', // Command palette: Reveals and selects the currently active note in the navigator (English: Reveal note)
-        focusNote: 'Enfocar nota', // Command palette: Moves keyboard focus to the list pane (English: Focus note)
+        revealFile: 'Revelar archivo', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
+        focusFile: 'Enfocar archivo', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Alternar panel de navegación', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
+        deleteFile: 'Eliminar archivo', // Command palette: Deletes the currently active file (English: Delete file)
     },
 
     // Plugin UI
@@ -395,6 +395,7 @@ export const STRINGS_ES = {
                 name: 'Propiedades de imagen',
                 desc: 'Lista separada por comas de propiedades del frontmatter para imágenes en miniatura. Se usará la primera propiedad con una imagen. Consejo: Usa el plugin "Featured Image" para establecer imágenes automáticamente. Para mejor rendimiento, usa miniaturas de 42px o 84px para pantallas retina.',
                 placeholder: 'featureResized, feature',
+                embedFallback: 'Si no se encuentra ninguna imagen en las propiedades anteriores, se utilizará la primera imagen incrustada en el documento (requiere Obsidian 1.9.4+)',
             },
             showRootFolder: {
                 name: 'Mostrar carpeta raíz',

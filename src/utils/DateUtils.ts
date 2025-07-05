@@ -16,11 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { format, parse } from 'date-fns';
+import { format, parse, Locale } from 'date-fns';
 import * as locales from 'date-fns/locale';
 import { TFile, MetadataCache } from 'obsidian';
-import { strings } from '../i18n';
+import { strings, getCurrentLanguage } from '../i18n';
 import { NotebookNavigatorSettings } from '../settings';
+
+// Type the locales object properly
+type LocalesMap = typeof locales & Record<string, Locale>;
 
 export class DateUtils {
     /**
@@ -51,24 +54,23 @@ export class DateUtils {
      * @returns Language code (e.g., 'en', 'de', 'sv')
      */
     private static getObsidianLanguage(): string {
-        // Get language from localStorage (same as i18n/index.ts)
-        const obsidianLanguage = window.localStorage.getItem('language');
-        return obsidianLanguage || 'en';
+        const currentLocale = getCurrentLanguage();
+        return currentLocale || 'en';
     }
 
     /**
      * Get the appropriate date-fns locale for the current Obsidian language
      * @returns date-fns locale object
      */
-    private static getDateFnsLocale(): any {
+    private static getDateFnsLocale(): Locale {
         const obsidianLang = DateUtils.getObsidianLanguage();
         
         // Check if this language has a different locale name in date-fns
         const localeName = DateUtils.localeExceptions[obsidianLang] || obsidianLang;
         
-        // Dynamically access the locale from the imported locales object
-        // TypeScript doesn't know the exact shape of locales, so we use 'any'
-        return (locales as any)[localeName] || locales.enUS;
+        // Safely access the locale from the imported locales object
+        const localesMap = locales as LocalesMap;
+        return localesMap[localeName] || locales.enUS;
     }
 
     /**

@@ -18,6 +18,7 @@
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { NAVIGATION_PANE_DIMENSIONS } from '../types';
+import { localStorage } from '../utils/localStorage';
 
 // Storage keys
 import { STORAGE_KEYS } from '../types';
@@ -75,11 +76,11 @@ interface UIStateProviderProps {
 export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
     // Load initial state
     const loadInitialState = (): UIState => {
-        const savedWidth = localStorage.getItem(STORAGE_KEYS.navigationPaneWidthKey);
-        const paneWidth = savedWidth ? parseInt(savedWidth) : NAVIGATION_PANE_DIMENSIONS.defaultWidth;
+        const savedWidth = localStorage.get<number>(STORAGE_KEYS.navigationPaneWidthKey);
+        const savedCollapsed = localStorage.get<boolean>(STORAGE_KEYS.navigationPaneCollapsedKey);
         
-        const savedCollapsed = localStorage.getItem(STORAGE_KEYS.navigationPaneCollapsedKey);
-        const navigationPaneCollapsed = savedCollapsed === 'true';
+        const paneWidth = savedWidth ?? NAVIGATION_PANE_DIMENSIONS.defaultWidth;
+        const navigationPaneCollapsed = savedCollapsed ?? false;
         
         const initialState = {
             focusedPane: 'folders' as const,
@@ -97,14 +98,20 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
     // Persist pane width to localStorage
     useEffect(() => {
         if (!isMobile) {
-            localStorage.setItem(STORAGE_KEYS.navigationPaneWidthKey, state.paneWidth.toString());
+            localStorage.set(
+                STORAGE_KEYS.navigationPaneWidthKey,
+                state.paneWidth
+            );
         }
     }, [state.paneWidth, isMobile]);
     
     // Persist collapsed state to localStorage
     useEffect(() => {
         if (!isMobile) {
-            localStorage.setItem(STORAGE_KEYS.navigationPaneCollapsedKey, state.navigationPaneCollapsed.toString());
+            localStorage.set(
+                STORAGE_KEYS.navigationPaneCollapsedKey,
+                state.navigationPaneCollapsed
+            );
         }
     }, [state.navigationPaneCollapsed, isMobile]);
     

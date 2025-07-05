@@ -16,10 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { getAllTags } from 'obsidian';
 import { SortOption } from '../../settings';
 import { ItemType } from '../../types';
 import { BaseMetadataService } from './BaseMetadataService';
+import { buildTagTree, TagTreeNode } from '../../utils/tagUtils';
 
 /**
  * Service for managing tag-specific metadata operations
@@ -109,66 +109,39 @@ export class TagMetadataService extends BaseMetadataService {
      * @returns True if any changes were made
      */
     async cleanupTagMetadata(): Promise<boolean> {
-        let hasChanges = false;
-        
-        // Collect all existing tags once
-        const validTags = new Set<string>();
+        // Build valid tags set first
         const allFiles = this.app.vault.getMarkdownFiles();
+        const tagTree = buildTagTree(allFiles, this.app);
+        const validTags = this.collectAllTagPaths(tagTree);
         
-        for (const file of allFiles) {
-            const cache = this.app.metadataCache.getFileCache(file);
-            if (cache) {
-                // Use getAllTags to get both frontmatter and inline tags
-                const tags = getAllTags(cache);
-                if (tags && tags.length > 0) {
-                    tags.forEach((tag: string) => {
-                        // Remove # prefix for comparison
-                        const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
-                        validTags.add(cleanTag);
-                        
-                        // Also add parent tags
-                        const parts = cleanTag.split('/');
-                        for (let i = 1; i < parts.length; i++) {
-                            const parentTag = parts.slice(0, i).join('/');
-                            validTags.add(parentTag);
-                        }
-                    });
-                }
+        const validator = (path: string) => validTags.has(path);
+        
+        const results = await Promise.all([
+            this.cleanupMetadata(this.settings, 'tagColors', validator),
+            this.cleanupMetadata(this.settings, 'tagIcons', validator),
+            this.cleanupMetadata(this.settings, 'tagSortOverrides', validator)
+        ]);
+        
+        return results.some(changed => changed);
+    }
+    
+    /**
+     * Collects all tag paths from tag tree
+     */
+    private collectAllTagPaths(tree: Map<string, TagTreeNode>): Set<string> {
+        const paths = new Set<string>();
+        
+        function addNode(node: TagTreeNode): void {
+            paths.add(node.path);
+            for (const child of node.children.values()) {
+                addNode(child);
             }
         }
         
-        await this.saveAndUpdate(settings => {
-            // Clean up tag colors
-            if (settings.tagColors) {
-                for (const tagPath in settings.tagColors) {
-                    if (!validTags.has(tagPath)) {
-                        delete settings.tagColors[tagPath];
-                        hasChanges = true;
-                    }
-                }
-            }
-            
-            // Clean up tag icons
-            if (settings.tagIcons) {
-                for (const tagPath in settings.tagIcons) {
-                    if (!validTags.has(tagPath)) {
-                        delete settings.tagIcons[tagPath];
-                        hasChanges = true;
-                    }
-                }
-            }
-            
-            // Clean up tag sort overrides
-            if (settings.tagSortOverrides) {
-                for (const tagPath in settings.tagSortOverrides) {
-                    if (!validTags.has(tagPath)) {
-                        delete settings.tagSortOverrides[tagPath];
-                        hasChanges = true;
-                    }
-                }
-            }
-        });
+        for (const node of tree.values()) {
+            addNode(node);
+        }
         
-        return hasChanges;
+        return paths;
     }
 }

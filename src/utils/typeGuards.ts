@@ -16,7 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, TFolder, TAbstractFile } from 'obsidian';
+import { TFile, TFolder, TAbstractFile, App } from 'obsidian';
+import { ExtendedApp } from '../types/obsidian-extended';
 
 /**
  * Type guard to check if an object is a TFile
@@ -39,8 +40,8 @@ export function isTFolder(obj: unknown): obj is TFolder {
            'vault' in obj &&
            'path' in obj &&
            'children' in obj &&
-           // Note: Cast to any needed to access children property for type checking
-           Array.isArray((obj as any).children);
+           // Safe property access since we already checked 'children' exists
+           Array.isArray((obj as Record<string, unknown>).children);
 }
 
 /**
@@ -49,8 +50,8 @@ export function isTFolder(obj: unknown): obj is TFolder {
 export function asTFile(obj: unknown): TFile {
     if (!isTFile(obj)) {
         const typeName = obj && typeof obj === 'object' && 'constructor' in obj 
-            // Note: Cast to any needed to access constructor.name for better error messages
-            ? (obj as any).constructor.name 
+            // Safe property access for better error messages
+            ? (obj as {constructor: {name?: string}}).constructor.name || 'unknown' 
             : typeof obj;
         throw new TypeError(`Expected TFile but got ${typeName}`);
     }
@@ -63,8 +64,8 @@ export function asTFile(obj: unknown): TFile {
 export function asTFolder(obj: unknown): TFolder {
     if (!isTFolder(obj)) {
         const typeName = obj && typeof obj === 'object' && 'constructor' in obj 
-            // Note: Cast to any needed to access constructor.name for better error messages
-            ? (obj as any).constructor.name 
+            // Safe property access for better error messages
+            ? (obj as {constructor: {name?: string}}).constructor.name || 'unknown' 
             : typeof obj;
         throw new TypeError(`Expected TFolder but got ${typeName}`);
     }
@@ -73,21 +74,31 @@ export function asTFolder(obj: unknown): TFolder {
 
 /**
  * Safe access to internal Obsidian APIs with type inference
- * Note: Uses 'any' type for app because internalPlugins is not in Obsidian's public TypeScript API
+ * Note: internalPlugins is not in Obsidian's public TypeScript API but is widely used
  * This provides safe access to internal plugins (e.g., search, sync) that many community plugins use
  */
-export function getInternalPlugin<T = any>(app: any, pluginId: string): T | undefined {
-    return app.internalPlugins?.getPluginById?.(pluginId);
+export function getInternalPlugin<T = any>(app: App, pluginId: string): T | undefined {
+    const appWithInternals = app as App & {
+        internalPlugins?: {
+            getPluginById?(id: string): T;
+        };
+    };
+    return appWithInternals.internalPlugins?.getPluginById?.(pluginId);
 }
 
 /**
  * Safe command execution
- * Note: Uses 'any' type for app because executeCommandById is not in Obsidian's public TypeScript API
+ * Note: executeCommandById is not in Obsidian's public TypeScript API but is widely used
  * This is accessing internal Obsidian APIs that many plugins rely on
  */
-export function executeCommand(app: any, commandId: string): boolean {
+export function executeCommand(app: App, commandId: string): boolean {
+    const appWithCommands = app as App & {
+        commands?: {
+            executeCommandById?(id: string): boolean;
+        };
+    };
     try {
-        return app.commands?.executeCommandById?.(commandId) ?? false;
+        return appWithCommands.commands?.executeCommandById?.(commandId) ?? false;
     } catch {
         return false;
     }

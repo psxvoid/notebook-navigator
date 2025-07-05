@@ -219,7 +219,6 @@ export const STRINGS_JA = {
             failedToClearTags: 'タグのクリアに失敗しました',
         },
         notifications: {
-            movedMultipleFiles: '{count}個のファイルを移動しました',
             filesAlreadyExist: '{count}個のファイルが移動先に既に存在します',
             addedTag: '{count}個のファイルにタグ "{tag}" を追加しました',
             filesAlreadyHaveTag: '{count}個のファイルには既にこのタグまたはより具体的なタグがあります',
@@ -250,9 +249,10 @@ export const STRINGS_JA = {
     // Plugin commands
     commands: {
         open: '開く', // Command palette: Opens the Notebook Navigator view (English: Open)
-        revealNote: 'ノートを表示', // Command palette: Reveals and selects the currently active note in the navigator (English: Reveal note)
-        focusNote: 'ノートにフォーカス', // Command palette: Moves keyboard focus to the list pane (English: Focus note)
+        revealFile: 'ファイルを表示', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
+        focusFile: 'ファイルにフォーカス', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'ナビゲーションペインを切り替え', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
+        deleteFile: 'ファイルを削除', // Command palette: Deletes the currently active file (English: Delete file)
     },
 
     // Plugin UI
@@ -395,6 +395,7 @@ export const STRINGS_JA = {
                 name: '画像プロパティ',
                 desc: 'サムネイル画像用のフロントマタープロパティのカンマ区切りリスト。画像を持つ最初のプロパティが使用されます。ヒント：「Featured Image」プラグインを使用して自動的に画像を設定できます。最高のパフォーマンスには42pxのサムネイル、Retinaディスプレイには84pxを使用してください。',
                 placeholder: 'featureResized, feature',
+                embedFallback: '上記のプロパティに画像が見つからない場合、ドキュメント内の最初の埋め込み画像が使用されます（Obsidian 1.9.4以降が必要）',
             },
             showRootFolder: {
                 name: 'ルートフォルダを表示',

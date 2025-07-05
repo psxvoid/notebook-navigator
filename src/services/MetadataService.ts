@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { App } from 'obsidian';
 import { NotebookNavigatorSettings, SortOption } from '../settings';
 import { FolderMetadataService, TagMetadataService, FileMetadataService } from './metadata';
 
@@ -36,7 +37,7 @@ export class MetadataService {
      * @param updateSettings - Function to update and persist settings
      */
     constructor(
-        private app: any,
+        private app: App,
         private settings: NotebookNavigatorSettings,
         private updateSettings: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>
     ) {
