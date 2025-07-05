@@ -17,6 +17,7 @@
  */
 
 import { App, TFile } from 'obsidian';
+import { ExtendedApp } from '../types/obsidian-extended';
 
 /**
  * File visibility options for the navigator
@@ -59,10 +60,10 @@ export function getObsidianSupportedExtensions(app: App): Set<string> {
     
     try {
         // Try to get registered view types from Obsidian's view registry
-        const appAny = app as any;
+        const extendedApp = app as ExtendedApp;
         
-        if (appAny.viewRegistry && appAny.viewRegistry.typeByExtension) {
-            const typeByExtension = appAny.viewRegistry.typeByExtension;
+        if (extendedApp.viewRegistry?.typeByExtension) {
+            const typeByExtension = extendedApp.viewRegistry.typeByExtension;
             if (typeByExtension && typeof typeByExtension === 'object') {
                 for (const ext of Object.keys(typeByExtension)) {
                     if (typeof ext === 'string') {
@@ -74,8 +75,8 @@ export function getObsidianSupportedExtensions(app: App): Set<string> {
         
         // Also check for registered extensions in the metadataTypeManager
         // This catches some additional file types that plugins might register
-        if (appAny.metadataTypeManager && appAny.metadataTypeManager.registeredExtensions) {
-            const registeredExtensions = appAny.metadataTypeManager.registeredExtensions;
+        if (extendedApp.metadataTypeManager?.registeredExtensions) {
+            const registeredExtensions = extendedApp.metadataTypeManager.registeredExtensions;
             if (Array.isArray(registeredExtensions)) {
                 for (const ext of registeredExtensions) {
                     if (typeof ext === 'string') {

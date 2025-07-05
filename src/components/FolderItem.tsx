@@ -108,7 +108,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
         // Set placement to the right (left in RTL)
         setTooltip(folderRef.current, tooltip, { 
             placement: isRTL ? 'left' : 'right'
-        } as any);
+        });
     }, [folderStats.fileCount, folderStats.folderCount, folder.name, settings]);
     
     // Count files in folder (including subfolders if setting enabled)

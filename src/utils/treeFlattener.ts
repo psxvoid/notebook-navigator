@@ -21,6 +21,7 @@ import type { FolderTreeItem, TagTreeItem } from '../types/virtualization';
 import { TagTreeNode } from './tagUtils';
 import { shouldExcludeFolder } from './fileFilters';
 import { NavigationPaneItemType } from '../types';
+import { getCurrentLanguage } from '../i18n';
 
 /**
  * Flattens a folder tree into a linear array for virtualization.
@@ -69,9 +70,9 @@ export function flattenFolderTree(
                 .filter((child): child is TFolder => child instanceof TFolder);
             
             // Get the current language from Obsidian to sort correctly for that locale. 
-            const lang = window.localStorage.getItem('language') || 'en';
+            const locale = getCurrentLanguage();
             // Sort the child folders alphabetically using the detected locale.
-            childFolders.sort((a, b) => a.name.localeCompare(b.name, lang));
+            childFolders.sort((a, b) => a.name.localeCompare(b.name, locale));
             
             if (childFolders.length > 0) {
                 // Create a new set with the current path added

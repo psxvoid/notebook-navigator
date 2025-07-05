@@ -17,11 +17,12 @@
  */
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode, useCallback, useRef } from 'react';
-import { TFile, TFolder } from 'obsidian';
+import { App, TFile, TFolder } from 'obsidian';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
 import { NavigationItemType } from '../types';
+import { NotebookNavigatorPlugin } from '../types/plugin';
 
 // Storage keys
 const STORAGE_KEYS = {
@@ -361,8 +362,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
 // Provider component
 interface SelectionProviderProps {
     children: ReactNode;
-    app: any; // Obsidian App instance
-    plugin: any; // Plugin instance for settings
+    app: App; // Obsidian App instance
+    plugin: NotebookNavigatorPlugin; // Plugin instance for settings
     isMobile: boolean;
 }
 

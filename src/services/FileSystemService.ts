@@ -17,6 +17,7 @@
  */
 
 import { App, TFile, TFolder, TAbstractFile, Notice, normalizePath, Platform, MarkdownView } from 'obsidian';
+import { ExtendedApp, TIMEOUTS, OBSIDIAN_COMMANDS } from '../types/obsidian-extended';
 import { InputModal } from '../modals/InputModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
 import { executeCommand } from '../utils/typeGuards';
@@ -26,6 +27,7 @@ import { NotebookNavigatorSettings } from '../settings';
 import { NavigationItemType, getSupportedLeaves, ItemType } from '../types';
 import type { SelectionDispatch } from '../context/SelectionContext';
 import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
+import { createFileWithOptions, createDatabaseContent } from '../utils/fileCreationUtils';
 
 /**
  * Selection context for file operations
@@ -80,40 +82,11 @@ export class FileSystemOperations {
      * @returns The created file or null if creation failed
      */
     async createNewFile(parent: TFolder): Promise<TFile | null> {
-        try {
-            // Generate unique "Untitled" name
-            let fileName = strings.fileSystem.defaultNames.untitled;
-            let counter = 1;
-            let path = normalizePath(parent.path ? `${parent.path}/${fileName}.md` : `${fileName}.md`);
-            
-            // Check if file exists and increment counter
-            while (this.app.vault.getAbstractFileByPath(path)) {
-                fileName = strings.fileSystem.defaultNames.untitledNumber.replace('{number}', counter.toString());
-                path = normalizePath(parent.path ? `${parent.path}/${fileName}.md` : `${fileName}.md`);
-                counter++;
-            }
-            
-            // Create the file
-            const file = await this.app.vault.create(path, '');
-            
-            // Open the file and trigger rename mode
-            const leaf = this.app.workspace.getLeaf(false);
-            await leaf.openFile(file);
-            
-            // Trigger rename mode.
-            // We use setTimeout to push this command to the end of the event queue.
-            // This gives Obsidian's workspace time to finish opening the file and rendering the editor,
-            // making it more likely that the 'edit-file-title' command will find an active editor title to focus.
-            // Note: This is a known workaround for a race condition in Obsidian and may fail on slower systems.
-            setTimeout(() => {
-                executeCommand(this.app, 'workspace:edit-file-title');
-            }, 0);
-            
-            return file;
-        } catch (error) {
-            new Notice(strings.fileSystem.errors.createFile.replace('{error}', error.message));
-            return null;
-        }
+        return createFileWithOptions(parent, this.app, {
+            extension: 'md',
+            content: '',
+            errorKey: 'createFile'
+        });
     }
 
     /**
@@ -336,8 +309,8 @@ export class FileSystemOperations {
                     
                     // Find any leaf showing the file being deleted
                     const currentLeaf = allLeaves.find(leaf => {
-                        const view = leaf.view as any;
-                        return view && view.file && view.file.path === file.path;
+                        const view = leaf.view;
+                        return view && 'file' in view && view.file && view.file.path === file.path;
                     });
                     if (currentLeaf) {
                         currentLeaf.detach();
@@ -351,7 +324,7 @@ export class FileSystemOperations {
                     if (fileListEl) {
                         fileListEl.focus();
                     }
-                }, 100);
+                }, TIMEOUTS.FOCUS_RESTORE_DELAY);
             }
         );
     }
@@ -406,32 +379,11 @@ export class FileSystemOperations {
      * @param parent - The parent folder
      */
     async createCanvas(parent: TFolder): Promise<void> {
-        try {
-            let fileName = strings.fileSystem.defaultNames.untitled;
-            let counter = 1;
-            let path = normalizePath(parent.path ? `${parent.path}/${fileName}.canvas` : `${fileName}.canvas`);
-            
-            while (this.app.vault.getAbstractFileByPath(path)) {
-                fileName = strings.fileSystem.defaultNames.untitledNumber.replace('{number}', counter.toString());
-                path = normalizePath(parent.path ? `${parent.path}/${fileName}.canvas` : `${fileName}.canvas`);
-                counter++;
-            }
-            
-            const file = await this.app.vault.create(path, '{}');
-            const leaf = this.app.workspace.getLeaf(false);
-            await leaf.openFile(file);
-            
-            // Trigger rename mode.
-            // We use setTimeout to push this command to the end of the event queue.
-            // This gives Obsidian's workspace time to finish opening the file and rendering the editor,
-            // making it more likely that the 'edit-file-title' command will find an active editor title to focus.
-            // Note: This is a known workaround for a race condition in Obsidian and may fail on slower systems.
-            setTimeout(() => {
-                executeCommand(this.app, 'workspace:edit-file-title');
-            }, 0);
-        } catch (error) {
-            new Notice(strings.fileSystem.errors.createCanvas.replace('{error}', error.message));
-        }
+        await createFileWithOptions(parent, this.app, {
+            extension: 'canvas',
+            content: '{}',
+            errorKey: 'createCanvas'
+        });
     }
 
     /**
@@ -439,41 +391,11 @@ export class FileSystemOperations {
      * @param parent - The parent folder
      */
     async createBase(parent: TFolder): Promise<void> {
-        try {
-            let fileName = strings.fileSystem.defaultNames.untitled;
-            let counter = 1;
-            let path = normalizePath(parent.path ? `${parent.path}/${fileName}.base` : `${fileName}.base`);
-            
-            while (this.app.vault.getAbstractFileByPath(path)) {
-                fileName = strings.fileSystem.defaultNames.untitledNumber.replace('{number}', counter.toString());
-                path = normalizePath(parent.path ? `${parent.path}/${fileName}.base` : `${fileName}.base`);
-                counter++;
-            }
-            
-            const content = JSON.stringify({
-                "model": {
-                    "version": 1,
-                    "kind": "Table",
-                    "columns": []
-                },
-                "pluginVersion": "1.0.0"
-            }, null, 2);
-            
-            const file = await this.app.vault.create(path, content);
-            const leaf = this.app.workspace.getLeaf(false);
-            await leaf.openFile(file);
-            
-            // Trigger rename mode.
-            // We use setTimeout to push this command to the end of the event queue.
-            // This gives Obsidian's workspace time to finish opening the file and rendering the editor,
-            // making it more likely that the 'edit-file-title' command will find an active editor title to focus.
-            // Note: This is a known workaround for a race condition in Obsidian and may fail on slower systems.
-            setTimeout(() => {
-                executeCommand(this.app, 'workspace:edit-file-title');
-            }, 0);
-        } catch (error) {
-            new Notice(strings.fileSystem.errors.createDatabase.replace('{error}', error.message));
-        }
+        await createFileWithOptions(parent, this.app, {
+            extension: 'base',
+            content: createDatabaseContent(),
+            errorKey: 'createDatabase'
+        });
     }
 
     /**
@@ -672,7 +594,7 @@ export class FileSystemOperations {
      */
     async openVersionHistory(file: TFile): Promise<void> {
         // Set a flag to prevent the navigator from stealing focus back
-        (window as any).notebookNavigatorOpeningVersionHistory = true;
+        window.notebookNavigatorOpeningVersionHistory = true;
         
         try {
             // Always open/re-open the file to ensure proper focus
@@ -683,7 +605,7 @@ export class FileSystemOperations {
             await new Promise(resolve => setTimeout(resolve, 100));
             
             // Try both possible command IDs
-            const commandIds = ['sync:show-sync-history', 'sync:view-version-history'];
+            const commandIds = [OBSIDIAN_COMMANDS.SYNC_HISTORY, OBSIDIAN_COMMANDS.VERSION_HISTORY];
             let executed = false;
             
             for (const commandId of commandIds) {
@@ -701,8 +623,8 @@ export class FileSystemOperations {
         } finally {
             // Clear the flag after a delay to ensure the modal has time to open
             setTimeout(() => {
-                delete (window as any).notebookNavigatorOpeningVersionHistory;
-            }, 500);
+                delete window.notebookNavigatorOpeningVersionHistory;
+            }, TIMEOUTS.VERSION_HISTORY_DELAY);
         }
     }
 
@@ -727,7 +649,8 @@ export class FileSystemOperations {
             // Use Obsidian's built-in method to reveal the file
             // Note: showInFolder is not in Obsidian's public TypeScript API, but is widely used by plugins
             // showInFolder expects the vault-relative path, not the full system path
-            await (this.app as any).showInFolder(file.path);
+            const extendedApp = this.app as ExtendedApp;
+            await extendedApp.showInFolder(file.path);
         } catch (error) {
             new Notice(strings.fileSystem.errors.revealInExplorer.replace('{error}', error.message));
         }

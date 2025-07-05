@@ -128,119 +128,15 @@ export class FolderMetadataService extends BaseMetadataService {
      */
     async handleFolderRename(oldPath: string, newPath: string): Promise<void> {
         await this.saveAndUpdate(settings => {
-            // Ensure all metadata objects exist
-            if (!settings.folderColors) settings.folderColors = {};
-            if (!settings.folderIcons) settings.folderIcons = {};
-            if (!settings.folderSortOverrides) settings.folderSortOverrides = {};
-            if (!settings.pinnedNotes) settings.pinnedNotes = {};
-
-            // Update direct folder metadata
-            if (settings.folderColors[oldPath]) {
-                settings.folderColors[newPath] = settings.folderColors[oldPath];
-                delete settings.folderColors[oldPath];
-            }
-            if (settings.folderIcons[oldPath]) {
-                settings.folderIcons[newPath] = settings.folderIcons[oldPath];
-                delete settings.folderIcons[oldPath];
-            }
-            if (settings.folderSortOverrides[oldPath]) {
-                settings.folderSortOverrides[newPath] = settings.folderSortOverrides[oldPath];
-                delete settings.folderSortOverrides[oldPath];
-            }
-
-            // Handle nested folders
-            const oldPathPrefix = oldPath + '/';
+            // Update all metadata types
+            this.updateNestedPaths(settings.folderColors, oldPath, newPath);
+            this.updateNestedPaths(settings.folderIcons, oldPath, newPath);
+            this.updateNestedPaths(settings.folderSortOverrides, oldPath, newPath);
             
-            // Update nested folder colors
-            const colorsToUpdate: Array<{oldPath: string, newPath: string, color: string}> = [];
-            for (const path in settings.folderColors) {
-                if (path.startsWith(oldPathPrefix)) {
-                    const newNestedPath = newPath + path.substring(oldPath.length);
-                    colorsToUpdate.push({
-                        oldPath: path,
-                        newPath: newNestedPath,
-                        color: settings.folderColors[path]
-                    });
-                }
-            }
-            for (const update of colorsToUpdate) {
-                settings.folderColors[update.newPath] = update.color;
-                delete settings.folderColors[update.oldPath];
-            }
-
-            // Update nested folder icons
-            const iconsToUpdate: Array<{oldPath: string, newPath: string, icon: string}> = [];
-            for (const path in settings.folderIcons) {
-                if (path.startsWith(oldPathPrefix)) {
-                    const newNestedPath = newPath + path.substring(oldPath.length);
-                    iconsToUpdate.push({
-                        oldPath: path,
-                        newPath: newNestedPath,
-                        icon: settings.folderIcons[path]
-                    });
-                }
-            }
-            for (const update of iconsToUpdate) {
-                settings.folderIcons[update.newPath] = update.icon;
-                delete settings.folderIcons[update.oldPath];
-            }
-
-            // Update nested folder sort overrides
-            const sortOverridesToUpdate: Array<{oldPath: string, newPath: string, sort: SortOption}> = [];
-            for (const path in settings.folderSortOverrides) {
-                if (path.startsWith(oldPathPrefix)) {
-                    const newNestedPath = newPath + path.substring(oldPath.length);
-                    sortOverridesToUpdate.push({
-                        oldPath: path,
-                        newPath: newNestedPath,
-                        sort: settings.folderSortOverrides[path]
-                    });
-                }
-            }
-            for (const update of sortOverridesToUpdate) {
-                settings.folderSortOverrides[update.newPath] = update.sort;
-                delete settings.folderSortOverrides[update.oldPath];
-            }
-
-            // Handle pinned notes
-            const pinnedNotesToUpdate: Array<{oldPath: string, newPath: string, notes: string[]}> = [];
-            
-            // Handle direct folder pinned notes
-            if (settings.pinnedNotes[oldPath]) {
-                const updatedNotes = settings.pinnedNotes[oldPath].map((notePath: string) => {
-                    if (notePath.startsWith(oldPath + '/')) {
-                        return newPath + notePath.substring(oldPath.length);
-                    }
-                    return notePath;
-                });
-                pinnedNotesToUpdate.push({
-                    oldPath: oldPath,
-                    newPath: newPath,
-                    notes: updatedNotes
-                });
-            }
-            
-            // Handle nested folder pinned notes
-            for (const path in settings.pinnedNotes) {
-                if (path.startsWith(oldPathPrefix)) {
-                    const newNestedPath = newPath + path.substring(oldPath.length);
-                    const updatedNotes = settings.pinnedNotes[path].map((notePath: string) => {
-                        if (notePath.startsWith(oldPath + '/')) {
-                            return newPath + notePath.substring(oldPath.length);
-                        }
-                        return notePath;
-                    });
-                    pinnedNotesToUpdate.push({
-                        oldPath: path,
-                        newPath: newNestedPath,
-                        notes: updatedNotes
-                    });
-                }
-            }
-            
-            for (const update of pinnedNotesToUpdate) {
-                settings.pinnedNotes[update.newPath] = update.notes;
-                delete settings.pinnedNotes[update.oldPath];
+            // Handle pinned notes separately (different structure)
+            if (settings.pinnedNotes?.[oldPath]) {
+                settings.pinnedNotes[newPath] = settings.pinnedNotes[oldPath];
+                delete settings.pinnedNotes[oldPath];
             }
         });
     }
@@ -251,61 +147,12 @@ export class FolderMetadataService extends BaseMetadataService {
      */
     async handleFolderDelete(folderPath: string): Promise<void> {
         await this.saveAndUpdate(settings => {
-            const pathPrefix = folderPath + '/';
-
-            // Remove folder color
-            if (settings.folderColors?.[folderPath]) {
-                delete settings.folderColors[folderPath];
-            }
-
-            // Remove folder icon
-            if (settings.folderIcons?.[folderPath]) {
-                delete settings.folderIcons[folderPath];
-            }
-
-            // Remove folder sort override
-            if (settings.folderSortOverrides?.[folderPath]) {
-                delete settings.folderSortOverrides[folderPath];
-            }
-
-            // Remove pinned notes for this folder
-            if (settings.pinnedNotes?.[folderPath]) {
-                delete settings.pinnedNotes[folderPath];
-            }
-
-            // Clean up nested folders
-            if (settings.folderColors) {
-                for (const nestedPath in settings.folderColors) {
-                    if (nestedPath.startsWith(pathPrefix)) {
-                        delete settings.folderColors[nestedPath];
-                    }
-                }
-            }
-
-            if (settings.folderIcons) {
-                for (const nestedPath in settings.folderIcons) {
-                    if (nestedPath.startsWith(pathPrefix)) {
-                        delete settings.folderIcons[nestedPath];
-                    }
-                }
-            }
-
-            if (settings.folderSortOverrides) {
-                for (const nestedPath in settings.folderSortOverrides) {
-                    if (nestedPath.startsWith(pathPrefix)) {
-                        delete settings.folderSortOverrides[nestedPath];
-                    }
-                }
-            }
-
-            // Clean up pinned notes for nested folders
-            if (settings.pinnedNotes) {
-                for (const folderPath in settings.pinnedNotes) {
-                    if (folderPath.startsWith(pathPrefix)) {
-                        delete settings.pinnedNotes[folderPath];
-                    }
-                }
-            }
+            this.deleteNestedPaths(settings.folderColors, folderPath);
+            this.deleteNestedPaths(settings.folderIcons, folderPath);
+            this.deleteNestedPaths(settings.folderSortOverrides, folderPath);
+            
+            // Delete pinned notes
+            delete settings.pinnedNotes?.[folderPath];
         });
     }
 
@@ -314,43 +161,17 @@ export class FolderMetadataService extends BaseMetadataService {
      * @returns True if any changes were made
      */
     async cleanupFolderMetadata(): Promise<boolean> {
-        let hasChanges = false;
+        const validator = (path: string) => {
+            const folder = this.app.vault.getAbstractFileByPath(path);
+            return folder instanceof TFolder;
+        };
         
-        await this.saveAndUpdate(settings => {
-            // Clean up folder colors
-            if (settings.folderColors) {
-                for (const folderPath in settings.folderColors) {
-                    const folder = this.app.vault.getAbstractFileByPath(folderPath);
-                    if (!(folder instanceof TFolder)) {
-                        delete settings.folderColors[folderPath];
-                        hasChanges = true;
-                    }
-                }
-            }
-
-            // Clean up folder icons
-            if (settings.folderIcons) {
-                for (const folderPath in settings.folderIcons) {
-                    const folder = this.app.vault.getAbstractFileByPath(folderPath);
-                    if (!(folder instanceof TFolder)) {
-                        delete settings.folderIcons[folderPath];
-                        hasChanges = true;
-                    }
-                }
-            }
-
-            // Clean up folder sort overrides
-            if (settings.folderSortOverrides) {
-                for (const folderPath in settings.folderSortOverrides) {
-                    const folder = this.app.vault.getAbstractFileByPath(folderPath);
-                    if (!(folder instanceof TFolder)) {
-                        delete settings.folderSortOverrides[folderPath];
-                        hasChanges = true;
-                    }
-                }
-            }
-        });
+        const results = await Promise.all([
+            this.cleanupMetadata(this.settings, 'folderColors', validator),
+            this.cleanupMetadata(this.settings, 'folderIcons', validator),
+            this.cleanupMetadata(this.settings, 'folderSortOverrides', validator)
+        ]);
         
-        return hasChanges;
+        return results.some(changed => changed);
     }
 }

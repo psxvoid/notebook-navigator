@@ -18,6 +18,7 @@
 
 // src/hooks/useResizablePane.ts
 import { useState, useCallback, useEffect, useRef } from 'react';
+import { localStorage } from '../utils/localStorage';
 import { NAVIGATION_PANE_DIMENSIONS } from '../types';
 
 interface UseResizablePaneConfig {
@@ -55,12 +56,9 @@ export function useResizablePane({
     // Load initial width from localStorage if storage key is provided
     const [paneWidth, setPaneWidth] = useState(() => {
         if (storageKey) {
-            const saved = localStorage.getItem(storageKey);
-            if (saved) {
-                const width = parseInt(saved, 10);
-                if (!isNaN(width)) {
-                    return Math.max(min, Math.min(max, width));
-                }
+            const savedWidth = localStorage.get<number>(storageKey);
+            if (savedWidth) {
+                return Math.max(min, Math.min(max, savedWidth));
             }
         }
         return initialWidth;
@@ -72,7 +70,7 @@ export function useResizablePane({
     // Save width to localStorage when it changes
     useEffect(() => {
         if (storageKey) {
-            localStorage.setItem(storageKey, paneWidth.toString());
+            localStorage.set(storageKey, paneWidth);
         }
     }, [paneWidth, storageKey]);
 

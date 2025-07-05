@@ -302,13 +302,13 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                 selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder, autoSelectedFile: null });
                 
                 // Set a temporary flag to prevent auto-reveal
-                (window as any).notebookNavigatorOpeningFolderNote = true;
+                window.notebookNavigatorOpeningFolderNote = true;
                 
                 // Open the folder note
                 app.workspace.getLeaf().openFile(folderNote).then(() => {
                     // Clear the flag after a short delay
                     setTimeout(() => {
-                        delete (window as any).notebookNavigatorOpeningFolderNote;
+                        delete window.notebookNavigatorOpeningFolderNote;
                     }, 100);
                 });
                 

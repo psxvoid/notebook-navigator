@@ -16,8 +16,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { App } from 'obsidian';
 import { NotebookNavigatorSettings, SortOption } from '../../settings';
 import { ItemType } from '../../types';
+
+/**
+ * Type helper for metadata fields in settings
+ * All metadata fields are Record<string, T> objects
+ */
+type MetadataFields = {
+    folderIcons: Record<string, string>;
+    folderColors: Record<string, string>;
+    folderSortOverrides: Record<string, SortOption>;
+    pinnedNotes: Record<string, string[]>;
+    tagColors: Record<string, string>;
+    tagIcons: Record<string, string>;
+    tagSortOverrides: Record<string, SortOption>;
+};
+
+type MetadataKey = keyof MetadataFields;
 
 /**
  * Type for entity that can have metadata (folder or tag)
@@ -32,7 +49,7 @@ export abstract class BaseMetadataService {
     protected updateQueue: Promise<void> = Promise.resolve();
     
     constructor(
-        protected app: any,
+        protected app: App,
         protected settings: NotebookNavigatorSettings,
         protected updateSettings: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>
     ) {}
@@ -43,14 +60,16 @@ export abstract class BaseMetadataService {
      */
     protected async saveAndUpdate(updater: (settings: NotebookNavigatorSettings) => void): Promise<void> {
         // Queue this update to run after any pending updates
-        this.updateQueue = this.updateQueue.then(async () => {
-            try {
+        this.updateQueue = this.updateQueue
+            .then(async () => {
                 await this.updateSettings(updater);
-            } catch (error) {
-                // Failed to save settings, re-throw to propagate
+            })
+            .catch(error => {
+                // Log error but don't break the queue for subsequent updates
+                console.error('Failed to save metadata:', error);
+                // Re-throw to propagate to caller
                 throw error;
-            }
-        });
+            });
         
         return this.updateQueue;
     }
@@ -242,5 +261,101 @@ export abstract class BaseMetadataService {
         } else {
             return this.settings.tagSortOverrides?.[path];
         }
+    }
+
+    // ========== Generic Metadata Cleanup Utilities ==========
+
+    /**
+     * Generic cleanup for metadata objects
+     * Removes entries that fail validation
+     */
+    protected async cleanupMetadata<K extends MetadataKey>(
+        settings: NotebookNavigatorSettings,
+        metadataKey: K,
+        validator: (path: string) => boolean
+    ): Promise<boolean> {
+        // Since we only need to delete properties, we can treat the metadata
+        // as a generic object without caring about the specific value type
+        const metadata = settings[metadataKey];
+        
+        if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) {
+            return false;
+        }
+        
+        let hasChanges = false;
+        // We know metadata is an object with string keys
+        const metadataObj = metadata as Record<string, unknown>;
+        
+        for (const path in metadataObj) {
+            if (!validator(path)) {
+                delete metadataObj[path];
+                hasChanges = true;
+            }
+        }
+        return hasChanges;
+    }
+
+    /**
+     * Updates nested paths when a parent is renamed
+     * Handles both direct matches and nested children
+     */
+    protected updateNestedPaths<T>(
+        metadata: Record<string, T> | undefined,
+        oldPath: string,
+        newPath: string
+    ): boolean {
+        if (!metadata) return false;
+        
+        const oldPrefix = oldPath + '/';
+        const updates: Array<{oldPath: string, newPath: string, value: T}> = [];
+        
+        // First, handle direct path match
+        if (oldPath in metadata) {
+            updates.push({
+                oldPath: oldPath,
+                newPath: newPath,
+                value: metadata[oldPath]
+            });
+        }
+        
+        // Then handle nested paths
+        for (const path in metadata) {
+            if (path.startsWith(oldPrefix)) {
+                const newNestedPath = newPath + '/' + path.slice(oldPrefix.length);
+                updates.push({
+                    oldPath: path,
+                    newPath: newNestedPath,
+                    value: metadata[path]
+                });
+            }
+        }
+        
+        // Apply all updates
+        for (const update of updates) {
+            metadata[update.newPath] = update.value;
+            delete metadata[update.oldPath];
+        }
+        
+        return updates.length > 0;
+    }
+
+    /**
+     * Deletes nested paths when a parent is deleted
+     * Removes both the exact match and all children
+     */
+    protected deleteNestedPaths<T>(
+        metadata: Record<string, T> | undefined,
+        pathPrefix: string
+    ): boolean {
+        if (!metadata) return false;
+        
+        let hasChanges = false;
+        for (const path in metadata) {
+            if (path === pathPrefix || path.startsWith(pathPrefix + '/')) {
+                delete metadata[path];
+                hasChanges = true;
+            }
+        }
+        return hasChanges;
     }
 }

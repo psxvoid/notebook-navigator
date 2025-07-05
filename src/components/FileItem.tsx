@@ -106,7 +106,7 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
         // Set placement to the right (left in RTL)
         setTooltip(fileRef.current, tooltip, { 
             placement: isRTL ? 'left' : 'right'
-        } as any);
+        });
     }, [file.stat.ctime, file.stat.mtime, settings, selectionType, selectedFolder, displayName]);
 
     // Use pre-formatted date if provided, otherwise format it ourselves

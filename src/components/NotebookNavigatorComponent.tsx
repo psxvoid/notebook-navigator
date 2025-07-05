@@ -172,7 +172,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         // Only change focus if we're not already in the navigator AND not opening version history
         const navigatorEl = document.querySelector('.nn-split-container');
         const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
-        const isOpeningVersionHistory = (window as any).notebookNavigatorOpeningVersionHistory;
+        const isOpeningVersionHistory = window.notebookNavigatorOpeningVersionHistory;
         
         if (!hasNavigatorFocus && !isOpeningVersionHistory) {
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
@@ -198,7 +198,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             // Focus the container to ensure keyboard navigation works
             // Don't steal focus if we're opening version history
-            const isOpeningVersionHistory = (window as any).notebookNavigatorOpeningVersionHistory;
+            const isOpeningVersionHistory = window.notebookNavigatorOpeningVersionHistory;
             if (!isOpeningVersionHistory) {
                 containerRef.current?.focus();
             }
@@ -356,7 +356,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Ensure the container has focus when the focused pane changes
     useEffect(() => {
         // Don't steal focus if we're opening version history
-        const isOpeningVersionHistory = (window as any).notebookNavigatorOpeningVersionHistory;
+        const isOpeningVersionHistory = window.notebookNavigatorOpeningVersionHistory;
         if (uiState.focusedPane && !isOpeningVersionHistory) {
             containerRef.current?.focus();
         }

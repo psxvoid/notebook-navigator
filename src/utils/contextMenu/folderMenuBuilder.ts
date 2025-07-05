@@ -21,6 +21,7 @@ import { FolderMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
 import { getInternalPlugin, isFolderAncestor } from '../../utils/typeGuards';
 import { getFolderNote } from '../../utils/fileFinder';
+import { ExtendedApp } from '../../types/obsidian-extended';
 
 /**
  * Builds the context menu for a folder
@@ -83,7 +84,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     }
 
     // New drawing (only if Excalidraw plugin is installed)
-    const isExcalidrawInstalled = !!(app as any).plugins?.plugins?.['obsidian-excalidraw-plugin'];
+    const isExcalidrawInstalled = !!(app as ExtendedApp).plugins?.plugins?.['obsidian-excalidraw-plugin'];
     if (isExcalidrawInstalled) {
         menu.addItem((item: MenuItem) => {
             item
@@ -157,13 +158,13 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                         const file = await app.vault.create(notePath, '');
                         
                         // Set a temporary flag to prevent auto-reveal
-                        (window as any).notebookNavigatorOpeningFolderNote = true;
+                        window.notebookNavigatorOpeningFolderNote = true;
                         
                         await app.workspace.getLeaf().openFile(file);
                         
                         // Clear the flag after a short delay
                         setTimeout(() => {
-                            delete (window as any).notebookNavigatorOpeningFolderNote;
+                            delete window.notebookNavigatorOpeningFolderNote;
                         }, 100);
                     });
             });

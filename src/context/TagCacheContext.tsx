@@ -76,6 +76,7 @@ import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters
 import { useSettingsState } from './SettingsContext';
 import { useServices } from './ServicesContext';
 import { STORAGE_KEYS } from '../types';
+import { localStorage } from '../utils/localStorage';
 
 /**
  * Tag data structure containing the tree and untagged count
@@ -113,7 +114,7 @@ export function TagCacheProvider({ app, children }: TagCacheProviderProps) {
         const buildTags = async () => {
             if (!settings.showTags) {
                 // Clear tag cache when tags are disabled
-                localStorage.removeItem(STORAGE_KEYS.tagCacheKey);
+                localStorage.remove(STORAGE_KEYS.tagCacheKey);
                 setTagData({ tree: new Map(), untagged: 0 });
                 return;
             }

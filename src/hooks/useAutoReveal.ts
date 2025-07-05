@@ -19,6 +19,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { TFile, WorkspaceLeaf, App } from 'obsidian';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
+import { FileView } from '../types/obsidian-extended';
 
 interface UseAutoRevealSettings {
     autoRevealActiveFile: boolean;
@@ -97,7 +98,7 @@ export function useAutoReveal(
             }
             
             // Don't reveal if we're opening a folder note
-            if ((window as any).notebookNavigatorOpeningFolderNote) {
+            if (window.notebookNavigatorOpeningFolderNote) {
                 return;
             }
             
@@ -121,7 +122,7 @@ export function useAutoReveal(
             }
             
             // Get the file from the active view
-            const view = leaf.view as any;
+            const view = leaf.view as FileView;
             if (view && view.file && view.file instanceof TFile) {
                 handleFileChange(view.file);
             }
