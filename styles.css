@@ -1336,13 +1336,13 @@ body.nn-resizing {
    Sponsor Button Styles
    ======================================================================== */
 
-/* Sponsor button - minimal, clean styling */
-.nn-sponsor-button {
+/* Support buttons - minimal, clean styling */
+.nn-support-button {
     transition: opacity 0.2s ease;
 }
 
-/* Sponsor button hover - subtle opacity change */
-.nn-sponsor-button:hover {
+/* Support button hover - subtle opacity change */
+.nn-support-button:hover {
     opacity: 0.8;
 }
 

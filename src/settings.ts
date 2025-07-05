@@ -717,15 +717,26 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
 
         // Sponsor section
-        new Setting(containerEl)
+        // Support development section with both buttons
+        const supportSetting = new Setting(containerEl)
             .setName(strings.settings.items.supportDevelopment.name)
-            .setDesc(strings.settings.items.supportDevelopment.desc)
-            .addButton((button) => {
-                button
-                    .setButtonText(strings.settings.items.supportDevelopment.buttonText)
-                    .onClick(() => window.open('https://github.com/sponsors/johansan/'))
-                    .buttonEl.addClass('nn-sponsor-button');
-            });
+            .setDesc(strings.settings.items.supportDevelopment.desc);
+        
+        // Buy me a coffee button
+        supportSetting.addButton((button) => {
+            button
+                .setButtonText('☕️ Buy me a coffee')
+                .onClick(() => window.open('https://buymeacoffee.com/johansan'))
+                .buttonEl.addClass('nn-support-button');
+        });
+        
+        // GitHub sponsor button
+        supportSetting.addButton((button) => {
+            button
+                .setButtonText(strings.settings.items.supportDevelopment.buttonText)
+                .onClick(() => window.open('https://github.com/sponsors/johansan/'))
+                .buttonEl.addClass('nn-support-button');
+        });
 
         // Set initial visibility
         this.setElementVisibility(previewSettingsEl, this.plugin.settings.showFilePreview);
