@@ -25,6 +25,7 @@ import { getFolderNote } from '../utils/fileFinder';
 import { NotebookNavigatorSettings } from '../settings';
 import { NavigationItemType, getSupportedLeaves, ItemType } from '../types';
 import type { SelectionDispatch } from '../context/SelectionContext';
+import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
 
 /**
  * Selection context for file operations
@@ -322,22 +323,11 @@ export class FileSystemOperations {
                     // Verify the next file still exists (in case of concurrent deletions)
                     const stillExists = this.app.vault.getAbstractFileByPath(nextFileToSelect.path);
                     if (stillExists && stillExists instanceof TFile) {
-                        // Update selection state first
-                        selectionDispatch({ type: 'SET_SELECTED_FILE', file: nextFileToSelect });
-                        
-                        // Open the next file only if workspace is ready
-                        const leaf = this.app.workspace.getLeaf(false);
-                        if (leaf) {
-                            try {
-                                await leaf.openFile(nextFileToSelect, { active: false });
-                            } catch (error) {
-                                // File might not be accessible, continue anyway
-                                console.error('Failed to open next file:', error);
-                            }
-                        }
+                        // Update selection and open the file
+                        await updateSelectionAfterFileOperation(nextFileToSelect, selectionDispatch, this.app);
                     } else {
                         // Next file was deleted, clear selection
-                        selectionDispatch({ type: 'SET_SELECTED_FILE', file: null });
+                        await updateSelectionAfterFileOperation(null, selectionDispatch, this.app);
                     }
                 } else {
                     // No other files in folder, close the editor if it's showing the deleted file
@@ -599,18 +589,23 @@ export class FileSystemOperations {
         if (filesToDelete.length === 0) return;
         
         // Find next file to select using utility
-        const { findNextFileAfterDelete } = await import('../utils/selectionUtils');
-        const nextFileToSelect = findNextFileAfterDelete(allFiles, selectedFiles);
+        const nextFileToSelect = findNextFileAfterRemoval(allFiles, selectedFiles);
         
         // Delete the files with callback to update selection
         await this.deleteMultipleFiles(
             filesToDelete,
             confirmBeforeDelete,
-            () => {
-                // Update selection after deletion
+            async () => {
+                // Clear multi-selection first
                 selectionDispatch({ type: 'CLEAR_FILE_SELECTION' });
+                // Update selection after deletion (don't open in editor for bulk operations)
                 if (nextFileToSelect) {
-                    selectionDispatch({ type: 'SET_SELECTED_FILE', file: nextFileToSelect });
+                    await updateSelectionAfterFileOperation(
+                        nextFileToSelect, 
+                        selectionDispatch, 
+                        this.app,
+                        { openInEditor: false }
+                    );
                 }
             }
         );
