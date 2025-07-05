@@ -162,6 +162,11 @@
     padding-left: 0;
 }
 
+/* Hide folder icon when navigation pane is collapsed */
+.nn-split-container.nn-navigation-pane-collapsed .nn-file-pane .nn-pane-header-icon {
+    display: none;
+}
+
 /* Header actions container - groups action buttons in headers */
 .nn-header-actions {
     display: flex;
@@ -174,7 +179,7 @@
 .nn-pane-header-title {
     font-size: var(--nn-nav-font-size); /* Use nav font size (13px) to match folder items */
     font-weight: 600;
-    color: var(--text-normal);
+    color: var(--text-muted);
     /* Match date header padding */
     padding-left: var(--size-4-3);
     /* Text overflow with ellipsis like file names */
@@ -188,11 +193,19 @@
 
 /* Icon in pane header */
 .nn-pane-header-icon {
-    width: var(--nn-nav-icon-size);
-    height: var(--nn-nav-icon-size);
+    width: var(--icon-size);
+    height: var(--icon-size);
     margin-inline-end: var(--size-4-2);
     flex-shrink: 0;
-    font-size: var(--nn-nav-font-size); /* Explicit 13px font-size for icon scaling */
+    display: flex;
+    align-items: center;
+    color: var(--text-muted);
+}
+
+/* Ensure pane header icon SVG matches icon button size */
+.nn-pane-header-icon svg {
+    width: var(--icon-size);
+    height: var(--icon-size);
 }
 
 /* Text in pane header - matches folder name styling */
@@ -201,6 +214,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    color: var(--text-muted);
 }
 
 /* ========================================================================
