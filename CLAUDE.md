@@ -45,7 +45,7 @@ johansan-notebook-navigator/
 │   ├── settings.ts                            # Settings interface, defaults, settings tab UI
 │   ├── components/
 │   │   ├── NotebookNavigatorComponent.tsx    # Main component, two-pane layout orchestration
-│   │   ├── NavigationPane.tsx                # Left pane virtualized folder/tag tree
+│   │   ├── NavigationPane.tsx                # Navigation pane virtualized folder/tag tree
 │   │   ├── FileList.tsx                       # Right pane virtualized file list with headers
 │   │   ├── FolderItem.tsx                     # Single folder row with icon/color/chevron
 │   │   ├── FileItem.tsx                       # Single file row with preview/date/image

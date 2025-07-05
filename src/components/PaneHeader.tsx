@@ -268,7 +268,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
         if (type === 'file') {
             return (
                 <div className="nn-pane-header" onClick={onHeaderClick}>
-                    <div className="nn-header-actions nn-header-actions--space-between">
+                    <div className="nn-header-actions">
                         <div className="nn-mobile-back">
                             <button
                                 className="nn-icon-button"
@@ -404,21 +404,19 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                     </>
                 ) : (
                     <>
-                        <div className="nn-pane-header-left">
-                            {uiState.navigationPaneCollapsed && (
-                                <button
-                                    className="nn-icon-button"
-                                    aria-label={strings.paneHeader.showFolders}
-                                    onClick={() => uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' })}
-                                    tabIndex={-1}
-                                >
-                                    <ObsidianIcon name="sidebar-left" />
-                                </button>
-                            )}
-                            {headerTitle && (
-                                <span className="nn-pane-header-title">{headerTitle}</span>
-                            )}
-                        </div>
+                        {uiState.navigationPaneCollapsed && (
+                            <button
+                                className="nn-icon-button"
+                                aria-label={strings.paneHeader.showFolders}
+                                onClick={() => uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' })}
+                                tabIndex={-1}
+                            >
+                                <ObsidianIcon name="sidebar-left" />
+                            </button>
+                        )}
+                        {headerTitle && (
+                            <span className="nn-pane-header-title">{headerTitle}</span>
+                        )}
                         <div className="nn-header-actions">
                             <button
                                 className="nn-icon-button"
