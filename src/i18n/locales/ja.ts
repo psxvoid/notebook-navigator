@@ -249,9 +249,10 @@ export const STRINGS_JA = {
     // Plugin commands
     commands: {
         open: '開く', // Command palette: Opens the Notebook Navigator view (English: Open)
-        revealNote: 'ノートを表示', // Command palette: Reveals and selects the currently active note in the navigator (English: Reveal note)
-        focusNote: 'ノートにフォーカス', // Command palette: Moves keyboard focus to the list pane (English: Focus note)
+        revealFile: 'ファイルを表示', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
+        focusFile: 'ファイルにフォーカス', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'ナビゲーションペインを切り替え', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
+        deleteFile: 'ファイルを削除', // Command palette: Deletes the currently active file (English: Delete file)
     },
 
     // Plugin UI

@@ -249,9 +249,10 @@ export const STRINGS_EN = {
     // Plugin commands
     commands: {
         open: 'Open', // Command palette: Opens the Notebook Navigator view (English: Open)
-        revealNote: 'Reveal note', // Command palette: Reveals and selects the currently active note in the navigator (English: Reveal note)
-        focusNote: 'Focus note', // Command palette: Moves keyboard focus to the list pane (English: Focus note)
+        revealFile: 'Reveal file', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
+        focusFile: 'Focus file', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Toggle navigation pane', // Command palette: Shows or hides the navigation pane (English: Toggle navigation pane)
+        deleteFile: 'Delete file', // Command palette: Deletes the currently active file (English: Delete file)
     },
 
     // Plugin UI

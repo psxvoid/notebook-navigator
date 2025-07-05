@@ -160,8 +160,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
         });
 
         this.addCommand({
-            id: 'reveal-active-file',
-            name: strings.commands.revealNote,
+            id: 'reveal-file',
+            name: strings.commands.revealFile,
             checkCallback: (checking: boolean) => {
                 const activeFile = this.app.workspace.getActiveFile();
                 if (activeFile && activeFile.parent) {
@@ -175,8 +175,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
         });
 
         this.addCommand({
-            id: 'focus-file-list',
-            name: strings.commands.focusNote,
+            id: 'focus-file',
+            name: strings.commands.focusFile,
             callback: async () => {
                 // Ensure navigator is open
                 const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
@@ -211,6 +211,21 @@ export default class NotebookNavigatorPlugin extends Plugin {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
                         view.toggleNavigationPane();
+                    }
+                });
+            }
+        });
+
+        this.addCommand({
+            id: 'delete-file',
+            name: strings.commands.deleteFile,
+            callback: () => {
+                // Find and trigger delete in all navigator views
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                navigatorLeaves.forEach(leaf => {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        view.deleteActiveFile();
                     }
                 });
             }
@@ -427,7 +442,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         this.settings = Object.assign({}, DEFAULT_SETTINGS, data || {});
         
         // Migrate old featureImageProperty to new featureImageProperties
-        // TODO: Remove this migration code in a future version (e.g., v2.0.0)
+        // TODO: Remove this migration code in a future version
         if (data && data.featureImageProperty && !data.featureImageProperties) {
             this.settings.featureImageProperties = [data.featureImageProperty];
         }

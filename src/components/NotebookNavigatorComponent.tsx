@@ -46,6 +46,7 @@ export interface NotebookNavigatorHandle {
     refresh: () => void;
     handleBecomeActive: () => void;
     toggleNavigationPane: () => void;
+    deleteActiveFile: () => void;
 }
 
 /**
@@ -226,6 +227,22 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         },
         toggleNavigationPane: () => {
             uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' });
+        },
+        deleteActiveFile: () => {
+            // First ensure the file pane is focused so the keyboard handler will process the event
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+            
+            // Then dispatch a Delete key event to trigger the existing keyboard handler
+            const deleteEvent = new KeyboardEvent('keydown', {
+                key: 'Delete',
+                bubbles: true,
+                cancelable: true
+            });
+            
+            // Small delay to ensure focus state is updated
+            setTimeout(() => {
+                document.dispatchEvent(deleteEvent);
+            }, 0);
         }
     }), [
         selectionDispatch, 

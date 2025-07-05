@@ -249,9 +249,10 @@ export const STRINGS_ZH = {
     // Plugin commands
     commands: {
         open: '打开', // Command palette: Opens the Notebook Navigator view (English: Open)
-        revealNote: '显示笔记', // Command palette: Reveals and selects the currently active note in the navigator (English: Reveal note)
-        focusNote: '聚焦笔记', // Command palette: Moves keyboard focus to the list pane (English: Focus note)
+        revealFile: '显示文件', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
+        focusFile: '聚焦文件', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: '切换导航面板', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
+        deleteFile: '删除文件', // Command palette: Deletes the currently active file (English: Delete file)
     },
 
     // Plugin UI
