@@ -234,29 +234,12 @@
         /* Use clamp to scale padding appropriately for tablets */
         padding: 0 clamp(4px, 1vw, 8px);
     }
-    
-    /* Ensure icon doesn't add extra space */
-    .notebook-navigator-mobile .nn-header-actions button.nn-icon-button > span {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
 }
 
-/* Ensure button element itself has no default styles */
-button.nn-icon-button {
-    background: transparent !important;
-    background-color: transparent !important;
-    border: none !important;
-    box-shadow: none !important;
-    outline: none !important;
-}
 
 /* Icon button hover state - subtle background on hover - desktop only */
 .nn-desktop .nn-icon-button:hover {
     background-color: var(--background-modifier-hover) !important;
-    border: none !important;
-    box-shadow: none !important;
 }
 
 /* Icon button active state - feedback on click */
@@ -290,12 +273,9 @@ button.nn-icon-button {
     fill: none;
 }
 
-/* Ensure icon span is properly centered inside button */
+/* Remove line-height from icon span to prevent vertical offset */
 .nn-icon-button > span {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    line-height: 0; /* Remove line-height to prevent vertical offset */
+    line-height: 0;
 }
 
 
