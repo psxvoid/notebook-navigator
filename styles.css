@@ -157,6 +157,11 @@
     padding-left: var(--size-4-2);
 }
 
+/* Remove left padding from pane header title when navigation pane is collapsed */
+.nn-split-container.nn-navigation-pane-collapsed .nn-file-pane .nn-pane-header-title {
+    padding-left: 0;
+}
+
 /* Header actions container - groups action buttons in headers */
 .nn-header-actions {
     display: flex;
