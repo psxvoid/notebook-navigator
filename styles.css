@@ -290,6 +290,14 @@ button.nn-icon-button {
     fill: none;
 }
 
+/* Ensure icon span is properly centered inside button */
+.nn-icon-button > span {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    line-height: 0; /* Remove line-height to prevent vertical offset */
+}
+
 
 /* ========================================================================
    Navigation Pane Scroller
