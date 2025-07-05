@@ -133,6 +133,12 @@
     height: 32px;
 }
 
+/* File pane header needs space-between for title on left, buttons on right */
+.nn-file-pane .nn-pane-header {
+    justify-content: space-between;
+    padding-left: 0; /* Remove left padding for title alignment */
+}
+
 /* Left pane header - matches folder tree background for visual consistency */
 .nn-navigation-pane .nn-pane-header {
     background-color: var(--background-secondary);
@@ -142,6 +148,31 @@
 .nn-header-actions {
     display: flex;
     gap: var(--size-4-2);
+    align-items: center;
+}
+
+/* Left side of file pane header */
+.nn-pane-header-left {
+    display: flex;
+    gap: var(--size-4-2);
+    align-items: center;
+    flex: 1;
+    min-width: 0; /* Allow container to shrink for text truncation */
+    padding-left: var(--size-4-3); /* Match date header padding */
+}
+
+/* Desktop pane header title */
+.nn-pane-header-title {
+    font-size: var(--nn-file-name-size);
+    font-weight: 600;
+    color: var(--text-normal);
+    /* No margin - align to far left */
+    margin-left: 0;
+    /* Text overflow with ellipsis like file names */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    flex: 1; /* Take remaining space in container */
 }
 
 /* ========================================================================

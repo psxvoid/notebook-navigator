@@ -357,6 +357,16 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     }
     
     // Desktop header (original code)
+    // Prepare header title for file pane
+    let headerTitle = '';
+    if (type === 'file') {
+        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+            headerTitle = selectionState.selectedFolder.path === '/' ? strings.folderTree.rootFolderName : selectionState.selectedFolder.name;
+        } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+            headerTitle = selectionState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : selectionState.selectedTag;
+        }
+    }
+    
     return (
         <div className="nn-pane-header">
             <div className="nn-header-actions nn-header-actions--space-between">
@@ -394,7 +404,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                     </>
                 ) : (
                     <>
-                        <div className="nn-header-actions">
+                        <div className="nn-pane-header-left">
                             {uiState.navigationPaneCollapsed && (
                                 <button
                                     className="nn-icon-button"
@@ -404,6 +414,9 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                                 >
                                     <ObsidianIcon name="sidebar-left" />
                                 </button>
+                            )}
+                            {headerTitle && (
+                                <span className="nn-pane-header-title">{headerTitle}</span>
                             )}
                         </div>
                         <div className="nn-header-actions">
