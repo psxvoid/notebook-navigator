@@ -1386,6 +1386,11 @@ body.nn-resizing {
    Mobile Styles
    ======================================================================== */
 
+/* Mobile-specific wide input fields - full width on mobile */
+.is-mobile .nn-setting-wide-input input[type="text"] {
+    width: 100%;
+}
+
 /* Mobile container - stack panes and prepare for sliding */
 .notebook-navigator-mobile .nn-split-container {
     flex-direction: column;
