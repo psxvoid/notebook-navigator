@@ -81,8 +81,8 @@ To a modern, Notes-style interface like this:
 |-----|---------|
 | ↑/↓ | Navigate up/down in current pane |
 | ← | In navigation pane: collapse or go to parent<br>In list pane: switch to navigation pane |
-| → | In navigation pane: expand or switch to list pane<br>In list pane: switch to navigation pane |
-| Tab | In navigation pane: switch to list pane<br>In list pane: switch to navigation pane |
+| → | In navigation pane: expand or switch to list pane<br>In list pane: switch to editor |
+| Tab | In navigation pane: switch to list pane<br>In list pane: switch to editor |
 | Shift+Tab | Switch from list pane to navigation pane |
 | PageUp/PageDown | Scroll up/down in navigation pane and list pane |
 | Home/End | Jump to first/last item in current pane |
