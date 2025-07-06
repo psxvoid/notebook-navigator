@@ -26,7 +26,6 @@ import { STRINGS_ES } from './locales/es';
 import { STRINGS_FR } from './locales/fr';
 import { STRINGS_JA } from './locales/ja';
 import { STRINGS_ZH } from './locales/zh';
-import { localStorage } from '../utils/localStorage';
 import { moment } from 'obsidian';
 
 // Type for the translation strings structure
@@ -48,7 +47,8 @@ const LANGUAGE_MAP: Record<string, TranslationStrings> = {
  * Checks localStorage first, then falls back to moment locale
  */
 export function getCurrentLanguage(): string {
-    const savedLang = localStorage.get<string>('language');
+    // Obsidian stores language as a plain string, not JSON
+    const savedLang = window.localStorage.getItem('language');
     return savedLang || moment.locale();
 }
 
