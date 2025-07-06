@@ -75,8 +75,8 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 |-----|---------|
 | ↑/↓ | Navigate up/down in current pane |
 | ← | In navigation pane: collapse or go to parent<br>In list pane: switch to navigation pane |
-| → | In navigation pane: expand or switch to list pane<br>In list pane: open selected note |
-| Tab | In navigation pane: switch to list pane<br>In list pane: open selected note |
+| → | In navigation pane: expand or switch to list pane<br>In list pane: switch to navigation pane |
+| Tab | In navigation pane: switch to list pane<br>In list pane: switch to navigation pane |
 | Shift+Tab | Switch from list pane to navigation pane |
 | PageUp/PageDown | Scroll up/down in navigation pane and list pane |
 | Home/End | Jump to first/last item in current pane |
@@ -121,10 +121,12 @@ Until the plugin is approved in the Community Plugins directory, you can install
 
 ## Settings
 
-### General
+### Top Level Settings
 
 - **Auto-reveal active note:** Automatically reveal and select notes when opened from Quick Switcher, links, or search
 - **Show tooltips:** Display hover tooltips with additional information for notes and folders
+- **Show file types:** Choose which file types to display in the navigator. Files not supported by Obsidian will open in your system's default application
+  - Markdown only, Supported files, or All files
 - **Excluded folders:** Comma-separated list of folders to hide. Supports wildcards: assets* (starts with), *_temp (ends with)
 - **Excluded notes:** Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived)
 
@@ -133,7 +135,8 @@ Until the plugin is approved in the Community Plugins directory, you can install
 - **Auto-select first note on focus change:** Automatically select and open the first note when switching folders or tags
 - **Show note count:** Display the number of notes in each folder and tag
 - **Show icons:** Display icons next to folders and tags in the navigation pane
-- **Collapse button behavior:** Choose what the expand/collapse all button affects - All folders and tags, Folders only, or Tags only
+- **Collapse button behavior:** Choose what the expand/collapse all button affects
+  - All folders and tags, Folders only, or Tags only
 
 ### Folders
 
@@ -146,10 +149,13 @@ Until the plugin is approved in the Community Plugins directory, you can install
 
 - **Show tags:** Display tags section below folders in the navigator
   - **Show untagged notes:** Display "Untagged" item for notes without any tags
+  - **Favorite tags:** Comma-separated list of favorite tag patterns. Supports exact match, wildcards (*), and regex (/pattern/)
+  - **Hidden tags:** Comma-separated list of tag patterns to hide from the tag tree. Supports exact match, wildcards (*), and regex (/pattern/)
 
 ### List Pane
 
-- **Sort notes by:** Choose how notes are sorted in the note list - Date edited (newest/oldest first), Date created (newest/oldest first), or Title (A/Z first)
+- **Sort notes by:** Choose how notes are sorted in the note list
+  - Date edited (newest/oldest first), Date created (newest/oldest first), or Title (A/Z first)
 - **Group notes by date:** When sorted by date, group notes under date headers
 - **Show notes from subfolders:** Display all notes from subfolders in the current folder view
   - **Show parent folder names:** Display the parent folder name for notes from subfolders
@@ -170,7 +176,7 @@ Until the plugin is approved in the Community Plugins directory, you can install
   - **Skip non-text in preview:** Skip images, embeds, and other non-text elements from preview text
   - **Preview rows:** Number of rows to display for preview text (1-5)
 - **Show feature image:** Display thumbnail images from frontmatter. Tip: Use the "Featured Image" plugin to automatically set feature images for all your documents
-  - **Image properties:** Comma-separated list of frontmatter properties to check for thumbnail images. The first property with an image will be used. Tip: Use the "Featured Image" plugin to automatically set feature images. For best performance, use 42px thumbnails or 84px for retina displays
+  - **Image properties:** Comma-separated list of frontmatter properties to check for thumbnail images. The first property with an image will be used. If no image is found in the properties, the first embedded image in the document will be used (requires Obsidian 1.9.4+)
 
 **Note:** When date, preview, and feature image are all disabled, the list pane displays in a compact "slim mode" with only note names, providing a cleaner, more minimal interface.
 
