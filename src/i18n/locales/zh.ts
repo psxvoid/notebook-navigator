@@ -395,7 +395,8 @@ export const STRINGS_ZH = {
             },
             featureImageProperties: {
                 name: '图片属性',
-                desc: '用于缩略图的前置元数据属性的逗号分隔列表。将使用第一个包含图片的属性。提示：使用"Featured Image"插件自动设置图片。为获得最佳性能，请使用 42px 缩略图或 84px 用于视网膜显示器。',
+                desc: '用于缩略图的前置元数据属性的逗号分隔列表。将使用第一个包含图片的属性。',
+                tip: '使用"Featured Image"插件自动设置图片。为获得最佳性能，请使用 42px 缩略图或 84px 用于视网膜显示器。',
                 placeholder: 'featureResized, feature',
                 embedFallback: '如果在上述属性中未找到图片，将使用文档中的第一个嵌入图片（需要 Obsidian 1.9.4+）',
             },

@@ -303,7 +303,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                 }));
 
-        this.createDebouncedTextSetting(
+        const excludedFoldersSetting = this.createDebouncedTextSetting(
             containerEl,
             strings.settings.items.excludedFolders.name,
             strings.settings.items.excludedFolders.desc,
@@ -311,8 +311,9 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             () => this.plugin.settings.excludedFolders,
             (value) => { this.plugin.settings.excludedFolders = value; }
         );
+        excludedFoldersSetting.controlEl.addClass('nn-setting-wide-input');
 
-        this.createDebouncedTextSetting(
+        const excludedFilesSetting = this.createDebouncedTextSetting(
             containerEl,
             strings.settings.items.excludedNotes.name,
             strings.settings.items.excludedNotes.desc,
@@ -320,6 +321,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             () => this.plugin.settings.excludedFiles,
             (value) => { this.plugin.settings.excludedFiles = value; }
         );
+        excludedFilesSetting.controlEl.addClass('nn-setting-wide-input');
 
         // Section 1: Navigation pane
         new Setting(containerEl)
@@ -448,7 +450,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                 }));
 
-        this.createDebouncedTextSetting(
+        const favoriteTagsSetting = this.createDebouncedTextSetting(
             untaggedSettingEl,
             strings.settings.items.favoriteTags.name,
             strings.settings.items.favoriteTags.desc,
@@ -456,6 +458,9 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             () => this.plugin.settings.favoriteTags,
             (value) => { this.plugin.settings.favoriteTags = value; }
         );
+        
+        // Add a custom class to make the input wider
+        favoriteTagsSetting.controlEl.addClass('nn-setting-wide-input');
 
         // Section 4: List pane
         new Setting(containerEl)
@@ -703,11 +708,19 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .filter(prop => prop.length > 0);
             }
         );
+        featurePropertiesSetting.controlEl.addClass('nn-setting-wide-input');
         
-        // Add informational text about embed fallback
-        featurePropertiesSetting.descEl.createEl('div', {
+        // Create a container for additional info that appears below the entire setting
+        const infoContainer = featureImageSettingsEl.createDiv('nn-setting-info-container');
+        
+        // Add tip text and embed fallback in a single section
+        const tipDiv = infoContainer.createEl('div', {
+            cls: 'setting-item-description'
+        });
+        tipDiv.createSpan({ text: strings.settings.items.featureImageProperties.tip + ' ' });
+        tipDiv.createSpan({
             text: strings.settings.items.featureImageProperties.embedFallback,
-            cls: 'nn-setting-info'
+            cls: 'nn-setting-info-inline'
         });
 
 

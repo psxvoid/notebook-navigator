@@ -395,7 +395,8 @@ export const STRINGS_EN = {
             },
             featureImageProperties: {
                 name: 'Image properties',
-                desc: 'Comma-separated list of frontmatter properties to check for thumbnail images. The first property with an image will be used. Tip: Use the "Featured Image" plugin to automatically set feature images. For best performance, use 42px thumbnails or 84px for retina displays.',
+                desc: 'Comma-separated list of frontmatter properties to check for thumbnail images. The first property with an image will be used.',
+                tip: 'Use the "Featured Image" plugin to automatically set feature images. For best performance, use 42px thumbnails or 84px for retina displays.',
                 placeholder: 'featureResized, feature',
                 embedFallback: 'If no image is found in the properties above, the first embedded image in the document will be used (requires Obsidian 1.9.4+)',
             },

@@ -1350,6 +1350,24 @@ body.nn-resizing {
     line-height: 1.4;
 }
 
+/* Container for additional info below settings */
+.nn-setting-info-container {
+    margin-top: var(--size-4-2);
+    margin-bottom: var(--size-4-2);
+}
+
+/* Bold inline text within tips */
+.nn-setting-info-inline {
+    font-weight: var(--font-semibold);
+    color: var(--text-normal);
+}
+
+/* Wider text inputs for settings that benefit from more space */
+.nn-setting-wide-input input[type="text"] {
+    width: 300px;
+    max-width: 100%;
+}
+
 /* ========================================================================
    Sponsor Button Styles
    ======================================================================== */
