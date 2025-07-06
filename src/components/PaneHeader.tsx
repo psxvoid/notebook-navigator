@@ -364,7 +364,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     
     if (type === 'file') {
         if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-            headerTitle = selectionState.selectedFolder.path === '/' ? strings.folderTree.rootFolderName : selectionState.selectedFolder.name;
+            headerTitle = selectionState.selectedFolder.path === '/' ? strings.folderTree.rootFolderName : selectionState.selectedFolder.path;
             
             // Get folder icon if available
             if (settings.showIcons) {
