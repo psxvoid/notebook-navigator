@@ -447,6 +447,42 @@ export default class NotebookNavigatorPlugin extends Plugin {
             this.settings.featureImageProperties = [data.featureImageProperty];
         }
         
+        // Migrate string settings to arrays
+        // TODO: Remove this migration code in a future version
+        if (data) {
+            // Migrate excludedFolders from string to array
+            if (typeof data.excludedFolders === 'string') {
+                this.settings.excludedFolders = data.excludedFolders
+                    .split(',')
+                    .map((folder: string) => folder.trim())
+                    .filter((folder: string) => folder.length > 0);
+            }
+            
+            // Migrate excludedFiles from string to array
+            if (typeof data.excludedFiles === 'string') {
+                this.settings.excludedFiles = data.excludedFiles
+                    .split(',')
+                    .map((file: string) => file.trim())
+                    .filter((file: string) => file.length > 0);
+            }
+            
+            // Migrate favoriteTags from string to array
+            if (typeof data.favoriteTags === 'string') {
+                this.settings.favoriteTags = data.favoriteTags
+                    .split(',')
+                    .map((tag: string) => tag.trim())
+                    .filter((tag: string) => tag.length > 0);
+            }
+            
+            // Migrate hiddenTags from string to array
+            if (typeof data.hiddenTags === 'string') {
+                this.settings.hiddenTags = data.hiddenTags
+                    .split(',')
+                    .map((tag: string) => tag.trim())
+                    .filter((tag: string) => tag.length > 0);
+            }
+        }
+        
         // On first launch, set language-specific date/time formats
         if (isFirstLaunch || !data?.dateFormat) {
             this.settings.dateFormat = getDefaultDateFormat();

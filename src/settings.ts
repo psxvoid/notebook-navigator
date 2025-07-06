@@ -50,8 +50,8 @@ export interface NotebookNavigatorSettings {
     autoRevealActiveFile: boolean;
     showTooltips: boolean;
     fileVisibility: FileVisibility;
-    excludedFolders: string;
-    excludedFiles: string;
+    excludedFolders: string[];
+    excludedFiles: string[];
     // Navigation pane
     autoSelectFirstFileOnFocusChange: boolean;
     showNoteCount: boolean;
@@ -65,8 +65,8 @@ export interface NotebookNavigatorSettings {
     // Tags
     showTags: boolean;
     showUntagged: boolean;
-    favoriteTags: string;
-    hiddenTags: string;
+    favoriteTags: string[];
+    hiddenTags: string[];
     // List pane
     defaultFolderSort: SortOption;
     groupByDate: boolean;
@@ -110,8 +110,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     autoRevealActiveFile: true,
     showTooltips: true,
     fileVisibility: FILE_VISIBILITY.MARKDOWN,
-    excludedFolders: '',
-    excludedFiles: '',
+    excludedFolders: [],
+    excludedFiles: [],
     // Navigation pane
     autoSelectFirstFileOnFocusChange: true,
     showNoteCount: true,
@@ -125,8 +125,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Tags
     showTags: true,
     showUntagged: false,
-    favoriteTags: '',
-    hiddenTags: '',
+    favoriteTags: [],
+    hiddenTags: [],
     // List pane
     defaultFolderSort: 'modified-desc',
     groupByDate: true,
@@ -310,8 +310,13 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.excludedFolders.name,
             strings.settings.items.excludedFolders.desc,
             strings.settings.items.excludedFolders.placeholder,
-            () => this.plugin.settings.excludedFolders,
-            (value) => { this.plugin.settings.excludedFolders = value; }
+            () => this.plugin.settings.excludedFolders.join(', '),
+            (value) => { 
+                this.plugin.settings.excludedFolders = value
+                    .split(',')
+                    .map(folder => folder.trim())
+                    .filter(folder => folder.length > 0);
+            }
         );
         excludedFoldersSetting.controlEl.addClass('nn-setting-wide-input');
 
@@ -320,8 +325,13 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.excludedNotes.name,
             strings.settings.items.excludedNotes.desc,
             strings.settings.items.excludedNotes.placeholder,
-            () => this.plugin.settings.excludedFiles,
-            (value) => { this.plugin.settings.excludedFiles = value; }
+            () => this.plugin.settings.excludedFiles.join(', '),
+            (value) => { 
+                this.plugin.settings.excludedFiles = value
+                    .split(',')
+                    .map(file => file.trim())
+                    .filter(file => file.length > 0);
+            }
         );
         excludedFilesSetting.controlEl.addClass('nn-setting-wide-input');
 
@@ -457,8 +467,13 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.favoriteTags.name,
             strings.settings.items.favoriteTags.desc,
             strings.settings.items.favoriteTags.placeholder,
-            () => this.plugin.settings.favoriteTags,
-            (value) => { this.plugin.settings.favoriteTags = value; }
+            () => this.plugin.settings.favoriteTags.join(', '),
+            (value) => { 
+                this.plugin.settings.favoriteTags = value
+                    .split(',')
+                    .map(tag => tag.trim())
+                    .filter(tag => tag.length > 0);
+            }
         );
         
         // Add a custom class to make the input wider
@@ -469,8 +484,13 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.hiddenTags.name,
             strings.settings.items.hiddenTags.desc,
             strings.settings.items.hiddenTags.placeholder,
-            () => this.plugin.settings.hiddenTags,
-            (value) => { this.plugin.settings.hiddenTags = value; }
+            () => this.plugin.settings.hiddenTags.join(', '),
+            (value) => { 
+                this.plugin.settings.hiddenTags = value
+                    .split(',')
+                    .map(tag => tag.trim())
+                    .filter(tag => tag.length > 0);
+            }
         );
         
         // Add a custom class to make the input wider

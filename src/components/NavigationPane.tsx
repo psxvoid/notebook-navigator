@@ -165,7 +165,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         const folderItems = flattenFolderTree(
             rootFolders,
             expansionState.expandedFolders,
-            parseExcludedFolders(settings.excludedFolders || '')
+            parseExcludedFolders(settings.excludedFolders)
         );
         allItems.push(...folderItems);
         

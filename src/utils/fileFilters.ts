@@ -19,13 +19,10 @@
 import { TFile } from 'obsidian';
 
 /**
- * Parses the excluded files setting into an array of property names
+ * Filters the excluded files array to remove empty entries
  */
-export function parseExcludedProperties(excludedFiles: string): string[] {
-    return excludedFiles
-        .split(',')
-        .map(p => p.trim())
-        .filter(p => p);
+export function parseExcludedProperties(excludedFiles: string[]): string[] {
+    return excludedFiles.filter(p => p && p.trim());
 }
 
 /**
@@ -41,13 +38,10 @@ export function shouldExcludeFile(file: TFile, excludedProperties: string[], app
 }
 
 /**
- * Parses the excluded folders setting into an array of patterns
+ * Filters the excluded folders array to remove empty entries
  */
-export function parseExcludedFolders(ignoreFolders: string): string[] {
-    return ignoreFolders
-        .split(',')
-        .map(f => f.trim())
-        .filter(f => f.length > 0);
+export function parseExcludedFolders(ignoreFolders: string[]): string[] {
+    return ignoreFolders.filter(f => f && f.trim());
 }
 
 /**

@@ -538,17 +538,13 @@ export function countTotalTags(tree: Map<string, TagTreeNode>): number {
 }
 
 /**
- * Parses a comma-separated string of patterns into an array
- * @param patternsString - Comma-separated patterns
+ * Filters tag patterns array to remove empty entries
+ * @param patterns - Array of patterns
  * @returns Array of trimmed, non-empty patterns
  */
-export function parseTagPatterns(patternsString: string | undefined): string[] {
-    if (!patternsString) return [];
-    
-    return patternsString
-        .split(',')
-        .map(p => p.trim())
-        .filter(p => p.length > 0);
+export function parseTagPatterns(patterns: string[] | undefined): string[] {
+    if (!patterns) return [];
+    return patterns.filter(p => p && p.trim());
 }
 
 /**
