@@ -46,8 +46,10 @@ export const STRINGS_EN = {
 
     // Tag list
     tagList: {
-        sectionHeader: 'Tags', // Header text for the tags section below folders (English: Tags)
         untaggedLabel: 'Untagged', // Label for the special item showing notes without tags (English: Untagged)
+        favoriteTags: 'Favorite tags', // Label for the favorite tags virtual folder (English: Favorite tags)
+        allTags: 'All tags', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        tags: 'Tags', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
     // Pane header
@@ -425,6 +427,11 @@ export const STRINGS_EN = {
             showUntagged: {
                 name: 'Show untagged notes',
                 desc: 'Display "Untagged" item for notes without any tags.',
+            },
+            favoriteTags: {
+                name: 'Favorite tags',
+                desc: 'Comma-separated list of favorite tag patterns. Supports exact match, wildcards (*), and regex (/pattern/).',
+                placeholder: 'inbox, project-*, /^daily-\\d{4}/',
             },
             enableFolderNotes: {
                 name: 'Enable folder notes',

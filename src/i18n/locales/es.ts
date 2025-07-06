@@ -46,8 +46,10 @@ export const STRINGS_ES = {
 
     // Tag list
     tagList: {
-        sectionHeader: 'Etiquetas', // Header text for the tags section below folders (English: Tags)
         untaggedLabel: 'Sin etiquetas', // Label for the special item showing notes without tags (English: Untagged)
+        favoriteTags: 'Etiquetas favoritas', // Label for the favorite tags virtual folder (English: Favorite tags)
+        allTags: 'Todas las etiquetas', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        tags: 'Etiquetas', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
     // Pane header
@@ -425,6 +427,11 @@ export const STRINGS_ES = {
             showUntagged: {
                 name: 'Mostrar notas sin etiquetas',
                 desc: 'Muestra el elemento "Sin etiquetas" para notas sin ninguna etiqueta.',
+            },
+            favoriteTags: {
+                name: 'Etiquetas favoritas',
+                desc: 'Lista separada por comas de patrones de etiquetas favoritas. Admite coincidencia exacta, comodines (*) y regex (/patrón/).',
+                placeholder: 'bandeja-entrada, proyecto-*, /^diario-\\d{4}/',
             },
             enableFolderNotes: {
                 name: 'Habilitar notas de carpeta',

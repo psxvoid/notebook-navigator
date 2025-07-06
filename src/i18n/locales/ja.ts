@@ -46,8 +46,10 @@ export const STRINGS_JA = {
 
     // Tag list
     tagList: {
-        sectionHeader: 'タグ', // Header text for the tags section below folders (English: Tags)
         untaggedLabel: 'タグなし', // Label for the special item showing notes without tags (English: Untagged)
+        favoriteTags: 'お気に入りタグ', // Label for the favorite tags virtual folder (English: Favorite tags)
+        allTags: 'すべてのタグ', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        tags: 'タグ', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
     // Pane header
@@ -425,6 +427,11 @@ export const STRINGS_JA = {
             showUntagged: {
                 name: 'タグなしノートを表示',
                 desc: 'タグのないノート用に「タグなし」項目を表示します。',
+            },
+            favoriteTags: {
+                name: 'お気に入りタグ',
+                desc: 'お気に入りタグパターンのカンマ区切りリスト。完全一致、ワイルドカード（*）、正規表現（/パターン/）をサポートします。',
+                placeholder: 'インボックス, プロジェクト-*, /^デイリー-\\d{4}/',
             },
             enableFolderNotes: {
                 name: 'フォルダノートを有効化',

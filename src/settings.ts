@@ -65,6 +65,7 @@ export interface NotebookNavigatorSettings {
     // Tags
     showTags: boolean;
     showUntagged: boolean;
+    favoriteTags: string;
     // List pane
     defaultFolderSort: SortOption;
     groupByDate: boolean;
@@ -123,6 +124,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Tags
     showTags: true,
     showUntagged: false,
+    favoriteTags: '',
     // List pane
     defaultFolderSort: 'modified-desc',
     groupByDate: true,
@@ -445,6 +447,15 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     this.plugin.settings.showUntagged = value;
                     await this.saveAndRefresh();
                 }));
+
+        this.createDebouncedTextSetting(
+            untaggedSettingEl,
+            strings.settings.items.favoriteTags.name,
+            strings.settings.items.favoriteTags.desc,
+            strings.settings.items.favoriteTags.placeholder,
+            () => this.plugin.settings.favoriteTags,
+            (value) => { this.plugin.settings.favoriteTags = value; }
+        );
 
         // Section 4: List pane
         new Setting(containerEl)

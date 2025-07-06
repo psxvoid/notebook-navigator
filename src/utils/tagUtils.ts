@@ -538,6 +538,176 @@ export function countTotalTags(tree: Map<string, TagTreeNode>): number {
 }
 
 /**
+ * Parses a comma-separated string of patterns into an array
+ * @param patternsString - Comma-separated patterns
+ * @returns Array of trimmed, non-empty patterns
+ */
+export function parseTagPatterns(patternsString: string | undefined): string[] {
+    if (!patternsString) return [];
+    
+    return patternsString
+        .split(',')
+        .map(p => p.trim())
+        .filter(p => p.length > 0);
+}
+
+/**
+ * Checks if a tag path matches a given pattern
+ * @param tagPath - The tag path to check (without # prefix)
+ * @param pattern - The pattern to match against
+ * @returns true if the tag matches the pattern
+ */
+export function matchesTagPattern(tagPath: string, pattern: string): boolean {
+    // Remove # if present
+    const cleanTag = tagPath.startsWith('#') ? tagPath.slice(1) : tagPath;
+    pattern = pattern.trim();
+    
+    // Empty pattern matches nothing
+    if (!pattern) return false;
+    
+    // Regex pattern (wrapped in /)
+    if (pattern.startsWith('/') && pattern.endsWith('/') && pattern.length > 2) {
+        try {
+            const regex = new RegExp(pattern.slice(1, -1));
+            return regex.test(cleanTag);
+        } catch (e) {
+            // Invalid regex, treat as literal
+            console.warn(`[NotebookNavigator] Invalid regex pattern: ${pattern}`);
+            return false;
+        }
+    }
+    
+    // Wildcard pattern
+    if (pattern.includes('*')) {
+        // Escape special regex chars except *
+        const regexPattern = pattern
+            .replace(/[.+?^${}()|[\]\\]/g, '\\$&') // Escape special chars
+            .replace(/\*/g, '.*'); // Convert * to .*
+        try {
+            return new RegExp(`^${regexPattern}$`).test(cleanTag);
+        } catch (e) {
+            return false;
+        }
+    }
+    
+    // Exact match (case-insensitive)
+    return cleanTag.toLowerCase() === pattern.toLowerCase();
+}
+
+/**
+ * Filters a tag tree based on patterns
+ * @param tree - The tag tree to filter
+ * @param patterns - Array of patterns to match
+ * @returns A new filtered tag tree containing only matching tags and their children
+ */
+export function filterTagTree(tree: Map<string, TagTreeNode>, patterns: string[]): Map<string, TagTreeNode> {
+    if (!patterns || patterns.length === 0) {
+        return tree;
+    }
+    
+    const filteredTree = new Map<string, TagTreeNode>();
+    
+    // Helper function to check if a node or any of its descendants match
+    function nodeMatchesOrHasMatchingDescendant(node: TagTreeNode): boolean {
+        // Check if this node matches any pattern
+        if (patterns.some(pattern => matchesTagPattern(node.path, pattern))) {
+            return true;
+        }
+        
+        // Check if any child matches
+        for (const child of node.children.values()) {
+            if (nodeMatchesOrHasMatchingDescendant(child)) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    // Helper function to clone a node with filtered children
+    function cloneNodeWithFilteredChildren(node: TagTreeNode): TagTreeNode {
+        const clone: TagTreeNode = {
+            name: node.name,
+            path: node.path,
+            children: new Map(),
+            notesWithTag: new Set(node.notesWithTag)
+        };
+        
+        // Add children that match or have matching descendants
+        for (const [key, child] of node.children) {
+            if (nodeMatchesOrHasMatchingDescendant(child)) {
+                clone.children.set(key, cloneNodeWithFilteredChildren(child));
+            }
+        }
+        
+        return clone;
+    }
+    
+    // Process root level nodes
+    for (const [key, node] of tree) {
+        if (nodeMatchesOrHasMatchingDescendant(node)) {
+            filteredTree.set(key, cloneNodeWithFilteredChildren(node));
+        }
+    }
+    
+    return filteredTree;
+}
+
+/**
+ * Excludes tags from a tree based on patterns
+ * @param tree - The tag tree to filter
+ * @param patterns - Array of patterns to exclude
+ * @returns A new tag tree excluding tags that match patterns
+ */
+export function excludeFromTagTree(tree: Map<string, TagTreeNode>, patterns: string[]): Map<string, TagTreeNode> {
+    if (!patterns || patterns.length === 0) {
+        return tree;
+    }
+    
+    const excludedTree = new Map<string, TagTreeNode>();
+    
+    // Helper function to check if a node matches any pattern
+    function nodeMatches(node: TagTreeNode): boolean {
+        return patterns.some(pattern => matchesTagPattern(node.path, pattern));
+    }
+    
+    // Helper function to clone a node with filtered children
+    function cloneNodeWithFilteredChildren(node: TagTreeNode): TagTreeNode | null {
+        // If this node matches, exclude it entirely
+        if (nodeMatches(node)) {
+            return null;
+        }
+        
+        const clone: TagTreeNode = {
+            name: node.name,
+            path: node.path,
+            children: new Map(),
+            notesWithTag: new Set(node.notesWithTag)
+        };
+        
+        // Process children, excluding those that match
+        for (const [key, child] of node.children) {
+            const clonedChild = cloneNodeWithFilteredChildren(child);
+            if (clonedChild) {
+                clone.children.set(key, clonedChild);
+            }
+        }
+        
+        return clone;
+    }
+    
+    // Process root level nodes
+    for (const [key, node] of tree) {
+        const clonedNode = cloneNodeWithFilteredChildren(node);
+        if (clonedNode) {
+            excludedTree.set(key, clonedNode);
+        }
+    }
+    
+    return excludedTree;
+}
+
+/**
  * Builds a hierarchical cache tree from files
  * @param files - Array of files to cache
  * @param app - Obsidian app instance

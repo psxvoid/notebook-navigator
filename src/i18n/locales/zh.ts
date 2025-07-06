@@ -46,8 +46,10 @@ export const STRINGS_ZH = {
 
     // Tag list
     tagList: {
-        sectionHeader: '标签', // Header text for the tags section below folders (English: Tags)
         untaggedLabel: '无标签', // Label for the special item showing notes without tags (English: Untagged)
+        favoriteTags: '收藏标签', // Label for the favorite tags virtual folder (English: Favorite tags)
+        allTags: '所有标签', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        tags: '标签', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
     // Pane header
@@ -425,6 +427,11 @@ export const STRINGS_ZH = {
             showUntagged: {
                 name: '显示无标签笔记',
                 desc: '为没有任何标签的笔记显示"无标签"项目。',
+            },
+            favoriteTags: {
+                name: '收藏标签',
+                desc: '收藏标签模式的逗号分隔列表。支持精确匹配、通配符（*）和正则表达式（/模式/）。',
+                placeholder: '收件箱, 项目-*, /^每日-\\d{4}/',
             },
             enableFolderNotes: {
                 name: '启用文件夹笔记',

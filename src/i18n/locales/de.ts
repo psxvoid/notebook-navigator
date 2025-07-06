@@ -46,8 +46,10 @@ export const STRINGS_DE = {
 
     // Tag list
     tagList: {
-        sectionHeader: 'Tags', // Header text for the tags section below folders (English: Tags)
         untaggedLabel: 'Ohne Tag', // Label for the special item showing notes without tags (English: Untagged)
+        favoriteTags: 'Favorisierte Tags', // Label for the favorite tags virtual folder (English: Favorite tags)
+        allTags: 'Alle Tags', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        tags: 'Tags', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
     // Pane header
@@ -425,6 +427,11 @@ export const STRINGS_DE = {
             showUntagged: {
                 name: 'Ungetaggte Notizen anzeigen',
                 desc: '"Ohne Tag" für Notizen ohne Tags anzeigen.',
+            },
+            favoriteTags: {
+                name: 'Favoriten-Tags',
+                desc: 'Kommagetrennte Liste von favorisierten Tag-Mustern. Unterstützt exakte Übereinstimmung, Platzhalter (*) und Regex (/muster/).',
+                placeholder: 'posteingang, projekt-*, /^täglich-\\d{4}/',
             },
             enableFolderNotes: {
                 name: 'Ordnernotizen aktivieren',

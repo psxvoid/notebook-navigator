@@ -38,6 +38,8 @@ interface FolderItemProps {
     onClick: () => void;
     onNameClick?: () => void;
     icon?: string;
+    isVirtual?: boolean;
+    hasChildren?: boolean;
 }
 
 /**
@@ -54,31 +56,34 @@ interface FolderItemProps {
  * @param props.onClick - Handler called when the folder is clicked
  * @returns A folder item element with chevron, icon, name and optional file count
  */
-export const FolderItem = React.memo(function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick, onNameClick, icon }: FolderItemProps) {
+export const FolderItem = React.memo(function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick, onNameClick, icon, isVirtual = false, hasChildren: hasChildrenProp }: FolderItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
     const folderRef = useRef<HTMLDivElement>(null);
     
-    // Enable context menu
-    useContextMenu(folderRef, { type: ItemType.FOLDER, item: folder });
+    // Enable context menu (only for non-virtual folders)
+    useContextMenu(folderRef, isVirtual ? null : { type: ItemType.FOLDER, item: folder });
     
     // Count folders and files for tooltip
     const folderStats = React.useMemo(() => {
         let fileCount = 0;
         let folderCount = 0;
         
-        for (const child of folder.children) {
-            if (isTFile(child)) {
-                if (isSupportedFileExtension(child.extension)) {
-                    fileCount++;
+        // Skip stats for virtual folders
+        if (!isVirtual) {
+            for (const child of folder.children) {
+                if (isTFile(child)) {
+                    if (isSupportedFileExtension(child.extension)) {
+                        fileCount++;
+                    }
+                } else if (isTFolder(child)) {
+                    folderCount++;
                 }
-            } else if (isTFolder(child)) {
-                folderCount++;
             }
         }
         
         return { fileCount, folderCount };
-    }, [folder.path, folder.children.length]);
+    }, [folder.path, folder.children?.length, isVirtual]);
     
     // Add Obsidian tooltip
     useEffect(() => {
@@ -113,7 +118,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
     
     // Count files in folder (including subfolders if setting enabled)
     const fileCount = React.useMemo(() => {
-        if (!settings.showNoteCount) return 0;
+        if (!settings.showNoteCount || isVirtual) return 0;
         
         // Parse excluded properties
         const excludedProperties = parseExcludedProperties(settings.excludedFiles);
@@ -136,9 +141,9 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
         };
         
         return countFiles(folder);
-    }, [folder.path, folder.children.length, settings.showNoteCount, settings.showNotesFromSubfolders, settings.excludedFiles, settings.fileVisibility, app]);
+    }, [folder.path, folder.children?.length, settings.showNoteCount, settings.showNotesFromSubfolders, settings.excludedFiles, settings.fileVisibility, app, isVirtual]);
 
-    const hasChildren = folder.children.some(isTFolder);
+    const hasChildren = hasChildrenProp !== undefined ? hasChildrenProp : (folder.children && folder.children.some(isTFolder));
     
     const handleDoubleClick = () => {
         if (hasChildren) {
@@ -150,8 +155,8 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
     const iconRef = React.useRef<HTMLSpanElement>(null);
     const customColor = settings.folderColors?.[folder.path];
     
-    // Check if folder has a folder note
-    const folderNote = settings.enableFolderNotes ? getFolderNote(folder, settings, app) : null;
+    // Check if folder has a folder note (skip for virtual folders)
+    const folderNote = settings.enableFolderNotes && !isVirtual ? getFolderNote(folder, settings, app) : null;
     const hasFolderNote = folderNote !== null;
 
     useEffect(() => {
@@ -179,19 +184,19 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
             ref={folderRef}
             className={`nn-folder-item ${isSelected ? 'nn-selected' : ''}`}
             data-path={folder.path}
-            data-drag-path={folder.path}
-            data-drag-type="folder"
-            data-draggable={!isMobile ? "true" : undefined}
-            draggable={!isMobile}
+            data-drag-path={!isVirtual ? folder.path : undefined}
+            data-drag-type={!isVirtual ? "folder" : undefined}
+            data-draggable={!isMobile && !isVirtual ? "true" : undefined}
+            draggable={!isMobile && !isVirtual}
             style={{ paddingInlineStart: `${level * 20}px` }}
         >
             <div 
                 className="nn-folder-content"
                 onClick={onClick}
                 onDoubleClick={handleDoubleClick}
-                data-drop-zone="folder"
-                data-drop-path={folder.path}
-                data-clickable="folder"
+                data-drop-zone={!isVirtual ? "folder" : undefined}
+                data-drop-path={!isVirtual ? folder.path : undefined}
+                data-clickable={!isVirtual ? "folder" : undefined}
             >
                 <div 
                     className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}
