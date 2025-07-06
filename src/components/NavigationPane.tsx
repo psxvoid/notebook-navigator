@@ -449,7 +449,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                 return (
                     <TagTreeItem
                         tagNode={tagNode}
-                        level={item.type === NavigationPaneItemType.UNTAGGED ? 0 : item.level}
+                        level={item.level ?? 0}
                         isExpanded={expansionState.expandedTags.has(tagNode.path)}
                         isSelected={selectionState.selectionType === ItemType.TAG && 
                             selectionState.selectedTag === tagNode.path}
