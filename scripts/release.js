@@ -541,7 +541,7 @@ function performRelease(releaseType, manifest, currentVersion, newVersion) {
         
         // Push commits and the new tag
         gitExecArray(['push'], { stdio: 'inherit' });
-        gitExecArray(['push', 'origin', newVersion], { stdio: 'inherit' });
+        gitExecArray(['push', 'origin', `refs/tags/${newVersion}`], { stdio: 'inherit' });
         console.log('✓ Pushed to remote');
         
         needsCleanup = false;
