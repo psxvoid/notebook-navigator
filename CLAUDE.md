@@ -40,6 +40,12 @@ Notebook Navigator is an Obsidian plugin that replaces the default file explorer
 ```
 johansan-notebook-navigator/
 ├── .github/workflows/release.yml              # GitHub Actions for automated releases
+├── docs/
+│   └── MOBILE_LIFECYCLE.md                    # Mobile development lifecycle documentation
+├── scripts/
+│   ├── build.sh                               # Main build script (checked into git)
+│   ├── build-local.sh                         # Local deployment script (gitignored)
+│   └── gitdump.sh                             # Git diff export utility
 ├── src/
 │   ├── main.ts                                # Plugin entry point, event handlers, lifecycle
 │   ├── settings.ts                            # Settings interface, defaults, settings tab UI
@@ -460,13 +466,13 @@ All UI text should use sentence case (only first letter capitalized) for consist
 npm install --legacy-peer-deps
 
 # Production build - run this every time you finish working tasks
-./build.sh
+./scripts/build.sh
 
 # Development mode
 npm run dev
 ```
 
-**Note**: Use `./build.sh` instead of `npm run build`. This script runs the build and checks for an optional `build-local.sh` file (gitignored) that can contain local deployment commands.
+**Note**: Use `./scripts/build.sh` instead of `npm run build`. This script runs the build and checks for an optional `scripts/build-local.sh` file (gitignored) that can contain local deployment commands.
 
 Releases are automated via GitHub Actions in `.github/workflows/release.yml`. Output assets include `main.js`, `manifest.json`, and `styles.css`.
 

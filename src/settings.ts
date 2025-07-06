@@ -50,8 +50,8 @@ export interface NotebookNavigatorSettings {
     autoRevealActiveFile: boolean;
     showTooltips: boolean;
     fileVisibility: FileVisibility;
-    excludedFolders: string;
-    excludedFiles: string;
+    excludedFolders: string[];
+    excludedFiles: string[];
     // Navigation pane
     autoSelectFirstFileOnFocusChange: boolean;
     showNoteCount: boolean;
@@ -65,6 +65,8 @@ export interface NotebookNavigatorSettings {
     // Tags
     showTags: boolean;
     showUntagged: boolean;
+    favoriteTags: string[];
+    hiddenTags: string[];
     // List pane
     defaultFolderSort: SortOption;
     groupByDate: boolean;
@@ -108,8 +110,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     autoRevealActiveFile: true,
     showTooltips: true,
     fileVisibility: FILE_VISIBILITY.MARKDOWN,
-    excludedFolders: '',
-    excludedFiles: '',
+    excludedFolders: [],
+    excludedFiles: [],
     // Navigation pane
     autoSelectFirstFileOnFocusChange: true,
     showNoteCount: true,
@@ -123,6 +125,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Tags
     showTags: true,
     showUntagged: false,
+    favoriteTags: [],
+    hiddenTags: [],
     // List pane
     defaultFolderSort: 'modified-desc',
     groupByDate: true,
@@ -301,23 +305,35 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                 }));
 
-        this.createDebouncedTextSetting(
+        const excludedFoldersSetting = this.createDebouncedTextSetting(
             containerEl,
             strings.settings.items.excludedFolders.name,
             strings.settings.items.excludedFolders.desc,
             strings.settings.items.excludedFolders.placeholder,
-            () => this.plugin.settings.excludedFolders,
-            (value) => { this.plugin.settings.excludedFolders = value; }
+            () => this.plugin.settings.excludedFolders.join(', '),
+            (value) => { 
+                this.plugin.settings.excludedFolders = value
+                    .split(',')
+                    .map(folder => folder.trim())
+                    .filter(folder => folder.length > 0);
+            }
         );
+        excludedFoldersSetting.controlEl.addClass('nn-setting-wide-input');
 
-        this.createDebouncedTextSetting(
+        const excludedFilesSetting = this.createDebouncedTextSetting(
             containerEl,
             strings.settings.items.excludedNotes.name,
             strings.settings.items.excludedNotes.desc,
             strings.settings.items.excludedNotes.placeholder,
-            () => this.plugin.settings.excludedFiles,
-            (value) => { this.plugin.settings.excludedFiles = value; }
+            () => this.plugin.settings.excludedFiles.join(', '),
+            (value) => { 
+                this.plugin.settings.excludedFiles = value
+                    .split(',')
+                    .map(file => file.trim())
+                    .filter(file => file.length > 0);
+            }
         );
+        excludedFilesSetting.controlEl.addClass('nn-setting-wide-input');
 
         // Section 1: Navigation pane
         new Setting(containerEl)
@@ -445,6 +461,40 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     this.plugin.settings.showUntagged = value;
                     await this.saveAndRefresh();
                 }));
+
+        const favoriteTagsSetting = this.createDebouncedTextSetting(
+            untaggedSettingEl,
+            strings.settings.items.favoriteTags.name,
+            strings.settings.items.favoriteTags.desc,
+            strings.settings.items.favoriteTags.placeholder,
+            () => this.plugin.settings.favoriteTags.join(', '),
+            (value) => { 
+                this.plugin.settings.favoriteTags = value
+                    .split(',')
+                    .map(tag => tag.trim())
+                    .filter(tag => tag.length > 0);
+            }
+        );
+        
+        // Add a custom class to make the input wider
+        favoriteTagsSetting.controlEl.addClass('nn-setting-wide-input');
+
+        const hiddenTagsSetting = this.createDebouncedTextSetting(
+            untaggedSettingEl,
+            strings.settings.items.hiddenTags.name,
+            strings.settings.items.hiddenTags.desc,
+            strings.settings.items.hiddenTags.placeholder,
+            () => this.plugin.settings.hiddenTags.join(', '),
+            (value) => { 
+                this.plugin.settings.hiddenTags = value
+                    .split(',')
+                    .map(tag => tag.trim())
+                    .filter(tag => tag.length > 0);
+            }
+        );
+        
+        // Add a custom class to make the input wider
+        hiddenTagsSetting.controlEl.addClass('nn-setting-wide-input');
 
         // Section 4: List pane
         new Setting(containerEl)
@@ -692,11 +742,19 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .filter(prop => prop.length > 0);
             }
         );
+        featurePropertiesSetting.controlEl.addClass('nn-setting-wide-input');
         
-        // Add informational text about embed fallback
-        featurePropertiesSetting.descEl.createEl('div', {
+        // Create a container for additional info that appears below the entire setting
+        const infoContainer = featureImageSettingsEl.createDiv('nn-setting-info-container');
+        
+        // Add tip text and embed fallback in a single section
+        const tipDiv = infoContainer.createEl('div', {
+            cls: 'setting-item-description'
+        });
+        tipDiv.createSpan({ text: strings.settings.items.featureImageProperties.tip + ' ' });
+        tipDiv.createSpan({
             text: strings.settings.items.featureImageProperties.embedFallback,
-            cls: 'nn-setting-info'
+            cls: 'nn-setting-info-inline'
         });
 
 

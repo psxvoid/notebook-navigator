@@ -46,8 +46,11 @@ export const STRINGS_EN = {
 
     // Tag list
     tagList: {
-        sectionHeader: 'Tags', // Header text for the tags section below folders (English: Tags)
         untaggedLabel: 'Untagged', // Label for the special item showing notes without tags (English: Untagged)
+        favoriteTags: 'Favorite tags', // Label for the favorite tags virtual folder (English: Favorite tags)
+        hiddenTags: 'Hidden tags', // Label for the hidden tags virtual folder (English: Hidden tags)
+        allTags: 'All tags', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        tags: 'Tags', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
     // Pane header
@@ -393,7 +396,8 @@ export const STRINGS_EN = {
             },
             featureImageProperties: {
                 name: 'Image properties',
-                desc: 'Comma-separated list of frontmatter properties to check for thumbnail images. The first property with an image will be used. Tip: Use the "Featured Image" plugin to automatically set feature images. For best performance, use 42px thumbnails or 84px for retina displays.',
+                desc: 'Comma-separated list of frontmatter properties to check for thumbnail images. The first property with an image will be used.',
+                tip: 'Use the "Featured Image" plugin to automatically set feature images. For best performance, use 42px thumbnails or 84px for retina displays.',
                 placeholder: 'featureResized, feature',
                 embedFallback: 'If no image is found in the properties above, the first embedded image in the document will be used (requires Obsidian 1.9.4+)',
             },
@@ -425,6 +429,16 @@ export const STRINGS_EN = {
             showUntagged: {
                 name: 'Show untagged notes',
                 desc: 'Display "Untagged" item for notes without any tags.',
+            },
+            favoriteTags: {
+                name: 'Favorite tags',
+                desc: 'Comma-separated list of favorite tag patterns. Supports exact match, wildcards (*), and regex (/pattern/).',
+                placeholder: 'inbox, project-*, /^daily-\\d{4}/',
+            },
+            hiddenTags: {
+                name: 'Hidden tags',
+                desc: 'Comma-separated list of tag patterns to hide from the tag tree. Supports exact match, wildcards (*), and regex (/pattern/).',
+                placeholder: 'internal, temp-*, /^archive-\\d{4}/',
             },
             enableFolderNotes: {
                 name: 'Enable folder notes',

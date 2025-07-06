@@ -22,4 +22,4 @@ data.json
 .DS_Store
 
 # Local build scripts
-build-local.sh
+scripts/build-local.sh

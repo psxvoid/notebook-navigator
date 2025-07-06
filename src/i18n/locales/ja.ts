@@ -46,8 +46,11 @@ export const STRINGS_JA = {
 
     // Tag list
     tagList: {
-        sectionHeader: 'タグ', // Header text for the tags section below folders (English: Tags)
         untaggedLabel: 'タグなし', // Label for the special item showing notes without tags (English: Untagged)
+        favoriteTags: 'お気に入りタグ', // Label for the favorite tags virtual folder (English: Favorite tags)
+        hiddenTags: '非表示タグ', // Label for the hidden tags virtual folder (English: Hidden tags)
+        allTags: 'すべてのタグ', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        tags: 'タグ', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
     // Pane header
@@ -393,7 +396,8 @@ export const STRINGS_JA = {
             },
             featureImageProperties: {
                 name: '画像プロパティ',
-                desc: 'サムネイル画像用のフロントマタープロパティのカンマ区切りリスト。画像を持つ最初のプロパティが使用されます。ヒント：「Featured Image」プラグインを使用して自動的に画像を設定できます。最高のパフォーマンスには42pxのサムネイル、Retinaディスプレイには84pxを使用してください。',
+                desc: 'サムネイル画像用のフロントマタープロパティのカンマ区切りリスト。画像を持つ最初のプロパティが使用されます。',
+                tip: '「Featured Image」プラグインを使用して自動的に画像を設定できます。最高のパフォーマンスには42pxのサムネイル、Retinaディスプレイには84pxを使用してください。',
                 placeholder: 'featureResized, feature',
                 embedFallback: '上記のプロパティに画像が見つからない場合、ドキュメント内の最初の埋め込み画像が使用されます（Obsidian 1.9.4以降が必要）',
             },
@@ -425,6 +429,16 @@ export const STRINGS_JA = {
             showUntagged: {
                 name: 'タグなしノートを表示',
                 desc: 'タグのないノート用に「タグなし」項目を表示します。',
+            },
+            favoriteTags: {
+                name: 'お気に入りタグ',
+                desc: 'お気に入りタグパターンのカンマ区切りリスト。完全一致、ワイルドカード（*）、正規表現（/パターン/）をサポートします。',
+                placeholder: 'インボックス, プロジェクト-*, /^日記-\\d{4}/',
+            },
+            hiddenTags: {
+                name: '非表示タグ',
+                desc: 'タグツリーから非表示にするタグパターンのカンマ区切りリスト。完全一致、ワイルドカード（*）、正規表現（/パターン/）をサポートします。',
+                placeholder: '内部, temp-*, /^アーカイブ-\\d{4}/',
             },
             enableFolderNotes: {
                 name: 'フォルダノートを有効化',

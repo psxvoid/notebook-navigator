@@ -46,8 +46,11 @@ export const STRINGS_ZH = {
 
     // Tag list
     tagList: {
-        sectionHeader: '标签', // Header text for the tags section below folders (English: Tags)
         untaggedLabel: '无标签', // Label for the special item showing notes without tags (English: Untagged)
+        favoriteTags: '收藏标签', // Label for the favorite tags virtual folder (English: Favorite tags)
+        hiddenTags: '隐藏标签', // Label for the hidden tags virtual folder (English: Hidden tags)
+        allTags: '所有标签', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        tags: '标签', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
     // Pane header
@@ -393,7 +396,8 @@ export const STRINGS_ZH = {
             },
             featureImageProperties: {
                 name: '图片属性',
-                desc: '用于缩略图的前置元数据属性的逗号分隔列表。将使用第一个包含图片的属性。提示：使用"Featured Image"插件自动设置图片。为获得最佳性能，请使用 42px 缩略图或 84px 用于视网膜显示器。',
+                desc: '用于缩略图的前置元数据属性的逗号分隔列表。将使用第一个包含图片的属性。',
+                tip: '使用"Featured Image"插件自动设置图片。为获得最佳性能，请使用 42px 缩略图或 84px 用于视网膜显示器。',
                 placeholder: 'featureResized, feature',
                 embedFallback: '如果在上述属性中未找到图片，将使用文档中的第一个嵌入图片（需要 Obsidian 1.9.4+）',
             },
@@ -425,6 +429,16 @@ export const STRINGS_ZH = {
             showUntagged: {
                 name: '显示无标签笔记',
                 desc: '为没有任何标签的笔记显示"无标签"项目。',
+            },
+            favoriteTags: {
+                name: '收藏标签',
+                desc: '收藏标签模式的逗号分隔列表。支持精确匹配、通配符（*）和正则表达式（/模式/）。',
+                placeholder: '收件箱, 项目-*, /^日记-\\d{4}/',
+            },
+            hiddenTags: {
+                name: '隐藏标签',
+                desc: '要从标签树中隐藏的标签模式逗号分隔列表。支持精确匹配、通配符（*）和正则表达式（/模式/）。',
+                placeholder: '内部, 临时-*, /^归档-\\d{4}/',
             },
             enableFolderNotes: {
                 name: '启用文件夹笔记',

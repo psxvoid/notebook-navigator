@@ -131,23 +131,59 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Get updateSettings from SettingsContext for refresh
     const updateSettings = useSettingsUpdate();
     
-    // Define revealFile function that can be used both internally and via ref
+    /**
+     * Reveals a file in the navigator by expanding necessary folders and selecting it.
+     * 
+     * FOLDER EXPANSION BEHAVIOR:
+     * The plugin expands ancestor folders to make the file visible, but intentionally
+     * skips expanding the file's immediate parent folder. This preserves the user's
+     * chosen folder collapse/expand state.
+     * 
+     * Example: Revealing "Tech/2025/Notes/file.md"
+     * - Will expand: "Tech" and "2025" (if needed)
+     * - Will NOT expand: "Notes" (immediate parent)
+     * - The "Notes" folder will be selected but remain in its current expanded/collapsed state
+     * 
+     * REVEAL TYPES:
+     * 1. Manual Reveal (via "Reveal file" command):
+     *    - Expands folders BEFORE changing selection
+     *    - Always changes selected folder to the file's parent
+     *    - Used when user explicitly wants to see the file's location
+     * 
+     * 2. Auto Reveal (on file open/startup):
+     *    - Expansion handled by the effect after selection changes
+     *    - May preserve current folder selection with "Show notes from subfolders"
+     *    - Less disruptive to user's current navigation context
+     * 
+     * @param file - The file to reveal
+     * @param isManualReveal - True when triggered by "Reveal file" command
+     */
     const revealFile = (file: TFile, isManualReveal?: boolean) => {
         if (!file || !file.parent) return;
         
-        // Build the folder path hierarchy to expand
-        const foldersToExpand: string[] = [];
-        let currentFolder: TFolder | null = file.parent;
-        while (currentFolder) {
-            foldersToExpand.unshift(currentFolder.path);
-            if (currentFolder.path === '/') break;
-            currentFolder = currentFolder.parent;
-        }
-        
-        // Expand folders if needed
-        const needsExpansion = foldersToExpand.some(path => !expansionState.expandedFolders.has(path));
-        if (needsExpansion) {
-            expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
+        // For manual reveals, we need to expand folders BEFORE changing selection
+        // This is because the folder will change to the file's parent, and we need
+        // the correct folder hierarchy expanded before that happens
+        if (isManualReveal) {
+            const foldersToExpand: string[] = [];
+            let currentFolder: TFolder | null = file.parent;
+            
+            // Expand all ancestors except the immediate parent
+            // This preserves the user's choice of whether the parent is expanded/collapsed
+            if (currentFolder && currentFolder.parent) {
+                currentFolder = currentFolder.parent; // Skip immediate parent
+                while (currentFolder) {
+                    foldersToExpand.unshift(currentFolder.path);
+                    if (currentFolder.path === '/') break;
+                    currentFolder = currentFolder.parent;
+                }
+            }
+            
+            // Expand folders if needed
+            const needsExpansion = foldersToExpand.some(path => !expansionState.expandedFolders.has(path));
+            if (needsExpansion) {
+                expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
+            }
         }
         
         // Check if we should preserve the current folder selection
@@ -258,26 +294,48 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     ]);
 
     /**
-     * Handle file reveal - expand folders and scroll when a file is revealed.
-     * 
-     * DEPENDENCY FIX:
-     * - Removed expansionState.expandedFolders from dependencies
-     * - This prevents the effect from re-running when folders are collapsed/expanded
-     * - Previously caused auto-reveal to fire after expand/collapse operations
-     * - Now only runs when there's an actual reveal operation or selection change
+     * Handle auto-reveal folder expansion and scrolling.
+     * This effect runs AFTER selection changes, unlike manual reveals which expand BEFORE.
+     * See revealFile() documentation for the complete folder expansion behavior.
      */
     useEffect(() => {
         // ONLY process if this is a reveal operation, not normal keyboard navigation
-        if (selectionState.isRevealOperation && selectionState.selectedFolder && selectionState.selectedFile) {
+        if (selectionState.isRevealOperation && selectionState.selectedFile) {
             const file = selectionState.selectedFile;
             
             // Build folder path to expand
             const foldersToExpand: string[] = [];
             let currentFolder: TFolder | null = file.parent;
-            while (currentFolder) {
-                foldersToExpand.unshift(currentFolder.path);
-                if (currentFolder.path === '/') break;
-                currentFolder = currentFolder.parent;
+            
+            // If we have a selected folder, expand folders between file and selected folder
+            if (selectionState.selectedFolder) {
+                // Walk up the tree from the file's parent
+                while (currentFolder) {
+                    // Stop when we reach the selected folder (don't expand it)
+                    if (currentFolder.path === selectionState.selectedFolder.path) {
+                        break;
+                    }
+                    
+                    // Add this folder to expand (unless it's the immediate parent of selected folder)
+                    // This preserves the collapse/expand state of folders directly under the selected folder
+                    if (currentFolder.parent && currentFolder.parent.path === selectionState.selectedFolder.path) {
+                        // This is a direct child of the selected folder, skip it
+                    } else {
+                        foldersToExpand.unshift(currentFolder.path);
+                    }
+                    
+                    currentFolder = currentFolder.parent;
+                }
+            } else {
+                // No selected folder - expand all ancestors except the immediate parent
+                if (currentFolder && currentFolder.parent) {
+                    currentFolder = currentFolder.parent; // Skip immediate parent
+                    while (currentFolder) {
+                        foldersToExpand.unshift(currentFolder.path);
+                        if (currentFolder.path === '/') break;
+                        currentFolder = currentFolder.parent;
+                    }
+                }
             }
             
             // Expand folders if needed

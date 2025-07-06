@@ -17,9 +17,11 @@
     --nn-file-name-size: 14px;  /* Fixed 14px */
     --nn-file-small-size: 13px;  /* Fixed 13px */
     
-    /* Date header heights */
+    /* Date header heights and padding */
     --nn-date-header-height: 35px;  /* First header */
     --nn-date-header-height-subsequent: 50px;  /* Headers with margin */
+    --nn-date-header-padding-top: 24px;  /* Top padding for subsequent headers */
+    --nn-date-header-padding-bottom: 6px;  /* Bottom padding for subsequent headers */
     
     /* Navigation item heights - fixed pixel values to prevent fractional rendering */
     --nn-nav-line-height: 18px;  /* Fixed line height for folder/tag names */
@@ -755,7 +757,7 @@
 .nn-date-group-header {
     height: var(--nn-date-header-height-subsequent);
     box-sizing: border-box;
-    padding: 0 var(--size-4-3);
+    padding: var(--nn-date-header-padding-top) var(--size-4-3) var(--nn-date-header-padding-bottom) var(--size-4-3);
     font-size: var(--nn-file-small-size);
     font-weight: 600;
     color: var(--text-muted);
@@ -765,7 +767,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     display: flex;
-    align-items: center;
+    align-items: flex-start;
     /* Force pixel snapping */
     transform: translateZ(0);
 }
@@ -773,6 +775,8 @@
 /* First date header - no top margin or extra padding for first group */
 .nn-date-group-header.nn-first-header {
     height: var(--nn-date-header-height);
+    padding: 0 var(--size-4-3);
+    align-items: center;
 }
 
 
@@ -1346,6 +1350,24 @@ body.nn-resizing {
     line-height: 1.4;
 }
 
+/* Container for additional info below settings */
+.nn-setting-info-container {
+    margin-top: var(--size-4-2);
+    margin-bottom: var(--size-4-2);
+}
+
+/* Bold inline text within tips */
+.nn-setting-info-inline {
+    font-weight: var(--font-semibold);
+    color: var(--text-normal);
+}
+
+/* Wider text inputs for settings that benefit from more space */
+.nn-setting-wide-input input[type="text"] {
+    width: 300px;
+    max-width: 100%;
+}
+
 /* ========================================================================
    Sponsor Button Styles
    ======================================================================== */
@@ -1363,6 +1385,11 @@ body.nn-resizing {
 /* ========================================================================
    Mobile Styles
    ======================================================================== */
+
+/* Mobile-specific wide input fields - full width on mobile */
+.is-mobile .nn-setting-wide-input input[type="text"] {
+    width: 100%;
+}
 
 /* Mobile container - stack panes and prepare for sliding */
 .notebook-navigator-mobile .nn-split-container {
@@ -1658,12 +1685,6 @@ body.nn-resizing {
 .notebook-navigator-mobile .nn-feature-image {
     width: 50px;
     height: 50px;
-}
-
-/* Increase date group header text size on mobile */
-.notebook-navigator-mobile .nn-date-group-header {
-    font-size: 14px;
-    padding: var(--size-4-2) var(--size-4-4);
 }
 
 /* Increase tag section header text size on mobile to match date headers */

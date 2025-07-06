@@ -46,8 +46,11 @@ export const STRINGS_FR = {
 
     // Tag list
     tagList: {
-        sectionHeader: 'Étiquettes', // Header text for the tags section below folders (English: Tags)
         untaggedLabel: 'Sans étiquette', // Label for the special item showing notes without tags (English: Untagged)
+        favoriteTags: 'Étiquettes favorites', // Label for the favorite tags virtual folder (English: Favorite tags)
+        hiddenTags: 'Étiquettes cachées', // Label for the hidden tags virtual folder (English: Hidden tags)
+        allTags: 'Toutes les étiquettes', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        tags: 'Étiquettes', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
     // Pane header
@@ -393,7 +396,8 @@ export const STRINGS_FR = {
             },
             featureImageProperties: {
                 name: 'Propriétés d\'image',
-                desc: 'Liste de propriétés de métadonnées séparées par des virgules pour les images miniatures. La première propriété avec une image sera utilisée. Conseil : Utilisez le plugin "Featured Image" pour définir automatiquement des images. Pour de meilleures performances, utilisez des miniatures de 42px ou 84px pour les écrans Retina.',
+                desc: 'Liste de propriétés de métadonnées séparées par des virgules pour les images miniatures. La première propriété avec une image sera utilisée.',
+                tip: 'Utilisez le plugin "Featured Image" pour définir automatiquement des images. Pour de meilleures performances, utilisez des miniatures de 42px ou 84px pour les écrans Retina.',
                 placeholder: 'featureResized, feature',
                 embedFallback: 'Si aucune image n\'est trouvée dans les propriétés ci-dessus, la première image intégrée dans le document sera utilisée (nécessite Obsidian 1.9.4+)',
             },
@@ -425,6 +429,16 @@ export const STRINGS_FR = {
             showUntagged: {
                 name: 'Afficher les notes sans étiquette',
                 desc: 'Afficher l\'élément "Sans étiquette" pour les notes sans aucune étiquette.',
+            },
+            favoriteTags: {
+                name: 'Étiquettes favorites',
+                desc: 'Liste séparée par des virgules de modèles d\'étiquettes favorites. Prend en charge la correspondance exacte, les jokers (*) et les regex (/modèle/).',
+                placeholder: 'boîte-de-réception, projet-*, /^quotidien-\\d{4}/',
+            },
+            hiddenTags: {
+                name: 'Étiquettes cachées',
+                desc: 'Liste séparée par des virgules de modèles d\'étiquettes à masquer de l\'arbre des étiquettes. Prend en charge la correspondance exacte, les jokers (*) et les regex (/modèle/).',
+                placeholder: 'interne, temp-*, /^archive-\\d{4}/',
             },
             enableFolderNotes: {
                 name: 'Activer les notes de dossier',

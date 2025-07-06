@@ -70,7 +70,7 @@ export type FileListItemType = typeof FileListItemType[keyof typeof FileListItem
  */
 export const NavigationPaneItemType = {
     FOLDER: 'folder',
-    TAG_HEADER: 'tag-header',
+    VIRTUAL_FOLDER: 'virtual-folder',
     TAG: 'tag',
     UNTAGGED: 'untagged',
     SPACER: 'spacer'
@@ -119,6 +119,7 @@ export function isNavigationItemType(type: string): type is NavigationItemType {
 export interface LocalStorageKeys {
     expandedFoldersKey: string;
     expandedTagsKey: string;
+    expandedVirtualFoldersKey: string;
     selectedFolderKey: string;
     selectedFileKey: string;
     navigationPaneWidthKey: string;
@@ -133,6 +134,7 @@ export interface LocalStorageKeys {
 export const STORAGE_KEYS: LocalStorageKeys = {
     expandedFoldersKey: 'notebook-navigator-expanded-folders',
     expandedTagsKey: 'notebook-navigator-expanded-tags',
+    expandedVirtualFoldersKey: 'notebook-navigator-expanded-virtual-folders',
     selectedFolderKey: 'notebook-navigator-selected-folder',
     selectedFileKey: 'notebook-navigator-selected-file',
     navigationPaneWidthKey: 'notebook-navigator-navigation-pane-width',
@@ -206,6 +208,18 @@ export function getSupportedLeaves(app: any): any[] {
     );
 }
 
+/**
+ * Virtual folder for organizing tags
+ * These are not real folders but act like folders in the UI
+ */
+export interface VirtualFolder {
+    /** Unique identifier for the virtual folder */
+    id: string;
+    /** Display name of the virtual folder */
+    name: string;
+    /** Optional custom icon for the virtual folder */
+    icon?: string;
+}
 
 /**
  * Data attributes for drag-and-drop functionality using event delegation

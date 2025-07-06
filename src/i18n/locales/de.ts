@@ -46,8 +46,11 @@ export const STRINGS_DE = {
 
     // Tag list
     tagList: {
-        sectionHeader: 'Tags', // Header text for the tags section below folders (English: Tags)
         untaggedLabel: 'Ohne Tag', // Label for the special item showing notes without tags (English: Untagged)
+        favoriteTags: 'Favorisierte Tags', // Label for the favorite tags virtual folder (English: Favorite tags)
+        hiddenTags: 'Versteckte Tags', // Label for the hidden tags virtual folder (English: Hidden tags)
+        allTags: 'Alle Tags', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        tags: 'Tags', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
     // Pane header
@@ -393,7 +396,8 @@ export const STRINGS_DE = {
             },
             featureImageProperties: {
                 name: 'Bildeigenschaften',
-                desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften für Miniaturbilder. Die erste Eigenschaft mit einem Bild wird verwendet. Tipp: Verwenden Sie das "Featured Image" Plugin für automatische Vorschaubilder. Für beste Leistung verwenden Sie 42px Thumbnails oder 84px für Retina-Displays.',
+                desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften für Miniaturbilder. Die erste Eigenschaft mit einem Bild wird verwendet.',
+                tip: 'Verwenden Sie das "Featured Image" Plugin für automatische Vorschaubilder. Für beste Leistung verwenden Sie 42px Thumbnails oder 84px für Retina-Displays.',
                 placeholder: 'featureResized, feature',
                 embedFallback: 'Wenn kein Bild in den obigen Eigenschaften gefunden wird, wird das erste eingebettete Bild im Dokument verwendet (erfordert Obsidian 1.9.4+)',
             },
@@ -425,6 +429,16 @@ export const STRINGS_DE = {
             showUntagged: {
                 name: 'Ungetaggte Notizen anzeigen',
                 desc: '"Ohne Tag" für Notizen ohne Tags anzeigen.',
+            },
+            favoriteTags: {
+                name: 'Favoriten-Tags',
+                desc: 'Kommagetrennte Liste von favorisierten Tag-Mustern. Unterstützt exakte Übereinstimmung, Platzhalter (*) und Regex (/muster/).',
+                placeholder: 'inbox, projekt-*, /^täglich-\\d{4}/',
+            },
+            hiddenTags: {
+                name: 'Versteckte Tags',
+                desc: 'Kommagetrennte Liste von Tag-Mustern, die im Tag-Baum ausgeblendet werden sollen. Unterstützt exakte Übereinstimmung, Platzhalter (*) und Regex (/muster/).',
+                placeholder: 'intern, temp-*, /^archiv-\\d{4}/',
             },
             enableFolderNotes: {
                 name: 'Ordnernotizen aktivieren',

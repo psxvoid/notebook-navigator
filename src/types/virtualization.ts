@@ -18,7 +18,7 @@
 
 import { TFile, TFolder } from 'obsidian';
 import { TagTreeNode } from '../utils/tagUtils';
-import { ItemType, FileListItemType, NavigationPaneItemType } from '../types';
+import { ItemType, FileListItemType, NavigationPaneItemType, VirtualFolder } from '../types';
 
 export interface VirtualItem<T> {
   type: string;
@@ -43,16 +43,23 @@ export interface FolderTreeItem {
 }
 
 export interface TagTreeItem {
-  type: typeof NavigationPaneItemType.TAG | typeof NavigationPaneItemType.TAG_HEADER;
-  data: TagTreeNode | string;
+  type: typeof NavigationPaneItemType.TAG;
+  data: TagTreeNode;
   level: number;
   path?: string;
   key: string;
 }
 
+export interface VirtualFolderItem {
+  type: typeof NavigationPaneItemType.VIRTUAL_FOLDER;
+  data: VirtualFolder;
+  level: number;
+  key: string;
+}
+
 export type CombinedNavigationItem = 
   | FolderTreeItem
-  | { type: typeof NavigationPaneItemType.TAG_HEADER; key: string }
+  | VirtualFolderItem
   | TagTreeItem
-  | { type: typeof NavigationPaneItemType.UNTAGGED; data: TagTreeNode; key: string }
+  | { type: typeof NavigationPaneItemType.UNTAGGED; data: TagTreeNode; key: string; level?: number }
   | { type: typeof NavigationPaneItemType.SPACER; key: string };

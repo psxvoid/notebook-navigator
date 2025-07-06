@@ -46,8 +46,11 @@ export const STRINGS_ES = {
 
     // Tag list
     tagList: {
-        sectionHeader: 'Etiquetas', // Header text for the tags section below folders (English: Tags)
         untaggedLabel: 'Sin etiquetas', // Label for the special item showing notes without tags (English: Untagged)
+        favoriteTags: 'Etiquetas favoritas', // Label for the favorite tags virtual folder (English: Favorite tags)
+        hiddenTags: 'Etiquetas ocultas', // Label for the hidden tags virtual folder (English: Hidden tags)
+        allTags: 'Todas las etiquetas', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        tags: 'Etiquetas', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
     // Pane header
@@ -393,7 +396,8 @@ export const STRINGS_ES = {
             },
             featureImageProperties: {
                 name: 'Propiedades de imagen',
-                desc: 'Lista separada por comas de propiedades del frontmatter para imágenes en miniatura. Se usará la primera propiedad con una imagen. Consejo: Usa el plugin "Featured Image" para establecer imágenes automáticamente. Para mejor rendimiento, usa miniaturas de 42px o 84px para pantallas retina.',
+                desc: 'Lista separada por comas de propiedades del frontmatter para imágenes en miniatura. Se usará la primera propiedad con una imagen.',
+                tip: 'Usa el plugin "Featured Image" para establecer imágenes automáticamente. Para mejor rendimiento, usa miniaturas de 42px o 84px para pantallas retina.',
                 placeholder: 'featureResized, feature',
                 embedFallback: 'Si no se encuentra ninguna imagen en las propiedades anteriores, se utilizará la primera imagen incrustada en el documento (requiere Obsidian 1.9.4+)',
             },
@@ -425,6 +429,16 @@ export const STRINGS_ES = {
             showUntagged: {
                 name: 'Mostrar notas sin etiquetas',
                 desc: 'Muestra el elemento "Sin etiquetas" para notas sin ninguna etiqueta.',
+            },
+            favoriteTags: {
+                name: 'Etiquetas favoritas',
+                desc: 'Lista separada por comas de patrones de etiquetas favoritas. Admite coincidencia exacta, comodines (*) y regex (/patrón/).',
+                placeholder: 'bandeja, proyecto-*, /^diario-\\d{4}/',
+            },
+            hiddenTags: {
+                name: 'Etiquetas ocultas',
+                desc: 'Lista separada por comas de patrones de etiquetas para ocultar del árbol de etiquetas. Admite coincidencia exacta, comodines (*) y regex (/patrón/).',
+                placeholder: 'interno, temp-*, /^archivo-\\d{4}/',
             },
             enableFolderNotes: {
                 name: 'Habilitar notas de carpeta',

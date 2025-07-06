@@ -32,14 +32,17 @@ import { useMetadataService } from '../context/ServicesContext';
 import { PaneHeader } from './PaneHeader';
 import { strings } from '../i18n';
 import { isTFolder } from '../utils/typeGuards';
-import type { CombinedNavigationItem } from '../types/virtualization';
+import type { CombinedNavigationItem, VirtualFolderItem } from '../types/virtualization';
 import { 
     TagTreeNode, 
-    getTotalNoteCount
+    getTotalNoteCount,
+    filterTagTree,
+    excludeFromTagTree,
+    parseTagPatterns
 } from '../utils/tagUtils';
 import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
-import { UNTAGGED_TAG_ID, NavigationPaneItemType, ItemType } from '../types';
+import { UNTAGGED_TAG_ID, NavigationPaneItemType, ItemType, VirtualFolder } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -162,40 +165,85 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         const folderItems = flattenFolderTree(
             rootFolders,
             expansionState.expandedFolders,
-            parseExcludedFolders(settings.excludedFolders || '')
+            parseExcludedFolders(settings.excludedFolders)
         );
         allItems.push(...folderItems);
         
         // Add tag section if enabled
         if (settings.showTags) {
-            // Add header
-            allItems.push({ 
-                type: NavigationPaneItemType.TAG_HEADER, 
-                key: 'tag-header' 
-            });
+            // Parse favorite and hidden tag patterns
+            const favoritePatterns = parseTagPatterns(settings.favoriteTags);
+            const hiddenPatterns = parseTagPatterns(settings.hiddenTags);
             
-            // Add tags
-            const tagItems = flattenTagTree(
-                Array.from(tagTree.values()),
-                expansionState.expandedTags
-            );
-            allItems.push(...tagItems);
+            // Helper function to add untagged node
+            const addUntaggedNode = (level: number) => {
+                if (settings.showUntagged && untaggedCount > 0) {
+                    const untaggedNode: TagTreeNode = {
+                        path: UNTAGGED_TAG_ID,
+                        name: strings.tagList.untaggedLabel,
+                        children: new Map(),
+                        notesWithTag: new Set()
+                    };
+                    
+                    allItems.push({
+                        type: NavigationPaneItemType.UNTAGGED,
+                        data: untaggedNode,
+                        key: UNTAGGED_TAG_ID,
+                        level
+                    });
+                }
+            };
             
-            // Add untagged if enabled
-            if (settings.showUntagged && untaggedCount > 0) {
-                // Create untagged node
-                const untaggedNode: TagTreeNode = {
-                    path: UNTAGGED_TAG_ID,
-                    name: strings.tagList.untaggedLabel,
-                    children: new Map(),
-                    notesWithTag: new Set()
-                };
-                
+            // Helper function to add virtual folder
+            const addVirtualFolder = (id: string, name: string, icon?: string) => {
+                const folder: VirtualFolder = { id, name, icon };
                 allItems.push({
-                    type: NavigationPaneItemType.UNTAGGED,
-                    data: untaggedNode,
-                    key: UNTAGGED_TAG_ID
+                    type: NavigationPaneItemType.VIRTUAL_FOLDER,
+                    data: folder,
+                    level: 0,
+                    key: id
                 });
+            };
+            
+            // Helper function to add tags to list
+            const addTagItems = (tags: Map<string, TagTreeNode>, folderId: string) => {
+                if (expansionState.expandedVirtualFolders.has(folderId)) {
+                    const tagItems = flattenTagTree(
+                        Array.from(tags.values()),
+                        expansionState.expandedTags,
+                        1 // Start at level 1 since they're inside the virtual folder
+                    );
+                    allItems.push(...tagItems);
+                    
+                    // Add untagged node if this is the last tag container
+                    const isLastContainer = favoritePatterns.length === 0 || folderId === 'all-tags-root';
+                    if (isLastContainer) {
+                        addUntaggedNode(1);
+                    }
+                }
+            };
+            
+            // First, exclude hidden tags from the entire tree
+            const visibleTagTree = hiddenPatterns.length > 0 
+                ? excludeFromTagTree(tagTree, hiddenPatterns) 
+                : tagTree;
+            
+            if (favoritePatterns.length > 0) {
+                // With favorites: show "Favorite tags" and "All tags"
+                const favoriteTags = filterTagTree(visibleTagTree, favoritePatterns);
+                const nonFavoriteTags = excludeFromTagTree(visibleTagTree, favoritePatterns);
+                
+                // Add "Favorite tags" folder
+                addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'star');
+                addTagItems(favoriteTags, 'favorite-tags-root');
+                
+                // Add "All tags" folder
+                addVirtualFolder('all-tags-root', strings.tagList.allTags, 'tags');
+                addTagItems(nonFavoriteTags, 'all-tags-root');
+            } else {
+                // No favorites: just show "Tags" folder
+                addVirtualFolder('tags-root', strings.tagList.tags, 'tags');
+                addTagItems(visibleTagTree, 'tags-root');
             }
         }
         
@@ -210,8 +258,8 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         
         rebuildItems();
     }, [rootFolders, expansionState.expandedFolders, expansionState.expandedTags, 
-        settings.excludedFolders, settings.showTags, 
-        settings.showUntagged, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
+        expansionState.expandedVirtualFolders, settings.excludedFolders, settings.showTags, 
+        settings.showUntagged, settings.favoriteTags, settings.hiddenTags, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
     // =================================================================================
     // =================================================================================
     
@@ -224,11 +272,10 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             const heights = isMobile ? ITEM_HEIGHTS.mobile : ITEM_HEIGHTS.desktop;
             
             switch (item.type) {
-                case NavigationPaneItemType.TAG_HEADER:
-                    return heights.header;
                 case NavigationPaneItemType.SPACER:
                     return heights.spacer;
                 case NavigationPaneItemType.FOLDER:
+                case NavigationPaneItemType.VIRTUAL_FOLDER:
                     return heights.folder;
                 case NavigationPaneItemType.TAG:
                 case NavigationPaneItemType.UNTAGGED:
@@ -325,6 +372,11 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: path });
     }, [expansionDispatch]);
     
+    // Handle virtual folder toggle
+    const handleVirtualFolderToggle = useCallback((folderId: string) => {
+        expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId });
+    }, [expansionDispatch]);
+    
     // Handle tag click
     const handleTagClick = useCallback((tagPath: string) => {
         selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
@@ -364,12 +416,32 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                     />
                 );
                 
-            case NavigationPaneItemType.TAG_HEADER:
+            case NavigationPaneItemType.VIRTUAL_FOLDER: {
+                const virtualFolder = item.data as VirtualFolder;
+                const hasChildren = virtualFolder.id === 'tags-root' || 
+                    virtualFolder.id === 'all-tags-root' || 
+                    virtualFolder.id === 'favorite-tags-root';
                 return (
-                    <div className="nn-section-header nn-tags-header">
-                        {strings.tagList.sectionHeader}
-                    </div>
+                    <FolderItem
+                        folder={{
+                            path: virtualFolder.id,
+                            name: virtualFolder.name,
+                            parent: null,
+                            children: [],
+                            isRoot: () => false
+                        } as any} // Virtual folder doesn't match TFolder exactly
+                        level={item.level}
+                        isExpanded={expansionState.expandedVirtualFolders.has(virtualFolder.id)}
+                        isSelected={false} // Virtual folders can't be selected
+                        onToggle={() => handleVirtualFolderToggle(virtualFolder.id)}
+                        onClick={() => {}} // No-op for virtual folders
+                        onNameClick={() => {}} // No-op for virtual folders
+                        icon={virtualFolder.icon}
+                        isVirtual={true}
+                        hasChildren={hasChildren}
+                    />
                 );
+            }
                 
             case NavigationPaneItemType.TAG:
             case NavigationPaneItemType.UNTAGGED: {
@@ -377,7 +449,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                 return (
                     <TagTreeItem
                         tagNode={tagNode}
-                        level={item.type === NavigationPaneItemType.UNTAGGED ? 0 : item.level}
+                        level={item.level ?? 0}
                         isExpanded={expansionState.expandedTags.has(tagNode.path)}
                         isSelected={selectionState.selectionType === ItemType.TAG && 
                             selectionState.selectedTag === tagNode.path}
@@ -397,7 +469,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             default:
                 return null;
         }
-    }, [expansionState.expandedFolders, expansionState.expandedTags, selectionState.selectionType, selectionState.selectedFolder?.path, selectionState.selectedTag, handleFolderToggle, handleFolderClick, handleFolderNameClick, handleTagToggle, handleTagClick, untaggedCount, settings, spacerHeight, settings.folderIcons, metadataService]);
+    }, [expansionState.expandedFolders, expansionState.expandedTags, expansionState.expandedVirtualFolders, selectionState.selectionType, selectionState.selectedFolder?.path, selectionState.selectedTag, handleFolderToggle, handleFolderClick, handleFolderNameClick, handleTagToggle, handleTagClick, handleVirtualFolderToggle, untaggedCount, settings, spacerHeight, settings.folderIcons, metadataService]);
     
     return (
         <ErrorBoundary componentName="NavigationPane">

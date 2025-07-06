@@ -19,25 +19,23 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
 import { TFolder } from 'obsidian';
 import { localStorage } from '../utils/localStorage';
-
-// Storage keys
-const STORAGE_KEYS = {
-    EXPANDED_FOLDERS: 'notebook-navigator-expanded-folders',
-    EXPANDED_TAGS: 'notebook-navigator-expanded-tags'
-};
+import { STORAGE_KEYS } from '../types';
 
 // State interface
 interface ExpansionState {
     expandedFolders: Set<string>;
     expandedTags: Set<string>;
+    expandedVirtualFolders: Set<string>;
 }
 
 // Action types
 export type ExpansionAction = 
     | { type: 'SET_EXPANDED_FOLDERS'; folders: Set<string> }
     | { type: 'SET_EXPANDED_TAGS'; tags: Set<string> }
+    | { type: 'SET_EXPANDED_VIRTUAL_FOLDERS'; folders: Set<string> }
     | { type: 'TOGGLE_FOLDER_EXPANDED'; folderPath: string }
     | { type: 'TOGGLE_TAG_EXPANDED'; tagPath: string }
+    | { type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED'; folderId: string }
     | { type: 'EXPAND_FOLDERS'; folderPaths: string[] }
     | { type: 'CLEANUP_DELETED_FOLDERS'; existingPaths: Set<string> }
     | { type: 'CLEANUP_DELETED_TAGS'; existingTags: Set<string> };
@@ -54,6 +52,9 @@ function expansionReducer(state: ExpansionState, action: ExpansionAction): Expan
         
         case 'SET_EXPANDED_TAGS':
             return { ...state, expandedTags: action.tags };
+        
+        case 'SET_EXPANDED_VIRTUAL_FOLDERS':
+            return { ...state, expandedVirtualFolders: action.folders };
         
         case 'TOGGLE_FOLDER_EXPANDED': {
             const newExpanded = new Set(state.expandedFolders);
@@ -73,6 +74,16 @@ function expansionReducer(state: ExpansionState, action: ExpansionAction): Expan
                 newExpanded.add(action.tagPath);
             }
             return { ...state, expandedTags: newExpanded };
+        }
+        
+        case 'TOGGLE_VIRTUAL_FOLDER_EXPANDED': {
+            const newExpanded = new Set(state.expandedVirtualFolders);
+            if (newExpanded.has(action.folderId)) {
+                newExpanded.delete(action.folderId);
+            } else {
+                newExpanded.add(action.folderId);
+            }
+            return { ...state, expandedVirtualFolders: newExpanded };
         }
         
         case 'EXPAND_FOLDERS': {
@@ -108,13 +119,15 @@ interface ExpansionProviderProps {
 export function ExpansionProvider({ children }: ExpansionProviderProps) {
     // Load initial state from localStorage
     const loadInitialState = (): ExpansionState => {
-        const savedExpandedFolders = localStorage.get<string[]>(STORAGE_KEYS.EXPANDED_FOLDERS);
-        const savedExpandedTags = localStorage.get<string[]>(STORAGE_KEYS.EXPANDED_TAGS);
+        const savedExpandedFolders = localStorage.get<string[]>(STORAGE_KEYS.expandedFoldersKey);
+        const savedExpandedTags = localStorage.get<string[]>(STORAGE_KEYS.expandedTagsKey);
+        const savedExpandedVirtualFolders = localStorage.get<string[]>(STORAGE_KEYS.expandedVirtualFoldersKey);
         
         const expandedFolders = new Set<string>(savedExpandedFolders || []);
         const expandedTags = new Set<string>(savedExpandedTags || []);
+        const expandedVirtualFolders = new Set<string>(savedExpandedVirtualFolders || ['tags-root']); // Default expand tags-root
         
-        return { expandedFolders, expandedTags };
+        return { expandedFolders, expandedTags, expandedVirtualFolders };
     };
     
     const [state, dispatch] = useReducer(expansionReducer, undefined, loadInitialState);
@@ -123,17 +136,24 @@ export function ExpansionProvider({ children }: ExpansionProviderProps) {
     // Persist to localStorage
     useEffect(() => {
         localStorage.set(
-            STORAGE_KEYS.EXPANDED_FOLDERS,
+            STORAGE_KEYS.expandedFoldersKey,
             Array.from(state.expandedFolders)
         );
     }, [state.expandedFolders]);
     
     useEffect(() => {
         localStorage.set(
-            STORAGE_KEYS.EXPANDED_TAGS,
+            STORAGE_KEYS.expandedTagsKey,
             Array.from(state.expandedTags)
         );
     }, [state.expandedTags]);
+    
+    useEffect(() => {
+        localStorage.set(
+            STORAGE_KEYS.expandedVirtualFoldersKey,
+            Array.from(state.expandedVirtualFolders)
+        );
+    }, [state.expandedVirtualFolders]);
     
     return (
         <ExpansionContext.Provider value={state}>
