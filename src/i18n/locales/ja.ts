@@ -48,6 +48,7 @@ export const STRINGS_JA = {
     tagList: {
         untaggedLabel: 'タグなし', // Label for the special item showing notes without tags (English: Untagged)
         favoriteTags: 'お気に入りタグ', // Label for the favorite tags virtual folder (English: Favorite tags)
+        hiddenTags: '非表示タグ', // Label for the hidden tags virtual folder (English: Hidden tags)
         allTags: 'すべてのタグ', // Label for the all tags virtual folder when favorites exist (English: All tags)
         tags: 'タグ', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
@@ -432,7 +433,12 @@ export const STRINGS_JA = {
             favoriteTags: {
                 name: 'お気に入りタグ',
                 desc: 'お気に入りタグパターンのカンマ区切りリスト。完全一致、ワイルドカード（*）、正規表現（/パターン/）をサポートします。',
-                placeholder: 'インボックス, プロジェクト-*, /^デイリー-\\d{4}/',
+                placeholder: 'インボックス, プロジェクト-*, /^日記-\\d{4}/',
+            },
+            hiddenTags: {
+                name: '非表示タグ',
+                desc: 'タグツリーから非表示にするタグパターンのカンマ区切りリスト。完全一致、ワイルドカード（*）、正規表現（/パターン/）をサポートします。',
+                placeholder: '内部, temp-*, /^アーカイブ-\\d{4}/',
             },
             enableFolderNotes: {
                 name: 'フォルダノートを有効化',

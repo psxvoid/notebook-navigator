@@ -48,6 +48,7 @@ export const STRINGS_FR = {
     tagList: {
         untaggedLabel: 'Sans étiquette', // Label for the special item showing notes without tags (English: Untagged)
         favoriteTags: 'Étiquettes favorites', // Label for the favorite tags virtual folder (English: Favorite tags)
+        hiddenTags: 'Étiquettes cachées', // Label for the hidden tags virtual folder (English: Hidden tags)
         allTags: 'Toutes les étiquettes', // Label for the all tags virtual folder when favorites exist (English: All tags)
         tags: 'Étiquettes', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
@@ -433,6 +434,11 @@ export const STRINGS_FR = {
                 name: 'Étiquettes favorites',
                 desc: 'Liste séparée par des virgules de modèles d\'étiquettes favorites. Prend en charge la correspondance exacte, les jokers (*) et les regex (/modèle/).',
                 placeholder: 'boîte-de-réception, projet-*, /^quotidien-\\d{4}/',
+            },
+            hiddenTags: {
+                name: 'Étiquettes cachées',
+                desc: 'Liste séparée par des virgules de modèles d\'étiquettes à masquer de l\'arbre des étiquettes. Prend en charge la correspondance exacte, les jokers (*) et les regex (/modèle/).',
+                placeholder: 'interne, temp-*, /^archive-\\d{4}/',
             },
             enableFolderNotes: {
                 name: 'Activer les notes de dossier',

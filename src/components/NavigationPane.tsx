@@ -171,8 +171,9 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         
         // Add tag section if enabled
         if (settings.showTags) {
-            // Parse favorite tag patterns
+            // Parse favorite and hidden tag patterns
             const favoritePatterns = parseTagPatterns(settings.favoriteTags);
+            const hiddenPatterns = parseTagPatterns(settings.hiddenTags);
             
             // Helper function to add untagged node
             const addUntaggedNode = (level: number) => {
@@ -222,10 +223,15 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                 }
             };
             
+            // First, exclude hidden tags from the entire tree
+            const visibleTagTree = hiddenPatterns.length > 0 
+                ? excludeFromTagTree(tagTree, hiddenPatterns) 
+                : tagTree;
+            
             if (favoritePatterns.length > 0) {
                 // With favorites: show "Favorite tags" and "All tags"
-                const favoriteTags = filterTagTree(tagTree, favoritePatterns);
-                const nonFavoriteTags = excludeFromTagTree(tagTree, favoritePatterns);
+                const favoriteTags = filterTagTree(visibleTagTree, favoritePatterns);
+                const nonFavoriteTags = excludeFromTagTree(visibleTagTree, favoritePatterns);
                 
                 // Add "Favorite tags" folder
                 addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'star');
@@ -237,7 +243,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             } else {
                 // No favorites: just show "Tags" folder
                 addVirtualFolder('tags-root', strings.tagList.tags, 'tags');
-                addTagItems(tagTree, 'tags-root');
+                addTagItems(visibleTagTree, 'tags-root');
             }
         }
         
@@ -253,7 +259,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         rebuildItems();
     }, [rootFolders, expansionState.expandedFolders, expansionState.expandedTags, 
         expansionState.expandedVirtualFolders, settings.excludedFolders, settings.showTags, 
-        settings.showUntagged, settings.favoriteTags, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
+        settings.showUntagged, settings.favoriteTags, settings.hiddenTags, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
     // =================================================================================
     // =================================================================================
     

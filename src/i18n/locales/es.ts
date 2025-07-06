@@ -48,6 +48,7 @@ export const STRINGS_ES = {
     tagList: {
         untaggedLabel: 'Sin etiquetas', // Label for the special item showing notes without tags (English: Untagged)
         favoriteTags: 'Etiquetas favoritas', // Label for the favorite tags virtual folder (English: Favorite tags)
+        hiddenTags: 'Etiquetas ocultas', // Label for the hidden tags virtual folder (English: Hidden tags)
         allTags: 'Todas las etiquetas', // Label for the all tags virtual folder when favorites exist (English: All tags)
         tags: 'Etiquetas', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
@@ -432,7 +433,12 @@ export const STRINGS_ES = {
             favoriteTags: {
                 name: 'Etiquetas favoritas',
                 desc: 'Lista separada por comas de patrones de etiquetas favoritas. Admite coincidencia exacta, comodines (*) y regex (/patrón/).',
-                placeholder: 'bandeja-entrada, proyecto-*, /^diario-\\d{4}/',
+                placeholder: 'bandeja, proyecto-*, /^diario-\\d{4}/',
+            },
+            hiddenTags: {
+                name: 'Etiquetas ocultas',
+                desc: 'Lista separada por comas de patrones de etiquetas para ocultar del árbol de etiquetas. Admite coincidencia exacta, comodines (*) y regex (/patrón/).',
+                placeholder: 'interno, temp-*, /^archivo-\\d{4}/',
             },
             enableFolderNotes: {
                 name: 'Habilitar notas de carpeta',

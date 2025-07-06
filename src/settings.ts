@@ -66,6 +66,7 @@ export interface NotebookNavigatorSettings {
     showTags: boolean;
     showUntagged: boolean;
     favoriteTags: string;
+    hiddenTags: string;
     // List pane
     defaultFolderSort: SortOption;
     groupByDate: boolean;
@@ -125,6 +126,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showTags: true,
     showUntagged: false,
     favoriteTags: '',
+    hiddenTags: '',
     // List pane
     defaultFolderSort: 'modified-desc',
     groupByDate: true,
@@ -461,6 +463,18 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         
         // Add a custom class to make the input wider
         favoriteTagsSetting.controlEl.addClass('nn-setting-wide-input');
+
+        const hiddenTagsSetting = this.createDebouncedTextSetting(
+            untaggedSettingEl,
+            strings.settings.items.hiddenTags.name,
+            strings.settings.items.hiddenTags.desc,
+            strings.settings.items.hiddenTags.placeholder,
+            () => this.plugin.settings.hiddenTags,
+            (value) => { this.plugin.settings.hiddenTags = value; }
+        );
+        
+        // Add a custom class to make the input wider
+        hiddenTagsSetting.controlEl.addClass('nn-setting-wide-input');
 
         // Section 4: List pane
         new Setting(containerEl)

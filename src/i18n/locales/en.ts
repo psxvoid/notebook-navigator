@@ -48,6 +48,7 @@ export const STRINGS_EN = {
     tagList: {
         untaggedLabel: 'Untagged', // Label for the special item showing notes without tags (English: Untagged)
         favoriteTags: 'Favorite tags', // Label for the favorite tags virtual folder (English: Favorite tags)
+        hiddenTags: 'Hidden tags', // Label for the hidden tags virtual folder (English: Hidden tags)
         allTags: 'All tags', // Label for the all tags virtual folder when favorites exist (English: All tags)
         tags: 'Tags', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
@@ -433,6 +434,11 @@ export const STRINGS_EN = {
                 name: 'Favorite tags',
                 desc: 'Comma-separated list of favorite tag patterns. Supports exact match, wildcards (*), and regex (/pattern/).',
                 placeholder: 'inbox, project-*, /^daily-\\d{4}/',
+            },
+            hiddenTags: {
+                name: 'Hidden tags',
+                desc: 'Comma-separated list of tag patterns to hide from the tag tree. Supports exact match, wildcards (*), and regex (/pattern/).',
+                placeholder: 'internal, temp-*, /^archive-\\d{4}/',
             },
             enableFolderNotes: {
                 name: 'Enable folder notes',

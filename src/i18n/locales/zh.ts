@@ -48,6 +48,7 @@ export const STRINGS_ZH = {
     tagList: {
         untaggedLabel: '无标签', // Label for the special item showing notes without tags (English: Untagged)
         favoriteTags: '收藏标签', // Label for the favorite tags virtual folder (English: Favorite tags)
+        hiddenTags: '隐藏标签', // Label for the hidden tags virtual folder (English: Hidden tags)
         allTags: '所有标签', // Label for the all tags virtual folder when favorites exist (English: All tags)
         tags: '标签', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
@@ -432,7 +433,12 @@ export const STRINGS_ZH = {
             favoriteTags: {
                 name: '收藏标签',
                 desc: '收藏标签模式的逗号分隔列表。支持精确匹配、通配符（*）和正则表达式（/模式/）。',
-                placeholder: '收件箱, 项目-*, /^每日-\\d{4}/',
+                placeholder: '收件箱, 项目-*, /^日记-\\d{4}/',
+            },
+            hiddenTags: {
+                name: '隐藏标签',
+                desc: '要从标签树中隐藏的标签模式逗号分隔列表。支持精确匹配、通配符（*）和正则表达式（/模式/）。',
+                placeholder: '内部, 临时-*, /^归档-\\d{4}/',
             },
             enableFolderNotes: {
                 name: '启用文件夹笔记',
