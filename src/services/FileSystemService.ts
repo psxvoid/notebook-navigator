@@ -604,18 +604,8 @@ export class FileSystemOperations {
             // Small delay to ensure the editor is ready
             await new Promise(resolve => setTimeout(resolve, 100));
             
-            // Try both possible command IDs
-            const commandIds = [OBSIDIAN_COMMANDS.SYNC_HISTORY, OBSIDIAN_COMMANDS.VERSION_HISTORY];
-            let executed = false;
-            
-            for (const commandId of commandIds) {
-                if (executeCommand(this.app, commandId)) {
-                    executed = true;
-                    break;
-                }
-            }
-            
-            if (!executed) {
+            // Execute the version history command
+            if (!executeCommand(this.app, OBSIDIAN_COMMANDS.VERSION_HISTORY)) {
                 new Notice(strings.fileSystem.errors.versionHistoryNotFound);
             }
         } catch (error) {
