@@ -226,7 +226,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
                             onNameClick();
                         }
                     }}
-                >{folder.path === '/' || folder.path === '' ? strings.folderTree.rootFolderName : folder.name}</span>
+                >{folder.path === '/' ? strings.folderTree.rootFolderName : folder.name}</span>
                 <span className="nn-folder-spacer" />
                 {settings.showNoteCount && fileCount > 0 && (
                     <span className="nn-folder-count">{fileCount}</span>

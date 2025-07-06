@@ -694,7 +694,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         const folderToDelete = selectionState.selectedFolder;
         
         // Don't allow deleting the root folder
-        if (folderToDelete.path === '' || folderToDelete.path === '/') {
+        if (folderToDelete.path === '/') {
             return;
         }
         
