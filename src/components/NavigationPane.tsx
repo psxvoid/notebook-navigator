@@ -40,11 +40,10 @@ import {
     excludeFromTagTree,
     parseTagPatterns
 } from '../utils/tagUtils';
-import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders } from '../utils/fileFilters';
+import { parseExcludedFolders } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
 import { UNTAGGED_TAG_ID, NavigationPaneItemType, ItemType, VirtualFolder, NAVITEM_HEIGHTS } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
-import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useTagCache } from '../context/TagCacheContext';
 
@@ -65,9 +64,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-    // Removed: lastScrollPositionRef and savedScrollTopRef - no longer needed with centralized scroll restoration
-    // Removed: lastScrolledPath - no longer needed with predictive scrolling
-    
     
     // Cache selected folder/tag path to avoid repeated property access
     const selectedPath = selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder 
@@ -75,9 +71,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         : selectionState.selectionType === ItemType.TAG && selectionState.selectedTag 
         ? selectionState.selectedTag 
         : null;
-    
-    
-    
     
     // =================================================================================
     // We use useState to hold stable folder data across re-renders
@@ -125,8 +118,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             events.forEach(eventRef => app.vault.offref(eventRef));
         };
     }, [app, settings.showRootFolder]);
-    // =================================================================================
-    // =================================================================================
     
     // =================================================================================
     // Get tag data from the context
@@ -302,8 +293,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         expansionState.expandedVirtualFolders, settings.excludedFolders, settings.showTags, 
         settings.showTagsAboveFolders, settings.showRootTagFolders, settings.showUntagged, 
         settings.favoriteTags, settings.hiddenTags, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
-    // =================================================================================
-    // =================================================================================
     
     // Initialize virtualizer
     const rowVirtualizer = useVirtualizer({
