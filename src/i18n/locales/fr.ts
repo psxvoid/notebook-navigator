@@ -428,6 +428,10 @@ export const STRINGS_FR = {
                 name: 'Afficher les étiquettes',
                 desc: 'Afficher la section des étiquettes sous les dossiers dans le navigateur.',
             },
+            showTagsAboveFolders: {
+                name: 'Afficher les étiquettes au-dessus des dossiers',
+                desc: 'Afficher la section des étiquettes avant les dossiers dans le navigateur.',
+            },
             showRootTagFolders: {
                 name: 'Afficher les dossiers racine d\'étiquettes',
                 desc: 'Afficher les dossiers virtuels pour organiser les étiquettes (Étiquettes, Étiquettes favorites, Toutes les étiquettes).',

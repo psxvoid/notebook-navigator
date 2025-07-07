@@ -428,6 +428,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar etiquetas',
                 desc: 'Muestra la sección de etiquetas debajo de las carpetas en el navegador.',
             },
+            showTagsAboveFolders: {
+                name: 'Mostrar etiquetas encima de las carpetas',
+                desc: 'Muestra la sección de etiquetas antes que las carpetas en el navegador.',
+            },
             showRootTagFolders: {
                 name: 'Mostrar carpetas raíz de etiquetas',
                 desc: 'Muestra carpetas virtuales para organizar etiquetas (Etiquetas, Etiquetas favoritas, Todas las etiquetas).',

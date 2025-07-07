@@ -64,6 +64,7 @@ export interface NotebookNavigatorSettings {
     hideFolderNoteInList: boolean;
     // Tags
     showTags: boolean;
+    showTagsAboveFolders: boolean;
     showRootTagFolders: boolean;
     showUntagged: boolean;
     favoriteTags: string[];
@@ -125,6 +126,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     hideFolderNoteInList: true,
     // Tags
     showTags: true,
+    showTagsAboveFolders: false,
     showRootTagFolders: true,
     showUntagged: false,
     favoriteTags: [],
@@ -453,6 +455,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         // Container for tag sub-settings
         const tagSubSettingsEl = containerEl.createDiv('nn-sub-settings');
+
+        new Setting(tagSubSettingsEl)
+            .setName(strings.settings.items.showTagsAboveFolders.name)
+            .setDesc(strings.settings.items.showTagsAboveFolders.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showTagsAboveFolders)
+                .onChange(async (value) => {
+                    this.plugin.settings.showTagsAboveFolders = value;
+                    await this.saveAndRefresh();
+                }));
 
         new Setting(tagSubSettingsEl)
             .setName(strings.settings.items.showRootTagFolders.name)

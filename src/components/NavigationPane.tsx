@@ -161,21 +161,16 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         const rebuildItems = () => {
         const allItems: CombinedNavigationItem[] = [];
         
-        // Add folders
+        // Build folders
         const folderItems = flattenFolderTree(
             rootFolders,
             expansionState.expandedFolders,
             parseExcludedFolders(settings.excludedFolders)
         );
-        allItems.push(...folderItems);
         
-        // Add tag section if enabled
+        // Build tag section if enabled
+        const tagItems: CombinedNavigationItem[] = [];
         if (settings.showTags) {
-            // Add spacer between folders and tags
-            allItems.push({
-                type: NavigationPaneItemType.SPACER,
-                key: 'folders-tags-spacer'
-            });
             // Parse favorite and hidden tag patterns
             const favoritePatterns = parseTagPatterns(settings.favoriteTags);
             const hiddenPatterns = parseTagPatterns(settings.hiddenTags);
@@ -190,7 +185,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                         notesWithTag: new Set()
                     };
                     
-                    allItems.push({
+                    tagItems.push({
                         type: NavigationPaneItemType.UNTAGGED,
                         data: untaggedNode,
                         key: UNTAGGED_TAG_ID,
@@ -202,7 +197,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             // Helper function to add virtual folder
             const addVirtualFolder = (id: string, name: string, icon?: string) => {
                 const folder: VirtualFolder = { id, name, icon };
-                allItems.push({
+                tagItems.push({
                     type: NavigationPaneItemType.VIRTUAL_FOLDER,
                     data: folder,
                     level: 0,
@@ -213,12 +208,12 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             // Helper function to add tags to list
             const addTagItems = (tags: Map<string, TagTreeNode>, folderId: string) => {
                 if (expansionState.expandedVirtualFolders.has(folderId)) {
-                    const tagItems = flattenTagTree(
+                    const items = flattenTagTree(
                         Array.from(tags.values()),
                         expansionState.expandedTags,
                         1 // Start at level 1 since they're inside the virtual folder
                     );
-                    allItems.push(...tagItems);
+                    tagItems.push(...items);
                     
                     // Add untagged node if this is the last tag container
                     const isLastContainer = favoritePatterns.length === 0 || folderId === 'all-tags-root';
@@ -254,15 +249,36 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                 }
             } else {
                 // Show tags directly without virtual folders
-                const tagItems = flattenTagTree(
+                const items = flattenTagTree(
                     Array.from(visibleTagTree.values()),
                     expansionState.expandedTags,
                     0 // Start at level 0 since no virtual folder
                 );
-                allItems.push(...tagItems);
+                tagItems.push(...items);
                 
                 // Add untagged node at the end
                 addUntaggedNode(0);
+            }
+        }
+        
+        // Combine items in the correct order
+        if (settings.showTags && settings.showTagsAboveFolders) {
+            // Tags first, then folders
+            allItems.push(...tagItems);
+            allItems.push({
+                type: NavigationPaneItemType.SPACER,
+                key: 'tags-folders-spacer'
+            });
+            allItems.push(...folderItems);
+        } else {
+            // Folders first, then tags (default)
+            allItems.push(...folderItems);
+            if (settings.showTags) {
+                allItems.push({
+                    type: NavigationPaneItemType.SPACER,
+                    key: 'folders-tags-spacer'
+                });
+                allItems.push(...tagItems);
             }
         }
         
@@ -278,8 +294,8 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         rebuildItems();
     }, [rootFolders, expansionState.expandedFolders, expansionState.expandedTags, 
         expansionState.expandedVirtualFolders, settings.excludedFolders, settings.showTags, 
-        settings.showRootTagFolders, settings.showUntagged, settings.favoriteTags, 
-        settings.hiddenTags, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
+        settings.showTagsAboveFolders, settings.showRootTagFolders, settings.showUntagged, 
+        settings.favoriteTags, settings.hiddenTags, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
     // =================================================================================
     // =================================================================================
     

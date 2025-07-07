@@ -428,6 +428,10 @@ export const STRINGS_EN = {
                 name: 'Show tags',
                 desc: 'Display tags section below folders in the navigator.',
             },
+            showTagsAboveFolders: {
+                name: 'Show tags above folders',
+                desc: 'Display tags section before folders in the navigator.',
+            },
             showRootTagFolders: {
                 name: 'Show root tag folders',
                 desc: 'Display virtual folders for organizing tags (Tags, Favorite tags, All tags).',

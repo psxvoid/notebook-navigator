@@ -428,6 +428,10 @@ export const STRINGS_DE = {
                 name: 'Tags anzeigen',
                 desc: 'Tag-Bereich unterhalb der Ordner im Navigator anzeigen.',
             },
+            showTagsAboveFolders: {
+                name: 'Tags über Ordnern anzeigen',
+                desc: 'Tag-Bereich vor den Ordnern im Navigator anzeigen.',
+            },
             showRootTagFolders: {
                 name: 'Tag-Hauptordner anzeigen',
                 desc: 'Virtuelle Ordner zur Organisation von Tags anzeigen (Tags, Favoriten-Tags, Alle Tags).',

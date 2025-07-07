@@ -428,6 +428,10 @@ export const STRINGS_JA = {
                 name: 'タグを表示',
                 desc: 'ナビゲーターのフォルダの下にタグセクションを表示します。',
             },
+            showTagsAboveFolders: {
+                name: 'タグをフォルダの上に表示',
+                desc: 'ナビゲーターでタグセクションをフォルダの前に表示します。',
+            },
             showRootTagFolders: {
                 name: 'ルートタグフォルダを表示',
                 desc: 'タグを整理するための仮想フォルダを表示します（タグ、お気に入りタグ、すべてのタグ）。',
