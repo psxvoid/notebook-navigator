@@ -104,6 +104,44 @@ export const NAVITEM_HEIGHTS = {
 };
 
 /**
+ * File list item height constants and measurements
+ * Used by FileList component for virtualization
+ */
+export const FILELIST_MEASUREMENTS = {
+  heights: {
+    // Date group headers
+    firstHeader: 35,              // var(--nn-date-header-height)
+    subsequentHeader: 50,         // var(--nn-date-header-height-subsequent)
+    
+    // File item components
+    basePadding: 16,              // var(--nn-file-padding-vertical) * 2
+    fileLineHeight: 20,           // var(--nn-file-line-height) per line
+    secondLineHeight: 22,         // var(--nn-file-second-line-height) for single preview
+    multiLineHeight: 19,          // var(--nn-file-preview-line-height) per line
+    dateLineHeight: 20,           // Line height for date display
+    parentFolderLineHeight: 8,    // Height for parent folder path indicator
+    
+    // Constraints
+    minTouchTargetHeight: 32,     // Minimum height for touch targets
+    spacer: 20                    // Bottom spacer height
+  },
+  
+  // Virtualization config
+  overscan: {
+    mobile: 50,                   // Render more items on mobile for smooth scrolling
+    desktop: 5                    // Minimal overscan on desktop
+  },
+  
+  // Mobile scroll handling
+  scrollConstants: {
+    velocityThreshold: 0.1,       // Minimum velocity to consider as momentum scrolling
+    scrollEndDelay: 150,          // Delay (ms) before marking scroll as ended
+    momentumDuration: 500,        // Duration (ms) to preserve state after touch end
+    velocityCalcMaxDiff: 100      // Max time diff (ms) for velocity calculation
+  }
+};
+
+/**
  * Type representing all possible item types
  */
 export type ItemType = typeof ItemType[keyof typeof ItemType];
