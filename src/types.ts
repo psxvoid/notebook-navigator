@@ -73,13 +73,35 @@ export const NavigationPaneItemType = {
     VIRTUAL_FOLDER: 'virtual-folder',
     TAG: 'tag',
     UNTAGGED: 'untagged',
-    SPACER: 'spacer'
+    SPACER: 'spacer',
+    LIST_SPACER: 'list-spacer'
 } as const;
 
 /**
  * Type representing all possible navigation pane item types
  */
 export type NavigationPaneItemType = typeof NavigationPaneItemType[keyof typeof NavigationPaneItemType];
+
+/**
+ * Navigation pane item height constants for accurate virtualization
+ * Used by NavigationPane component
+ */
+export const NAVITEM_HEIGHTS = {
+  desktop: {
+    folder: 28,      // Fixed height: 5px padding + 18px line-height + 5px padding
+    tag: 28,         // Matches folder height
+    header: 35,      // Tag section header
+    spacer: 20,      // Bottom spacer - matches FileList
+    listSpacer: 10   // Spacer between lists (folders/tags)
+  },
+  mobile: {
+    folder: 40,      // Fixed height: 11px padding + 18px line-height + 11px padding
+    tag: 40,         // Matches folder height
+    header: 38,      // Slightly larger for mobile font sizes
+    spacer: 20,      // Bottom spacer - matches FileList
+    listSpacer: 10   // Spacer between lists (folders/tags)
+  }
+};
 
 /**
  * Type representing all possible item types

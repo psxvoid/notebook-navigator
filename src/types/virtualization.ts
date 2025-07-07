@@ -62,4 +62,5 @@ export type CombinedNavigationItem =
   | VirtualFolderItem
   | TagTreeItem
   | { type: typeof NavigationPaneItemType.UNTAGGED; data: TagTreeNode; key: string; level?: number }
-  | { type: typeof NavigationPaneItemType.SPACER; key: string };
+  | { type: typeof NavigationPaneItemType.SPACER; key: string }
+  | { type: typeof NavigationPaneItemType.LIST_SPACER; key: string };
