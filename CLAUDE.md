@@ -45,10 +45,12 @@ johansan-notebook-navigator/
 ├── scripts/
 │   ├── build.sh                               # Main build script (checked into git)
 │   ├── build-local.sh                         # Local deployment script (gitignored)
-│   └── gitdump.sh                             # Git diff export utility
+│   ├── gitdump.sh                             # Git diff export utility
+│   └── release.js                             # Release automation script
 ├── src/
 │   ├── main.ts                                # Plugin entry point, event handlers, lifecycle
 │   ├── settings.ts                            # Settings interface, defaults, settings tab UI
+│   ├── types.ts                               # Core types, constants, interfaces (NOT in types/)
 │   ├── components/
 │   │   ├── NotebookNavigatorComponent.tsx    # Main component, two-pane layout orchestration
 │   │   ├── NavigationPane.tsx                # Navigation pane virtualized folder/tag tree
@@ -64,10 +66,12 @@ johansan-notebook-navigator/
 │   │   ├── SelectionContext.tsx              # Current selection state & navigation logic
 │   │   ├── ServicesContext.tsx               # Dependency injection for services
 │   │   ├── SettingsContext.tsx               # Global settings provider with versioning
+│   │   ├── TagCacheContext.tsx               # Tag tree caching and loading
 │   │   └── UIStateContext.tsx                # UI state: focus, pane width, mobile view
 │   ├── hooks/
 │   │   ├── useContextMenu.ts                 # Right-click menu creation & handling
 │   │   ├── useDragAndDrop.ts                 # File/folder drag & drop with visual feedback
+│   │   ├── useMultiSelection.ts              # Multi-selection state and operations
 │   │   ├── useResizablePane.ts               # Pane resizing with mouse/touch support
 │   │   ├── useSwipeGesture.ts                # Mobile swipe navigation between panes
 │   │   ├── useVirtualKeyboardNavigation.ts   # Keyboard nav with smart PageUp/PageDown
@@ -84,17 +88,35 @@ johansan-notebook-navigator/
 │   │   └── autoRevealReducer.ts              # State machine for auto-reveal logic
 │   ├── services/
 │   │   ├── FileSystemService.ts              # File/folder CRUD operations with modals
-│   │   └── MetadataService.ts                # Folder metadata & settings with queue
+│   │   ├── MetadataService.ts                # Legacy metadata service (being refactored)
+│   │   ├── TagOperations.ts                  # Tag-specific operations and utilities
+│   │   └── metadata/                          # Modular metadata services
+│   │       ├── BaseMetadataService.ts        # Abstract base class for metadata
+│   │       ├── FileMetadataService.ts        # File-specific metadata operations
+│   │       ├── FolderMetadataService.ts      # Folder colors, icons, sort overrides
+│   │       ├── TagMetadataService.ts         # Tag-specific metadata operations
+│   │       └── index.ts                      # Metadata service exports
 │   ├── types/
-│   │   ├── index.ts                          # Core TypeScript interfaces & constants
-│   │   └── virtualization.ts                 # Types for virtualized list items
+│   │   ├── virtualization.ts                 # Types for virtualized list items
+│   │   ├── obsidian-extended.ts              # Extended Obsidian API types
+│   │   └── plugin.d.ts                       # Plugin-specific type declarations
 │   ├── utils/
+│   │   ├── contextMenu/                      # Modular context menu builders
+│   │   │   ├── fileMenuBuilder.ts            # File context menu construction
+│   │   │   ├── folderMenuBuilder.ts          # Folder context menu construction
+│   │   │   ├── tagMenuBuilder.ts             # Tag context menu construction
+│   │   │   ├── menuTypes.ts                  # Shared menu type definitions
+│   │   │   └── index.ts                      # Context menu exports
 │   │   ├── DateUtils.ts                      # i18n date formatting & grouping logic
 │   │   ├── PreviewTextUtils.ts               # Markdown stripping for file previews
 │   │   ├── domUtils.ts                       # DOM helpers & data attribute access
+│   │   ├── fileCreationUtils.ts              # File creation helpers and templates
 │   │   ├── fileFilters.ts                    # File/folder exclusion pattern matching
 │   │   ├── fileFinder.ts                     # File retrieval with sort/filter/pin logic
 │   │   ├── fileNameUtils.ts                  # File name display logic with extension handling
+│   │   ├── fileTypeUtils.ts                  # File type detection and utilities
+│   │   ├── localStorage.ts                   # LocalStorage wrapper with type safety
+│   │   ├── selectionUtils.ts                 # Selection state helpers and utilities
 │   │   ├── sortUtils.ts                      # File sorting comparators & overrides
 │   │   ├── tagUtils.ts                       # Tag tree building & hierarchy parsing
 │   │   ├── treeFlattener.ts                  # Tree to flat array for virtualization
@@ -104,7 +126,11 @@ johansan-notebook-navigator/
 │   └── view/
 │       └── NotebookNavigatorView.tsx         # Obsidian ItemView & React root mounting
 ├── styles.css                                # All plugin styles with nn- prefix
-└── manifest.json                             # Plugin metadata for Obsidian
+├── manifest.json                             # Plugin metadata for Obsidian
+├── esbuild.config.mjs                        # ESBuild configuration for bundling
+├── tsconfig.json                             # TypeScript compiler configuration
+├── version-bump.mjs                          # Version management script
+└── versions.json                             # Version tracking for releases
 ```
 
 ### Metadata Synchronization Flow
@@ -250,6 +276,29 @@ When adding new localStorage keys:
 - **Type Guards**: Helpers like `isTFile()` and `isTFolder()`.
 - **Constants**: In `src/types.ts`, including `UNTAGGED_TAG_ID`.
 - **i18n**: Strings stored in `src/i18n/locales/`.
+    
+
+## Type Safety (No any/unknown allowed)
+
+This codebase has been refactored to eliminate all `any` and `unknown` types. **Never use `any` or `unknown` - use these patterns instead:**
+
+### Essential Patterns
+1. **Type Guards over Type Assertions**: Use `isTFile(obj)` instead of `obj as TFile`
+2. **Const Assertions**: `const ItemType = { FILE: 'file' } as const`
+3. **Specific Event Types**: `(e: MouseEvent)` not `(e: any)`
+4. **Record Types**: `Record<string, string>` for object maps
+5. **Discriminated Unions**: `type Item = { type: 'file'; data: TFile } | { type: 'folder'; data: TFolder }`
+6. **Generic Types**: `VirtualItem<T>` instead of `VirtualItem<any>`
+7. **Extended Interfaces**: Safely extend external types like `interface ExtendedApp extends App`
+
+### Key Type Files
+- `src/types.ts` - Core types and constants (main types file)
+- `src/types/virtualization.ts` - Virtualized list item types
+- `src/types/obsidian-extended.ts` - Extended Obsidian types
+- `src/types/plugin.d.ts` - Plugin-specific type declarations
+- `src/utils/typeGuards.ts` - Runtime type checking functions
+
+When in doubt, look at existing code patterns or create a specific interface/type for your use case.
     
 
 ## Obsidian Plugin Type Safety Requirements
