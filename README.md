@@ -279,17 +279,16 @@ The tags section provides powerful ways to organize and find your notes:
 
 Use the "Excluded notes" setting to hide notes with specific frontmatter properties:
 
-1. Add properties like `draft, private, archived` to the excluded notes list
+1. Add properties like `private, archived` to the excluded notes list
 2. Add frontmatter to your notes:
    ```yaml
    ---
-   draft: true
+   private: true
    ---
    ```
 3. These notes will be automatically hidden from the navigator
 
 This is perfect for:
-- Work-in-progress notes
 - Personal/sensitive content
 - Archived notes you want to keep but not see daily
 - Template files with a `template: true` property
@@ -304,13 +303,21 @@ If you have any questions, suggestions, or issues, please open an issue on the [
 
 Notebook Navigator is built using React and TypeScript, providing:
 
-- ⚡ **Lightning-fast performance** with React's virtual DOM and optimized rendering
-- 🚀 **Virtualization** powered by TanStack Virtual for smooth scrolling with thousands of notes
-- 🏗️ **Modular architecture** with reusable components and custom hooks
-- 🔒 **Type safety** with TypeScript strict mode throughout the codebase
-- 🧠 **Smart state management** using React Context API for predictable updates
-- 🔄 **Automatic memory cleanup** preventing leaks with proper lifecycle management
-- 🛠️ **Developer-friendly** with hot module reloading and React DevTools support
+- **Lightning-fast performance** with React's virtual DOM and optimized rendering
+- **Virtualization** powered by TanStack Virtual for smooth scrolling with thousands of notes
+- **Modular architecture** with reusable components and custom hooks
+- **Complete type safety** with TypeScript strict mode - no `any` or `unknown` types allowed
+- **Smart state management** using React Context API for predictable updates
+- **Automatic memory cleanup** preventing leaks with proper lifecycle management
+- **Performance optimizations** including tag caching, deferred initialization, and mobile scroll momentum preservation
+
+### Architecture Highlights
+
+- **No any/unknown types**: The codebase has been completely refactored to eliminate all `any` and `unknown` types, using specific types, discriminated unions, and type guards throughout
+- **Promise queue**: MetadataService uses a promise queue to serialize all settings updates, preventing race conditions during rapid file operations
+- **Tag tree caching**: Sophisticated caching system stores tag data in localStorage for instant UI display on startup, with background diffing for changes
+- **Deferred initialization**: Uses `requestIdleCallback` to defer non-critical operations, showing UI immediately and enhancing progressively
+- **Type guards over assertions**: Uses runtime type checking with `isTFile()` and `isTFolder()` instead of type assertions to satisfy Obsidian's review requirements
 
 ### Building from Source
 
@@ -319,19 +326,29 @@ Notebook Navigator is built using React and TypeScript, providing:
 git clone https://github.com/johansan/notebook-navigator.git
 cd notebook-navigator
 
-# Install dependencies
-npm install
+# Install dependencies (requires --legacy-peer-deps flag)
+npm install --legacy-peer-deps
 
 # Build for development (with watch mode)
 npm run dev
 
-# Build for production
-npm run build
+# Build for production (recommended method)
+./scripts/build.sh
 ```
+
+**Note**: Use `./scripts/build.sh` instead of `npm run build`. This script runs the build and checks for an optional `scripts/build-local.sh` file (gitignored) that can contain local deployment commands.
+
+### Key Files
+
+- **Main entry point**: `src/main.ts` - Obsidian plugin lifecycle
+- **React entry point**: `src/view/NotebookNavigatorView.tsx` - Mounts React app
+- **Main component**: `src/components/NotebookNavigatorComponent.tsx` - Two-pane layout
+- **Types**: `src/types/index.ts`, `src/types/virtualization.ts`, `src/types/obsidian-extended.ts`
+- **Settings**: `src/settings.ts` - Plugin settings interface and UI
 
 ## About
 
-Notebook Navigator is built and maintained by [Johan Sanneblad](https://www.linkedin.com/in/johansan/). Johan has a PhD in Applied IT and has worked with innovation development for companies such as Apple, Electronic Arts, Google, Microsoft, Lego, SKF, Volvo Cars, Volvo Group and Yamaha.
+Notebook Navigator is built and maintained by [Johan Sanneblad](https://www.linkedin.com/in/johansan/). Johan has a PhD in Software Development and has worked with innovation development for companies such as Apple, Electronic Arts, Google, Microsoft, Lego, SKF, Volvo Cars, Volvo Group and Yamaha.
 
 Feel free to connect with me on [LinkedIn](https://www.linkedin.com/in/johansan/).
 
