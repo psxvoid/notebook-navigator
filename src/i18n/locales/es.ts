@@ -428,6 +428,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar etiquetas',
                 desc: 'Muestra la sección de etiquetas debajo de las carpetas en el navegador.',
             },
+            showRootTagFolders: {
+                name: 'Mostrar carpetas raíz de etiquetas',
+                desc: 'Muestra carpetas virtuales para organizar etiquetas (Etiquetas, Etiquetas favoritas, Todas las etiquetas).',
+            },
             showUntagged: {
                 name: 'Mostrar notas sin etiquetas',
                 desc: 'Muestra el elemento "Sin etiquetas" para notas sin ninguna etiqueta.',

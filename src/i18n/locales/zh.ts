@@ -428,6 +428,10 @@ export const STRINGS_ZH = {
                 name: '显示标签',
                 desc: '在导航器中的文件夹下方显示标签部分。',
             },
+            showRootTagFolders: {
+                name: '显示根标签文件夹',
+                desc: '显示用于组织标签的虚拟文件夹（标签、收藏标签、所有标签）。',
+            },
             showUntagged: {
                 name: '显示无标签笔记',
                 desc: '为没有任何标签的笔记显示"无标签"项目。',

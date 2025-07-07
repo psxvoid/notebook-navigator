@@ -64,6 +64,7 @@ export interface NotebookNavigatorSettings {
     hideFolderNoteInList: boolean;
     // Tags
     showTags: boolean;
+    showRootTagFolders: boolean;
     showUntagged: boolean;
     favoriteTags: string[];
     hiddenTags: string[];
@@ -124,6 +125,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     hideFolderNoteInList: true,
     // Tags
     showTags: true,
+    showRootTagFolders: true,
     showUntagged: false,
     favoriteTags: [],
     hiddenTags: [],
@@ -445,14 +447,24 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .onChange(async (value) => {
                     this.plugin.settings.showTags = value;
                     await this.saveAndRefresh();
-                    // Update untagged visibility
-                    this.setElementVisibility(untaggedSettingEl, value);
+                    // Update tag sub-settings visibility
+                    this.setElementVisibility(tagSubSettingsEl, value);
                 }));
 
-        // Container for untagged setting
-        const untaggedSettingEl = containerEl.createDiv('nn-sub-settings');
+        // Container for tag sub-settings
+        const tagSubSettingsEl = containerEl.createDiv('nn-sub-settings');
 
-        new Setting(untaggedSettingEl)
+        new Setting(tagSubSettingsEl)
+            .setName(strings.settings.items.showRootTagFolders.name)
+            .setDesc(strings.settings.items.showRootTagFolders.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showRootTagFolders)
+                .onChange(async (value) => {
+                    this.plugin.settings.showRootTagFolders = value;
+                    await this.saveAndRefresh();
+                }));
+
+        new Setting(tagSubSettingsEl)
             .setName(strings.settings.items.showUntagged.name)
             .setDesc(strings.settings.items.showUntagged.desc)
             .addToggle(toggle => toggle
@@ -463,7 +475,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }));
 
         const favoriteTagsSetting = this.createDebouncedTextSetting(
-            untaggedSettingEl,
+            tagSubSettingsEl,
             strings.settings.items.favoriteTags.name,
             strings.settings.items.favoriteTags.desc,
             strings.settings.items.favoriteTags.placeholder,
@@ -480,7 +492,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         favoriteTagsSetting.controlEl.addClass('nn-setting-wide-input');
 
         const hiddenTagsSetting = this.createDebouncedTextSetting(
-            untaggedSettingEl,
+            tagSubSettingsEl,
             strings.settings.items.hiddenTags.name,
             strings.settings.items.hiddenTags.desc,
             strings.settings.items.hiddenTags.placeholder,
@@ -799,7 +811,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Set initial visibility
         this.setElementVisibility(previewSettingsEl, this.plugin.settings.showFilePreview);
         this.setElementVisibility(featureImageSettingsEl, this.plugin.settings.showFeatureImage);
-        this.setElementVisibility(untaggedSettingEl, this.plugin.settings.showTags);
+        this.setElementVisibility(tagSubSettingsEl, this.plugin.settings.showTags);
         this.setElementVisibility(frontmatterSettingsEl, this.plugin.settings.useFrontmatterDates);
         this.setElementVisibility(folderNotesSettingsEl, this.plugin.settings.enableFolderNotes);
     }

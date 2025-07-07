@@ -228,22 +228,36 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                 ? excludeFromTagTree(tagTree, hiddenPatterns) 
                 : tagTree;
             
-            if (favoritePatterns.length > 0) {
-                // With favorites: show "Favorite tags" and "All tags"
-                const favoriteTags = filterTagTree(visibleTagTree, favoritePatterns);
-                const nonFavoriteTags = excludeFromTagTree(visibleTagTree, favoritePatterns);
-                
-                // Add "Favorite tags" folder
-                addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'star');
-                addTagItems(favoriteTags, 'favorite-tags-root');
-                
-                // Add "All tags" folder
-                addVirtualFolder('all-tags-root', strings.tagList.allTags, 'tags');
-                addTagItems(nonFavoriteTags, 'all-tags-root');
+            if (settings.showRootTagFolders) {
+                // Use virtual folders to organize tags
+                if (favoritePatterns.length > 0) {
+                    // With favorites: show "Favorite tags" and "All tags"
+                    const favoriteTags = filterTagTree(visibleTagTree, favoritePatterns);
+                    const nonFavoriteTags = excludeFromTagTree(visibleTagTree, favoritePatterns);
+                    
+                    // Add "Favorite tags" folder
+                    addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'star');
+                    addTagItems(favoriteTags, 'favorite-tags-root');
+                    
+                    // Add "All tags" folder
+                    addVirtualFolder('all-tags-root', strings.tagList.allTags, 'tags');
+                    addTagItems(nonFavoriteTags, 'all-tags-root');
+                } else {
+                    // No favorites: just show "Tags" folder
+                    addVirtualFolder('tags-root', strings.tagList.tags, 'tags');
+                    addTagItems(visibleTagTree, 'tags-root');
+                }
             } else {
-                // No favorites: just show "Tags" folder
-                addVirtualFolder('tags-root', strings.tagList.tags, 'tags');
-                addTagItems(visibleTagTree, 'tags-root');
+                // Show tags directly without virtual folders
+                const tagItems = flattenTagTree(
+                    Array.from(visibleTagTree.values()),
+                    expansionState.expandedTags,
+                    0 // Start at level 0 since no virtual folder
+                );
+                allItems.push(...tagItems);
+                
+                // Add untagged node at the end
+                addUntaggedNode(0);
             }
         }
         
@@ -259,7 +273,8 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         rebuildItems();
     }, [rootFolders, expansionState.expandedFolders, expansionState.expandedTags, 
         expansionState.expandedVirtualFolders, settings.excludedFolders, settings.showTags, 
-        settings.showUntagged, settings.favoriteTags, settings.hiddenTags, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
+        settings.showRootTagFolders, settings.showUntagged, settings.favoriteTags, 
+        settings.hiddenTags, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
     // =================================================================================
     // =================================================================================
     

@@ -428,6 +428,10 @@ export const STRINGS_FR = {
                 name: 'Afficher les étiquettes',
                 desc: 'Afficher la section des étiquettes sous les dossiers dans le navigateur.',
             },
+            showRootTagFolders: {
+                name: 'Afficher les dossiers racine d\'étiquettes',
+                desc: 'Afficher les dossiers virtuels pour organiser les étiquettes (Étiquettes, Étiquettes favorites, Toutes les étiquettes).',
+            },
             showUntagged: {
                 name: 'Afficher les notes sans étiquette',
                 desc: 'Afficher l\'élément "Sans étiquette" pour les notes sans aucune étiquette.',
