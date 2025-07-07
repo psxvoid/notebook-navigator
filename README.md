@@ -100,6 +100,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Reveal file` Reveals the currently open file in the navigator, expanding parent folders and scrolling to it. Useful if you have the setting "Show notes from subfolders" enabled and want to find out the folder of a specific note.
 - `Notebook Navigator: Focus file` Moves keyboard focus to the file list pane so you can navigate with arrow keys
 - `Notebook Navigator: Toggle navigation pane` Shows or hides the navigation pane (folder/tag tree) to maximize list pane space
+- `Notebook Navigator: New note` Creates a new note in the currently selected folder. Unlike Obsidian's default new note command which only allows creating in the same folder as current note, root folder, or a specific folder, this always creates in your currently selected folder
 - `Notebook Navigator: Delete file` Deletes the currently active file using the navigator's smart selection (selects next file before deletion)
 
 ## Installation

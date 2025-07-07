@@ -197,6 +197,7 @@ export const STRINGS_JA = {
             failedToDeleteFile: '{name}の削除に失敗しました: {error}',
             drawingAlreadyExists: 'この名前の図面が既に存在します',
             failedToCreateDrawing: '図面の作成に失敗しました',
+            noFolderSelected: 'Notebook Navigatorでフォルダが選択されていません',
         },
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',
@@ -256,6 +257,7 @@ export const STRINGS_JA = {
         focusFile: 'ファイルにフォーカス', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'ナビゲーションペインを切り替え', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
         deleteFile: 'ファイルを削除', // Command palette: Deletes the currently active file (English: Delete file)
+        newNote: '新しいノート', // Command palette: Creates a new note in the currently selected folder (English: New note)
     },
 
     // Plugin UI

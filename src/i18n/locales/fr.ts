@@ -197,6 +197,7 @@ export const STRINGS_FR = {
             failedToDeleteFile: 'Échec de la suppression de {name} : {error}',
             drawingAlreadyExists: 'Un dessin avec ce nom existe déjà',
             failedToCreateDrawing: 'Échec de la création du dessin',
+            noFolderSelected: 'Aucun dossier sélectionné dans Notebook Navigator',
         },
         notifications: {
             deletedMultipleFiles: '{count} fichiers supprimés',
@@ -256,6 +257,7 @@ export const STRINGS_FR = {
         focusFile: 'Focus sur le fichier', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Basculer le panneau de navigation', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
         deleteFile: 'Supprimer le fichier', // Command palette: Deletes the currently active file (English: Delete file)
+        newNote: 'Nouvelle note', // Command palette: Creates a new note in the currently selected folder (English: New note)
     },
 
     // Plugin UI

@@ -18,7 +18,7 @@
 
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback } from 'react';
-import { TFile, TFolder, TAbstractFile, WorkspaceLeaf, debounce, Platform, ItemView } from 'obsidian';
+import { TFile, TFolder, TAbstractFile, WorkspaceLeaf, debounce, Platform, ItemView, Notice } from 'obsidian';
 import { NavigationPane } from './NavigationPane';
 import { FileList } from './FileList';
 import type { NavigationPaneHandle } from './NavigationPane';
@@ -39,6 +39,7 @@ import { flattenFolderTree, findFolderIndex } from '../utils/treeFlattener';
 import { parseExcludedFolders } from '../utils/fileFilters';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useAutoReveal } from '../hooks/useAutoReveal';
+import { strings } from '../i18n';
 
 export interface NotebookNavigatorHandle {
     revealFile: (file: TFile, isManualReveal?: boolean) => void;
@@ -47,6 +48,7 @@ export interface NotebookNavigatorHandle {
     handleBecomeActive: () => void;
     toggleNavigationPane: () => void;
     deleteActiveFile: () => void;
+    createNoteInSelectedFolder: () => Promise<void>;
 }
 
 /**
@@ -60,7 +62,7 @@ export interface NotebookNavigatorHandle {
  * @returns A split-pane container with folder tree and file list
  */
 export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_, ref) => {
-    const { app, plugin, isMobile } = useServices();
+    const { app, plugin, isMobile, fileSystemOps } = useServices();
     const settings = useSettingsState();
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
@@ -279,6 +281,18 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             setTimeout(() => {
                 document.dispatchEvent(deleteEvent);
             }, 0);
+        },
+        createNoteInSelectedFolder: async () => {
+            if (!selectionState.selectedFolder) {
+                new Notice(strings.fileSystem.errors.noFolderSelected);
+                return;
+            }
+            
+            // Use the same logic as the context menu
+            const file = await fileSystemOps.createNewFile(selectionState.selectedFolder);
+            if (file) {
+                uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: file.path });
+            }
         }
     }), [
         selectionDispatch, 
@@ -290,7 +304,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         selectionState.selectedFile,
         expansionState.expandedFolders,
         expansionDispatch,
-        revealFile
+        revealFile,
+        fileSystemOps
     ]);
 
     /**

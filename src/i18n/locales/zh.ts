@@ -197,6 +197,7 @@ export const STRINGS_ZH = {
             failedToDeleteFile: '删除 {name} 失败: {error}',
             drawingAlreadyExists: '同名绘图已存在',
             failedToCreateDrawing: '创建绘图失败',
+            noFolderSelected: 'Notebook Navigator 中未选择文件夹',
         },
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',
@@ -256,6 +257,7 @@ export const STRINGS_ZH = {
         focusFile: '聚焦文件', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: '切换导航面板', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
         deleteFile: '删除文件', // Command palette: Deletes the currently active file (English: Delete file)
+        newNote: '新建笔记', // Command palette: Creates a new note in the currently selected folder (English: New note)
     },
 
     // Plugin UI
