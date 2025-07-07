@@ -171,6 +171,11 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         
         // Add tag section if enabled
         if (settings.showTags) {
+            // Add spacer between folders and tags
+            allItems.push({
+                type: NavigationPaneItemType.SPACER,
+                key: 'folders-tags-spacer'
+            });
             // Parse favorite and hidden tag patterns
             const favoritePatterns = parseTagPatterns(settings.favoriteTags);
             const hiddenPatterns = parseTagPatterns(settings.hiddenTags);
