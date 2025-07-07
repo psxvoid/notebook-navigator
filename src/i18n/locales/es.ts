@@ -58,7 +58,7 @@ export const STRINGS_ES = {
         collapseAllFolders: 'Contraer todo', // Tooltip for button that collapses all expanded items (English: Collapse all)
         expandAllFolders: 'Expandir todo', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'Nueva carpeta', // Tooltip for create new folder button (English: New folder)
-        newNote: 'Nueva nota', // Tooltip for create new note button (English: New note)
+        newNote: 'Crear nueva nota', // Tooltip for create new note button (English: Create new note)
         mobileBackToFolders: 'Volver a carpetas', // Mobile-only back button text to return to folder list (English: Back to folders)
         changeSortOrder: 'Cambiar orden de clasificación', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: 'Predeterminado', // Label for default sorting mode (English: Default)
@@ -91,7 +91,7 @@ export const STRINGS_ES = {
             deleteMultipleNotes: 'Eliminar {count} notas',
         },
         folder: {
-            newNote: 'Nueva nota',
+            newNote: 'Crear nueva nota',
             newFolder: 'Nueva carpeta',
             newCanvas: 'Nuevo lienzo',
             newBase: 'Nueva base de datos',
@@ -257,7 +257,7 @@ export const STRINGS_ES = {
         focusFile: 'Enfocar archivo', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Alternar panel de navegación', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
         deleteFile: 'Eliminar archivo', // Command palette: Deletes the currently active file (English: Delete file)
-        newNote: 'Nueva nota', // Command palette: Creates a new note in the currently selected folder (English: New note)
+        createNewNote: 'Crear nueva nota', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
     },
 
     // Plugin UI

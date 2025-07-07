@@ -58,7 +58,7 @@ export const STRINGS_JA = {
         collapseAllFolders: 'すべて折りたたむ', // Tooltip for button that collapses all expanded items (English: Collapse all)
         expandAllFolders: 'すべて展開', // Tooltip for button that expands all items (English: Expand all)
         newFolder: '新規フォルダ', // Tooltip for create new folder button (English: New folder)
-        newNote: '新規ノート', // Tooltip for create new note button (English: New note)
+        newNote: '新規ノートを作成', // Tooltip for create new note button (English: Create new note)
         mobileBackToFolders: 'フォルダに戻る', // Mobile-only back button text to return to folder list (English: Back to folders)
         changeSortOrder: '並び順を変更', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: 'デフォルト', // Label for default sorting mode (English: Default)
@@ -91,7 +91,7 @@ export const STRINGS_JA = {
             deleteMultipleNotes: '{count}個のノートを削除',
         },
         folder: {
-            newNote: '新規ノート',
+            newNote: '新規ノートを作成',
             newFolder: '新規フォルダ',
             newCanvas: '新規キャンバス',
             newBase: '新規データベース',
@@ -257,7 +257,7 @@ export const STRINGS_JA = {
         focusFile: 'ファイルにフォーカス', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'ナビゲーションペインを切り替え', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
         deleteFile: 'ファイルを削除', // Command palette: Deletes the currently active file (English: Delete file)
-        newNote: '新しいノート', // Command palette: Creates a new note in the currently selected folder (English: New note)
+        createNewNote: '新規ノートを作成', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
     },
 
     // Plugin UI

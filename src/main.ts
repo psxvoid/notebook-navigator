@@ -231,8 +231,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
         });
 
         this.addCommand({
-            id: 'new-note',
-            name: strings.commands.newNote,
+            id: 'create-new-note',
+            name: strings.commands.createNewNote,
             callback: async () => {
                 // Ensure navigator is open
                 const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);

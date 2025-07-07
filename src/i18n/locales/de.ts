@@ -58,7 +58,7 @@ export const STRINGS_DE = {
         collapseAllFolders: 'Alle einklappen', // Tooltip for button that collapses all expanded items (English: Collapse all)
         expandAllFolders: 'Alle ausklappen', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'Neuer Ordner', // Tooltip for create new folder button (English: New folder)
-        newNote: 'Neue Notiz', // Tooltip for create new note button (English: New note)
+        newNote: 'Neue Notiz erstellen', // Tooltip for create new note button (English: Create new note)
         mobileBackToFolders: 'Zurück zu Ordnern', // Mobile-only back button text to return to folder list (English: Back to folders)
         changeSortOrder: 'Sortierreihenfolge ändern', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: 'Standard', // Label for default sorting mode (English: Default)
@@ -91,7 +91,7 @@ export const STRINGS_DE = {
             deleteMultipleNotes: '{count} Notizen löschen',
         },
         folder: {
-            newNote: 'Neue Notiz',
+            newNote: 'Neue Notiz erstellen',
             newFolder: 'Neuer Ordner',
             newCanvas: 'Neue Canvas',
             newBase: 'Neue Datenbank',
@@ -257,7 +257,7 @@ export const STRINGS_DE = {
         focusFile: 'Datei fokussieren', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Navigationsbereich umschalten', // Command palette: Shows or hides the navigation pane (English: Toggle navigation pane)
         deleteFile: 'Datei löschen', // Command palette: Deletes the currently active file (English: Delete file)
-        newNote: 'Neue Notiz', // Command palette: Creates a new note in the currently selected folder (English: New note)
+        createNewNote: 'Neue Notiz erstellen', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
     },
 
     // Plugin UI

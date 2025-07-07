@@ -58,7 +58,7 @@ export const STRINGS_FR = {
         collapseAllFolders: 'Tout replier', // Tooltip for button that collapses all expanded items (English: Collapse all)
         expandAllFolders: 'Tout déplier', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'Nouveau dossier', // Tooltip for create new folder button (English: New folder)
-        newNote: 'Nouvelle note', // Tooltip for create new note button (English: New note)
+        newNote: 'Créer une nouvelle note', // Tooltip for create new note button (English: Create new note)
         mobileBackToFolders: 'Retour aux dossiers', // Mobile-only back button text to return to folder list (English: Back to folders)
         changeSortOrder: 'Changer l\'ordre de tri', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: 'Par défaut', // Label for default sorting mode (English: Default)
@@ -91,7 +91,7 @@ export const STRINGS_FR = {
             deleteMultipleNotes: 'Supprimer {count} notes',
         },
         folder: {
-            newNote: 'Nouvelle note',
+            newNote: 'Créer une nouvelle note',
             newFolder: 'Nouveau dossier',
             newCanvas: 'Nouveau canevas',
             newBase: 'Nouvelle base de données',
@@ -257,7 +257,7 @@ export const STRINGS_FR = {
         focusFile: 'Focus sur le fichier', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Basculer le panneau de navigation', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
         deleteFile: 'Supprimer le fichier', // Command palette: Deletes the currently active file (English: Delete file)
-        newNote: 'Nouvelle note', // Command palette: Creates a new note in the currently selected folder (English: New note)
+        createNewNote: 'Créer une nouvelle note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
     },
 
     // Plugin UI

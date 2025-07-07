@@ -58,7 +58,7 @@ export const STRINGS_EN = {
         collapseAllFolders: 'Collapse all', // Tooltip for button that collapses all expanded items (English: Collapse all)
         expandAllFolders: 'Expand all', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'New folder', // Tooltip for create new folder button (English: New folder)
-        newNote: 'New note', // Tooltip for create new note button (English: New note)
+        newNote: 'Create new note', // Tooltip for create new note button (English: Create new note)
         mobileBackToFolders: 'Back to folders', // Mobile-only back button text to return to folder list (English: Back to folders)
         changeSortOrder: 'Change sort order', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: 'Default', // Label for default sorting mode (English: Default)
@@ -91,7 +91,7 @@ export const STRINGS_EN = {
             deleteMultipleNotes: 'Delete {count} notes',
         },
         folder: {
-            newNote: 'New note',
+            newNote: 'Create new note',
             newFolder: 'New folder',
             newCanvas: 'New canvas',
             newBase: 'New base',
@@ -257,7 +257,7 @@ export const STRINGS_EN = {
         focusFile: 'Focus file', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Toggle navigation pane', // Command palette: Shows or hides the navigation pane (English: Toggle navigation pane)
         deleteFile: 'Delete file', // Command palette: Deletes the currently active file (English: Delete file)
-        newNote: 'New note', // Command palette: Creates a new note in the currently selected folder (English: New note)
+        createNewNote: 'Create new note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
     },
 
     // Plugin UI
