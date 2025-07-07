@@ -58,7 +58,7 @@ export const STRINGS_ES = {
         collapseAllFolders: 'Contraer todo', // Tooltip for button that collapses all expanded items (English: Collapse all)
         expandAllFolders: 'Expandir todo', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'Nueva carpeta', // Tooltip for create new folder button (English: New folder)
-        newNote: 'Nueva nota', // Tooltip for create new note button (English: New note)
+        newNote: 'Crear nueva nota', // Tooltip for create new note button (English: Create new note)
         mobileBackToFolders: 'Volver a carpetas', // Mobile-only back button text to return to folder list (English: Back to folders)
         changeSortOrder: 'Cambiar orden de clasificación', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: 'Predeterminado', // Label for default sorting mode (English: Default)
@@ -91,7 +91,7 @@ export const STRINGS_ES = {
             deleteMultipleNotes: 'Eliminar {count} notas',
         },
         folder: {
-            newNote: 'Nueva nota',
+            newNote: 'Crear nueva nota',
             newFolder: 'Nueva carpeta',
             newCanvas: 'Nuevo lienzo',
             newBase: 'Nueva base de datos',
@@ -197,6 +197,7 @@ export const STRINGS_ES = {
             failedToDeleteFile: 'Error al eliminar {name}: {error}',
             drawingAlreadyExists: 'Ya existe un dibujo con este nombre',
             failedToCreateDrawing: 'Error al crear el dibujo',
+            noFolderSelected: 'No hay ninguna carpeta seleccionada en Notebook Navigator',
         },
         notifications: {
             deletedMultipleFiles: '{count} archivos eliminados',
@@ -256,6 +257,7 @@ export const STRINGS_ES = {
         focusFile: 'Enfocar archivo', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Alternar panel de navegación', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
         deleteFile: 'Eliminar archivo', // Command palette: Deletes the currently active file (English: Delete file)
+        createNewNote: 'Crear nueva nota', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
     },
 
     // Plugin UI
@@ -425,6 +427,14 @@ export const STRINGS_ES = {
             showTags: {
                 name: 'Mostrar etiquetas',
                 desc: 'Muestra la sección de etiquetas debajo de las carpetas en el navegador.',
+            },
+            showTagsAboveFolders: {
+                name: 'Mostrar etiquetas encima de las carpetas',
+                desc: 'Muestra la sección de etiquetas antes que las carpetas en el navegador.',
+            },
+            showRootTagFolders: {
+                name: 'Mostrar carpetas raíz de etiquetas',
+                desc: 'Muestra carpetas virtuales para organizar etiquetas (Etiquetas, Etiquetas favoritas, Todas las etiquetas).',
             },
             showUntagged: {
                 name: 'Mostrar notas sin etiquetas',

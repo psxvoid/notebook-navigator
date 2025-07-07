@@ -100,6 +100,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Reveal file` Reveals the currently open file in the navigator, expanding parent folders and scrolling to it. Useful if you have the setting "Show notes from subfolders" enabled and want to find out the folder of a specific note.
 - `Notebook Navigator: Focus file` Moves keyboard focus to the file list pane so you can navigate with arrow keys
 - `Notebook Navigator: Toggle navigation pane` Shows or hides the navigation pane (folder/tag tree) to maximize list pane space
+- `Notebook Navigator: Create new note` Creates a new note in the currently selected folder. Unlike Obsidian's default new note command which only allows creating in the same folder as current note, root folder, or a specific folder, this always creates in your currently selected folder. **Tip:** You can bind Cmd/Ctrl+N to this command for a more intuitive workflow - just unbind it from Obsidian's built-in "Create new note" command first
 - `Notebook Navigator: Delete file` Deletes the currently active file using the navigator's smart selection (selects next file before deletion)
 
 ## Installation
@@ -154,6 +155,8 @@ Until the plugin is approved in the Community Plugins directory, you can install
 ### Tags
 
 - **Show tags:** Display tags section below folders in the navigator
+  - **Show tags above folders:** Display tags section before folders in the navigator. When enabled, tags appear at the top of the navigation pane
+  - **Show root tag folders:** Display virtual folders for organizing tags (Tags, Favorite tags, All tags). When disabled, tags are shown directly without folders
   - **Show untagged notes:** Display "Untagged" item for notes without any tags
   - **Favorite tags:** Comma-separated list of favorite tag patterns. Supports exact match, wildcards (*), and regex (/pattern/)
   - **Hidden tags:** Comma-separated list of tag patterns to hide from the tag tree. Supports exact match, wildcards (*), and regex (/pattern/)

@@ -161,15 +161,15 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         const rebuildItems = () => {
         const allItems: CombinedNavigationItem[] = [];
         
-        // Add folders
+        // Build folders
         const folderItems = flattenFolderTree(
             rootFolders,
             expansionState.expandedFolders,
             parseExcludedFolders(settings.excludedFolders)
         );
-        allItems.push(...folderItems);
         
-        // Add tag section if enabled
+        // Build tag section if enabled
+        const tagItems: CombinedNavigationItem[] = [];
         if (settings.showTags) {
             // Parse favorite and hidden tag patterns
             const favoritePatterns = parseTagPatterns(settings.favoriteTags);
@@ -185,7 +185,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                         notesWithTag: new Set()
                     };
                     
-                    allItems.push({
+                    tagItems.push({
                         type: NavigationPaneItemType.UNTAGGED,
                         data: untaggedNode,
                         key: UNTAGGED_TAG_ID,
@@ -197,7 +197,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             // Helper function to add virtual folder
             const addVirtualFolder = (id: string, name: string, icon?: string) => {
                 const folder: VirtualFolder = { id, name, icon };
-                allItems.push({
+                tagItems.push({
                     type: NavigationPaneItemType.VIRTUAL_FOLDER,
                     data: folder,
                     level: 0,
@@ -208,12 +208,12 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             // Helper function to add tags to list
             const addTagItems = (tags: Map<string, TagTreeNode>, folderId: string) => {
                 if (expansionState.expandedVirtualFolders.has(folderId)) {
-                    const tagItems = flattenTagTree(
+                    const items = flattenTagTree(
                         Array.from(tags.values()),
                         expansionState.expandedTags,
                         1 // Start at level 1 since they're inside the virtual folder
                     );
-                    allItems.push(...tagItems);
+                    tagItems.push(...items);
                     
                     // Add untagged node if this is the last tag container
                     const isLastContainer = favoritePatterns.length === 0 || folderId === 'all-tags-root';
@@ -228,22 +228,80 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                 ? excludeFromTagTree(tagTree, hiddenPatterns) 
                 : tagTree;
             
-            if (favoritePatterns.length > 0) {
-                // With favorites: show "Favorite tags" and "All tags"
-                const favoriteTags = filterTagTree(visibleTagTree, favoritePatterns);
-                const nonFavoriteTags = excludeFromTagTree(visibleTagTree, favoritePatterns);
-                
-                // Add "Favorite tags" folder
-                addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'star');
-                addTagItems(favoriteTags, 'favorite-tags-root');
-                
-                // Add "All tags" folder
-                addVirtualFolder('all-tags-root', strings.tagList.allTags, 'tags');
-                addTagItems(nonFavoriteTags, 'all-tags-root');
+            if (settings.showRootTagFolders) {
+                // Use virtual folders to organize tags
+                if (favoritePatterns.length > 0) {
+                    // With favorites: show "Favorite tags" and "All tags"
+                    const favoriteTags = filterTagTree(visibleTagTree, favoritePatterns);
+                    const nonFavoriteTags = excludeFromTagTree(visibleTagTree, favoritePatterns);
+                    
+                    // Add "Favorite tags" folder
+                    addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'star');
+                    addTagItems(favoriteTags, 'favorite-tags-root');
+                    
+                    // Add "All tags" folder
+                    addVirtualFolder('all-tags-root', strings.tagList.allTags, 'tags');
+                    addTagItems(nonFavoriteTags, 'all-tags-root');
+                } else {
+                    // No favorites: just show "Tags" folder
+                    addVirtualFolder('tags-root', strings.tagList.tags, 'tags');
+                    addTagItems(visibleTagTree, 'tags-root');
+                }
             } else {
-                // No favorites: just show "Tags" folder
-                addVirtualFolder('tags-root', strings.tagList.tags, 'tags');
-                addTagItems(visibleTagTree, 'tags-root');
+                // Show tags directly without virtual folders
+                if (favoritePatterns.length > 0) {
+                    // Separate favorites from non-favorites
+                    const favoriteTags = filterTagTree(visibleTagTree, favoritePatterns);
+                    const nonFavoriteTags = excludeFromTagTree(visibleTagTree, favoritePatterns);
+                    
+                    // Add favorite tags first
+                    const favoriteItems = flattenTagTree(
+                        Array.from(favoriteTags.values()),
+                        expansionState.expandedTags,
+                        0 // Start at level 0 since no virtual folder
+                    );
+                    tagItems.push(...favoriteItems);
+                    
+                    // Then add non-favorite tags
+                    const nonFavoriteItems = flattenTagTree(
+                        Array.from(nonFavoriteTags.values()),
+                        expansionState.expandedTags,
+                        0 // Start at level 0 since no virtual folder
+                    );
+                    tagItems.push(...nonFavoriteItems);
+                } else {
+                    // No favorites, just show all tags
+                    const items = flattenTagTree(
+                        Array.from(visibleTagTree.values()),
+                        expansionState.expandedTags,
+                        0 // Start at level 0 since no virtual folder
+                    );
+                    tagItems.push(...items);
+                }
+                
+                // Add untagged node at the end
+                addUntaggedNode(0);
+            }
+        }
+        
+        // Combine items in the correct order
+        if (settings.showTags && settings.showTagsAboveFolders) {
+            // Tags first, then folders
+            allItems.push(...tagItems);
+            allItems.push({
+                type: NavigationPaneItemType.SPACER,
+                key: 'tags-folders-spacer'
+            });
+            allItems.push(...folderItems);
+        } else {
+            // Folders first, then tags (default)
+            allItems.push(...folderItems);
+            if (settings.showTags) {
+                allItems.push({
+                    type: NavigationPaneItemType.SPACER,
+                    key: 'folders-tags-spacer'
+                });
+                allItems.push(...tagItems);
             }
         }
         
@@ -259,7 +317,8 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         rebuildItems();
     }, [rootFolders, expansionState.expandedFolders, expansionState.expandedTags, 
         expansionState.expandedVirtualFolders, settings.excludedFolders, settings.showTags, 
-        settings.showUntagged, settings.favoriteTags, settings.hiddenTags, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
+        settings.showTagsAboveFolders, settings.showRootTagFolders, settings.showUntagged, 
+        settings.favoriteTags, settings.hiddenTags, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
     // =================================================================================
     // =================================================================================
     

@@ -169,6 +169,13 @@ export class NotebookNavigatorView extends ItemView {
     }
     
     /**
+     * Creates a new note in the currently selected folder
+     */
+    async createNoteInSelectedFolder(): Promise<void> {
+        await this.componentRef.current?.createNoteInSelectedFolder();
+    }
+    
+    /**
      * Handles when the view becomes active (e.g., when returning from editor)
      */
     public handleViewBecomeActive() {

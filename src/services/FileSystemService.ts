@@ -303,18 +303,9 @@ export class FileSystemOperations {
                         await updateSelectionAfterFileOperation(null, selectionDispatch, this.app);
                     }
                 } else {
-                    // No other files in folder, close the editor if it's showing the deleted file
-                    // Get all leaves with supported file types
-                    const allLeaves = getSupportedLeaves(this.app);
-                    
-                    // Find any leaf showing the file being deleted
-                    const currentLeaf = allLeaves.find(leaf => {
-                        const view = leaf.view;
-                        return view && 'file' in view && view.file && view.file.path === file.path;
-                    });
-                    if (currentLeaf) {
-                        currentLeaf.detach();
-                    }
+                    // No other files in folder
+                    // Don't detach the leaf - let Obsidian handle it naturally after deletion
+                    // Just clear the selection
                     selectionDispatch({ type: 'SET_SELECTED_FILE', file: null });
                 }
                 

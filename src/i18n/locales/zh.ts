@@ -58,7 +58,7 @@ export const STRINGS_ZH = {
         collapseAllFolders: '全部折叠', // Tooltip for button that collapses all expanded items (English: Collapse all)
         expandAllFolders: '全部展开', // Tooltip for button that expands all items (English: Expand all)
         newFolder: '新建文件夹', // Tooltip for create new folder button (English: New folder)
-        newNote: '新建笔记', // Tooltip for create new note button (English: New note)
+        newNote: '创建新笔记', // Tooltip for create new note button (English: Create new note)
         mobileBackToFolders: '返回文件夹', // Mobile-only back button text to return to folder list (English: Back to folders)
         changeSortOrder: '更改排序方式', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: '默认', // Label for default sorting mode (English: Default)
@@ -91,7 +91,7 @@ export const STRINGS_ZH = {
             deleteMultipleNotes: '删除 {count} 个笔记',
         },
         folder: {
-            newNote: '新建笔记',
+            newNote: '创建新笔记',
             newFolder: '新建文件夹',
             newCanvas: '新建画布',
             newBase: '新建数据库',
@@ -197,6 +197,7 @@ export const STRINGS_ZH = {
             failedToDeleteFile: '删除 {name} 失败: {error}',
             drawingAlreadyExists: '同名绘图已存在',
             failedToCreateDrawing: '创建绘图失败',
+            noFolderSelected: 'Notebook Navigator 中未选择文件夹',
         },
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',
@@ -256,6 +257,7 @@ export const STRINGS_ZH = {
         focusFile: '聚焦文件', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: '切换导航面板', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
         deleteFile: '删除文件', // Command palette: Deletes the currently active file (English: Delete file)
+        createNewNote: '创建新笔记', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
     },
 
     // Plugin UI
@@ -425,6 +427,14 @@ export const STRINGS_ZH = {
             showTags: {
                 name: '显示标签',
                 desc: '在导航器中的文件夹下方显示标签部分。',
+            },
+            showTagsAboveFolders: {
+                name: '在文件夹上方显示标签',
+                desc: '在导航器中的文件夹之前显示标签部分。',
+            },
+            showRootTagFolders: {
+                name: '显示根标签文件夹',
+                desc: '显示用于组织标签的虚拟文件夹（标签、收藏标签、所有标签）。',
             },
             showUntagged: {
                 name: '显示无标签笔记',

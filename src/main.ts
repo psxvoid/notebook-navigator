@@ -33,7 +33,6 @@ import { SortOption, NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNaviga
 import { LocalStorageKeys, NavigatorElementAttributes, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, STORAGE_KEYS } from './types';
 import { DateUtils } from './utils/DateUtils';
 import { PreviewTextUtils } from './utils/PreviewTextUtils';
-import { FileSystemOperations } from './services/FileSystemService';
 import { MetadataService } from './services/MetadataService';
 import { TagOperations } from './services/TagOperations';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
@@ -228,6 +227,28 @@ export default class NotebookNavigatorPlugin extends Plugin {
                         view.deleteActiveFile();
                     }
                 });
+            }
+        });
+
+        this.addCommand({
+            id: 'create-new-note',
+            name: strings.commands.createNewNote,
+            callback: async () => {
+                // Ensure navigator is open
+                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                if (leaves.length === 0) {
+                    await this.activateView(true);
+                }
+                
+                // Create new note in selected folder
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.createNoteInSelectedFolder();
+                        break;
+                    }
+                }
             }
         });
 
