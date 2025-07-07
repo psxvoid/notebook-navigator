@@ -249,12 +249,35 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                 }
             } else {
                 // Show tags directly without virtual folders
-                const items = flattenTagTree(
-                    Array.from(visibleTagTree.values()),
-                    expansionState.expandedTags,
-                    0 // Start at level 0 since no virtual folder
-                );
-                tagItems.push(...items);
+                if (favoritePatterns.length > 0) {
+                    // Separate favorites from non-favorites
+                    const favoriteTags = filterTagTree(visibleTagTree, favoritePatterns);
+                    const nonFavoriteTags = excludeFromTagTree(visibleTagTree, favoritePatterns);
+                    
+                    // Add favorite tags first
+                    const favoriteItems = flattenTagTree(
+                        Array.from(favoriteTags.values()),
+                        expansionState.expandedTags,
+                        0 // Start at level 0 since no virtual folder
+                    );
+                    tagItems.push(...favoriteItems);
+                    
+                    // Then add non-favorite tags
+                    const nonFavoriteItems = flattenTagTree(
+                        Array.from(nonFavoriteTags.values()),
+                        expansionState.expandedTags,
+                        0 // Start at level 0 since no virtual folder
+                    );
+                    tagItems.push(...nonFavoriteItems);
+                } else {
+                    // No favorites, just show all tags
+                    const items = flattenTagTree(
+                        Array.from(visibleTagTree.values()),
+                        expansionState.expandedTags,
+                        0 // Start at level 0 since no virtual folder
+                    );
+                    tagItems.push(...items);
+                }
                 
                 // Add untagged node at the end
                 addUntaggedNode(0);
