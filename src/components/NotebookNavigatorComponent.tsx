@@ -137,14 +137,20 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
      * Reveals a file in the navigator by expanding necessary folders and selecting it.
      * 
      * FOLDER EXPANSION BEHAVIOR:
-     * The plugin expands ancestor folders to make the file visible, but intentionally
-     * skips expanding the file's immediate parent folder. This preserves the user's
-     * chosen folder collapse/expand state.
+     * Expansion depends on the reveal type and settings:
      * 
      * Example: Revealing "Tech/2025/Notes/file.md"
-     * - Will expand: "Tech" and "2025" (if needed)
-     * - Will NOT expand: "Notes" (immediate parent)
-     * - The "Notes" folder will be selected but remain in its current expanded/collapsed state
+     * 
+     * Manual Reveal (always expands):
+     * - Will expand: "Tech" and "2025" 
+     * - Will NOT expand: "Notes" (immediate parent - preserves user's choice)
+     * 
+     * Auto Reveal with "Show notes from subfolders" OFF:
+     * - Same as manual reveal
+     * 
+     * Auto Reveal with "Show notes from subfolders" ON:
+     * - If current folder is "Tech" and file is in subfolder: NO expansion
+     * - Otherwise: Same as manual reveal
      * 
      * REVEAL TYPES:
      * 1. Manual Reveal (via "Reveal file" command):
@@ -166,9 +172,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         if (!file || !file.parent) return;
         
         // Check if we should preserve the current folder selection
-        // If showNotesFromSubfoldersEnabled is true and the file is in a subfolder of the current folder,
-        // don't change the folder selection
-        // EXCEPT when this is a manual reveal (user explicitly requested to reveal the file)
+        // Only for auto-reveal: If showNotesFromSubfolders is on and file is in a subfolder
+        // of the current folder, preserve the selection
         let preserveFolder = false;
         if (!isManualReveal && settings.showNotesFromSubfolders && selectionState.selectedFolder && file.parent) {
             // Check if the file's parent is a descendant of the currently selected folder
@@ -193,27 +198,14 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             const foldersToExpand: string[] = [];
             let currentFolder: TFolder | null = file.parent;
             
-            // If we're preserving the folder selection (only possible for manual reveal at this point),
-            // expand folders between the selected folder and the file
-            if (preserveFolder && selectionState.selectedFolder) {
-                // Walk up from file's parent to the selected folder
-                while (currentFolder && currentFolder.path !== selectionState.selectedFolder.path) {
-                    // Skip the immediate parent to preserve its expanded/collapsed state
-                    if (currentFolder !== file.parent) {
-                        foldersToExpand.unshift(currentFolder.path);
-                    }
+            // Expand all ancestors except the immediate parent
+            // This preserves the user's choice of whether the parent is expanded/collapsed
+            if (currentFolder && currentFolder.parent) {
+                currentFolder = currentFolder.parent; // Skip immediate parent
+                while (currentFolder) {
+                    foldersToExpand.unshift(currentFolder.path);
+                    if (currentFolder.path === '/') break;
                     currentFolder = currentFolder.parent;
-                }
-            } else {
-                // Not preserving folder - expand all ancestors except the immediate parent
-                // This preserves the user's choice of whether the parent is expanded/collapsed
-                if (currentFolder && currentFolder.parent) {
-                    currentFolder = currentFolder.parent; // Skip immediate parent
-                    while (currentFolder) {
-                        foldersToExpand.unshift(currentFolder.path);
-                        if (currentFolder.path === '/') break;
-                        currentFolder = currentFolder.parent;
-                    }
                 }
             }
             
