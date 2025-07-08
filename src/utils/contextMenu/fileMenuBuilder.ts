@@ -16,12 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { MenuItem, TFile, Notice } from 'obsidian';
+import { MenuItem, TFile, Notice, Menu, App } from 'obsidian';
 import { FileMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
 import { getInternalPlugin } from '../../utils/typeGuards';
 import { getFilesForFolder, getFilesForTag } from '../../utils/fileFinder';
 import { ItemType } from '../../types';
+import { MetadataService } from '../../services/MetadataService';
+import { FileSystemOperations } from '../../services/FileSystemService';
+import { SelectionState, SelectionAction } from '../../context/SelectionContext';
+import { NotebookNavigatorSettings } from '../../settings';
 
 /**
  * Builds the context menu for a file
@@ -136,7 +140,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 /**
  * Add open options for a single file
  */
-function addSingleFileOpenOptions(menu: any, file: TFile, app: any, isMobile: boolean): void {
+function addSingleFileOpenOptions(menu: Menu, file: TFile, app: App, isMobile: boolean): void {
     // Open in new tab
     menu.addItem((item: MenuItem) => {
         item
@@ -173,7 +177,7 @@ function addSingleFileOpenOptions(menu: any, file: TFile, app: any, isMobile: bo
 /**
  * Add open options for multiple files
  */
-function addMultipleFilesOpenOptions(menu: any, selectedCount: number, selectionState: any, app: any, isMobile: boolean): void {
+function addMultipleFilesOpenOptions(menu: Menu, selectedCount: number, selectionState: SelectionState, app: App, isMobile: boolean): void {
     menu.addItem((item: MenuItem) => {
         item
             .setTitle(strings.contextMenu.file.openMultipleInNewTabs.replace('{count}', selectedCount.toString()))
@@ -227,7 +231,7 @@ function addMultipleFilesOpenOptions(menu: any, selectedCount: number, selection
 /**
  * Add pin option for a single file
  */
-function addSingleFilePinOption(menu: any, file: TFile, metadataService: any): void {
+function addSingleFilePinOption(menu: Menu, file: TFile, metadataService: MetadataService): void {
     const folderPath = file.parent?.path || '';
     const isPinned = metadataService.isPinned(folderPath, file.path);
     
@@ -246,7 +250,7 @@ function addSingleFilePinOption(menu: any, file: TFile, metadataService: any): v
 /**
  * Add pin option for multiple files
  */
-function addMultipleFilesPinOption(menu: any, selectedCount: number, selectionState: any, app: any, metadataService: any): void {
+function addMultipleFilesPinOption(menu: Menu, selectedCount: number, selectionState: SelectionState, app: App, metadataService: MetadataService): void {
     // Check if any selected files are unpinned
     const selectedFiles = Array.from(selectionState.selectedFiles)
         .map(path => app.vault.getAbstractFileByPath(path))
@@ -283,7 +287,7 @@ function addMultipleFilesPinOption(menu: any, selectedCount: number, selectionSt
 /**
  * Add duplicate option for a single file
  */
-function addSingleFileDuplicateOption(menu: any, file: TFile, fileSystemOps: any): void {
+function addSingleFileDuplicateOption(menu: Menu, file: TFile, fileSystemOps: FileSystemOperations): void {
     menu.addItem((item: MenuItem) => {
         item
             .setTitle(strings.contextMenu.file.duplicateNote)
@@ -297,7 +301,7 @@ function addSingleFileDuplicateOption(menu: any, file: TFile, fileSystemOps: any
 /**
  * Add duplicate option for multiple files
  */
-function addMultipleFilesDuplicateOption(menu: any, selectedCount: number, selectionState: any, app: any, fileSystemOps: any): void {
+function addMultipleFilesDuplicateOption(menu: Menu, selectedCount: number, selectionState: SelectionState, app: App, fileSystemOps: FileSystemOperations): void {
     menu.addItem((item: MenuItem) => {
         item
             .setTitle(strings.contextMenu.file.duplicateMultipleNotes.replace('{count}', selectedCount.toString()))
@@ -318,7 +322,7 @@ function addMultipleFilesDuplicateOption(menu: any, selectedCount: number, selec
 /**
  * Add delete option for a single file
  */
-function addSingleFileDeleteOption(menu: any, file: TFile, selectionState: any, settings: any, fileSystemOps: any, selectionDispatch: any): void {
+function addSingleFileDeleteOption(menu: Menu, file: TFile, selectionState: SelectionState, settings: NotebookNavigatorSettings, fileSystemOps: FileSystemOperations, selectionDispatch: React.Dispatch<SelectionAction>): void {
     menu.addItem((item: MenuItem) => {
         item
             .setTitle(strings.contextMenu.file.deleteNote)
@@ -349,7 +353,7 @@ function addSingleFileDeleteOption(menu: any, file: TFile, selectionState: any, 
 /**
  * Add delete option for multiple files
  */
-function addMultipleFilesDeleteOption(menu: any, selectedCount: number, selectionState: any, settings: any, app: any, fileSystemOps: any, selectionDispatch: any): void {
+function addMultipleFilesDeleteOption(menu: Menu, selectedCount: number, selectionState: SelectionState, settings: NotebookNavigatorSettings, app: App, fileSystemOps: FileSystemOperations, selectionDispatch: React.Dispatch<SelectionAction>): void {
     menu.addItem((item: MenuItem) => {
         item
             .setTitle(strings.contextMenu.file.deleteMultipleNotes.replace('{count}', selectedCount.toString()))

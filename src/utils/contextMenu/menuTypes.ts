@@ -23,6 +23,7 @@ import { FileSystemOperations } from '../../services/FileSystemService';
 import { MetadataService } from '../../services/MetadataService';
 import { TagOperations } from '../../services/TagOperations';
 import { SelectionState, SelectionAction } from '../../context/SelectionContext';
+import { NotebookNavigatorPlugin } from '../../types/plugin';
 import { ExpansionAction } from '../../context/ExpansionContext';
 import { UIAction } from '../../context/UIStateContext';
 
@@ -41,7 +42,7 @@ export interface MenuConfig {
  */
 export interface MenuServices {
     app: App;
-    plugin: any; // NotebookNavigatorPlugin type
+    plugin: NotebookNavigatorPlugin;
     isMobile: boolean;
     fileSystemOps: FileSystemOperations;
     metadataService: MetadataService;

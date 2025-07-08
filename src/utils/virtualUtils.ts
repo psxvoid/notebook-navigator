@@ -29,7 +29,7 @@ import { Virtualizer } from '@tanstack/react-virtual';
  * @param align - The alignment of the scroll ('auto', 'start', 'center', 'end')
  */
 export function scrollVirtualItemIntoView(
-    virtualizer: Virtualizer<any, any>,
+    virtualizer: Virtualizer<HTMLDivElement, Element>,
     index: number,
     behavior: 'auto' | 'smooth' = 'auto',
     maxRetries: number = 3,

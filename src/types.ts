@@ -16,6 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { App, WorkspaceLeaf } from 'obsidian';
+
 /**
  * Shared types and constants for Notebook Navigator
  * Centralizes type definitions used across multiple modules
@@ -262,7 +264,7 @@ export function isSupportedFileExtension(extension: string): extension is Suppor
 /**
  * Helper function to get all leaves with supported file types
  */
-export function getSupportedLeaves(app: any): any[] {
+export function getSupportedLeaves(app: App): WorkspaceLeaf[] {
     return SUPPORTED_LEAF_TYPES.flatMap(type => 
         app.workspace.getLeavesOfType(type)
     );
