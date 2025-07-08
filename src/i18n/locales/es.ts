@@ -47,9 +47,9 @@ export const STRINGS_ES = {
     // Tag list
     tagList: {
         untaggedLabel: 'Sin etiquetas', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: 'Etiquetas favoritas', // Label for the favorite tags virtual folder (English: Favorite tags)
+        favoriteTags: 'Favoritos', // Label for the favorites virtual folder (English: Favorites)
         hiddenTags: 'Etiquetas ocultas', // Label for the hidden tags virtual folder (English: Hidden tags)
-        allTags: 'Todas las etiquetas', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        allTags: 'Etiquetas', // Label for the tags virtual folder when favorites exist (English: Tags)
         tags: 'Etiquetas', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
@@ -432,13 +432,21 @@ export const STRINGS_ES = {
                 name: 'Mostrar etiquetas encima de las carpetas',
                 desc: 'Muestra la sección de etiquetas antes que las carpetas en el navegador.',
             },
-            showRootTagFolders: {
-                name: 'Mostrar carpetas raíz de etiquetas',
-                desc: 'Muestra carpetas virtuales para organizar etiquetas (Etiquetas, Etiquetas favoritas, Todas las etiquetas).',
+            showFavoriteTagsFolder: {
+                name: 'Mostrar carpeta de favoritos',
+                desc: 'Muestra "Favoritos" como una carpeta plegable cuando hay etiquetas favoritas configuradas.',
+            },
+            showAllTagsFolder: {
+                name: 'Mostrar carpeta de etiquetas',
+                desc: 'Muestra "Etiquetas" en una carpeta plegable.',
             },
             showUntagged: {
                 name: 'Mostrar notas sin etiquetas',
                 desc: 'Muestra el elemento "Sin etiquetas" para notas sin ninguna etiqueta.',
+            },
+            showUntaggedInFavorites: {
+                name: 'Mostrar notas sin etiquetas en la sección de favoritos',
+                desc: 'Mostrar notas sin etiquetas en la sección de favoritos, ya sea dentro de la carpeta o directamente debajo de los favoritos.',
             },
             favoriteTags: {
                 name: 'Etiquetas favoritas',

@@ -65,8 +65,10 @@ export interface NotebookNavigatorSettings {
     // Tags
     showTags: boolean;
     showTagsAboveFolders: boolean;
-    showRootTagFolders: boolean;
+    showFavoriteTagsFolder: boolean;
+    showAllTagsFolder: boolean;
     showUntagged: boolean;
+    showUntaggedInFavorites: boolean;
     favoriteTags: string[];
     hiddenTags: string[];
     // List pane
@@ -127,8 +129,10 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Tags
     showTags: true,
     showTagsAboveFolders: false,
-    showRootTagFolders: true,
+    showFavoriteTagsFolder: true,
+    showAllTagsFolder: true,
     showUntagged: false,
+    showUntaggedInFavorites: false,
     favoriteTags: [],
     hiddenTags: [],
     // List pane
@@ -467,12 +471,22 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }));
 
         new Setting(tagSubSettingsEl)
-            .setName(strings.settings.items.showRootTagFolders.name)
-            .setDesc(strings.settings.items.showRootTagFolders.desc)
+            .setName(strings.settings.items.showFavoriteTagsFolder.name)
+            .setDesc(strings.settings.items.showFavoriteTagsFolder.desc)
             .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showRootTagFolders)
+                .setValue(this.plugin.settings.showFavoriteTagsFolder)
                 .onChange(async (value) => {
-                    this.plugin.settings.showRootTagFolders = value;
+                    this.plugin.settings.showFavoriteTagsFolder = value;
+                    await this.saveAndRefresh();
+                }));
+
+        new Setting(tagSubSettingsEl)
+            .setName(strings.settings.items.showAllTagsFolder.name)
+            .setDesc(strings.settings.items.showAllTagsFolder.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showAllTagsFolder)
+                .onChange(async (value) => {
+                    this.plugin.settings.showAllTagsFolder = value;
                     await this.saveAndRefresh();
                 }));
 
@@ -483,6 +497,22 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.showUntagged)
                 .onChange(async (value) => {
                     this.plugin.settings.showUntagged = value;
+                    untaggedInFavoritesEl.style.display = value ? 'block' : 'none';
+                    await this.saveAndRefresh();
+                }));
+
+        // Sub-setting for untagged in favorites - only show if showUntagged is enabled
+        const untaggedInFavoritesEl = tagSubSettingsEl.createDiv();
+        untaggedInFavoritesEl.style.display = this.plugin.settings.showUntagged ? 'block' : 'none';
+        untaggedInFavoritesEl.style.marginLeft = '20px';
+        
+        new Setting(untaggedInFavoritesEl)
+            .setName(strings.settings.items.showUntaggedInFavorites.name)
+            .setDesc(strings.settings.items.showUntaggedInFavorites.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.showUntaggedInFavorites)
+                .onChange(async (value) => {
+                    this.plugin.settings.showUntaggedInFavorites = value;
                     await this.saveAndRefresh();
                 }));
 

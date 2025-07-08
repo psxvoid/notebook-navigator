@@ -47,9 +47,9 @@ export const STRINGS_ZH = {
     // Tag list
     tagList: {
         untaggedLabel: '无标签', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: '收藏标签', // Label for the favorite tags virtual folder (English: Favorite tags)
+        favoriteTags: '收藏', // Label for the favorites virtual folder (English: Favorites)
         hiddenTags: '隐藏标签', // Label for the hidden tags virtual folder (English: Hidden tags)
-        allTags: '所有标签', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        allTags: '标签', // Label for the tags virtual folder when favorites exist (English: Tags)
         tags: '标签', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
@@ -432,13 +432,21 @@ export const STRINGS_ZH = {
                 name: '在文件夹上方显示标签',
                 desc: '在导航器中的文件夹之前显示标签部分。',
             },
-            showRootTagFolders: {
-                name: '显示根标签文件夹',
-                desc: '显示用于组织标签的虚拟文件夹（标签、收藏标签、所有标签）。',
+            showFavoriteTagsFolder: {
+                name: '显示收藏文件夹',
+                desc: '当配置了收藏标签时，将"收藏"显示为可折叠文件夹。',
+            },
+            showAllTagsFolder: {
+                name: '显示标签文件夹',
+                desc: '在可折叠文件夹中显示"标签"。',
             },
             showUntagged: {
                 name: '显示无标签笔记',
                 desc: '为没有任何标签的笔记显示"无标签"项目。',
+            },
+            showUntaggedInFavorites: {
+                name: '在收藏部分显示无标签笔记',
+                desc: '在收藏部分显示无标签笔记，可以在文件夹内或直接在收藏下方显示。',
             },
             favoriteTags: {
                 name: '收藏标签',

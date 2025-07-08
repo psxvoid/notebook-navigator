@@ -47,9 +47,9 @@ export const STRINGS_FR = {
     // Tag list
     tagList: {
         untaggedLabel: 'Sans étiquette', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: 'Étiquettes favorites', // Label for the favorite tags virtual folder (English: Favorite tags)
+        favoriteTags: 'Favoris', // Label for the favorites virtual folder (English: Favorites)
         hiddenTags: 'Étiquettes cachées', // Label for the hidden tags virtual folder (English: Hidden tags)
-        allTags: 'Toutes les étiquettes', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        allTags: 'Étiquettes', // Label for the tags virtual folder when favorites exist (English: Tags)
         tags: 'Étiquettes', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
@@ -432,13 +432,21 @@ export const STRINGS_FR = {
                 name: 'Afficher les étiquettes au-dessus des dossiers',
                 desc: 'Afficher la section des étiquettes avant les dossiers dans le navigateur.',
             },
-            showRootTagFolders: {
-                name: 'Afficher les dossiers racine d\'étiquettes',
-                desc: 'Afficher les dossiers virtuels pour organiser les étiquettes (Étiquettes, Étiquettes favorites, Toutes les étiquettes).',
+            showFavoriteTagsFolder: {
+                name: 'Afficher le dossier des favoris',
+                desc: 'Afficher "Favoris" comme un dossier repliable lorsque des étiquettes favorites sont configurées.',
+            },
+            showAllTagsFolder: {
+                name: 'Afficher le dossier des étiquettes',
+                desc: 'Afficher "Étiquettes" dans un dossier repliable.',
             },
             showUntagged: {
                 name: 'Afficher les notes sans étiquette',
                 desc: 'Afficher l\'élément "Sans étiquette" pour les notes sans aucune étiquette.',
+            },
+            showUntaggedInFavorites: {
+                name: 'Afficher les notes sans étiquette dans la section favoris',
+                desc: 'Afficher les notes sans étiquette dans la section favoris, soit dans le dossier, soit directement sous les favoris.',
             },
             favoriteTags: {
                 name: 'Étiquettes favorites',

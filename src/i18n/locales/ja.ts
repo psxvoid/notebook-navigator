@@ -47,9 +47,9 @@ export const STRINGS_JA = {
     // Tag list
     tagList: {
         untaggedLabel: 'タグなし', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: 'お気に入りタグ', // Label for the favorite tags virtual folder (English: Favorite tags)
+        favoriteTags: 'お気に入り', // Label for the favorites virtual folder (English: Favorites)
         hiddenTags: '非表示タグ', // Label for the hidden tags virtual folder (English: Hidden tags)
-        allTags: 'すべてのタグ', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        allTags: 'タグ', // Label for the tags virtual folder when favorites exist (English: Tags)
         tags: 'タグ', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
@@ -432,13 +432,21 @@ export const STRINGS_JA = {
                 name: 'タグをフォルダの上に表示',
                 desc: 'ナビゲーターでタグセクションをフォルダの前に表示します。',
             },
-            showRootTagFolders: {
-                name: 'ルートタグフォルダを表示',
-                desc: 'タグを整理するための仮想フォルダを表示します（タグ、お気に入りタグ、すべてのタグ）。',
+            showFavoriteTagsFolder: {
+                name: 'お気に入りフォルダを表示',
+                desc: 'お気に入りタグが設定されている場合、「お気に入り」を折りたたみ可能なフォルダとして表示します。',
+            },
+            showAllTagsFolder: {
+                name: 'タグフォルダを表示',
+                desc: '「タグ」を折りたたみ可能なフォルダに表示します。',
             },
             showUntagged: {
                 name: 'タグなしノートを表示',
                 desc: 'タグのないノート用に「タグなし」項目を表示します。',
+            },
+            showUntaggedInFavorites: {
+                name: 'お気に入りセクションにタグなしノートを表示',
+                desc: 'お気に入りセクションにタグなしノートを表示します。フォルダ内またはお気に入りの直下に表示されます。',
             },
             favoriteTags: {
                 name: 'お気に入りタグ',
