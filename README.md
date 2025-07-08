@@ -157,9 +157,9 @@ Until the plugin is approved in the Community Plugins directory, you can install
 - **Show tags:** Display tags section below folders in the navigator
   - **Show tags above folders:** Display tags section before folders in the navigator. When enabled, tags appear at the top of the navigation pane
   - **Show favorites folder:** Display "Favorites" as a collapsible folder when favorite tags are configured
+    - **Show untagged notes in favorites section:** Display untagged notes in the favorites section, either inside the folder or directly below favorites
   - **Show tags folder:** Show "Tags" in a collapsible folder
   - **Show untagged notes:** Display "Untagged" item for notes without any tags
-  - **Show untagged notes in favorites section:** Display untagged notes in the favorites section, either inside the folder or directly below favorites
   - **Favorite tags:** Comma-separated list of favorite tag patterns. Supports exact match, wildcards (*), and regex (/pattern/)
   - **Hidden tags:** Comma-separated list of tag patterns to hide from the tag tree. Supports exact match, wildcards (*), and regex (/pattern/)
 
