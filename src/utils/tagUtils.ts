@@ -689,6 +689,11 @@ export function excludeFromTagTree(tree: Map<string, TagTreeNode>, patterns: str
             }
         }
         
+        // If the node has no children and no notes after filtering, exclude it
+        if (clone.children.size === 0 && clone.notesWithTag.size === 0) {
+            return null;
+        }
+        
         return clone;
     }
     
