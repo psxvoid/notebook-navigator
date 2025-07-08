@@ -459,12 +459,15 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             const isNavigatorView = leaf.view?.getViewType() === VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT;
             const leftSplit = app.workspace.leftSplit;
             
+            // Check if the new active leaf is in the left sidebar
+            const isInLeftSidebar = leaf.getRoot() === leftSplit;
             
-            // If we're switching away from navigator and sidebar is not collapsed
-            if (!isNavigatorView && leftSplit && !leftSplit.collapsed) {
+            // Only collapse if we're switching away from navigator to a view outside the sidebar
+            // This prevents collapsing when switching between sidebar views (e.g., to file explorer)
+            if (!isNavigatorView && leftSplit && !leftSplit.collapsed && !isInLeftSidebar) {
                 hideCount++;
                 
-                // Call collapse to ensure consistent state
+                // Call collapse to ensure consistent state when switching to editor
                 leftSplit.collapse();
             }
         };
