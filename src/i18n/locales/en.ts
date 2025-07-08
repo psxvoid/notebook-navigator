@@ -47,9 +47,9 @@ export const STRINGS_EN = {
     // Tag list
     tagList: {
         untaggedLabel: 'Untagged', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: 'Favorite tags', // Label for the favorite tags virtual folder (English: Favorite tags)
+        favoriteTags: 'Favorites', // Label for the favorites virtual folder (English: Favorites)
         hiddenTags: 'Hidden tags', // Label for the hidden tags virtual folder (English: Hidden tags)
-        allTags: 'All tags', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        allTags: 'Tags', // Label for the tags virtual folder when favorites exist (English: Tags)
         tags: 'Tags', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
@@ -432,13 +432,21 @@ export const STRINGS_EN = {
                 name: 'Show tags above folders',
                 desc: 'Display tags section before folders in the navigator.',
             },
-            showRootTagFolders: {
-                name: 'Show root tag folders',
-                desc: 'Display virtual folders for organizing tags (Tags, Favorite tags, All tags).',
+            showFavoriteTagsFolder: {
+                name: 'Show favorites folder',
+                desc: 'Display "Favorites" as a collapsible folder when favorite tags are configured.',
+            },
+            showAllTagsFolder: {
+                name: 'Show tags folder',
+                desc: 'Show "Tags" in a collapsible folder.',
             },
             showUntagged: {
                 name: 'Show untagged notes',
                 desc: 'Display "Untagged" item for notes without any tags.',
+            },
+            showUntaggedInFavorites: {
+                name: 'Show untagged notes in favorites section',
+                desc: 'Display untagged notes in the favorites section, either inside the folder or directly below favorites.',
             },
             favoriteTags: {
                 name: 'Favorite tags',

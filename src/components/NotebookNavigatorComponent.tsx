@@ -241,6 +241,13 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         }
     }, [fileToReveal]); // Remove revealFile from deps to prevent infinite loop
     
+    // Handle revealing files that moved to a different folder
+    useEffect(() => {
+        if (selectionState.fileMovedToDifferentFolder) {
+            revealFile(selectionState.fileMovedToDifferentFolder, true); // true for manual reveal
+        }
+    }, [selectionState.fileMovedToDifferentFolder]); // Remove revealFile from deps to prevent infinite loop
+    
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
         revealFile,

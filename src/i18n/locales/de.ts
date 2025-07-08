@@ -47,9 +47,9 @@ export const STRINGS_DE = {
     // Tag list
     tagList: {
         untaggedLabel: 'Ohne Tag', // Label for the special item showing notes without tags (English: Untagged)
-        favoriteTags: 'Favorisierte Tags', // Label for the favorite tags virtual folder (English: Favorite tags)
+        favoriteTags: 'Favoriten', // Label for the favorites virtual folder (English: Favorites)
         hiddenTags: 'Versteckte Tags', // Label for the hidden tags virtual folder (English: Hidden tags)
-        allTags: 'Alle Tags', // Label for the all tags virtual folder when favorites exist (English: All tags)
+        allTags: 'Tags', // Label for the tags virtual folder when favorites exist (English: Tags)
         tags: 'Tags', // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
@@ -432,13 +432,21 @@ export const STRINGS_DE = {
                 name: 'Tags über Ordnern anzeigen',
                 desc: 'Tag-Bereich vor den Ordnern im Navigator anzeigen.',
             },
-            showRootTagFolders: {
-                name: 'Tag-Hauptordner anzeigen',
-                desc: 'Virtuelle Ordner zur Organisation von Tags anzeigen (Tags, Favoriten-Tags, Alle Tags).',
+            showFavoriteTagsFolder: {
+                name: 'Favoriten-Ordner anzeigen',
+                desc: '"Favoriten" als einklappbaren Ordner anzeigen, wenn Favoriten-Tags konfiguriert sind.',
+            },
+            showAllTagsFolder: {
+                name: 'Tags-Ordner anzeigen',
+                desc: '"Tags" in einem einklappbaren Ordner anzeigen.',
             },
             showUntagged: {
                 name: 'Ungetaggte Notizen anzeigen',
                 desc: '"Ohne Tag" für Notizen ohne Tags anzeigen.',
+            },
+            showUntaggedInFavorites: {
+                name: 'Ungetaggte Notizen im Favoriten-Bereich anzeigen',
+                desc: 'Ungetaggte Notizen im Favoriten-Bereich anzeigen, entweder im Ordner oder direkt unter den Favoriten.',
             },
             favoriteTags: {
                 name: 'Favoriten-Tags',

@@ -35,6 +35,7 @@ export interface SelectionState {
     isRevealOperation: boolean; // Flag to track if the current selection is from a REVEAL_FILE action
     isFolderChangeWithAutoSelect: boolean; // Flag to track if we just changed folders and auto-selected a file
     isKeyboardNavigation: boolean; // Flag to track if selection is from Tab/Right arrow navigation
+    fileMovedToDifferentFolder: TFile | null; // Track file that moved to a different folder and needs reveal
     
     // Computed property for backward compatibility
     selectedFile: TFile | null; // First file in selection or null
@@ -115,7 +116,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 lastMovementDirection: null,
                 isRevealOperation: false,
                 isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null,
-                isKeyboardNavigation: false
+                isKeyboardNavigation: false,
+                fileMovedToDifferentFolder: null
             };
         }
         
@@ -135,7 +137,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 lastMovementDirection: null,
                 isRevealOperation: false,
                 isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null,
-                isKeyboardNavigation: false
+                isKeyboardNavigation: false,
+                fileMovedToDifferentFolder: null
             };
         }
             
@@ -153,7 +156,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 lastMovementDirection: null,
                 isRevealOperation: false, 
                 isFolderChangeWithAutoSelect: false,
-                isKeyboardNavigation: false 
+                isKeyboardNavigation: false,
+                fileMovedToDifferentFolder: null 
             };
         }
         
@@ -171,7 +175,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 lastMovementDirection: null,
                 isRevealOperation: false,
                 isFolderChangeWithAutoSelect: false,
-                isKeyboardNavigation: false
+                isKeyboardNavigation: false,
+                fileMovedToDifferentFolder: null
             };
         
         case 'REVEAL_FILE': {
@@ -198,7 +203,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 lastMovementDirection: null,
                 isRevealOperation: true,
                 isFolderChangeWithAutoSelect: false,
-                isKeyboardNavigation: false
+                isKeyboardNavigation: false,
+                fileMovedToDifferentFolder: null // Clear this since we're handling the reveal
             };
         }
         
@@ -212,7 +218,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                     anchorIndex: null,
                     lastMovementDirection: null,
                     isFolderChangeWithAutoSelect: false,
-                    isKeyboardNavigation: false
+                    isKeyboardNavigation: false,
+                    fileMovedToDifferentFolder: null
                 };
             }
             return state;
@@ -238,7 +245,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 selectedFile: action.nextFileToSelect || (app ? getFirstSelectedFile(newSelectedFiles, app) : null),
                 anchorIndex: newAnchorIndex,
                 isFolderChangeWithAutoSelect: false,
-                isKeyboardNavigation: false
+                isKeyboardNavigation: false,
+                fileMovedToDifferentFolder: null
             };
         }
         
@@ -257,7 +265,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 selectedFiles: newSelectedFiles,
                 selectedFile: state.selectedFile, // Don't change cursor position when toggling
                 anchorIndex: action.anchorIndex !== undefined ? action.anchorIndex : state.anchorIndex,
-                lastMovementDirection: null
+                lastMovementDirection: null,
+                fileMovedToDifferentFolder: null
             };
         }
         
@@ -283,7 +292,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 ...state,
                 selectedFiles: newSelectedFiles,
                 selectedFile: allFiles[toIndex] || null,
-                lastMovementDirection: null
+                lastMovementDirection: null,
+                fileMovedToDifferentFolder: null
             };
         }
         
@@ -293,7 +303,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 selectedFiles: new Set<string>(),
                 selectedFile: null,
                 anchorIndex: null,
-                lastMovementDirection: null
+                lastMovementDirection: null,
+                fileMovedToDifferentFolder: null
             };
         }
         
@@ -344,27 +355,49 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
         }
         
         case 'UPDATE_FILE_PATH': {
-            // Update the file path in selectedFiles set
+            // Check if file moved to a different folder
+            const getParentPath = (path: string): string => {
+                const lastSlash = path.lastIndexOf('/');
+                return lastSlash > 0 ? path.substring(0, lastSlash) : '/';
+            };
+            
+            const oldParent = getParentPath(action.oldPath);
+            const newParent = getParentPath(action.newPath);
+            const movedToDifferentFolder = oldParent !== newParent;
+            
+            // Update selected files set
             const newSelectedFiles = new Set(state.selectedFiles);
             if (newSelectedFiles.has(action.oldPath)) {
                 newSelectedFiles.delete(action.oldPath);
                 newSelectedFiles.add(action.newPath);
             }
             
-            // Update selectedFile if it matches the renamed file
+            // Update selected file reference if it was renamed
             let newSelectedFile = state.selectedFile;
             if (state.selectedFile && state.selectedFile.path === action.oldPath && app) {
-                // Get the updated file reference from the vault
                 const updatedFile = app.vault.getAbstractFileByPath(action.newPath);
                 if (updatedFile && updatedFile instanceof TFile) {
                     newSelectedFile = updatedFile;
                 }
             }
             
+            // Flag for reveal if active file moved to different folder
+            let fileMovedToDifferentFolder: TFile | null = null;
+            if (movedToDifferentFolder && app) {
+                const activeFile = app.workspace.getActiveFile();
+                if (activeFile && activeFile.path === action.newPath) {
+                    const movedFile = app.vault.getAbstractFileByPath(action.newPath);
+                    if (movedFile && movedFile instanceof TFile) {
+                        fileMovedToDifferentFolder = movedFile;
+                    }
+                }
+            }
+            
             return {
                 ...state,
                 selectedFiles: newSelectedFiles,
-                selectedFile: newSelectedFile
+                selectedFile: newSelectedFile,
+                fileMovedToDifferentFolder
             };
         }
         
@@ -438,7 +471,8 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             lastMovementDirection: null,
             isRevealOperation: false,
             isFolderChangeWithAutoSelect: false,
-            isKeyboardNavigation: false
+            isKeyboardNavigation: false,
+            fileMovedToDifferentFolder: null
         };
     }, [app.vault]);
     
