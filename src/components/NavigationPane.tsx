@@ -27,6 +27,7 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { flattenFolderTree, flattenTagTree, findFolderIndex } from '../utils/treeFlattener';
 import { FolderItem } from './FolderItem';
+import { VirtualFolderComponent } from './VirtualFolderItem';
 import { TagTreeItem } from './TagTreeItem';
 import { useMetadataService } from '../context/ServicesContext';
 import { PaneHeader } from './PaneHeader';
@@ -40,29 +41,12 @@ import {
     excludeFromTagTree,
     parseTagPatterns
 } from '../utils/tagUtils';
-import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders } from '../utils/fileFilters';
+import { parseExcludedFolders } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
-import { UNTAGGED_TAG_ID, NavigationPaneItemType, ItemType, VirtualFolder } from '../types';
+import { UNTAGGED_TAG_ID, NavigationPaneItemType, ItemType, VirtualFolder, NAVITEM_HEIGHTS } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
-import { scrollVirtualItemIntoView } from '../utils/virtualUtils';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useTagCache } from '../context/TagCacheContext';
-
-// Item height constants for accurate virtualization
-const ITEM_HEIGHTS = {
-  desktop: {
-    folder: 28,      // Fixed height: 5px padding + 18px line-height + 5px padding
-    tag: 28,         // Matches folder height
-    header: 35,      // Tag section header
-    spacer: 20       // Bottom spacer - matches FileList
-  },
-  mobile: {
-    folder: 40,      // Fixed height: 11px padding + 18px line-height + 11px padding
-    tag: 40,         // Matches folder height
-    header: 38,      // Slightly larger for mobile font sizes
-    spacer: 20       // Bottom spacer - matches FileList
-  }
-};
 
 export interface NavigationPaneHandle {
     getIndexOfPath: (path: string) => number;
@@ -81,10 +65,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
-    // Removed: lastScrollPositionRef and savedScrollTopRef - no longer needed with centralized scroll restoration
-    const spacerHeight = 20; // Consistent spacer height - matches FileList
-    // Removed: lastScrolledPath - no longer needed with predictive scrolling
-    
     
     // Cache selected folder/tag path to avoid repeated property access
     const selectedPath = selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder 
@@ -92,9 +72,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         : selectionState.selectionType === ItemType.TAG && selectionState.selectedTag 
         ? selectionState.selectedTag 
         : null;
-    
-    
-    
     
     // =================================================================================
     // We use useState to hold stable folder data across re-renders
@@ -142,8 +119,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             events.forEach(eventRef => app.vault.offref(eventRef));
         };
     }, [app, settings.showRootFolder]);
-    // =================================================================================
-    // =================================================================================
     
     // =================================================================================
     // Get tag data from the context
@@ -289,7 +264,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             // Tags first, then folders
             allItems.push(...tagItems);
             allItems.push({
-                type: NavigationPaneItemType.SPACER,
+                type: NavigationPaneItemType.LIST_SPACER,
                 key: 'tags-folders-spacer'
             });
             allItems.push(...folderItems);
@@ -298,7 +273,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             allItems.push(...folderItems);
             if (settings.showTags) {
                 allItems.push({
-                    type: NavigationPaneItemType.SPACER,
+                    type: NavigationPaneItemType.LIST_SPACER,
                     key: 'folders-tags-spacer'
                 });
                 allItems.push(...tagItems);
@@ -319,8 +294,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         expansionState.expandedVirtualFolders, settings.excludedFolders, settings.showTags, 
         settings.showTagsAboveFolders, settings.showRootTagFolders, settings.showUntagged, 
         settings.favoriteTags, settings.hiddenTags, tagTree, untaggedCount, strings.tagList.untaggedLabel]);
-    // =================================================================================
-    // =================================================================================
     
     // Initialize virtualizer
     const rowVirtualizer = useVirtualizer({
@@ -328,11 +301,13 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         getScrollElement: () => scrollContainerRef.current,
         estimateSize: (index) => {
             const item = items[index];
-            const heights = isMobile ? ITEM_HEIGHTS.mobile : ITEM_HEIGHTS.desktop;
+            const heights = isMobile ? NAVITEM_HEIGHTS.mobile : NAVITEM_HEIGHTS.desktop;
             
             switch (item.type) {
                 case NavigationPaneItemType.SPACER:
                     return heights.spacer;
+                case NavigationPaneItemType.LIST_SPACER:
+                    return heights.listSpacer;
                 case NavigationPaneItemType.FOLDER:
                 case NavigationPaneItemType.VIRTUAL_FOLDER:
                     return heights.folder;
@@ -480,24 +455,14 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                 const hasChildren = virtualFolder.id === 'tags-root' || 
                     virtualFolder.id === 'all-tags-root' || 
                     virtualFolder.id === 'favorite-tags-root';
+                
                 return (
-                    <FolderItem
-                        folder={{
-                            path: virtualFolder.id,
-                            name: virtualFolder.name,
-                            parent: null,
-                            children: [],
-                            isRoot: () => false
-                        } as any} // Virtual folder doesn't match TFolder exactly
+                    <VirtualFolderComponent
+                        virtualFolder={virtualFolder}
                         level={item.level}
                         isExpanded={expansionState.expandedVirtualFolders.has(virtualFolder.id)}
-                        isSelected={false} // Virtual folders can't be selected
-                        onToggle={() => handleVirtualFolderToggle(virtualFolder.id)}
-                        onClick={() => {}} // No-op for virtual folders
-                        onNameClick={() => {}} // No-op for virtual folders
-                        icon={virtualFolder.icon}
-                        isVirtual={true}
                         hasChildren={hasChildren}
+                        onToggle={() => handleVirtualFolderToggle(virtualFolder.id)}
                     />
                 );
             }
@@ -522,13 +487,20 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                 );
             }
                 
-            case NavigationPaneItemType.SPACER:
-                return <div style={{ height: `${spacerHeight}px` }} />; // Empty spacer
+            case NavigationPaneItemType.SPACER: {
+                const heights = isMobile ? NAVITEM_HEIGHTS.mobile : NAVITEM_HEIGHTS.desktop;
+                return <div style={{ height: `${heights.spacer}px` }} />; // Bottom spacer
+            }
+            
+            case NavigationPaneItemType.LIST_SPACER: {
+                const heights = isMobile ? NAVITEM_HEIGHTS.mobile : NAVITEM_HEIGHTS.desktop;
+                return <div style={{ height: `${heights.listSpacer}px` }} />; // Inter-list spacer
+            }
                 
             default:
                 return null;
         }
-    }, [expansionState.expandedFolders, expansionState.expandedTags, expansionState.expandedVirtualFolders, selectionState.selectionType, selectionState.selectedFolder?.path, selectionState.selectedTag, handleFolderToggle, handleFolderClick, handleFolderNameClick, handleTagToggle, handleTagClick, handleVirtualFolderToggle, untaggedCount, settings, spacerHeight, settings.folderIcons, metadataService]);
+    }, [expansionState.expandedFolders, expansionState.expandedTags, expansionState.expandedVirtualFolders, selectionState.selectionType, selectionState.selectedFolder?.path, selectionState.selectedTag, handleFolderToggle, handleFolderClick, handleFolderNameClick, handleTagToggle, handleTagClick, handleVirtualFolderToggle, untaggedCount, settings, settings.folderIcons, metadataService, isMobile]);
     
     return (
         <ErrorBoundary componentName="NavigationPane">

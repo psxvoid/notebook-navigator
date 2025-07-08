@@ -17,7 +17,7 @@
  */
 
 // src/view/NotebookNavigatorView.tsx
-import { ItemView, WorkspaceLeaf, TFile, Platform } from 'obsidian';
+import { ItemView, WorkspaceLeaf, TFile, Platform, ViewStateResult } from 'obsidian';
 import { Root, createRoot } from 'react-dom/client';
 import React from 'react';
 import NotebookNavigatorPlugin from '../main';
@@ -215,7 +215,7 @@ export class NotebookNavigatorView extends ItemView {
      * 
      * Notice setState is NOT in this list - it's simply never called on mobile.
      */
-    async setState(state: NotebookNavigatorViewState, result: any): Promise<void> {
+    async setState(state: unknown, result: ViewStateResult): Promise<void> {
         // No implementation as this is never called on mobile where we need it most
     }
 }

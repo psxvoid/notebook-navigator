@@ -31,7 +31,7 @@ import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/
 import { strings } from '../i18n';
 import type { FileListItem } from '../types/virtualization';
 import { PaneHeader } from './PaneHeader';
-import { FileListItemType, ItemType } from '../types';
+import { FileListItemType, ItemType, FILELIST_MEASUREMENTS } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { useMultiSelection } from '../hooks/useMultiSelection';
 import { ErrorBoundary } from './ErrorBoundary';
@@ -388,11 +388,8 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         scrollEndTimeoutId: 0
     });
     
-    // Constants for mobile scroll handling
-    const VELOCITY_THRESHOLD = 0.1;        // Minimum velocity to consider as momentum scrolling
-    const SCROLL_END_DELAY = 150;          // Delay before marking scroll as ended
-    const MOMENTUM_DURATION = 500;         // How long to preserve state after touch end
-    const VELOCITY_CALC_MAX_DIFF = 100;    // Max time diff (ms) for velocity calculation
+    // Mobile scroll handling constants
+    const { velocityThreshold, scrollEndDelay, momentumDuration, velocityCalcMaxDiff } = FILELIST_MEASUREMENTS.scrollConstants;
     
     // Track previous item count to detect when items are added
     const prevItemCountRef = useRef(listItems.length);
@@ -404,17 +401,19 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         getScrollElement: () => scrollContainerRef.current,
         estimateSize: (index) => {
             const item = listItems[index];
+            const { heights } = FILELIST_MEASUREMENTS;
+            
             if (item.type === FileListItemType.HEADER) {
                 // Date group headers have fixed heights from CSS
                 const isFirstHeader = index === 0 || (index > 0 && listItems[index - 1].type !== FileListItemType.HEADER);
                 if (isFirstHeader) {
-                    return 35; // var(--nn-date-header-height)
+                    return heights.firstHeader;
                 }
-                return 50; // var(--nn-date-header-height-subsequent)
+                return heights.subsequentHeader;
             }
             
             if (item.type === FileListItemType.SPACER) {
-                return 20; // Fixed height for spacer
+                return heights.spacer;
             }
 
             // For file items
@@ -423,29 +422,29 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             // Check if we're in slim mode (no date, preview, or image)
             const isSlimMode = !showDate && !showFilePreview && !showFeatureImage;
             
-            // Base height: padding (var(--nn-file-padding-vertical) * 2 = 16px)
-            let estimatedHeight = 16;
+            // Base height: padding
+            let estimatedHeight = heights.basePadding;
             
-            // Add height for file name (var(--nn-file-line-height) = 20px per line)
+            // Add height for file name
             const nameLines = fileNameRows || 1;
-            estimatedHeight += (20 * nameLines);
+            estimatedHeight += (heights.fileLineHeight * nameLines);
             
             if (!isSlimMode) {
                 // Check preview layout mode
                 if (showFilePreview && previewRows === 1) {
                     // Single line preview: date and preview on same line
                     if (showDate || showFilePreview) {
-                        estimatedHeight += 22; // var(--nn-file-second-line-height)
+                        estimatedHeight += heights.secondLineHeight;
                     }
                 } else if (showFilePreview && previewRows >= 2) {
-                    // Multi-line preview mode (var(--nn-file-preview-line-height) = 19px per line)
-                    estimatedHeight += (19 * previewRows);
+                    // Multi-line preview mode
+                    estimatedHeight += (heights.multiLineHeight * previewRows);
                     if (showDate) {
-                        estimatedHeight += 20; // Date below preview (using line-height)
+                        estimatedHeight += heights.dateLineHeight;
                     }
                 } else if (showDate && !showFilePreview) {
                     // Just date, no preview
-                    estimatedHeight += 20; // Using line-height
+                    estimatedHeight += heights.dateLineHeight;
                 }
             }
             
@@ -454,20 +453,20 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             if (showParentFolderNames && settings.showNotesFromSubfolders) {
                 // We can't know if this specific file is in a subfolder without more context
                 // So we add a conservative estimate
-                estimatedHeight += 8; // Average across files (some have it, some don't)
+                estimatedHeight += heights.parentFolderLineHeight;
             }
             
             // Note: Feature image doesn't add height (it's inline with flex)
             
-            return Math.max(estimatedHeight, 32); // Minimum height for touch targets
+            return Math.max(estimatedHeight, heights.minTouchTargetHeight);
         },
-        overscan: isMobile ? 50 : 5, // Render more items on mobile to ensure selected item is rendered
+        overscan: isMobile ? FILELIST_MEASUREMENTS.overscan.mobile : FILELIST_MEASUREMENTS.overscan.desktop,
         scrollPaddingStart: 0,
         scrollPaddingEnd: 0,
         // Custom scroll function that preserves momentum on mobile
         scrollToFn: (offset, options, instance) => {
             if (isMobile && scrollStateRef.current.isScrolling && 
-                Math.abs(scrollStateRef.current.scrollVelocity) > VELOCITY_THRESHOLD) {
+                Math.abs(scrollStateRef.current.scrollVelocity) > velocityThreshold) {
                 // Don't interrupt momentum scrolling on mobile
                 return;
             }
@@ -681,7 +680,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                     scrollStateRef.current.scrollVelocity = 0;
                     scrollStateRef.current.scrollEndTimeoutId = 0;
                 }
-            }, MOMENTUM_DURATION);
+            }, momentumDuration);
         };
         
         const handleScroll = () => {
@@ -689,7 +688,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             const currentTime = performance.now();
             const timeDiff = currentTime - scrollStateRef.current.lastTimestamp;
             
-            if (timeDiff > 0 && timeDiff < VELOCITY_CALC_MAX_DIFF) {
+            if (timeDiff > 0 && timeDiff < velocityCalcMaxDiff) {
                 scrollStateRef.current.scrollVelocity = 
                     (currentScrollTop - scrollStateRef.current.lastScrollTop) / timeDiff;
             }
@@ -713,13 +712,13 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                     // Check if component is still mounted
                     if (scrollContainerRef.current) {
                         // Only stop if velocity is low
-                        if (Math.abs(scrollStateRef.current.scrollVelocity) < VELOCITY_THRESHOLD) {
+                        if (Math.abs(scrollStateRef.current.scrollVelocity) < velocityThreshold) {
                             scrollStateRef.current.isScrolling = false;
                             scrollStateRef.current.scrollVelocity = 0;
                             scrollStateRef.current.scrollEndTimeoutId = 0;
                         }
                     }
-                }, SCROLL_END_DELAY);
+                }, scrollEndDelay);
             });
         };
         
@@ -742,7 +741,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 clearTimeout(scrollStateRef.current.scrollEndTimeoutId);
             }
         };
-    }, [isMobile]);
+    }, [isMobile, velocityThreshold, scrollEndDelay, momentumDuration, velocityCalcMaxDiff]);
     
     // Helper function for safe array access
     const safeGetItem = <T,>(array: T[], index: number): T | undefined => {

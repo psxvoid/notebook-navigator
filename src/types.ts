@@ -16,6 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { App, WorkspaceLeaf } from 'obsidian';
+
 /**
  * Shared types and constants for Notebook Navigator
  * Centralizes type definitions used across multiple modules
@@ -73,13 +75,73 @@ export const NavigationPaneItemType = {
     VIRTUAL_FOLDER: 'virtual-folder',
     TAG: 'tag',
     UNTAGGED: 'untagged',
-    SPACER: 'spacer'
+    SPACER: 'spacer',
+    LIST_SPACER: 'list-spacer'
 } as const;
 
 /**
  * Type representing all possible navigation pane item types
  */
 export type NavigationPaneItemType = typeof NavigationPaneItemType[keyof typeof NavigationPaneItemType];
+
+/**
+ * Navigation pane item height constants for accurate virtualization
+ * Used by NavigationPane component
+ */
+export const NAVITEM_HEIGHTS = {
+  desktop: {
+    folder: 28,      // Fixed height: 5px padding + 18px line-height + 5px padding
+    tag: 28,         // Matches folder height
+    header: 35,      // Tag section header
+    spacer: 20,      // Bottom spacer - matches FileList
+    listSpacer: 10   // Spacer between lists (folders/tags)
+  },
+  mobile: {
+    folder: 40,      // Fixed height: 11px padding + 18px line-height + 11px padding
+    tag: 40,         // Matches folder height
+    header: 38,      // Slightly larger for mobile font sizes
+    spacer: 20,      // Bottom spacer - matches FileList
+    listSpacer: 10   // Spacer between lists (folders/tags)
+  }
+};
+
+/**
+ * File list item height constants and measurements
+ * Used by FileList component for virtualization
+ */
+export const FILELIST_MEASUREMENTS = {
+  heights: {
+    // Date group headers
+    firstHeader: 35,              // var(--nn-date-header-height)
+    subsequentHeader: 50,         // var(--nn-date-header-height-subsequent)
+    
+    // File item components
+    basePadding: 16,              // var(--nn-file-padding-vertical) * 2
+    fileLineHeight: 20,           // var(--nn-file-line-height) per line
+    secondLineHeight: 22,         // var(--nn-file-second-line-height) for single preview
+    multiLineHeight: 19,          // var(--nn-file-preview-line-height) per line
+    dateLineHeight: 20,           // Line height for date display
+    parentFolderLineHeight: 8,    // Height for parent folder path indicator
+    
+    // Constraints
+    minTouchTargetHeight: 32,     // Minimum height for touch targets
+    spacer: 20                    // Bottom spacer height
+  },
+  
+  // Virtualization config
+  overscan: {
+    mobile: 50,                   // Render more items on mobile for smooth scrolling
+    desktop: 5                    // Minimal overscan on desktop
+  },
+  
+  // Mobile scroll handling
+  scrollConstants: {
+    velocityThreshold: 0.1,       // Minimum velocity to consider as momentum scrolling
+    scrollEndDelay: 150,          // Delay (ms) before marking scroll as ended
+    momentumDuration: 500,        // Duration (ms) to preserve state after touch end
+    velocityCalcMaxDiff: 100      // Max time diff (ms) for velocity calculation
+  }
+};
 
 /**
  * Type representing all possible item types
@@ -202,7 +264,7 @@ export function isSupportedFileExtension(extension: string): extension is Suppor
 /**
  * Helper function to get all leaves with supported file types
  */
-export function getSupportedLeaves(app: any): any[] {
+export function getSupportedLeaves(app: App): WorkspaceLeaf[] {
     return SUPPORTED_LEAF_TYPES.flatMap(type => 
         app.workspace.getLeavesOfType(type)
     );

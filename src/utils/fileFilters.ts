@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile } from 'obsidian';
+import { TFile, App } from 'obsidian';
 
 /**
  * Filters the excluded files array to remove empty entries
@@ -28,7 +28,7 @@ export function parseExcludedProperties(excludedFiles: string[]): string[] {
 /**
  * Checks if a file should be excluded based on its frontmatter properties
  */
-export function shouldExcludeFile(file: TFile, excludedProperties: string[], app: any): boolean {
+export function shouldExcludeFile(file: TFile, excludedProperties: string[], app: App): boolean {
     if (excludedProperties.length === 0) return false;
     
     const metadata = app.metadataCache.getFileCache(file);

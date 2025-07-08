@@ -315,7 +315,19 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             try {
                 const selectedPaths = JSON.parse(multipleFilesData);
                 if (Array.isArray(selectedPaths)) {
-                    // Check if we're moving the currently selected file
+                    /**
+                     * Bulk file move operation:
+                     * 1. Determine if we're moving the currently selected file
+                     * 2. If so, find the next file to select after the move
+                     * 3. Move each file individually, tracking successes/failures
+                     * 4. Update selection only if the selected file was moved
+                     * 5. Show notifications for any skipped files
+                     * 
+                     * This approach maintains user context by:
+                     * - Only changing selection when necessary
+                     * - Pre-calculating the next selection before moves
+                     * - Providing feedback for conflicts
+                     */
                     const pathsToMove = new Set(selectedPaths);
                     const isMovingSelectedFile = selectionState.selectedFile && pathsToMove.has(selectionState.selectedFile.path);
                     

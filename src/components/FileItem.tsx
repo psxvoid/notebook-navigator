@@ -210,6 +210,7 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
             data-draggable={!isMobile ? "true" : undefined}
             onClick={(e) => onClick(e)} 
             draggable={!isMobile}
+            role="listitem"
         >
             <div className="nn-file-content">
                 {isSlimMode ? (

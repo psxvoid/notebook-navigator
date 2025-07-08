@@ -110,6 +110,9 @@ export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProp
             data-drop-zone="tag"
             data-drop-path={tagNode.path}
             style={{ paddingInlineStart: `${level * 20}px` }}
+            role="treeitem"
+            aria-expanded={hasChildren ? isExpanded : undefined}
+            aria-level={level + 1}
         >
             <div 
                 className="nn-folder-content"
@@ -127,6 +130,7 @@ export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProp
                         e.stopPropagation();
                         e.preventDefault();
                     }}
+                    tabIndex={-1}
                 />
                 {settings.showIcons && (
                     <span 
