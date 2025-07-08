@@ -27,6 +27,7 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { flattenFolderTree, flattenTagTree, findFolderIndex } from '../utils/treeFlattener';
 import { FolderItem } from './FolderItem';
+import { VirtualFolderComponent } from './VirtualFolderItem';
 import { TagTreeItem } from './TagTreeItem';
 import { useMetadataService } from '../context/ServicesContext';
 import { PaneHeader } from './PaneHeader';
@@ -455,28 +456,13 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                     virtualFolder.id === 'all-tags-root' || 
                     virtualFolder.id === 'favorite-tags-root';
                 
-                // Create a minimal folder-like object that satisfies TFolder interface
-                const virtualFolderAsFolder: TFolder = {
-                    vault: app.vault,
-                    path: virtualFolder.id,
-                    name: virtualFolder.name,
-                    parent: null,
-                    children: [],
-                    isRoot: () => false
-                } as TFolder;
-                
                 return (
-                    <FolderItem
-                        folder={virtualFolderAsFolder}
+                    <VirtualFolderComponent
+                        virtualFolder={virtualFolder}
                         level={item.level}
                         isExpanded={expansionState.expandedVirtualFolders.has(virtualFolder.id)}
-                        isSelected={false} // Virtual folders can't be selected
-                        onToggle={() => handleVirtualFolderToggle(virtualFolder.id)}
-                        onClick={() => {}} // No-op for virtual folders
-                        onNameClick={() => {}} // No-op for virtual folders
-                        icon={virtualFolder.icon}
-                        isVirtual={true}
                         hasChildren={hasChildren}
+                        onToggle={() => handleVirtualFolderToggle(virtualFolder.id)}
                     />
                 );
             }
