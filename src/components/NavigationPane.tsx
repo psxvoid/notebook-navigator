@@ -454,15 +454,20 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                 const hasChildren = virtualFolder.id === 'tags-root' || 
                     virtualFolder.id === 'all-tags-root' || 
                     virtualFolder.id === 'favorite-tags-root';
+                
+                // Create a minimal folder-like object that satisfies TFolder interface
+                const virtualFolderAsFolder: TFolder = {
+                    vault: app.vault,
+                    path: virtualFolder.id,
+                    name: virtualFolder.name,
+                    parent: null,
+                    children: [],
+                    isRoot: () => false
+                } as TFolder;
+                
                 return (
                     <FolderItem
-                        folder={{
-                            path: virtualFolder.id,
-                            name: virtualFolder.name,
-                            parent: null,
-                            children: [],
-                            isRoot: () => false
-                        } as any} // Virtual folder doesn't match TFolder exactly
+                        folder={virtualFolderAsFolder}
                         level={item.level}
                         isExpanded={expansionState.expandedVirtualFolders.has(virtualFolder.id)}
                         isSelected={false} // Virtual folders can't be selected

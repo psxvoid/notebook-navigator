@@ -256,7 +256,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     if (item.type === NavigationPaneItemType.FOLDER) {
                         const folder = item.data;
                         const isExpanded = expansionState.expandedFolders.has(folder.path);
-                        const hasChildren = folder.children.some((child: any) => isTFolder(child));
+                        const hasChildren = folder.children.some((child) => isTFolder(child));
                         
                         if (hasChildren && !isExpanded) {
                             // If it has children and is collapsed, expand it.
@@ -523,10 +523,23 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     /**
      * Calculates the number of items that fit in the viewport based on geometry.
      * This is the only reliable way to get a consistent page size.
+     * 
+     * Algorithm:
+     * 1. Get all currently rendered virtual items (not all items, just visible ones)
+     * 2. Calculate the total height spanned by these rendered items
+     * 3. Divide by the number of items to get average item height
+     * 4. Divide viewport height by average item height to get items per page
+     * 5. Subtract 1 from page size to maintain visual context when paging
+     * 
+     * Edge cases handled:
+     * - No items rendered: returns default of 10
+     * - Zero height items: returns default of 10
+     * - Very small viewport: ensures minimum jump of 1 item
+     * 
      * @param virtualizer The virtualizer instance.
      * @returns The number of items to jump for a page up/down action.
      */
-    const getVisiblePageSize = (virtualizer: Virtualizer<any, any>): number => {
+    const getVisiblePageSize = (virtualizer: Virtualizer<HTMLDivElement, Element>): number => {
         const virtualItems = virtualizer.getVirtualItems();
         // If the virtualizer or its scroll element isn't ready, return a sensible default.
         if (virtualItems.length === 0 || !virtualizer.scrollElement) {

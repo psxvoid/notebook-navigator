@@ -21,14 +21,8 @@ import { App, TFile, TFolder } from 'obsidian';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
-import { NavigationItemType } from '../types';
+import { NavigationItemType, STORAGE_KEYS } from '../types';
 import { NotebookNavigatorPlugin } from '../types/plugin';
-
-// Storage keys
-const STORAGE_KEYS = {
-    SELECTED_FOLDER: 'notebook-navigator-selected-folder',
-    SELECTED_FILE: 'notebook-navigator-selected-file'
-};
 
 // State interface
 export interface SelectionState {
@@ -75,15 +69,35 @@ const SelectionContext = createContext<SelectionState | null>(null);
 const SelectionDispatchContext = createContext<React.Dispatch<SelectionAction> | null>(null);
 
 // Helper function to get first file from selection (for backward compatibility)
-function getFirstSelectedFile(selectedFiles: Set<string>, app: any): TFile | null {
+function getFirstSelectedFile(selectedFiles: Set<string>, app: App): TFile | null {
     if (selectedFiles.size === 0) return null;
     const firstPath = Array.from(selectedFiles)[0];
     const file = app.vault.getAbstractFileByPath(firstPath);
     return file instanceof TFile ? file : null;
 }
 
-// Pure reducer function - no side effects or external dependencies
-function selectionReducer(state: SelectionState, action: SelectionAction, app?: any): SelectionState {
+/**
+ * Selection state reducer - manages all selection-related state transitions.
+ * 
+ * Key concepts:
+ * - selectedFiles: Set of file paths for multi-selection
+ * - selectedFile: Current cursor position for keyboard navigation
+ * - selectionType: Whether a folder or tag is selected
+ * - Flags: isRevealOperation and isFolderChangeWithAutoSelect coordinate complex updates
+ * 
+ * State transitions:
+ * - SET_SELECTED_FOLDER/TAG: Changes navigation context, optionally auto-selects first file
+ * - TOGGLE_FILE_SELECTION: Adds/removes files from multi-selection
+ * - TOGGLE_WITH_CURSOR: Updates both selection and cursor position
+ * - UPDATE_CURRENT_FILE: Moves cursor without changing selection
+ * - CLEAR_FILE_SELECTION: Resets to no selection
+ * 
+ * @param state Current selection state
+ * @param action Action to perform
+ * @param app Obsidian app instance for file operations
+ * @returns New selection state
+ */
+function selectionReducer(state: SelectionState, action: SelectionAction, app?: App): SelectionState {
     switch (action.type) {
         case 'SET_SELECTED_FOLDER': {
             const newSelectedFiles = new Set<string>();
@@ -339,7 +353,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             
             // Update selectedFile if it matches the renamed file
             let newSelectedFile = state.selectedFile;
-            if (state.selectedFile && state.selectedFile.path === action.oldPath) {
+            if (state.selectedFile && state.selectedFile.path === action.oldPath && app) {
                 // Get the updated file reference from the vault
                 const updatedFile = app.vault.getAbstractFileByPath(action.newPath);
                 if (updatedFile && updatedFile instanceof TFile) {
@@ -378,7 +392,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
         // Load saved folder path with error handling
         let savedFolderPath: string | null = null;
         try {
-            savedFolderPath = localStorage.getItem(STORAGE_KEYS.SELECTED_FOLDER);
+            savedFolderPath = localStorage.getItem(STORAGE_KEYS.selectedFolderKey);
         } catch (error) {
             console.error('Failed to load selected folder from localStorage:', error);
         }
@@ -394,7 +408,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
         // Load saved file path with error handling
         let savedFilePath: string | null = null;
         try {
-            savedFilePath = localStorage.getItem(STORAGE_KEYS.SELECTED_FILE);
+            savedFilePath = localStorage.getItem(STORAGE_KEYS.selectedFileKey);
         } catch (error) {
             console.error('Failed to load selected file from localStorage:', error);
         }
@@ -507,9 +521,9 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
     useEffect(() => {
         try {
             if (state.selectedFolder) {
-                localStorage.setItem(STORAGE_KEYS.SELECTED_FOLDER, state.selectedFolder.path);
+                localStorage.setItem(STORAGE_KEYS.selectedFolderKey, state.selectedFolder.path);
             } else {
-                localStorage.removeItem(STORAGE_KEYS.SELECTED_FOLDER);
+                localStorage.removeItem(STORAGE_KEYS.selectedFolderKey);
             }
         } catch (error) {
             console.error('Failed to save selected folder to localStorage:', error);
@@ -522,9 +536,9 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             // Save the first selected file for backward compatibility
             const firstFile = state.selectedFile || getFirstSelectedFile(state.selectedFiles, app);
             if (firstFile) {
-                localStorage.setItem(STORAGE_KEYS.SELECTED_FILE, firstFile.path);
+                localStorage.setItem(STORAGE_KEYS.selectedFileKey, firstFile.path);
             } else {
-                localStorage.removeItem(STORAGE_KEYS.SELECTED_FILE);
+                localStorage.removeItem(STORAGE_KEYS.selectedFileKey);
             }
         } catch (error) {
             console.error('Failed to save selected file to localStorage:', error);

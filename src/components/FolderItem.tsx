@@ -189,6 +189,9 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
             data-draggable={!isMobile && !isVirtual ? "true" : undefined}
             draggable={!isMobile && !isVirtual}
             style={{ paddingInlineStart: `${level * 20}px` }}
+            role="treeitem"
+            aria-expanded={hasChildren ? isExpanded : undefined}
+            aria-level={level + 1}
         >
             <div 
                 className="nn-folder-content"
@@ -209,6 +212,7 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
                         e.stopPropagation();
                         e.preventDefault();
                     }}
+                    tabIndex={-1}
                 />
                 {settings.showIcons && (
                     <span 
