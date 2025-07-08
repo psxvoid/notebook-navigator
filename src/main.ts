@@ -433,6 +433,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         const keysToRemove = [
             STORAGE_KEYS.expandedFoldersKey,
             STORAGE_KEYS.expandedTagsKey,
+            STORAGE_KEYS.expandedVirtualFoldersKey,
             STORAGE_KEYS.selectedFolderKey,
             STORAGE_KEYS.selectedFileKey,
             STORAGE_KEYS.navigationPaneWidthKey,
