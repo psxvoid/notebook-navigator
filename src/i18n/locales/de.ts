@@ -66,6 +66,7 @@ export const STRINGS_DE = {
         showFolders: 'Navigation anzeigen', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Navigation ausblenden', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         toggleSubfolders: 'Notizen aus Unterordnern anzeigen', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
+        autoExpandFoldersTags: 'Ordner und Tags automatisch erweitern', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
     },
 
     // Context menus
@@ -321,6 +322,10 @@ export const STRINGS_DE = {
             autoSelectFirstFileOnFocusChange: {
                 name: 'Erste Notiz beim Ordner- oder Tag-Wechsel automatisch auswählen',
                 desc: 'Die erste Notiz automatisch auswählen und öffnen, wenn Sie den Ordner oder Tag wechseln.',
+            },
+            autoExpandFoldersTags: {
+                name: 'Ordner und Tags automatisch erweitern',
+                desc: 'Ordner und Tags automatisch erweitern, wenn sie ausgewählt werden.',
             },
             showTooltips: {
                 name: 'Tooltips anzeigen',

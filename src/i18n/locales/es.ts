@@ -66,6 +66,7 @@ export const STRINGS_ES = {
         showFolders: 'Mostrar navegación', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Ocultar navegación', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         toggleSubfolders: 'Mostrar notas de subcarpetas', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
+        autoExpandFoldersTags: 'Expandir carpetas y etiquetas automáticamente', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
     },
 
     // Context menus
@@ -321,6 +322,10 @@ export const STRINGS_ES = {
             autoSelectFirstFileOnFocusChange: {
                 name: 'Seleccionar automáticamente la primera nota al cambiar de carpeta o etiqueta',
                 desc: 'Selecciona y abre automáticamente la primera nota al cambiar de carpeta o etiqueta.',
+            },
+            autoExpandFoldersTags: {
+                name: 'Expandir carpetas y etiquetas automáticamente',
+                desc: 'Expandir automáticamente carpetas y etiquetas cuando se seleccionan.',
             },
             showTooltips: {
                 name: 'Mostrar tooltips',

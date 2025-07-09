@@ -66,6 +66,7 @@ export const STRINGS_JA = {
         showFolders: 'ナビゲーションを表示', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'ナビゲーションを非表示', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         toggleSubfolders: 'サブフォルダのノートを表示', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
+        autoExpandFoldersTags: 'フォルダとタグを自動展開', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
     },
 
     // Context menus
@@ -321,6 +322,10 @@ export const STRINGS_JA = {
             autoSelectFirstFileOnFocusChange: {
                 name: 'フォルダまたはタグ変更時に最初のノートを自動選択',
                 desc: 'フォルダまたはタグを切り替えた際に自動的に最初のノートを選択して開きます。',
+            },
+            autoExpandFoldersTags: {
+                name: 'フォルダとタグを自動展開',
+                desc: 'フォルダやタグを選択した際に自動的に展開します。',
             },
             showTooltips: {
                 name: 'ツールチップを表示',

@@ -66,6 +66,7 @@ export const STRINGS_ZH = {
         showFolders: '显示导航', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: '隐藏导航', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         toggleSubfolders: '显示子文件夹中的笔记', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
+        autoExpandFoldersTags: '自动展开文件夹和标签', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
     },
 
     // Context menus
@@ -321,6 +322,10 @@ export const STRINGS_ZH = {
             autoSelectFirstFileOnFocusChange: {
                 name: '切换文件夹或标签时自动选择第一个笔记',
                 desc: '切换文件夹或标签时自动选择并打开第一个笔记。',
+            },
+            autoExpandFoldersTags: {
+                name: '自动展开文件夹和标签',
+                desc: '选择文件夹和标签时自动展开它们。',
             },
             showTooltips: {
                 name: '显示工具提示',

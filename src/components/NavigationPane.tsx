@@ -379,6 +379,14 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         
+        // Auto-expand if enabled and folder has children
+        if (settings.autoExpandFoldersTags && folder.children.some(child => isTFolder(child))) {
+            // Only expand if not already expanded
+            if (!expansionState.expandedFolders.has(folder.path)) {
+                expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
+            }
+        }
+        
         // Switch to files view on mobile
         if (isMobile) {
             uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
@@ -386,7 +394,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             // correct file (which will be the first file on a new folder selection).
             // No explicit scroll dispatch is needed here anymore.
         }
-    }, [selectionDispatch, uiDispatch, isMobile]);
+    }, [selectionDispatch, uiDispatch, isMobile, settings.autoExpandFoldersTags, expansionState.expandedFolders, expansionDispatch]);
     
     // Handle folder name click (for folder notes)
     const handleFolderNameClick = useCallback((folder: TFolder) => {
@@ -432,6 +440,18 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         
+        // Auto-expand if enabled and tag has children
+        if (settings.autoExpandFoldersTags) {
+            // Find the tag node to check if it has children
+            const tagNode = Array.from(tagTree.values()).find(node => node.path === tagPath);
+            if (tagNode && tagNode.children.size > 0) {
+                // Only expand if not already expanded
+                if (!expansionState.expandedTags.has(tagPath)) {
+                    expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath });
+                }
+            }
+        }
+        
         // Switch to files view on mobile
         if (isMobile) {
             uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
@@ -439,7 +459,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             // correct file (which will be the first file on a new tag selection).
             // No explicit scroll dispatch is needed here anymore.
         }
-    }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView]);
+    }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView, settings.autoExpandFoldersTags, tagTree, expansionState.expandedTags, expansionDispatch]);
     
     // Scroll to top handler for mobile header click
     const handleScrollToTop = useCallback(() => {

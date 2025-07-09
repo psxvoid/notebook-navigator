@@ -260,6 +260,12 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
         });
     }, [updateSettings]);
     
+    const handleToggleAutoExpand = useCallback(async () => {
+        await updateSettings((s) => {
+            s.autoExpandFoldersTags = !s.autoExpandFoldersTags;
+        });
+    }, [updateSettings]);
+    
     // Mobile header with back button
     if (isMobile) {
         let headerTitle = strings.common.noSelection;
@@ -308,7 +314,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                                 disabled={selectionState.selectionType !== ItemType.FOLDER || !selectionState.selectedFolder}
                                 tabIndex={-1}
                             >
-                                <ObsidianIcon name="folder-tree" />
+                                <ObsidianIcon name="layers" />
                             </button>
                             <button
                                 className="nn-icon-button"
@@ -413,6 +419,14 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                         </button>
                         <div className="nn-header-actions">
                             <button
+                                className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}
+                                aria-label={strings.paneHeader.autoExpandFoldersTags}
+                                onClick={handleToggleAutoExpand}
+                                tabIndex={-1}
+                            >
+                                <ObsidianIcon name="folder-tree" />
+                            </button>
+                            <button
                                 className="nn-icon-button"
                                 aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
                                 onClick={handleExpandCollapseAll}
@@ -464,7 +478,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                                 disabled={selectionState.selectionType !== ItemType.FOLDER || !selectionState.selectedFolder}
                                 tabIndex={-1}
                             >
-                                <ObsidianIcon name="folder-tree" />
+                                <ObsidianIcon name="layers" />
                             </button>
                             <button
                                 className="nn-icon-button"
