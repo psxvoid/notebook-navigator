@@ -68,6 +68,7 @@ To a modern, Notes-style interface like this:
    - Create new notes and folders
    - Rename items
    - Delete items
+   - Move files to another folder
    - Pin/unpin notes
    - Change folder colors
    - Remove folder colors
@@ -102,6 +103,9 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Toggle navigation pane` Shows or hides the navigation pane (folder/tag tree) to maximize list pane space
 - `Notebook Navigator: Create new note` Creates a new note in the currently selected folder. Unlike Obsidian's default new note command which only allows creating in the same folder as current note, root folder, or a specific folder, this always creates in your currently selected folder. **Tip:** You can bind Cmd/Ctrl+N to this command for a more intuitive workflow - just unbind it from Obsidian's built-in "Create new note" command first
 - `Notebook Navigator: Delete files` Deletes the currently selected files using the navigator's smart selection (selects next file before deletion)
+- `Notebook Navigator: Navigate to folder` Navigate to a folder using fuzzy search
+- `Notebook Navigator: Toggle show notes from subfolders` Toggles showing notes from subfolders
+- `Notebook Navigator: Move files` Move selected files to another folder
 
 ## Installation
 
@@ -140,6 +144,7 @@ Until the plugin is approved in the Community Plugins directory, you can install
 ### Navigation Pane
 
 - **Auto-select first note on focus change:** Automatically select and open the first note when switching folders or tags
+- **Auto-expand folders and tags:** Automatically expand folders and tags when they are selected
 - **Show note count:** Display the number of notes in each folder and tag
 - **Show icons:** Display icons next to folders and tags in the navigation pane
 - **Collapse button behavior:** Choose what the expand/collapse all button affects
