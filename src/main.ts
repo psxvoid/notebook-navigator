@@ -324,6 +324,21 @@ export default class NotebookNavigatorPlugin extends Plugin {
                     await this.metadataService.handleFolderRename(oldPath, file.path);
                     // The metadata service saves settings which triggers reactive updates
                 } else if (file instanceof TFile) {
+                    // Check if file moved to a different folder
+                    const getParentPath = (path: string): string => {
+                        const lastSlash = path.lastIndexOf('/');
+                        return lastSlash > 0 ? path.substring(0, lastSlash) : '/';
+                    };
+                    
+                    const oldParent = getParentPath(oldPath);
+                    const newParent = getParentPath(file.path);
+                    const movedToDifferentFolder = oldParent !== newParent;
+                    
+                    // If the active file moved to a different folder, reveal it
+                    if (movedToDifferentFolder && file === this.app.workspace.getActiveFile()) {
+                        await this.navigateToFile(file);
+                    }
+                    
                     // Notify all listeners about the file rename
                     this.fileRenameListeners.forEach((callback) => {
                         try {

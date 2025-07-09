@@ -150,12 +150,6 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
         }
     }, [fileToReveal, revealFileInCurrentView]);
     
-    // Handle revealing files that moved to a different folder
-    useEffect(() => {
-        if (selectionState.fileMovedToDifferentFolder) {
-            navigateToFile(selectionState.fileMovedToDifferentFolder); // Navigate to new location
-        }
-    }, [selectionState.fileMovedToDifferentFolder, navigateToFile]);
     
     
     /**
