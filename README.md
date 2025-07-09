@@ -105,7 +105,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Delete files` Deletes the currently selected files using the navigator's smart selection (selects next file before deletion)
 - `Notebook Navigator: Navigate to folder` Navigate to a folder using fuzzy search
 - `Notebook Navigator: Toggle show notes from subfolders` Toggles showing notes from subfolders
-- `Notebook Navigator: Move files` Move selected files to another folder using the navigator's smart selection (maintains selection after move)
+- `Notebook Navigator: Move files` Move selected files to another folder using the navigator's smart selection (selects next file after move)
 
 ## Installation
 
