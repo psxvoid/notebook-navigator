@@ -65,6 +65,7 @@ export const STRINGS_EN = {
         customSort: 'Custom', // Label for custom sorting mode (English: Custom)
         showFolders: 'Show navigation', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Hide navigation', // Tooltip for button to hide the navigation pane (English: Hide navigation)
+        toggleSubfolders: 'Show notes from subfolders', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
     },
 
     // Context menus
@@ -258,6 +259,7 @@ export const STRINGS_EN = {
         toggleNavigationPane: 'Toggle navigation pane', // Command palette: Shows or hides the navigation pane (English: Toggle navigation pane)
         deleteFile: 'Delete file', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Create new note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
+        toggleSubfolders: 'Toggle show notes from subfolders', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
     },
 
     // Plugin UI

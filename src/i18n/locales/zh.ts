@@ -65,6 +65,7 @@ export const STRINGS_ZH = {
         customSort: '自定义', // Label for custom sorting mode (English: Custom)
         showFolders: '显示导航', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: '隐藏导航', // Tooltip for button to hide the navigation pane (English: Hide navigation)
+        toggleSubfolders: '显示子文件夹中的笔记', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
     },
 
     // Context menus
@@ -258,6 +259,7 @@ export const STRINGS_ZH = {
         toggleNavigationPane: '切换导航面板', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
         deleteFile: '删除文件', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '创建新笔记', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
+        toggleSubfolders: '切换显示子文件夹中的笔记', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
     },
 
     // Plugin UI

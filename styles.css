@@ -172,7 +172,7 @@
 /* Header actions container - groups action buttons in headers */
 .nn-header-actions {
     display: flex;
-    gap: var(--size-4-2);
+    gap: 2px;
     align-items: center;
 }
 
@@ -241,14 +241,18 @@
 
 /* Reduce button padding in headers to prevent overflow */
 .nn-header-actions button.nn-icon-button {
-    padding: 0 var(--size-4-1);
+    padding: 1px 7px;
+    width: 30px;
+    height: 28px;
 }
 
 /* iPad-specific adjustment for icon buttons in headers */
 @media (min-width: 768px) {
     .notebook-navigator-mobile .nn-header-actions button.nn-icon-button {
-        /* Use clamp to scale padding appropriately for tablets */
-        padding: 0 clamp(4px, 1vw, 8px);
+        /* Maintain same dimensions as desktop for consistency */
+        padding: 1px 7px;
+        width: 30px;
+        height: 28px;
     }
 }
 
@@ -261,6 +265,17 @@
 /* Icon button active state - feedback on click */
 .nn-icon-button:active {
     opacity: 0.8;
+}
+
+/* Icon button active state - for toggle buttons that are "ON" */
+.nn-icon-button-active {
+    background-color: var(--background-modifier-hover) !important;
+    color: var(--text-normal) !important;
+}
+
+/* Active button icon color */
+.nn-icon-button-active svg {
+    stroke: var(--text-normal) !important;
 }
 
 /* Icon button disabled state - visual indicator for unavailable actions */

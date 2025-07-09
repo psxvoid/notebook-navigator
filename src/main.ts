@@ -195,6 +195,16 @@ export default class NotebookNavigatorPlugin extends Plugin {
         });
 
         this.addCommand({
+            id: 'toggle-show-notes-from-subfolders',
+            name: strings.commands.toggleSubfolders,
+            callback: async () => {
+                this.settings.showNotesFromSubfolders = !this.settings.showNotesFromSubfolders;
+                await this.saveSettings();
+                this.onSettingsUpdate();
+            }
+        });
+
+        this.addCommand({
             id: 'toggle-navigation-pane',
             name: strings.commands.toggleNavigationPane,
             callback: async () => {

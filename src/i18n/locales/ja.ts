@@ -65,6 +65,7 @@ export const STRINGS_JA = {
         customSort: 'カスタム', // Label for custom sorting mode (English: Custom)
         showFolders: 'ナビゲーションを表示', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'ナビゲーションを非表示', // Tooltip for button to hide the navigation pane (English: Hide navigation)
+        toggleSubfolders: 'サブフォルダのノートを表示', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
     },
 
     // Context menus
@@ -258,6 +259,7 @@ export const STRINGS_JA = {
         toggleNavigationPane: 'ナビゲーションペインを切り替え', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
         deleteFile: 'ファイルを削除', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '新規ノートを作成', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
+        toggleSubfolders: 'サブフォルダのノート表示を切り替え', // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
     },
 
     // Plugin UI

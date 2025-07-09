@@ -248,6 +248,41 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         }
     }, [selectionState.fileMovedToDifferentFolder]); // Remove revealFile from deps to prevent infinite loop
     
+    // Track previous showNotesFromSubfolders value
+    const prevShowNotesFromSubfoldersRef = useRef(settings.showNotesFromSubfolders);
+    
+    // Handle auto-reveal when showNotesFromSubfolders is toggled OFF
+    useEffect(() => {
+        const prevValue = prevShowNotesFromSubfoldersRef.current;
+        const currentValue = settings.showNotesFromSubfolders;
+        
+        // Update ref for next render
+        prevShowNotesFromSubfoldersRef.current = currentValue;
+        
+        // Only reveal when toggling from ON to OFF and auto-reveal is enabled
+        if (prevValue && !currentValue && settings.autoRevealActiveFile) {
+            const activeFile = app.workspace.getActiveFile();
+            if (activeFile && selectionState.selectedFolder) {
+                // Check if the active file is in a subfolder of the current selection
+                let isInSubfolder = false;
+                let currentParent: TFolder | null = activeFile.parent;
+                
+                while (currentParent) {
+                    if (currentParent.path === selectionState.selectedFolder.path) {
+                        isInSubfolder = true;
+                        break;
+                    }
+                    currentParent = currentParent.parent;
+                }
+                
+                // Only reveal if the file was in a subfolder (and thus no longer visible)
+                if (isInSubfolder && activeFile.parent && activeFile.parent.path !== selectionState.selectedFolder.path) {
+                    revealFile(activeFile, false); // false = auto-reveal
+                }
+            }
+        }
+    }, [settings.showNotesFromSubfolders, settings.autoRevealActiveFile, app, selectionState.selectedFolder]);
+    
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
         revealFile,

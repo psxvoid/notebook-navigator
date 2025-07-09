@@ -254,6 +254,12 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
         menu.showAtMouseEvent(event.nativeEvent);
     }, [type, selectionState.selectionType, selectionState.selectedFolder, selectionState.selectedTag, app, getCurrentSortOption, updateSettings, metadataService, settings]);
     
+    const handleToggleSubfolders = useCallback(async () => {
+        await updateSettings((s) => {
+            s.showNotesFromSubfolders = !s.showNotesFromSubfolders;
+        });
+    }, [updateSettings]);
+    
     // Mobile header with back button
     if (isMobile) {
         let headerTitle = strings.common.noSelection;
@@ -292,6 +298,18 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                             </span>
                         </div>
                         <div className="nn-header-actions">
+                            <button
+                                className={`nn-icon-button ${settings.showNotesFromSubfolders ? 'nn-icon-button-active' : ''}`}
+                                aria-label={strings.paneHeader.toggleSubfolders}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleToggleSubfolders();
+                                }}
+                                disabled={selectionState.selectionType !== ItemType.FOLDER || !selectionState.selectedFolder}
+                                tabIndex={-1}
+                            >
+                                <ObsidianIcon name="folder-tree" />
+                            </button>
                             <button
                                 className="nn-icon-button"
                                 aria-label={strings.paneHeader.changeSortOrder}
@@ -439,6 +457,15 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                             </span>
                         )}
                         <div className="nn-header-actions">
+                            <button
+                                className={`nn-icon-button ${settings.showNotesFromSubfolders ? 'nn-icon-button-active' : ''}`}
+                                aria-label={strings.paneHeader.toggleSubfolders}
+                                onClick={handleToggleSubfolders}
+                                disabled={selectionState.selectionType !== ItemType.FOLDER || !selectionState.selectedFolder}
+                                tabIndex={-1}
+                            >
+                                <ObsidianIcon name="folder-tree" />
+                            </button>
                             <button
                                 className="nn-icon-button"
                                 aria-label={strings.paneHeader.changeSortOrder}
