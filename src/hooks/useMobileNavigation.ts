@@ -95,7 +95,7 @@ export function useMobileNavigation({
         enabled: isMobile
     });
     
-    // Track when the navigator is being hidden to ensure consistent state
+    // Auto-collapse the left sidebar when switching from navigator to editor on mobile
     useEffect(() => {
         if (!isMobile) return;
         
@@ -110,12 +110,15 @@ export function useMobileNavigation({
             // Check if the new active leaf is in the left sidebar
             const isInLeftSidebar = leaf.getRoot() === leftSplit;
             
-            // Only collapse if we're switching away from navigator to a view outside the sidebar
-            // This prevents collapsing when switching between sidebar views (e.g., to file explorer)
+            // Only collapse the sidebar when:
+            // 1. We're leaving the navigator view (not isNavigatorView)
+            // 2. The sidebar is currently open (!leftSplit.collapsed)
+            // 3. We're switching to a view OUTSIDE the sidebar (!isInLeftSidebar)
+            // This prevents the sidebar from collapsing when clicking within other sidebar views
             if (!isNavigatorView && leftSplit && !leftSplit.collapsed && !isInLeftSidebar) {
                 hideCount++;
                 
-                // Call collapse to ensure consistent state when switching to editor
+                // Collapse the sidebar to give more space to the editor
                 leftSplit.collapse();
             }
         };
