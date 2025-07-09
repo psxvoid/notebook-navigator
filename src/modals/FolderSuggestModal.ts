@@ -32,6 +32,7 @@ export class FolderSuggestModal extends FuzzySuggestModal<TFolder> {
      * Creates a new FolderSuggestModal
      * @param app - The Obsidian app instance
      * @param onChooseFolder - Callback when a folder is selected
+     * @param placeholderText - Placeholder text for the search input
      * @param actionText - Action text for the enter key instruction
      * @param excludePaths - Optional set of folder paths to exclude from selection
      */
