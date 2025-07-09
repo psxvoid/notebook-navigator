@@ -65,6 +65,8 @@ export const STRINGS_ZH = {
         customSort: '自定义', // Label for custom sorting mode (English: Custom)
         showFolders: '显示导航', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: '隐藏导航', // Tooltip for button to hide the navigation pane (English: Hide navigation)
+        toggleSubfolders: '显示子文件夹中的笔记', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
+        autoExpandFoldersTags: '自动展开文件夹和标签', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
     },
 
     // Context menus
@@ -89,6 +91,8 @@ export const STRINGS_ZH = {
             renameNote: '重命名笔记',
             deleteNote: '删除笔记',
             deleteMultipleNotes: '删除 {count} 个笔记',
+            moveToFolder: 'Move to...',
+            moveMultipleToFolder: 'Move {count} files to...',
         },
         folder: {
             newNote: '创建新笔记',
@@ -175,6 +179,16 @@ export const STRINGS_ZH = {
             deleteFolderConfirm: '您确定要删除此文件夹及其所有内容吗？',
             deleteFileConfirm: '您确定要删除此文件吗？',
         },
+        folderSuggest: {
+            placeholder: '移动到文件夹...',
+            navigatePlaceholder: '导航到文件夹...',
+            instructions: {
+                navigate: '导航',
+                move: '移动',
+                select: '选择',
+                dismiss: '取消',
+            },
+        },
     },
 
     // File system operations
@@ -198,6 +212,7 @@ export const STRINGS_ZH = {
             drawingAlreadyExists: '同名绘图已存在',
             failedToCreateDrawing: '创建绘图失败',
             noFolderSelected: 'Notebook Navigator 中未选择文件夹',
+            noFileSelected: '未选择文件',
         },
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',
@@ -258,6 +273,9 @@ export const STRINGS_ZH = {
         toggleNavigationPane: '切换导航面板', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
         deleteFile: '删除文件', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '创建新笔记', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
+        moveFiles: '移动文件', // Command palette: Move selected files to another folder (English: Move files)
+        navigateToFolder: '导航到文件夹', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
+        toggleSubfolders: '切换显示子文件夹中的笔记', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
     },
 
     // Plugin UI
@@ -319,6 +337,10 @@ export const STRINGS_ZH = {
             autoSelectFirstFileOnFocusChange: {
                 name: '切换文件夹或标签时自动选择第一个笔记',
                 desc: '切换文件夹或标签时自动选择并打开第一个笔记。',
+            },
+            autoExpandFoldersTags: {
+                name: '自动展开文件夹和标签',
+                desc: '选择文件夹和标签时自动展开它们。',
             },
             showTooltips: {
                 name: '显示工具提示',

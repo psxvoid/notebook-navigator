@@ -129,6 +129,62 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         });
     }
 
+    // Move note(s) to folder
+    if (!shouldShowMultiOptions) {
+        menu.addItem((item: MenuItem) => {
+            item
+                .setTitle(strings.contextMenu.file.moveToFolder)
+                .setIcon('folder-input')
+                .onClick(async () => {
+                    // Get current files list for smart selection
+                    let allFiles: TFile[] = [];
+                    if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+                        allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
+                    } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+                        allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
+                    }
+                    
+                    await fileSystemOps.moveFilesWithModal(
+                        [file],
+                        {
+                            selectedFile: selectionState.selectedFile,
+                            dispatch: selectionDispatch,
+                            allFiles
+                        }
+                    );
+                });
+        });
+    } else {
+        menu.addItem((item: MenuItem) => {
+            item
+                .setTitle(strings.contextMenu.file.moveMultipleToFolder.replace('{count}', selectedCount.toString()))
+                .setIcon('folder-input')
+                .onClick(async () => {
+                    // Convert selected paths to files
+                    const selectedFiles = Array.from(selectionState.selectedFiles)
+                        .map(path => app.vault.getAbstractFileByPath(path))
+                        .filter((f): f is TFile => f instanceof TFile);
+                    
+                    // Get current files list for smart selection
+                    let allFiles: TFile[] = [];
+                    if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+                        allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
+                    } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+                        allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
+                    }
+                    
+                    await fileSystemOps.moveFilesWithModal(
+                        selectedFiles,
+                        {
+                            selectedFile: selectionState.selectedFile,
+                            dispatch: selectionDispatch,
+                            allFiles
+                        }
+                    );
+                });
+        });
+    }
+
     // Delete note(s)
     if (!shouldShowMultiOptions) {
         addSingleFileDeleteOption(menu, file, selectionState, settings, fileSystemOps, selectionDispatch);

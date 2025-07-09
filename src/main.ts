@@ -165,7 +165,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 const activeFile = this.app.workspace.getActiveFile();
                 if (activeFile && activeFile.parent) {
                     if (!checking) {
-                        this.revealFileInNavigator(activeFile);
+                        this.navigateToFile(activeFile);
                     }
                     return true;
                 }
@@ -191,6 +191,16 @@ export default class NotebookNavigatorPlugin extends Plugin {
                         view.focusFilePane();
                     }
                 });
+            }
+        });
+
+        this.addCommand({
+            id: 'toggle-show-notes-from-subfolders',
+            name: strings.commands.toggleSubfolders,
+            callback: async () => {
+                this.settings.showNotesFromSubfolders = !this.settings.showNotesFromSubfolders;
+                await this.saveSettings();
+                this.onSettingsUpdate();
             }
         });
 
@@ -252,6 +262,50 @@ export default class NotebookNavigatorPlugin extends Plugin {
             }
         });
 
+        this.addCommand({
+            id: 'move-files',
+            name: strings.commands.moveFiles,
+            callback: async () => {
+                // Ensure navigator is open
+                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                if (leaves.length === 0) {
+                    await this.activateView(true);
+                }
+                
+                // Move selected files
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.moveSelectedFiles();
+                        break;
+                    }
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'navigate-to-folder',
+            name: strings.commands.navigateToFolder,
+            callback: async () => {
+                // Ensure navigator is open
+                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                if (leaves.length === 0) {
+                    await this.activateView(true);
+                }
+                
+                // Show folder navigation modal
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.navigateToFolderWithModal();
+                        break;
+                    }
+                }
+            }
+        });
+
         this.addSettingTab(new NotebookNavigatorSettingTab(this.app, this));
 
         // Listen for when the navigator view becomes active to restore scroll position
@@ -279,7 +333,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                             .setTitle(strings.plugin.revealInNavigator)
                             .setIcon('folder-open')
                             .onClick(async () => {
-                                await this.revealFileInNavigator(file);
+                                await this.navigateToFile(file);
                             });
                     });
                 }
@@ -314,6 +368,25 @@ export default class NotebookNavigatorPlugin extends Plugin {
                     await this.metadataService.handleFolderRename(oldPath, file.path);
                     // The metadata service saves settings which triggers reactive updates
                 } else if (file instanceof TFile) {
+                    // Check if file moved to a different folder
+                    const getParentPath = (path: string): string => {
+                        const lastSlash = path.lastIndexOf('/');
+                        return lastSlash > 0 ? path.substring(0, lastSlash) : '/';
+                    };
+                    
+                    const oldParent = getParentPath(oldPath);
+                    const newParent = getParentPath(file.path);
+                    const movedToDifferentFolder = oldParent !== newParent;
+                    
+                    // If the active file moved to a different folder, reveal it
+                    // UNLESS it was moved from within the Navigator (drag-drop or context menu)
+                    if (movedToDifferentFolder && file === this.app.workspace.getActiveFile()) {
+                        // Check if this move was initiated by the Navigator
+                        if (!window.notebookNavigatorMovingFile) {
+                            await this.navigateToFile(file);
+                        }
+                    }
+                    
                     // Notify all listeners about the file rename
                     this.fileRenameListeners.forEach((callback) => {
                         try {
@@ -590,12 +663,12 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
 
     /**
-     * Reveals a specific file in the navigator, opening the view if needed
+     * Navigates to a specific file in the navigator, opening the view if needed
      * Expands parent folders and scrolls to make the file visible
      * Used by "Reveal in Navigator" commands and context menu actions
-     * @param file - The file to reveal in the navigator
+     * @param file - The file to navigate to in the navigator
      */
-    private async revealFileInNavigator(file: TFile) {
+    private async navigateToFile(file: TFile) {
         // Ensure navigator is open
         const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         if (leaves.length === 0) {
@@ -607,7 +680,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         navigatorLeaves.forEach(leaf => {
             const view = leaf.view;
             if (view instanceof NotebookNavigatorView) {
-                view.revealFile(file, true); // Pass true for isManualReveal
+                view.navigateToFile(file);
             }
         });
     }

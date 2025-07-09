@@ -26,7 +26,6 @@ import { isTFolder, isTFile } from '../utils/typeGuards';
 import { getPathFromDataAttribute, getAbstractFileFromElement } from '../utils/domUtils';
 import { strings } from '../i18n';
 import { ItemType, UNTAGGED_TAG_ID } from '../types';
-import { findNextFileAfterRemoval, updateSelectionAfterFileOperation } from '../utils/selectionUtils';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 
 /**
@@ -315,57 +314,28 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             try {
                 const selectedPaths = JSON.parse(multipleFilesData);
                 if (Array.isArray(selectedPaths)) {
-                    /**
-                     * Bulk file move operation:
-                     * 1. Determine if we're moving the currently selected file
-                     * 2. If so, find the next file to select after the move
-                     * 3. Move each file individually, tracking successes/failures
-                     * 4. Update selection only if the selected file was moved
-                     * 5. Show notifications for any skipped files
-                     * 
-                     * This approach maintains user context by:
-                     * - Only changing selection when necessary
-                     * - Pre-calculating the next selection before moves
-                     * - Providing feedback for conflicts
-                     */
-                    const pathsToMove = new Set(selectedPaths);
-                    const isMovingSelectedFile = selectionState.selectedFile && pathsToMove.has(selectionState.selectedFile.path);
+                    // Convert paths to TFile objects
+                    const filesToMove: TFile[] = [];
+                    for (const path of selectedPaths) {
+                        const file = app.vault.getAbstractFileByPath(path);
+                        if (isTFile(file)) {
+                            filesToMove.push(file);
+                        }
+                    }
                     
-                    // Only find next file if we're moving the selected file
-                    let nextFileToSelect: TFile | null = null;
-                    if (isMovingSelectedFile) {
+                    if (filesToMove.length > 0) {
+                        // Use the shared moveFilesToFolder method
                         const currentFiles = getCurrentFileList();
-                        nextFileToSelect = findNextFileAfterRemoval(currentFiles, pathsToMove);
-                    }
-                    
-                    // Moving multiple files
-                    let movedCount = 0;
-                    let skippedCount = 0;
-                    
-                    for (const sourcePath of selectedPaths) {
-                        const sourceItem = app.vault.getAbstractFileByPath(sourcePath);
-                        if (!sourceItem || !isTFile(sourceItem)) continue;
-                        
-                        const newPath = `${targetFolder.path}/${sourceItem.name}`;
-                        if (app.vault.getAbstractFileByPath(newPath)) {
-                            skippedCount++;
-                            continue;
-                        }
-                        
-                        try {
-                            await app.fileManager.renameFile(sourceItem, newPath);
-                            movedCount++;
-                        } catch (error) {
-                            console.error('Error moving file:', sourceItem.path, error);
-                        }
-                    }
-                    
-                    if (movedCount > 0 && isMovingSelectedFile) {
-                        // Only update selection if we moved the selected file
-                        await updateSelectionAfterFileOperation(nextFileToSelect, dispatch, app);
-                    }
-                    if (skippedCount > 0) {
-                        new Notice(strings.dragDrop.notifications.filesAlreadyExist.replace('{count}', skippedCount.toString()), 2000);
+                        await fileSystemOps.moveFilesToFolder({
+                            files: filesToMove,
+                            targetFolder,
+                            selectionContext: {
+                                selectedFile: selectionState.selectedFile,
+                                dispatch,
+                                allFiles: currentFiles
+                            },
+                            showNotifications: true
+                        });
                     }
                     return;
                 }
@@ -379,45 +349,20 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         if (!singleFileData) return;
 
         const sourceItem = app.vault.getAbstractFileByPath(singleFileData);
-        if (!sourceItem) return;
+        if (!sourceItem || !isTFile(sourceItem)) return;
 
-        // Prevent dropping a folder into itself or its own children
-        if (sourceItem.path === targetFolder.path || (sourceItem instanceof TFolder && fileSystemOps.isDescendant(sourceItem, targetFolder))) {
-            new Notice(strings.dragDrop.errors.cannotMoveIntoSelf, 2000);
-            return;
-        }
-        
-        const newPath = `${targetFolder.path}/${sourceItem.name}`;
-        if (app.vault.getAbstractFileByPath(newPath)) {
-            new Notice(strings.dragDrop.errors.itemAlreadyExists.replace('{name}', sourceItem.name), 2000);
-            return;
-        }
-
-        try {
-            // Check if we're moving the currently selected file
-            const isMovingSelectedFile = isTFile(sourceItem) && 
-                selectionState.selectedFile && 
-                selectionState.selectedFile.path === sourceItem.path;
-            
-            // Only find next file if we're moving the selected file
-            let nextFileToSelect: TFile | null = null;
-            if (isMovingSelectedFile) {
-                const currentFiles = getCurrentFileList();
-                const pathsToMove = new Set([sourceItem.path]);
-                nextFileToSelect = findNextFileAfterRemoval(currentFiles, pathsToMove);
-            }
-            
-            await app.fileManager.renameFile(sourceItem, newPath);
-            // The file move will trigger Obsidian's file events, which will update
-            // the state naturally through proper event handling
-            
-            // Only update selection if we moved the selected file
-            if (isMovingSelectedFile) {
-                await updateSelectionAfterFileOperation(nextFileToSelect, dispatch, app);
-            }
-        } catch (error) {
-            new Notice(strings.dragDrop.errors.failedToMove.replace('{error}', error.message));
-        }
+        // Use the shared moveFilesToFolder method for single files too
+        const currentFiles = getCurrentFileList();
+        await fileSystemOps.moveFilesToFolder({
+            files: [sourceItem],
+            targetFolder,
+            selectionContext: {
+                selectedFile: selectionState.selectedFile,
+                dispatch,
+                allFiles: currentFiles
+            },
+            showNotifications: true
+        });
     }, [app, fileSystemOps, tagOperations, selectionState, getCurrentFileList, dispatch]);
     
     /**

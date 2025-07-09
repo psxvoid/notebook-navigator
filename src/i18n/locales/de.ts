@@ -65,6 +65,8 @@ export const STRINGS_DE = {
         customSort: 'Benutzerdefiniert', // Label for custom sorting mode (English: Custom)
         showFolders: 'Navigation anzeigen', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Navigation ausblenden', // Tooltip for button to hide the navigation pane (English: Hide navigation)
+        toggleSubfolders: 'Notizen aus Unterordnern anzeigen', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
+        autoExpandFoldersTags: 'Ordner und Tags automatisch erweitern', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
     },
 
     // Context menus
@@ -89,6 +91,8 @@ export const STRINGS_DE = {
             renameNote: 'Notiz umbenennen',
             deleteNote: 'Notiz löschen',
             deleteMultipleNotes: '{count} Notizen löschen',
+            moveToFolder: 'Move to...',
+            moveMultipleToFolder: 'Move {count} files to...',
         },
         folder: {
             newNote: 'Neue Notiz erstellen',
@@ -175,6 +179,16 @@ export const STRINGS_DE = {
             deleteFolderConfirm: 'Sind Sie sicher, dass Sie diesen Ordner und seinen gesamten Inhalt löschen möchten?',
             deleteFileConfirm: 'Sind Sie sicher, dass Sie diese Datei löschen möchten?',
         },
+        folderSuggest: {
+            placeholder: 'In Ordner verschieben...',
+            navigatePlaceholder: 'Zu Ordner navigieren...',
+            instructions: {
+                navigate: 'zum Navigieren',
+                move: 'zum Verschieben',
+                select: 'zum Auswählen',
+                dismiss: 'zum Abbrechen',
+            },
+        },
     },
 
     // File system operations
@@ -198,6 +212,7 @@ export const STRINGS_DE = {
             drawingAlreadyExists: 'Eine Zeichnung mit diesem Namen existiert bereits',
             failedToCreateDrawing: 'Zeichnung konnte nicht erstellt werden',
             noFolderSelected: 'Kein Ordner im Notebook Navigator ausgewählt',
+            noFileSelected: 'Keine Datei ausgewählt',
         },
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',
@@ -256,8 +271,11 @@ export const STRINGS_DE = {
         revealFile: 'Datei anzeigen', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: 'Datei fokussieren', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Navigationsbereich umschalten', // Command palette: Shows or hides the navigation pane (English: Toggle navigation pane)
-        deleteFile: 'Datei löschen', // Command palette: Deletes the currently active file (English: Delete file)
+        deleteFile: 'Dateien löschen', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Neue Notiz erstellen', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
+        moveFiles: 'Dateien verschieben', // Command palette: Move selected files to another folder (English: Move files)
+        navigateToFolder: 'Zu Ordner navigieren', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
+        toggleSubfolders: 'Notizen aus Unterordnern umschalten', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
     },
 
     // Plugin UI
@@ -319,6 +337,10 @@ export const STRINGS_DE = {
             autoSelectFirstFileOnFocusChange: {
                 name: 'Erste Notiz beim Ordner- oder Tag-Wechsel automatisch auswählen',
                 desc: 'Die erste Notiz automatisch auswählen und öffnen, wenn Sie den Ordner oder Tag wechseln.',
+            },
+            autoExpandFoldersTags: {
+                name: 'Ordner und Tags automatisch erweitern',
+                desc: 'Ordner und Tags automatisch erweitern, wenn sie ausgewählt werden.',
             },
             showTooltips: {
                 name: 'Tooltips anzeigen',

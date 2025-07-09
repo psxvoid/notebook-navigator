@@ -54,6 +54,7 @@ export interface NotebookNavigatorSettings {
     excludedFiles: string[];
     // Navigation pane
     autoSelectFirstFileOnFocusChange: boolean;
+    autoExpandFoldersTags: boolean;
     showNoteCount: boolean;
     showIcons: boolean;
     collapseButtonBehavior: CollapseButtonBehavior;
@@ -118,6 +119,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     excludedFiles: [],
     // Navigation pane
     autoSelectFirstFileOnFocusChange: true,
+    autoExpandFoldersTags: false,
     showNoteCount: true,
     showIcons: true,
     collapseButtonBehavior: 'all',
@@ -355,6 +357,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setValue(this.plugin.settings.autoSelectFirstFileOnFocusChange)
                 .onChange(async (value) => {
                     this.plugin.settings.autoSelectFirstFileOnFocusChange = value;
+                    await this.saveAndRefresh();
+                }));
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.autoExpandFoldersTags.name)
+            .setDesc(strings.settings.items.autoExpandFoldersTags.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.autoExpandFoldersTags)
+                .onChange(async (value) => {
+                    this.plugin.settings.autoExpandFoldersTags = value;
                     await this.saveAndRefresh();
                 }));
 

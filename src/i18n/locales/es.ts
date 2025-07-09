@@ -65,6 +65,8 @@ export const STRINGS_ES = {
         customSort: 'Personalizado', // Label for custom sorting mode (English: Custom)
         showFolders: 'Mostrar navegación', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Ocultar navegación', // Tooltip for button to hide the navigation pane (English: Hide navigation)
+        toggleSubfolders: 'Mostrar notas de subcarpetas', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
+        autoExpandFoldersTags: 'Expandir carpetas y etiquetas automáticamente', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
     },
 
     // Context menus
@@ -89,6 +91,8 @@ export const STRINGS_ES = {
             renameNote: 'Renombrar nota',
             deleteNote: 'Eliminar nota',
             deleteMultipleNotes: 'Eliminar {count} notas',
+            moveToFolder: 'Move to...',
+            moveMultipleToFolder: 'Move {count} files to...',
         },
         folder: {
             newNote: 'Crear nueva nota',
@@ -175,6 +179,16 @@ export const STRINGS_ES = {
             deleteFolderConfirm: '¿Estás seguro de que quieres eliminar esta carpeta y todo su contenido?',
             deleteFileConfirm: '¿Estás seguro de que quieres eliminar este archivo?',
         },
+        folderSuggest: {
+            placeholder: 'Mover a carpeta...',
+            navigatePlaceholder: 'Navegar a carpeta...',
+            instructions: {
+                navigate: 'para navegar',
+                move: 'para mover',
+                select: 'para seleccionar',
+                dismiss: 'para cancelar',
+            },
+        },
     },
 
     // File system operations
@@ -198,6 +212,7 @@ export const STRINGS_ES = {
             drawingAlreadyExists: 'Ya existe un dibujo con este nombre',
             failedToCreateDrawing: 'Error al crear el dibujo',
             noFolderSelected: 'No hay ninguna carpeta seleccionada en Notebook Navigator',
+            noFileSelected: 'No hay archivo seleccionado',
         },
         notifications: {
             deletedMultipleFiles: '{count} archivos eliminados',
@@ -256,8 +271,11 @@ export const STRINGS_ES = {
         revealFile: 'Revelar archivo', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: 'Enfocar archivo', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Alternar panel de navegación', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
-        deleteFile: 'Eliminar archivo', // Command palette: Deletes the currently active file (English: Delete file)
+        deleteFile: 'Eliminar archivos', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Crear nueva nota', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
+        moveFiles: 'Mover archivos', // Command palette: Move selected files to another folder (English: Move files)
+        navigateToFolder: 'Navegar a carpeta', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
+        toggleSubfolders: 'Alternar mostrar notas de subcarpetas', // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
     },
 
     // Plugin UI
@@ -319,6 +337,10 @@ export const STRINGS_ES = {
             autoSelectFirstFileOnFocusChange: {
                 name: 'Seleccionar automáticamente la primera nota al cambiar de carpeta o etiqueta',
                 desc: 'Selecciona y abre automáticamente la primera nota al cambiar de carpeta o etiqueta.',
+            },
+            autoExpandFoldersTags: {
+                name: 'Expandir carpetas y etiquetas automáticamente',
+                desc: 'Expandir automáticamente carpetas y etiquetas cuando se seleccionan.',
             },
             showTooltips: {
                 name: 'Mostrar tooltips',

@@ -18,7 +18,7 @@
 
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback } from 'react';
-import { TFile, TFolder, TAbstractFile, WorkspaceLeaf, debounce, Platform, ItemView, Notice } from 'obsidian';
+import { TFile, TFolder, Notice } from 'obsidian';
 import { NavigationPane } from './NavigationPane';
 import { FileList } from './FileList';
 import type { NavigationPaneHandle } from './NavigationPane';
@@ -26,29 +26,29 @@ import type { FileListHandle } from './FileList';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
-import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useResizablePane } from '../hooks/useResizablePane';
-import { useSwipeGesture } from '../hooks/useSwipeGesture';
-import { isTFile, isTFolder } from '../utils/typeGuards';
-import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
-import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
-import { flattenFolderTree, findFolderIndex } from '../utils/treeFlattener';
-import { parseExcludedFolders } from '../utils/fileFilters';
-import { Virtualizer } from '@tanstack/react-virtual';
-import { useAutoReveal } from '../hooks/useAutoReveal';
+import { useFileReveal } from '../hooks/useFileReveal';
+import { useMobileNavigation } from '../hooks/useMobileNavigation';
+import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
+import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, ItemType } from '../types';
 import { strings } from '../i18n';
+import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { FolderSuggestModal } from '../modals/FolderSuggestModal';
 
 export interface NotebookNavigatorHandle {
-    revealFile: (file: TFile, isManualReveal?: boolean) => void;
+    navigateToFile: (file: TFile) => void;
     focusFilePane: () => void;
     refresh: () => void;
     handleBecomeActive: () => void;
     toggleNavigationPane: () => void;
     deleteActiveFile: () => void;
     createNoteInSelectedFolder: () => Promise<void>;
+    moveSelectedFiles: () => Promise<void>;
+    navigateToFolder: (folderPath: string) => void;
+    navigateToFolderWithModal: () => void;
 }
 
 /**
@@ -62,10 +62,8 @@ export interface NotebookNavigatorHandle {
  * @returns A split-pane container with folder tree and file list
  */
 export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_, ref) => {
-    const { app, plugin, isMobile, fileSystemOps } = useServices();
+    const { app, isMobile, fileSystemOps } = useServices();
     const settings = useSettingsState();
-    const expansionState = useExpansionState();
-    const expansionDispatch = useExpansionDispatch();
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
@@ -74,27 +72,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
     const navigationPaneRef = useRef<NavigationPaneHandle>(null);
     const fileListRef = useRef<FileListHandle>(null);
-    
-    
-
-    // Handle scrolling when mobile view changes or on initial mount
-    useEffect(() => {
-        if (!isMobile) return;
-        
-        // Scroll to the appropriate item based on current view
-        if (uiState.currentMobileView === 'list' && selectionState.selectedFolder) {
-            const index = navigationPaneRef.current?.getIndexOfPath(selectionState.selectedFolder.path);
-            if (index !== undefined && index !== -1) {
-                navigationPaneRef.current?.virtualizer?.scrollToIndex(index, { align: 'center' });
-            }
-        } else if (uiState.currentMobileView === 'files' && selectionState.selectedFile) {
-            const index = fileListRef.current?.getIndexOfPath(selectionState.selectedFile.path);
-            if (index !== undefined && index !== -1) {
-                fileListRef.current?.virtualizer?.scrollToIndex(index, { align: 'center' });
-            }
-        }
-    }, [isMobile, uiState.currentMobileView]); // Trigger when mobile view changes
-    
     
     // Enable drag and drop only on desktop
     useDragAndDrop(containerRef);
@@ -107,150 +84,31 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         storageKey: STORAGE_KEYS.navigationPaneWidthKey
     });
     
-    // Enable swipe gestures on mobile
-    const isRTL = document.body.classList.contains('mod-rtl');
-    useSwipeGesture(containerRef, {
-        onSwipeRight: () => {
-            if (isMobile && uiState.currentMobileView === 'files') {
-                // In RTL mode, swipe right goes forward (to files view)
-                // In LTR mode, swipe right goes back (to list view)
-                if (!isRTL) {
-                    uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
-                }
-            }
-        },
-        onSwipeLeft: () => {
-            if (isMobile && uiState.currentMobileView === 'files') {
-                // In RTL mode, swipe left goes back (to list view)
-                if (isRTL) {
-                    uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
-                }
-            }
-        },
-        enabled: isMobile
+    // Use file reveal logic
+    const { navigateToFile, revealFileInCurrentView, navigateToFolder } = useFileReveal({ app, navigationPaneRef, fileListRef });
+    
+    // Use mobile navigation logic
+    const { handleBecomeActive } = useMobileNavigation({ 
+        app, 
+        isMobile, 
+        containerRef, 
+        navigationPaneRef, 
+        fileListRef 
+    });
+    
+    // Use event handlers
+    const { triggerDeleteKey } = useNavigatorEventHandlers({
+        app,
+        containerRef,
+        setIsNavigatorFocused
     });
     
     // Get updateSettings from SettingsContext for refresh
     const updateSettings = useSettingsUpdate();
     
-    /**
-     * Reveals a file in the navigator by expanding necessary folders and selecting it.
-     * 
-     * FOLDER EXPANSION BEHAVIOR:
-     * Expansion depends on the reveal type and settings:
-     * 
-     * Example: Revealing "Tech/2025/Notes/file.md"
-     * 
-     * Manual Reveal (always expands):
-     * - Will expand: "Tech" and "2025" 
-     * - Will NOT expand: "Notes" (immediate parent - preserves user's choice)
-     * 
-     * Auto Reveal with "Show notes from subfolders" OFF:
-     * - Same as manual reveal
-     * 
-     * Auto Reveal with "Show notes from subfolders" ON:
-     * - If current folder is "Tech" and file is in subfolder: NO expansion
-     * - Otherwise: Same as manual reveal
-     * 
-     * REVEAL TYPES:
-     * 1. Manual Reveal (via "Reveal file" command):
-     *    - Always expands folders to show file location
-     *    - Always changes selected folder to the file's parent
-     *    - Used when user explicitly wants to see the file's location
-     * 
-     * 2. Auto Reveal (on file open/startup):
-     *    - Only expands folders if NOT preserving current folder selection
-     *    - When "Show notes from subfolders" is on and file is in subfolder:
-     *      - Does NOT expand any folders (maintains current view)
-     *      - Preserves current folder selection
-     *    - Less disruptive to user's current navigation context
-     * 
-     * @param file - The file to reveal
-     * @param isManualReveal - True when triggered by "Reveal file" command
-     */
-    const revealFile = (file: TFile, isManualReveal?: boolean) => {
-        if (!file || !file.parent) return;
-        
-        // Check if we should preserve the current folder selection
-        // Only for auto-reveal: If showNotesFromSubfolders is on and file is in a subfolder
-        // of the current folder, preserve the selection
-        let preserveFolder = false;
-        if (!isManualReveal && settings.showNotesFromSubfolders && selectionState.selectedFolder && file.parent) {
-            // Check if the file's parent is a descendant of the currently selected folder
-            let currentParent: TFolder | null = file.parent;
-            while (currentParent) {
-                if (currentParent.path === selectionState.selectedFolder.path) {
-                    preserveFolder = true;
-                    break;
-                }
-                currentParent = currentParent.parent;
-            }
-        }
-        
-        // Determine if we should expand folders
-        // For manual reveal: Always expand to show file location
-        // For auto-reveal: Only expand if NOT preserving folder (respects "Show notes from subfolders")
-        const shouldExpandFolders = isManualReveal || !preserveFolder;
-        
-        if (shouldExpandFolders) {
-            // We need to expand folders BEFORE changing selection
-            // This ensures the folder hierarchy is visible when the selection changes
-            const foldersToExpand: string[] = [];
-            let currentFolder: TFolder | null = file.parent;
-            
-            // Expand all ancestors except the immediate parent
-            // This preserves the user's choice of whether the parent is expanded/collapsed
-            if (currentFolder && currentFolder.parent) {
-                currentFolder = currentFolder.parent; // Skip immediate parent
-                while (currentFolder) {
-                    foldersToExpand.unshift(currentFolder.path);
-                    if (currentFolder.path === '/') break;
-                    currentFolder = currentFolder.parent;
-                }
-            }
-            
-            // Expand folders if needed
-            const needsExpansion = foldersToExpand.some(path => !expansionState.expandedFolders.has(path));
-            if (needsExpansion) {
-                expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
-            }
-        }
-        
-        // Trigger the reveal - scrolling will happen via the effect that watches isRevealOperation
-        selectionDispatch({ type: 'REVEAL_FILE', file, preserveFolder });
-        
-        // Only change focus if we're not already in the navigator AND not opening version history
-        const navigatorEl = document.querySelector('.nn-split-container');
-        const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
-        const isOpeningVersionHistory = window.notebookNavigatorOpeningVersionHistory;
-        
-        if (!hasNavigatorFocus && !isOpeningVersionHistory) {
-            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-        }
-    };
-    
-    // Use auto-reveal hook to detect which file needs revealing
-    const { fileToReveal } = useAutoReveal(app, {
-        autoRevealActiveFile: settings.autoRevealActiveFile
-    });
-    
-    // Handle revealing the file when detected by the hook
-    useEffect(() => {
-        if (fileToReveal) {
-            revealFile(fileToReveal, false); // Explicitly pass false for auto-reveal
-        }
-    }, [fileToReveal]); // Remove revealFile from deps to prevent infinite loop
-    
-    // Handle revealing files that moved to a different folder
-    useEffect(() => {
-        if (selectionState.fileMovedToDifferentFolder) {
-            revealFile(selectionState.fileMovedToDifferentFolder, true); // true for manual reveal
-        }
-    }, [selectionState.fileMovedToDifferentFolder]); // Remove revealFile from deps to prevent infinite loop
-    
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
-        revealFile,
+        navigateToFile,
         focusFilePane: () => {
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             // Focus the container to ensure keyboard navigation works
@@ -264,42 +122,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             // A no-op update will increment the version and force a re-render
             updateSettings(settings => {});
         },
-        /**
-         * Handles when the navigator view becomes active on mobile.
-         * 
-         * Due to Obsidian limitations, we cannot reliably control scroll position
-         * when the view becomes active after being hidden. The view loses its
-         * dimensions and scroll state, and attempts to restore or set scroll
-         * position do not work without user interaction.
-         * 
-         * This method is kept for potential future use but currently does nothing.
-         */
-        handleBecomeActive: () => {
-            if (!isMobile) return;
-            
-            
-            // Do nothing - scroll manipulation doesn't work reliably on mobile
-            // when the view becomes active after being hidden
-        },
+        handleBecomeActive,
         toggleNavigationPane: () => {
             uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' });
         },
-        deleteActiveFile: () => {
-            // First ensure the file pane is focused so the keyboard handler will process the event
-            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-            
-            // Then dispatch a Delete key event to trigger the existing keyboard handler
-            const deleteEvent = new KeyboardEvent('keydown', {
-                key: 'Delete',
-                bubbles: true,
-                cancelable: true
-            });
-            
-            // Small delay to ensure focus state is updated
-            setTimeout(() => {
-                document.dispatchEvent(deleteEvent);
-            }, 0);
-        },
+        deleteActiveFile: triggerDeleteKey,
         createNoteInSelectedFolder: async () => {
             if (!selectionState.selectedFolder) {
                 new Notice(strings.fileSystem.errors.noFolderSelected);
@@ -311,122 +138,67 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             if (file) {
                 uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: file.path });
             }
+        },
+        moveSelectedFiles: async () => {
+            // Get selected files
+            const selectedFiles = Array.from(selectionState.selectedFiles)
+                .map(path => app.vault.getAbstractFileByPath(path))
+                .filter((f): f is TFile => f instanceof TFile);
+            
+            if (selectedFiles.length === 0) {
+                // No files selected, try current file
+                if (selectionState.selectedFile) {
+                    selectedFiles.push(selectionState.selectedFile);
+                } else {
+                    new Notice(strings.fileSystem.errors.noFileSelected);
+                    return;
+                }
+            }
+            
+            // Get all files in the current view for smart selection
+            let allFiles: TFile[] = [];
+            if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+                allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
+            } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+                allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
+            }
+            
+            // Move files with modal
+            await fileSystemOps.moveFilesWithModal(
+                selectedFiles,
+                {
+                    selectedFile: selectionState.selectedFile,
+                    dispatch: selectionDispatch,
+                    allFiles
+                }
+            );
+        },
+        navigateToFolder,
+        navigateToFolderWithModal: () => {
+            // Show the folder selection modal for navigation
+            const modal = new FolderSuggestModal(
+                app,
+                (targetFolder: TFolder) => {
+                    // Navigate to the selected folder
+                    navigateToFolder(targetFolder.path);
+                },
+                strings.modals.folderSuggest.navigatePlaceholder,
+                strings.modals.folderSuggest.instructions.select,
+                undefined // No folders to exclude
+            );
+            modal.open();
         }
     }), [
-        selectionDispatch, 
-        uiDispatch, 
-        updateSettings, 
-        isMobile,
-        uiState.currentMobileView,
+        navigateToFile,
+        handleBecomeActive,
+        triggerDeleteKey,
+        uiDispatch,
+        updateSettings,
         selectionState.selectedFolder,
-        selectionState.selectedFile,
-        expansionState.expandedFolders,
-        expansionDispatch,
-        revealFile,
-        fileSystemOps
+        fileSystemOps,
+        selectionDispatch,
+        navigateToFolder
     ]);
-
-    /**
-     * Handle reveal scrolling after selection changes.
-     * Folder expansion now happens in revealFile() BEFORE selection changes.
-     */
-    useEffect(() => {
-        // ONLY process if this is a reveal operation, not normal keyboard navigation
-        if (selectionState.isRevealOperation && selectionState.selectedFile) {
-            const file = selectionState.selectedFile;
-            
-            // Scroll to revealed items after a brief delay to ensure rendering is complete
-            // This replaces the imperative setTimeout approach with a declarative effect
-            const scrollTimer = setTimeout(() => {
-                // Scroll to folder in navigation pane - but only if we're not preserving the current folder
-                // When preserveFolder is true (showNotesFromSubfolders), we don't want to jump to the subfolder
-                const shouldScrollToFolder = selectionState.selectedFolder && 
-                                            selectionState.selectedFolder.path === file.parent!.path;
-                
-                if (shouldScrollToFolder) {
-                    const folderIndex = navigationPaneRef.current?.getIndexOfPath(file.parent!.path);
-                    
-                    if (folderIndex !== undefined && folderIndex !== -1) {
-                        navigationPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: 'center', behavior: 'auto' });
-                    }
-                }
-                
-                // Scroll to file in file list
-                const fileIndex = fileListRef.current?.getIndexOfPath(file.path);
-                if (fileIndex !== undefined && fileIndex !== -1 && fileListRef.current?.virtualizer) {
-                    const virtualizer = fileListRef.current.virtualizer;
-                    const scrollElement = fileListRef.current.scrollContainerRef;
-                    
-                    if (scrollElement) {
-                        // Check if the file is already visible
-                        const virtualItems = virtualizer.getVirtualItems();
-                        const virtualItem = virtualItems.find(item => item.index === fileIndex);
-                        
-                        if (virtualItem) {
-                            // Check if the item is fully visible in the viewport
-                            const containerHeight = scrollElement.offsetHeight;
-                            const scrollTop = scrollElement.scrollTop;
-                            const itemTop = virtualItem.start;
-                            const itemBottom = virtualItem.end;
-                            
-                            const isFullyVisible = itemTop >= scrollTop && itemBottom <= (scrollTop + containerHeight);
-                            
-                            
-                            // Only scroll if the item is not fully visible
-                            if (!isFullyVisible) {
-                                virtualizer.scrollToIndex(fileIndex, { align: 'center', behavior: 'auto' });
-                            } else {
-                            }
-                        } else {
-                            // Item is not in virtual items, so it's definitely not visible
-                            virtualizer.scrollToIndex(fileIndex, { align: 'center', behavior: 'auto' });
-                        }
-                    }
-                }
-            }, 50); // Small delay to ensure DOM updates are complete
-            
-            return () => clearTimeout(scrollTimer);
-        }
-    }, [selectionState.isRevealOperation, selectionState.selectedFolder, selectionState.selectedFile]);
-    
-
-    // Handle focus/blur events to track when navigator has focus
-    useEffect(() => {
-        const container = containerRef.current;
-        if (!container) return;
-
-        const handleFocus = () => {
-            setIsNavigatorFocused(true);
-        };
-
-        const handleBlur = (e: FocusEvent) => {
-            // Check if focus is moving within the navigator
-            if (e.relatedTarget && container.contains(e.relatedTarget as Node)) {
-                return;
-            }
-            setIsNavigatorFocused(false);
-        };
-
-        container.addEventListener('focusin', handleFocus);
-        container.addEventListener('focusout', handleBlur);
-        
-        // Focus the container initially
-        container.focus();
-
-        return () => {
-            container.removeEventListener('focusin', handleFocus);
-            container.removeEventListener('focusout', handleBlur);
-        };
-    }, []);
-
-    // Ensure the container has focus when the focused pane changes
-    useEffect(() => {
-        // Don't steal focus if we're opening version history
-        const isOpeningVersionHistory = window.notebookNavigatorOpeningVersionHistory;
-        if (uiState.focusedPane && !isOpeningVersionHistory) {
-            containerRef.current?.focus();
-        }
-    }, [uiState.focusedPane]);
     
     // Track if initial visibility check has been performed
     const hasCheckedInitialVisibility = useRef(false);
@@ -445,79 +217,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' });
             }
         }
-    }, [isMobile, paneWidth, uiDispatch]);
-    
-    // Track when the navigator is being hidden to ensure consistent state
-    useEffect(() => {
-        if (!isMobile) return;
-        
-        let hideCount = 0;
-        
-        const handleVisibilityChange = (leaf: WorkspaceLeaf | null) => {
-            if (!leaf) return;
-            
-            const isNavigatorView = leaf.view?.getViewType() === VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT;
-            const leftSplit = app.workspace.leftSplit;
-            
-            // Check if the new active leaf is in the left sidebar
-            const isInLeftSidebar = leaf.getRoot() === leftSplit;
-            
-            // Only collapse if we're switching away from navigator to a view outside the sidebar
-            // This prevents collapsing when switching between sidebar views (e.g., to file explorer)
-            if (!isNavigatorView && leftSplit && !leftSplit.collapsed && !isInLeftSidebar) {
-                hideCount++;
-                
-                // Call collapse to ensure consistent state when switching to editor
-                leftSplit.collapse();
-            }
-        };
-        
-        // Listen to active leaf changes
-        const leafChangeRef = app.workspace.on('active-leaf-change', handleVisibilityChange);
-        
-        return () => {
-            app.workspace.offref(leafChangeRef);
-        };
-    }, [app.workspace, isMobile]);
-    
-    
-    // Handle delete events to clean up stale state
-    useEffect(() => {
-        const handleDelete = (file: TAbstractFile) => {
-            if (isTFolder(file)) {
-                // Cleanup expanded folders
-                const existingPaths = new Set<string>();
-                const collectAllFolderPaths = (folder: TFolder) => {
-                    existingPaths.add(folder.path);
-                    folder.children.forEach(child => {
-                        if (isTFolder(child)) {
-                            collectAllFolderPaths(child);
-                        }
-                    });
-                };
-                collectAllFolderPaths(app.vault.getRoot());
-                
-                expansionDispatch({ type: 'CLEANUP_DELETED_FOLDERS', existingPaths });
-                selectionDispatch({ type: 'CLEANUP_DELETED_FOLDER', deletedPath: file.path });
-            } else if (file instanceof TFile) {
-                
-                // Just cleanup the deleted file
-                selectionDispatch({ 
-                    type: 'CLEANUP_DELETED_FILE', 
-                    deletedPath: file.path,
-                    nextFileToSelect: null
-                });
-                
-                // Let auto-reveal handle the selection of the new active file
-            }
-        };
-        
-        const deleteEventRef = app.vault.on('delete', handleDelete);
-        
-        return () => {
-            app.vault.offref(deleteEventRef);
-        };
-    }, [app.vault, expansionDispatch, selectionDispatch, selectionState, settings, isMobile]);
+    }, [isMobile, paneWidth, uiDispatch, uiState.navigationPaneCollapsed]);
 
     // Determine CSS classes for mobile view state
     const containerClasses = ['nn-split-container'];

@@ -65,6 +65,8 @@ export const STRINGS_EN = {
         customSort: 'Custom', // Label for custom sorting mode (English: Custom)
         showFolders: 'Show navigation', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Hide navigation', // Tooltip for button to hide the navigation pane (English: Hide navigation)
+        toggleSubfolders: 'Show notes from subfolders', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
+        autoExpandFoldersTags: 'Auto-expand folders and tags', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
     },
 
     // Context menus
@@ -89,6 +91,8 @@ export const STRINGS_EN = {
             renameNote: 'Rename note',
             deleteNote: 'Delete note',
             deleteMultipleNotes: 'Delete {count} notes',
+            moveToFolder: 'Move to...',
+            moveMultipleToFolder: 'Move {count} files to...',
         },
         folder: {
             newNote: 'Create new note',
@@ -175,6 +179,16 @@ export const STRINGS_EN = {
             deleteFolderConfirm: 'Are you sure you want to delete this folder and all its contents?',
             deleteFileConfirm: 'Are you sure you want to delete this file?',
         },
+        folderSuggest: {
+            placeholder: 'Move to folder...',
+            navigatePlaceholder: 'Navigate to folder...',
+            instructions: {
+                navigate: 'to navigate',
+                move: 'to move',
+                select: 'to select',
+                dismiss: 'to dismiss',
+            },
+        },
     },
 
     // File system operations
@@ -198,6 +212,7 @@ export const STRINGS_EN = {
             drawingAlreadyExists: 'A drawing with this name already exists',
             failedToCreateDrawing: 'Failed to create drawing',
             noFolderSelected: 'No folder is selected in Notebook Navigator',
+            noFileSelected: 'No file is selected',
         },
         notifications: {
             deletedMultipleFiles: 'Deleted {count} files',
@@ -256,8 +271,11 @@ export const STRINGS_EN = {
         revealFile: 'Reveal file', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: 'Focus file', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Toggle navigation pane', // Command palette: Shows or hides the navigation pane (English: Toggle navigation pane)
-        deleteFile: 'Delete file', // Command palette: Deletes the currently active file (English: Delete file)
+        deleteFile: 'Delete files', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Create new note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
+        moveFiles: 'Move files', // Command palette: Move selected files to another folder (English: Move files)
+        navigateToFolder: 'Navigate to folder', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
+        toggleSubfolders: 'Toggle show notes from subfolders', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
     },
 
     // Plugin UI
@@ -319,6 +337,10 @@ export const STRINGS_EN = {
             autoSelectFirstFileOnFocusChange: {
                 name: 'Auto-select first note on focus change',
                 desc: 'Automatically select and open the first note when switching folders or tags.',
+            },
+            autoExpandFoldersTags: {
+                name: 'Auto-expand folders and tags',
+                desc: 'Automatically expand folders and tags when they are selected.',
             },
             showTooltips: {
                 name: 'Show tooltips',

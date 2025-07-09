@@ -44,6 +44,7 @@ export interface NotebookNavigatorPlugin extends Plugin {
 export interface PluginWindow extends Window {
     notebookNavigatorOpeningVersionHistory?: boolean;
     notebookNavigatorOpeningFolderNote?: boolean;
+    notebookNavigatorMovingFile?: boolean;
 }
 
 // Extend the global Window interface
@@ -51,5 +52,6 @@ declare global {
     interface Window {
         notebookNavigatorOpeningVersionHistory?: boolean;
         notebookNavigatorOpeningFolderNote?: boolean;
+        notebookNavigatorMovingFile?: boolean;
     }
 }

@@ -133,10 +133,10 @@ export class NotebookNavigatorView extends ItemView {
     }
     
     /**
-     * Reveals a file in the navigator by selecting it and its parent folder
+     * Navigates to a file in the navigator by selecting it and its parent folder
      */
-    revealFile(file: TFile, isManualReveal?: boolean) {
-        this.componentRef.current?.revealFile(file, isManualReveal);
+    navigateToFile(file: TFile) {
+        this.componentRef.current?.navigateToFile(file);
     }
     
     
@@ -173,6 +173,20 @@ export class NotebookNavigatorView extends ItemView {
      */
     async createNoteInSelectedFolder(): Promise<void> {
         await this.componentRef.current?.createNoteInSelectedFolder();
+    }
+    
+    /**
+     * Moves selected files to another folder using the folder suggest modal
+     */
+    async moveSelectedFiles(): Promise<void> {
+        await this.componentRef.current?.moveSelectedFiles();
+    }
+    
+    /**
+     * Navigate to a folder by showing the folder suggest modal
+     */
+    async navigateToFolderWithModal(): Promise<void> {
+        this.componentRef.current?.navigateToFolderWithModal();
     }
     
     /**

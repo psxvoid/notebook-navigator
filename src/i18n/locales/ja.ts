@@ -65,6 +65,8 @@ export const STRINGS_JA = {
         customSort: 'カスタム', // Label for custom sorting mode (English: Custom)
         showFolders: 'ナビゲーションを表示', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'ナビゲーションを非表示', // Tooltip for button to hide the navigation pane (English: Hide navigation)
+        toggleSubfolders: 'サブフォルダのノートを表示', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
+        autoExpandFoldersTags: 'フォルダとタグを自動展開', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
     },
 
     // Context menus
@@ -89,6 +91,8 @@ export const STRINGS_JA = {
             renameNote: 'ノートの名前を変更',
             deleteNote: 'ノートを削除',
             deleteMultipleNotes: '{count}個のノートを削除',
+            moveToFolder: 'Move to...',
+            moveMultipleToFolder: 'Move {count} files to...',
         },
         folder: {
             newNote: '新規ノートを作成',
@@ -175,6 +179,16 @@ export const STRINGS_JA = {
             deleteFolderConfirm: 'このフォルダとそのすべての内容を削除してもよろしいですか？',
             deleteFileConfirm: 'このファイルを削除してもよろしいですか？',
         },
+        folderSuggest: {
+            placeholder: 'フォルダに移動...',
+            navigatePlaceholder: 'フォルダにナビゲート...',
+            instructions: {
+                navigate: 'でナビゲート',
+                move: 'で移動',
+                select: 'で選択',
+                dismiss: 'でキャンセル',
+            },
+        },
     },
 
     // File system operations
@@ -198,6 +212,7 @@ export const STRINGS_JA = {
             drawingAlreadyExists: 'この名前の図面が既に存在します',
             failedToCreateDrawing: '図面の作成に失敗しました',
             noFolderSelected: 'Notebook Navigatorでフォルダが選択されていません',
+            noFileSelected: 'ファイルが選択されていません',
         },
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',
@@ -258,6 +273,9 @@ export const STRINGS_JA = {
         toggleNavigationPane: 'ナビゲーションペインを切り替え', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
         deleteFile: 'ファイルを削除', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '新規ノートを作成', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
+        moveFiles: 'ファイルを移動', // Command palette: Move selected files to another folder (English: Move files)
+        navigateToFolder: 'フォルダにナビゲート', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
+        toggleSubfolders: 'サブフォルダのノート表示を切り替え', // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
     },
 
     // Plugin UI
@@ -319,6 +337,10 @@ export const STRINGS_JA = {
             autoSelectFirstFileOnFocusChange: {
                 name: 'フォルダまたはタグ変更時に最初のノートを自動選択',
                 desc: 'フォルダまたはタグを切り替えた際に自動的に最初のノートを選択して開きます。',
+            },
+            autoExpandFoldersTags: {
+                name: 'フォルダとタグを自動展開',
+                desc: 'フォルダやタグを選択した際に自動的に展開します。',
             },
             showTooltips: {
                 name: 'ツールチップを表示',

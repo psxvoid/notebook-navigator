@@ -89,10 +89,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         
-        // Focus the container
-        const container = document.querySelector('.nn-split-container') as HTMLElement;
-        if (container) container.focus();
-        
         // Only open file if not multi-selecting
         if (!isMultiSelectModifier && !isShiftKey) {
             // Open file in current tab
@@ -104,11 +100,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         
         // Collapse left sidebar on mobile after opening file
         if (isMobile && app.workspace.leftSplit && !isMultiSelectModifier && !isShiftKey) {
-            // Scroll to top before collapsing to prevent virtualization issues
-            if (scrollContainerRef.current) {
-                scrollContainerRef.current.scrollTop = 0;
-            }
-            
             app.workspace.leftSplit.collapse();
         }
     }, [app.workspace, selectionDispatch, uiDispatch, isMobile, multiSelection]);
