@@ -89,10 +89,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         
-        // Focus the container
-        const container = document.querySelector('.nn-split-container') as HTMLElement;
-        if (container) container.focus();
-        
         // Only open file if not multi-selecting
         if (!isMultiSelectModifier && !isShiftKey) {
             // Open file in current tab
