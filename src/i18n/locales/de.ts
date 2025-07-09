@@ -181,9 +181,11 @@ export const STRINGS_DE = {
         },
         folderSuggest: {
             placeholder: 'In Ordner verschieben...',
+            navigatePlaceholder: 'Zu Ordner navigieren...',
             instructions: {
                 navigate: 'zum Navigieren',
                 move: 'zum Verschieben',
+                select: 'zum Auswählen',
                 dismiss: 'zum Abbrechen',
             },
         },
@@ -272,6 +274,7 @@ export const STRINGS_DE = {
         deleteFile: 'Dateien löschen', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Neue Notiz erstellen', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Dateien verschieben', // Command palette: Move selected files to another folder (English: Move files)
+        navigateToFolder: 'Zu Ordner navigieren', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         toggleSubfolders: 'Notizen aus Unterordnern umschalten', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
     },
 

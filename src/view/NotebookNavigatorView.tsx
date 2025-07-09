@@ -183,6 +183,13 @@ export class NotebookNavigatorView extends ItemView {
     }
     
     /**
+     * Navigate to a folder by showing the folder suggest modal
+     */
+    async navigateToFolderWithModal(): Promise<void> {
+        this.componentRef.current?.navigateToFolderWithModal();
+    }
+    
+    /**
      * Handles when the view becomes active (e.g., when returning from editor)
      */
     public handleViewBecomeActive() {

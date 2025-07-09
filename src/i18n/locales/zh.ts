@@ -181,9 +181,11 @@ export const STRINGS_ZH = {
         },
         folderSuggest: {
             placeholder: '移动到文件夹...',
+            navigatePlaceholder: '导航到文件夹...',
             instructions: {
                 navigate: '导航',
                 move: '移动',
+                select: '选择',
                 dismiss: '取消',
             },
         },
@@ -272,6 +274,7 @@ export const STRINGS_ZH = {
         deleteFile: '删除文件', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '创建新笔记', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: '移动文件', // Command palette: Move selected files to another folder (English: Move files)
+        navigateToFolder: '导航到文件夹', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         toggleSubfolders: '切换显示子文件夹中的笔记', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
     },
 

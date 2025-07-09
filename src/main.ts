@@ -284,6 +284,28 @@ export default class NotebookNavigatorPlugin extends Plugin {
             }
         });
 
+        this.addCommand({
+            id: 'navigate-to-folder',
+            name: strings.commands.navigateToFolder,
+            callback: async () => {
+                // Ensure navigator is open
+                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                if (leaves.length === 0) {
+                    await this.activateView(true);
+                }
+                
+                // Show folder navigation modal
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.navigateToFolderWithModal();
+                        break;
+                    }
+                }
+            }
+        });
+
         this.addSettingTab(new NotebookNavigatorSettingTab(this.app, this));
 
         // Listen for when the navigator view becomes active to restore scroll position

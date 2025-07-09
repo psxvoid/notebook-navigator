@@ -23,6 +23,7 @@ import { useExpansionState, useExpansionDispatch } from '../context/ExpansionCon
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIDispatch } from '../context/UIStateContext';
 import { useAutoReveal } from './useAutoReveal';
+import { isTFolder } from '../utils/typeGuards';
 import type { NavigationPaneHandle } from '../components/NavigationPane';
 import type { FileListHandle } from '../components/FileList';
 
@@ -138,6 +139,39 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
         revealFileInternal(file, false);
     }, [revealFileInternal]);
     
+    /**
+     * Navigates to a folder by path, expanding ancestors and selecting it.
+     * Used by the "Navigate to folder" command.
+     * 
+     * @param folderPath - The path of the folder to navigate to
+     */
+    const navigateToFolder = useCallback((folderPath: string) => {
+        const folder = app.vault.getAbstractFileByPath(folderPath);
+        if (!folder || !isTFolder(folder)) return;
+        
+        // Expand all ancestors to make the folder visible
+        const foldersToExpand: string[] = [];
+        let currentFolder: TFolder | null = folder.parent;
+        
+        while (currentFolder) {
+            foldersToExpand.unshift(currentFolder.path);
+            if (currentFolder.path === '/') break;
+            currentFolder = currentFolder.parent;
+        }
+        
+        // Expand folders if needed
+        const needsExpansion = foldersToExpand.some(path => !expansionState.expandedFolders.has(path));
+        if (needsExpansion) {
+            expansionDispatch({ type: 'EXPAND_FOLDERS', folderPaths: foldersToExpand });
+        }
+        
+        // Select the folder
+        selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
+        
+        // Focus the folders pane
+        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+    }, [app, expansionState.expandedFolders, expansionDispatch, selectionDispatch, uiDispatch]);
+    
     // Use auto-reveal hook to detect which file needs revealing
     const { fileToReveal } = useAutoReveal(app, {
         autoRevealActiveFile: settings.autoRevealActiveFile
@@ -216,6 +250,7 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
     
     return {
         navigateToFile,
-        revealFileInCurrentView
+        revealFileInCurrentView,
+        navigateToFolder
     };
 }

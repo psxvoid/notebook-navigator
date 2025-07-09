@@ -32,11 +32,14 @@ export class FolderSuggestModal extends FuzzySuggestModal<TFolder> {
      * Creates a new FolderSuggestModal
      * @param app - The Obsidian app instance
      * @param onChooseFolder - Callback when a folder is selected
+     * @param actionText - Action text for the enter key instruction
      * @param excludePaths - Optional set of folder paths to exclude from selection
      */
     constructor(
         app: App, 
         onChooseFolder: (folder: TFolder) => void,
+        placeholderText: string,
+        actionText: string,
         excludePaths?: Set<string>
     ) {
         super(app);
@@ -44,12 +47,12 @@ export class FolderSuggestModal extends FuzzySuggestModal<TFolder> {
         this.excludeFolders = excludePaths || new Set();
         
         // Set placeholder text
-        this.setPlaceholder(strings.modals.folderSuggest.placeholder);
+        this.setPlaceholder(placeholderText);
         
         // Set instructions
         this.setInstructions([
             { command: '↑↓', purpose: strings.modals.folderSuggest.instructions.navigate },
-            { command: '↵', purpose: strings.modals.folderSuggest.instructions.move },
+            { command: '↵', purpose: actionText },
             { command: 'esc', purpose: strings.modals.folderSuggest.instructions.dismiss }
         ]);
     }

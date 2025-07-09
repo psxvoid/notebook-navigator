@@ -181,9 +181,11 @@ export const STRINGS_JA = {
         },
         folderSuggest: {
             placeholder: 'フォルダに移動...',
+            navigatePlaceholder: 'フォルダにナビゲート...',
             instructions: {
                 navigate: 'でナビゲート',
                 move: 'で移動',
+                select: 'で選択',
                 dismiss: 'でキャンセル',
             },
         },
@@ -272,6 +274,7 @@ export const STRINGS_JA = {
         deleteFile: 'ファイルを削除', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '新規ノートを作成', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'ファイルを移動', // Command palette: Move selected files to another folder (English: Move files)
+        navigateToFolder: 'フォルダにナビゲート', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         toggleSubfolders: 'サブフォルダのノート表示を切り替え', // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
     },
 

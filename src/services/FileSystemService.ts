@@ -521,6 +521,8 @@ export class FileSystemOperations {
                     new Notice(`Moved ${result.movedCount} files to ${targetFolder.name}`);
                 }
             },
+            strings.modals.folderSuggest.placeholder,
+            strings.modals.folderSuggest.instructions.move,
             excludePaths
         );
         

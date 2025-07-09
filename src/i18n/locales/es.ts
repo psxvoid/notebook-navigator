@@ -181,9 +181,11 @@ export const STRINGS_ES = {
         },
         folderSuggest: {
             placeholder: 'Mover a carpeta...',
+            navigatePlaceholder: 'Navegar a carpeta...',
             instructions: {
                 navigate: 'para navegar',
                 move: 'para mover',
+                select: 'para seleccionar',
                 dismiss: 'para cancelar',
             },
         },
@@ -272,6 +274,7 @@ export const STRINGS_ES = {
         deleteFile: 'Eliminar archivos', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Crear nueva nota', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Mover archivos', // Command palette: Move selected files to another folder (English: Move files)
+        navigateToFolder: 'Navegar a carpeta', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         toggleSubfolders: 'Alternar mostrar notas de subcarpetas', // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
     },
 

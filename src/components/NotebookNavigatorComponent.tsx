@@ -18,7 +18,7 @@
 
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback } from 'react';
-import { TFile, Notice } from 'obsidian';
+import { TFile, TFolder, Notice } from 'obsidian';
 import { NavigationPane } from './NavigationPane';
 import { FileList } from './FileList';
 import type { NavigationPaneHandle } from './NavigationPane';
@@ -36,6 +36,7 @@ import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
 import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, ItemType } from '../types';
 import { strings } from '../i18n';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { FolderSuggestModal } from '../modals/FolderSuggestModal';
 
 export interface NotebookNavigatorHandle {
     navigateToFile: (file: TFile) => void;
@@ -46,6 +47,8 @@ export interface NotebookNavigatorHandle {
     deleteActiveFile: () => void;
     createNoteInSelectedFolder: () => Promise<void>;
     moveSelectedFiles: () => Promise<void>;
+    navigateToFolder: (folderPath: string) => void;
+    navigateToFolderWithModal: () => void;
 }
 
 /**
@@ -82,7 +85,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     });
     
     // Use file reveal logic
-    const { navigateToFile, revealFileInCurrentView } = useFileReveal({ app, navigationPaneRef, fileListRef });
+    const { navigateToFile, revealFileInCurrentView, navigateToFolder } = useFileReveal({ app, navigationPaneRef, fileListRef });
     
     // Use mobile navigation logic
     const { handleBecomeActive } = useMobileNavigation({ 
@@ -169,6 +172,21 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                     allFiles
                 }
             );
+        },
+        navigateToFolder,
+        navigateToFolderWithModal: () => {
+            // Show the folder selection modal for navigation
+            const modal = new FolderSuggestModal(
+                app,
+                (targetFolder: TFolder) => {
+                    // Navigate to the selected folder
+                    navigateToFolder(targetFolder.path);
+                },
+                strings.modals.folderSuggest.navigatePlaceholder,
+                strings.modals.folderSuggest.instructions.select,
+                undefined // No folders to exclude
+            );
+            modal.open();
         }
     }), [
         navigateToFile,
@@ -178,7 +196,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         updateSettings,
         selectionState.selectedFolder,
         fileSystemOps,
-        selectionDispatch
+        selectionDispatch,
+        navigateToFolder
     ]);
     
     // Track if initial visibility check has been performed
