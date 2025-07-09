@@ -97,15 +97,20 @@ To a modern, Notes-style interface like this:
 
 You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
+**View & Navigation**
 - `Notebook Navigator: Open` Opens the Notebook Navigator view in the left sidebar
-- `Notebook Navigator: Reveal file` Reveals the currently open file in the navigator, expanding parent folders and scrolling to it. Useful if you have the setting "Show notes from subfolders" enabled and want to find out the folder of a specific note.
-- `Notebook Navigator: Focus file` Moves keyboard focus to the file list pane so you can navigate with arrow keys
-- `Notebook Navigator: Toggle navigation pane` Shows or hides the navigation pane (folder/tag tree) to maximize list pane space
-- `Notebook Navigator: Create new note` Creates a new note in the currently selected folder. Unlike Obsidian's default new note command which only allows creating in the same folder as current note, root folder, or a specific folder, this always creates in your currently selected folder. **Tip:** You can bind Cmd/Ctrl+N to this command for a more intuitive workflow - just unbind it from Obsidian's built-in "Create new note" command first
-- `Notebook Navigator: Delete files` Deletes the currently selected files using the navigator's smart selection (selects next file before deletion)
+- `Notebook Navigator: Reveal file` Reveals the currently open file in the navigator, expanding parent folders and scrolling to it. Useful if you have the setting "Show notes from subfolders" enabled and want to find out the folder of a specific note
 - `Notebook Navigator: Navigate to folder` Navigate to a folder using fuzzy search
+- `Notebook Navigator: Focus file` Moves keyboard focus to the file list pane so you can navigate with arrow keys
+
+**Layout & Display**
+- `Notebook Navigator: Toggle navigation pane` Shows or hides the navigation pane (folder/tag tree) to maximize list pane space
 - `Notebook Navigator: Toggle show notes from subfolders` Toggles showing notes from subfolders
+
+**File Operations**
+- `Notebook Navigator: Create new note` Creates a new note in the currently selected folder. Unlike Obsidian's default new note command which only allows creating in the same folder as current note, root folder, or a specific folder, this always creates in your currently selected folder. **Tip:** You can bind Cmd/Ctrl+N to this command for a more intuitive workflow - just unbind it from Obsidian's built-in "Create new note" command first
 - `Notebook Navigator: Move files` Move selected files to another folder using the navigator's smart selection (selects next file after move)
+- `Notebook Navigator: Delete files` Deletes the currently selected files using the navigator's smart selection (selects next file before deletion)
 
 ## Installation
 
