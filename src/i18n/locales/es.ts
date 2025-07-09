@@ -91,6 +91,8 @@ export const STRINGS_ES = {
             renameNote: 'Renombrar nota',
             deleteNote: 'Eliminar nota',
             deleteMultipleNotes: 'Eliminar {count} notas',
+            moveToFolder: 'Move to...',
+            moveMultipleToFolder: 'Move {count} files to...',
         },
         folder: {
             newNote: 'Crear nueva nota',
@@ -177,6 +179,14 @@ export const STRINGS_ES = {
             deleteFolderConfirm: '¿Estás seguro de que quieres eliminar esta carpeta y todo su contenido?',
             deleteFileConfirm: '¿Estás seguro de que quieres eliminar este archivo?',
         },
+        folderSuggest: {
+            placeholder: 'Mover a carpeta...',
+            instructions: {
+                navigate: 'para navegar',
+                move: 'para mover',
+                dismiss: 'para cancelar',
+            },
+        },
     },
 
     // File system operations
@@ -200,6 +210,7 @@ export const STRINGS_ES = {
             drawingAlreadyExists: 'Ya existe un dibujo con este nombre',
             failedToCreateDrawing: 'Error al crear el dibujo',
             noFolderSelected: 'No hay ninguna carpeta seleccionada en Notebook Navigator',
+            noFileSelected: 'No hay archivo seleccionado',
         },
         notifications: {
             deletedMultipleFiles: '{count} archivos eliminados',
@@ -258,8 +269,9 @@ export const STRINGS_ES = {
         revealFile: 'Revelar archivo', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: 'Enfocar archivo', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Alternar panel de navegación', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
-        deleteFile: 'Eliminar archivo', // Command palette: Deletes the currently active file (English: Delete file)
+        deleteFile: 'Eliminar archivos', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Crear nueva nota', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
+        moveFiles: 'Mover archivos', // Command palette: Move selected files to another folder (English: Move files)
         toggleSubfolders: 'Alternar mostrar notas de subcarpetas', // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
     },
 

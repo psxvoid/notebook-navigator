@@ -1097,6 +1097,15 @@ body.nn-resizing {
     z-index: 10;
 }
 
+/* ========================================================================
+   Folder Suggestion Modal Styles
+   ======================================================================== */
+
+/* Folder item in suggestion modal */
+.nn-folder-suggest-item {
+    color: var(--text-normal);
+}
+
 /* Dark mode context menu outline for files */
 .theme-dark .nn-file-item.nn-context-menu-active:not(.nn-selected) .nn-file-content::after {
     border-color: var(--text-selection);

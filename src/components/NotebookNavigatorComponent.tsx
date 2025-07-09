@@ -26,15 +26,16 @@ import type { FileListHandle } from './FileList';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
-import { useSelectionState } from '../context/SelectionContext';
+import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useFileReveal } from '../hooks/useFileReveal';
 import { useMobileNavigation } from '../hooks/useMobileNavigation';
 import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
-import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS } from '../types';
+import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, ItemType } from '../types';
 import { strings } from '../i18n';
+import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 
 export interface NotebookNavigatorHandle {
     navigateToFile: (file: TFile) => void;
@@ -44,6 +45,7 @@ export interface NotebookNavigatorHandle {
     toggleNavigationPane: () => void;
     deleteActiveFile: () => void;
     createNoteInSelectedFolder: () => Promise<void>;
+    moveSelectedFiles: () => Promise<void>;
 }
 
 /**
@@ -60,6 +62,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const { app, isMobile, fileSystemOps } = useServices();
     const settings = useSettingsState();
     const selectionState = useSelectionState();
+    const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const containerRef = useRef<HTMLDivElement>(null);
@@ -132,6 +135,40 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             if (file) {
                 uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: file.path });
             }
+        },
+        moveSelectedFiles: async () => {
+            // Get selected files
+            const selectedFiles = Array.from(selectionState.selectedFiles)
+                .map(path => app.vault.getAbstractFileByPath(path))
+                .filter((f): f is TFile => f instanceof TFile);
+            
+            if (selectedFiles.length === 0) {
+                // No files selected, try current file
+                if (selectionState.selectedFile) {
+                    selectedFiles.push(selectionState.selectedFile);
+                } else {
+                    new Notice(strings.fileSystem.errors.noFileSelected);
+                    return;
+                }
+            }
+            
+            // Get all files in the current view for smart selection
+            let allFiles: TFile[] = [];
+            if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+                allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
+            } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+                allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
+            }
+            
+            // Move files with modal
+            await fileSystemOps.moveFilesWithModal(
+                selectedFiles,
+                {
+                    selectedFile: selectionState.selectedFile,
+                    dispatch: selectionDispatch,
+                    allFiles
+                }
+            );
         }
     }), [
         navigateToFile,
@@ -140,7 +177,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         uiDispatch,
         updateSettings,
         selectionState.selectedFolder,
-        fileSystemOps
+        fileSystemOps,
+        selectionDispatch
     ]);
     
     // Track if initial visibility check has been performed

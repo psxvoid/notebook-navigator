@@ -176,6 +176,13 @@ export class NotebookNavigatorView extends ItemView {
     }
     
     /**
+     * Moves selected files to another folder using the folder suggest modal
+     */
+    async moveSelectedFiles(): Promise<void> {
+        await this.componentRef.current?.moveSelectedFiles();
+    }
+    
+    /**
      * Handles when the view becomes active (e.g., when returning from editor)
      */
     public handleViewBecomeActive() {

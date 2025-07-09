@@ -20,9 +20,10 @@ import { App, TFile, TFolder, TAbstractFile, Notice, normalizePath, Platform, Ma
 import { ExtendedApp, TIMEOUTS, OBSIDIAN_COMMANDS } from '../types/obsidian-extended';
 import { InputModal } from '../modals/InputModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
-import { executeCommand } from '../utils/typeGuards';
+import { FolderSuggestModal } from '../modals/FolderSuggestModal';
+import { executeCommand, isTFile, isTFolder } from '../utils/typeGuards';
 import { strings } from '../i18n';
-import { getFolderNote } from '../utils/fileFinder';
+import { getFolderNote, getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { NotebookNavigatorSettings } from '../settings';
 import { NavigationItemType, getSupportedLeaves, ItemType } from '../types';
 import type { SelectionDispatch } from '../context/SelectionContext';
@@ -37,6 +38,36 @@ interface SelectionContext {
     selectionType: NavigationItemType;
     selectedFolder?: TFolder;
     selectedTag?: string;
+}
+
+/**
+ * Options for the moveFilesToFolder method
+ */
+interface MoveFilesOptions {
+    /** Files to move */
+    files: TFile[];
+    /** Target folder to move files into */
+    targetFolder: TFolder;
+    /** Current selection context for smart selection updates */
+    selectionContext?: {
+        selectedFile: TFile | null;
+        dispatch: SelectionDispatch;
+        allFiles: TFile[];
+    };
+    /** Whether to show notifications (default: true) */
+    showNotifications?: boolean;
+}
+
+/**
+ * Result of the moveFilesToFolder operation
+ */
+interface MoveFilesResult {
+    /** Number of files successfully moved */
+    movedCount: number;
+    /** Number of files skipped due to conflicts */
+    skippedCount: number;
+    /** Files that failed to move with their errors */
+    errors: Array<{ file: TFile; error: Error }>;
 }
 
 /**
@@ -336,6 +367,164 @@ export class FileSystemOperations {
             current = current.parent;
         }
         return false;
+    }
+
+    /**
+     * Moves multiple files to a target folder with validation and smart selection
+     * Extracted from useDragAndDrop to enable reuse across drag-drop and context menu
+     * 
+     * @param options - Move operation options
+     * @returns Result object with moved count, skipped count, and errors
+     */
+    async moveFilesToFolder(options: MoveFilesOptions): Promise<MoveFilesResult> {
+        const { files, targetFolder, selectionContext, showNotifications = true } = options;
+        const result: MoveFilesResult = { movedCount: 0, skippedCount: 0, errors: [] };
+
+        if (files.length === 0) return result;
+
+        // For single file moves, check if it's a folder being moved into itself
+        if (files.length === 1) {
+            const sourceItem = files[0];
+            if (sourceItem instanceof TFolder && this.isDescendant(sourceItem, targetFolder)) {
+                if (showNotifications) {
+                    new Notice(strings.dragDrop.errors.cannotMoveIntoSelf, 2000);
+                }
+                result.errors.push({ 
+                    file: sourceItem, 
+                    error: new Error('Cannot move folder into itself') 
+                });
+                return result;
+            }
+        }
+
+        // Determine if we need to handle selection updates
+        const pathsToMove = new Set(files.map(f => f.path));
+        const isMovingSelectedFile = selectionContext?.selectedFile && 
+            pathsToMove.has(selectionContext.selectedFile.path);
+        
+        // Only find next file if we're moving the selected file
+        let nextFileToSelect: TFile | null = null;
+        if (isMovingSelectedFile && selectionContext) {
+            nextFileToSelect = findNextFileAfterRemoval(selectionContext.allFiles, pathsToMove);
+        }
+
+        // Set flag to prevent auto-navigation when moving from Navigator
+        window.notebookNavigatorMovingFile = true;
+        
+        try {
+            // Move each file
+            for (const file of files) {
+                const newPath = `${targetFolder.path}/${file.name}`;
+                
+                // Check for name conflicts
+                if (this.app.vault.getAbstractFileByPath(newPath)) {
+                    result.skippedCount++;
+                    continue;
+                }
+
+                try {
+                    await this.app.fileManager.renameFile(file, newPath);
+                    result.movedCount++;
+                } catch (error) {
+                    console.error('Error moving file:', file.path, error);
+                    result.errors.push({ file, error: error as Error });
+                }
+            }
+        } finally {
+            // Always clear the flag
+            delete window.notebookNavigatorMovingFile;
+        }
+
+        // Handle selection updates if needed
+        if (result.movedCount > 0 && isMovingSelectedFile && selectionContext) {
+            await updateSelectionAfterFileOperation(
+                nextFileToSelect, 
+                selectionContext.dispatch, 
+                this.app
+            );
+        }
+
+        // Show notifications if enabled
+        if (showNotifications) {
+            if (result.skippedCount > 0) {
+                const message = files.length === 1 
+                    ? strings.dragDrop.errors.itemAlreadyExists.replace('{name}', files[0].name)
+                    : strings.dragDrop.notifications.filesAlreadyExist.replace('{count}', result.skippedCount.toString());
+                new Notice(message, 2000);
+            }
+
+            if (result.errors.length > 0 && files.length === 1) {
+                new Notice(strings.dragDrop.errors.failedToMove.replace('{error}', result.errors[0].error.message));
+            }
+        }
+
+        return result;
+    }
+
+    /**
+     * Shows a folder selection modal and moves files to the selected folder
+     * Used by context menu and keyboard shortcuts for interactive file moving
+     * 
+     * @param files - Files to move
+     * @param selectionContext - Optional selection context for smart selection updates
+     */
+    async moveFilesWithModal(
+        files: TFile[], 
+        selectionContext?: {
+            selectedFile: TFile | null;
+            dispatch: SelectionDispatch;
+            allFiles: TFile[];
+        }
+    ): Promise<void> {
+        if (files.length === 0) return;
+
+        // Create a set of paths to exclude (source folders and their parents)
+        const excludePaths = new Set<string>();
+        
+        // For single file moves, exclude the parent folder
+        if (files.length === 1 && files[0].parent) {
+            excludePaths.add(files[0].parent.path);
+        }
+        
+        // Check if any files are actually folders (shouldn't happen, but check anyway)
+        for (const file of files) {
+            if (file instanceof TFolder) {
+                // This shouldn't happen as files should be TFile[], but handle it
+                excludePaths.add(file.path);
+                // Add all descendants
+                const addDescendants = (parent: TFolder) => {
+                    for (const child of parent.children) {
+                        if (child instanceof TFolder) {
+                            excludePaths.add(child.path);
+                            addDescendants(child);
+                        }
+                    }
+                };
+                addDescendants(file);
+            }
+        }
+
+        // Show the folder selection modal
+        const modal = new FolderSuggestModal(
+            this.app,
+            async (targetFolder: TFolder) => {
+                // Move the files to the selected folder
+                const result = await this.moveFilesToFolder({
+                    files,
+                    targetFolder,
+                    selectionContext,
+                    showNotifications: true
+                });
+
+                // Show summary notification for multiple files
+                if (files.length > 1 && result.movedCount > 0) {
+                    new Notice(`Moved ${result.movedCount} files to ${targetFolder.name}`);
+                }
+            },
+            excludePaths
+        );
+        
+        modal.open();
     }
 
     /**

@@ -91,6 +91,8 @@ export const STRINGS_DE = {
             renameNote: 'Notiz umbenennen',
             deleteNote: 'Notiz löschen',
             deleteMultipleNotes: '{count} Notizen löschen',
+            moveToFolder: 'Move to...',
+            moveMultipleToFolder: 'Move {count} files to...',
         },
         folder: {
             newNote: 'Neue Notiz erstellen',
@@ -177,6 +179,14 @@ export const STRINGS_DE = {
             deleteFolderConfirm: 'Sind Sie sicher, dass Sie diesen Ordner und seinen gesamten Inhalt löschen möchten?',
             deleteFileConfirm: 'Sind Sie sicher, dass Sie diese Datei löschen möchten?',
         },
+        folderSuggest: {
+            placeholder: 'In Ordner verschieben...',
+            instructions: {
+                navigate: 'zum Navigieren',
+                move: 'zum Verschieben',
+                dismiss: 'zum Abbrechen',
+            },
+        },
     },
 
     // File system operations
@@ -200,6 +210,7 @@ export const STRINGS_DE = {
             drawingAlreadyExists: 'Eine Zeichnung mit diesem Namen existiert bereits',
             failedToCreateDrawing: 'Zeichnung konnte nicht erstellt werden',
             noFolderSelected: 'Kein Ordner im Notebook Navigator ausgewählt',
+            noFileSelected: 'Keine Datei ausgewählt',
         },
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',
@@ -258,8 +269,9 @@ export const STRINGS_DE = {
         revealFile: 'Datei anzeigen', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: 'Datei fokussieren', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Navigationsbereich umschalten', // Command palette: Shows or hides the navigation pane (English: Toggle navigation pane)
-        deleteFile: 'Datei löschen', // Command palette: Deletes the currently active file (English: Delete file)
+        deleteFile: 'Dateien löschen', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Neue Notiz erstellen', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
+        moveFiles: 'Dateien verschieben', // Command palette: Move selected files to another folder (English: Move files)
         toggleSubfolders: 'Notizen aus Unterordnern umschalten', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
     },
 

@@ -101,7 +101,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Focus file` Moves keyboard focus to the file list pane so you can navigate with arrow keys
 - `Notebook Navigator: Toggle navigation pane` Shows or hides the navigation pane (folder/tag tree) to maximize list pane space
 - `Notebook Navigator: Create new note` Creates a new note in the currently selected folder. Unlike Obsidian's default new note command which only allows creating in the same folder as current note, root folder, or a specific folder, this always creates in your currently selected folder. **Tip:** You can bind Cmd/Ctrl+N to this command for a more intuitive workflow - just unbind it from Obsidian's built-in "Create new note" command first
-- `Notebook Navigator: Delete file` Deletes the currently active file using the navigator's smart selection (selects next file before deletion)
+- `Notebook Navigator: Delete files` Deletes the currently selected files using the navigator's smart selection (selects next file before deletion)
 
 ## Installation
 

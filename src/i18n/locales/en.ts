@@ -91,6 +91,8 @@ export const STRINGS_EN = {
             renameNote: 'Rename note',
             deleteNote: 'Delete note',
             deleteMultipleNotes: 'Delete {count} notes',
+            moveToFolder: 'Move to...',
+            moveMultipleToFolder: 'Move {count} files to...',
         },
         folder: {
             newNote: 'Create new note',
@@ -177,6 +179,14 @@ export const STRINGS_EN = {
             deleteFolderConfirm: 'Are you sure you want to delete this folder and all its contents?',
             deleteFileConfirm: 'Are you sure you want to delete this file?',
         },
+        folderSuggest: {
+            placeholder: 'Move to folder...',
+            instructions: {
+                navigate: 'to navigate',
+                move: 'to move',
+                dismiss: 'to dismiss',
+            },
+        },
     },
 
     // File system operations
@@ -200,6 +210,7 @@ export const STRINGS_EN = {
             drawingAlreadyExists: 'A drawing with this name already exists',
             failedToCreateDrawing: 'Failed to create drawing',
             noFolderSelected: 'No folder is selected in Notebook Navigator',
+            noFileSelected: 'No file is selected',
         },
         notifications: {
             deletedMultipleFiles: 'Deleted {count} files',
@@ -258,8 +269,9 @@ export const STRINGS_EN = {
         revealFile: 'Reveal file', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: 'Focus file', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         toggleNavigationPane: 'Toggle navigation pane', // Command palette: Shows or hides the navigation pane (English: Toggle navigation pane)
-        deleteFile: 'Delete file', // Command palette: Deletes the currently active file (English: Delete file)
+        deleteFile: 'Delete files', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Create new note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
+        moveFiles: 'Move files', // Command palette: Move selected files to another folder (English: Move files)
         toggleSubfolders: 'Toggle show notes from subfolders', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
     },
 

@@ -262,6 +262,28 @@ export default class NotebookNavigatorPlugin extends Plugin {
             }
         });
 
+        this.addCommand({
+            id: 'move-files',
+            name: strings.commands.moveFiles,
+            callback: async () => {
+                // Ensure navigator is open
+                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                if (leaves.length === 0) {
+                    await this.activateView(true);
+                }
+                
+                // Move selected files
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.moveSelectedFiles();
+                        break;
+                    }
+                }
+            }
+        });
+
         this.addSettingTab(new NotebookNavigatorSettingTab(this.app, this));
 
         // Listen for when the navigator view becomes active to restore scroll position
@@ -335,8 +357,12 @@ export default class NotebookNavigatorPlugin extends Plugin {
                     const movedToDifferentFolder = oldParent !== newParent;
                     
                     // If the active file moved to a different folder, reveal it
+                    // UNLESS it was moved from within the Navigator (drag-drop or context menu)
                     if (movedToDifferentFolder && file === this.app.workspace.getActiveFile()) {
-                        await this.navigateToFile(file);
+                        // Check if this move was initiated by the Navigator
+                        if (!window.notebookNavigatorMovingFile) {
+                            await this.navigateToFile(file);
+                        }
                     }
                     
                     // Notify all listeners about the file rename

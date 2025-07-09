@@ -91,6 +91,8 @@ export const STRINGS_JA = {
             renameNote: 'ノートの名前を変更',
             deleteNote: 'ノートを削除',
             deleteMultipleNotes: '{count}個のノートを削除',
+            moveToFolder: 'Move to...',
+            moveMultipleToFolder: 'Move {count} files to...',
         },
         folder: {
             newNote: '新規ノートを作成',
@@ -177,6 +179,14 @@ export const STRINGS_JA = {
             deleteFolderConfirm: 'このフォルダとそのすべての内容を削除してもよろしいですか？',
             deleteFileConfirm: 'このファイルを削除してもよろしいですか？',
         },
+        folderSuggest: {
+            placeholder: 'フォルダに移動...',
+            instructions: {
+                navigate: 'でナビゲート',
+                move: 'で移動',
+                dismiss: 'でキャンセル',
+            },
+        },
     },
 
     // File system operations
@@ -200,6 +210,7 @@ export const STRINGS_JA = {
             drawingAlreadyExists: 'この名前の図面が既に存在します',
             failedToCreateDrawing: '図面の作成に失敗しました',
             noFolderSelected: 'Notebook Navigatorでフォルダが選択されていません',
+            noFileSelected: 'ファイルが選択されていません',
         },
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',
@@ -260,6 +271,7 @@ export const STRINGS_JA = {
         toggleNavigationPane: 'ナビゲーションペインを切り替え', // Command palette: Toggles the visibility of the navigation pane (English: Toggle navigation pane)
         deleteFile: 'ファイルを削除', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '新規ノートを作成', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
+        moveFiles: 'ファイルを移動', // Command palette: Move selected files to another folder (English: Move files)
         toggleSubfolders: 'サブフォルダのノート表示を切り替え', // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
     },
 
