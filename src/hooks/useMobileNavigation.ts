@@ -17,11 +17,10 @@
  */
 
 import { useEffect, RefObject } from 'react';
-import { App, WorkspaceLeaf } from 'obsidian';
+import { App } from 'obsidian';
 import { useSelectionState } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useSwipeGesture } from './useSwipeGesture';
-import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 import type { NavigationPaneHandle } from '../components/NavigationPane';
 import type { FileListHandle } from '../components/FileList';
 
@@ -37,7 +36,6 @@ interface UseMobileNavigationOptions {
  * Custom hook that handles all mobile-specific navigation logic, including:
  * - Mobile scroll handling when view changes
  * - Swipe gesture support
- * - Mobile visibility tracking
  * 
  * This hook consolidates all mobile-specific behavior that was previously
  * scattered throughout the NotebookNavigatorComponent.
@@ -94,42 +92,6 @@ export function useMobileNavigation({
         },
         enabled: isMobile
     });
-    
-    // Auto-collapse the left sidebar when switching from navigator to editor on mobile
-    useEffect(() => {
-        if (!isMobile) return;
-        
-        let hideCount = 0;
-        
-        const handleVisibilityChange = (leaf: WorkspaceLeaf | null) => {
-            if (!leaf) return;
-            
-            const isNavigatorView = leaf.view?.getViewType() === VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT;
-            const leftSplit = app.workspace.leftSplit;
-            
-            // Check if the new active leaf is in the left sidebar
-            const isInLeftSidebar = leaf.getRoot() === leftSplit;
-            
-            // Only collapse the sidebar when:
-            // 1. We're leaving the navigator view (not isNavigatorView)
-            // 2. The sidebar is currently open (!leftSplit.collapsed)
-            // 3. We're switching to a view OUTSIDE the sidebar (!isInLeftSidebar)
-            // This prevents the sidebar from collapsing when clicking within other sidebar views
-            if (!isNavigatorView && leftSplit && !leftSplit.collapsed && !isInLeftSidebar) {
-                hideCount++;
-                
-                // Collapse the sidebar to give more space to the editor
-                leftSplit.collapse();
-            }
-        };
-        
-        // Listen to active leaf changes
-        const leafChangeRef = app.workspace.on('active-leaf-change', handleVisibilityChange);
-        
-        return () => {
-            app.workspace.offref(leafChangeRef);
-        };
-    }, [app.workspace, isMobile]);
     
     /**
      * Handles when the navigator view becomes active on mobile.
