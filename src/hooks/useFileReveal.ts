@@ -50,52 +50,19 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
     const selectionDispatch = useSelectionDispatch();
     const uiDispatch = useUIDispatch();
     
-    // Track previous showNotesFromSubfolders value
-    const prevShowNotesFromSubfoldersRef = useRef(settings.showNotesFromSubfolders);
-    
     /**
-     * Reveals a file in the navigator by expanding necessary folders and selecting it.
-     * 
-     * FOLDER EXPANSION BEHAVIOR:
-     * Expansion depends on the reveal type and settings:
-     * 
-     * Example: Revealing "Tech/2025/Notes/file.md"
-     * 
-     * Manual Reveal (always expands):
-     * - Will expand: "Tech" and "2025" 
-     * - Will NOT expand: "Notes" (immediate parent - preserves user's choice)
-     * 
-     * Auto Reveal with "Show notes from subfolders" OFF:
-     * - Same as manual reveal
-     * 
-     * Auto Reveal with "Show notes from subfolders" ON:
-     * - If current folder is "Tech" and file is in subfolder: NO expansion
-     * - Otherwise: Same as manual reveal
-     * 
-     * REVEAL TYPES:
-     * 1. Manual Reveal (via "Reveal file" command):
-     *    - Always expands folders to show file location
-     *    - Always changes selected folder to the file's parent
-     *    - Used when user explicitly wants to see the file's location
-     * 
-     * 2. Auto Reveal (on file open/startup):
-     *    - Only expands folders if NOT preserving current folder selection
-     *    - When "Show notes from subfolders" is on and file is in subfolder:
-     *      - Does NOT expand any folders (maintains current view)
-     *      - Preserves current folder selection
-     *    - Less disruptive to user's current navigation context
+     * Internal implementation for revealing files.
      * 
      * @param file - The file to reveal
-     * @param isManualReveal - True when triggered by "Reveal file" command
+     * @param forceNavigateToFolder - If true, always navigates to the file's parent folder.
+     *                                 If false, may preserve current folder when appropriate.
      */
-    const revealFile = useCallback((file: TFile, isManualReveal?: boolean) => {
+    const revealFileInternal = useCallback((file: TFile, forceNavigateToFolder: boolean) => {
         if (!file || !file.parent) return;
         
-        // Check if we should preserve the current folder selection
-        // Only for auto-reveal: If showNotesFromSubfolders is on and file is in a subfolder
-        // of the current folder, preserve the selection
+        // Determine if we should preserve the current folder selection
         let preserveFolder = false;
-        if (!isManualReveal && settings.showNotesFromSubfolders && selectionState.selectedFolder && file.parent) {
+        if (!forceNavigateToFolder && settings.showNotesFromSubfolders && selectionState.selectedFolder && file.parent) {
             // Check if the file's parent is a descendant of the currently selected folder
             let currentParent: TFolder | null = file.parent;
             while (currentParent) {
@@ -108,9 +75,7 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
         }
         
         // Determine if we should expand folders
-        // For manual reveal: Always expand to show file location
-        // For auto-reveal: Only expand if NOT preserving folder (respects "Show notes from subfolders")
-        const shouldExpandFolders = isManualReveal || !preserveFolder;
+        const shouldExpandFolders = forceNavigateToFolder || !preserveFolder;
         
         if (shouldExpandFolders) {
             // We need to expand folders BEFORE changing selection
@@ -150,6 +115,29 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
     }, [settings.showNotesFromSubfolders, selectionState.selectedFolder, expansionState.expandedFolders, 
         expansionDispatch, selectionDispatch, uiDispatch]);
     
+    /**
+     * Navigates to the file's parent folder and reveals it.
+     * Always expands folders to show the file's actual location.
+     * Use this when the user explicitly wants to see where a file is located.
+     * 
+     * @param file - The file to navigate to
+     */
+    const navigateToFile = useCallback((file: TFile) => {
+        revealFileInternal(file, true);
+    }, [revealFileInternal]);
+    
+    /**
+     * Reveals a file while trying to preserve the current folder view.
+     * If "Show notes from subfolders" is enabled and the file is in a subfolder
+     * of the current folder, it will keep the current folder selected.
+     * Use this for auto-reveal scenarios to be less disruptive.
+     * 
+     * @param file - The file to reveal
+     */
+    const revealFileInCurrentView = useCallback((file: TFile) => {
+        revealFileInternal(file, false);
+    }, [revealFileInternal]);
+    
     // Use auto-reveal hook to detect which file needs revealing
     const { fileToReveal } = useAutoReveal(app, {
         autoRevealActiveFile: settings.autoRevealActiveFile
@@ -158,52 +146,21 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
     // Handle revealing the file when detected by the hook
     useEffect(() => {
         if (fileToReveal) {
-            revealFile(fileToReveal, false); // Explicitly pass false for auto-reveal
+            revealFileInCurrentView(fileToReveal); // Auto-reveal preserves context
         }
-    }, [fileToReveal, revealFile]);
+    }, [fileToReveal, revealFileInCurrentView]);
     
     // Handle revealing files that moved to a different folder
     useEffect(() => {
         if (selectionState.fileMovedToDifferentFolder) {
-            revealFile(selectionState.fileMovedToDifferentFolder, true); // true for manual reveal
+            navigateToFile(selectionState.fileMovedToDifferentFolder); // Navigate to new location
         }
-    }, [selectionState.fileMovedToDifferentFolder, revealFile]);
+    }, [selectionState.fileMovedToDifferentFolder, navigateToFile]);
     
-    // Handle auto-reveal when showNotesFromSubfolders is toggled OFF
-    useEffect(() => {
-        const prevValue = prevShowNotesFromSubfoldersRef.current;
-        const currentValue = settings.showNotesFromSubfolders;
-        
-        // Update ref for next render
-        prevShowNotesFromSubfoldersRef.current = currentValue;
-        
-        // Only reveal when toggling from ON to OFF and auto-reveal is enabled
-        if (prevValue && !currentValue && settings.autoRevealActiveFile) {
-            const activeFile = app.workspace.getActiveFile();
-            if (activeFile && selectionState.selectedFolder) {
-                // Check if the active file is in a subfolder of the current selection
-                let isInSubfolder = false;
-                let currentParent: TFolder | null = activeFile.parent;
-                
-                while (currentParent) {
-                    if (currentParent.path === selectionState.selectedFolder.path) {
-                        isInSubfolder = true;
-                        break;
-                    }
-                    currentParent = currentParent.parent;
-                }
-                
-                // Only reveal if the file was in a subfolder (and thus no longer visible)
-                if (isInSubfolder && activeFile.parent && activeFile.parent.path !== selectionState.selectedFolder.path) {
-                    revealFile(activeFile, false); // false = auto-reveal
-                }
-            }
-        }
-    }, [settings.showNotesFromSubfolders, settings.autoRevealActiveFile, app, selectionState.selectedFolder, revealFile]);
     
     /**
      * Handle reveal scrolling after selection changes.
-     * Folder expansion now happens in revealFile() BEFORE selection changes.
+     * Folder expansion happens in the reveal functions BEFORE selection changes.
      */
     useEffect(() => {
         // ONLY process if this is a reveal operation, not normal keyboard navigation
@@ -264,6 +221,7 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
         navigationPaneRef, fileListRef]);
     
     return {
-        revealFile
+        navigateToFile,
+        revealFileInCurrentView
     };
 }

@@ -37,7 +37,7 @@ import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS } from '
 import { strings } from '../i18n';
 
 export interface NotebookNavigatorHandle {
-    revealFile: (file: TFile, isManualReveal?: boolean) => void;
+    navigateToFile: (file: TFile) => void;
     focusFilePane: () => void;
     refresh: () => void;
     handleBecomeActive: () => void;
@@ -79,7 +79,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     });
     
     // Use file reveal logic
-    const { revealFile } = useFileReveal({ app, navigationPaneRef, fileListRef });
+    const { navigateToFile, revealFileInCurrentView } = useFileReveal({ app, navigationPaneRef, fileListRef });
     
     // Use mobile navigation logic
     const { handleBecomeActive } = useMobileNavigation({ 
@@ -102,7 +102,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     
     // Expose methods via ref
     useImperativeHandle(ref, () => ({
-        revealFile,
+        navigateToFile,
         focusFilePane: () => {
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             // Focus the container to ensure keyboard navigation works
@@ -134,7 +134,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             }
         }
     }), [
-        revealFile,
+        navigateToFile,
         handleBecomeActive,
         triggerDeleteKey,
         uiDispatch,

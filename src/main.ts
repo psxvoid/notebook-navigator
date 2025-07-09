@@ -165,7 +165,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 const activeFile = this.app.workspace.getActiveFile();
                 if (activeFile && activeFile.parent) {
                     if (!checking) {
-                        this.revealFileInNavigator(activeFile);
+                        this.navigateToFile(activeFile);
                     }
                     return true;
                 }
@@ -289,7 +289,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                             .setTitle(strings.plugin.revealInNavigator)
                             .setIcon('folder-open')
                             .onClick(async () => {
-                                await this.revealFileInNavigator(file);
+                                await this.navigateToFile(file);
                             });
                     });
                 }
@@ -600,12 +600,12 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
 
     /**
-     * Reveals a specific file in the navigator, opening the view if needed
+     * Navigates to a specific file in the navigator, opening the view if needed
      * Expands parent folders and scrolls to make the file visible
      * Used by "Reveal in Navigator" commands and context menu actions
-     * @param file - The file to reveal in the navigator
+     * @param file - The file to navigate to in the navigator
      */
-    private async revealFileInNavigator(file: TFile) {
+    private async navigateToFile(file: TFile) {
         // Ensure navigator is open
         const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         if (leaves.length === 0) {
@@ -617,7 +617,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         navigatorLeaves.forEach(leaf => {
             const view = leaf.view;
             if (view instanceof NotebookNavigatorView) {
-                view.revealFile(file, true); // Pass true for isManualReveal
+                view.navigateToFile(file);
             }
         });
     }
