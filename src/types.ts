@@ -210,8 +210,7 @@ export const STORAGE_KEYS: LocalStorageKeys = {
  */
 export const NAVIGATION_PANE_DIMENSIONS = {
     defaultWidth: 300,
-    minWidth: 150,
-    maxWidth: 600
+    minWidth: 150
 };
 
 /**

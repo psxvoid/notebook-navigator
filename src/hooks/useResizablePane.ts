@@ -24,7 +24,6 @@ import { NAVIGATION_PANE_DIMENSIONS } from '../types';
 interface UseResizablePaneConfig {
     initialWidth?: number;
     min?: number;
-    max?: number;
     storageKey?: string;
 }
 
@@ -41,13 +40,12 @@ interface UseResizablePaneResult {
  * Handles mouse events for dragging the resize handle and constrains the width
  * within specified bounds.
  * 
- * @param config - Configuration object with initial width, min/max bounds, and storage key
+ * @param config - Configuration object with initial width, min bound, and storage key
  * @returns Current pane width and props to spread on the resize handle element
  */
 export function useResizablePane({
     initialWidth = NAVIGATION_PANE_DIMENSIONS.defaultWidth,
     min = NAVIGATION_PANE_DIMENSIONS.minWidth,
-    max = NAVIGATION_PANE_DIMENSIONS.maxWidth,
     storageKey
 }: UseResizablePaneConfig = {}): UseResizablePaneResult {
     // Track cleanup function for current resize operation
@@ -58,7 +56,7 @@ export function useResizablePane({
         if (storageKey) {
             const savedWidth = localStorage.get<number>(storageKey);
             if (savedWidth) {
-                return Math.max(min, Math.min(max, savedWidth));
+                return Math.max(min, savedWidth);
             }
         }
         return initialWidth;
@@ -91,7 +89,7 @@ export function useResizablePane({
             if (isRTL) {
                 deltaX = -deltaX;
             }
-            currentWidth = Math.max(min, Math.min(max, startWidth + deltaX));
+            currentWidth = Math.max(min, startWidth + deltaX);
             setPaneWidth(currentWidth);
         };
 
@@ -113,7 +111,7 @@ export function useResizablePane({
             document.removeEventListener('mouseup', handleMouseUp);
             setIsResizing(false);
         };
-    }, [paneWidth, min, max]);
+    }, [paneWidth, min]);
     
     // Cleanup on unmount if resize is in progress
     useEffect(() => {

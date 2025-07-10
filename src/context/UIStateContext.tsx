@@ -87,7 +87,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         const initialState = {
             focusedPane: 'folders' as const,
             currentSinglePaneView: 'files' as const,
-            paneWidth: Math.max(NAVIGATION_PANE_DIMENSIONS.minWidth, Math.min(paneWidth, NAVIGATION_PANE_DIMENSIONS.maxWidth)),
+            paneWidth: Math.max(NAVIGATION_PANE_DIMENSIONS.minWidth, paneWidth),
             newlyCreatedPath: null,
             navigationPaneCollapsed,
             singlePane: false // Will be computed later

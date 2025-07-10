@@ -80,7 +80,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const { paneWidth, isResizing, resizeHandleProps } = useResizablePane({
         initialWidth: NAVIGATION_PANE_DIMENSIONS.defaultWidth,
         min: NAVIGATION_PANE_DIMENSIONS.minWidth,
-        max: NAVIGATION_PANE_DIMENSIONS.maxWidth,
         storageKey: STORAGE_KEYS.navigationPaneWidthKey
     });
     
@@ -219,11 +218,13 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         }
     }, [isMobile, paneWidth, uiDispatch, uiState.navigationPaneCollapsed]);
 
-    // Determine CSS classes for mobile view state
+    // Determine CSS classes
     const containerClasses = ['nn-split-container'];
-    if (uiState.singlePane) {
+    if (isMobile && uiState.singlePane) {
+        // Mobile uses sliding animations with show-list/show-files classes
         containerClasses.push(uiState.currentSinglePaneView === 'list' ? 'show-list' : 'show-files');
-    } else {
+    } else if (!uiState.singlePane) {
+        // Desktop dual-pane mode
         containerClasses.push('nn-desktop');
         if (uiState.navigationPaneCollapsed) {
             containerClasses.push('nn-navigation-pane-collapsed');
@@ -245,7 +246,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 // The actual keyboard handling is done in NavigationPane and FileList
             }}
         >
-            {(!uiState.singlePane && !uiState.navigationPaneCollapsed) && (
+            {!uiState.singlePane && !uiState.navigationPaneCollapsed && (
                 <>
                     <div className="nn-navigation-pane" style={{ width: `${paneWidth}px` }}>
                         <NavigationPane ref={navigationPaneRef} />
@@ -253,14 +254,16 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                     <div className="nn-resize-handle" {...resizeHandleProps} />
                 </>
             )}
-            {uiState.singlePane && (
+            {uiState.singlePane && uiState.currentSinglePaneView === 'list' && (
                 <div className="nn-navigation-pane" style={{ width: '100%' }}>
                     <NavigationPane ref={navigationPaneRef} />
                 </div>
             )}
-            <ErrorBoundary componentName="FileList">
-                <FileList ref={fileListRef} />
-            </ErrorBoundary>
+            {(!uiState.singlePane || uiState.currentSinglePaneView === 'files') && (
+                <ErrorBoundary componentName="FileList">
+                    <FileList ref={fileListRef} />
+                </ErrorBoundary>
+            )}
         </div>
     );
 });
