@@ -331,8 +331,8 @@ export const STRINGS_DE = {
                 desc: 'Den übergeordneten Ordnernamen für Notizen aus Unterordnern anzeigen.',
             },
             singlePane: {
-                name: 'Use single-pane view on desktop',
-                desc: 'When enabled, shows folders, tags, and the file list in a single pane. When disabled, folders and tags appear side-by-side with the file list in a dual-pane view.',
+                name: 'Single-pane layout',
+                desc: 'Switch between navigation pane and file list on desktop.',
             },
             autoRevealActiveNote: {
                 name: 'Aktive Notiz automatisch anzeigen',

@@ -331,8 +331,8 @@ export const STRINGS_FR = {
                 desc: 'Afficher le nom du dossier parent pour les notes provenant des sous-dossiers.',
             },
             singlePane: {
-                name: 'Use single-pane view on desktop',
-                desc: 'When enabled, shows folders, tags, and the file list in a single pane. When disabled, folders and tags appear side-by-side with the file list in a dual-pane view.',
+                name: 'Single-pane layout',
+                desc: 'Switch between navigation pane and file list on desktop.',
             },
             autoRevealActiveNote: {
                 name: 'Révéler automatiquement la note active',
