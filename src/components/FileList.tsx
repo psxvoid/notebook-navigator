@@ -786,6 +786,12 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 const headerText = item.data as string;
                 const headerBottom = getItemBottom(i);
                 
+                // Skip headers that haven't been measured yet (position 0 when scrollTop is also 0)
+                // This prevents picking up unmeasured headers on initial render
+                if (headerBottom === 0 && scrollTop === 0) {
+                    continue;
+                }
+                
                 if (headerBottom !== null && headerBottom <= scrollTop) {
                     // This header is completely above the viewport, so it's our current group
                     currentGroup = headerText;
