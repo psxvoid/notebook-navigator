@@ -109,6 +109,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     useImperativeHandle(ref, () => ({
         navigateToFile,
         focusFilePane: () => {
+            // In single pane mode, switch to file list view
+            if (uiState.singlePane && uiState.currentSinglePaneView === 'list') {
+                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+            }
+            
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             // Focus the container to ensure keyboard navigation works
             // Don't steal focus if we're opening version history
