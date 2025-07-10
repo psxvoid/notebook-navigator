@@ -76,7 +76,6 @@
 .nn-navigation-pane {
     width: 300px;
     min-width: 150px;
-    max-width: 600px;
     background-color: var(--background-secondary);
     display: flex;
     flex-direction: column;
