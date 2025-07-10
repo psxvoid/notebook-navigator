@@ -330,6 +330,10 @@ export const STRINGS_JA = {
                 name: '親フォルダ名を表示',
                 desc: 'サブフォルダのノートに親フォルダ名を表示します。',
             },
+            singlePane: {
+                name: 'Single-pane layout',
+                desc: 'デスクトップで単一ペインでナビゲーションとファイルリストを切り替えます。',
+            },
             autoRevealActiveNote: {
                 name: 'アクティブなノートを自動表示',
                 desc: 'クイックスイッチャー、リンク、検索から開いたときに自動的にノートを表示して選択します。',
@@ -460,7 +464,7 @@ export const STRINGS_JA = {
             },
             showAllTagsFolder: {
                 name: 'タグフォルダを表示',
-                desc: '「タグ」を折りたたみ可能なフォルダに表示します。',
+                desc: '「タグ」を折りたたみ可能なフォルダとして表示します。',
             },
             showUntagged: {
                 name: 'タグなしノートを表示',

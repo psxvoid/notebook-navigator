@@ -330,6 +330,10 @@ export const STRINGS_FR = {
                 name: 'Afficher les noms des dossiers parents',
                 desc: 'Afficher le nom du dossier parent pour les notes provenant des sous-dossiers.',
             },
+            singlePane: {
+                name: 'Single-pane layout',
+                desc: 'Basculer entre la navigation et la liste de fichiers dans un seul panneau sur ordinateur.',
+            },
             autoRevealActiveNote: {
                 name: 'Révéler automatiquement la note active',
                 desc: 'Révéler et sélectionner automatiquement les notes lorsqu\'elles sont ouvertes depuis le Commutateur rapide, les liens ou la recherche.',
@@ -460,7 +464,7 @@ export const STRINGS_FR = {
             },
             showAllTagsFolder: {
                 name: 'Afficher le dossier des étiquettes',
-                desc: 'Afficher "Étiquettes" dans un dossier repliable.',
+                desc: 'Afficher "Étiquettes" comme un dossier repliable.',
             },
             showUntagged: {
                 name: 'Afficher les notes sans étiquette',

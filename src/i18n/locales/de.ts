@@ -330,6 +330,10 @@ export const STRINGS_DE = {
                 name: 'Übergeordnete Ordnernamen anzeigen',
                 desc: 'Den übergeordneten Ordnernamen für Notizen aus Unterordnern anzeigen.',
             },
+            singlePane: {
+                name: 'Single-pane layout',
+                desc: 'Zwischen Navigation und Dateiliste in einer einzelnen Ansicht auf dem Desktop wechseln.',
+            },
             autoRevealActiveNote: {
                 name: 'Aktive Notiz automatisch anzeigen',
                 desc: 'Notizen automatisch anzeigen und auswählen, wenn sie über Schnellauswahl, Links oder Suche geöffnet werden.',
@@ -460,7 +464,7 @@ export const STRINGS_DE = {
             },
             showAllTagsFolder: {
                 name: 'Tags-Ordner anzeigen',
-                desc: '"Tags" in einem einklappbaren Ordner anzeigen.',
+                desc: '"Tags" als einklappbaren Ordner anzeigen.',
             },
             showUntagged: {
                 name: 'Ungetaggte Notizen anzeigen',

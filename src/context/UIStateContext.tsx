@@ -16,26 +16,28 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode, useMemo } from 'react';
 import { NAVIGATION_PANE_DIMENSIONS } from '../types';
 import { localStorage } from '../utils/localStorage';
+import { useSettings } from './SettingsContext';
 
 // Storage keys
 import { STORAGE_KEYS } from '../types';
 
 // State interface
 interface UIState {
-    focusedPane: 'folders' | 'files';
-    currentMobileView: 'list' | 'files';
+    focusedPane: 'navigation' | 'files';
+    currentSinglePaneView: 'navigation' | 'files';
     paneWidth: number;
     newlyCreatedPath: string | null;
     navigationPaneCollapsed: boolean;
+    singlePane: boolean;
 }
 
 // Action types
 export type UIAction = 
-    | { type: 'SET_FOCUSED_PANE'; pane: 'folders' | 'files' }
-    | { type: 'SET_MOBILE_VIEW'; view: 'list' | 'files' }
+    | { type: 'SET_FOCUSED_PANE'; pane: 'navigation' | 'files' }
+    | { type: 'SET_SINGLE_PANE_VIEW'; view: 'navigation' | 'files' }
     | { type: 'SET_PANE_WIDTH'; width: number }
     | { type: 'SET_NEWLY_CREATED_PATH'; path: string | null }
     | { type: 'TOGGLE_NAVIGATION_PANE' };
@@ -50,8 +52,8 @@ function uiStateReducer(state: UIState, action: UIAction): UIState {
         case 'SET_FOCUSED_PANE':
             return { ...state, focusedPane: action.pane };
         
-        case 'SET_MOBILE_VIEW':
-            return { ...state, currentMobileView: action.view };
+        case 'SET_SINGLE_PANE_VIEW':
+            return { ...state, currentSinglePaneView: action.view };
         
         case 'SET_PANE_WIDTH':
             return { ...state, paneWidth: action.width };
@@ -83,17 +85,25 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         const navigationPaneCollapsed = savedCollapsed ?? false;
         
         const initialState = {
-            focusedPane: 'folders' as const,
-            currentMobileView: 'files' as const,
-            paneWidth: Math.max(NAVIGATION_PANE_DIMENSIONS.minWidth, Math.min(paneWidth, NAVIGATION_PANE_DIMENSIONS.maxWidth)),
+            focusedPane: 'navigation' as const,
+            currentSinglePaneView: 'files' as const,
+            paneWidth: Math.max(NAVIGATION_PANE_DIMENSIONS.minWidth, paneWidth),
             newlyCreatedPath: null,
-            navigationPaneCollapsed
+            navigationPaneCollapsed,
+            singlePane: false // Will be computed later
         };
         
         return initialState;
     };
     
     const [state, dispatch] = useReducer(uiStateReducer, undefined, loadInitialState);
+    const { settings } = useSettings();
+    
+    // Compute singlePane based on isMobile and settings
+    const stateWithSinglePane = useMemo(() => ({
+        ...state,
+        singlePane: isMobile || settings.singlePane
+    }), [state, isMobile, settings.singlePane]);
     
     // Persist pane width to localStorage
     useEffect(() => {
@@ -116,7 +126,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
     }, [state.navigationPaneCollapsed, isMobile]);
     
     return (
-        <UIStateContext.Provider value={state}>
+        <UIStateContext.Provider value={stateWithSinglePane}>
             <UIDispatchContext.Provider value={dispatch}>
                 {children}
             </UIDispatchContext.Provider>

@@ -330,6 +330,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar nombres de carpetas principales',
                 desc: 'Muestra el nombre de la carpeta principal para las notas de subcarpetas.',
             },
+            singlePane: {
+                name: 'Single-pane layout',
+                desc: 'Cambiar entre navegación y lista de archivos en un solo panel en escritorio.',
+            },
             autoRevealActiveNote: {
                 name: 'Mostrar automáticamente la nota activa',
                 desc: 'Muestra y selecciona automáticamente las notas cuando se abren desde el Conmutador rápido, enlaces o búsqueda.',
@@ -460,7 +464,7 @@ export const STRINGS_ES = {
             },
             showAllTagsFolder: {
                 name: 'Mostrar carpeta de etiquetas',
-                desc: 'Muestra "Etiquetas" en una carpeta plegable.',
+                desc: 'Muestra "Etiquetas" como una carpeta plegable.',
             },
             showUntagged: {
                 name: 'Mostrar notas sin etiquetas',

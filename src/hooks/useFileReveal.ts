@@ -21,7 +21,7 @@ import { TFile, TFolder, App } from 'obsidian';
 import { useSettingsState } from '../context/SettingsContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
-import { useUIDispatch } from '../context/UIStateContext';
+import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useAutoReveal } from './useAutoReveal';
 import { isTFolder } from '../utils/typeGuards';
 import type { NavigationPaneHandle } from '../components/NavigationPane';
@@ -49,6 +49,7 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
     const expansionDispatch = useExpansionDispatch();
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
+    const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     
     /**
@@ -105,6 +106,11 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
         // Trigger the reveal - scrolling will happen via the effect that watches isRevealOperation
         selectionDispatch({ type: 'REVEAL_FILE', file, preserveFolder });
         
+        // In single pane mode, switch to file list view
+        if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
+            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+        }
+        
         // Only change focus if we're not already in the navigator AND not opening version history
         const navigatorEl = document.querySelector('.nn-split-container');
         const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
@@ -114,7 +120,7 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         }
     }, [settings.showNotesFromSubfolders, selectionState.selectedFolder, expansionState.expandedFolders, 
-        expansionDispatch, selectionDispatch, uiDispatch]);
+        expansionDispatch, selectionDispatch, uiState, uiDispatch]);
     
     /**
      * Navigates to the file's parent folder and reveals it.
@@ -168,9 +174,18 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
         // Select the folder
         selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
         
-        // Focus the folders pane
-        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
-    }, [app, expansionState.expandedFolders, expansionDispatch, selectionDispatch, uiDispatch]);
+        // In single pane mode, switch to file list view and focus files pane
+        if (uiState.singlePane) {
+            if (uiState.currentSinglePaneView === 'navigation') {
+                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+            }
+            // Set focus to files pane when in single pane mode
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+        } else {
+            // In dual-pane mode, focus the folders pane
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+        }
+    }, [app, expansionState.expandedFolders, expansionDispatch, selectionDispatch, uiState, uiDispatch]);
     
     // Use auto-reveal hook to detect which file needs revealing
     const { fileToReveal } = useAutoReveal(app, {

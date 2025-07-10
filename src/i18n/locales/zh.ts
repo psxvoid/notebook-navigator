@@ -330,6 +330,10 @@ export const STRINGS_ZH = {
                 name: '显示父文件夹名称',
                 desc: '为子文件夹中的笔记显示父文件夹名称。',
             },
+            singlePane: {
+                name: 'Single-pane layout',
+                desc: '在桌面端的单个窗格中切换导航和文件列表。',
+            },
             autoRevealActiveNote: {
                 name: '自动定位活动笔记',
                 desc: '从快速切换器、链接或搜索打开笔记时自动显示并选择。',
@@ -460,7 +464,7 @@ export const STRINGS_ZH = {
             },
             showAllTagsFolder: {
                 name: '显示标签文件夹',
-                desc: '在可折叠文件夹中显示"标签"。',
+                desc: '将"标签"显示为可折叠文件夹。',
             },
             showUntagged: {
                 name: '显示无标签笔记',

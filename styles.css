@@ -76,7 +76,6 @@
 .nn-navigation-pane {
     width: 300px;
     min-width: 150px;
-    max-width: 600px;
     background-color: var(--background-secondary);
     display: flex;
     flex-direction: column;
@@ -777,7 +776,6 @@
     font-weight: 600;
     color: var(--text-muted);
     background-color: var(--background-primary);
-    border-bottom: 1px solid var(--background-modifier-border);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1445,11 +1443,11 @@ body.nn-resizing {
     display: none !important;
 }
 
-/* Mobile view states - show list view */
-.notebook-navigator-mobile .nn-split-container.show-list .nn-navigation-pane {
+/* Mobile view states - show navigation view */
+.notebook-navigator-mobile .nn-split-container.show-navigation .nn-navigation-pane {
     transform: translateX(0%);
 }
-.notebook-navigator-mobile .nn-split-container.show-list .nn-file-pane {
+.notebook-navigator-mobile .nn-split-container.show-navigation .nn-file-pane {
     transform: translateX(100%);
 }
 
@@ -1504,6 +1502,17 @@ body.nn-resizing {
 }
 
 /* Note: Bottom spacing is handled by a spacer item in the virtualized list */
+
+/* Desktop single-pane mode styles */
+/* Desktop single-pane - show navigation view (hide files) */
+.nn-desktop-single-pane.show-navigation .nn-file-pane {
+    display: none;
+}
+
+/* Desktop single-pane - show files view (hide navigation) */
+.nn-desktop-single-pane.show-files .nn-navigation-pane {
+    display: none;
+}
 
 /* Disable drag and drop cursors on mobile */
 .notebook-navigator-mobile [draggable="true"] {
@@ -1722,10 +1731,10 @@ body.nn-resizing {
    ======================================================================== */
 
 /* Mobile slide animations for RTL */
-.mod-rtl .notebook-navigator-mobile .nn-split-container.show-list .nn-navigation-pane {
+.mod-rtl .notebook-navigator-mobile .nn-split-container.show-navigation .nn-navigation-pane {
     transform: translateX(0%);
 }
-.mod-rtl .notebook-navigator-mobile .nn-split-container.show-list .nn-file-pane {
+.mod-rtl .notebook-navigator-mobile .nn-split-container.show-navigation .nn-file-pane {
     transform: translateX(-100%);
 }
 
@@ -1775,6 +1784,29 @@ body.nn-resizing {
 .nn-error-text small {
     font-size: 12px;
     opacity: 0.8;
+}
+
+/* Sidebar toggle button in file pane header */
+.nn-pane-header-icon-button {
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+.nn-pane-header-icon-button:hover {
+    opacity: 1;
+    color: var(--text-normal);
+}
+
+.nn-icon-button-muted {
+    color: var(--text-muted);
 }
 
 

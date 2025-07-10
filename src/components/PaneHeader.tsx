@@ -34,8 +34,9 @@ import { useTagCache } from '../context/TagCacheContext';
 import { collectAllTagPaths } from '../utils/tagUtils';
 
 interface PaneHeaderProps {
-    type: 'folder' | 'file';
+    type: 'navigation' | 'files';
     onHeaderClick?: () => void;
+    currentDateGroup?: string | null;
 }
 
 /**
@@ -47,7 +48,7 @@ interface PaneHeaderProps {
  * @param props.type - Whether this is the header for the 'folder' or 'file' pane
  * @returns A header element with context-appropriate action buttons
  */
-export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
+export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeaderProps) {
     const { app, isMobile } = useServices();
     const { settings, updateSettings } = useSettings();
     const expansionState = useExpansionState();
@@ -95,7 +96,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
      *   - If showRootFolder is false: Collapses all folders (root children still visible)
      */
     const handleExpandCollapseAll = useCallback(() => {
-        if (type !== 'folder') return;
+        if (type !== 'navigation') return;
         
         const behavior = settings.collapseButtonBehavior;
         const rootFolder = app.vault.getRoot();
@@ -156,7 +157,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     }, [app, expansionDispatch, type, settings.showRootFolder, settings.collapseButtonBehavior, tagData.tree, shouldCollapseItems]);
     
     const handleNewFolder = useCallback(async () => {
-        if (type !== 'folder' || !selectionState.selectedFolder) return;
+        if (type !== 'navigation' || !selectionState.selectedFolder) return;
         
         try {
             await fileSystemOps.createNewFolder(selectionState.selectedFolder, () => {
@@ -171,7 +172,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     }, [selectionState.selectedFolder, expansionState.expandedFolders, fileSystemOps, type, expansionDispatch]);
     
     const handleNewFile = useCallback(async () => {
-        if (type !== 'file' || !selectionState.selectedFolder) return;
+        if (type !== 'files' || !selectionState.selectedFolder) return;
         
         try {
             const file = await fileSystemOps.createNewFile(selectionState.selectedFolder);
@@ -192,7 +193,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     }, [getCurrentSortOption]);
     
     const handleSortMenu = useCallback((event: React.MouseEvent) => {
-        if (type !== 'file') return;
+        if (type !== 'files') return;
         
         const menu = new Menu();
         const currentSort = getCurrentSortOption();
@@ -266,18 +267,34 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
         });
     }, [updateSettings]);
     
-    // Mobile header with back button
-    if (isMobile) {
-        let headerTitle = strings.common.noSelection;
+    // Helper function to get header title
+    const getHeaderTitle = (useFolderName = false): string => {
+        let title = strings.common.noSelection;
         
         if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-            headerTitle = selectionState.selectedFolder.path === '/' ? strings.folderTree.rootFolderName : selectionState.selectedFolder.name;
+            if (selectionState.selectedFolder.path === '/') {
+                title = strings.folderTree.rootFolderName;
+            } else {
+                title = useFolderName ? selectionState.selectedFolder.name : selectionState.selectedFolder.path;
+            }
         } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            headerTitle = selectionState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : selectionState.selectedTag;
+            title = selectionState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : selectionState.selectedTag;
         }
         
+        // Replace with current date group if available
+        if (currentDateGroup) {
+            title = currentDateGroup;
+        }
+        
+        return title;
+    };
+    
+    // Mobile header with back button
+    if (isMobile) {
+        const headerTitle = getHeaderTitle(true); // Use folder name for mobile
+        
         // For file pane header on mobile
-        if (type === 'file') {
+        if (type === 'files') {
             return (
                 <div className="nn-pane-header" onClick={onHeaderClick}>
                     <div className="nn-header-actions">
@@ -287,7 +304,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                                 aria-label={strings.paneHeader.mobileBackToFolders}
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
+                                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
                                 }}
                                 tabIndex={-1}
                             >
@@ -297,7 +314,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                                 className="nn-mobile-title"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
+                                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
                                 }}
                             >
                                 {headerTitle}
@@ -384,21 +401,15 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     // Prepare header title for file pane
     let headerTitle = '';
     let folderIcon = '';
-    let folderColor: string | undefined;
     
-    if (type === 'file') {
-        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-            headerTitle = selectionState.selectedFolder.path === '/' ? strings.folderTree.rootFolderName : selectionState.selectedFolder.path;
-            
-            // Get folder icon if available
-            if (settings.showIcons) {
+    if (type === 'files') {
+        headerTitle = getHeaderTitle(false); // Use full path for desktop
+        
+        // Get icon based on selection type
+        if (settings.showIcons) {
+            if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                 folderIcon = settings.folderIcons?.[selectionState.selectedFolder.path] || 'folder';
-            }
-        } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            headerTitle = selectionState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : selectionState.selectedTag;
-            
-            // Use tags icon or custom icon for tags
-            if (settings.showIcons) {
+            } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
                 folderIcon = settings.tagIcons?.[selectionState.selectedTag] || 'tags';
             }
         }
@@ -407,16 +418,20 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     return (
         <div className="nn-pane-header">
             <div className="nn-header-actions nn-header-actions--space-between">
-                {type === 'folder' ? (
+                {type === 'navigation' ? (
                     <>
-                        <button
-                            className="nn-icon-button"
-                            aria-label={strings.paneHeader.hideFolders}
-                            onClick={() => uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' })}
-                            tabIndex={-1}
-                        >
-                            <ObsidianIcon name="sidebar-left" />
-                        </button>
+                        {!uiState.singlePane ? (
+                            <button
+                                className="nn-icon-button"
+                                aria-label={strings.paneHeader.hideFolders}
+                                onClick={() => uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' })}
+                                tabIndex={-1}
+                            >
+                                <ObsidianIcon name="sidebar-left" />
+                            </button>
+                        ) : (
+                            <div />
+                        )}
                         <div className="nn-header-actions">
                             <button
                                 className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}
@@ -449,7 +464,7 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                     </>
                 ) : (
                     <>
-                        {uiState.navigationPaneCollapsed && (
+                        {uiState.navigationPaneCollapsed && !uiState.singlePane && (
                             <button
                                 className="nn-icon-button"
                                 aria-label={strings.paneHeader.showFolders}
@@ -461,11 +476,27 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
                         )}
                         {headerTitle && (
                             <span className="nn-pane-header-title">
-                                {folderIcon && (
-                                    <ObsidianIcon 
-                                        name={folderIcon} 
-                                        className="nn-pane-header-icon"
-                                    />
+                                {uiState.singlePane ? (
+                                    <button
+                                        className="nn-icon-button nn-icon-button-muted nn-pane-header-icon-button"
+                                        onClick={() => {
+                                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
+                                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+                                        }}
+                                        aria-label={strings.paneHeader.showFolders}
+                                    >
+                                        <ObsidianIcon 
+                                            name="chevron-left" 
+                                            className="nn-pane-header-icon"
+                                        />
+                                    </button>
+                                ) : (
+                                    folderIcon && (
+                                        <ObsidianIcon 
+                                            name={folderIcon} 
+                                            className="nn-pane-header-icon"
+                                        />
+                                    )
                                 )}
                                 <span className="nn-pane-header-text">{headerTitle}</span>
                             </span>

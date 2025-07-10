@@ -330,6 +330,10 @@ export const STRINGS_EN = {
                 name: 'Show parent folder names',
                 desc: 'Display the parent folder name for notes from subfolders.',
             },
+            singlePane: {
+                name: 'Single-pane layout',
+                desc: 'Switch between navigation and file list in a single pane on desktop.',
+            },
             autoRevealActiveNote: {
                 name: 'Auto-reveal active note',
                 desc: 'Automatically reveal and select notes when opened from Quick Switcher, links, or search.',
@@ -460,7 +464,7 @@ export const STRINGS_EN = {
             },
             showAllTagsFolder: {
                 name: 'Show tags folder',
-                desc: 'Show "Tags" in a collapsible folder.',
+                desc: 'Display "Tags" as a collapsible folder.',
             },
             showUntagged: {
                 name: 'Show untagged notes',

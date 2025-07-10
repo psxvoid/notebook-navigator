@@ -80,7 +80,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const { paneWidth, isResizing, resizeHandleProps } = useResizablePane({
         initialWidth: NAVIGATION_PANE_DIMENSIONS.defaultWidth,
         min: NAVIGATION_PANE_DIMENSIONS.minWidth,
-        max: NAVIGATION_PANE_DIMENSIONS.maxWidth,
         storageKey: STORAGE_KEYS.navigationPaneWidthKey
     });
     
@@ -110,6 +109,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     useImperativeHandle(ref, () => ({
         navigateToFile,
         focusFilePane: () => {
+            // In single pane mode, switch to file list view
+            if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
+                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+            }
+            
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             // Focus the container to ensure keyboard navigation works
             // Don't steal focus if we're opening version history
@@ -124,7 +128,10 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         },
         handleBecomeActive,
         toggleNavigationPane: () => {
-            uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' });
+            // Do nothing in single pane mode
+            if (!uiState.singlePane) {
+                uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' });
+            }
         },
         deleteActiveFile: triggerDeleteKey,
         createNoteInSelectedFolder: async () => {
@@ -219,11 +226,17 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         }
     }, [isMobile, paneWidth, uiDispatch, uiState.navigationPaneCollapsed]);
 
-    // Determine CSS classes for mobile view state
+    // Determine CSS classes
     const containerClasses = ['nn-split-container'];
-    if (isMobile) {
-        containerClasses.push(uiState.currentMobileView === 'list' ? 'show-list' : 'show-files');
+    if (isMobile && uiState.singlePane) {
+        // Mobile uses sliding animations with show-list/show-files classes
+        containerClasses.push(uiState.currentSinglePaneView === 'navigation' ? 'show-navigation' : 'show-files');
+    } else if (uiState.singlePane) {
+        // Desktop single-pane mode
+        containerClasses.push('nn-desktop-single-pane');
+        containerClasses.push(uiState.currentSinglePaneView === 'navigation' ? 'show-navigation' : 'show-files');
     } else {
+        // Desktop dual-pane mode
         containerClasses.push('nn-desktop');
         if (uiState.navigationPaneCollapsed) {
             containerClasses.push('nn-navigation-pane-collapsed');
@@ -237,7 +250,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         <div 
             ref={containerCallbackRef}
             className={containerClasses.join(' ')} 
-            data-focus-pane={isMobile ? (uiState.currentMobileView === 'list' ? 'folders' : 'files') : uiState.focusedPane}
+            data-focus-pane={uiState.singlePane ? (uiState.currentSinglePaneView === 'navigation' ? 'navigation' : 'files') : uiState.focusedPane}
             data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}
             tabIndex={-1}
             onKeyDown={(e) => {
@@ -245,7 +258,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 // The actual keyboard handling is done in NavigationPane and FileList
             }}
         >
-            {(!isMobile && !uiState.navigationPaneCollapsed) && (
+            {!uiState.singlePane && !uiState.navigationPaneCollapsed && (
                 <>
                     <div className="nn-navigation-pane" style={{ width: `${paneWidth}px` }}>
                         <NavigationPane ref={navigationPaneRef} />
@@ -253,14 +266,26 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                     <div className="nn-resize-handle" {...resizeHandleProps} />
                 </>
             )}
-            {isMobile && (
-                <div className="nn-navigation-pane" style={{ width: '100%' }}>
-                    <NavigationPane ref={navigationPaneRef} />
-                </div>
+            {uiState.singlePane && (
+                <>
+                    <div className="nn-navigation-pane" style={{ width: '100%' }}>
+                        <NavigationPane ref={navigationPaneRef} />
+                    </div>
+                    <ErrorBoundary componentName="FileList">
+                        <FileList ref={fileListRef} />
+                    </ErrorBoundary>
+                </>
             )}
-            <ErrorBoundary componentName="FileList">
-                <FileList ref={fileListRef} />
-            </ErrorBoundary>
+            {!uiState.singlePane && uiState.navigationPaneCollapsed && (
+                <ErrorBoundary componentName="FileList">
+                    <FileList ref={fileListRef} />
+                </ErrorBoundary>
+            )}
+            {!uiState.singlePane && !uiState.navigationPaneCollapsed && (
+                <ErrorBoundary componentName="FileList">
+                    <FileList ref={fileListRef} />
+                </ErrorBoundary>
+            )}
         </div>
     );
 });
