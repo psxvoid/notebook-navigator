@@ -486,7 +486,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                                         aria-label={strings.paneHeader.showFolders}
                                     >
                                         <ObsidianIcon 
-                                            name="arrow-big-left" 
+                                            name="chevron-left" 
                                             className="nn-pane-header-icon"
                                         />
                                     </button>
