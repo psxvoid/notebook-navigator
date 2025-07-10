@@ -541,7 +541,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     return (
         <ErrorBoundary componentName="NavigationPane">
             <>
-                <PaneHeader type="folder" onHeaderClick={handleScrollToTop} />
+                <PaneHeader type="navigation" onHeaderClick={handleScrollToTop} />
             <div 
                 ref={scrollContainerRef}
                 className="nn-navigation-pane-scroller"

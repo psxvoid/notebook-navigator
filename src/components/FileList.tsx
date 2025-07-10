@@ -837,7 +837,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     if (!selectedFolder && !selectedTag) {
         return (
             <div className="nn-file-pane">
-                <PaneHeader type="file" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
+                <PaneHeader type="list" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
                 <div className="nn-file-list nn-empty-state">
                     <div className="nn-empty-message">{strings.fileList.emptyStateNoSelection}</div>
                 </div>
@@ -848,7 +848,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     if (files.length === 0) {
         return (
             <div className="nn-file-pane">
-                <PaneHeader type="file" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
+                <PaneHeader type="list" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
                 <div className="nn-file-list nn-empty-state">
                     <div className="nn-empty-message">{strings.fileList.emptyStateNoNotes}</div>
                 </div>
@@ -859,7 +859,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     return (
         <ErrorBoundary componentName="FileList">
             <div className="nn-file-pane">
-                <PaneHeader type="file" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
+                <PaneHeader type="list" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
             <div 
                 ref={scrollContainerRef}
                 className="nn-file-list"

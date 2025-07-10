@@ -1776,5 +1776,28 @@ body.nn-resizing {
     opacity: 0.8;
 }
 
+/* Sidebar toggle button in file pane header */
+.nn-pane-header-icon-button {
+    padding: 0;
+    margin: 0;
+    background: none;
+    border: none;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    opacity: 0.8;
+}
+
+.nn-pane-header-icon-button:hover {
+    opacity: 1;
+    color: var(--text-normal);
+}
+
+.nn-icon-button-muted {
+    color: var(--text-muted);
+}
+
 
 

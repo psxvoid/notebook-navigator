@@ -298,8 +298,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             case 'ArrowLeft':
                 e.preventDefault();
                 if (focusedPane === 'files') {
-                    // Only switch to folders pane if navigation pane is not collapsed
-                    if (!uiState.navigationPaneCollapsed) {
+                    if (uiState.singlePane && !isMobile) {
+                        // In single-pane mode, switch to navigation view
+                        uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' });
+                    } else if (!uiState.navigationPaneCollapsed) {
+                        // In dual-pane mode, switch focus to folders pane
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
                     }
                 } else if (focusedPane === 'folders' && currentIndex >= 0) {
@@ -362,8 +365,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 if (e.shiftKey) {
                     // Shift+Tab: Move focus backwards (Editor -> Files -> Folders)
                     if (focusedPane === 'files') {
-                        // Only switch to folders pane if navigation pane is not collapsed
-                        if (!uiState.navigationPaneCollapsed) {
+                        if (uiState.singlePane && !isMobile) {
+                            // In single-pane mode, switch to navigation view
+                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' });
+                        } else if (!uiState.navigationPaneCollapsed) {
+                            // In dual-pane mode, switch focus to folders pane
                             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
                         }
                     }
