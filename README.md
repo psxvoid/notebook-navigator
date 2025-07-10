@@ -1,6 +1,6 @@
 # Notebook Navigator for Obsidian
 
-A plugin for [Obsidian](https://obsidian.md) that replaces the default file explorer with a clean, Notes-style interface featuring a two-pane layout with navigation pane on the left (folders and tags) and list pane on the right (notes).
+A plugin for [Obsidian](https://obsidian.md) that replaces the default file explorer with a clean, Notes-style interface featuring a dual-pane layout with navigation pane on the left (folders and tags) and list pane on the right (notes), or an optional single-pane layout.
 
 If you love using Notebook Navigator, please consider [buying me a coffee](https://buymeacoffee.com/johansan) or [Sponsor on GitHub ❤️](https://github.com/sponsors/johansan).
 
@@ -26,6 +26,7 @@ To a modern, Notes-style interface like this:
 
 ### Core Interface
 - **Two-pane layout** - Navigation pane (folders and tags) on left, list pane (notes) on right
+- **Single-pane layout** - Optional single-pane mode for desktop, switching between navigation and file list
 - **Mobile optimized** - Touch gestures and single-pane navigation
 - **Theme support** - Seamlessly matches your Obsidian theme
 - **Multi-language support** - Available in English, German, Spanish, French, Japanese, and Chinese Simplified
@@ -139,6 +140,7 @@ Until the plugin is approved in the Community Plugins directory, you can install
 
 ### Top Level Settings
 
+- **Single-pane layout:** Switch between navigation and file list in a single pane on desktop
 - **Auto-reveal active note:** Automatically reveal and select notes when opened from Quick Switcher, links, or search
 - **Show tooltips:** Display hover tooltips with additional information for notes and folders
 - **Show file types:** Choose which file types to display in the navigator. Files not supported by Obsidian will open in your system's default application
