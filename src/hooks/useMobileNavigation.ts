@@ -59,16 +59,22 @@ export function useMobileNavigation({
         if (uiState.currentSinglePaneView === 'list' && selectionState.selectedFolder) {
             const index = navigationPaneRef.current?.getIndexOfPath(selectionState.selectedFolder.path);
             if (index !== undefined && index !== -1) {
-                navigationPaneRef.current?.virtualizer?.scrollToIndex(index, { align: 'center' });
+                // Only use center alignment on mobile, use auto on desktop
+                navigationPaneRef.current?.virtualizer?.scrollToIndex(index, { 
+                    align: isMobile ? 'center' : 'auto' 
+                });
             }
         } else if (uiState.currentSinglePaneView === 'files' && selectionState.selectedFile) {
             const index = fileListRef.current?.getIndexOfPath(selectionState.selectedFile.path);
             if (index !== undefined && index !== -1) {
-                fileListRef.current?.virtualizer?.scrollToIndex(index, { align: 'center' });
+                // Only use center alignment on mobile, use auto on desktop
+                fileListRef.current?.virtualizer?.scrollToIndex(index, { 
+                    align: isMobile ? 'center' : 'auto' 
+                });
             }
         }
     }, [uiState.singlePane, uiState.currentSinglePaneView, selectionState.selectedFolder, selectionState.selectedFile,
-        navigationPaneRef, fileListRef]);
+        navigationPaneRef, fileListRef, isMobile]);
     
     // Enable swipe gestures on mobile
     const isRTL = document.body.classList.contains('mod-rtl');
