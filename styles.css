@@ -777,7 +777,6 @@
     font-weight: 600;
     color: var(--text-muted);
     background-color: var(--background-primary);
-    border-bottom: 1px solid var(--background-modifier-border);
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
