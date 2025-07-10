@@ -330,6 +330,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar nombres de carpetas principales',
                 desc: 'Muestra el nombre de la carpeta principal para las notas de subcarpetas.',
             },
+            singlePane: {
+                name: 'Use single-pane view on desktop',
+                desc: 'When enabled, shows folders, tags, and the file list in a single pane. When disabled, folders and tags appear side-by-side with the file list in a dual-pane view.',
+            },
             autoRevealActiveNote: {
                 name: 'Mostrar automáticamente la nota activa',
                 desc: 'Muestra y selecciona automáticamente las notas cuando se abren desde el Conmutador rápido, enlaces o búsqueda.',

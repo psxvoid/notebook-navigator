@@ -221,8 +221,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
 
     // Determine CSS classes for mobile view state
     const containerClasses = ['nn-split-container'];
-    if (isMobile) {
-        containerClasses.push(uiState.currentMobileView === 'list' ? 'show-list' : 'show-files');
+    if (uiState.singlePane) {
+        containerClasses.push(uiState.currentSinglePaneView === 'list' ? 'show-list' : 'show-files');
     } else {
         containerClasses.push('nn-desktop');
         if (uiState.navigationPaneCollapsed) {
@@ -237,7 +237,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         <div 
             ref={containerCallbackRef}
             className={containerClasses.join(' ')} 
-            data-focus-pane={isMobile ? (uiState.currentMobileView === 'list' ? 'folders' : 'files') : uiState.focusedPane}
+            data-focus-pane={uiState.singlePane ? (uiState.currentSinglePaneView === 'list' ? 'folders' : 'files') : uiState.focusedPane}
             data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}
             tabIndex={-1}
             onKeyDown={(e) => {
@@ -245,7 +245,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 // The actual keyboard handling is done in NavigationPane and FileList
             }}
         >
-            {(!isMobile && !uiState.navigationPaneCollapsed) && (
+            {(!uiState.singlePane && !uiState.navigationPaneCollapsed) && (
                 <>
                     <div className="nn-navigation-pane" style={{ width: `${paneWidth}px` }}>
                         <NavigationPane ref={navigationPaneRef} />
@@ -253,7 +253,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                     <div className="nn-resize-handle" {...resizeHandleProps} />
                 </>
             )}
-            {isMobile && (
+            {uiState.singlePane && (
                 <div className="nn-navigation-pane" style={{ width: '100%' }}>
                     <NavigationPane ref={navigationPaneRef} />
                 </div>

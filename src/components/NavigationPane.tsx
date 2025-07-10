@@ -387,14 +387,14 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             }
         }
         
-        // Switch to files view on mobile
-        if (isMobile) {
-            uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
+        // Switch to files view in single pane mode
+        if (uiState.singlePane) {
+            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
             // The scroll trigger in FileList.tsx will handle scrolling to the
             // correct file (which will be the first file on a new folder selection).
             // No explicit scroll dispatch is needed here anymore.
         }
-    }, [selectionDispatch, uiDispatch, isMobile, settings.autoExpandFoldersTags, expansionState.expandedFolders, expansionDispatch]);
+    }, [selectionDispatch, uiDispatch, uiState.singlePane, settings.autoExpandFoldersTags, expansionState.expandedFolders, expansionDispatch]);
     
     // Handle folder name click (for folder notes)
     const handleFolderNameClick = useCallback((folder: TFolder) => {
@@ -452,14 +452,14 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             }
         }
         
-        // Switch to files view on mobile
-        if (isMobile) {
-            uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'files' });
+        // Switch to files view in single pane mode
+        if (uiState.singlePane) {
+            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
             // The scroll trigger in FileList.tsx will handle scrolling to the
             // correct file (which will be the first file on a new tag selection).
             // No explicit scroll dispatch is needed here anymore.
         }
-    }, [selectionDispatch, uiDispatch, isMobile, uiState.currentMobileView, settings.autoExpandFoldersTags, tagTree, expansionState.expandedTags, expansionDispatch]);
+    }, [selectionDispatch, uiDispatch, uiState.singlePane, uiState.currentSinglePaneView, settings.autoExpandFoldersTags, tagTree, expansionState.expandedTags, expansionDispatch]);
     
     // Scroll to top handler for mobile header click
     const handleScrollToTop = useCallback(() => {

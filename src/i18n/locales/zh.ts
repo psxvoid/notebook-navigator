@@ -330,6 +330,10 @@ export const STRINGS_ZH = {
                 name: '显示父文件夹名称',
                 desc: '为子文件夹中的笔记显示父文件夹名称。',
             },
+            singlePane: {
+                name: 'Use single-pane view on desktop',
+                desc: 'When enabled, shows folders, tags, and the file list in a single pane. When disabled, folders and tags appear side-by-side with the file list in a dual-pane view.',
+            },
             autoRevealActiveNote: {
                 name: '自动定位活动笔记',
                 desc: '从快速切换器、链接或搜索打开笔记时自动显示并选择。',

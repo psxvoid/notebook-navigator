@@ -51,42 +51,42 @@ export function useMobileNavigation({
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     
-    // Handle scrolling when mobile view changes or on initial mount
+    // Handle scrolling when single pane view changes or on initial mount
     useEffect(() => {
-        if (!isMobile) return;
+        if (!uiState.singlePane) return;
         
         // Scroll to the appropriate item based on current view
-        if (uiState.currentMobileView === 'list' && selectionState.selectedFolder) {
+        if (uiState.currentSinglePaneView === 'list' && selectionState.selectedFolder) {
             const index = navigationPaneRef.current?.getIndexOfPath(selectionState.selectedFolder.path);
             if (index !== undefined && index !== -1) {
                 navigationPaneRef.current?.virtualizer?.scrollToIndex(index, { align: 'center' });
             }
-        } else if (uiState.currentMobileView === 'files' && selectionState.selectedFile) {
+        } else if (uiState.currentSinglePaneView === 'files' && selectionState.selectedFile) {
             const index = fileListRef.current?.getIndexOfPath(selectionState.selectedFile.path);
             if (index !== undefined && index !== -1) {
                 fileListRef.current?.virtualizer?.scrollToIndex(index, { align: 'center' });
             }
         }
-    }, [isMobile, uiState.currentMobileView, selectionState.selectedFolder, selectionState.selectedFile,
+    }, [uiState.singlePane, uiState.currentSinglePaneView, selectionState.selectedFolder, selectionState.selectedFile,
         navigationPaneRef, fileListRef]);
     
     // Enable swipe gestures on mobile
     const isRTL = document.body.classList.contains('mod-rtl');
     useSwipeGesture(containerRef, {
         onSwipeRight: () => {
-            if (isMobile && uiState.currentMobileView === 'files') {
+            if (isMobile && uiState.currentSinglePaneView === 'files') {
                 // In RTL mode, swipe right goes forward (to files view)
                 // In LTR mode, swipe right goes back (to list view)
                 if (!isRTL) {
-                    uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
+                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' });
                 }
             }
         },
         onSwipeLeft: () => {
-            if (isMobile && uiState.currentMobileView === 'files') {
+            if (isMobile && uiState.currentSinglePaneView === 'files') {
                 // In RTL mode, swipe left goes back (to list view)
                 if (isRTL) {
-                    uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
+                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' });
                 }
             }
         },

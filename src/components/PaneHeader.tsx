@@ -304,7 +304,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                                 aria-label={strings.paneHeader.mobileBackToFolders}
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
+                                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' });
                                 }}
                                 tabIndex={-1}
                             >
@@ -314,7 +314,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                                 className="nn-mobile-title"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    uiDispatch({ type: 'SET_MOBILE_VIEW', view: 'list' });
+                                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' });
                                 }}
                             >
                                 {headerTitle}

@@ -330,6 +330,10 @@ export const STRINGS_EN = {
                 name: 'Show parent folder names',
                 desc: 'Display the parent folder name for notes from subfolders.',
             },
+            singlePane: {
+                name: 'Use single-pane view on desktop',
+                desc: 'When enabled, shows folders, tags, and the file list in a single pane. When disabled, folders and tags appear side-by-side with the file list in a dual-pane view.',
+            },
             autoRevealActiveNote: {
                 name: 'Auto-reveal active note',
                 desc: 'Automatically reveal and select notes when opened from Quick Switcher, links, or search.',

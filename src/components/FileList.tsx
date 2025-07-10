@@ -508,7 +508,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         }
         
         // Only preserve position during active scrolling AND when files view is visible
-        if (!scrollStateRef.current.isScrolling || (isMobile && uiState.currentMobileView !== 'files')) {
+        if (!scrollStateRef.current.isScrolling || (uiState.singlePane && uiState.currentSinglePaneView !== 'files')) {
             prevItemCountRef.current = currentCount;
             return;
         }

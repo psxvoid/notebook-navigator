@@ -47,6 +47,7 @@ export type CollapseButtonBehavior =
  */
 export interface NotebookNavigatorSettings {
     // Top level settings (no category)
+    singlePane: boolean;
     autoRevealActiveFile: boolean;
     showTooltips: boolean;
     fileVisibility: FileVisibility;
@@ -112,6 +113,7 @@ export interface NotebookNavigatorSettings {
  */
 export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Top level settings (no category)
+    singlePane: false,
     autoRevealActiveFile: true,
     showTooltips: true,
     fileVisibility: FILE_VISIBILITY.MARKDOWN,
@@ -281,6 +283,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         containerEl.empty();
 
         // Top level settings (no category header)
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.singlePane.name)
+            .setDesc(strings.settings.items.singlePane.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.singlePane)
+                .onChange(async (value) => {
+                    this.plugin.settings.singlePane = value;
+                    await this.saveAndRefresh();
+                }));
 
         new Setting(containerEl)
             .setName(strings.settings.items.autoRevealActiveNote.name)
