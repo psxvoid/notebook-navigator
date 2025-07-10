@@ -1503,6 +1503,17 @@ body.nn-resizing {
 
 /* Note: Bottom spacing is handled by a spacer item in the virtualized list */
 
+/* Desktop single-pane mode styles */
+/* Desktop single-pane - show list view (hide files) */
+.nn-desktop-single-pane.show-list .nn-file-pane {
+    display: none;
+}
+
+/* Desktop single-pane - show files view (hide list) */
+.nn-desktop-single-pane.show-files .nn-navigation-pane {
+    display: none;
+}
+
 /* Disable drag and drop cursors on mobile */
 .notebook-navigator-mobile [draggable="true"] {
     cursor: default !important;

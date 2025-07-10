@@ -231,7 +231,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     if (isMobile && uiState.singlePane) {
         // Mobile uses sliding animations with show-list/show-files classes
         containerClasses.push(uiState.currentSinglePaneView === 'list' ? 'show-list' : 'show-files');
-    } else if (!uiState.singlePane) {
+    } else if (uiState.singlePane) {
+        // Desktop single-pane mode
+        containerClasses.push('nn-desktop-single-pane');
+        containerClasses.push(uiState.currentSinglePaneView === 'list' ? 'show-list' : 'show-files');
+    } else {
         // Desktop dual-pane mode
         containerClasses.push('nn-desktop');
         if (uiState.navigationPaneCollapsed) {
@@ -262,12 +266,22 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                     <div className="nn-resize-handle" {...resizeHandleProps} />
                 </>
             )}
-            {uiState.singlePane && uiState.currentSinglePaneView === 'list' && (
-                <div className="nn-navigation-pane" style={{ width: '100%' }}>
-                    <NavigationPane ref={navigationPaneRef} />
-                </div>
+            {uiState.singlePane && (
+                <>
+                    <div className="nn-navigation-pane" style={{ width: '100%' }}>
+                        <NavigationPane ref={navigationPaneRef} />
+                    </div>
+                    <ErrorBoundary componentName="FileList">
+                        <FileList ref={fileListRef} />
+                    </ErrorBoundary>
+                </>
             )}
-            {(!uiState.singlePane || uiState.currentSinglePaneView === 'files') && (
+            {!uiState.singlePane && uiState.navigationPaneCollapsed && (
+                <ErrorBoundary componentName="FileList">
+                    <FileList ref={fileListRef} />
+                </ErrorBoundary>
+            )}
+            {!uiState.singlePane && !uiState.navigationPaneCollapsed && (
                 <ErrorBoundary componentName="FileList">
                     <FileList ref={fileListRef} />
                 </ErrorBoundary>
