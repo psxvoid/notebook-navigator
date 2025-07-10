@@ -66,6 +66,9 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const isUserSelectionRef = useRef(false);
     const [fileVersion, setFileVersion] = useState(0);
     
+    // Track current visible date group for sticky header
+    const [currentDateGroup, setCurrentDateGroup] = useState<string | null>(null);
+    
     // Initialize multi-selection hook
     const multiSelection = useMultiSelection();
     
@@ -487,6 +490,8 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             rowVirtualizer.scrollToIndex(0, { align: 'start', behavior: 'auto' });
             
         }
+        // Reset current date group when changing folders/tags
+        setCurrentDateGroup(null);
     }, [selectedFolder, selectedTag, rowVirtualizer]);
     
     // Preserve scroll position when items are added on mobile
@@ -734,6 +739,82 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         };
     }, [isMobile, velocityThreshold, scrollEndDelay, momentumDuration, velocityCalcMaxDiff]);
     
+    // Track current visible date group for sticky header
+    useEffect(() => {
+        if (!scrollContainerRef.current || !rowVirtualizer || !settings.groupByDate) {
+            setCurrentDateGroup(null);
+            return;
+        }
+        
+        const scrollContainer = scrollContainerRef.current;
+        
+        // Helper to get item position
+        const getItemBottom = (index: number): number | null => {
+            // First check if we have cached measurements
+            const measurement = rowVirtualizer.measurementsCache?.[index];
+            if (measurement) {
+                return measurement.start + measurement.size;
+            }
+            
+            // Check virtual items
+            const virtualItems = rowVirtualizer.getVirtualItems();
+            const virtualItem = virtualItems.find(vi => vi.index === index);
+            if (virtualItem) {
+                return virtualItem.start + virtualItem.size;
+            }
+            
+            // Estimate position as fallback
+            let estimatedStart = 0;
+            for (let j = 0; j < index; j++) {
+                estimatedStart += rowVirtualizer.options.estimateSize(j);
+            }
+            return estimatedStart + rowVirtualizer.options.estimateSize(index);
+        };
+        
+        const updateCurrentGroup = () => {
+            const scrollTop = scrollContainer.scrollTop;
+            
+            // Find the current date group based on headers that have scrolled past
+            let currentGroup: string | null = null;
+            
+            // Look through all items to find headers
+            for (let i = 0; i < listItems.length; i++) {
+                const item = safeGetItem(listItems, i);
+                if (!item || item.type !== FileListItemType.HEADER) continue;
+                
+                const headerText = item.data as string;
+                const headerBottom = getItemBottom(i);
+                
+                if (headerBottom !== null && headerBottom <= scrollTop) {
+                    // This header is completely above the viewport, so it's our current group
+                    currentGroup = headerText;
+                } else {
+                    // This header is still visible or coming up, so we stop here
+                    break;
+                }
+            }
+            
+            setCurrentDateGroup(currentGroup);
+        };
+        
+        // Initial update
+        updateCurrentGroup();
+        
+        // Update on scroll
+        const handleScroll = () => {
+            requestAnimationFrame(updateCurrentGroup);
+        };
+        
+        scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+        
+        return () => {
+            const container = scrollContainerRef.current;
+            if (container) {
+                container.removeEventListener('scroll', handleScroll);
+            }
+        };
+    }, [rowVirtualizer, listItems, settings.groupByDate]);
+    
     // Helper function for safe array access
     const safeGetItem = <T,>(array: T[], index: number): T | undefined => {
         return index >= 0 && index < array.length ? array[index] : undefined;
@@ -756,7 +837,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     if (!selectedFolder && !selectedTag) {
         return (
             <div className="nn-file-pane">
-                <PaneHeader type="file" onHeaderClick={handleScrollToTop} />
+                <PaneHeader type="file" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
                 <div className="nn-file-list nn-empty-state">
                     <div className="nn-empty-message">{strings.fileList.emptyStateNoSelection}</div>
                 </div>
@@ -767,7 +848,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     if (files.length === 0) {
         return (
             <div className="nn-file-pane">
-                <PaneHeader type="file" onHeaderClick={handleScrollToTop} />
+                <PaneHeader type="file" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
                 <div className="nn-file-list nn-empty-state">
                     <div className="nn-empty-message">{strings.fileList.emptyStateNoNotes}</div>
                 </div>
@@ -778,7 +859,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     return (
         <ErrorBoundary componentName="FileList">
             <div className="nn-file-pane">
-                <PaneHeader type="file" onHeaderClick={handleScrollToTop} />
+                <PaneHeader type="file" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
             <div 
                 ref={scrollContainerRef}
                 className="nn-file-list"

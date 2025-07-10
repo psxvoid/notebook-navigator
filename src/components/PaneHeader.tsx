@@ -36,6 +36,7 @@ import { collectAllTagPaths } from '../utils/tagUtils';
 interface PaneHeaderProps {
     type: 'folder' | 'file';
     onHeaderClick?: () => void;
+    currentDateGroup?: string | null;
 }
 
 /**
@@ -47,7 +48,7 @@ interface PaneHeaderProps {
  * @param props.type - Whether this is the header for the 'folder' or 'file' pane
  * @returns A header element with context-appropriate action buttons
  */
-export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
+export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeaderProps) {
     const { app, isMobile } = useServices();
     const { settings, updateSettings } = useSettings();
     const expansionState = useExpansionState();
@@ -266,15 +267,31 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
         });
     }, [updateSettings]);
     
-    // Mobile header with back button
-    if (isMobile) {
-        let headerTitle = strings.common.noSelection;
+    // Helper function to get header title
+    const getHeaderTitle = (useFolderName = false): string => {
+        let title = strings.common.noSelection;
         
         if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-            headerTitle = selectionState.selectedFolder.path === '/' ? strings.folderTree.rootFolderName : selectionState.selectedFolder.name;
+            if (selectionState.selectedFolder.path === '/') {
+                title = strings.folderTree.rootFolderName;
+            } else {
+                title = useFolderName ? selectionState.selectedFolder.name : selectionState.selectedFolder.path;
+            }
         } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            headerTitle = selectionState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : selectionState.selectedTag;
+            title = selectionState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : selectionState.selectedTag;
         }
+        
+        // Replace with current date group if available
+        if (currentDateGroup) {
+            title = currentDateGroup;
+        }
+        
+        return title;
+    };
+    
+    // Mobile header with back button
+    if (isMobile) {
+        const headerTitle = getHeaderTitle(true); // Use folder name for mobile
         
         // For file pane header on mobile
         if (type === 'file') {
@@ -384,21 +401,15 @@ export function PaneHeader({ type, onHeaderClick }: PaneHeaderProps) {
     // Prepare header title for file pane
     let headerTitle = '';
     let folderIcon = '';
-    let folderColor: string | undefined;
     
     if (type === 'file') {
-        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-            headerTitle = selectionState.selectedFolder.path === '/' ? strings.folderTree.rootFolderName : selectionState.selectedFolder.path;
-            
-            // Get folder icon if available
-            if (settings.showIcons) {
+        headerTitle = getHeaderTitle(false); // Use full path for desktop
+        
+        // Get icon based on selection type
+        if (settings.showIcons) {
+            if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                 folderIcon = settings.folderIcons?.[selectionState.selectedFolder.path] || 'folder';
-            }
-        } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            headerTitle = selectionState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : selectionState.selectedTag;
-            
-            // Use tags icon or custom icon for tags
-            if (settings.showIcons) {
+            } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
                 folderIcon = settings.tagIcons?.[selectionState.selectedTag] || 'tags';
             }
         }
