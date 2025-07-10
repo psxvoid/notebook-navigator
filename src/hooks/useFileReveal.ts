@@ -175,8 +175,15 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
         selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
         
         // In single pane mode, switch to file list view and focus files pane
-        if (uiState.singlePane && uiState.currentSinglePaneView === 'list') {
-            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+        if (uiState.singlePane) {
+            if (uiState.currentSinglePaneView === 'list') {
+                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+            }
+            // Set focus to files pane when in single pane mode
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+        } else {
+            // In dual-pane mode, focus the folders pane
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         }
         
         // Focus the folders pane
