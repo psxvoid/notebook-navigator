@@ -128,7 +128,10 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         },
         handleBecomeActive,
         toggleNavigationPane: () => {
-            uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' });
+            // Do nothing in single pane mode
+            if (!uiState.singlePane) {
+                uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' });
+            }
         },
         deleteActiveFile: triggerDeleteKey,
         createNoteInSelectedFolder: async () => {
