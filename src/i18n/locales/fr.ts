@@ -460,7 +460,7 @@ export const STRINGS_FR = {
             },
             showAllTagsFolder: {
                 name: 'Afficher le dossier des étiquettes',
-                desc: 'Afficher "Étiquettes" dans un dossier repliable.',
+                desc: 'Afficher "Étiquettes" comme un dossier repliable.',
             },
             showUntagged: {
                 name: 'Afficher les notes sans étiquette',

@@ -460,7 +460,7 @@ export const STRINGS_ES = {
             },
             showAllTagsFolder: {
                 name: 'Mostrar carpeta de etiquetas',
-                desc: 'Muestra "Etiquetas" en una carpeta plegable.',
+                desc: 'Muestra "Etiquetas" como una carpeta plegable.',
             },
             showUntagged: {
                 name: 'Mostrar notas sin etiquetas',

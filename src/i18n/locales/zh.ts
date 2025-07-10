@@ -460,7 +460,7 @@ export const STRINGS_ZH = {
             },
             showAllTagsFolder: {
                 name: '显示标签文件夹',
-                desc: '在可折叠文件夹中显示"标签"。',
+                desc: '将"标签"显示为可折叠文件夹。',
             },
             showUntagged: {
                 name: '显示无标签笔记',

@@ -460,7 +460,7 @@ export const STRINGS_JA = {
             },
             showAllTagsFolder: {
                 name: 'タグフォルダを表示',
-                desc: '「タグ」を折りたたみ可能なフォルダに表示します。',
+                desc: '「タグ」を折りたたみ可能なフォルダとして表示します。',
             },
             showUntagged: {
                 name: 'タグなしノートを表示',

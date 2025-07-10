@@ -460,7 +460,7 @@ export const STRINGS_DE = {
             },
             showAllTagsFolder: {
                 name: 'Tags-Ordner anzeigen',
-                desc: '"Tags" in einem einklappbaren Ordner anzeigen.',
+                desc: '"Tags" als einklappbaren Ordner anzeigen.',
             },
             showUntagged: {
                 name: 'Ungetaggte Notizen anzeigen',

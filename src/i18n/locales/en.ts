@@ -460,7 +460,7 @@ export const STRINGS_EN = {
             },
             showAllTagsFolder: {
                 name: 'Show tags folder',
-                desc: 'Show "Tags" in a collapsible folder.',
+                desc: 'Display "Tags" as a collapsible folder.',
             },
             showUntagged: {
                 name: 'Show untagged notes',
