@@ -282,8 +282,15 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     }
 
                     if (shouldSwitchPane) {
-                        selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
-                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                        if (uiState.singlePane && !isMobile) {
+                            // In single-pane mode, switch to files view
+                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                        } else {
+                            // In dual-pane mode, just switch focus
+                            selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
+                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                        }
                     }
                 } else if (focusedPane === 'files' && selectionState.selectedFile) {
                     // RIGHT arrow from files pane should focus the editor (same as TAB)
@@ -301,6 +308,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     if (uiState.singlePane && !isMobile) {
                         // In single-pane mode, switch to navigation view
                         uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' });
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
                     } else if (!uiState.navigationPaneCollapsed) {
                         // In dual-pane mode, switch focus to folders pane
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
@@ -368,6 +376,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                         if (uiState.singlePane && !isMobile) {
                             // In single-pane mode, switch to navigation view
                             uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' });
+                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
                         } else if (!uiState.navigationPaneCollapsed) {
                             // In dual-pane mode, switch focus to folders pane
                             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
@@ -378,8 +387,15 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 } else {
                     // Tab: Move focus forwards (Folders -> Files -> Editor)
                     if (focusedPane === 'folders') {
-                        selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
-                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                        if (uiState.singlePane && !isMobile) {
+                            // In single-pane mode, switch to files view
+                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                        } else {
+                            // In dual-pane mode, just switch focus
+                            selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
+                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                        }
                     } else if (focusedPane === 'files' && selectionState.selectedFile) {
                         // This is the logic moved from ArrowRight to focus the editor
                         const leaves = getSupportedLeaves(app);

@@ -420,14 +420,18 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
             <div className="nn-header-actions nn-header-actions--space-between">
                 {type === 'navigation' ? (
                     <>
-                        <button
-                            className="nn-icon-button"
-                            aria-label={strings.paneHeader.hideFolders}
-                            onClick={() => uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' })}
-                            tabIndex={-1}
-                        >
-                            <ObsidianIcon name="sidebar-left" />
-                        </button>
+                        {!uiState.singlePane ? (
+                            <button
+                                className="nn-icon-button"
+                                aria-label={strings.paneHeader.hideFolders}
+                                onClick={() => uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' })}
+                                tabIndex={-1}
+                            >
+                                <ObsidianIcon name="sidebar-left" />
+                            </button>
+                        ) : (
+                            <div />
+                        )}
                         <div className="nn-header-actions">
                             <button
                                 className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}
@@ -475,11 +479,14 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                                 {uiState.singlePane ? (
                                     <button
                                         className="nn-icon-button nn-icon-button-muted nn-pane-header-icon-button"
-                                        onClick={() => uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' })}
+                                        onClick={() => {
+                                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' });
+                                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+                                        }}
                                         aria-label={strings.paneHeader.showFolders}
                                     >
                                         <ObsidianIcon 
-                                            name="sidebar-left" 
+                                            name="arrow-big-left" 
                                             className="nn-pane-header-icon"
                                         />
                                     </button>

@@ -90,6 +90,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             selectionDispatch({ type: 'SET_SELECTED_FILE', file });
         }
         
+        // Always ensure files pane has focus when clicking a file
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         
         // Only open file if not multi-selecting
@@ -865,6 +866,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 className="nn-file-list"
                 data-pane="files"
                 role="list"
+                tabIndex={-1}
             >
                 {/* Virtual list */}
                 {listItems.length > 0 && (

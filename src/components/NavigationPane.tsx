@@ -377,7 +377,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     const handleFolderClick = useCallback((folder: TFolder) => {
         // Normal folder selection behavior
         selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
-        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         
         // Auto-expand if enabled and folder has children
         if (settings.autoExpandFoldersTags && folder.children.some(child => isTFolder(child))) {
@@ -390,9 +389,11 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         // Switch to files view in single pane mode
         if (uiState.singlePane) {
             uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-            // The scroll trigger in FileList.tsx will handle scrolling to the
-            // correct file (which will be the first file on a new folder selection).
-            // No explicit scroll dispatch is needed here anymore.
+            // Set focus to files pane when switching
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+        } else {
+            // In dual-pane mode, keep focus on folders
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         }
     }, [selectionDispatch, uiDispatch, uiState.singlePane, settings.autoExpandFoldersTags, expansionState.expandedFolders, expansionDispatch]);
     
@@ -438,7 +439,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     // Handle tag click
     const handleTagClick = useCallback((tagPath: string) => {
         selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
-        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         
         // Auto-expand if enabled and tag has children
         if (settings.autoExpandFoldersTags) {
@@ -455,11 +455,13 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         // Switch to files view in single pane mode
         if (uiState.singlePane) {
             uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-            // The scroll trigger in FileList.tsx will handle scrolling to the
-            // correct file (which will be the first file on a new tag selection).
-            // No explicit scroll dispatch is needed here anymore.
+            // Set focus to files pane when switching
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+        } else {
+            // In dual-pane mode, keep focus on folders
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         }
-    }, [selectionDispatch, uiDispatch, uiState.singlePane, uiState.currentSinglePaneView, settings.autoExpandFoldersTags, tagTree, expansionState.expandedTags, expansionDispatch]);
+    }, [selectionDispatch, uiDispatch, uiState.singlePane, settings.autoExpandFoldersTags, tagTree, expansionState.expandedTags, expansionDispatch]);
     
     // Scroll to top handler for mobile header click
     const handleScrollToTop = useCallback(() => {
@@ -547,6 +549,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                 className="nn-navigation-pane-scroller"
                 data-pane="folders"
                 role="tree"
+                tabIndex={-1}
             >
                 <div
                     style={{
