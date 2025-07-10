@@ -100,7 +100,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 **View & Navigation**
 - `Notebook Navigator: Open` Opens the Notebook Navigator view in the left sidebar
 - `Notebook Navigator: Reveal file` Reveals the currently open file in the navigator, expanding parent folders and scrolling to it. Useful if you have the setting "Show notes from subfolders" enabled and want to find out the folder of a specific note
-- `Notebook Navigator: Navigate to folder` Navigate to a folder using fuzzy search
+- `Notebook Navigator: Navigate to folder` Opens a search dialog to quickly jump to any folder in your vault
 - `Notebook Navigator: Focus file` Moves keyboard focus to the file list pane so you can navigate with arrow keys
 
 **Layout & Display**
@@ -109,8 +109,8 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 **File Operations**
 - `Notebook Navigator: Create new note` Creates a new note in the currently selected folder. Unlike Obsidian's default new note command which only allows creating in the same folder as current note, root folder, or a specific folder, this always creates in your currently selected folder. **Tip:** You can bind Cmd/Ctrl+N to this command for a more intuitive workflow - just unbind it from Obsidian's built-in "Create new note" command first
-- `Notebook Navigator: Move files` Move selected files to another folder using the navigator's smart selection (selects next file after move)
-- `Notebook Navigator: Delete files` Deletes the currently selected files using the navigator's smart selection (selects next file before deletion)
+- `Notebook Navigator: Move files` Move selected files to another folder, then automatically select the next file in the current folder (stays in the selected folder)
+- `Notebook Navigator: Delete files` Delete selected files and automatically select the next file in the current folder (stays in the selected folder)
 
 ## Installation
 

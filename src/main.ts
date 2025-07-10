@@ -150,6 +150,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
             }
         );
 
+        // View & Navigation commands
         this.addCommand({
             id: 'open-notebook-navigator',
             name: strings.commands.open,
@@ -174,6 +175,28 @@ export default class NotebookNavigatorPlugin extends Plugin {
         });
 
         this.addCommand({
+            id: 'navigate-to-folder',
+            name: strings.commands.navigateToFolder,
+            callback: async () => {
+                // Ensure navigator is open
+                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                if (leaves.length === 0) {
+                    await this.activateView(true);
+                }
+                
+                // Show folder navigation modal
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.navigateToFolderWithModal();
+                        break;
+                    }
+                }
+            }
+        });
+
+        this.addCommand({
             id: 'focus-file',
             name: strings.commands.focusFile,
             callback: async () => {
@@ -194,16 +217,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
             }
         });
 
-        this.addCommand({
-            id: 'toggle-show-notes-from-subfolders',
-            name: strings.commands.toggleSubfolders,
-            callback: async () => {
-                this.settings.showNotesFromSubfolders = !this.settings.showNotesFromSubfolders;
-                await this.saveSettings();
-                this.onSettingsUpdate();
-            }
-        });
-
+        // Layout & Display commands
         this.addCommand({
             id: 'toggle-navigation-pane',
             name: strings.commands.toggleNavigationPane,
@@ -226,20 +240,16 @@ export default class NotebookNavigatorPlugin extends Plugin {
         });
 
         this.addCommand({
-            id: 'delete-file',
-            name: strings.commands.deleteFile,
-            callback: () => {
-                // Find and trigger delete in all navigator views
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-                navigatorLeaves.forEach(leaf => {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        view.deleteActiveFile();
-                    }
-                });
+            id: 'toggle-show-notes-from-subfolders',
+            name: strings.commands.toggleSubfolders,
+            callback: async () => {
+                this.settings.showNotesFromSubfolders = !this.settings.showNotesFromSubfolders;
+                await this.saveSettings();
+                this.onSettingsUpdate();
             }
         });
 
+        // File Operations commands
         this.addCommand({
             id: 'create-new-note',
             name: strings.commands.createNewNote,
@@ -285,24 +295,17 @@ export default class NotebookNavigatorPlugin extends Plugin {
         });
 
         this.addCommand({
-            id: 'navigate-to-folder',
-            name: strings.commands.navigateToFolder,
-            callback: async () => {
-                // Ensure navigator is open
-                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-                if (leaves.length === 0) {
-                    await this.activateView(true);
-                }
-                
-                // Show folder navigation modal
+            id: 'delete-file',
+            name: strings.commands.deleteFile,
+            callback: () => {
+                // Find and trigger delete in all navigator views
                 const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-                for (const leaf of navigatorLeaves) {
+                navigatorLeaves.forEach(leaf => {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
-                        await view.navigateToFolderWithModal();
-                        break;
+                        view.deleteActiveFile();
                     }
-                }
+                });
             }
         });
 
