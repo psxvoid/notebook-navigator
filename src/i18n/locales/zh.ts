@@ -332,7 +332,7 @@ export const STRINGS_ZH = {
             },
             singlePane: {
                 name: 'Single-pane layout',
-                desc: 'Switch between navigation pane and file list on desktop.',
+                desc: '在桌面端的单个窗格中切换导航和文件列表。',
             },
             autoRevealActiveNote: {
                 name: '自动定位活动笔记',

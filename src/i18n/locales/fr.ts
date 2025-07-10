@@ -332,7 +332,7 @@ export const STRINGS_FR = {
             },
             singlePane: {
                 name: 'Single-pane layout',
-                desc: 'Switch between navigation pane and file list on desktop.',
+                desc: 'Basculer entre la navigation et la liste de fichiers dans un seul panneau sur ordinateur.',
             },
             autoRevealActiveNote: {
                 name: 'Révéler automatiquement la note active',
