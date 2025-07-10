@@ -619,6 +619,17 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                         expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
                     }
                 }
+                
+                // In single-pane mode with auto-select enabled, load the first file in the editor
+                if (uiState.singlePane && settings.autoSelectFirstFileOnFocusChange && !isMobile) {
+                    const filesInFolder = getFilesForFolder(folder, settings, app);
+                    if (filesInFolder.length > 0) {
+                        const leaf = app.workspace.getLeaf(false);
+                        if (leaf) {
+                            leaf.openFile(filesInFolder[0], { active: false });
+                        }
+                    }
+                }
             } else if (navigationPaneItem.type === NavigationPaneItemType.TAG || navigationPaneItem.type === NavigationPaneItemType.UNTAGGED) {
                 const tagNode = navigationPaneItem.data as TagTreeNode;
                 selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path });
@@ -628,6 +639,17 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     // Only expand if not already expanded
                     if (!expansionState.expandedTags.has(tagNode.path)) {
                         expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tagNode.path });
+                    }
+                }
+                
+                // In single-pane mode with auto-select enabled, load the first file in the editor
+                if (uiState.singlePane && settings.autoSelectFirstFileOnFocusChange && !isMobile) {
+                    const filesForTag = getFilesForTag(tagNode.path, settings, app);
+                    if (filesForTag.length > 0) {
+                        const leaf = app.workspace.getLeaf(false);
+                        if (leaf) {
+                            leaf.openFile(filesForTag[0], { active: false });
+                        }
                     }
                 }
             }
