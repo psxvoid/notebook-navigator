@@ -363,7 +363,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     useVirtualKeyboardNavigation({
         items: items,
         virtualizer: rowVirtualizer,
-        focusedPane: 'folders',
+        focusedPane: 'navigation',
         containerRef: scrollContainerRef
     });
     
@@ -393,7 +393,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         } else {
             // In dual-pane mode, keep focus on folders
-            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
         }
     }, [selectionDispatch, uiDispatch, uiState.singlePane, settings.autoExpandFoldersTags, expansionState.expandedFolders, expansionDispatch]);
     
@@ -459,7 +459,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         } else {
             // In dual-pane mode, keep focus on folders
-            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
         }
     }, [selectionDispatch, uiDispatch, uiState.singlePane, settings.autoExpandFoldersTags, tagTree, expansionState.expandedTags, expansionDispatch]);
     
@@ -547,7 +547,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             <div 
                 ref={scrollContainerRef}
                 className="nn-navigation-pane-scroller"
-                data-pane="folders"
+                data-pane="navigation"
                 role="tree"
                 tabIndex={-1}
             >

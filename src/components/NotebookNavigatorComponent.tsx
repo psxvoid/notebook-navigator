@@ -110,7 +110,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         navigateToFile,
         focusFilePane: () => {
             // In single pane mode, switch to file list view
-            if (uiState.singlePane && uiState.currentSinglePaneView === 'list') {
+            if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
                 uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
             }
             
@@ -230,11 +230,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const containerClasses = ['nn-split-container'];
     if (isMobile && uiState.singlePane) {
         // Mobile uses sliding animations with show-list/show-files classes
-        containerClasses.push(uiState.currentSinglePaneView === 'list' ? 'show-list' : 'show-files');
+        containerClasses.push(uiState.currentSinglePaneView === 'navigation' ? 'show-navigation' : 'show-files');
     } else if (uiState.singlePane) {
         // Desktop single-pane mode
         containerClasses.push('nn-desktop-single-pane');
-        containerClasses.push(uiState.currentSinglePaneView === 'list' ? 'show-list' : 'show-files');
+        containerClasses.push(uiState.currentSinglePaneView === 'navigation' ? 'show-navigation' : 'show-files');
     } else {
         // Desktop dual-pane mode
         containerClasses.push('nn-desktop');
@@ -250,7 +250,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         <div 
             ref={containerCallbackRef}
             className={containerClasses.join(' ')} 
-            data-focus-pane={uiState.singlePane ? (uiState.currentSinglePaneView === 'list' ? 'folders' : 'files') : uiState.focusedPane}
+            data-focus-pane={uiState.singlePane ? (uiState.currentSinglePaneView === 'navigation' ? 'navigation' : 'files') : uiState.focusedPane}
             data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}
             tabIndex={-1}
             onKeyDown={(e) => {

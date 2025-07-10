@@ -1443,11 +1443,11 @@ body.nn-resizing {
     display: none !important;
 }
 
-/* Mobile view states - show list view */
-.notebook-navigator-mobile .nn-split-container.show-list .nn-navigation-pane {
+/* Mobile view states - show navigation view */
+.notebook-navigator-mobile .nn-split-container.show-navigation .nn-navigation-pane {
     transform: translateX(0%);
 }
-.notebook-navigator-mobile .nn-split-container.show-list .nn-file-pane {
+.notebook-navigator-mobile .nn-split-container.show-navigation .nn-file-pane {
     transform: translateX(100%);
 }
 
@@ -1504,12 +1504,12 @@ body.nn-resizing {
 /* Note: Bottom spacing is handled by a spacer item in the virtualized list */
 
 /* Desktop single-pane mode styles */
-/* Desktop single-pane - show list view (hide files) */
-.nn-desktop-single-pane.show-list .nn-file-pane {
+/* Desktop single-pane - show navigation view (hide files) */
+.nn-desktop-single-pane.show-navigation .nn-file-pane {
     display: none;
 }
 
-/* Desktop single-pane - show files view (hide list) */
+/* Desktop single-pane - show files view (hide navigation) */
 .nn-desktop-single-pane.show-files .nn-navigation-pane {
     display: none;
 }
@@ -1731,10 +1731,10 @@ body.nn-resizing {
    ======================================================================== */
 
 /* Mobile slide animations for RTL */
-.mod-rtl .notebook-navigator-mobile .nn-split-container.show-list .nn-navigation-pane {
+.mod-rtl .notebook-navigator-mobile .nn-split-container.show-navigation .nn-navigation-pane {
     transform: translateX(0%);
 }
-.mod-rtl .notebook-navigator-mobile .nn-split-container.show-list .nn-file-pane {
+.mod-rtl .notebook-navigator-mobile .nn-split-container.show-navigation .nn-file-pane {
     transform: translateX(-100%);
 }
 

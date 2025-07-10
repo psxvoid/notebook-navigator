@@ -39,7 +39,7 @@ export const UNTAGGED_TAG_ID = '__untagged__';
  * Identifies which pane currently has keyboard focus
  * Used for keyboard navigation between folder tree and file list
  */
-export type FocusedPane = 'folders' | 'files';
+export type FocusedPane = 'navigation' | 'files';
 
 /**
  * Enum for all item types in the navigator

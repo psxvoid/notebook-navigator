@@ -107,7 +107,7 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
         selectionDispatch({ type: 'REVEAL_FILE', file, preserveFolder });
         
         // In single pane mode, switch to file list view
-        if (uiState.singlePane && uiState.currentSinglePaneView === 'list') {
+        if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
             uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
         }
         
@@ -176,14 +176,14 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
         
         // In single pane mode, switch to file list view and focus files pane
         if (uiState.singlePane) {
-            if (uiState.currentSinglePaneView === 'list') {
+            if (uiState.currentSinglePaneView === 'navigation') {
                 uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
             }
             // Set focus to files pane when in single pane mode
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         } else {
             // In dual-pane mode, focus the folders pane
-            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
         }
     }, [app, expansionState.expandedFolders, expansionDispatch, selectionDispatch, uiState, uiDispatch]);
     

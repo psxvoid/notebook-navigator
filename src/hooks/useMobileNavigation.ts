@@ -56,7 +56,7 @@ export function useMobileNavigation({
         if (!uiState.singlePane) return;
         
         // Scroll to the appropriate item based on current view
-        if (uiState.currentSinglePaneView === 'list' && selectionState.selectedFolder) {
+        if (uiState.currentSinglePaneView === 'navigation' && selectionState.selectedFolder) {
             const index = navigationPaneRef.current?.getIndexOfPath(selectionState.selectedFolder.path);
             if (index !== undefined && index !== -1) {
                 // Only use center alignment on mobile, use auto on desktop
@@ -84,7 +84,7 @@ export function useMobileNavigation({
                 // In RTL mode, swipe right goes forward (to files view)
                 // In LTR mode, swipe right goes back (to list view)
                 if (!isRTL) {
-                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' });
+                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
                 }
             }
         },
@@ -92,7 +92,7 @@ export function useMobileNavigation({
             if (isMobile && uiState.currentSinglePaneView === 'files') {
                 // In RTL mode, swipe left goes back (to list view)
                 if (isRTL) {
-                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' });
+                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
                 }
             }
         },

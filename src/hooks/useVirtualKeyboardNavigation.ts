@@ -38,7 +38,7 @@ type VirtualItem = CombinedNavigationItem | FileListItem;
 interface UseVirtualKeyboardNavigationProps<T extends VirtualItem> {
     items: T[];
     virtualizer: Virtualizer<HTMLDivElement, Element>;
-    focusedPane: 'folders' | 'files';
+    focusedPane: 'navigation' | 'files';
     containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
@@ -248,7 +248,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 
             case 'ArrowRight':
                 e.preventDefault();
-                if (focusedPane === 'folders' && currentIndex >= 0) {
+                if (focusedPane === 'navigation' && currentIndex >= 0) {
                     const item = safeGetItem(items, currentIndex) as CombinedNavigationItem | undefined;
                     if (!item) break;
 
@@ -307,13 +307,13 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 if (focusedPane === 'files') {
                     if (uiState.singlePane && !isMobile) {
                         // In single-pane mode, switch to navigation view
-                        uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' });
-                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+                        uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
                     } else if (!uiState.navigationPaneCollapsed) {
                         // In dual-pane mode, switch focus to folders pane
-                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
                     }
-                } else if (focusedPane === 'folders' && currentIndex >= 0) {
+                } else if (focusedPane === 'navigation' && currentIndex >= 0) {
                     const item = safeGetItem(items, currentIndex) as CombinedNavigationItem | undefined;
                     if (!item) return;
                     
@@ -375,18 +375,18 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     if (focusedPane === 'files') {
                         if (uiState.singlePane && !isMobile) {
                             // In single-pane mode, switch to navigation view
-                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' });
-                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
+                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
                         } else if (!uiState.navigationPaneCollapsed) {
                             // In dual-pane mode, switch focus to folders pane
-                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
                         }
                     }
                     // Note: There is no logic here to go from Editor -> Files,
                     // as that is outside the scope of this hook. Obsidian handles that.
                 } else {
                     // Tab: Move focus forwards (Folders -> Files -> Editor)
-                    if (focusedPane === 'folders') {
+                    if (focusedPane === 'navigation') {
                         if (uiState.singlePane && !isMobile) {
                             // In single-pane mode, switch to files view
                             uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
@@ -414,7 +414,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     if (focusedPane === 'files' && (selectionState.selectedFile || selectionState.selectedFiles.size > 0)) {
                         e.preventDefault();
                         handleDelete();
-                    } else if (focusedPane === 'folders' && selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+                    } else if (focusedPane === 'navigation' && selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                         e.preventDefault();
                         handleDeleteFolder();
                     }
@@ -703,7 +703,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     
     // Handle Delete key for folders
     const handleDeleteFolder = async () => {
-        if (!selectionState.selectedFolder || focusedPane !== 'folders') return;
+        if (!selectionState.selectedFolder || focusedPane !== 'navigation') return;
         
         const folderToDelete = selectionState.selectedFolder;
         

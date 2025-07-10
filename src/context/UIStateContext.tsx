@@ -26,8 +26,8 @@ import { STORAGE_KEYS } from '../types';
 
 // State interface
 interface UIState {
-    focusedPane: 'folders' | 'files';
-    currentSinglePaneView: 'list' | 'files';
+    focusedPane: 'navigation' | 'files';
+    currentSinglePaneView: 'navigation' | 'files';
     paneWidth: number;
     newlyCreatedPath: string | null;
     navigationPaneCollapsed: boolean;
@@ -36,8 +36,8 @@ interface UIState {
 
 // Action types
 export type UIAction = 
-    | { type: 'SET_FOCUSED_PANE'; pane: 'folders' | 'files' }
-    | { type: 'SET_SINGLE_PANE_VIEW'; view: 'list' | 'files' }
+    | { type: 'SET_FOCUSED_PANE'; pane: 'navigation' | 'files' }
+    | { type: 'SET_SINGLE_PANE_VIEW'; view: 'navigation' | 'files' }
     | { type: 'SET_PANE_WIDTH'; width: number }
     | { type: 'SET_NEWLY_CREATED_PATH'; path: string | null }
     | { type: 'TOGGLE_NAVIGATION_PANE' };
@@ -85,7 +85,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         const navigationPaneCollapsed = savedCollapsed ?? false;
         
         const initialState = {
-            focusedPane: 'folders' as const,
+            focusedPane: 'navigation' as const,
             currentSinglePaneView: 'files' as const,
             paneWidth: Math.max(NAVIGATION_PANE_DIMENSIONS.minWidth, paneWidth),
             newlyCreatedPath: null,

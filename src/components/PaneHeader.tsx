@@ -34,7 +34,7 @@ import { useTagCache } from '../context/TagCacheContext';
 import { collectAllTagPaths } from '../utils/tagUtils';
 
 interface PaneHeaderProps {
-    type: 'navigation' | 'list';
+    type: 'navigation' | 'files';
     onHeaderClick?: () => void;
     currentDateGroup?: string | null;
 }
@@ -172,7 +172,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
     }, [selectionState.selectedFolder, expansionState.expandedFolders, fileSystemOps, type, expansionDispatch]);
     
     const handleNewFile = useCallback(async () => {
-        if (type !== 'list' || !selectionState.selectedFolder) return;
+        if (type !== 'files' || !selectionState.selectedFolder) return;
         
         try {
             const file = await fileSystemOps.createNewFile(selectionState.selectedFolder);
@@ -193,7 +193,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
     }, [getCurrentSortOption]);
     
     const handleSortMenu = useCallback((event: React.MouseEvent) => {
-        if (type !== 'list') return;
+        if (type !== 'files') return;
         
         const menu = new Menu();
         const currentSort = getCurrentSortOption();
@@ -294,7 +294,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
         const headerTitle = getHeaderTitle(true); // Use folder name for mobile
         
         // For file pane header on mobile
-        if (type === 'list') {
+        if (type === 'files') {
             return (
                 <div className="nn-pane-header" onClick={onHeaderClick}>
                     <div className="nn-header-actions">
@@ -304,7 +304,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                                 aria-label={strings.paneHeader.mobileBackToFolders}
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' });
+                                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
                                 }}
                                 tabIndex={-1}
                             >
@@ -314,7 +314,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                                 className="nn-mobile-title"
                                 onClick={(e) => {
                                     e.stopPropagation();
-                                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' });
+                                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
                                 }}
                             >
                                 {headerTitle}
@@ -402,7 +402,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
     let headerTitle = '';
     let folderIcon = '';
     
-    if (type === 'list') {
+    if (type === 'files') {
         headerTitle = getHeaderTitle(false); // Use full path for desktop
         
         // Get icon based on selection type
@@ -480,8 +480,8 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                                     <button
                                         className="nn-icon-button nn-icon-button-muted nn-pane-header-icon-button"
                                         onClick={() => {
-                                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'list' });
-                                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
+                                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
+                                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
                                         }}
                                         aria-label={strings.paneHeader.showFolders}
                                     >
