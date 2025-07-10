@@ -185,9 +185,6 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
             // In dual-pane mode, focus the folders pane
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
         }
-        
-        // Focus the folders pane
-        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'folders' });
     }, [app, expansionState.expandedFolders, expansionDispatch, selectionDispatch, uiState, uiDispatch]);
     
     // Use auto-reveal hook to detect which file needs revealing
