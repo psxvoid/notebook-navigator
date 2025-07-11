@@ -26,8 +26,8 @@ To a modern, Notes-style interface like this:
 
 ### Core Interface
 - **Two-pane layout** - Navigation pane (folders and tags) on left, list pane (notes) on right
-- **Single-pane layout** - Optional single-pane mode for desktop, switching between navigation and file list
-- **Mobile optimized** - Touch gestures and single-pane navigation
+- **Single-pane layout** - Optional single-pane mode for both desktop and mobile, switching between navigation and file list
+- **Mobile optimized** - Touch gestures and responsive interface
 - **Theme support** - Seamlessly matches your Obsidian theme
 - **Multi-language support** - Available in English, German, Spanish, French, Japanese, and Chinese Simplified
 - **RTL language support** - Full support for right-to-left languages with proper layout mirroring and navigation
@@ -105,7 +105,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Focus file` Moves keyboard focus to the file list pane so you can navigate with arrow keys
 
 **Layout & Display**
-- `Notebook Navigator: Toggle navigation pane` Shows or hides the navigation pane (folder/tag tree) to maximize list pane space
+- `Notebook Navigator: Toggle single-pane layout` Toggles between single-pane and dual-pane layout on desktop
 - `Notebook Navigator: Toggle show notes from subfolders` Toggles showing notes from subfolders
 
 **File Operations**
