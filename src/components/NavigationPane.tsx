@@ -45,6 +45,7 @@ import { parseExcludedFolders } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
 import { UNTAGGED_TAG_ID, NavigationPaneItemType, ItemType, VirtualFolder, NAVITEM_HEIGHTS } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
+import { useVisibilityReveal } from '../hooks/useVisibilityReveal';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useTagCache } from '../context/TagCacheContext';
 
@@ -361,62 +362,21 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     // Determine if navigation pane is visible
     const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'navigation';
     
-    // Track if we've done initial mount
-    const hasMountedRef = useRef(false);
-    
-    // Use state to track previous visibility - this ensures we see the old value in the next render
-    const [prevVisible, setPrevVisible] = useState(isVisible);
-    
-    // Update previous visibility AFTER render
-    useEffect(() => {
-        setPrevVisible(isVisible);
-    }, [isVisible]);
-    
-    
-    // Scroll to selection on mount and when becoming visible
-    useLayoutEffect(() => {
-        
-        // Skip if not visible or virtualizer not ready
-        if (!isVisible || !rowVirtualizer || !selectedPath) {
-            return;
-        }
-        
-        // Scroll to selection on initial mount or when becoming visible from hidden
-        const isBecomingVisible = isVisible && !prevVisible;
-        const isInitialMount = !hasMountedRef.current;
-        
-        
-        if (isInitialMount || isBecomingVisible) {
-            const index = pathToIndex.get(selectedPath);
-            
-            if (index !== undefined && index >= 0) {
-                // Use requestAnimationFrame to ensure DOM is ready
-                requestAnimationFrame(() => {
-                    rowVirtualizer.scrollToIndex(index, {
-                        align: isMobile ? 'center' : 'auto',
-                        behavior: 'auto'
-                    });
-                });
+    // Use visibility-based reveal with scroll position preservation
+    useVisibilityReveal({
+        getSelectionIndex: () => {
+            if (selectedPath) {
+                return pathToIndex.get(selectedPath) ?? -1;
             }
-            hasMountedRef.current = true;
-        }
-        
-    }, [isVisible, prevVisible, selectedPath, pathToIndex, rowVirtualizer, isMobile]);
-    
-    
-    // Handle external reveal operations
-    useEffect(() => {
-        
-        if (selectionState.isRevealOperation && selectedPath && rowVirtualizer && isVisible) {
-            const index = pathToIndex.get(selectedPath);
-            if (index !== undefined && index >= 0) {
-                rowVirtualizer.scrollToIndex(index, {
-                    align: isMobile ? 'center' : 'auto',
-                    behavior: 'auto'
-                });
-            }
-        }
-    }, [selectionState.isRevealOperation, selectedPath, pathToIndex, rowVirtualizer, isVisible, isMobile]);
+            return -1;
+        },
+        virtualizer: rowVirtualizer,
+        isVisible,
+        isMobile,
+        isRevealOperation: selectionState.isRevealOperation,
+        preserveScrollOnHide: true,  // Enable scroll position preservation
+        scrollContainerRef  // Pass the ref directly
+    });
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({

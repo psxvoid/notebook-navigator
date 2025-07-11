@@ -573,7 +573,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     // Determine if file list is visible
     const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'files';
     
-    // Use visibility-based reveal
+    // Use visibility-based reveal with scroll position preservation
     useVisibilityReveal({
         getSelectionIndex: () => {
             if (selectedFilePath) {
@@ -595,7 +595,9 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         virtualizer: rowVirtualizer,
         isVisible,
         isMobile,
-        isRevealOperation: selectionState.isRevealOperation
+        isRevealOperation: selectionState.isRevealOperation,
+        preserveScrollOnHide: true,  // Enable scroll position preservation
+        scrollContainerRef  // Pass the ref directly
     });
     
     // Add keyboard navigation

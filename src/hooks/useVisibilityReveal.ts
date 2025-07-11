@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Virtualizer } from '@tanstack/react-virtual';
 
 interface UseVisibilityRevealOptions {
@@ -34,6 +34,8 @@ interface UseVisibilityRevealOptions {
     revealDelay?: number;
     /** Whether to preserve scroll position when hiding/showing (default: false) */
     preserveScrollOnHide?: boolean;
+    /** Direct ref to scroll container - more reliable than virtualizer.scrollElement */
+    scrollContainerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
 /**
@@ -48,26 +50,45 @@ export function useVisibilityReveal({
     isMobile,
     isRevealOperation = false,
     revealDelay = 0,
-    preserveScrollOnHide = false
+    preserveScrollOnHide = false,
+    scrollContainerRef
 }: UseVisibilityRevealOptions) {
-    const wasVisible = useRef(isVisible);
+    const [wasVisible, setWasVisible] = useState(isVisible);
     const hasRevealedOnMount = useRef(false);
     const savedScrollOffset = useRef<number | null>(null);
+    const hasRestoredScroll = useRef(false);
     
-    // Get scroll element from virtualizer
-    const scrollElement = virtualizer?.scrollElement;
+    // Get scroll element - prefer direct ref over virtualizer's element
+    const scrollElement = scrollContainerRef?.current || virtualizer?.scrollElement;
     
-    // Save scroll position when hiding
+    // Save scroll position on scroll events while visible
     useEffect(() => {
-        if (!preserveScrollOnHide) return;
+        if (!preserveScrollOnHide || !scrollElement) return;
         
-        if (!isVisible && wasVisible.current && scrollElement) {
-            savedScrollOffset.current = scrollElement.scrollTop;
+        // Only track scroll when visible and not in the process of restoring
+        if (isVisible && !hasRestoredScroll.current) {
+            const handleScroll = () => {
+                savedScrollOffset.current = scrollElement.scrollTop;
+            };
+            
+            // Listen to scroll events
+            scrollElement.addEventListener('scroll', handleScroll, { passive: true });
+            
+            return () => {
+                scrollElement.removeEventListener('scroll', handleScroll);
+            };
         }
-    }, [isVisible, preserveScrollOnHide, scrollElement]);
+    }, [preserveScrollOnHide, scrollElement, isVisible]);
+    
+    // Reset restoration flag when hiding
+    useEffect(() => {
+        if (!isVisible) {
+            hasRestoredScroll.current = false;
+        }
+    }, [isVisible]);
+    
     
     useEffect(() => {
-        
         // Handle external reveal operations
         if (isRevealOperation && isVisible && virtualizer) {
             const index = getSelectionIndex();
@@ -86,16 +107,15 @@ export function useVisibilityReveal({
         }
         
         // Only reveal when transitioning from hidden to visible
-        const isBecomingVisible = isVisible && !wasVisible.current;
+        const isBecomingVisible = isVisible && !wasVisible;
         const shouldRevealOnMount = isVisible && !hasRevealedOnMount.current;
         
-        
         // If we're preserving scroll and becoming visible, restore saved position
-        if (preserveScrollOnHide && isBecomingVisible && savedScrollOffset.current !== null && scrollElement) {
+        if (preserveScrollOnHide && isBecomingVisible && savedScrollOffset.current !== null && savedScrollOffset.current > 0 && scrollElement) {
             scrollElement.scrollTop = savedScrollOffset.current;
-            savedScrollOffset.current = null;
+            hasRestoredScroll.current = true;
+            // Don't clear the saved position yet - we might need it if restoration fails
             // Don't reveal selection when restoring scroll
-            wasVisible.current = isVisible;
             return;
         }
         
@@ -123,8 +143,10 @@ export function useVisibilityReveal({
                 hasRevealedOnMount.current = true;
             }
         }
-        
-        // Update visibility tracking
-        wasVisible.current = isVisible;
-    }, [isVisible, getSelectionIndex, virtualizer, isMobile, revealDelay, isRevealOperation, preserveScrollOnHide, scrollElement]);
+    }, [isVisible, getSelectionIndex, virtualizer, isMobile, revealDelay, isRevealOperation, preserveScrollOnHide, scrollElement, wasVisible]);
+    
+    // Update visibility state after effects run
+    useEffect(() => {
+        setWasVisible(isVisible);
+    }, [isVisible]);
 }
