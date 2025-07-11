@@ -116,7 +116,13 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
         const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
         const isOpeningVersionHistory = window.notebookNavigatorOpeningVersionHistory;
         
-        if (!hasNavigatorFocus && !isOpeningVersionHistory) {
+        // When creating a new file from the navigation pane, focus moves to the editor for renaming.
+        // Without this check, subsequent auto-reveal events would incorrectly shift focus to the file list,
+        // disrupting the rename operation. By checking if the action originated from the navigation pane,
+        // we preserve the editor focus for the rename command to work properly.
+        const focusInNavigationPane = uiState.focusedPane === 'navigation';
+        
+        if (!hasNavigatorFocus && !isOpeningVersionHistory && !focusInNavigationPane) {
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         }
     }, [settings.showNotesFromSubfolders, selectionState.selectedFolder, expansionState.expandedFolders, 
