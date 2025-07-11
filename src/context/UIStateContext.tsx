@@ -30,7 +30,6 @@ interface UIState {
     currentSinglePaneView: 'navigation' | 'files';
     paneWidth: number;
     newlyCreatedPath: string | null;
-    navigationPaneCollapsed: boolean;
     singlePane: boolean;
 }
 
@@ -39,8 +38,7 @@ export type UIAction =
     | { type: 'SET_FOCUSED_PANE'; pane: 'navigation' | 'files' }
     | { type: 'SET_SINGLE_PANE_VIEW'; view: 'navigation' | 'files' }
     | { type: 'SET_PANE_WIDTH'; width: number }
-    | { type: 'SET_NEWLY_CREATED_PATH'; path: string | null }
-    | { type: 'TOGGLE_NAVIGATION_PANE' };
+    | { type: 'SET_NEWLY_CREATED_PATH'; path: string | null };
     
 // Create contexts
 const UIStateContext = createContext<UIState | null>(null);
@@ -61,9 +59,6 @@ function uiStateReducer(state: UIState, action: UIAction): UIState {
         case 'SET_NEWLY_CREATED_PATH':
             return { ...state, newlyCreatedPath: action.path };
         
-        case 'TOGGLE_NAVIGATION_PANE':
-            return { ...state, navigationPaneCollapsed: !state.navigationPaneCollapsed };
-        
         default:
             return state;
     }
@@ -79,17 +74,14 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
     // Load initial state
     const loadInitialState = (): UIState => {
         const savedWidth = localStorage.get<number>(STORAGE_KEYS.navigationPaneWidthKey);
-        const savedCollapsed = localStorage.get<boolean>(STORAGE_KEYS.navigationPaneCollapsedKey);
         
         const paneWidth = savedWidth ?? NAVIGATION_PANE_DIMENSIONS.defaultWidth;
-        const navigationPaneCollapsed = savedCollapsed ?? false;
         
         const initialState = {
             focusedPane: 'navigation' as const,
             currentSinglePaneView: 'files' as const,
             paneWidth: Math.max(NAVIGATION_PANE_DIMENSIONS.minWidth, paneWidth),
             newlyCreatedPath: null,
-            navigationPaneCollapsed,
             singlePane: false // Will be computed later
         };
         
@@ -114,16 +106,6 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
             );
         }
     }, [state.paneWidth, isMobile]);
-    
-    // Persist collapsed state to localStorage
-    useEffect(() => {
-        if (!isMobile) {
-            localStorage.set(
-                STORAGE_KEYS.navigationPaneCollapsedKey,
-                state.navigationPaneCollapsed
-            );
-        }
-    }, [state.navigationPaneCollapsed, isMobile]);
     
     return (
         <UIStateContext.Provider value={stateWithSinglePane}>

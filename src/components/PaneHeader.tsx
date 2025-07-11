@@ -420,18 +420,14 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
             <div className="nn-header-actions nn-header-actions--space-between">
                 {type === 'navigation' ? (
                     <>
-                        {!uiState.singlePane ? (
-                            <button
-                                className="nn-icon-button"
-                                aria-label={strings.paneHeader.hideFolders}
-                                onClick={() => uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' })}
-                                tabIndex={-1}
-                            >
-                                <ObsidianIcon name="sidebar-left" />
-                            </button>
-                        ) : (
-                            <div />
-                        )}
+                        <button
+                            className="nn-icon-button"
+                            aria-label={settings.singlePane ? strings.paneHeader.showDualPane : strings.paneHeader.showSinglePane}
+                            onClick={() => updateSettings((s) => { s.singlePane = !s.singlePane; })}
+                            tabIndex={-1}
+                        >
+                            <ObsidianIcon name="sidebar-left" />
+                        </button>
                         <div className="nn-header-actions">
                             <button
                                 className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}
@@ -464,16 +460,6 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                     </>
                 ) : (
                     <>
-                        {uiState.navigationPaneCollapsed && !uiState.singlePane && (
-                            <button
-                                className="nn-icon-button"
-                                aria-label={strings.paneHeader.showFolders}
-                                onClick={() => uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' })}
-                                tabIndex={-1}
-                            >
-                                <ObsidianIcon name="sidebar-left" />
-                            </button>
-                        )}
                         {headerTitle && (
                             <span className="nn-pane-header-title">
                                 {uiState.singlePane ? (

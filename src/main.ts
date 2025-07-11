@@ -219,23 +219,12 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
         // Layout & Display commands
         this.addCommand({
-            id: 'toggle-navigation-pane',
-            name: strings.commands.toggleNavigationPane,
+            id: 'toggle-single-pane',
+            name: strings.commands.toggleSinglePane,
             callback: async () => {
-                // Ensure navigator is open
-                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-                if (leaves.length === 0) {
-                    await this.activateView(true);
-                }
-                
-                // Toggle the navigation pane in all navigator views
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-                navigatorLeaves.forEach(leaf => {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        view.toggleNavigationPane();
-                    }
-                });
+                // Toggle the single pane setting
+                this.settings.singlePane = !this.settings.singlePane;
+                await this.saveSettings();
             }
         });
 
@@ -513,7 +502,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
             STORAGE_KEYS.selectedFolderKey,
             STORAGE_KEYS.selectedFileKey,
             STORAGE_KEYS.navigationPaneWidthKey,
-            STORAGE_KEYS.navigationPaneCollapsedKey,
             STORAGE_KEYS.tagCacheKey
         ];
         

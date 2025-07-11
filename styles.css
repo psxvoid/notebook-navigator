@@ -153,21 +153,6 @@
     padding-left: 0;
 }
 
-/* Restore padding when navigation pane is collapsed (toggle button is showing) */
-.nn-split-container.nn-navigation-pane-collapsed .nn-file-pane .nn-pane-header {
-    padding-left: var(--size-4-2);
-}
-
-/* Remove left padding from pane header title when navigation pane is collapsed */
-.nn-split-container.nn-navigation-pane-collapsed .nn-file-pane .nn-pane-header-title {
-    padding-left: 0;
-}
-
-/* Hide folder icon when navigation pane is collapsed */
-.nn-split-container.nn-navigation-pane-collapsed .nn-file-pane .nn-pane-header-icon {
-    display: none;
-}
-
 /* Header actions container - groups action buttons in headers */
 .nn-header-actions {
     display: flex;
@@ -1030,20 +1015,6 @@ body.nn-resizing {
 .nn-header-actions--flex-end {
     width: 100%;
     justify-content: flex-end;
-}
-
-/* ========================================================================
-   Collapsed Navigation Pane State
-   ======================================================================== */
-
-/* Hide the navigation pane when collapsed */
-.nn-split-container.nn-navigation-pane-collapsed .nn-navigation-pane {
-    display: none;
-}
-
-/* Hide resize handle when collapsed */
-.nn-split-container.nn-navigation-pane-collapsed .nn-resize-handle {
-    display: none;
 }
 
 

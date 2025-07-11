@@ -43,7 +43,6 @@ export interface NotebookNavigatorHandle {
     focusFilePane: () => void;
     refresh: () => void;
     handleBecomeActive: () => void;
-    toggleNavigationPane: () => void;
     deleteActiveFile: () => void;
     createNoteInSelectedFolder: () => Promise<void>;
     moveSelectedFiles: () => Promise<void>;
@@ -127,12 +126,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             updateSettings(settings => {});
         },
         handleBecomeActive,
-        toggleNavigationPane: () => {
-            // Do nothing in single pane mode
-            if (!uiState.singlePane) {
-                uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' });
-            }
-        },
         deleteActiveFile: triggerDeleteKey,
         createNoteInSelectedFolder: async () => {
             if (!selectionState.selectedFolder) {
@@ -210,21 +203,35 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Track if initial visibility check has been performed
     const hasCheckedInitialVisibility = useRef(false);
     
+    // Handle side effects when singlePane setting changes
+    useEffect(() => {
+        if (!isMobile) {
+            // When enabling single pane mode, switch to files view and focus it
+            if (settings.singlePane) {
+                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+            }
+            // When disabling single pane mode, maintain current focus
+        }
+    }, [settings.singlePane, isMobile, uiDispatch]);
+    
     // Container ref callback that checks if file list is visible on first mount
     const containerCallbackRef = useCallback((node: HTMLDivElement | null) => {
         containerRef.current = node;
         
-        // Auto-collapse navigation pane on startup if viewport is too narrow for both panes
-        if (node && !isMobile && !hasCheckedInitialVisibility.current && !uiState.navigationPaneCollapsed) {
+        // Auto-enable single pane mode on startup if viewport is too narrow for both panes
+        if (node && !isMobile && !hasCheckedInitialVisibility.current && !settings.singlePane) {
             hasCheckedInitialVisibility.current = true;
             
             const containerWidth = node.getBoundingClientRect().width;
             // Check if container is too narrow to show both panes
             if (containerWidth < paneWidth + FILE_PANE_DIMENSIONS.minWidth) {
-                uiDispatch({ type: 'TOGGLE_NAVIGATION_PANE' });
+                updateSettings((settings) => {
+                    settings.singlePane = true;
+                });
             }
         }
-    }, [isMobile, paneWidth, uiDispatch, uiState.navigationPaneCollapsed]);
+    }, [isMobile, paneWidth, settings.singlePane, updateSettings]);
 
     // Determine CSS classes
     const containerClasses = ['nn-split-container'];
@@ -238,9 +245,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     } else {
         // Desktop dual-pane mode
         containerClasses.push('nn-desktop');
-        if (uiState.navigationPaneCollapsed) {
-            containerClasses.push('nn-navigation-pane-collapsed');
-        }
     }
     if (isResizing) {
         containerClasses.push('nn-resizing');
@@ -258,12 +262,15 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 // The actual keyboard handling is done in NavigationPane and FileList
             }}
         >
-            {!uiState.singlePane && !uiState.navigationPaneCollapsed && (
+            {!uiState.singlePane && (
                 <>
                     <div className="nn-navigation-pane" style={{ width: `${paneWidth}px` }}>
                         <NavigationPane ref={navigationPaneRef} />
                     </div>
                     <div className="nn-resize-handle" {...resizeHandleProps} />
+                    <ErrorBoundary componentName="FileList">
+                        <FileList ref={fileListRef} />
+                    </ErrorBoundary>
                 </>
             )}
             {uiState.singlePane && (
@@ -275,16 +282,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                         <FileList ref={fileListRef} />
                     </ErrorBoundary>
                 </>
-            )}
-            {!uiState.singlePane && uiState.navigationPaneCollapsed && (
-                <ErrorBoundary componentName="FileList">
-                    <FileList ref={fileListRef} />
-                </ErrorBoundary>
-            )}
-            {!uiState.singlePane && !uiState.navigationPaneCollapsed && (
-                <ErrorBoundary componentName="FileList">
-                    <FileList ref={fileListRef} />
-                </ErrorBoundary>
             )}
         </div>
     );

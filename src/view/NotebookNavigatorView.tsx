@@ -154,12 +154,6 @@ export class NotebookNavigatorView extends ItemView {
         this.componentRef.current?.refresh();
     }
     
-    /**
-     * Toggles the visibility of the navigation pane
-     */
-    toggleNavigationPane() {
-        this.componentRef.current?.toggleNavigationPane();
-    }
     
     /**
      * Deletes the currently active file using smart selection
