@@ -56,15 +56,19 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
      * Internal implementation for revealing files.
      * 
      * @param file - The file to reveal
-     * @param forceNavigateToFolder - If true, always navigates to the file's parent folder.
-     *                                 If false, may preserve current folder when appropriate.
+     * @param manualReveal - If true, this is a manual reveal (user command):
+     *                       - Always navigates to the file's parent folder
+     *                       - Shifts focus to the files pane
+     *                       If false, this is an auto-reveal:
+     *                       - May preserve current folder when appropriate
+     *                       - Preserves current focus
      */
-    const revealFileInternal = useCallback((file: TFile, forceNavigateToFolder: boolean) => {
+    const revealFileInternal = useCallback((file: TFile, manualReveal: boolean) => {
         if (!file || !file.parent) return;
         
         // Determine if we should preserve the current folder selection
         let preserveFolder = false;
-        if (!forceNavigateToFolder && settings.showNotesFromSubfolders && selectionState.selectedFolder && file.parent) {
+        if (!manualReveal && settings.showNotesFromSubfolders && selectionState.selectedFolder && file.parent) {
             // Check if the file's parent is a descendant of the currently selected folder
             let currentParent: TFolder | null = file.parent;
             while (currentParent) {
@@ -77,7 +81,7 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
         }
         
         // Determine if we should expand folders
-        const shouldExpandFolders = forceNavigateToFolder || !preserveFolder;
+        const shouldExpandFolders = manualReveal || !preserveFolder;
         
         if (shouldExpandFolders) {
             // We need to expand folders BEFORE changing selection
@@ -111,18 +115,8 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
             uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
         }
         
-        // Only change focus if we're not already in the navigator AND not opening version history
-        const navigatorEl = document.querySelector('.nn-split-container');
-        const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
-        const isOpeningVersionHistory = window.notebookNavigatorOpeningVersionHistory;
-        
-        // When creating a new file from the navigation pane, focus moves to the editor for renaming.
-        // Without this check, subsequent auto-reveal events would incorrectly shift focus to the file list,
-        // disrupting the rename operation. By checking if the action originated from the navigation pane,
-        // we preserve the editor focus for the rename command to work properly.
-        const focusInNavigationPane = uiState.focusedPane === 'navigation';
-        
-        if (!hasNavigatorFocus && !isOpeningVersionHistory && !focusInNavigationPane) {
+        // Only shift focus to files pane for manual reveals (user command)
+        if (manualReveal) {
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         }
     }, [settings.showNotesFromSubfolders, selectionState.selectedFolder, expansionState.expandedFolders, 
@@ -136,7 +130,7 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
      * @param file - The file to navigate to
      */
     const navigateToFile = useCallback((file: TFile) => {
-        revealFileInternal(file, true);
+        revealFileInternal(file, true); // true = manual reveal
     }, [revealFileInternal]);
     
     /**
@@ -144,11 +138,12 @@ export function useFileReveal({ app, navigationPaneRef, fileListRef }: UseFileRe
      * If "Show notes from subfolders" is enabled and the file is in a subfolder
      * of the current folder, it will keep the current folder selected.
      * Use this for auto-reveal scenarios to be less disruptive.
+     * Does not shift focus.
      * 
      * @param file - The file to reveal
      */
     const revealFileInCurrentView = useCallback((file: TFile) => {
-        revealFileInternal(file, false);
+        revealFileInternal(file, false); // false = auto-reveal
     }, [revealFileInternal]);
     
     /**
