@@ -362,14 +362,19 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     // Determine if navigation pane is visible
     const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'navigation';
     
+    // Memoize the getSelectionIndex function to prevent the useVisibilityReveal effect
+    // from re-running on every render. Without this, the effect would constantly
+    // trigger scroll-to-selected-item, causing jumps during normal scrolling.
+    const getSelectionIndex = useCallback(() => {
+        if (selectedPath) {
+            return pathToIndex.get(selectedPath) ?? -1;
+        }
+        return -1;
+    }, [selectedPath, pathToIndex]);
+    
     // Use visibility-based reveal with scroll position preservation
     useVisibilityReveal({
-        getSelectionIndex: () => {
-            if (selectedPath) {
-                return pathToIndex.get(selectedPath) ?? -1;
-            }
-            return -1;
-        },
+        getSelectionIndex,
         virtualizer: rowVirtualizer,
         isVisible,
         isMobile,

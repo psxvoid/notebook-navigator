@@ -573,25 +573,30 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     // Determine if file list is visible
     const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'files';
     
+    // Memoize the getSelectionIndex function to prevent the useVisibilityReveal effect
+    // from re-running on every render. Without this, the effect would constantly
+    // trigger scroll-to-selected-item, causing jumps during normal scrolling.
+    const getSelectionIndex = useCallback(() => {
+        if (selectedFilePath) {
+            const fileIndex = filePathToIndex.get(selectedFilePath);
+            if (fileIndex !== undefined && fileIndex !== -1) {
+                // Check if there's a header immediately before this file
+                // Only scroll to header if this is the first file in the list
+                if (fileIndex > 0 && listItems[fileIndex - 1]?.type === FileListItemType.HEADER) {
+                    const isFirstFileInList = fileIndex === 1 || (fileIndex === 2 && listItems[0]?.type === FileListItemType.HEADER);
+                    if (isFirstFileInList) {
+                        return fileIndex - 1;
+                    }
+                }
+                return fileIndex;
+            }
+        }
+        return -1;
+    }, [selectedFilePath, filePathToIndex, listItems]);
+    
     // Use visibility-based reveal with scroll position preservation
     useVisibilityReveal({
-        getSelectionIndex: () => {
-            if (selectedFilePath) {
-                const fileIndex = filePathToIndex.get(selectedFilePath);
-                if (fileIndex !== undefined && fileIndex !== -1) {
-                    // Check if there's a header immediately before this file
-                    // Only scroll to header if this is the first file in the list
-                    if (fileIndex > 0 && listItems[fileIndex - 1]?.type === FileListItemType.HEADER) {
-                        const isFirstFileInList = fileIndex === 1 || (fileIndex === 2 && listItems[0]?.type === FileListItemType.HEADER);
-                        if (isFirstFileInList) {
-                            return fileIndex - 1;
-                        }
-                    }
-                    return fileIndex;
-                }
-            }
-            return -1;
-        },
+        getSelectionIndex,
         virtualizer: rowVirtualizer,
         isVisible,
         isMobile,
