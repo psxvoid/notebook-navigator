@@ -183,12 +183,6 @@ export class NotebookNavigatorView extends ItemView {
         this.componentRef.current?.navigateToFolderWithModal();
     }
     
-    /**
-     * Handles when the view becomes active (e.g., when returning from editor)
-     */
-    public handleViewBecomeActive() {
-        this.componentRef.current?.handleBecomeActive();
-    }
 
     /**
      * Gets the current view state for persistence

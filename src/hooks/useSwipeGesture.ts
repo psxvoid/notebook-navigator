@@ -17,6 +17,7 @@
  */
 
 import { useEffect, useRef } from 'react';
+import { useUIState, useUIDispatch } from '../context/UIStateContext';
 
 interface UseSwipeGestureOptions {
     onSwipeRight?: () => void;
@@ -132,4 +133,41 @@ export function useSwipeGesture(
             container.removeEventListener('touchend', handleTouchEnd);
         };
     }, [containerRef, onSwipeRight, onSwipeLeft, threshold, edgeThreshold, enabled, isRTL]);
+}
+
+/**
+ * Mobile navigation hook that enables swipe gestures for navigating between views.
+ * This replaces the previous useMobileNavigation hook by directly implementing
+ * the navigation logic here.
+ */
+export function useMobileSwipeNavigation(
+    containerRef: React.RefObject<HTMLElement | null>,
+    isMobile: boolean
+) {
+    const uiState = useUIState();
+    const uiDispatch = useUIDispatch();
+    
+    // Check if RTL mode is active
+    const isRTL = document.body.classList.contains('mod-rtl');
+    
+    useSwipeGesture(containerRef, {
+        onSwipeRight: () => {
+            if (isMobile && uiState.currentSinglePaneView === 'files') {
+                // In RTL mode, swipe right goes forward (to files view)
+                // In LTR mode, swipe right goes back (to navigation view)
+                if (!isRTL) {
+                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
+                }
+            }
+        },
+        onSwipeLeft: () => {
+            if (isMobile && uiState.currentSinglePaneView === 'files') {
+                // In RTL mode, swipe left goes back (to navigation view)
+                if (isRTL) {
+                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
+                }
+            }
+        },
+        enabled: isMobile
+    });
 }

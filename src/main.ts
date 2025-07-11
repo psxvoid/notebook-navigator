@@ -300,20 +300,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
         this.addSettingTab(new NotebookNavigatorSettingTab(this.app, this));
 
-        // Listen for when the navigator view becomes active to restore scroll position
-        this.registerEvent(
-            this.app.workspace.on('active-leaf-change', (leaf) => {
-                if (!leaf) return;
-
-                // When the active leaf is our view, tell it to handle the event.
-                // This is for restoring scroll state on mobile when returning from the editor.
-                if (leaf.view instanceof NotebookNavigatorView) {
-                    // The view itself will handle the logic.
-                    leaf.view.handleViewBecomeActive();
-                }
-            })
-        );
-
         // Register editor context menu
         this.registerEvent(
             this.app.workspace.on('editor-menu', (menu, editor, view) => {

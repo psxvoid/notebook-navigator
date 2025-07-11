@@ -31,7 +31,7 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useFileReveal } from '../hooks/useFileReveal';
-import { useMobileNavigation } from '../hooks/useMobileNavigation';
+import { useMobileSwipeNavigation } from '../hooks/useSwipeGesture';
 import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
 import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, ItemType } from '../types';
 import { strings } from '../i18n';
@@ -42,7 +42,6 @@ export interface NotebookNavigatorHandle {
     navigateToFile: (file: TFile) => void;
     focusFilePane: () => void;
     refresh: () => void;
-    handleBecomeActive: () => void;
     deleteActiveFile: () => void;
     createNoteInSelectedFolder: () => Promise<void>;
     moveSelectedFiles: () => Promise<void>;
@@ -85,14 +84,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Use file reveal logic
     const { navigateToFile, revealFileInCurrentView, navigateToFolder } = useFileReveal({ app, navigationPaneRef, fileListRef });
     
-    // Use mobile navigation logic
-    const { handleBecomeActive } = useMobileNavigation({ 
-        app, 
-        isMobile, 
-        containerRef, 
-        navigationPaneRef, 
-        fileListRef 
-    });
+    // Enable mobile swipe gestures
+    useMobileSwipeNavigation(containerRef, isMobile);
     
     // Use event handlers
     const { triggerDeleteKey } = useNavigatorEventHandlers({
@@ -125,7 +118,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             // A no-op update will increment the version and force a re-render
             updateSettings(settings => {});
         },
-        handleBecomeActive,
         deleteActiveFile: triggerDeleteKey,
         createNoteInSelectedFolder: async () => {
             if (!selectionState.selectedFolder) {
@@ -190,7 +182,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         }
     }), [
         navigateToFile,
-        handleBecomeActive,
         triggerDeleteKey,
         uiDispatch,
         updateSettings,
@@ -203,17 +194,85 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Track if initial visibility check has been performed
     const hasCheckedInitialVisibility = useRef(false);
     
+    // Track previous singlePane value to detect transitions
+    const prevSinglePane = useRef(settings.singlePane);
+    
     // Handle side effects when singlePane setting changes
     useEffect(() => {
         if (!isMobile) {
+            const wasInSinglePane = prevSinglePane.current;
+            const isNowInSinglePane = settings.singlePane;
+            
+            
             // When enabling single pane mode, switch to files view and focus it
-            if (settings.singlePane) {
+            if (isNowInSinglePane) {
                 uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
                 uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             }
-            // When disabling single pane mode, maintain current focus
+            
+            // When transitioning from single to dual pane, reveal the current selection
+            if (wasInSinglePane && !isNowInSinglePane && navigationPaneRef.current) {
+                // Determine what to reveal based on selection type
+                let pathToReveal: string | null = null;
+                if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+                    pathToReveal = selectionState.selectedFolder.path;
+                } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
+                    pathToReveal = selectionState.selectedTag;
+                }
+                
+                if (pathToReveal) {
+                    // Use requestAnimationFrame to ensure DOM has updated
+                    requestAnimationFrame(() => {
+                        if (navigationPaneRef.current && pathToReveal) {
+                            const index = navigationPaneRef.current.getIndexOfPath(pathToReveal);
+                            if (index >= 0 && navigationPaneRef.current.virtualizer) {
+                                navigationPaneRef.current.virtualizer.scrollToIndex(index, {
+                                    align: 'center',
+                                    behavior: 'auto'
+                                });
+                            }
+                        }
+                    });
+                }
+            }
+            
+            // Update previous value for next render
+            prevSinglePane.current = isNowInSinglePane;
         }
-    }, [settings.singlePane, isMobile, uiDispatch]);
+    }, [settings.singlePane, isMobile, uiDispatch, selectionState.selectedFolder, selectionState.selectedTag, selectionState.selectionType]);
+    
+    // Handle scrolling when single pane view changes (mobile and desktop)
+    useEffect(() => {
+        if (!uiState.singlePane) return;
+        
+        // Scroll to the appropriate item based on current view
+        if (uiState.currentSinglePaneView === 'navigation') {
+            // Determine what to reveal based on selection type
+            let pathToReveal: string | null = null;
+            if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
+                pathToReveal = selectionState.selectedFolder.path;
+            } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
+                pathToReveal = selectionState.selectedTag;
+            }
+            
+            if (pathToReveal && navigationPaneRef.current) {
+                const index = navigationPaneRef.current.getIndexOfPath(pathToReveal);
+                if (index >= 0 && navigationPaneRef.current.virtualizer) {
+                    navigationPaneRef.current.virtualizer.scrollToIndex(index, { 
+                        align: isMobile ? 'center' : 'auto' 
+                    });
+                }
+            }
+        } else if (uiState.currentSinglePaneView === 'files' && selectionState.selectedFile && fileListRef.current) {
+            const index = fileListRef.current.getIndexOfPath(selectionState.selectedFile.path);
+            if (index >= 0 && fileListRef.current.virtualizer) {
+                fileListRef.current.virtualizer.scrollToIndex(index, { 
+                    align: isMobile ? 'center' : 'auto' 
+                });
+            }
+        }
+    }, [uiState.singlePane, uiState.currentSinglePaneView, selectionState.selectedFolder, selectionState.selectedTag,
+        selectionState.selectionType, selectionState.selectedFile, navigationPaneRef, fileListRef, isMobile]);
     
     // Container ref callback that checks if file list is visible on first mount
     const containerCallbackRef = useCallback((node: HTMLDivElement | null) => {
@@ -262,27 +321,15 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 // The actual keyboard handling is done in NavigationPane and FileList
             }}
         >
+            <div className="nn-navigation-pane" style={{ width: uiState.singlePane ? '100%' : `${paneWidth}px` }}>
+                <NavigationPane ref={navigationPaneRef} />
+            </div>
             {!uiState.singlePane && (
-                <>
-                    <div className="nn-navigation-pane" style={{ width: `${paneWidth}px` }}>
-                        <NavigationPane ref={navigationPaneRef} />
-                    </div>
-                    <div className="nn-resize-handle" {...resizeHandleProps} />
-                    <ErrorBoundary componentName="FileList">
-                        <FileList ref={fileListRef} />
-                    </ErrorBoundary>
-                </>
+                <div className="nn-resize-handle" {...resizeHandleProps} />
             )}
-            {uiState.singlePane && (
-                <>
-                    <div className="nn-navigation-pane" style={{ width: '100%' }}>
-                        <NavigationPane ref={navigationPaneRef} />
-                    </div>
-                    <ErrorBoundary componentName="FileList">
-                        <FileList ref={fileListRef} />
-                    </ErrorBoundary>
-                </>
-            )}
+            <ErrorBoundary componentName="FileList">
+                <FileList ref={fileListRef} />
+            </ErrorBoundary>
         </div>
     );
 });
