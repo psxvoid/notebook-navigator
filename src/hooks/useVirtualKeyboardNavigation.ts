@@ -309,7 +309,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                         // In single-pane mode, switch to navigation view
                         uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
-                    } else if (!uiState.navigationPaneCollapsed) {
+                    } else if (!uiState.singlePane) {
                         // In dual-pane mode, switch focus to folders pane
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
                     }
@@ -377,7 +377,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                             // In single-pane mode, switch to navigation view
                             uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
                             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
-                        } else if (!uiState.navigationPaneCollapsed) {
+                        } else if (!uiState.singlePane) {
                             // In dual-pane mode, switch focus to folders pane
                             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
                         }

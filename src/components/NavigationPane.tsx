@@ -45,6 +45,7 @@ import { parseExcludedFolders } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
 import { UNTAGGED_TAG_ID, NavigationPaneItemType, ItemType, VirtualFolder, NAVITEM_HEIGHTS } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
+import { useVisibilityReveal } from '../hooks/useVisibilityReveal';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useTagCache } from '../context/TagCacheContext';
 
@@ -358,6 +359,29 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         scrollContainerRef: scrollContainerRef.current
     }), [pathToIndex, rowVirtualizer]);
 
+    // Determine if navigation pane is visible
+    const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'navigation';
+    
+    // Memoize the getSelectionIndex function to prevent the useVisibilityReveal effect
+    // from re-running on every render. Without this, the effect would constantly
+    // trigger scroll-to-selected-item, causing jumps during normal scrolling.
+    const getSelectionIndex = useCallback(() => {
+        if (selectedPath) {
+            return pathToIndex.get(selectedPath) ?? -1;
+        }
+        return -1;
+    }, [selectedPath, pathToIndex]);
+    
+    // Use visibility-based reveal with scroll position preservation
+    useVisibilityReveal({
+        getSelectionIndex,
+        virtualizer: rowVirtualizer,
+        isVisible,
+        isMobile,
+        isRevealOperation: selectionState.isRevealOperation,
+        preserveScrollOnHide: true,  // Enable scroll position preservation
+        scrollContainerRef  // Pass the ref directly
+    });
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
