@@ -32,6 +32,8 @@ interface UseVisibilityRevealOptions {
     isRevealOperation?: boolean;
     /** Optional delay before revealing (default: 0) */
     revealDelay?: number;
+    /** Whether to preserve scroll position when hiding/showing (default: false) */
+    preserveScrollOnHide?: boolean;
 }
 
 /**
@@ -45,21 +47,61 @@ export function useVisibilityReveal({
     isVisible,
     isMobile,
     isRevealOperation = false,
-    revealDelay = 0
+    revealDelay = 0,
+    preserveScrollOnHide = false
 }: UseVisibilityRevealOptions) {
     const wasVisible = useRef(isVisible);
     const hasRevealedOnMount = useRef(false);
+    const savedScrollOffset = useRef<number | null>(null);
+    
+    // Get scroll element from virtualizer
+    const scrollElement = virtualizer?.scrollElement;
+    
+    // Save scroll position when hiding
+    useEffect(() => {
+        if (!preserveScrollOnHide) return;
+        
+        if (!isVisible && wasVisible.current && scrollElement) {
+            savedScrollOffset.current = scrollElement.scrollTop;
+        }
+    }, [isVisible, preserveScrollOnHide, scrollElement]);
     
     useEffect(() => {
+        
+        // Handle external reveal operations
+        if (isRevealOperation && isVisible && virtualizer) {
+            const index = getSelectionIndex();
+            if (index >= 0) {
+                virtualizer.scrollToIndex(index, {
+                    align: isMobile ? 'center' : 'auto',
+                    behavior: 'auto'
+                });
+            }
+            return;
+        }
+        
         // Skip if an external reveal operation is in progress
-        if (isRevealOperation) return;
+        if (isRevealOperation) {
+            return;
+        }
         
         // Only reveal when transitioning from hidden to visible
         const isBecomingVisible = isVisible && !wasVisible.current;
         const shouldRevealOnMount = isVisible && !hasRevealedOnMount.current;
         
+        
+        // If we're preserving scroll and becoming visible, restore saved position
+        if (preserveScrollOnHide && isBecomingVisible && savedScrollOffset.current !== null && scrollElement) {
+            scrollElement.scrollTop = savedScrollOffset.current;
+            savedScrollOffset.current = null;
+            // Don't reveal selection when restoring scroll
+            wasVisible.current = isVisible;
+            return;
+        }
+        
         if ((isBecomingVisible || shouldRevealOnMount) && virtualizer) {
             const index = getSelectionIndex();
+            
             
             if (index >= 0) {
                 const reveal = () => {
@@ -84,5 +126,5 @@ export function useVisibilityReveal({
         
         // Update visibility tracking
         wasVisible.current = isVisible;
-    }, [isVisible, getSelectionIndex, virtualizer, isMobile, revealDelay, isRevealOperation]);
+    }, [isVisible, getSelectionIndex, virtualizer, isMobile, revealDelay, isRevealOperation, preserveScrollOnHide, scrollElement]);
 }
