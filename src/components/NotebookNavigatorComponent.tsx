@@ -196,15 +196,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     
     // Handle side effects when singlePane setting changes
     useEffect(() => {
-        console.log('[NotebookNavigatorComponent] singlePane effect triggered:', {
-            singlePane: settings.singlePane,
-            isMobile,
-            currentSinglePaneView: uiState.currentSinglePaneView
-        });
-        
         if (!isMobile && settings.singlePane) {
             // When enabling single pane mode, switch to files view and focus it
-            console.log('[NotebookNavigatorComponent] Switching to files view in single pane mode');
             uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         }

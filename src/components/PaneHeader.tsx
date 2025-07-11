@@ -424,7 +424,6 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                             className="nn-icon-button"
                             aria-label={settings.singlePane ? strings.paneHeader.showDualPane : strings.paneHeader.showSinglePane}
                             onClick={() => {
-                                console.log('[NotebookNavigator] Toggling singlePane from', settings.singlePane, 'to', !settings.singlePane);
                                 updateSettings((s) => { s.singlePane = !s.singlePane; });
                             }}
                             tabIndex={-1}
