@@ -142,3 +142,5 @@ element.className = 'nn-drag-count-badge';
 - ALWAYS use `fileManager.trashFile()` not `vault.delete()`
 - ALWAYS define styles in CSS, not inline
 - ALWAYS use sentence case for UI text
+- NEVER assume a problem is fixed unless user has tested that it works
+- NEVER add comments to code describing the change you did
