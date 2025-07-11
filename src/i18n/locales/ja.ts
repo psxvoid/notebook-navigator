@@ -59,7 +59,7 @@ export const STRINGS_JA = {
         expandAllFolders: 'すべて展開', // Tooltip for button that expands all items (English: Expand all)
         newFolder: '新規フォルダ', // Tooltip for create new folder button (English: New folder)
         newNote: '新規ノートを作成', // Tooltip for create new note button (English: Create new note)
-        mobileBackToFolders: 'フォルダに戻る', // Mobile-only back button text to return to folder list (English: Back to folders)
+        mobileBackToNavigation: 'ナビゲーションに戻る', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
         changeSortOrder: '並び順を変更', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: 'デフォルト', // Label for default sorting mode (English: Default)
         customSort: 'カスタム', // Label for custom sorting mode (English: Custom)

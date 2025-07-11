@@ -194,85 +194,21 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Track if initial visibility check has been performed
     const hasCheckedInitialVisibility = useRef(false);
     
-    // Track previous singlePane value to detect transitions
-    const prevSinglePane = useRef(settings.singlePane);
-    
     // Handle side effects when singlePane setting changes
     useEffect(() => {
-        if (!isMobile) {
-            const wasInSinglePane = prevSinglePane.current;
-            const isNowInSinglePane = settings.singlePane;
-            
-            
-            // When enabling single pane mode, switch to files view and focus it
-            if (isNowInSinglePane) {
-                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-            }
-            
-            // When transitioning from single to dual pane, reveal the current selection
-            if (wasInSinglePane && !isNowInSinglePane && navigationPaneRef.current) {
-                // Determine what to reveal based on selection type
-                let pathToReveal: string | null = null;
-                if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
-                    pathToReveal = selectionState.selectedFolder.path;
-                } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
-                    pathToReveal = selectionState.selectedTag;
-                }
-                
-                if (pathToReveal) {
-                    // Use requestAnimationFrame to ensure DOM has updated
-                    requestAnimationFrame(() => {
-                        if (navigationPaneRef.current && pathToReveal) {
-                            const index = navigationPaneRef.current.getIndexOfPath(pathToReveal);
-                            if (index >= 0 && navigationPaneRef.current.virtualizer) {
-                                navigationPaneRef.current.virtualizer.scrollToIndex(index, {
-                                    align: 'center',
-                                    behavior: 'auto'
-                                });
-                            }
-                        }
-                    });
-                }
-            }
-            
-            // Update previous value for next render
-            prevSinglePane.current = isNowInSinglePane;
-        }
-    }, [settings.singlePane, isMobile, uiDispatch, selectionState.selectedFolder, selectionState.selectedTag, selectionState.selectionType]);
-    
-    // Handle scrolling when single pane view changes (mobile and desktop)
-    useEffect(() => {
-        if (!uiState.singlePane) return;
+        console.log('[NotebookNavigatorComponent] singlePane effect triggered:', {
+            singlePane: settings.singlePane,
+            isMobile,
+            currentSinglePaneView: uiState.currentSinglePaneView
+        });
         
-        // Scroll to the appropriate item based on current view
-        if (uiState.currentSinglePaneView === 'navigation') {
-            // Determine what to reveal based on selection type
-            let pathToReveal: string | null = null;
-            if (selectionState.selectionType === 'folder' && selectionState.selectedFolder) {
-                pathToReveal = selectionState.selectedFolder.path;
-            } else if (selectionState.selectionType === 'tag' && selectionState.selectedTag) {
-                pathToReveal = selectionState.selectedTag;
-            }
-            
-            if (pathToReveal && navigationPaneRef.current) {
-                const index = navigationPaneRef.current.getIndexOfPath(pathToReveal);
-                if (index >= 0 && navigationPaneRef.current.virtualizer) {
-                    navigationPaneRef.current.virtualizer.scrollToIndex(index, { 
-                        align: isMobile ? 'center' : 'auto' 
-                    });
-                }
-            }
-        } else if (uiState.currentSinglePaneView === 'files' && selectionState.selectedFile && fileListRef.current) {
-            const index = fileListRef.current.getIndexOfPath(selectionState.selectedFile.path);
-            if (index >= 0 && fileListRef.current.virtualizer) {
-                fileListRef.current.virtualizer.scrollToIndex(index, { 
-                    align: isMobile ? 'center' : 'auto' 
-                });
-            }
+        if (!isMobile && settings.singlePane) {
+            // When enabling single pane mode, switch to files view and focus it
+            console.log('[NotebookNavigatorComponent] Switching to files view in single pane mode');
+            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         }
-    }, [uiState.singlePane, uiState.currentSinglePaneView, selectionState.selectedFolder, selectionState.selectedTag,
-        selectionState.selectionType, selectionState.selectedFile, navigationPaneRef, fileListRef, isMobile]);
+    }, [settings.singlePane, isMobile, uiDispatch]);
     
     // Container ref callback that checks if file list is visible on first mount
     const containerCallbackRef = useCallback((node: HTMLDivElement | null) => {

@@ -59,7 +59,7 @@ export const STRINGS_ES = {
         expandAllFolders: 'Expandir todo', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'Nueva carpeta', // Tooltip for create new folder button (English: New folder)
         newNote: 'Crear nueva nota', // Tooltip for create new note button (English: Create new note)
-        mobileBackToFolders: 'Volver a carpetas', // Mobile-only back button text to return to folder list (English: Back to folders)
+        mobileBackToNavigation: 'Volver a navegación', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
         changeSortOrder: 'Cambiar orden de clasificación', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: 'Predeterminado', // Label for default sorting mode (English: Default)
         customSort: 'Personalizado', // Label for custom sorting mode (English: Custom)

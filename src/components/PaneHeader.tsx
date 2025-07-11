@@ -301,7 +301,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                         <div className="nn-mobile-back">
                             <button
                                 className="nn-icon-button"
-                                aria-label={strings.paneHeader.mobileBackToFolders}
+                                aria-label={strings.paneHeader.mobileBackToNavigation}
                                 onClick={(e) => {
                                     e.stopPropagation();
                                     uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
@@ -423,7 +423,10 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                         <button
                             className="nn-icon-button"
                             aria-label={settings.singlePane ? strings.paneHeader.showDualPane : strings.paneHeader.showSinglePane}
-                            onClick={() => updateSettings((s) => { s.singlePane = !s.singlePane; })}
+                            onClick={() => {
+                                console.log('[NotebookNavigator] Toggling singlePane from', settings.singlePane, 'to', !settings.singlePane);
+                                updateSettings((s) => { s.singlePane = !s.singlePane; });
+                            }}
                             tabIndex={-1}
                         >
                             <ObsidianIcon name="sidebar-left" />

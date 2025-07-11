@@ -59,7 +59,7 @@ export const STRINGS_ZH = {
         expandAllFolders: '全部展开', // Tooltip for button that expands all items (English: Expand all)
         newFolder: '新建文件夹', // Tooltip for create new folder button (English: New folder)
         newNote: '创建新笔记', // Tooltip for create new note button (English: Create new note)
-        mobileBackToFolders: '返回文件夹', // Mobile-only back button text to return to folder list (English: Back to folders)
+        mobileBackToNavigation: '返回导航', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
         changeSortOrder: '更改排序方式', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: '默认', // Label for default sorting mode (English: Default)
         customSort: '自定义', // Label for custom sorting mode (English: Custom)

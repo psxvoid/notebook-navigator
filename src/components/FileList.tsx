@@ -33,6 +33,7 @@ import type { FileListItem } from '../types/virtualization';
 import { PaneHeader } from './PaneHeader';
 import { FileListItemType, ItemType, FILELIST_MEASUREMENTS } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
+import { useVisibilityReveal } from '../hooks/useVisibilityReveal';
 import { useMultiSelection } from '../hooks/useMultiSelection';
 import { ErrorBoundary } from './ErrorBoundary';
 
@@ -569,37 +570,33 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         return null;
     }, [selectionType, selectedFolder, selectedTag]);
     
-    // Scroll to selected file when it changes - use useLayoutEffect to happen before paint
-    useLayoutEffect(() => {
-        if (selectedFilePath) {
-            const fileIndex = filePathToIndex.get(selectedFilePath);
-            if (fileIndex !== undefined && fileIndex !== -1) {
-                // Check if there's a header immediately before this file
-                // Only scroll to header if this is the first file in the list
-                let scrollToIndex = fileIndex;
-                if (fileIndex > 0 && listItems[fileIndex - 1]?.type === FileListItemType.HEADER) {
+    // Determine if file list is visible
+    const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'files';
+    
+    // Use visibility-based reveal
+    useVisibilityReveal({
+        getSelectionIndex: () => {
+            if (selectedFilePath) {
+                const fileIndex = filePathToIndex.get(selectedFilePath);
+                if (fileIndex !== undefined && fileIndex !== -1) {
+                    // Check if there's a header immediately before this file
                     // Only scroll to header if this is the first file in the list
-                    const isFirstFileInList = fileIndex === 1 || (fileIndex === 2 && listItems[0]?.type === FileListItemType.HEADER);
-                    
-                    if (isFirstFileInList) {
-                        scrollToIndex = fileIndex - 1;
+                    if (fileIndex > 0 && listItems[fileIndex - 1]?.type === FileListItemType.HEADER) {
+                        const isFirstFileInList = fileIndex === 1 || (fileIndex === 2 && listItems[0]?.type === FileListItemType.HEADER);
+                        if (isFirstFileInList) {
+                            return fileIndex - 1;
+                        }
                     }
+                    return fileIndex;
                 }
-                
-                // Get current scroll position before scrolling
-                const scrollBefore = scrollContainerRef.current?.scrollTop || 0;
-                
-                
-                // Scroll immediately to prevent flicker
-                // Use center alignment on mobile for better visibility, auto on desktop
-                rowVirtualizer.scrollToIndex(scrollToIndex, { 
-                    align: isMobile ? 'center' : 'auto', 
-                    behavior: 'auto' 
-                });
-                
             }
-        }
-    }, [selectedFilePath, filePathToIndex, rowVirtualizer, isMobile, listItems]);
+            return -1;
+        },
+        virtualizer: rowVirtualizer,
+        isVisible,
+        isMobile,
+        isRevealOperation: selectionState.isRevealOperation
+    });
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({

@@ -59,7 +59,7 @@ export const STRINGS_DE = {
         expandAllFolders: 'Alle ausklappen', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'Neuer Ordner', // Tooltip for create new folder button (English: New folder)
         newNote: 'Neue Notiz erstellen', // Tooltip for create new note button (English: Create new note)
-        mobileBackToFolders: 'Zurück zu Ordnern', // Mobile-only back button text to return to folder list (English: Back to folders)
+        mobileBackToNavigation: 'Zurück zur Navigation', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
         changeSortOrder: 'Sortierreihenfolge ändern', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: 'Standard', // Label for default sorting mode (English: Default)
         customSort: 'Benutzerdefiniert', // Label for custom sorting mode (English: Custom)

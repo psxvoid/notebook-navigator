@@ -921,7 +921,7 @@
    2. Navigator focused but inactive pane (cross-pane dimming) */
 .nn-split-container[data-navigator-focused="false"] .nn-file-item.nn-selected .nn-file-content::before,
 .nn-split-container[data-navigator-focused="false"] .nn-folder-item.nn-selected > .nn-folder-content::before,
-.nn-split-container[data-navigator-focused="true"][data-focus-pane="folders"] .nn-file-item.nn-selected .nn-file-content::before,
+.nn-split-container[data-navigator-focused="true"][data-focus-pane="navigation"] .nn-file-item.nn-selected .nn-file-content::before,
 .nn-split-container[data-navigator-focused="true"][data-focus-pane="files"] .nn-folder-item.nn-selected > .nn-folder-content::before {
     background-color: var(--background-modifier-hover);
 }

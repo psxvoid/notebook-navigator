@@ -45,6 +45,7 @@ import { parseExcludedFolders } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
 import { UNTAGGED_TAG_ID, NavigationPaneItemType, ItemType, VirtualFolder, NAVITEM_HEIGHTS } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
+import { useVisibilityReveal } from '../hooks/useVisibilityReveal';
 import { ErrorBoundary } from './ErrorBoundary';
 import { useTagCache } from '../context/TagCacheContext';
 
@@ -65,6 +66,16 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    
+    // Debug log for component lifecycle
+    useEffect(() => {
+        console.log('[NavigationPane] Component rendered with:', {
+            singlePane: settings.singlePane,
+            currentSinglePaneView: uiState.currentSinglePaneView,
+            isVisible: !uiState.singlePane || uiState.currentSinglePaneView === 'navigation',
+            scrollContainerRef: scrollContainerRef.current
+        });
+    });
     
     // Cache selected folder/tag path to avoid repeated property access
     const selectedPath = selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder 
@@ -314,7 +325,10 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     // Initialize virtualizer
     const rowVirtualizer = useVirtualizer({
         count: items.length,
-        getScrollElement: () => scrollContainerRef.current,
+        getScrollElement: () => {
+            console.log('[NavigationPane] getScrollElement called, scrollContainerRef.current:', scrollContainerRef.current);
+            return scrollContainerRef.current;
+        },
         estimateSize: (index) => {
             const item = items[index];
             const heights = isMobile ? NAVITEM_HEIGHTS.mobile : NAVITEM_HEIGHTS.desktop;
@@ -337,6 +351,12 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         overscan: isMobile ? 50 : 10, // Match FileList's mobile overscan
     });
     
+    // Log virtualizer scroll offset changes
+    useEffect(() => {
+        const scrollOffset = rowVirtualizer.scrollOffset;
+        console.log('[NavigationPane] Virtualizer scrollOffset:', scrollOffset, 'singlePane:', settings.singlePane);
+    }, [rowVirtualizer.scrollOffset, settings.singlePane]);
+    
     // Create a map for O(1) item lookups
     const pathToIndex = useMemo(() => {
         const map = new Map<string, number>();
@@ -358,6 +378,22 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         scrollContainerRef: scrollContainerRef.current
     }), [pathToIndex, rowVirtualizer]);
 
+    // Determine if navigation pane is visible
+    const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'navigation';
+    
+    // Use visibility-based reveal
+    useVisibilityReveal({
+        getSelectionIndex: () => {
+            if (selectedPath) {
+                return pathToIndex.get(selectedPath) ?? -1;
+            }
+            return -1;
+        },
+        virtualizer: rowVirtualizer,
+        isVisible,
+        isMobile,
+        isRevealOperation: selectionState.isRevealOperation
+    });
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
@@ -545,7 +581,12 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             <>
                 <PaneHeader type="navigation" onHeaderClick={handleScrollToTop} />
             <div 
-                ref={scrollContainerRef}
+                ref={(el) => {
+                    if (el !== scrollContainerRef.current) {
+                        console.log('[NavigationPane] Scroll container ref changed from', scrollContainerRef.current, 'to', el);
+                        scrollContainerRef.current = el;
+                    }
+                }}
                 className="nn-navigation-pane-scroller"
                 data-pane="navigation"
                 role="tree"
