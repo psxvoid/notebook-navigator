@@ -67,16 +67,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     const uiDispatch = useUIDispatch();
     const scrollContainerRef = useRef<HTMLDivElement>(null);
     
-    // Debug log for component lifecycle
-    useEffect(() => {
-        console.log('[NavigationPane] Component rendered with:', {
-            singlePane: settings.singlePane,
-            currentSinglePaneView: uiState.currentSinglePaneView,
-            isVisible: !uiState.singlePane || uiState.currentSinglePaneView === 'navigation',
-            scrollContainerRef: scrollContainerRef.current
-        });
-    });
-    
     // Cache selected folder/tag path to avoid repeated property access
     const selectedPath = selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder 
         ? selectionState.selectedFolder.path 
@@ -325,10 +315,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     // Initialize virtualizer
     const rowVirtualizer = useVirtualizer({
         count: items.length,
-        getScrollElement: () => {
-            console.log('[NavigationPane] getScrollElement called, scrollContainerRef.current:', scrollContainerRef.current);
-            return scrollContainerRef.current;
-        },
+        getScrollElement: () => scrollContainerRef.current,
         estimateSize: (index) => {
             const item = items[index];
             const heights = isMobile ? NAVITEM_HEIGHTS.mobile : NAVITEM_HEIGHTS.desktop;
@@ -350,12 +337,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         },
         overscan: isMobile ? 50 : 10, // Match FileList's mobile overscan
     });
-    
-    // Log virtualizer scroll offset changes
-    useEffect(() => {
-        const scrollOffset = rowVirtualizer.scrollOffset;
-        console.log('[NavigationPane] Virtualizer scrollOffset:', scrollOffset, 'singlePane:', settings.singlePane);
-    }, [rowVirtualizer.scrollOffset, settings.singlePane]);
     
     // Create a map for O(1) item lookups
     const pathToIndex = useMemo(() => {
@@ -380,6 +361,26 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
 
     // Determine if navigation pane is visible
     const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'navigation';
+    
+    // Track if we've scrolled  
+    const hasScrolledRef = useRef(false);
+    
+    // Preserve scroll position during visibility changes
+    useEffect(() => {
+        // When becoming visible and we have a selection, restore position
+        if (isVisible && !hasScrolledRef.current && selectedPath) {
+            const index = pathToIndex.get(selectedPath);
+            if (index !== undefined && index >= 0) {
+                rowVirtualizer.scrollToIndex(index, { align: 'auto' });
+                hasScrolledRef.current = true;
+            }
+        }
+        
+        // Reset when becoming hidden
+        if (!isVisible) {
+            hasScrolledRef.current = false;
+        }
+    }, [isVisible, selectedPath, pathToIndex, rowVirtualizer]);
     
     // Use visibility-based reveal
     useVisibilityReveal({
@@ -581,12 +582,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             <>
                 <PaneHeader type="navigation" onHeaderClick={handleScrollToTop} />
             <div 
-                ref={(el) => {
-                    if (el !== scrollContainerRef.current) {
-                        console.log('[NavigationPane] Scroll container ref changed from', scrollContainerRef.current, 'to', el);
-                        scrollContainerRef.current = el;
-                    }
-                }}
+                ref={scrollContainerRef}
                 className="nn-navigation-pane-scroller"
                 data-pane="navigation"
                 role="tree"
