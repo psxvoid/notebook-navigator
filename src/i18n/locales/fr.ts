@@ -272,7 +272,7 @@ export const STRINGS_FR = {
         open: 'Ouvrir', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealFile: 'Révéler le fichier', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: 'Focus sur le fichier', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
-        toggleSinglePane: 'Basculer la disposition à panneau unique', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle single-pane layout)
+        toggleDualPane: 'Basculer la disposition à double panneau', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
         deleteFile: 'Supprimer les fichiers', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Créer une nouvelle note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Déplacer les fichiers', // Command palette: Move selected files to another folder (English: Move files)
@@ -332,17 +332,17 @@ export const STRINGS_FR = {
                 name: 'Afficher les noms des dossiers parents',
                 desc: 'Afficher le nom du dossier parent pour les notes provenant des sous-dossiers.',
             },
-            singlePane: {
-                name: 'Single-pane layout',
-                desc: 'Basculer entre la navigation et la liste de fichiers dans un seul panneau sur ordinateur.',
+            dualPane: {
+                name: 'Disposition à double panneau sur ordinateur',
+                desc: 'Afficher le panneau de navigation et le panneau de liste côte à côte sur ordinateur.',
             },
             autoRevealActiveNote: {
                 name: 'Révéler automatiquement la note active',
-                desc: 'Révéler et sélectionner automatiquement les notes lorsqu\'elles sont ouvertes depuis le Commutateur rapide, les liens ou la recherche.',
+                desc: 'Révéler automatiquement les notes lorsqu\'elles sont ouvertes depuis le Commutateur rapide, les liens ou la recherche.',
             },
             autoSelectFirstFileOnFocusChange: {
                 name: 'Sélectionner automatiquement la première note lors du changement de dossier ou d\'étiquette',
-                desc: 'Sélectionner et ouvrir automatiquement la première note lors du changement de dossier ou d\'étiquette.',
+                desc: 'Ouvrir automatiquement la première note lors du changement de dossier ou d\'étiquette.',
             },
             autoExpandFoldersTags: {
                 name: 'Développer automatiquement les dossiers et les étiquettes',

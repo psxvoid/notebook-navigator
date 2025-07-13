@@ -272,7 +272,7 @@ export const STRINGS_ES = {
         open: 'Abrir', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealFile: 'Revelar archivo', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: 'Enfocar archivo', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
-        toggleSinglePane: 'Alternar diseño de panel único', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle single-pane layout)
+        toggleDualPane: 'Alternar diseño de doble panel', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
         deleteFile: 'Eliminar archivos', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Crear nueva nota', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Mover archivos', // Command palette: Move selected files to another folder (English: Move files)
@@ -332,17 +332,17 @@ export const STRINGS_ES = {
                 name: 'Mostrar nombres de carpetas principales',
                 desc: 'Muestra el nombre de la carpeta principal para las notas de subcarpetas.',
             },
-            singlePane: {
-                name: 'Single-pane layout',
-                desc: 'Cambiar entre navegación y lista de archivos en un solo panel en escritorio.',
+            dualPane: {
+                name: 'Diseño de doble panel en escritorio',
+                desc: 'Mostrar panel de navegación y panel de lista lado a lado en escritorio.',
             },
             autoRevealActiveNote: {
                 name: 'Mostrar automáticamente la nota activa',
-                desc: 'Muestra y selecciona automáticamente las notas cuando se abren desde el Conmutador rápido, enlaces o búsqueda.',
+                desc: 'Muestra automáticamente las notas cuando se abren desde el Conmutador rápido, enlaces o búsqueda.',
             },
             autoSelectFirstFileOnFocusChange: {
                 name: 'Seleccionar automáticamente la primera nota al cambiar de carpeta o etiqueta',
-                desc: 'Selecciona y abre automáticamente la primera nota al cambiar de carpeta o etiqueta.',
+                desc: 'Abre automáticamente la primera nota al cambiar de carpeta o etiqueta.',
             },
             autoExpandFoldersTags: {
                 name: 'Expandir carpetas y etiquetas automáticamente',

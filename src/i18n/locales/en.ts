@@ -272,7 +272,7 @@ export const STRINGS_EN = {
         open: 'Open', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealFile: 'Reveal file', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: 'Focus file', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
-        toggleSinglePane: 'Toggle single-pane layout', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle single-pane layout)
+        toggleDualPane: 'Toggle dual pane layout', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
         deleteFile: 'Delete files', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Create new note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Move files', // Command palette: Move selected files to another folder (English: Move files)
@@ -332,17 +332,17 @@ export const STRINGS_EN = {
                 name: 'Show parent folder names',
                 desc: 'Display the parent folder name for notes from subfolders.',
             },
-            singlePane: {
-                name: 'Single-pane layout',
-                desc: 'Switch between navigation and file list in a single pane on desktop.',
+            dualPane: {
+                name: 'Dual pane layout on desktop',
+                desc: 'Show navigation pane and list pane side by side on desktop.',
             },
             autoRevealActiveNote: {
                 name: 'Auto-reveal active note',
-                desc: 'Automatically reveal and select notes when opened from Quick Switcher, links, or search.',
+                desc: 'Automatically reveal notes when opened from Quick Switcher, links, or search.',
             },
             autoSelectFirstFileOnFocusChange: {
                 name: 'Auto-select first note on focus change',
-                desc: 'Automatically select and open the first note when switching folders or tags.',
+                desc: 'Automatically open the first note when switching folders or tags.',
             },
             autoExpandFoldersTags: {
                 name: 'Auto-expand folders and tags',

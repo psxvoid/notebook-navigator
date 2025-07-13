@@ -30,6 +30,7 @@ interface UIState {
     currentSinglePaneView: 'navigation' | 'files';
     paneWidth: number;
     newlyCreatedPath: string | null;
+    dualPane: boolean;
     singlePane: boolean;
 }
 
@@ -82,6 +83,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
             currentSinglePaneView: 'files' as const,
             paneWidth: Math.max(NAVIGATION_PANE_DIMENSIONS.minWidth, paneWidth),
             newlyCreatedPath: null,
+            dualPane: false, // Will be computed later
             singlePane: false // Will be computed later
         };
         
@@ -91,11 +93,15 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
     const [state, dispatch] = useReducer(uiStateReducer, undefined, loadInitialState);
     const { settings } = useSettings();
     
-    // Compute singlePane based on isMobile and settings
-    const stateWithSinglePane = useMemo(() => ({
-        ...state,
-        singlePane: isMobile || settings.singlePane
-    }), [state, isMobile, settings.singlePane]);
+    // Compute dualPane and singlePane based on isMobile and settings
+    const stateWithPaneMode = useMemo(() => {
+        const dualPane = !isMobile && settings.dualPane;
+        return {
+            ...state,
+            dualPane,
+            singlePane: !dualPane
+        };
+    }, [state, isMobile, settings.dualPane]);
     
     // Persist pane width to localStorage
     useEffect(() => {
@@ -108,7 +114,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
     }, [state.paneWidth, isMobile]);
     
     return (
-        <UIStateContext.Provider value={stateWithSinglePane}>
+        <UIStateContext.Provider value={stateWithPaneMode}>
             <UIDispatchContext.Provider value={dispatch}>
                 {children}
             </UIDispatchContext.Provider>

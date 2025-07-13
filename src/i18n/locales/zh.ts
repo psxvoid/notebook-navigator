@@ -272,7 +272,7 @@ export const STRINGS_ZH = {
         open: '打开', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealFile: '显示文件', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: '聚焦文件', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
-        toggleSinglePane: '切换单窗格布局', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle single-pane layout)
+        toggleDualPane: '切换双窗格布局', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
         deleteFile: '删除文件', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '创建新笔记', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: '移动文件', // Command palette: Move selected files to another folder (English: Move files)
@@ -332,17 +332,17 @@ export const STRINGS_ZH = {
                 name: '显示父文件夹名称',
                 desc: '为子文件夹中的笔记显示父文件夹名称。',
             },
-            singlePane: {
-                name: 'Single-pane layout',
-                desc: '在桌面端的单个窗格中切换导航和文件列表。',
+            dualPane: {
+                name: '桌面端双窗格布局',
+                desc: '在桌面端并排显示导航窗格和列表窗格。',
             },
             autoRevealActiveNote: {
                 name: '自动定位活动笔记',
-                desc: '从快速切换器、链接或搜索打开笔记时自动显示并选择。',
+                desc: '从快速切换器、链接或搜索打开笔记时自动显示。',
             },
             autoSelectFirstFileOnFocusChange: {
                 name: '切换文件夹或标签时自动选择第一个笔记',
-                desc: '切换文件夹或标签时自动选择并打开第一个笔记。',
+                desc: '切换文件夹或标签时自动打开第一个笔记。',
             },
             autoExpandFoldersTags: {
                 name: '自动展开文件夹和标签',

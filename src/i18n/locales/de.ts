@@ -272,7 +272,7 @@ export const STRINGS_DE = {
         open: 'Öffnen', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealFile: 'Datei anzeigen', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: 'Datei fokussieren', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
-        toggleSinglePane: 'Einspaltiges Layout umschalten', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle single-pane layout)
+        toggleDualPane: 'Doppelbereichslayout umschalten', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
         deleteFile: 'Dateien löschen', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Neue Notiz erstellen', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Dateien verschieben', // Command palette: Move selected files to another folder (English: Move files)
@@ -332,17 +332,17 @@ export const STRINGS_DE = {
                 name: 'Übergeordnete Ordnernamen anzeigen',
                 desc: 'Den übergeordneten Ordnernamen für Notizen aus Unterordnern anzeigen.',
             },
-            singlePane: {
-                name: 'Single-pane layout',
-                desc: 'Zwischen Navigation und Dateiliste in einer einzelnen Ansicht auf dem Desktop wechseln.',
+            dualPane: {
+                name: 'Doppelbereichslayout auf dem Desktop',
+                desc: 'Navigationsbereich und Listenbereich nebeneinander auf dem Desktop anzeigen.',
             },
             autoRevealActiveNote: {
                 name: 'Aktive Notiz automatisch anzeigen',
-                desc: 'Notizen automatisch anzeigen und auswählen, wenn sie über Schnellauswahl, Links oder Suche geöffnet werden.',
+                desc: 'Notizen automatisch anzeigen, wenn sie über Schnellauswahl, Links oder Suche geöffnet werden.',
             },
             autoSelectFirstFileOnFocusChange: {
                 name: 'Erste Notiz beim Ordner- oder Tag-Wechsel automatisch auswählen',
-                desc: 'Die erste Notiz automatisch auswählen und öffnen, wenn Sie den Ordner oder Tag wechseln.',
+                desc: 'Die erste Notiz automatisch öffnen, wenn Sie den Ordner oder Tag wechseln.',
             },
             autoExpandFoldersTags: {
                 name: 'Ordner und Tags automatisch erweitern',

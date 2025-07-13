@@ -219,11 +219,11 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
         // Layout & Display commands
         this.addCommand({
-            id: 'toggle-single-pane',
-            name: strings.commands.toggleSinglePane,
+            id: 'toggle-dual-pane',
+            name: strings.commands.toggleDualPane,
             callback: async () => {
-                // Toggle the single pane setting
-                this.settings.singlePane = !this.settings.singlePane;
+                // Toggle the dual pane setting
+                this.settings.dualPane = !this.settings.dualPane;
                 await this.saveSettings();
             }
         });
@@ -512,48 +512,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
         
         // Start with default settings
         this.settings = Object.assign({}, DEFAULT_SETTINGS, data || {});
-        
-        // Migrate old featureImageProperty to new featureImageProperties
-        // TODO: Remove this migration code in a future version
-        if (data && data.featureImageProperty && !data.featureImageProperties) {
-            this.settings.featureImageProperties = [data.featureImageProperty];
-        }
-        
-        // Migrate string settings to arrays
-        // TODO: Remove this migration code in a future version
-        if (data) {
-            // Migrate excludedFolders from string to array
-            if (typeof data.excludedFolders === 'string') {
-                this.settings.excludedFolders = data.excludedFolders
-                    .split(',')
-                    .map((folder: string) => folder.trim())
-                    .filter((folder: string) => folder.length > 0);
-            }
-            
-            // Migrate excludedFiles from string to array
-            if (typeof data.excludedFiles === 'string') {
-                this.settings.excludedFiles = data.excludedFiles
-                    .split(',')
-                    .map((file: string) => file.trim())
-                    .filter((file: string) => file.length > 0);
-            }
-            
-            // Migrate favoriteTags from string to array
-            if (typeof data.favoriteTags === 'string') {
-                this.settings.favoriteTags = data.favoriteTags
-                    .split(',')
-                    .map((tag: string) => tag.trim())
-                    .filter((tag: string) => tag.length > 0);
-            }
-            
-            // Migrate hiddenTags from string to array
-            if (typeof data.hiddenTags === 'string') {
-                this.settings.hiddenTags = data.hiddenTags
-                    .split(',')
-                    .map((tag: string) => tag.trim())
-                    .filter((tag: string) => tag.length > 0);
-            }
-        }
         
         // On first launch, set language-specific date/time formats
         if (isFirstLaunch || !data?.dateFormat) {

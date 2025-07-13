@@ -422,13 +422,13 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                     <>
                         <button
                             className="nn-icon-button"
-                            aria-label={settings.singlePane ? strings.paneHeader.showDualPane : strings.paneHeader.showSinglePane}
+                            aria-label={settings.dualPane ? strings.paneHeader.showSinglePane : strings.paneHeader.showDualPane}
                             onClick={() => {
-                                updateSettings((s) => { s.singlePane = !s.singlePane; });
+                                updateSettings((s) => { s.dualPane = !s.dualPane; });
                             }}
                             tabIndex={-1}
                         >
-                            <ObsidianIcon name="sidebar-left" />
+                            <ObsidianIcon name={settings.dualPane ? "panel-left-close" : "panel-right-open"} />
                         </button>
                         <div className="nn-header-actions">
                             <button

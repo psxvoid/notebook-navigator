@@ -3,8 +3,8 @@
 Notebook Navigator is an Obsidian plugin that replaces the default file explorer with a modern, Notes-style interface. It features a clean, two-pane layout with a folder and tag tree on the left and a virtualized file list on the right, similar to apps like Apple Notes.
 
 ## Core Features
-- **Two-Pane Layout**: Resizable folder/tag tree on the left, virtualized file list on the right
-- **Single-Pane Mode**: Optional for desktop/mobile, switches between navigation and file views
+- **Dual-Pane Layout**: Resizable folder/tag tree on the left, virtualized file list on the right (desktop default)
+- **Single-Pane Mode**: Clean interface switching between navigation and file views (mobile default, optional on desktop)
 - **Mobile Support**: Touch-optimized with swipe gestures
 - **Virtualized Lists**: High-performance rendering using TanStack Virtual
 - **File Previews**: Stripped markdown previews and frontmatter feature images
@@ -72,6 +72,24 @@ src/
 - **Deferred Init**: Uses `requestIdleCallback` for non-critical operations
 - **Mobile Scroll**: Preserves momentum during virtualization
 
+### Single/Dual Pane Architecture
+
+**Single-pane is the internal standard**: The codebase treats single-pane as the base mode, with dual-pane as an enhancement:
+- `singlePane` computed as `!dualPane` - always true on mobile or when dual-pane is disabled
+- `dualPane` computed as `!isMobile && settings.dualPane` - only true on desktop with setting enabled
+- Components check `if (uiState.singlePane)` to handle view switching
+- Navigation actions automatically switch to files view in single-pane mode
+
+**UIState Properties**:
+- `currentSinglePaneView`: Controls which view ('navigation' or 'files') is shown in single-pane mode
+- `focusedPane`: Tracks which pane has focus in both modes
+- NOT two separate state objects - one unified state with computed `singlePane`/`dualPane` properties
+
+**CSS Architecture**:
+- Desktop single-pane: Uses visibility toggling (`.show-navigation` / `.show-files`)
+- Mobile single-pane: Uses transform animations for smooth transitions
+- Dual-pane: Standard side-by-side layout with resizable divider
+
 ### State Management
 
 | Context | Purpose | Key State |
@@ -79,7 +97,7 @@ src/
 | **SettingsContext** | Global settings with version tracking | Plugin settings, version counter |
 | **SelectionContext** | File/folder selection & navigation | selectedFolder, selectedFiles Set, cursor position |
 | **ExpansionContext** | Tree expansion state | expandedFolders/Tags Sets |
-| **UIStateContext** | UI behavior | focusedPane, paneWidth, singlePaneView |
+| **UIStateContext** | UI behavior | focusedPane, paneWidth, currentSinglePaneView, dualPane, singlePane |
 | **TagCacheContext** | Tag tree performance | Cached tag data, loading states |
 | **ServicesContext** | Dependency injection | FileSystemService, MetadataService |
 
@@ -144,3 +162,5 @@ element.className = 'nn-drag-count-badge';
 - ALWAYS use sentence case for UI text
 - NEVER assume a problem is fixed unless user has tested that it works
 - NEVER add comments to code describing the change you did
+- ALWAYS run `./scripts/build.sh` after making code changes
+- ALWAYS use `uiState.dualPane` instead of `!uiState.singlePane` for clarity and correctness

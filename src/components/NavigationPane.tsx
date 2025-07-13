@@ -360,7 +360,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     }), [pathToIndex, rowVirtualizer]);
 
     // Determine if navigation pane is visible
-    const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'navigation';
+    const isVisible = uiState.dualPane || uiState.currentSinglePaneView === 'navigation';
     
     // Memoize the getSelectionIndex function to prevent the useVisibilityReveal effect
     // from re-running on every render. Without this, the effect would constantly
@@ -372,15 +372,13 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         return -1;
     }, [selectedPath, pathToIndex]);
     
-    // Use visibility-based reveal with scroll position preservation
+    // Use visibility-based reveal
     useVisibilityReveal({
         getSelectionIndex,
         virtualizer: rowVirtualizer,
         isVisible,
         isMobile,
-        isRevealOperation: selectionState.isRevealOperation,
-        preserveScrollOnHide: true,  // Enable scroll position preservation
-        scrollContainerRef  // Pass the ref directly
+        isRevealOperation: selectionState.isRevealOperation
     });
     
     // Add keyboard navigation
@@ -399,6 +397,23 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     
     // Handle folder click
     const handleFolderClick = useCallback((folder: TFolder) => {
+        // Check if clicking the same folder
+        const isSameFolder = selectionState.selectionType === 'folder' && 
+                           selectionState.selectedFolder && 
+                           selectionState.selectedFolder.path === folder.path;
+        
+        // If clicking the same folder, just handle view switching
+        if (isSameFolder) {
+            if (uiState.singlePane) {
+                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+            } else {
+                // In dual-pane mode, still need to set focus
+                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+            }
+            return;
+        }
+        
         // Normal folder selection behavior
         selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
         
@@ -419,7 +434,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             // In dual-pane mode, keep focus on folders
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
         }
-    }, [selectionDispatch, uiDispatch, uiState.singlePane, settings.autoExpandFoldersTags, expansionState.expandedFolders, expansionDispatch]);
+    }, [selectionDispatch, uiDispatch, uiState.singlePane, settings.autoExpandFoldersTags, expansionState.expandedFolders, expansionDispatch, selectionState.selectedFolder]);
     
     // Handle folder name click (for folder notes)
     const handleFolderNameClick = useCallback((folder: TFolder) => {
@@ -462,6 +477,23 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     
     // Handle tag click
     const handleTagClick = useCallback((tagPath: string) => {
+        // Check if clicking the same tag
+        const isSameTag = selectionState.selectionType === 'tag' && 
+                         selectionState.selectedTag && 
+                         selectionState.selectedTag === tagPath;
+        
+        // If clicking the same tag, just handle view switching
+        if (isSameTag) {
+            if (uiState.singlePane) {
+                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+            } else {
+                // In dual-pane mode, still need to set focus
+                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+            }
+            return;
+        }
+        
         selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
         
         // Auto-expand if enabled and tag has children
@@ -485,7 +517,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             // In dual-pane mode, keep focus on folders
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
         }
-    }, [selectionDispatch, uiDispatch, uiState.singlePane, settings.autoExpandFoldersTags, tagTree, expansionState.expandedTags, expansionDispatch]);
+    }, [selectionDispatch, uiDispatch, uiState.singlePane, settings.autoExpandFoldersTags, tagTree, expansionState.expandedTags, expansionDispatch, selectionState.selectedTag]);
     
     // Scroll to top handler for mobile header click
     const handleScrollToTop = useCallback(() => {

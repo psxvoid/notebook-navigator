@@ -25,10 +25,10 @@ To a modern, Notes-style interface like this:
 ## Features
 
 ### Core Interface
-- **Two-pane layout** - Navigation pane (folders and tags) on left, list pane (notes) on right
-- **Single-pane layout** - Optional single-pane mode for both desktop and mobile, switching between navigation and file list
+- **Dual-pane layout** - Navigation pane (folders and tags) on left, list pane (notes) on right (desktop default)
+- **Single-pane layout** - Clean interface switching between navigation and file list (mobile, optional on desktop)
 - **Mobile optimized** - Touch gestures and responsive interface
-- **Theme support** - Seamlessly matches your Obsidian theme
+- **Theme support** - Matches your Obsidian theme
 - **Multi-language support** - Available in English, German, Spanish, French, Japanese, and Chinese Simplified
 - **RTL language support** - Full support for right-to-left languages with proper layout mirroring and navigation
 
@@ -105,7 +105,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Focus file` Moves keyboard focus to the file list pane so you can navigate with arrow keys
 
 **Layout & Display**
-- `Notebook Navigator: Toggle single-pane layout` Toggles between single-pane and dual-pane layout on desktop
+- `Notebook Navigator: Toggle dual pane layout` Toggles between single-pane and dual-pane layout on desktop
 - `Notebook Navigator: Toggle show notes from subfolders` Toggles showing notes from subfolders
 
 **File Operations**
@@ -316,25 +316,27 @@ If you have any questions, suggestions, or issues, please open an issue on the [
 
 ## Development
 
-### Built with Modern React Architecture
+### Built for Production
 
-Notebook Navigator is built using React and TypeScript, providing:
+Notebook Navigator is built for reliability and performance with vaults containing thousands of notes:
 
-- **Lightning-fast performance** with React's virtual DOM and optimized rendering
-- **Virtualization** powered by TanStack Virtual for smooth scrolling with thousands of notes
-- **Modular architecture** with reusable components and custom hooks
-- **Complete type safety** with TypeScript strict mode - no `any` or `unknown` types allowed
-- **Smart state management** using React Context API for predictable updates
-- **Automatic memory cleanup** preventing leaks with proper lifecycle management
-- **Performance optimizations** including tag caching, deferred initialization, and mobile scroll momentum preservation
+**Robust Architecture**
+- **Type-safe codebase**: Comprehensive TypeScript with complete type coverage - no `any` or `unknown` types
+- **Memory-safe**: Automatic cleanup of event listeners, observers, and React components prevents memory leaks
+- **Data integrity**: Promise queue serializes critical operations, preventing conflicts during rapid file operations
+- **Stable UI**: Error boundaries keep the interface responsive if individual operations encounter issues
 
-### Architecture Highlights
+**Performance at Scale**
+- **Handles 10,000+ notes**: TanStack Virtual renders only visible items, keeping scrolling smooth in large vaults
+- **Instant startup**: Tag tree caching shows UI immediately while loading data in the background
+- **Mobile-optimized**: Preserves scroll momentum and uses touch-optimized event handling
+- **Smart caching**: Multi-layer caching minimizes disk operations and API calls
 
-- **No any/unknown types**: The codebase has been completely refactored to eliminate all `any` and `unknown` types, using specific types, discriminated unions, and type guards throughout
-- **Promise queue**: MetadataService uses a promise queue to serialize all settings updates, preventing race conditions during rapid file operations
-- **Tag tree caching**: Sophisticated caching system stores tag data in localStorage for instant UI display on startup, with background diffing for changes
-- **Deferred initialization**: Uses `requestIdleCallback` to defer non-critical operations, showing UI immediately and enhancing progressively
-- **Type guards over assertions**: Uses runtime type checking with `isTFile()` and `isTFolder()` instead of type assertions to satisfy Obsidian's review requirements
+**Obsidian Compliance**
+- **Plugin store approved**: Meets all Obsidian security and quality requirements
+- **Safe file operations**: Uses only approved Obsidian APIs with proper error handling
+- **Theme compatible**: Respects user themes with CSS variables and semantic classes
+- **Cross-platform tested**: Verified on Windows, macOS, Linux, iOS, and Android
 
 ### Building from Source
 

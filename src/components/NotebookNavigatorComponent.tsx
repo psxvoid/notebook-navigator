@@ -194,32 +194,32 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     // Track if initial visibility check has been performed
     const hasCheckedInitialVisibility = useRef(false);
     
-    // Handle side effects when singlePane setting changes
+    // Handle side effects when dualPane setting changes
     useEffect(() => {
-        if (!isMobile && settings.singlePane) {
-            // When enabling single pane mode, switch to files view and focus it
+        if (!isMobile && !settings.dualPane) {
+            // When disabling dual pane mode, switch to files view and focus it
             uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         }
-    }, [settings.singlePane, isMobile, uiDispatch]);
+    }, [settings.dualPane, isMobile, uiDispatch]);
     
     // Container ref callback that checks if file list is visible on first mount
     const containerCallbackRef = useCallback((node: HTMLDivElement | null) => {
         containerRef.current = node;
         
-        // Auto-enable single pane mode on startup if viewport is too narrow for both panes
-        if (node && !isMobile && !hasCheckedInitialVisibility.current && !settings.singlePane) {
+        // Auto-disable dual pane mode on startup if viewport is too narrow for both panes
+        if (node && !isMobile && !hasCheckedInitialVisibility.current && settings.dualPane) {
             hasCheckedInitialVisibility.current = true;
             
             const containerWidth = node.getBoundingClientRect().width;
             // Check if container is too narrow to show both panes
             if (containerWidth < paneWidth + FILE_PANE_DIMENSIONS.minWidth) {
                 updateSettings((settings) => {
-                    settings.singlePane = true;
+                    settings.dualPane = false;
                 });
             }
         }
-    }, [isMobile, paneWidth, settings.singlePane, updateSettings]);
+    }, [isMobile, paneWidth, settings.dualPane, updateSettings]);
 
     // Determine CSS classes
     const containerClasses = ['nn-split-container'];

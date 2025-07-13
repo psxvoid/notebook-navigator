@@ -272,7 +272,7 @@ export const STRINGS_JA = {
         open: '開く', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealFile: 'ファイルを表示', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: 'ファイルにフォーカス', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
-        toggleSinglePane: 'シングルペインレイアウトを切り替え', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle single-pane layout)
+        toggleDualPane: 'デュアルペインレイアウトを切り替え', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
         deleteFile: 'ファイルを削除', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '新規ノートを作成', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'ファイルを移動', // Command palette: Move selected files to another folder (English: Move files)
@@ -332,17 +332,17 @@ export const STRINGS_JA = {
                 name: '親フォルダ名を表示',
                 desc: 'サブフォルダのノートに親フォルダ名を表示します。',
             },
-            singlePane: {
-                name: 'Single-pane layout',
-                desc: 'デスクトップで単一ペインでナビゲーションとファイルリストを切り替えます。',
+            dualPane: {
+                name: 'デスクトップでのデュアルペインレイアウト',
+                desc: 'デスクトップでナビゲーションペインとリストペインを並べて表示します。',
             },
             autoRevealActiveNote: {
                 name: 'アクティブなノートを自動表示',
-                desc: 'クイックスイッチャー、リンク、検索から開いたときに自動的にノートを表示して選択します。',
+                desc: 'クイックスイッチャー、リンク、検索から開いたときに自動的にノートを表示します。',
             },
             autoSelectFirstFileOnFocusChange: {
                 name: 'フォルダまたはタグ変更時に最初のノートを自動選択',
-                desc: 'フォルダまたはタグを切り替えた際に自動的に最初のノートを選択して開きます。',
+                desc: 'フォルダまたはタグを切り替えた際に自動的に最初のノートを開きます。',
             },
             autoExpandFoldersTags: {
                 name: 'フォルダとタグを自動展開',

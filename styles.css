@@ -1477,16 +1477,16 @@ body.nn-resizing {
 /* Desktop single-pane mode styles */
 /* Desktop single-pane - show navigation view (hide files) */
 .nn-desktop-single-pane.show-navigation .nn-file-pane {
-    visibility: hidden;
     position: absolute;
-    pointer-events: none;
+    contain: strict;  /* Prevent layout/paint when hidden */
+    content-visibility: hidden;  /* Modern optimization */
 }
 
 /* Desktop single-pane - show files view (hide navigation) */
 .nn-desktop-single-pane.show-files .nn-navigation-pane {
-    visibility: hidden;
     position: absolute;
-    pointer-events: none;
+    contain: strict;  /* Prevent layout/paint when hidden */
+    content-visibility: hidden;  /* Modern optimization */
 }
 
 /* Disable drag and drop cursors on mobile */

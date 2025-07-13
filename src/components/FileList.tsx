@@ -594,15 +594,13 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         return -1;
     }, [selectedFilePath, filePathToIndex, listItems]);
     
-    // Use visibility-based reveal with scroll position preservation
+    // Use visibility-based reveal
     useVisibilityReveal({
         getSelectionIndex,
         virtualizer: rowVirtualizer,
         isVisible,
         isMobile,
-        isRevealOperation: selectionState.isRevealOperation,
-        preserveScrollOnHide: true,  // Enable scroll position preservation
-        scrollContainerRef  // Pass the ref directly
+        isRevealOperation: selectionState.isRevealOperation
     });
     
     // Add keyboard navigation
