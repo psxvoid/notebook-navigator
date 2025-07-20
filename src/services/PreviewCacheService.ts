@@ -18,7 +18,7 @@
 
 import { App, TFile } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
-import { PreviewTextUtils } from '../utils/PreviewTextUtils';
+import { PreviewTextUtils } from '../utils/previewTextUtils';
 import { findFileInCache } from '../utils/fileCacheUtils';
 import { FileCache, CacheNode, isFileData, GENERATED_FLAGS } from '../types/cache';
 import { isImageFile } from '../utils/fileTypeUtils';
