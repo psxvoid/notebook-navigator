@@ -16,38 +16,20 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, TFolder, App, MetadataCache, getAllTags } from 'obsidian';
-import { NotebookNavigatorSettings, SortOption } from '../settings';
+import { TFile, TFolder, App, getAllTags } from 'obsidian';
+import { NotebookNavigatorSettings } from '../settings';
 import { isTFile, isTFolder } from './typeGuards';
-import { parseExcludedProperties, shouldExcludeFile } from './fileFilters';
+import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders, shouldExcludeFolder } from './fileFilters';
 import { getEffectiveSortOption, sortFiles } from './sortUtils';
-import { buildTagTree, findTagNode, collectAllTagPaths } from './tagUtils';
-import { UNTAGGED_TAG_ID, isSupportedFileExtension } from '../types';
+import { buildTagTree, findTagNode, collectAllTagPaths } from './tagTreeUtils';
+import { UNTAGGED_TAG_ID } from '../types';
 import { shouldDisplayFile, FILE_VISIBILITY } from './fileTypeUtils';
 
-/**
- * Checks if a file is a folder note for the given folder
- */
-export function isFolderNote(file: TFile, folder: TFolder, folderNoteName: string): boolean {
-    // Must be directly in the folder
-    if (file.parent?.path !== folder.path) {
-        return false;
-    }
-    
-    // Only markdown files can be folder notes
-    if (file.extension !== 'md') {
-        return false;
-    }
-    
-    // If folderNoteName is empty, use the folder name
-    const expectedName = folderNoteName || folder.name;
-    return file.basename === expectedName;
-}
 
 /**
  * Gets the folder note for a folder if it exists
  */
-export function getFolderNote(folder: TFolder, settings: NotebookNavigatorSettings, app: App): TFile | null {
+export function getFolderNote(folder: TFolder, settings: NotebookNavigatorSettings, _app: App): TFile | null {
     if (!settings.enableFolderNotes) {
         return null;
     }
@@ -55,58 +37,30 @@ export function getFolderNote(folder: TFolder, settings: NotebookNavigatorSettin
     // Look for the folder note in the folder
     for (const child of folder.children) {
         // Only check files, not folders
-        if (isTFile(child) && isFolderNote(child, folder, settings.folderNoteName)) {
-            return child;
+        if (isTFile(child)) {
+            // Check if file is a folder note
+            // Must be directly in the folder
+            if (child.parent?.path !== folder.path) {
+                continue;
+            }
+            
+            // Only markdown files can be folder notes
+            if (child.extension !== 'md') {
+                continue;
+            }
+            
+            // If folderNoteName is empty, use the folder name
+            const expectedName = settings.folderNoteName || folder.name;
+            if (child.basename === expectedName) {
+                return child;
+            }
         }
     }
     
     return null;
 }
 
-/**
- * Collects files from a folder and optionally its subfolders
- */
-export function collectFilesFromFolder(folder: TFolder, includeSubfolders: boolean, settings: NotebookNavigatorSettings, app: App): TFile[] {
-    const files: TFile[] = [];
-    
-    const collectFiles = (f: TFolder): void => {
-        for (const child of f.children) {
-            if (isTFile(child)) {
-                // Check if file should be displayed based on visibility setting
-                if (shouldDisplayFile(child, settings.fileVisibility, app)) {
-                    files.push(child);
-                }
-            } else if (includeSubfolders && isTFolder(child)) {
-                collectFiles(child);
-            }
-        }
-    };
-    
-    collectFiles(folder);
-    return files;
-}
 
-/**
- * Separates files into pinned and unpinned arrays based on pinned paths
- */
-export function separatePinnedFiles(files: TFile[], pinnedPaths: Set<string>): TFile[] {
-    if (pinnedPaths.size === 0) {
-        return files;
-    }
-    
-    const pinnedFiles: TFile[] = [];
-    const unpinnedFiles: TFile[] = [];
-    
-    for (const file of files) {
-        if (pinnedPaths.has(file.path)) {
-            pinnedFiles.push(file);
-        } else {
-            unpinnedFiles.push(file);
-        }
-    }
-    
-    return [...pinnedFiles, ...unpinnedFiles];
-}
 
 /**
  * Collects all pinned note paths from settings
@@ -158,25 +112,74 @@ export function getFilesForFolder(
 ): TFile[] {
     const excludedProperties = parseExcludedProperties(settings.excludedFiles);
     
-    let allFiles = collectFilesFromFolder(folder, settings.showNotesFromSubfolders, settings, app)
-        .filter(file => !shouldExcludeFile(file, excludedProperties, app));
+    // Collect files from folder
+    const files: TFile[] = [];
+    const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
+    
+    const collectFiles = (f: TFolder): void => {
+        for (const child of f.children) {
+            if (isTFile(child)) {
+                // Check if file should be displayed based on visibility setting
+                if (shouldDisplayFile(child, settings.fileVisibility, app)) {
+                    files.push(child);
+                }
+            } else if (settings.showNotesFromSubfolders && isTFolder(child)) {
+                // Skip excluded folders when collecting files
+                if (excludedFolderPatterns.length === 0 || !shouldExcludeFolder(child.name, excludedFolderPatterns)) {
+                    collectFiles(child);
+                }
+            }
+        }
+    };
+    
+    collectFiles(folder);
+    let allFiles = files.filter(file => !shouldExcludeFile(file, excludedProperties, app));
     
     // Filter out folder notes if enabled and set to hide
     if (settings.enableFolderNotes && settings.hideFolderNoteInList) {
         allFiles = allFiles.filter(file => {
             // Check if this file is a folder note for its parent folder
             if (file.parent && isTFolder(file.parent)) {
-                return !isFolderNote(file, file.parent, settings.folderNoteName);
+                // Must be directly in the folder
+                if (file.parent?.path !== file.parent.path) {
+                    return true;
+                }
+                
+                // Only markdown files can be folder notes
+                if (file.extension !== 'md') {
+                    return true;
+                }
+                
+                // If folderNoteName is empty, use the folder name
+                const expectedName = settings.folderNoteName || file.parent.name;
+                return file.basename !== expectedName;
             }
             return true;
         });
     }
     
     const sortOption = getEffectiveSortOption(settings, 'folder', folder);
-    sortFiles(allFiles, sortOption, settings, app.metadataCache);
+    sortFiles(allFiles, sortOption);
     
     const pinnedPaths = collectPinnedPaths(settings.pinnedNotes, folder, settings.showNotesFromSubfolders);
-    const sortedFiles = separatePinnedFiles(allFiles, pinnedPaths);
+    // Separate pinned and unpinned files
+    let sortedFiles: TFile[];
+    if (pinnedPaths.size === 0) {
+        sortedFiles = allFiles;
+    } else {
+        const pinnedFiles: TFile[] = [];
+        const unpinnedFiles: TFile[] = [];
+        
+        for (const file of allFiles) {
+            if (pinnedPaths.has(file.path)) {
+                pinnedFiles.push(file);
+            } else {
+                unpinnedFiles.push(file);
+            }
+        }
+        
+        sortedFiles = [...pinnedFiles, ...unpinnedFiles];
+    }
 
     return sortedFiles;
 }
@@ -257,9 +260,25 @@ export function getFilesForTag(
     
     // Sort files
     const sortOption = getEffectiveSortOption(settings, 'tag', null, tag);
-    sortFiles(filteredFiles, sortOption, settings, app.metadataCache);
+    sortFiles(filteredFiles, sortOption);
     
     // Handle pinned notes - for tag view, collect ALL pinned notes from all folders
     const pinnedPaths = collectPinnedPaths(settings.pinnedNotes);
-    return separatePinnedFiles(filteredFiles, pinnedPaths);
+    // Separate pinned and unpinned files
+    if (pinnedPaths.size === 0) {
+        return filteredFiles;
+    } else {
+        const pinnedFiles: TFile[] = [];
+        const unpinnedFiles: TFile[] = [];
+        
+        for (const file of filteredFiles) {
+            if (pinnedPaths.has(file.path)) {
+                pinnedFiles.push(file);
+            } else {
+                unpinnedFiles.push(file);
+            }
+        }
+        
+        return [...pinnedFiles, ...unpinnedFiles];
+    }
 }

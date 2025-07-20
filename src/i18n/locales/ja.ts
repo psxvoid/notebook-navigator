@@ -32,8 +32,8 @@ export const STRINGS_JA = {
         featureImageAlt: 'アイキャッチ画像', // Alt text for thumbnail/preview images (English: Feature image)
     },
 
-    // File list
-    fileList: {
+    // List pane
+    listPane: {
         emptyStateNoSelection: 'フォルダまたはタグを選択してノートを表示', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'ノートなし', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 ピン留め', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
@@ -95,6 +95,19 @@ export const STRINGS_JA = {
             deleteMultipleNotes: '{count}個のノートを削除',
             moveToFolder: 'Move to...',
             moveMultipleToFolder: 'Move {count} files to...',
+            // File-specific context menu items (non-markdown files)
+            openMultipleFilesInNewTabs: '{count}個のファイルを新しいタブで開く',
+            openMultipleFilesToRight: '{count}個のファイルを右側で開く',
+            openMultipleFilesInNewWindows: '{count}個のファイルを新しいウィンドウで開く',
+            pinFile: 'ファイルをピン留め',
+            unpinFile: 'ピン留めを解除',
+            pinMultipleFiles: '{count}個のファイルをピン留め',
+            unpinMultipleFiles: '{count}個のファイルのピン留めを解除',
+            duplicateFile: 'ファイルを複製',
+            duplicateMultipleFiles: '{count}個のファイルを複製',
+            renameFile: 'ファイルの名前を変更',
+            deleteFile: 'ファイルを削除',
+            deleteMultipleFiles: '{count}個のファイルを削除',
         },
         folder: {
             newNote: '新規ノートを作成',
@@ -129,6 +142,7 @@ export const STRINGS_JA = {
             emptyStateSearch: '入力してアイコンを検索',
             emptyStateNoResults: 'アイコンが見つかりません',
             showingResultsInfo: '{count}件中50件を表示中。絞り込むには続けて入力してください。',
+            emojiInstructions: '絵文字を入力または貼り付けてアイコンとして使用',
         },
         colorPicker: {
             header: 'フォルダの色を選択',
@@ -187,6 +201,15 @@ export const STRINGS_JA = {
             instructions: {
                 navigate: 'でナビゲート',
                 move: 'で移動',
+                select: 'で選択',
+                dismiss: 'でキャンセル',
+            },
+        },
+        tagSuggest: {
+            placeholder: 'タグを検索...',
+            navigatePlaceholder: 'タグにナビゲート...',
+            instructions: {
+                navigate: 'でナビゲート',
                 select: 'で選択',
                 dismiss: 'でキャンセル',
             },
@@ -277,6 +300,7 @@ export const STRINGS_JA = {
         createNewNote: '新規ノートを作成', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'ファイルを移動', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'フォルダにナビゲート', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
+        navigateToTag: 'タグにナビゲート', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: 'サブフォルダのノート表示を切り替え', // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
     },
 
@@ -333,7 +357,7 @@ export const STRINGS_JA = {
                 desc: 'サブフォルダのノートに親フォルダ名を表示します。',
             },
             dualPane: {
-                name: 'デスクトップでのデュアルペインレイアウト',
+                name: 'デュアルペインレイアウト（デスクトップのみ）',
                 desc: 'デスクトップでナビゲーションペインとリストペインを並べて表示します。',
             },
             autoRevealActiveNote: {
@@ -341,7 +365,7 @@ export const STRINGS_JA = {
                 desc: 'クイックスイッチャー、リンク、検索から開いたときに自動的にノートを表示します。',
             },
             autoSelectFirstFileOnFocusChange: {
-                name: 'フォルダまたはタグ変更時に最初のノートを自動選択',
+                name: '最初のノートを自動選択（デスクトップのみ）',
                 desc: 'フォルダまたはタグを切り替えた際に自動的に最初のノートを開きます。',
             },
             autoExpandFoldersTags: {
@@ -349,7 +373,7 @@ export const STRINGS_JA = {
                 desc: 'フォルダやタグを選択した際に自動的に展開します。',
             },
             showTooltips: {
-                name: 'ツールチップを表示',
+                name: 'ツールチップを表示（デスクトップのみ）',
                 desc: 'ノートとフォルダの追加情報をホバー時にツールチップで表示します。',
             },
             excludedNotes: {
@@ -396,6 +420,10 @@ export const STRINGS_JA = {
             skipHeadingsInPreview: {
                 name: 'プレビューで見出しをスキップ',
                 desc: 'プレビューテキスト生成時に見出し行をスキップします。',
+            },
+            skipTextBeforeFirstHeading: {
+                name: 'Skip text before first heading',
+                desc: 'Hide content before the first heading in note preview.',
             },
             skipNonTextInPreview: {
                 name: 'プレビューで非テキストをスキップ',
@@ -534,6 +562,17 @@ export const STRINGS_JA = {
                 desc: 'ノートブックナビゲーターを愛用していただいている場合は、継続的な開発をサポートすることをご検討ください。',
                 buttonText: '❤️ GitHubでスポンサーになる',
             },
+            whatsNew: {
+                name: "What's new",
+                desc: 'See recent updates and improvements',
+                buttonText: 'View recent updates',
+            },
         },
+    },
+    whatsNew: {
+        title: 'What\'s new in Notebook Navigator',
+        supportMessage: 'If you find Notebook Navigator helpful, please consider supporting its development.',
+        supportButton: '❤️ Support',
+        thanksButton: 'Thanks!',
     },
 };

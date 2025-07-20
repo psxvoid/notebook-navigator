@@ -19,7 +19,6 @@
 import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
 import NotebookNavigatorPlugin from './main';
 import { strings } from './i18n';
-import { shouldShowDateGrouping } from './utils/sortUtils';
 import { FileVisibility, FILE_VISIBILITY } from './utils/fileTypeUtils';
 
 /**
@@ -81,6 +80,7 @@ export interface NotebookNavigatorSettings {
     dateFormat: string;
     timeFormat: string;
     // Notes
+    useFrontmatterMetadata: boolean;
     frontmatterNameField: string;
     frontmatterCreatedField: string;
     frontmatterModifiedField: string;
@@ -88,12 +88,12 @@ export interface NotebookNavigatorSettings {
     fileNameRows: number;
     showDate: boolean;
     showFilePreview: boolean;
-    skipHeadingsInPreview: boolean;
     skipNonTextInPreview: boolean;
+    skipHeadingsInPreview: boolean;
+    skipTextBeforeFirstHeading: boolean;
     previewRows: number;
     showFeatureImage: boolean;
     featureImageProperties: string[];
-    useFrontmatterDates: boolean;
     // Advanced
     confirmBeforeDelete: boolean;
     // Internal
@@ -105,6 +105,7 @@ export interface NotebookNavigatorSettings {
     tagColors: Record<string, string>;
     tagSortOverrides: Record<string, SortOption>;
     recentlyUsedIcons: string[];
+    lastShownVersion: string;
 }
 
 /**
@@ -147,6 +148,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     dateFormat: 'MMM d, yyyy',
     timeFormat: 'h:mm a',
     // Notes
+    useFrontmatterMetadata: false,
     frontmatterNameField: '',
     frontmatterCreatedField: 'created',
     frontmatterModifiedField: 'modified',
@@ -154,12 +156,12 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     fileNameRows: 1,
     showDate: true,
     showFilePreview: true,
-    skipHeadingsInPreview: false,
     skipNonTextInPreview: true,
+    skipHeadingsInPreview: false,
+    skipTextBeforeFirstHeading: false,
     previewRows: 1,
     showFeatureImage: true,
     featureImageProperties: ['featureResized', 'feature'],
-    useFrontmatterDates: false,
     // Advanced
     confirmBeforeDelete: true,
     // Internal
@@ -170,7 +172,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     tagIcons: {},
     tagColors: {},
     tagSortOverrides: {},
-    recentlyUsedIcons: []
+    recentlyUsedIcons: [],
+    lastShownVersion: ''
 }
 
 /**
@@ -214,7 +217,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         placeholder: string,
         getValue: () => string,
         setValue: (value: string) => void,
-        refreshView: boolean = true,
+        _refreshView: boolean = true,
         validator?: (value: string) => boolean
     ): Setting {
         return new Setting(container)
@@ -430,7 +433,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                 }));
 
-        const enableFolderNotesSetting = new Setting(containerEl)
+        new Setting(containerEl)
             .setName(strings.settings.items.enableFolderNotes.name)
             .setDesc(strings.settings.items.enableFolderNotes.desc)
             .addToggle(toggle => toggle
@@ -469,7 +472,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .setName(strings.settings.sections.tags)
             .setHeading();
 
-        const showTagsSetting = new Setting(containerEl)
+        new Setting(containerEl)
             .setName(strings.settings.items.showTags.name)
             .setDesc(strings.settings.items.showTags.desc)
             .addToggle(toggle => toggle
@@ -579,7 +582,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .setName(strings.settings.sections.listPane)
             .setHeading();
 
-        const sortSetting = new Setting(containerEl)
+        new Setting(containerEl)
             .setName(strings.settings.items.sortNotesBy.name)
             .setDesc(strings.settings.items.sortNotesBy.desc)
             .addDropdown(dropdown => dropdown
@@ -605,7 +608,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                 }));
 
-        const showNotesFromSubfoldersToggle = new Setting(containerEl)
+        new Setting(containerEl)
             .setName(strings.settings.items.showNotesFromSubfolders.name)
             .setDesc(strings.settings.items.showNotesFromSubfolders.desc)
             .addToggle(toggle => toggle
@@ -666,13 +669,13 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .setName(strings.settings.sections.notes)
             .setHeading();
 
-        const useFrontmatterDatesSetting = new Setting(containerEl)
+        new Setting(containerEl)
             .setName(strings.settings.items.useFrontmatterDates.name)
             .setDesc(strings.settings.items.useFrontmatterDates.desc)
             .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.useFrontmatterDates)
+                .setValue(this.plugin.settings.useFrontmatterMetadata)
                 .onChange(async (value) => {
-                    this.plugin.settings.useFrontmatterDates = value;
+                    this.plugin.settings.useFrontmatterMetadata = value;
                     await this.saveAndRefresh();
                     this.setElementVisibility(frontmatterSettingsEl, value);
                 }));
@@ -733,7 +736,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                 }));
 
-        const showDateSetting = new Setting(containerEl)
+        new Setting(containerEl)
             .setName(strings.settings.items.showDate.name)
             .setDesc(strings.settings.items.showDate.desc)
             .addToggle(toggle => toggle
@@ -743,7 +746,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                 }));
 
-        const showPreviewSetting = new Setting(containerEl)
+        new Setting(containerEl)
             .setName(strings.settings.items.showFilePreview.name)
             .setDesc(strings.settings.items.showFilePreview.desc)
             .addToggle(toggle => toggle
@@ -758,6 +761,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         const previewSettingsEl = containerEl.createDiv('nn-sub-settings');
 
         new Setting(previewSettingsEl)
+            .setName(strings.settings.items.skipNonTextInPreview.name)
+            .setDesc(strings.settings.items.skipNonTextInPreview.desc)
+            .addToggle(toggle => toggle
+                .setValue(this.plugin.settings.skipNonTextInPreview)
+                .onChange(async (value) => {
+                    this.plugin.settings.skipNonTextInPreview = value;
+                    await this.saveAndRefresh();
+                }));
+
+        new Setting(previewSettingsEl)
             .setName(strings.settings.items.skipHeadingsInPreview.name)
             .setDesc(strings.settings.items.skipHeadingsInPreview.desc)
             .addToggle(toggle => toggle
@@ -766,14 +779,14 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     this.plugin.settings.skipHeadingsInPreview = value;
                     await this.saveAndRefresh();
                 }));
-
+        
         new Setting(previewSettingsEl)
-            .setName(strings.settings.items.skipNonTextInPreview.name)
-            .setDesc(strings.settings.items.skipNonTextInPreview.desc)
+            .setName(strings.settings.items.skipTextBeforeFirstHeading.name)
+            .setDesc(strings.settings.items.skipTextBeforeFirstHeading.desc)
             .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.skipNonTextInPreview)
+                .setValue(this.plugin.settings.skipTextBeforeFirstHeading)
                 .onChange(async (value) => {
-                    this.plugin.settings.skipNonTextInPreview = value;
+                    this.plugin.settings.skipTextBeforeFirstHeading = value;
                     await this.saveAndRefresh();
                 }));
 
@@ -792,7 +805,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                 }));
 
-        const showFeatureImageSetting = new Setting(containerEl)
+        new Setting(containerEl)
             .setName(strings.settings.items.showFeatureImage.name)
             .setDesc(strings.settings.items.showFeatureImage.desc)
             .addToggle(toggle => toggle
@@ -852,6 +865,23 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 }));
 
 
+        // What's New button
+        new Setting(containerEl)
+            .setName(strings.settings.items.whatsNew.name)
+            .setDesc(strings.settings.items.whatsNew.desc)
+            .addButton(button => button
+                .setButtonText(strings.settings.items.whatsNew.buttonText)
+                .onClick(async () => {
+                    const { WhatsNewModal } = await import('./modals/WhatsNewModal');
+                    const { getLatestReleaseNotes } = await import('./releaseNotes');
+                    const latestNotes = getLatestReleaseNotes(3);
+                    new WhatsNewModal(
+                        this.app, 
+                        this.plugin, 
+                        latestNotes
+                    ).open();
+                }));
+
         // Sponsor section
         // Support development section with both buttons
         const supportSetting = new Setting(containerEl)
@@ -878,7 +908,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         this.setElementVisibility(previewSettingsEl, this.plugin.settings.showFilePreview);
         this.setElementVisibility(featureImageSettingsEl, this.plugin.settings.showFeatureImage);
         this.setElementVisibility(tagSubSettingsEl, this.plugin.settings.showTags);
-        this.setElementVisibility(frontmatterSettingsEl, this.plugin.settings.useFrontmatterDates);
+        this.setElementVisibility(frontmatterSettingsEl, this.plugin.settings.useFrontmatterMetadata);
         this.setElementVisibility(folderNotesSettingsEl, this.plugin.settings.enableFolderNotes);
     }
 

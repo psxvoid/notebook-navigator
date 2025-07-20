@@ -18,7 +18,7 @@
 
 import { TFolder } from 'obsidian';
 import type { FolderTreeItem, TagTreeItem } from '../types/virtualization';
-import { TagTreeNode } from './tagUtils';
+import { TagTreeNode } from './fileCacheUtils';
 import { shouldExcludeFolder } from './fileFilters';
 import { NavigationPaneItemType } from '../types';
 import { getCurrentLanguage } from '../i18n';
@@ -138,40 +138,4 @@ export function flattenTagTree(
     return items;
 }
 
-/**
- * Finds the index of a specific folder in a flattened folder list.
- * 
- * @param items - The flattened folder list
- * @param folderPath - The path of the folder to find
- * @returns The index of the folder, or -1 if not found
- */
-export function findFolderIndex(
-    items: FolderTreeItem[],
-    folderPath: string | null
-): number {
-    if (!folderPath) return -1;
-    
-    return items.findIndex(item => 
-        item.type === NavigationPaneItemType.FOLDER && item.data.path === folderPath
-    );
-}
 
-/**
- * Finds the index of a specific tag in a flattened tag list.
- * 
- * @param items - The flattened tag list
- * @param tagPath - The path of the tag to find
- * @returns The index of the tag, or -1 if not found
- */
-export function findTagIndex(
-    items: TagTreeItem[],
-    tagPath: string | null
-): number {
-    if (!tagPath) return -1;
-    
-    return items.findIndex(item => {
-        if (item.type !== NavigationPaneItemType.TAG) return false;
-        const tagNode = item.data as TagTreeNode;
-        return tagNode.path === tagPath;
-    });
-}

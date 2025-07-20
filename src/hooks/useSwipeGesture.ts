@@ -27,12 +27,7 @@ interface UseSwipeGestureOptions {
     enabled?: boolean;
 }
 
-/**
- * Custom hook for detecting swipe gestures on touch devices.
- * Useful for implementing mobile navigation patterns.
- * Supports edge swipes for iOS-like navigation.
- */
-export function useSwipeGesture(
+function useSwipeGesture(
     containerRef: React.RefObject<HTMLElement | null>,
     options: UseSwipeGestureOptions
 ) {

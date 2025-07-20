@@ -32,8 +32,8 @@ export const STRINGS_DE = {
         featureImageAlt: 'Vorschaubild', // Alt text for thumbnail/preview images (English: Feature image)
     },
 
-    // File list
-    fileList: {
+    // List pane
+    listPane: {
         emptyStateNoSelection: 'Wählen Sie einen Ordner oder Tag aus, um Notizen anzuzeigen', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'Keine Notizen', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 Angeheftet', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
@@ -95,6 +95,19 @@ export const STRINGS_DE = {
             deleteMultipleNotes: '{count} Notizen löschen',
             moveToFolder: 'Move to...',
             moveMultipleToFolder: 'Move {count} files to...',
+            // File-specific context menu items (non-markdown files)
+            openMultipleFilesInNewTabs: '{count} Dateien in neuen Tabs öffnen',
+            openMultipleFilesToRight: '{count} Dateien rechts öffnen',
+            openMultipleFilesInNewWindows: '{count} Dateien in neuen Fenstern öffnen',
+            pinFile: 'Datei anheften',
+            unpinFile: 'Datei lösen',
+            pinMultipleFiles: '{count} Dateien anheften',
+            unpinMultipleFiles: '{count} Dateien lösen',
+            duplicateFile: 'Datei duplizieren',
+            duplicateMultipleFiles: '{count} Dateien duplizieren',
+            renameFile: 'Datei umbenennen',
+            deleteFile: 'Datei löschen',
+            deleteMultipleFiles: '{count} Dateien löschen',
         },
         folder: {
             newNote: 'Neue Notiz erstellen',
@@ -129,6 +142,7 @@ export const STRINGS_DE = {
             emptyStateSearch: 'Beginnen Sie zu tippen, um Symbole zu suchen',
             emptyStateNoResults: 'Keine Symbole gefunden',
             showingResultsInfo: 'Zeige 50 von {count} Ergebnissen. Geben Sie mehr ein, um die Suche einzugrenzen.',
+            emojiInstructions: 'Geben Sie ein Emoji ein oder fügen Sie es ein, um es als Symbol zu verwenden',
         },
         colorPicker: {
             header: 'Ordnerfarbe wählen',
@@ -187,6 +201,15 @@ export const STRINGS_DE = {
             instructions: {
                 navigate: 'zum Navigieren',
                 move: 'zum Verschieben',
+                select: 'zum Auswählen',
+                dismiss: 'zum Abbrechen',
+            },
+        },
+        tagSuggest: {
+            placeholder: 'Tags suchen...',
+            navigatePlaceholder: 'Zu Tag navigieren...',
+            instructions: {
+                navigate: 'zum Navigieren',
                 select: 'zum Auswählen',
                 dismiss: 'zum Abbrechen',
             },
@@ -277,6 +300,7 @@ export const STRINGS_DE = {
         createNewNote: 'Neue Notiz erstellen', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Dateien verschieben', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'Zu Ordner navigieren', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
+        navigateToTag: 'Zu Tag navigieren', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: 'Notizen aus Unterordnern umschalten', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
     },
 
@@ -333,7 +357,7 @@ export const STRINGS_DE = {
                 desc: 'Den übergeordneten Ordnernamen für Notizen aus Unterordnern anzeigen.',
             },
             dualPane: {
-                name: 'Doppelbereichslayout auf dem Desktop',
+                name: 'Doppelbereichslayout (nur Desktop)',
                 desc: 'Navigationsbereich und Listenbereich nebeneinander auf dem Desktop anzeigen.',
             },
             autoRevealActiveNote: {
@@ -341,7 +365,7 @@ export const STRINGS_DE = {
                 desc: 'Notizen automatisch anzeigen, wenn sie über Schnellauswahl, Links oder Suche geöffnet werden.',
             },
             autoSelectFirstFileOnFocusChange: {
-                name: 'Erste Notiz beim Ordner- oder Tag-Wechsel automatisch auswählen',
+                name: 'Erste Notiz automatisch auswählen (nur Desktop)',
                 desc: 'Die erste Notiz automatisch öffnen, wenn Sie den Ordner oder Tag wechseln.',
             },
             autoExpandFoldersTags: {
@@ -349,7 +373,7 @@ export const STRINGS_DE = {
                 desc: 'Ordner und Tags automatisch erweitern, wenn sie ausgewählt werden.',
             },
             showTooltips: {
-                name: 'Tooltips anzeigen',
+                name: 'Tooltips anzeigen (nur Desktop)',
                 desc: 'Zeige Hover-Tooltips mit zusätzlichen Informationen für Notizen und Ordner an.',
             },
             excludedNotes: {
@@ -396,6 +420,10 @@ export const STRINGS_DE = {
             skipHeadingsInPreview: {
                 name: 'Überschriften in Vorschau überspringen',
                 desc: 'Überschriftenzeilen bei der Erstellung des Vorschautextes überspringen.',
+            },
+            skipTextBeforeFirstHeading: {
+                name: 'Skip text before first heading',
+                desc: 'Hide content before the first heading in note preview.',
             },
             skipNonTextInPreview: {
                 name: 'Nicht-Text in Vorschau überspringen',
@@ -534,6 +562,17 @@ export const STRINGS_DE = {
                 desc: 'Wenn Sie Notebook Navigator lieben, erwägen Sie bitte, die weitere Entwicklung zu unterstützen.',
                 buttonText: '❤️ Auf GitHub sponsern',
             },
+            whatsNew: {
+                name: "What's new",
+                desc: 'See recent updates and improvements',
+                buttonText: 'View recent updates',
+            },
         },
+    },
+    whatsNew: {
+        title: 'What\'s new in Notebook Navigator',
+        supportMessage: 'If you find Notebook Navigator helpful, please consider supporting its development.',
+        supportButton: '❤️ Support',
+        thanksButton: 'Thanks!',
     },
 };

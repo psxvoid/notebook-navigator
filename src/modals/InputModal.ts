@@ -45,7 +45,7 @@ export class InputModal extends Modal {
         title: string,
         placeholder: string,
         private onSubmit: (value: string) => void,
-        private defaultValue: string = ''
+        defaultValue: string = ''
     ) {
         super(app);
         this.titleEl.setText(title);

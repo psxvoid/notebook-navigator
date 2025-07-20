@@ -19,8 +19,8 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { TFile, TFolder } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
-import { CombinedNavigationItem, FileListItem } from '../types/virtualization';
-import { TagTreeNode } from '../utils/tagUtils';
+import { CombinedNavigationItem, ListPaneItem } from '../types/virtualization';
+import { TagTreeNode } from '../utils/fileCacheUtils';
 import { isTypingInInput } from '../utils/domUtils';
 import { isTFolder, isTFile } from '../utils/typeGuards';
 import { useServices, useFileSystemOps } from '../context/ServicesContext';
@@ -29,17 +29,16 @@ import { useSelectionState, useSelectionDispatch } from '../context/SelectionCon
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { FileView } from '../types/obsidian-extended';
-import { getSupportedLeaves, NavigationPaneItemType, FileListItemType, ItemType } from '../types';
+import { getSupportedLeaves, NavigationPaneItemType, ListPaneItemType, ItemType } from '../types';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { useMultiSelection } from './useMultiSelection';
 
-type VirtualItem = CombinedNavigationItem | FileListItem;
+type VirtualItem = CombinedNavigationItem | ListPaneItem;
 
 interface UseVirtualKeyboardNavigationProps<T extends VirtualItem> {
     items: T[];
     virtualizer: Virtualizer<HTMLDivElement, Element>;
     focusedPane: 'navigation' | 'files';
-    containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 /**
@@ -50,8 +49,7 @@ interface UseVirtualKeyboardNavigationProps<T extends VirtualItem> {
 export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     items,
     virtualizer,
-    focusedPane,
-    containerRef
+    focusedPane
 }: UseVirtualKeyboardNavigationProps<T>) {
     const { app, plugin, isMobile } = useServices();
     const settings = useSettingsState();
@@ -100,8 +98,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         // Find current selection index
         if (focusedPane === 'files') {
             currentIndex = items.findIndex(item => {
-                if ('type' in item && item.type === FileListItemType.FILE) {
-                    const fileItem = item as FileListItem;
+                if ('type' in item && item.type === ListPaneItemType.FILE) {
+                    const fileItem = item as ListPaneItem;
                     return isTFile(fileItem.data) && fileItem.data.path === selectionState.selectedFile?.path;
                 }
                 return false;
@@ -138,9 +136,9 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     // Multi-selection with Shift+Down
                     // Extract only file items from the items array
                     const fileItems = items
-                        .filter(item => item.type === FileListItemType.FILE)
+                        .filter(item => item.type === ListPaneItemType.FILE)
                         .map(item => {
-                        const fileItem = item as FileListItem;
+                        const fileItem = item as ListPaneItem;
                         return isTFile(fileItem.data) ? fileItem.data : null;
                     })
                     .filter((file): file is TFile => file !== null);
@@ -169,9 +167,9 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     // Multi-selection with Shift+Up
                     // Extract only file items from the items array
                     const fileItems = items
-                        .filter(item => item.type === FileListItemType.FILE)
+                        .filter(item => item.type === ListPaneItemType.FILE)
                         .map(item => {
-                        const fileItem = item as FileListItem;
+                        const fileItem = item as ListPaneItem;
                         return isTFile(fileItem.data) ? fileItem.data : null;
                     })
                     .filter((file): file is TFile => file !== null);
@@ -429,9 +427,9 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     
                     // Get all files in the current view
                     const allFiles = items
-                        .filter(item => item.type === FileListItemType.FILE)
+                        .filter(item => item.type === ListPaneItemType.FILE)
                         .map(item => {
-                        const fileItem = item as FileListItem;
+                        const fileItem = item as ListPaneItem;
                         return isTFile(fileItem.data) ? fileItem.data : null;
                     })
                     .filter((file): file is TFile => file !== null);
@@ -522,8 +520,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         if (!item || !('type' in item)) return false;
         
         if (pane === 'files') {
-            const fileItem = item as FileListItem;
-            return fileItem.type === FileListItemType.FILE;
+            const fileItem = item as ListPaneItem;
+            return fileItem.type === ListPaneItemType.FILE;
         } else {
             const navigationPaneItem = item as CombinedNavigationItem;
             return navigationPaneItem.type === NavigationPaneItemType.FOLDER || 
@@ -593,8 +591,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         if (!item || !('type' in item)) return;
         
         if (focusedPane === 'files') {
-            const fileItem = item as FileListItem;
-            if (fileItem.type === FileListItemType.FILE) {
+            const fileItem = item as ListPaneItem;
+            if (fileItem.type === ListPaneItemType.FILE) {
                 const file = isTFile(fileItem.data) ? fileItem.data : null;
                 if (!file) return;
                 // Normal navigation clears multi-selection

@@ -17,27 +17,19 @@
  */
 
 import { 
-    App, 
     Plugin, 
-    ItemView, 
     WorkspaceLeaf, 
     TFile, 
-    TFolder, 
-    TAbstractFile,
-    Menu,
-    setIcon,
-    Notice,
-    Platform
+    TFolder
 } from 'obsidian';
-import { SortOption, NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
-import { LocalStorageKeys, NavigatorElementAttributes, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, STORAGE_KEYS } from './types';
-import { DateUtils } from './utils/DateUtils';
-import { PreviewTextUtils } from './utils/PreviewTextUtils';
+import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
+import { LocalStorageKeys, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, STORAGE_KEYS } from './types';
 import { MetadataService } from './services/MetadataService';
 import { TagOperations } from './services/TagOperations';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage } from './utils/localStorage';
+import { initializeMobileLogger } from './utils/mobileLogger';
 
 /**
  * Polyfill for requestIdleCallback
@@ -60,7 +52,7 @@ import { localStorage } from './utils/localStorage';
  * - Other non-critical startup operations
  */
 if (typeof window !== 'undefined' && !window.requestIdleCallback) {
-    console.log('[NotebookNavigator] requestIdleCallback not supported, using polyfill');
+    console.log('requestIdleCallback not supported, using polyfill');
     
     window.requestIdleCallback = function(callback: IdleRequestCallback, options?: { timeout?: number }) {
         const timeout = options?.timeout || 0;
@@ -124,9 +116,15 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * Ensures proper initialization order for all plugin components
      */
     async onload() {
-        const startTime = performance.now();
         
         await this.loadSettings();
+        
+        // Initialize mobile logger
+        initializeMobileLogger(this.app);
+        
+        // Initialize icon service
+        const { initializeIconService } = await import('./services/icons');
+        initializeIconService();
         
         // Initialize metadata service for handling vault events
         this.metadataService = new MetadataService(
@@ -190,6 +188,28 @@ export default class NotebookNavigatorPlugin extends Plugin {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
                         await view.navigateToFolderWithModal();
+                        break;
+                    }
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'navigate-to-tag',
+            name: strings.commands.navigateToTag,
+            callback: async () => {
+                // Ensure navigator is open
+                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                if (leaves.length === 0) {
+                    await this.activateView(true);
+                }
+                
+                // Show tag navigation modal
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.navigateToTagWithModal();
                         break;
                     }
                 }
@@ -302,7 +322,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
         // Register editor context menu
         this.registerEvent(
-            this.app.workspace.on('editor-menu', (menu, editor, view) => {
+            this.app.workspace.on('editor-menu', (menu, _, view) => {
                 const file = view.file;
                 if (file) {
                     menu.addSeparator();
@@ -370,7 +390,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                         try {
                             callback(oldPath, file.path);
                         } catch (error) {
-                            console.error('[NotebookNavigator] Error in file rename listener:', error);
+                            console.error('Error in file rename listener:', error);
                         }
                     });
                 }
@@ -400,7 +420,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
             requestIdleCallback(() => {
                 if (this.metadataService && !this.isUnloading) {
                     this.metadataService.cleanupAllMetadata().catch(error => {
-                        console.error('[NotebookNavigator] Error during metadata cleanup:', error);
+                        console.error('Error during metadata cleanup:', error);
                     });
                 }
             }, { timeout: 2000 }); // Fallback to 2 seconds if no idle time
@@ -410,6 +430,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
             if (leaves.length === 0 && !this.isUnloading) {
                 await this.activateView(true);
             }
+
+            // Check for version updates
+            await this.checkForVersionUpdate();
         });
     }
 
@@ -488,7 +511,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
             STORAGE_KEYS.selectedFolderKey,
             STORAGE_KEYS.selectedFileKey,
             STORAGE_KEYS.navigationPaneWidthKey,
-            STORAGE_KEYS.tagCacheKey
+            STORAGE_KEYS.fileCacheKey
         ];
         
         keysToRemove.forEach(key => {
@@ -604,9 +627,12 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * @param file - The file to navigate to in the navigator
      */
     private async navigateToFile(file: TFile) {
+        console.log('[Main] navigateToFile called:', file.path);
+        
         // Ensure navigator is open
         const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         if (leaves.length === 0) {
+            console.log('[Main] No navigator leaves found, activating view');
             await this.activateView(true);
         }
         
@@ -615,6 +641,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         navigatorLeaves.forEach(leaf => {
             const view = leaf.view;
             if (view instanceof NotebookNavigatorView) {
+                console.log('[Main] Calling view.navigateToFile');
                 view.navigateToFile(file);
             }
         });
@@ -637,6 +664,54 @@ export default class NotebookNavigatorPlugin extends Plugin {
             // Remove ribbon icon if navigator view exists
             this.ribbonIconEl.remove();
             this.ribbonIconEl = undefined;
+        }
+    }
+
+    /**
+     * Check if the plugin has been updated and show release notes if needed
+     */
+    private async checkForVersionUpdate(): Promise<void> {
+        // Get current version from manifest
+        const currentVersion = this.manifest.version;
+        
+        // Get last shown version from settings
+        const lastShownVersion = this.settings.lastShownVersion;
+        
+        // Don't show on first install (when lastShownVersion is empty)
+        if (!lastShownVersion) {
+            this.settings.lastShownVersion = currentVersion;
+            await this.saveSettings();
+            return;
+        }
+        
+        // Check if version has changed
+        if (lastShownVersion !== currentVersion) {
+            // Import the release notes modules dynamically
+            const { WhatsNewModal } = await import('./modals/WhatsNewModal');
+            const { getReleaseNotesBetweenVersions, getLatestReleaseNotes, compareVersions, shouldShowReleaseNotesForVersion } = await import('./releaseNotes');
+            
+            // Get release notes between versions
+            let releaseNotes;
+            if (compareVersions(currentVersion, lastShownVersion) > 0) {
+                // Upgraded - show notes from last shown to current
+                releaseNotes = getReleaseNotesBetweenVersions(lastShownVersion, currentVersion);
+            } else {
+                // Downgraded or same version - just show latest 5 releases
+                releaseNotes = getLatestReleaseNotes();
+            }
+            
+            // Update version before showing modal so it doesn't show again
+            this.settings.lastShownVersion = currentVersion;
+            await this.saveSettings();
+            
+            // Show the modal only if the current version doesn't have skipAutoShow
+            if (shouldShowReleaseNotesForVersion(currentVersion)) {
+                new WhatsNewModal(
+                    this.app,
+                    this,
+                    releaseNotes
+                ).open();
+            }
         }
     }
 

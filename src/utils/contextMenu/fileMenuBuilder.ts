@@ -41,6 +41,9 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     const isMultipleSelected = selectedCount > 1;
     const isFileSelected = selectionState.selectedFiles.has(file.path);
     
+    // Determine if this is a markdown file
+    const isMarkdown = file.extension === 'md';
+    
     // If right-clicking on an unselected file while having multi-selection,
     // treat it as a single file operation
     const shouldShowMultiOptions = isMultipleSelected && isFileSelected;
@@ -121,7 +124,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     if (!shouldShowMultiOptions) {
         menu.addItem((item: MenuItem) => {
             item
-                .setTitle(strings.contextMenu.file.renameNote)
+                .setTitle(isMarkdown ? strings.contextMenu.file.renameNote : strings.contextMenu.file.renameFile)
                 .setIcon('pencil')
                 .onClick(async () => {
                     await fileSystemOps.renameFile(file);
@@ -234,9 +237,17 @@ function addSingleFileOpenOptions(menu: Menu, file: TFile, app: App, isMobile: b
  * Add open options for multiple files
  */
 function addMultipleFilesOpenOptions(menu: Menu, selectedCount: number, selectionState: SelectionState, app: App, isMobile: boolean): void {
+    // Check if all files are markdown
+    const selectedFiles = Array.from(selectionState.selectedFiles)
+        .map(path => app.vault.getAbstractFileByPath(path))
+        .filter((f): f is TFile => f instanceof TFile);
+    const allMarkdown = selectedFiles.every(f => f.extension === 'md');
+    
     menu.addItem((item: MenuItem) => {
         item
-            .setTitle(strings.contextMenu.file.openMultipleInNewTabs.replace('{count}', selectedCount.toString()))
+            .setTitle(allMarkdown ? 
+                strings.contextMenu.file.openMultipleInNewTabs.replace('{count}', selectedCount.toString()) : 
+                strings.contextMenu.file.openMultipleFilesInNewTabs.replace('{count}', selectedCount.toString()))
             .setIcon('file-plus')
             .onClick(async () => {
                 const selectedFiles = Array.from(selectionState.selectedFiles)
@@ -252,7 +263,9 @@ function addMultipleFilesOpenOptions(menu: Menu, selectedCount: number, selectio
     // Open to the right
     menu.addItem((item: MenuItem) => {
         item
-            .setTitle(strings.contextMenu.file.openMultipleToRight.replace('{count}', selectedCount.toString()))
+            .setTitle(allMarkdown ? 
+                strings.contextMenu.file.openMultipleToRight.replace('{count}', selectedCount.toString()) : 
+                strings.contextMenu.file.openMultipleFilesToRight.replace('{count}', selectedCount.toString()))
             .setIcon('vertical-three-dots')
             .onClick(async () => {
                 const selectedFiles = Array.from(selectionState.selectedFiles)
@@ -269,7 +282,9 @@ function addMultipleFilesOpenOptions(menu: Menu, selectedCount: number, selectio
     if (!isMobile) {
         menu.addItem((item: MenuItem) => {
             item
-                .setTitle(strings.contextMenu.file.openMultipleInNewWindows.replace('{count}', selectedCount.toString()))
+                .setTitle(allMarkdown ? 
+                    strings.contextMenu.file.openMultipleInNewWindows.replace('{count}', selectedCount.toString()) : 
+                    strings.contextMenu.file.openMultipleFilesInNewWindows.replace('{count}', selectedCount.toString()))
                 .setIcon('monitor')
                 .onClick(async () => {
                     const selectedFiles = Array.from(selectionState.selectedFiles)
@@ -293,7 +308,9 @@ function addSingleFilePinOption(menu: Menu, file: TFile, metadataService: Metada
     
     menu.addItem((item: MenuItem) => {
         item
-            .setTitle(isPinned ? strings.contextMenu.file.unpinNote : strings.contextMenu.file.pinNote)
+            .setTitle(isPinned ? 
+                (file.extension === 'md' ? strings.contextMenu.file.unpinNote : strings.contextMenu.file.unpinFile) : 
+                (file.extension === 'md' ? strings.contextMenu.file.pinNote : strings.contextMenu.file.pinFile))
             .setIcon('pin')
             .onClick(async () => {
                 if (!file.parent) return;
@@ -317,9 +334,14 @@ function addMultipleFilesPinOption(menu: Menu, selectedCount: number, selectionS
         return !metadataService.isPinned(folderPath, f.path);
     });
     
+    // Check if all files are markdown
+    const allMarkdown = selectedFiles.every(f => f.extension === 'md');
+    
     menu.addItem((item: MenuItem) => {
         item
-            .setTitle(anyUnpinned ? strings.contextMenu.file.pinMultipleNotes.replace('{count}', selectedCount.toString()) : strings.contextMenu.file.unpinMultipleNotes.replace('{count}', selectedCount.toString()))
+            .setTitle(anyUnpinned ? 
+                (allMarkdown ? strings.contextMenu.file.pinMultipleNotes.replace('{count}', selectedCount.toString()) : strings.contextMenu.file.pinMultipleFiles.replace('{count}', selectedCount.toString())) : 
+                (allMarkdown ? strings.contextMenu.file.unpinMultipleNotes.replace('{count}', selectedCount.toString()) : strings.contextMenu.file.unpinMultipleFiles.replace('{count}', selectedCount.toString())))
             .setIcon('pin')
             .onClick(async () => {
                 for (const selectedFile of selectedFiles) {
@@ -346,7 +368,7 @@ function addMultipleFilesPinOption(menu: Menu, selectedCount: number, selectionS
 function addSingleFileDuplicateOption(menu: Menu, file: TFile, fileSystemOps: FileSystemOperations): void {
     menu.addItem((item: MenuItem) => {
         item
-            .setTitle(strings.contextMenu.file.duplicateNote)
+            .setTitle(file.extension === 'md' ? strings.contextMenu.file.duplicateNote : strings.contextMenu.file.duplicateFile)
             .setIcon('documents')
             .onClick(async () => {
                 await fileSystemOps.duplicateNote(file);
@@ -358,9 +380,17 @@ function addSingleFileDuplicateOption(menu: Menu, file: TFile, fileSystemOps: Fi
  * Add duplicate option for multiple files
  */
 function addMultipleFilesDuplicateOption(menu: Menu, selectedCount: number, selectionState: SelectionState, app: App, fileSystemOps: FileSystemOperations): void {
+    // Check if all files are markdown
+    const selectedFiles = Array.from(selectionState.selectedFiles)
+        .map(path => app.vault.getAbstractFileByPath(path))
+        .filter((f): f is TFile => f instanceof TFile);
+    const allMarkdown = selectedFiles.every(f => f.extension === 'md');
+    
     menu.addItem((item: MenuItem) => {
         item
-            .setTitle(strings.contextMenu.file.duplicateMultipleNotes.replace('{count}', selectedCount.toString()))
+            .setTitle(allMarkdown ? 
+                strings.contextMenu.file.duplicateMultipleNotes.replace('{count}', selectedCount.toString()) : 
+                strings.contextMenu.file.duplicateMultipleFiles.replace('{count}', selectedCount.toString()))
             .setIcon('documents')
             .onClick(async () => {
                 // Duplicate all selected files
@@ -381,7 +411,7 @@ function addMultipleFilesDuplicateOption(menu: Menu, selectedCount: number, sele
 function addSingleFileDeleteOption(menu: Menu, file: TFile, selectionState: SelectionState, settings: NotebookNavigatorSettings, fileSystemOps: FileSystemOperations, selectionDispatch: React.Dispatch<SelectionAction>): void {
     menu.addItem((item: MenuItem) => {
         item
-            .setTitle(strings.contextMenu.file.deleteNote)
+            .setTitle(file.extension === 'md' ? strings.contextMenu.file.deleteNote : strings.contextMenu.file.deleteFile)
             .setIcon('trash')
             .onClick(async () => {
                 // Check if this is the currently selected file
@@ -410,9 +440,17 @@ function addSingleFileDeleteOption(menu: Menu, file: TFile, selectionState: Sele
  * Add delete option for multiple files
  */
 function addMultipleFilesDeleteOption(menu: Menu, selectedCount: number, selectionState: SelectionState, settings: NotebookNavigatorSettings, app: App, fileSystemOps: FileSystemOperations, selectionDispatch: React.Dispatch<SelectionAction>): void {
+    // Check if all files are markdown
+    const selectedFiles = Array.from(selectionState.selectedFiles)
+        .map(path => app.vault.getAbstractFileByPath(path))
+        .filter((f): f is TFile => f instanceof TFile);
+    const allMarkdown = selectedFiles.every(f => f.extension === 'md');
+    
     menu.addItem((item: MenuItem) => {
         item
-            .setTitle(strings.contextMenu.file.deleteMultipleNotes.replace('{count}', selectedCount.toString()))
+            .setTitle(allMarkdown ? 
+                strings.contextMenu.file.deleteMultipleNotes.replace('{count}', selectedCount.toString()) : 
+                strings.contextMenu.file.deleteMultipleFiles.replace('{count}', selectedCount.toString()))
             .setIcon('trash')
             .onClick(async () => {
                 // Get all files in the current view for smart selection

@@ -16,8 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, TFolder, TAbstractFile, App } from 'obsidian';
-import { ExtendedApp } from '../types/obsidian-extended';
+import { TFile, TFolder, App } from 'obsidian';
 
 /**
  * Type guard to check if an object is a TFile
@@ -44,33 +43,7 @@ export function isTFolder(obj: unknown): obj is TFolder {
            Array.isArray((obj as Record<string, unknown>).children);
 }
 
-/**
- * Safe cast to TFile with validation
- */
-export function asTFile(obj: unknown): TFile {
-    if (!isTFile(obj)) {
-        const typeName = obj && typeof obj === 'object' && 'constructor' in obj 
-            // Safe property access for better error messages
-            ? (obj as {constructor: {name?: string}}).constructor.name || 'unknown' 
-            : typeof obj;
-        throw new TypeError(`Expected TFile but got ${typeName}`);
-    }
-    return obj;
-}
 
-/**
- * Safe cast to TFolder with validation
- */
-export function asTFolder(obj: unknown): TFolder {
-    if (!isTFolder(obj)) {
-        const typeName = obj && typeof obj === 'object' && 'constructor' in obj 
-            // Safe property access for better error messages
-            ? (obj as {constructor: {name?: string}}).constructor.name || 'unknown' 
-            : typeof obj;
-        throw new TypeError(`Expected TFolder but got ${typeName}`);
-    }
-    return obj;
-}
 
 /**
  * Safe access to internal Obsidian APIs with type inference
@@ -104,14 +77,6 @@ export function executeCommand(app: App, commandId: string): boolean {
     }
 }
 
-/**
- * Assert non-null with descriptive error
- */
-export function assertNonNull<T>(value: T | null | undefined, message: string): asserts value is T {
-    if (value === null || value === undefined) {
-        throw new Error(message);
-    }
-}
 
 /**
  * Check if a folder is an ancestor of another folder

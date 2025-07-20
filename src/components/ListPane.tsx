@@ -16,52 +16,49 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useMemo, useLayoutEffect, useCallback, useRef, useEffect, useState, useImperativeHandle, forwardRef } from 'react';
-import { TFile } from 'obsidian';
+import React, { useMemo, useCallback, useRef, useEffect, useState, useImperativeHandle, forwardRef } from 'react';
+import { TFile, debounce } from 'obsidian';
 import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { useServices } from '../context/ServicesContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useSettingsState } from '../context/SettingsContext';
+import { useFileCache } from '../context/FileCacheContext';
 import { FileItem } from './FileItem';
-import { DateUtils } from '../utils/DateUtils';
+import { DateUtils } from '../utils/dateUtils';
 import { isTFile } from '../utils/typeGuards';
-import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
+import { getDateField, getEffectiveSortOption, sortFiles } from '../utils/sortUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
 import { strings } from '../i18n';
-import type { FileListItem } from '../types/virtualization';
+import type { ListPaneItem } from '../types/virtualization';
 import { PaneHeader } from './PaneHeader';
-import { FileListItemType, ItemType, FILELIST_MEASUREMENTS } from '../types';
+import { ListPaneItemType, ItemType, LISTPANE_MEASUREMENTS, OVERSCAN } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
-import { useVisibilityReveal } from '../hooks/useVisibilityReveal';
 import { useMultiSelection } from '../hooks/useMultiSelection';
-import { ErrorBoundary } from './ErrorBoundary';
 
 
 /**
- * Renders the file list pane displaying files from the selected folder.
+ * Renders the list pane displaying files from the selected folder.
  * Handles file sorting, grouping by date, pinned notes, and auto-selection.
  * Integrates with the app context to manage file selection and navigation.
  * 
  * @returns A scrollable list of files grouped by date (if enabled) with empty state handling
  */
-export interface FileListHandle {
+export interface ListPaneHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
     scrollContainerRef: HTMLDivElement | null;
 }
 
-export const FileList = forwardRef<FileListHandle>((props, ref) => {
-    const { app, plugin, isMobile } = useServices();
+const ListPaneComponent = forwardRef<ListPaneHandle>((_, ref) => {
+    const { app, isMobile } = useServices();
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
     const settings = useSettingsState();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
-    const { selectionType, selectedFolder, selectedTag, selectedFile, selectedFiles } = selectionState;
-    
-    
-    
+    const { cache, getFileCreatedTime, getFileModifiedTime } = useFileCache();
+    const { selectionType, selectedFolder, selectedTag, selectedFile } = selectionState;
     
     // Track if the file selection is from user click vs auto-selection
     const isUserSelectionRef = useRef(false);
@@ -91,7 +88,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             selectionDispatch({ type: 'SET_SELECTED_FILE', file });
         }
         
-        // Always ensure files pane has focus when clicking a file
+        // Always ensure list pane has focus when clicking a file
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         
         // Only open file if not multi-selecting
@@ -111,14 +108,45 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     
     // This effect now only listens for vault events to trigger a refresh
     useEffect(() => {
-        const forceUpdate = () => setFileVersion(v => v + 1);
+        // Debounce updates to prevent rapid re-renders
+        const forceUpdate = debounce(() => {
+            setFileVersion(v => v + 1);
+        }, 300); // Increased debounce time to reduce render frequency
 
         const vaultEvents = [
-            app.vault.on('create', forceUpdate),
-            app.vault.on('delete', forceUpdate),
-            app.vault.on('rename', forceUpdate)
+            app.vault.on('create', () => {
+                forceUpdate();
+            }),
+            app.vault.on('delete', () => {
+                forceUpdate();
+            }),
+            app.vault.on('rename', () => {
+                forceUpdate();
+            })
         ];
-        const metadataEvent = app.metadataCache.on('changed', forceUpdate);
+        const metadataEvent = app.metadataCache.on('changed', (file) => {
+            // Only update if the metadata change is for a file in our current view
+            if (selectionType === ItemType.FOLDER && selectedFolder) {
+                // Check if file is in the selected folder
+                const fileFolder = file.parent;
+                if (!fileFolder || fileFolder.path !== selectedFolder.path) {
+                    // If not showing subfolders, ignore files not in this folder
+                    if (!settings.showNotesFromSubfolders) {
+                        return;
+                    }
+                    // If showing subfolders, check if it's a descendant
+                    if (!fileFolder || !fileFolder.path.startsWith(selectedFolder.path + '/')) {
+                        return;
+                    }
+                }
+            } else if (selectionType === ItemType.TAG && selectedTag) {
+                // For tags, we need to check if the file's tags changed
+                // This is harder to optimize, so we'll still update for now
+                // but less frequently
+            }
+            
+            forceUpdate();
+        });
 
         return () => {
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
@@ -133,8 +161,16 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         }
     }, [isMobile]);
     
+    // Determine if list pane is visible early to optimize
+    const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'files';
+    
+    // Log visibility changes
+    useEffect(() => {
+    }, [isVisible, uiState.singlePane, uiState.currentSinglePaneView, uiState.dualPane]);
+    
     // Calculate files synchronously with useMemo
     const files = useMemo(() => {
+        
         let allFiles: TFile[] = [];
 
         if (selectionType === ItemType.FOLDER && selectedFolder) {
@@ -142,7 +178,6 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         } else if (selectionType === ItemType.TAG && selectedTag) {
             allFiles = getFilesForTag(selectedTag, settings, app);
         }
-        
         
         return allFiles;
     }, [selectionType, selectedFolder, selectedTag, settings, app, fileVersion]);
@@ -182,9 +217,9 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         isUserSelectionRef.current = false;
     }, [selectedFile, app.workspace, settings.autoSelectFirstFileOnFocusChange, isMobile, selectionState.isRevealOperation, selectionState.isFolderChangeWithAutoSelect, selectionState.isKeyboardNavigation, selectionDispatch]);
     
-    // Auto-select active file or first file when files pane gains focus
+    // Auto-select active file or first file when list pane gains focus (DESKTOP ONLY)
     useEffect(() => {
-        // Only run when files pane gains focus (desktop only - mobile doesn't have focus states)
+        // Only run when list pane gains focus (desktop only - mobile doesn't have focus states)
         if (uiState.focusedPane !== 'files' || isMobile) return;
         
         // Check if we already have a file selected
@@ -210,28 +245,12 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         }
     }, [isMobile, uiState.focusedPane, selectedFile, files, selectionDispatch, app.workspace]);
     
-    // On mobile: check if active file should be shown as selected (but don't auto-focus/scroll)
-    useEffect(() => {
-        if (!isMobile) return;
-        
-        // Get the currently active file
-        const activeFile = app.workspace.getActiveFile();
-        
-        // If active file is in current view and not already selected, select it
-        if (activeFile && files.includes(activeFile) && selectedFile?.path !== activeFile.path) {
-            // Don't trigger auto-open on mobile
-            selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
-            selectionDispatch({ type: 'SET_SELECTED_FILE', file: activeFile });
-            isUserSelectionRef.current = false;
-        }
-    }, [isMobile, files, selectedFile, selectionDispatch, app.workspace]);
     
-    
-    const [listItems, setListItems] = useState<FileListItem[]>([]);
+    const [listItems, setListItems] = useState<ListPaneItem[]>([]);
     
     useEffect(() => {
         const rebuildListItems = () => {
-            const items: FileListItem[] = [];
+            const items: ListPaneItem[] = [];
             
             // Get the appropriate pinned paths based on selection type
             let pinnedPaths: Set<string>;
@@ -252,16 +271,18 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             const pinnedFiles = files.filter(f => pinnedPaths.has(f.path));
             const unpinnedFiles = files.filter(f => !pinnedPaths.has(f.path));
             
+            // Sort will happen below after determining the sort option
+            
             // Add pinned files
             if (pinnedFiles.length > 0) {
                 items.push({ 
-                    type: FileListItemType.HEADER, 
-                    data: strings.fileList.pinnedSection,
-                    key: `header-pinned-${selectedFolder?.path || 'root'}`
+                    type: ListPaneItemType.HEADER, 
+                    data: strings.listPane.pinnedSection,
+                    key: `header-pinned`
                 });
                 pinnedFiles.forEach(file => {
                     items.push({ 
-                        type: FileListItemType.FILE, 
+                        type: ListPaneItemType.FILE, 
                         data: file,
                         parentFolder: selectedFolder?.path,
                         key: file.path
@@ -272,12 +293,16 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             // Determine which sort option to use
             const sortOption = getEffectiveSortOption(settings, selectionType, selectedFolder, selectedTag);
             
+            // Sort pinned and unpinned files separately
+            sortFiles(pinnedFiles, sortOption, getFileCreatedTime, getFileModifiedTime);
+            sortFiles(unpinnedFiles, sortOption, getFileCreatedTime, getFileModifiedTime);
+            
             // Add unpinned files with date grouping if enabled
             if (!settings.groupByDate || sortOption.startsWith('title')) {
                 // No date grouping
                 unpinnedFiles.forEach(file => {
                     items.push({ 
-                        type: FileListItemType.FILE, 
+                        type: ListPaneItemType.FILE, 
                         data: file,
                         parentFolder: selectedFolder?.path,
                         key: file.path
@@ -288,25 +313,23 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 let currentGroup: string | null = null;
                 unpinnedFiles.forEach(file => {
                     const dateField = getDateField(sortOption);
-                    const timestamp = DateUtils.getFileTimestamp(
-                        file, 
-                        dateField === 'ctime' ? 'created' : 'modified',
-                        settings,
-                        app.metadataCache
-                    );
+                    // Get timestamp based on sort field (created or modified)
+                    const timestamp = dateField === 'ctime' 
+                        ? getFileCreatedTime(file)
+                        : getFileModifiedTime(file);
                     const groupTitle = DateUtils.getDateGroup(timestamp);
                     
                     if (groupTitle !== currentGroup) {
                         currentGroup = groupTitle;
                         items.push({ 
-                            type: FileListItemType.HEADER, 
+                            type: ListPaneItemType.HEADER, 
                             data: groupTitle,
-                            key: `header-${selectedFolder?.path || selectedTag || 'root'}-${groupTitle}`
+                            key: `header-${groupTitle}`
                         });
                     }
                     
                     items.push({ 
-                        type: FileListItemType.FILE, 
+                        type: ListPaneItemType.FILE, 
                         data: file,
                         parentFolder: selectedFolder?.path,
                         key: file.path
@@ -316,7 +339,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             
             // Add spacer at the end for better visibility of last item
             items.push({
-                type: FileListItemType.SPACER,
+                type: ListPaneItemType.SPACER,
                 data: '',
                 key: 'bottom-spacer'
             });
@@ -336,11 +359,25 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         selectionType,
         selectedFolder,
         selectedTag,
-        strings.fileList.pinnedSection
+        strings.listPane.pinnedSection,
+        cache,
+        cache?.lastModified,  // Rebuild when cache updates
+        settings.useFrontmatterMetadata  // Rebuild when frontmatter settings change
     ]);
     
     // Add ref for scroll container
     const scrollContainerRef = useRef<HTMLDivElement>(null);
+    
+    // Log when scroll container is attached
+    const scrollContainerCallback = useCallback((node: HTMLDivElement | null) => {
+        if (node) {
+        }
+        scrollContainerRef.current = node;
+    }, []);
+    
+    // Track render count
+    const renderCountRef = useRef(0);
+    renderCountRef.current++;
     
     // Cache selected file path to avoid repeated property access
     const selectedFilePath = selectedFile?.path;
@@ -349,7 +386,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const filePathToIndex = useMemo(() => {
         const map = new Map<string, number>();
         listItems.forEach((item, index) => {
-            if (item.type === FileListItemType.FILE) {
+            if (item.type === ListPaneItemType.FILE) {
                 if (isTFile(item.data)) {
                     map.set(item.data.path, index);
                 }
@@ -358,38 +395,9 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         return map;
     }, [listItems]);
     
-    /**
-     * Mobile scroll momentum preservation system
-     * 
-     * Problem: On mobile, when items are added to the top of a virtualized list during 
-     * momentum scrolling (inertia scrolling), the browser stops the scroll abruptly.
-     * This happens because the DOM changes under the user's finger, breaking the native
-     * scroll behavior.
-     * 
-     * Solution: We track scroll state, velocity, and item count changes. When new items
-     * are added during scrolling, we calculate their height and adjust the scroll position
-     * to maintain visual continuity without interrupting the momentum.
-     * 
-     * Mobile-specific because:
-     * - Desktop uses mouse wheel or scrollbar, which don't have momentum
-     * - Mobile touch scrolling has native momentum that we need to preserve
-     * - The issue only manifests on mobile devices with touch interfaces
-     */
-    const scrollStateRef = useRef({
-        isScrolling: false,
-        lastScrollTop: 0,
-        scrollVelocity: 0,
-        lastTimestamp: 0,
-        animationFrameId: 0,
-        scrollEndTimeoutId: 0
-    });
     
-    // Mobile scroll handling constants
-    const { velocityThreshold, scrollEndDelay, momentumDuration, velocityCalcMaxDiff } = FILELIST_MEASUREMENTS.scrollConstants;
-    
-    // Track previous item count to detect when items are added
-    const prevItemCountRef = useRef(listItems.length);
-    
+    // Track previous folder/tag to detect changes
+    const prevLocationRef = useRef({ folder: selectedFolder?.path, tag: selectedTag });
     
     // Initialize virtualizer
     const rowVirtualizer = useVirtualizer({
@@ -397,85 +405,79 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         getScrollElement: () => scrollContainerRef.current,
         estimateSize: (index) => {
             const item = listItems[index];
-            const { heights } = FILELIST_MEASUREMENTS;
+            const { heights } = LISTPANE_MEASUREMENTS;
             
-            if (item.type === FileListItemType.HEADER) {
+            if (item.type === ListPaneItemType.HEADER) {
                 // Date group headers have fixed heights from CSS
-                const isFirstHeader = index === 0 || (index > 0 && listItems[index - 1].type !== FileListItemType.HEADER);
+                const isFirstHeader = index === 0;
                 if (isFirstHeader) {
                     return heights.firstHeader;
                 }
                 return heights.subsequentHeader;
             }
             
-            if (item.type === FileListItemType.SPACER) {
+            if (item.type === ListPaneItemType.SPACER) {
                 return heights.spacer;
             }
 
-            // For file items
-            const { showDate, showFilePreview, showFeatureImage, fileNameRows, previewRows, showParentFolderNames } = settings;
+            // For file items - calculate height including all components
+            const { showDate, showFilePreview, showFeatureImage, fileNameRows, previewRows } = settings;
             
             // Check if we're in slim mode (no date, preview, or image)
             const isSlimMode = !showDate && !showFilePreview && !showFeatureImage;
             
-            // Base height: padding
-            let estimatedHeight = heights.basePadding;
+            // Start with base padding
+            let textContentHeight = 0;
             
-            // Add height for file name
-            const nameLines = fileNameRows || 1;
-            estimatedHeight += (heights.fileLineHeight * nameLines);
-            
-            if (!isSlimMode) {
-                // Check preview layout mode
-                if (showFilePreview && previewRows === 1) {
-                    // Single line preview: date and preview on same line
-                    if (showDate || showFilePreview) {
-                        estimatedHeight += heights.secondLineHeight;
+            if (isSlimMode) {
+                // Slim mode: only shows file name
+                textContentHeight = heights.titleLineHeight * (fileNameRows || 1);
+            } else {
+                // Normal mode
+                textContentHeight += heights.titleLineHeight * (fileNameRows || 1);  // File name
+                
+                // Add second line height for date/preview
+                if (showFilePreview || showDate) {
+                    if (previewRows <= 1) {
+                        // Single line mode: date and preview share one line
+                        textContentHeight += heights.metadataLineHeight;
+                    } else {
+                        // Multi-line mode: preview takes full configured rows
+                        if (showFilePreview) {
+                            textContentHeight += (heights.multiLineLineHeight * previewRows);
+                        }
+                        // Date only adds height when preview is 2+ rows
+                        if (showDate) {
+                            textContentHeight += heights.metadataLineHeight;
+                        }
                     }
-                } else if (showFilePreview && previewRows >= 2) {
-                    // Multi-line preview mode
-                    estimatedHeight += (heights.multiLineHeight * previewRows);
-                    if (showDate) {
-                        estimatedHeight += heights.dateLineHeight;
-                    }
-                } else if (showDate && !showFilePreview) {
-                    // Just date, no preview
-                    estimatedHeight += heights.dateLineHeight;
                 }
             }
             
-            // Add height for subfolder indicator if shown
-            // This only shows when file is in a subfolder
-            if (showParentFolderNames && settings.showNotesFromSubfolders) {
-                // We can't know if this specific file is in a subfolder without more context
-                // So we add a conservative estimate
-                estimatedHeight += heights.parentFolderLineHeight;
+            // Add parent folder height if applicable (but not in slim mode)
+            if (!isSlimMode && settings.showParentFolderNames && settings.showNotesFromSubfolders) {
+                const file = isTFile(item.data) ? item.data : null;
+                const isInSubfolder = file && 
+                    item.parentFolder && 
+                    file.parent && 
+                    file.parent.path !== item.parentFolder;
+                
+                if (isInSubfolder) {
+                    textContentHeight += heights.metadataLineHeight;
+                }
             }
-            
-            // Note: Feature image doesn't add height (it's inline with flex)
-            
-            return Math.max(estimatedHeight, heights.minTouchTargetHeight);
+
+            // Apply min-height constraint AFTER including all content (but not in slim mode)
+            // This ensures text content aligns with feature image height (42px) when shown
+            if (!isSlimMode && textContentHeight < 42) {
+                textContentHeight = 42;
+            }
+
+            return heights.basePadding + textContentHeight;
         },
-        overscan: isMobile ? FILELIST_MEASUREMENTS.overscan.mobile : FILELIST_MEASUREMENTS.overscan.desktop,
+        overscan: OVERSCAN,
         scrollPaddingStart: 0,
         scrollPaddingEnd: 0,
-        // Custom scroll function that preserves momentum on mobile
-        scrollToFn: (offset, options, instance) => {
-            if (isMobile && scrollStateRef.current.isScrolling && 
-                Math.abs(scrollStateRef.current.scrollVelocity) > velocityThreshold) {
-                // Don't interrupt momentum scrolling on mobile
-                return;
-            }
-            
-            // Use default scrolling behavior
-            const scrollEl = instance.scrollElement;
-            if (scrollEl) {
-                scrollEl.scrollTo({
-                    top: offset,
-                    behavior: options?.behavior || 'auto'
-                });
-            }
-        },
     });
     
     // Expose the virtualizer instance and file lookup method via the ref
@@ -485,105 +487,43 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         scrollContainerRef: scrollContainerRef.current
     }), [filePathToIndex, rowVirtualizer]);
     
-    // Reset scroll position to top when folder/tag changes
+    // Reset scroll when folder/tag changes
     useEffect(() => {
-        // Scroll to top when switching folders or tags
-        if (rowVirtualizer && scrollContainerRef.current) {
-            rowVirtualizer.scrollToIndex(0, { align: 'start', behavior: 'auto' });
+        const locationChanged = 
+            prevLocationRef.current.folder !== selectedFolder?.path || 
+            prevLocationRef.current.tag !== selectedTag;
             
-        }
-        // Reset current date group when changing folders/tags
-        setCurrentDateGroup(null);
-    }, [selectedFolder, selectedTag, rowVirtualizer]);
-    
-    // Preserve scroll position when items are added on mobile
-    useLayoutEffect(() => {
-        if (!isMobile || !scrollContainerRef.current || !rowVirtualizer) return;
-        
-        const prevCount = prevItemCountRef.current;
-        const currentCount = listItems.length;
-        
-        // Early exit if no change or items were removed
-        if (currentCount <= prevCount) {
-            prevItemCountRef.current = currentCount;
-            return;
-        }
-        
-        // Only preserve position during active scrolling AND when files view is visible
-        if (!scrollStateRef.current.isScrolling || (uiState.singlePane && uiState.currentSinglePaneView !== 'files')) {
-            prevItemCountRef.current = currentCount;
-            return;
-        }
-        
-        const scrollContainer = scrollContainerRef.current;
-        const visibleRange = rowVirtualizer.getVirtualItems();
-        
-        // No visible items, nothing to adjust
-        if (visibleRange.length === 0) {
-            prevItemCountRef.current = currentCount;
-            return;
-        }
-        
-        const firstVisibleIndex = visibleRange[0].index;
-        
-        // Already at top, no adjustment needed
-        if (firstVisibleIndex === 0) {
-            prevItemCountRef.current = currentCount;
-            return;
-        }
-        
-        // Calculate how many items affect our current position
-        const itemsAddedAbove = Math.min(currentCount - prevCount, firstVisibleIndex);
-        
-        if (itemsAddedAbove > 0) {
-            // Store current position
-            const currentScrollTop = scrollContainer.scrollTop;
+        if (locationChanged && scrollContainerRef.current) {
+            scrollContainerRef.current.scrollTop = 0;
+            rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
             
-            // Calculate total height of items added above current view
-            let heightAdjustment = 0;
-            for (let i = 0; i < itemsAddedAbove; i++) {
-                heightAdjustment += rowVirtualizer.options.estimateSize(i);
-            }
-            
-            if (heightAdjustment > 0) {
-                // Apply position adjustment immediately to prevent visual jump
-                queueMicrotask(() => {
-                    // Check if component is still mounted by verifying scrollContainer exists
-                    if (scrollContainer && scrollContainer.isConnected && scrollStateRef.current.isScrolling) {
-                        scrollContainer.scrollTop = currentScrollTop + heightAdjustment;
-                    }
-                });
-            }
+            prevLocationRef.current = { folder: selectedFolder?.path, tag: selectedTag };
         }
+    }, [selectedFolder?.path, selectedTag, rowVirtualizer]);
+    
+    // Re-measure all items when height-affecting settings change
+    useEffect(() => {
+        if (!rowVirtualizer) return;
         
-        prevItemCountRef.current = currentCount;
-    }, [listItems.length, isMobile, rowVirtualizer]);
+        rowVirtualizer.measure();
+    }, [
+        settings.showDate,
+        settings.showFilePreview,
+        settings.showFeatureImage,
+        settings.fileNameRows,
+        settings.previewRows,
+        settings.showParentFolderNames,
+        rowVirtualizer
+    ]);
     
-    
-    // Create a unique key for storing scroll state based on current selection
-    const scrollStateKey = useMemo(() => {
-        if (selectionType === ItemType.FOLDER && selectedFolder) {
-            return `nn-scroll-${selectedFolder.path}`;
-        } else if (selectionType === ItemType.TAG && selectedTag) {
-            return `nn-scroll-tag-${selectedTag}`;
-        }
-        return null;
-    }, [selectionType, selectedFolder, selectedTag]);
-    
-    // Determine if file list is visible
-    const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'files';
-    
-    // Memoize the getSelectionIndex function to prevent the useVisibilityReveal effect
-    // from re-running on every render. Without this, the effect would constantly
-    // trigger scroll-to-selected-item, causing jumps during normal scrolling.
     const getSelectionIndex = useCallback(() => {
         if (selectedFilePath) {
             const fileIndex = filePathToIndex.get(selectedFilePath);
             if (fileIndex !== undefined && fileIndex !== -1) {
                 // Check if there's a header immediately before this file
                 // Only scroll to header if this is the first file in the list
-                if (fileIndex > 0 && listItems[fileIndex - 1]?.type === FileListItemType.HEADER) {
-                    const isFirstFileInList = fileIndex === 1 || (fileIndex === 2 && listItems[0]?.type === FileListItemType.HEADER);
+                if (fileIndex > 0 && listItems[fileIndex - 1]?.type === ListPaneItemType.HEADER) {
+                    const isFirstFileInList = fileIndex === 1 || (fileIndex === 2 && listItems[0]?.type === ListPaneItemType.HEADER);
                     if (isFirstFileInList) {
                         return fileIndex - 1;
                     }
@@ -594,21 +534,37 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         return -1;
     }, [selectedFilePath, filePathToIndex, listItems]);
     
-    // Use visibility-based reveal
-    useVisibilityReveal({
-        getSelectionIndex,
-        virtualizer: rowVirtualizer,
-        isVisible,
-        isMobile,
-        isRevealOperation: selectionState.isRevealOperation
-    });
+    
+    // Scroll to selected file when needed
+    // Dependencies:
+    // - isVisible: scroll when pane becomes visible
+    // - filePathToIndex: update when file list changes (files added/removed/renamed)
+    // - settings.showNotesFromSubfolders: reposition when this setting changes list contents
+    useEffect(() => {
+        if (!selectedFile || !rowVirtualizer || !isVisible) return;
+        
+        // Use requestAnimationFrame to ensure virtualizer has initialized properly
+        // This is required in dual pane mode where list pane updates incrementally
+        const rafId = requestAnimationFrame(() => {
+            const index = getSelectionIndex();
+            
+            if (index >= 0) {
+                rowVirtualizer.scrollToIndex(index, {
+                    align: 'auto',
+                    behavior: 'auto'
+                });
+            }
+        });
+        
+        return () => cancelAnimationFrame(rafId);
+    }, [isVisible, filePathToIndex, settings.showNotesFromSubfolders]);
+    
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
         items: listItems,
         virtualizer: rowVirtualizer,
-        focusedPane: 'files',
-        containerRef: scrollContainerRef
+        focusedPane: 'files'
     });
     
     
@@ -617,130 +573,52 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
         return getDateField(settings.defaultFolderSort);
     }, [settings.defaultFolderSort]);
     
-    // Pre-compute formatted dates for all files to avoid doing it in render
+    // Pre-compute formatted dates for all files
     const filesWithDates = useMemo(() => {
-        if (!settings.showDate) return null;
+        const dataMap = new Map<string, {
+            display: string;
+            created: string;
+            modified: string;
+        }>();
         
-        const dateMap = new Map<string, string>();
+        // Get all files from list items
+        const allFiles: TFile[] = [];
+        listItems.forEach(item => {
+            if (item.type === ListPaneItemType.FILE && isTFile(item.data)) {
+                allFiles.push(item.data);
+            }
+        });
+        
+        // Always compute dates for tooltips even if display is disabled
+        const dateTimeFormat = settings.timeFormat ? `${settings.dateFormat} ${settings.timeFormat}` : settings.dateFormat;
         let currentGroup: string | null = null;
         
         listItems.forEach(item => {
-            if (item.type === FileListItemType.HEADER) {
+            if (item.type === ListPaneItemType.HEADER) {
                 currentGroup = item.data as string;
-            } else if (item.type === FileListItemType.FILE) {
+            } else if (item.type === ListPaneItemType.FILE) {
                 const file = item.data;
                 if (!isTFile(file)) return;
-                const timestamp = DateUtils.getFileTimestamp(
-                    file,
-                    dateField === 'ctime' ? 'created' : 'modified',
-                    settings,
-                    app.metadataCache
-                );
-                const formatted = currentGroup && currentGroup !== strings.fileList.pinnedSection
+                
+                // Compute display date based on current sort
+                const timestamp = dateField === 'ctime' ? getFileCreatedTime(file) : getFileModifiedTime(file);
+                const display = settings.showDate && currentGroup && currentGroup !== strings.listPane.pinnedSection
                     ? DateUtils.formatDateForGroup(timestamp, currentGroup, settings.dateFormat, settings.timeFormat)
-                    : DateUtils.formatDate(timestamp, settings.dateFormat);
-                dateMap.set(file.path, formatted);
+                    : settings.showDate ? DateUtils.formatDate(timestamp, settings.dateFormat) : '';
+                
+                // Always compute both created and modified for tooltips
+                const createdTimestamp = getFileCreatedTime(file);
+                const modifiedTimestamp = getFileModifiedTime(file);
+                const created = DateUtils.formatDate(createdTimestamp, dateTimeFormat);
+                const modified = DateUtils.formatDate(modifiedTimestamp, dateTimeFormat);
+                
+                dataMap.set(file.path, { display, created, modified });
             }
         });
-        return dateMap;
-    }, [listItems, dateField, settings.showDate, settings.dateFormat, settings.timeFormat, settings.useFrontmatterDates, settings.frontmatterCreatedField, settings.frontmatterModifiedField, settings.frontmatterDateFormat, strings.fileList.pinnedSection]);
+        
+        return dataMap;
+    }, [listItems, dateField, settings.showDate, settings.dateFormat, settings.timeFormat, settings.useFrontmatterMetadata, cache?.lastModified, strings.listPane.pinnedSection]);
     
-    // Track scroll events and calculate velocity on mobile
-    useEffect(() => {
-        if (!isMobile || !scrollContainerRef.current) return;
-        
-        const scrollContainer = scrollContainerRef.current;
-        
-        // Reset scroll state when effect runs (e.g., switching to mobile)
-        scrollStateRef.current = {
-            isScrolling: false,
-            lastScrollTop: 0,
-            scrollVelocity: 0,
-            lastTimestamp: 0,
-            animationFrameId: 0,
-            scrollEndTimeoutId: 0
-        };
-        
-        const handleTouchStart = () => {
-            scrollStateRef.current.isScrolling = true;
-            // Clear any pending scroll end timeout
-            if (scrollStateRef.current.scrollEndTimeoutId) {
-                clearTimeout(scrollStateRef.current.scrollEndTimeoutId);
-                scrollStateRef.current.scrollEndTimeoutId = 0;
-            }
-        };
-        
-        const handleTouchEnd = () => {
-            // Keep scrolling state active for momentum duration
-            scrollStateRef.current.scrollEndTimeoutId = window.setTimeout(() => {
-                // Check if component is still mounted by verifying ref exists
-                if (scrollContainerRef.current) {
-                    scrollStateRef.current.isScrolling = false;
-                    scrollStateRef.current.scrollVelocity = 0;
-                    scrollStateRef.current.scrollEndTimeoutId = 0;
-                }
-            }, momentumDuration);
-        };
-        
-        const handleScroll = () => {
-            const currentScrollTop = scrollContainer.scrollTop;
-            const currentTime = performance.now();
-            const timeDiff = currentTime - scrollStateRef.current.lastTimestamp;
-            
-            if (timeDiff > 0 && timeDiff < velocityCalcMaxDiff) {
-                scrollStateRef.current.scrollVelocity = 
-                    (currentScrollTop - scrollStateRef.current.lastScrollTop) / timeDiff;
-            }
-            
-            scrollStateRef.current.lastScrollTop = currentScrollTop;
-            scrollStateRef.current.lastTimestamp = currentTime;
-            scrollStateRef.current.isScrolling = true;
-            
-            // Clear existing timeouts
-            if (scrollStateRef.current.animationFrameId) {
-                cancelAnimationFrame(scrollStateRef.current.animationFrameId);
-            }
-            if (scrollStateRef.current.scrollEndTimeoutId) {
-                clearTimeout(scrollStateRef.current.scrollEndTimeoutId);
-                scrollStateRef.current.scrollEndTimeoutId = 0;
-            }
-            
-            // Set new timeout for scroll end detection
-            scrollStateRef.current.animationFrameId = requestAnimationFrame(() => {
-                scrollStateRef.current.scrollEndTimeoutId = window.setTimeout(() => {
-                    // Check if component is still mounted
-                    if (scrollContainerRef.current) {
-                        // Only stop if velocity is low
-                        if (Math.abs(scrollStateRef.current.scrollVelocity) < velocityThreshold) {
-                            scrollStateRef.current.isScrolling = false;
-                            scrollStateRef.current.scrollVelocity = 0;
-                            scrollStateRef.current.scrollEndTimeoutId = 0;
-                        }
-                    }
-                }, scrollEndDelay);
-            });
-        };
-        
-        scrollContainer.addEventListener('touchstart', handleTouchStart, { passive: true });
-        scrollContainer.addEventListener('touchend', handleTouchEnd, { passive: true });
-        scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-        
-        return () => {
-            // Use current ref value in cleanup to ensure we remove from correct element
-            const container = scrollContainerRef.current;
-            if (container) {
-                container.removeEventListener('touchstart', handleTouchStart);
-                container.removeEventListener('touchend', handleTouchEnd);
-                container.removeEventListener('scroll', handleScroll);
-            }
-            if (scrollStateRef.current.animationFrameId) {
-                cancelAnimationFrame(scrollStateRef.current.animationFrameId);
-            }
-            if (scrollStateRef.current.scrollEndTimeoutId) {
-                clearTimeout(scrollStateRef.current.scrollEndTimeoutId);
-            }
-        };
-    }, [isMobile, velocityThreshold, scrollEndDelay, momentumDuration, velocityCalcMaxDiff]);
     
     // Track current visible date group for sticky header
     useEffect(() => {
@@ -783,7 +661,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
             // Look through all items to find headers
             for (let i = 0; i < listItems.length; i++) {
                 const item = safeGetItem(listItems, i);
-                if (!item || item.type !== FileListItemType.HEADER) continue;
+                if (!item || item.type !== ListPaneItemType.HEADER) continue;
                 
                 const headerText = item.data as string;
                 const headerBottom = getItemBottom(i);
@@ -833,7 +711,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     const orderedFiles = useMemo(() => {
         const files: TFile[] = [];
         listItems.forEach(item => {
-            if (item.type === FileListItemType.FILE) {
+            if (item.type === ListPaneItemType.FILE) {
                 if (isTFile(item.data)) {
                     files.push(item.data);
                 }
@@ -845,10 +723,10 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     // Early returns MUST come after all hooks
     if (!selectedFolder && !selectedTag) {
         return (
-            <div className="nn-file-pane">
+            <div className="nn-list-pane">
                 <PaneHeader type="files" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
-                <div className="nn-file-list nn-empty-state">
-                    <div className="nn-empty-message">{strings.fileList.emptyStateNoSelection}</div>
+                <div className="nn-list-pane-scroller nn-empty-state">
+                    <div className="nn-empty-message">{strings.listPane.emptyStateNoSelection}</div>
                 </div>
             </div>
         );
@@ -856,22 +734,21 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
     
     if (files.length === 0) {
         return (
-            <div className="nn-file-pane">
+            <div className="nn-list-pane">
                 <PaneHeader type="files" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
-                <div className="nn-file-list nn-empty-state">
-                    <div className="nn-empty-message">{strings.fileList.emptyStateNoNotes}</div>
+                <div className="nn-list-pane-scroller nn-empty-state">
+                    <div className="nn-empty-message">{strings.listPane.emptyStateNoNotes}</div>
                 </div>
             </div>
         );
     }
     
     return (
-        <ErrorBoundary componentName="FileList">
-            <div className="nn-file-pane">
-                <PaneHeader type="files" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
+        <div className="nn-list-pane">
+            <PaneHeader type="files" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
             <div 
-                ref={scrollContainerRef}
-                className="nn-file-list"
+                ref={scrollContainerCallback}
+                className="nn-list-pane-scroller"
                 data-pane="files"
                 role="list"
                 tabIndex={-1}
@@ -879,44 +756,42 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 {/* Virtual list */}
                 {listItems.length > 0 && (
                     <div
-                        key={`${files.length}-${selectedFolder?.path || selectedTag || 'root'}`}
+                        className="nn-virtual-container"
                         style={{
                             height: `${rowVirtualizer.getTotalSize()}px`,
-                            width: '100%',
-                            position: 'relative',
                         }}
                     >
                         {rowVirtualizer.getVirtualItems().map((virtualItem) => {
                             const item = safeGetItem(listItems, virtualItem.index);
                             if (!item) return null;
-                            const isSelected = item.type === FileListItemType.FILE && 
+                            const isSelected = item.type === ListPaneItemType.FILE && 
                                 isTFile(item.data) && multiSelection.isFileSelected(item.data);
                             
                             // Check if this is the last file item
                             const nextItem = safeGetItem(listItems, virtualItem.index + 1);
-                            const isLastFile = item.type === FileListItemType.FILE && 
+                            const isLastFile = item.type === ListPaneItemType.FILE && 
                                 (virtualItem.index === listItems.length - 1 || 
-                                 (nextItem && nextItem.type === FileListItemType.HEADER));
+                                 (nextItem && nextItem.type === ListPaneItemType.HEADER));
                             
                             // Check if adjacent items are selected (for styling purposes)
                             const prevItem = safeGetItem(listItems, virtualItem.index - 1);
-                            const hasSelectedAbove = item.type === FileListItemType.FILE && prevItem?.type === FileListItemType.FILE && 
+                            const hasSelectedAbove = item.type === ListPaneItemType.FILE && prevItem?.type === ListPaneItemType.FILE && 
                                 isTFile(prevItem.data) && multiSelection.isFileSelected(prevItem.data);
-                            const hasSelectedBelow = item.type === FileListItemType.FILE && nextItem?.type === FileListItemType.FILE && 
+                            const hasSelectedBelow = item.type === ListPaneItemType.FILE && nextItem?.type === ListPaneItemType.FILE && 
                                 isTFile(nextItem.data) && multiSelection.isFileSelected(nextItem.data);
                             
-                            // Check if this is the first header
-                            const isFirstHeader = item.type === FileListItemType.HEADER && virtualItem.index === 0;
+                            // Check if this is the first header (same logic as in estimateSize)
+                            const isFirstHeader = item.type === ListPaneItemType.HEADER && virtualItem.index === 0;
                             
                             
                             
                             // Find current date group for file items
                             let dateGroup: string | null = null;
-                            if (item.type === FileListItemType.FILE) {
+                            if (item.type === ListPaneItemType.FILE) {
                                 // Look backwards to find the most recent header
                                 for (let i = virtualItem.index - 1; i >= 0; i--) {
                                     const prevItem = safeGetItem(listItems, i);
-                                    if (prevItem && prevItem.type === FileListItemType.HEADER) {
+                                    if (prevItem && prevItem.type === ListPaneItemType.HEADER) {
                                         dateGroup = prevItem.data as string;
                                         break;
                                     }
@@ -926,26 +801,19 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                             return (
                                 <div
                                     key={virtualItem.key}
-                                    data-index={virtualItem.index}
-                                    ref={rowVirtualizer.measureElement}
-                                    className={`nn-virtual-item ${item.type === FileListItemType.FILE ? 'nn-virtual-file-item' : ''} ${isLastFile ? 'nn-last-file' : ''}`}
+                                    className={`nn-virtual-item ${item.type === ListPaneItemType.FILE ? 'nn-virtual-file-item' : ''} ${isLastFile ? 'nn-last-file' : ''}`}
                                     style={{
-                                        position: 'absolute',
-                                        top: 0,
-                                        left: 0,
-                                        width: '100%',
                                         transform: `translateY(${virtualItem.start}px)`,
                                     }}
                                 >
-                                    {item.type === FileListItemType.HEADER ? (
+                                    {item.type === ListPaneItemType.HEADER ? (
                                         <div className={`nn-date-group-header ${isFirstHeader ? 'nn-first-header' : ''}`}>
                                             {typeof item.data === 'string' ? item.data : ''}
                                         </div>
-                                    ) : item.type === FileListItemType.SPACER ? (
-                                        <div className="nn-file-list-spacer" />
-                                    ) : item.type === FileListItemType.FILE && isTFile(item.data) ? (
+                                    ) : item.type === ListPaneItemType.SPACER ? (
+                                        <div className="nn-list-pane-spacer" />
+                                    ) : item.type === ListPaneItemType.FILE && isTFile(item.data) ? (
                                         <FileItem
-                                            key={item.key}
                                             file={item.data}
                                             isSelected={isSelected}
                                             hasSelectedAbove={hasSelectedAbove}
@@ -955,7 +823,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                                 // Count only file items, not headers or spacers
                                                 let fileIndex = 0;
                                                 for (let i = 0; i < virtualItem.index; i++) {
-                                                    if (listItems[i]?.type === FileListItemType.FILE) {
+                                                    if (listItems[i]?.type === ListPaneItemType.FILE) {
                                                         fileIndex++;
                                                     }
                                                 }
@@ -964,7 +832,7 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                                                 }
                                             }}
                                             dateGroup={dateGroup}
-                                            formattedDate={isTFile(item.data) ? filesWithDates?.get(item.data.path) : undefined}
+                                            formattedDates={isTFile(item.data) ? filesWithDates?.get(item.data.path) : undefined}
                                             parentFolder={item.parentFolder}
                                         />
                                     ) : null}
@@ -975,6 +843,9 @@ export const FileList = forwardRef<FileListHandle>((props, ref) => {
                 )}
             </div>
         </div>
-        </ErrorBoundary>
     );
 });
+
+ListPaneComponent.displayName = 'ListPane';
+
+export const ListPane = React.memo(ListPaneComponent);

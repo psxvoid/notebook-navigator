@@ -17,17 +17,17 @@
  */
 
 // src/components/NotebookNavigatorComponent.tsx
-import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback } from 'react';
+import { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback } from 'react';
 import { TFile, TFolder, Notice } from 'obsidian';
 import { NavigationPane } from './NavigationPane';
-import { FileList } from './FileList';
+import { ListPane } from './ListPane';
 import type { NavigationPaneHandle } from './NavigationPane';
-import type { FileListHandle } from './FileList';
-import { ErrorBoundary } from './ErrorBoundary';
+import type { ListPaneHandle } from './ListPane';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
+import { useExpansionDispatch } from '../context/ExpansionContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useFileReveal } from '../hooks/useFileReveal';
@@ -37,6 +37,7 @@ import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, ItemTyp
 import { strings } from '../i18n';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { FolderSuggestModal } from '../modals/FolderSuggestModal';
+import { TagSuggestModal } from '../modals/TagSuggestModal';
 
 export interface NotebookNavigatorHandle {
     navigateToFile: (file: TFile) => void;
@@ -47,6 +48,7 @@ export interface NotebookNavigatorHandle {
     moveSelectedFiles: () => Promise<void>;
     navigateToFolder: (folderPath: string) => void;
     navigateToFolderWithModal: () => void;
+    navigateToTagWithModal: () => void;
 }
 
 /**
@@ -66,10 +68,11 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
+    const expansionDispatch = useExpansionDispatch();
     const containerRef = useRef<HTMLDivElement>(null);
     const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
     const navigationPaneRef = useRef<NavigationPaneHandle>(null);
-    const fileListRef = useRef<FileListHandle>(null);
+    const listPaneRef = useRef<ListPaneHandle>(null);
     
     // Enable drag and drop only on desktop
     useDragAndDrop(containerRef);
@@ -82,7 +85,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     });
     
     // Use file reveal logic
-    const { navigateToFile, revealFileInCurrentView, navigateToFolder } = useFileReveal({ app, navigationPaneRef, fileListRef });
+    const { navigateToFile, navigateToFolder } = useFileReveal({ app, navigationPaneRef, listPaneRef });
     
     // Enable mobile swipe gestures
     useMobileSwipeNavigation(containerRef, isMobile);
@@ -93,6 +96,32 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         containerRef,
         setIsNavigatorFocused
     });
+    
+    // Listen for mobile hide/show events
+    useEffect(() => {
+        const handleMobileHide = (file: TFile) => {
+            try {
+                // Navigate to file when navigator is shown
+                navigateToFile(file);
+
+            } catch {
+            }
+        };
+        
+        const handleMobileShow = () => {
+            try {
+            } catch {
+            }
+        };
+        
+        const hideEventRef = app.workspace.on('notebook-navigator:mobile-hide' as any, handleMobileHide);
+        const showEventRef = app.workspace.on('notebook-navigator:mobile-show' as any, handleMobileShow);
+        
+        return () => {
+            app.workspace.offref(hideEventRef);
+            app.workspace.offref(showEventRef);
+        };
+    }, [app, navigateToFile]);
     
     // Get updateSettings from SettingsContext for refresh
     const updateSettings = useSettingsUpdate();
@@ -116,7 +145,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         },
         refresh: () => {
             // A no-op update will increment the version and force a re-render
-            updateSettings(settings => {});
+            updateSettings(() => {});
         },
         deleteActiveFile: triggerDeleteKey,
         createNoteInSelectedFolder: async () => {
@@ -179,6 +208,44 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 undefined // No folders to exclude
             );
             modal.open();
+        },
+        navigateToTagWithModal: () => {
+            // Show the tag selection modal for navigation
+            const modal = new TagSuggestModal(
+                app,
+                (tagPath: string) => {
+                    // For hierarchical tags, expand all parent tags
+                    if (tagPath !== '__untagged__' && tagPath.includes('/')) {
+                        const tagsToExpand: string[] = [];
+                        const parts = tagPath.split('/');
+                        
+                        // Build parent paths to expand
+                        for (let i = 1; i <= parts.length - 1; i++) {
+                            tagsToExpand.push(parts.slice(0, i).join('/'));
+                        }
+                        
+                        // Expand parent tags
+                        if (tagsToExpand.length > 0) {
+                            expansionDispatch({ type: 'EXPAND_TAGS', tagPaths: tagsToExpand });
+                        }
+                    }
+                    
+                    // Navigate to the selected tag
+                    selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
+                    
+                    // Switch to files view in single-pane mode
+                    if (uiState.singlePane) {
+                        uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                    }
+                    
+                    // Set focus to files pane
+                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                },
+                strings.modals.tagSuggest.navigatePlaceholder,
+                strings.modals.tagSuggest.instructions.select,
+                true // Include untagged option
+            );
+            modal.open();
         }
     }), [
         navigateToFile,
@@ -188,7 +255,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         selectionState.selectedFolder,
         fileSystemOps,
         selectionDispatch,
-        navigateToFolder
+        navigateToFolder,
+        uiState.singlePane,
+        expansionDispatch
     ]);
     
     // Track if initial visibility check has been performed
@@ -245,20 +314,19 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             data-focus-pane={uiState.singlePane ? (uiState.currentSinglePaneView === 'navigation' ? 'navigation' : 'files') : uiState.focusedPane}
             data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}
             tabIndex={-1}
-            onKeyDown={(e) => {
+            onKeyDown={() => {
                 // Allow keyboard events to bubble up from child components
-                // The actual keyboard handling is done in NavigationPane and FileList
+                // The actual keyboard handling is done in NavigationPane and ListPane
             }}
         >
-            <div className="nn-navigation-pane" style={{ width: uiState.singlePane ? '100%' : `${paneWidth}px` }}>
-                <NavigationPane ref={navigationPaneRef} />
-            </div>
+            <NavigationPane 
+                ref={navigationPaneRef} 
+                style={{ width: uiState.singlePane ? '100%' : `${paneWidth}px` }}
+            />
             {!uiState.singlePane && (
                 <div className="nn-resize-handle" {...resizeHandleProps} />
             )}
-            <ErrorBoundary componentName="FileList">
-                <FileList ref={fileListRef} />
-            </ErrorBoundary>
+            <ListPane ref={listPaneRef} />
         </div>
     );
 });

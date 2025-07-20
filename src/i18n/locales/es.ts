@@ -32,8 +32,8 @@ export const STRINGS_ES = {
         featureImageAlt: 'Imagen destacada', // Alt text for thumbnail/preview images (English: Feature image)
     },
 
-    // File list
-    fileList: {
+    // List pane
+    listPane: {
         emptyStateNoSelection: 'Selecciona una carpeta o etiqueta para ver las notas', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'Sin notas', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 Fijadas', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
@@ -95,6 +95,19 @@ export const STRINGS_ES = {
             deleteMultipleNotes: 'Eliminar {count} notas',
             moveToFolder: 'Move to...',
             moveMultipleToFolder: 'Move {count} files to...',
+            // File-specific context menu items (non-markdown files)
+            openMultipleFilesInNewTabs: 'Abrir {count} archivos en nuevas pestañas',
+            openMultipleFilesToRight: 'Abrir {count} archivos a la derecha',
+            openMultipleFilesInNewWindows: 'Abrir {count} archivos en nuevas ventanas',
+            pinFile: 'Fijar archivo',
+            unpinFile: 'Desfijar archivo',
+            pinMultipleFiles: 'Fijar {count} archivos',
+            unpinMultipleFiles: 'Desfijar {count} archivos',
+            duplicateFile: 'Duplicar archivo',
+            duplicateMultipleFiles: 'Duplicar {count} archivos',
+            renameFile: 'Renombrar archivo',
+            deleteFile: 'Eliminar archivo',
+            deleteMultipleFiles: 'Eliminar {count} archivos',
         },
         folder: {
             newNote: 'Crear nueva nota',
@@ -129,6 +142,7 @@ export const STRINGS_ES = {
             emptyStateSearch: 'Empieza a escribir para buscar iconos',
             emptyStateNoResults: 'No se encontraron iconos',
             showingResultsInfo: 'Mostrando 50 de {count} resultados. Escribe más para filtrar.',
+            emojiInstructions: 'Escribe o pega cualquier emoji para usarlo como icono',
         },
         colorPicker: {
             header: 'Elegir color de carpeta',
@@ -187,6 +201,15 @@ export const STRINGS_ES = {
             instructions: {
                 navigate: 'para navegar',
                 move: 'para mover',
+                select: 'para seleccionar',
+                dismiss: 'para cancelar',
+            },
+        },
+        tagSuggest: {
+            placeholder: 'Buscar etiquetas...',
+            navigatePlaceholder: 'Navegar a etiqueta...',
+            instructions: {
+                navigate: 'para navegar',
                 select: 'para seleccionar',
                 dismiss: 'para cancelar',
             },
@@ -277,6 +300,7 @@ export const STRINGS_ES = {
         createNewNote: 'Crear nueva nota', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Mover archivos', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'Navegar a carpeta', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
+        navigateToTag: 'Navegar a etiqueta', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: 'Alternar mostrar notas de subcarpetas', // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
     },
 
@@ -333,7 +357,7 @@ export const STRINGS_ES = {
                 desc: 'Muestra el nombre de la carpeta principal para las notas de subcarpetas.',
             },
             dualPane: {
-                name: 'Diseño de doble panel en escritorio',
+                name: 'Diseño de doble panel (solo escritorio)',
                 desc: 'Mostrar panel de navegación y panel de lista lado a lado en escritorio.',
             },
             autoRevealActiveNote: {
@@ -341,7 +365,7 @@ export const STRINGS_ES = {
                 desc: 'Muestra automáticamente las notas cuando se abren desde el Conmutador rápido, enlaces o búsqueda.',
             },
             autoSelectFirstFileOnFocusChange: {
-                name: 'Seleccionar automáticamente la primera nota al cambiar de carpeta o etiqueta',
+                name: 'Seleccionar automáticamente la primera nota (solo escritorio)',
                 desc: 'Abre automáticamente la primera nota al cambiar de carpeta o etiqueta.',
             },
             autoExpandFoldersTags: {
@@ -349,7 +373,7 @@ export const STRINGS_ES = {
                 desc: 'Expandir automáticamente carpetas y etiquetas cuando se seleccionan.',
             },
             showTooltips: {
-                name: 'Mostrar tooltips',
+                name: 'Mostrar tooltips (solo escritorio)',
                 desc: 'Muestra tooltips con información adicional para notas y carpetas al pasar el cursor.',
             },
             excludedNotes: {
@@ -396,6 +420,10 @@ export const STRINGS_ES = {
             skipHeadingsInPreview: {
                 name: 'Omitir encabezados en vista previa',
                 desc: 'Omite las líneas de encabezado al generar el texto de vista previa.',
+            },
+            skipTextBeforeFirstHeading: {
+                name: 'Skip text before first heading',
+                desc: 'Hide content before the first heading in note preview.',
             },
             skipNonTextInPreview: {
                 name: 'Omitir elementos no textuales en vista previa',
@@ -534,6 +562,17 @@ export const STRINGS_ES = {
                 desc: 'Si te encanta usar el Navegador de Cuadernos, considera apoyar su desarrollo continuo.',
                 buttonText: '❤️ Patrocinar en GitHub',
             },
+            whatsNew: {
+                name: "What's new",
+                desc: 'See recent updates and improvements',
+                buttonText: 'View recent updates',
+            },
         },
+    },
+    whatsNew: {
+        title: 'What\'s new in Notebook Navigator',
+        supportMessage: 'If you find Notebook Navigator helpful, please consider supporting its development.',
+        supportButton: '❤️ Support',
+        thanksButton: 'Thanks!',
     },
 };

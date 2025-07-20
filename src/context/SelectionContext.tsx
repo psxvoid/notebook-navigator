@@ -16,11 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { createContext, useContext, useReducer, useEffect, ReactNode, useCallback, useRef } from 'react';
+import React, { createContext, useContext, useReducer, useEffect, ReactNode, useCallback } from 'react';
 import { App, TFile, TFolder } from 'obsidian';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { useSettingsState } from './SettingsContext';
-import { NotebookNavigatorSettings } from '../settings';
 import { NavigationItemType, STORAGE_KEYS } from '../types';
 import { NotebookNavigatorPlugin } from '../types/plugin';
 
@@ -262,7 +261,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
         }
         
         case 'EXTEND_SELECTION': {
-            const { toIndex, files, allFiles } = action;
+            const { toIndex, allFiles } = action;
             if (state.anchorIndex === null) return state;
             
             // This action should only select from anchor to current, not replace everything

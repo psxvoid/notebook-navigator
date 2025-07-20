@@ -17,7 +17,6 @@
  */
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { TFolder } from 'obsidian';
 import { localStorage } from '../utils/localStorage';
 import { STORAGE_KEYS } from '../types';
 
@@ -37,6 +36,7 @@ export type ExpansionAction =
     | { type: 'TOGGLE_TAG_EXPANDED'; tagPath: string }
     | { type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED'; folderId: string }
     | { type: 'EXPAND_FOLDERS'; folderPaths: string[] }
+    | { type: 'EXPAND_TAGS'; tagPaths: string[] }
     | { type: 'CLEANUP_DELETED_FOLDERS'; existingPaths: Set<string> }
     | { type: 'CLEANUP_DELETED_TAGS'; existingTags: Set<string> };
 
@@ -90,6 +90,12 @@ function expansionReducer(state: ExpansionState, action: ExpansionAction): Expan
             const newExpanded = new Set(state.expandedFolders);
             action.folderPaths.forEach(path => newExpanded.add(path));
             return { ...state, expandedFolders: newExpanded };
+        }
+        
+        case 'EXPAND_TAGS': {
+            const newExpanded = new Set(state.expandedTags);
+            action.tagPaths.forEach(path => newExpanded.add(path));
+            return { ...state, expandedTags: newExpanded };
         }
         
         case 'CLEANUP_DELETED_FOLDERS': {
@@ -181,13 +187,3 @@ export function useExpansionDispatch() {
     return context;
 }
 
-// Helper functions for common operations
-export function getParentFolderPaths(folder: TFolder): string[] {
-    const paths: string[] = [];
-    let current = folder.parent;
-    while (current) {
-        paths.push(current.path);
-        current = current.parent;
-    }
-    return paths.reverse();
-}

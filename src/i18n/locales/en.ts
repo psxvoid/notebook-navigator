@@ -32,8 +32,8 @@ export const STRINGS_EN = {
         featureImageAlt: 'Feature image', // Alt text for thumbnail/preview images (English: Feature image)
     },
 
-    // File list
-    fileList: {
+    // List pane
+    listPane: {
         emptyStateNoSelection: 'Select a folder or tag to view notes', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'No notes', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 Pinned', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
@@ -78,21 +78,33 @@ export const STRINGS_EN = {
             openToRight: 'Open to the right',
             openInNewWindow: 'Open in new window',
             openMultipleInNewTabs: 'Open {count} notes in new tabs',
+            openMultipleFilesInNewTabs: 'Open {count} files in new tabs',
             openMultipleToRight: 'Open {count} notes to the right',
+            openMultipleFilesToRight: 'Open {count} files to the right',
             openMultipleInNewWindows: 'Open {count} notes in new windows',
+            openMultipleFilesInNewWindows: 'Open {count} files in new windows',
             pinNote: 'Pin note',
+            pinFile: 'Pin file',
             unpinNote: 'Unpin note',
+            unpinFile: 'Unpin file',
             pinMultipleNotes: 'Pin {count} notes',
+            pinMultipleFiles: 'Pin {count} files',
             unpinMultipleNotes: 'Unpin {count} notes',
+            unpinMultipleFiles: 'Unpin {count} files',
             duplicateNote: 'Duplicate note',
+            duplicateFile: 'Duplicate file',
             duplicateMultipleNotes: 'Duplicate {count} notes',
+            duplicateMultipleFiles: 'Duplicate {count} files',
             openVersionHistory: 'Open version history',
             revealInFinder: 'Reveal in Finder',
             showInExplorer: 'Show in system explorer',
             copyDeepLink: 'Copy deep link',
             renameNote: 'Rename note',
+            renameFile: 'Rename file',
             deleteNote: 'Delete note',
+            deleteFile: 'Delete file',
             deleteMultipleNotes: 'Delete {count} notes',
+            deleteMultipleFiles: 'Delete {count} files',
             moveToFolder: 'Move to...',
             moveMultipleToFolder: 'Move {count} files to...',
         },
@@ -129,6 +141,7 @@ export const STRINGS_EN = {
             emptyStateSearch: 'Start typing to search icons',
             emptyStateNoResults: 'No icons found',
             showingResultsInfo: 'Showing 50 of {count} results. Type more to narrow down.',
+            emojiInstructions: 'Type or paste any emoji to use it as an icon',
         },
         colorPicker: {
             header: 'Choose folder color',
@@ -187,6 +200,15 @@ export const STRINGS_EN = {
             instructions: {
                 navigate: 'to navigate',
                 move: 'to move',
+                select: 'to select',
+                dismiss: 'to dismiss',
+            },
+        },
+        tagSuggest: {
+            placeholder: 'Search tags...',
+            navigatePlaceholder: 'Navigate to tag...',
+            instructions: {
+                navigate: 'to navigate',
                 select: 'to select',
                 dismiss: 'to dismiss',
             },
@@ -277,6 +299,7 @@ export const STRINGS_EN = {
         createNewNote: 'Create new note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Move files', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'Navigate to folder', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
+        navigateToTag: 'Navigate to tag', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: 'Toggle show notes from subfolders', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
     },
 
@@ -333,7 +356,7 @@ export const STRINGS_EN = {
                 desc: 'Display the parent folder name for notes from subfolders.',
             },
             dualPane: {
-                name: 'Dual pane layout on desktop',
+                name: 'Dual pane layout (desktop only)',
                 desc: 'Show navigation pane and list pane side by side on desktop.',
             },
             autoRevealActiveNote: {
@@ -341,7 +364,7 @@ export const STRINGS_EN = {
                 desc: 'Automatically reveal notes when opened from Quick Switcher, links, or search.',
             },
             autoSelectFirstFileOnFocusChange: {
-                name: 'Auto-select first note on focus change',
+                name: 'Auto-select first note (desktop only)',
                 desc: 'Automatically open the first note when switching folders or tags.',
             },
             autoExpandFoldersTags: {
@@ -349,7 +372,7 @@ export const STRINGS_EN = {
                 desc: 'Automatically expand folders and tags when they are selected.',
             },
             showTooltips: {
-                name: 'Show tooltips',
+                name: 'Show tooltips (desktop only)',
                 desc: 'Display hover tooltips with additional information for notes and folders.',
             },
             fileVisibility: {
@@ -396,6 +419,10 @@ export const STRINGS_EN = {
             skipHeadingsInPreview: {
                 name: 'Skip headings in preview',
                 desc: 'Skip heading lines when generating preview text.',
+            },
+            skipTextBeforeFirstHeading: {
+                name: 'Skip text before first heading',
+                desc: 'Hide content before the first heading in note preview.',
             },
             skipNonTextInPreview: {
                 name: 'Skip non-text in preview',
@@ -534,6 +561,17 @@ export const STRINGS_EN = {
                 desc: 'If you love using Notebook Navigator, please consider supporting its continued development.',
                 buttonText: '❤️ Sponsor on GitHub',
             },
+            whatsNew: {
+                name: "What's new",
+                desc: 'See recent updates and improvements',
+                buttonText: 'View recent updates',
+            },
         },
+    },
+    whatsNew: {
+        title: 'What\'s new in Notebook Navigator',
+        supportMessage: 'If you find Notebook Navigator helpful, please consider supporting its development.',
+        supportButton: '❤️ Support',
+        thanksButton: 'Thanks!',
     },
 };

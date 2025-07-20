@@ -18,7 +18,7 @@
 
 import { format, parse, Locale } from 'date-fns';
 import * as locales from 'date-fns/locale';
-import { TFile, MetadataCache } from 'obsidian';
+import { TFile } from 'obsidian';
 import { strings, getCurrentLanguage } from '../i18n';
 import { NotebookNavigatorSettings } from '../settings';
 
@@ -189,87 +189,82 @@ export class DateUtils {
     }
 
     /**
-     * Get file timestamp, optionally from frontmatter
+     * Get file timestamp
      * @param file - The file to get timestamp for
      * @param dateType - Whether to get created or modified timestamp
-     * @param settings - Plugin settings
-     * @param metadataCache - Obsidian metadata cache
+     * @param cachedData - Optional cached file data containing frontmatter timestamps
+     * @param settings - Plugin settings to check if frontmatter is enabled
      * @returns Unix timestamp in milliseconds
      */
     static getFileTimestamp(
         file: TFile, 
-        dateType: 'created' | 'modified', 
-        settings: NotebookNavigatorSettings, 
-        metadataCache: MetadataCache
+        dateType: 'created' | 'modified',
+        cachedData?: { fc?: number; fm?: number },
+        settings?: NotebookNavigatorSettings
     ): number {
-        // If frontmatter dates are disabled, return file system timestamps
-        if (!settings.useFrontmatterDates) {
-            return dateType === 'created' ? file.stat.ctime : file.stat.mtime;
+        // If frontmatter metadata is enabled and we have cached timestamps, use them
+        if (settings?.useFrontmatterMetadata && cachedData) {
+            const timestamp = dateType === 'created' ? cachedData.fc : cachedData.fm;
+            if (timestamp !== undefined) {
+                return timestamp;
+            }
         }
-
-        // Try to get timestamp from frontmatter
-        const metadata = metadataCache.getFileCache(file);
-        const frontmatter = metadata?.frontmatter;
         
-        if (frontmatter) {
-            const fieldName = dateType === 'created' 
-                ? settings.frontmatterCreatedField 
-                : settings.frontmatterModifiedField;
-            
-            // If field name is empty, skip frontmatter lookup
-            if (!fieldName || fieldName.trim() === '') {
-                return dateType === 'created' ? file.stat.ctime : file.stat.mtime;
+        // Fall back to file system timestamps
+        return dateType === 'created' ? file.stat.ctime : file.stat.mtime;
+    }
+
+    /**
+     * Parse a frontmatter date value into a timestamp
+     * @param value - The frontmatter value to parse
+     * @param dateFormat - The expected date format from settings
+     * @returns Unix timestamp in milliseconds, or undefined if parsing fails
+     */
+    static parseFrontmatterDate(
+        value: unknown,
+        dateFormat: string
+    ): number | undefined {
+        if (!value) return undefined;
+
+        try {
+            // If it's already a Date object
+            if (value instanceof Date) {
+                return value.getTime();
             }
             
-            const frontmatterValue = frontmatter[fieldName];
+            // If it's a number, assume it's already a timestamp
+            if (typeof value === 'number') {
+                // If it looks like seconds (less than year 3000 in milliseconds)
+                if (value < 32503680000) {
+                    return value * 1000;
+                }
+                return value;
+            }
             
-            if (frontmatterValue) {
-                // Try to parse the frontmatter timestamp
-                try {
-                    // If it's already a Date object (rare but possible)
-                    if (frontmatterValue instanceof Date) {
-                        return frontmatterValue.getTime();
-                    }
-                    
-                    // If it's a number, assume it's already a timestamp
-                    if (typeof frontmatterValue === 'number') {
-                        // If it looks like seconds (less than year 3000 in milliseconds)
-                        if (frontmatterValue < 32503680000) {
-                            return frontmatterValue * 1000;
-                        }
-                        return frontmatterValue;
-                    }
-                    
-                    // If it's a string, parse it
-                    if (typeof frontmatterValue === 'string') {
-                        // First try to parse as ISO 8601 (standard format)
-                        const isoDate = new Date(frontmatterValue);
-                        if (!isNaN(isoDate.getTime())) {
-                            return isoDate.getTime();
-                        }
-                        
-                        // If ISO parsing failed, try with the configured format
-                        const parsedDate = parse(
-                            frontmatterValue, 
-                            settings.frontmatterDateFormat, 
-                            new Date()
-                        );
-                        
-                        // Check if parsing failed
-                        if (isNaN(parsedDate.getTime())) {
-                            // Failed to parse frontmatter timestamp - invalid format or value
-                        } else {
-                            return parsedDate.getTime();
-                        }
-                    }
-                } catch (e) {
-                    // If parsing fails, fall back to file system timestamp
-                    // Failed to parse frontmatter timestamp - fall back to file system timestamp
+            // If it's a string, parse it
+            if (typeof value === 'string') {
+                // First try to parse as ISO 8601 (standard format)
+                const isoDate = new Date(value);
+                if (!isNaN(isoDate.getTime())) {
+                    return isoDate.getTime();
+                }
+                
+                // If ISO parsing failed, try with the configured format
+                const parsedDate = parse(
+                    value, 
+                    dateFormat, 
+                    new Date()
+                );
+                
+                // Check if parsing succeeded
+                if (!isNaN(parsedDate.getTime())) {
+                    return parsedDate.getTime();
                 }
             }
+        } catch (e) {
+            // Parsing failed
         }
         
-        // Fall back to file system timestamp
-        return dateType === 'created' ? file.stat.ctime : file.stat.mtime;
+        return undefined;
     }
 }

@@ -17,8 +17,8 @@
  */
 
 import { TFile, TFolder } from 'obsidian';
-import { TagTreeNode } from '../utils/tagUtils';
-import { ItemType, FileListItemType, NavigationPaneItemType, VirtualFolder } from '../types';
+import { TagTreeNode } from '../utils/fileCacheUtils';
+import { ListPaneItemType, NavigationPaneItemType, VirtualFolder } from '../types';
 
 export interface VirtualItem<T> {
   type: string;
@@ -27,8 +27,8 @@ export interface VirtualItem<T> {
   level?: number; // For hierarchical items
 }
 
-export interface FileListItem {
-  type: FileListItemType;
+export interface ListPaneItem {
+  type: ListPaneItemType;
   data: TFile | string; // File or header text
   parentFolder?: string | null;
   key: string;

@@ -68,7 +68,7 @@ export class ColorPickerModal extends Modal {
     private itemPath: string;
     private itemType: typeof ItemType.FOLDER | typeof ItemType.TAG;
     private colorGrid: HTMLDivElement;
-    private focusedIndex: number = -1;
+    // private focusedIndex: number = -1; // TODO: Implement keyboard navigation
     private gridColumns: number = 5;
 
     /** Callback function invoked when a color is selected */
@@ -216,7 +216,7 @@ export class ColorPickerModal extends Modal {
 
                 if (newIndex !== currentIndex && newIndex >= 0 && newIndex < colorItems.length) {
                     colorItems[newIndex].focus();
-                    this.focusedIndex = newIndex;
+                    // this.focusedIndex = newIndex; // TODO: Implement keyboard navigation
                 }
             }
         });
@@ -229,7 +229,7 @@ export class ColorPickerModal extends Modal {
         const firstColor = this.colorGrid.querySelector('.nn-color-item') as HTMLElement;
         if (firstColor) {
             firstColor.focus();
-            this.focusedIndex = 0;
+            // this.focusedIndex = 0; // TODO: Implement keyboard navigation
         }
     }
 

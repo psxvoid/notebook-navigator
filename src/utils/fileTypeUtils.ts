@@ -51,46 +51,6 @@ export const IMAGE_EXTENSIONS = new Set([
     'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp'
 ]);
 
-/**
- * Get all file extensions that Obsidian can handle (including from plugins)
- * This includes both core Obsidian types and any extensions registered by plugins
- */
-export function getObsidianSupportedExtensions(app: App): Set<string> {
-    const extensions = new Set<string>(CORE_OBSIDIAN_EXTENSIONS);
-    
-    try {
-        // Try to get registered view types from Obsidian's view registry
-        const extendedApp = app as ExtendedApp;
-        
-        if (extendedApp.viewRegistry?.typeByExtension) {
-            const typeByExtension = extendedApp.viewRegistry.typeByExtension;
-            if (typeByExtension && typeof typeByExtension === 'object') {
-                for (const ext of Object.keys(typeByExtension)) {
-                    if (typeof ext === 'string') {
-                        extensions.add(ext);
-                    }
-                }
-            }
-        }
-        
-        // Also check for registered extensions in the metadataTypeManager
-        // This catches some additional file types that plugins might register
-        if (extendedApp.metadataTypeManager?.registeredExtensions) {
-            const registeredExtensions = extendedApp.metadataTypeManager.registeredExtensions;
-            if (Array.isArray(registeredExtensions)) {
-                for (const ext of registeredExtensions) {
-                    if (typeof ext === 'string') {
-                        extensions.add(ext);
-                    }
-                }
-            }
-        }
-    } catch (e) {
-        // If we can't access internal APIs, just use the core extensions
-    }
-    
-    return extensions;
-}
 
 /**
  * Check if a file should be displayed based on the visibility setting
@@ -106,8 +66,41 @@ export function shouldDisplayFile(file: TFile, visibility: FileVisibility, app: 
             return file.extension === 'md';
             
         case FILE_VISIBILITY.SUPPORTED:
-            const supportedExtensions = getObsidianSupportedExtensions(app);
-            return supportedExtensions.has(file.extension);
+            // Get supported extensions inline
+            const extensions = new Set<string>(CORE_OBSIDIAN_EXTENSIONS);
+            
+            try {
+                // Try to get registered view types from Obsidian's view registry
+                const extendedApp = app as ExtendedApp;
+                
+                if (extendedApp.viewRegistry?.typeByExtension) {
+                    const typeByExtension = extendedApp.viewRegistry.typeByExtension;
+                    if (typeByExtension && typeof typeByExtension === 'object') {
+                        for (const ext of Object.keys(typeByExtension)) {
+                            if (typeof ext === 'string') {
+                                extensions.add(ext);
+                            }
+                        }
+                    }
+                }
+                
+                // Also check for registered extensions in the metadataTypeManager
+                // This catches some additional file types that plugins might register
+                if (extendedApp.metadataTypeManager?.registeredExtensions) {
+                    const registeredExtensions = extendedApp.metadataTypeManager.registeredExtensions;
+                    if (Array.isArray(registeredExtensions)) {
+                        for (const ext of registeredExtensions) {
+                            if (typeof ext === 'string') {
+                                extensions.add(ext);
+                            }
+                        }
+                    }
+                }
+            } catch (e) {
+                // If we can't access internal APIs, just use the core extensions
+            }
+            
+            return extensions.has(file.extension);
             
         case FILE_VISIBILITY.ALL:
             return true;
@@ -128,13 +121,3 @@ export function isImageFile(file: TFile): boolean {
     return IMAGE_EXTENSIONS.has(file.extension.toLowerCase());
 }
 
-/**
- * Check if Obsidian can handle this file type natively
- */
-export function canObsidianHandle(file: TFile, app: App): boolean {
-    if (!file || !file.extension) {
-        return false;
-    }
-    const supportedExtensions = getObsidianSupportedExtensions(app);
-    return supportedExtensions.has(file.extension);
-}

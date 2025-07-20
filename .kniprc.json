@@ -1,0 +1,28 @@
+{
+  "$schema": "https://unpkg.com/knip@5/schema.json",
+  "entry": ["src/main.ts"],
+  "project": ["src/**/*.{ts,tsx}"],
+  "ignore": [
+    "src/i18n/locales/**"
+  ],
+  "ignoreDependencies": [
+    "@types/node",
+    "typescript",
+    "builtin-modules"
+  ],
+  "ignoreExportsUsedInFile": {
+    "interface": true,
+    "type": true,
+    "enum": true
+  },
+  "rules": {
+    "files": "error",
+    "exports": "error",
+    "types": "off",
+    "nsTypes": "off",
+    "enumMembers": "off",
+    "duplicates": "off",
+    "unlisted": "error",
+    "unresolved": "error"
+  }
+}

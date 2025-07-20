@@ -16,10 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, TFolder, MetadataCache } from 'obsidian';
+import { TFile, TFolder } from 'obsidian';
 import type { SortOption, NotebookNavigatorSettings } from '../settings';
-import { DateUtils } from './DateUtils';
+import { DateUtils } from './dateUtils';
 import { NavigationItemType, ItemType } from '../types';
+import { FileCache } from '../types/cache';
+import { getCachedFileData } from './cacheUtils';
 
 /**
  * Available sort options in order they appear in menus
@@ -60,43 +62,68 @@ export function getEffectiveSortOption(
  * Sorts an array of files according to the specified sort option
  * @param files - Array of files to sort (will be mutated)
  * @param sortOption - How to sort the files
- * @param settings - Plugin settings for frontmatter date support
- * @param metadataCache - Metadata cache for reading frontmatter
+ * @param cache - Optional file cache for frontmatter metadata
+ * @param settings - Optional settings for frontmatter configuration
  */
 export function sortFiles(
     files: TFile[], 
     sortOption: SortOption,
-    settings: NotebookNavigatorSettings,
-    metadataCache: MetadataCache
+    cache?: FileCache | null,
+    settings?: NotebookNavigatorSettings
+): void;
+
+/**
+ * Sorts an array of files according to the specified sort option using getter functions
+ * @param files - Array of files to sort (will be mutated)
+ * @param sortOption - How to sort the files
+ * @param getCreatedTime - Function to get file created time
+ * @param getModifiedTime - Function to get file modified time
+ */
+export function sortFiles(
+    files: TFile[], 
+    sortOption: SortOption,
+    getCreatedTime: (file: TFile) => number,
+    getModifiedTime: (file: TFile) => number
+): void;
+
+export function sortFiles(
+    files: TFile[], 
+    sortOption: SortOption,
+    cacheOrGetCreated?: FileCache | null | ((file: TFile) => number),
+    settingsOrGetModified?: NotebookNavigatorSettings | ((file: TFile) => number)
 ): void {
+    // Helper function to get timestamp for sorting
+    let getTimestamp: (file: TFile, type: 'created' | 'modified') => number;
+    
+    if (typeof cacheOrGetCreated === 'function' && typeof settingsOrGetModified === 'function') {
+        // Using getter functions
+        const getCreatedTime = cacheOrGetCreated;
+        const getModifiedTime = settingsOrGetModified;
+        getTimestamp = (file: TFile, type: 'created' | 'modified'): number => {
+            return type === 'created' ? getCreatedTime(file) : getModifiedTime(file);
+        };
+    } else {
+        // Using cache and settings
+        const cache = cacheOrGetCreated as FileCache | null | undefined;
+        const settings = settingsOrGetModified as NotebookNavigatorSettings | undefined;
+        getTimestamp = (file: TFile, type: 'created' | 'modified'): number => {
+            const cachedData = getCachedFileData(cache, file.path);
+            return DateUtils.getFileTimestamp(file, type, cachedData || undefined, settings);
+        };
+    }
+    
     switch (sortOption) {
         case 'modified-desc':
-            files.sort((a, b) => {
-                const aTime = DateUtils.getFileTimestamp(a, 'modified', settings, metadataCache);
-                const bTime = DateUtils.getFileTimestamp(b, 'modified', settings, metadataCache);
-                return bTime - aTime;
-            });
+            files.sort((a, b) => getTimestamp(b, 'modified') - getTimestamp(a, 'modified'));
             break;
         case 'modified-asc':
-            files.sort((a, b) => {
-                const aTime = DateUtils.getFileTimestamp(a, 'modified', settings, metadataCache);
-                const bTime = DateUtils.getFileTimestamp(b, 'modified', settings, metadataCache);
-                return aTime - bTime;
-            });
+            files.sort((a, b) => getTimestamp(a, 'modified') - getTimestamp(b, 'modified'));
             break;
         case 'created-desc':
-            files.sort((a, b) => {
-                const aTime = DateUtils.getFileTimestamp(a, 'created', settings, metadataCache);
-                const bTime = DateUtils.getFileTimestamp(b, 'created', settings, metadataCache);
-                return bTime - aTime;
-            });
+            files.sort((a, b) => getTimestamp(b, 'created') - getTimestamp(a, 'created'));
             break;
         case 'created-asc':
-            files.sort((a, b) => {
-                const aTime = DateUtils.getFileTimestamp(a, 'created', settings, metadataCache);
-                const bTime = DateUtils.getFileTimestamp(b, 'created', settings, metadataCache);
-                return aTime - bTime;
-            });
+            files.sort((a, b) => getTimestamp(a, 'created') - getTimestamp(b, 'created'));
             break;
         case 'title-asc':
             files.sort((a, b) => a.basename.localeCompare(b.basename));
@@ -116,14 +143,6 @@ export function getSortIcon(sortOption: SortOption): string {
     return sortOption.endsWith('-desc') ? 'sort-desc' : 'sort-asc';
 }
 
-/**
- * Checks if date grouping should be shown for a sort option
- * @param sortOption - The current sort option
- * @returns Whether date grouping makes sense for this sort
- */
-export function shouldShowDateGrouping(sortOption: SortOption): boolean {
-    return !sortOption.startsWith('title');
-}
 
 /**
  * Gets the date field to use based on sort option

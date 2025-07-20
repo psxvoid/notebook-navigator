@@ -121,6 +121,16 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
             });
     });
 
+    // Reveal in system explorer
+    menu.addItem((item: MenuItem) => {
+        item
+            .setTitle(strings.contextMenu.file.revealInFinder)
+            .setIcon('folder-open')
+            .onClick(async () => {
+                await fileSystemOps.revealInSystemExplorer(folder);
+            });
+    });
+
     // Folder note operations
     if (settings.enableFolderNotes) {
         menu.addSeparator();
@@ -185,8 +195,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                     const modal = new IconPickerModal(
                         app, 
                         metadataService, 
-                        folder.path,
-                        settings.recentlyUsedIcons || []
+                        folder.path
                     );
                     modal.open();
                 });

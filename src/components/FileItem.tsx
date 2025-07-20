@@ -20,14 +20,11 @@ import React, { useRef, useMemo, memo, useEffect } from 'react';
 import { TFile, setTooltip } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
-import { DateUtils } from '../utils/DateUtils';
-import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
 import { useContextMenu } from '../hooks/useContextMenu';
-import { useFilePreview } from '../hooks/useFilePreview';
-import { getFileDisplayName } from '../utils/fileNameUtils';
 import { strings } from '../i18n';
 import { ObsidianIcon } from './ObsidianIcon';
-import { useSelectionState } from '../context/SelectionContext';
+import { useFileCache } from '../context/FileCacheContext';
+import { getCachedFileData } from '../utils/cacheUtils';
 import { isImageFile } from '../utils/fileTypeUtils';
 import { ItemType } from '../types';
 
@@ -38,7 +35,11 @@ interface FileItemProps {
     hasSelectedBelow?: boolean;
     onClick: (e: React.MouseEvent) => void;
     dateGroup?: string | null;
-    formattedDate?: string;
+    formattedDates?: {
+        display: string;
+        created: string;
+        modified: string;
+    };
     parentFolder?: string | null;
 }
 
@@ -54,30 +55,67 @@ interface FileItemProps {
  * @param props.onClick - Handler called when the file is clicked
  * @returns A file item element with name, date, preview and optional image
  */
-function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow, onClick, dateGroup, formattedDate, parentFolder }: FileItemProps) {
+
+function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow, onClick, formattedDates, parentFolder }: FileItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
-    const { selectedFolder, selectedTag, selectionType } = useSelectionState();
+    const { getFileDisplayName, cache } = useFileCache();
     const fileRef = useRef<HTMLDivElement>(null);
     
-    // Get file metadata for preview
-    const metadata = app.metadataCache.getFileCache(file);
+    // Get cached data for preview and image
+    const cachedData = useMemo(() => {
+        return cache ? getCachedFileData(cache, file.path) : null;
+    }, [cache, file.path]);
     
-    // Get display name
-    const displayName = useMemo(() => 
-        getFileDisplayName(file, settings, app.metadataCache),
-        [file, settings, app.metadataCache]
-    );
+    // Get display name from context which handles cache and frontmatter
+    const displayName = useMemo(() => {
+        return getFileDisplayName(file);
+    }, [file, getFileDisplayName]);
     
-    // Use the custom hook for preview text
-    const previewText = useFilePreview({ file, metadata, settings, app });
+    // Get preview text from cache
+    const previewText = useMemo(() => {
+        if (!settings.showFilePreview || !cachedData) {
+            return '';
+        }
+        
+        return cachedData.p || '';
+    }, [settings.showFilePreview, cachedData?.p]);
+    
+    // Get display date from pre-computed dates
+    const displayDate = formattedDates?.display || '';
+    
+    // Get feature image URL - either from cache (for markdown) or the file itself (for images)
+    const featureImageUrl = useMemo(() => {
+        if (!settings.showFeatureImage) {
+            return null;
+        }
+        
+        // If the file itself is an image, use it directly
+        if (isImageFile(file)) {
+            try {
+                return app.vault.getResourcePath(file);
+            } catch (e) {
+                return null;
+            }
+        }
+        
+        // For markdown files, get from cache
+        if (cachedData) {
+            return cachedData.f || null;
+        }
+        
+        return null;
+    }, [settings.showFeatureImage, cachedData?.f, file, app]);
     
     // Enable context menu
     useContextMenu(fileRef, { type: ItemType.FILE, item: file });
     
-    // Add Obsidian tooltip
+    // Add Obsidian tooltip (desktop only)
     useEffect(() => {
         if (!fileRef.current) return;
+        
+        // Skip tooltips on mobile
+        if (isMobile) return;
         
         // Remove tooltip if disabled
         if (!settings.showTooltips) {
@@ -85,12 +123,10 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
             return;
         }
         
-        const dateTimeFormat = settings.timeFormat ? `${settings.dateFormat} ${settings.timeFormat}` : settings.dateFormat;
-        const createdDate = DateUtils.formatDate(file.stat.ctime, dateTimeFormat);
-        const modifiedDate = DateUtils.formatDate(file.stat.mtime, dateTimeFormat);
-        // Get effective sort option to determine date order
-        const effectiveSort = getEffectiveSortOption(settings, selectionType, selectedFolder, selectedTag);
-        const isCreatedSort = effectiveSort.startsWith('created-');
+        const createdDate = formattedDates?.created || '';
+        const modifiedDate = formattedDates?.modified || '';
+        // Check current sort to determine date order
+        const isCreatedSort = settings.defaultFolderSort.startsWith('created-');
         
         // Build tooltip with filename and dates
         const datesTooltip = isCreatedSort
@@ -107,85 +143,7 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
         setTooltip(fileRef.current, tooltip, { 
             placement: isRTL ? 'left' : 'right'
         });
-    }, [file.stat.ctime, file.stat.mtime, settings, selectionType, selectedFolder, displayName]);
-
-    // Use pre-formatted date if provided, otherwise format it ourselves
-    const displayDate = useMemo(() => {
-        if (formattedDate !== undefined) return formattedDate;
-        if (!settings.showDate) return '';
-        
-        const dateField = getDateField(settings.defaultFolderSort);
-        const dateToShow = file.stat[dateField];
-        return dateGroup 
-            ? DateUtils.formatDateForGroup(dateToShow, dateGroup, settings.dateFormat, settings.timeFormat)
-            : DateUtils.formatDate(dateToShow, settings.dateFormat);
-    }, [formattedDate, settings.showDate, settings.defaultFolderSort, 
-        settings.dateFormat, settings.timeFormat, file.stat.mtime, file.stat.ctime, dateGroup]);
-
-    // Calculate feature image URL if enabled
-    const featureImageUrl = useMemo(() => {
-        if (!settings.showFeatureImage) {
-            return null;
-        }
-
-        // First check if the file itself is an image
-        if (isImageFile(file)) {
-            try {
-                return app.vault.getResourcePath(file);
-            } catch (e) {
-                // Vault might not be ready
-                return null;
-            }
-        }
-
-        // For markdown files, try each property in order until we find an image
-        if (file.extension === 'md') {
-            for (const property of settings.featureImageProperties) {
-                const imagePath = metadata?.frontmatter?.[property];
-                
-                if (!imagePath) {
-                    continue;
-                }
-
-                // Handle wikilinks e.g., [[image.png]]
-                const resolvedPath = imagePath.startsWith('[[') && imagePath.endsWith(']]')
-                    ? imagePath.slice(2, -2)
-                    : imagePath;
-
-                const imageFile = app.metadataCache.getFirstLinkpathDest(resolvedPath, file.path);
-                if (imageFile) {
-                    try {
-                        return app.vault.getResourcePath(imageFile);
-                    } catch (e) {
-                        // Vault might not be ready, try next property
-                        continue;
-                    }
-                }
-            }
-            
-            // If no frontmatter image found, try embedded images as fallback
-            // This feature requires Obsidian 1.9.4+
-            if (metadata?.embeds && metadata.embeds.length > 0) {
-                for (const embed of metadata.embeds) {
-                    // Extract the link path from the embed
-                    const embedPath = embed.link;
-                    
-                    // Try to resolve the embed to a file
-                    const embedFile = app.metadataCache.getFirstLinkpathDest(embedPath, file.path);
-                    if (embedFile && isImageFile(embedFile)) {
-                        try {
-                            return app.vault.getResourcePath(embedFile);
-                        } catch (e) {
-                            // Continue to next embed
-                            continue;
-                        }
-                    }
-                }
-            }
-        }
-
-        return null;
-    }, [file.path, file.stat.mtime, metadata, settings.showFeatureImage, settings.featureImageProperties, app.metadataCache, app.vault]);
+    }, [isMobile, file.stat.ctime, file.stat.mtime, settings, displayName, formattedDates]);
     
     // Detect slim mode when all display options are disabled
     const isSlimMode = !settings.showDate && 
@@ -263,7 +221,18 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
                         {shouldShowFeatureImageArea && (
                             <div className="nn-feature-image">
                                 {featureImageUrl ? (
-                                    <img src={featureImageUrl} alt={strings.common.featureImageAlt} className="nn-feature-image-img" />
+                                    <img 
+                                        src={featureImageUrl} 
+                                        alt={strings.common.featureImageAlt} 
+                                        className="nn-feature-image-img"
+                                        onError={(e) => {
+                                            const img = e.target as HTMLImageElement;
+                                            const featureImageDiv = img.closest('.nn-feature-image');
+                                            if (featureImageDiv) {
+                                                (featureImageDiv as HTMLElement).style.display = 'none';
+                                            }
+                                        }}
+                                    />
                                 ) : (
                                     <div className="nn-file-extension-badge">
                                         <span className="nn-file-extension-text">.{file.extension}</span>
@@ -290,21 +259,4 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
  * - The onClick handler changes (should be stable from parent)
  * - Settings version changes (forces re-render for settings updates)
  */
-export const FileItem = memo(FileItemInternal, (prevProps, nextProps) => {
-    // Return true if props are equal (skip re-render)
-    // Return false if props changed (do re-render)
-    const isEqual = (
-        prevProps.file.path === nextProps.file.path &&
-        prevProps.file.name === nextProps.file.name &&
-        prevProps.file.stat.mtime === nextProps.file.stat.mtime &&
-        prevProps.isSelected === nextProps.isSelected &&
-        prevProps.hasSelectedAbove === nextProps.hasSelectedAbove &&
-        prevProps.hasSelectedBelow === nextProps.hasSelectedBelow &&
-        prevProps.dateGroup === nextProps.dateGroup &&
-        prevProps.onClick === nextProps.onClick &&
-        prevProps.formattedDate === nextProps.formattedDate &&
-        prevProps.parentFolder === nextProps.parentFolder
-    );
-    
-    return isEqual;
-});
+export const FileItem = memo(FileItemInternal);

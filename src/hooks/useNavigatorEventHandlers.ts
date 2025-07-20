@@ -16,8 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { useEffect, useState, RefObject, Dispatch, SetStateAction } from 'react';
-import { App, TAbstractFile, TFile, TFolder } from 'obsidian';
+import { useEffect, RefObject, Dispatch, SetStateAction } from 'react';
+import { App, TAbstractFile, TFile, TFolder, debounce, Platform } from 'obsidian';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionDispatch } from '../context/SelectionContext';
@@ -47,6 +47,7 @@ export function useNavigatorEventHandlers({
     const uiDispatch = useUIDispatch();
     const expansionDispatch = useExpansionDispatch();
     const selectionDispatch = useSelectionDispatch();
+    const isMobile = Platform.isMobile;
     
     // Handle delete events to clean up stale state
     useEffect(() => {
@@ -87,11 +88,22 @@ export function useNavigatorEventHandlers({
     
     // Handle focus/blur events to track when navigator has focus
     useEffect(() => {
+        // Skip focus tracking on mobile since it's always considered focused
+        if (isMobile) {
+            setIsNavigatorFocused(true);
+            return;
+        }
+        
         const container = containerRef.current;
         if (!container) return;
 
+        // Create debounced focus handlers to prevent rapid state changes
+        const debouncedSetFocused = debounce((focused: boolean) => {
+            setIsNavigatorFocused(focused);
+        }, 100);
+
         const handleFocus = () => {
-            setIsNavigatorFocused(true);
+            debouncedSetFocused(true);
         };
 
         const handleBlur = (e: FocusEvent) => {
@@ -99,7 +111,7 @@ export function useNavigatorEventHandlers({
             if (e.relatedTarget && container.contains(e.relatedTarget as Node)) {
                 return;
             }
-            setIsNavigatorFocused(false);
+            debouncedSetFocused(false);
         };
 
         container.addEventListener('focusin', handleFocus);
@@ -112,7 +124,7 @@ export function useNavigatorEventHandlers({
             container.removeEventListener('focusin', handleFocus);
             container.removeEventListener('focusout', handleBlur);
         };
-    }, [containerRef, setIsNavigatorFocused]);
+    }, [containerRef, setIsNavigatorFocused, isMobile]);
     
     // Ensure the container has focus when the focused pane changes
     useEffect(() => {

@@ -32,8 +32,8 @@ export const STRINGS_FR = {
         featureImageAlt: 'Image vedette', // Alt text for thumbnail/preview images (English: Feature image)
     },
 
-    // File list
-    fileList: {
+    // List pane
+    listPane: {
         emptyStateNoSelection: 'Sélectionnez un dossier ou une étiquette pour afficher les notes', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'Aucune note', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 Épinglées', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
@@ -95,6 +95,19 @@ export const STRINGS_FR = {
             deleteMultipleNotes: 'Supprimer {count} notes',
             moveToFolder: 'Move to...',
             moveMultipleToFolder: 'Move {count} files to...',
+            // File-specific context menu items (non-markdown files)
+            openMultipleFilesInNewTabs: 'Ouvrir {count} fichiers dans de nouveaux onglets',
+            openMultipleFilesToRight: 'Ouvrir {count} fichiers à droite',
+            openMultipleFilesInNewWindows: 'Ouvrir {count} fichiers dans de nouvelles fenêtres',
+            pinFile: 'Épingler le fichier',
+            unpinFile: 'Désépingler le fichier',
+            pinMultipleFiles: 'Épingler {count} fichiers',
+            unpinMultipleFiles: 'Désépingler {count} fichiers',
+            duplicateFile: 'Dupliquer le fichier',
+            duplicateMultipleFiles: 'Dupliquer {count} fichiers',
+            renameFile: 'Renommer le fichier',
+            deleteFile: 'Supprimer le fichier',
+            deleteMultipleFiles: 'Supprimer {count} fichiers',
         },
         folder: {
             newNote: 'Créer une nouvelle note',
@@ -129,6 +142,7 @@ export const STRINGS_FR = {
             emptyStateSearch: 'Commencez à taper pour rechercher des icônes',
             emptyStateNoResults: 'Aucune icône trouvée',
             showingResultsInfo: 'Affichage de 50 résultats sur {count}. Tapez plus pour affiner.',
+            emojiInstructions: 'Tapez ou collez n\'importe quel emoji pour l\'utiliser comme icône',
         },
         colorPicker: {
             header: 'Choisir la couleur du dossier',
@@ -187,6 +201,15 @@ export const STRINGS_FR = {
             instructions: {
                 navigate: 'pour naviguer',
                 move: 'pour déplacer',
+                select: 'pour sélectionner',
+                dismiss: 'pour annuler',
+            },
+        },
+        tagSuggest: {
+            placeholder: 'Rechercher des étiquettes...',
+            navigatePlaceholder: 'Naviguer vers l\'étiquette...',
+            instructions: {
+                navigate: 'pour naviguer',
                 select: 'pour sélectionner',
                 dismiss: 'pour annuler',
             },
@@ -277,6 +300,7 @@ export const STRINGS_FR = {
         createNewNote: 'Créer une nouvelle note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: 'Déplacer les fichiers', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'Naviguer vers le dossier', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
+        navigateToTag: 'Naviguer vers l\'étiquette', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: 'Basculer l\'affichage des notes des sous-dossiers',
     },
 
@@ -333,7 +357,7 @@ export const STRINGS_FR = {
                 desc: 'Afficher le nom du dossier parent pour les notes provenant des sous-dossiers.',
             },
             dualPane: {
-                name: 'Disposition à double panneau sur ordinateur',
+                name: 'Disposition à double panneau (ordinateur uniquement)',
                 desc: 'Afficher le panneau de navigation et le panneau de liste côte à côte sur ordinateur.',
             },
             autoRevealActiveNote: {
@@ -341,7 +365,7 @@ export const STRINGS_FR = {
                 desc: 'Révéler automatiquement les notes lorsqu\'elles sont ouvertes depuis le Commutateur rapide, les liens ou la recherche.',
             },
             autoSelectFirstFileOnFocusChange: {
-                name: 'Sélectionner automatiquement la première note lors du changement de dossier ou d\'étiquette',
+                name: 'Sélectionner automatiquement la première note (ordinateur uniquement)',
                 desc: 'Ouvrir automatiquement la première note lors du changement de dossier ou d\'étiquette.',
             },
             autoExpandFoldersTags: {
@@ -349,7 +373,7 @@ export const STRINGS_FR = {
                 desc: 'Développer automatiquement les dossiers et les étiquettes lorsqu\'ils sont sélectionnés.',
             },
             showTooltips: {
-                name: 'Afficher les infobulles',
+                name: 'Afficher les infobulles (ordinateur uniquement)',
                 desc: 'Affiche des infobulles avec des informations supplémentaires pour les notes et dossiers au survol.',
             },
             excludedNotes: {
@@ -396,6 +420,10 @@ export const STRINGS_FR = {
             skipHeadingsInPreview: {
                 name: 'Ignorer les en-têtes dans l\'aperçu',
                 desc: 'Ignorer les lignes d\'en-tête lors de la génération du texte d\'aperçu.',
+            },
+            skipTextBeforeFirstHeading: {
+                name: 'Skip text before first heading',
+                desc: 'Hide content before the first heading in note preview.',
             },
             skipNonTextInPreview: {
                 name: 'Ignorer le non-texte dans l\'aperçu',
@@ -534,6 +562,17 @@ export const STRINGS_FR = {
                 desc: 'Si vous aimez utiliser le Navigateur de Carnets, veuillez envisager de soutenir son développement continu.',
                 buttonText: '❤️ Sponsoriser sur GitHub',
             },
+            whatsNew: {
+                name: "What's new",
+                desc: 'See recent updates and improvements',
+                buttonText: 'View recent updates',
+            },
         },
+    },
+    whatsNew: {
+        title: 'What\'s new in Notebook Navigator',
+        supportMessage: 'If you find Notebook Navigator helpful, please consider supporting its development.',
+        supportButton: '❤️ Support',
+        thanksButton: 'Thanks!',
     },
 };

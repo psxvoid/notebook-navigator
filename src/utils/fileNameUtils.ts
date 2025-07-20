@@ -16,37 +16,25 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, MetadataCache } from 'obsidian';
+import { TFile } from 'obsidian';
+import { FileData } from '../types/cache';
 import { NotebookNavigatorSettings } from '../settings';
 
 /**
- * Get the display name for a file, optionally reading from frontmatter
+ * Get the display name for a file
  * @param file - The file to get the name for
- * @param settings - Plugin settings
- * @param metadataCache - Obsidian metadata cache
+ * @param cachedData - Optional cached file data containing frontmatter name
+ * @param settings - Plugin settings to check if frontmatter is enabled
  * @returns The display name for the file
  */
 export function getFileDisplayName(
     file: TFile,
-    settings: NotebookNavigatorSettings,
-    metadataCache: MetadataCache
+    cachedData?: FileData,
+    settings?: NotebookNavigatorSettings
 ): string {
-    // If frontmatter is disabled or no field is specified, return basename
-    if (!settings.useFrontmatterDates || !settings.frontmatterNameField || settings.frontmatterNameField.trim() === '') {
-        return file.basename;
-    }
-
-    // Try to get name from frontmatter
-    const metadata = metadataCache.getFileCache(file);
-    const frontmatter = metadata?.frontmatter;
-    
-    if (frontmatter) {
-        const frontmatterName = frontmatter[settings.frontmatterNameField];
-        
-        // Return frontmatter name if it exists and is a non-empty string
-        if (frontmatterName && typeof frontmatterName === 'string' && frontmatterName.trim() !== '') {
-            return frontmatterName.trim();
-        }
+    // If we have cached frontmatter name and feature is enabled, use it
+    if (cachedData?.fn && settings?.useFrontmatterMetadata) {
+        return cachedData.fn;
     }
     
     // Fall back to file basename

@@ -101,18 +101,6 @@ export function findFileIndex(files: TFile[], targetFile: TFile | null): number 
     return files.findIndex(f => f.path === targetFile.path);
 }
 
-/**
- * Check if we should show multi-selection options in context menu
- * @param selectedFiles - Set of selected file paths
- * @param clickedFilePath - Path of the file that was right-clicked
- * @returns True if multi-selection options should be shown
- */
-export function shouldShowMultiSelectOptions(
-    selectedFiles: Set<string>, 
-    clickedFilePath: string
-): boolean {
-    return selectedFiles.size > 1 && selectedFiles.has(clickedFilePath);
-}
 
 /**
  * Update selection after a file operation (delete, move, etc.)

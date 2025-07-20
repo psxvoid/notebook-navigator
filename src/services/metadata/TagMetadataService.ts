@@ -19,7 +19,8 @@
 import { SortOption } from '../../settings';
 import { ItemType } from '../../types';
 import { BaseMetadataService } from './BaseMetadataService';
-import { buildTagTree, TagTreeNode } from '../../utils/tagUtils';
+import { buildTagTree } from '../../utils/tagTreeUtils';
+import { TagTreeNode } from '../../types/cache';
 
 /**
  * Service for managing tag-specific metadata operations

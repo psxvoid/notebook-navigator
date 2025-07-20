@@ -37,9 +37,9 @@ export class MetadataService {
      * @param updateSettings - Function to update and persist settings
      */
     constructor(
-        private app: App,
-        private settings: NotebookNavigatorSettings,
-        private updateSettings: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>
+        app: App,
+        settings: NotebookNavigatorSettings,
+        updateSettings: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>
     ) {
         // Initialize sub-services
         this.folderService = new FolderMetadataService(app, settings, updateSettings);
@@ -162,7 +162,7 @@ export class MetadataService {
      */
     async cleanupAllMetadata(): Promise<boolean> {
         // Run cleanup for folders and files only
-        // Tag cleanup is handled separately in TagCacheProvider after tag tree is built
+        // Tag cleanup is handled separately in FileCacheProvider after tag tree is built
         // This ensures parent tags are properly identified before cleanup
         const [folderChanges, fileChanges] = await Promise.all([
             this.folderService.cleanupFolderMetadata(),
@@ -174,7 +174,7 @@ export class MetadataService {
 
     /**
      * Cleanup tag metadata for tags that no longer exist in the vault
-     * Called by TagCacheProvider after tag tree is successfully built
+     * Called by FileCacheProvider after tag tree is successfully built
      * This ensures the metadata cache is ready and all parent tags are identified
      * @returns True if any changes were made
      */

@@ -21,38 +21,28 @@ import { NotebookNavigatorSettings } from '../settings';
 // Pre-compiled regex patterns for stripping markdown
 // Order matters - these are applied sequentially from inside out
 
-// Line start patterns
-const REGEX_HEADING = /^#+\s+/gm;
-const REGEX_LIST_MARKERS = /^[-*+]\s+/gm;
-const REGEX_ORDERED_LIST_MARKERS = /^\d+\.\s+/gm;
-const REGEX_BLOCKQUOTE = /^>\s+/gm;
-
-// Inline patterns - processed in specific order
-const REGEX_INLINE_CODE = /`([^`]+)`/g;
-const REGEX_BOLD_ITALIC_STARS = /\*\*\*([^\*]+)\*\*\*/g;
-const REGEX_BOLD_ITALIC_UNDERSCORES = /___([^_]+)___/g;
-const REGEX_BOLD_STARS = /\*\*([^\*]+)\*\*/g;
-const REGEX_BOLD_UNDERSCORES = /__([^_]+)__/g;
-// iOS compatible: match italic stars that aren't surrounded by digits
-const REGEX_ITALIC_STARS = /(^|[^\d])\*([^\*\n]+)\*(?!\d)/g;
-// iOS compatible: match italic underscores that aren't surrounded by alphanumeric
-const REGEX_ITALIC_UNDERSCORES = /(^|[^a-zA-Z0-9])_([^_\n]+)_(?![a-zA-Z0-9])/g;
-const REGEX_STRIKETHROUGH = /~~([^~]+)~~/g;
-const REGEX_HIGHLIGHT = /==([^=]+)==/g;
-
-// Link patterns
-const REGEX_LINK = /\[([^\]]+)\]\([^\)]+\)/g;
-const REGEX_WIKI_LINK_DISPLAY = /\[\[([^\]|]+)\|([^\]]+)\]\]/g;
-const REGEX_WIKI_LINK = /\[\[([^\]]+)\]\]/g;
-
-// Special characters
-const REGEX_ESCAPE_CHARS = /\\([*_~`])/g;
-
-// Pre-compiled regex patterns for counting attachments/links
-const REGEX_MARKDOWN_IMAGE = /!\[.*?\]\((.*?)\)/g;
-const REGEX_WIKI_EMBED = /!\[\[.*?\]\]/g;
-const REGEX_WEB_URL = /^(https?:\/\/|www\.)/;
-const REGEX_WEB_LINK = /(?:https?:\/\/|www\.)[^\s\)]+/g;
+// Individual patterns - kept for reference but now unused due to combined regex
+// const REGEX_HEADING = /^#+\s+/gm;
+// const REGEX_LIST_MARKERS = /^[-*+]\s+/gm;
+// const REGEX_ORDERED_LIST_MARKERS = /^\d+\.\s+/gm;
+// const REGEX_BLOCKQUOTE = /^>\s+/gm;
+// const REGEX_INLINE_CODE = /`([^`]+)`/g;
+// const REGEX_BOLD_ITALIC_STARS = /\*\*\*([^\*]+)\*\*\*/g;
+// const REGEX_BOLD_ITALIC_UNDERSCORES = /___([^_]+)___/g;
+// const REGEX_BOLD_STARS = /\*\*([^\*]+)\*\*/g;
+// const REGEX_BOLD_UNDERSCORES = /__([^_]+)__/g;
+// const REGEX_ITALIC_STARS = /(^|[^\d])\*([^\*\n]+)\*(?!\d)/g;
+// const REGEX_ITALIC_UNDERSCORES = /(^|[^a-zA-Z0-9])_([^_\n]+)_(?![a-zA-Z0-9])/g;
+// const REGEX_STRIKETHROUGH = /~~([^~]+)~~/g;
+// const REGEX_HIGHLIGHT = /==([^=]+)==/g;
+// const REGEX_LINK = /\[([^\]]+)\]\([^\)]+\)/g;
+// const REGEX_WIKI_LINK_DISPLAY = /\[\[([^\]|]+)\|([^\]]+)\]\]/g;
+// const REGEX_WIKI_LINK = /\[\[([^\]]+)\]\]/g;
+// const REGEX_ESCAPE_CHARS = /\\([*_~`])/g;
+// const REGEX_MARKDOWN_IMAGE = /!\[.*?\]\((.*?)\)/g;
+// const REGEX_WIKI_EMBED = /!\[\[.*?\]\]/g;
+// const REGEX_WEB_URL = /^(https?:\/\/|www\.)/;
+// const REGEX_WEB_LINK = /(?:https?:\/\/|www\.)[^\s\)]+/g;
 
 // Combined regex for single-pass markdown stripping
 // IMPORTANT: Order matters! More specific patterns must come before less specific ones
@@ -99,60 +89,41 @@ export class PreviewTextUtils {
      */
     static stripMarkdownSyntax(text: string): string {
         return text.replace(COMBINED_MARKDOWN_REGEX, (...args) => {
-            // args = [fullMatch, g1, g2, g3, ..., offset, originalString]
-            
-            // Special handling for italic patterns (groups 7 and 8)
-            // These now have two capture groups each: prefix and content
-            
-            // Group 1: Escape characters
-            if (args[1] !== undefined) return args[1];
-            
-            // Group 2: Inline code
-            if (args[2] !== undefined) return args[2];
-            
-            // Group 3: Bold italic stars
-            if (args[3] !== undefined) return args[3];
-            
-            // Group 4: Bold italic underscores
-            if (args[4] !== undefined) return args[4];
-            
-            // Group 5: Bold stars
-            if (args[5] !== undefined) return args[5];
-            
-            // Group 6: Bold underscores
-            if (args[6] !== undefined) return args[6];
-            
-            // Group 7: Italic stars (prefix + content)
-            if (args[7] !== undefined && args[8] !== undefined) {
-                return args[7] + args[8]; // Keep prefix and content
+            // Use a single loop to find which group matched
+            // Start from 1 to skip args[0] (full match)
+            for (let i = 1; i < 16; i++) {
+                if (args[i] !== undefined) {
+                    switch (i) {
+                        case 1:  // Escape characters
+                        case 2:  // Inline code
+                        case 3:  // Bold italic stars
+                        case 4:  // Bold italic underscores
+                        case 5:  // Bold stars
+                        case 6:  // Bold underscores
+                        case 11: // Strikethrough
+                        case 12: // Highlight
+                        case 13: // Links
+                        case 14: // Wiki links with display
+                        case 15: // Wiki links
+                            return args[i];
+                        
+                        case 7:  // Italic stars (has prefix)
+                            if (args[8] !== undefined) return args[7] + args[8];
+                            break;
+                        
+                        case 9:  // Italic underscores (has prefix)
+                            if (args[10] !== undefined) return args[9] + args[10];
+                            break;
+                    }
+                }
             }
-            
-            // Group 9: Italic underscores (prefix + content)
-            if (args[9] !== undefined && args[10] !== undefined) {
-                return args[9] + args[10]; // Keep prefix and content
-            }
-            
-            // Group 11: Strikethrough
-            if (args[11] !== undefined) return args[11];
-            
-            // Group 12: Highlight
-            if (args[12] !== undefined) return args[12];
-            
-            // Group 13: Links
-            if (args[13] !== undefined) return args[13];
-            
-            // Group 14: Wiki links with display
-            if (args[14] !== undefined) return args[14];
-            
-            // Group 15: Wiki links
-            if (args[15] !== undefined) return args[15];
             
             // Line start patterns - remove entirely
-            if (args[0].match(/^(?:#+\s+|[-*+]\s+|\d+\.\s+|>\s+)/)) {
+            if (args[0][0] === '#' || args[0][0] === '-' || args[0][0] === '*' || 
+                args[0][0] === '+' || args[0][0] === '>' || /^\d/.test(args[0])) {
                 return '';
             }
             
-            // Fallback - should not happen with our regex
             return args[0];
         });
     }
@@ -160,128 +131,165 @@ export class PreviewTextUtils {
 
     /**
      * Extracts preview text from markdown content
-     * Optimized single-pass implementation that combines counting and preview extraction
+     * Optimized implementation with early exit and minimal processing
      * @param content The full markdown content
      * @param settings The plugin settings to determine skip behavior
      * @returns The preview text (max 300 chars) or a descriptive message
      */
     static extractPreviewText(content: string, settings: NotebookNavigatorSettings): string {
-        const lines = content.split('\n');
-        let lineIndex = 0;
+        // Early exit for empty content
+        if (!content || content.length === 0) {
+            return '';
+        }
         
-        // Skip frontmatter
-        if (lines[0] === '---') {
-            const endIndex = lines.findIndex((line, idx) => idx > 0 && line === '---');
+        // Calculate max chars: 100 for first line, +50 for each additional line, max 300
+        const maxChars = Math.min(100 + (settings.previewRows - 1) * 50, 300);
+        let startIndex = 0;
+        
+        // Skip frontmatter using indexOf (more efficient than split)
+        if (content.startsWith('---\n')) {
+            const endIndex = content.indexOf('\n---\n', 4);
             if (endIndex > 0) {
-                lineIndex = endIndex + 1;
+                startIndex = endIndex + 5; // Skip past "\n---\n"
             }
         }
         
-        // Single pass through the document
-        let attachmentCount = 0;
-        let webLinkCount = 0;
-        let previewLines = [];
-        let charCount = 0;
-        const maxChars = 300; // Increased to accommodate up to 5 lines
-        let hasCollectedPreview = false;
+        // Build preview directly without intermediate arrays
+        let preview = '';
+        let currentIndex = startIndex;
+        let hasContent = false;
         
-        while (lineIndex < lines.length) {
-            const line = lines[lineIndex];
-            const trimmedLine = line.trim();
+        // If skipTextBeforeFirstHeading is enabled, find the first heading
+        if (settings.skipTextBeforeFirstHeading) {
+            let foundFirstHeading = false;
+            let scanIndex = startIndex;
             
-            // Count attachments and links in every line
-            // Check for markdown images - need to use exec() to get capture groups
-            let imageMatch;
-            const imageRegex = new RegExp(REGEX_MARKDOWN_IMAGE.source, 'g');
-            while ((imageMatch = imageRegex.exec(line)) !== null) {
-                const url = imageMatch[1];
-                if (url) {
-                    if (REGEX_WEB_URL.test(url)) {
-                        webLinkCount++;
-                    } else {
-                        attachmentCount++;
-                    }
-                }
-            }
-            
-            // Count wiki embeds
-            const wikiEmbeds = line.match(REGEX_WIKI_EMBED);
-            if (wikiEmbeds) {
-                attachmentCount += wikiEmbeds.length;
-            }
-            
-            // Count web links (excluding those in images)
-            const cleanLine = line
-                .replace(REGEX_MARKDOWN_IMAGE, '')
-                .replace(REGEX_WIKI_EMBED, '');
-            const webLinks = cleanLine.match(REGEX_WEB_LINK);
-            if (webLinks) {
-                webLinkCount += webLinks.length;
-            }
-            
-            // Collect preview text if we haven't reached the limit
-            if (!hasCollectedPreview && charCount < maxChars) {
-                // Skip empty lines
-                if (trimmedLine) {
-                    let shouldInclude = true;
-                    
-                    // Skip headings if enabled
-                    if (settings.skipHeadingsInPreview && trimmedLine.match(/^#+\s/)) {
-                        shouldInclude = false;
-                    }
-                    
-                    // Skip non-text content if enabled
-                    if (shouldInclude && settings.skipNonTextInPreview) {
-                        if (
-                            trimmedLine.match(/^!\[.*?\]\(.*?\)/) || // Markdown images
-                            trimmedLine.match(/^!\[\[.*?\]\]/) ||     // Wiki embeds
-                            trimmedLine.match(/^\[.*\]\(.*\)$/) ||    // Standalone links
-                            trimmedLine.startsWith('```') ||          // Code blocks
-                            trimmedLine.match(/^(-{3,}|\*{3,}|_{3,})$/) || // Horizontal rules
-                            trimmedLine.match(/^>\s*\[![\w-]+\]/) ||  // Callout blocks
-                            (trimmedLine.startsWith('>') && trimmedLine.match(/!\[.*\]\(.*\)/)) // Blockquotes with images
-                        ) {
-                            shouldInclude = false;
-                        }
-                    }
-                    
-                    if (shouldInclude) {
-                        previewLines.push(line);
-                        charCount += line.length;
+            while (scanIndex < content.length) {
+                let lineEnd = content.indexOf('\n', scanIndex);
+                if (lineEnd === -1) lineEnd = content.length;
+                
+                const line = content.substring(scanIndex, lineEnd);
+                const trimmedLine = line.trim();
+                
+                // Check if this is a valid markdown heading (# followed by space)
+                if (trimmedLine && trimmedLine[0] === '#') {
+                    let i = 1;
+                    while (i < trimmedLine.length && trimmedLine[i] === '#') i++;
+                    if (i < trimmedLine.length && trimmedLine[i] === ' ') {
+                        currentIndex = scanIndex;
+                        foundFirstHeading = true;
+                        break;
                     }
                 }
                 
-                // Check if we've collected enough preview text
-                if (charCount >= maxChars) {
-                    hasCollectedPreview = true;
+                scanIndex = lineEnd + 1;
+            }
+            
+            // If no heading found and skipTextBeforeFirstHeading is enabled, return empty
+            if (!foundFirstHeading) {
+                return '';
+            }
+        }
+        
+        while (currentIndex < content.length && preview.length < maxChars) {
+            // Find next line
+            let lineEnd = content.indexOf('\n', currentIndex);
+            if (lineEnd === -1) lineEnd = content.length;
+            
+            const line = content.substring(currentIndex, lineEnd);
+            const trimmedLine = line.trim();
+            
+            // Process non-empty lines
+            if (trimmedLine) {
+                let shouldInclude = true;
+                
+                // Skip headings if enabled
+                if (settings.skipHeadingsInPreview && trimmedLine[0] === '#') {
+                    // Check if it's a valid heading (# followed by space or more #s)
+                    let i = 1;
+                    while (i < trimmedLine.length && trimmedLine[i] === '#') i++;
+                    if (i < trimmedLine.length && trimmedLine[i] === ' ') {
+                        shouldInclude = false;
+                    }
+                }
+                
+                // Skip non-text content if enabled
+                if (shouldInclude && settings.skipNonTextInPreview) {
+                    // Quick checks using charAt/startsWith instead of regex
+                    if (
+                        (trimmedLine[0] === '!' && (trimmedLine[1] === '[' || trimmedLine.startsWith('![['))) ||
+                        trimmedLine.startsWith('```') ||
+                        (trimmedLine.length >= 3 && (trimmedLine === '---' || trimmedLine === '***' || trimmedLine === '___')) ||
+                        (trimmedLine[0] === '[' && trimmedLine[trimmedLine.length - 1] === ')') ||
+                        (trimmedLine.startsWith('> !['))
+                    ) {
+                        shouldInclude = false;
+                    }
+                }
+                
+                if (shouldInclude) {
+                    // Strip markdown and add to preview
+                    const stripped = this.stripMarkdownSyntax(line);
+                    if (preview.length > 0) preview += ' ';
+                    preview += stripped;
+                    hasContent = true;
+                    
+                    // Stop if we've collected enough text
+                    if (preview.length >= maxChars) {
+                        break;
+                    }
                 }
             }
             
-            // Early exit optimization: only break if we have preview text AND counted some media
-            if (hasCollectedPreview && previewLines.length > 0 && (attachmentCount > 0 || webLinkCount > 0)) {
-                break;
-            }
-            
-            lineIndex++;
+            currentIndex = lineEnd + 1;
         }
         
-        // If no content found, return Notes style message
-        if (previewLines.length === 0) {
+        // If no content found, do a minimal scan for attachments
+        if (!hasContent) {
+            let attachmentCount = 0;
+            let webLinkCount = 0;
+            let scanIndex = startIndex;
+            let linesScanned = 0;
+            
+            // Scan first 20 lines (reduced from 50)
+            while (scanIndex < content.length && linesScanned < 20) {
+                let lineEnd = content.indexOf('\n', scanIndex);
+                if (lineEnd === -1) lineEnd = content.length;
+                
+                const line = content.substring(scanIndex, lineEnd);
+                
+                // Simple counting without creating match arrays
+                let pos = 0;
+                while ((pos = line.indexOf('![', pos)) !== -1) {
+                    if (line.indexOf('](', pos) > pos) {
+                        attachmentCount++;
+                    }
+                    pos += 2;
+                }
+                
+                // Count web links
+                if (line.includes('http://') || line.includes('https://')) {
+                    webLinkCount++;
+                }
+                
+                scanIndex = lineEnd + 1;
+                linesScanned++;
+            }
+            
             if (attachmentCount > 0) {
                 const totalCount = attachmentCount + webLinkCount;
                 return totalCount === 1 ? '1 attachment' : `${totalCount} attachments`;
             } else if (webLinkCount > 0) {
                 return webLinkCount === 1 ? '1 web link' : `${webLinkCount} web links`;
             }
-            return 'No additional text';
+            return '';
         }
         
-        // Strip markdown syntax from preview text
-        let preview = previewLines
-            .map(line => this.stripMarkdownSyntax(line))
-            .join(' ')
-            .substring(0, maxChars);
-        
-        return preview + (preview.length >= maxChars ? '...' : '');
+        // Truncate with ellipsis if needed
+        if (preview.length > maxChars) {
+            // Ensure we have room for the ellipsis
+            return preview.substring(0, maxChars - 1) + '…';
+        }
+        return preview;
     }
 }

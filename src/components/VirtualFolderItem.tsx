@@ -20,6 +20,7 @@ import React, { useRef, useEffect } from 'react';
 import { setIcon } from 'obsidian';
 import { useSettingsState } from '../context/SettingsContext';
 import { VirtualFolder } from '../types';
+import { getIconService } from '../services/icons';
 
 interface VirtualFolderItemProps {
     virtualFolder: VirtualFolder;
@@ -68,7 +69,7 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
 
     useEffect(() => {
         if (iconRef.current && settings.showIcons && virtualFolder.icon) {
-            setIcon(iconRef.current, virtualFolder.icon);
+            getIconService().renderIcon(iconRef.current, virtualFolder.icon);
         }
     }, [virtualFolder.icon, settings.showIcons]);
 

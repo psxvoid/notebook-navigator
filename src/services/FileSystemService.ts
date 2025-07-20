@@ -16,16 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile, TFolder, TAbstractFile, Notice, normalizePath, Platform, MarkdownView } from 'obsidian';
+import { App, TFile, TFolder, TAbstractFile, Notice, normalizePath, Platform } from 'obsidian';
 import { ExtendedApp, TIMEOUTS, OBSIDIAN_COMMANDS } from '../types/obsidian-extended';
 import { InputModal } from '../modals/InputModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
 import { FolderSuggestModal } from '../modals/FolderSuggestModal';
-import { executeCommand, isTFile, isTFolder } from '../utils/typeGuards';
+import { executeCommand } from '../utils/typeGuards';
 import { strings } from '../i18n';
-import { getFolderNote, getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { getFolderNote } from '../utils/fileFinder';
 import { NotebookNavigatorSettings } from '../settings';
-import { NavigationItemType, getSupportedLeaves, ItemType } from '../types';
+import { NavigationItemType, ItemType } from '../types';
 import type { SelectionDispatch } from '../context/SelectionContext';
 import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
 import { createFileWithOptions, createDatabaseContent } from '../utils/fileCreationUtils';
@@ -680,8 +680,8 @@ export class FileSystemOperations {
     async deleteFilesWithSmartSelection(
         selectedFiles: Set<string>,
         allFiles: TFile[],
-        settings: NotebookNavigatorSettings,
-        selectionContext: SelectionContext,
+        _settings: NotebookNavigatorSettings,
+        _selectionContext: SelectionContext,
         selectionDispatch: SelectionDispatch,
         confirmBeforeDelete: boolean
     ): Promise<void> {
@@ -813,12 +813,12 @@ export class FileSystemOperations {
     }
 
     /**
-     * Reveals a file in the system's file explorer
-     * @param file - The file to reveal
+     * Reveals a file or folder in the system's file explorer
+     * @param file - The file or folder to reveal
      */
-    async revealInSystemExplorer(file: TFile): Promise<void> {
+    async revealInSystemExplorer(file: TFile | TFolder): Promise<void> {
         try {
-            // Use Obsidian's built-in method to reveal the file
+            // Use Obsidian's built-in method to reveal the file or folder
             // Note: showInFolder is not in Obsidian's public TypeScript API, but is widely used by plugins
             // showInFolder expects the vault-relative path, not the full system path
             const extendedApp = this.app as ExtendedApp;

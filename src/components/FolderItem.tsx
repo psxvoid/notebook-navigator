@@ -17,17 +17,16 @@
  */
 
 import React, { useRef, useEffect } from 'react';
-import { TFolder, setTooltip } from 'obsidian';
+import { TFolder, setTooltip, setIcon } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
-import { setIcon } from 'obsidian';
+import { getIconService } from '../services/icons';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
 import { strings } from '../i18n';
 import { isSupportedFileExtension, ItemType } from '../types';
-import { shouldDisplayFile } from '../utils/fileTypeUtils';
 
 interface FolderItemProps {
     folder: TFolder;
@@ -38,6 +37,7 @@ interface FolderItemProps {
     onClick: () => void;
     onNameClick?: () => void;
     icon?: string;
+    fileCount?: number;
 }
 
 /**
@@ -54,7 +54,7 @@ interface FolderItemProps {
  * @param props.onClick - Handler called when the folder is clicked
  * @returns A folder item element with chevron, icon, name and optional file count
  */
-export const FolderItem = React.memo(function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick, onNameClick, icon }: FolderItemProps) {
+export const FolderItem = React.memo(function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick, onNameClick, icon, fileCount: precomputedFileCount }: FolderItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
     const folderRef = useRef<HTMLDivElement>(null);
@@ -62,8 +62,13 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
     // Enable context menu
     useContextMenu(folderRef, { type: ItemType.FOLDER, item: folder });
     
-    // Count folders and files for tooltip
+    // Count folders and files for tooltip (skip on mobile to save computation)
     const folderStats = React.useMemo(() => {
+        // Skip computation on mobile since tooltips aren't shown
+        if (isMobile || !settings.showTooltips) {
+            return { fileCount: 0, folderCount: 0 };
+        }
+        
         let fileCount = 0;
         let folderCount = 0;
         
@@ -78,11 +83,14 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
         }
         
         return { fileCount, folderCount };
-    }, [folder.path, folder.children?.length]);
+    }, [folder.path, folder.children?.length, isMobile, settings.showTooltips]);
     
     // Add Obsidian tooltip
     useEffect(() => {
         if (!folderRef.current) return;
+        
+        // Skip tooltip creation on mobile
+        if (isMobile) return;
         
         // Remove tooltip if disabled
         if (!settings.showTooltips) {
@@ -109,34 +117,11 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
         setTooltip(folderRef.current, tooltip, { 
             placement: isRTL ? 'left' : 'right'
         });
-    }, [folderStats.fileCount, folderStats.folderCount, folder.name, settings]);
+    }, [folderStats.fileCount, folderStats.folderCount, folder.name, settings, isMobile]);
     
-    // Count files in folder (including subfolders if setting enabled)
-    const fileCount = React.useMemo(() => {
-        if (!settings.showNoteCount) return 0;
-        
-        // Parse excluded properties
-        const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-        
-        const countFiles = (folder: TFolder): number => {
-            let count = 0;
-            for (const child of folder.children) {
-                if (isTFile(child)) {
-                    if (shouldDisplayFile(child, settings.fileVisibility, app)) {
-                        // Check if file should be excluded
-                        if (!shouldExcludeFile(child, excludedProperties, app)) {
-                            count++;
-                        }
-                    }
-                } else if (settings.showNotesFromSubfolders && isTFolder(child)) {
-                    count += countFiles(child);
-                }
-            }
-            return count;
-        };
-        
-        return countFiles(folder);
-    }, [folder.path, folder.children?.length, settings.showNoteCount, settings.showNotesFromSubfolders, settings.excludedFiles, settings.fileVisibility, app]);
+    // Use precomputed file count from parent component
+    // NavigationPane pre-computes all folder counts for performance
+    const fileCount = precomputedFileCount ?? 0;
 
     const hasChildren = folder.children && folder.children.some(isTFolder);
     
@@ -163,13 +148,15 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
     // Add this useEffect for the folder icon
     useEffect(() => {
         if (iconRef.current && settings.showIcons) {
+            const iconService = getIconService();
+            
             if (icon) {
                 // Custom icon is set - always show it, never toggle
-                setIcon(iconRef.current, icon);
+                iconService.renderIcon(iconRef.current, icon);
             } else {
                 // Default icon - show open folder only if has children AND is expanded
                 const iconName = (hasChildren && isExpanded) ? 'folder-open' : 'folder-closed';
-                setIcon(iconRef.current, iconName);
+                iconService.renderIcon(iconRef.current, iconName);
             }
         }
     }, [isExpanded, icon, hasChildren, settings.showIcons]);
@@ -217,8 +204,8 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
                     ></span>
                 )}
                 <span 
-                    className={`nn-folder-name ${hasFolderNote ? 'nn-has-folder-note' : ''}`}
-                    style={customColor ? { color: customColor, fontWeight: 600 } : undefined}
+                    className={`nn-folder-name ${hasFolderNote ? 'nn-has-folder-note' : ''} ${customColor ? 'nn-has-custom-color' : ''}`}
+                    style={customColor ? { color: customColor } : undefined}
                     onClick={(e) => {
                         if (onNameClick) {
                             e.stopPropagation();

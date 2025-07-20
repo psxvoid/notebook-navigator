@@ -18,12 +18,12 @@
 
 // src/hooks/useDragAndDrop.ts
 import { useCallback, useEffect, useRef } from 'react';
-import { TFolder, TFile, Notice } from 'obsidian';
+import { TFile, Notice } from 'obsidian';
 import { useServices, useFileSystemOps, useTagOperations } from '../context/ServicesContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { isTFolder, isTFile } from '../utils/typeGuards';
-import { getPathFromDataAttribute, getAbstractFileFromElement } from '../utils/domUtils';
+import { getPathFromDataAttribute } from '../utils/domUtils';
 import { strings } from '../i18n';
 import { ItemType, UNTAGGED_TAG_ID } from '../types';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';

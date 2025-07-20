@@ -18,10 +18,11 @@
 
 import React, { forwardRef } from 'react';
 import { setIcon } from 'obsidian';
-import { TagTreeNode } from '../utils/tagUtils';
+import { TagTreeNode } from '../utils/fileCacheUtils';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { ItemType } from '../types';
 import { useSettingsState } from '../context/SettingsContext';
+import { getIconService } from '../services/icons';
 
 /**
  * Props for the TagTreeItem component
@@ -90,7 +91,7 @@ export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProp
     // Update tag icon
     React.useEffect(() => {
         if (iconRef.current && settings.showIcons) {
-            setIcon(iconRef.current, customIcon || 'tags');
+            getIconService().renderIcon(iconRef.current, customIcon || 'tags');
         }
     }, [customIcon, settings.showIcons]);
 
@@ -139,7 +140,10 @@ export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProp
                         style={customColor ? { color: customColor } : undefined}
                     />
                 )}
-                <span className="nn-folder-name" style={customColor ? { color: customColor, fontWeight: 600 } : undefined}>
+                <span 
+                    className={`nn-folder-name ${customColor ? 'nn-has-custom-color' : ''}`} 
+                    style={customColor ? { color: customColor } : undefined}
+                >
                     {tagNode.name}
                 </span>
                 <span className="nn-folder-spacer" />

@@ -34,12 +34,12 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
             .setIcon('palette')
             .onClick(async () => {
                 const { IconPickerModal } = await import('../../modals/IconPickerModal');
+                const { ItemType } = await import('../../types');
                 const modal = new IconPickerModal(
                     app, 
                     metadataService, 
                     tagPath,
-                    settings.recentlyUsedIcons || [],
-                    'tag'
+                    ItemType.TAG
                 );
                 modal.open();
             });

@@ -16,38 +16,37 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useMemo, useRef, useEffect, useLayoutEffect, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
+import React, { useMemo, useRef, useEffect, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
 import { debounce } from 'obsidian';
 import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
-import { TFolder, TFile, App, getAllTags, Platform, View } from 'obsidian';
+import { TFolder } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useSettingsState } from '../context/SettingsContext';
-import { flattenFolderTree, flattenTagTree, findFolderIndex } from '../utils/treeFlattener';
+import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
 import { FolderItem } from './FolderItem';
 import { VirtualFolderComponent } from './VirtualFolderItem';
 import { TagTreeItem } from './TagTreeItem';
 import { useMetadataService } from '../context/ServicesContext';
 import { PaneHeader } from './PaneHeader';
 import { strings } from '../i18n';
-import { isTFolder } from '../utils/typeGuards';
-import type { CombinedNavigationItem, VirtualFolderItem } from '../types/virtualization';
+import { isTFolder, isTFile } from '../utils/typeGuards';
+import { shouldDisplayFile } from '../utils/fileTypeUtils';
+import type { CombinedNavigationItem } from '../types/virtualization';
 import { 
     TagTreeNode, 
     getTotalNoteCount,
     filterTagTree,
     excludeFromTagTree,
     parseTagPatterns
-} from '../utils/tagUtils';
-import { parseExcludedFolders } from '../utils/fileFilters';
+} from '../utils/fileCacheUtils';
+import { parseExcludedFolders, parseExcludedProperties, shouldExcludeFile, matchesFolderPattern } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
-import { UNTAGGED_TAG_ID, NavigationPaneItemType, ItemType, VirtualFolder, NAVITEM_HEIGHTS } from '../types';
+import { UNTAGGED_TAG_ID, NavigationPaneItemType, ItemType, VirtualFolder, NAVITEM_HEIGHTS, OVERSCAN } from '../types';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
-import { useVisibilityReveal } from '../hooks/useVisibilityReveal';
-import { ErrorBoundary } from './ErrorBoundary';
-import { useTagCache } from '../context/TagCacheContext';
+import { useFileCache } from '../context/FileCacheContext';
 
 export interface NavigationPaneHandle {
     getIndexOfPath: (path: string) => number;
@@ -55,8 +54,12 @@ export interface NavigationPaneHandle {
     scrollContainerRef: HTMLDivElement | null;
 }
 
-export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
-    const { app, plugin, isMobile } = useServices();
+interface NavigationPaneProps {
+    style?: React.CSSProperties;
+}
+
+const NavigationPaneComponent = forwardRef<NavigationPaneHandle, NavigationPaneProps>((props, ref) => {
+    const { app, isMobile } = useServices();
     const metadataService = useMetadataService();
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
@@ -73,6 +76,9 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         : selectionState.selectionType === ItemType.TAG && selectionState.selectedTag 
         ? selectionState.selectedTag 
         : null;
+    
+    // Determine if navigation pane is visible early for optimization
+    const isVisible = uiState.dualPane || uiState.currentSinglePaneView === 'navigation';
     
     // =================================================================================
     // We use useState to hold stable folder data across re-renders
@@ -124,9 +130,9 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     // =================================================================================
     // Get tag data from the context
     // =================================================================================
-    const { tagData } = useTagCache();
-    const tagTree = tagData.tree;
-    const untaggedCount = tagData.untagged;
+    const { fileData } = useFileCache();
+    const tagTree = fileData.tree;
+    const untaggedCount = fileData.untagged;
     
     // =================================================================================
     // We use useState to hold flattened items to prevent virtualizer re-initialization
@@ -134,6 +140,8 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     const [items, setItems] = useState<CombinedNavigationItem[]>([]);
     
     useEffect(() => {
+        
+        
         const rebuildItems = () => {
         const allItems: CombinedNavigationItem[] = [];
         
@@ -310,7 +318,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         expansionState.expandedVirtualFolders, settings.excludedFolders, settings.showTags, 
         settings.showTagsAboveFolders, settings.showFavoriteTagsFolder, settings.showAllTagsFolder, 
         settings.showUntagged, settings.showUntaggedInFavorites, settings.favoriteTags, settings.hiddenTags, 
-        tagTree, untaggedCount, strings.tagList.untaggedLabel]);
+        tagTree, untaggedCount, strings.tagList.untaggedLabel, isVisible, uiState.singlePane]);
     
     // Initialize virtualizer
     const rowVirtualizer = useVirtualizer({
@@ -335,7 +343,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                     return heights.folder; // fallback
             }
         },
-        overscan: isMobile ? 50 : 10, // Match FileList's mobile overscan
+        overscan: OVERSCAN,
     });
     
     // Create a map for O(1) item lookups
@@ -358,35 +366,32 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         virtualizer: rowVirtualizer,
         scrollContainerRef: scrollContainerRef.current
     }), [pathToIndex, rowVirtualizer]);
-
-    // Determine if navigation pane is visible
-    const isVisible = uiState.dualPane || uiState.currentSinglePaneView === 'navigation';
     
-    // Memoize the getSelectionIndex function to prevent the useVisibilityReveal effect
-    // from re-running on every render. Without this, the effect would constantly
-    // trigger scroll-to-selected-item, causing jumps during normal scrolling.
-    const getSelectionIndex = useCallback(() => {
-        if (selectedPath) {
-            return pathToIndex.get(selectedPath) ?? -1;
+    
+    // Scroll to selected folder/tag when needed
+    // Dependencies:
+    // - isVisible: scroll when pane becomes visible
+    // - uiState.focusedPane: scroll when pane gains focus
+    // - pathToIndex: update when tree structure changes (expand/collapse, file operations)
+    // - selectedPath: scroll when selection changes (navigate commands)
+    useEffect(() => {
+        if (!selectedPath || !rowVirtualizer || !isVisible) return;
+        
+        const index = pathToIndex.get(selectedPath);
+        
+        if (index !== undefined && index >= 0) {
+            rowVirtualizer.scrollToIndex(index, {
+                align: 'auto',
+                behavior: 'auto'
+            });
         }
-        return -1;
-    }, [selectedPath, pathToIndex]);
-    
-    // Use visibility-based reveal
-    useVisibilityReveal({
-        getSelectionIndex,
-        virtualizer: rowVirtualizer,
-        isVisible,
-        isMobile,
-        isRevealOperation: selectionState.isRevealOperation
-    });
+    }, [isVisible, uiState.focusedPane, pathToIndex, selectedPath]);
     
     // Add keyboard navigation
     useVirtualKeyboardNavigation({
         items: items,
         virtualizer: rowVirtualizer,
-        focusedPane: 'navigation',
-        containerRef: scrollContainerRef
+        focusedPane: 'navigation'
     });
     
     
@@ -397,14 +402,17 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     
     // Handle folder click
     const handleFolderClick = useCallback((folder: TFolder) => {
+        
         // Check if clicking the same folder
         const isSameFolder = selectionState.selectionType === 'folder' && 
                            selectionState.selectedFolder && 
                            selectionState.selectedFolder.path === folder.path;
         
+        
         // If clicking the same folder, just handle view switching
         if (isSameFolder) {
             if (uiState.singlePane) {
+                // The ListPane will handle scrolling when it becomes visible
                 uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
                 uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             } else {
@@ -477,10 +485,12 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
     
     // Handle tag click
     const handleTagClick = useCallback((tagPath: string) => {
+        
         // Check if clicking the same tag
         const isSameTag = selectionState.selectionType === 'tag' && 
                          selectionState.selectedTag && 
                          selectionState.selectedTag === tagPath;
+        
         
         // If clicking the same tag, just handle view switching
         if (isSameTag) {
@@ -519,6 +529,93 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
         }
     }, [selectionDispatch, uiDispatch, uiState.singlePane, settings.autoExpandFoldersTags, tagTree, expansionState.expandedTags, expansionDispatch, selectionState.selectedTag]);
     
+    // Pre-compute tag counts to avoid expensive calculations during render
+    const tagCounts = useMemo(() => {
+        const counts = new Map<string, number>();
+        
+        // Only compute if we're showing tags
+        if (!settings.showTags) return counts;
+        
+        // Add untagged count
+        if (settings.showUntagged) {
+            counts.set(UNTAGGED_TAG_ID, untaggedCount);
+        }
+        
+        // Compute counts for all tag items
+        items.forEach(item => {
+            if (item.type === NavigationPaneItemType.TAG) {
+                const tagNode = item.data as TagTreeNode;
+                counts.set(tagNode.path, getTotalNoteCount(tagNode));
+            }
+        });
+        
+        return counts;
+    }, [items, settings.showTags, settings.showUntagged, untaggedCount]);
+    
+    // Pre-fetch tag metadata to avoid synchronous service calls during render
+    const tagMetadata = useMemo(() => {
+        const metadata = new Map<string, { icon?: string; color?: string }>();
+        
+        // Only fetch if we're showing tags
+        if (!settings.showTags) return metadata;
+        
+        // Batch fetch metadata for all tag items
+        items.forEach(item => {
+            if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
+                const tagNode = item.data as TagTreeNode;
+                metadata.set(tagNode.path, {
+                    icon: metadataService.getTagIcon(tagNode.path),
+                    color: metadataService.getTagColor(tagNode.path)
+                });
+            }
+        });
+        
+        return metadata;
+    }, [items, settings.showTags, metadataService]);
+    
+    // Pre-compute folder file counts to avoid recursive counting during render
+    const folderCounts = useMemo(() => {
+        const counts = new Map<string, number>();
+        
+        // Only compute if we're showing note counts
+        if (!settings.showNoteCount) return counts;
+        
+        const excludedProperties = parseExcludedProperties(settings.excludedFiles);
+        const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
+        
+        const countFiles = (folder: TFolder): number => {
+            let count = 0;
+            for (const child of folder.children) {
+                if (isTFile(child)) {
+                    if (shouldDisplayFile(child, settings.fileVisibility, app)) {
+                        if (!shouldExcludeFile(child, excludedProperties, app)) {
+                            count++;
+                        }
+                    }
+                } else if (settings.showNotesFromSubfolders && isTFolder(child)) {
+                    // Check if this subfolder should be excluded
+                    const isExcluded = excludedFolderPatterns.some(pattern => 
+                        matchesFolderPattern(child.name, pattern)
+                    );
+                    
+                    if (!isExcluded) {
+                        count += countFiles(child);
+                    }
+                }
+            }
+            return count;
+        };
+        
+        // Compute counts for all folder items
+        items.forEach(item => {
+            if (item.type === NavigationPaneItemType.FOLDER && isTFolder(item.data)) {
+                counts.set(item.data.path, countFiles(item.data));
+            }
+        });
+        
+        return counts;
+    }, [items, settings.showNoteCount, settings.showNotesFromSubfolders, settings.excludedFiles, settings.excludedFolders, settings.fileVisibility, app]);
+    
     // Scroll to top handler for mobile header click
     const handleScrollToTop = useCallback(() => {
         if (isMobile && scrollContainerRef.current) {
@@ -541,6 +638,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                         onClick={() => handleFolderClick(item.data)}
                         onNameClick={() => handleFolderNameClick(item.data)}
                         icon={settings.folderIcons?.[item.data.path]}
+                        fileCount={folderCounts.get(item.data.path)}
                     />
                 );
                 
@@ -564,6 +662,7 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
             case NavigationPaneItemType.TAG:
             case NavigationPaneItemType.UNTAGGED: {
                 const tagNode = item.data as TagTreeNode;
+                const metadata = tagMetadata.get(tagNode.path) || {};
                 return (
                     <TagTreeItem
                         tagNode={tagNode}
@@ -573,48 +672,47 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                             selectionState.selectedTag === tagNode.path}
                         onToggle={() => handleTagToggle(tagNode.path)}
                         onClick={() => handleTagClick(tagNode.path)}
-                        fileCount={item.type === NavigationPaneItemType.UNTAGGED ? untaggedCount : getTotalNoteCount(tagNode)}
+                        fileCount={tagCounts.get(tagNode.path) || 0}
                         showFileCount={settings.showNoteCount}
-                        customIcon={metadataService.getTagIcon(tagNode.path)}
-                        customColor={metadataService.getTagColor(tagNode.path)}
+                        customIcon={metadata.icon}
+                        customColor={metadata.color}
                     />
                 );
             }
                 
             case NavigationPaneItemType.SPACER: {
                 const heights = isMobile ? NAVITEM_HEIGHTS.mobile : NAVITEM_HEIGHTS.desktop;
-                return <div style={{ height: `${heights.spacer}px` }} />; // Bottom spacer
+                return <div className="nn-nav-spacer" style={{ height: `${heights.spacer}px`, minHeight: `${heights.spacer}px` }} />; // Bottom spacer
             }
             
             case NavigationPaneItemType.LIST_SPACER: {
                 const heights = isMobile ? NAVITEM_HEIGHTS.mobile : NAVITEM_HEIGHTS.desktop;
-                return <div style={{ height: `${heights.listSpacer}px` }} />; // Inter-list spacer
+                return <div className="nn-nav-list-spacer" style={{ height: `${heights.listSpacer}px`, minHeight: `${heights.listSpacer}px` }} />; // Inter-list spacer
             }
                 
             default:
                 return null;
         }
-    }, [expansionState.expandedFolders, expansionState.expandedTags, expansionState.expandedVirtualFolders, selectionState.selectionType, selectionState.selectedFolder?.path, selectionState.selectedTag, handleFolderToggle, handleFolderClick, handleFolderNameClick, handleTagToggle, handleTagClick, handleVirtualFolderToggle, untaggedCount, settings, settings.folderIcons, metadataService, isMobile]);
+    }, [expansionState.expandedFolders, expansionState.expandedTags, expansionState.expandedVirtualFolders, selectionState.selectionType, selectionState.selectedFolder?.path, selectionState.selectedTag, handleFolderToggle, handleFolderClick, handleFolderNameClick, handleTagToggle, handleTagClick, handleVirtualFolderToggle, settings, settings.folderIcons, isMobile, tagCounts, tagMetadata, folderCounts]);
     
     return (
-        <ErrorBoundary componentName="NavigationPane">
-            <>
-                <PaneHeader type="navigation" onHeaderClick={handleScrollToTop} />
+        <div className="nn-navigation-pane" style={props.style}>
+            <PaneHeader type="navigation" onHeaderClick={handleScrollToTop} />
             <div 
-                ref={scrollContainerRef}
-                className="nn-navigation-pane-scroller"
-                data-pane="navigation"
-                role="tree"
-                tabIndex={-1}
-            >
-                <div
-                    style={{
-                        height: rowVirtualizer ? `${rowVirtualizer.getTotalSize()}px` : '100%',
-                        width: '100%',
-                        position: 'relative',
-                    }}
+                    ref={scrollContainerRef}
+                    className="nn-navigation-pane-scroller"
+                    data-pane="navigation"
+                    role="tree"
+                    tabIndex={-1}
                 >
-                    {rowVirtualizer && rowVirtualizer.getVirtualItems().map((virtualItem) => {
+                {items.length > 0 && (
+                    <div
+                        className="nn-virtual-container"
+                        style={{
+                            height: `${rowVirtualizer.getTotalSize()}px`,
+                        }}
+                    >
+                        {rowVirtualizer.getVirtualItems().map((virtualItem) => {
                         // Safe array access
                         const item = virtualItem.index >= 0 && virtualItem.index < items.length 
                             ? items[virtualItem.index] 
@@ -625,7 +723,6 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                             <div
                                 key={virtualItem.key}
                                 data-index={virtualItem.index}
-                                ref={rowVirtualizer.measureElement}
                                 className="nn-virtual-nav-item"
                                 style={{
                                     transform: `translateY(${virtualItem.start}px)`,
@@ -635,9 +732,14 @@ export const NavigationPane = forwardRef<NavigationPaneHandle>((props, ref) => {
                             </div>
                         );
                     })}
-                </div>
+                    </div>
+                )}
             </div>
-        </>
-        </ErrorBoundary>
+        </div>
     );
 });
+
+NavigationPaneComponent.displayName = 'NavigationPane';
+
+// Memoize to prevent re-renders from parent
+export const NavigationPane = React.memo(NavigationPaneComponent);

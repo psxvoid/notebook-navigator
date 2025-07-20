@@ -18,7 +18,14 @@ main.js
 # Exclude macOS Finder (System Explorer) View States
 .DS_Store
 
-# Local build scripts
+# Ignore local user AI rules
+.github/copilot-instructions.md
+.cursorrules
+.cursorignore
+CLAUDE.md
+GEMINI.md
+
+# Ignore local build script
 scripts/build-local.sh
 
 # Release lock file

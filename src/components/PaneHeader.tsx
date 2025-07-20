@@ -16,22 +16,23 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { Menu, TFolder } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { useSettings } from '../context/SettingsContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
-import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useSelectionState } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileSystemOps, useMetadataService } from '../context/ServicesContext';
 import { isTFolder } from '../utils/typeGuards';
 import { ObsidianIcon } from './ObsidianIcon';
 import { strings } from '../i18n';
+import { getIconService } from '../services/icons';
 import { UNTAGGED_TAG_ID, ItemType } from '../types';
 import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } from '../utils/sortUtils';
 import type { SortOption } from '../settings';
-import { useTagCache } from '../context/TagCacheContext';
-import { collectAllTagPaths } from '../utils/tagUtils';
+import { useFileCache } from '../context/FileCacheContext';
+import { collectAllTagPaths } from '../utils/fileCacheUtils';
 
 interface PaneHeaderProps {
     type: 'navigation' | 'files';
@@ -49,17 +50,17 @@ interface PaneHeaderProps {
  * @returns A header element with context-appropriate action buttons
  */
 export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeaderProps) {
+    const iconRef = React.useRef<HTMLSpanElement>(null);
     const { app, isMobile } = useServices();
     const { settings, updateSettings } = useSettings();
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
     const selectionState = useSelectionState();
-    const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const fileSystemOps = useFileSystemOps();
     const metadataService = useMetadataService();
-    const { tagData } = useTagCache();
+    const { fileData } = useFileCache();
     
     /**
      * Determines whether the expand/collapse button should perform a collapse action
@@ -146,7 +147,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                 const allTagPaths = new Set<string>();
                 
                 // Collect paths from all root-level tags
-                for (const tagNode of tagData.tree.values()) {
+                for (const tagNode of fileData.tree.values()) {
                     collectAllTagPaths(tagNode, allTagPaths);
                 }
                 
@@ -154,7 +155,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
             }
         }
         
-    }, [app, expansionDispatch, type, settings.showRootFolder, settings.collapseButtonBehavior, tagData.tree, shouldCollapseItems]);
+    }, [app, expansionDispatch, type, settings.showRootFolder, settings.collapseButtonBehavior, fileData.tree, shouldCollapseItems]);
     
     const handleNewFolder = useCallback(async () => {
         if (type !== 'navigation' || !selectionState.selectedFolder) return;
@@ -415,6 +416,14 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
         }
     }
     
+    // Render icon when folderIcon changes
+    useEffect(() => {
+        if (iconRef.current && folderIcon && settings.showIcons) {
+            const iconService = getIconService();
+            iconService.renderIcon(iconRef.current, folderIcon);
+        }
+    }, [folderIcon, settings.showIcons]);
+    
     return (
         <div className="nn-pane-header">
             <div className="nn-header-actions nn-header-actions--space-between">
@@ -480,8 +489,8 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                                     </button>
                                 ) : (
                                     folderIcon && (
-                                        <ObsidianIcon 
-                                            name={folderIcon} 
+                                        <span 
+                                            ref={iconRef}
                                             className="nn-pane-header-icon"
                                         />
                                     )

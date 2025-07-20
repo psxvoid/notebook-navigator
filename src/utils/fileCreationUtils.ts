@@ -37,37 +37,6 @@ export interface CreateFileOptions {
     errorKey?: string;
 }
 
-/**
- * Generates a unique filename with incrementing numbers
- * @param parent - The parent folder
- * @param baseName - The base filename (without extension)
- * @param extension - The file extension
- * @param app - The Obsidian app instance
- * @returns A unique file path
- */
-export function generateUniqueFilePath(
-    parent: TFolder,
-    baseName: string,
-    extension: string,
-    app: App
-): string {
-    let fileName = baseName;
-    let counter = 1;
-    let path = normalizePath(
-        parent.path ? `${parent.path}/${fileName}.${extension}` : `${fileName}.${extension}`
-    );
-    
-    // Keep incrementing until we find a unique name
-    while (app.vault.getAbstractFileByPath(path)) {
-        fileName = strings.fileSystem.defaultNames.untitledNumber.replace('{number}', counter.toString());
-        path = normalizePath(
-            parent.path ? `${parent.path}/${fileName}.${extension}` : `${fileName}.${extension}`
-        );
-        counter++;
-    }
-    
-    return path;
-}
 
 /**
  * Creates a new file with the specified options
@@ -93,12 +62,20 @@ export async function createFileWithOptions(
     
     try {
         // Generate unique file path
-        const path = generateUniqueFilePath(
-            parent,
-            strings.fileSystem.defaultNames.untitled,
-            extension,
-            app
+        let fileName = strings.fileSystem.defaultNames.untitled;
+        let counter = 1;
+        let path = normalizePath(
+            parent.path ? `${parent.path}/${fileName}.${extension}` : `${fileName}.${extension}`
         );
+        
+        // Keep incrementing until we find a unique name
+        while (app.vault.getAbstractFileByPath(path)) {
+            fileName = strings.fileSystem.defaultNames.untitledNumber.replace('{number}', counter.toString());
+            path = normalizePath(
+                parent.path ? `${parent.path}/${fileName}.${extension}` : `${fileName}.${extension}`
+            );
+            counter++;
+        }
         
         // Create the file
         const file = await app.vault.create(path, content);
@@ -145,35 +122,3 @@ export function createDatabaseContent(): string {
     }, null, 2);
 }
 
-/**
- * Creates initial content for an Excalidraw drawing
- * @param timestamp - ISO timestamp for the drawing
- */
-export function createExcalidrawContent(timestamp: string): string {
-    return `---
-
-excalidraw-plugin: parsed
-tags: [excalidraw]
-
----
-==⚠  Switch to EXCALIDRAW VIEW in the MORE OPTIONS menu of this document. ⚠==
-
-
-# Text Elements
-# Embedded files
-# Drawing
-\`\`\`json
-{
-  "type": "excalidraw",
-  "version": 2,
-  "source": "https://github.com/zsviczian/obsidian-excalidraw-plugin/releases/tag/2.0.0",
-  "elements": [],
-  "appState": {
-    "gridSize": null,
-    "viewBackgroundColor": "#ffffff"
-  },
-  "files": {}
-}
-\`\`\`
-%%`;
-}

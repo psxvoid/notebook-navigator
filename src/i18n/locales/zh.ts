@@ -32,8 +32,8 @@ export const STRINGS_ZH = {
         featureImageAlt: '特色图片', // Alt text for thumbnail/preview images (English: Feature image)
     },
 
-    // File list
-    fileList: {
+    // List pane
+    listPane: {
         emptyStateNoSelection: '选择文件夹或标签以查看笔记', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: '无笔记', // Message shown when a folder/tag has no notes (English: No notes)
         pinnedSection: '📌 已固定', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
@@ -95,6 +95,19 @@ export const STRINGS_ZH = {
             deleteMultipleNotes: '删除 {count} 个笔记',
             moveToFolder: 'Move to...',
             moveMultipleToFolder: 'Move {count} files to...',
+            // File-specific context menu items (non-markdown files)
+            openMultipleFilesInNewTabs: '在新标签页中打开 {count} 个文件',
+            openMultipleFilesToRight: '在右侧打开 {count} 个文件',
+            openMultipleFilesInNewWindows: '在新窗口中打开 {count} 个文件',
+            pinFile: '固定文件',
+            unpinFile: '取消固定文件',
+            pinMultipleFiles: '固定 {count} 个文件',
+            unpinMultipleFiles: '取消固定 {count} 个文件',
+            duplicateFile: '复制文件',
+            duplicateMultipleFiles: '复制 {count} 个文件',
+            renameFile: '重命名文件',
+            deleteFile: '删除文件',
+            deleteMultipleFiles: '删除 {count} 个文件',
         },
         folder: {
             newNote: '创建新笔记',
@@ -129,6 +142,7 @@ export const STRINGS_ZH = {
             emptyStateSearch: '开始输入以搜索图标',
             emptyStateNoResults: '未找到图标',
             showingResultsInfo: '显示 {count} 个结果中的 50 个。输入更多内容以缩小范围。',
+            emojiInstructions: '输入或粘贴任何表情符号作为图标使用',
         },
         colorPicker: {
             header: '选择文件夹颜色',
@@ -187,6 +201,15 @@ export const STRINGS_ZH = {
             instructions: {
                 navigate: '导航',
                 move: '移动',
+                select: '选择',
+                dismiss: '取消',
+            },
+        },
+        tagSuggest: {
+            placeholder: '搜索标签...',
+            navigatePlaceholder: '导航到标签...',
+            instructions: {
+                navigate: '导航',
                 select: '选择',
                 dismiss: '取消',
             },
@@ -277,6 +300,7 @@ export const STRINGS_ZH = {
         createNewNote: '创建新笔记', // Command palette: Creates a new note in the currently selected folder (English: Create new note)
         moveFiles: '移动文件', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: '导航到文件夹', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
+        navigateToTag: '导航到标签', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: '切换显示子文件夹中的笔记', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
     },
 
@@ -333,7 +357,7 @@ export const STRINGS_ZH = {
                 desc: '为子文件夹中的笔记显示父文件夹名称。',
             },
             dualPane: {
-                name: '桌面端双窗格布局',
+                name: '双窗格布局（仅桌面端）',
                 desc: '在桌面端并排显示导航窗格和列表窗格。',
             },
             autoRevealActiveNote: {
@@ -341,7 +365,7 @@ export const STRINGS_ZH = {
                 desc: '从快速切换器、链接或搜索打开笔记时自动显示。',
             },
             autoSelectFirstFileOnFocusChange: {
-                name: '切换文件夹或标签时自动选择第一个笔记',
+                name: '自动选择第一个笔记（仅桌面端）',
                 desc: '切换文件夹或标签时自动打开第一个笔记。',
             },
             autoExpandFoldersTags: {
@@ -349,7 +373,7 @@ export const STRINGS_ZH = {
                 desc: '选择文件夹和标签时自动展开它们。',
             },
             showTooltips: {
-                name: '显示工具提示',
+                name: '显示工具提示（仅桌面端）',
                 desc: '悬停时显示笔记和文件夹的额外信息工具提示。',
             },
             excludedNotes: {
@@ -396,6 +420,10 @@ export const STRINGS_ZH = {
             skipHeadingsInPreview: {
                 name: '预览中跳过标题',
                 desc: '生成预览文本时跳过标题行。',
+            },
+            skipTextBeforeFirstHeading: {
+                name: 'Skip text before first heading',
+                desc: 'Hide content before the first heading in note preview.',
             },
             skipNonTextInPreview: {
                 name: '预览中跳过非文本',
@@ -534,6 +562,17 @@ export const STRINGS_ZH = {
                 desc: '如果您喜欢使用笔记本导航器，请考虑支持其持续开发。',
                 buttonText: '❤️ 在 GitHub 上赞助',
             },
+            whatsNew: {
+                name: "What's new",
+                desc: 'See recent updates and improvements',
+                buttonText: 'View recent updates',
+            },
         },
+    },
+    whatsNew: {
+        title: 'What\'s new in Notebook Navigator',
+        supportMessage: 'If you find Notebook Navigator helpful, please consider supporting its development.',
+        supportButton: '❤️ Support',
+        thanksButton: 'Thanks!',
     },
 };

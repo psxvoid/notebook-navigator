@@ -26,17 +26,15 @@ import { SettingsProvider } from '../context/SettingsContext';
 import { ExpansionProvider } from '../context/ExpansionContext';
 import { SelectionProvider } from '../context/SelectionContext';
 import { UIStateProvider } from '../context/UIStateContext';
-import { TagCacheProvider } from '../context/TagCacheContext';
+import { FileCacheProvider } from '../context/FileCacheContext';
 import { NotebookNavigatorComponent, NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
 import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 import { strings } from '../i18n';
 
-/**
- * State interface for view persistence
- */
-interface NotebookNavigatorViewState {
-    activeFilePath?: string;
-}
+// State interface for view persistence - currently unused
+// interface NotebookNavigatorViewState {
+//     activeFilePath?: string;
+// }
 
 /**
  * Custom Obsidian view that hosts the React-based Notebook Navigator interface
@@ -104,7 +102,7 @@ export class NotebookNavigatorView extends ItemView {
             <React.StrictMode>
                 <SettingsProvider plugin={this.plugin}>
                     <ServicesProvider plugin={this.plugin}>
-                        <TagCacheProvider app={this.plugin.app}>
+                        <FileCacheProvider app={this.plugin.app}>
                             <ExpansionProvider>
                                 <SelectionProvider app={this.plugin.app} plugin={this.plugin} isMobile={isMobile}>
                                     <UIStateProvider isMobile={isMobile}>
@@ -112,7 +110,7 @@ export class NotebookNavigatorView extends ItemView {
                                     </UIStateProvider>
                                 </SelectionProvider>
                             </ExpansionProvider>
-                        </TagCacheProvider>
+                        </FileCacheProvider>
                     </ServicesProvider>
                 </SettingsProvider>
             </React.StrictMode>
@@ -183,41 +181,42 @@ export class NotebookNavigatorView extends ItemView {
         this.componentRef.current?.navigateToFolderWithModal();
     }
     
+    /**
+     * Navigate to a tag by showing the tag suggest modal
+     */
+    async navigateToTagWithModal(): Promise<void> {
+        this.componentRef.current?.navigateToTagWithModal();
+    }
 
     /**
      * Gets the current view state for persistence
-     * 
-     * This is called when swiping away on mobile or saving workspace on desktop.
-     * Despite being called, it's effectively useless on mobile because setState 
-     * is NEVER called when returning to the view.
-     * 
-     * Mobile lifecycle when swiping away:
-     * 1. active-leaf-change event fires (leaf: "markdown")
-     * 2. getState called on navigator view
-     * 3. Navigator focus changes from true to false
-     * 4. View becomes inactive
+     * Called by Obsidian when saving workspace state (e.g., when switching layouts)
+     * Currently returns empty state as the view doesn't persist any specific data
      */
     getState(): Record<string, unknown> {
-        // Return empty state as setState is never called on mobile anyway
         return {};
     }
     
     /**
      * Restores the view state from persistence
-     * 
-     * This is NEVER called on mobile when returning to the view.
-     * This is a critical limitation that prevents any state restoration.
-     * 
-     * Mobile lifecycle when returning to navigator from editor:
-     * 1. Navigator view became active
-     * 2. handleViewBecomeActive called
-     * 3. getState called (multiple times)
-     * 4. active-leaf-change event fires (leaf: "notebook-navigator-react-view")
-     * 5. Auto-reveal logic triggers
-     * 
-     * Notice setState is NOT in this list - it's simply never called on mobile.
+     * Called by Obsidian when restoring workspace state (e.g., on startup or layout change)
+     * The result parameter indicates what actions Obsidian will take:
+     * - history: true = navigation history will be preserved
+     * - layout: true = view layout will be preserved
+     * - close: false = view won't be closed
+     * Currently no-op as the view doesn't persist any specific state
      */
-    async setState(state: unknown, result: ViewStateResult): Promise<void> {
-        // No implementation as this is never called on mobile where we need it most
+    async setState(_state: unknown, _result: ViewStateResult): Promise<void> {
+    }
+    
+    /**
+     * Called when view is resized
+     * Triggered when the view dimensions change, including:
+     * - Mobile drawer animations (swipe to show/hide)
+     * - Desktop pane resizing
+     * - Window size changes
+     * On mobile, dimensions are 0x0 when drawer is fully hidden, actual size when visible
+     */
+    onResize() {
     }
 }

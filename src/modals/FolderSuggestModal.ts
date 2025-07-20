@@ -16,16 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, FuzzySuggestModal, TFolder, FuzzyMatch, renderMatches } from 'obsidian';
+import { App, TFolder } from 'obsidian';
 import { isTFolder } from '../utils/typeGuards';
 import { strings } from '../i18n';
+import { BaseSuggestModal } from './BaseSuggestModal';
 
 /**
  * Modal for selecting a folder to move files to
  * Uses Obsidian's FuzzySuggestModal for fuzzy search and familiar UI
  */
-export class FolderSuggestModal extends FuzzySuggestModal<TFolder> {
-    private onChooseFolderCallback: (folder: TFolder) => void;
+export class FolderSuggestModal extends BaseSuggestModal<TFolder> {
     private excludeFolders: Set<string>;
 
     /**
@@ -43,19 +43,12 @@ export class FolderSuggestModal extends FuzzySuggestModal<TFolder> {
         actionText: string,
         excludePaths?: Set<string>
     ) {
-        super(app);
-        this.onChooseFolderCallback = onChooseFolder;
+        super(app, onChooseFolder, placeholderText, {
+            navigate: strings.modals.folderSuggest.instructions.navigate,
+            action: actionText,
+            dismiss: strings.modals.folderSuggest.instructions.dismiss
+        });
         this.excludeFolders = excludePaths || new Set();
-        
-        // Set placeholder text
-        this.setPlaceholder(placeholderText);
-        
-        // Set instructions
-        this.setInstructions([
-            { command: '↑↓', purpose: strings.modals.folderSuggest.instructions.navigate },
-            { command: '↵', purpose: actionText },
-            { command: 'esc', purpose: strings.modals.folderSuggest.instructions.dismiss }
-        ]);
     }
 
     /**
@@ -98,30 +91,21 @@ export class FolderSuggestModal extends FuzzySuggestModal<TFolder> {
     }
 
     /**
-     * Renders a folder item in the suggestion list
-     * @param item - The fuzzy match result containing the folder
-     * @param el - The element to render into
+     * Gets the display path for a folder
+     * @param folder - The folder to get display path for
+     * @returns The path to display
      */
-    renderSuggestion(item: FuzzyMatch<TFolder>, el: HTMLElement): void {
-        const folder = item.item;
-        
-        // Show full path in single line format
+    protected getDisplayPath(folder: TFolder): string {
         // Root folder shows as "/"
-        const displayPath = folder.path || '/';
-        
-        // Create a container div
-        const itemEl = el.createDiv({ cls: 'nn-folder-suggest-item' });
-        
-        // Use renderMatches to render the text with highlights
-        renderMatches(itemEl, displayPath, item.match.matches);
+        return folder.path || '/';
     }
 
     /**
-     * Called when a folder is selected
-     * @param folder - The selected folder
-     * @param evt - The triggering event
+     * Gets the CSS class for folder items
+     * @returns The CSS class name
      */
-    onChooseItem(folder: TFolder, evt: MouseEvent | KeyboardEvent): void {
-        this.onChooseFolderCallback(folder);
+    protected getItemClass(): string {
+        return 'nn-folder-suggest-item';
     }
+
 }

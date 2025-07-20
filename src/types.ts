@@ -52,19 +52,19 @@ export const ItemType = {
 } as const;
 
 /**
- * Enum for file list item types
- * These are specific to the file list view
+ * Enum for list pane item types
+ * These are specific to the list pane view
  */
-export const FileListItemType = {
+export const ListPaneItemType = {
     HEADER: 'header',
     FILE: 'file',
     SPACER: 'spacer'
 } as const;
 
 /**
- * Type representing all possible file list item types
+ * Type representing all possible list pane item types
  */
-export type FileListItemType = typeof FileListItemType[keyof typeof FileListItemType];
+export type ListPaneItemType = typeof ListPaneItemType[keyof typeof ListPaneItemType];
 
 /**
  * Enum for navigation pane item types
@@ -106,10 +106,16 @@ export const NAVITEM_HEIGHTS = {
 };
 
 /**
- * File list item height constants and measurements
- * Used by FileList component for virtualization
+ * Overscan value for all virtualized lists
+ * Controls how many items are rendered outside the visible area
  */
-export const FILELIST_MEASUREMENTS = {
+export const OVERSCAN = 10;
+
+/**
+ * List pane item height constants and measurements
+ * Used by ListPane component for virtualization
+ */
+export const LISTPANE_MEASUREMENTS = {
   heights: {
     // Date group headers
     firstHeader: 35,              // var(--nn-date-header-height)
@@ -117,21 +123,13 @@ export const FILELIST_MEASUREMENTS = {
     
     // File item components
     basePadding: 16,              // var(--nn-file-padding-vertical) * 2
-    fileLineHeight: 20,           // var(--nn-file-line-height) per line
-    secondLineHeight: 22,         // var(--nn-file-second-line-height) for single preview
-    multiLineHeight: 19,          // var(--nn-file-preview-line-height) per line
-    dateLineHeight: 20,           // Line height for date display
-    parentFolderLineHeight: 8,    // Height for parent folder path indicator
+    titleLineHeight: 20,          // var(--nn-file-line-height) - for file name/title
+    metadataLineHeight: 19,       // var(--nn-file-second-line-height) - for metadata (date, parent folder, single preview line)
+    multiLineLineHeight: 18,      // var(--nn-file-preview-line-height) - for multi-line preview text
     
     // Constraints
     minTouchTargetHeight: 32,     // Minimum height for touch targets
     spacer: 20                    // Bottom spacer height
-  },
-  
-  // Virtualization config
-  overscan: {
-    mobile: 50,                   // Render more items on mobile for smooth scrolling
-    desktop: 5                    // Minimal overscan on desktop
   },
   
   // Mobile scroll handling
@@ -185,7 +183,7 @@ export interface LocalStorageKeys {
     selectedFolderKey: string;
     selectedFileKey: string;
     navigationPaneWidthKey: string;
-    tagCacheKey: string;
+    fileCacheKey: string;
 }
 
 /**
@@ -199,7 +197,7 @@ export const STORAGE_KEYS: LocalStorageKeys = {
     selectedFolderKey: 'notebook-navigator-selected-folder',
     selectedFileKey: 'notebook-navigator-selected-file',
     navigationPaneWidthKey: 'notebook-navigator-navigation-pane-width',
-    tagCacheKey: 'notebook-navigator-tag-cache'
+    fileCacheKey: 'notebook-navigator-file-cache'
 };
 
 /**
