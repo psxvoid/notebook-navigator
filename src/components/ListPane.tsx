@@ -50,7 +50,14 @@ export interface ListPaneHandle {
 }
 
 interface ListPaneProps {
-    rootContainerRef?: React.RefObject<HTMLDivElement | null>;
+    /**
+     * Reference to the root navigator container (.nn-split-container).
+     * This is passed from NotebookNavigatorComponent to ensure keyboard events
+     * are captured at the navigator level, not globally. This allows proper
+     * keyboard navigation between panes while preventing interference with
+     * other Obsidian views.
+     */
+    rootContainerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref) => {
@@ -629,6 +636,9 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
     }, [selectedFolder?.path, selectedTag, selectedFile, isVisible, filePathToIndex, settings.showNotesFromSubfolders, rowVirtualizer]);
 
     // Add keyboard navigation
+    // Note: We pass the root container ref, not the scroll container ref.
+    // This ensures keyboard events work across the entire navigator, allowing
+    // users to navigate between panes (navigation <-> files) with Tab/Arrow keys.
     useVirtualKeyboardNavigation({
         items: listItems,
         virtualizer: rowVirtualizer,

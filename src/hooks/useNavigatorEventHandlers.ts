@@ -130,29 +130,4 @@ export function useNavigatorEventHandlers({ app, containerRef, setIsNavigatorFoc
             containerRef.current?.focus();
         }
     }, [uiState.focusedPane, containerRef]);
-
-    /**
-     * Handles delete key press by dispatching a Delete keyboard event.
-     * Used by the deleteActiveFile method in the imperative handle.
-     */
-    const triggerDeleteKey = () => {
-        // First ensure the file pane is focused so the keyboard handler will process the event
-        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-
-        // Then dispatch a Delete key event to trigger the existing keyboard handler
-        const deleteEvent = new KeyboardEvent('keydown', {
-            key: 'Delete',
-            bubbles: true,
-            cancelable: true
-        });
-
-        // Small delay to ensure focus state is updated
-        setTimeout(() => {
-            document.dispatchEvent(deleteEvent);
-        }, 0);
-    };
-
-    return {
-        triggerDeleteKey
-    };
 }

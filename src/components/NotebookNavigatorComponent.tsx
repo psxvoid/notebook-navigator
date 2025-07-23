@@ -36,6 +36,7 @@ import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
 import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, ItemType } from '../types';
 import { strings } from '../i18n';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
 import { FolderSuggestModal } from '../modals/FolderSuggestModal';
 import { TagSuggestModal } from '../modals/TagSuggestModal';
 
@@ -69,7 +70,13 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const expansionDispatch = useExpansionDispatch();
+
+    // Root container reference for the entire navigator
+    // This ref is passed to both NavigationPane and ListPane to ensure
+    // keyboard events are captured at the navigator level, not globally.
+    // This prevents interference with other Obsidian views (e.g., canvas editor).
     const containerRef = useRef<HTMLDivElement>(null);
+
     const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
     const navigationPaneRef = useRef<NavigationPaneHandle>(null);
     const listPaneRef = useRef<ListPaneHandle>(null);
@@ -91,7 +98,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     useMobileSwipeNavigation(containerRef, isMobile);
 
     // Use event handlers
-    const { triggerDeleteKey } = useNavigatorEventHandlers({
+    useNavigatorEventHandlers({
         app,
         containerRef,
         setIsNavigatorFocused
@@ -146,7 +153,34 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 // A no-op update will increment the version and force a re-render
                 updateSettings(() => {});
             },
-            deleteActiveFile: triggerDeleteKey,
+            deleteActiveFile: () => {
+                // Check if the navigator is focused before deleting
+                const navigatorFocused = containerRef.current?.getAttribute('data-navigator-focused');
+                if (navigatorFocused !== 'true') return;
+
+                // Determine which delete operation to perform based on focus
+                if (uiState.focusedPane === 'files' && (selectionState.selectedFile || selectionState.selectedFiles.size > 0)) {
+                    deleteSelectedFiles({
+                        app,
+                        fileSystemOps,
+                        settings,
+                        selectionState,
+                        selectionDispatch
+                    });
+                } else if (
+                    uiState.focusedPane === 'navigation' &&
+                    selectionState.selectionType === ItemType.FOLDER &&
+                    selectionState.selectedFolder
+                ) {
+                    deleteSelectedFolder({
+                        app,
+                        fileSystemOps,
+                        settings,
+                        selectionState,
+                        selectionDispatch
+                    });
+                }
+            },
             createNoteInSelectedFolder: async () => {
                 if (!selectionState.selectedFolder) {
                     new Notice(strings.fileSystem.errors.noFolderSelected);
@@ -246,7 +280,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         }),
         [
             navigateToFile,
-            triggerDeleteKey,
             uiDispatch,
             updateSettings,
             selectionState.selectedFolder,
@@ -322,6 +355,13 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 // The actual keyboard handling is done in NavigationPane and ListPane
             }}
         >
+            {/* KEYBOARD EVENT FLOW:
+                1. Both NavigationPane and ListPane receive the same containerRef
+                2. Each pane sets up keyboard listeners on this shared container
+                3. The listeners check which pane has focus before handling events
+                4. This allows Tab/Arrow navigation between panes while keeping
+                   all keyboard events scoped to the navigator container only
+            */}
             <NavigationPane
                 ref={navigationPaneRef}
                 style={{ width: uiState.singlePane ? '100%' : `${paneWidth}px` }}

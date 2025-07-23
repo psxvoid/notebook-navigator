@@ -31,6 +31,7 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { FileView } from '../types/obsidian-extended';
 import { getSupportedLeaves, NavigationPaneItemType, ListPaneItemType, ItemType } from '../types';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
 import { useMultiSelection } from './useMultiSelection';
 
 type VirtualItem = CombinedNavigationItem | ListPaneItem;
@@ -39,6 +40,16 @@ interface UseVirtualKeyboardNavigationProps<T extends VirtualItem> {
     items: T[];
     virtualizer: Virtualizer<HTMLDivElement, Element>;
     focusedPane: 'navigation' | 'files';
+    /**
+     * Reference to the container element where keyboard events should be captured.
+     * This is typically the root navigator container (.nn-split-container).
+     *
+     * IMPORTANT: By attaching keyboard listeners to the navigator container instead
+     * of the document, we ensure that keyboard events are only captured when the
+     * user is interacting with the navigator. This prevents conflicts with other
+     * Obsidian views like the canvas editor, where Delete key has different functionality.
+     */
+    containerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 /**
@@ -49,7 +60,8 @@ interface UseVirtualKeyboardNavigationProps<T extends VirtualItem> {
 export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     items,
     virtualizer,
-    focusedPane
+    focusedPane,
+    containerRef
 }: UseVirtualKeyboardNavigationProps<T>) {
     const { app, plugin, isMobile } = useServices();
     const settings = useSettingsState();
@@ -70,16 +82,28 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
 
     const handleKeyDown = useCallback(
         (e: KeyboardEvent) => {
-            // Skip if typing in input
+            // KEYBOARD EVENT FILTERING:
+            // This handler only receives events from within the navigator container,
+            // preventing interference with other Obsidian views (canvas, markdown editor, etc.)
+
+            // 1. Check if the navigator is focused
+            // This is important for all keys to ensure we don't process events
+            // when the user is interacting with other views
+            const navigatorContainer = containerRef.current;
+            const navigatorFocused = navigatorContainer?.getAttribute('data-navigator-focused');
+            if (navigatorFocused !== 'true') return;
+
+            // 2. Skip if user is typing in an input field
             if (isTypingInInput(e)) return;
 
-            // Skip if the focused element is inside a modal
+            // 3. Skip if a modal is open
             const activeElement = document.activeElement as HTMLElement;
             if (activeElement && activeElement.closest('.modal-container')) {
                 return;
             }
 
-            // Use the state directly to check if this pane should handle the event
+            // 4. Only handle events for the currently focused pane
+            // (navigation pane or files pane, but not both)
             if (uiState.focusedPane !== focusedPane) return;
 
             // Debounce rapid key presses with a more reasonable threshold
@@ -414,18 +438,30 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
 
                 case 'Delete':
                 case 'Backspace':
-                    if (!isTypingInInput(e)) {
-                        if (focusedPane === 'files' && (selectionState.selectedFile || selectionState.selectedFiles.size > 0)) {
-                            e.preventDefault();
-                            handleDelete();
-                        } else if (
-                            focusedPane === 'navigation' &&
-                            selectionState.selectionType === ItemType.FOLDER &&
-                            selectionState.selectedFolder
-                        ) {
-                            e.preventDefault();
-                            handleDeleteFolder();
-                        }
+                    if (focusedPane === 'files' && (selectionState.selectedFile || selectionState.selectedFiles.size > 0)) {
+                        e.preventDefault();
+                        // Use shared delete function
+                        deleteSelectedFiles({
+                            app,
+                            fileSystemOps,
+                            settings,
+                            selectionState,
+                            selectionDispatch
+                        });
+                    } else if (
+                        focusedPane === 'navigation' &&
+                        selectionState.selectionType === ItemType.FOLDER &&
+                        selectionState.selectedFolder
+                    ) {
+                        e.preventDefault();
+                        // Use shared delete function
+                        deleteSelectedFolder({
+                            app,
+                            fileSystemOps,
+                            settings,
+                            selectionState,
+                            selectionDispatch
+                        });
                     }
                     break;
 
@@ -694,111 +730,19 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         }
     };
 
-    // Handle Delete key for files
-    const handleDelete = async () => {
-        if (focusedPane !== 'files') return;
-
-        // Check if multiple files are selected
-        if (selectionState.selectedFiles.size > 1) {
-            // Get all files in the current view for smart selection
-            let allFiles: TFile[] = [];
-            if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-                allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
-            } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
-            }
-
-            // Use centralized delete method with smart selection
-            await fileSystemOps.deleteFilesWithSmartSelection(
-                selectionState.selectedFiles,
-                allFiles,
-                settings,
-                {
-                    selectionType: selectionState.selectionType,
-                    selectedFolder: selectionState.selectedFolder || undefined,
-                    selectedTag: selectionState.selectedTag || undefined
-                },
-                selectionDispatch,
-                settings.confirmBeforeDelete
-            );
-        } else if (selectionState.selectedFile) {
-            // Use the centralized delete handler for single file
-            await fileSystemOps.deleteSelectedFile(
-                selectionState.selectedFile,
-                settings,
-                {
-                    selectionType: selectionState.selectionType,
-                    selectedFolder: selectionState.selectedFolder || undefined,
-                    selectedTag: selectionState.selectedTag || undefined
-                },
-                selectionDispatch,
-                settings.confirmBeforeDelete
-            );
-        }
-    };
-
-    // Handle Delete key for folders
-    const handleDeleteFolder = async () => {
-        if (!selectionState.selectedFolder || focusedPane !== 'navigation') return;
-
-        const folderToDelete = selectionState.selectedFolder;
-
-        // Don't allow deleting the root folder
-        if (folderToDelete.path === '/') {
-            return;
-        }
-
-        // Find the next folder to select before deletion
-        let nextFolderToSelect: TFolder | null = null;
-
-        // Try to find next sibling folder
-        const parentFolder = folderToDelete.parent;
-        if (parentFolder && isTFolder(parentFolder)) {
-            const siblings = parentFolder.children
-                .filter((child): child is TFolder => isTFolder(child))
-                .sort((a, b) => a.name.localeCompare(b.name));
-
-            const currentIndex = siblings.findIndex(f => f.path === folderToDelete.path);
-
-            if (currentIndex !== -1) {
-                // Try next sibling
-                if (currentIndex < siblings.length - 1) {
-                    nextFolderToSelect = siblings[currentIndex + 1];
-                } else if (currentIndex > 0) {
-                    // No next sibling, try previous
-                    nextFolderToSelect = siblings[currentIndex - 1];
-                } else {
-                    // No siblings, select parent
-                    nextFolderToSelect = parentFolder;
-                }
-            }
-        } else {
-            // No parent folder (root level folder)
-            // Try to find any other root folder
-            const rootFolder = app.vault.getRoot();
-            const rootFolders = rootFolder.children
-                .filter((child): child is TFolder => isTFolder(child) && child.path !== folderToDelete.path)
-                .sort((a, b) => a.name.localeCompare(b.name));
-
-            if (rootFolders.length > 0) {
-                nextFolderToSelect = rootFolders[0];
-            }
-        }
-
-        // Delete the folder
-        await fileSystemOps.deleteFolder(folderToDelete, settings.confirmBeforeDelete, () => {
-            // After deletion, select the next folder
-            if (nextFolderToSelect) {
-                selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: nextFolderToSelect });
-            }
-        });
-    };
-
-    // Add global event listener
+    // Add event listener to the navigator container
     useEffect(() => {
-        document.addEventListener('keydown', handleKeyDown);
+        // Attach keyboard listener to the navigator root container
+        // This ensures:
+        // - Events are naturally scoped to the navigator
+        // - No interference with other Obsidian views
+        // - Navigation works between panes within the navigator
+        const container = containerRef.current;
+        if (!container) return;
+
+        container.addEventListener('keydown', handleKeyDown);
         return () => {
-            document.removeEventListener('keydown', handleKeyDown);
+            container.removeEventListener('keydown', handleKeyDown);
         };
-    }, [handleKeyDown]);
+    }, [handleKeyDown, containerRef]);
 }
