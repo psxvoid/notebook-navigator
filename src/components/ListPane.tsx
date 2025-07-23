@@ -394,8 +394,8 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
         return map;
     }, [listItems]);
 
-    // Track previous folder/tag to detect changes
-    const prevLocationRef = useRef({ folder: selectedFolder?.path, tag: selectedTag });
+    // Track the last list state to detect when we need to scroll to top
+    const prevListKeyRef = useRef<string>('');
 
     // Track list items order to detect when items are reordered
     const listItemsKeyRef = useRef('');
@@ -592,48 +592,54 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
         return -1;
     }, [selectedFilePath, filePathToIndex, listItems]);
 
-    // Unified scroll logic: handles both location changes and file selection
-    // Dependencies:
-    // - selectedFolder/selectedTag: detect location changes
-    // - selectedFile: scroll to selected file if present
-    // - isVisible: scroll when pane becomes visible
-    // - filePathToIndex: update when file list changes (files added/removed/renamed)
-    // - settings.showNotesFromSubfolders: reposition when this setting changes list contents
+    // Scroll to selected file when it changes or list context changes
+    // CRITICAL: Must check if filePathToIndex is stale before scrolling to prevent race conditions
+    // where we'd use indices from the previous folder (e.g., index 2510 in a 46-item folder)
     useEffect(() => {
         if (!rowVirtualizer || !isVisible) return;
 
-        // Check if location changed
-        const locationChanged = prevLocationRef.current.folder !== selectedFolder?.path || prevLocationRef.current.tag !== selectedTag;
+        // Create a key representing the current list context
+        const currentListKey = `${selectedFolder?.path || ''}_${selectedTag || ''}_${listItems.length}`;
+        const listChanged = prevListKeyRef.current !== currentListKey;
 
-        if (locationChanged) {
-            // Update the ref to track the new location
-            prevLocationRef.current = { folder: selectedFolder?.path, tag: selectedTag };
+        // Check if filePathToIndex is stale by comparing folder paths
+        // This prevents scrolling with indices from the wrong folder
+        const filePathToIndexFolder = listItems.find(item => item.type === ListPaneItemType.FILE)?.parentFolder;
+        const isFilePathToIndexStale = selectedFolder && filePathToIndexFolder !== selectedFolder.path;
+
+        if (listChanged) {
+            prevListKeyRef.current = currentListKey;
+        }
+
+        // Don't scroll if filePathToIndex is stale - wait for list rebuild
+        if (isFilePathToIndexStale) {
+            return;
         }
 
         // Use requestAnimationFrame to ensure virtualizer has initialized properly
-        // This is required in dual pane mode where list pane updates incrementally
         const rafId = requestAnimationFrame(() => {
             if (selectedFile) {
                 // Try to scroll to selected file
                 const index = getSelectionIndex();
 
+                // Only scroll if we have a valid index
                 if (index >= 0) {
                     rowVirtualizer.scrollToIndex(index, {
                         align: 'auto',
                         behavior: 'auto'
                     });
-                } else if (locationChanged) {
-                    // Location changed but file not found - scroll to top
+                } else if (listChanged) {
+                    // List changed but file not found - scroll to top
                     rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
                 }
-            } else if (locationChanged) {
-                // Location changed with no file selected - scroll to top
+            } else if (listChanged) {
+                // List changed with no file selected - scroll to top
                 rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
             }
         });
 
         return () => cancelAnimationFrame(rafId);
-    }, [selectedFolder?.path, selectedTag, selectedFile, isVisible, filePathToIndex, settings.showNotesFromSubfolders, rowVirtualizer]);
+    }, [selectedFile, isVisible, filePathToIndex, rowVirtualizer, listItems.length, selectedFolder?.path, selectedTag, getSelectionIndex]);
 
     // Add keyboard navigation
     // Note: We pass the root container ref, not the scroll container ref.
