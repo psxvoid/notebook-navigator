@@ -408,15 +408,6 @@ export class ContentService {
     private completeProcessing(): void {
         this.isProcessing = false;
         this.abortController = null;
-
-        if (this.totalFiles > 0) {
-            // Only calculate elapsed time when logging is enabled
-            if (this.shouldLogCurrentBatch) {
-                const elapsed = ((performance.now() - this.startTime) / 1000).toFixed(2);
-                // Logging handled elsewhere
-            }
-        }
-
         // Note: settingsChanged is already reset in queueContent after determining shouldLogCurrentBatch
         // No need to notify - database will emit change events
     }

@@ -49,7 +49,11 @@ export interface ListPaneHandle {
     scrollContainerRef: HTMLDivElement | null;
 }
 
-const ListPaneComponent = forwardRef<ListPaneHandle>((_, ref) => {
+interface ListPaneProps {
+    rootContainerRef?: React.RefObject<HTMLDivElement | null>;
+}
+
+const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref) => {
     const { app, isMobile } = useServices();
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
@@ -495,7 +499,7 @@ const ListPaneComponent = forwardRef<ListPaneHandle>((_, ref) => {
         if (!rowVirtualizer) return;
 
         const db = getDB();
-        const unsubscribe = db.onContentChange(changes => {
+        const unsubscribe = db.onContentChange(() => {
             // Content has been generated, re-measure to update heights
             rowVirtualizer.measure();
         });
@@ -628,7 +632,8 @@ const ListPaneComponent = forwardRef<ListPaneHandle>((_, ref) => {
     useVirtualKeyboardNavigation({
         items: listItems,
         virtualizer: rowVirtualizer,
-        focusedPane: 'files'
+        focusedPane: 'files',
+        containerRef: props.rootContainerRef
     });
 
     // Pre-calculate date field for all files in the group

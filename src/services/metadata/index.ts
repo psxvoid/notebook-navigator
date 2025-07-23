@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-export { BaseMetadataService } from './BaseMetadataService';
 export type { EntityType } from './BaseMetadataService';
 export { FolderMetadataService } from './FolderMetadataService';
 export { TagMetadataService } from './TagMetadataService';

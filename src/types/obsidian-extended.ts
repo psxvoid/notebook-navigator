@@ -81,13 +81,6 @@ export interface NavigatorWindowFlags {
 }
 
 /**
- * Type guard to safely cast App to ExtendedApp
- */
-export function isExtendedApp(app: App): app is ExtendedApp {
-    return app && typeof app === 'object';
-}
-
-/**
  * Common timeout values used throughout the plugin
  */
 export const TIMEOUTS = {
@@ -107,28 +100,6 @@ export const TIMEOUTS = {
     RESIZE_DEBOUNCE: 100,
     /** Throttle delay for keyboard navigation */
     KEYBOARD_NAV_THROTTLE: 16
-} as const;
-
-/**
- * Error message keys for consistent error handling
- */
-export const ERROR_KEYS = {
-    CREATE_FOLDER: 'createFolder',
-    CREATE_FILE: 'createFile',
-    RENAME_FOLDER: 'renameFolder',
-    RENAME_FILE: 'renameFile',
-    DELETE_FOLDER: 'deleteFolder',
-    DELETE_FILE: 'deleteFile',
-    DUPLICATE_NOTE: 'duplicateNote',
-    DUPLICATE_FOLDER: 'duplicateFolder',
-    CREATE_CANVAS: 'createCanvas',
-    CREATE_DATABASE: 'createDatabase',
-    OPEN_VERSION_HISTORY: 'openVersionHistory',
-    REVEAL_IN_EXPLORER: 'revealInExplorer',
-    FAILED_TO_DELETE_FILE: 'failedToDeleteFile',
-    VERSION_HISTORY_NOT_FOUND: 'versionHistoryNotFound',
-    DRAWING_ALREADY_EXISTS: 'drawingAlreadyExists',
-    FAILED_TO_CREATE_DRAWING: 'failedToCreateDrawing'
 } as const;
 
 /**

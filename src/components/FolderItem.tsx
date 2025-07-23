@@ -23,7 +23,6 @@ import { useSettingsState } from '../context/SettingsContext';
 import { getIconService } from '../services/icons';
 import { isTFile, isTFolder } from '../utils/typeGuards';
 import { useContextMenu } from '../hooks/useContextMenu';
-import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
 import { strings } from '../i18n';
 import { isSupportedFileExtension, ItemType } from '../types';

@@ -49,7 +49,7 @@ export interface ReleaseNote {
  * 2. Set showOnUpdate to false for minor bug fixes that don't need user attention
  * 3. Features should start with NEW:, IMPROVED:, CHANGED: or FIXED:
  */
-export const RELEASE_NOTES: ReleaseNote[] = [
+const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.3.2',
         date: '2025-07-23',

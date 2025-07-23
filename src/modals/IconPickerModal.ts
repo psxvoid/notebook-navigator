@@ -206,10 +206,6 @@ export class IconPickerModal extends Modal {
         }
     }
 
-    private formatCategoryName(category: string): string {
-        return category.charAt(0).toUpperCase() + category.slice(1).replace(/_/g, ' ');
-    }
-
     private showEmptyState(isSearch: boolean = false) {
         const emptyMessage = this.resultsContainer.createDiv('nn-icon-empty-message');
         emptyMessage.setText(isSearch ? strings.modals.iconPicker.emptyStateNoResults : strings.modals.iconPicker.emptyStateSearch);

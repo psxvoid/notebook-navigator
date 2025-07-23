@@ -24,7 +24,7 @@ import { strings } from '../../i18n';
  * Builds the context menu for a tag
  */
 export function buildTagMenu(params: TagMenuBuilderParams): void {
-    const { tagPath, menu, services, settings } = params;
+    const { tagPath, menu, services } = params;
     const { app, metadataService } = services;
 
     // Change icon

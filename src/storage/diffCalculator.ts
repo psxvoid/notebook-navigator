@@ -92,7 +92,7 @@ export async function calculateFileDiff(
     }
 
     // Check for deleted files
-    for (const [path, fileData] of cachedFiles) {
+    for (const [path] of cachedFiles) {
         if (!currentPaths.has(path)) {
             toRemove.push(path);
         }

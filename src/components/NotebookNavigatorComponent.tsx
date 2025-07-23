@@ -322,9 +322,13 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 // The actual keyboard handling is done in NavigationPane and ListPane
             }}
         >
-            <NavigationPane ref={navigationPaneRef} style={{ width: uiState.singlePane ? '100%' : `${paneWidth}px` }} />
+            <NavigationPane
+                ref={navigationPaneRef}
+                style={{ width: uiState.singlePane ? '100%' : `${paneWidth}px` }}
+                rootContainerRef={containerRef}
+            />
             {!uiState.singlePane && <div className="nn-resize-handle" {...resizeHandleProps} />}
-            <ListPane ref={listPaneRef} />
+            <ListPane ref={listPaneRef} rootContainerRef={containerRef} />
         </div>
     );
 });

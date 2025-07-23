@@ -37,9 +37,6 @@
  */
 
 export * from './types';
-export { IconService } from './IconService';
-export { LucideIconProvider } from './providers/LucideIconProvider';
-export { EmojiIconProvider } from './providers/EmojiIconProvider';
 
 import { IconService } from './IconService';
 import { LucideIconProvider } from './providers/LucideIconProvider';

@@ -224,7 +224,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                                     // Check if any removed files had tags
                                     const db = getDBInstance();
                                     const removedFiles = db.getFiles(toRemove);
-                                    for (const [path, fileData] of removedFiles) {
+                                    for (const [, fileData] of removedFiles) {
                                         if (fileData.tags && fileData.tags.length > 0) {
                                             tagsChanged = true;
                                             break;
@@ -240,8 +240,6 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                                 // For added/updated files, check if tags differ from cached version
                                 // Note: This must check the OLD cached data before we update it
                                 if (!tagsChanged && filesToUpdate.length > 0) {
-                                    const db = getDBInstance();
-
                                     // For new files (toAdd), they always represent a tag change if they have tags
                                     for (const file of toAdd) {
                                         if (file.extension === 'md') {
