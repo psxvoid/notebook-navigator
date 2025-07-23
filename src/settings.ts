@@ -117,7 +117,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     dualPane: true,
     autoRevealActiveFile: true,
     showTooltips: true,
-    fileVisibility: FILE_VISIBILITY.MARKDOWN,
+    fileVisibility: FILE_VISIBILITY.SUPPORTED,
     excludedFolders: [],
     excludedFiles: [],
     // Navigation pane
