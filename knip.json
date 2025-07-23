@@ -3,7 +3,7 @@
   "entry": ["src/main.ts"],
   "project": ["src/**/*.{ts,tsx}"],
   "ignore": ["src/i18n/locales/**", "scripts/release.js"],
-  "ignoreDependencies": ["@types/node", "typescript", "builtin-modules"],
+  "ignoreDependencies": [],
   "ignoreExportsUsedInFile": {
     "interface": true,
     "type": true,
