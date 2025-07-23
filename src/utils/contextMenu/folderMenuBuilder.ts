@@ -34,8 +34,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
     // New note
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(strings.contextMenu.folder.newNote)
+        item.setTitle(strings.contextMenu.folder.newNote)
             .setIcon('pen-box')
             .onClick(async () => {
                 const file = await fileSystemOps.createNewFile(folder);
@@ -47,8 +46,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
     // New folder
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(strings.contextMenu.folder.newFolder)
+        item.setTitle(strings.contextMenu.folder.newFolder)
             .setIcon('folder-plus')
             .onClick(async () => {
                 await fileSystemOps.createNewFolder(folder, () => {
@@ -62,8 +60,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
     // New canvas
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(strings.contextMenu.folder.newCanvas)
+        item.setTitle(strings.contextMenu.folder.newCanvas)
             .setIcon('layout-grid')
             .onClick(async () => {
                 await fileSystemOps.createCanvas(folder);
@@ -74,8 +71,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     const basesPlugin = getInternalPlugin(app, 'bases');
     if (basesPlugin?.enabled) {
         menu.addItem((item: MenuItem) => {
-            item
-                .setTitle(strings.contextMenu.folder.newBase)
+            item.setTitle(strings.contextMenu.folder.newBase)
                 .setIcon('database')
                 .onClick(async () => {
                     await fileSystemOps.createBase(folder);
@@ -87,8 +83,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     const isExcalidrawInstalled = !!(app as ExtendedApp).plugins?.plugins?.['obsidian-excalidraw-plugin'];
     if (isExcalidrawInstalled) {
         menu.addItem((item: MenuItem) => {
-            item
-                .setTitle(strings.contextMenu.folder.newDrawing)
+            item.setTitle(strings.contextMenu.folder.newDrawing)
                 .setIcon('pencil')
                 .onClick(async () => {
                     await fileSystemOps.createNewDrawing(folder);
@@ -100,8 +95,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
     // Duplicate folder
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(strings.contextMenu.folder.duplicateFolder)
+        item.setTitle(strings.contextMenu.folder.duplicateFolder)
             .setIcon('documents')
             .onClick(async () => {
                 await fileSystemOps.duplicateFolder(folder);
@@ -110,8 +104,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
     // Search in folder
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(strings.contextMenu.folder.searchInFolder)
+        item.setTitle(strings.contextMenu.folder.searchInFolder)
             .setIcon('search')
             .onClick(() => {
                 const searchPlugin = getInternalPlugin(app, 'global-search');
@@ -123,8 +116,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
     // Reveal in system explorer
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(strings.contextMenu.file.revealInFinder)
+        item.setTitle(strings.contextMenu.file.revealInFinder)
             .setIcon('folder-open')
             .onClick(async () => {
                 await fileSystemOps.revealInSystemExplorer(folder);
@@ -134,14 +126,13 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     // Folder note operations
     if (settings.enableFolderNotes) {
         menu.addSeparator();
-        
+
         const folderNote = getFolderNote(folder, settings, app);
-        
+
         if (folderNote) {
             // Delete folder note option
             menu.addItem((item: MenuItem) => {
-                item
-                    .setTitle(strings.contextMenu.folder.deleteFolderNote)
+                item.setTitle(strings.contextMenu.folder.deleteFolderNote)
                     .setIcon('trash')
                     .onClick(async () => {
                         await fileSystemOps.deleteFile(folderNote, settings.confirmBeforeDelete);
@@ -150,28 +141,27 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         } else {
             // Create folder note option
             menu.addItem((item: MenuItem) => {
-                item
-                    .setTitle(strings.contextMenu.folder.createFolderNote)
+                item.setTitle(strings.contextMenu.folder.createFolderNote)
                     .setIcon('pen-box')
                     .onClick(async () => {
                         // Use folderNoteName if set, otherwise use folder name
                         const noteName = (settings.folderNoteName || folder.name) + '.md';
                         const notePath = normalizePath(`${folder.path}/${noteName}`);
-                        
+
                         // Check if file already exists
                         const existingFile = app.vault.getAbstractFileByPath(notePath);
                         if (existingFile) {
                             new Notice(strings.fileSystem.errors.folderNoteAlreadyExists);
                             return;
                         }
-                        
+
                         const file = await app.vault.create(notePath, '');
-                        
+
                         // Set a temporary flag to prevent auto-reveal
                         window.notebookNavigatorOpeningFolderNote = true;
-                        
+
                         await app.workspace.getLeaf().openFile(file);
-                        
+
                         // Clear the flag after a short delay
                         setTimeout(() => {
                             delete window.notebookNavigatorOpeningFolderNote;
@@ -184,29 +174,23 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     // Only show icon options if folder icons are enabled
     if (settings.showIcons) {
         menu.addSeparator();
-        
+
         // Change icon
         menu.addItem((item: MenuItem) => {
-            item
-                .setTitle(strings.contextMenu.folder.changeIcon)
+            item.setTitle(strings.contextMenu.folder.changeIcon)
                 .setIcon('palette')
                 .onClick(async () => {
                     const { IconPickerModal } = await import('../../modals/IconPickerModal');
-                    const modal = new IconPickerModal(
-                        app, 
-                        metadataService, 
-                        folder.path
-                    );
+                    const modal = new IconPickerModal(app, metadataService, folder.path);
                     modal.open();
                 });
         });
-        
+
         // Remove icon (only show if custom icon is set)
         const currentIcon = metadataService.getFolderIcon(folder.path);
         if (currentIcon) {
             menu.addItem((item: MenuItem) => {
-                item
-                    .setTitle(strings.contextMenu.folder.removeIcon)
+                item.setTitle(strings.contextMenu.folder.removeIcon)
                     .setIcon('x')
                     .onClick(async () => {
                         await metadataService.removeFolderIcon(folder.path);
@@ -219,8 +203,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
     // Change color
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(strings.contextMenu.folder.changeColor)
+        item.setTitle(strings.contextMenu.folder.changeColor)
             .setIcon('palette')
             .onClick(async () => {
                 const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
@@ -233,8 +216,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     const currentColor = metadataService.getFolderColor(folder.path);
     if (currentColor) {
         menu.addItem((item: MenuItem) => {
-            item
-                .setTitle(strings.contextMenu.folder.removeColor)
+            item.setTitle(strings.contextMenu.folder.removeColor)
                 .setIcon('x')
                 .onClick(async () => {
                     await metadataService.removeFolderColor(folder.path);
@@ -246,8 +228,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
     // Rename folder
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(strings.contextMenu.folder.renameFolder)
+        item.setTitle(strings.contextMenu.folder.renameFolder)
             .setIcon('pencil')
             .onClick(async () => {
                 await fileSystemOps.renameFolder(folder, settings);
@@ -256,18 +237,17 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
     // Delete folder
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(strings.contextMenu.folder.deleteFolder)
+        item.setTitle(strings.contextMenu.folder.deleteFolder)
             .setIcon('trash')
             .onClick(async () => {
                 const parentFolder = folder.parent;
-                
+
                 await fileSystemOps.deleteFolder(folder, settings.confirmBeforeDelete, () => {
                     // Check if we need to update selection
                     if (selectionState.selectedFolder) {
                         const isSelectedFolderDeleted = folder.path === selectionState.selectedFolder.path;
                         const isAncestorDeleted = isFolderAncestor(folder, selectionState.selectedFolder);
-                        
+
                         if (isSelectedFolderDeleted || isAncestorDeleted) {
                             // If parent exists and is not root (or root is visible), select it
                             if (parentFolder && (parentFolder.path !== '' || settings.showRootFolder)) {

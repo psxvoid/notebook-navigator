@@ -34,13 +34,13 @@ export interface SelectionState {
     isRevealOperation: boolean; // Flag to track if the current selection is from a REVEAL_FILE action
     isFolderChangeWithAutoSelect: boolean; // Flag to track if we just changed folders and auto-selected a file
     isKeyboardNavigation: boolean; // Flag to track if selection is from Tab/Right arrow navigation
-    
+
     // Computed property for backward compatibility
     selectedFile: TFile | null; // First file in selection or null
 }
 
 // Action types
-export type SelectionAction = 
+export type SelectionAction =
     | { type: 'SET_SELECTED_FOLDER'; folder: TFolder | null; autoSelectedFile?: TFile | null }
     | { type: 'SET_SELECTED_TAG'; tag: string | null; autoSelectedFile?: TFile | null }
     | { type: 'SET_SELECTED_FILE'; file: TFile | null }
@@ -77,20 +77,20 @@ function getFirstSelectedFile(selectedFiles: Set<string>, app: App): TFile | nul
 
 /**
  * Selection state reducer - manages all selection-related state transitions.
- * 
+ *
  * Key concepts:
  * - selectedFiles: Set of file paths for multi-selection
  * - selectedFile: Current cursor position for keyboard navigation
  * - selectionType: Whether a folder or tag is selected
  * - Flags: isRevealOperation and isFolderChangeWithAutoSelect coordinate complex updates
- * 
+ *
  * State transitions:
  * - SET_SELECTED_FOLDER/TAG: Changes navigation context, optionally auto-selects first file
  * - TOGGLE_FILE_SELECTION: Adds/removes files from multi-selection
  * - TOGGLE_WITH_CURSOR: Updates both selection and cursor position
  * - UPDATE_CURRENT_FILE: Moves cursor without changing selection
  * - CLEAR_FILE_SELECTION: Resets to no selection
- * 
+ *
  * @param state Current selection state
  * @param action Action to perform
  * @param app Obsidian app instance for file operations
@@ -117,7 +117,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 isKeyboardNavigation: false
             };
         }
-        
+
         case 'SET_SELECTED_TAG': {
             const newSelectedFiles = new Set<string>();
             if (action.autoSelectedFile) {
@@ -137,28 +137,34 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 isKeyboardNavigation: false
             };
         }
-            
+
         case 'SET_SELECTED_FILE': {
             // Always clear selection and select only this file
             const newSelectedFiles = new Set<string>();
             if (action.file) {
                 newSelectedFiles.add(action.file.path);
             }
-            return { 
-                ...state, 
+            return {
+                ...state,
                 selectedFiles: newSelectedFiles,
                 selectedFile: action.file,
                 anchorIndex: null,
                 lastMovementDirection: null,
-                isRevealOperation: false, 
+                isRevealOperation: false,
                 isFolderChangeWithAutoSelect: false,
-                isKeyboardNavigation: false 
+                isKeyboardNavigation: false
             };
         }
-        
+
         case 'SET_SELECTION_TYPE':
-            return { ...state, selectionType: action.selectionType, isRevealOperation: false, isFolderChangeWithAutoSelect: false, isKeyboardNavigation: false };
-        
+            return {
+                ...state,
+                selectionType: action.selectionType,
+                isRevealOperation: false,
+                isFolderChangeWithAutoSelect: false,
+                isKeyboardNavigation: false
+            };
+
         case 'CLEAR_SELECTION':
             return {
                 ...state,
@@ -172,20 +178,18 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 isFolderChangeWithAutoSelect: false,
                 isKeyboardNavigation: false
             };
-        
+
         case 'REVEAL_FILE': {
             if (!action.file.parent) {
                 return state;
             }
-            
+
             // If preserveFolder is true and we have a selected folder, keep it
-            const newFolder = action.preserveFolder && state.selectedFolder 
-                ? state.selectedFolder 
-                : action.file.parent;
-            
+            const newFolder = action.preserveFolder && state.selectedFolder ? state.selectedFolder : action.file.parent;
+
             const newSelectedFiles = new Set<string>();
             newSelectedFiles.add(action.file.path);
-            
+
             return {
                 ...state,
                 selectionType: 'folder',
@@ -200,7 +204,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 isKeyboardNavigation: false // Clear this since we're handling the reveal
             };
         }
-        
+
         case 'CLEANUP_DELETED_FOLDER': {
             if (state.selectedFolder && state.selectedFolder.path === action.deletedPath) {
                 return {
@@ -216,21 +220,21 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             }
             return state;
         }
-        
+
         case 'CLEANUP_DELETED_FILE': {
             const newSelectedFiles = new Set(state.selectedFiles);
             newSelectedFiles.delete(action.deletedPath);
-            
+
             // If we deleted files from multi-selection, update anchor
             let newAnchorIndex = state.anchorIndex;
             if (state.anchorIndex !== null && newSelectedFiles.size === 0) {
                 newAnchorIndex = null;
             }
-            
+
             if (action.nextFileToSelect) {
                 newSelectedFiles.add(action.nextFileToSelect.path);
             }
-            
+
             return {
                 ...state,
                 selectedFiles: newSelectedFiles,
@@ -240,7 +244,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 isKeyboardNavigation: false
             };
         }
-        
+
         // Multi-selection actions
         case 'TOGGLE_FILE_SELECTION': {
             const newSelectedFiles = new Set(state.selectedFiles);
@@ -249,8 +253,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             } else {
                 newSelectedFiles.add(action.file.path);
             }
-            
-            
+
             return {
                 ...state,
                 selectedFiles: newSelectedFiles,
@@ -259,16 +262,16 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 lastMovementDirection: null
             };
         }
-        
+
         case 'EXTEND_SELECTION': {
             const { toIndex, allFiles } = action;
             if (state.anchorIndex === null) return state;
-            
+
             // This action should only select from anchor to current, not replace everything
             // For now, just select the range from anchor to toIndex
             const minIndex = Math.min(state.anchorIndex, toIndex);
             const maxIndex = Math.max(state.anchorIndex, toIndex);
-            
+
             // Create new selection with files in range
             const newSelectedFiles = new Set<string>();
             for (let i = minIndex; i <= maxIndex && i < allFiles.length; i++) {
@@ -276,8 +279,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                     newSelectedFiles.add(allFiles[i].path);
                 }
             }
-            
-            
+
             return {
                 ...state,
                 selectedFiles: newSelectedFiles,
@@ -285,7 +287,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 lastMovementDirection: null
             };
         }
-        
+
         case 'CLEAR_FILE_SELECTION': {
             return {
                 ...state,
@@ -295,28 +297,28 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 lastMovementDirection: null
             };
         }
-        
+
         case 'SET_ANCHOR_INDEX': {
             return {
                 ...state,
                 anchorIndex: action.index
             };
         }
-        
+
         case 'SET_MOVEMENT_DIRECTION': {
             return {
                 ...state,
                 lastMovementDirection: action.direction
             };
         }
-        
+
         case 'UPDATE_CURRENT_FILE': {
             return {
                 ...state,
                 selectedFile: action.file
             };
         }
-        
+
         case 'TOGGLE_WITH_CURSOR': {
             const newSelectedFiles = new Set(state.selectedFiles);
             if (newSelectedFiles.has(action.file.path)) {
@@ -324,8 +326,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             } else {
                 newSelectedFiles.add(action.file.path);
             }
-            
-            
+
             return {
                 ...state,
                 selectedFiles: newSelectedFiles,
@@ -334,14 +335,14 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 lastMovementDirection: null
             };
         }
-        
+
         case 'SET_KEYBOARD_NAVIGATION': {
             return {
                 ...state,
                 isKeyboardNavigation: action.isKeyboardNavigation
             };
         }
-        
+
         case 'UPDATE_FILE_PATH': {
             // Update selected files set
             const newSelectedFiles = new Set(state.selectedFiles);
@@ -349,7 +350,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 newSelectedFiles.delete(action.oldPath);
                 newSelectedFiles.add(action.newPath);
             }
-            
+
             // Update selected file reference if it was renamed
             let newSelectedFile = state.selectedFile;
             if (state.selectedFile && state.selectedFile.path === action.oldPath && app) {
@@ -358,14 +359,14 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                     newSelectedFile = updatedFile;
                 }
             }
-            
+
             return {
                 ...state,
                 selectedFiles: newSelectedFiles,
                 selectedFile: newSelectedFile
             };
         }
-        
+
         default:
             return state;
     }
@@ -382,11 +383,11 @@ interface SelectionProviderProps {
 export function SelectionProvider({ children, app, plugin, isMobile }: SelectionProviderProps) {
     // Get current settings from SettingsContext
     const settings = useSettingsState();
-    
+
     // Load initial state from localStorage and vault
     const loadInitialState = useCallback((): SelectionState => {
         const vault = app.vault;
-        
+
         // Load saved folder path with error handling
         let savedFolderPath: string | null = null;
         try {
@@ -394,7 +395,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
         } catch (error) {
             console.error('Failed to load selected folder from localStorage:', error);
         }
-        
+
         let selectedFolder: TFolder | null = null;
         if (savedFolderPath) {
             const folder = vault.getAbstractFileByPath(savedFolderPath);
@@ -402,7 +403,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
                 selectedFolder = folder;
             }
         }
-        
+
         // Load saved file path with error handling
         let savedFilePath: string | null = null;
         try {
@@ -410,7 +411,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
         } catch (error) {
             console.error('Failed to load selected file from localStorage:', error);
         }
-        
+
         let selectedFile: TFile | null = null;
         const selectedFiles = new Set<string>();
         if (savedFilePath) {
@@ -420,12 +421,12 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
                 selectedFiles.add(file.path);
             }
         }
-        
+
         // Default to root folder if no selection
         if (!selectedFolder) {
             selectedFolder = vault.getRoot();
         }
-        
+
         return {
             selectionType: 'folder',
             selectedFolder,
@@ -439,82 +440,79 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             isKeyboardNavigation: false
         };
     }, [app.vault]);
-    
+
     const [state, dispatch] = useReducer(
         (state: SelectionState, action: SelectionAction) => selectionReducer(state, action, app),
         undefined,
         loadInitialState
     );
-    
+
     // Create an enhanced dispatch that handles side effects
-    const enhancedDispatch = useCallback((action: SelectionAction) => {
-        // Handle auto-select logic for folder selection
-        if (action.type === 'SET_SELECTED_FOLDER' && action.autoSelectedFile === undefined) {
-            // Clear multi-selection when changing folders
-            dispatch({ type: 'CLEAR_FILE_SELECTION' });
-            
-            if (action.folder) {
-                const filesInFolder = getFilesForFolder(action.folder, settings, app);
-                
-                // Desktop with autoSelectFirstFile enabled: ALWAYS select first file
-                if (!isMobile && settings.autoSelectFirstFileOnFocusChange && filesInFolder.length > 0) {
-                    dispatch({ ...action, autoSelectedFile: filesInFolder[0] });
-                } else {
-                    // Otherwise, check for active file
-                    const activeFile = app.workspace.getActiveFile();
-                    const activeFileInFolder = activeFile && filesInFolder.some(f => f.path === activeFile.path);
-                    
-                    if (activeFileInFolder) {
-                        // Select the active file if it's in the folder (mobile always, desktop when autoSelect is off)
-                        dispatch({ ...action, autoSelectedFile: activeFile });
+    const enhancedDispatch = useCallback(
+        (action: SelectionAction) => {
+            // Handle auto-select logic for folder selection
+            if (action.type === 'SET_SELECTED_FOLDER' && action.autoSelectedFile === undefined) {
+                if (action.folder) {
+                    const filesInFolder = getFilesForFolder(action.folder, settings, app);
+
+                    // Desktop with autoSelectFirstFile enabled: ALWAYS select first file
+                    if (!isMobile && settings.autoSelectFirstFileOnFocusChange && filesInFolder.length > 0) {
+                        dispatch({ ...action, autoSelectedFile: filesInFolder[0] });
                     } else {
-                        // No auto-selection
-                        dispatch({ ...action, autoSelectedFile: null });
+                        // Otherwise, check for active file
+                        const activeFile = app.workspace.getActiveFile();
+                        const activeFileInFolder = activeFile && filesInFolder.some(f => f.path === activeFile.path);
+
+                        if (activeFileInFolder) {
+                            // Select the active file if it's in the folder (mobile always, desktop when autoSelect is off)
+                            dispatch({ ...action, autoSelectedFile: activeFile });
+                        } else {
+                            // No auto-selection
+                            dispatch({ ...action, autoSelectedFile: null });
+                        }
                     }
-                }
-            } else {
-                dispatch({ ...action, autoSelectedFile: null });
-            }
-        }
-        // Handle auto-select logic for tag selection
-        else if (action.type === 'SET_SELECTED_TAG' && action.autoSelectedFile === undefined) {
-            // Clear multi-selection when changing tags
-            dispatch({ type: 'CLEAR_FILE_SELECTION' });
-            
-            if (action.tag) {
-                const filesForTag = getFilesForTag(action.tag, settings, app);
-                
-                // Desktop with autoSelectFirstFile enabled: ALWAYS select first file
-                if (!isMobile && settings.autoSelectFirstFileOnFocusChange && filesForTag.length > 0) {
-                    dispatch({ ...action, autoSelectedFile: filesForTag[0] });
                 } else {
-                    // Otherwise, check for active file
-                    const activeFile = app.workspace.getActiveFile();
-                    const activeFileInTag = activeFile && filesForTag.some(f => f.path === activeFile.path);
-                    
-                    if (activeFileInTag) {
-                        // Select the active file if it's in the tag view (mobile always, desktop when autoSelect is off)
-                        dispatch({ ...action, autoSelectedFile: activeFile });
-                    } else {
-                        // No auto-selection
-                        dispatch({ ...action, autoSelectedFile: null });
-                    }
+                    dispatch({ ...action, autoSelectedFile: null });
                 }
-            } else {
-                dispatch({ ...action, autoSelectedFile: null });
             }
-        }
-        // Handle cleanup for deleted files on mobile
-        else if (action.type === 'CLEANUP_DELETED_FILE' && isMobile) {
-            // On mobile, never auto-select next file
-            dispatch({ ...action, nextFileToSelect: null });
-        }
-        // For all other actions, dispatch as-is
-        else {
-            dispatch(action);
-        }
-    }, [app, settings, isMobile, dispatch]);
-    
+            // Handle auto-select logic for tag selection
+            else if (action.type === 'SET_SELECTED_TAG' && action.autoSelectedFile === undefined) {
+                if (action.tag) {
+                    const filesForTag = getFilesForTag(action.tag, settings, app);
+
+                    // Desktop with autoSelectFirstFile enabled: ALWAYS select first file
+                    if (!isMobile && settings.autoSelectFirstFileOnFocusChange && filesForTag.length > 0) {
+                        dispatch({ ...action, autoSelectedFile: filesForTag[0] });
+                    } else {
+                        // Otherwise, check for active file
+                        const activeFile = app.workspace.getActiveFile();
+                        const activeFileInTag = activeFile && filesForTag.some(f => f.path === activeFile.path);
+
+                        if (activeFileInTag) {
+                            // Select the active file if it's in the tag view (mobile always, desktop when autoSelect is off)
+                            dispatch({ ...action, autoSelectedFile: activeFile });
+                        } else {
+                            // No auto-selection
+                            dispatch({ ...action, autoSelectedFile: null });
+                        }
+                    }
+                } else {
+                    dispatch({ ...action, autoSelectedFile: null });
+                }
+            }
+            // Handle cleanup for deleted files on mobile
+            else if (action.type === 'CLEANUP_DELETED_FILE' && isMobile) {
+                // On mobile, never auto-select next file
+                dispatch({ ...action, nextFileToSelect: null });
+            }
+            // For all other actions, dispatch as-is
+            else {
+                dispatch(action);
+            }
+        },
+        [app, settings, isMobile, dispatch]
+    );
+
     // Persist selected folder to localStorage with error handling
     useEffect(() => {
         try {
@@ -527,7 +525,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             console.error('Failed to save selected folder to localStorage:', error);
         }
     }, [state.selectedFolder]);
-    
+
     // Persist selected file to localStorage with error handling
     useEffect(() => {
         try {
@@ -542,27 +540,25 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             console.error('Failed to save selected file to localStorage:', error);
         }
     }, [state.selectedFile, state.selectedFiles, app]);
-    
+
     // Register file rename listener
     useEffect(() => {
         const listenerId = 'selection-context-' + Math.random().toString(36).substr(2, 9);
-        
+
         const handleFileRename = (oldPath: string, newPath: string) => {
             dispatch({ type: 'UPDATE_FILE_PATH', oldPath, newPath });
         };
-        
+
         plugin.registerFileRenameListener(listenerId, handleFileRename);
-        
+
         return () => {
             plugin.unregisterFileRenameListener(listenerId);
         };
     }, [plugin, dispatch]);
-    
+
     return (
         <SelectionContext.Provider value={state}>
-            <SelectionDispatchContext.Provider value={enhancedDispatch}>
-                {children}
-            </SelectionDispatchContext.Provider>
+            <SelectionDispatchContext.Provider value={enhancedDispatch}>{children}</SelectionDispatchContext.Provider>
         </SelectionContext.Provider>
     );
 }

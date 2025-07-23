@@ -24,7 +24,7 @@ import { ItemType } from '../types';
 /**
  * Color palette for folder colors
  * Carefully selected to work well in both light and dark themes
- * 
+ *
  * NOTE: These colors must be duplicated in styles.css as attribute selectors
  * This duplication is required for Obsidian plugin compliance (no JS styles)
  * If you modify colors here, update the corresponding CSS rules
@@ -55,7 +55,7 @@ const COLOR_PALETTE = [
 /**
  * Color picker modal for selecting custom folder colors
  * Displays a grid of predefined colors that work well in both themes
- * 
+ *
  * Features:
  * - Clean grid layout with 5 columns
  * - Shows color preview with name below
@@ -68,7 +68,6 @@ export class ColorPickerModal extends Modal {
     private itemPath: string;
     private itemType: typeof ItemType.FOLDER | typeof ItemType.TAG;
     private colorGrid: HTMLDivElement;
-    // private focusedIndex: number = -1; // TODO: Implement keyboard navigation
     private gridColumns: number = 5;
 
     /** Callback function invoked when a color is selected */
@@ -81,7 +80,12 @@ export class ColorPickerModal extends Modal {
      * @param itemPath - Path of the folder or tag to set color for
      * @param itemType - Whether this is for a folder or tag
      */
-    constructor(app: App, metadataService: MetadataService, itemPath: string, itemType: typeof ItemType.FOLDER | typeof ItemType.TAG = ItemType.FOLDER) {
+    constructor(
+        app: App,
+        metadataService: MetadataService,
+        itemPath: string,
+        itemType: typeof ItemType.FOLDER | typeof ItemType.TAG = ItemType.FOLDER
+    ) {
         super(app);
         this.metadataService = metadataService;
         this.itemPath = itemPath;
@@ -103,7 +107,7 @@ export class ColorPickerModal extends Modal {
 
         // Create color grid
         this.colorGrid = contentEl.createDiv('nn-color-grid');
-        
+
         // Add color items
         COLOR_PALETTE.forEach((color, index) => {
             this.createColorItem(color, index);
@@ -136,20 +140,20 @@ export class ColorPickerModal extends Modal {
         const colorItem = this.colorGrid.createDiv('nn-color-item');
         colorItem.setAttribute('data-color', color.value);
         colorItem.setAttribute('data-index', index.toString());
-        
+
         // Color preview
         const colorPreview = colorItem.createDiv('nn-color-preview');
         colorPreview.setAttribute('data-color-value', color.value);
-        
+
         // Color name
         const colorName = colorItem.createDiv('nn-color-name');
         colorName.setText(color.name);
-        
+
         // Click handler
         colorItem.addEventListener('click', () => {
             this.selectColor(color.value);
         });
-        
+
         // Make focusable
         colorItem.setAttribute('tabindex', '0');
     }
@@ -159,7 +163,7 @@ export class ColorPickerModal extends Modal {
      * Arrow keys navigate the grid, Enter/Space selects
      */
     private setupKeyboardNavigation() {
-        this.contentEl.addEventListener('keydown', (e) => {
+        this.contentEl.addEventListener('keydown', e => {
             const colorItems = Array.from(this.colorGrid.querySelectorAll('.nn-color-item')) as HTMLElement[];
             if (colorItems.length === 0) return;
 
@@ -216,7 +220,6 @@ export class ColorPickerModal extends Modal {
 
                 if (newIndex !== currentIndex && newIndex >= 0 && newIndex < colorItems.length) {
                     colorItems[newIndex].focus();
-                    // this.focusedIndex = newIndex; // TODO: Implement keyboard navigation
                 }
             }
         });
@@ -229,7 +232,6 @@ export class ColorPickerModal extends Modal {
         const firstColor = this.colorGrid.querySelector('.nn-color-item') as HTMLElement;
         if (firstColor) {
             firstColor.focus();
-            // this.focusedIndex = 0; // TODO: Implement keyboard navigation
         }
     }
 

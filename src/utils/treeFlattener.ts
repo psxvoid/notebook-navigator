@@ -18,7 +18,7 @@
 
 import { TFolder } from 'obsidian';
 import type { FolderTreeItem, TagTreeItem } from '../types/virtualization';
-import { TagTreeNode } from './fileCacheUtils';
+import { TagTreeNode } from '../types/storage';
 import { shouldExcludeFolder } from './fileFilters';
 import { NavigationPaneItemType } from '../types';
 import { getCurrentLanguage } from '../i18n';
@@ -26,7 +26,7 @@ import { getCurrentLanguage } from '../i18n';
 /**
  * Flattens a folder tree into a linear array for virtualization.
  * Only includes folders that are visible based on the expanded state.
- * 
+ *
  * @param folders - Array of root folders to flatten
  * @param expandedFolders - Set of expanded folder paths
  * @param excludePatterns - Patterns for folders to exclude
@@ -41,7 +41,7 @@ export function flattenFolderTree(
     visitedPaths: Set<string> = new Set()
 ): FolderTreeItem[] {
     const items: FolderTreeItem[] = [];
-    
+
     // Folders are already sorted by the caller
     folders.forEach(folder => {
         // Prevent circular references
@@ -49,12 +49,12 @@ export function flattenFolderTree(
             // Circular reference detected, skip this folder
             return;
         }
-        
+
         // Skip excluded folders
         if (excludePatterns.length > 0 && shouldExcludeFolder(folder.name, excludePatterns)) {
             return;
         }
-        
+
         // Add the folder itself
         items.push({
             type: NavigationPaneItemType.FOLDER,
@@ -63,57 +63,44 @@ export function flattenFolderTree(
             path: folder.path,
             key: folder.path
         });
-        
+
         // Add children if expanded
         if (expandedFolders.has(folder.path) && folder.children && folder.children.length > 0) {
-            const childFolders = folder.children
-                .filter((child): child is TFolder => child instanceof TFolder);
-            
-            // Get the current language from Obsidian to sort correctly for that locale. 
+            const childFolders = folder.children.filter((child): child is TFolder => child instanceof TFolder);
+
+            // Get the current language from Obsidian to sort correctly for that locale.
             const locale = getCurrentLanguage();
             // Sort the child folders alphabetically using the detected locale.
             childFolders.sort((a, b) => a.name.localeCompare(b.name, locale));
-            
+
             if (childFolders.length > 0) {
                 // Create a new set with the current path added
                 const newVisitedPaths = new Set(visitedPaths);
                 newVisitedPaths.add(folder.path);
-                
-                items.push(...flattenFolderTree(
-                    childFolders,
-                    expandedFolders,
-                    excludePatterns,
-                    level + 1,
-                    newVisitedPaths
-                ));
+
+                items.push(...flattenFolderTree(childFolders, expandedFolders, excludePatterns, level + 1, newVisitedPaths));
             }
         }
     });
-    
+
     return items;
 }
 
 /**
  * Flattens a tag tree into a linear array for virtualization.
  * Only includes tags that are visible based on the expanded state.
- * 
+ *
  * @param tagNodes - Array of root tag nodes to flatten
  * @param expandedTags - Set of expanded tag paths
  * @param level - Current nesting level (for indentation)
  * @returns Array of flattened tag items
  */
-export function flattenTagTree(
-    tagNodes: TagTreeNode[],
-    expandedTags: Set<string>,
-    level: number = 0
-): TagTreeItem[] {
+export function flattenTagTree(tagNodes: TagTreeNode[], expandedTags: Set<string>, level: number = 0): TagTreeItem[] {
     const items: TagTreeItem[] = [];
-    
+
     // Sort tags alphabetically
-    const sortedNodes = tagNodes.slice().sort((a, b) => 
-        a.name.localeCompare(b.name)
-    );
-    
+    const sortedNodes = tagNodes.slice().sort((a, b) => a.name.localeCompare(b.name));
+
     function addNode(node: TagTreeNode, currentLevel: number) {
         items.push({
             type: NavigationPaneItemType.TAG,
@@ -122,20 +109,15 @@ export function flattenTagTree(
             path: node.path,
             key: node.path
         });
-        
+
         // Add children if expanded and has children
         if (expandedTags.has(node.path) && node.children && node.children.size > 0) {
-            const sortedChildren = Array.from(node.children.values())
-                .sort((a, b) => a.name.localeCompare(b.name));
-            
-            sortedChildren.forEach(child => 
-                addNode(child, currentLevel + 1)
-            );
+            const sortedChildren = Array.from(node.children.values()).sort((a, b) => a.name.localeCompare(b.name));
+
+            sortedChildren.forEach(child => addNode(child, currentLevel + 1));
         }
     }
-    
+
     sortedNodes.forEach(node => addNode(node, level));
     return items;
 }
-
-

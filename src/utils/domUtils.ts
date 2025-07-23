@@ -18,11 +18,10 @@
 
 // src/utils/domUtils.ts
 
-
 /**
  * Gets the path from a DOM element with a specific data attribute.
  * Useful for drag and drop operations that use different data attributes.
- * 
+ *
  * @param element - The DOM element to check
  * @param attribute - The data attribute name (e.g., 'data-drag-path')
  * @returns The path string if found, null otherwise
@@ -34,13 +33,11 @@ export function getPathFromDataAttribute(element: HTMLElement | null, attribute:
 /**
  * Checks if the user is currently typing in an input field.
  * Used to prevent keyboard shortcuts from firing while typing.
- * 
+ *
  * @param e - The keyboard event
  * @returns True if typing in an input field, false otherwise
  */
 export function isTypingInInput(e: KeyboardEvent): boolean {
     const target = e.target as HTMLElement;
-    return target.tagName === 'INPUT' || 
-           target.tagName === 'TEXTAREA' || 
-           target.contentEditable === 'true';
+    return target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.contentEditable === 'true';
 }

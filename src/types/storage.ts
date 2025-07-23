@@ -16,21 +16,21 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { FileCache, FileData } from '../types/cache';
-import { findFileInCache } from './fileCacheUtils';
+/**
+ * Storage system type definitions
+ */
 
 /**
- * Get cached file data for a given file
- * @param cache - The file cache
- * @param filePath - The file path to look up
- * @returns The cached file data or null if not found
+ * Represents a node in the hierarchical tag tree.
+ * Each node contains information about a tag and its nested children.
  */
-export function getCachedFileData(
-    cache: FileCache | null | undefined,
-    filePath: string
-): FileData | null {
-    if (!cache) return null;
-    return findFileInCache(cache.root, filePath);
+export interface TagTreeNode {
+    /** The name of this part of the tag (e.g., "processing" for "inbox/processing") */
+    name: string;
+    /** The full path of the tag without # prefix (e.g., "inbox/processing") */
+    path: string;
+    /** Map of child tag nodes, keyed by their name */
+    children: Map<string, TagTreeNode>;
+    /** Set of file paths that have this exact tag */
+    notesWithTag: Set<string>;
 }
-
-

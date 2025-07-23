@@ -17,26 +17,21 @@
  */
 
 import { TFile } from 'obsidian';
-import { FileData } from '../types/cache';
 import { NotebookNavigatorSettings } from '../settings';
 
 /**
  * Get the display name for a file
  * @param file - The file to get the name for
- * @param cachedData - Optional cached file data containing frontmatter name
+ * @param cachedData - Optional cached file data containing frontmatter name (deprecated)
  * @param settings - Plugin settings to check if frontmatter is enabled
  * @returns The display name for the file
  */
-export function getFileDisplayName(
-    file: TFile,
-    cachedData?: FileData,
-    settings?: NotebookNavigatorSettings
-): string {
+export function getFileDisplayName(file: TFile, cachedData?: { fn?: string }, settings?: NotebookNavigatorSettings): string {
     // If we have cached frontmatter name and feature is enabled, use it
     if (cachedData?.fn && settings?.useFrontmatterMetadata) {
         return cachedData.fn;
     }
-    
+
     // Fall back to file basename
     return file.basename;
 }

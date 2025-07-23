@@ -89,19 +89,24 @@ export class FileSystemOperations {
      * @param onSuccess - Optional callback with the new folder path on successful creation
      */
     async createNewFolder(parent: TFolder, onSuccess?: (path: string) => void): Promise<void> {
-        const modal = new InputModal(this.app, strings.modals.fileSystem.newFolderTitle, strings.modals.fileSystem.folderNamePrompt, async (name) => {
-            if (name) {
-                try {
-                    const path = normalizePath(parent.path ? `${parent.path}/${name}` : name);
-                    await this.app.vault.createFolder(path);
-                    if (onSuccess) {
-                        onSuccess(path);
+        const modal = new InputModal(
+            this.app,
+            strings.modals.fileSystem.newFolderTitle,
+            strings.modals.fileSystem.folderNamePrompt,
+            async name => {
+                if (name) {
+                    try {
+                        const path = normalizePath(parent.path ? `${parent.path}/${name}` : name);
+                        await this.app.vault.createFolder(path);
+                        if (onSuccess) {
+                            onSuccess(path);
+                        }
+                    } catch (error) {
+                        new Notice(strings.fileSystem.errors.createFolder.replace('{error}', error.message));
                     }
-                } catch (error) {
-                    new Notice(strings.fileSystem.errors.createFolder.replace('{error}', error.message));
                 }
             }
-        });
+        );
         modal.open();
     }
 
@@ -129,38 +134,42 @@ export class FileSystemOperations {
      * @param settings - The plugin settings (optional)
      */
     async renameFolder(folder: TFolder, settings?: NotebookNavigatorSettings): Promise<void> {
-        const modal = new InputModal(this.app, strings.modals.fileSystem.renameFolderTitle, strings.modals.fileSystem.renamePrompt, async (newName) => {
-            if (newName && newName !== folder.name) {
-                try {
-                    // Check for folder note before renaming
-                    let folderNote: TFile | null = null;
-                    if (settings?.enableFolderNotes) {
-                        folderNote = getFolderNote(folder, settings, this.app);
-                    }
-                    
-                    // Rename the folder
-                    const newPath = normalizePath(folder.parent?.path 
-                        ? `${folder.parent.path}/${newName}` 
-                        : newName);
-                    await this.app.fileManager.renameFile(folder, newPath);
-                    
-                    // Rename the folder note if it exists and uses the same name as folder
-                    if (folderNote && settings && !settings.folderNoteName) {
-                        // Only rename if folderNoteName is empty (meaning it uses folder name)
-                        try {
-                            const newNoteName = `${newName}.${folderNote.extension}`;
-                            const newNotePath = normalizePath(`${newPath}/${newNoteName}`);
-                            await this.app.fileManager.renameFile(folderNote, newNotePath);
-                        } catch (error) {
-                            // Silently fail folder note rename - the main folder rename succeeded
-                            console.error('Failed to rename folder note:', error);
+        const modal = new InputModal(
+            this.app,
+            strings.modals.fileSystem.renameFolderTitle,
+            strings.modals.fileSystem.renamePrompt,
+            async newName => {
+                if (newName && newName !== folder.name) {
+                    try {
+                        // Check for folder note before renaming
+                        let folderNote: TFile | null = null;
+                        if (settings?.enableFolderNotes) {
+                            folderNote = getFolderNote(folder, settings, this.app);
                         }
+
+                        // Rename the folder
+                        const newPath = normalizePath(folder.parent?.path ? `${folder.parent.path}/${newName}` : newName);
+                        await this.app.fileManager.renameFile(folder, newPath);
+
+                        // Rename the folder note if it exists and uses the same name as folder
+                        if (folderNote && settings && !settings.folderNoteName) {
+                            // Only rename if folderNoteName is empty (meaning it uses folder name)
+                            try {
+                                const newNoteName = `${newName}.${folderNote.extension}`;
+                                const newNotePath = normalizePath(`${newPath}/${newNoteName}`);
+                                await this.app.fileManager.renameFile(folderNote, newNotePath);
+                            } catch (error) {
+                                // Silently fail folder note rename - the main folder rename succeeded
+                                console.error('Failed to rename folder note:', error);
+                            }
+                        }
+                    } catch (error) {
+                        new Notice(strings.fileSystem.errors.renameFolder.replace('{error}', error.message));
                     }
-                } catch (error) {
-                    new Notice(strings.fileSystem.errors.renameFolder.replace('{error}', error.message));
                 }
-            }
-        }, folder.name);
+            },
+            folder.name
+        );
         modal.open();
     }
 
@@ -171,22 +180,26 @@ export class FileSystemOperations {
      * @param file - The file to rename
      */
     async renameFile(file: TFile): Promise<void> {
-        const modal = new InputModal(this.app, strings.modals.fileSystem.renameFileTitle, strings.modals.fileSystem.renamePrompt, async (newName) => {
-            if (newName && newName !== file.basename) {
-                try {
-                    // Preserve original extension if not provided
-                    if (!newName.includes('.')) {
-                        newName += `.${file.extension}`;
+        const modal = new InputModal(
+            this.app,
+            strings.modals.fileSystem.renameFileTitle,
+            strings.modals.fileSystem.renamePrompt,
+            async newName => {
+                if (newName && newName !== file.basename) {
+                    try {
+                        // Preserve original extension if not provided
+                        if (!newName.includes('.')) {
+                            newName += `.${file.extension}`;
+                        }
+                        const newPath = normalizePath(file.parent?.path ? `${file.parent.path}/${newName}` : newName);
+                        await this.app.fileManager.renameFile(file, newPath);
+                    } catch (error) {
+                        new Notice(strings.fileSystem.errors.renameFile.replace('{error}', error.message));
                     }
-                    const newPath = normalizePath(file.parent?.path 
-                        ? `${file.parent.path}/${newName}` 
-                        : newName);
-                    await this.app.fileManager.renameFile(file, newPath);
-                } catch (error) {
-                    new Notice(strings.fileSystem.errors.renameFile.replace('{error}', error.message));
                 }
-            }
-        }, file.basename);
+            },
+            file.basename
+        );
         modal.open();
     }
 
@@ -238,8 +251,8 @@ export class FileSystemOperations {
      * @param preDeleteAction - Optional action to run BEFORE the file is deleted (e.g., to select next file)
      */
     async deleteFile(
-        file: TFile, 
-        confirmBeforeDelete: boolean, 
+        file: TFile,
+        confirmBeforeDelete: boolean,
         onSuccess?: () => void,
         preDeleteAction?: () => Promise<void>
     ): Promise<void> {
@@ -249,9 +262,9 @@ export class FileSystemOperations {
                 if (preDeleteAction) {
                     await preDeleteAction();
                 }
-                
+
                 await this.app.fileManager.trashFile(file);
-                
+
                 if (onSuccess) {
                     onSuccess();
                 }
@@ -259,7 +272,7 @@ export class FileSystemOperations {
                 new Notice(strings.fileSystem.errors.deleteFile.replace('{error}', error.message));
             }
         };
-        
+
         if (confirmBeforeDelete) {
             const confirmModal = new ConfirmModal(
                 this.app,
@@ -278,7 +291,7 @@ export class FileSystemOperations {
      * Smart delete handler for the currently selected file in the Navigator
      * Automatically selects the next file in the same folder before deletion
      * Used by both keyboard shortcuts and context menu
-     * 
+     *
      * @param file - The file to delete
      * @param settings - Plugin settings
      * @param selectionContext - Current selection context (type, folder, tag)
@@ -301,11 +314,11 @@ export class FileSystemOperations {
             const { getFilesForTag } = await import('../utils/fileFinder');
             currentFiles = getFilesForTag(selectionContext.selectedTag, settings, this.app);
         }
-        
+
         // Find next file to select
         let nextFileToSelect: TFile | null = null;
         const currentIndex = currentFiles.findIndex(f => f.path === file.path);
-        
+
         if (currentIndex !== -1 && currentFiles.length > 1) {
             // Try next file first
             if (currentIndex < currentFiles.length - 1) {
@@ -315,42 +328,36 @@ export class FileSystemOperations {
                 nextFileToSelect = currentFiles[currentIndex - 1];
             }
         }
-        
+
         // Perform the delete with pre-selection
-        await this.deleteFile(
-            file,
-            confirmBeforeDelete,
-            undefined,
-            async () => {
-                // Pre-delete action: select next file or close editor
-                if (nextFileToSelect) {
-                    // Verify the next file still exists (in case of concurrent deletions)
-                    const stillExists = this.app.vault.getAbstractFileByPath(nextFileToSelect.path);
-                    if (stillExists && stillExists instanceof TFile) {
-                        // Update selection and open the file
-                        await updateSelectionAfterFileOperation(nextFileToSelect, selectionDispatch, this.app);
-                    } else {
-                        // Next file was deleted, clear selection
-                        await updateSelectionAfterFileOperation(null, selectionDispatch, this.app);
-                    }
+        await this.deleteFile(file, confirmBeforeDelete, undefined, async () => {
+            // Pre-delete action: select next file or close editor
+            if (nextFileToSelect) {
+                // Verify the next file still exists (in case of concurrent deletions)
+                const stillExists = this.app.vault.getAbstractFileByPath(nextFileToSelect.path);
+                if (stillExists && stillExists instanceof TFile) {
+                    // Update selection and open the file
+                    await updateSelectionAfterFileOperation(nextFileToSelect, selectionDispatch, this.app);
                 } else {
-                    // No other files in folder
-                    // Don't detach the leaf - let Obsidian handle it naturally after deletion
-                    // Just clear the selection
-                    selectionDispatch({ type: 'SET_SELECTED_FILE', file: null });
+                    // Next file was deleted, clear selection
+                    await updateSelectionAfterFileOperation(null, selectionDispatch, this.app);
                 }
-                
-                // Try to maintain focus on file list using a more reliable method
-                setTimeout(() => {
-                    const fileListEl = document.querySelector('.nn-file-list-virtualizer') as HTMLElement;
-                    if (fileListEl) {
-                        fileListEl.focus();
-                    }
-                }, TIMEOUTS.FOCUS_RESTORE_DELAY);
+            } else {
+                // No other files in folder
+                // Don't detach the leaf - let Obsidian handle it naturally after deletion
+                // Just clear the selection
+                selectionDispatch({ type: 'SET_SELECTED_FILE', file: null });
             }
-        );
+
+            // Try to maintain focus on file list using a more reliable method
+            setTimeout(() => {
+                const fileListEl = document.querySelector('.nn-file-list-virtualizer') as HTMLElement;
+                if (fileListEl) {
+                    fileListEl.focus();
+                }
+            }, TIMEOUTS.FOCUS_RESTORE_DELAY);
+        });
     }
-    
 
     /**
      * Checks if one file/folder is a descendant of another
@@ -372,7 +379,7 @@ export class FileSystemOperations {
     /**
      * Moves multiple files to a target folder with validation and smart selection
      * Extracted from useDragAndDrop to enable reuse across drag-drop and context menu
-     * 
+     *
      * @param options - Move operation options
      * @returns Result object with moved count, skipped count, and errors
      */
@@ -389,9 +396,9 @@ export class FileSystemOperations {
                 if (showNotifications) {
                     new Notice(strings.dragDrop.errors.cannotMoveIntoSelf, 2000);
                 }
-                result.errors.push({ 
-                    file: sourceItem, 
-                    error: new Error('Cannot move folder into itself') 
+                result.errors.push({
+                    file: sourceItem,
+                    error: new Error('Cannot move folder into itself')
                 });
                 return result;
             }
@@ -399,9 +406,8 @@ export class FileSystemOperations {
 
         // Determine if we need to handle selection updates
         const pathsToMove = new Set(files.map(f => f.path));
-        const isMovingSelectedFile = selectionContext?.selectedFile && 
-            pathsToMove.has(selectionContext.selectedFile.path);
-        
+        const isMovingSelectedFile = selectionContext?.selectedFile && pathsToMove.has(selectionContext.selectedFile.path);
+
         // Only find next file if we're moving the selected file
         let nextFileToSelect: TFile | null = null;
         if (isMovingSelectedFile && selectionContext) {
@@ -410,12 +416,12 @@ export class FileSystemOperations {
 
         // Set flag to prevent auto-navigation when moving from Navigator
         window.notebookNavigatorMovingFile = true;
-        
+
         try {
             // Move each file
             for (const file of files) {
                 const newPath = `${targetFolder.path}/${file.name}`;
-                
+
                 // Check for name conflicts
                 if (this.app.vault.getAbstractFileByPath(newPath)) {
                     result.skippedCount++;
@@ -437,19 +443,16 @@ export class FileSystemOperations {
 
         // Handle selection updates if needed
         if (result.movedCount > 0 && isMovingSelectedFile && selectionContext) {
-            await updateSelectionAfterFileOperation(
-                nextFileToSelect, 
-                selectionContext.dispatch, 
-                this.app
-            );
+            await updateSelectionAfterFileOperation(nextFileToSelect, selectionContext.dispatch, this.app);
         }
 
         // Show notifications if enabled
         if (showNotifications) {
             if (result.skippedCount > 0) {
-                const message = files.length === 1 
-                    ? strings.dragDrop.errors.itemAlreadyExists.replace('{name}', files[0].name)
-                    : strings.dragDrop.notifications.filesAlreadyExist.replace('{count}', result.skippedCount.toString());
+                const message =
+                    files.length === 1
+                        ? strings.dragDrop.errors.itemAlreadyExists.replace('{name}', files[0].name)
+                        : strings.dragDrop.notifications.filesAlreadyExist.replace('{count}', result.skippedCount.toString());
                 new Notice(message, 2000);
             }
 
@@ -464,12 +467,12 @@ export class FileSystemOperations {
     /**
      * Shows a folder selection modal and moves files to the selected folder
      * Used by context menu and keyboard shortcuts for interactive file moving
-     * 
+     *
      * @param files - Files to move
      * @param selectionContext - Optional selection context for smart selection updates
      */
     async moveFilesWithModal(
-        files: TFile[], 
+        files: TFile[],
         selectionContext?: {
             selectedFile: TFile | null;
             dispatch: SelectionDispatch;
@@ -480,12 +483,12 @@ export class FileSystemOperations {
 
         // Create a set of paths to exclude (source folders and their parents)
         const excludePaths = new Set<string>();
-        
+
         // For single file moves, exclude the parent folder
         if (files.length === 1 && files[0].parent) {
             excludePaths.add(files[0].parent.path);
         }
-        
+
         // Check if any files are actually folders (shouldn't happen, but check anyway)
         for (const file of files) {
             if (file instanceof TFolder) {
@@ -525,7 +528,7 @@ export class FileSystemOperations {
             strings.modals.folderSuggest.instructions.move,
             excludePaths
         );
-        
+
         modal.open();
     }
 
@@ -540,16 +543,16 @@ export class FileSystemOperations {
             let counter = 1;
             let newName = `${baseName} ${counter}`;
             let newPath = normalizePath(file.parent ? `${file.parent.path}/${newName}.${extension}` : `${newName}.${extension}`);
-            
+
             while (this.app.vault.getAbstractFileByPath(newPath)) {
                 counter++;
                 newName = `${baseName} ${counter}`;
                 newPath = normalizePath(file.parent ? `${file.parent.path}/${newName}.${extension}` : `${newName}.${extension}`);
             }
-            
+
             const content = await this.app.vault.read(file);
             const newFile = await this.app.vault.create(newPath, content);
-            
+
             this.app.workspace.getLeaf(false).openFile(newFile);
         } catch (error) {
             new Notice(strings.fileSystem.errors.duplicateNote.replace('{error}', error.message));
@@ -590,15 +593,15 @@ export class FileSystemOperations {
             let counter = 1;
             let newName = `${baseName} ${counter}`;
             let newPath = normalizePath(folder.parent ? `${folder.parent.path}/${newName}` : newName);
-            
+
             while (this.app.vault.getAbstractFileByPath(newPath)) {
                 counter++;
                 newName = `${baseName} ${counter}`;
                 newPath = normalizePath(folder.parent ? `${folder.parent.path}/${newName}` : newName);
             }
-            
+
             await this.app.vault.createFolder(newPath);
-            
+
             // Copy all contents recursively
             const copyContents = async (sourceFolder: TFolder, destPath: string) => {
                 for (const child of sourceFolder.children) {
@@ -613,7 +616,7 @@ export class FileSystemOperations {
                     }
                 }
             };
-            
+
             await copyContents(folder, newPath);
         } catch (error) {
             new Notice(strings.fileSystem.errors.duplicateFolder.replace('{error}', error.message));
@@ -626,13 +629,9 @@ export class FileSystemOperations {
      * @param confirmBeforeDelete - Whether to show confirmation dialog
      * @param onSuccess - Optional callback to run after successful deletion
      */
-    async deleteMultipleFiles(
-        files: TFile[], 
-        confirmBeforeDelete = true,
-        onSuccess?: () => void
-    ): Promise<void> {
+    async deleteMultipleFiles(files: TFile[], confirmBeforeDelete = true, onSuccess?: () => void): Promise<void> {
         if (files.length === 0) return;
-        
+
         const performDelete = async () => {
             // Delete all files
             for (const file of files) {
@@ -644,20 +643,19 @@ export class FileSystemOperations {
                 }
             }
             new Notice(strings.fileSystem.notifications.deletedMultipleFiles.replace('{count}', files.length.toString()));
-            
+
             if (onSuccess) {
                 onSuccess();
             }
         };
-        
+
         if (confirmBeforeDelete) {
             // Import dynamically to avoid circular dependencies
             const { ConfirmModal } = await import('../modals/ConfirmModal');
-            
+
             const modal = new ConfirmModal(
                 this.app,
-                strings.fileSystem.confirmations.deleteMultipleFiles
-                    .replace('{count}', files.length.toString()),
+                strings.fileSystem.confirmations.deleteMultipleFiles.replace('{count}', files.length.toString()),
                 strings.fileSystem.confirmations.deleteConfirmation,
                 performDelete
             );
@@ -689,30 +687,21 @@ export class FileSystemOperations {
         const filesToDelete = Array.from(selectedFiles)
             .map(path => this.app.vault.getAbstractFileByPath(path))
             .filter((f): f is TFile => f instanceof TFile);
-        
+
         if (filesToDelete.length === 0) return;
-        
+
         // Find next file to select using utility
         const nextFileToSelect = findNextFileAfterRemoval(allFiles, selectedFiles);
-        
+
         // Delete the files with callback to update selection
-        await this.deleteMultipleFiles(
-            filesToDelete,
-            confirmBeforeDelete,
-            async () => {
-                // Clear multi-selection first
-                selectionDispatch({ type: 'CLEAR_FILE_SELECTION' });
-                // Update selection after deletion (don't open in editor for bulk operations)
-                if (nextFileToSelect) {
-                    await updateSelectionAfterFileOperation(
-                        nextFileToSelect, 
-                        selectionDispatch, 
-                        this.app,
-                        { openInEditor: false }
-                    );
-                }
+        await this.deleteMultipleFiles(filesToDelete, confirmBeforeDelete, async () => {
+            // Clear multi-selection first
+            selectionDispatch({ type: 'CLEAR_FILE_SELECTION' });
+            // Update selection after deletion (don't open in editor for bulk operations)
+            if (nextFileToSelect) {
+                await updateSelectionAfterFileOperation(nextFileToSelect, selectionDispatch, this.app, { openInEditor: false });
             }
-        );
+        });
     }
 
     // Alias methods for backward compatibility
@@ -761,31 +750,31 @@ export class FileSystemOperations {
 
     /**
      * Opens version history for a file using Obsidian Sync.
-     * 
+     *
      * The version history modal requires the editor to have focus when the command executes.
      * The Notebook Navigator's aggressive focus management can interfere with this.
-     * 
+     *
      * Solution:
      * 1. Set a flag to prevent the navigator from stealing focus
      * 2. Always use openLinkText to open/re-open the file (ensures proper editor focus)
      * 3. Wait briefly for the editor to be ready
      * 4. Execute the version history command
      * 5. Clear the flag after a delay
-     * 
+     *
      * @param file - The file to view version history for
      */
     async openVersionHistory(file: TFile): Promise<void> {
         // Set a flag to prevent the navigator from stealing focus back
         window.notebookNavigatorOpeningVersionHistory = true;
-        
+
         try {
             // Always open/re-open the file to ensure proper focus
             // This works for non-selected files, so let's use it for all files
             await this.app.workspace.openLinkText(file.path, '', false);
-            
+
             // Small delay to ensure the editor is ready
             await new Promise(resolve => setTimeout(resolve, 100));
-            
+
             // Execute the version history command
             if (!executeCommand(this.app, OBSIDIAN_COMMANDS.VERSION_HISTORY)) {
                 new Notice(strings.fileSystem.errors.versionHistoryNotFound);
@@ -840,7 +829,7 @@ export class FileSystemOperations {
             const timestamp = new Date().toISOString().replace(/[:.]/g, '-').slice(0, -5);
             const fileName = `Drawing ${timestamp}.excalidraw.md`;
             const filePath = parent.path ? `${parent.path}/${fileName}` : fileName;
-            
+
             // Minimal Excalidraw file content
             const content = `---
 
@@ -868,14 +857,14 @@ tags: [excalidraw]
 }
 \`\`\`
 %%`;
-            
+
             // Create the file
             const file = await this.app.vault.create(filePath, content);
-            
+
             // Open the file
             const leaf = this.app.workspace.getLeaf(false);
             await leaf.openFile(file);
-            
+
             // The Excalidraw plugin should automatically recognize and open it in drawing mode
             return file;
         } catch (error) {

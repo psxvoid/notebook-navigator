@@ -29,7 +29,7 @@ export class MetadataService {
     private folderService: FolderMetadataService;
     private tagService: TagMetadataService;
     private fileService: FileMetadataService;
-    
+
     /**
      * Creates a new MetadataService instance
      * @param app - The Obsidian app instance
@@ -162,19 +162,19 @@ export class MetadataService {
      */
     async cleanupAllMetadata(): Promise<boolean> {
         // Run cleanup for folders and files only
-        // Tag cleanup is handled separately in FileCacheProvider after tag tree is built
+        // Tag cleanup is handled separately in StorageProvider after tag tree is built
         // This ensures parent tags are properly identified before cleanup
         const [folderChanges, fileChanges] = await Promise.all([
             this.folderService.cleanupFolderMetadata(),
             this.fileService.cleanupPinnedNotes()
         ]);
-        
+
         return folderChanges || fileChanges;
     }
 
     /**
      * Cleanup tag metadata for tags that no longer exist in the vault
-     * Called by FileCacheProvider after tag tree is successfully built
+     * Called by StorageProvider after tag tree is successfully built
      * This ensures the metadata cache is ready and all parent tags are identified
      * @returns True if any changes were made
      */

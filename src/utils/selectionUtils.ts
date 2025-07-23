@@ -29,12 +29,9 @@ import { SelectionDispatch } from '../context/SelectionContext';
  * @param removedPaths - Set of paths that are being removed (deleted or moved)
  * @returns The file to select after removal, or null if none
  */
-export function findNextFileAfterRemoval(
-    allFiles: TFile[], 
-    removedPaths: Set<string>
-): TFile | null {
+export function findNextFileAfterRemoval(allFiles: TFile[], removedPaths: Set<string>): TFile | null {
     if (allFiles.length === 0) return null;
-    
+
     // Find the first removed file's index
     let firstRemovedIndex = -1;
     for (let i = 0; i < allFiles.length; i++) {
@@ -43,16 +40,16 @@ export function findNextFileAfterRemoval(
             break;
         }
     }
-    
+
     if (firstRemovedIndex === -1) return null;
-    
+
     // Strategy 1: Find first unselected file starting from first removed position
     for (let i = firstRemovedIndex; i < allFiles.length; i++) {
         if (!removedPaths.has(allFiles[i].path)) {
             return allFiles[i];
         }
     }
-    
+
     // Strategy 2: If no file found after, look for first file before the selection
     if (firstRemovedIndex > 0) {
         for (let i = firstRemovedIndex - 1; i >= 0; i--) {
@@ -61,7 +58,7 @@ export function findNextFileAfterRemoval(
             }
         }
     }
-    
+
     return null;
 }
 
@@ -72,21 +69,17 @@ export function findNextFileAfterRemoval(
  * @param endIndex - Ending index
  * @returns Array of files in the range
  */
-export function getFilesInRange(
-    files: TFile[], 
-    startIndex: number, 
-    endIndex: number
-): TFile[] {
+export function getFilesInRange(files: TFile[], startIndex: number, endIndex: number): TFile[] {
     const minIndex = Math.max(0, Math.min(startIndex, endIndex));
     const maxIndex = Math.min(files.length - 1, Math.max(startIndex, endIndex));
-    
+
     const result: TFile[] = [];
     for (let i = minIndex; i <= maxIndex; i++) {
         if (files[i]) {
             result.push(files[i]);
         }
     }
-    
+
     return result;
 }
 
@@ -101,7 +94,6 @@ export function findFileIndex(files: TFile[], targetFile: TFile | null): number 
     return files.findIndex(f => f.path === targetFile.path);
 }
 
-
 /**
  * Update selection after a file operation (delete, move, etc.)
  * Handles both selection state update and opening the file in editor
@@ -115,32 +107,32 @@ export async function updateSelectionAfterFileOperation(
     dispatch: SelectionDispatch,
     app: App,
     options: {
-        openInEditor?: boolean;  // Whether to open the file in editor (default: true)
-        activeFile?: boolean;    // Whether to make the file active (default: false)
+        openInEditor?: boolean; // Whether to open the file in editor (default: true)
+        activeFile?: boolean; // Whether to make the file active (default: false)
     } = {}
 ): Promise<void> {
     const { openInEditor = true, activeFile = false } = options;
-    
+
     // No file to select, clear selection and return
     if (!nextFile) {
         dispatch({ type: 'CLEAR_FILE_SELECTION' });
         return;
     }
-    
+
     // Update selection state
     dispatch({ type: 'SET_SELECTED_FILE', file: nextFile });
-    
+
     // Skip opening file if not requested
     if (!openInEditor) {
         return;
     }
-    
+
     // Open the file in editor
     const leaf = app.workspace.getLeaf(false);
     if (!leaf) {
         return;
     }
-    
+
     try {
         await leaf.openFile(nextFile, { active: activeFile });
     } catch (error) {

@@ -132,7 +132,7 @@ export class FolderMetadataService extends BaseMetadataService {
             this.updateNestedPaths(settings.folderColors, oldPath, newPath);
             this.updateNestedPaths(settings.folderIcons, oldPath, newPath);
             this.updateNestedPaths(settings.folderSortOverrides, oldPath, newPath);
-            
+
             // Handle pinned notes separately (different structure)
             if (settings.pinnedNotes?.[oldPath]) {
                 settings.pinnedNotes[newPath] = settings.pinnedNotes[oldPath];
@@ -150,7 +150,7 @@ export class FolderMetadataService extends BaseMetadataService {
             this.deleteNestedPaths(settings.folderColors, folderPath);
             this.deleteNestedPaths(settings.folderIcons, folderPath);
             this.deleteNestedPaths(settings.folderSortOverrides, folderPath);
-            
+
             // Delete pinned notes
             delete settings.pinnedNotes?.[folderPath];
         });
@@ -165,13 +165,13 @@ export class FolderMetadataService extends BaseMetadataService {
             const folder = this.app.vault.getAbstractFileByPath(path);
             return folder instanceof TFolder;
         };
-        
+
         const results = await Promise.all([
             this.cleanupMetadata(this.settings, 'folderColors', validator),
             this.cleanupMetadata(this.settings, 'folderIcons', validator),
             this.cleanupMetadata(this.settings, 'folderSortOverrides', validator)
         ]);
-        
+
         return results.some(changed => changed);
     }
 }

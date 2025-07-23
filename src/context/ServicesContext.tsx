@@ -52,38 +52,37 @@ const ServicesContext = createContext<Services>(null!);
 /**
  * Provider component that instantiates and provides services to child components.
  * Services are memoized to ensure singleton behavior.
- * 
+ *
  * @param props - Component props
  * @param props.children - Child components that will have access to services
  * @param props.plugin - The plugin instance providing app and metadata service
  */
-export function ServicesProvider({ children, plugin }: { children: React.ReactNode, plugin: NotebookNavigatorPlugin }) {
+export function ServicesProvider({ children, plugin }: { children: React.ReactNode; plugin: NotebookNavigatorPlugin }) {
     const isMobile = Platform.isMobile;
-    
+
     /**
      * Use the single MetadataService instance from the plugin
      * This ensures consistency between vault event handlers and UI
      */
-    const services = useMemo(() => ({
-        app: plugin.app,
-        plugin,
-        isMobile,
-        fileSystemOps: new FileSystemOperations(plugin.app),
-        metadataService: plugin.metadataService, // Use the single instance from plugin
-        tagOperations: plugin.tagOperations // Use the single instance from plugin
-    }), [plugin, isMobile]);
-
-    return (
-        <ServicesContext.Provider value={services}>
-            {children}
-        </ServicesContext.Provider>
+    const services = useMemo(
+        () => ({
+            app: plugin.app,
+            plugin,
+            isMobile,
+            fileSystemOps: new FileSystemOperations(plugin.app),
+            metadataService: plugin.metadataService, // Use the single instance from plugin
+            tagOperations: plugin.tagOperations // Use the single instance from plugin
+        }),
+        [plugin, isMobile]
     );
+
+    return <ServicesContext.Provider value={services}>{children}</ServicesContext.Provider>;
 }
 
 /**
  * Hook to access all services.
  * Must be used within a ServicesProvider.
- * 
+ *
  * @returns Object containing all available services
  * @throws If used outside of ServicesProvider
  */
@@ -94,7 +93,7 @@ export function useServices() {
 /**
  * Convenience hook to access the FileSystemOperations service directly.
  * Use this when you only need file system operations.
- * 
+ *
  * @returns The FileSystemOperations service instance
  */
 export function useFileSystemOps() {
@@ -105,7 +104,7 @@ export function useFileSystemOps() {
 /**
  * Convenience hook to access the MetadataService directly.
  * Use this when you need to manage folder colors, icons, sorts, or pinned notes.
- * 
+ *
  * @returns The MetadataService instance
  */
 export function useMetadataService() {
@@ -119,7 +118,7 @@ export function useMetadataService() {
 /**
  * Convenience hook to access the TagOperations service directly.
  * Use this when you need to rename or delete tags.
- * 
+ *
  * @returns The TagOperations service instance
  */
 export function useTagOperations() {

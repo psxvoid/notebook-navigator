@@ -32,43 +32,44 @@ interface SettingsProviderProps {
 export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
     // Use a version counter to force re-renders when settings change
     const [version, setVersion] = useState(0);
-    
-    const updateSettings = useCallback(async (updater: (settings: NotebookNavigatorSettings) => void) => {
-        // Update the settings object
-        updater(plugin.settings);
-        
-        // Save to storage
-        await plugin.saveSettings();
-        
-        // The listener registered in useEffect will handle the re-render
-        // by incrementing the version when onSettingsUpdate is called
-    }, [plugin]);
-    
+
+    const updateSettings = useCallback(
+        async (updater: (settings: NotebookNavigatorSettings) => void) => {
+            // Update the settings object
+            updater(plugin.settings);
+
+            // Save to storage
+            await plugin.saveSettings();
+
+            // The listener registered in useEffect will handle the re-render
+            // by incrementing the version when onSettingsUpdate is called
+        },
+        [plugin]
+    );
+
     // Listen for settings updates from the plugin (e.g., from settings tab)
     useEffect(() => {
         const id = `settings-provider-${Date.now()}`;
-        
+
         const handleSettingsUpdate = () => {
             // Force re-render by incrementing version
             setVersion(v => v + 1);
         };
-        
+
         plugin.registerSettingsUpdateListener(id, handleSettingsUpdate);
-        
+
         return () => {
             plugin.unregisterSettingsUpdateListener(id);
         };
     }, [plugin]);
-    
+
     // Create a stable settings object that changes reference when version changes
     // This ensures components using SettingsStateContext re-render when settings change
     const settingsValue = React.useMemo(() => ({ ...plugin.settings }), [version]);
-    
+
     return (
         <SettingsStateContext.Provider value={settingsValue}>
-            <SettingsUpdateContext.Provider value={updateSettings}>
-                {children}
-            </SettingsUpdateContext.Provider>
+            <SettingsUpdateContext.Provider value={updateSettings}>{children}</SettingsUpdateContext.Provider>
         </SettingsStateContext.Provider>
     );
 }

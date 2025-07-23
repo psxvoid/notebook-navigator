@@ -29,18 +29,12 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
 
     // Change icon
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(strings.contextMenu.tag.changeIcon)
+        item.setTitle(strings.contextMenu.tag.changeIcon)
             .setIcon('palette')
             .onClick(async () => {
                 const { IconPickerModal } = await import('../../modals/IconPickerModal');
                 const { ItemType } = await import('../../types');
-                const modal = new IconPickerModal(
-                    app, 
-                    metadataService, 
-                    tagPath,
-                    ItemType.TAG
-                );
+                const modal = new IconPickerModal(app, metadataService, tagPath, ItemType.TAG);
                 modal.open();
             });
     });
@@ -49,8 +43,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
     const currentIcon = metadataService.getTagIcon(tagPath);
     if (currentIcon) {
         menu.addItem((item: MenuItem) => {
-            item
-                .setTitle(strings.contextMenu.tag.removeIcon)
+            item.setTitle(strings.contextMenu.tag.removeIcon)
                 .setIcon('x')
                 .onClick(async () => {
                     await metadataService.removeTagIcon(tagPath);
@@ -62,8 +55,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
 
     // Change color
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(strings.contextMenu.tag.changeColor)
+        item.setTitle(strings.contextMenu.tag.changeColor)
             .setIcon('palette')
             .onClick(async () => {
                 const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
@@ -76,8 +68,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
     const currentColor = metadataService.getTagColor(tagPath);
     if (currentColor) {
         menu.addItem((item: MenuItem) => {
-            item
-                .setTitle(strings.contextMenu.tag.removeColor)
+            item.setTitle(strings.contextMenu.tag.removeColor)
                 .setIcon('x')
                 .onClick(async () => {
                     await metadataService.removeTagColor(tagPath);

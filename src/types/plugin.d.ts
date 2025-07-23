@@ -29,7 +29,7 @@ export interface NotebookNavigatorPlugin extends Plugin {
     settings: NotebookNavigatorSettings;
     metadataService: MetadataService | null;
     navigatorView?: NotebookNavigatorView;
-    
+
     // Methods
     saveSettings(): Promise<void>;
     onSettingsUpdate(): void;

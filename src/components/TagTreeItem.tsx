@@ -18,7 +18,7 @@
 
 import React, { forwardRef } from 'react';
 import { setIcon } from 'obsidian';
-import { TagTreeNode } from '../utils/fileCacheUtils';
+import { TagTreeNode } from '../types/storage';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { ItemType } from '../types';
 import { useSettingsState } from '../context/SettingsContext';
@@ -54,103 +54,90 @@ interface TagTreeItemProps {
  * Component that renders a single tag in the hierarchical tag tree.
  * Handles indentation, expand/collapse state, and selection state.
  */
-export const TagTreeItem = React.memo(forwardRef<HTMLDivElement, TagTreeItemProps>(function TagTreeItem({ 
-    tagNode, 
-    level, 
-    isExpanded, 
-    isSelected, 
-    onToggle, 
-    onClick, 
-    fileCount,
-    showFileCount,
-    customIcon,
-    customColor
-}, ref) {
-    const settings = useSettingsState();
-    const chevronRef = React.useRef<HTMLDivElement>(null);
-    const iconRef = React.useRef<HTMLSpanElement>(null);
-    const itemRef = React.useRef<HTMLDivElement>(null);
-    const hasChildren = tagNode.children.size > 0;
-    
-    // Set up forwarded ref
-    React.useImperativeHandle(ref, () => itemRef.current as HTMLDivElement);
-    
-    // Add context menu
-    useContextMenu(itemRef, {
-        type: ItemType.TAG,
-        item: tagNode.path
-    });
+export const TagTreeItem = React.memo(
+    forwardRef<HTMLDivElement, TagTreeItemProps>(function TagTreeItem(
+        { tagNode, level, isExpanded, isSelected, onToggle, onClick, fileCount, showFileCount, customIcon, customColor },
+        ref
+    ) {
+        const settings = useSettingsState();
+        const chevronRef = React.useRef<HTMLDivElement>(null);
+        const iconRef = React.useRef<HTMLSpanElement>(null);
+        const itemRef = React.useRef<HTMLDivElement>(null);
+        const hasChildren = tagNode.children.size > 0;
 
-    // Update chevron icon based on expanded state
-    React.useEffect(() => {
-        if (chevronRef.current && hasChildren) {
-            setIcon(chevronRef.current, isExpanded ? 'chevron-down' : 'chevron-right');
-        }
-    }, [isExpanded, hasChildren]);
+        // Set up forwarded ref
+        React.useImperativeHandle(ref, () => itemRef.current as HTMLDivElement);
 
-    // Update tag icon
-    React.useEffect(() => {
-        if (iconRef.current && settings.showIcons) {
-            getIconService().renderIcon(iconRef.current, customIcon || 'tags');
-        }
-    }, [customIcon, settings.showIcons]);
+        // Add context menu
+        useContextMenu(itemRef, {
+            type: ItemType.TAG,
+            item: tagNode.path
+        });
 
-    // Handle double-click to toggle expansion
-    const handleDoubleClick = React.useCallback((e: React.MouseEvent) => {
-        e.preventDefault();
-        if (hasChildren) {
-            onToggle();
-        }
-    }, [hasChildren, onToggle]);
+        // Update chevron icon based on expanded state
+        React.useEffect(() => {
+            if (chevronRef.current && hasChildren) {
+                setIcon(chevronRef.current, isExpanded ? 'chevron-down' : 'chevron-right');
+            }
+        }, [isExpanded, hasChildren]);
 
-    return (
-        <div 
-            ref={itemRef}
-            className={`nn-folder-item ${isSelected ? 'nn-selected' : ''}`} 
-            data-tag={tagNode.path}
-            data-drop-zone="tag"
-            data-drop-path={tagNode.path}
-            style={{ paddingInlineStart: `${level * 20}px` }}
-            role="treeitem"
-            aria-expanded={hasChildren ? isExpanded : undefined}
-            aria-level={level + 1}
-        >
-            <div 
-                className="nn-folder-content"
-                onClick={onClick}
-                onDoubleClick={handleDoubleClick}
+        // Update tag icon
+        React.useEffect(() => {
+            if (iconRef.current && settings.showIcons) {
+                getIconService().renderIcon(iconRef.current, customIcon || 'tags');
+            }
+        }, [customIcon, settings.showIcons]);
+
+        // Handle double-click to toggle expansion
+        const handleDoubleClick = React.useCallback(
+            (e: React.MouseEvent) => {
+                e.preventDefault();
+                if (hasChildren) {
+                    onToggle();
+                }
+            },
+            [hasChildren, onToggle]
+        );
+
+        return (
+            <div
+                ref={itemRef}
+                className={`nn-folder-item ${isSelected ? 'nn-selected' : ''}`}
+                data-tag={tagNode.path}
+                data-drop-zone="tag"
+                data-drop-path={tagNode.path}
+                style={{ paddingInlineStart: `${level * 20}px` }}
+                role="treeitem"
+                aria-expanded={hasChildren ? isExpanded : undefined}
+                aria-level={level + 1}
             >
-                <div
-                    ref={chevronRef}
-                    className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}
-                    onClick={(e) => {
-                        e.stopPropagation();
-                        if (hasChildren) onToggle();
-                    }}
-                    onDoubleClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                    }}
-                    tabIndex={-1}
-                />
-                {settings.showIcons && (
-                    <span 
-                        className="nn-folder-icon" 
-                        ref={iconRef}
-                        style={customColor ? { color: customColor } : undefined}
+                <div className="nn-folder-content" onClick={onClick} onDoubleClick={handleDoubleClick}>
+                    <div
+                        ref={chevronRef}
+                        className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}
+                        onClick={e => {
+                            e.stopPropagation();
+                            if (hasChildren) onToggle();
+                        }}
+                        onDoubleClick={e => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                        }}
+                        tabIndex={-1}
                     />
-                )}
-                <span 
-                    className={`nn-folder-name ${customColor ? 'nn-has-custom-color' : ''}`} 
-                    style={customColor ? { color: customColor } : undefined}
-                >
-                    {tagNode.name}
-                </span>
-                <span className="nn-folder-spacer" />
-                {showFileCount && fileCount > 0 && (
-                    <span className="nn-folder-count">{fileCount}</span>
-                )}
+                    {settings.showIcons && (
+                        <span className="nn-folder-icon" ref={iconRef} style={customColor ? { color: customColor } : undefined} />
+                    )}
+                    <span
+                        className={`nn-folder-name ${customColor ? 'nn-has-custom-color' : ''}`}
+                        style={customColor ? { color: customColor } : undefined}
+                    >
+                        {tagNode.name}
+                    </span>
+                    <span className="nn-folder-spacer" />
+                    {showFileCount && fileCount > 0 && <span className="nn-folder-count">{fileCount}</span>}
+                </div>
             </div>
-        </div>
-    );
-}));
+        );
+    })
+);

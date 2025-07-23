@@ -30,10 +30,10 @@ export function parseExcludedProperties(excludedFiles: string[]): string[] {
  */
 export function shouldExcludeFile(file: TFile, excludedProperties: string[], app: App): boolean {
     if (excludedProperties.length === 0) return false;
-    
+
     const metadata = app.metadataCache.getFileCache(file);
     if (!metadata?.frontmatter) return false;
-    
+
     return excludedProperties.some(prop => prop in metadata.frontmatter!);
 }
 
@@ -55,24 +55,24 @@ export function matchesFolderPattern(folderName: string, pattern: string): boole
     if (!pattern) {
         return false;
     }
-    
+
     // Exact match if no wildcards
     if (!pattern.includes('*')) {
         return folderName === pattern;
     }
-    
+
     // Handle wildcard at the end (e.g., "assets*")
     if (pattern.endsWith('*') && !pattern.startsWith('*')) {
         const prefix = pattern.slice(0, -1);
         return folderName.startsWith(prefix);
     }
-    
+
     // Handle wildcard at the beginning (e.g., "*_temp")
     if (pattern.startsWith('*') && !pattern.endsWith('*')) {
         const suffix = pattern.slice(1);
         return folderName.endsWith(suffix);
     }
-    
+
     // For now, we don't support wildcards in the middle or multiple wildcards
     // Just do exact match as fallback
     return folderName === pattern;

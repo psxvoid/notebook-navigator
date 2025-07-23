@@ -21,10 +21,9 @@ import { NotebookNavigatorSettings } from '../settings';
 import { isTFile, isTFolder } from './typeGuards';
 import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders, shouldExcludeFolder } from './fileFilters';
 import { getEffectiveSortOption, sortFiles } from './sortUtils';
-import { buildTagTree, findTagNode, collectAllTagPaths } from './tagTreeUtils';
+import { buildTagTree, findTagNode, collectAllTagPaths } from './tagTree';
 import { UNTAGGED_TAG_ID } from '../types';
 import { shouldDisplayFile, FILE_VISIBILITY } from './fileTypeUtils';
-
 
 /**
  * Gets the folder note for a folder if it exists
@@ -43,12 +42,12 @@ export function getFolderNote(folder: TFolder, settings: NotebookNavigatorSettin
             if (child.parent?.path !== folder.path) {
                 continue;
             }
-            
+
             // Only markdown files can be folder notes
             if (child.extension !== 'md') {
                 continue;
             }
-            
+
             // If folderNoteName is empty, use the folder name
             const expectedName = settings.folderNoteName || folder.name;
             if (child.basename === expectedName) {
@@ -56,28 +55,22 @@ export function getFolderNote(folder: TFolder, settings: NotebookNavigatorSettin
             }
         }
     }
-    
+
     return null;
 }
-
-
 
 /**
  * Collects all pinned note paths from settings
  */
-export function collectPinnedPaths(
-    pinnedNotes: Record<string, string[]>, 
-    folder?: TFolder, 
-    includeSubfolders = false
-): Set<string> {
+export function collectPinnedPaths(pinnedNotes: Record<string, string[]>, folder?: TFolder, includeSubfolders = false): Set<string> {
     const allPinnedPaths = new Set<string>();
-    
+
     if (folder) {
         // Collect from specific folder and optionally its subfolders
         const collectFromFolder = (f: TFolder): void => {
             const paths = pinnedNotes[f.path] || [];
             paths.forEach(p => allPinnedPaths.add(p));
-            
+
             if (includeSubfolders) {
                 for (const child of f.children) {
                     if (isTFolder(child)) {
@@ -86,7 +79,7 @@ export function collectPinnedPaths(
                 }
             }
         };
-        
+
         collectFromFolder(folder);
     } else {
         // Collect from all folders
@@ -97,7 +90,7 @@ export function collectPinnedPaths(
             }
         }
     }
-    
+
     return allPinnedPaths;
 }
 
@@ -105,17 +98,13 @@ export function collectPinnedPaths(
  * Gets a sorted list of files for a given folder, respecting all plugin settings.
  * This is the primary utility function to be used by the reducer.
  */
-export function getFilesForFolder(
-    folder: TFolder,
-    settings: NotebookNavigatorSettings,
-    app: App
-): TFile[] {
+export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSettings, app: App): TFile[] {
     const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-    
+
     // Collect files from folder
     const files: TFile[] = [];
     const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
-    
+
     const collectFiles = (f: TFolder): void => {
         for (const child of f.children) {
             if (isTFile(child)) {
@@ -131,10 +120,10 @@ export function getFilesForFolder(
             }
         }
     };
-    
+
     collectFiles(folder);
     let allFiles = files.filter(file => !shouldExcludeFile(file, excludedProperties, app));
-    
+
     // Filter out folder notes if enabled and set to hide
     if (settings.enableFolderNotes && settings.hideFolderNoteInList) {
         allFiles = allFiles.filter(file => {
@@ -144,12 +133,12 @@ export function getFilesForFolder(
                 if (file.parent?.path !== file.parent.path) {
                     return true;
                 }
-                
+
                 // Only markdown files can be folder notes
                 if (file.extension !== 'md') {
                     return true;
                 }
-                
+
                 // If folderNoteName is empty, use the folder name
                 const expectedName = settings.folderNoteName || file.parent.name;
                 return file.basename !== expectedName;
@@ -157,10 +146,15 @@ export function getFilesForFolder(
             return true;
         });
     }
-    
+
     const sortOption = getEffectiveSortOption(settings, 'folder', folder);
-    sortFiles(allFiles, sortOption);
-    
+    sortFiles(
+        allFiles,
+        sortOption,
+        (file: TFile) => file.stat.ctime,
+        (file: TFile) => file.stat.mtime
+    );
+
     const pinnedPaths = collectPinnedPaths(settings.pinnedNotes, folder, settings.showNotesFromSubfolders);
     // Separate pinned and unpinned files
     let sortedFiles: TFile[];
@@ -169,7 +163,7 @@ export function getFilesForFolder(
     } else {
         const pinnedFiles: TFile[] = [];
         const unpinnedFiles: TFile[] = [];
-        
+
         for (const file of allFiles) {
             if (pinnedPaths.has(file.path)) {
                 pinnedFiles.push(file);
@@ -177,7 +171,7 @@ export function getFilesForFolder(
                 unpinnedFiles.push(file);
             }
         }
-        
+
         sortedFiles = [...pinnedFiles, ...unpinnedFiles];
     }
 
@@ -187,30 +181,25 @@ export function getFilesForFolder(
 /**
  * Gets a sorted list of files for a given tag, respecting all plugin settings.
  */
-export function getFilesForTag(
-    tag: string,
-    settings: NotebookNavigatorSettings,
-    app: App
-): TFile[] {
+export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings, app: App): TFile[] {
     const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-    
+
     // Get all files based on visibility setting
     let allFiles: TFile[] = [];
-    
+
     if (settings.fileVisibility === FILE_VISIBILITY.MARKDOWN) {
         // Only markdown files
         allFiles = app.vault.getMarkdownFiles();
     } else {
         // Get all files and filter based on visibility setting
-        allFiles = app.vault.getFiles()
-            .filter(file => shouldDisplayFile(file, settings.fileVisibility, app));
+        allFiles = app.vault.getFiles().filter(file => shouldDisplayFile(file, settings.fileVisibility, app));
     }
-    
+
     // Apply exclusion filter
     allFiles = allFiles.filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-    
+
     let filteredFiles: TFile[] = [];
-    
+
     // Special case for untagged files
     if (tag === UNTAGGED_TAG_ID) {
         filteredFiles = allFiles.filter(file => {
@@ -226,42 +215,48 @@ export function getFilesForTag(
     } else {
         // For regular tags, only consider markdown files since only they can have tags
         const markdownFiles = allFiles.filter(file => file.extension === 'md');
-        
+
         // Build the tag tree
-        const tagTree = buildTagTree(markdownFiles, app);
-        
+        const { tree: tagTree } = buildTagTree(markdownFiles, app);
+
         // Find the selected tag node
-        const selectedNode = findTagNode(tag, tagTree);
-        
+        const selectedNode = findTagNode(tagTree, tag);
+
         if (selectedNode) {
             // Collect all tags to include (selected tag and all children)
             const tagsToInclude = collectAllTagPaths(selectedNode);
-            
+
             // Create a lowercase set for case-insensitive comparison
-            const tagsToIncludeLower = new Set(
-                Array.from(tagsToInclude).map(tag => tag.toLowerCase())
-            );
-            
+            const tagsToIncludeLower = new Set(Array.from(tagsToInclude).map((tag: string) => tag.toLowerCase()));
+
             // Filter files that have any of the collected tags (case-insensitive)
             filteredFiles = markdownFiles.filter(file => {
                 const cache = app.metadataCache.getFileCache(file);
                 const fileTags = cache ? getAllTags(cache) : null;
-                return fileTags && fileTags.some(tag => {
-                    // Remove # prefix from file tags before comparison
-                    const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
-                    return tagsToIncludeLower.has(cleanTag.toLowerCase());
-                });
+                return (
+                    fileTags &&
+                    fileTags.some(tag => {
+                        // Remove # prefix from file tags before comparison
+                        const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
+                        return tagsToIncludeLower.has(cleanTag.toLowerCase());
+                    })
+                );
             });
         } else {
             // Fallback to empty if tag not found
             filteredFiles = [];
         }
     }
-    
+
     // Sort files
     const sortOption = getEffectiveSortOption(settings, 'tag', null, tag);
-    sortFiles(filteredFiles, sortOption);
-    
+    sortFiles(
+        filteredFiles,
+        sortOption,
+        (file: TFile) => file.stat.ctime,
+        (file: TFile) => file.stat.mtime
+    );
+
     // Handle pinned notes - for tag view, collect ALL pinned notes from all folders
     const pinnedPaths = collectPinnedPaths(settings.pinnedNotes);
     // Separate pinned and unpinned files
@@ -270,7 +265,7 @@ export function getFilesForTag(
     } else {
         const pinnedFiles: TFile[] = [];
         const unpinnedFiles: TFile[] = [];
-        
+
         for (const file of filteredFiles) {
             if (pinnedPaths.has(file.path)) {
                 pinnedFiles.push(file);
@@ -278,7 +273,7 @@ export function getFilesForTag(
                 unpinnedFiles.push(file);
             }
         }
-        
+
         return [...pinnedFiles, ...unpinnedFiles];
     }
 }

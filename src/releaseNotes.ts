@@ -18,16 +18,16 @@
 
 /**
  * Release Notes System
- * 
+ *
  * This module manages the "What's new" feature that shows users what has changed
  * between plugin versions. The system works as follows:
- * 
+ *
  * 1. On plugin load, it compares the current version with the last shown version
  * 2. If upgraded, it shows all release notes between versions
  * 3. If downgraded or same version, it shows the latest 5 releases
  * 4. Individual releases can be marked with showOnUpdate: false to skip auto-display
  * 5. Users can always manually access release notes via plugin settings
- * 
+ *
  * The lastShownVersion is stored in plugin settings to track what the user has seen.
  */
 
@@ -35,102 +35,115 @@
  * Represents a single release note entry
  */
 export interface ReleaseNote {
-	version: string;
-	date: string;
-	showOnUpdate?: boolean; // If false, won't show automatically on upgrade (defaults to true)
-	features: string[];
+    version: string;
+    date: string;
+    showOnUpdate?: boolean; // If false, won't show automatically on upgrade (defaults to true)
+    features: string[];
 }
 
 /**
  * All release notes for the plugin, ordered from newest to oldest.
- * 
+ *
  * When adding a new release:
  * 1. Add it at the beginning of the array (newest first)
  * 2. Set showOnUpdate to false for minor bug fixes that don't need user attention
  * 3. Features should start with NEW:, IMPROVED:, CHANGED: or FIXED:
  */
 export const RELEASE_NOTES: ReleaseNote[] = [
-	{
-		version: "1.3.1",
-		date: "2025-07-20",
-		showOnUpdate: true,
-		features: [
-			"NEW: Support for EMOJI icons! Notebook Navigator now also has an Icon provider module for further expansions.",
-			"NEW: Added command 'Navigate to Tag'.",
-			"NEW: Added folder menu option 'Reveal in Finder / System explorer'.",
-			"NEW: Added preview text setting 'Skip text before first heading'.",
-			"IMPROVED: Added an advanced caching system for all display elements. This significantly improves overall performance when using the plugin.",
-			"IMPROVED: Mobile clients now persist state perfectly when switching between plugin and editor.",
-			"IMPROVED: Significantly increased scrolling performance where all items now have predetermined heights.",
-			"IMPROVED: Lots of internal tweaks and optimizations, code is now in an excellent state for further development."
-		]
-	}
+    {
+        version: '1.3.2',
+        date: '2025-07-23',
+        showOnUpdate: true,
+        features: [
+            "NEW: Added setting: 'Preview properties'. You can now specify frontmatter properties to use as preview text.",
+            'IMPROVED: Migrated to IndexedDB with RAM cache for database storage, significantly improving performance and reliability with large vaults.',
+            'IMPROVED: Files with no preview text now render with just 1 preview text line for better readability.',
+            'FIXED: Preview text generation now properly excludes code blocks and most markdown markers.',
+            "CHANGED: The setting 'Skip text before first heading' was removed since it added too much performance overhead.",
+            "CHANGED: The setting 'Skip non-text in preview' was removed since it is now always applied."
+        ]
+    },
+    {
+        version: '1.3.1',
+        date: '2025-07-20',
+        showOnUpdate: true,
+        features: [
+            'NEW: Support for EMOJI icons! Notebook Navigator now also has an Icon provider module for further expansions.',
+            "NEW: Added command 'Navigate to Tag'.",
+            "NEW: Added folder menu option 'Reveal in Finder / System explorer'.",
+            "NEW: Added preview text setting 'Skip text before first heading'.",
+            'IMPROVED: Added an advanced caching system for all display elements. This significantly improves overall performance when using the plugin.',
+            'IMPROVED: Mobile clients now persist state perfectly when switching between plugin and editor.',
+            'IMPROVED: Significantly increased scrolling performance where all items now have predetermined heights.',
+            'IMPROVED: Lots of internal tweaks and optimizations, code is now in an excellent state for further development.'
+        ]
+    }
 ];
 
 /**
  * Gets all release notes between two versions (inclusive).
  * Used when upgrading to show what's changed since the last version.
- * 
+ *
  * @param fromVersion - The starting version (usually the previously shown version)
  * @param toVersion - The ending version (usually the current version)
  * @returns Array of release notes between the versions, or latest notes if versions not found
  */
 export function getReleaseNotesBetweenVersions(fromVersion: string, toVersion: string): ReleaseNote[] {
-	const fromIndex = RELEASE_NOTES.findIndex(note => note.version === fromVersion);
-	const toIndex = RELEASE_NOTES.findIndex(note => note.version === toVersion);
-	
-	// If either version is not found, fall back to showing latest releases
-	if (fromIndex === -1 || toIndex === -1) {
-		return getLatestReleaseNotes();
-	}
-	
-	const startIndex = Math.min(fromIndex, toIndex);
-	const endIndex = Math.max(fromIndex, toIndex);
-	
-	return RELEASE_NOTES.slice(startIndex, endIndex + 1);
+    const fromIndex = RELEASE_NOTES.findIndex(note => note.version === fromVersion);
+    const toIndex = RELEASE_NOTES.findIndex(note => note.version === toVersion);
+
+    // If either version is not found, fall back to showing latest releases
+    if (fromIndex === -1 || toIndex === -1) {
+        return getLatestReleaseNotes();
+    }
+
+    const startIndex = Math.min(fromIndex, toIndex);
+    const endIndex = Math.max(fromIndex, toIndex);
+
+    return RELEASE_NOTES.slice(startIndex, endIndex + 1);
 }
 
 /**
  * Gets the most recent release notes.
  * Used for manual "What's new" access and as fallback.
- * 
+ *
  * @param count - Number of latest releases to return (defaults to 5)
  * @returns Array of the most recent release notes
  */
 export function getLatestReleaseNotes(count: number = 5): ReleaseNote[] {
-	return RELEASE_NOTES.slice(0, count);
+    return RELEASE_NOTES.slice(0, count);
 }
 
 /**
  * Determines if the "What's new" modal should automatically show for a specific version.
- * 
+ *
  * @param version - The version to check
  * @returns true if the modal should show automatically, false if it should be skipped
  */
 export function shouldShowReleaseNotesForVersion(version: string): boolean {
-	const releaseNote = RELEASE_NOTES.find(note => note.version === version);
-	// Default to true if showOnUpdate is not specified
-	return releaseNote?.showOnUpdate !== false;
+    const releaseNote = RELEASE_NOTES.find(note => note.version === version);
+    // Default to true if showOnUpdate is not specified
+    return releaseNote?.showOnUpdate !== false;
 }
 
 /**
  * Compares two semantic version strings.
- * 
+ *
  * @param v1 - First version string (e.g., "1.2.3")
  * @param v2 - Second version string (e.g., "1.2.4")
  * @returns 1 if v1 > v2, -1 if v1 < v2, 0 if equal
  */
 export function compareVersions(v1: string, v2: string): number {
-	const parts1 = v1.split('.').map(Number);
-	const parts2 = v2.split('.').map(Number);
-	
-	for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
-		const part1 = parts1[i] || 0;
-		const part2 = parts2[i] || 0;
-		
-		if (part1 > part2) return 1;
-		if (part1 < part2) return -1;
-	}
-	
-	return 0;
+    const parts1 = v1.split('.').map(Number);
+    const parts2 = v2.split('.').map(Number);
+
+    for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+        const part1 = parts1[i] || 0;
+        const part2 = parts2[i] || 0;
+
+        if (part1 > part2) return 1;
+        if (part1 < part2) return -1;
+    }
+
+    return 0;
 }

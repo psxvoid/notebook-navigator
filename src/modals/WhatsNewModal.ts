@@ -19,7 +19,7 @@ export class WhatsNewModal extends Modal {
         contentEl.empty();
         contentEl.addClass('nn-whats-new-modal');
 
-        const headerEl = contentEl.createEl('h2', { 
+        const headerEl = contentEl.createEl('h2', {
             text: strings.whatsNew.title,
             cls: 'nn-whats-new-header'
         });
@@ -29,11 +29,11 @@ export class WhatsNewModal extends Modal {
         this.releaseNotes.forEach(note => {
             const versionContainer = scrollContainer.createDiv('nn-whats-new-version');
 
-            const versionHeader = versionContainer.createEl('h3', { 
-                text: `Version ${note.version}` 
+            const versionHeader = versionContainer.createEl('h3', {
+                text: `Version ${note.version}`
             });
 
-            const dateEl = versionContainer.createEl('small', { 
+            const dateEl = versionContainer.createEl('small', {
                 text: note.date,
                 cls: 'nn-whats-new-date'
             });
@@ -51,8 +51,8 @@ export class WhatsNewModal extends Modal {
         const divider = contentEl.createDiv('nn-whats-new-divider');
 
         const supportContainer = contentEl.createDiv('nn-whats-new-support');
-        
-        supportContainer.createEl('p', { 
+
+        supportContainer.createEl('p', {
             text: strings.whatsNew.supportMessage,
             cls: 'nn-whats-new-support-text'
         });
@@ -75,6 +75,9 @@ export class WhatsNewModal extends Modal {
         thanksButton.addEventListener('click', () => {
             this.close();
         });
+
+        // Focus on Thanks button instead of Support button
+        thanksButton.focus();
     }
 
     onClose(): void {

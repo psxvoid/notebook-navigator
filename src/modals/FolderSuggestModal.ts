@@ -37,7 +37,7 @@ export class FolderSuggestModal extends BaseSuggestModal<TFolder> {
      * @param excludePaths - Optional set of folder paths to exclude from selection
      */
     constructor(
-        app: App, 
+        app: App,
         onChooseFolder: (folder: TFolder) => void,
         placeholderText: string,
         actionText: string,
@@ -57,7 +57,7 @@ export class FolderSuggestModal extends BaseSuggestModal<TFolder> {
      */
     getItems(): TFolder[] {
         const folders: TFolder[] = [];
-        
+
         // Recursively collect all folders
         const collectFolders = (folder: TFolder) => {
             if (!this.excludeFolders.has(folder.path)) {
@@ -69,13 +69,13 @@ export class FolderSuggestModal extends BaseSuggestModal<TFolder> {
                 }
             }
         };
-        
+
         // Start from root folder
         collectFolders(this.app.vault.getRoot());
-        
+
         // Sort folders by path for consistent ordering
         folders.sort((a, b) => a.path.localeCompare(b.path));
-        
+
         return folders;
     }
 
@@ -107,5 +107,4 @@ export class FolderSuggestModal extends BaseSuggestModal<TFolder> {
     protected getItemClass(): string {
         return 'nn-folder-suggest-item';
     }
-
 }

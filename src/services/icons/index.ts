@@ -18,16 +18,16 @@
 
 /**
  * Icon Service Module
- * 
+ *
  * This module provides a unified icon system for Notebook Navigator,
  * supporting multiple icon providers through a plugin architecture.
- * 
+ *
  * The module exports:
  * - IconService: Central service for managing icons
  * - Icon providers: LucideIconProvider, EmojiIconProvider
  * - Types: Interfaces and type definitions
  * - Helper functions: initializeIconService, getIconService
- * 
+ *
  * Usage:
  * ```typescript
  * const iconService = getIconService();
@@ -50,30 +50,30 @@ let iconService: IconService | null = null;
 /**
  * Initializes the icon service with default providers.
  * Creates the service instance and registers Lucide and Emoji providers.
- * 
+ *
  * @returns The initialized IconService instance
  */
 export function initializeIconService(): IconService {
-	if (!iconService) {
-		iconService = IconService.getInstance();
-		
-		// Register default providers
-		iconService.registerProvider(new LucideIconProvider());
-		iconService.registerProvider(new EmojiIconProvider());
-	}
-	
-	return iconService;
+    if (!iconService) {
+        iconService = IconService.getInstance();
+
+        // Register default providers
+        iconService.registerProvider(new LucideIconProvider());
+        iconService.registerProvider(new EmojiIconProvider());
+    }
+
+    return iconService;
 }
 
 /**
  * Gets the icon service instance, initializing if necessary.
  * This is the primary way to access the icon service throughout the plugin.
- * 
+ *
  * @returns The IconService instance
  */
 export function getIconService(): IconService {
-	if (!iconService) {
-		return initializeIconService();
-	}
-	return iconService;
+    if (!iconService) {
+        return initializeIconService();
+    }
+    return iconService;
 }

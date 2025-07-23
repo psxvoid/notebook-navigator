@@ -2,14 +2,8 @@
   "$schema": "https://unpkg.com/knip@5/schema.json",
   "entry": ["src/main.ts"],
   "project": ["src/**/*.{ts,tsx}"],
-  "ignore": [
-    "src/i18n/locales/**"
-  ],
-  "ignoreDependencies": [
-    "@types/node",
-    "typescript",
-    "builtin-modules"
-  ],
+  "ignore": ["src/i18n/locales/**", "scripts/release.js"],
+  "ignoreDependencies": ["@types/node", "typescript", "builtin-modules"],
   "ignoreExportsUsedInFile": {
     "interface": true,
     "type": true,

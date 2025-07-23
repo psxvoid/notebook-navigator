@@ -18,278 +18,190 @@
 
 import { NotebookNavigatorSettings } from '../settings';
 
-// Pre-compiled regex patterns for stripping markdown
-// Order matters - these are applied sequentially from inside out
+// Base patterns used in both regex versions
+const BASE_PATTERNS = [
+    // Group 0: Code blocks - remove entirely
+    // Example: ```javascript\nconst x = 1;\n``` → (removed)
+    /```[\s\S]*?```/.source,
+    // Group 1: Inline code - remove entirely
+    // Example: `console.log()` → (removed)
+    /`[^`]+`/.source,
+    // Group 2: Images and embeds - remove entirely
+    // Example: ![alt](image.png) → (removed)
+    /!\[.*?\]\([^\)]+\)/.source,
+    // Group 3: Wiki embeds - remove entirely
+    // Example: ![[image.png]] or ![[_resources/Pasted image.png]] → (removed)
+    /!\[\[.*?\]\]/.source,
+    // Group 4: Escape characters
+    // Example: \* → *
+    /\\([*_~`])/.source,
+    // Group 5: Bold italic stars (must come before bold/italic)
+    // Example: ***important*** → important
+    /\*\*\*((?:(?!\*\*\*).)+)\*\*\*/.source,
+    // Group 6: Bold italic underscores (must come before bold/italic)
+    // Example: ___important___ → important
+    /___((?:(?!___).)+)___/.source,
+    // Group 7: Bold stars
+    // Example: **bold** → bold
+    /\*\*((?:(?!\*\*).)+)\*\*/.source,
+    // Group 8: Bold underscores
+    // Example: __bold__ → bold
+    /__((?:(?!__).)+)__/.source,
+    // Group 9: Italic stars (iOS compatible - no lookbehind)
+    // Example: *italic* → italic (but not 5*6*7)
+    // Captures: [9] = prefix, [10] = content
+    /(^|[^*\d])\*([^*\n]+)\*(?![*\d])/.source,
+    // Group 10: Italic underscores (iOS compatible - no lookbehind)
+    // Example: _italic_ → italic (but not variable_name_here)
+    // Captures: [10] = prefix, [11] = content
+    /(^|[^_a-zA-Z0-9])_([^_\n]+)_(?![_a-zA-Z0-9])/.source,
+    // Group 11: Strikethrough
+    // Example: ~~deleted~~ → deleted
+    /~~((?:(?!~~).)+)~~/.source,
+    // Group 12: Highlight
+    // Example: ==highlighted== → highlighted
+    /==((?:(?!==).)+)==/.source,
+    // Group 13: Links
+    // Example: [Google](https://google.com) → Google
+    /\[([^\]]+)\]\([^\)]+\)/.source,
+    // Group 14: Wiki links with display
+    // Example: [[Some Page|Display Text]] → Display Text
+    /\[\[[^\]|]+\|([^\]]+)\]\]/.source,
+    // Group 15: Wiki links
+    // Example: [[Some Page]] → Some Page
+    /\[\[([^\]]+)\]\]/.source,
+    // Group 16: Lists and blockquotes - non-capturing group
+    // Example: - List item → (removed), * List → (removed), > Quote → (removed)
+    /^(?:[-*+]\s+|\d+\.\s+|>\s+)/.source,
+    // Group 17: Heading markers (always strip the # symbols, keep the text)
+    // Example: # Title → Title, ## Section → Section
+    /^(#+)\s+(.*)$/m.source
+];
 
-// Individual patterns - kept for reference but now unused due to combined regex
-// const REGEX_HEADING = /^#+\s+/gm;
-// const REGEX_LIST_MARKERS = /^[-*+]\s+/gm;
-// const REGEX_ORDERED_LIST_MARKERS = /^\d+\.\s+/gm;
-// const REGEX_BLOCKQUOTE = /^>\s+/gm;
-// const REGEX_INLINE_CODE = /`([^`]+)`/g;
-// const REGEX_BOLD_ITALIC_STARS = /\*\*\*([^\*]+)\*\*\*/g;
-// const REGEX_BOLD_ITALIC_UNDERSCORES = /___([^_]+)___/g;
-// const REGEX_BOLD_STARS = /\*\*([^\*]+)\*\*/g;
-// const REGEX_BOLD_UNDERSCORES = /__([^_]+)__/g;
-// const REGEX_ITALIC_STARS = /(^|[^\d])\*([^\*\n]+)\*(?!\d)/g;
-// const REGEX_ITALIC_UNDERSCORES = /(^|[^a-zA-Z0-9])_([^_\n]+)_(?![a-zA-Z0-9])/g;
-// const REGEX_STRIKETHROUGH = /~~([^~]+)~~/g;
-// const REGEX_HIGHLIGHT = /==([^=]+)==/g;
-// const REGEX_LINK = /\[([^\]]+)\]\([^\)]+\)/g;
-// const REGEX_WIKI_LINK_DISPLAY = /\[\[([^\]|]+)\|([^\]]+)\]\]/g;
-// const REGEX_WIKI_LINK = /\[\[([^\]]+)\]\]/g;
-// const REGEX_ESCAPE_CHARS = /\\([*_~`])/g;
-// const REGEX_MARKDOWN_IMAGE = /!\[.*?\]\((.*?)\)/g;
-// const REGEX_WIKI_EMBED = /!\[\[.*?\]\]/g;
-// const REGEX_WEB_URL = /^(https?:\/\/|www\.)/;
-// const REGEX_WEB_LINK = /(?:https?:\/\/|www\.)[^\s\)]+/g;
+// Regex without heading removal
+const REGEX_STRIP_MARKDOWN = new RegExp(BASE_PATTERNS.join('|'), 'gm');
 
-// Combined regex for single-pass markdown stripping
-// IMPORTANT: Order matters! More specific patterns must come before less specific ones
-const COMBINED_MARKDOWN_REGEX = new RegExp(
-    [
-        // Group 1: Escape characters - must be first to prevent interference
-        /\\([*_~`])/.source,
-        // Group 2: Inline code - process early to avoid conflicts
-        /`([^`]+)`/.source,
-        // Group 3: Bold italic stars (must come before bold/italic)
-        /\*\*\*([^\*]+)\*\*\*/.source,
-        // Group 4: Bold italic underscores (must come before bold/italic)
-        /___([^_]+)___/.source,
-        // Group 5: Bold stars
-        /\*\*([^\*]+)\*\*/.source,
-        // Group 6: Bold underscores
-        /__([^_]+)__/.source,
-        // Group 7: Italic stars (iOS compatible - not surrounded by digits)
-        /(^|[^\d])\*([^\*\n]+)\*(?!\d)/.source,
-        // Group 8: Italic underscores (iOS compatible - not surrounded by alphanumeric)
-        /(^|[^a-zA-Z0-9])_([^_\n]+)_(?![a-zA-Z0-9])/.source,
-        // Group 9: Strikethrough
-        /~~([^~]+)~~/.source,
-        // Group 10: Highlight
-        /==([^=]+)==/.source,
-        // Group 11: Links [text](url)
-        /\[([^\]]+)\]\([^\)]+\)/.source,
-        // Group 12: Wiki links with display [[path|text]]
-        /\[\[[^\]|]+\|([^\]]+)\]\]/.source,
-        // Group 13: Wiki links [[path]]
-        /\[\[([^\]]+)\]\]/.source,
-        // Group 14: Line start patterns (headings, lists, blockquotes) - no capture group
-        /^(?:#+\s+|[-*+]\s+|\d+\.\s+|>\s+)/.source,
-    ].join('|'),
-    'gm'
-);
+// Both regexes are now the same since heading handling is in the replacement logic
+const REGEX_STRIP_MARKDOWN_WITH_HEADINGS = REGEX_STRIP_MARKDOWN;
 
 export class PreviewTextUtils {
     /**
      * Strips markdown syntax from text to create clean preview text
-     * This version uses a single regex pass for significantly better performance
      * @param text The text to strip markdown from
+     * @param skipHeadings Whether to also remove headings
      * @returns The text with markdown syntax removed
      */
-    static stripMarkdownSyntax(text: string): string {
-        return text.replace(COMBINED_MARKDOWN_REGEX, (...args) => {
-            // Use a single loop to find which group matched
-            // Start from 1 to skip args[0] (full match)
-            for (let i = 1; i < 16; i++) {
-                if (args[i] !== undefined) {
-                    switch (i) {
-                        case 1:  // Escape characters
-                        case 2:  // Inline code
-                        case 3:  // Bold italic stars
-                        case 4:  // Bold italic underscores
-                        case 5:  // Bold stars
-                        case 6:  // Bold underscores
-                        case 11: // Strikethrough
-                        case 12: // Highlight
-                        case 13: // Links
-                        case 14: // Wiki links with display
-                        case 15: // Wiki links
-                            return args[i];
-                        
-                        case 7:  // Italic stars (has prefix)
-                            if (args[8] !== undefined) return args[7] + args[8];
-                            break;
-                        
-                        case 9:  // Italic underscores (has prefix)
-                            if (args[10] !== undefined) return args[9] + args[10];
-                            break;
-                    }
-                }
-            }
-            
-            // Line start patterns - remove entirely
-            if (args[0][0] === '#' || args[0][0] === '-' || args[0][0] === '*' || 
-                args[0][0] === '+' || args[0][0] === '>' || /^\d/.test(args[0])) {
+    static stripMarkdownSyntax(text: string, skipHeadings: boolean = false): string {
+        const regex = skipHeadings ? REGEX_STRIP_MARKDOWN_WITH_HEADINGS : REGEX_STRIP_MARKDOWN;
+
+        return text.replace(regex, (match, ...groups) => {
+            // Check for specific patterns to remove entirely
+            // Code blocks
+            if (match.startsWith('```')) {
                 return '';
             }
-            
-            return args[0];
+
+            // Inline code
+            if (match.startsWith('`') && match.endsWith('`')) {
+                return '';
+            }
+
+            // Images and embeds
+            if (match.startsWith('!')) {
+                return '';
+            }
+
+            // Headings - always strip # symbols
+            if (match.match(/^#+\s+/)) {
+                // If skipHeadings is true, remove entire heading
+                if (skipHeadings) {
+                    return '';
+                }
+                // Otherwise, return just the heading text without # symbols
+                // The heading text is in the last captured group before offset/string
+                const headingTextIndex = groups.length - 3; // -2 for offset/string, -1 for heading text position
+                return groups[headingTextIndex] || '';
+            }
+
+            // Lists and blockquotes
+            if (match.match(/^[-+>\d]/) || match.match(/^\*\s+/)) {
+                return '';
+            }
+
+            // Find first defined capture group - that's our content to keep
+            for (let i = 0; i < groups.length - 2; i++) {
+                // -2 for offset and string
+                if (groups[i] !== undefined) {
+                    // Special handling for italic patterns with prefixes
+                    // - Italic stars: prefix at index 5, content at index 6
+                    // - Italic underscores: prefix at index 7, content at index 8
+                    if (i === 5 && groups[6] !== undefined) {
+                        // Italic stars
+                        return groups[5] + groups[6];
+                    }
+                    if (i === 7 && groups[8] !== undefined) {
+                        // Italic underscores
+                        return groups[7] + groups[8];
+                    }
+                    return groups[i];
+                }
+            }
+
+            return match;
         });
     }
 
-
     /**
      * Extracts preview text from markdown content
-     * Optimized implementation with early exit and minimal processing
+     * Simple one-pass implementation with fixed 250 char limit
      * @param content The full markdown content
-     * @param settings The plugin settings to determine skip behavior
-     * @returns The preview text (max 300 chars) or a descriptive message
+     * @param settings The plugin settings
+     * @param frontmatter Optional frontmatter object to check for preview properties
+     * @returns The preview text (max 250 chars) or empty string
      */
-    static extractPreviewText(content: string, settings: NotebookNavigatorSettings): string {
-        // Early exit for empty content
-        if (!content || content.length === 0) {
-            return '';
-        }
-        
-        // Calculate max chars: 100 for first line, +50 for each additional line, max 300
-        const maxChars = Math.min(100 + (settings.previewRows - 1) * 50, 300);
-        let startIndex = 0;
-        
-        // Skip frontmatter using indexOf (more efficient than split)
-        if (content.startsWith('---\n')) {
-            const endIndex = content.indexOf('\n---\n', 4);
-            if (endIndex > 0) {
-                startIndex = endIndex + 5; // Skip past "\n---\n"
-            }
-        }
-        
-        // Build preview directly without intermediate arrays
-        let preview = '';
-        let currentIndex = startIndex;
-        let hasContent = false;
-        
-        // If skipTextBeforeFirstHeading is enabled, find the first heading
-        if (settings.skipTextBeforeFirstHeading) {
-            let foundFirstHeading = false;
-            let scanIndex = startIndex;
-            
-            while (scanIndex < content.length) {
-                let lineEnd = content.indexOf('\n', scanIndex);
-                if (lineEnd === -1) lineEnd = content.length;
-                
-                const line = content.substring(scanIndex, lineEnd);
-                const trimmedLine = line.trim();
-                
-                // Check if this is a valid markdown heading (# followed by space)
-                if (trimmedLine && trimmedLine[0] === '#') {
-                    let i = 1;
-                    while (i < trimmedLine.length && trimmedLine[i] === '#') i++;
-                    if (i < trimmedLine.length && trimmedLine[i] === ' ') {
-                        currentIndex = scanIndex;
-                        foundFirstHeading = true;
-                        break;
-                    }
-                }
-                
-                scanIndex = lineEnd + 1;
-            }
-            
-            // If no heading found and skipTextBeforeFirstHeading is enabled, return empty
-            if (!foundFirstHeading) {
-                return '';
-            }
-        }
-        
-        while (currentIndex < content.length && preview.length < maxChars) {
-            // Find next line
-            let lineEnd = content.indexOf('\n', currentIndex);
-            if (lineEnd === -1) lineEnd = content.length;
-            
-            const line = content.substring(currentIndex, lineEnd);
-            const trimmedLine = line.trim();
-            
-            // Process non-empty lines
-            if (trimmedLine) {
-                let shouldInclude = true;
-                
-                // Skip headings if enabled
-                if (settings.skipHeadingsInPreview && trimmedLine[0] === '#') {
-                    // Check if it's a valid heading (# followed by space or more #s)
-                    let i = 1;
-                    while (i < trimmedLine.length && trimmedLine[i] === '#') i++;
-                    if (i < trimmedLine.length && trimmedLine[i] === ' ') {
-                        shouldInclude = false;
-                    }
-                }
-                
-                // Skip non-text content if enabled
-                if (shouldInclude && settings.skipNonTextInPreview) {
-                    // Quick checks using charAt/startsWith instead of regex
-                    if (
-                        (trimmedLine[0] === '!' && (trimmedLine[1] === '[' || trimmedLine.startsWith('![['))) ||
-                        trimmedLine.startsWith('```') ||
-                        (trimmedLine.length >= 3 && (trimmedLine === '---' || trimmedLine === '***' || trimmedLine === '___')) ||
-                        (trimmedLine[0] === '[' && trimmedLine[trimmedLine.length - 1] === ')') ||
-                        (trimmedLine.startsWith('> !['))
-                    ) {
-                        shouldInclude = false;
-                    }
-                }
-                
-                if (shouldInclude) {
-                    // Strip markdown and add to preview
-                    const stripped = this.stripMarkdownSyntax(line);
-                    if (preview.length > 0) preview += ' ';
-                    preview += stripped;
-                    hasContent = true;
-                    
-                    // Stop if we've collected enough text
-                    if (preview.length >= maxChars) {
-                        break;
+    static extractPreviewText(content: string, settings: NotebookNavigatorSettings, frontmatter?: any): string {
+        // Check preview properties first if frontmatter is provided
+        if (frontmatter && settings.previewProperties && settings.previewProperties.length > 0) {
+            for (const property of settings.previewProperties) {
+                if (frontmatter[property]) {
+                    const propertyValue = String(frontmatter[property]).trim();
+                    if (propertyValue) {
+                        // Apply same character limit to property values
+                        const maxChars = 250;
+                        if (propertyValue.length > maxChars) {
+                            return propertyValue.substring(0, maxChars - 1) + '…';
+                        }
+                        return propertyValue;
                     }
                 }
             }
-            
-            currentIndex = lineEnd + 1;
         }
-        
-        // If no content found, do a minimal scan for attachments
-        if (!hasContent) {
-            let attachmentCount = 0;
-            let webLinkCount = 0;
-            let scanIndex = startIndex;
-            let linesScanned = 0;
-            
-            // Scan first 20 lines (reduced from 50)
-            while (scanIndex < content.length && linesScanned < 20) {
-                let lineEnd = content.indexOf('\n', scanIndex);
-                if (lineEnd === -1) lineEnd = content.length;
-                
-                const line = content.substring(scanIndex, lineEnd);
-                
-                // Simple counting without creating match arrays
-                let pos = 0;
-                while ((pos = line.indexOf('![', pos)) !== -1) {
-                    if (line.indexOf('](', pos) > pos) {
-                        attachmentCount++;
-                    }
-                    pos += 2;
-                }
-                
-                // Count web links
-                if (line.includes('http://') || line.includes('https://')) {
-                    webLinkCount++;
-                }
-                
-                scanIndex = lineEnd + 1;
-                linesScanned++;
-            }
-            
-            if (attachmentCount > 0) {
-                const totalCount = attachmentCount + webLinkCount;
-                return totalCount === 1 ? '1 attachment' : `${totalCount} attachments`;
-            } else if (webLinkCount > 0) {
-                return webLinkCount === 1 ? '1 web link' : `${webLinkCount} web links`;
-            }
-            return '';
-        }
-        
-        // Truncate with ellipsis if needed
+
+        // Fallback to extracting from content
+        if (!content) return '';
+
+        // Remove frontmatter in one shot
+        const contentWithoutFrontmatter = content.replace(/^---\n[\s\S]*?\n---\n/, '');
+        if (!contentWithoutFrontmatter.trim()) return '';
+
+        // Strip all markdown at once with appropriate regex
+        const stripped = this.stripMarkdownSyntax(contentWithoutFrontmatter, settings.skipHeadingsInPreview);
+
+        // Clean up extra whitespace and truncate
+        const preview = stripped
+            .split(/\s+/) // Split on any whitespace
+            .filter(word => word) // Remove empty strings
+            .join(' ') // Join with single spaces
+            .trim();
+
+        if (!preview) return '';
+
+        // Fixed 250 character limit with ellipsis
+        const maxChars = 250;
         if (preview.length > maxChars) {
-            // Ensure we have room for the ellipsis
             return preview.substring(0, maxChars - 1) + '…';
         }
+
         return preview;
     }
 }

@@ -37,54 +37,39 @@ export interface CreateFileOptions {
     errorKey?: string;
 }
 
-
 /**
  * Creates a new file with the specified options
  * This helper eliminates code duplication across createNewFile, createCanvas, createBase, etc.
- * 
+ *
  * @param parent - The parent folder to create the file in
  * @param app - The Obsidian app instance
  * @param options - File creation options
  * @returns The created file or null if creation failed
  */
-export async function createFileWithOptions(
-    parent: TFolder,
-    app: App,
-    options: CreateFileOptions
-): Promise<TFile | null> {
-    const {
-        extension,
-        content = '',
-        openFile = true,
-        triggerRename = true,
-        errorKey = 'createFile'
-    } = options;
-    
+export async function createFileWithOptions(parent: TFolder, app: App, options: CreateFileOptions): Promise<TFile | null> {
+    const { extension, content = '', openFile = true, triggerRename = true, errorKey = 'createFile' } = options;
+
     try {
         // Generate unique file path
         let fileName = strings.fileSystem.defaultNames.untitled;
         let counter = 1;
-        let path = normalizePath(
-            parent.path ? `${parent.path}/${fileName}.${extension}` : `${fileName}.${extension}`
-        );
-        
+        let path = normalizePath(parent.path ? `${parent.path}/${fileName}.${extension}` : `${fileName}.${extension}`);
+
         // Keep incrementing until we find a unique name
         while (app.vault.getAbstractFileByPath(path)) {
             fileName = strings.fileSystem.defaultNames.untitledNumber.replace('{number}', counter.toString());
-            path = normalizePath(
-                parent.path ? `${parent.path}/${fileName}.${extension}` : `${fileName}.${extension}`
-            );
+            path = normalizePath(parent.path ? `${parent.path}/${fileName}.${extension}` : `${fileName}.${extension}`);
             counter++;
         }
-        
+
         // Create the file
         const file = await app.vault.create(path, content);
-        
+
         // Open the file if requested
         if (openFile) {
             const leaf = app.workspace.getLeaf(false);
             await leaf.openFile(file);
-            
+
             // Trigger rename mode if requested
             if (triggerRename) {
                 // We use setTimeout to push this command to the end of the event queue.
@@ -96,13 +81,12 @@ export async function createFileWithOptions(
                 }, TIMEOUTS.RENAME_MODE_DELAY);
             }
         }
-        
+
         return file;
     } catch (error) {
         // Type-safe error message lookup
         const errorMessages = strings.fileSystem.errors as Record<string, string>;
-        const errorMessage = errorMessages[errorKey]?.replace('{error}', error.message) 
-            || `Failed to create file: ${error.message}`;
+        const errorMessage = errorMessages[errorKey]?.replace('{error}', error.message) || `Failed to create file: ${error.message}`;
         new Notice(errorMessage);
         return null;
     }
@@ -112,13 +96,16 @@ export async function createFileWithOptions(
  * Creates initial content for a database (.base) file
  */
 export function createDatabaseContent(): string {
-    return JSON.stringify({
-        "model": {
-            "version": 1,
-            "kind": "Table",
-            "columns": []
+    return JSON.stringify(
+        {
+            model: {
+                version: 1,
+                kind: 'Table',
+                columns: []
+            },
+            pluginVersion: '1.0.0'
         },
-        "pluginVersion": "1.0.0"
-    }, null, 2);
+        null,
+        2
+    );
 }
-

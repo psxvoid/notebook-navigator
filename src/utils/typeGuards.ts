@@ -22,28 +22,23 @@ import { TFile, TFolder, App } from 'obsidian';
  * Type guard to check if an object is a TFile
  */
 export function isTFile(obj: unknown): obj is TFile {
-    return obj !== null && 
-           typeof obj === 'object' &&
-           'vault' in obj &&
-           'path' in obj &&
-           'extension' in obj &&
-           !('children' in obj); // TFolder has children, TFile doesn't
+    return obj !== null && typeof obj === 'object' && 'vault' in obj && 'path' in obj && 'extension' in obj && !('children' in obj); // TFolder has children, TFile doesn't
 }
 
 /**
  * Type guard to check if an object is a TFolder
  */
 export function isTFolder(obj: unknown): obj is TFolder {
-    return obj !== null && 
-           typeof obj === 'object' &&
-           'vault' in obj &&
-           'path' in obj &&
-           'children' in obj &&
-           // Safe property access since we already checked 'children' exists
-           Array.isArray((obj as Record<string, unknown>).children);
+    return (
+        obj !== null &&
+        typeof obj === 'object' &&
+        'vault' in obj &&
+        'path' in obj &&
+        'children' in obj &&
+        // Safe property access since we already checked 'children' exists
+        Array.isArray((obj as Record<string, unknown>).children)
+    );
 }
-
-
 
 /**
  * Safe access to internal Obsidian APIs with type inference
@@ -76,7 +71,6 @@ export function executeCommand(app: App, commandId: string): boolean {
         return false;
     }
 }
-
 
 /**
  * Check if a folder is an ancestor of another folder

@@ -25,15 +25,12 @@ import { App, TFile } from 'obsidian';
 export class TagOperations {
     constructor(private app: App) {}
 
-
-
     /**
      * Escapes special regex characters in a string
      */
     private escapeRegExp(string: string): string {
         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
     }
-
 
     /**
      * Gets all parent tags of a given tag
@@ -42,11 +39,11 @@ export class TagOperations {
     private getParentTags(tag: string): string[] {
         const parts = tag.split('/');
         const parents: string[] = [];
-        
+
         for (let i = 1; i < parts.length; i++) {
             parents.push(parts.slice(0, i).join('/'));
         }
-        
+
         return parents;
     }
 
@@ -106,14 +103,10 @@ export class TagOperations {
         const frontmatterTags = metadata.frontmatter?.tags;
         if (frontmatterTags) {
             if (Array.isArray(frontmatterTags)) {
-                allTags.push(...frontmatterTags.map((t: string) => 
-                    t.startsWith('#') ? t.substring(1) : t
-                ));
+                allTags.push(...frontmatterTags.map((t: string) => (t.startsWith('#') ? t.substring(1) : t)));
             } else if (typeof frontmatterTags === 'string') {
                 const tags = frontmatterTags.split(',').map((t: string) => t.trim());
-                allTags.push(...tags.map((t: string) => 
-                    t.startsWith('#') ? t.substring(1) : t
-                ));
+                allTags.push(...tags.map((t: string) => (t.startsWith('#') ? t.substring(1) : t)));
             }
         }
 
@@ -126,7 +119,7 @@ export class TagOperations {
         return allTags.some((existingTag: string) => {
             // Exact match
             if (existingTag === tag) return true;
-            
+
             // Check if existing tag is a child of the tag we want to add
             // e.g., if we want to add "project" but file has "project/example"
             return existingTag.startsWith(tag + '/');
@@ -139,9 +132,9 @@ export class TagOperations {
     private async addTagToFile(file: TFile, tag: string): Promise<void> {
         // First, remove any parent tags of the new tag
         await this.removeParentTagsFromFile(file, tag);
-        
+
         try {
-            await this.app.fileManager.processFrontMatter(file, (fm) => {
+            await this.app.fileManager.processFrontMatter(file, fm => {
                 if (!fm.tags) {
                     // No tags yet, create new array
                     fm.tags = [tag];
@@ -173,15 +166,15 @@ export class TagOperations {
 
         // Remove parent tags from frontmatter
         try {
-            await this.app.fileManager.processFrontMatter(file, (fm) => {
+            await this.app.fileManager.processFrontMatter(file, fm => {
                 if (!fm.tags) return;
-                
+
                 if (Array.isArray(fm.tags)) {
                     fm.tags = fm.tags.filter((tag: string) => {
                         const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
                         return !parentTags.includes(cleanTag);
                     });
-                    
+
                     if (fm.tags.length === 0) {
                         delete fm.tags;
                     }
@@ -191,7 +184,7 @@ export class TagOperations {
                         const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
                         return !parentTags.includes(cleanTag);
                     });
-                    
+
                     if (filteredTags.length === 0) {
                         delete fm.tags;
                     } else {
@@ -206,11 +199,11 @@ export class TagOperations {
         // Remove parent tags from inline content
         const content = await this.app.vault.read(file);
         let newContent = content;
-        
+
         for (const parentTag of parentTags) {
             newContent = this.removeInlineTags(newContent, parentTag);
         }
-        
+
         if (newContent !== content) {
             await this.app.vault.modify(file, newContent);
         }
@@ -225,7 +218,7 @@ export class TagOperations {
 
         // Clear frontmatter tags
         try {
-            await this.app.fileManager.processFrontMatter(file, (fm) => {
+            await this.app.fileManager.processFrontMatter(file, fm => {
                 if (fm.tags) {
                     hadTags = true;
                     delete fm.tags;
@@ -239,7 +232,7 @@ export class TagOperations {
         // Clear inline tags
         const content = await this.app.vault.read(file);
         const newContent = this.removeAllInlineTags(content);
-        
+
         if (newContent !== content) {
             hadTags = true;
             await this.app.vault.modify(file, newContent);

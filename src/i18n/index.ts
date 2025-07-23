@@ -39,7 +39,7 @@ const LANGUAGE_MAP: Record<string, TranslationStrings> = {
     es: STRINGS_ES,
     fr: STRINGS_FR,
     ja: STRINGS_JA,
-    zh: STRINGS_ZH,
+    zh: STRINGS_ZH
 };
 
 /**
@@ -58,12 +58,12 @@ export function getCurrentLanguage(): string {
  */
 function getObsidianLanguage(): string {
     const locale = getCurrentLanguage();
-    
+
     // Check if the detected language is supported
     if (locale && locale in LANGUAGE_MAP) {
         return locale;
     }
-    
+
     // Fallback to English
     return 'en';
 }

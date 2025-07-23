@@ -34,21 +34,17 @@ interface UseNavigatorEventHandlersOptions {
  * - Delete event handling for files and folders
  * - Focus/blur event tracking
  * - Focused pane management
- * 
+ *
  * This hook consolidates all event subscription logic that was previously
  * in the NotebookNavigatorComponent.
  */
-export function useNavigatorEventHandlers({
-    app,
-    containerRef,
-    setIsNavigatorFocused
-}: UseNavigatorEventHandlersOptions) {
+export function useNavigatorEventHandlers({ app, containerRef, setIsNavigatorFocused }: UseNavigatorEventHandlersOptions) {
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const expansionDispatch = useExpansionDispatch();
     const selectionDispatch = useSelectionDispatch();
     const isMobile = Platform.isMobile;
-    
+
     // Handle delete events to clean up stale state
     useEffect(() => {
         const handleDelete = (file: TAbstractFile) => {
@@ -64,28 +60,28 @@ export function useNavigatorEventHandlers({
                     });
                 };
                 collectAllFolderPaths(app.vault.getRoot());
-                
+
                 expansionDispatch({ type: 'CLEANUP_DELETED_FOLDERS', existingPaths });
                 selectionDispatch({ type: 'CLEANUP_DELETED_FOLDER', deletedPath: file.path });
             } else if (file instanceof TFile) {
                 // Just cleanup the deleted file
-                selectionDispatch({ 
-                    type: 'CLEANUP_DELETED_FILE', 
+                selectionDispatch({
+                    type: 'CLEANUP_DELETED_FILE',
                     deletedPath: file.path,
                     nextFileToSelect: null
                 });
-                
+
                 // Let auto-reveal handle the selection of the new active file
             }
         };
-        
+
         const deleteEventRef = app.vault.on('delete', handleDelete);
-        
+
         return () => {
             app.vault.offref(deleteEventRef);
         };
     }, [app.vault, expansionDispatch, selectionDispatch]);
-    
+
     // Handle focus/blur events to track when navigator has focus
     useEffect(() => {
         // Skip focus tracking on mobile since it's always considered focused
@@ -93,7 +89,7 @@ export function useNavigatorEventHandlers({
             setIsNavigatorFocused(true);
             return;
         }
-        
+
         const container = containerRef.current;
         if (!container) return;
 
@@ -116,7 +112,7 @@ export function useNavigatorEventHandlers({
 
         container.addEventListener('focusin', handleFocus);
         container.addEventListener('focusout', handleBlur);
-        
+
         // Focus the container initially
         container.focus();
 
@@ -125,7 +121,7 @@ export function useNavigatorEventHandlers({
             container.removeEventListener('focusout', handleBlur);
         };
     }, [containerRef, setIsNavigatorFocused, isMobile]);
-    
+
     // Ensure the container has focus when the focused pane changes
     useEffect(() => {
         // Don't steal focus if we're opening version history
@@ -134,7 +130,7 @@ export function useNavigatorEventHandlers({
             containerRef.current?.focus();
         }
     }, [uiState.focusedPane, containerRef]);
-    
+
     /**
      * Handles delete key press by dispatching a Delete keyboard event.
      * Used by the deleteActiveFile method in the imperative handle.
@@ -142,20 +138,20 @@ export function useNavigatorEventHandlers({
     const triggerDeleteKey = () => {
         // First ensure the file pane is focused so the keyboard handler will process the event
         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-        
+
         // Then dispatch a Delete key event to trigger the existing keyboard handler
         const deleteEvent = new KeyboardEvent('keydown', {
             key: 'Delete',
             bubbles: true,
             cancelable: true
         });
-        
+
         // Small delay to ensure focus state is updated
         setTimeout(() => {
             document.dispatchEvent(deleteEvent);
         }, 0);
     };
-    
+
     return {
         triggerDeleteKey
     };

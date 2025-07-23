@@ -31,7 +31,7 @@ export const localStorage = {
         try {
             const item = window.localStorage.getItem(key);
             if (!item) return null;
-            
+
             // Always parse as JSON - all our data is stored as JSON
             return JSON.parse(item) as T;
         } catch (error) {

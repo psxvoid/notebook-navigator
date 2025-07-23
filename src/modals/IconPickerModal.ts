@@ -43,9 +43,9 @@ export class IconPickerModal extends Modal {
     public onChooseIcon: (iconId: string | null) => void;
 
     constructor(
-        app: App, 
-        metadataService: MetadataService, 
-        itemPath: string, 
+        app: App,
+        metadataService: MetadataService,
+        itemPath: string,
         itemType: typeof ItemType.FOLDER | typeof ItemType.TAG = ItemType.FOLDER
     ) {
         super(app);
@@ -95,27 +95,25 @@ export class IconPickerModal extends Modal {
 
     private createProviderTabs() {
         this.tabContainer = this.contentEl.createDiv('nn-icon-provider-tabs');
-        
+
         const providers = this.iconService.getAllProviders();
-        
+
         providers.forEach((provider, index) => {
             const tab = this.tabContainer.createDiv({
                 cls: 'nn-icon-provider-tab',
                 text: provider.name
             });
-            
+
             if (index === 0 || provider.id === this.currentProvider) {
                 tab.addClass('nn-active');
                 this.currentProvider = provider.id;
             }
-            
+
             tab.addEventListener('click', () => {
                 // Update active tab
-                this.tabContainer.querySelectorAll('.nn-icon-provider-tab').forEach(t => 
-                    t.removeClass('nn-active')
-                );
+                this.tabContainer.querySelectorAll('.nn-icon-provider-tab').forEach(t => t.removeClass('nn-active'));
                 tab.addClass('nn-active');
-                
+
                 // Update current provider and refresh results
                 this.currentProvider = provider.id;
                 this.updateResults();
@@ -125,22 +123,23 @@ export class IconPickerModal extends Modal {
 
     private updateResults() {
         this.resultsContainer.empty();
-        
+
         const searchTerm = this.searchInput.value.toLowerCase().trim();
-        
+
         if (searchTerm === '') {
             // Show recently used icons for both providers
-            const recentIcons = this.iconService.getRecentIcons()
+            const recentIcons = this.iconService
+                .getRecentIcons()
                 .filter(iconId => {
                     const parsed = this.iconService.parseIconId(iconId);
                     return parsed.provider === this.currentProvider;
                 })
                 .slice(0, 20);
-            
+
             if (recentIcons.length > 0) {
                 const header = this.resultsContainer.createDiv('nn-icon-section-header');
                 header.setText(strings.modals.iconPicker.recentlyUsedHeader);
-                
+
                 const grid = this.resultsContainer.createDiv('nn-icon-grid');
                 recentIcons.forEach(iconId => {
                     const parsed = this.iconService.parseIconId(iconId);
@@ -162,7 +161,7 @@ export class IconPickerModal extends Modal {
                                     break;
                                 }
                             }
-                            
+
                             const iconDef = {
                                 id: parsed.identifier,
                                 displayName: displayName,
@@ -184,18 +183,18 @@ export class IconPickerModal extends Modal {
         } else {
             // Search within current provider
             const results = this.iconService.search(searchTerm, this.currentProvider);
-            
+
             if (results.length > 0) {
                 const grid = this.resultsContainer.createDiv('nn-icon-grid');
                 const provider = this.iconService.getProvider(this.currentProvider);
-                
+
                 // Limit to first 50 results
                 results.slice(0, 50).forEach(iconDef => {
                     if (provider) {
                         this.createIconItem(iconDef, grid, provider);
                     }
                 });
-                
+
                 if (results.length > 50) {
                     const moreMessage = this.resultsContainer.createDiv('nn-icon-more-message');
                     moreMessage.setText(strings.modals.iconPicker.showingResultsInfo.replace('{count}', results.length.toString()));
@@ -213,36 +212,32 @@ export class IconPickerModal extends Modal {
 
     private showEmptyState(isSearch: boolean = false) {
         const emptyMessage = this.resultsContainer.createDiv('nn-icon-empty-message');
-        emptyMessage.setText(
-            isSearch 
-                ? strings.modals.iconPicker.emptyStateNoResults
-                : strings.modals.iconPicker.emptyStateSearch
-        );
+        emptyMessage.setText(isSearch ? strings.modals.iconPicker.emptyStateNoResults : strings.modals.iconPicker.emptyStateSearch);
     }
 
     private createIconItem(iconDef: IconDefinition, container: HTMLElement, provider: IconProvider) {
         const iconItem = container.createDiv('nn-icon-item');
         const fullIconId = this.iconService.formatIconId(provider.id, iconDef.id);
         iconItem.setAttribute('data-icon-id', fullIconId);
-        
+
         // Icon preview
         const iconPreview = iconItem.createDiv('nn-icon-item-preview');
         provider.render(iconPreview, iconDef.id);
-        
+
         // For emojis, also show the emoji as preview text if available
         if (provider.id === 'emoji' && iconDef.preview) {
             iconPreview.addClass('nn-emoji-preview');
         }
-        
+
         // Icon name
         const iconName = iconItem.createDiv('nn-icon-item-name');
         iconName.setText(iconDef.displayName);
-        
+
         // Click handler
         iconItem.addEventListener('click', () => {
             this.selectIcon(fullIconId);
         });
-        
+
         // Make focusable
         iconItem.setAttribute('tabindex', '0');
     }
@@ -262,7 +257,7 @@ export class IconPickerModal extends Modal {
 
     private setupKeyboardNavigation() {
         // Similar to original but simplified
-        this.contentEl.addEventListener('keydown', (e) => {
+        this.contentEl.addEventListener('keydown', e => {
             const iconItems = Array.from(this.resultsContainer.querySelectorAll('.nn-icon-item')) as HTMLElement[];
             if (iconItems.length === 0) return;
 
@@ -340,15 +335,15 @@ export class IconPickerModal extends Modal {
         const container = this.resultsContainer;
         const containerRect = container.getBoundingClientRect();
         const elementRect = iconElement.getBoundingClientRect();
-        
+
         const padding = 8;
-        
+
         if (elementRect.top < containerRect.top + padding) {
-            container.scrollTop -= (containerRect.top - elementRect.top + padding);
+            container.scrollTop -= containerRect.top - elementRect.top + padding;
         }
-        
+
         if (elementRect.bottom > containerRect.bottom - padding) {
-            container.scrollTop += (elementRect.bottom - containerRect.bottom + padding);
+            container.scrollTop += elementRect.bottom - containerRect.bottom + padding;
         }
     }
 
@@ -357,7 +352,7 @@ export class IconPickerModal extends Modal {
             clearTimeout(this.searchDebounceTimer);
             this.searchDebounceTimer = null;
         }
-        
+
         const { contentEl } = this;
         contentEl.empty();
     }

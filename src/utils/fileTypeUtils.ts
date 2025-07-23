@@ -24,33 +24,30 @@ import { ExtendedApp } from '../types/obsidian-extended';
  */
 export const FILE_VISIBILITY = {
     MARKDOWN: 'markdown',
-    SUPPORTED: 'supported', 
+    SUPPORTED: 'supported',
     ALL: 'all'
 } as const;
 
 /**
  * Type derived from FILE_VISIBILITY values
  */
-export type FileVisibility = typeof FILE_VISIBILITY[keyof typeof FILE_VISIBILITY];
+export type FileVisibility = (typeof FILE_VISIBILITY)[keyof typeof FILE_VISIBILITY];
 
 /**
  * Core file types that Obsidian supports natively
  * This is a fallback list in case we can't access the view registry
  */
 const CORE_OBSIDIAN_EXTENSIONS = new Set([
-    'md',      // Markdown
-    'canvas',  // Obsidian Canvas
-    'pdf'      // PDF viewer
+    'md', // Markdown
+    'canvas', // Obsidian Canvas
+    'pdf' // PDF viewer
 ]);
 
 /**
  * Common image extensions that can be displayed as feature images
  * Limited to formats with reliable cross-platform support
  */
-export const IMAGE_EXTENSIONS = new Set([
-    'png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp'
-]);
-
+export const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'bmp']);
 
 /**
  * Check if a file should be displayed based on the visibility setting
@@ -60,19 +57,19 @@ export function shouldDisplayFile(file: TFile, visibility: FileVisibility, app: 
     if (!file || !file.extension) {
         return false;
     }
-    
+
     switch (visibility) {
         case FILE_VISIBILITY.MARKDOWN:
             return file.extension === 'md';
-            
+
         case FILE_VISIBILITY.SUPPORTED:
             // Get supported extensions inline
             const extensions = new Set<string>(CORE_OBSIDIAN_EXTENSIONS);
-            
+
             try {
                 // Try to get registered view types from Obsidian's view registry
                 const extendedApp = app as ExtendedApp;
-                
+
                 if (extendedApp.viewRegistry?.typeByExtension) {
                     const typeByExtension = extendedApp.viewRegistry.typeByExtension;
                     if (typeByExtension && typeof typeByExtension === 'object') {
@@ -83,7 +80,7 @@ export function shouldDisplayFile(file: TFile, visibility: FileVisibility, app: 
                         }
                     }
                 }
-                
+
                 // Also check for registered extensions in the metadataTypeManager
                 // This catches some additional file types that plugins might register
                 if (extendedApp.metadataTypeManager?.registeredExtensions) {
@@ -99,12 +96,12 @@ export function shouldDisplayFile(file: TFile, visibility: FileVisibility, app: 
             } catch (e) {
                 // If we can't access internal APIs, just use the core extensions
             }
-            
+
             return extensions.has(file.extension);
-            
+
         case FILE_VISIBILITY.ALL:
             return true;
-            
+
         default:
             // Default to markdown for safety
             return file.extension === 'md';
@@ -120,4 +117,3 @@ export function isImageFile(file: TFile): boolean {
     }
     return IMAGE_EXTENSIONS.has(file.extension.toLowerCase());
 }
-

@@ -40,10 +40,10 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     const selectedCount = selectionState.selectedFiles.size;
     const isMultipleSelected = selectedCount > 1;
     const isFileSelected = selectionState.selectedFiles.has(file.path);
-    
+
     // Determine if this is a markdown file
     const isMarkdown = file.extension === 'md';
-    
+
     // If right-clicking on an unselected file while having multi-selection,
     // treat it as a single file operation
     const shouldShowMultiOptions = isMultipleSelected && isFileSelected;
@@ -76,8 +76,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         const syncPlugin = getInternalPlugin(app, 'sync');
         if (syncPlugin && 'enabled' in syncPlugin && syncPlugin.enabled) {
             menu.addItem((item: MenuItem) => {
-                item
-                    .setTitle(strings.contextMenu.file.openVersionHistory)
+                item.setTitle(strings.contextMenu.file.openVersionHistory)
                     .setIcon('history')
                     .onClick(async () => {
                         await fileSystemOps.openVersionHistory(file);
@@ -91,8 +90,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     // Reveal in system explorer - desktop only, single selection only
     if (!isMobile && !shouldShowMultiOptions) {
         menu.addItem((item: MenuItem) => {
-            item
-                .setTitle(fileSystemOps.getRevealInSystemExplorerText())
+            item.setTitle(fileSystemOps.getRevealInSystemExplorerText())
                 .setIcon('folder-open')
                 .onClick(async () => {
                     await fileSystemOps.revealInSystemExplorer(file);
@@ -103,15 +101,14 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     // Copy deep link - single selection only
     if (!shouldShowMultiOptions) {
         menu.addItem((item: MenuItem) => {
-            item
-                .setTitle(strings.contextMenu.file.copyDeepLink)
+            item.setTitle(strings.contextMenu.file.copyDeepLink)
                 .setIcon('link')
                 .onClick(async () => {
                     const vaultName = app.vault.getName();
                     const encodedVault = encodeURIComponent(vaultName);
                     const encodedFile = encodeURIComponent(file.path);
                     const deepLink = `obsidian://open?vault=${encodedVault}&file=${encodedFile}`;
-                    
+
                     await navigator.clipboard.writeText(deepLink);
                     new Notice(strings.fileSystem.notifications.deepLinkCopied);
                 });
@@ -123,8 +120,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     // Rename note - single selection only
     if (!shouldShowMultiOptions) {
         menu.addItem((item: MenuItem) => {
-            item
-                .setTitle(isMarkdown ? strings.contextMenu.file.renameNote : strings.contextMenu.file.renameFile)
+            item.setTitle(isMarkdown ? strings.contextMenu.file.renameNote : strings.contextMenu.file.renameFile)
                 .setIcon('pencil')
                 .onClick(async () => {
                     await fileSystemOps.renameFile(file);
@@ -135,8 +131,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     // Move note(s) to folder
     if (!shouldShowMultiOptions) {
         menu.addItem((item: MenuItem) => {
-            item
-                .setTitle(strings.contextMenu.file.moveToFolder)
+            item.setTitle(strings.contextMenu.file.moveToFolder)
                 .setIcon('folder-input')
                 .onClick(async () => {
                     // Get current files list for smart selection
@@ -146,28 +141,24 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                     } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
                         allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
                     }
-                    
-                    await fileSystemOps.moveFilesWithModal(
-                        [file],
-                        {
-                            selectedFile: selectionState.selectedFile,
-                            dispatch: selectionDispatch,
-                            allFiles
-                        }
-                    );
+
+                    await fileSystemOps.moveFilesWithModal([file], {
+                        selectedFile: selectionState.selectedFile,
+                        dispatch: selectionDispatch,
+                        allFiles
+                    });
                 });
         });
     } else {
         menu.addItem((item: MenuItem) => {
-            item
-                .setTitle(strings.contextMenu.file.moveMultipleToFolder.replace('{count}', selectedCount.toString()))
+            item.setTitle(strings.contextMenu.file.moveMultipleToFolder.replace('{count}', selectedCount.toString()))
                 .setIcon('folder-input')
                 .onClick(async () => {
                     // Convert selected paths to files
                     const selectedFiles = Array.from(selectionState.selectedFiles)
                         .map(path => app.vault.getAbstractFileByPath(path))
                         .filter((f): f is TFile => f instanceof TFile);
-                    
+
                     // Get current files list for smart selection
                     let allFiles: TFile[] = [];
                     if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
@@ -175,15 +166,12 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                     } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
                         allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
                     }
-                    
-                    await fileSystemOps.moveFilesWithModal(
-                        selectedFiles,
-                        {
-                            selectedFile: selectionState.selectedFile,
-                            dispatch: selectionDispatch,
-                            allFiles
-                        }
-                    );
+
+                    await fileSystemOps.moveFilesWithModal(selectedFiles, {
+                        selectedFile: selectionState.selectedFile,
+                        dispatch: selectionDispatch,
+                        allFiles
+                    });
                 });
         });
     }
@@ -202,29 +190,26 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 function addSingleFileOpenOptions(menu: Menu, file: TFile, app: App, isMobile: boolean): void {
     // Open in new tab
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(strings.contextMenu.file.openInNewTab)
+        item.setTitle(strings.contextMenu.file.openInNewTab)
             .setIcon('file-plus')
             .onClick(() => {
                 app.workspace.getLeaf('tab').openFile(file);
             });
     });
-    
+
     // Open to the right
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(strings.contextMenu.file.openToRight)
+        item.setTitle(strings.contextMenu.file.openToRight)
             .setIcon('vertical-three-dots')
             .onClick(() => {
                 app.workspace.getLeaf('split').openFile(file);
             });
     });
-    
+
     // Open in new window - desktop only
     if (!isMobile) {
         menu.addItem((item: MenuItem) => {
-            item
-                .setTitle(strings.contextMenu.file.openInNewWindow)
+            item.setTitle(strings.contextMenu.file.openInNewWindow)
                 .setIcon('monitor')
                 .onClick(() => {
                     app.workspace.getLeaf('window').openFile(file);
@@ -242,55 +227,58 @@ function addMultipleFilesOpenOptions(menu: Menu, selectedCount: number, selectio
         .map(path => app.vault.getAbstractFileByPath(path))
         .filter((f): f is TFile => f instanceof TFile);
     const allMarkdown = selectedFiles.every(f => f.extension === 'md');
-    
+
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(allMarkdown ? 
-                strings.contextMenu.file.openMultipleInNewTabs.replace('{count}', selectedCount.toString()) : 
-                strings.contextMenu.file.openMultipleFilesInNewTabs.replace('{count}', selectedCount.toString()))
+        item.setTitle(
+            allMarkdown
+                ? strings.contextMenu.file.openMultipleInNewTabs.replace('{count}', selectedCount.toString())
+                : strings.contextMenu.file.openMultipleFilesInNewTabs.replace('{count}', selectedCount.toString())
+        )
             .setIcon('file-plus')
             .onClick(async () => {
                 const selectedFiles = Array.from(selectionState.selectedFiles)
                     .map(path => app.vault.getAbstractFileByPath(path))
                     .filter((f): f is TFile => f instanceof TFile);
-                
+
                 for (const selectedFile of selectedFiles) {
                     await app.workspace.getLeaf('tab').openFile(selectedFile);
                 }
             });
     });
-    
+
     // Open to the right
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(allMarkdown ? 
-                strings.contextMenu.file.openMultipleToRight.replace('{count}', selectedCount.toString()) : 
-                strings.contextMenu.file.openMultipleFilesToRight.replace('{count}', selectedCount.toString()))
+        item.setTitle(
+            allMarkdown
+                ? strings.contextMenu.file.openMultipleToRight.replace('{count}', selectedCount.toString())
+                : strings.contextMenu.file.openMultipleFilesToRight.replace('{count}', selectedCount.toString())
+        )
             .setIcon('vertical-three-dots')
             .onClick(async () => {
                 const selectedFiles = Array.from(selectionState.selectedFiles)
                     .map(path => app.vault.getAbstractFileByPath(path))
                     .filter((f): f is TFile => f instanceof TFile);
-                
+
                 for (const selectedFile of selectedFiles) {
                     await app.workspace.getLeaf('split').openFile(selectedFile);
                 }
             });
     });
-    
+
     // Open in new windows - desktop only
     if (!isMobile) {
         menu.addItem((item: MenuItem) => {
-            item
-                .setTitle(allMarkdown ? 
-                    strings.contextMenu.file.openMultipleInNewWindows.replace('{count}', selectedCount.toString()) : 
-                    strings.contextMenu.file.openMultipleFilesInNewWindows.replace('{count}', selectedCount.toString()))
+            item.setTitle(
+                allMarkdown
+                    ? strings.contextMenu.file.openMultipleInNewWindows.replace('{count}', selectedCount.toString())
+                    : strings.contextMenu.file.openMultipleFilesInNewWindows.replace('{count}', selectedCount.toString())
+            )
                 .setIcon('monitor')
                 .onClick(async () => {
                     const selectedFiles = Array.from(selectionState.selectedFiles)
                         .map(path => app.vault.getAbstractFileByPath(path))
                         .filter((f): f is TFile => f instanceof TFile);
-                    
+
                     for (const selectedFile of selectedFiles) {
                         await app.workspace.getLeaf('window').openFile(selectedFile);
                     }
@@ -305,16 +293,21 @@ function addMultipleFilesOpenOptions(menu: Menu, selectedCount: number, selectio
 function addSingleFilePinOption(menu: Menu, file: TFile, metadataService: MetadataService): void {
     const folderPath = file.parent?.path || '';
     const isPinned = metadataService.isPinned(folderPath, file.path);
-    
+
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(isPinned ? 
-                (file.extension === 'md' ? strings.contextMenu.file.unpinNote : strings.contextMenu.file.unpinFile) : 
-                (file.extension === 'md' ? strings.contextMenu.file.pinNote : strings.contextMenu.file.pinFile))
+        item.setTitle(
+            isPinned
+                ? file.extension === 'md'
+                    ? strings.contextMenu.file.unpinNote
+                    : strings.contextMenu.file.unpinFile
+                : file.extension === 'md'
+                  ? strings.contextMenu.file.pinNote
+                  : strings.contextMenu.file.pinFile
+        )
             .setIcon('pin')
             .onClick(async () => {
                 if (!file.parent) return;
-                
+
                 await metadataService.togglePinnedNote(folderPath, file.path);
             });
     });
@@ -323,31 +316,42 @@ function addSingleFilePinOption(menu: Menu, file: TFile, metadataService: Metada
 /**
  * Add pin option for multiple files
  */
-function addMultipleFilesPinOption(menu: Menu, selectedCount: number, selectionState: SelectionState, app: App, metadataService: MetadataService): void {
+function addMultipleFilesPinOption(
+    menu: Menu,
+    selectedCount: number,
+    selectionState: SelectionState,
+    app: App,
+    metadataService: MetadataService
+): void {
     // Check if any selected files are unpinned
     const selectedFiles = Array.from(selectionState.selectedFiles)
         .map(path => app.vault.getAbstractFileByPath(path))
         .filter((f): f is TFile => f instanceof TFile);
-    
+
     const anyUnpinned = selectedFiles.some(f => {
         const folderPath = f.parent?.path || '';
         return !metadataService.isPinned(folderPath, f.path);
     });
-    
+
     // Check if all files are markdown
     const allMarkdown = selectedFiles.every(f => f.extension === 'md');
-    
+
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(anyUnpinned ? 
-                (allMarkdown ? strings.contextMenu.file.pinMultipleNotes.replace('{count}', selectedCount.toString()) : strings.contextMenu.file.pinMultipleFiles.replace('{count}', selectedCount.toString())) : 
-                (allMarkdown ? strings.contextMenu.file.unpinMultipleNotes.replace('{count}', selectedCount.toString()) : strings.contextMenu.file.unpinMultipleFiles.replace('{count}', selectedCount.toString())))
+        item.setTitle(
+            anyUnpinned
+                ? allMarkdown
+                    ? strings.contextMenu.file.pinMultipleNotes.replace('{count}', selectedCount.toString())
+                    : strings.contextMenu.file.pinMultipleFiles.replace('{count}', selectedCount.toString())
+                : allMarkdown
+                  ? strings.contextMenu.file.unpinMultipleNotes.replace('{count}', selectedCount.toString())
+                  : strings.contextMenu.file.unpinMultipleFiles.replace('{count}', selectedCount.toString())
+        )
             .setIcon('pin')
             .onClick(async () => {
                 for (const selectedFile of selectedFiles) {
                     if (!selectedFile.parent) continue;
                     const folderPath = selectedFile.parent.path;
-                    
+
                     if (anyUnpinned) {
                         // Pin all unpinned files
                         if (!metadataService.isPinned(folderPath, selectedFile.path)) {
@@ -367,8 +371,7 @@ function addMultipleFilesPinOption(menu: Menu, selectedCount: number, selectionS
  */
 function addSingleFileDuplicateOption(menu: Menu, file: TFile, fileSystemOps: FileSystemOperations): void {
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(file.extension === 'md' ? strings.contextMenu.file.duplicateNote : strings.contextMenu.file.duplicateFile)
+        item.setTitle(file.extension === 'md' ? strings.contextMenu.file.duplicateNote : strings.contextMenu.file.duplicateFile)
             .setIcon('documents')
             .onClick(async () => {
                 await fileSystemOps.duplicateNote(file);
@@ -379,25 +382,32 @@ function addSingleFileDuplicateOption(menu: Menu, file: TFile, fileSystemOps: Fi
 /**
  * Add duplicate option for multiple files
  */
-function addMultipleFilesDuplicateOption(menu: Menu, selectedCount: number, selectionState: SelectionState, app: App, fileSystemOps: FileSystemOperations): void {
+function addMultipleFilesDuplicateOption(
+    menu: Menu,
+    selectedCount: number,
+    selectionState: SelectionState,
+    app: App,
+    fileSystemOps: FileSystemOperations
+): void {
     // Check if all files are markdown
     const selectedFiles = Array.from(selectionState.selectedFiles)
         .map(path => app.vault.getAbstractFileByPath(path))
         .filter((f): f is TFile => f instanceof TFile);
     const allMarkdown = selectedFiles.every(f => f.extension === 'md');
-    
+
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(allMarkdown ? 
-                strings.contextMenu.file.duplicateMultipleNotes.replace('{count}', selectedCount.toString()) : 
-                strings.contextMenu.file.duplicateMultipleFiles.replace('{count}', selectedCount.toString()))
+        item.setTitle(
+            allMarkdown
+                ? strings.contextMenu.file.duplicateMultipleNotes.replace('{count}', selectedCount.toString())
+                : strings.contextMenu.file.duplicateMultipleFiles.replace('{count}', selectedCount.toString())
+        )
             .setIcon('documents')
             .onClick(async () => {
                 // Duplicate all selected files
                 const selectedFiles = Array.from(selectionState.selectedFiles)
                     .map(path => app.vault.getAbstractFileByPath(path))
                     .filter((f): f is TFile => f instanceof TFile);
-                
+
                 for (const selectedFile of selectedFiles) {
                     await fileSystemOps.duplicateNote(selectedFile);
                 }
@@ -408,10 +418,16 @@ function addMultipleFilesDuplicateOption(menu: Menu, selectedCount: number, sele
 /**
  * Add delete option for a single file
  */
-function addSingleFileDeleteOption(menu: Menu, file: TFile, selectionState: SelectionState, settings: NotebookNavigatorSettings, fileSystemOps: FileSystemOperations, selectionDispatch: React.Dispatch<SelectionAction>): void {
+function addSingleFileDeleteOption(
+    menu: Menu,
+    file: TFile,
+    selectionState: SelectionState,
+    settings: NotebookNavigatorSettings,
+    fileSystemOps: FileSystemOperations,
+    selectionDispatch: React.Dispatch<SelectionAction>
+): void {
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(file.extension === 'md' ? strings.contextMenu.file.deleteNote : strings.contextMenu.file.deleteFile)
+        item.setTitle(file.extension === 'md' ? strings.contextMenu.file.deleteNote : strings.contextMenu.file.deleteFile)
             .setIcon('trash')
             .onClick(async () => {
                 // Check if this is the currently selected file
@@ -439,18 +455,27 @@ function addSingleFileDeleteOption(menu: Menu, file: TFile, selectionState: Sele
 /**
  * Add delete option for multiple files
  */
-function addMultipleFilesDeleteOption(menu: Menu, selectedCount: number, selectionState: SelectionState, settings: NotebookNavigatorSettings, app: App, fileSystemOps: FileSystemOperations, selectionDispatch: React.Dispatch<SelectionAction>): void {
+function addMultipleFilesDeleteOption(
+    menu: Menu,
+    selectedCount: number,
+    selectionState: SelectionState,
+    settings: NotebookNavigatorSettings,
+    app: App,
+    fileSystemOps: FileSystemOperations,
+    selectionDispatch: React.Dispatch<SelectionAction>
+): void {
     // Check if all files are markdown
     const selectedFiles = Array.from(selectionState.selectedFiles)
         .map(path => app.vault.getAbstractFileByPath(path))
         .filter((f): f is TFile => f instanceof TFile);
     const allMarkdown = selectedFiles.every(f => f.extension === 'md');
-    
+
     menu.addItem((item: MenuItem) => {
-        item
-            .setTitle(allMarkdown ? 
-                strings.contextMenu.file.deleteMultipleNotes.replace('{count}', selectedCount.toString()) : 
-                strings.contextMenu.file.deleteMultipleFiles.replace('{count}', selectedCount.toString()))
+        item.setTitle(
+            allMarkdown
+                ? strings.contextMenu.file.deleteMultipleNotes.replace('{count}', selectedCount.toString())
+                : strings.contextMenu.file.deleteMultipleFiles.replace('{count}', selectedCount.toString())
+        )
             .setIcon('trash')
             .onClick(async () => {
                 // Get all files in the current view for smart selection
@@ -460,7 +485,7 @@ function addMultipleFilesDeleteOption(menu: Menu, selectedCount: number, selecti
                 } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
                     allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
                 }
-                
+
                 // Use centralized delete method with smart selection
                 await fileSystemOps.deleteFilesWithSmartSelection(
                     selectionState.selectedFiles,

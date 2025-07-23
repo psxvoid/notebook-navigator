@@ -20,25 +20,26 @@ import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
 import NotebookNavigatorPlugin from './main';
 import { strings } from './i18n';
 import { FileVisibility, FILE_VISIBILITY } from './utils/fileTypeUtils';
+import { calculateCacheStatistics, CacheStatistics } from './storage/statistics';
 
 /**
  * Available sort options for file listing
  */
-export type SortOption = 
-    | 'modified-desc'  // Date edited (newest first)
-    | 'modified-asc'   // Date edited (oldest first)
-    | 'created-desc'   // Date created (newest first)
-    | 'created-asc'    // Date created (oldest first)
-    | 'title-asc'      // Title (A first)
-    | 'title-desc';    // Title (Z first)
+export type SortOption =
+    | 'modified-desc' // Date edited (newest first)
+    | 'modified-asc' // Date edited (oldest first)
+    | 'created-desc' // Date created (newest first)
+    | 'created-asc' // Date created (oldest first)
+    | 'title-asc' // Title (A first)
+    | 'title-desc'; // Title (Z first)
 
 /**
  * Collapse button behavior options
  */
-export type CollapseButtonBehavior = 
-    | 'all'           // Collapse/expand both folders and tags
-    | 'folders-only'  // Collapse/expand only folders
-    | 'tags-only';    // Collapse/expand only tags
+export type CollapseButtonBehavior =
+    | 'all' // Collapse/expand both folders and tags
+    | 'folders-only' // Collapse/expand only folders
+    | 'tags-only'; // Collapse/expand only tags
 
 /**
  * Plugin settings interface defining all configurable options
@@ -88,9 +89,8 @@ export interface NotebookNavigatorSettings {
     fileNameRows: number;
     showDate: boolean;
     showFilePreview: boolean;
-    skipNonTextInPreview: boolean;
     skipHeadingsInPreview: boolean;
-    skipTextBeforeFirstHeading: boolean;
+    previewProperties: string[];
     previewRows: number;
     showFeatureImage: boolean;
     featureImageProperties: string[];
@@ -156,9 +156,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     fileNameRows: 1,
     showDate: true,
     showFilePreview: true,
-    skipNonTextInPreview: true,
     skipHeadingsInPreview: false,
-    skipTextBeforeFirstHeading: false,
+    previewProperties: [],
     previewRows: 1,
     showFeatureImage: true,
     featureImageProperties: ['featureResized', 'feature'],
@@ -174,7 +173,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     tagSortOverrides: {},
     recentlyUsedIcons: [],
     lastShownVersion: ''
-}
+};
 
 /**
  * Settings tab for configuring the Notebook Navigator plugin
@@ -185,6 +184,9 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
     plugin: NotebookNavigatorPlugin;
     // Map of active debounce timers for text inputs
     private debounceTimers: Map<string, NodeJS.Timeout> = new Map();
+    // Reference to stats element and update interval
+    private statsTextEl: HTMLElement | null = null;
+    private statsUpdateInterval: number | null = null;
 
     /**
      * Creates a new settings tab
@@ -223,32 +225,34 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         return new Setting(container)
             .setName(name)
             .setDesc(desc)
-            .addText(text => text
-                .setPlaceholder(placeholder)
-                .setValue(getValue())
-                .onChange(async (value) => {
-                    // Clear existing timer for this setting
-                    const timerId = `setting-${name}`;
-                    if (this.debounceTimers.has(timerId)) {
-                        clearTimeout(this.debounceTimers.get(timerId)!);
-                    }
-                    
-                    // Set new timer
-                    const timer = setTimeout(async () => {
-                        // Validate if validator provided
-                        if (!validator || validator(value)) {
-                            setValue(value);
-                            await this.plugin.saveSettings();
-                            
-                            // Add this line to trigger the refresh:
-                            this.plugin.onSettingsUpdate();
+            .addText(text =>
+                text
+                    .setPlaceholder(placeholder)
+                    .setValue(getValue())
+                    .onChange(async value => {
+                        // Clear existing timer for this setting
+                        const timerId = `setting-${name}`;
+                        if (this.debounceTimers.has(timerId)) {
+                            clearTimeout(this.debounceTimers.get(timerId)!);
                         }
-                        
-                        this.debounceTimers.delete(timerId);
-                    }, 500);
-                    
-                    this.debounceTimers.set(timerId, timer);
-                }));
+
+                        // Set new timer
+                        const timer = setTimeout(async () => {
+                            // Validate if validator provided
+                            if (!validator || validator(value)) {
+                                setValue(value);
+                                await this.plugin.saveSettings();
+
+                                // Add this line to trigger the refresh:
+                                this.plugin.onSettingsUpdate();
+                            }
+
+                            this.debounceTimers.delete(timerId);
+                        }, 1000);
+
+                        this.debounceTimers.set(timerId, timer);
+                    })
+            );
     }
 
     /**
@@ -271,6 +275,30 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
     }
 
     /**
+     * Generate statistics text from cache stats
+     */
+    private generateStatisticsText(stats: CacheStatistics): string {
+        if (!stats) return '';
+
+        const sizeText = `${stats.totalSizeMB.toFixed(1)} MB`;
+
+        return `${strings.settings.items.cacheStatistics.localCache}: ${stats.totalItems} ${strings.settings.items.cacheStatistics.items}. ${stats.itemsWithPreview} ${strings.settings.items.cacheStatistics.withPreviewText}, ${stats.itemsWithFeature} ${strings.settings.items.cacheStatistics.withFeatureImage}, ${stats.itemsWithMetadata} ${strings.settings.items.cacheStatistics.withMetadata}. ${sizeText}`;
+    }
+
+    /**
+     * Update the statistics display
+     */
+    private updateStatistics(): void {
+        if (!this.statsTextEl) return;
+
+        const stats = calculateCacheStatistics();
+
+        if (stats) {
+            this.statsTextEl.setText(this.generateStatisticsText(stats));
+        }
+    }
+
+    /**
      * Renders the settings tab UI
      * Organizes settings into logical sections:
      * - Top level (no header)
@@ -290,45 +318,47 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         new Setting(containerEl)
             .setName(strings.settings.items.dualPane.name)
             .setDesc(strings.settings.items.dualPane.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.dualPane)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.dualPane).onChange(async value => {
                     this.plugin.settings.dualPane = value;
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         new Setting(containerEl)
             .setName(strings.settings.items.autoRevealActiveNote.name)
             .setDesc(strings.settings.items.autoRevealActiveNote.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.autoRevealActiveFile)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.autoRevealActiveFile).onChange(async value => {
                     this.plugin.settings.autoRevealActiveFile = value;
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         new Setting(containerEl)
             .setName(strings.settings.items.showTooltips.name)
             .setDesc(strings.settings.items.showTooltips.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showTooltips)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showTooltips).onChange(async value => {
                     this.plugin.settings.showTooltips = value;
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         new Setting(containerEl)
             .setName(strings.settings.items.fileVisibility.name)
             .setDesc(strings.settings.items.fileVisibility.desc)
-            .addDropdown(dropdown => dropdown
-                .addOption(FILE_VISIBILITY.MARKDOWN, strings.settings.items.fileVisibility.options.markdownOnly)
-                .addOption(FILE_VISIBILITY.SUPPORTED, strings.settings.items.fileVisibility.options.supported)
-                .addOption(FILE_VISIBILITY.ALL, strings.settings.items.fileVisibility.options.all)
-                .setValue(this.plugin.settings.fileVisibility)
-                .onChange(async (value: FileVisibility) => {
-                    this.plugin.settings.fileVisibility = value;
-                    await this.saveAndRefresh();
-                }));
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOption(FILE_VISIBILITY.MARKDOWN, strings.settings.items.fileVisibility.options.markdownOnly)
+                    .addOption(FILE_VISIBILITY.SUPPORTED, strings.settings.items.fileVisibility.options.supported)
+                    .addOption(FILE_VISIBILITY.ALL, strings.settings.items.fileVisibility.options.all)
+                    .setValue(this.plugin.settings.fileVisibility)
+                    .onChange(async (value: FileVisibility) => {
+                        this.plugin.settings.fileVisibility = value;
+                        await this.saveAndRefresh();
+                    })
+            );
 
         const excludedFoldersSetting = this.createDebouncedTextSetting(
             containerEl,
@@ -336,7 +366,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.excludedFolders.desc,
             strings.settings.items.excludedFolders.placeholder,
             () => this.plugin.settings.excludedFolders.join(', '),
-            (value) => { 
+            value => {
                 this.plugin.settings.excludedFolders = value
                     .split(',')
                     .map(folder => folder.trim())
@@ -351,7 +381,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.excludedNotes.desc,
             strings.settings.items.excludedNotes.placeholder,
             () => this.plugin.settings.excludedFiles.join(', '),
-            (value) => { 
+            value => {
                 this.plugin.settings.excludedFiles = value
                     .split(',')
                     .map(file => file.trim())
@@ -361,89 +391,87 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         excludedFilesSetting.controlEl.addClass('nn-setting-wide-input');
 
         // Section 1: Navigation pane
-        new Setting(containerEl)
-            .setName(strings.settings.sections.navigationPane)
-            .setHeading();
+        new Setting(containerEl).setName(strings.settings.sections.navigationPane).setHeading();
 
         new Setting(containerEl)
             .setName(strings.settings.items.autoSelectFirstFileOnFocusChange.name)
             .setDesc(strings.settings.items.autoSelectFirstFileOnFocusChange.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.autoSelectFirstFileOnFocusChange)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.autoSelectFirstFileOnFocusChange).onChange(async value => {
                     this.plugin.settings.autoSelectFirstFileOnFocusChange = value;
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         new Setting(containerEl)
             .setName(strings.settings.items.autoExpandFoldersTags.name)
             .setDesc(strings.settings.items.autoExpandFoldersTags.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.autoExpandFoldersTags)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.autoExpandFoldersTags).onChange(async value => {
                     this.plugin.settings.autoExpandFoldersTags = value;
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         new Setting(containerEl)
             .setName(strings.settings.items.showNoteCount.name)
             .setDesc(strings.settings.items.showNoteCount.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showNoteCount)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showNoteCount).onChange(async value => {
                     this.plugin.settings.showNoteCount = value;
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         new Setting(containerEl)
             .setName(strings.settings.items.showIcons.name)
             .setDesc(strings.settings.items.showIcons.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showIcons)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showIcons).onChange(async value => {
                     this.plugin.settings.showIcons = value;
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         new Setting(containerEl)
             .setName(strings.settings.items.collapseButtonBehavior.name)
             .setDesc(strings.settings.items.collapseButtonBehavior.desc)
-            .addDropdown(dropdown => dropdown
-                .addOption('all', strings.settings.items.collapseButtonBehavior.options.all)
-                .addOption('folders-only', strings.settings.items.collapseButtonBehavior.options.foldersOnly)
-                .addOption('tags-only', strings.settings.items.collapseButtonBehavior.options.tagsOnly)
-                .setValue(this.plugin.settings.collapseButtonBehavior)
-                .onChange(async (value: CollapseButtonBehavior) => {
-                    this.plugin.settings.collapseButtonBehavior = value;
-                    await this.saveAndRefresh();
-                }));
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOption('all', strings.settings.items.collapseButtonBehavior.options.all)
+                    .addOption('folders-only', strings.settings.items.collapseButtonBehavior.options.foldersOnly)
+                    .addOption('tags-only', strings.settings.items.collapseButtonBehavior.options.tagsOnly)
+                    .setValue(this.plugin.settings.collapseButtonBehavior)
+                    .onChange(async (value: CollapseButtonBehavior) => {
+                        this.plugin.settings.collapseButtonBehavior = value;
+                        await this.saveAndRefresh();
+                    })
+            );
 
         // Section 2: Folders
-        new Setting(containerEl)
-            .setName(strings.settings.sections.folders)
-            .setHeading();
+        new Setting(containerEl).setName(strings.settings.sections.folders).setHeading();
 
         new Setting(containerEl)
             .setName(strings.settings.items.showRootFolder.name)
             .setDesc(strings.settings.items.showRootFolder.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showRootFolder)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showRootFolder).onChange(async value => {
                     this.plugin.settings.showRootFolder = value;
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         new Setting(containerEl)
             .setName(strings.settings.items.enableFolderNotes.name)
             .setDesc(strings.settings.items.enableFolderNotes.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.enableFolderNotes)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.enableFolderNotes).onChange(async value => {
                     this.plugin.settings.enableFolderNotes = value;
                     await this.saveAndRefresh();
                     // Update folder notes sub-settings visibility
                     this.setElementVisibility(folderNotesSettingsEl, value);
-                }));
+                })
+            );
 
         // Container for folder notes sub-settings
         const folderNotesSettingsEl = containerEl.createDiv('nn-sub-settings');
@@ -454,35 +482,35 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.folderNoteName.desc,
             strings.settings.items.folderNoteName.placeholder,
             () => this.plugin.settings.folderNoteName,
-            (value) => { this.plugin.settings.folderNoteName = value; }
+            value => {
+                this.plugin.settings.folderNoteName = value;
+            }
         );
 
         new Setting(folderNotesSettingsEl)
             .setName(strings.settings.items.hideFolderNoteInList.name)
             .setDesc(strings.settings.items.hideFolderNoteInList.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.hideFolderNoteInList)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.hideFolderNoteInList).onChange(async value => {
                     this.plugin.settings.hideFolderNoteInList = value;
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         // Section 3: Tags
-        new Setting(containerEl)
-            .setName(strings.settings.sections.tags)
-            .setHeading();
+        new Setting(containerEl).setName(strings.settings.sections.tags).setHeading();
 
         new Setting(containerEl)
             .setName(strings.settings.items.showTags.name)
             .setDesc(strings.settings.items.showTags.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showTags)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showTags).onChange(async value => {
                     this.plugin.settings.showTags = value;
                     await this.saveAndRefresh();
                     // Update tag sub-settings visibility
                     this.setElementVisibility(tagSubSettingsEl, value);
-                }));
+                })
+            );
 
         // Container for tag sub-settings
         const tagSubSettingsEl = containerEl.createDiv('nn-sub-settings');
@@ -490,58 +518,58 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         new Setting(tagSubSettingsEl)
             .setName(strings.settings.items.showTagsAboveFolders.name)
             .setDesc(strings.settings.items.showTagsAboveFolders.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showTagsAboveFolders)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showTagsAboveFolders).onChange(async value => {
                     this.plugin.settings.showTagsAboveFolders = value;
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         new Setting(tagSubSettingsEl)
             .setName(strings.settings.items.showFavoriteTagsFolder.name)
             .setDesc(strings.settings.items.showFavoriteTagsFolder.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showFavoriteTagsFolder)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showFavoriteTagsFolder).onChange(async value => {
                     this.plugin.settings.showFavoriteTagsFolder = value;
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         new Setting(tagSubSettingsEl)
             .setName(strings.settings.items.showAllTagsFolder.name)
             .setDesc(strings.settings.items.showAllTagsFolder.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showAllTagsFolder)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showAllTagsFolder).onChange(async value => {
                     this.plugin.settings.showAllTagsFolder = value;
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         new Setting(tagSubSettingsEl)
             .setName(strings.settings.items.showUntagged.name)
             .setDesc(strings.settings.items.showUntagged.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showUntagged)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showUntagged).onChange(async value => {
                     this.plugin.settings.showUntagged = value;
                     untaggedInFavoritesEl.style.display = value ? 'block' : 'none';
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         // Sub-setting for untagged in favorites - only show if showUntagged is enabled
         const untaggedInFavoritesEl = tagSubSettingsEl.createDiv();
         untaggedInFavoritesEl.style.display = this.plugin.settings.showUntagged ? 'block' : 'none';
         untaggedInFavoritesEl.style.marginLeft = '20px';
-        
+
         new Setting(untaggedInFavoritesEl)
             .setName(strings.settings.items.showUntaggedInFavorites.name)
             .setDesc(strings.settings.items.showUntaggedInFavorites.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showUntaggedInFavorites)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showUntaggedInFavorites).onChange(async value => {
                     this.plugin.settings.showUntaggedInFavorites = value;
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         const favoriteTagsSetting = this.createDebouncedTextSetting(
             tagSubSettingsEl,
@@ -549,14 +577,14 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.favoriteTags.desc,
             strings.settings.items.favoriteTags.placeholder,
             () => this.plugin.settings.favoriteTags.join(', '),
-            (value) => { 
+            value => {
                 this.plugin.settings.favoriteTags = value
                     .split(',')
                     .map(tag => tag.trim())
                     .filter(tag => tag.length > 0);
             }
         );
-        
+
         // Add a custom class to make the input wider
         favoriteTagsSetting.controlEl.addClass('nn-setting-wide-input');
 
@@ -566,59 +594,59 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.hiddenTags.desc,
             strings.settings.items.hiddenTags.placeholder,
             () => this.plugin.settings.hiddenTags.join(', '),
-            (value) => { 
+            value => {
                 this.plugin.settings.hiddenTags = value
                     .split(',')
                     .map(tag => tag.trim())
                     .filter(tag => tag.length > 0);
             }
         );
-        
+
         // Add a custom class to make the input wider
         hiddenTagsSetting.controlEl.addClass('nn-setting-wide-input');
 
         // Section 4: List pane
-        new Setting(containerEl)
-            .setName(strings.settings.sections.listPane)
-            .setHeading();
+        new Setting(containerEl).setName(strings.settings.sections.listPane).setHeading();
 
         new Setting(containerEl)
             .setName(strings.settings.items.sortNotesBy.name)
             .setDesc(strings.settings.items.sortNotesBy.desc)
-            .addDropdown(dropdown => dropdown
-                .addOption('modified-desc', strings.settings.items.sortNotesBy.options['modified-desc'])
-                .addOption('modified-asc', strings.settings.items.sortNotesBy.options['modified-asc'])
-                .addOption('created-desc', strings.settings.items.sortNotesBy.options['created-desc'])
-                .addOption('created-asc', strings.settings.items.sortNotesBy.options['created-asc'])
-                .addOption('title-asc', strings.settings.items.sortNotesBy.options['title-asc'])
-                .addOption('title-desc', strings.settings.items.sortNotesBy.options['title-desc'])
-                .setValue(this.plugin.settings.defaultFolderSort)
-                .onChange(async (value: SortOption) => {
-                    this.plugin.settings.defaultFolderSort = value;
-                    await this.saveAndRefresh();
-                }));
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOption('modified-desc', strings.settings.items.sortNotesBy.options['modified-desc'])
+                    .addOption('modified-asc', strings.settings.items.sortNotesBy.options['modified-asc'])
+                    .addOption('created-desc', strings.settings.items.sortNotesBy.options['created-desc'])
+                    .addOption('created-asc', strings.settings.items.sortNotesBy.options['created-asc'])
+                    .addOption('title-asc', strings.settings.items.sortNotesBy.options['title-asc'])
+                    .addOption('title-desc', strings.settings.items.sortNotesBy.options['title-desc'])
+                    .setValue(this.plugin.settings.defaultFolderSort)
+                    .onChange(async (value: SortOption) => {
+                        this.plugin.settings.defaultFolderSort = value;
+                        await this.saveAndRefresh();
+                    })
+            );
 
         new Setting(containerEl)
             .setName(strings.settings.items.groupByDate.name)
             .setDesc(strings.settings.items.groupByDate.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.groupByDate)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.groupByDate).onChange(async value => {
                     this.plugin.settings.groupByDate = value;
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         new Setting(containerEl)
             .setName(strings.settings.items.showNotesFromSubfolders.name)
             .setDesc(strings.settings.items.showNotesFromSubfolders.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showNotesFromSubfolders)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showNotesFromSubfolders).onChange(async value => {
                     this.plugin.settings.showNotesFromSubfolders = value;
                     await this.saveAndRefresh();
                     // Update subfolder names visibility
                     this.setElementVisibility(subfolderNamesEl, value);
-                }));
+                })
+            );
 
         // Container for conditional subfolder names setting
         const subfolderNamesEl = containerEl.createDiv('nn-sub-settings');
@@ -626,12 +654,12 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         new Setting(subfolderNamesEl)
             .setName(strings.settings.items.showParentFolderNames.name)
             .setDesc(strings.settings.items.showParentFolderNames.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showParentFolderNames)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showParentFolderNames).onChange(async value => {
                     this.plugin.settings.showParentFolderNames = value;
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         // Set initial visibility
         this.setElementVisibility(subfolderNamesEl, this.plugin.settings.showNotesFromSubfolders);
@@ -642,13 +670,17 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.dateFormat.desc,
             strings.settings.items.dateFormat.placeholder,
             () => this.plugin.settings.dateFormat,
-            (value) => { this.plugin.settings.dateFormat = value || 'MMM d, yyyy'; }
-        ).addExtraButton(button => button
-            .setIcon('help')
-            .setTooltip(strings.settings.items.dateFormat.helpTooltip)
-            .onClick(() => {
-                new Notice(strings.settings.items.dateFormat.help, 10000);
-            }));
+            value => {
+                this.plugin.settings.dateFormat = value || 'MMM d, yyyy';
+            }
+        ).addExtraButton(button =>
+            button
+                .setIcon('help')
+                .setTooltip(strings.settings.items.dateFormat.helpTooltip)
+                .onClick(() => {
+                    new Notice(strings.settings.items.dateFormat.help, 10000);
+                })
+        );
 
         this.createDebouncedTextSetting(
             containerEl,
@@ -656,29 +688,31 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.timeFormat.desc,
             strings.settings.items.timeFormat.placeholder,
             () => this.plugin.settings.timeFormat,
-            (value) => { this.plugin.settings.timeFormat = value || 'h:mm a'; }
-        ).addExtraButton(button => button
-            .setIcon('help')
-            .setTooltip(strings.settings.items.timeFormat.helpTooltip)
-            .onClick(() => {
-                new Notice(strings.settings.items.timeFormat.help, 10000);
-            }));
+            value => {
+                this.plugin.settings.timeFormat = value || 'h:mm a';
+            }
+        ).addExtraButton(button =>
+            button
+                .setIcon('help')
+                .setTooltip(strings.settings.items.timeFormat.helpTooltip)
+                .onClick(() => {
+                    new Notice(strings.settings.items.timeFormat.help, 10000);
+                })
+        );
 
         // Section 5: Notes
-        new Setting(containerEl)
-            .setName(strings.settings.sections.notes)
-            .setHeading();
+        new Setting(containerEl).setName(strings.settings.sections.notes).setHeading();
 
         new Setting(containerEl)
             .setName(strings.settings.items.useFrontmatterDates.name)
             .setDesc(strings.settings.items.useFrontmatterDates.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.useFrontmatterMetadata)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.useFrontmatterMetadata).onChange(async value => {
                     this.plugin.settings.useFrontmatterMetadata = value;
                     await this.saveAndRefresh();
                     this.setElementVisibility(frontmatterSettingsEl, value);
-                }));
+                })
+            );
 
         // Container for frontmatter settings
         const frontmatterSettingsEl = containerEl.createDiv('nn-sub-settings');
@@ -689,7 +723,9 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.frontmatterNameField.desc,
             strings.settings.items.frontmatterNameField.placeholder,
             () => this.plugin.settings.frontmatterNameField,
-            (value) => { this.plugin.settings.frontmatterNameField = value || ''; }
+            value => {
+                this.plugin.settings.frontmatterNameField = value || '';
+            }
         );
 
         this.createDebouncedTextSetting(
@@ -698,7 +734,9 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.frontmatterCreatedField.desc,
             strings.settings.items.frontmatterCreatedField.placeholder,
             () => this.plugin.settings.frontmatterCreatedField,
-            (value) => { this.plugin.settings.frontmatterCreatedField = value || 'created'; }
+            value => {
+                this.plugin.settings.frontmatterCreatedField = value || 'created';
+            }
         );
 
         this.createDebouncedTextSetting(
@@ -707,7 +745,9 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.frontmatterModifiedField.desc,
             strings.settings.items.frontmatterModifiedField.placeholder,
             () => this.plugin.settings.frontmatterModifiedField,
-            (value) => { this.plugin.settings.frontmatterModifiedField = value || 'modified'; }
+            value => {
+                this.plugin.settings.frontmatterModifiedField = value || 'modified';
+            }
         );
 
         this.createDebouncedTextSetting(
@@ -716,105 +756,117 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.frontmatterDateFormat.desc,
             strings.settings.items.frontmatterDateFormat.placeholder,
             () => this.plugin.settings.frontmatterDateFormat,
-            (value) => { this.plugin.settings.frontmatterDateFormat = value || "yyyy-MM-dd'T'HH:mm:ss"; }
-        ).addExtraButton(button => button
-            .setIcon('help')
-            .setTooltip(strings.settings.items.frontmatterDateFormat.helpTooltip)
-            .onClick(() => {
-                new Notice(strings.settings.items.frontmatterDateFormat.help, 10000);
-            }));
+            value => {
+                this.plugin.settings.frontmatterDateFormat = value || "yyyy-MM-dd'T'HH:mm:ss";
+            }
+        ).addExtraButton(button =>
+            button
+                .setIcon('help')
+                .setTooltip(strings.settings.items.frontmatterDateFormat.helpTooltip)
+                .onClick(() => {
+                    new Notice(strings.settings.items.frontmatterDateFormat.help, 10000);
+                })
+        );
 
         new Setting(containerEl)
             .setName(strings.settings.items.fileNameRows.name)
             .setDesc(strings.settings.items.fileNameRows.desc)
-            .addDropdown(dropdown => dropdown
-                .addOption('1', strings.settings.items.fileNameRows.options['1'])
-                .addOption('2', strings.settings.items.fileNameRows.options['2'])
-                .setValue(this.plugin.settings.fileNameRows.toString())
-                .onChange(async (value) => {
-                    this.plugin.settings.fileNameRows = parseInt(value, 10);
-                    await this.saveAndRefresh();
-                }));
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOption('1', strings.settings.items.fileNameRows.options['1'])
+                    .addOption('2', strings.settings.items.fileNameRows.options['2'])
+                    .setValue(this.plugin.settings.fileNameRows.toString())
+                    .onChange(async value => {
+                        this.plugin.settings.fileNameRows = parseInt(value, 10);
+                        await this.saveAndRefresh();
+                    })
+            );
 
         new Setting(containerEl)
             .setName(strings.settings.items.showDate.name)
             .setDesc(strings.settings.items.showDate.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showDate)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showDate).onChange(async value => {
                     this.plugin.settings.showDate = value;
                     await this.saveAndRefresh();
-                }));
+                })
+            );
 
         new Setting(containerEl)
             .setName(strings.settings.items.showFilePreview.name)
             .setDesc(strings.settings.items.showFilePreview.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showFilePreview)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showFilePreview).onChange(async value => {
                     this.plugin.settings.showFilePreview = value;
                     await this.saveAndRefresh();
                     this.setElementVisibility(previewSettingsEl, value);
-                }));
+                })
+            );
 
         // Container for preview-related settings
         const previewSettingsEl = containerEl.createDiv('nn-sub-settings');
 
         new Setting(previewSettingsEl)
-            .setName(strings.settings.items.skipNonTextInPreview.name)
-            .setDesc(strings.settings.items.skipNonTextInPreview.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.skipNonTextInPreview)
-                .onChange(async (value) => {
-                    this.plugin.settings.skipNonTextInPreview = value;
-                    await this.saveAndRefresh();
-                }));
-
-        new Setting(previewSettingsEl)
             .setName(strings.settings.items.skipHeadingsInPreview.name)
             .setDesc(strings.settings.items.skipHeadingsInPreview.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.skipHeadingsInPreview)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.skipHeadingsInPreview).onChange(async value => {
                     this.plugin.settings.skipHeadingsInPreview = value;
                     await this.saveAndRefresh();
-                }));
-        
-        new Setting(previewSettingsEl)
-            .setName(strings.settings.items.skipTextBeforeFirstHeading.name)
-            .setDesc(strings.settings.items.skipTextBeforeFirstHeading.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.skipTextBeforeFirstHeading)
-                .onChange(async (value) => {
-                    this.plugin.settings.skipTextBeforeFirstHeading = value;
-                    await this.saveAndRefresh();
-                }));
+                })
+            );
 
         new Setting(previewSettingsEl)
             .setName(strings.settings.items.previewRows.name)
             .setDesc(strings.settings.items.previewRows.desc)
-            .addDropdown(dropdown => dropdown
-                .addOption('1', strings.settings.items.previewRows.options['1'])
-                .addOption('2', strings.settings.items.previewRows.options['2'])
-                .addOption('3', strings.settings.items.previewRows.options['3'])
-                .addOption('4', strings.settings.items.previewRows.options['4'])
-                .addOption('5', strings.settings.items.previewRows.options['5'])
-                .setValue(this.plugin.settings.previewRows.toString())
-                .onChange(async (value) => {
-                    this.plugin.settings.previewRows = parseInt(value, 10);
-                    await this.saveAndRefresh();
-                }));
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOption('1', strings.settings.items.previewRows.options['1'])
+                    .addOption('2', strings.settings.items.previewRows.options['2'])
+                    .addOption('3', strings.settings.items.previewRows.options['3'])
+                    .addOption('4', strings.settings.items.previewRows.options['4'])
+                    .addOption('5', strings.settings.items.previewRows.options['5'])
+                    .setValue(this.plugin.settings.previewRows.toString())
+                    .onChange(async value => {
+                        this.plugin.settings.previewRows = parseInt(value, 10);
+                        await this.saveAndRefresh();
+                    })
+            );
+
+        const previewPropertiesSetting = this.createDebouncedTextSetting(
+            previewSettingsEl,
+            strings.settings.items.previewProperties.name,
+            strings.settings.items.previewProperties.desc,
+            strings.settings.items.previewProperties.placeholder,
+            () => this.plugin.settings.previewProperties.join(', '),
+            value => {
+                this.plugin.settings.previewProperties = value
+                    .split(',')
+                    .map(prop => prop.trim())
+                    .filter(prop => prop.length > 0);
+            }
+        );
+        previewPropertiesSetting.controlEl.addClass('nn-setting-wide-input');
+
+        // Create a container for additional info that appears below the entire setting
+        const previewInfoContainer = previewSettingsEl.createDiv('nn-setting-info-container');
+        const previewInfoDiv = previewInfoContainer.createEl('div', {
+            cls: 'setting-item-description'
+        });
+        previewInfoDiv.createSpan({
+            text: strings.settings.items.previewProperties.info
+        });
 
         new Setting(containerEl)
             .setName(strings.settings.items.showFeatureImage.name)
             .setDesc(strings.settings.items.showFeatureImage.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.showFeatureImage)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showFeatureImage).onChange(async value => {
                     this.plugin.settings.showFeatureImage = value;
                     await this.saveAndRefresh();
                     this.setElementVisibility(featureImageSettingsEl, value);
-                }));
+                })
+            );
 
         // Container for feature image settings
         const featureImageSettingsEl = containerEl.createDiv('nn-sub-settings');
@@ -825,7 +877,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.featureImageProperties.desc,
             strings.settings.items.featureImageProperties.placeholder,
             () => this.plugin.settings.featureImageProperties.join(', '),
-            (value) => { 
+            value => {
                 // Parse comma-separated values into array
                 this.plugin.settings.featureImageProperties = value
                     .split(',')
@@ -834,75 +886,88 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             }
         );
         featurePropertiesSetting.controlEl.addClass('nn-setting-wide-input');
-        
+
         // Create a container for additional info that appears below the entire setting
         const infoContainer = featureImageSettingsEl.createDiv('nn-setting-info-container');
-        
+
         // Add tip text and embed fallback in a single section
         const tipDiv = infoContainer.createEl('div', {
             cls: 'setting-item-description'
         });
         tipDiv.createSpan({ text: strings.settings.items.featureImageProperties.tip + ' ' });
         tipDiv.createSpan({
-            text: strings.settings.items.featureImageProperties.embedFallback,
-            cls: 'nn-setting-info-inline'
+            text: strings.settings.items.featureImageProperties.embedFallback
         });
 
-
         // Section 6: Advanced
-        new Setting(containerEl)
-            .setName(strings.settings.sections.advanced)
-            .setHeading();
+        new Setting(containerEl).setName(strings.settings.sections.advanced).setHeading();
 
         new Setting(containerEl)
             .setName(strings.settings.items.confirmBeforeDelete.name)
             .setDesc(strings.settings.items.confirmBeforeDelete.desc)
-            .addToggle(toggle => toggle
-                .setValue(this.plugin.settings.confirmBeforeDelete)
-                .onChange(async (value) => {
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.confirmBeforeDelete).onChange(async value => {
                     this.plugin.settings.confirmBeforeDelete = value;
                     await this.saveAndRefresh();
-                }));
-
+                })
+            );
 
         // What's New button
         new Setting(containerEl)
             .setName(strings.settings.items.whatsNew.name)
             .setDesc(strings.settings.items.whatsNew.desc)
-            .addButton(button => button
-                .setButtonText(strings.settings.items.whatsNew.buttonText)
-                .onClick(async () => {
+            .addButton(button =>
+                button.setButtonText(strings.settings.items.whatsNew.buttonText).onClick(async () => {
                     const { WhatsNewModal } = await import('./modals/WhatsNewModal');
                     const { getLatestReleaseNotes } = await import('./releaseNotes');
                     const latestNotes = getLatestReleaseNotes(3);
-                    new WhatsNewModal(
-                        this.app, 
-                        this.plugin, 
-                        latestNotes
-                    ).open();
-                }));
+                    new WhatsNewModal(this.app, this.plugin, latestNotes).open();
+                })
+            );
 
         // Sponsor section
         // Support development section with both buttons
         const supportSetting = new Setting(containerEl)
             .setName(strings.settings.items.supportDevelopment.name)
             .setDesc(strings.settings.items.supportDevelopment.desc);
-        
+
         // Buy me a coffee button
-        supportSetting.addButton((button) => {
+        supportSetting.addButton(button => {
             button
                 .setButtonText('☕️ Buy me a coffee')
                 .onClick(() => window.open('https://buymeacoffee.com/johansan'))
                 .buttonEl.addClass('nn-support-button');
         });
-        
+
         // GitHub sponsor button
-        supportSetting.addButton((button) => {
+        supportSetting.addButton(button => {
             button
                 .setButtonText(strings.settings.items.supportDevelopment.buttonText)
                 .onClick(() => window.open('https://github.com/sponsors/johansan/'))
                 .buttonEl.addClass('nn-support-button');
         });
+
+        // Database statistics section at the very bottom
+        const statsContainer = containerEl.createDiv('nn-database-stats');
+        statsContainer.addClass('setting-item');
+        statsContainer.addClass('nn-stats-section');
+
+        // Create the statistics content
+        const statsContent = statsContainer.createDiv('nn-stats-content');
+
+        // Store reference to stats element
+        this.statsTextEl = statsContent.createEl('div', {
+            cls: 'nn-stats-text',
+            text: 'Loading statistics...'
+        });
+
+        // Load initial statistics asynchronously
+        this.updateStatistics();
+
+        // Start periodic updates every 1 second
+        this.statsUpdateInterval = window.setInterval(() => {
+            this.updateStatistics();
+        }, 1000);
 
         // Set initial visibility
         this.setElementVisibility(previewSettingsEl, this.plugin.settings.showFilePreview);
@@ -914,11 +979,20 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
     /**
      * Called when settings tab is closed
-     * Cleans up any pending debounce timers to prevent memory leaks
+     * Cleans up any pending debounce timers and intervals to prevent memory leaks
      */
     hide(): void {
         // Clean up all pending debounce timers when settings tab is closed
         this.debounceTimers.forEach(timer => clearTimeout(timer));
         this.debounceTimers.clear();
+
+        // Clean up statistics update interval
+        if (this.statsUpdateInterval !== null) {
+            window.clearInterval(this.statsUpdateInterval);
+            this.statsUpdateInterval = null;
+        }
+
+        // Clear reference to stats element
+        this.statsTextEl = null;
     }
 }

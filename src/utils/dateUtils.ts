@@ -29,7 +29,7 @@ export class DateUtils {
     /**
      * Map of Obsidian language codes to date-fns locale names
      * Only define the special cases where names differ
-     * 
+     *
      * Based on Obsidian's supported languages:
      * - 'en' = English
      * - 'en-gb' = English (GB)
@@ -40,13 +40,13 @@ export class DateUtils {
      * - Other languages use their ISO code directly (de, es, fr, it, ja, ko, nl, no, pl, ru, tr, etc.)
      */
     private static localeExceptions: Record<string, string> = {
-        'en': 'enUS',           // English defaults to US
-        'en-gb': 'enGB',        // English (GB)
-        'zh': 'zhCN',           // Chinese defaults to Simplified
-        'zh-tw': 'zhTW',        // Chinese Traditional
-        'pt': 'pt',             // Portuguese (Portugal)
-        'pt-br': 'ptBR',        // Portuguese (Brazil)
-        'no': 'nb',             // Norwegian (Bokmål) - date-fns uses 'nb' for Norwegian
+        en: 'enUS', // English defaults to US
+        'en-gb': 'enGB', // English (GB)
+        zh: 'zhCN', // Chinese defaults to Simplified
+        'zh-tw': 'zhTW', // Chinese Traditional
+        pt: 'pt', // Portuguese (Portugal)
+        'pt-br': 'ptBR', // Portuguese (Brazil)
+        no: 'nb' // Norwegian (Bokmål) - date-fns uses 'nb' for Norwegian
     };
 
     /**
@@ -64,10 +64,10 @@ export class DateUtils {
      */
     private static getDateFnsLocale(): Locale {
         const obsidianLang = DateUtils.getObsidianLanguage();
-        
+
         // Check if this language has a different locale name in date-fns
         const localeName = DateUtils.localeExceptions[obsidianLang] || obsidianLang;
-        
+
         // Safely access the locale from the imported locales object
         const localesMap = locales as LocalesMap;
         return localesMap[localeName] || locales.enUS;
@@ -83,7 +83,7 @@ export class DateUtils {
     static formatDate(timestamp: number, dateFormat: string): string {
         const date = new Date(timestamp);
         const locale = DateUtils.getDateFnsLocale();
-        
+
         try {
             return format(date, dateFormat, { locale });
         } catch (e) {
@@ -102,8 +102,21 @@ export class DateUtils {
      * Based on testing, these languages format months in lowercase
      */
     private static lowercaseMonthLanguages = new Set([
-        'es', 'fr', 'no', 'nb', 'pt', 'pt-br', 'it', 'nl', 'sv', 'da', 'fi', 
-        'pl', 'cs', 'ca', 'ro'
+        'es',
+        'fr',
+        'no',
+        'nb',
+        'pt',
+        'pt-br',
+        'it',
+        'nl',
+        'sv',
+        'da',
+        'fi',
+        'pl',
+        'cs',
+        'ca',
+        'ro'
     ]);
 
     /**
@@ -124,7 +137,7 @@ export class DateUtils {
     static getDateGroup(timestamp: number): string {
         const now = new Date();
         const date = new Date(timestamp);
-        
+
         // Reset times to start of day for comparison
         const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
         const yesterday = new Date(today);
@@ -133,9 +146,9 @@ export class DateUtils {
         weekAgo.setDate(weekAgo.getDate() - 7);
         const monthAgo = new Date(today);
         monthAgo.setDate(monthAgo.getDate() - 30);
-        
+
         const dateOnly = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-        
+
         if (dateOnly.getTime() === today.getTime()) {
             return strings.dateGroups.today;
         } else if (dateOnly.getTime() === yesterday.getTime()) {
@@ -148,13 +161,13 @@ export class DateUtils {
             // Same year - show month name
             const locale = DateUtils.getDateFnsLocale();
             let monthName = format(date, 'MMMM', { locale });
-            
+
             // Capitalize month name for languages that use lowercase
             const obsidianLang = DateUtils.getObsidianLanguage();
             if (DateUtils.lowercaseMonthLanguages.has(obsidianLang)) {
                 monthName = DateUtils.capitalizeFirst(monthName);
             }
-            
+
             return monthName;
         } else {
             // Previous years - show year
@@ -173,17 +186,17 @@ export class DateUtils {
     static formatDateForGroup(timestamp: number, group: string, dateFormat: string, timeFormat: string): string {
         const date = new Date(timestamp);
         const locale = DateUtils.getDateFnsLocale();
-        
+
         // Today and Yesterday groups - show time only
         if (group === strings.dateGroups.today || group === strings.dateGroups.yesterday) {
             return format(date, timeFormat, { locale });
         }
-        
+
         // Previous 7 days - show weekday name
         if (group === strings.dateGroups.previous7Days) {
             return format(date, 'EEEE', { locale }); // Full weekday name
         }
-        
+
         // All other groups - use default format
         return DateUtils.formatDate(timestamp, dateFormat);
     }
@@ -197,7 +210,7 @@ export class DateUtils {
      * @returns Unix timestamp in milliseconds
      */
     static getFileTimestamp(
-        file: TFile, 
+        file: TFile,
         dateType: 'created' | 'modified',
         cachedData?: { fc?: number; fm?: number },
         settings?: NotebookNavigatorSettings
@@ -209,7 +222,7 @@ export class DateUtils {
                 return timestamp;
             }
         }
-        
+
         // Fall back to file system timestamps
         return dateType === 'created' ? file.stat.ctime : file.stat.mtime;
     }
@@ -220,10 +233,7 @@ export class DateUtils {
      * @param dateFormat - The expected date format from settings
      * @returns Unix timestamp in milliseconds, or undefined if parsing fails
      */
-    static parseFrontmatterDate(
-        value: unknown,
-        dateFormat: string
-    ): number | undefined {
+    static parseFrontmatterDate(value: unknown, dateFormat: string): number | undefined {
         if (!value) return undefined;
 
         try {
@@ -231,7 +241,7 @@ export class DateUtils {
             if (value instanceof Date) {
                 return value.getTime();
             }
-            
+
             // If it's a number, assume it's already a timestamp
             if (typeof value === 'number') {
                 // If it looks like seconds (less than year 3000 in milliseconds)
@@ -240,7 +250,7 @@ export class DateUtils {
                 }
                 return value;
             }
-            
+
             // If it's a string, parse it
             if (typeof value === 'string') {
                 // First try to parse as ISO 8601 (standard format)
@@ -248,14 +258,10 @@ export class DateUtils {
                 if (!isNaN(isoDate.getTime())) {
                     return isoDate.getTime();
                 }
-                
+
                 // If ISO parsing failed, try with the configured format
-                const parsedDate = parse(
-                    value, 
-                    dateFormat, 
-                    new Date()
-                );
-                
+                const parsedDate = parse(value, dateFormat, new Date());
+
                 // Check if parsing succeeded
                 if (!isNaN(parsedDate.getTime())) {
                     return parsedDate.getTime();
@@ -264,7 +270,7 @@ export class DateUtils {
         } catch (e) {
             // Parsing failed
         }
-        
+
         return undefined;
     }
 }

@@ -39,7 +39,7 @@ interface UseResizablePaneResult {
  * Custom hook for managing resizable pane width with optional localStorage persistence.
  * Handles mouse events for dragging the resize handle and constrains the width
  * within specified bounds.
- * 
+ *
  * @param config - Configuration object with initial width, min bound, and storage key
  * @returns Current pane width and props to spread on the resize handle element
  */
@@ -50,7 +50,7 @@ export function useResizablePane({
 }: UseResizablePaneConfig = {}): UseResizablePaneResult {
     // Track cleanup function for current resize operation
     const cleanupRef = useRef<(() => void) | null>(null);
-    
+
     // Load initial width from localStorage if storage key is provided
     const [paneWidth, setPaneWidth] = useState(() => {
         if (storageKey) {
@@ -61,7 +61,7 @@ export function useResizablePane({
         }
         return initialWidth;
     });
-    
+
     // Track resizing state
     const [isResizing, setIsResizing] = useState(false);
 
@@ -72,47 +72,50 @@ export function useResizablePane({
         }
     }, [paneWidth, storageKey]);
 
-    const handleResizeMouseDown = useCallback((e: React.MouseEvent) => {
-        const startX = e.clientX;
-        const startWidth = paneWidth;
-        let currentWidth = startWidth;
-        
-        // Check if RTL mode is active
-        const isRTL = document.body.classList.contains('mod-rtl');
-        
-        // Set resizing state
-        setIsResizing(true);
+    const handleResizeMouseDown = useCallback(
+        (e: React.MouseEvent) => {
+            const startX = e.clientX;
+            const startWidth = paneWidth;
+            let currentWidth = startWidth;
 
-        const handleMouseMove = (moveEvent: MouseEvent) => {
-            let deltaX = moveEvent.clientX - startX;
-            // In RTL mode, reverse the delta to make dragging feel natural
-            if (isRTL) {
-                deltaX = -deltaX;
-            }
-            currentWidth = Math.max(min, startWidth + deltaX);
-            setPaneWidth(currentWidth);
-        };
+            // Check if RTL mode is active
+            const isRTL = document.body.classList.contains('mod-rtl');
 
-        const handleMouseUp = () => {
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
-            // Clear resizing state
-            setIsResizing(false);
-            // Clear the cleanup ref since we've already cleaned up
-            cleanupRef.current = null;
-        };
-        
-        document.addEventListener('mousemove', handleMouseMove);
-        document.addEventListener('mouseup', handleMouseUp);
-        
-        // Store cleanup function in ref so it can be called on unmount
-        cleanupRef.current = () => {
-            document.removeEventListener('mousemove', handleMouseMove);
-            document.removeEventListener('mouseup', handleMouseUp);
-            setIsResizing(false);
-        };
-    }, [paneWidth, min]);
-    
+            // Set resizing state
+            setIsResizing(true);
+
+            const handleMouseMove = (moveEvent: MouseEvent) => {
+                let deltaX = moveEvent.clientX - startX;
+                // In RTL mode, reverse the delta to make dragging feel natural
+                if (isRTL) {
+                    deltaX = -deltaX;
+                }
+                currentWidth = Math.max(min, startWidth + deltaX);
+                setPaneWidth(currentWidth);
+            };
+
+            const handleMouseUp = () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+                // Clear resizing state
+                setIsResizing(false);
+                // Clear the cleanup ref since we've already cleaned up
+                cleanupRef.current = null;
+            };
+
+            document.addEventListener('mousemove', handleMouseMove);
+            document.addEventListener('mouseup', handleMouseUp);
+
+            // Store cleanup function in ref so it can be called on unmount
+            cleanupRef.current = () => {
+                document.removeEventListener('mousemove', handleMouseMove);
+                document.removeEventListener('mouseup', handleMouseUp);
+                setIsResizing(false);
+            };
+        },
+        [paneWidth, min]
+    );
+
     // Cleanup on unmount if resize is in progress
     useEffect(() => {
         return () => {

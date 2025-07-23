@@ -19,8 +19,8 @@
 import { SortOption } from '../../settings';
 import { ItemType } from '../../types';
 import { BaseMetadataService } from './BaseMetadataService';
-import { buildTagTree } from '../../utils/tagTreeUtils';
-import { TagTreeNode } from '../../types/cache';
+import { buildTagTree } from '../../utils/tagTree';
+import { TagTreeNode } from '../../types/storage';
 
 /**
  * Service for managing tag-specific metadata operations
@@ -112,37 +112,37 @@ export class TagMetadataService extends BaseMetadataService {
     async cleanupTagMetadata(): Promise<boolean> {
         // Build valid tags set first
         const allFiles = this.app.vault.getMarkdownFiles();
-        const tagTree = buildTagTree(allFiles, this.app);
+        const { tree: tagTree } = buildTagTree(allFiles, this.app);
         const validTags = this.collectAllTagPaths(tagTree);
-        
+
         const validator = (path: string) => validTags.has(path);
-        
+
         const results = await Promise.all([
             this.cleanupMetadata(this.settings, 'tagColors', validator),
             this.cleanupMetadata(this.settings, 'tagIcons', validator),
             this.cleanupMetadata(this.settings, 'tagSortOverrides', validator)
         ]);
-        
+
         return results.some(changed => changed);
     }
-    
+
     /**
      * Collects all tag paths from tag tree
      */
     private collectAllTagPaths(tree: Map<string, TagTreeNode>): Set<string> {
         const paths = new Set<string>();
-        
+
         function addNode(node: TagTreeNode): void {
             paths.add(node.path);
             for (const child of node.children.values()) {
                 addNode(child);
             }
         }
-        
+
         for (const node of tree.values()) {
             addNode(node);
         }
-        
+
         return paths;
     }
 }

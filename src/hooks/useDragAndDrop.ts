@@ -31,32 +31,32 @@ import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 /**
  * Custom hook that enables drag and drop functionality for files and folders.
  * Handles visual feedback, validation, and file system operations.
- * 
+ *
  * ## Design Decision: Event Delegation with Data Attributes
  * This hook uses event delegation and data attributes rather than individual React event handlers.
  * While this differs from typical React patterns, it's the optimal choice here because:
- * 
+ *
  * 1. **Performance**: One set of listeners on the container vs hundreds on individual items
  * 2. **Memory Efficiency**: Scales well with large vaults containing many files/folders
  * 3. **Dynamic Content**: Works seamlessly as items are added/removed from the DOM
  * 4. **Obsidian Consistency**: Follows patterns used throughout Obsidian's codebase
  * 5. **Simplicity**: Avoids prop drilling drag handlers through multiple component levels
- * 
+ *
  * The alternative React approach would require:
  * - Passing drag handlers as props through FolderTree → FolderItem → each nested level
  * - Managing drag state in React state (causing unnecessary re-renders)
  * - Complex coordination between deeply nested components
- * 
+ *
  * Data attributes provide a clean, performant way to associate drag data with DOM elements
  * without coupling the drag logic to the component hierarchy.
- * 
+ *
  * @param containerRef - React ref to the container element that will handle drag events
- * 
+ *
  * @example
  * ```tsx
  * const containerRef = useRef<HTMLDivElement>(null);
  * useDragAndDrop(containerRef);
- * 
+ *
  * return (
  *   <div ref={containerRef}>
  *     <div data-draggable="true" data-drag-path="/path/to/file" data-drag-type="file">
@@ -94,85 +94,88 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
      * Handles the drag start event.
      * Extracts drag data from data attributes and sets drag effect.
      * Also generates markdown links for dragging into editor panes.
-     * 
+     *
      * @param e - The drag event
      */
-    const handleDragStart = useCallback((e: DragEvent) => {
-        const target = e.target as HTMLElement;
-        const draggable = target.closest('[data-draggable="true"]');
-        if (!draggable) return;
+    const handleDragStart = useCallback(
+        (e: DragEvent) => {
+            const target = e.target as HTMLElement;
+            const draggable = target.closest('[data-draggable="true"]');
+            if (!draggable) return;
 
-        const path = getPathFromDataAttribute(draggable as HTMLElement, 'data-drag-path');
-        const type = draggable.getAttribute('data-drag-type');
-        if (path && e.dataTransfer) {
-            // Check if dragging a selected file
-            if (type === ItemType.FILE && selectionState.selectedFiles.has(path)) {
-                // Store all selected file paths
-                const selectedPaths = Array.from(selectionState.selectedFiles);
-                e.dataTransfer.setData('obsidian/files', JSON.stringify(selectedPaths));
-                e.dataTransfer.effectAllowed = 'copyMove';
-                
-                // Generate markdown links for all selected files
-                const markdownLinks: string[] = [];
-                selectedPaths.forEach(selectedPath => {
-                    const file = app.vault.getAbstractFileByPath(selectedPath);
-                    if (isTFile(file)) {
-                        // Generate markdown link respecting user's wikilink setting
-                        const link = app.fileManager.generateMarkdownLink(file, '');
-                        markdownLinks.push(link);
+            const path = getPathFromDataAttribute(draggable as HTMLElement, 'data-drag-path');
+            const type = draggable.getAttribute('data-drag-type');
+            if (path && e.dataTransfer) {
+                // Check if dragging a selected file
+                if (type === ItemType.FILE && selectionState.selectedFiles.has(path)) {
+                    // Store all selected file paths
+                    const selectedPaths = Array.from(selectionState.selectedFiles);
+                    e.dataTransfer.setData('obsidian/files', JSON.stringify(selectedPaths));
+                    e.dataTransfer.effectAllowed = 'copyMove';
+
+                    // Generate markdown links for all selected files
+                    const markdownLinks: string[] = [];
+                    selectedPaths.forEach(selectedPath => {
+                        const file = app.vault.getAbstractFileByPath(selectedPath);
+                        if (isTFile(file)) {
+                            // Generate markdown link respecting user's wikilink setting
+                            const link = app.fileManager.generateMarkdownLink(file, '');
+                            markdownLinks.push(link);
+                        }
+                    });
+
+                    // Set markdown links for dragging into editor
+                    if (markdownLinks.length > 0) {
+                        e.dataTransfer.setData('text/plain', markdownLinks.join('\n'));
                     }
-                });
-                
-                // Set markdown links for dragging into editor
-                if (markdownLinks.length > 0) {
-                    e.dataTransfer.setData('text/plain', markdownLinks.join('\n'));
-                }
-                
-                // Add dragging class to all selected files
-                selectedPaths.forEach(selectedPath => {
-                    const el = containerRef.current?.querySelector(`[data-drag-path="${selectedPath}"]`);
-                    el?.classList.add('nn-dragging');
-                });
-                
-                // Show count in drag image
-                if (selectedPaths.length > 1) {
-                    // Create a container to position the badge
-                    const dragContainer = document.createElement('div');
-                    dragContainer.className = 'nn-drag-image-container';
-                    
-                    // Create the badge inside the container
-                    const dragInfo = document.createElement('div');
-                    dragInfo.className = 'nn-drag-count-badge';
-                    dragInfo.textContent = `${selectedPaths.length}`;
-                    
-                    dragContainer.appendChild(dragInfo);
-                    document.body.appendChild(dragContainer);
-                    e.dataTransfer.setDragImage(dragContainer, 5, 5);
-                    setTimeout(() => document.body.removeChild(dragContainer), 0);
-                }
-            } else {
-                // Single item drag
-                e.dataTransfer.setData('obsidian/file', path);
-                e.dataTransfer.effectAllowed = 'copyMove';
-                
-                // Generate markdown link for single file
-                if (type === ItemType.FILE) {
-                    const file = app.vault.getAbstractFileByPath(path);
-                    if (isTFile(file)) {
-                        const link = app.fileManager.generateMarkdownLink(file, '');
-                        e.dataTransfer.setData('text/plain', link);
+
+                    // Add dragging class to all selected files
+                    selectedPaths.forEach(selectedPath => {
+                        const el = containerRef.current?.querySelector(`[data-drag-path="${selectedPath}"]`);
+                        el?.classList.add('nn-dragging');
+                    });
+
+                    // Show count in drag image
+                    if (selectedPaths.length > 1) {
+                        // Create a container to position the badge
+                        const dragContainer = document.createElement('div');
+                        dragContainer.className = 'nn-drag-image-container';
+
+                        // Create the badge inside the container
+                        const dragInfo = document.createElement('div');
+                        dragInfo.className = 'nn-drag-count-badge';
+                        dragInfo.textContent = `${selectedPaths.length}`;
+
+                        dragContainer.appendChild(dragInfo);
+                        document.body.appendChild(dragContainer);
+                        e.dataTransfer.setDragImage(dragContainer, 5, 5);
+                        setTimeout(() => document.body.removeChild(dragContainer), 0);
                     }
+                } else {
+                    // Single item drag
+                    e.dataTransfer.setData('obsidian/file', path);
+                    e.dataTransfer.effectAllowed = 'copyMove';
+
+                    // Generate markdown link for single file
+                    if (type === ItemType.FILE) {
+                        const file = app.vault.getAbstractFileByPath(path);
+                        if (isTFile(file)) {
+                            const link = app.fileManager.generateMarkdownLink(file, '');
+                            e.dataTransfer.setData('text/plain', link);
+                        }
+                    }
+
+                    draggable.classList.add('nn-dragging');
                 }
-                
-                draggable.classList.add('nn-dragging');
             }
-        }
-    }, [selectionState, containerRef, app]);
+        },
+        [selectionState, containerRef, app]
+    );
 
     /**
      * Handles the drag over event.
      * Provides visual feedback by adding CSS classes to valid drop targets.
-     * 
+     *
      * @param e - The drag event
      */
     const handleDragOver = useCallback((e: DragEvent) => {
@@ -191,7 +194,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             if (e.dataTransfer) {
                 const dropType = dropZone.getAttribute('data-drop-zone');
                 const targetPath = dropZone.getAttribute('data-drop-path');
-                
+
                 // Use 'move' for folders and untagged, 'copy' for regular tags
                 if (dropType === 'folder' || targetPath === UNTAGGED_TAG_ID) {
                     e.dataTransfer.dropEffect = 'move';
@@ -204,76 +207,78 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
     /**
      * Handles dropping files on a tag to add that tag to the files
-     * 
+     *
      * @param e - The drag event
      * @param targetTag - The tag to add (or UNTAGGED_TAG_ID to clear all tags)
      */
-    const handleTagDrop = useCallback(async (e: DragEvent, targetTag: string) => {
-        // Get all files being dragged
-        const files: TFile[] = [];
-        
-        // Check if dragging multiple files
-        const multipleFilesData = e.dataTransfer?.getData('obsidian/files');
-        if (multipleFilesData) {
-            try {
-                const selectedPaths = JSON.parse(multipleFilesData);
-                if (Array.isArray(selectedPaths)) {
-                    for (const path of selectedPaths) {
-                        const file = app.vault.getAbstractFileByPath(path);
-                        if (isTFile(file)) {
-                            files.push(file);
+    const handleTagDrop = useCallback(
+        async (e: DragEvent, targetTag: string) => {
+            // Get all files being dragged
+            const files: TFile[] = [];
+
+            // Check if dragging multiple files
+            const multipleFilesData = e.dataTransfer?.getData('obsidian/files');
+            if (multipleFilesData) {
+                try {
+                    const selectedPaths = JSON.parse(multipleFilesData);
+                    if (Array.isArray(selectedPaths)) {
+                        for (const path of selectedPaths) {
+                            const file = app.vault.getAbstractFileByPath(path);
+                            if (isTFile(file)) {
+                                files.push(file);
+                            }
                         }
                     }
+                } catch (error) {
+                    console.error('Error parsing multiple files data:', error);
                 }
-            } catch (error) {
-                console.error('Error parsing multiple files data:', error);
-            }
-        } else {
-            // Check if dragging single file
-            const singleFileData = e.dataTransfer?.getData('obsidian/file');
-            if (singleFileData) {
-                const file = app.vault.getAbstractFileByPath(singleFileData);
-                if (isTFile(file)) {
-                    files.push(file);
+            } else {
+                // Check if dragging single file
+                const singleFileData = e.dataTransfer?.getData('obsidian/file');
+                if (singleFileData) {
+                    const file = app.vault.getAbstractFileByPath(singleFileData);
+                    if (isTFile(file)) {
+                        files.push(file);
+                    }
                 }
             }
-        }
 
-        if (files.length === 0) return;
+            if (files.length === 0) return;
 
-        // Handle special "untagged" drop zone - clear all tags
-        if (targetTag === UNTAGGED_TAG_ID) {
-            try {
-                const clearedCount = await tagOperations.clearAllTagsFromFiles(files);
-                if (clearedCount > 0) {
-                    new Notice(strings.dragDrop.notifications.clearedTags.replace('{count}', clearedCount.toString()));
-                } else {
-                    new Notice(strings.dragDrop.notifications.noTagsToClear);
+            // Handle special "untagged" drop zone - clear all tags
+            if (targetTag === UNTAGGED_TAG_ID) {
+                try {
+                    const clearedCount = await tagOperations.clearAllTagsFromFiles(files);
+                    if (clearedCount > 0) {
+                        new Notice(strings.dragDrop.notifications.clearedTags.replace('{count}', clearedCount.toString()));
+                    } else {
+                        new Notice(strings.dragDrop.notifications.noTagsToClear);
+                    }
+                } catch (error) {
+                    console.error('Error clearing tags:', error);
+                    new Notice(strings.dragDrop.errors.failedToClearTags);
                 }
-            } catch (error) {
-                console.error('Error clearing tags:', error);
-                new Notice(strings.dragDrop.errors.failedToClearTags);
+            } else {
+                // Add tag to files
+                try {
+                    const { added, skipped } = await tagOperations.addTagToFiles(targetTag, files);
+
+                    if (added > 0) {
+                        new Notice(
+                            strings.dragDrop.notifications.addedTag.replace('{tag}', targetTag).replace('{count}', added.toString())
+                        );
+                    }
+                    if (skipped > 0) {
+                        new Notice(strings.dragDrop.notifications.filesAlreadyHaveTag.replace('{count}', skipped.toString()), 2000);
+                    }
+                } catch (error) {
+                    console.error('Error adding tag:', error);
+                    new Notice(strings.dragDrop.errors.failedToAddTag.replace('{tag}', targetTag));
+                }
             }
-        } else {
-            // Add tag to files
-            try {
-                const { added, skipped } = await tagOperations.addTagToFiles(targetTag, files);
-                
-                if (added > 0) {
-                    new Notice(strings.dragDrop.notifications.addedTag
-                        .replace('{tag}', targetTag)
-                        .replace('{count}', added.toString()));
-                }
-                if (skipped > 0) {
-                    new Notice(strings.dragDrop.notifications.filesAlreadyHaveTag
-                        .replace('{count}', skipped.toString()), 2000);
-                }
-            } catch (error) {
-                console.error('Error adding tag:', error);
-                new Notice(strings.dragDrop.errors.failedToAddTag.replace('{tag}', targetTag));
-            }
-        }
-    }, [app, tagOperations]);
+        },
+        [app, tagOperations]
+    );
 
     /**
      * Handles the drop event.
@@ -281,94 +286,97 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
      * - For folders: moves files/folders
      * - For tags: adds tag to files
      * - For untagged: clears all tags from files
-     * 
+     *
      * @param e - The drag event
      */
-    const handleDrop = useCallback(async (e: DragEvent) => {
-        e.preventDefault();
-        if (dragOverElement.current) {
-            dragOverElement.current.classList.remove('nn-drag-over');
-        }
-
-        const dropZone = dragOverElement.current;
-        if (!dropZone) return;
-
-        const dropType = dropZone.getAttribute('data-drop-zone');
-        const targetPath = getPathFromDataAttribute(dropZone, 'data-drop-path');
-        
-        if (!dropType || !targetPath) return;
-
-        // Handle tag drops
-        if (dropType === 'tag') {
-            await handleTagDrop(e, targetPath);
-            return;
-        }
-
-        // Handle folder drops (existing logic)
-        const targetFolder = app.vault.getAbstractFileByPath(targetPath);
-        if (!isTFolder(targetFolder)) return;
-
-        // Check if dragging multiple files
-        const multipleFilesData = e.dataTransfer?.getData('obsidian/files');
-        if (multipleFilesData) {
-            try {
-                const selectedPaths = JSON.parse(multipleFilesData);
-                if (Array.isArray(selectedPaths)) {
-                    // Convert paths to TFile objects
-                    const filesToMove: TFile[] = [];
-                    for (const path of selectedPaths) {
-                        const file = app.vault.getAbstractFileByPath(path);
-                        if (isTFile(file)) {
-                            filesToMove.push(file);
-                        }
-                    }
-                    
-                    if (filesToMove.length > 0) {
-                        // Use the shared moveFilesToFolder method
-                        const currentFiles = getCurrentFileList();
-                        await fileSystemOps.moveFilesToFolder({
-                            files: filesToMove,
-                            targetFolder,
-                            selectionContext: {
-                                selectedFile: selectionState.selectedFile,
-                                dispatch,
-                                allFiles: currentFiles
-                            },
-                            showNotifications: true
-                        });
-                    }
-                    return;
-                }
-            } catch (error) {
-                console.error('Error parsing multiple files data:', error);
+    const handleDrop = useCallback(
+        async (e: DragEvent) => {
+            e.preventDefault();
+            if (dragOverElement.current) {
+                dragOverElement.current.classList.remove('nn-drag-over');
             }
-        }
 
-        // Check if dragging single file
-        const singleFileData = e.dataTransfer?.getData('obsidian/file');
-        if (!singleFileData) return;
+            const dropZone = dragOverElement.current;
+            if (!dropZone) return;
 
-        const sourceItem = app.vault.getAbstractFileByPath(singleFileData);
-        if (!sourceItem || !isTFile(sourceItem)) return;
+            const dropType = dropZone.getAttribute('data-drop-zone');
+            const targetPath = getPathFromDataAttribute(dropZone, 'data-drop-path');
 
-        // Use the shared moveFilesToFolder method for single files too
-        const currentFiles = getCurrentFileList();
-        await fileSystemOps.moveFilesToFolder({
-            files: [sourceItem],
-            targetFolder,
-            selectionContext: {
-                selectedFile: selectionState.selectedFile,
-                dispatch,
-                allFiles: currentFiles
-            },
-            showNotifications: true
-        });
-    }, [app, fileSystemOps, tagOperations, selectionState, getCurrentFileList, dispatch]);
-    
+            if (!dropType || !targetPath) return;
+
+            // Handle tag drops
+            if (dropType === 'tag') {
+                await handleTagDrop(e, targetPath);
+                return;
+            }
+
+            // Handle folder drops (existing logic)
+            const targetFolder = app.vault.getAbstractFileByPath(targetPath);
+            if (!isTFolder(targetFolder)) return;
+
+            // Check if dragging multiple files
+            const multipleFilesData = e.dataTransfer?.getData('obsidian/files');
+            if (multipleFilesData) {
+                try {
+                    const selectedPaths = JSON.parse(multipleFilesData);
+                    if (Array.isArray(selectedPaths)) {
+                        // Convert paths to TFile objects
+                        const filesToMove: TFile[] = [];
+                        for (const path of selectedPaths) {
+                            const file = app.vault.getAbstractFileByPath(path);
+                            if (isTFile(file)) {
+                                filesToMove.push(file);
+                            }
+                        }
+
+                        if (filesToMove.length > 0) {
+                            // Use the shared moveFilesToFolder method
+                            const currentFiles = getCurrentFileList();
+                            await fileSystemOps.moveFilesToFolder({
+                                files: filesToMove,
+                                targetFolder,
+                                selectionContext: {
+                                    selectedFile: selectionState.selectedFile,
+                                    dispatch,
+                                    allFiles: currentFiles
+                                },
+                                showNotifications: true
+                            });
+                        }
+                        return;
+                    }
+                } catch (error) {
+                    console.error('Error parsing multiple files data:', error);
+                }
+            }
+
+            // Check if dragging single file
+            const singleFileData = e.dataTransfer?.getData('obsidian/file');
+            if (!singleFileData) return;
+
+            const sourceItem = app.vault.getAbstractFileByPath(singleFileData);
+            if (!sourceItem || !isTFile(sourceItem)) return;
+
+            // Use the shared moveFilesToFolder method for single files too
+            const currentFiles = getCurrentFileList();
+            await fileSystemOps.moveFilesToFolder({
+                files: [sourceItem],
+                targetFolder,
+                selectionContext: {
+                    selectedFile: selectionState.selectedFile,
+                    dispatch,
+                    allFiles: currentFiles
+                },
+                showNotifications: true
+            });
+        },
+        [app, fileSystemOps, tagOperations, selectionState, getCurrentFileList, dispatch]
+    );
+
     /**
      * Handles the drag leave event.
      * Removes drag-over styling when leaving a drop zone.
-     * 
+     *
      * @param e - The drag event
      */
     const handleDragLeave = useCallback((e: DragEvent) => {
@@ -383,33 +391,36 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             }
         }
     }, []);
-    
+
     /**
      * Handles the drag end event.
      * Cleans up drag-related CSS classes.
-     * 
+     *
      * @param e - The drag event
      */
-    const handleDragEnd = useCallback((e: DragEvent) => {
-        const target = e.target as HTMLElement;
-        const draggable = target.closest('[data-draggable="true"]');
-        const path = getPathFromDataAttribute(draggable as HTMLElement, 'data-drag-path');
-        
-        // Remove dragging class from all selected files if dragging multiple
-        if (path && selectionState.selectedFiles.has(path)) {
-            selectionState.selectedFiles.forEach(selectedPath => {
-                const el = containerRef.current?.querySelector(`[data-drag-path="${selectedPath}"]`);
-                el?.classList.remove('nn-dragging');
-            });
-        } else {
-            draggable?.classList.remove('nn-dragging');
-        }
-        
-        if (dragOverElement.current) {
-            dragOverElement.current.classList.remove('nn-drag-over');
-            dragOverElement.current = null;
-        }
-    }, [selectionState, containerRef]);
+    const handleDragEnd = useCallback(
+        (e: DragEvent) => {
+            const target = e.target as HTMLElement;
+            const draggable = target.closest('[data-draggable="true"]');
+            const path = getPathFromDataAttribute(draggable as HTMLElement, 'data-drag-path');
+
+            // Remove dragging class from all selected files if dragging multiple
+            if (path && selectionState.selectedFiles.has(path)) {
+                selectionState.selectedFiles.forEach(selectedPath => {
+                    const el = containerRef.current?.querySelector(`[data-drag-path="${selectedPath}"]`);
+                    el?.classList.remove('nn-dragging');
+                });
+            } else {
+                draggable?.classList.remove('nn-dragging');
+            }
+
+            if (dragOverElement.current) {
+                dragOverElement.current.classList.remove('nn-drag-over');
+                dragOverElement.current = null;
+            }
+        },
+        [selectionState, containerRef]
+    );
 
     useEffect(() => {
         const container = containerRef.current;

@@ -16,12 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { 
-    Plugin, 
-    WorkspaceLeaf, 
-    TFile, 
-    TFolder
-} from 'obsidian';
+import { Plugin, WorkspaceLeaf, TFile, TFolder } from 'obsidian';
 import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
 import { LocalStorageKeys, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, STORAGE_KEYS } from './types';
 import { MetadataService } from './services/MetadataService';
@@ -33,19 +28,19 @@ import { initializeMobileLogger } from './utils/mobileLogger';
 
 /**
  * Polyfill for requestIdleCallback
- * 
+ *
  * The requestIdleCallback API allows scheduling non-critical work to be performed
  * when the browser is idle, improving performance by not blocking user interactions.
- * 
+ *
  * Browser Support Issues:
  * - Not supported in Safari (both desktop and iOS)
  * - Not supported in older browsers
- * 
+ *
  * This polyfill provides a fallback implementation using setTimeout:
  * - Executes the callback after the specified timeout (or immediately if no timeout)
  * - Provides a mock IdleDeadline object with timeRemaining() returning 50ms
  * - The 50ms value is a reasonable estimate for available idle time
- * 
+ *
  * Usage in the plugin:
  * - Deferred metadata cleanup after plugin initialization
  * - Background tag tree diff calculations
@@ -53,10 +48,10 @@ import { initializeMobileLogger } from './utils/mobileLogger';
  */
 if (typeof window !== 'undefined' && !window.requestIdleCallback) {
     console.log('requestIdleCallback not supported, using polyfill');
-    
-    window.requestIdleCallback = function(callback: IdleRequestCallback, options?: { timeout?: number }) {
+
+    window.requestIdleCallback = function (callback: IdleRequestCallback, options?: { timeout?: number }) {
         const timeout = options?.timeout || 0;
-        
+
         // setTimeout returns a number in browser environments
         const timeoutId = window.setTimeout(() => {
             // Create a mock IdleDeadline object
@@ -64,15 +59,15 @@ if (typeof window !== 'undefined' && !window.requestIdleCallback) {
                 didTimeout: timeout > 0,
                 timeRemaining: () => 50 // Conservative estimate of available time
             };
-            
+
             callback(deadline);
         }, timeout);
-        
+
         // Cast is safe because we're in a browser environment
         return timeoutId as number;
     };
-    
-    window.cancelIdleCallback = function(id: number) {
+
+    window.cancelIdleCallback = function (id: number) {
         clearTimeout(id);
     };
 }
@@ -116,37 +111,29 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * Ensures proper initialization order for all plugin components
      */
     async onload() {
-        
         await this.loadSettings();
-        
+
         // Initialize mobile logger
         initializeMobileLogger(this.app);
-        
+
         // Initialize icon service
         const { initializeIconService } = await import('./services/icons');
         initializeIconService();
-        
+
         // Initialize metadata service for handling vault events
-        this.metadataService = new MetadataService(
-            this.app,
-            this.settings,
-            async (updater) => {
-                // Update settings
-                updater(this.settings);
-                await this.saveSettings();
-                // The SettingsContext will handle updates through its listener
-            }
-        );
-        
+        this.metadataService = new MetadataService(this.app, this.settings, async updater => {
+            // Update settings
+            updater(this.settings);
+            await this.saveSettings();
+            // The SettingsContext will handle updates through its listener
+        });
+
         // Initialize tag operations service
         this.tagOperations = new TagOperations(this.app);
-        
-        this.registerView(
-            VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT,
-            (leaf) => {
-                return new NotebookNavigatorView(leaf, this);
-            }
-        );
+
+        this.registerView(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, leaf => {
+            return new NotebookNavigatorView(leaf, this);
+        });
 
         // View & Navigation commands
         this.addCommand({
@@ -181,7 +168,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 if (leaves.length === 0) {
                     await this.activateView(true);
                 }
-                
+
                 // Show folder navigation modal
                 const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
                 for (const leaf of navigatorLeaves) {
@@ -203,7 +190,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 if (leaves.length === 0) {
                     await this.activateView(true);
                 }
-                
+
                 // Show tag navigation modal
                 const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
                 for (const leaf of navigatorLeaves) {
@@ -225,7 +212,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 if (leaves.length === 0) {
                     await this.activateView(true);
                 }
-                
+
                 // Find and focus the file pane
                 const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
                 navigatorLeaves.forEach(leaf => {
@@ -268,7 +255,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 if (leaves.length === 0) {
                     await this.activateView(true);
                 }
-                
+
                 // Create new note in selected folder
                 const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
                 for (const leaf of navigatorLeaves) {
@@ -290,7 +277,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 if (leaves.length === 0) {
                     await this.activateView(true);
                 }
-                
+
                 // Move selected files
                 const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
                 for (const leaf of navigatorLeaves) {
@@ -326,9 +313,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 const file = view.file;
                 if (file) {
                     menu.addSeparator();
-                    menu.addItem((item) => {
-                        item
-                            .setTitle(strings.plugin.revealInNavigator)
+                    menu.addItem(item => {
+                        item.setTitle(strings.plugin.revealInNavigator)
                             .setIcon('folder-open')
                             .onClick(async () => {
                                 await this.navigateToFile(file);
@@ -340,18 +326,18 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
         // Ribbon Icon For Opening
         this.refreshIconRibbon();
-        
+
         // Register rename event handler to update folder metadata and notify file renames
-        // 
+        //
         // ARCHITECTURAL NOTE: Why folders and files are handled differently
-        // 
+        //
         // FOLDERS: Don't need a listener system because:
         // 1. React components hold references to Obsidian's TFolder objects
         // 2. When renamed, Obsidian automatically updates the TFolder's properties
         // 3. handleFolderRename updates settings (colors, icons, etc.) to the new path
         // 4. Settings update triggers re-render via SettingsContext version increment
         // 5. During re-render, components get fresh TFolder objects with updated names
-        // 
+        //
         // FILES: Need a listener system because:
         // 1. SelectionContext stores file paths in state (selectedFiles Set, selectedFile)
         // 2. These paths become stale after rename and must be manually updated
@@ -361,7 +347,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         this.registerEvent(
             this.app.vault.on('rename', async (file, oldPath) => {
                 if (this.isUnloading) return;
-                
+
                 if (file instanceof TFolder && this.metadataService) {
                     await this.metadataService.handleFolderRename(oldPath, file.path);
                     // The metadata service saves settings which triggers reactive updates
@@ -371,11 +357,11 @@ export default class NotebookNavigatorPlugin extends Plugin {
                         const lastSlash = path.lastIndexOf('/');
                         return lastSlash > 0 ? path.substring(0, lastSlash) : '/';
                     };
-                    
+
                     const oldParent = getParentPath(oldPath);
                     const newParent = getParentPath(file.path);
                     const movedToDifferentFolder = oldParent !== newParent;
-                    
+
                     // If the active file moved to a different folder, reveal it
                     // UNLESS it was moved from within the Navigator (drag-drop or context menu)
                     if (movedToDifferentFolder && file === this.app.workspace.getActiveFile()) {
@@ -384,9 +370,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
                             await this.navigateToFile(file);
                         }
                     }
-                    
+
                     // Notify all listeners about the file rename
-                    this.fileRenameListeners.forEach((callback) => {
+                    this.fileRenameListeners.forEach(callback => {
                         try {
                             callback(oldPath, file.path);
                         } catch (error) {
@@ -396,12 +382,12 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 }
             })
         );
-        
+
         // Register delete event handler to clean up folder metadata
         this.registerEvent(
-            this.app.vault.on('delete', async (file) => {
+            this.app.vault.on('delete', async file => {
                 if (!this.metadataService || this.isUnloading) return;
-                
+
                 if (file instanceof TFolder) {
                     await this.metadataService.handleFolderDelete(file.path);
                 } else if (file instanceof TFile) {
@@ -410,21 +396,23 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 // The metadata service saves settings which triggers reactive updates
             })
         );
-        
+
         // Clean up settings after workspace is ready
         // Use onLayoutReady for more reliable initialization
         this.app.workspace.onLayoutReady(async () => {
-            
             // Defer folder and file metadata cleanup to idle time
             // Note: Tag metadata cleanup happens after tag tree is built to ensure accuracy
-            requestIdleCallback(() => {
-                if (this.metadataService && !this.isUnloading) {
-                    this.metadataService.cleanupAllMetadata().catch(error => {
-                        console.error('Error during metadata cleanup:', error);
-                    });
-                }
-            }, { timeout: 2000 }); // Fallback to 2 seconds if no idle time
-            
+            requestIdleCallback(
+                () => {
+                    if (this.metadataService && !this.isUnloading) {
+                        this.metadataService.cleanupAllMetadata().catch(error => {
+                            console.error('Error during metadata cleanup:', error);
+                        });
+                    }
+                },
+                { timeout: 2000 }
+            ); // Fallback to 2 seconds if no idle time
+
             // Always open the view if it doesn't exist
             const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
             if (leaves.length === 0 && !this.isUnloading) {
@@ -476,23 +464,22 @@ export default class NotebookNavigatorPlugin extends Plugin {
     onunload() {
         // Set unloading flag to prevent any new operations
         this.isUnloading = true;
-        
+
         // Clear all listeners first to prevent any callbacks during cleanup
         this.settingsUpdateListeners.clear();
         this.fileRenameListeners.clear();
-        
+
         // Clean up the metadata service
         if (this.metadataService) {
             // Clear the reference to break circular dependencies
             this.metadataService = null;
         }
-        
+
         // Clean up the tag operations service
         if (this.tagOperations) {
             this.tagOperations = null;
         }
-        
-        
+
         // Clean up the ribbon icon
         this.ribbonIconEl?.remove();
         this.ribbonIconEl = undefined;
@@ -504,17 +491,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
      */
     private clearAllLocalStorage() {
         // Clear all known localStorage keys
-        const keysToRemove = [
-            STORAGE_KEYS.expandedFoldersKey,
-            STORAGE_KEYS.expandedTagsKey,
-            STORAGE_KEYS.expandedVirtualFoldersKey,
-            STORAGE_KEYS.selectedFolderKey,
-            STORAGE_KEYS.selectedFileKey,
-            STORAGE_KEYS.navigationPaneWidthKey,
-            STORAGE_KEYS.fileCacheKey
-        ];
-        
-        keysToRemove.forEach(key => {
+        Object.values(STORAGE_KEYS).forEach(key => {
             localStorage.remove(key);
         });
     }
@@ -527,15 +504,15 @@ export default class NotebookNavigatorPlugin extends Plugin {
     async loadSettings() {
         const data = await this.loadData();
         const isFirstLaunch = !data; // No saved data means first launch
-        
+
         // Clear localStorage on fresh install/reinstall
         if (isFirstLaunch) {
             this.clearAllLocalStorage();
         }
-        
+
         // Start with default settings
         this.settings = Object.assign({}, DEFAULT_SETTINGS, data || {});
-        
+
         // On first launch, set language-specific date/time formats
         if (isFirstLaunch || !data?.dateFormat) {
             this.settings.dateFormat = getDefaultDateFormat();
@@ -543,20 +520,19 @@ export default class NotebookNavigatorPlugin extends Plugin {
         if (isFirstLaunch || !data?.timeFormat) {
             this.settings.timeFormat = getDefaultTimeFormat();
         }
-        
-        // On first launch, if showRootFolder is enabled by default, 
+
+        // On first launch, if showRootFolder is enabled by default,
         // ensure the root folder is in the expanded folders list
         if (isFirstLaunch && this.settings.showRootFolder) {
             const oldExpanded = localStorage.get<string[]>(STORAGE_KEYS.expandedFoldersKey);
             const expandedFolders = oldExpanded || [];
-            
+
             if (!expandedFolders.includes('/')) {
                 expandedFolders.push('/');
                 localStorage.set(STORAGE_KEYS.expandedFoldersKey, expandedFolders);
             }
         }
     }
-
 
     /**
      * Saves current plugin settings to Obsidian's data storage
@@ -575,15 +551,13 @@ export default class NotebookNavigatorPlugin extends Plugin {
      */
     public onSettingsUpdate() {
         if (this.isUnloading) return;
-        
-        
+
         // Create a copy of listeners to avoid issues if a callback modifies the map
         const listeners = Array.from(this.settingsUpdateListeners.values());
         listeners.forEach(callback => {
             try {
                 callback();
-            } catch (error) {
-            }
+            } catch (error) {}
         });
     }
 
@@ -619,7 +593,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
         return leaf;
     }
 
-
     /**
      * Navigates to a specific file in the navigator, opening the view if needed
      * Expands parent folders and scrolls to make the file visible
@@ -628,14 +601,14 @@ export default class NotebookNavigatorPlugin extends Plugin {
      */
     private async navigateToFile(file: TFile) {
         console.log('[Main] navigateToFile called:', file.path);
-        
+
         // Ensure navigator is open
         const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         if (leaves.length === 0) {
             console.log('[Main] No navigator leaves found, activating view');
             await this.activateView(true);
         }
-        
+
         // Find all navigator views and reveal the file
         const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         navigatorLeaves.forEach(leaf => {
@@ -654,7 +627,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
      */
     refreshIconRibbon() {
         const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-        
+
         if (leaves.length === 0 && !this.ribbonIconEl) {
             // Add ribbon icon only if no navigator view exists
             this.ribbonIconEl = this.addRibbonIcon('notebook', strings.plugin.ribbonTooltip, async () => {
@@ -673,23 +646,24 @@ export default class NotebookNavigatorPlugin extends Plugin {
     private async checkForVersionUpdate(): Promise<void> {
         // Get current version from manifest
         const currentVersion = this.manifest.version;
-        
+
         // Get last shown version from settings
         const lastShownVersion = this.settings.lastShownVersion;
-        
+
         // Don't show on first install (when lastShownVersion is empty)
         if (!lastShownVersion) {
             this.settings.lastShownVersion = currentVersion;
             await this.saveSettings();
             return;
         }
-        
+
         // Check if version has changed
         if (lastShownVersion !== currentVersion) {
             // Import the release notes modules dynamically
             const { WhatsNewModal } = await import('./modals/WhatsNewModal');
-            const { getReleaseNotesBetweenVersions, getLatestReleaseNotes, compareVersions, shouldShowReleaseNotesForVersion } = await import('./releaseNotes');
-            
+            const { getReleaseNotesBetweenVersions, getLatestReleaseNotes, compareVersions, shouldShowReleaseNotesForVersion } =
+                await import('./releaseNotes');
+
             // Get release notes between versions
             let releaseNotes;
             if (compareVersions(currentVersion, lastShownVersion) > 0) {
@@ -699,20 +673,15 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 // Downgraded or same version - just show latest 5 releases
                 releaseNotes = getLatestReleaseNotes();
             }
-            
+
             // Update version before showing modal so it doesn't show again
             this.settings.lastShownVersion = currentVersion;
             await this.saveSettings();
-            
+
             // Show the modal only if the current version doesn't have skipAutoShow
             if (shouldShowReleaseNotesForVersion(currentVersion)) {
-                new WhatsNewModal(
-                    this.app,
-                    this,
-                    releaseNotes
-                ).open();
+                new WhatsNewModal(this.app, this, releaseNotes).open();
             }
         }
     }
-
 }

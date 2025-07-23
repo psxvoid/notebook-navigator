@@ -26,28 +26,20 @@ import { useExpansionState, useExpansionDispatch } from '../context/ExpansionCon
 import { useUIDispatch } from '../context/UIStateContext';
 import { isTFolder, isTFile } from '../utils/typeGuards';
 import { isFileType, isFolderType, isTagType } from '../types';
-import { 
-    MenuConfig, 
-    MenuServices, 
-    MenuState, 
-    MenuDispatchers,
-    buildFolderMenu, 
-    buildTagMenu, 
-    buildFileMenu 
-} from '../utils/contextMenu';
+import { MenuConfig, MenuServices, MenuState, MenuDispatchers, buildFolderMenu, buildTagMenu, buildFileMenu } from '../utils/contextMenu';
 
 /**
  * Custom hook that attaches a context menu to an element.
  * Provides right-click context menu functionality for files, folders, and tags.
- * 
+ *
  * @param elementRef - React ref to the element to attach the context menu to
  * @param config - Configuration object containing menu type and item, or null to disable
- * 
+ *
  * @example
  * ```tsx
  * const ref = useRef<HTMLDivElement>(null);
  * useContextMenu(ref, { type: 'file', item: file });
- * 
+ *
  * return <div ref={ref}>Right-click me</div>;
  * ```
  */
@@ -62,114 +54,117 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
     const selectionDispatch = useSelectionDispatch();
     const expansionDispatch = useExpansionDispatch();
     const uiDispatch = useUIDispatch();
-    
+
     /**
      * Handles the context menu event.
      * Shows appropriate menu items based on whether the target is a file, folder, or tag.
-     * 
+     *
      * @param e - The mouse event from right-click
      */
-    const handleContextMenu = useCallback((e: MouseEvent) => {
-        if (!config || !elementRef.current) return;
-        
-        // Check if the click is on this element or its children
-        if (!elementRef.current.contains(e.target as Node)) return;
-        
-        e.preventDefault();
-        e.stopPropagation();
+    const handleContextMenu = useCallback(
+        (e: MouseEvent) => {
+            if (!config || !elementRef.current) return;
 
-        const menu = new Menu();
-        
-        // Add context menu active class to show outline
-        elementRef.current.classList.add('nn-context-menu-active');
-        
-        // Remove the class when menu is hidden
-        menu.onHide(() => {
-            if (elementRef.current) {
-                elementRef.current.classList.remove('nn-context-menu-active');
+            // Check if the click is on this element or its children
+            if (!elementRef.current.contains(e.target as Node)) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+
+            const menu = new Menu();
+
+            // Add context menu active class to show outline
+            elementRef.current.classList.add('nn-context-menu-active');
+
+            // Remove the class when menu is hidden
+            menu.onHide(() => {
+                if (elementRef.current) {
+                    elementRef.current.classList.remove('nn-context-menu-active');
+                }
+            });
+
+            // Prepare common parameters for all builders
+            const services: MenuServices = {
+                app,
+                plugin,
+                isMobile,
+                fileSystemOps,
+                metadataService,
+                tagOperations
+            };
+
+            const state: MenuState = {
+                selectionState,
+                expandedFolders,
+                expandedTags
+            };
+
+            const dispatchers: MenuDispatchers = {
+                selectionDispatch,
+                expansionDispatch,
+                uiDispatch
+            };
+
+            // Call the appropriate builder based on item type
+            if (isFolderType(config.type)) {
+                if (!isTFolder(config.item)) return;
+                buildFolderMenu({
+                    folder: config.item,
+                    menu,
+                    services,
+                    settings,
+                    state,
+                    dispatchers
+                });
+            } else if (isTagType(config.type)) {
+                if (typeof config.item !== 'string') return;
+                buildTagMenu({
+                    tagPath: config.item,
+                    menu,
+                    services,
+                    settings,
+                    state,
+                    dispatchers
+                });
+            } else if (isFileType(config.type)) {
+                if (!isTFile(config.item)) return;
+                buildFileMenu({
+                    file: config.item,
+                    menu,
+                    services,
+                    settings,
+                    state,
+                    dispatchers
+                });
             }
-        });
-        
-        // Prepare common parameters for all builders
-        const services: MenuServices = {
+
+            menu.showAtMouseEvent(e);
+        },
+        [
+            config?.type,
+            config?.item,
             app,
             plugin,
-            isMobile,
+            settings,
             fileSystemOps,
             metadataService,
-            tagOperations
-        };
-        
-        const state: MenuState = {
+            tagOperations,
             selectionState,
             expandedFolders,
-            expandedTags
-        };
-        
-        const dispatchers: MenuDispatchers = {
+            expandedTags,
             selectionDispatch,
             expansionDispatch,
-            uiDispatch
-        };
-        
-        // Call the appropriate builder based on item type
-        if (isFolderType(config.type)) {
-            if (!isTFolder(config.item)) return;
-            buildFolderMenu({
-                folder: config.item,
-                menu,
-                services,
-                settings,
-                state,
-                dispatchers
-            });
-        } else if (isTagType(config.type)) {
-            if (typeof config.item !== 'string') return;
-            buildTagMenu({
-                tagPath: config.item,
-                menu,
-                services,
-                settings,
-                state,
-                dispatchers
-            });
-        } else if (isFileType(config.type)) {
-            if (!isTFile(config.item)) return;
-            buildFileMenu({
-                file: config.item,
-                menu,
-                services,
-                settings,
-                state,
-                dispatchers
-            });
-        }
-        
-        menu.showAtMouseEvent(e);
-    }, [
-        config?.type, 
-        config?.item, 
-        app, 
-        plugin,
-        settings, 
-        fileSystemOps, 
-        metadataService, 
-        tagOperations,
-        selectionState, 
-        expandedFolders, 
-        expandedTags,
-        selectionDispatch, 
-        expansionDispatch, 
-        uiDispatch,
-        isMobile
-    ]);
-    
+            uiDispatch,
+            isMobile
+        ]
+    );
+
     useEffect(() => {
         const element = elementRef.current;
         if (!element || !config) return;
-        
+
         element.addEventListener('contextmenu', handleContextMenu);
-        
+
         return () => {
             element.removeEventListener('contextmenu', handleContextMenu);
             // Clean up any lingering context menu active class

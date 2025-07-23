@@ -121,7 +121,7 @@ export class FileMetadataService extends BaseMetadataService {
      */
     async cleanupPinnedNotes(): Promise<boolean> {
         let hasChanges = false;
-        
+
         await this.saveAndUpdate(settings => {
             if (settings.pinnedNotes) {
                 for (const folderPath in settings.pinnedNotes) {
@@ -132,7 +132,7 @@ export class FileMetadataService extends BaseMetadataService {
                         hasChanges = true;
                         continue;
                     }
-                    
+
                     const validFiles = filePaths.filter((filePath: string) => {
                         const file = this.app.vault.getAbstractFileByPath(filePath);
                         return file instanceof TFile;
@@ -151,7 +151,7 @@ export class FileMetadataService extends BaseMetadataService {
                 }
             }
         });
-        
+
         return hasChanges;
     }
 }

@@ -8,33 +8,33 @@
 
 :root {
     /* File item heights - fixed pixel values to prevent fractional rendering */
-    --nn-file-line-height: 20px;  /* Height of single line of text */
-    --nn-file-padding-vertical: 8px;  /* var(--size-4-2) typically equals 8px */
-    --nn-file-second-line-height: 19px;  /* Height for date/preview line - tighter spacing */
-    --nn-file-preview-line-height: 18px;  /* Height for multi-line preview only */
-    
+    --nn-file-line-height: 20px; /* Height of single line of text */
+    --nn-file-padding-vertical: 8px; /* var(--size-4-2) typically equals 8px */
+    --nn-file-second-line-height: 19px; /* Height for date/preview line - tighter spacing */
+    --nn-file-preview-line-height: 18px; /* Height for multi-line preview only */
+
     /* Font sizes - fixed pixel values to prevent scaling with Obsidian font size */
-    --nn-file-name-size: 14px;  /* Fixed 14px */
-    --nn-file-small-size: 13px;  /* Fixed 13px */
-    
+    --nn-file-name-size: 14px; /* Fixed 14px */
+    --nn-file-small-size: 13px; /* Fixed 13px */
+
     /* Date header heights and padding */
-    --nn-date-header-height: 35px;  /* First header */
-    --nn-date-header-height-subsequent: 50px;  /* Headers with margin */
-    --nn-date-header-padding-top: 24px;  /* Top padding for subsequent headers */
-    --nn-date-header-padding-bottom: 6px;  /* Bottom padding for subsequent headers */
-    
+    --nn-date-header-height: 35px; /* First header */
+    --nn-date-header-height-subsequent: 50px; /* Headers with margin */
+    --nn-date-header-padding-top: 24px; /* Top padding for subsequent headers */
+    --nn-date-header-padding-bottom: 6px; /* Bottom padding for subsequent headers */
+
     /* Navigation item heights - fixed pixel values to prevent fractional rendering */
-    --nn-nav-line-height: 18px;  /* Fixed line height for folder/tag names */
-    --nn-nav-padding-vertical: 5px;  /* Padding to achieve 28px total height */
-    --nn-nav-item-height: 28px;  /* Total height: 5px + 18px + 5px = 28px */
-    
+    --nn-nav-line-height: 18px; /* Fixed line height for folder/tag names */
+    --nn-nav-padding-vertical: 5px; /* Padding to achieve 28px total height */
+    --nn-nav-item-height: 28px; /* Total height: 5px + 18px + 5px = 28px */
+
     /* Mobile navigation heights */
-    --nn-nav-item-height-mobile: 40px;  /* Total height for mobile */
-    --nn-nav-padding-vertical-mobile: 11px;  /* (40px - 18px) / 2 = 11px */
-    
+    --nn-nav-item-height-mobile: 40px; /* Total height for mobile */
+    --nn-nav-padding-vertical-mobile: 11px; /* (40px - 18px) / 2 = 11px */
+
     /* Navigation font sizes - fixed for pixel-perfect rendering */
-    --nn-nav-font-size: 13px;  /* Fixed 13px */
-    --nn-nav-icon-size: 16px;  /* Fixed icon size */
+    --nn-nav-font-size: 13px; /* Fixed 13px */
+    --nn-nav-icon-size: 16px; /* Fixed icon size */
 }
 
 /* ========================================================================
@@ -141,7 +141,6 @@
     width: 100%;
 }
 
-
 /* Navigation pane header - matches folder tree background for visual consistency */
 .nn-navigation-pane .nn-pane-header {
     background-color: var(--background-secondary);
@@ -158,7 +157,6 @@
     gap: 2px;
     align-items: center;
 }
-
 
 /* Desktop pane header title */
 .nn-pane-header-title {
@@ -247,7 +245,6 @@
     }
 }
 
-
 /* Icon button hover state - subtle background on hover - desktop only */
 .nn-desktop .nn-icon-button:hover {
     background-color: var(--background-modifier-hover) !important;
@@ -300,7 +297,6 @@
     line-height: 0;
 }
 
-
 /* ========================================================================
    Navigation Pane Scroller
    ======================================================================== */
@@ -316,7 +312,6 @@
     /* Ensure scroll events work properly with virtualization */
     position: relative;
 }
-
 
 /* ========================================================================
    Folder Tree Styles
@@ -345,7 +340,6 @@
     padding: var(--nn-nav-padding-vertical) var(--size-4-2);
     padding-inline-start: 0; /* Remove start padding since it's on the parent */
     cursor: pointer;
-    transition: background-color 0.15s ease;
     border-radius: var(--radius-s);
     margin: 0;
     background: transparent;
@@ -371,7 +365,6 @@
     justify-content: center;
     flex-shrink: 0;
     color: var(--text-muted);
-    transition: transform 0.2s ease;
 }
 
 /* Chevron states for folders without children */
@@ -386,7 +379,6 @@
     cursor: pointer;
 }
 
-
 /* Folder icon - displays folder open/closed or custom icons */
 .nn-folder-icon {
     width: var(--nn-nav-icon-size);
@@ -400,7 +392,6 @@
 
 /* Smooth icon color transitions */
 .nn-folder-icon svg {
-    transition: color 0.2s ease;
 }
 
 /* Folder name text - truncates with ellipsis on overflow */
@@ -443,7 +434,6 @@
 .nn-folder-children {
     display: grid;
     grid-template-rows: 0fr;
-    transition: grid-template-rows 0.15s ease-out;
     min-height: 0;
 }
 
@@ -478,7 +468,6 @@
 .nn-tag-children {
     display: grid;
     grid-template-rows: 0fr;
-    transition: grid-template-rows 0.15s ease-out;
     min-height: 0;
 }
 
@@ -647,7 +636,6 @@
     line-height: var(--nn-file-second-line-height);
 }
 
-
 /* Date below preview - when preview has 2+ lines */
 .nn-file-date-below {
     margin-right: 0;
@@ -715,7 +703,6 @@
     color: var(--text-normal);
 }
 
-
 /* ========================================================================
    Feature Image Styles
    ======================================================================== */
@@ -731,7 +718,6 @@
     position: relative;
     order: 2; /* Ensure it appears on the right */
 }
-
 
 /* Feature image element - covers container with proper aspect ratio */
 .nn-feature-image-img {
@@ -765,8 +751,6 @@
     letter-spacing: 0.3px;
 }
 
-
-
 /* ========================================================================
    Date Group Headers
    ======================================================================== */
@@ -793,7 +777,6 @@
     padding: 0 var(--size-4-3);
     align-items: center;
 }
-
 
 /* Virtual item wrapper - ensures proper rendering for virtualized items */
 .nn-virtual-item {
@@ -879,7 +862,6 @@
     z-index: 0;
 }
 
-
 /* Selected folder content z-index - ensures text appears above background */
 .nn-folder-item.nn-selected > .nn-folder-content > * {
     position: relative;
@@ -901,15 +883,11 @@
     color: var(--text-muted);
 }
 
-
-
-
 /* Selected file content z-index - ensures content above background */
 .nn-file-item.nn-selected .nn-file-content > * {
     position: relative;
     z-index: 5; /* Above selection background but below separators */
 }
-
 
 /* Selected file text colors - maintains readability */
 .nn-file-item.nn-selected .nn-file-name {
@@ -945,13 +923,12 @@
 /* Dimmed selections - apply to all these cases:
    1. Navigator unfocused (all selections dimmed)
    2. Navigator focused but inactive pane (cross-pane dimming) */
-.nn-split-container[data-navigator-focused="false"] .nn-file-item.nn-selected .nn-file-content::before,
-.nn-split-container[data-navigator-focused="false"] .nn-folder-item.nn-selected > .nn-folder-content::before,
-.nn-split-container[data-navigator-focused="true"][data-focus-pane="navigation"] .nn-file-item.nn-selected .nn-file-content::before,
-.nn-split-container[data-navigator-focused="true"][data-focus-pane="files"] .nn-folder-item.nn-selected > .nn-folder-content::before {
+.nn-split-container[data-navigator-focused='false'] .nn-file-item.nn-selected .nn-file-content::before,
+.nn-split-container[data-navigator-focused='false'] .nn-folder-item.nn-selected > .nn-folder-content::before,
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-file-item.nn-selected .nn-file-content::before,
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-folder-item.nn-selected > .nn-folder-content::before {
     background-color: var(--background-modifier-hover);
 }
-
 
 /* ========================================================================
    Hover States
@@ -988,12 +965,12 @@ body.nn-resizing {
 }
 
 /* Special visual feedback for tag drop zones */
-[data-drop-zone="tag"].nn-drag-over .nn-folder-content {
+[data-drop-zone='tag'].nn-drag-over .nn-folder-content {
     background-color: var(--background-modifier-success);
 }
 
 /* Different style for untagged drop zone */
-[data-drop-zone="tag"][data-tag="__untagged__"].nn-drag-over .nn-folder-content {
+[data-drop-zone='tag'][data-tag='__untagged__'].nn-drag-over .nn-folder-content {
     background-color: var(--background-modifier-error-hover);
 }
 
@@ -1021,7 +998,7 @@ body.nn-resizing {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
 /* File list spacer - adds spacing at the bottom of file lists */
@@ -1043,7 +1020,6 @@ body.nn-resizing {
     width: 100%;
     justify-content: flex-end;
 }
-
 
 /* ========================================================================
    Context Menu States
@@ -1246,7 +1222,7 @@ body.nn-resizing {
 
 /* Support button styling */
 .nn-support-button-small {
-    font-size: 13px;
+    font-size: 12px;
 }
 
 /* Mobile adjustments */
@@ -1256,11 +1232,11 @@ body.nn-resizing {
         max-width: calc(100vw - 40px);
         margin: 0 auto;
     }
-    
+
     .nn-whats-new-modal .modal-content {
         padding: var(--size-4-3);
     }
-    
+
     .nn-whats-new-scroll {
         max-height: 300px;
         padding-right: var(--size-4-1);
@@ -1351,7 +1327,6 @@ body.nn-resizing {
     padding: var(--size-4-2) var(--size-4-2);
     border-radius: var(--radius-s);
     cursor: pointer;
-    transition: background-color 0.15s ease;
 }
 
 /* Icon item hover/focus states */
@@ -1511,14 +1486,8 @@ body.nn-resizing {
     margin-bottom: var(--size-4-2);
 }
 
-/* Bold inline text within tips */
-.nn-setting-info-inline {
-    font-weight: var(--font-semibold);
-    color: var(--text-normal);
-}
-
 /* Wider text inputs for settings that benefit from more space */
-.nn-setting-wide-input input[type="text"] {
+.nn-setting-wide-input input[type='text'] {
     width: 300px;
     max-width: 100%;
 }
@@ -1529,7 +1498,6 @@ body.nn-resizing {
 
 /* Support buttons - minimal, clean styling */
 .nn-support-button {
-    transition: opacity 0.2s ease;
 }
 
 /* Support button hover - subtle opacity change */
@@ -1542,8 +1510,38 @@ body.nn-resizing {
    ======================================================================== */
 
 /* Mobile-specific wide input fields - full width on mobile */
-.is-mobile .nn-setting-wide-input input[type="text"] {
+.is-mobile .nn-setting-wide-input input[type='text'] {
     width: 100%;
+}
+
+/* ========================================================================
+   Database Statistics Section
+   ======================================================================== */
+
+/* Container for database statistics */
+.nn-database-stats {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 1px solid var(--background-modifier-border);
+}
+
+/* Statistics text styling */
+.nn-stats-text {
+    font-size: var(--font-ui-smaller);
+    color: var(--text-muted);
+    text-align: center;
+    line-height: 1.5;
+}
+
+/* Remove duplicate borders when statistics are displayed */
+.nn-stats-section {
+    border: none !important;
+    padding: 0 !important;
+}
+
+/* Ensure proper spacing from previous sections */
+.nn-stats-section.setting-item {
+    margin-top: 0;
 }
 
 /* Mobile container - use grid for consistent structure while allowing sliding */
@@ -1564,7 +1562,6 @@ body.nn-resizing {
     height: 100%;
     grid-column: 1;
     grid-row: 1;
-    transition: transform 0.2s ease-out; /* Faster, snappier animation */
     overflow: hidden;
     display: flex;
     flex-direction: column;
@@ -1636,19 +1633,19 @@ body.nn-resizing {
 /* Desktop single-pane - show navigation view (hide files) */
 .nn-desktop-single-pane.show-navigation .nn-list-pane {
     position: absolute;
-    contain: layout style paint;  /* Exclude 'size' to allow virtualizer to measure properly */
-    content-visibility: hidden;  /* Modern optimization */
+    contain: layout style paint; /* Exclude 'size' to allow virtualizer to measure properly */
+    content-visibility: hidden; /* Modern optimization */
 }
 
 /* Desktop single-pane - show files view (hide navigation) */
 .nn-desktop-single-pane.show-files .nn-navigation-pane {
     position: absolute;
-    contain: layout style paint;  /* Exclude 'size' to allow virtualizer to measure properly */
-    content-visibility: hidden;  /* Modern optimization */
+    contain: layout style paint; /* Exclude 'size' to allow virtualizer to measure properly */
+    content-visibility: hidden; /* Modern optimization */
 }
 
 /* Disable drag and drop cursors on mobile */
-.notebook-navigator-mobile [draggable="true"] {
+.notebook-navigator-mobile [draggable='true'] {
     cursor: default !important;
 }
 
@@ -1717,7 +1714,6 @@ body.nn-resizing {
     padding: var(--size-4-2);
     border-radius: var(--radius-m);
     cursor: pointer;
-    transition: all 0.15s ease;
 }
 
 /* Color item hover/focus states */
@@ -1736,35 +1732,75 @@ body.nn-resizing {
     width: 48px;
     height: 48px;
     border-radius: 50%;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1), 
-                inset 0 0 0 1px rgba(0, 0, 0, 0.1);
-    transition: transform 0.15s ease;
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
 /* Apply background colors based on data attribute 
  * NOTE: These colors must match COLOR_PALETTE in ColorPickerModal.ts
  * This duplication is required for Obsidian plugin compliance (no JS styles)
  */
-.nn-color-preview[data-color-value="#ef4444"] { background-color: #ef4444; }
-.nn-color-preview[data-color-value="#f97316"] { background-color: #f97316; }
-.nn-color-preview[data-color-value="#f59e0b"] { background-color: #f59e0b; }
-.nn-color-preview[data-color-value="#eab308"] { background-color: #eab308; }
-.nn-color-preview[data-color-value="#84cc16"] { background-color: #84cc16; }
-.nn-color-preview[data-color-value="#22c55e"] { background-color: #22c55e; }
-.nn-color-preview[data-color-value="#10b981"] { background-color: #10b981; }
-.nn-color-preview[data-color-value="#14b8a6"] { background-color: #14b8a6; }
-.nn-color-preview[data-color-value="#06b6d4"] { background-color: #06b6d4; }
-.nn-color-preview[data-color-value="#0ea5e9"] { background-color: #0ea5e9; }
-.nn-color-preview[data-color-value="#3b82f6"] { background-color: #3b82f6; }
-.nn-color-preview[data-color-value="#6366f1"] { background-color: #6366f1; }
-.nn-color-preview[data-color-value="#8b5cf6"] { background-color: #8b5cf6; }
-.nn-color-preview[data-color-value="#a855f7"] { background-color: #a855f7; }
-.nn-color-preview[data-color-value="#d946ef"] { background-color: #d946ef; }
-.nn-color-preview[data-color-value="#ec4899"] { background-color: #ec4899; }
-.nn-color-preview[data-color-value="#f43f5e"] { background-color: #f43f5e; }
-.nn-color-preview[data-color-value="#6b7280"] { background-color: #6b7280; }
-.nn-color-preview[data-color-value="#64748b"] { background-color: #64748b; }
-.nn-color-preview[data-color-value="#78716c"] { background-color: #78716c; }
+.nn-color-preview[data-color-value='#ef4444'] {
+    background-color: #ef4444;
+}
+.nn-color-preview[data-color-value='#f97316'] {
+    background-color: #f97316;
+}
+.nn-color-preview[data-color-value='#f59e0b'] {
+    background-color: #f59e0b;
+}
+.nn-color-preview[data-color-value='#eab308'] {
+    background-color: #eab308;
+}
+.nn-color-preview[data-color-value='#84cc16'] {
+    background-color: #84cc16;
+}
+.nn-color-preview[data-color-value='#22c55e'] {
+    background-color: #22c55e;
+}
+.nn-color-preview[data-color-value='#10b981'] {
+    background-color: #10b981;
+}
+.nn-color-preview[data-color-value='#14b8a6'] {
+    background-color: #14b8a6;
+}
+.nn-color-preview[data-color-value='#06b6d4'] {
+    background-color: #06b6d4;
+}
+.nn-color-preview[data-color-value='#0ea5e9'] {
+    background-color: #0ea5e9;
+}
+.nn-color-preview[data-color-value='#3b82f6'] {
+    background-color: #3b82f6;
+}
+.nn-color-preview[data-color-value='#6366f1'] {
+    background-color: #6366f1;
+}
+.nn-color-preview[data-color-value='#8b5cf6'] {
+    background-color: #8b5cf6;
+}
+.nn-color-preview[data-color-value='#a855f7'] {
+    background-color: #a855f7;
+}
+.nn-color-preview[data-color-value='#d946ef'] {
+    background-color: #d946ef;
+}
+.nn-color-preview[data-color-value='#ec4899'] {
+    background-color: #ec4899;
+}
+.nn-color-preview[data-color-value='#f43f5e'] {
+    background-color: #f43f5e;
+}
+.nn-color-preview[data-color-value='#6b7280'] {
+    background-color: #6b7280;
+}
+.nn-color-preview[data-color-value='#64748b'] {
+    background-color: #64748b;
+}
+.nn-color-preview[data-color-value='#78716c'] {
+    background-color: #78716c;
+}
 
 /* Color name label */
 .nn-color-name {
@@ -1776,8 +1812,9 @@ body.nn-resizing {
 
 /* Dark theme adjustments for color picker */
 .theme-dark .nn-color-preview {
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3), 
-                inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+    box-shadow:
+        0 2px 4px rgba(0, 0, 0, 0.3),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 /* ========================================================================
@@ -1787,7 +1824,6 @@ body.nn-resizing {
 /* Smooth color transitions for folder items */
 .nn-folder-icon svg,
 .nn-folder-name {
-    transition: color 0.2s ease;
 }
 
 /* ========================================================================
@@ -1828,7 +1864,6 @@ body.nn-resizing {
     align-items: center;
 }
 
-
 /* ========================================================================
    RTL (Right-to-Left) Support
    ======================================================================== */
@@ -1859,36 +1894,6 @@ body.nn-resizing {
 /* Fix icon mirroring - Obsidian auto-mirrors icons, but we may need to prevent it for some icons */
 /* Currently, all our icons (chevrons, folders, etc.) should be mirrored in RTL, so no overrides needed */
 
-/* =================================================================================
-   Error Boundary
-   ================================================================================= */
-
-.nn-error-boundary-message {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 20px;
-    color: var(--text-muted);
-    text-align: center;
-    min-height: 100px;
-}
-
-.nn-error-icon {
-    font-size: 24px;
-    margin-bottom: 8px;
-}
-
-.nn-error-text {
-    font-size: 14px;
-    line-height: 1.4;
-}
-
-.nn-error-text small {
-    font-size: 12px;
-    opacity: 0.8;
-}
-
 /* Sidebar toggle button in file pane header */
 .nn-pane-header-icon-button {
     padding: 0;
@@ -1912,14 +1917,13 @@ body.nn-resizing {
     color: var(--text-muted);
 }
 
-
 /* =================================================================================
    Icon System
    ================================================================================= */
 
 /* Emoji icon styles */
 .nn-emoji-icon {
-    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
     line-height: 1;
     display: inline-flex;
     align-items: center;
@@ -1976,7 +1980,6 @@ body.nn-resizing {
     cursor: pointer;
     border-radius: var(--radius-s);
     color: var(--text-muted);
-    transition: all 0.2s ease;
 }
 
 .nn-icon-provider-tab:hover {
@@ -2052,7 +2055,7 @@ body.nn-resizing {
     border-radius: var(--radius-s);
     background: var(--background-secondary);
     font-size: 24px;
-    font-family: "Apple Color Emoji", "Segoe UI Emoji", "Noto Color Emoji", sans-serif;
+    font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
 }
 
 .nn-custom-emoji-preview.nn-has-emoji {
@@ -2068,7 +2071,6 @@ body.nn-resizing {
     border-radius: var(--radius-s);
     cursor: pointer;
     font-size: var(--font-ui-small);
-    transition: opacity 0.2s ease;
 }
 
 .nn-custom-emoji-button:hover:not(:disabled) {
@@ -2085,6 +2087,3 @@ body.nn-resizing {
     background: var(--background-modifier-border);
     margin: var(--size-4-4) 0 var(--size-4-3) 0;
 }
-
-
-

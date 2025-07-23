@@ -29,7 +29,7 @@ export class ConfirmModal extends Modal {
     private confirmBtn: HTMLButtonElement;
     private cancelHandler: () => void;
     private confirmHandler: () => void;
-    
+
     /**
      * Creates a confirmation modal with title, message, and callback
      * @param app - The Obsidian app instance
@@ -46,26 +46,26 @@ export class ConfirmModal extends Modal {
         super(app);
         this.titleEl.setText(title);
         this.contentEl.createEl('p', { text: message });
-        
+
         const buttonContainer = this.contentEl.createDiv('nn-button-container');
-        
+
         // Store references for cleanup
         this.cancelHandler = () => this.close();
         this.confirmHandler = () => {
             this.close();
             this.onConfirm();
         };
-        
+
         this.cancelBtn = buttonContainer.createEl('button', { text: strings.common.cancel });
         this.cancelBtn.addEventListener('click', this.cancelHandler);
-        
-        this.confirmBtn = buttonContainer.createEl('button', { 
+
+        this.confirmBtn = buttonContainer.createEl('button', {
             text: strings.common.delete,
             cls: 'mod-warning'
         });
         this.confirmBtn.addEventListener('click', this.confirmHandler);
     }
-    
+
     /**
      * Cleanup event listeners when modal is closed
      * Prevents memory leaks by removing all event listeners

@@ -42,18 +42,13 @@ export abstract class BaseSuggestModal<T> extends FuzzySuggestModal<T> {
      * @param placeholderText - Placeholder text for the search input
      * @param instructions - Instructions to display in the modal
      */
-    constructor(
-        app: App,
-        onChoose: (item: T) => void,
-        placeholderText: string,
-        instructions: ModalInstructions
-    ) {
+    constructor(app: App, onChoose: (item: T) => void, placeholderText: string, instructions: ModalInstructions) {
         super(app);
         this.onChooseCallback = onChoose;
-        
+
         // Set placeholder text
         this.setPlaceholder(placeholderText);
-        
+
         // Set instructions
         this.setInstructions([
             { command: '↑↓', purpose: instructions.navigate },
@@ -112,16 +107,16 @@ export abstract class BaseSuggestModal<T> extends FuzzySuggestModal<T> {
      */
     renderSuggestion(match: FuzzyMatch<T>, el: HTMLElement): void {
         const item = match.item;
-        
+
         // Create a container div
         const itemEl = el.createDiv({ cls: this.getItemClass() });
-        
+
         // Get display path
         const displayPath = this.getDisplayPath(item);
-        
+
         // Use renderMatches to render the text with highlights
         renderMatches(itemEl, displayPath, match.match.matches);
-        
+
         // Allow subclasses to add additional content
         this.renderAdditionalContent(item, itemEl);
     }

@@ -29,7 +29,7 @@ interface ObsidianIconProps {
  * A React component that properly wraps Obsidian's setIcon API.
  * This component ensures that DOM manipulation happens in useEffect,
  * following React best practices.
- * 
+ *
  * @param props - The component props
  * @param props.name - The name of the Obsidian icon to display
  * @param props.className - Optional CSS class name
@@ -38,7 +38,7 @@ interface ObsidianIconProps {
  */
 export function ObsidianIcon({ name, className, 'aria-label': ariaLabel }: ObsidianIconProps) {
     const ref = useRef<HTMLSpanElement>(null);
-    
+
     useEffect(() => {
         if (ref.current) {
             // Clear any existing content first
@@ -47,12 +47,6 @@ export function ObsidianIcon({ name, className, 'aria-label': ariaLabel }: Obsid
             setIcon(ref.current, name);
         }
     }, [name]);
-    
-    return (
-        <span 
-            ref={ref}
-            className={className}
-            aria-label={ariaLabel}
-        />
-    );
+
+    return <span ref={ref} className={className} aria-label={ariaLabel} />;
 }

@@ -18,7 +18,7 @@
 
 /**
  * Type definitions for the icon service system.
- * 
+ *
  * This file defines the core interfaces and types used throughout the icon
  * service module, establishing contracts for icon providers and the service.
  */
@@ -27,19 +27,19 @@
  * Represents an icon that can be displayed to users.
  */
 export interface IconDefinition {
-	/** Unique identifier for the icon within its provider */
-	id: string;
-	/** Human-readable name for display in UI */
-	displayName: string;
-	/** Optional preview of the icon (e.g., emoji character or SVG) */
-	preview?: string;
-	/** Optional keywords for improved search */
-	keywords?: string[];
+    /** Unique identifier for the icon within its provider */
+    id: string;
+    /** Human-readable name for display in UI */
+    displayName: string;
+    /** Optional preview of the icon (e.g., emoji character or SVG) */
+    preview?: string;
+    /** Optional keywords for improved search */
+    keywords?: string[];
 }
 
 /**
  * Interface that icon providers must implement.
- * 
+ *
  * Icon providers are responsible for:
  * - Rendering icons into HTML elements
  * - Searching for icons based on queries
@@ -47,47 +47,47 @@ export interface IconDefinition {
  * - Reporting their availability status
  */
 export interface IconProvider {
-	/** Unique identifier for the provider */
-	id: string;
-	/** Display name for the provider */
-	name: string;
-	/**
-	 * Renders an icon into the specified container.
-	 * 
-	 * @param container - The HTML element to render into
-	 * @param iconId - The icon identifier
-	 * @param size - Optional size in pixels
-	 */
-	render(container: HTMLElement, iconId: string, size?: number): void;
-	/**
-	 * Searches for icons matching a query.
-	 * 
-	 * @param query - The search query
-	 * @returns Array of matching icon definitions
-	 */
-	search(query: string): IconDefinition[];
-	/**
-	 * Gets all available icons from this provider.
-	 * 
-	 * @returns Array of all icon definitions
-	 */
-	getAll(): IconDefinition[];
-	/**
-	 * Checks if the provider is available for use.
-	 * 
-	 * @returns True if the provider can be used
-	 */
-	isAvailable(): boolean;
+    /** Unique identifier for the provider */
+    id: string;
+    /** Display name for the provider */
+    name: string;
+    /**
+     * Renders an icon into the specified container.
+     *
+     * @param container - The HTML element to render into
+     * @param iconId - The icon identifier
+     * @param size - Optional size in pixels
+     */
+    render(container: HTMLElement, iconId: string, size?: number): void;
+    /**
+     * Searches for icons matching a query.
+     *
+     * @param query - The search query
+     * @returns Array of matching icon definitions
+     */
+    search(query: string): IconDefinition[];
+    /**
+     * Gets all available icons from this provider.
+     *
+     * @returns Array of all icon definitions
+     */
+    getAll(): IconDefinition[];
+    /**
+     * Checks if the provider is available for use.
+     *
+     * @returns True if the provider can be used
+     */
+    isAvailable(): boolean;
 }
 
 /**
  * Configuration options for the IconService.
  */
 export interface IconServiceConfig {
-	/** Default provider ID when none is specified */
-	defaultProvider?: string;
-	/** Maximum number of recent icons to track */
-	recentIconsLimit?: number;
+    /** Default provider ID when none is specified */
+    defaultProvider?: string;
+    /** Maximum number of recent icons to track */
+    recentIconsLimit?: number;
 }
 
 /**
@@ -100,10 +100,10 @@ export type IconId = string;
  * Parsed representation of an icon identifier.
  */
 export interface ParsedIconId {
-	/** The provider ID (e.g., "lucide", "emoji") */
-	provider: string;
-	/** The icon identifier within the provider */
-	identifier: string;
-	/** The original raw icon ID */
-	raw: string;
+    /** The provider ID (e.g., "lucide", "emoji") */
+    provider: string;
+    /** The icon identifier within the provider */
+    identifier: string;
+    /** The original raw icon ID */
+    raw: string;
 }

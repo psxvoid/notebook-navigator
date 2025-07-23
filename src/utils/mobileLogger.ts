@@ -27,7 +27,7 @@ export class MobileLogger {
     private app: App;
     private logFileName: string;
     private isInitialized = false;
-    
+
     private constructor(app: App) {
         this.app = app;
         // Create a log file with timestamp
@@ -35,21 +35,21 @@ export class MobileLogger {
         const timestamp = date.toISOString().replace(/:/g, '-').replace(/\./g, '-');
         this.logFileName = `nn-debug-${timestamp}.log`;
     }
-    
+
     static getInstance(app?: App): MobileLogger {
         if (!MobileLogger.instance && app) {
             MobileLogger.instance = new MobileLogger(app);
         }
         return MobileLogger.instance;
     }
-    
+
     private async ensureLogFile() {
         if (this.isInitialized) return;
-        
+
         try {
             // Check if file exists
             const fileExists = await this.app.vault.adapter.exists(this.logFileName);
-            
+
             if (!fileExists) {
                 // Create file with header
                 const header = `=== Notebook Navigator Debug Log ===
@@ -59,34 +59,36 @@ Platform: ${Platform.isMobile ? 'Mobile' : 'Desktop'}
 `;
                 await this.app.vault.create(this.logFileName, header);
             }
-            
+
             this.isInitialized = true;
         } catch (error) {
             console.error('Failed to create log file:', error);
         }
     }
-    
+
     async log(...args: any[]) {
         // Always log to console as well
         console.log(...args);
-        
+
         // Only write to file on mobile
         if (!Platform.isMobile) return;
-        
+
         try {
             await this.ensureLogFile();
-            
+
             // Format the log entry
             const timestamp = new Date().toISOString();
-            const message = args.map(arg => {
-                if (typeof arg === 'object') {
-                    return JSON.stringify(arg, null, 2);
-                }
-                return String(arg);
-            }).join(' ');
-            
+            const message = args
+                .map(arg => {
+                    if (typeof arg === 'object') {
+                        return JSON.stringify(arg, null, 2);
+                    }
+                    return String(arg);
+                })
+                .join(' ');
+
             const logEntry = `[${timestamp}] ${message}\n`;
-            
+
             // Append to file
             const currentContent = await this.app.vault.adapter.read(this.logFileName);
             await this.app.vault.adapter.write(this.logFileName, currentContent + logEntry);
@@ -94,10 +96,10 @@ Platform: ${Platform.isMobile ? 'Mobile' : 'Desktop'}
             console.error('Failed to write to log file:', error);
         }
     }
-    
+
     async clear() {
         if (!Platform.isMobile) return;
-        
+
         try {
             if (await this.app.vault.adapter.exists(this.logFileName)) {
                 await this.app.vault.adapter.remove(this.logFileName);

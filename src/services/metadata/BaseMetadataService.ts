@@ -47,13 +47,13 @@ export type EntityType = typeof ItemType.FOLDER | typeof ItemType.TAG;
  */
 export abstract class BaseMetadataService {
     protected updateQueue: Promise<void> = Promise.resolve();
-    
+
     constructor(
         protected app: App,
         protected settings: NotebookNavigatorSettings,
         protected updateSettings: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>
     ) {}
-    
+
     /**
      * Saves settings and triggers UI update
      * Uses a queue to serialize updates and prevent race conditions
@@ -70,7 +70,7 @@ export abstract class BaseMetadataService {
                 // Re-throw to propagate to caller
                 throw error;
             });
-        
+
         return this.updateQueue;
     }
 
@@ -95,7 +95,7 @@ export abstract class BaseMetadataService {
         if (!this.validateColor(color)) {
             return;
         }
-        
+
         await this.saveAndUpdate(settings => {
             if (entityType === ItemType.FOLDER) {
                 if (!settings.folderColors) {
@@ -163,17 +163,14 @@ export abstract class BaseMetadataService {
                 }
                 settings.tagIcons[path] = iconId;
             }
-            
+
             // Update recently used icons
             if (!settings.recentlyUsedIcons) {
                 settings.recentlyUsedIcons = [];
             }
-            
+
             // Remove if already exists and add to front
-            settings.recentlyUsedIcons = [
-                iconId,
-                ...settings.recentlyUsedIcons.filter((id: string) => id !== iconId)
-            ].slice(0, 10); // Keep only 10 most recent
+            settings.recentlyUsedIcons = [iconId, ...settings.recentlyUsedIcons.filter((id: string) => id !== iconId)].slice(0, 10); // Keep only 10 most recent
         });
     }
 
@@ -277,15 +274,15 @@ export abstract class BaseMetadataService {
         // Since we only need to delete properties, we can treat the metadata
         // as a generic object without caring about the specific value type
         const metadata = settings[metadataKey];
-        
+
         if (!metadata || typeof metadata !== 'object' || Array.isArray(metadata)) {
             return false;
         }
-        
+
         let hasChanges = false;
         // We know metadata is an object with string keys
         const metadataObj = metadata as Record<string, unknown>;
-        
+
         for (const path in metadataObj) {
             if (!validator(path)) {
                 delete metadataObj[path];
@@ -299,16 +296,12 @@ export abstract class BaseMetadataService {
      * Updates nested paths when a parent is renamed
      * Handles both direct matches and nested children
      */
-    protected updateNestedPaths<T>(
-        metadata: Record<string, T> | undefined,
-        oldPath: string,
-        newPath: string
-    ): boolean {
+    protected updateNestedPaths<T>(metadata: Record<string, T> | undefined, oldPath: string, newPath: string): boolean {
         if (!metadata) return false;
-        
+
         const oldPrefix = oldPath + '/';
-        const updates: Array<{oldPath: string, newPath: string, value: T}> = [];
-        
+        const updates: Array<{ oldPath: string; newPath: string; value: T }> = [];
+
         // First, handle direct path match
         if (oldPath in metadata) {
             updates.push({
@@ -317,7 +310,7 @@ export abstract class BaseMetadataService {
                 value: metadata[oldPath]
             });
         }
-        
+
         // Then handle nested paths
         for (const path in metadata) {
             if (path.startsWith(oldPrefix)) {
@@ -329,13 +322,13 @@ export abstract class BaseMetadataService {
                 });
             }
         }
-        
+
         // Apply all updates
         for (const update of updates) {
             metadata[update.newPath] = update.value;
             delete metadata[update.oldPath];
         }
-        
+
         return updates.length > 0;
     }
 
@@ -343,12 +336,9 @@ export abstract class BaseMetadataService {
      * Deletes nested paths when a parent is deleted
      * Removes both the exact match and all children
      */
-    protected deleteNestedPaths<T>(
-        metadata: Record<string, T> | undefined,
-        pathPrefix: string
-    ): boolean {
+    protected deleteNestedPaths<T>(metadata: Record<string, T> | undefined, pathPrefix: string): boolean {
         if (!metadata) return false;
-        
+
         let hasChanges = false;
         for (const path in metadata) {
             if (path === pathPrefix || path.startsWith(pathPrefix + '/')) {

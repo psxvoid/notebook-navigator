@@ -1,0 +1,193 @@
+/*
+ * Notebook Navigator - Plugin for Obsidian
+ * Copyright (c) 2025 Johan Sanneblad
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+import { FileData } from './database';
+
+/**
+ * In-memory cache that mirrors the IndexedDB database for synchronous access.
+ * This cache stores all file data in RAM to enable synchronous reads during rendering,
+ * eliminating async operations in React components and fixing virtualizer height calculations.
+ *
+ * Memory usage is minimal - even 100k files at ~300 bytes each = 30MB RAM.
+ */
+export class DatabaseCache {
+    private fileCache: Map<string, FileData> = new Map();
+    private isInitialized = false;
+
+    /**
+     * Initialize the cache by loading all data from IndexedDB.
+     * This is called once during database initialization.
+     */
+    initialize(files: FileData[]): void {
+        const startTime = performance.now();
+
+        // Clear any existing data
+        this.fileCache.clear();
+
+        // Load all files into memory
+        for (const file of files) {
+            this.fileCache.set(file.path, file);
+        }
+
+        this.isInitialized = true;
+
+        const endTime = performance.now();
+        const loadTime = (endTime - startTime).toFixed(2);
+        console.log(`Database cache loaded: ${this.fileCache.size} items from IndexedDB to RAM in ${loadTime}ms`);
+    }
+
+    /**
+     * Get file data synchronously.
+     */
+    getFile(path: string): FileData | null {
+        return this.fileCache.get(path) || null;
+    }
+
+    /**
+     * Get multiple files synchronously.
+     */
+    getFiles(paths: string[]): Map<string, FileData> {
+        const result = new Map<string, FileData>();
+        for (const path of paths) {
+            const file = this.fileCache.get(path);
+            if (file) {
+                result.set(path, file);
+            }
+        }
+        return result;
+    }
+
+    /**
+     * Check if a file has preview text.
+     */
+    hasPreview(path: string): boolean {
+        const file = this.fileCache.get(path);
+        return !!file?.preview;
+    }
+
+    /**
+     * Check if a file exists in the cache.
+     */
+    hasFile(path: string): boolean {
+        return this.fileCache.has(path);
+    }
+
+    /**
+     * Get all files as an array (use sparingly).
+     */
+    getAllFiles(): FileData[] {
+        return Array.from(this.fileCache.values());
+    }
+
+    /**
+     * Update or add a file in the cache.
+     */
+    updateFile(data: FileData): void {
+        this.fileCache.set(data.path, data);
+    }
+
+    /**
+     * Update specific file content fields.
+     */
+    updateFileContent(
+        path: string,
+        updates: {
+            preview?: string;
+            featureImage?: string;
+            metadata?: FileData['metadata'];
+        }
+    ): void {
+        const existing = this.fileCache.get(path);
+        if (existing) {
+            // Update specific fields
+            if (updates.preview !== undefined) existing.preview = updates.preview;
+            if (updates.featureImage !== undefined) existing.featureImage = updates.featureImage;
+            if (updates.metadata !== undefined) existing.metadata = updates.metadata;
+        }
+    }
+
+    /**
+     * Delete a file from the cache.
+     */
+    deleteFile(path: string): void {
+        this.fileCache.delete(path);
+    }
+
+    /**
+     * Batch update multiple files.
+     */
+    batchUpdate(updates: FileData[]): void {
+        for (const data of updates) {
+            this.fileCache.set(data.path, data);
+        }
+    }
+
+    /**
+     * Batch update file content fields.
+     */
+    batchUpdateFileContent(
+        updates: Array<{
+            path: string;
+            preview?: string;
+            featureImage?: string;
+            metadata?: FileData['metadata'];
+        }>
+    ): void {
+        for (const update of updates) {
+            this.updateFileContent(update.path, update);
+        }
+    }
+
+    /**
+     * Clear specific content type from all files.
+     */
+    clearAllFileContent(type: 'preview' | 'featureImage' | 'metadata' | 'all'): void {
+        for (const file of this.fileCache.values()) {
+            if (type === 'all' || type === 'preview') file.preview = null;
+            if (type === 'all' || type === 'featureImage') file.featureImage = null;
+            if (type === 'all' || type === 'metadata') file.metadata = null;
+        }
+    }
+
+    /**
+     * Get cache statistics.
+     */
+    getStats(): { fileCount: number; memoryUsageEstimate: number } {
+        const fileCount = this.fileCache.size;
+
+        // Rough estimate: 300 bytes per file
+        const memoryUsageEstimate = fileCount * 300;
+
+        return { fileCount, memoryUsageEstimate };
+    }
+
+    /**
+     * Check if cache is initialized.
+     */
+    isReady(): boolean {
+        return this.isInitialized;
+    }
+
+    /**
+     * Clear the entire cache (used during cleanup).
+     */
+    clear(): void {
+        this.fileCache.clear();
+        this.isInitialized = false;
+    }
+}

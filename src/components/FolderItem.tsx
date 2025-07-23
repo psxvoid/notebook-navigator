@@ -44,7 +44,7 @@ interface FolderItemProps {
  * Renders an individual folder item in the folder tree with expand/collapse functionality.
  * Displays folder icon, name, and optional file count. Handles selection state,
  * context menus, drag-and-drop, and auto-scrolling when selected.
- * 
+ *
  * @param props - The component props
  * @param props.folder - The Obsidian TFolder to display
  * @param props.level - The nesting level for indentation
@@ -54,24 +54,34 @@ interface FolderItemProps {
  * @param props.onClick - Handler called when the folder is clicked
  * @returns A folder item element with chevron, icon, name and optional file count
  */
-export const FolderItem = React.memo(function FolderItem({ folder, level, isExpanded, isSelected, onToggle, onClick, onNameClick, icon, fileCount: precomputedFileCount }: FolderItemProps) {
+export const FolderItem = React.memo(function FolderItem({
+    folder,
+    level,
+    isExpanded,
+    isSelected,
+    onToggle,
+    onClick,
+    onNameClick,
+    icon,
+    fileCount: precomputedFileCount
+}: FolderItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
     const folderRef = useRef<HTMLDivElement>(null);
-    
+
     // Enable context menu
     useContextMenu(folderRef, { type: ItemType.FOLDER, item: folder });
-    
+
     // Count folders and files for tooltip (skip on mobile to save computation)
     const folderStats = React.useMemo(() => {
         // Skip computation on mobile since tooltips aren't shown
         if (isMobile || !settings.showTooltips) {
             return { fileCount: 0, folderCount: 0 };
         }
-        
+
         let fileCount = 0;
         let folderCount = 0;
-        
+
         for (const child of folder.children) {
             if (isTFile(child)) {
                 if (isSupportedFileExtension(child.extension)) {
@@ -81,60 +91,62 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
                 folderCount++;
             }
         }
-        
+
         return { fileCount, folderCount };
     }, [folder.path, folder.children?.length, isMobile, settings.showTooltips]);
-    
+
     // Add Obsidian tooltip
     useEffect(() => {
         if (!folderRef.current) return;
-        
+
         // Skip tooltip creation on mobile
         if (isMobile) return;
-        
+
         // Remove tooltip if disabled
         if (!settings.showTooltips) {
             setTooltip(folderRef.current, '');
             return;
         }
-        
+
         // Build tooltip with proper singular/plural forms
-        const fileText = folderStats.fileCount === 1 
-            ? `${folderStats.fileCount} ${strings.tooltips.file}`
-            : `${folderStats.fileCount} ${strings.tooltips.files}`;
-        const folderText = folderStats.folderCount === 1
-            ? `${folderStats.folderCount} ${strings.tooltips.folder}`
-            : `${folderStats.folderCount} ${strings.tooltips.folders}`;
+        const fileText =
+            folderStats.fileCount === 1
+                ? `${folderStats.fileCount} ${strings.tooltips.file}`
+                : `${folderStats.fileCount} ${strings.tooltips.files}`;
+        const folderText =
+            folderStats.folderCount === 1
+                ? `${folderStats.folderCount} ${strings.tooltips.folder}`
+                : `${folderStats.folderCount} ${strings.tooltips.folders}`;
         const statsTooltip = `${fileText}, ${folderText}`;
-        
+
         // Always include folder name at the top
         const tooltip = `${folder.name}\n\n${statsTooltip}`;
-        
+
         // Check if RTL mode is active
         const isRTL = document.body.classList.contains('mod-rtl');
-        
+
         // Set placement to the right (left in RTL)
-        setTooltip(folderRef.current, tooltip, { 
+        setTooltip(folderRef.current, tooltip, {
             placement: isRTL ? 'left' : 'right'
         });
     }, [folderStats.fileCount, folderStats.folderCount, folder.name, settings, isMobile]);
-    
+
     // Use precomputed file count from parent component
     // NavigationPane pre-computes all folder counts for performance
     const fileCount = precomputedFileCount ?? 0;
 
     const hasChildren = folder.children && folder.children.some(isTFolder);
-    
+
     const handleDoubleClick = () => {
         if (hasChildren) {
             onToggle();
         }
     };
-    
+
     const chevronRef = React.useRef<HTMLDivElement>(null);
     const iconRef = React.useRef<HTMLSpanElement>(null);
     const customColor = settings.folderColors?.[folder.path];
-    
+
     // Check if folder has a folder note
     const folderNote = settings.enableFolderNotes ? getFolderNote(folder, settings, app) : null;
     const hasFolderNote = folderNote !== null;
@@ -149,33 +161,33 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
     useEffect(() => {
         if (iconRef.current && settings.showIcons) {
             const iconService = getIconService();
-            
+
             if (icon) {
                 // Custom icon is set - always show it, never toggle
                 iconService.renderIcon(iconRef.current, icon);
             } else {
                 // Default icon - show open folder only if has children AND is expanded
-                const iconName = (hasChildren && isExpanded) ? 'folder-open' : 'folder-closed';
+                const iconName = hasChildren && isExpanded ? 'folder-open' : 'folder-closed';
                 iconService.renderIcon(iconRef.current, iconName);
             }
         }
     }, [isExpanded, icon, hasChildren, settings.showIcons]);
 
     return (
-        <div 
+        <div
             ref={folderRef}
             className={`nn-folder-item ${isSelected ? 'nn-selected' : ''}`}
             data-path={folder.path}
             data-drag-path={folder.path}
             data-drag-type="folder"
-            data-draggable={!isMobile ? "true" : undefined}
+            data-draggable={!isMobile ? 'true' : undefined}
             draggable={!isMobile}
             style={{ paddingInlineStart: `${level * 20}px` }}
             role="treeitem"
             aria-expanded={hasChildren ? isExpanded : undefined}
             aria-level={level + 1}
         >
-            <div 
+            <div
                 className="nn-folder-content"
                 onClick={onClick}
                 onDoubleClick={handleDoubleClick}
@@ -183,40 +195,36 @@ export const FolderItem = React.memo(function FolderItem({ folder, level, isExpa
                 data-drop-path={folder.path}
                 data-clickable="folder"
             >
-                <div 
+                <div
                     className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}
                     ref={chevronRef}
-                    onClick={(e) => {
+                    onClick={e => {
                         e.stopPropagation();
                         if (hasChildren) onToggle();
                     }}
-                    onDoubleClick={(e) => {
+                    onDoubleClick={e => {
                         e.stopPropagation();
                         e.preventDefault();
                     }}
                     tabIndex={-1}
                 />
                 {settings.showIcons && (
-                    <span 
-                        className="nn-folder-icon" 
-                        ref={iconRef}
-                        style={customColor ? { color: customColor } : undefined}
-                    ></span>
+                    <span className="nn-folder-icon" ref={iconRef} style={customColor ? { color: customColor } : undefined}></span>
                 )}
-                <span 
+                <span
                     className={`nn-folder-name ${hasFolderNote ? 'nn-has-folder-note' : ''} ${customColor ? 'nn-has-custom-color' : ''}`}
                     style={customColor ? { color: customColor } : undefined}
-                    onClick={(e) => {
+                    onClick={e => {
                         if (onNameClick) {
                             e.stopPropagation();
                             onNameClick();
                         }
                     }}
-                >{folder.path === '/' ? strings.folderTree.rootFolderName : folder.name}</span>
+                >
+                    {folder.path === '/' ? strings.folderTree.rootFolderName : folder.name}
+                </span>
                 <span className="nn-folder-spacer" />
-                {settings.showNoteCount && fileCount > 0 && (
-                    <span className="nn-folder-count">{fileCount}</span>
-                )}
+                {settings.showNoteCount && fileCount > 0 && <span className="nn-folder-count">{fileCount}</span>}
             </div>
         </div>
     );

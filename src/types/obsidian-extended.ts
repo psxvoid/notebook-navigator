@@ -32,21 +32,21 @@ export interface ExtendedApp extends App {
      * @param path - Vault-relative path to the file
      */
     showInFolder(path: string): Promise<void>;
-    
+
     /**
      * View registry for accessing registered view types
      */
     viewRegistry?: {
         typeByExtension?: Record<string, string>;
     };
-    
+
     /**
      * Metadata type manager for registered extensions
      */
     metadataTypeManager?: {
         registeredExtensions?: string[];
     };
-    
+
     /**
      * Plugin registry for checking installed plugins
      */

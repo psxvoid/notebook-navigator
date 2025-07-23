@@ -29,19 +29,19 @@ export const STRINGS_DE = {
         noSelection: 'Keine Auswahl', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: 'Ohne Tag', // Label for notes without any tags (English: Untagged)
         untitled: 'Ohne Titel', // Default name for notes without a title (English: Untitled)
-        featureImageAlt: 'Vorschaubild', // Alt text for thumbnail/preview images (English: Feature image)
+        featureImageAlt: 'Vorschaubild' // Alt text for thumbnail/preview images (English: Feature image)
     },
 
     // List pane
     listPane: {
         emptyStateNoSelection: 'Wählen Sie einen Ordner oder Tag aus, um Notizen anzuzeigen', // Message shown when no folder or tag is selected (English: Select a folder or tag to view notes)
         emptyStateNoNotes: 'Keine Notizen', // Message shown when a folder/tag has no notes (English: No notes)
-        pinnedSection: '📌 Angeheftet', // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
+        pinnedSection: '📌 Angeheftet' // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
     },
 
     // Folder tree
     folderTree: {
-        rootFolderName: 'Tresor', // Display name for the vault root folder in the tree (English: Vault)
+        rootFolderName: 'Tresor' // Display name for the vault root folder in the tree (English: Vault)
     },
 
     // Tag list
@@ -50,7 +50,7 @@ export const STRINGS_DE = {
         favoriteTags: 'Favoriten', // Label for the favorites virtual folder (English: Favorites)
         hiddenTags: 'Versteckte Tags', // Label for the hidden tags virtual folder (English: Hidden tags)
         allTags: 'Tags', // Label for the tags virtual folder when favorites exist (English: Tags)
-        tags: 'Tags', // Label for the tags virtual folder when no favorites exist (English: Tags)
+        tags: 'Tags' // Label for the tags virtual folder when no favorites exist (English: Tags)
     },
 
     // Pane header
@@ -68,7 +68,7 @@ export const STRINGS_DE = {
         toggleSubfolders: 'Notizen aus Unterordnern anzeigen', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
         autoExpandFoldersTags: 'Ordner und Tags automatisch erweitern', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showDualPane: 'Zweispaltige Ansicht anzeigen', // Tooltip for button to show dual-pane layout (English: Show dual panes)
-        showSinglePane: 'Einspaltige Ansicht anzeigen', // Tooltip for button to show single-pane layout (English: Show single pane)
+        showSinglePane: 'Einspaltige Ansicht anzeigen' // Tooltip for button to show single-pane layout (English: Show single pane)
     },
 
     // Context menus
@@ -107,7 +107,7 @@ export const STRINGS_DE = {
             duplicateMultipleFiles: '{count} Dateien duplizieren',
             renameFile: 'Datei umbenennen',
             deleteFile: 'Datei löschen',
-            deleteMultipleFiles: '{count} Dateien löschen',
+            deleteMultipleFiles: '{count} Dateien löschen'
         },
         folder: {
             newNote: 'Neue Notiz erstellen',
@@ -124,14 +124,14 @@ export const STRINGS_DE = {
             changeColor: 'Farbe ändern',
             removeColor: 'Farbe entfernen',
             renameFolder: 'Ordner umbenennen',
-            deleteFolder: 'Ordner löschen',
+            deleteFolder: 'Ordner löschen'
         },
         tag: {
             changeIcon: 'Symbol ändern',
             removeIcon: 'Symbol entfernen',
             changeColor: 'Farbe ändern',
-            removeColor: 'Farbe entfernen',
-        },
+            removeColor: 'Farbe entfernen'
+        }
     },
 
     // Modal dialogs
@@ -142,7 +142,7 @@ export const STRINGS_DE = {
             emptyStateSearch: 'Beginnen Sie zu tippen, um Symbole zu suchen',
             emptyStateNoResults: 'Keine Symbole gefunden',
             showingResultsInfo: 'Zeige 50 von {count} Ergebnissen. Geben Sie mehr ein, um die Suche einzugrenzen.',
-            emojiInstructions: 'Geben Sie ein Emoji ein oder fügen Sie es ein, um es als Symbol zu verwenden',
+            emojiInstructions: 'Geben Sie ein Emoji ein oder fügen Sie es ein, um es als Symbol zu verwenden'
         },
         colorPicker: {
             header: 'Ordnerfarbe wählen',
@@ -166,8 +166,8 @@ export const STRINGS_DE = {
                 rose: 'Rosé',
                 gray: 'Grau',
                 slate: 'Schiefer',
-                stone: 'Stein',
-            },
+                stone: 'Stein'
+            }
         },
         tagOperation: {
             renameTitle: 'Tag {tag} umbenennen',
@@ -182,18 +182,18 @@ export const STRINGS_DE = {
             confirmRename: 'Tag umbenennen',
             confirmDelete: 'Tag löschen',
             file: 'Datei',
-            files: 'Dateien',
+            files: 'Dateien'
         },
         fileSystem: {
             newFolderTitle: 'Neuer Ordner',
             renameFolderTitle: 'Ordner umbenennen',
             renameFileTitle: 'Datei umbenennen',
-            deleteFolderTitle: '\'{name}\' löschen?',
-            deleteFileTitle: '\'{name}\' löschen?',
+            deleteFolderTitle: "'{name}' löschen?",
+            deleteFileTitle: "'{name}' löschen?",
             folderNamePrompt: 'Ordnernamen eingeben:',
             renamePrompt: 'Neuen Namen eingeben:',
             deleteFolderConfirm: 'Sind Sie sicher, dass Sie diesen Ordner und seinen gesamten Inhalt löschen möchten?',
-            deleteFileConfirm: 'Sind Sie sicher, dass Sie diese Datei löschen möchten?',
+            deleteFileConfirm: 'Sind Sie sicher, dass Sie diese Datei löschen möchten?'
         },
         folderSuggest: {
             placeholder: 'In Ordner verschieben...',
@@ -202,8 +202,8 @@ export const STRINGS_DE = {
                 navigate: 'zum Navigieren',
                 move: 'zum Verschieben',
                 select: 'zum Auswählen',
-                dismiss: 'zum Abbrechen',
-            },
+                dismiss: 'zum Abbrechen'
+            }
         },
         tagSuggest: {
             placeholder: 'Tags suchen...',
@@ -211,9 +211,9 @@ export const STRINGS_DE = {
             instructions: {
                 navigate: 'zum Navigieren',
                 select: 'zum Auswählen',
-                dismiss: 'zum Abbrechen',
-            },
-        },
+                dismiss: 'zum Abbrechen'
+            }
+        }
     },
 
     // File system operations
@@ -237,20 +237,20 @@ export const STRINGS_DE = {
             drawingAlreadyExists: 'Eine Zeichnung mit diesem Namen existiert bereits',
             failedToCreateDrawing: 'Zeichnung konnte nicht erstellt werden',
             noFolderSelected: 'Kein Ordner im Notebook Navigator ausgewählt',
-            noFileSelected: 'Keine Datei ausgewählt',
+            noFileSelected: 'Keine Datei ausgewählt'
         },
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',
-            deepLinkCopied: 'Deep Link in die Zwischenablage kopiert',
+            deepLinkCopied: 'Deep Link in die Zwischenablage kopiert'
         },
         confirmations: {
             deleteMultipleFiles: 'Möchten Sie wirklich {count} Dateien löschen?',
-            deleteConfirmation: 'Diese Aktion kann nicht rückgängig gemacht werden.',
+            deleteConfirmation: 'Diese Aktion kann nicht rückgängig gemacht werden.'
         },
         defaultNames: {
             untitled: 'Ohne Titel',
-            untitledNumber: 'Ohne Titel {number}',
-        },
+            untitledNumber: 'Ohne Titel {number}'
+        }
     },
 
     // Drag and drop operations
@@ -260,15 +260,15 @@ export const STRINGS_DE = {
             itemAlreadyExists: 'Ein Element mit dem Namen "{name}" existiert bereits an diesem Ort.',
             failedToMove: 'Verschieben fehlgeschlagen: {error}',
             failedToAddTag: 'Hinzufügen des Tags "{tag}" fehlgeschlagen',
-            failedToClearTags: 'Entfernen der Tags fehlgeschlagen',
+            failedToClearTags: 'Entfernen der Tags fehlgeschlagen'
         },
         notifications: {
             filesAlreadyExist: '{count} Dateien existieren bereits am Zielort',
             addedTag: 'Tag "{tag}" zu {count} Dateien hinzugefügt',
             filesAlreadyHaveTag: '{count} Dateien haben dieses Tag oder ein spezifischeres bereits',
             clearedTags: 'Alle Tags von {count} Dateien entfernt',
-            noTagsToClear: 'Keine Tags zum Entfernen',
-        },
+            noTagsToClear: 'Keine Tags zum Entfernen'
+        }
     },
 
     // Date grouping
@@ -276,7 +276,7 @@ export const STRINGS_DE = {
         today: 'Heute',
         yesterday: 'Gestern',
         previous7Days: 'Letzte 7 Tage',
-        previous30Days: 'Letzte 30 Tage',
+        previous30Days: 'Letzte 30 Tage'
     },
 
     // Weekdays
@@ -287,7 +287,7 @@ export const STRINGS_DE = {
         wednesday: 'Mittwoch',
         thursday: 'Donnerstag',
         friday: 'Freitag',
-        saturday: 'Samstag',
+        saturday: 'Samstag'
     },
 
     // Plugin commands
@@ -301,14 +301,14 @@ export const STRINGS_DE = {
         moveFiles: 'Dateien verschieben', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'Zu Ordner navigieren', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Zu Tag navigieren', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleSubfolders: 'Notizen aus Unterordnern umschalten', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
+        toggleSubfolders: 'Notizen aus Unterordnern umschalten' // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
     },
 
     // Plugin UI
     plugin: {
         viewName: 'Notebook Navigator', // Name shown in the view header/tab (English: Notebook Navigator)
         ribbonTooltip: 'Notebook Navigator', // Tooltip for the ribbon icon in the left sidebar (English: Notebook Navigator)
-        revealInNavigator: 'In Notebook Navigator anzeigen', // Context menu item to reveal a file in the navigator (English: Reveal in Notebook Navigator)
+        revealInNavigator: 'In Notebook Navigator anzeigen' // Context menu item to reveal a file in the navigator (English: Reveal in Notebook Navigator)
     },
 
     // Tooltips
@@ -318,7 +318,7 @@ export const STRINGS_DE = {
         file: 'Datei',
         files: 'Dateien',
         folder: 'Ordner',
-        folders: 'Ordner',
+        folders: 'Ordner'
     },
 
     // Settings
@@ -329,7 +329,7 @@ export const STRINGS_DE = {
             tags: 'Tag-Anzeige',
             folders: 'Ordnernotizen',
             listPane: 'Listenbereich',
-            advanced: 'Erweitert',
+            advanced: 'Erweitert'
         },
         items: {
             sortNotesBy: {
@@ -341,50 +341,50 @@ export const STRINGS_DE = {
                     'created-desc': 'Erstellungsdatum (neueste zuerst)',
                     'created-asc': 'Erstellungsdatum (älteste zuerst)',
                     'title-asc': 'Titel (A zuerst)',
-                    'title-desc': 'Titel (Z zuerst)',
-                },
+                    'title-desc': 'Titel (Z zuerst)'
+                }
             },
             groupByDate: {
                 name: 'Notizen nach Datum gruppieren',
-                desc: 'Bei Sortierung nach Datum werden Notizen unter Datumsüberschriften gruppiert.',
+                desc: 'Bei Sortierung nach Datum werden Notizen unter Datumsüberschriften gruppiert.'
             },
             showNotesFromSubfolders: {
                 name: 'Notizen aus Unterordnern anzeigen',
-                desc: 'Alle Notizen aus Unterordnern in der aktuellen Ordneransicht anzeigen.',
+                desc: 'Alle Notizen aus Unterordnern in der aktuellen Ordneransicht anzeigen.'
             },
             showParentFolderNames: {
                 name: 'Übergeordnete Ordnernamen anzeigen',
-                desc: 'Den übergeordneten Ordnernamen für Notizen aus Unterordnern anzeigen.',
+                desc: 'Den übergeordneten Ordnernamen für Notizen aus Unterordnern anzeigen.'
             },
             dualPane: {
                 name: 'Doppelbereichslayout (nur Desktop)',
-                desc: 'Navigationsbereich und Listenbereich nebeneinander auf dem Desktop anzeigen.',
+                desc: 'Navigationsbereich und Listenbereich nebeneinander auf dem Desktop anzeigen.'
             },
             autoRevealActiveNote: {
                 name: 'Aktive Notiz automatisch anzeigen',
-                desc: 'Notizen automatisch anzeigen, wenn sie über Schnellauswahl, Links oder Suche geöffnet werden.',
+                desc: 'Notizen automatisch anzeigen, wenn sie über Schnellauswahl, Links oder Suche geöffnet werden.'
             },
             autoSelectFirstFileOnFocusChange: {
                 name: 'Erste Notiz automatisch auswählen (nur Desktop)',
-                desc: 'Die erste Notiz automatisch öffnen, wenn Sie den Ordner oder Tag wechseln.',
+                desc: 'Die erste Notiz automatisch öffnen, wenn Sie den Ordner oder Tag wechseln.'
             },
             autoExpandFoldersTags: {
                 name: 'Ordner und Tags automatisch erweitern',
-                desc: 'Ordner und Tags automatisch erweitern, wenn sie ausgewählt werden.',
+                desc: 'Ordner und Tags automatisch erweitern, wenn sie ausgewählt werden.'
             },
             showTooltips: {
                 name: 'Tooltips anzeigen (nur Desktop)',
-                desc: 'Zeige Hover-Tooltips mit zusätzlichen Informationen für Notizen und Ordner an.',
+                desc: 'Zeige Hover-Tooltips mit zusätzlichen Informationen für Notizen und Ordner an.'
             },
             excludedNotes: {
                 name: 'Ausgeschlossene Notizen',
                 desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften. Notizen mit diesen Eigenschaften werden ausgeblendet (z.B. Entwurf, privat, archiviert).',
-                placeholder: 'entwurf, privat',
+                placeholder: 'entwurf, privat'
             },
             excludedFolders: {
                 name: 'Ausgeschlossene Ordner',
                 desc: 'Kommagetrennte Liste von auszublendenden Ordnern. Unterstützt Platzhalter: assets* (beginnt mit), *_temp (endet mit).',
-                placeholder: 'vorlagen, assets*, *_temp',
+                placeholder: 'vorlagen, assets*, *_temp'
             },
             fileVisibility: {
                 name: 'Dateitypen anzeigen',
@@ -392,42 +392,40 @@ export const STRINGS_DE = {
                 options: {
                     markdownOnly: 'Nur Markdown',
                     supported: 'Unterstützte Dateien',
-                    all: 'Alle Dateien',
-                },
+                    all: 'Alle Dateien'
+                }
             },
             showDate: {
                 name: 'Datum anzeigen',
-                desc: 'Das Datum unter Notizennamen anzeigen.',
+                desc: 'Das Datum unter Notizennamen anzeigen.'
             },
             dateFormat: {
                 name: 'Datumsformat',
                 desc: 'Format für die Datumsanzeige (verwendet date-fns Format).',
                 placeholder: 'dd.MM.yyyy',
                 help: 'Gängige Formate:\ndd.MM.yyyy = 25.05.2022\ndd/MM/yyyy = 25/05/2022\nyyyy-MM-dd = 2022-05-25\n\nTokens:\nyyyy/yy = Jahr\nMMMM/MMM/MM = Monat\ndd/d = Tag\nEEEE/EEE = Wochentag',
-                helpTooltip: 'Klicken für Formatreferenz',
+                helpTooltip: 'Klicken für Formatreferenz'
             },
             timeFormat: {
                 name: 'Zeitformat',
                 desc: 'Format für die Zeitanzeige (verwendet date-fns Format).',
                 placeholder: 'HH:mm',
                 help: 'Gängige Formate:\nHH:mm = 14:30 (24-Stunden)\nh:mm a = 2:30 PM (12-Stunden)\nHH:mm:ss = 14:30:45\nh:mm:ss a = 2:30:45 PM\n\nTokens:\nHH/H = 24-Stunden\nhh/h = 12-Stunden\nmm = Minuten\nss = Sekunden\na = AM/PM',
-                helpTooltip: 'Klicken für Formatreferenz',
+                helpTooltip: 'Klicken für Formatreferenz'
             },
             showFilePreview: {
                 name: 'Notizenvorschau anzeigen',
-                desc: 'Vorschautext unter Notizennamen anzeigen.',
+                desc: 'Vorschautext unter Notizennamen anzeigen.'
             },
             skipHeadingsInPreview: {
                 name: 'Überschriften in Vorschau überspringen',
-                desc: 'Überschriftenzeilen bei der Erstellung des Vorschautextes überspringen.',
+                desc: 'Überschriftenzeilen bei der Erstellung des Vorschautextes überspringen.'
             },
-            skipTextBeforeFirstHeading: {
-                name: 'Skip text before first heading',
-                desc: 'Hide content before the first heading in note preview.',
-            },
-            skipNonTextInPreview: {
-                name: 'Nicht-Text in Vorschau überspringen',
-                desc: 'Bilder, Einbettungen und andere Nicht-Text-Elemente vom Vorschautext ausschließen.',
+            previewProperties: {
+                name: 'Vorschau-Eigenschaften',
+                desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften für Vorschautext. Die erste Eigenschaft mit Text wird verwendet.',
+                placeholder: 'zusammenfassung, beschreibung, abstrakt',
+                info: 'Wenn kein Vorschautext in den angegebenen Eigenschaften gefunden wird, wird die Vorschau aus dem Notizinhalt generiert.'
             },
             previewRows: {
                 name: 'Vorschauzeilen',
@@ -437,39 +435,40 @@ export const STRINGS_DE = {
                     '2': '2 Zeilen',
                     '3': '3 Zeilen',
                     '4': '4 Zeilen',
-                    '5': '5 Zeilen',
-                },
+                    '5': '5 Zeilen'
+                }
             },
             fileNameRows: {
                 name: 'Titelzeilen',
                 desc: 'Anzahl der Zeilen für Notizentitel.',
                 options: {
                     '1': '1 Zeile',
-                    '2': '2 Zeilen',
-                },
+                    '2': '2 Zeilen'
+                }
             },
             showFeatureImage: {
                 name: 'Vorschaubild anzeigen',
-                desc: 'Miniaturbilder aus Frontmatter anzeigen. Tipp: Verwenden Sie das "Featured Image" Plugin, um automatisch Vorschaubilder für alle Ihre Dokumente festzulegen.',
+                desc: 'Miniaturbilder aus Frontmatter anzeigen. Tipp: Verwenden Sie das "Featured Image" Plugin, um automatisch Vorschaubilder für alle Ihre Dokumente festzulegen.'
             },
             featureImageProperties: {
                 name: 'Bildeigenschaften',
                 desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften für Miniaturbilder. Die erste Eigenschaft mit einem Bild wird verwendet.',
                 tip: 'Verwenden Sie das "Featured Image" Plugin für automatische Vorschaubilder. Für beste Leistung verwenden Sie 42px Thumbnails oder 84px für Retina-Displays.',
                 placeholder: 'featureResized, feature',
-                embedFallback: 'Wenn kein Bild in den obigen Eigenschaften gefunden wird, wird das erste eingebettete Bild im Dokument verwendet (erfordert Obsidian 1.9.4+)',
+                embedFallback:
+                    'Wenn kein Bild in den obigen Eigenschaften gefunden wird, wird das erste eingebettete Bild im Dokument verwendet (erfordert Obsidian 1.9.4+)'
             },
             showRootFolder: {
                 name: 'Wurzelordner anzeigen',
-                desc: '"Tresor" als Wurzelordner im Baum anzeigen.',
+                desc: '"Tresor" als Wurzelordner im Baum anzeigen.'
             },
             showNoteCount: {
                 name: 'Notizenzahl anzeigen',
-                desc: 'Die Anzahl der Notizen in jedem Ordner und Tag anzeigen.',
+                desc: 'Die Anzahl der Notizen in jedem Ordner und Tag anzeigen.'
             },
             showIcons: {
                 name: 'Symbole anzeigen',
-                desc: 'Symbole neben Ordnern und Tags im Navigationsbereich anzeigen.',
+                desc: 'Symbole neben Ordnern und Tags im Navigationsbereich anzeigen.'
             },
             collapseButtonBehavior: {
                 name: 'Verhalten der Einklapp-Schaltfläche',
@@ -477,102 +476,109 @@ export const STRINGS_DE = {
                 options: {
                     all: 'Alle Ordner und Tags',
                     foldersOnly: 'Nur Ordner',
-                    tagsOnly: 'Nur Tags',
-                },
+                    tagsOnly: 'Nur Tags'
+                }
             },
             showTags: {
                 name: 'Tags anzeigen',
-                desc: 'Tag-Bereich unterhalb der Ordner im Navigator anzeigen.',
+                desc: 'Tag-Bereich unterhalb der Ordner im Navigator anzeigen.'
             },
             showTagsAboveFolders: {
                 name: 'Tags über Ordnern anzeigen',
-                desc: 'Tag-Bereich vor den Ordnern im Navigator anzeigen.',
+                desc: 'Tag-Bereich vor den Ordnern im Navigator anzeigen.'
             },
             showFavoriteTagsFolder: {
                 name: 'Favoriten-Ordner anzeigen',
-                desc: '"Favoriten" als einklappbaren Ordner anzeigen, wenn Favoriten-Tags konfiguriert sind.',
+                desc: '"Favoriten" als einklappbaren Ordner anzeigen, wenn Favoriten-Tags konfiguriert sind.'
             },
             showAllTagsFolder: {
                 name: 'Tags-Ordner anzeigen',
-                desc: '"Tags" als einklappbaren Ordner anzeigen.',
+                desc: '"Tags" als einklappbaren Ordner anzeigen.'
             },
             showUntagged: {
                 name: 'Ungetaggte Notizen anzeigen',
-                desc: '"Ohne Tag" für Notizen ohne Tags anzeigen.',
+                desc: '"Ohne Tag" für Notizen ohne Tags anzeigen.'
             },
             showUntaggedInFavorites: {
                 name: 'Ungetaggte Notizen im Favoriten-Bereich anzeigen',
-                desc: 'Ungetaggte Notizen im Favoriten-Bereich anzeigen, entweder im Ordner oder direkt unter den Favoriten.',
+                desc: 'Ungetaggte Notizen im Favoriten-Bereich anzeigen, entweder im Ordner oder direkt unter den Favoriten.'
             },
             favoriteTags: {
                 name: 'Favoriten-Tags',
                 desc: 'Kommagetrennte Liste von favorisierten Tag-Mustern. Unterstützt exakte Übereinstimmung, Platzhalter (*) und Regex (/muster/).',
-                placeholder: 'inbox, projekt-*, /^täglich-\\d{4}/',
+                placeholder: 'inbox, projekt-*, /^täglich-\\d{4}/'
             },
             hiddenTags: {
                 name: 'Versteckte Tags',
                 desc: 'Kommagetrennte Liste von Tag-Mustern, die im Tag-Baum ausgeblendet werden sollen. Unterstützt exakte Übereinstimmung, Platzhalter (*) und Regex (/muster/).',
-                placeholder: 'intern, temp-*, /^archiv-\\d{4}/',
+                placeholder: 'intern, temp-*, /^archiv-\\d{4}/'
             },
             enableFolderNotes: {
                 name: 'Ordnernotizen aktivieren',
-                desc: 'Wenn aktiviert, werden Ordner mit zugehörigen Notizen als anklickbare Links angezeigt.',
+                desc: 'Wenn aktiviert, werden Ordner mit zugehörigen Notizen als anklickbare Links angezeigt.'
             },
             folderNoteName: {
                 name: 'Name der Ordnernotiz',
                 desc: 'Name der Ordnernotiz. Leer lassen, um denselben Namen wie der Ordner zu verwenden.',
-                placeholder: 'Leer lassen für Ordnernamen',
+                placeholder: 'Leer lassen für Ordnernamen'
             },
             hideFolderNoteInList: {
                 name: 'Ordnernotizen in Liste ausblenden',
-                desc: 'Die Ordnernotiz in der Notizliste des Ordners ausblenden.',
+                desc: 'Die Ordnernotiz in der Notizliste des Ordners ausblenden.'
             },
             confirmBeforeDelete: {
                 name: 'Vor dem Löschen bestätigen',
-                desc: 'Bestätigungsdialog beim Löschen von Notizen oder Ordnern anzeigen',
+                desc: 'Bestätigungsdialog beim Löschen von Notizen oder Ordnern anzeigen'
             },
             useFrontmatterDates: {
                 name: 'Metadaten aus Frontmatter lesen',
-                desc: 'Notiznamen und Zeitstempel aus dem Frontmatter lesen, falls vorhanden, ansonsten Dateisystemwerte verwenden',
+                desc: 'Notiznamen und Zeitstempel aus dem Frontmatter lesen, falls vorhanden, ansonsten Dateisystemwerte verwenden'
             },
             frontmatterNameField: {
                 name: 'Namensfeld',
                 desc: 'Frontmatter-Feld für den angezeigten Notiznamen. Leer lassen, um den Dateinamen zu verwenden.',
-                placeholder: 'title',
+                placeholder: 'title'
             },
             frontmatterCreatedField: {
                 name: 'Feld für Erstellungszeitstempel',
                 desc: 'Frontmatter-Feldname für den Erstellungszeitstempel. Leer lassen, um nur das Dateisystemdatum zu verwenden.',
-                placeholder: 'created',
+                placeholder: 'created'
             },
             frontmatterModifiedField: {
                 name: 'Feld für Änderungszeitstempel',
                 desc: 'Frontmatter-Feldname für den Änderungszeitstempel. Leer lassen, um nur das Dateisystemdatum zu verwenden.',
-                placeholder: 'modified',
+                placeholder: 'modified'
             },
             frontmatterDateFormat: {
                 name: 'Zeitstempelformat',
                 desc: 'Format zum Parsen von Zeitstempeln im Frontmatter',
                 placeholder: "yyyy-MM-dd'T'HH:mm:ss",
                 helpTooltip: 'Siehe date-fns Formatdokumentation',
-                help: 'Häufige Formate:\nyyyy-MM-dd\'T\'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM',
+                help: "Häufige Formate:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
             supportDevelopment: {
                 name: 'Entwicklung unterstützen',
                 desc: 'Wenn Sie Notebook Navigator lieben, erwägen Sie bitte, die weitere Entwicklung zu unterstützen.',
-                buttonText: '❤️ Auf GitHub sponsern',
+                buttonText: '❤️ Auf GitHub sponsern'
             },
             whatsNew: {
-                name: "What's new",
-                desc: 'See recent updates and improvements',
-                buttonText: 'View recent updates',
+                name: 'Neuigkeiten',
+                desc: 'Letzte Updates und Verbesserungen anzeigen',
+                buttonText: 'Letzte Updates anzeigen'
             },
-        },
+            cacheStatistics: {
+                localCache: 'Lokaler Cache',
+                items: 'Einträge',
+                withPreviewText: 'mit Vorschautext',
+                withFeatureImage: 'mit Vorschaubild',
+                withMetadata: 'mit Metadaten'
+            }
+        }
     },
     whatsNew: {
-        title: 'What\'s new in Notebook Navigator',
-        supportMessage: 'If you find Notebook Navigator helpful, please consider supporting its development.',
-        supportButton: '❤️ Support',
-        thanksButton: 'Thanks!',
-    },
+        title: 'Neuigkeiten in Notebook Navigator',
+        supportMessage: 'Wenn Sie Notebook Navigator hilfreich finden, erwägen Sie bitte, die Entwicklung zu unterstützen.',
+        supportButton: '❤️ Unterstützen',
+        thanksButton: 'Danke!'
+    }
 };

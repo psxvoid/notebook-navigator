@@ -17,50 +17,50 @@
  */
 
 import { TFile, TFolder } from 'obsidian';
-import { TagTreeNode } from '../utils/fileCacheUtils';
+import { TagTreeNode } from '../types/storage';
 import { ListPaneItemType, NavigationPaneItemType, VirtualFolder } from '../types';
 
 export interface VirtualItem<T> {
-  type: string;
-  data: T;
-  key: string;
-  level?: number; // For hierarchical items
+    type: string;
+    data: T;
+    key: string;
+    level?: number; // For hierarchical items
 }
 
 export interface ListPaneItem {
-  type: ListPaneItemType;
-  data: TFile | string; // File or header text
-  parentFolder?: string | null;
-  key: string;
+    type: ListPaneItemType;
+    data: TFile | string; // File or header text
+    parentFolder?: string | null;
+    key: string;
 }
 
 export interface FolderTreeItem {
-  type: typeof NavigationPaneItemType.FOLDER;
-  data: TFolder;
-  level: number;
-  path: string;
-  key: string;
+    type: typeof NavigationPaneItemType.FOLDER;
+    data: TFolder;
+    level: number;
+    path: string;
+    key: string;
 }
 
 export interface TagTreeItem {
-  type: typeof NavigationPaneItemType.TAG;
-  data: TagTreeNode;
-  level: number;
-  path?: string;
-  key: string;
+    type: typeof NavigationPaneItemType.TAG;
+    data: TagTreeNode;
+    level: number;
+    path?: string;
+    key: string;
 }
 
 export interface VirtualFolderItem {
-  type: typeof NavigationPaneItemType.VIRTUAL_FOLDER;
-  data: VirtualFolder;
-  level: number;
-  key: string;
+    type: typeof NavigationPaneItemType.VIRTUAL_FOLDER;
+    data: VirtualFolder;
+    level: number;
+    key: string;
 }
 
-export type CombinedNavigationItem = 
-  | FolderTreeItem
-  | VirtualFolderItem
-  | TagTreeItem
-  | { type: typeof NavigationPaneItemType.UNTAGGED; data: TagTreeNode; key: string; level?: number }
-  | { type: typeof NavigationPaneItemType.SPACER; key: string }
-  | { type: typeof NavigationPaneItemType.LIST_SPACER; key: string };
+export type CombinedNavigationItem =
+    | FolderTreeItem
+    | VirtualFolderItem
+    | TagTreeItem
+    | { type: typeof NavigationPaneItemType.UNTAGGED; data: TagTreeNode; key: string; level?: number }
+    | { type: typeof NavigationPaneItemType.SPACER; key: string }
+    | { type: typeof NavigationPaneItemType.LIST_SPACER; key: string };

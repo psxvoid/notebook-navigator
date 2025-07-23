@@ -31,7 +31,7 @@ export class InputModal extends Modal {
     private keydownHandler: (e: KeyboardEvent) => void;
     private cancelHandler: () => void;
     private submitHandler: () => void;
-    
+
     /**
      * Creates an input modal with text field and submit/cancel buttons
      * @param app - The Obsidian app instance
@@ -49,14 +49,14 @@ export class InputModal extends Modal {
     ) {
         super(app);
         this.titleEl.setText(title);
-        
+
         this.inputEl = this.contentEl.createEl('input', {
             type: 'text',
             placeholder: placeholder,
             value: defaultValue
         });
         this.inputEl.addClass('nn-input');
-        
+
         // Store handlers for cleanup
         this.keydownHandler = (e: KeyboardEvent) => {
             if (e.key === 'Enter') {
@@ -70,26 +70,26 @@ export class InputModal extends Modal {
             this.close();
             this.onSubmit(this.inputEl.value);
         };
-        
+
         this.inputEl.addEventListener('keydown', this.keydownHandler);
-        
+
         const buttonContainer = this.contentEl.createDiv('nn-button-container');
-        
+
         this.cancelBtn = buttonContainer.createEl('button', { text: strings.common.cancel });
         this.cancelBtn.addEventListener('click', this.cancelHandler);
-        
-        this.submitBtn = buttonContainer.createEl('button', { 
+
+        this.submitBtn = buttonContainer.createEl('button', {
             text: strings.common.submit,
             cls: 'mod-cta'
         });
         this.submitBtn.addEventListener('click', this.submitHandler);
-        
+
         this.inputEl.focus();
         if (defaultValue) {
             this.inputEl.select();
         }
     }
-    
+
     /**
      * Cleanup event listeners when modal is closed
      * Prevents memory leaks by removing all event listeners
