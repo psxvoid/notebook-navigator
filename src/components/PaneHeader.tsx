@@ -436,7 +436,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
             const iconService = getIconService();
             iconService.renderIcon(iconRef.current, folderIcon);
         }
-    }, [folderIcon, settings.showIcons]);
+    }, [folderIcon, settings.showIcons, uiState.singlePane]);
 
     return (
         <div className="nn-pane-header">
