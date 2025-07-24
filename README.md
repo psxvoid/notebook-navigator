@@ -11,6 +11,10 @@ If you love using Notebook Navigator, please consider
 
 <a href="https://www.buymeacoffee.com/johansan" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
+<p align="center">
+  <img src="https://github.com/johansan/notebook-navigator/blob/main/images/notebook.png?raw=true" alt="" width="60">
+</p>
+
 ## Screenshots
 
 ### Desktop
@@ -26,6 +30,10 @@ To a modern, Notes-style interface like this:
 ### Mobile
 
 ![Notebook Navigator Interface](https://github.com/johansan/notebook-navigator/blob/main/images/screenshot2.png?raw=true)
+
+<p align="center">
+  <img src="https://github.com/johansan/notebook-navigator/blob/main/images/notebook.png?raw=true" alt="" width="60">
+</p>
 
 ## Features
 
@@ -69,6 +77,10 @@ To a modern, Notes-style interface like this:
 - **Visual customization** - Folder and tag colors with customizable icons
   (Lucide icons or emojis)
 
+<p align="center">
+  <img src="https://github.com/johansan/notebook-navigator/blob/main/images/notebook.png?raw=true" alt="" width="60">
+</p>
+
 ## Architecture & Performance
 
 - **React + TanStack Virtual** - Modern React architecture with virtualized
@@ -83,6 +95,10 @@ To a modern, Notes-style interface like this:
   events using proper cleanup and memory management
 - **Mobile-First Performance** - Touch-optimized event handling and 120Hz
   animations
+
+<p align="center">
+  <img src="https://github.com/johansan/notebook-navigator/blob/main/images/notebook.png?raw=true" alt="" width="60">
+</p>
 
 ## How to Use
 
@@ -110,6 +126,10 @@ To a modern, Notes-style interface like this:
 
 **Tip:** You can use the ribbon icon (folder tree icon) in the left sidebar to
 activate Notebook Navigator in case you close it by mistake.
+
+<p align="center">
+  <img src="https://github.com/johansan/notebook-navigator/blob/main/images/notebook.png?raw=true" alt="" width="60">
+</p>
 
 ## Keyboard Shortcuts
 
@@ -168,6 +188,10 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Delete files` Delete selected files and automatically
   select the next file in the current folder (stays in the selected folder)
 
+<p align="center">
+  <img src="https://github.com/johansan/notebook-navigator/blob/main/images/notebook.png?raw=true" alt="" width="60">
+</p>
+
 ## Installation
 
 ### From Obsidian Community Plugins
@@ -191,6 +215,10 @@ it using BRAT:
 4. Enter the repository URL: `https://github.com/johansan/notebook-navigator`
 5. Click "Add Plugin"
 6. Enable "Notebook Navigator" in your Community Plugins settings
+
+<p align="center">
+  <img src="https://github.com/johansan/notebook-navigator/blob/main/images/notebook.png?raw=true" alt="" width="60">
+</p>
 
 ## Settings
 
@@ -296,6 +324,10 @@ more minimal interface.
 
 - **Confirm before deleting:** Show confirmation dialog when deleting notes or
   folders
+
+<p align="center">
+  <img src="https://github.com/johansan/notebook-navigator/blob/main/images/notebook.png?raw=true" alt="" width="60">
+</p>
 
 ## Tips and Tricks
 
@@ -418,10 +450,18 @@ This is perfect for:
 - Archived notes you want to keep but not see daily
 - Template files with a `template: true` property
 
+<p align="center">
+  <img src="https://github.com/johansan/notebook-navigator/blob/main/images/notebook.png?raw=true" alt="" width="60">
+</p>
+
 ## Support
 
 If you have any questions, suggestions, or issues, please open an issue on the
 [GitHub repository](https://github.com/johansan/notebook-navigator).
+
+<p align="center">
+  <img src="https://github.com/johansan/notebook-navigator/blob/main/images/notebook.png?raw=true" alt="" width="60">
+</p>
 
 ## About
 
@@ -433,6 +473,10 @@ Group and Yamaha.
 
 Feel free to connect with me on
 [LinkedIn](https://www.linkedin.com/in/johansan/).
+
+<p align="center">
+  <img src="https://github.com/johansan/notebook-navigator/blob/main/images/notebook.png?raw=true" alt="" width="60">
+</p>
 
 ## License
 
