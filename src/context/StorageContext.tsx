@@ -184,6 +184,9 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             });
     }, []);
 
+    // Track if we've already built the initial cache
+    const hasBuiltInitialCache = useRef(false);
+
     // Main effect: manages cache updates and builds data structures
     useEffect(() => {
         // Process existing files and handle updates
@@ -327,7 +330,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                                     // If no changes, check if any existing files need content generation
                                     // This handles the case where settings were enabled on another device
-                                    if (filesToProcess.length === 0) {
+                                    // Skip on initial load to avoid unnecessary processing
+                                    if (filesToProcess.length === 0 && !isInitialLoad) {
                                         // Get files needing content from database
                                         const filesNeedingPreview = settings.showFilePreview
                                             ? db.getFilesNeedingContent('preview')
@@ -383,8 +387,9 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         // Create debounced version for events (increased to 500ms to reduce duplicate processing)
         const rebuildFileCache = debounce(() => buildFileCache(false), 500);
 
-        // Only build initial cache if storage is ready
-        if (isStorageReady) {
+        // Only build initial cache if storage is ready and we haven't built it yet
+        if (isStorageReady && !hasBuiltInitialCache.current) {
+            hasBuiltInitialCache.current = true;
             buildFileCache(true);
         }
 
@@ -416,6 +421,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         imageSettings: `${settings.showFeatureImage}-${JSON.stringify(settings.featureImageProperties)}`,
         metadataSettings: `${settings.useFrontmatterMetadata}-${settings.frontmatterNameField}-${settings.frontmatterCreatedField}-${settings.frontmatterModifiedField}-${settings.frontmatterDateFormat}`
     });
+    const isFirstSettingsCheck = useRef(true);
 
     // Update service settings when they change
     useEffect(() => {
@@ -454,6 +460,13 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                 prevContentSettings.current.previewSettings !== currentContentSettings.previewSettings ||
                 prevContentSettings.current.imageSettings !== currentContentSettings.imageSettings ||
                 prevContentSettings.current.metadataSettings !== currentContentSettings.metadataSettings;
+
+            // Skip the first run to avoid clearing content on mount
+            if (isFirstSettingsCheck.current) {
+                isFirstSettingsCheck.current = false;
+                prevContentSettings.current = currentContentSettings;
+                return;
+            }
 
             if (!settingsChanged) {
                 return;

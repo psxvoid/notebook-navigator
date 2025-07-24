@@ -141,13 +141,12 @@ export class ContentService {
             const fileData = fileDataMap.get(file.path);
 
             // Check what needs generation based on null values
+            // IMPORTANT: We check for === null specifically, not falsy values
+            // Empty string '' means preview was generated but file has no content
             const needsPreview = this.settings.showFilePreview && (!fileData || fileData.preview === null) && file.extension === 'md';
             const needsImage = this.settings.showFeatureImage && (!fileData || fileData.featureImage === null);
             const needsMetadata =
                 this.settings.useFrontmatterMetadata && (!fileData || fileData.metadata === null) && file.extension === 'md';
-
-            if (needsPreview || needsImage || needsMetadata) {
-            }
 
             return {
                 file,
