@@ -29,6 +29,7 @@ import { DateUtils } from '../utils/dateUtils';
 import { isTFile } from '../utils/typeGuards';
 import { getDateField, getEffectiveSortOption, sortFiles } from '../utils/sortUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
+import { MobileLogger } from '../utils/mobileLogger';
 import { strings } from '../i18n';
 import type { ListPaneItem } from '../types/virtualization';
 import { PaneHeader } from './PaneHeader';
@@ -66,6 +67,7 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
     const selectionDispatch = useSelectionDispatch();
     const settings = useSettingsState();
     const uiState = useUIState();
+    const mobileLogger = MobileLogger.getInstance(app);
     const uiDispatch = useUIDispatch();
     const { getFileCreatedTime, getFileModifiedTime, getDB } = useFileCache();
     const { selectionType, selectedFolder, selectedTag, selectedFile } = selectionState;
@@ -396,6 +398,8 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
 
     // Track the last list state to detect when we need to scroll to top
     const prevListKeyRef = useRef<string>('');
+    const prevShowSubfoldersRef = useRef<boolean>(settings.showNotesFromSubfolders);
+    const pendingScrollRef = useRef<{ type: 'file' | 'top'; filePath?: string } | null>(null);
 
     // Track list items order to detect when items are reordered
     const listItemsKeyRef = useRef('');
@@ -501,6 +505,36 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
         listItemsKeyRef.current = currentListItemsKey;
     }, [currentListItemsKey, rowVirtualizer]);
 
+    // Process pending scrolls after virtualizer updates or visibility changes
+    useEffect(() => {
+        if (!rowVirtualizer || !pendingScrollRef.current || !isVisible) {
+            return;
+        }
+
+        const pending = pendingScrollRef.current;
+        pendingScrollRef.current = null;
+
+        // Ensure virtualizer has updated measurements
+        rowVirtualizer.measure();
+
+        if (pending.type === 'file' && pending.filePath) {
+            const index = filePathToIndex.get(pending.filePath);
+            if (index !== undefined && index >= 0) {
+                mobileLogger.log('ListPane executing pending scroll to file:', {
+                    filePath: pending.filePath,
+                    index
+                });
+                rowVirtualizer.scrollToIndex(index, {
+                    align: 'center',
+                    behavior: 'auto'
+                });
+            }
+        } else if (pending.type === 'top') {
+            mobileLogger.log('ListPane executing pending scroll to top');
+            rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
+        }
+    }, [rowVirtualizer, filePathToIndex, rowVirtualizer.getTotalSize(), isVisible]);
+
     // Subscribe to database content changes to re-measure virtualizer
     useEffect(() => {
         if (!rowVirtualizer) return;
@@ -592,13 +626,57 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
         return -1;
     }, [selectedFilePath, filePathToIndex, listItems]);
 
-    // Scroll to selected file ONLY when:
-    // 1. The list context changes (folder/tag change)
-    // 2. The component becomes visible
-    // 3. User navigates to a parent/ancestor folder with show subfolders enabled
-    // We do NOT scroll when simply navigating between files in the same folder
+    // Handle scrolling when show subfolders setting changes
     useEffect(() => {
-        if (!rowVirtualizer || !isVisible) {
+        if (!rowVirtualizer || !isVisible || !selectedFile) {
+            return;
+        }
+
+        const showSubfoldersChanged = prevShowSubfoldersRef.current !== settings.showNotesFromSubfolders;
+
+        if (!showSubfoldersChanged) {
+            return;
+        }
+
+        // Check if we have the right list items for the current setting
+        const hasSubfolderFiles = listItems.some(item => {
+            if (item.type === ListPaneItemType.FILE && isTFile(item.data)) {
+                return item.data.parent?.path !== selectedFolder?.path;
+            }
+            return false;
+        });
+
+        const listMatchesSetting = settings.showNotesFromSubfolders ? listItems.length > 6 || hasSubfolderFiles : !hasSubfolderFiles;
+
+        if (!listMatchesSetting) {
+            // List hasn't updated yet, wait for next render
+            return;
+        }
+
+        mobileLogger.log('ListPane subfolders setting changed, scrolling:', {
+            showSubfolders: settings.showNotesFromSubfolders,
+            listItemsCount: listItems.length,
+            selectedFile: selectedFile.path
+        });
+
+        // List has updated, now scroll
+        const index = getSelectionIndex();
+        if (index >= 0) {
+            rowVirtualizer.scrollToIndex(index, {
+                align: 'center',
+                behavior: 'auto'
+            });
+        } else if (!settings.showNotesFromSubfolders) {
+            // File disappeared, scroll to top
+            rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
+        }
+
+        prevShowSubfoldersRef.current = settings.showNotesFromSubfolders;
+    }, [isVisible, rowVirtualizer, selectedFile, selectedFolder, settings.showNotesFromSubfolders, listItems, getSelectionIndex]);
+
+    // Scroll to selected file on folder/tag navigation
+    useEffect(() => {
+        if (!rowVirtualizer) {
             return;
         }
 
@@ -612,57 +690,114 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
         // Determine if we should scroll
         // We scroll in these cases:
         // 1. User navigated to a different folder/tag (isFolderNavigation = true)
-        //    - If there's a selected file, scroll to it
-        //    - If there's no selected file, scroll to top
-        // 2. Initial load when list changes
+        // 2. List context changed (folder/tag change)
         const shouldScroll = isFolderNavigation || listChanged;
 
         if (!shouldScroll) {
             return;
         }
 
-        // Check if filePathToIndex is stale by comparing folder paths
-        // This prevents scrolling with indices from the wrong folder
-        const filePathToIndexFolder = listItems.find(item => item.type === ListPaneItemType.FILE)?.parentFolder;
-        const isFilePathToIndexStale = selectedFolder && filePathToIndexFolder !== selectedFolder.path;
-
-        if (listChanged) {
-            prevListKeyRef.current = currentListKey;
-        }
-
-        // Don't scroll if filePathToIndex is stale - wait for list rebuild
-        if (isFilePathToIndexStale) {
+        // On initial load, wait for list to be populated
+        if (listChanged && listItems.length === 0) {
             return;
         }
 
-        // Use requestAnimationFrame to ensure virtualizer has initialized properly
-        const rafId = requestAnimationFrame(() => {
-            // Clear the folder navigation flag after using it
+        mobileLogger.log('ListPane folder/tag navigation scroll:', {
+            currentListKey,
+            prevListKey: prevListKeyRef.current,
+            listChanged,
+            isFolderNavigation,
+            selectedFile: selectedFile?.path,
+            listItemsCount: listItems.length,
+            isVisible
+        });
+
+        // For single-pane mode, always set pending scroll even if not visible
+        // It will be processed when the pane becomes visible
+        if (!isVisible && (isFolderNavigation || listChanged)) {
+            // Update the ref
+            if (listChanged) {
+                prevListKeyRef.current = currentListKey;
+            }
+
+            // Clear the folder navigation flag
             if (isFolderNavigation) {
                 selectionDispatch({ type: 'SET_FOLDER_NAVIGATION', isFolderNavigation: false });
             }
 
             if (selectedFile) {
-                // Try to scroll to selected file
-                const index = getSelectionIndex();
+                mobileLogger.log('ListPane setting pending scroll for hidden pane:', {
+                    selectedFile: selectedFile.path
+                });
+                pendingScrollRef.current = { type: 'file', filePath: selectedFile.path };
+            } else {
+                pendingScrollRef.current = { type: 'top' };
+            }
+            return;
+        }
 
-                // Only scroll if we have a valid index
-                if (index >= 0) {
-                    rowVirtualizer.scrollToIndex(index, {
-                        align: 'center',
-                        behavior: 'auto'
+        // For folder navigation when visible, perform scroll immediately without RAF
+        // RAF was causing issues with component re-renders cancelling the scroll
+        if (isFolderNavigation && listItems.length > 0 && isVisible) {
+            // Update the ref
+            if (listChanged) {
+                prevListKeyRef.current = currentListKey;
+            }
+
+            // Clear the folder navigation flag
+            selectionDispatch({ type: 'SET_FOLDER_NAVIGATION', isFolderNavigation: false });
+
+            if (selectedFile) {
+                mobileLogger.log('ListPane folder nav setting pending scroll to file:', {
+                    selectedFile: selectedFile.path
+                });
+                pendingScrollRef.current = { type: 'file', filePath: selectedFile.path };
+            } else {
+                mobileLogger.log('ListPane folder nav setting pending scroll to top');
+                pendingScrollRef.current = { type: 'top' };
+            }
+        } else {
+            // For other cases (initial load), use RAF
+            const rafId = requestAnimationFrame(() => {
+                mobileLogger.log('ListPane inside folder navigation RAF', {
+                    selectedFile: selectedFile?.path,
+                    listItemsCount: listItems.length
+                });
+
+                // Update the ref AFTER we're in the animation frame to ensure it happens after scroll
+                if (listChanged) {
+                    prevListKeyRef.current = currentListKey;
+                }
+
+                if (selectedFile) {
+                    // Try to scroll to selected file
+                    const index = getSelectionIndex();
+                    mobileLogger.log('ListPane folder nav scrolling to file:', {
+                        selectedFile: selectedFile.path,
+                        index,
+                        found: index >= 0
                     });
+                    if (index >= 0) {
+                        rowVirtualizer.scrollToIndex(index, {
+                            align: 'center',
+                            behavior: 'auto'
+                        });
+                    } else {
+                        // List changed but file not found - scroll to top
+                        rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
+                    }
                 } else {
-                    // List changed but file not found - scroll to top
+                    // List changed with no file selected - scroll to top
+                    mobileLogger.log('ListPane folder nav no file, scrolling to top');
                     rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
                 }
-            } else {
-                // List changed with no file selected - scroll to top
-                rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
-            }
-        });
+            });
 
-        return () => cancelAnimationFrame(rafId);
+            return () => {
+                mobileLogger.log('ListPane folder nav RAF cancelled');
+                cancelAnimationFrame(rafId);
+            };
+        }
     }, [
         isVisible,
         rowVirtualizer,
@@ -670,10 +805,9 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
         selectedTag,
         selectedFile,
         getSelectionIndex,
-        filePathToIndex,
-        listItems,
         selectionState.isFolderNavigation,
-        selectionDispatch
+        selectionDispatch,
+        listItems.length
     ]);
 
     // Add keyboard navigation
