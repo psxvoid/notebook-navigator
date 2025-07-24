@@ -29,7 +29,6 @@ import { DateUtils } from '../utils/dateUtils';
 import { isTFile } from '../utils/typeGuards';
 import { getDateField, getEffectiveSortOption, sortFiles } from '../utils/sortUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
-import { MobileLogger } from '../utils/mobileLogger';
 import { strings } from '../i18n';
 import type { ListPaneItem } from '../types/virtualization';
 import { PaneHeader } from './PaneHeader';
@@ -67,7 +66,6 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
     const selectionDispatch = useSelectionDispatch();
     const settings = useSettingsState();
     const uiState = useUIState();
-    const mobileLogger = MobileLogger.getInstance(app);
     const uiDispatch = useUIDispatch();
     const { getFileCreatedTime, getFileModifiedTime, getDB } = useFileCache();
     const { selectionType, selectedFolder, selectedTag, selectedFile } = selectionState;
@@ -506,6 +504,7 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
     }, [currentListItemsKey, rowVirtualizer]);
 
     // Process pending scrolls after virtualizer updates or visibility changes
+    // This handles deferred scrolling for single-pane mode and ensures proper timing
     useEffect(() => {
         if (!rowVirtualizer || !pendingScrollRef.current || !isVisible) {
             return;
@@ -520,17 +519,12 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
         if (pending.type === 'file' && pending.filePath) {
             const index = filePathToIndex.get(pending.filePath);
             if (index !== undefined && index >= 0) {
-                mobileLogger.log('ListPane executing pending scroll to file:', {
-                    filePath: pending.filePath,
-                    index
-                });
                 rowVirtualizer.scrollToIndex(index, {
                     align: 'center',
                     behavior: 'auto'
                 });
             }
         } else if (pending.type === 'top') {
-            mobileLogger.log('ListPane executing pending scroll to top');
             rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
         }
     }, [rowVirtualizer, filePathToIndex, rowVirtualizer.getTotalSize(), isVisible]);
@@ -627,8 +621,9 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
     }, [selectedFilePath, filePathToIndex, listItems]);
 
     // Handle scrolling when show subfolders setting changes
+    // This ensures the list scrolls to the selected file when toggling subfolder visibility
     useEffect(() => {
-        if (!rowVirtualizer || !isVisible || !selectedFile) {
+        if (!rowVirtualizer || !isVisible) {
             return;
         }
 
@@ -638,43 +633,20 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
             return;
         }
 
-        // Check if we have the right list items for the current setting
-        const hasSubfolderFiles = listItems.some(item => {
-            if (item.type === ListPaneItemType.FILE && isTFile(item.data)) {
-                return item.data.parent?.path !== selectedFolder?.path;
-            }
-            return false;
-        });
-
-        const listMatchesSetting = settings.showNotesFromSubfolders ? listItems.length > 6 || hasSubfolderFiles : !hasSubfolderFiles;
-
-        if (!listMatchesSetting) {
-            // List hasn't updated yet, wait for next render
-            return;
-        }
-
-        mobileLogger.log('ListPane subfolders setting changed, scrolling:', {
-            showSubfolders: settings.showNotesFromSubfolders,
-            listItemsCount: listItems.length,
-            selectedFile: selectedFile.path
-        });
-
-        // List has updated, now scroll
-        const index = getSelectionIndex();
-        if (index >= 0) {
-            rowVirtualizer.scrollToIndex(index, {
-                align: 'center',
-                behavior: 'auto'
-            });
-        } else if (!settings.showNotesFromSubfolders) {
-            // File disappeared, scroll to top
-            rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
-        }
-
+        // Update the ref to mark this change as processed
         prevShowSubfoldersRef.current = settings.showNotesFromSubfolders;
-    }, [isVisible, rowVirtualizer, selectedFile, selectedFolder, settings.showNotesFromSubfolders, listItems, getSelectionIndex]);
 
-    // Scroll to selected file on folder/tag navigation
+        // Set a pending scroll that will be executed after list updates
+        if (selectedFile) {
+            pendingScrollRef.current = { type: 'file', filePath: selectedFile.path };
+        } else if (!settings.showNotesFromSubfolders) {
+            // When disabling subfolders and no file selected, scroll to top
+            pendingScrollRef.current = { type: 'top' };
+        }
+    }, [isVisible, rowVirtualizer, selectedFile, settings.showNotesFromSubfolders]);
+
+    // Handle scrolling when navigating between folders/tags
+    // Supports both visible and hidden panes (for single-pane mode)
     useEffect(() => {
         if (!rowVirtualizer) {
             return;
@@ -702,16 +674,6 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
             return;
         }
 
-        mobileLogger.log('ListPane folder/tag navigation scroll:', {
-            currentListKey,
-            prevListKey: prevListKeyRef.current,
-            listChanged,
-            isFolderNavigation,
-            selectedFile: selectedFile?.path,
-            listItemsCount: listItems.length,
-            isVisible
-        });
-
         // For single-pane mode, always set pending scroll even if not visible
         // It will be processed when the pane becomes visible
         if (!isVisible && (isFolderNavigation || listChanged)) {
@@ -725,14 +687,7 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
                 selectionDispatch({ type: 'SET_FOLDER_NAVIGATION', isFolderNavigation: false });
             }
 
-            if (selectedFile) {
-                mobileLogger.log('ListPane setting pending scroll for hidden pane:', {
-                    selectedFile: selectedFile.path
-                });
-                pendingScrollRef.current = { type: 'file', filePath: selectedFile.path };
-            } else {
-                pendingScrollRef.current = { type: 'top' };
-            }
+            pendingScrollRef.current = selectedFile ? { type: 'file', filePath: selectedFile.path } : { type: 'top' };
             return;
         }
 
@@ -747,23 +702,10 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
             // Clear the folder navigation flag
             selectionDispatch({ type: 'SET_FOLDER_NAVIGATION', isFolderNavigation: false });
 
-            if (selectedFile) {
-                mobileLogger.log('ListPane folder nav setting pending scroll to file:', {
-                    selectedFile: selectedFile.path
-                });
-                pendingScrollRef.current = { type: 'file', filePath: selectedFile.path };
-            } else {
-                mobileLogger.log('ListPane folder nav setting pending scroll to top');
-                pendingScrollRef.current = { type: 'top' };
-            }
+            pendingScrollRef.current = selectedFile ? { type: 'file', filePath: selectedFile.path } : { type: 'top' };
         } else {
             // For other cases (initial load), use RAF
             const rafId = requestAnimationFrame(() => {
-                mobileLogger.log('ListPane inside folder navigation RAF', {
-                    selectedFile: selectedFile?.path,
-                    listItemsCount: listItems.length
-                });
-
                 // Update the ref AFTER we're in the animation frame to ensure it happens after scroll
                 if (listChanged) {
                     prevListKeyRef.current = currentListKey;
@@ -772,11 +714,6 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
                 if (selectedFile) {
                     // Try to scroll to selected file
                     const index = getSelectionIndex();
-                    mobileLogger.log('ListPane folder nav scrolling to file:', {
-                        selectedFile: selectedFile.path,
-                        index,
-                        found: index >= 0
-                    });
                     if (index >= 0) {
                         rowVirtualizer.scrollToIndex(index, {
                             align: 'center',
@@ -788,13 +725,11 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
                     }
                 } else {
                     // List changed with no file selected - scroll to top
-                    mobileLogger.log('ListPane folder nav no file, scrolling to top');
                     rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
                 }
             });
 
             return () => {
-                mobileLogger.log('ListPane folder nav RAF cancelled');
                 cancelAnimationFrame(rafId);
             };
         }
