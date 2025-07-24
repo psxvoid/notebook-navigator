@@ -425,25 +425,6 @@ const NavigationPaneComponent = forwardRef<NavigationPaneHandle, NavigationPaneP
     // Handle folder click
     const handleFolderClick = useCallback(
         (folder: TFolder) => {
-            // Check if clicking the same folder
-            const isSameFolder =
-                selectionState.selectionType === 'folder' &&
-                selectionState.selectedFolder &&
-                selectionState.selectedFolder.path === folder.path;
-
-            // If clicking the same folder, just handle view switching
-            if (isSameFolder) {
-                if (uiState.singlePane) {
-                    // The ListPane will handle scrolling when it becomes visible
-                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                } else {
-                    // In dual-pane mode, still need to set focus
-                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
-                }
-                return;
-            }
-
             // Normal folder selection behavior
             selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
 
@@ -471,8 +452,7 @@ const NavigationPaneComponent = forwardRef<NavigationPaneHandle, NavigationPaneP
             uiState.singlePane,
             settings.autoExpandFoldersTags,
             expansionState.expandedFolders,
-            expansionDispatch,
-            selectionState.selectedFolder
+            expansionDispatch
         ]
     );
 

@@ -592,15 +592,34 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
         return -1;
     }, [selectedFilePath, filePathToIndex, listItems]);
 
-    // Scroll to selected file when it changes or list context changes
-    // CRITICAL: Must check if filePathToIndex is stale before scrolling to prevent race conditions
-    // where we'd use indices from the previous folder (e.g., index 2510 in a 46-item folder)
+    // Scroll to selected file ONLY when:
+    // 1. The list context changes (folder/tag change)
+    // 2. The component becomes visible
+    // 3. User navigates to a parent/ancestor folder with show subfolders enabled
+    // We do NOT scroll when simply navigating between files in the same folder
     useEffect(() => {
-        if (!rowVirtualizer || !isVisible) return;
+        if (!rowVirtualizer || !isVisible) {
+            return;
+        }
 
         // Create a key representing the current list context
-        const currentListKey = `${selectedFolder?.path || ''}_${selectedTag || ''}_${listItems.length}`;
+        const currentListKey = `${selectedFolder?.path || ''}_${selectedTag || ''}`;
         const listChanged = prevListKeyRef.current !== currentListKey;
+
+        // Check if this is a folder navigation where we need to scroll to maintain the selected file
+        const isFolderNavigation = selectionState.isFolderNavigation;
+
+        // Determine if we should scroll to the selected file
+        // We scroll in these cases:
+        // 1. User navigated to a different folder/tag (isFolderNavigation = true)
+        // 2. Initial load when list changes but no file is selected yet
+        const shouldScrollDueToFolderNav = isFolderNavigation && selectedFile;
+        const shouldScrollDueToInitialLoad = listChanged && !selectedFile;
+        const shouldScroll = shouldScrollDueToFolderNav || shouldScrollDueToInitialLoad;
+
+        if (!shouldScroll) {
+            return;
+        }
 
         // Check if filePathToIndex is stale by comparing folder paths
         // This prevents scrolling with indices from the wrong folder
@@ -618,6 +637,11 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
 
         // Use requestAnimationFrame to ensure virtualizer has initialized properly
         const rafId = requestAnimationFrame(() => {
+            // Clear the folder navigation flag after using it
+            if (isFolderNavigation) {
+                selectionDispatch({ type: 'SET_FOLDER_NAVIGATION', isFolderNavigation: false });
+            }
+
             if (selectedFile) {
                 // Try to scroll to selected file
                 const index = getSelectionIndex();
@@ -628,18 +652,29 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
                         align: 'center',
                         behavior: 'auto'
                     });
-                } else if (listChanged) {
+                } else {
                     // List changed but file not found - scroll to top
                     rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
                 }
-            } else if (listChanged) {
+            } else {
                 // List changed with no file selected - scroll to top
                 rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
             }
         });
 
         return () => cancelAnimationFrame(rafId);
-    }, [selectedFile, isVisible, filePathToIndex, rowVirtualizer, listItems.length, selectedFolder?.path, selectedTag, getSelectionIndex]);
+    }, [
+        isVisible,
+        rowVirtualizer,
+        selectedFolder?.path,
+        selectedTag,
+        selectedFile,
+        getSelectionIndex,
+        filePathToIndex,
+        listItems,
+        selectionState.isFolderNavigation,
+        selectionDispatch
+    ]);
 
     // Add keyboard navigation
     // Note: We pass the root container ref, not the scroll container ref.
