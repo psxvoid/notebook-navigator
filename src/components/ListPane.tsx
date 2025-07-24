@@ -625,7 +625,7 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
                 // Only scroll if we have a valid index
                 if (index >= 0) {
                     rowVirtualizer.scrollToIndex(index, {
-                        align: 'auto',
+                        align: 'center',
                         behavior: 'auto'
                     });
                 } else if (listChanged) {
