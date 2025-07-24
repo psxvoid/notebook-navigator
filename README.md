@@ -69,6 +69,21 @@ To a modern, Notes-style interface like this:
 - **Visual customization** - Folder and tag colors with customizable icons
   (Lucide icons or emojis)
 
+### Architecture & Performance
+
+- **React + TanStack Virtual** - Modern React architecture with virtualized
+  rendering handling 100,000+ notes without breaking a sweat
+- **IndexedDB + RAM Cache** - Dual-layer caching system provides instant access
+  to metadata while maintaining zero memory overhead
+- **TypeScript Throughout** - 100% type-safe codebase with zero `any` types and
+  comprehensive type guards
+- **Promise Queue Architecture** - Serialized file operations prevent race
+  conditions during rapid vault changes
+- **Event-Driven State Management** - Real-time sync with Obsidian's vault
+  events using proper cleanup and memory management
+- **Mobile-First Performance** - Touch-optimized event handling and 120Hz
+  animations
+
 ## How to Use
 
 1. Install the plugin from Obsidian's Community Plugins
@@ -407,76 +422,6 @@ This is perfect for:
 
 If you have any questions, suggestions, or issues, please open an issue on the
 [GitHub repository](https://github.com/johansan/notebook-navigator).
-
-## Development
-
-### Built for Production
-
-Notebook Navigator is built for reliability and performance with vaults
-containing thousands of notes:
-
-**Robust Architecture**
-
-- **Type-safe codebase**: Comprehensive TypeScript with complete type coverage -
-  no `any` or `unknown` types
-- **Memory-safe**: Automatic cleanup of event listeners, observers, and React
-  components prevents memory leaks
-- **Data integrity**: Promise queue serializes critical operations, preventing
-  conflicts during rapid file operations
-- **Stable UI**: Error boundaries keep the interface responsive if individual
-  operations encounter issues
-
-**Performance at Scale**
-
-- **Handles 10,000+ notes**: TanStack Virtual renders only visible items,
-  keeping scrolling smooth in large vaults
-- **Instant startup**: Universal cache shows UI immediately while loading data
-  in the background
-- **Mobile-optimized**: Preserves scroll momentum and uses touch-optimized event
-  handling
-- **Smart caching**: Universal cache for note preview text, feature images and
-  metadata from frontmatter minimizes disk operations and API calls
-
-**Obsidian Compliance**
-
-- **Plugin store approved**: Meets all Obsidian security and quality
-  requirements
-- **Safe file operations**: Uses only approved Obsidian APIs with proper error
-  handling
-- **Theme compatible**: Respects user themes with CSS variables and semantic
-  classes
-- **Cross-platform tested**: Verified on Windows, macOS, Linux, iOS, and Android
-
-### Building from Source
-
-```bash
-# Clone the repository
-git clone https://github.com/johansan/notebook-navigator.git
-cd notebook-navigator
-
-# Install dependencies (requires --legacy-peer-deps flag)
-npm install --legacy-peer-deps
-
-# Build for development (with watch mode)
-npm run dev
-
-# Build for production (recommended method)
-./scripts/build.sh
-```
-
-**Note**: Use `./scripts/build.sh` instead of `npm run build`. This script runs
-the build and checks for an optional `scripts/build-local.sh` file (gitignored)
-that can contain local deployment commands.
-
-### Key Files
-
-- **Main entry point**: `src/main.ts` - Obsidian plugin lifecycle
-- **React entry point**: `src/view/NotebookNavigatorView.tsx` - Mounts React app
-- **Main component**: `src/components/NotebookNavigatorComponent.tsx` - Two-pane
-  layout
-- **Types**: `src/types/index.ts`, `src/types/virtualization.ts`,
-  `src/types/obsidian-extended.ts`
-- **Settings**: `src/settings.ts` - Plugin settings interface and UI
 
 ## About
 
