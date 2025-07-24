@@ -394,10 +394,10 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
         return map;
     }, [listItems]);
 
-    // Track the last list state to detect when we need to scroll to top
-    const prevListKeyRef = useRef<string>('');
-    const prevShowSubfoldersRef = useRef<boolean>(settings.showNotesFromSubfolders);
-    const pendingScrollRef = useRef<{ type: 'file' | 'top'; filePath?: string } | null>(null);
+    // Track list state changes and pending scroll operations
+    const prevListKeyRef = useRef<string>(''); // Previous folder/tag context to detect navigation
+    const prevShowSubfoldersRef = useRef<boolean>(settings.showNotesFromSubfolders); // Previous subfolder setting to detect toggles
+    const pendingScrollRef = useRef<{ type: 'file' | 'top'; filePath?: string } | null>(null); // Deferred scroll operations for async list updates
 
     // Track list items order to detect when items are reordered
     const listItemsKeyRef = useRef('');
