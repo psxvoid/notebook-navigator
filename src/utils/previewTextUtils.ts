@@ -18,6 +18,9 @@
 
 import { NotebookNavigatorSettings } from '../settings';
 
+// Maximum number of characters for preview text
+export const MAX_PREVIEW_TEXT_LENGTH = 500;
+
 // Base patterns used in both regex versions
 const BASE_PATTERNS = [
     // Group 0: Code blocks - remove entirely
@@ -179,11 +182,11 @@ export class PreviewTextUtils {
 
     /**
      * Extracts preview text from markdown content
-     * Simple one-pass implementation with fixed 250 char limit
+     * Simple one-pass implementation with fixed character limit
      * @param content The full markdown content
      * @param settings The plugin settings
      * @param frontmatter Optional frontmatter object to check for preview properties
-     * @returns The preview text (max 250 chars) or empty string
+     * @returns The preview text (max characters defined by MAX_PREVIEW_TEXT_LENGTH) or empty string
      */
     static extractPreviewText(content: string, settings: NotebookNavigatorSettings, frontmatter?: any): string {
         // Check preview properties first if frontmatter is provided
@@ -193,7 +196,7 @@ export class PreviewTextUtils {
                     const propertyValue = String(frontmatter[property]).trim();
                     if (propertyValue) {
                         // Apply same character limit to property values
-                        const maxChars = 250;
+                        const maxChars = MAX_PREVIEW_TEXT_LENGTH;
                         if (propertyValue.length > maxChars) {
                             return propertyValue.substring(0, maxChars - 1) + '…';
                         }
@@ -222,8 +225,8 @@ export class PreviewTextUtils {
 
         if (!preview) return '';
 
-        // Fixed 250 character limit with ellipsis
-        const maxChars = 250;
+        // Fixed character limit with ellipsis
+        const maxChars = MAX_PREVIEW_TEXT_LENGTH;
         if (preview.length > maxChars) {
             return preview.substring(0, maxChars - 1) + '…';
         }
