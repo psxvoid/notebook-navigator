@@ -609,13 +609,13 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
         // Check if this is a folder navigation where we need to scroll to maintain the selected file
         const isFolderNavigation = selectionState.isFolderNavigation;
 
-        // Determine if we should scroll to the selected file
+        // Determine if we should scroll
         // We scroll in these cases:
         // 1. User navigated to a different folder/tag (isFolderNavigation = true)
-        // 2. Initial load when list changes but no file is selected yet
-        const shouldScrollDueToFolderNav = isFolderNavigation && selectedFile;
-        const shouldScrollDueToInitialLoad = listChanged && !selectedFile;
-        const shouldScroll = shouldScrollDueToFolderNav || shouldScrollDueToInitialLoad;
+        //    - If there's a selected file, scroll to it
+        //    - If there's no selected file, scroll to top
+        // 2. Initial load when list changes
+        const shouldScroll = isFolderNavigation || listChanged;
 
         if (!shouldScroll) {
             return;
