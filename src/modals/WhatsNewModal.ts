@@ -4,12 +4,11 @@ import NotebookNavigatorPlugin from '../main';
 import { strings } from '../i18n';
 
 export class WhatsNewModal extends Modal {
-    private plugin: NotebookNavigatorPlugin;
     private releaseNotes: ReleaseNote[];
+    private thanksButton: HTMLButtonElement | null = null;
 
     constructor(app: App, plugin: NotebookNavigatorPlugin, releaseNotes: ReleaseNote[]) {
         super(app);
-        this.plugin = plugin;
         this.releaseNotes = releaseNotes;
     }
 
@@ -19,7 +18,7 @@ export class WhatsNewModal extends Modal {
         contentEl.empty();
         contentEl.addClass('nn-whats-new-modal');
 
-        const headerEl = contentEl.createEl('h2', {
+        contentEl.createEl('h2', {
             text: strings.whatsNew.title,
             cls: 'nn-whats-new-header'
         });
@@ -29,11 +28,11 @@ export class WhatsNewModal extends Modal {
         this.releaseNotes.forEach(note => {
             const versionContainer = scrollContainer.createDiv('nn-whats-new-version');
 
-            const versionHeader = versionContainer.createEl('h3', {
+            versionContainer.createEl('h3', {
                 text: `Version ${note.version}`
             });
 
-            const dateEl = versionContainer.createEl('small', {
+            versionContainer.createEl('small', {
                 text: note.date,
                 cls: 'nn-whats-new-date'
             });
@@ -48,7 +47,7 @@ export class WhatsNewModal extends Modal {
         });
 
         // Add divider line right after scroll container
-        const divider = contentEl.createDiv('nn-whats-new-divider');
+        contentEl.createDiv('nn-whats-new-divider');
 
         const supportContainer = contentEl.createDiv('nn-whats-new-support');
 
@@ -76,8 +75,19 @@ export class WhatsNewModal extends Modal {
             this.close();
         });
 
-        // Focus on Thanks button instead of Support button
-        thanksButton.focus();
+        // Store reference to thanks button
+        this.thanksButton = thanksButton;
+    }
+
+    open(): void {
+        super.open();
+        // Focus the thanks button after the modal is fully opened
+        if (this.thanksButton) {
+            // Use requestAnimationFrame to ensure DOM is ready
+            requestAnimationFrame(() => {
+                this.thanksButton?.focus();
+            });
+        }
     }
 
     onClose(): void {

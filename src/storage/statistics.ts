@@ -17,7 +17,6 @@
  */
 
 import { getDBInstance } from './fileOperations';
-import { FileData } from './database';
 
 /**
  * Statistics - Cache analytics and monitoring

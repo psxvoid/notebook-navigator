@@ -34,6 +34,7 @@ export interface SelectionState {
     isRevealOperation: boolean; // Flag to track if the current selection is from a REVEAL_FILE action
     isFolderChangeWithAutoSelect: boolean; // Flag to track if we just changed folders and auto-selected a file
     isKeyboardNavigation: boolean; // Flag to track if selection is from Tab/Right arrow navigation
+    isFolderNavigation: boolean; // Flag to track if we just navigated to a different folder
 
     // Computed property for backward compatibility
     selectedFile: TFile | null; // First file in selection or null
@@ -58,7 +59,8 @@ export type SelectionAction =
     | { type: 'UPDATE_CURRENT_FILE'; file: TFile } // Update current file without changing selection
     | { type: 'TOGGLE_WITH_CURSOR'; file: TFile; anchorIndex?: number } // Toggle selection and update cursor
     | { type: 'SET_KEYBOARD_NAVIGATION'; isKeyboardNavigation: boolean } // Set keyboard navigation flag
-    | { type: 'UPDATE_FILE_PATH'; oldPath: string; newPath: string }; // Update file path after rename
+    | { type: 'UPDATE_FILE_PATH'; oldPath: string; newPath: string } // Update file path after rename
+    | { type: 'SET_FOLDER_NAVIGATION'; isFolderNavigation: boolean }; // Set folder navigation flag
 
 // Dispatch function type
 export type SelectionDispatch = React.Dispatch<SelectionAction>;
@@ -114,7 +116,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 lastMovementDirection: null,
                 isRevealOperation: false,
                 isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null,
-                isKeyboardNavigation: false
+                isKeyboardNavigation: false,
+                isFolderNavigation: true // Set flag when folder changes
             };
         }
 
@@ -134,7 +137,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 lastMovementDirection: null,
                 isRevealOperation: false,
                 isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null,
-                isKeyboardNavigation: false
+                isKeyboardNavigation: false,
+                isFolderNavigation: true // Set flag when tag changes too
             };
         }
 
@@ -152,7 +156,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 lastMovementDirection: null,
                 isRevealOperation: false,
                 isFolderChangeWithAutoSelect: false,
-                isKeyboardNavigation: false
+                isKeyboardNavigation: false,
+                isFolderNavigation: false // Clear folder navigation flag
             };
         }
 
@@ -343,6 +348,13 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             };
         }
 
+        case 'SET_FOLDER_NAVIGATION': {
+            return {
+                ...state,
+                isFolderNavigation: action.isFolderNavigation
+            };
+        }
+
         case 'UPDATE_FILE_PATH': {
             // Update selected files set
             const newSelectedFiles = new Set(state.selectedFiles);
@@ -437,7 +449,8 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             lastMovementDirection: null,
             isRevealOperation: false,
             isFolderChangeWithAutoSelect: false,
-            isKeyboardNavigation: false
+            isKeyboardNavigation: false,
+            isFolderNavigation: false
         };
     }, [app.vault]);
 

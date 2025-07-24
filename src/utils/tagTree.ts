@@ -216,91 +216,6 @@ export function buildTagTreeFromDatabase(db: Database): { tree: Map<string, TagT
 }
 
 /**
- * Build a tag tree from database file data.
- *
- * @param files - Map of file paths to FileData from database
- * @returns Object containing the tag tree and untagged file count
- * @deprecated Use buildTagTreeFromDatabase() for better scalability with large vaults.
- *             This function loads all data into memory which can be problematic for large vaults.
- */
-export function buildTagTreeFromData(files: Map<string, FileData>): { tree: Map<string, TagTreeNode>; untagged: number } {
-    const allNodes = new Map<string, TagTreeNode>(); // All nodes at all levels
-    const tree = new Map<string, TagTreeNode>(); // Only root-level nodes
-    let untaggedCount = 0;
-
-    // Track which case variant we saw first for each lowercased tag
-    const caseMap = new Map<string, string>();
-
-    for (const [filePath, fileData] of files) {
-        const tags = fileData.tags;
-
-        if (!tags || tags.length === 0) {
-            untaggedCount++;
-            continue;
-        }
-
-        // Process each tag
-        for (const tag of tags) {
-            // Remove the # prefix if present
-            const tagPath = tag.startsWith('#') ? tag.substring(1) : tag;
-            const lowerPath = tagPath.toLowerCase();
-
-            // Determine the canonical casing for this tag
-            if (!caseMap.has(lowerPath)) {
-                caseMap.set(lowerPath, tagPath);
-            }
-            const canonicalPath = caseMap.get(lowerPath)!;
-
-            // Split the tag into parts
-            const parts = canonicalPath.split('/');
-            let currentPath = '';
-
-            for (let i = 0; i < parts.length; i++) {
-                const part = parts[i];
-                currentPath = i === 0 ? part : `${currentPath}/${part}`;
-                const lowerCurrentPath = currentPath.toLowerCase();
-
-                // Get or create the node
-                let node = allNodes.get(lowerCurrentPath);
-                if (!node) {
-                    node = {
-                        name: part,
-                        path: currentPath,
-                        children: new Map(),
-                        notesWithTag: new Set()
-                    };
-                    allNodes.set(lowerCurrentPath, node);
-
-                    // Only add root-level tags to the tree Map
-                    if (i === 0) {
-                        tree.set(lowerCurrentPath, node);
-                    }
-                }
-
-                // Only add the file to the leaf tag (the exact tag it's tagged with)
-                if (i === parts.length - 1) {
-                    node.notesWithTag.add(filePath);
-                }
-
-                // Link to parent
-                if (i > 0) {
-                    const parentPath = parts.slice(0, i).join('/').toLowerCase();
-                    const parent = allNodes.get(parentPath);
-                    if (parent && !parent.children.has(lowerCurrentPath)) {
-                        parent.children.set(lowerCurrentPath, node);
-                    }
-                }
-            }
-        }
-    }
-
-    // Clear note count cache since tree structure has changed
-    clearNoteCountCache();
-
-    return { tree, untagged: untaggedCount };
-}
-
-/**
  * Get the total number of notes for a tag (including all descendants)
  * Results are memoized for performance
  */
@@ -373,13 +288,6 @@ export function findTagNode(tree: Map<string, TagTreeNode>, tagPath: string): Ta
 }
 
 /**
- * Count total number of unique tags in the tree
- */
-export function countTotalTags(tree: Map<string, TagTreeNode>): number {
-    return tree.size;
-}
-
-/**
  * Parse tag patterns from a comma-separated string
  */
 export function parseTagPatterns(patterns: string): string[] {
@@ -392,7 +300,7 @@ export function parseTagPatterns(patterns: string): string[] {
 /**
  * Check if a tag matches a pattern (supports wildcards and regex)
  */
-export function matchesTagPattern(tagPath: string, pattern: string): boolean {
+function matchesTagPattern(tagPath: string, pattern: string): boolean {
     // Remove # prefix from both if present
     const cleanTag = tagPath.startsWith('#') ? tagPath.substring(1) : tagPath;
     const cleanPattern = pattern.startsWith('#') ? pattern.substring(1) : pattern;

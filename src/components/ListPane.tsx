@@ -49,7 +49,18 @@ export interface ListPaneHandle {
     scrollContainerRef: HTMLDivElement | null;
 }
 
-const ListPaneComponent = forwardRef<ListPaneHandle>((_, ref) => {
+interface ListPaneProps {
+    /**
+     * Reference to the root navigator container (.nn-split-container).
+     * This is passed from NotebookNavigatorComponent to ensure keyboard events
+     * are captured at the navigator level, not globally. This allows proper
+     * keyboard navigation between panes while preventing interference with
+     * other Obsidian views.
+     */
+    rootContainerRef: React.RefObject<HTMLDivElement | null>;
+}
+
+const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref) => {
     const { app, isMobile } = useServices();
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
@@ -383,8 +394,10 @@ const ListPaneComponent = forwardRef<ListPaneHandle>((_, ref) => {
         return map;
     }, [listItems]);
 
-    // Track previous folder/tag to detect changes
-    const prevLocationRef = useRef({ folder: selectedFolder?.path, tag: selectedTag });
+    // Track list state changes and pending scroll operations
+    const prevListKeyRef = useRef<string>(''); // Previous folder/tag context to detect navigation
+    const prevShowSubfoldersRef = useRef<boolean>(settings.showNotesFromSubfolders); // Previous subfolder setting to detect toggles
+    const pendingScrollRef = useRef<{ type: 'file' | 'top'; filePath?: string } | null>(null); // Deferred scroll operations for async list updates
 
     // Track list items order to detect when items are reordered
     const listItemsKeyRef = useRef('');
@@ -490,12 +503,38 @@ const ListPaneComponent = forwardRef<ListPaneHandle>((_, ref) => {
         listItemsKeyRef.current = currentListItemsKey;
     }, [currentListItemsKey, rowVirtualizer]);
 
+    // Process pending scrolls after virtualizer updates or visibility changes
+    // This handles deferred scrolling for single-pane mode and ensures proper timing
+    useEffect(() => {
+        if (!rowVirtualizer || !pendingScrollRef.current || !isVisible) {
+            return;
+        }
+
+        const pending = pendingScrollRef.current;
+        pendingScrollRef.current = null;
+
+        // Ensure virtualizer has updated measurements
+        rowVirtualizer.measure();
+
+        if (pending.type === 'file' && pending.filePath) {
+            const index = filePathToIndex.get(pending.filePath);
+            if (index !== undefined && index >= 0) {
+                rowVirtualizer.scrollToIndex(index, {
+                    align: 'center',
+                    behavior: 'auto'
+                });
+            }
+        } else if (pending.type === 'top') {
+            rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
+        }
+    }, [rowVirtualizer, filePathToIndex, rowVirtualizer.getTotalSize(), isVisible]);
+
     // Subscribe to database content changes to re-measure virtualizer
     useEffect(() => {
         if (!rowVirtualizer) return;
 
         const db = getDB();
-        const unsubscribe = db.onContentChange(changes => {
+        const unsubscribe = db.onContentChange(() => {
             // Content has been generated, re-measure to update heights
             rowVirtualizer.measure();
         });
@@ -581,54 +620,140 @@ const ListPaneComponent = forwardRef<ListPaneHandle>((_, ref) => {
         return -1;
     }, [selectedFilePath, filePathToIndex, listItems]);
 
-    // Unified scroll logic: handles both location changes and file selection
-    // Dependencies:
-    // - selectedFolder/selectedTag: detect location changes
-    // - selectedFile: scroll to selected file if present
-    // - isVisible: scroll when pane becomes visible
-    // - filePathToIndex: update when file list changes (files added/removed/renamed)
-    // - settings.showNotesFromSubfolders: reposition when this setting changes list contents
+    // Handle scrolling when show subfolders setting changes
+    // This ensures the list scrolls to the selected file when toggling subfolder visibility
     useEffect(() => {
-        if (!rowVirtualizer || !isVisible) return;
-
-        // Check if location changed
-        const locationChanged = prevLocationRef.current.folder !== selectedFolder?.path || prevLocationRef.current.tag !== selectedTag;
-
-        if (locationChanged) {
-            // Update the ref to track the new location
-            prevLocationRef.current = { folder: selectedFolder?.path, tag: selectedTag };
+        if (!rowVirtualizer || !isVisible) {
+            return;
         }
 
-        // Use requestAnimationFrame to ensure virtualizer has initialized properly
-        // This is required in dual pane mode where list pane updates incrementally
-        const rafId = requestAnimationFrame(() => {
-            if (selectedFile) {
-                // Try to scroll to selected file
-                const index = getSelectionIndex();
+        const showSubfoldersChanged = prevShowSubfoldersRef.current !== settings.showNotesFromSubfolders;
 
-                if (index >= 0) {
-                    rowVirtualizer.scrollToIndex(index, {
-                        align: 'auto',
-                        behavior: 'auto'
-                    });
-                } else if (locationChanged) {
-                    // Location changed but file not found - scroll to top
+        if (!showSubfoldersChanged) {
+            return;
+        }
+
+        // Update the ref to mark this change as processed
+        prevShowSubfoldersRef.current = settings.showNotesFromSubfolders;
+
+        // Set a pending scroll that will be executed after list updates
+        if (selectedFile) {
+            pendingScrollRef.current = { type: 'file', filePath: selectedFile.path };
+        } else if (!settings.showNotesFromSubfolders) {
+            // When disabling subfolders and no file selected, scroll to top
+            pendingScrollRef.current = { type: 'top' };
+        }
+    }, [isVisible, rowVirtualizer, selectedFile, settings.showNotesFromSubfolders]);
+
+    // Handle scrolling when navigating between folders/tags
+    // Supports both visible and hidden panes (for single-pane mode)
+    useEffect(() => {
+        if (!rowVirtualizer) {
+            return;
+        }
+
+        // Create a key representing the current list context
+        const currentListKey = `${selectedFolder?.path || ''}_${selectedTag || ''}`;
+        const listChanged = prevListKeyRef.current !== currentListKey;
+
+        // Check if this is a folder navigation where we need to scroll to maintain the selected file
+        const isFolderNavigation = selectionState.isFolderNavigation;
+
+        // Determine if we should scroll
+        // We scroll in these cases:
+        // 1. User navigated to a different folder/tag (isFolderNavigation = true)
+        // 2. List context changed (folder/tag change)
+        const shouldScroll = isFolderNavigation || listChanged;
+
+        if (!shouldScroll) {
+            return;
+        }
+
+        // On initial load, wait for list to be populated
+        if (listChanged && listItems.length === 0) {
+            return;
+        }
+
+        // For single-pane mode, always set pending scroll even if not visible
+        // It will be processed when the pane becomes visible
+        if (!isVisible && (isFolderNavigation || listChanged)) {
+            // Update the ref
+            if (listChanged) {
+                prevListKeyRef.current = currentListKey;
+            }
+
+            // Clear the folder navigation flag
+            if (isFolderNavigation) {
+                selectionDispatch({ type: 'SET_FOLDER_NAVIGATION', isFolderNavigation: false });
+            }
+
+            pendingScrollRef.current = selectedFile ? { type: 'file', filePath: selectedFile.path } : { type: 'top' };
+            return;
+        }
+
+        // For folder navigation when visible, perform scroll immediately without RAF
+        // RAF was causing issues with component re-renders cancelling the scroll
+        if (isFolderNavigation && listItems.length > 0 && isVisible) {
+            // Update the ref
+            if (listChanged) {
+                prevListKeyRef.current = currentListKey;
+            }
+
+            // Clear the folder navigation flag
+            selectionDispatch({ type: 'SET_FOLDER_NAVIGATION', isFolderNavigation: false });
+
+            pendingScrollRef.current = selectedFile ? { type: 'file', filePath: selectedFile.path } : { type: 'top' };
+        } else {
+            // For other cases (initial load), use RAF
+            const rafId = requestAnimationFrame(() => {
+                // Update the ref AFTER we're in the animation frame to ensure it happens after scroll
+                if (listChanged) {
+                    prevListKeyRef.current = currentListKey;
+                }
+
+                if (selectedFile) {
+                    // Try to scroll to selected file
+                    const index = getSelectionIndex();
+                    if (index >= 0) {
+                        rowVirtualizer.scrollToIndex(index, {
+                            align: 'center',
+                            behavior: 'auto'
+                        });
+                    } else {
+                        // List changed but file not found - scroll to top
+                        rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
+                    }
+                } else {
+                    // List changed with no file selected - scroll to top
                     rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
                 }
-            } else if (locationChanged) {
-                // Location changed with no file selected - scroll to top
-                rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
-            }
-        });
+            });
 
-        return () => cancelAnimationFrame(rafId);
-    }, [selectedFolder?.path, selectedTag, selectedFile, isVisible, filePathToIndex, settings.showNotesFromSubfolders, rowVirtualizer]);
+            return () => {
+                cancelAnimationFrame(rafId);
+            };
+        }
+    }, [
+        isVisible,
+        rowVirtualizer,
+        selectedFolder?.path,
+        selectedTag,
+        selectedFile,
+        getSelectionIndex,
+        selectionState.isFolderNavigation,
+        selectionDispatch,
+        listItems.length
+    ]);
 
     // Add keyboard navigation
+    // Note: We pass the root container ref, not the scroll container ref.
+    // This ensures keyboard events work across the entire navigator, allowing
+    // users to navigate between panes (navigation <-> files) with Tab/Arrow keys.
     useVirtualKeyboardNavigation({
         items: listItems,
         virtualizer: rowVirtualizer,
-        focusedPane: 'files'
+        focusedPane: 'files',
+        containerRef: props.rootContainerRef
     });
 
     // Pre-calculate date field for all files in the group

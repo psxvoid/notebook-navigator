@@ -51,6 +51,14 @@ export interface NavigationPaneHandle {
 
 interface NavigationPaneProps {
     style?: React.CSSProperties;
+    /**
+     * Reference to the root navigator container (.nn-split-container).
+     * This is passed from NotebookNavigatorComponent to ensure keyboard events
+     * are captured at the navigator level, not globally. This allows proper
+     * keyboard navigation between panes while preventing interference with
+     * other Obsidian views.
+     */
+    rootContainerRef: React.RefObject<HTMLDivElement | null>;
 }
 
 const NavigationPaneComponent = forwardRef<NavigationPaneHandle, NavigationPaneProps>((props, ref) => {
@@ -396,10 +404,14 @@ const NavigationPaneComponent = forwardRef<NavigationPaneHandle, NavigationPaneP
     }, [isVisible, uiState.focusedPane, pathToIndex, selectedPath]);
 
     // Add keyboard navigation
+    // Note: We pass the root container ref, not the scroll container ref.
+    // This ensures keyboard events work across the entire navigator, allowing
+    // users to navigate between panes (navigation <-> files) with Tab/Arrow keys.
     useVirtualKeyboardNavigation({
         items: items,
         virtualizer: rowVirtualizer,
-        focusedPane: 'navigation'
+        focusedPane: 'navigation',
+        containerRef: props.rootContainerRef
     });
 
     // Handle folder toggle
@@ -413,25 +425,6 @@ const NavigationPaneComponent = forwardRef<NavigationPaneHandle, NavigationPaneP
     // Handle folder click
     const handleFolderClick = useCallback(
         (folder: TFolder) => {
-            // Check if clicking the same folder
-            const isSameFolder =
-                selectionState.selectionType === 'folder' &&
-                selectionState.selectedFolder &&
-                selectionState.selectedFolder.path === folder.path;
-
-            // If clicking the same folder, just handle view switching
-            if (isSameFolder) {
-                if (uiState.singlePane) {
-                    // The ListPane will handle scrolling when it becomes visible
-                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                } else {
-                    // In dual-pane mode, still need to set focus
-                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
-                }
-                return;
-            }
-
             // Normal folder selection behavior
             selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
 
@@ -459,8 +452,7 @@ const NavigationPaneComponent = forwardRef<NavigationPaneHandle, NavigationPaneP
             uiState.singlePane,
             settings.autoExpandFoldersTags,
             expansionState.expandedFolders,
-            expansionDispatch,
-            selectionState.selectedFolder
+            expansionDispatch
         ]
     );
 

@@ -160,10 +160,6 @@ export function isTagType(type: string): type is typeof ItemType.TAG {
     return type === ItemType.TAG;
 }
 
-export function isNavigationItemType(type: string): type is NavigationItemType {
-    return isFolderType(type) || isTagType(type);
-}
-
 /**
  * Keys used for persisting state in browser localStorage
  * Ensures consistent key naming across the plugin
@@ -213,7 +209,7 @@ export const FILE_PANE_DIMENSIONS = {
  * Supported file types in Notebook Navigator
  * Maps file extensions to their corresponding Obsidian leaf types
  */
-export const SUPPORTED_FILE_TYPES = {
+const SUPPORTED_FILE_TYPES = {
     // Extension to leaf type mapping
     md: 'markdown',
     canvas: 'canvas',
@@ -222,14 +218,9 @@ export const SUPPORTED_FILE_TYPES = {
 } as const;
 
 /**
- * Array of supported file extensions (derived from SUPPORTED_FILE_TYPES keys)
- */
-export const SUPPORTED_EXTENSIONS = Object.keys(SUPPORTED_FILE_TYPES) as (keyof typeof SUPPORTED_FILE_TYPES)[];
-
-/**
  * Array of supported leaf types (derived from SUPPORTED_FILE_TYPES values)
  */
-export const SUPPORTED_LEAF_TYPES = Object.values(SUPPORTED_FILE_TYPES);
+const SUPPORTED_LEAF_TYPES = Object.values(SUPPORTED_FILE_TYPES);
 
 /**
  * Type for supported file extensions
@@ -313,11 +304,4 @@ export interface NavigatorElementAttributes extends DragDropAttributes {
     'aria-label'?: string;
     'aria-expanded'?: 'true' | 'false';
     'aria-selected'?: 'true' | 'false';
-}
-
-/**
- * Type guard to check if an element has drag-drop attributes
- */
-export function hasDragDropAttributes(el: Element): el is HTMLElement {
-    return el instanceof HTMLElement && (el.hasAttribute('data-draggable') || el.hasAttribute('data-drop-zone'));
 }

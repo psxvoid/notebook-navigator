@@ -18,62 +18,77 @@
 
 import { NotebookNavigatorSettings } from '../settings';
 
+// Maximum number of characters for preview text
+export const MAX_PREVIEW_TEXT_LENGTH = 500;
+
 // Base patterns used in both regex versions
 const BASE_PATTERNS = [
     // Group 0: Code blocks - remove entirely
     // Example: ```javascript\nconst x = 1;\n``` → (removed)
     /```[\s\S]*?```/.source,
-    // Group 1: Inline code - remove entirely
+    // Group 1: Obsidian comments - remove entirely (both inline and block)
+    // Example: %%comment%% → (removed), %%\nmultiline\n%% → (removed)
+    /%%[\s\S]*?%%/.source,
+    // Group 2: Inline code - remove entirely
     // Example: `console.log()` → (removed)
     /`[^`]+`/.source,
-    // Group 2: Images and embeds - remove entirely
+    // Group 3: Images and embeds - remove entirely
     // Example: ![alt](image.png) → (removed)
     /!\[.*?\]\([^\)]+\)/.source,
-    // Group 3: Wiki embeds - remove entirely
+    // Group 4: Wiki embeds - remove entirely
     // Example: ![[image.png]] or ![[_resources/Pasted image.png]] → (removed)
     /!\[\[.*?\]\]/.source,
-    // Group 4: Escape characters
+    // Group 5: Escape characters
     // Example: \* → *
     /\\([*_~`])/.source,
-    // Group 5: Bold italic stars (must come before bold/italic)
+    // Group 6: Bold italic stars (must come before bold/italic)
     // Example: ***important*** → important
     /\*\*\*((?:(?!\*\*\*).)+)\*\*\*/.source,
-    // Group 6: Bold italic underscores (must come before bold/italic)
+    // Group 7: Bold italic underscores (must come before bold/italic)
     // Example: ___important___ → important
     /___((?:(?!___).)+)___/.source,
-    // Group 7: Bold stars
+    // Group 8: Bold italic nested - bold stars with italic underscores
+    // Example: **_important_** → important
+    /\*\*_((?:(?!_\*\*).)+)_\*\*/.source,
+    // Group 9: Bold italic nested - bold underscores with italic stars
+    // Example: __*important*__ → important
+    /__\*((?:(?!\*__).)+)\*__/.source,
+    // Group 10: Bold stars
     // Example: **bold** → bold
     /\*\*((?:(?!\*\*).)+)\*\*/.source,
-    // Group 8: Bold underscores
+    // Group 11: Bold underscores
     // Example: __bold__ → bold
     /__((?:(?!__).)+)__/.source,
-    // Group 9: Italic stars (iOS compatible - no lookbehind)
+    // Group 12: Italic stars (iOS compatible - no lookbehind)
     // Example: *italic* → italic (but not 5*6*7)
-    // Captures: [9] = prefix, [10] = content
+    // Captures: [12] = prefix, [13] = content
     /(^|[^*\d])\*([^*\n]+)\*(?![*\d])/.source,
-    // Group 10: Italic underscores (iOS compatible - no lookbehind)
+    // Group 13: Italic underscores (iOS compatible - no lookbehind)
     // Example: _italic_ → italic (but not variable_name_here)
-    // Captures: [10] = prefix, [11] = content
+    // Captures: [13] = prefix, [14] = content
     /(^|[^_a-zA-Z0-9])_([^_\n]+)_(?![_a-zA-Z0-9])/.source,
-    // Group 11: Strikethrough
+    // Group 14: Strikethrough
     // Example: ~~deleted~~ → deleted
     /~~((?:(?!~~).)+)~~/.source,
-    // Group 12: Highlight
+    // Group 15: Highlight
     // Example: ==highlighted== → highlighted
     /==((?:(?!==).)+)==/.source,
-    // Group 13: Links
+    // Group 16: Links
     // Example: [Google](https://google.com) → Google
     /\[([^\]]+)\]\([^\)]+\)/.source,
-    // Group 14: Wiki links with display
+    // Group 17: Wiki links with display
     // Example: [[Some Page|Display Text]] → Display Text
     /\[\[[^\]|]+\|([^\]]+)\]\]/.source,
-    // Group 15: Wiki links
+    // Group 18: Wiki links
     // Example: [[Some Page]] → Some Page
     /\[\[([^\]]+)\]\]/.source,
-    // Group 16: Lists and blockquotes - non-capturing group
+    // Group 19: Callout titles (just the [!...] part)
+    // Example: [!info] Optional title → (removed)
+    /\[![\w-]+\](?:\s+[^\n]*)?/.source,
+    // Group 20: Lists and blockquotes - non-capturing group
     // Example: - List item → (removed), * List → (removed), > Quote → (removed)
     /^(?:[-*+]\s+|\d+\.\s+|>\s+)/.source,
-    // Group 17: Heading markers (always strip the # symbols, keep the text)
+    // Group 21: Heading markers (always strip the # symbols, keep the text)
     // Example: # Title → Title, ## Section → Section
     /^(#+)\s+(.*)$/m.source
 ];
@@ -98,6 +113,16 @@ export class PreviewTextUtils {
             // Check for specific patterns to remove entirely
             // Code blocks
             if (match.startsWith('```')) {
+                return '';
+            }
+
+            // Obsidian comments
+            if (match.startsWith('%%') && match.endsWith('%%')) {
+                return '';
+            }
+
+            // Callout titles
+            if (match.match(/\[![\w-]+\]/)) {
                 return '';
             }
 
@@ -133,16 +158,20 @@ export class PreviewTextUtils {
                 // -2 for offset and string
                 if (groups[i] !== undefined) {
                     // Special handling for italic patterns with prefixes
-                    // - Italic stars: prefix at index 5, content at index 6
-                    // - Italic underscores: prefix at index 7, content at index 8
-                    if (i === 5 && groups[6] !== undefined) {
-                        // Italic stars
-                        return groups[5] + groups[6];
+                    if (i === 9 && groups[10] !== undefined) {
+                        return groups[9] + groups[10];
                     }
+                    if (i === 10 && groups[9] !== undefined) {
+                        continue;
+                    }
+
                     if (i === 7 && groups[8] !== undefined) {
-                        // Italic underscores
                         return groups[7] + groups[8];
                     }
+                    if (i === 8 && groups[7] !== undefined) {
+                        continue;
+                    }
+
                     return groups[i];
                 }
             }
@@ -153,11 +182,11 @@ export class PreviewTextUtils {
 
     /**
      * Extracts preview text from markdown content
-     * Simple one-pass implementation with fixed 250 char limit
+     * Simple one-pass implementation with fixed character limit
      * @param content The full markdown content
      * @param settings The plugin settings
      * @param frontmatter Optional frontmatter object to check for preview properties
-     * @returns The preview text (max 250 chars) or empty string
+     * @returns The preview text (max characters defined by MAX_PREVIEW_TEXT_LENGTH) or empty string
      */
     static extractPreviewText(content: string, settings: NotebookNavigatorSettings, frontmatter?: any): string {
         // Check preview properties first if frontmatter is provided
@@ -167,7 +196,7 @@ export class PreviewTextUtils {
                     const propertyValue = String(frontmatter[property]).trim();
                     if (propertyValue) {
                         // Apply same character limit to property values
-                        const maxChars = 250;
+                        const maxChars = MAX_PREVIEW_TEXT_LENGTH;
                         if (propertyValue.length > maxChars) {
                             return propertyValue.substring(0, maxChars - 1) + '…';
                         }
@@ -196,8 +225,8 @@ export class PreviewTextUtils {
 
         if (!preview) return '';
 
-        // Fixed 250 character limit with ellipsis
-        const maxChars = 250;
+        // Fixed character limit with ellipsis
+        const maxChars = MAX_PREVIEW_TEXT_LENGTH;
         if (preview.length > maxChars) {
             return preview.substring(0, maxChars - 1) + '…';
         }

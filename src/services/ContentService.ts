@@ -141,13 +141,12 @@ export class ContentService {
             const fileData = fileDataMap.get(file.path);
 
             // Check what needs generation based on null values
+            // IMPORTANT: We check for === null specifically, not falsy values
+            // Empty string '' means preview was generated but file has no content
             const needsPreview = this.settings.showFilePreview && (!fileData || fileData.preview === null) && file.extension === 'md';
             const needsImage = this.settings.showFeatureImage && (!fileData || fileData.featureImage === null);
             const needsMetadata =
                 this.settings.useFrontmatterMetadata && (!fileData || fileData.metadata === null) && file.extension === 'md';
-
-            if (needsPreview || needsImage || needsMetadata) {
-            }
 
             return {
                 file,
@@ -408,15 +407,6 @@ export class ContentService {
     private completeProcessing(): void {
         this.isProcessing = false;
         this.abortController = null;
-
-        if (this.totalFiles > 0) {
-            // Only calculate elapsed time when logging is enabled
-            if (this.shouldLogCurrentBatch) {
-                const elapsed = ((performance.now() - this.startTime) / 1000).toFixed(2);
-                // Logging handled elsewhere
-            }
-        }
-
         // Note: settingsChanged is already reset in queueContent after determining shouldLogCurrentBatch
         // No need to notify - database will emit change events
     }

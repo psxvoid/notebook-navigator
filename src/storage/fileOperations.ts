@@ -65,37 +65,6 @@ export async function initializeCache(): Promise<void> {
 }
 
 /**
- * Add or update a single file in the database.
- * Extracts tags from metadata and clears content if the file was modified.
- *
- * @param file - The Obsidian file to update
- * @param app - The Obsidian app instance
- */
-export async function updateFileInCache(file: TFile, app: App): Promise<void> {
-    const db = getDBInstance();
-    const metadata = app.metadataCache.getFileCache(file);
-    const tags = metadata ? getAllTags(metadata) : [];
-
-    // Get existing file data to preserve content
-    const existing = db.getFile(file.path);
-
-    // If file was modified (mtime changed), clear content so it gets regenerated
-    const wasModified = existing && existing.mtime !== file.stat.mtime;
-
-    const fileData: FileData = {
-        path: file.path,
-        mtime: file.stat.mtime,
-        tags: tags || [],
-        // Clear content if file was modified, otherwise preserve existing
-        preview: wasModified ? null : (existing?.preview ?? null),
-        featureImage: wasModified ? null : (existing?.featureImage ?? null),
-        metadata: wasModified ? null : (existing?.metadata ?? null)
-    };
-
-    await db.setFile(fileData);
-}
-
-/**
  * Add or update multiple files in the database.
  * More efficient than multiple updateFileInCache calls.
  * Clears content for modified files or files with changed tags.
@@ -152,47 +121,4 @@ export async function updateFilesInCache(files: TFile[], app: App): Promise<void
 export async function removeFilesFromCache(paths: string[]): Promise<void> {
     const db = getDBInstance();
     await db.deleteFiles(paths);
-}
-
-// getAllCachedFiles removed - use streaming methods from database directly
-
-/**
- * Update content for a specific file.
- * Only updates the provided fields, preserves others.
- *
- * @param path - File path to update
- * @param updates - Content updates to apply
- */
-export async function updateFileContent(
-    path: string,
-    updates: {
-        preview?: string;
-        featureImage?: string;
-        metadata?: { name?: string; created?: number; modified?: number };
-    }
-): Promise<void> {
-    const db = getDBInstance();
-    const file = db.getFile(path);
-    if (!file) return;
-
-    if (updates.preview !== undefined) {
-        file.preview = updates.preview;
-    }
-    if (updates.featureImage !== undefined) {
-        file.featureImage = updates.featureImage;
-    }
-    if (updates.metadata !== undefined) {
-        file.metadata = updates.metadata;
-    }
-
-    await db.setFile(file);
-}
-
-/**
- * Clear the entire database.
- * Removes all file records but preserves the database structure.
- */
-export async function clearCache(): Promise<void> {
-    const db = getDBInstance();
-    await db.clear();
 }

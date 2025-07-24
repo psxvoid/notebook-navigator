@@ -49,7 +49,18 @@ export interface ReleaseNote {
  * 2. Set showOnUpdate to false for minor bug fixes that don't need user attention
  * 3. Features should start with NEW:, IMPROVED:, CHANGED: or FIXED:
  */
-export const RELEASE_NOTES: ReleaseNote[] = [
+const RELEASE_NOTES: ReleaseNote[] = [
+    {
+        version: '1.3.3',
+        date: '2025-07-24',
+        showOnUpdate: false,
+        features: [
+            'IMPROVED: Keyboard input is now only captured within the Notebook Navigator window. So if you press DELETE in your canvas document it will not be captured by Notebook Navigator.',
+            "CHANGED: Default setting for 'Show file types' is now 'Supported files'.",
+            'FIXED: Scroll to selected file is now working much better. Current solution is clean, robust and future proof.',
+            'FIXED: Preview text filter improvements. Spent lots of time improving the filtering system to remove markdown symbols from preview text. Now properly removes 21 different formatting styles from preview text.'
+        ]
+    },
     {
         version: '1.3.2',
         date: '2025-07-23',
@@ -58,9 +69,9 @@ export const RELEASE_NOTES: ReleaseNote[] = [
             "NEW: Added setting: 'Preview properties'. You can now specify frontmatter properties to use as preview text.",
             'IMPROVED: Migrated to IndexedDB with RAM cache for database storage, significantly improving performance and reliability with large vaults.',
             'IMPROVED: Files with no preview text now render with just 1 preview text line for better readability.',
-            'FIXED: Preview text generation now properly excludes code blocks and most markdown markers.',
             "CHANGED: The setting 'Skip text before first heading' was removed since it added too much performance overhead.",
-            "CHANGED: The setting 'Skip non-text in preview' was removed since it is now always applied."
+            "CHANGED: The setting 'Skip non-text in preview' was removed since it is now always applied.",
+            'FIXED: Preview text generation now properly excludes code blocks and most markdown markers.'
         ]
     },
     {
