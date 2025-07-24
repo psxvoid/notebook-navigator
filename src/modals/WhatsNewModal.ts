@@ -5,6 +5,7 @@ import { strings } from '../i18n';
 
 export class WhatsNewModal extends Modal {
     private releaseNotes: ReleaseNote[];
+    private thanksButton: HTMLButtonElement | null = null;
 
     constructor(app: App, plugin: NotebookNavigatorPlugin, releaseNotes: ReleaseNote[]) {
         super(app);
@@ -74,8 +75,19 @@ export class WhatsNewModal extends Modal {
             this.close();
         });
 
-        // Focus on Thanks button instead of Support button
-        thanksButton.focus();
+        // Store reference to thanks button
+        this.thanksButton = thanksButton;
+    }
+
+    open(): void {
+        super.open();
+        // Focus the thanks button after the modal is fully opened
+        if (this.thanksButton) {
+            // Use requestAnimationFrame to ensure DOM is ready
+            requestAnimationFrame(() => {
+                this.thanksButton?.focus();
+            });
+        }
     }
 
     onClose(): void {
