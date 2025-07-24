@@ -69,10 +69,10 @@ To a modern, Notes-style interface like this:
 - **Visual customization** - Folder and tag colors with customizable icons
   (Lucide icons or emojis)
 
-### Architecture & Performance
+## Architecture & Performance
 
 - **React + TanStack Virtual** - Modern React architecture with virtualized
-  rendering handling 100,000+ notes without breaking a sweat
+  rendering handling 100,000+ notes
 - **IndexedDB + RAM Cache** - Dual-layer caching system provides instant access
   to metadata while maintaining zero memory overhead
 - **TypeScript Throughout** - 100% type-safe codebase with zero `any` types and
