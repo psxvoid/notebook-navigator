@@ -741,14 +741,16 @@
     justify-content: center;
     background-color: var(--background-secondary);
     font-family: var(--font-monospace);
+    padding: 2px;
+    box-sizing: border-box;
 }
 
 .nn-file-extension-text {
-    font-size: 12px;
-    font-weight: 500;
+    font-size: 9px;
+    font-weight: 700;
     color: var(--text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.1px;
 }
 
 /* ========================================================================

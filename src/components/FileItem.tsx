@@ -264,7 +264,7 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
                                     />
                                 ) : (
                                     <div className="nn-file-extension-badge">
-                                        <span className="nn-file-extension-text">.{file.extension}</span>
+                                        <span className="nn-file-extension-text">{file.extension}</span>
                                     </div>
                                 )}
                             </div>
