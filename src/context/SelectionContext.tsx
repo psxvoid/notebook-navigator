@@ -189,12 +189,34 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 return state;
             }
 
+            // Check if we should preserve the current tag view
+            const shouldPreserveTag = state.selectionType === 'tag' && state.selectedTag;
+
             // If preserveFolder is true and we have a selected folder, keep it
             const newFolder = action.preserveFolder && state.selectedFolder ? state.selectedFolder : action.file.parent;
 
             const newSelectedFiles = new Set<string>();
             newSelectedFiles.add(action.file.path);
 
+            // If we're in tag view, preserve it
+            if (shouldPreserveTag) {
+                return {
+                    ...state,
+                    // Keep the tag selection
+                    selectionType: 'tag',
+                    selectedTag: state.selectedTag,
+                    selectedFolder: null,
+                    selectedFiles: newSelectedFiles,
+                    selectedFile: action.file,
+                    anchorIndex: null,
+                    lastMovementDirection: null,
+                    isRevealOperation: true,
+                    isFolderChangeWithAutoSelect: false,
+                    isKeyboardNavigation: false
+                };
+            }
+
+            // Otherwise, switch to folder view as normal
             return {
                 ...state,
                 selectionType: 'folder',
