@@ -15,17 +15,11 @@ If you love using Notebook Navigator, please consider
 
 ## Contents
 
-- [Screenshots](#screenshots)
-- [Features](#features)
-- [Architecture & Performance](#architecture--performance)
-- [How to Use](#how-to-use)
-- [Keyboard Shortcuts](#keyboard-shortcuts)
-- [Commands](#commands)
-- [Settings](#settings)
-- [Tips and Tricks](#tips-and-tricks)
-- [Support](#support)
-- [About](#about)
-- [License](#license)
+|                                                          |                                           |                                                             |
+| -------------------------------------------------------- | ----------------------------------------- | ----------------------------------------------------------- |
+| [Screenshots](#screenshots)                              | [How to Use](#how-to-use)                 | [Settings](#settings)                                       |
+| [Features](#features)                                    | [Keyboard Shortcuts](#keyboard-shortcuts) | [Tips and Tricks](#tips-and-tricks)                         |
+| [Architecture & Performance](#architecture--performance) | [Commands](#commands)                     | [Support](#support) • [About](#about) • [License](#license) |
 
 <br>
 
