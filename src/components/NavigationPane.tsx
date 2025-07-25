@@ -384,14 +384,33 @@ const NavigationPaneComponent = forwardRef<NavigationPaneHandle, NavigationPaneP
         [pathToIndex, rowVirtualizer]
     );
 
+    // Track previous selected path to detect actual selection changes
+    const prevSelectedPathRef = useRef<string | null>(null);
+    const prevVisibleRef = useRef<boolean>(false);
+    const prevFocusedPaneRef = useRef<string | null>(null);
+
     // Scroll to selected folder/tag when needed
-    // Dependencies:
-    // - isVisible: scroll when pane becomes visible
-    // - uiState.focusedPane: scroll when pane gains focus
-    // - pathToIndex: update when tree structure changes (expand/collapse, file operations)
-    // - selectedPath: scroll when selection changes (navigate commands)
+    // Only scroll when:
+    // 1. Selection actually changes (not just tree structure changes)
+    // 2. Pane becomes visible or gains focus
+    // 3. During reveal operations (handled separately in useFileReveal)
     useEffect(() => {
         if (!selectedPath || !rowVirtualizer || !isVisible) return;
+
+        // Check if this is an actual selection change vs just a tree structure update
+        const isSelectionChange = prevSelectedPathRef.current !== selectedPath;
+
+        // Check if pane just became visible or gained focus
+        const justBecameVisible = !prevVisibleRef.current && isVisible;
+        const justGainedFocus = prevFocusedPaneRef.current !== 'navigation' && uiState.focusedPane === 'navigation';
+
+        // Update the refs for next comparison
+        prevSelectedPathRef.current = selectedPath;
+        prevVisibleRef.current = isVisible;
+        prevFocusedPaneRef.current = uiState.focusedPane;
+
+        // Only scroll on actual selection changes or visibility/focus changes
+        if (!isSelectionChange && !justBecameVisible && !justGainedFocus) return;
 
         const index = pathToIndex.get(selectedPath);
 
@@ -401,7 +420,7 @@ const NavigationPaneComponent = forwardRef<NavigationPaneHandle, NavigationPaneP
                 behavior: 'auto'
             });
         }
-    }, [isVisible, uiState.focusedPane, pathToIndex, selectedPath]);
+    }, [selectedPath, rowVirtualizer, isVisible, pathToIndex, uiState.focusedPane]);
 
     // Add keyboard navigation
     // Note: We pass the root container ref, not the scroll container ref.
