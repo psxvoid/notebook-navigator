@@ -21,7 +21,7 @@ import { Menu, TFolder } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { useSettings } from '../context/SettingsContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
-import { useSelectionState } from '../context/SelectionContext';
+import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileSystemOps, useMetadataService } from '../context/ServicesContext';
 import { isTFolder } from '../utils/typeGuards';
@@ -33,6 +33,7 @@ import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } 
 import type { SortOption } from '../settings';
 import { useFileCache } from '../context/StorageContext';
 import { collectAllTagPaths } from '../utils/tagTree';
+import { getFilesForFolder } from '../utils/fileFinder';
 
 interface PaneHeaderProps {
     type: 'navigation' | 'files';
@@ -56,6 +57,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
     const selectionState = useSelectionState();
+    const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const fileSystemOps = useFileSystemOps();
@@ -273,10 +275,33 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
     );
 
     const handleToggleSubfolders = useCallback(async () => {
+        const wasShowingSubfolders = settings.showNotesFromSubfolders;
+
         await updateSettings(s => {
             s.showNotesFromSubfolders = !s.showNotesFromSubfolders;
         });
-    }, [updateSettings]);
+
+        // When toggling subfolders ON, check if we should select the active file
+        if (!wasShowingSubfolders && selectionState.selectedFolder && !selectionState.selectedFile) {
+            const activeFile = app.workspace.getActiveFile();
+            if (activeFile) {
+                // Check if the active file is now visible in the current folder
+                const filesInFolder = getFilesForFolder(selectionState.selectedFolder, { ...settings, showNotesFromSubfolders: true }, app);
+
+                if (filesInFolder.some(f => f.path === activeFile.path)) {
+                    // Select the active file since it's now visible
+                    selectionDispatch({ type: 'SET_SELECTED_FILE', file: activeFile });
+                }
+            }
+        }
+    }, [
+        updateSettings,
+        settings.showNotesFromSubfolders,
+        selectionState.selectedFolder,
+        selectionState.selectedFile,
+        app,
+        selectionDispatch
+    ]);
 
     const handleToggleAutoExpand = useCallback(async () => {
         await updateSettings(s => {
