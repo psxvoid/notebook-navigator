@@ -180,32 +180,6 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 <br>
 
-## Installation
-
-### From Obsidian Community Plugins
-
-1. Open Obsidian Settings
-2. Navigate to Community Plugins
-3. Search for "Notebook Navigator"
-4. Click Install
-5. Enable the plugin
-
-**Note:** Available on both desktop and mobile versions of Obsidian.
-
-### Beta Installation (via BRAT)
-
-Until the plugin is approved in the Community Plugins directory, you can install
-it using BRAT:
-
-1. Install the BRAT plugin from Community Plugins
-2. Enable BRAT
-3. In BRAT settings, click "Add Beta Plugin"
-4. Enter the repository URL: `https://github.com/johansan/notebook-navigator`
-5. Click "Add Plugin"
-6. Enable "Notebook Navigator" in your Community Plugins settings
-
-<br>
-
 ## Settings
 
 ### Top Level Settings
