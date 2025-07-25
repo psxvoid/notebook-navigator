@@ -13,6 +13,22 @@ If you love using Notebook Navigator, please consider
 
 <br>
 
+## Contents
+
+- [Screenshots](#screenshots)
+- [Features](#features)
+- [Architecture & Performance](#architecture--performance)
+- [How to Use](#how-to-use)
+- [Keyboard Shortcuts](#keyboard-shortcuts)
+- [Commands](#commands)
+- [Settings](#settings)
+- [Tips and Tricks](#tips-and-tricks)
+- [Support](#support)
+- [About](#about)
+- [License](#license)
+
+<br>
+
 ## Screenshots
 
 ### Desktop
@@ -138,7 +154,9 @@ activate Notebook Navigator in case you close it by mistake.
 | Shift+Click                                 | Select a range of notes                                                                 |
 | Shift+↑/↓                                   | Extend selection up/down                                                                |
 
-### Commands
+<br>
+
+## Commands
 
 You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
