@@ -511,7 +511,7 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
         }
 
         const pending = pendingScrollRef.current;
-        let didScroll = false;
+        let shouldClearPending = false;
 
         if (pending.type === 'file' && pending.filePath) {
             const index = filePathToIndex.get(pending.filePath);
@@ -520,15 +520,19 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
                     align: 'center',
                     behavior: 'auto'
                 });
-                didScroll = true;
+                shouldClearPending = true;
+            } else {
+                // File not found in index yet - keep the pending scroll
+                // This can happen when toggling showNotesFromSubfolders and the list hasn't updated yet
+                shouldClearPending = false;
             }
         } else if (pending.type === 'top') {
             rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
-            didScroll = true;
+            shouldClearPending = true;
         }
 
-        // Only clear the pending scroll if we successfully executed it
-        if (didScroll) {
+        // Only clear the pending scroll if we successfully executed it or if it's a top scroll
+        if (shouldClearPending) {
             pendingScrollRef.current = null;
         }
     }, [rowVirtualizer, filePathToIndex, rowVirtualizer.getTotalSize(), isVisible]);
