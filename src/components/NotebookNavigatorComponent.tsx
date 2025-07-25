@@ -154,10 +154,6 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 updateSettings(() => {});
             },
             deleteActiveFile: () => {
-                // Check if the navigator is focused before deleting
-                const navigatorFocused = containerRef.current?.getAttribute('data-navigator-focused');
-                if (navigatorFocused !== 'true') return;
-
                 // Determine which delete operation to perform based on focus
                 if (uiState.focusedPane === 'files' && (selectionState.selectedFile || selectionState.selectedFiles.size > 0)) {
                     deleteSelectedFiles({
