@@ -25,7 +25,7 @@ To a modern, Notes-style interface like this:
 
 ### Mobile
 
-![Notebook Navigator Interface](https://github.com/johansan/notebook-navigator/blob/main/images/screenshot2.png?raw=true)
+<img src="https://github.com/johansan/notebook-navigator/blob/main/images/screenshot2.png?raw=true" alt="Notebook Navigator Interface" width="50%">
 
 ## Features
 
