@@ -511,10 +511,7 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
         }
 
         const pending = pendingScrollRef.current;
-        pendingScrollRef.current = null;
-
-        // Ensure virtualizer has updated measurements
-        rowVirtualizer.measure();
+        let didScroll = false;
 
         if (pending.type === 'file' && pending.filePath) {
             const index = filePathToIndex.get(pending.filePath);
@@ -523,9 +520,16 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
                     align: 'center',
                     behavior: 'auto'
                 });
+                didScroll = true;
             }
         } else if (pending.type === 'top') {
             rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
+            didScroll = true;
+        }
+
+        // Only clear the pending scroll if we successfully executed it
+        if (didScroll) {
+            pendingScrollRef.current = null;
         }
     }, [rowVirtualizer, filePathToIndex, rowVirtualizer.getTotalSize(), isVisible]);
 
