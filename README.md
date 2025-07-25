@@ -13,16 +13,6 @@ If you love using Notebook Navigator, please consider
 
 <br>
 
-## Contents
-
-|                                                          |                                           |                                                             |
-| -------------------------------------------------------- | ----------------------------------------- | ----------------------------------------------------------- |
-| [Screenshots](#screenshots)                              | [How to Use](#how-to-use)                 | [Settings](#settings)                                       |
-| [Features](#features)                                    | [Keyboard Shortcuts](#keyboard-shortcuts) | [Tips and Tricks](#tips-and-tricks)                         |
-| [Architecture & Performance](#architecture--performance) | [Commands](#commands)                     | [Support](#support) • [About](#about) • [License](#license) |
-
-<br>
-
 ## Screenshots
 
 ### Desktop
