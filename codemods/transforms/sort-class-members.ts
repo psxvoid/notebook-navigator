@@ -17,7 +17,8 @@ const transform: Transform = (fileInfo, api) => {
             lifecycle: [] as any[],
             publicMethods: [] as any[],
             privateMethods: [] as any[],
-            gettersSetters: [] as any[]
+            gettersSetters: [] as any[],
+            other: [] as any[] // Add category for unhandled members
         };
 
         // Lifecycle method names for React components
@@ -57,6 +58,9 @@ const transform: Transform = (fileInfo, api) => {
                 } else {
                     members.publicMethods.push(member);
                 }
+            } else {
+                // Catch all other member types to avoid losing code
+                members.other.push(member);
             }
         });
 
@@ -119,6 +123,11 @@ const transform: Transform = (fileInfo, api) => {
         // Private methods
         if (members.privateMethods.length > 0) {
             organizedBody.push(...sortMethods(members.privateMethods));
+        }
+
+        // Other members (anything we didn't categorize)
+        if (members.other.length > 0) {
+            organizedBody.push(...members.other);
         }
 
         // Replace class body

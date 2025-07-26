@@ -7,7 +7,7 @@ const transform: Transform = (fileInfo, api) => {
     // Skip if no React imports
     const hasReact = root.find(j.ImportDeclaration).some(path => {
         const source = path.node.source.value;
-        return source === 'react' || source.startsWith('react/');
+        return typeof source === 'string' && (source === 'react' || source.startsWith('react/'));
     });
 
     if (!hasReact) {
