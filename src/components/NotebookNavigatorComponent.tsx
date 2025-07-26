@@ -31,6 +31,7 @@ import { useExpansionDispatch } from '../context/ExpansionContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useFileReveal } from '../hooks/useFileReveal';
+import { useTagNavigation } from '../hooks/useTagNavigation';
 import { useMobileSwipeNavigation } from '../hooks/useSwipeGesture';
 import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
 import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, ItemType } from '../types';
@@ -93,6 +94,9 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
 
     // Use file reveal logic
     const { navigateToFile, navigateToFolder } = useFileReveal({ app, navigationPaneRef, listPaneRef });
+
+    // Use tag navigation logic
+    const { navigateToTag } = useTagNavigation();
 
     // Enable mobile swipe gestures
     useMobileSwipeNavigation(containerRef, isMobile);
@@ -240,32 +244,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
                 const modal = new TagSuggestModal(
                     app,
                     (tagPath: string) => {
-                        // For hierarchical tags, expand all parent tags
-                        if (tagPath !== '__untagged__' && tagPath.includes('/')) {
-                            const tagsToExpand: string[] = [];
-                            const parts = tagPath.split('/');
-
-                            // Build parent paths to expand
-                            for (let i = 1; i <= parts.length - 1; i++) {
-                                tagsToExpand.push(parts.slice(0, i).join('/'));
-                            }
-
-                            // Expand parent tags
-                            if (tagsToExpand.length > 0) {
-                                expansionDispatch({ type: 'EXPAND_TAGS', tagPaths: tagsToExpand });
-                            }
-                        }
-
-                        // Navigate to the selected tag
-                        selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
-
-                        // Switch to files view in single-pane mode
-                        if (uiState.singlePane) {
-                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                        }
-
-                        // Set focus to files pane
-                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                        // Use the shared tag navigation logic
+                        navigateToTag(tagPath);
                     },
                     strings.modals.tagSuggest.navigatePlaceholder,
                     strings.modals.tagSuggest.instructions.select,
@@ -282,8 +262,8 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
             fileSystemOps,
             selectionDispatch,
             navigateToFolder,
-            uiState.singlePane,
-            expansionDispatch
+            navigateToTag,
+            uiState.singlePane
         ]
     );
 

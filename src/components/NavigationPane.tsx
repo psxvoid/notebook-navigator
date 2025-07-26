@@ -78,7 +78,9 @@ const NavigationPaneComponent = forwardRef<NavigationPaneHandle, NavigationPaneP
         selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder
             ? selectionState.selectedFolder.path
             : selectionState.selectionType === ItemType.TAG && selectionState.selectedTag
-              ? selectionState.selectedTag
+              ? selectionState.selectedTag.startsWith('#')
+                  ? selectionState.selectedTag.slice(1)
+                  : selectionState.selectedTag
               : null;
 
     // Determine if navigation pane is visible early for optimization

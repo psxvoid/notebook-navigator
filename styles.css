@@ -587,7 +587,7 @@
 /* Second line container - holds date and preview text */
 .nn-file-second-line {
     display: flex;
-    align-items: baseline; /* Align text on same baseline */
+    align-items: center; /* Center align for better icon/text alignment */
     gap: var(--size-4-1);
 }
 
@@ -709,6 +709,11 @@
 .nn-file-tag:hover {
     background-color: var(--background-modifier-hover);
     color: var(--text-normal);
+}
+
+/* Clickable tag styling */
+.nn-file-tag.nn-clickable-tag {
+    cursor: pointer;
 }
 
 /* Dark mode tag styles */

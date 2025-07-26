@@ -85,13 +85,14 @@ export async function updateFilesInCache(files: TFile[], app: App): Promise<void
 
     for (const file of files) {
         const metadata = app.metadataCache.getFileCache(file);
-        const tags = metadata ? getAllTags(metadata) : [];
+        // getAllTags returns tags with # prefix, but we store them without it for consistency
+        const rawTags = metadata ? getAllTags(metadata) : [];
+        const tags = rawTags?.map(tag => (tag.startsWith('#') ? tag.slice(1) : tag)) || [];
         const existing = existingData.get(file.path);
 
         // Check if file was modified (mtime changed) or tags changed
         const wasModified = existing && existing.mtime !== file.stat.mtime;
-        const tagsChanged =
-            existing && (existing.tags.length !== (tags?.length || 0) || !existing.tags.every(tag => tags?.includes(tag) || false));
+        const tagsChanged = existing && (existing.tags.length !== tags.length || !existing.tags.every(tag => tags.includes(tag)));
 
         // Check if feature image properties changed or were added
         // We need to detect both: when properties are first added and when they change

@@ -17,9 +17,11 @@
  */
 
 import { DatabaseCache } from './DatabaseCache';
+import { STORAGE_KEYS } from '../types';
 
 const DB_NAME = 'notebook-navigator-db-v1';
 const STORE_NAME = 'files';
+const DB_VERSION = 1;
 
 export interface FileData {
     path: string; // File path (primary key)
@@ -169,7 +171,7 @@ export class Database {
             return this.initPromise;
         }
 
-        this.initPromise = this.openDatabase().catch(error => {
+        this.initPromise = this.checkSchemaAndInit().catch(error => {
             console.error('Failed to initialize database:', error);
             this.initPromise = null;
             throw error;
@@ -177,10 +179,49 @@ export class Database {
         return this.initPromise;
     }
 
+    private async checkSchemaAndInit(): Promise<void> {
+        const storedVersion = localStorage.getItem(STORAGE_KEYS.databaseVersionKey);
+        const currentVersion = DB_VERSION.toString();
+
+        if (storedVersion && storedVersion !== currentVersion) {
+            console.log(`Database version changed from ${storedVersion} to ${currentVersion}. Recreating database.`);
+            await this.deleteDatabase();
+        }
+
+        localStorage.setItem(STORAGE_KEYS.databaseVersionKey, currentVersion);
+        return this.openDatabase();
+    }
+
+    private async deleteDatabase(): Promise<void> {
+        if (this.db) {
+            this.db.close();
+            this.db = null;
+        }
+
+        return new Promise((resolve, reject) => {
+            const deleteReq = indexedDB.deleteDatabase(DB_NAME);
+
+            deleteReq.onsuccess = () => {
+                console.log('Database deleted successfully');
+                resolve();
+            };
+
+            deleteReq.onerror = () => {
+                console.error('Failed to delete database:', deleteReq.error);
+                reject(deleteReq.error);
+            };
+
+            deleteReq.onblocked = () => {
+                console.warn('Database deletion blocked');
+                resolve();
+            };
+        });
+    }
+
     private async openDatabase(): Promise<void> {
         return new Promise((resolve, reject) => {
             const startTime = performance.now();
-            const request = indexedDB.open(DB_NAME);
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
 
             request.onerror = () => {
                 console.error('Database open error:', request.error);
@@ -900,7 +941,11 @@ export class Database {
      */
     getDisplayTags(path: string): string[] {
         const file = this.getFile(path);
-        return file?.tags || [];
+        if (!file?.tags) return [];
+
+        // TODO: Remove this migration code in future versions
+        // Strip # prefix from tags if present (for backward compatibility)
+        return file.tags.map(tag => (tag.startsWith('#') ? tag.slice(1) : tag));
     }
 
     /**

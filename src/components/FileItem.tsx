@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useRef, useMemo, memo, useEffect, useState } from 'react';
+import React, { useRef, useMemo, memo, useEffect, useState, useCallback } from 'react';
 import { TFile, setTooltip } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
@@ -26,6 +26,7 @@ import { ObsidianIcon } from './ObsidianIcon';
 import { useFileCache } from '../context/StorageContext';
 import { isImageFile } from '../utils/fileTypeUtils';
 import { ItemType } from '../types';
+import { useTagNavigation } from '../hooks/useTagNavigation';
 
 interface FileItemProps {
     file: TFile;
@@ -60,6 +61,7 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
     const settings = useSettingsState();
     const { getFileDisplayName, getDB, isStorageReady } = useFileCache();
     const fileRef = useRef<HTMLDivElement>(null);
+    const { navigateToTag } = useTagNavigation();
 
     // Get display name from context which handles cache and frontmatter
     const displayName = useMemo(() => {
@@ -132,6 +134,17 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
     // Enable context menu
     useContextMenu(fileRef, { type: ItemType.FILE, item: file });
 
+    // Handle tag click
+    const handleTagClick = useCallback(
+        (e: React.MouseEvent, tag: string) => {
+            e.stopPropagation(); // Prevent file selection
+
+            // Use the shared tag navigation logic
+            navigateToTag(tag);
+        },
+        [navigateToTag]
+    );
+
     // Add Obsidian tooltip (desktop only)
     useEffect(() => {
         if (!fileRef.current) return;
@@ -203,48 +216,138 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
                             <div className="nn-file-name" style={{ '--filename-rows': settings.fileNameRows } as React.CSSProperties}>
                                 {displayName}
                             </div>
-                            {/* Show preview and date on same line when preview is 1 row OR no preview text */}
-                            {(settings.previewRows < 2 || !previewText) && (settings.showDate || settings.showFilePreview) && (
-                                <div className="nn-file-second-line">
-                                    {settings.showDate && <div className="nn-file-date">{displayDate}</div>}
-                                    {settings.showFilePreview && (
-                                        <div className="nn-file-preview" style={{ '--preview-rows': 1 } as React.CSSProperties}>
-                                            {previewText}
+
+                            {/* Single row mode (preview rows = 1) - show all elements */}
+                            {settings.previewRows < 2 && (
+                                <>
+                                    {/* Date + Preview on same line */}
+                                    <div className="nn-file-second-line">
+                                        {settings.showDate && <div className="nn-file-date">{displayDate}</div>}
+                                        {settings.showFilePreview && (
+                                            <div className="nn-file-preview" style={{ '--preview-rows': 1 } as React.CSSProperties}>
+                                                {previewText}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Tags */}
+                                    {tags.length > 0 && (
+                                        <div className="nn-file-tags">
+                                            {tags.map((tag, index) => (
+                                                <span
+                                                    key={index}
+                                                    className="nn-file-tag nn-clickable-tag"
+                                                    onClick={e => handleTagClick(e, tag)}
+                                                    role="button"
+                                                    tabIndex={0}
+                                                >
+                                                    #{tag}
+                                                </span>
+                                            ))}
                                         </div>
                                     )}
-                                </div>
+
+                                    {/* Parent folder */}
+                                    {settings.showNotesFromSubfolders &&
+                                        settings.showParentFolderNames &&
+                                        parentFolder &&
+                                        file.parent &&
+                                        file.parent.path !== parentFolder && (
+                                            <div className="nn-file-folder">
+                                                <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
+                                                <span>{file.parent.name}</span>
+                                            </div>
+                                        )}
+                                </>
                             )}
-                            {/* Show preview vertically when 2+ rows AND has preview text */}
-                            {settings.previewRows >= 2 && settings.showFilePreview && previewText && (
-                                <div className="nn-file-preview" style={{ '--preview-rows': settings.previewRows } as React.CSSProperties}>
-                                    {previewText}
-                                </div>
+
+                            {/* Multi-row mode (preview rows >= 2) - different layouts based on preview content */}
+                            {settings.previewRows >= 2 && (
+                                <>
+                                    {/* Case 1: Empty preview text - show tags, then date + parent folder */}
+                                    {!previewText && (
+                                        <>
+                                            {/* Tags (show even when no preview text) */}
+                                            {tags.length > 0 && (
+                                                <div className="nn-file-tags">
+                                                    {tags.map((tag, index) => (
+                                                        <span
+                                                            key={index}
+                                                            className="nn-file-tag nn-clickable-tag"
+                                                            onClick={e => handleTagClick(e, tag)}
+                                                            role="button"
+                                                            tabIndex={0}
+                                                        >
+                                                            #{tag}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+                                            {/* Date + Parent folder on same line */}
+                                            <div className="nn-file-second-line">
+                                                {settings.showDate && <div className="nn-file-date">{displayDate}</div>}
+                                                {settings.showNotesFromSubfolders &&
+                                                    settings.showParentFolderNames &&
+                                                    parentFolder &&
+                                                    file.parent &&
+                                                    file.parent.path !== parentFolder && (
+                                                        <div className="nn-file-folder">
+                                                            <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
+                                                            <span>{file.parent.name}</span>
+                                                        </div>
+                                                    )}
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {/* Case 2: Has preview text - show preview, tags, then date + parent folder */}
+                                    {previewText && (
+                                        <>
+                                            {/* Multi-row preview - show preview text spanning multiple rows */}
+                                            {settings.showFilePreview && (
+                                                <div
+                                                    className="nn-file-preview"
+                                                    style={{ '--preview-rows': settings.previewRows } as React.CSSProperties}
+                                                >
+                                                    {previewText}
+                                                </div>
+                                            )}
+
+                                            {/* Tags (only when preview text exists) */}
+                                            {tags.length > 0 && (
+                                                <div className="nn-file-tags">
+                                                    {tags.map((tag, index) => (
+                                                        <span
+                                                            key={index}
+                                                            className="nn-file-tag nn-clickable-tag"
+                                                            onClick={e => handleTagClick(e, tag)}
+                                                            role="button"
+                                                            tabIndex={0}
+                                                        >
+                                                            #{tag}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            )}
+
+                                            {/* Date + Parent folder on same line */}
+                                            <div className="nn-file-second-line">
+                                                {settings.showDate && <div className="nn-file-date">{displayDate}</div>}
+                                                {settings.showNotesFromSubfolders &&
+                                                    settings.showParentFolderNames &&
+                                                    parentFolder &&
+                                                    file.parent &&
+                                                    file.parent.path !== parentFolder && (
+                                                        <div className="nn-file-folder">
+                                                            <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
+                                                            <span>{file.parent.name}</span>
+                                                        </div>
+                                                    )}
+                                            </div>
+                                        </>
+                                    )}
+                                </>
                             )}
-                            {/* Show date below preview when 2+ rows AND has preview text */}
-                            {settings.previewRows >= 2 && settings.showDate && previewText && (
-                                <div className="nn-file-date nn-file-date-below">{displayDate}</div>
-                            )}
-                            {/* Show tags */}
-                            {tags.length > 0 && (
-                                <div className="nn-file-tags">
-                                    {tags.map((tag, index) => (
-                                        <span key={index} className="nn-file-tag">
-                                            {tag}
-                                        </span>
-                                    ))}
-                                </div>
-                            )}
-                            {/* Show folder indicator */}
-                            {settings.showNotesFromSubfolders &&
-                                settings.showParentFolderNames &&
-                                parentFolder &&
-                                file.parent &&
-                                file.parent.path !== parentFolder && (
-                                    <div className="nn-file-folder">
-                                        <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
-                                        <span>{file.parent.name}</span>
-                                    </div>
-                                )}
                         </div>
                         {shouldShowFeatureImageArea && (
                             <div className="nn-feature-image">
@@ -276,15 +379,6 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
 }
 
 /**
- * Memoized FileItem component that only re-renders when necessary.
- * This optimization is critical for performance with large file lists.
- *
- * The component will only re-render when:
- * - The file path changes (different file)
- * - The file is modified (mtime changes)
- * - The selection state changes
- * - The date group changes
- * - The onClick handler changes (should be stable from parent)
- * - Settings version changes (forces re-render for settings updates)
+ * Memoized FileItem component only re-renders when necessary.
  */
 export const FileItem = memo(FileItemInternal);

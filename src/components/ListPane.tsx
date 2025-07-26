@@ -467,35 +467,51 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
                 // Normal mode
                 textContentHeight += heights.titleLineHeight * (fileNameRows || 1); // File name
 
-                // Add second line height for date/preview
-                if (showFilePreview || showDate) {
-                    if (effectivePreviewRows === 1) {
-                        // Single line mode: date and preview share one line
+                // Single row mode - show date+preview, tags, and parent folder
+                if (previewRows < 2) {
+                    // Date and preview share one line
+                    if (showFilePreview || showDate) {
                         textContentHeight += heights.metadataLineHeight;
+                    }
+
+                    // Parent folder gets its own line
+                    if (settings.showParentFolderNames && settings.showNotesFromSubfolders) {
+                        const file = isTFile(item.data) ? item.data : null;
+                        const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
+                        if (isInSubfolder) {
+                            textContentHeight += heights.metadataLineHeight;
+                        }
+                    }
+                } else {
+                    // Multi-row mode - different layouts based on preview content
+                    if (!hasPreviewText) {
+                        // Empty preview: show date + parent folder on same line
+                        const file = isTFile(item.data) ? item.data : null;
+                        const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
+                        const showsParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
+
+                        if (showDate || showsParentFolder) {
+                            textContentHeight += heights.metadataLineHeight;
+                        }
                     } else {
-                        // Multi-line mode: preview takes full configured rows
+                        // Has preview text: show multi-line preview, then date + parent folder
                         if (showFilePreview) {
                             textContentHeight += heights.multiLineLineHeight * effectivePreviewRows;
                         }
-                        // Date only adds height when preview is 2+ rows
-                        if (showDate) {
+                        // Only add metadata line if date is shown OR parent folder is shown
+                        const file = isTFile(item.data) ? item.data : null;
+                        const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
+                        const showsParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
+
+                        if (showDate || showsParentFolder) {
                             textContentHeight += heights.metadataLineHeight;
                         }
                     }
                 }
             }
 
-            // Add parent folder height if applicable (but not in slim mode)
-            if (!isSlimMode && settings.showParentFolderNames && settings.showNotesFromSubfolders) {
-                const file = isTFile(item.data) ? item.data : null;
-                const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
-
-                if (isInSubfolder) {
-                    textContentHeight += heights.metadataLineHeight;
-                }
-            }
-
             // Add tag row height if file has tags (but not in slim mode)
+            // Tags are shown for both empty and non-empty preview text
             if (!isSlimMode && item.type === ListPaneItemType.FILE && isTFile(item.data)) {
                 // Check if file has tags using the database
                 const db = getDB();
@@ -1059,6 +1075,7 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
                                     style={{
                                         transform: `translateY(${virtualItem.start}px)`
                                     }}
+                                    data-index={virtualItem.index}
                                 >
                                     {item.type === ListPaneItemType.HEADER ? (
                                         <div className={`nn-date-group-header ${isFirstHeader ? 'nn-first-header' : ''}`}>
