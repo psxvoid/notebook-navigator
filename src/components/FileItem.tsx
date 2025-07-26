@@ -164,7 +164,7 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
 
             return undefined;
         },
-        [metadataService]
+        [metadataService, settings.tagColors]
     );
 
     // Add Obsidian tooltip (desktop only)
