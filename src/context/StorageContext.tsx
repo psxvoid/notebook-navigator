@@ -48,6 +48,7 @@ import { buildTagTreeFromDatabase } from '../utils/tagTree';
 import { TagTreeNode } from '../types/storage';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
 import { useSettingsState } from './SettingsContext';
+import { useServices } from './ServicesContext';
 import { DateUtils } from '../utils/dateUtils';
 import { getFileDisplayName as getDisplayName } from '../utils/fileNameUtils';
 import { ContentService } from '../services/ContentService';
@@ -142,11 +143,27 @@ function extractMetadata(app: App, file: TFile, settings: NotebookNavigatorSetti
 
 export function StorageProvider({ app, children }: StorageProviderProps) {
     const settings = useSettingsState();
+    const { metadataService } = useServices();
     const [fileData, setFileData] = useState<FileData>({ tree: new Map(), untagged: 0 });
 
     // Content service handles content generation (preview text + feature images)
     const contentService = useRef<ContentService | null>(null);
     const isFirstLoad = useRef(true);
+
+    // Helper function to rebuild tag tree and clean up metadata
+    const rebuildTagTree = () => {
+        const db = getDBInstance();
+        const { tree: newTree, untagged: newUntagged } = buildTagTreeFromDatabase(db);
+        clearNoteCountCache();
+        setFileData({ tree: newTree, untagged: settings.showTags && settings.showUntagged ? newUntagged : 0 });
+
+        // Clean up tag metadata now that we have the complete tag tree
+        if (metadataService) {
+            metadataService.cleanupTagMetadata().catch(error => {
+                console.error('Error during tag metadata cleanup:', error);
+            });
+        }
+    };
 
     useEffect(() => {
         // Only create service if it doesn't exist
@@ -195,9 +212,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
             if (hasTagChanges && settings.showTags) {
                 // Rebuild tag tree when tags change
-                const { tree: newTree, untagged: newUntagged } = buildTagTreeFromDatabase(db);
-                clearNoteCountCache();
-                setFileData({ tree: newTree, untagged: settings.showUntagged ? newUntagged : 0 });
+                rebuildTagTree();
             }
         });
 
@@ -217,11 +232,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
             // Build tag tree only on initial load and when storage is ready
             if (isInitialLoad && isStorageReady) {
-                clearNoteCountCache();
                 try {
-                    const db = getDBInstance();
-                    const { tree: cachedTree, untagged: cachedUntagged } = buildTagTreeFromDatabase(db);
-                    setFileData({ tree: cachedTree, untagged: settings.showTags && settings.showUntagged ? cachedUntagged : 0 });
+                    rebuildTagTree();
                 } catch (error) {
                     console.error('Failed to build tag tree from IndexedDB:', error);
                 }
@@ -299,11 +311,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                                 // Only rebuild tag tree if tags actually changed
                                 if (tagsChanged) {
-                                    const db = getDBInstance();
-                                    const { tree: newTree, untagged: newUntagged } = buildTagTreeFromDatabase(db);
-                                    // Update UI with new data
-                                    clearNoteCountCache();
-                                    setFileData({ tree: newTree, untagged: settings.showTags && settings.showUntagged ? newUntagged : 0 });
+                                    rebuildTagTree();
                                 } else {
                                     // Just update untagged count if needed
                                     const untaggedAdded = toAdd.filter(f => f.extension === 'md').length;
