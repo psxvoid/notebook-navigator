@@ -184,6 +184,26 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             });
     }, []);
 
+    // Listen for tag changes to rebuild tag tree
+    useEffect(() => {
+        if (!isStorageReady) return;
+
+        const db = getDBInstance();
+        const unsubscribe = db.onContentChange(changes => {
+            // Check if any changes include tags
+            const hasTagChanges = changes.some(change => change.changes.tags !== undefined);
+
+            if (hasTagChanges && settings.showTags) {
+                // Rebuild tag tree when tags change
+                const { tree: newTree, untagged: newUntagged } = buildTagTreeFromDatabase(db);
+                clearNoteCountCache();
+                setFileData({ tree: newTree, untagged: settings.showUntagged ? newUntagged : 0 });
+            }
+        });
+
+        return unsubscribe;
+    }, [isStorageReady, settings.showTags, settings.showUntagged]);
+
     // Track if we've already built the initial cache
     const hasBuiltInitialCache = useRef(false);
 

@@ -162,11 +162,24 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
             // Individual FileItems will update through the database subscription
         });
 
+        // Listen for tag changes from database
+        const db = getDB();
+        const dbUnsubscribe = db.onContentChange(changes => {
+            // Check if we're in tag view and tags changed
+            if (selectionType === ItemType.TAG && selectedTag) {
+                const hasTagChanges = changes.some(change => change.changes.tags !== undefined);
+                if (hasTagChanges) {
+                    forceUpdate();
+                }
+            }
+        });
+
         return () => {
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
             app.metadataCache.offref(metadataEvent);
+            dbUnsubscribe();
         };
-    }, [app]);
+    }, [app, selectionType, selectedTag, getDB]);
 
     // Scroll to top handler for mobile header click
     const handleScrollToTop = useCallback(() => {
@@ -491,9 +504,6 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
 
                 if (hasTags) {
                     textContentHeight += heights.tagRowHeight;
-                    console.log(
-                        `[${new Date().toISOString()}] [ListPane.estimateSize] File ${item.data.path} has ${tags.length} tags, adding tag height`
-                    );
                 }
             }
 
