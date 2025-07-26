@@ -29,6 +29,19 @@ Sorts class members by type and visibility:
 7. Public methods (alphabetical)
 8. Private methods (alphabetical)
 
+### organize-react-components
+
+Organizes React files by moving declarations into a consistent order:
+
+1. Imports (preserved from organize-imports)
+2. Type definitions (interfaces, types)
+3. Constants (UPPERCASE, objects, arrays)
+4. Utility functions (non-component functions)
+5. Custom hooks (useXxx functions)
+6. React components (PascalCase functions/consts)
+7. Other statements
+8. Default export (moved to end)
+
 ## Usage
 
 ```bash
@@ -41,6 +54,7 @@ npm run transform
 # Run specific transform
 npm run transform:imports
 npm run transform:classes
+npm run transform:react
 
 # Run with custom file pattern
 npx tsx codemods/run-transforms.ts organize-imports -- "src/components/**/*.tsx"

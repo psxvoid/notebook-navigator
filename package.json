@@ -12,7 +12,9 @@
     "transform": "tsx codemods/run-transforms.ts",
     "transform:dry": "tsx codemods/run-transforms.ts --dry-run",
     "transform:imports": "tsx codemods/run-transforms.ts organize-imports",
-    "transform:classes": "tsx codemods/run-transforms.ts sort-class-members"
+    "transform:classes": "tsx codemods/run-transforms.ts sort-class-members",
+    "transform:react": "tsx codemods/run-transforms.ts organize-react-components",
+    "transform:react-internals": "tsx codemods/run-transforms.ts organize-react-internals"
   },
   "keywords": [],
   "author": "Johan Sanneblad",
