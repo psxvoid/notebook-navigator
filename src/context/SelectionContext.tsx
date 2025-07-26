@@ -47,7 +47,7 @@ export type SelectionAction =
     | { type: 'SET_SELECTED_FILE'; file: TFile | null }
     | { type: 'SET_SELECTION_TYPE'; selectionType: NavigationItemType }
     | { type: 'CLEAR_SELECTION' }
-    | { type: 'REVEAL_FILE'; file: TFile; preserveFolder?: boolean }
+    | { type: 'REVEAL_FILE'; file: TFile; preserveFolder?: boolean; isManualReveal?: boolean }
     | { type: 'CLEANUP_DELETED_FOLDER'; deletedPath: string }
     | { type: 'CLEANUP_DELETED_FILE'; deletedPath: string; nextFileToSelect?: TFile | null }
     // Multi-selection actions
@@ -190,7 +190,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             }
 
             // Check if we should preserve the current tag view
-            const shouldPreserveTag = state.selectionType === 'tag' && state.selectedTag;
+            // Only preserve tag view for auto-reveals, not manual reveals
+            const shouldPreserveTag = state.selectionType === 'tag' && state.selectedTag && !action.isManualReveal;
 
             // If preserveFolder is true and we have a selected folder, keep it
             const newFolder = action.preserveFolder && state.selectedFolder ? state.selectedFolder : action.file.parent;
@@ -198,7 +199,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             const newSelectedFiles = new Set<string>();
             newSelectedFiles.add(action.file.path);
 
-            // If we're in tag view, preserve it
+            // If we're in tag view and this is not a manual reveal, preserve it
             if (shouldPreserveTag) {
                 return {
                     ...state,

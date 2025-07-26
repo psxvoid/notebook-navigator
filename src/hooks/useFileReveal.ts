@@ -91,7 +91,7 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             }
 
             // Trigger the reveal - never preserve folder for actual folder reveals
-            selectionDispatch({ type: 'REVEAL_FILE', file, preserveFolder: false });
+            selectionDispatch({ type: 'REVEAL_FILE', file, preserveFolder: false, isManualReveal: true });
 
             // In single pane mode, switch to list pane view
             if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
@@ -150,8 +150,8 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
                 }
             }
 
-            // Trigger the reveal
-            selectionDispatch({ type: 'REVEAL_FILE', file, preserveFolder });
+            // Trigger the reveal - this is an auto-reveal, not manual
+            selectionDispatch({ type: 'REVEAL_FILE', file, preserveFolder, isManualReveal: false });
 
             // In single pane mode, switch to list pane view
             if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {

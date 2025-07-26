@@ -600,12 +600,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * @param file - The file to navigate to in the navigator
      */
     private async navigateToFile(file: TFile) {
-        console.log('[Main] navigateToFile called:', file.path);
-
         // Ensure navigator is open
         const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         if (leaves.length === 0) {
-            console.log('[Main] No navigator leaves found, activating view');
             await this.activateView(true);
         }
 
@@ -614,7 +611,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
         navigatorLeaves.forEach(leaf => {
             const view = leaf.view;
             if (view instanceof NotebookNavigatorView) {
-                console.log('[Main] Calling view.navigateToFile');
                 view.navigateToFile(file);
             }
         });
