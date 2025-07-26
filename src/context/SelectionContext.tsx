@@ -18,6 +18,8 @@
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode, useCallback } from 'react';
 import { App, TFile, TFolder } from 'obsidian';
+import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { useSettingsState } from './SettingsContext';
 import { NavigationItemType, STORAGE_KEYS } from '../types';
 import { NotebookNavigatorPlugin } from '../types/plugin';
 
@@ -99,38 +101,42 @@ function getFirstSelectedFile(selectedFiles: Set<string>, app: App): TFile | nul
 function selectionReducer(state: SelectionState, action: SelectionAction, app?: App): SelectionState {
     switch (action.type) {
         case 'SET_SELECTED_FOLDER': {
-            // Don't clear selection immediately - let ListPane handle it after files update
+            const newSelectedFiles = new Set<string>();
+            if (action.autoSelectedFile) {
+                newSelectedFiles.add(action.autoSelectedFile.path);
+            }
             return {
                 ...state,
                 selectedFolder: action.folder,
                 selectedTag: null,
                 selectionType: 'folder',
-                // Keep existing selection during transition
-                selectedFiles: state.selectedFiles,
-                selectedFile: state.selectedFile,
+                selectedFiles: newSelectedFiles,
+                selectedFile: action.autoSelectedFile || null,
                 anchorIndex: null,
                 lastMovementDirection: null,
                 isRevealOperation: false,
-                isFolderChangeWithAutoSelect: false,
+                isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null,
                 isKeyboardNavigation: false,
                 isFolderNavigation: true // Set flag when folder changes
             };
         }
 
         case 'SET_SELECTED_TAG': {
-            // Don't clear selection immediately - let ListPane handle it after files update
+            const newSelectedFiles = new Set<string>();
+            if (action.autoSelectedFile) {
+                newSelectedFiles.add(action.autoSelectedFile.path);
+            }
             return {
                 ...state,
                 selectedTag: action.tag,
                 selectedFolder: null,
                 selectionType: 'tag',
-                // Keep existing selection during transition
-                selectedFiles: state.selectedFiles,
-                selectedFile: state.selectedFile,
+                selectedFiles: newSelectedFiles,
+                selectedFile: action.autoSelectedFile || null,
                 anchorIndex: null,
                 lastMovementDirection: null,
                 isRevealOperation: false,
-                isFolderChangeWithAutoSelect: false,
+                isFolderChangeWithAutoSelect: action.autoSelectedFile !== undefined && action.autoSelectedFile !== null,
                 isKeyboardNavigation: false,
                 isFolderNavigation: true // Set flag when tag changes too
             };
@@ -410,6 +416,9 @@ interface SelectionProviderProps {
 }
 
 export function SelectionProvider({ children, app, plugin, isMobile }: SelectionProviderProps) {
+    // Get current settings from SettingsContext
+    const settings = useSettingsState();
+
     // Load initial state from localStorage and vault
     const loadInitialState = useCallback((): SelectionState => {
         const vault = app.vault;
@@ -477,8 +486,58 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
     // Create an enhanced dispatch that handles side effects
     const enhancedDispatch = useCallback(
         (action: SelectionAction) => {
+            // Handle auto-select logic for folder selection
+            if (action.type === 'SET_SELECTED_FOLDER' && action.autoSelectedFile === undefined) {
+                if (action.folder) {
+                    const filesInFolder = getFilesForFolder(action.folder, settings, app);
+
+                    // Desktop with autoSelectFirstFile enabled: ALWAYS select first file
+                    if (!isMobile && settings.autoSelectFirstFileOnFocusChange && filesInFolder.length > 0) {
+                        dispatch({ ...action, autoSelectedFile: filesInFolder[0] });
+                    } else {
+                        // Otherwise, check for active file
+                        const activeFile = app.workspace.getActiveFile();
+                        const activeFileInFolder = activeFile && filesInFolder.some(f => f.path === activeFile.path);
+
+                        if (activeFileInFolder) {
+                            // Select the active file if it's in the folder (mobile always, desktop when autoSelect is off)
+                            dispatch({ ...action, autoSelectedFile: activeFile });
+                        } else {
+                            // No auto-selection
+                            dispatch({ ...action, autoSelectedFile: null });
+                        }
+                    }
+                } else {
+                    dispatch({ ...action, autoSelectedFile: null });
+                }
+            }
+            // Handle auto-select logic for tag selection
+            else if (action.type === 'SET_SELECTED_TAG' && action.autoSelectedFile === undefined) {
+                if (action.tag) {
+                    const filesForTag = getFilesForTag(action.tag, settings, app);
+
+                    // Desktop with autoSelectFirstFile enabled: ALWAYS select first file
+                    if (!isMobile && settings.autoSelectFirstFileOnFocusChange && filesForTag.length > 0) {
+                        dispatch({ ...action, autoSelectedFile: filesForTag[0] });
+                    } else {
+                        // Otherwise, check for active file
+                        const activeFile = app.workspace.getActiveFile();
+                        const activeFileInTag = activeFile && filesForTag.some(f => f.path === activeFile.path);
+
+                        if (activeFileInTag) {
+                            // Select the active file if it's in the tag view (mobile always, desktop when autoSelect is off)
+                            dispatch({ ...action, autoSelectedFile: activeFile });
+                        } else {
+                            // No auto-selection
+                            dispatch({ ...action, autoSelectedFile: null });
+                        }
+                    }
+                } else {
+                    dispatch({ ...action, autoSelectedFile: null });
+                }
+            }
             // Handle cleanup for deleted files on mobile
-            if (action.type === 'CLEANUP_DELETED_FILE' && isMobile) {
+            else if (action.type === 'CLEANUP_DELETED_FILE' && isMobile) {
                 // On mobile, never auto-select next file
                 dispatch({ ...action, nextFileToSelect: null });
             }
@@ -487,7 +546,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
                 dispatch(action);
             }
         },
-        [isMobile, dispatch]
+        [app, settings, isMobile, dispatch]
     );
 
     // Persist selected folder to localStorage with error handling
