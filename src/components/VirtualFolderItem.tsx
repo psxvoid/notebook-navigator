@@ -43,24 +43,23 @@ interface VirtualFolderItemProps {
  * @param props.onToggle - Handler called when the expand/collapse chevron is clicked
  * @returns A virtual folder item element with chevron, icon, and name
  */
-export const VirtualFolderComponent = React.memo(function VirtualFolderComponent({
-    virtualFolder,
-    level,
-    isExpanded,
-    hasChildren,
-    onToggle
-}: VirtualFolderItemProps) {
-    const settings = useSettingsState();
+function VirtualFolderComponentInternal({ virtualFolder, level, isExpanded, hasChildren, onToggle }: VirtualFolderItemProps) {
+    // ========== REACT HOOKS ==========
     const folderRef = useRef<HTMLDivElement>(null);
     const chevronRef = useRef<HTMLDivElement>(null);
     const iconRef = useRef<HTMLSpanElement>(null);
 
+    // ========== CONTEXT HOOKS ==========
+    const settings = useSettingsState();
+
+    // ========== EVENT HANDLERS ==========
     const handleDoubleClick = () => {
         if (hasChildren) {
             onToggle();
         }
     };
 
+    // ========== EFFECT HOOKS ==========
     useEffect(() => {
         if (chevronRef.current) {
             setIcon(chevronRef.current, isExpanded ? 'chevron-down' : 'chevron-right');
@@ -73,6 +72,7 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
         }
     }, [virtualFolder.icon, settings.showIcons]);
 
+    // ========== MAIN RENDER ==========
     return (
         <div
             ref={folderRef}
@@ -103,4 +103,9 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
             </div>
         </div>
     );
-});
+}
+
+VirtualFolderComponentInternal.displayName = 'VirtualFolderComponent';
+
+// Memoize to prevent re-renders from parent
+export const VirtualFolderComponent = React.memo(VirtualFolderComponentInternal);

@@ -17,7 +17,7 @@
  */
 
 // src/components/NotebookNavigatorComponent.tsx
-import { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback } from 'react';
 import { TFile, TFolder, Notice } from 'obsidian';
 import { NavigationPane } from './NavigationPane';
 import { ListPane } from './ListPane';
@@ -63,25 +63,25 @@ export interface NotebookNavigatorHandle {
  * @param ref - Forwarded ref exposing revealFile and focusFilePane methods
  * @returns A split-pane container with folder tree and file list
  */
-export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_, ref) => {
+const NotebookNavigatorInternal = forwardRef<NotebookNavigatorHandle>((_, ref) => {
+    // ========== REACT HOOKS ==========
+    const containerRef = useRef<HTMLDivElement>(null);
+    const navigationPaneRef = useRef<NavigationPaneHandle>(null);
+    const listPaneRef = useRef<ListPaneHandle>(null);
+    const hasCheckedInitialVisibility = useRef(false);
+    const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
+
+    // ========== CONTEXT HOOKS ==========
     const { app, isMobile, fileSystemOps } = useServices();
     const settings = useSettingsState();
+    const updateSettings = useSettingsUpdate();
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const expansionDispatch = useExpansionDispatch();
 
-    // Root container reference for the entire navigator
-    // This ref is passed to both NavigationPane and ListPane to ensure
-    // keyboard events are captured at the navigator level, not globally.
-    // This prevents interference with other Obsidian views (e.g., canvas editor).
-    const containerRef = useRef<HTMLDivElement>(null);
-
-    const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
-    const navigationPaneRef = useRef<NavigationPaneHandle>(null);
-    const listPaneRef = useRef<ListPaneHandle>(null);
-
+    // ========== CUSTOM HOOKS ==========
     // Enable drag and drop only on desktop
     useDragAndDrop(containerRef);
 
@@ -108,32 +108,47 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         setIsNavigatorFocused
     });
 
-    // Listen for mobile hide/show events
-    useEffect(() => {
-        const handleMobileHide = (file: TFile) => {
-            try {
-                // Navigate to file when navigator is shown
-                navigateToFile(file);
-            } catch {}
-        };
+    // ========== EVENT HANDLERS ==========
+    // Container ref callback that checks if file list is visible on first mount
+    const containerCallbackRef = useCallback(
+        (node: HTMLDivElement | null) => {
+            containerRef.current = node;
 
-        const handleMobileShow = () => {
-            try {
-            } catch {}
-        };
+            // Auto-disable dual pane mode on startup if viewport is too narrow for both panes
+            if (node && !isMobile && !hasCheckedInitialVisibility.current && settings.dualPane) {
+                hasCheckedInitialVisibility.current = true;
 
-        const hideEventRef = app.workspace.on('notebook-navigator:mobile-hide' as any, handleMobileHide);
-        const showEventRef = app.workspace.on('notebook-navigator:mobile-show' as any, handleMobileShow);
+                const containerWidth = node.getBoundingClientRect().width;
+                // Check if container is too narrow to show both panes
+                if (containerWidth < paneWidth + FILE_PANE_DIMENSIONS.minWidth) {
+                    updateSettings(settings => {
+                        settings.dualPane = false;
+                    });
+                }
+            }
+        },
+        [isMobile, paneWidth, settings.dualPane, updateSettings]
+    );
 
-        return () => {
-            app.workspace.offref(hideEventRef);
-            app.workspace.offref(showEventRef);
-        };
-    }, [app, navigateToFile]);
+    // ========== COMPUTED VALUES ==========
+    // Determine CSS classes
+    const containerClasses = ['nn-split-container'];
+    if (isMobile && uiState.singlePane) {
+        // Mobile uses sliding animations with show-list/show-files classes
+        containerClasses.push(uiState.currentSinglePaneView === 'navigation' ? 'show-navigation' : 'show-files');
+    } else if (uiState.singlePane) {
+        // Desktop single-pane mode
+        containerClasses.push('nn-desktop-single-pane');
+        containerClasses.push(uiState.currentSinglePaneView === 'navigation' ? 'show-navigation' : 'show-files');
+    } else {
+        // Desktop dual-pane mode
+        containerClasses.push('nn-desktop');
+    }
+    if (isResizing) {
+        containerClasses.push('nn-resizing');
+    }
 
-    // Get updateSettings from SettingsContext for refresh
-    const updateSettings = useSettingsUpdate();
-
+    // ========== IMPERATIVE HANDLE ==========
     // Expose methods via ref
     useImperativeHandle(
         ref,
@@ -267,8 +282,29 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         ]
     );
 
-    // Track if initial visibility check has been performed
-    const hasCheckedInitialVisibility = useRef(false);
+    // ========== EFFECT HOOKS ==========
+    // Listen for mobile hide/show events
+    useEffect(() => {
+        const handleMobileHide = (file: TFile) => {
+            try {
+                // Navigate to file when navigator is shown
+                navigateToFile(file);
+            } catch {}
+        };
+
+        const handleMobileShow = () => {
+            try {
+            } catch {}
+        };
+
+        const hideEventRef = app.workspace.on('notebook-navigator:mobile-hide' as any, handleMobileHide);
+        const showEventRef = app.workspace.on('notebook-navigator:mobile-show' as any, handleMobileShow);
+
+        return () => {
+            app.workspace.offref(hideEventRef);
+            app.workspace.offref(showEventRef);
+        };
+    }, [app, navigateToFile]);
 
     // Handle side effects when dualPane setting changes
     useEffect(() => {
@@ -279,44 +315,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
         }
     }, [settings.dualPane, isMobile, uiDispatch]);
 
-    // Container ref callback that checks if file list is visible on first mount
-    const containerCallbackRef = useCallback(
-        (node: HTMLDivElement | null) => {
-            containerRef.current = node;
-
-            // Auto-disable dual pane mode on startup if viewport is too narrow for both panes
-            if (node && !isMobile && !hasCheckedInitialVisibility.current && settings.dualPane) {
-                hasCheckedInitialVisibility.current = true;
-
-                const containerWidth = node.getBoundingClientRect().width;
-                // Check if container is too narrow to show both panes
-                if (containerWidth < paneWidth + FILE_PANE_DIMENSIONS.minWidth) {
-                    updateSettings(settings => {
-                        settings.dualPane = false;
-                    });
-                }
-            }
-        },
-        [isMobile, paneWidth, settings.dualPane, updateSettings]
-    );
-
-    // Determine CSS classes
-    const containerClasses = ['nn-split-container'];
-    if (isMobile && uiState.singlePane) {
-        // Mobile uses sliding animations with show-list/show-files classes
-        containerClasses.push(uiState.currentSinglePaneView === 'navigation' ? 'show-navigation' : 'show-files');
-    } else if (uiState.singlePane) {
-        // Desktop single-pane mode
-        containerClasses.push('nn-desktop-single-pane');
-        containerClasses.push(uiState.currentSinglePaneView === 'navigation' ? 'show-navigation' : 'show-files');
-    } else {
-        // Desktop dual-pane mode
-        containerClasses.push('nn-desktop');
-    }
-    if (isResizing) {
-        containerClasses.push('nn-resizing');
-    }
-
+    // ========== MAIN RENDER ==========
     return (
         <div
             ref={containerCallbackRef}
@@ -349,4 +348,7 @@ export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_
     );
 });
 
-NotebookNavigatorComponent.displayName = 'NotebookNavigatorComponent';
+NotebookNavigatorInternal.displayName = 'NotebookNavigatorComponent';
+
+// Memoize to prevent re-renders from parent
+export const NotebookNavigatorComponent = React.memo(NotebookNavigatorInternal);
