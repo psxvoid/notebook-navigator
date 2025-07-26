@@ -96,7 +96,12 @@ export class ContentService {
      * @param _cache - Unused parameter (kept for backwards compatibility)
      * @param isInitialBuild - Whether this is the initial vault scan
      */
-    public async queueContent(files: TFile[], _cache: unknown, isInitialBuild: boolean = false): Promise<void> {
+    public async queueContent(
+        files: TFile[],
+        _cache: unknown,
+        isInitialBuild: boolean = false,
+        forceRegenerate: boolean = false
+    ): Promise<void> {
         // Clear any pending debounce timer
         if (this.queueDebounceTimer !== null) {
             window.clearTimeout(this.queueDebounceTimer);
@@ -109,14 +114,16 @@ export class ContentService {
         // Set whether we should log for this batch
         this.shouldLogCurrentBatch = !isRegularFileUpdate;
 
-        // Reset settingsChanged flag after using it to determine logging
-        // This prevents it from persisting and causing logs for subsequent file edits
+        // Don't clear the queue - we want to preserve already queued files
+        // Only clear on settings changes or initial builds
+        if (isInitialBuild || this.settingsChanged) {
+            this.queue.length = 0;
+        }
+
+        // Reset settingsChanged flag after using it
         if (this.settingsChanged) {
             this.settingsChanged = false;
         }
-
-        // Always clear the queue to re-evaluate what needs processing with new settings
-        this.queue.length = 0;
 
         // Check if content generation is enabled
         if (!this.settings.showFilePreview && !this.settings.showFeatureImage && !this.settings.useFrontmatterMetadata) {
@@ -140,13 +147,23 @@ export class ContentService {
         const jobs: ContentJob[] = files.map(file => {
             const fileData = fileDataMap.get(file.path);
 
-            // Check what needs generation based on null values
+            // For modified files, always regenerate content
+            const fileModified = fileData && fileData.mtime !== file.stat.mtime;
+
+            // Check what needs generation based on null values OR file modification
             // IMPORTANT: We check for === null specifically, not falsy values
             // Empty string '' means preview was generated but file has no content
-            const needsPreview = this.settings.showFilePreview && (!fileData || fileData.preview === null) && file.extension === 'md';
-            const needsImage = this.settings.showFeatureImage && (!fileData || fileData.featureImage === null);
-            const needsMetadata =
-                this.settings.useFrontmatterMetadata && (!fileData || fileData.metadata === null) && file.extension === 'md';
+            const needsPreview = !!(
+                this.settings.showFilePreview &&
+                (!fileData || fileData.preview === null || fileModified) &&
+                file.extension === 'md'
+            );
+            const needsImage = !!(this.settings.showFeatureImage && (!fileData || fileData.featureImage === null || fileModified));
+            const needsMetadata = !!(
+                this.settings.useFrontmatterMetadata &&
+                (!fileData || fileData.metadata === null || fileModified) &&
+                file.extension === 'md'
+            );
 
             return {
                 file,
@@ -164,7 +181,8 @@ export class ContentService {
             return;
         }
 
-        // Add jobs to existing queue array instead of replacing it
+        // Add jobs to existing queue array
+        // Simple approach: just add the jobs, the debounce timer will handle duplicates
         this.queue.push(...activeJobs);
         this.totalFiles = this.queue.length;
 
@@ -308,6 +326,8 @@ export class ContentService {
                 metadata?: { name?: string; created?: number; modified?: number };
             }> = [];
 
+            const db = getDBInstance();
+
             for (const result of results) {
                 if (!result.success) continue;
 
@@ -320,16 +340,23 @@ export class ContentService {
 
                 let hasUpdates = false;
 
-                // Update preview if we processed it
+                // Get existing file data for comparison
+                const existingFile = db.getFile(result.job.file.path);
+
+                // Update preview if we processed it AND it changed
                 if (result.job.needsPreview) {
-                    update.preview = result.preview;
-                    hasUpdates = true;
+                    if (!existingFile || existingFile.preview !== result.preview) {
+                        update.preview = result.preview;
+                        hasUpdates = true;
+                    }
                 }
 
-                // Update feature image if we processed it
+                // Update feature image if we processed it AND it changed
                 if (result.job.needsImage) {
-                    update.featureImage = result.imageUrl;
-                    hasUpdates = true;
+                    if (!existingFile || existingFile.featureImage !== result.imageUrl) {
+                        update.featureImage = result.imageUrl;
+                        hasUpdates = true;
+                    }
                 }
 
                 // Update metadata if we processed it
@@ -350,7 +377,6 @@ export class ContentService {
 
             // Update database in batch to avoid multiple notifications
             if (batchUpdates.length > 0) {
-                const db = getDBInstance();
                 await db.batchUpdateFileContent(batchUpdates);
             }
 

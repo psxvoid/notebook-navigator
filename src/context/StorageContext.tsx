@@ -397,14 +397,48 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         const vaultEvents = [
             app.vault.on('create', rebuildFileCache),
             app.vault.on('delete', rebuildFileCache),
-            app.vault.on('rename', rebuildFileCache)
+            app.vault.on('rename', rebuildFileCache),
+            app.vault.on('modify', async file => {
+                // Check if it's a TFile (not a folder)
+                if (file instanceof TFile && file.extension === 'md') {
+                    // Queue content regeneration BEFORE updating cache
+                    // This ensures ContentService can detect the mtime change
+                    if (contentService.current) {
+                        contentService.current.queueContent([file], null);
+                    }
+
+                    // Update file in cache after queuing
+                    await updateFilesInCache([file], app);
+                }
+            })
         ];
 
-        // Always rebuild on metadata changes - tags might have been added OR removed
-        // This catches tag changes even when file mtime doesn't change
-        const metadataEvent = app.metadataCache.on('changed', file => {
+        // Listen to metadata changes for non-tag updates
+        // Tags are already handled by the modify event above
+        const metadataEvent = app.metadataCache.on('changed', async file => {
             if (file && file.extension === 'md') {
-                rebuildFileCache();
+                // Get existing data before updating
+                const db = getDBInstance();
+                const existingFile = db.getFile(file.path);
+
+                // Update tags and metadata in the database
+                await updateFilesInCache([file], app);
+
+                // Check if this metadata change includes feature image properties
+                const metadata = app.metadataCache.getFileCache(file);
+                const featureImageProperties = ['featureResized', 'feature'];
+
+                // Only queue if feature image properties changed (not just exist)
+                if (metadata?.frontmatter && contentService.current && existingFile) {
+                    const hadFeatureImage = existingFile.featureImage !== null;
+                    const hasFeatureImageProps = featureImageProperties.some(prop => metadata.frontmatter![prop] !== undefined);
+
+                    // Queue only if we need to generate a feature image
+                    if (hasFeatureImageProps && !hadFeatureImage) {
+                        // Queue content regeneration for feature image
+                        contentService.current.queueContent([file], null);
+                    }
+                }
             }
         });
 

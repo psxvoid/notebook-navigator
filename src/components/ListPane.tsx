@@ -153,12 +153,13 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
                     }
                 }
             } else if (selectionType === ItemType.TAG && selectedTag) {
-                // For tags, we need to check if the file's tags changed
-                // This is harder to optimize, so we'll still update for now
-                // but less frequently
+                // For tag view, we DO need to rebuild the list as files might be added/removed
+                forceUpdate();
+                return;
             }
 
-            forceUpdate();
+            // For folder view, we don't need to rebuild the list for metadata changes
+            // Individual FileItems will update through the database subscription
         });
 
         return () => {
@@ -481,6 +482,21 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
                 }
             }
 
+            // Add tag row height if file has tags (but not in slim mode)
+            if (!isSlimMode && item.type === ListPaneItemType.FILE && isTFile(item.data)) {
+                // Check if file has tags using the database
+                const db = getDB();
+                const tags = db.getDisplayTags(item.data.path);
+                const hasTags = tags.length > 0;
+
+                if (hasTags) {
+                    textContentHeight += heights.tagRowHeight;
+                    console.log(
+                        `[${new Date().toISOString()}] [ListPane.estimateSize] File ${item.data.path} has ${tags.length} tags, adding tag height`
+                    );
+                }
+            }
+
             // Apply min-height constraint AFTER including all content (but not in slim mode)
             // This ensures text content aligns with feature image height (42px) when shown
             if (!isSlimMode && textContentHeight < 42) {
@@ -542,9 +558,30 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
         if (!rowVirtualizer) return;
 
         const db = getDB();
-        const unsubscribe = db.onContentChange(() => {
-            // Content has been generated, re-measure to update heights
-            rowVirtualizer.measure();
+        const unsubscribe = db.onContentChange(changes => {
+            // Check if any changes affect item height
+            const needsRemeasure = changes.some(change => {
+                // Content changes always need remeasure
+                if (
+                    change.changes.preview !== undefined ||
+                    change.changes.featureImage !== undefined ||
+                    change.changes.metadata !== undefined
+                ) {
+                    return true;
+                }
+
+                // For tag changes, always remeasure to handle height changes
+                // When tags are added/removed, the height of the item changes
+                if (change.changes.tags !== undefined) {
+                    return true;
+                }
+
+                return false;
+            });
+
+            if (needsRemeasure) {
+                rowVirtualizer.measure();
+            }
         });
 
         return () => {

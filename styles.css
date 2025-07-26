@@ -677,6 +677,57 @@
 }
 
 /* ========================================================================
+   Tag Display Styles
+   ======================================================================== */
+/* Tag container */
+.nn-file-tags {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--size-2-2);
+    margin-top: var(--size-2-2);
+    overflow: hidden;
+    height: 22px; /* Fixed height for single row */
+    position: relative;
+}
+
+/* Individual tag pill */
+.nn-file-tag {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 var(--size-4-2);
+    background-color: var(--background-modifier-border);
+    color: var(--text-muted);
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+/* Tag pill hover effect */
+.nn-file-tag:hover {
+    background-color: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
+/* Dark mode tag styles */
+.theme-dark .nn-file-tag {
+    background-color: var(--background-modifier-border);
+    color: var(--text-muted);
+}
+
+.theme-dark .nn-file-tag:hover {
+    background-color: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
+/* Selected file tag styles */
+.nn-file-item.nn-selected .nn-file-tag {
+    opacity: 0.85;
+}
+
+/* ========================================================================
    Slim Mode Styles - When date, preview, and image are all disabled
    ======================================================================== */
 

@@ -80,6 +80,9 @@ export async function updateFilesInCache(files: TFile[], app: App): Promise<void
     const paths = files.map(f => f.path);
     const existingData = db.getFiles(paths);
 
+    // Get feature image properties from settings (we need to import settings)
+    const featureImageProperties = ['featureResized', 'feature']; // Default from settings
+
     for (const file of files) {
         const metadata = app.metadataCache.getFileCache(file);
         const tags = metadata ? getAllTags(metadata) : [];
@@ -90,22 +93,33 @@ export async function updateFilesInCache(files: TFile[], app: App): Promise<void
         const tagsChanged =
             existing && (existing.tags.length !== (tags?.length || 0) || !existing.tags.every(tag => tags?.includes(tag) || false));
 
-        // Clear content if file was modified OR tags changed
-        const shouldClearContent = wasModified || tagsChanged;
+        // Check if feature image properties changed or were added
+        // We need to detect both: when properties are first added and when they change
+        let featureImageChanged = false;
+        if (metadata?.frontmatter) {
+            // Check if any feature image properties exist in frontmatter
+            const hasFeatureImageProps = featureImageProperties.some(prop => metadata.frontmatter![prop] !== undefined);
+
+            if (hasFeatureImageProps) {
+                // If we have feature image properties and either:
+                // 1. File was modified (properties might have changed)
+                // 2. We don't have a feature image yet (properties were just added)
+                if (wasModified || !existing?.featureImage) {
+                    featureImageChanged = true;
+                }
+            }
+        }
 
         const fileData: FileData = {
             path: file.path,
             mtime: file.stat.mtime,
             tags: tags || [],
-            // Clear content if file was modified or tags changed, otherwise preserve existing
-            preview: shouldClearContent ? null : (existing?.preview ?? null),
-            featureImage: shouldClearContent ? null : (existing?.featureImage ?? null),
-            metadata: shouldClearContent ? null : (existing?.metadata ?? null)
+            // Always preserve existing preview - regeneration handled by ContentService
+            preview: existing?.preview ?? null,
+            // Clear feature image if properties changed so it gets regenerated
+            featureImage: featureImageChanged ? null : (existing?.featureImage ?? null),
+            metadata: existing?.metadata ?? null
         };
-
-        if (wasModified) {
-        } else if (tagsChanged) {
-        }
 
         updates.push(fileData);
     }

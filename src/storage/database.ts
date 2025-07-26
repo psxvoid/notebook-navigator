@@ -40,7 +40,9 @@ export interface FileContentChange {
         preview?: string | null;
         featureImage?: string | null;
         metadata?: FileData['metadata'] | null;
+        tags?: string[];
     };
+    changeType?: 'metadata' | 'content' | 'both';
 }
 
 /**
@@ -66,6 +68,7 @@ export class Database {
     private db: IDBDatabase | null = null;
     private initPromise: Promise<void> | null = null;
     private changeListeners = new Set<(changes: FileContentChange[]) => void>();
+    private fileChangeListeners = new Map<string, Set<(changes: FileContentChange['changes']) => void>>();
     private cache: DatabaseCache = new DatabaseCache();
 
     /**
@@ -81,6 +84,33 @@ export class Database {
     }
 
     /**
+     * Subscribe to content change notifications for a specific file.
+     * More efficient than onContentChange as it only receives changes for the specified file.
+     *
+     * @param path - File path to listen for changes
+     * @param listener - Function to call with content changes for this file
+     * @returns Unsubscribe function
+     */
+    onFileContentChange(path: string, listener: (changes: FileContentChange['changes']) => void): () => void {
+        let fileListeners = this.fileChangeListeners.get(path);
+        if (!fileListeners) {
+            fileListeners = new Set();
+            this.fileChangeListeners.set(path, fileListeners);
+        }
+        fileListeners.add(listener);
+
+        return () => {
+            const listeners = this.fileChangeListeners.get(path);
+            if (listeners) {
+                listeners.delete(listener);
+                if (listeners.size === 0) {
+                    this.fileChangeListeners.delete(path);
+                }
+            }
+        };
+    }
+
+    /**
      * Emit content changes to all registered listeners.
      * Catches and logs any errors in listeners to prevent cascading failures.
      *
@@ -91,6 +121,8 @@ export class Database {
         // Only log batch operations or errors
         if (changes.length > 1) {
         }
+
+        // Emit to global listeners (for backward compatibility)
         this.changeListeners.forEach(listener => {
             try {
                 listener(changes);
@@ -98,6 +130,20 @@ export class Database {
                 console.error('Error in change listener:', error);
             }
         });
+
+        // Emit to file-specific listeners
+        for (const change of changes) {
+            const fileListeners = this.fileChangeListeners.get(change.path);
+            if (fileListeners) {
+                fileListeners.forEach(listener => {
+                    try {
+                        listener(change.changes);
+                    } catch (error) {
+                        console.error('Error in file change listener:', error);
+                    }
+                });
+            }
+        }
     }
 
     /**
@@ -291,6 +337,10 @@ export class Database {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
+        // Get existing data to check for tag changes
+        const existingData = this.getFiles(files.map(f => f.path));
+        const tagChanges: FileContentChange[] = [];
+
         const transaction = this.db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
 
@@ -304,6 +354,19 @@ export class Database {
             }
 
             files.forEach(data => {
+                // Check if tags changed
+                const existing = existingData.get(data.path);
+                const tagsChanged =
+                    !existing || existing.tags.length !== data.tags.length || !existing.tags.every((tag, i) => tag === data.tags[i]);
+
+                if (tagsChanged) {
+                    tagChanges.push({
+                        path: data.path,
+                        changes: { tags: data.tags },
+                        changeType: 'metadata'
+                    });
+                }
+
                 const request = store.put(data);
 
                 request.onsuccess = () => {
@@ -311,6 +374,12 @@ export class Database {
                     if (completed === files.length && !hasError) {
                         // Update cache after all successful database writes
                         this.cache.batchUpdate(files);
+
+                        // Emit tag changes after transaction completes
+                        if (tagChanges.length > 0) {
+                            setTimeout(() => this.emitChanges(tagChanges), 0);
+                        }
+
                         resolve();
                     }
                 };
@@ -458,7 +527,12 @@ export class Database {
 
         // Emit change notification
         if (Object.keys(changes).length > 0) {
-            this.emitChanges([{ path, changes }]);
+            // Determine change type
+            const hasContentChanges = changes.preview !== undefined || changes.featureImage !== undefined;
+            const hasMetadataChanges = changes.metadata !== undefined;
+            const changeType = hasContentChanges && hasMetadataChanges ? 'both' : hasContentChanges ? 'content' : 'metadata';
+
+            this.emitChanges([{ path, changes, changeType }]);
         }
     }
 
@@ -482,7 +556,7 @@ export class Database {
         await this.setFile(file);
 
         // Emit change notification
-        this.emitChanges([{ path, changes: { metadata: file.metadata } }]);
+        this.emitChanges([{ path, changes: { metadata: file.metadata }, changeType: 'metadata' }]);
     }
 
     /**
@@ -519,7 +593,12 @@ export class Database {
 
         // Emit change notification
         if (Object.keys(changes).length > 0) {
-            this.emitChanges([{ path, changes }]);
+            // Determine change type for clear operations
+            const hasContentCleared = changes.preview === null || changes.featureImage === null;
+            const hasMetadataCleared = changes.metadata === null;
+            const changeType = hasContentCleared && hasMetadataCleared ? 'both' : hasContentCleared ? 'content' : 'metadata';
+
+            this.emitChanges([{ path, changes, changeType }]);
         }
     }
 
@@ -569,7 +648,9 @@ export class Database {
                         cursor.update(file); // Update in-place
                         // Update cache immediately
                         this.cache.updateFile(file);
-                        changeNotifications.push({ path: file.path, changes });
+                        // Determine change type for batch clear
+                        const clearType = changes.preview === null || changes.featureImage === null ? 'content' : 'metadata';
+                        changeNotifications.push({ path: file.path, changes, changeType: clearType });
                     }
 
                     cursor.continue();
@@ -626,7 +707,9 @@ export class Database {
 
             if (hasChanges) {
                 updates.push(file);
-                changeNotifications.push({ path, changes });
+                // Determine change type for batch clear
+                const clearType = changes.preview === null || changes.featureImage === null ? 'content' : 'metadata';
+                changeNotifications.push({ path, changes, changeType: clearType });
             }
         }
 
@@ -686,7 +769,12 @@ export class Database {
 
             if (hasChanges) {
                 filesToUpdate.push(file);
-                changeNotifications.push({ path: update.path, changes });
+                // Determine change type for batch update
+                const hasContentUpdates = changes.preview !== undefined || changes.featureImage !== undefined;
+                const hasMetadataUpdates = changes.metadata !== undefined;
+                const updateType = hasContentUpdates && hasMetadataUpdates ? 'both' : hasContentUpdates ? 'content' : 'metadata';
+
+                changeNotifications.push({ path: update.path, changes, changeType: updateType });
             }
         }
 
@@ -801,6 +889,18 @@ export class Database {
     getDisplayFeatureImageUrl(path: string): string {
         const file = this.getFile(path);
         return file?.featureImage || '';
+    }
+
+    /**
+     * Get tags for display, returning empty array if none.
+     * Helper method for UI components that need tag data.
+     *
+     * @param path - File path to get tags for
+     * @returns Array of tag strings
+     */
+    getDisplayTags(path: string): string[] {
+        const file = this.getFile(path);
+        return file?.tags || [];
     }
 
     /**

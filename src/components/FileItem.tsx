@@ -69,76 +69,65 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
     // Load preview text from IndexedDB
     const [previewText, setPreviewText] = useState<string>('');
 
-    // Load preview text from database and subscribe to updates
+    // Load tags from RAM cache
+    const [tags, setTags] = useState<string[]>([]);
+
+    // Single subscription for all content changes
     useEffect(() => {
-        if (!settings.showFilePreview || file.extension !== 'md' || !isStorageReady) {
-            setPreviewText(''); // Clear preview for non-markdown files
-            return;
-        }
-
-        const db = getDB();
-
-        // Initial load - use helper method that returns empty string if null
-        setPreviewText(db.getDisplayPreviewText(file.path));
-
-        // Subscribe to changes for this file
-        const unsubscribe = db.onContentChange(changes => {
-            const change = changes.find(c => c.path === file.path);
-            if (change?.changes.preview !== undefined) {
-                setPreviewText(change.changes.preview || '');
-            }
-        });
-
-        return () => {
-            unsubscribe();
-        };
-    }, [file.path, settings.showFilePreview, getDB, isStorageReady]);
-
-    // Get display date from pre-computed dates
-    const displayDate = formattedDates?.display || '';
-
-    // Load feature image URL
-    const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(null);
-
-    useEffect(() => {
-        if (!settings.showFeatureImage) {
-            setFeatureImageUrl(null);
-            return;
-        }
-
-        // If the file itself is an image, use it directly
-        if (isImageFile(file)) {
-            try {
-                setFeatureImageUrl(app.vault.getResourcePath(file));
-            } catch (e) {
-                setFeatureImageUrl(null);
-            }
-            return;
-        }
-
-        // Wait for storage to be ready
         if (!isStorageReady) {
             return;
         }
 
         const db = getDB();
 
-        // Initial load from database cache - use helper method
-        const imageUrl = db.getDisplayFeatureImageUrl(file.path);
-        setFeatureImageUrl(imageUrl || null);
+        // Initial load of all data
+        if (settings.showFilePreview && file.extension === 'md') {
+            setPreviewText(db.getDisplayPreviewText(file.path));
+        } else {
+            setPreviewText('');
+        }
 
-        // Subscribe to changes for this file
-        const unsubscribe = db.onContentChange(changes => {
-            const change = changes.find(c => c.path === file.path);
-            if (change?.changes.featureImage !== undefined) {
-                setFeatureImageUrl(change.changes.featureImage || null);
+        if (settings.showFeatureImage) {
+            if (isImageFile(file)) {
+                try {
+                    setFeatureImageUrl(app.vault.getResourcePath(file));
+                } catch (e) {
+                    setFeatureImageUrl(null);
+                }
+            } else {
+                const imageUrl = db.getDisplayFeatureImageUrl(file.path);
+                setFeatureImageUrl(imageUrl || null);
+            }
+        } else {
+            setFeatureImageUrl(null);
+        }
+
+        const initialTags = db.getDisplayTags(file.path);
+        setTags(initialTags);
+
+        // Subscribe to changes for this specific file
+        const unsubscribe = db.onFileContentChange(file.path, changes => {
+            if (changes.preview !== undefined && settings.showFilePreview && file.extension === 'md') {
+                setPreviewText(changes.preview || '');
+            }
+            if (changes.featureImage !== undefined && settings.showFeatureImage && !isImageFile(file)) {
+                setFeatureImageUrl(changes.featureImage || null);
+            }
+            if (changes.tags !== undefined) {
+                setTags(changes.tags);
             }
         });
 
         return () => {
             unsubscribe();
         };
-    }, [file.path, settings.showFeatureImage, app, getDB, isStorageReady]);
+    }, [file.path, settings.showFilePreview, settings.showFeatureImage, getDB, isStorageReady, app, file.extension]);
+
+    // Get display date from pre-computed dates
+    const displayDate = formattedDates?.display || '';
+
+    // Load feature image URL
+    const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(null);
 
     // Enable context menu
     useContextMenu(fileRef, { type: ItemType.FILE, item: file });
@@ -234,6 +223,16 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
                             {/* Show date below preview when 2+ rows AND has preview text */}
                             {settings.previewRows >= 2 && settings.showDate && previewText && (
                                 <div className="nn-file-date nn-file-date-below">{displayDate}</div>
+                            )}
+                            {/* Show tags */}
+                            {tags.length > 0 && (
+                                <div className="nn-file-tags">
+                                    {tags.map((tag, index) => (
+                                        <span key={index} className="nn-file-tag">
+                                            {tag}
+                                        </span>
+                                    ))}
+                                </div>
                             )}
                             {/* Show folder indicator */}
                             {settings.showNotesFromSubfolders &&
