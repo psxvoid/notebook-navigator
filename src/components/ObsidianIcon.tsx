@@ -37,10 +37,8 @@ interface ObsidianIconProps {
  * @returns A span element that will contain the icon
  */
 export function ObsidianIcon({ name, className, 'aria-label': ariaLabel }: ObsidianIconProps) {
-    // ========== REACT HOOKS ==========
     const ref = useRef<HTMLSpanElement>(null);
 
-    // ========== EFFECT HOOKS ==========
     useEffect(() => {
         if (ref.current) {
             // Clear any existing content first
@@ -50,6 +48,5 @@ export function ObsidianIcon({ name, className, 'aria-label': ariaLabel }: Obsid
         }
     }, [name]);
 
-    // ========== MAIN RENDER ==========
     return <span ref={ref} className={className} aria-label={ariaLabel} />;
 }

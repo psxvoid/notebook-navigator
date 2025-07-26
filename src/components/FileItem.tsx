@@ -29,8 +29,6 @@ import { ItemType } from '../types';
 import { useTagNavigation } from '../hooks/useTagNavigation';
 import { useMetadataService } from '../context/ServicesContext';
 
-// ========== TYPES & INTERFACES ==========
-
 interface FileItemProps {
     file: TFile;
     isSelected: boolean;
@@ -60,74 +58,23 @@ interface FileItemProps {
  */
 
 function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow, onClick, formattedDates, parentFolder }: FileItemProps) {
-    // ========== REACT HOOKS ==========
-
-    const fileRef = useRef<HTMLDivElement>(null);
-    const [previewText, setPreviewText] = useState<string>('');
-    const [tags, setTags] = useState<string[]>([]);
-    const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(null);
-
-    // ========== CONTEXT HOOKS ==========
-
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
     const { getFileDisplayName, getDB, isStorageReady } = useFileCache();
+    const fileRef = useRef<HTMLDivElement>(null);
+    const { navigateToTag } = useTagNavigation();
     const metadataService = useMetadataService();
 
-    // ========== CUSTOM HOOKS ==========
-
-    const { navigateToTag } = useTagNavigation();
-    useContextMenu(fileRef, { type: ItemType.FILE, item: file });
-
-    // ========== COMPUTED VALUES ==========
-
+    // Get display name from context which handles cache and frontmatter
     const displayName = useMemo(() => {
         return getFileDisplayName(file);
     }, [file, getFileDisplayName]);
 
-    const displayDate = formattedDates?.display || '';
+    // Load preview text from IndexedDB
+    const [previewText, setPreviewText] = useState<string>('');
 
-    const isSlimMode = !settings.showFileDate && !settings.showFilePreview && !settings.showFeatureImage;
-
-    const shouldShowFeatureImageArea =
-        settings.showFeatureImage &&
-        (featureImageUrl || // Has an actual image
-            (file.extension !== 'md' && !isImageFile(file))); // Non-markdown, non-image files show extension badge
-
-    const className = `nn-file-item ${isSelected ? 'nn-selected' : ''} ${isSlimMode ? 'nn-slim' : ''} ${isSelected && hasSelectedAbove ? 'nn-has-selected-above' : ''} ${isSelected && hasSelectedBelow ? 'nn-has-selected-below' : ''}`;
-
-    // ========== EVENT HANDLERS ==========
-
-    const handleTagClick = useCallback(
-        (e: React.MouseEvent, tag: string) => {
-            e.stopPropagation(); // Prevent file selection
-
-            // Use the shared tag navigation logic
-            navigateToTag(tag);
-        },
-        [navigateToTag]
-    );
-
-    const getTagColor = useCallback(
-        (tag: string): string | undefined => {
-            // For hierarchical tags like #johan/subtask/tasker, check from most specific to least specific
-            const parts = tag.split('/');
-
-            // Try from the most specific (last part) to least specific
-            for (let i = parts.length - 1; i >= 0; i--) {
-                const partialTag = parts.slice(0, i + 1).join('/');
-                const color = metadataService.getTagColor(partialTag);
-                if (color) {
-                    return color;
-                }
-            }
-
-            return undefined;
-        },
-        [metadataService]
-    );
-
-    // ========== EFFECT HOOKS ==========
+    // Load tags from RAM cache
+    const [tags, setTags] = useState<string[]>([]);
 
     // Single subscription for all content changes
     useEffect(() => {
@@ -180,6 +127,46 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
         };
     }, [file.path, settings.showFilePreview, settings.showFeatureImage, getDB, isStorageReady, app, file.extension]);
 
+    // Get display date from pre-computed dates
+    const displayDate = formattedDates?.display || '';
+
+    // Load feature image URL
+    const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(null);
+
+    // Enable context menu
+    useContextMenu(fileRef, { type: ItemType.FILE, item: file });
+
+    // Handle tag click
+    const handleTagClick = useCallback(
+        (e: React.MouseEvent, tag: string) => {
+            e.stopPropagation(); // Prevent file selection
+
+            // Use the shared tag navigation logic
+            navigateToTag(tag);
+        },
+        [navigateToTag]
+    );
+
+    // Get tag color based on hierarchy rules
+    const getTagColor = useCallback(
+        (tag: string): string | undefined => {
+            // For hierarchical tags like #johan/subtask/tasker, check from most specific to least specific
+            const parts = tag.split('/');
+
+            // Try from the most specific (last part) to least specific
+            for (let i = parts.length - 1; i >= 0; i--) {
+                const partialTag = parts.slice(0, i + 1).join('/');
+                const color = metadataService.getTagColor(partialTag);
+                if (color) {
+                    return color;
+                }
+            }
+
+            return undefined;
+        },
+        [metadataService]
+    );
+
     // Add Obsidian tooltip (desktop only)
     useEffect(() => {
         if (!fileRef.current) return;
@@ -215,7 +202,16 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
         });
     }, [isMobile, file.stat.ctime, file.stat.mtime, settings, displayName, formattedDates]);
 
-    // ========== MAIN RENDER ==========
+    // Detect slim mode when all display options are disabled
+    const isSlimMode = !settings.showFileDate && !settings.showFilePreview && !settings.showFeatureImage;
+
+    // Determine if we should show the feature image area (either with an image or extension badge)
+    const shouldShowFeatureImageArea =
+        settings.showFeatureImage &&
+        (featureImageUrl || // Has an actual image
+            (file.extension !== 'md' && !isImageFile(file))); // Non-markdown, non-image files show extension badge
+
+    const className = `nn-file-item ${isSelected ? 'nn-selected' : ''} ${isSlimMode ? 'nn-slim' : ''} ${isSelected && hasSelectedAbove ? 'nn-has-selected-above' : ''} ${isSelected && hasSelectedBelow ? 'nn-has-selected-below' : ''}`;
 
     return (
         <div

@@ -51,10 +51,7 @@ interface PaneHeaderProps {
  * @returns A header element with context-appropriate action buttons
  */
 export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeaderProps) {
-    // ========== REACT HOOKS ==========
     const iconRef = React.useRef<HTMLSpanElement>(null);
-
-    // ========== CONTEXT HOOKS ==========
     const { app, isMobile } = useServices();
     const { settings, updateSettings } = useSettings();
     const expansionState = useExpansionState();
@@ -66,15 +63,6 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
     const fileSystemOps = useFileSystemOps();
     const metadataService = useMetadataService();
     const { fileData } = useFileCache();
-
-    // ========== COMPUTED VALUES ==========
-    const getCurrentSortOption = useCallback((): SortOption => {
-        return getEffectiveSortOption(settings, selectionState.selectionType, selectionState.selectedFolder, selectionState.selectedTag);
-    }, [settings, selectionState.selectionType, selectionState.selectedFolder, selectionState.selectedTag]);
-
-    const getSortIcon = useCallback(() => {
-        return getSortIconName(getCurrentSortOption());
-    }, [getCurrentSortOption]);
 
     /**
      * Determines whether the expand/collapse button should perform a collapse action
@@ -99,7 +87,6 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                 : false;
     }, [settings.collapseButtonBehavior, settings.showRootFolder, expansionState.expandedFolders, expansionState.expandedTags]);
 
-    // ========== EVENT HANDLERS ==========
     /**
      * Handles the expand/collapse all button click.
      *
@@ -201,6 +188,14 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
             // Error is handled by FileSystemOperations with user notification
         }
     }, [selectionState.selectedFolder, fileSystemOps, type, uiDispatch]);
+
+    const getCurrentSortOption = useCallback((): SortOption => {
+        return getEffectiveSortOption(settings, selectionState.selectionType, selectionState.selectedFolder, selectionState.selectedTag);
+    }, [settings, selectionState.selectionType, selectionState.selectedFolder, selectionState.selectedTag]);
+
+    const getSortIcon = useCallback(() => {
+        return getSortIconName(getCurrentSortOption());
+    }, [getCurrentSortOption]);
 
     const handleSortMenu = useCallback(
         (event: React.MouseEvent) => {
@@ -314,7 +309,6 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
         });
     }, [updateSettings]);
 
-    // ========== RENDER HELPERS ==========
     // Helper function to get header title
     const getHeaderTitle = (useFolderName = false): string => {
         let title = strings.common.noSelection;
@@ -336,33 +330,6 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
 
         return title;
     };
-
-    // ========== MAIN RENDER ==========
-    // Prepare header title for file pane
-    let headerTitle = '';
-    let folderIcon = '';
-
-    if (type === 'files') {
-        headerTitle = getHeaderTitle(false); // Use full path for desktop
-
-        // Get icon based on selection type
-        if (settings.showIcons) {
-            if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-                folderIcon = settings.folderIcons?.[selectionState.selectedFolder.path] || 'folder';
-            } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                folderIcon = settings.tagIcons?.[selectionState.selectedTag] || 'tags';
-            }
-        }
-    }
-
-    // ========== EFFECT HOOKS ==========
-    // Render icon when folderIcon changes
-    useEffect(() => {
-        if (iconRef.current && folderIcon && settings.showIcons) {
-            const iconService = getIconService();
-            iconService.renderIcon(iconRef.current, folderIcon);
-        }
-    }, [folderIcon, settings.showIcons, uiState.singlePane]);
 
     // Mobile header with back button
     if (isMobile) {
@@ -470,7 +437,32 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
         );
     }
 
-    // Desktop header
+    // Desktop header (original code)
+    // Prepare header title for file pane
+    let headerTitle = '';
+    let folderIcon = '';
+
+    if (type === 'files') {
+        headerTitle = getHeaderTitle(false); // Use full path for desktop
+
+        // Get icon based on selection type
+        if (settings.showIcons) {
+            if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+                folderIcon = settings.folderIcons?.[selectionState.selectedFolder.path] || 'folder';
+            } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+                folderIcon = settings.tagIcons?.[selectionState.selectedTag] || 'tags';
+            }
+        }
+    }
+
+    // Render icon when folderIcon changes
+    useEffect(() => {
+        if (iconRef.current && folderIcon && settings.showIcons) {
+            const iconService = getIconService();
+            iconService.renderIcon(iconRef.current, folderIcon);
+        }
+    }, [folderIcon, settings.showIcons, uiState.singlePane]);
+
     return (
         <div className="nn-pane-header">
             <div className="nn-header-actions nn-header-actions--space-between">

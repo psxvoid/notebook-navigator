@@ -54,103 +54,94 @@ interface TagTreeItemProps {
  * Component that renders a single tag in the hierarchical tag tree.
  * Handles indentation, expand/collapse state, and selection state.
  */
-const TagTreeItemInternal = forwardRef<HTMLDivElement, TagTreeItemProps>(function TagTreeItem(
-    { tagNode, level, isExpanded, isSelected, onToggle, onClick, fileCount, showFileCount, customIcon, customColor },
-    ref
-) {
-    // ========== REACT HOOKS ==========
-    const chevronRef = React.useRef<HTMLDivElement>(null);
-    const iconRef = React.useRef<HTMLSpanElement>(null);
-    const itemRef = React.useRef<HTMLDivElement>(null);
+export const TagTreeItem = React.memo(
+    forwardRef<HTMLDivElement, TagTreeItemProps>(function TagTreeItem(
+        { tagNode, level, isExpanded, isSelected, onToggle, onClick, fileCount, showFileCount, customIcon, customColor },
+        ref
+    ) {
+        const settings = useSettingsState();
+        const chevronRef = React.useRef<HTMLDivElement>(null);
+        const iconRef = React.useRef<HTMLSpanElement>(null);
+        const itemRef = React.useRef<HTMLDivElement>(null);
+        const hasChildren = tagNode.children.size > 0;
 
-    // ========== CONTEXT HOOKS ==========
-    const settings = useSettingsState();
+        // Get color and icon from settings directly (like FolderItem does)
+        const tagColor = settings.tagColors?.[tagNode.path] || customColor;
+        const tagIcon = settings.tagIcons?.[tagNode.path] || customIcon;
 
-    // ========== COMPUTED VALUES ==========
-    const hasChildren = tagNode.children.size > 0;
-    const tagColor = settings.tagColors?.[tagNode.path] || customColor;
-    const tagIcon = settings.tagIcons?.[tagNode.path] || customIcon;
+        // Set up forwarded ref
+        React.useImperativeHandle(ref, () => itemRef.current as HTMLDivElement);
 
-    // ========== CUSTOM HOOKS ==========
-    // Add context menu
-    useContextMenu(itemRef, {
-        type: ItemType.TAG,
-        item: tagNode.path
-    });
+        // Add context menu
+        useContextMenu(itemRef, {
+            type: ItemType.TAG,
+            item: tagNode.path
+        });
 
-    // ========== EVENT HANDLERS ==========
-    // Handle double-click to toggle expansion
-    const handleDoubleClick = React.useCallback(
-        (e: React.MouseEvent) => {
-            e.preventDefault();
-            if (hasChildren) {
-                onToggle();
+        // Update chevron icon based on expanded state
+        React.useEffect(() => {
+            if (chevronRef.current && hasChildren) {
+                setIcon(chevronRef.current, isExpanded ? 'chevron-down' : 'chevron-right');
             }
-        },
-        [hasChildren, onToggle]
-    );
+        }, [isExpanded, hasChildren]);
 
-    // ========== IMPERATIVE HANDLE ==========
-    // Set up forwarded ref
-    React.useImperativeHandle(ref, () => itemRef.current as HTMLDivElement);
+        // Update tag icon
+        React.useEffect(() => {
+            if (iconRef.current && settings.showIcons) {
+                getIconService().renderIcon(iconRef.current, tagIcon || 'tags');
+            }
+        }, [tagIcon, settings.showIcons]);
 
-    // ========== EFFECT HOOKS ==========
-    // Update chevron icon based on expanded state
-    React.useEffect(() => {
-        if (chevronRef.current && hasChildren) {
-            setIcon(chevronRef.current, isExpanded ? 'chevron-down' : 'chevron-right');
-        }
-    }, [isExpanded, hasChildren]);
+        // Handle double-click to toggle expansion
+        const handleDoubleClick = React.useCallback(
+            (e: React.MouseEvent) => {
+                e.preventDefault();
+                if (hasChildren) {
+                    onToggle();
+                }
+            },
+            [hasChildren, onToggle]
+        );
 
-    // Update tag icon
-    React.useEffect(() => {
-        if (iconRef.current && settings.showIcons) {
-            getIconService().renderIcon(iconRef.current, tagIcon || 'tags');
-        }
-    }, [tagIcon, settings.showIcons]);
-
-    // ========== MAIN RENDER ==========
-    return (
-        <div
-            ref={itemRef}
-            className={`nn-folder-item ${isSelected ? 'nn-selected' : ''}`}
-            data-tag={tagNode.path}
-            data-drop-zone="tag"
-            data-drop-path={tagNode.path}
-            style={{ paddingInlineStart: `${level * 20}px` }}
-            role="treeitem"
-            aria-expanded={hasChildren ? isExpanded : undefined}
-            aria-level={level + 1}
-        >
-            <div className="nn-folder-content" onClick={onClick} onDoubleClick={handleDoubleClick}>
-                <div
-                    ref={chevronRef}
-                    className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}
-                    onClick={e => {
-                        e.stopPropagation();
-                        if (hasChildren) onToggle();
-                    }}
-                    onDoubleClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                    }}
-                    tabIndex={-1}
-                />
-                {settings.showIcons && <span className="nn-folder-icon" ref={iconRef} style={tagColor ? { color: tagColor } : undefined} />}
-                <span
-                    className={`nn-folder-name ${tagColor ? 'nn-has-custom-color' : ''}`}
-                    style={tagColor ? { color: tagColor } : undefined}
-                >
-                    {tagNode.name}
-                </span>
-                <span className="nn-folder-spacer" />
-                {showFileCount && fileCount > 0 && <span className="nn-folder-count">{fileCount}</span>}
+        return (
+            <div
+                ref={itemRef}
+                className={`nn-folder-item ${isSelected ? 'nn-selected' : ''}`}
+                data-tag={tagNode.path}
+                data-drop-zone="tag"
+                data-drop-path={tagNode.path}
+                style={{ paddingInlineStart: `${level * 20}px` }}
+                role="treeitem"
+                aria-expanded={hasChildren ? isExpanded : undefined}
+                aria-level={level + 1}
+            >
+                <div className="nn-folder-content" onClick={onClick} onDoubleClick={handleDoubleClick}>
+                    <div
+                        ref={chevronRef}
+                        className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}
+                        onClick={e => {
+                            e.stopPropagation();
+                            if (hasChildren) onToggle();
+                        }}
+                        onDoubleClick={e => {
+                            e.stopPropagation();
+                            e.preventDefault();
+                        }}
+                        tabIndex={-1}
+                    />
+                    {settings.showIcons && (
+                        <span className="nn-folder-icon" ref={iconRef} style={tagColor ? { color: tagColor } : undefined} />
+                    )}
+                    <span
+                        className={`nn-folder-name ${tagColor ? 'nn-has-custom-color' : ''}`}
+                        style={tagColor ? { color: tagColor } : undefined}
+                    >
+                        {tagNode.name}
+                    </span>
+                    <span className="nn-folder-spacer" />
+                    {showFileCount && fileCount > 0 && <span className="nn-folder-count">{fileCount}</span>}
+                </div>
             </div>
-        </div>
-    );
-});
-
-TagTreeItemInternal.displayName = 'TagTreeItem';
-
-// Memoize to prevent re-renders from parent
-export const TagTreeItem = React.memo(TagTreeItemInternal);
+        );
+    })
+);
