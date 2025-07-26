@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useRef, useMemo, memo, useEffect, useState, useCallback } from 'react';
+import React, { useRef, useMemo, useEffect, useState, useCallback } from 'react';
 import { TFile, setTooltip } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
@@ -45,7 +45,7 @@ interface FileItemProps {
 }
 
 /**
- * Internal FileItem implementation without memoization.
+ * Memoized FileItem component.
  * Renders an individual file item in the file list with preview text and metadata.
  * Displays the file name, date, preview text, and optional feature image.
  * Handles selection state, context menus, and drag-and-drop functionality.
@@ -56,8 +56,15 @@ interface FileItemProps {
  * @param props.onClick - Handler called when the file is clicked
  * @returns A file item element with name, date, preview and optional image
  */
-
-function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow, onClick, formattedDates, parentFolder }: FileItemProps) {
+export const FileItem = React.memo(function FileItem({
+    file,
+    isSelected,
+    hasSelectedAbove,
+    hasSelectedBelow,
+    onClick,
+    formattedDates,
+    parentFolder
+}: FileItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
     const { getFileDisplayName, getDB, isStorageReady } = useFileCache();
@@ -410,9 +417,4 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
             </div>
         </div>
     );
-}
-
-/**
- * Memoized FileItem component only re-renders when necessary.
- */
-export const FileItem = memo(FileItemInternal);
+});

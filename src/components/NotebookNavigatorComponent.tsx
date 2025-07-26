@@ -17,7 +17,7 @@
  */
 
 // src/components/NotebookNavigatorComponent.tsx
-import { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback } from 'react';
+import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback } from 'react';
 import { TFile, TFolder, Notice } from 'obsidian';
 import { NavigationPane } from './NavigationPane';
 import { ListPane } from './ListPane';
@@ -63,290 +63,290 @@ export interface NotebookNavigatorHandle {
  * @param ref - Forwarded ref exposing revealFile and focusFilePane methods
  * @returns A split-pane container with folder tree and file list
  */
-export const NotebookNavigatorComponent = forwardRef<NotebookNavigatorHandle>((_, ref) => {
-    const { app, isMobile, fileSystemOps } = useServices();
-    const settings = useSettingsState();
-    const selectionState = useSelectionState();
-    const selectionDispatch = useSelectionDispatch();
-    const uiState = useUIState();
-    const uiDispatch = useUIDispatch();
-    const expansionDispatch = useExpansionDispatch();
+export const NotebookNavigatorComponent = React.memo(
+    forwardRef<NotebookNavigatorHandle>(function NotebookNavigatorComponent(_, ref) {
+        const { app, isMobile, fileSystemOps } = useServices();
+        const settings = useSettingsState();
+        const selectionState = useSelectionState();
+        const selectionDispatch = useSelectionDispatch();
+        const uiState = useUIState();
+        const uiDispatch = useUIDispatch();
+        const expansionDispatch = useExpansionDispatch();
 
-    // Root container reference for the entire navigator
-    // This ref is passed to both NavigationPane and ListPane to ensure
-    // keyboard events are captured at the navigator level, not globally.
-    // This prevents interference with other Obsidian views (e.g., canvas editor).
-    const containerRef = useRef<HTMLDivElement>(null);
+        // Root container reference for the entire navigator
+        // This ref is passed to both NavigationPane and ListPane to ensure
+        // keyboard events are captured at the navigator level, not globally.
+        // This prevents interference with other Obsidian views (e.g., canvas editor).
+        const containerRef = useRef<HTMLDivElement>(null);
 
-    const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
-    const navigationPaneRef = useRef<NavigationPaneHandle>(null);
-    const listPaneRef = useRef<ListPaneHandle>(null);
+        const [isNavigatorFocused, setIsNavigatorFocused] = useState(false);
+        const navigationPaneRef = useRef<NavigationPaneHandle>(null);
+        const listPaneRef = useRef<ListPaneHandle>(null);
 
-    // Enable drag and drop only on desktop
-    useDragAndDrop(containerRef);
+        // Enable drag and drop only on desktop
+        useDragAndDrop(containerRef);
 
-    // Enable resizable pane
-    const { paneWidth, isResizing, resizeHandleProps } = useResizablePane({
-        initialWidth: NAVIGATION_PANE_DIMENSIONS.defaultWidth,
-        min: NAVIGATION_PANE_DIMENSIONS.minWidth,
-        storageKey: STORAGE_KEYS.navigationPaneWidthKey
-    });
+        // Enable resizable pane
+        const { paneWidth, isResizing, resizeHandleProps } = useResizablePane({
+            initialWidth: NAVIGATION_PANE_DIMENSIONS.defaultWidth,
+            min: NAVIGATION_PANE_DIMENSIONS.minWidth,
+            storageKey: STORAGE_KEYS.navigationPaneWidthKey
+        });
 
-    // Use file reveal logic
-    const { navigateToFile, navigateToFolder } = useFileReveal({ app, navigationPaneRef, listPaneRef });
+        // Use file reveal logic
+        const { navigateToFile, navigateToFolder } = useFileReveal({ app, navigationPaneRef, listPaneRef });
 
-    // Use tag navigation logic
-    const { navigateToTag } = useTagNavigation();
+        // Use tag navigation logic
+        const { navigateToTag } = useTagNavigation();
 
-    // Enable mobile swipe gestures
-    useMobileSwipeNavigation(containerRef, isMobile);
+        // Enable mobile swipe gestures
+        useMobileSwipeNavigation(containerRef, isMobile);
 
-    // Use event handlers
-    useNavigatorEventHandlers({
-        app,
-        containerRef,
-        setIsNavigatorFocused
-    });
+        // Use event handlers
+        useNavigatorEventHandlers({
+            app,
+            containerRef,
+            setIsNavigatorFocused
+        });
 
-    // Listen for mobile hide/show events
-    useEffect(() => {
-        const handleMobileHide = (file: TFile) => {
-            try {
-                // Navigate to file when navigator is shown
-                navigateToFile(file);
-            } catch {}
-        };
+        // Listen for mobile hide/show events
+        useEffect(() => {
+            const handleMobileHide = (file: TFile) => {
+                try {
+                    // Navigate to file when navigator is shown
+                    navigateToFile(file);
+                } catch {}
+            };
 
-        const handleMobileShow = () => {
-            try {
-            } catch {}
-        };
+            const handleMobileShow = () => {
+                try {
+                } catch {}
+            };
 
-        const hideEventRef = app.workspace.on('notebook-navigator:mobile-hide' as any, handleMobileHide);
-        const showEventRef = app.workspace.on('notebook-navigator:mobile-show' as any, handleMobileShow);
+            const hideEventRef = app.workspace.on('notebook-navigator:mobile-hide' as any, handleMobileHide);
+            const showEventRef = app.workspace.on('notebook-navigator:mobile-show' as any, handleMobileShow);
 
-        return () => {
-            app.workspace.offref(hideEventRef);
-            app.workspace.offref(showEventRef);
-        };
-    }, [app, navigateToFile]);
+            return () => {
+                app.workspace.offref(hideEventRef);
+                app.workspace.offref(showEventRef);
+            };
+        }, [app, navigateToFile]);
 
-    // Get updateSettings from SettingsContext for refresh
-    const updateSettings = useSettingsUpdate();
+        // Get updateSettings from SettingsContext for refresh
+        const updateSettings = useSettingsUpdate();
 
-    // Expose methods via ref
-    useImperativeHandle(
-        ref,
-        () => ({
-            navigateToFile,
-            focusFilePane: () => {
-                // In single pane mode, switch to file list view
-                if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
-                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                }
+        // Expose methods via ref
+        useImperativeHandle(
+            ref,
+            () => ({
+                navigateToFile,
+                focusFilePane: () => {
+                    // In single pane mode, switch to file list view
+                    if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
+                        uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                    }
 
-                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                // Focus the container to ensure keyboard navigation works
-                // Don't steal focus if we're opening version history
-                const isOpeningVersionHistory = window.notebookNavigatorOpeningVersionHistory;
-                if (!isOpeningVersionHistory) {
-                    containerRef.current?.focus();
-                }
-            },
-            refresh: () => {
-                // A no-op update will increment the version and force a re-render
-                updateSettings(() => {});
-            },
-            deleteActiveFile: () => {
-                // Determine which delete operation to perform based on focus
-                if (uiState.focusedPane === 'files' && (selectionState.selectedFile || selectionState.selectedFiles.size > 0)) {
-                    deleteSelectedFiles({
-                        app,
-                        fileSystemOps,
-                        settings,
-                        selectionState,
-                        selectionDispatch
-                    });
-                } else if (
-                    uiState.focusedPane === 'navigation' &&
-                    selectionState.selectionType === ItemType.FOLDER &&
-                    selectionState.selectedFolder
-                ) {
-                    deleteSelectedFolder({
-                        app,
-                        fileSystemOps,
-                        settings,
-                        selectionState,
-                        selectionDispatch
-                    });
-                }
-            },
-            createNoteInSelectedFolder: async () => {
-                if (!selectionState.selectedFolder) {
-                    new Notice(strings.fileSystem.errors.noFolderSelected);
-                    return;
-                }
-
-                // Use the same logic as the context menu
-                const file = await fileSystemOps.createNewFile(selectionState.selectedFolder);
-                if (file) {
-                    uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: file.path });
-                }
-            },
-            moveSelectedFiles: async () => {
-                // Get selected files
-                const selectedFiles = Array.from(selectionState.selectedFiles)
-                    .map(path => app.vault.getAbstractFileByPath(path))
-                    .filter((f): f is TFile => f instanceof TFile);
-
-                if (selectedFiles.length === 0) {
-                    // No files selected, try current file
-                    if (selectionState.selectedFile) {
-                        selectedFiles.push(selectionState.selectedFile);
-                    } else {
-                        new Notice(strings.fileSystem.errors.noFileSelected);
+                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                    // Focus the container to ensure keyboard navigation works
+                    // Don't steal focus if we're opening version history
+                    const isOpeningVersionHistory = window.notebookNavigatorOpeningVersionHistory;
+                    if (!isOpeningVersionHistory) {
+                        containerRef.current?.focus();
+                    }
+                },
+                refresh: () => {
+                    // A no-op update will increment the version and force a re-render
+                    updateSettings(() => {});
+                },
+                deleteActiveFile: () => {
+                    // Determine which delete operation to perform based on focus
+                    if (uiState.focusedPane === 'files' && (selectionState.selectedFile || selectionState.selectedFiles.size > 0)) {
+                        deleteSelectedFiles({
+                            app,
+                            fileSystemOps,
+                            settings,
+                            selectionState,
+                            selectionDispatch
+                        });
+                    } else if (
+                        uiState.focusedPane === 'navigation' &&
+                        selectionState.selectionType === ItemType.FOLDER &&
+                        selectionState.selectedFolder
+                    ) {
+                        deleteSelectedFolder({
+                            app,
+                            fileSystemOps,
+                            settings,
+                            selectionState,
+                            selectionDispatch
+                        });
+                    }
+                },
+                createNoteInSelectedFolder: async () => {
+                    if (!selectionState.selectedFolder) {
+                        new Notice(strings.fileSystem.errors.noFolderSelected);
                         return;
                     }
-                }
 
-                // Get all files in the current view for smart selection
-                let allFiles: TFile[] = [];
-                if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-                    allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
-                } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                    allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
-                }
+                    // Use the same logic as the context menu
+                    const file = await fileSystemOps.createNewFile(selectionState.selectedFolder);
+                    if (file) {
+                        uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: file.path });
+                    }
+                },
+                moveSelectedFiles: async () => {
+                    // Get selected files
+                    const selectedFiles = Array.from(selectionState.selectedFiles)
+                        .map(path => app.vault.getAbstractFileByPath(path))
+                        .filter((f): f is TFile => f instanceof TFile);
 
-                // Move files with modal
-                await fileSystemOps.moveFilesWithModal(selectedFiles, {
-                    selectedFile: selectionState.selectedFile,
-                    dispatch: selectionDispatch,
-                    allFiles
-                });
-            },
-            navigateToFolder,
-            navigateToFolderWithModal: () => {
-                // Show the folder selection modal for navigation
-                const modal = new FolderSuggestModal(
-                    app,
-                    (targetFolder: TFolder) => {
-                        // Navigate to the selected folder
-                        navigateToFolder(targetFolder.path);
-                    },
-                    strings.modals.folderSuggest.navigatePlaceholder,
-                    strings.modals.folderSuggest.instructions.select,
-                    undefined // No folders to exclude
-                );
-                modal.open();
-            },
-            navigateToTagWithModal: () => {
-                // Show the tag selection modal for navigation
-                const modal = new TagSuggestModal(
-                    app,
-                    (tagPath: string) => {
-                        // Use the shared tag navigation logic
-                        navigateToTag(tagPath);
-                    },
-                    strings.modals.tagSuggest.navigatePlaceholder,
-                    strings.modals.tagSuggest.instructions.select,
-                    true // Include untagged option
-                );
-                modal.open();
-            }
-        }),
-        [
-            navigateToFile,
-            uiDispatch,
-            updateSettings,
-            selectionState.selectedFolder,
-            fileSystemOps,
-            selectionDispatch,
-            navigateToFolder,
-            navigateToTag,
-            uiState.singlePane
-        ]
-    );
+                    if (selectedFiles.length === 0) {
+                        // No files selected, try current file
+                        if (selectionState.selectedFile) {
+                            selectedFiles.push(selectionState.selectedFile);
+                        } else {
+                            new Notice(strings.fileSystem.errors.noFileSelected);
+                            return;
+                        }
+                    }
 
-    // Track if initial visibility check has been performed
-    const hasCheckedInitialVisibility = useRef(false);
+                    // Get all files in the current view for smart selection
+                    let allFiles: TFile[] = [];
+                    if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+                        allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
+                    } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+                        allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
+                    }
 
-    // Handle side effects when dualPane setting changes
-    useEffect(() => {
-        if (!isMobile && !settings.dualPane) {
-            // When disabling dual pane mode, switch to files view and focus it
-            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-        }
-    }, [settings.dualPane, isMobile, uiDispatch]);
-
-    // Container ref callback that checks if file list is visible on first mount
-    const containerCallbackRef = useCallback(
-        (node: HTMLDivElement | null) => {
-            containerRef.current = node;
-
-            // Auto-disable dual pane mode on startup if viewport is too narrow for both panes
-            if (node && !isMobile && !hasCheckedInitialVisibility.current && settings.dualPane) {
-                hasCheckedInitialVisibility.current = true;
-
-                const containerWidth = node.getBoundingClientRect().width;
-                // Check if container is too narrow to show both panes
-                if (containerWidth < paneWidth + FILE_PANE_DIMENSIONS.minWidth) {
-                    updateSettings(settings => {
-                        settings.dualPane = false;
+                    // Move files with modal
+                    await fileSystemOps.moveFilesWithModal(selectedFiles, {
+                        selectedFile: selectionState.selectedFile,
+                        dispatch: selectionDispatch,
+                        allFiles
                     });
+                },
+                navigateToFolder,
+                navigateToFolderWithModal: () => {
+                    // Show the folder selection modal for navigation
+                    const modal = new FolderSuggestModal(
+                        app,
+                        (targetFolder: TFolder) => {
+                            // Navigate to the selected folder
+                            navigateToFolder(targetFolder.path);
+                        },
+                        strings.modals.folderSuggest.navigatePlaceholder,
+                        strings.modals.folderSuggest.instructions.select,
+                        undefined // No folders to exclude
+                    );
+                    modal.open();
+                },
+                navigateToTagWithModal: () => {
+                    // Show the tag selection modal for navigation
+                    const modal = new TagSuggestModal(
+                        app,
+                        (tagPath: string) => {
+                            // Use the shared tag navigation logic
+                            navigateToTag(tagPath);
+                        },
+                        strings.modals.tagSuggest.navigatePlaceholder,
+                        strings.modals.tagSuggest.instructions.select,
+                        true // Include untagged option
+                    );
+                    modal.open();
                 }
-            }
-        },
-        [isMobile, paneWidth, settings.dualPane, updateSettings]
-    );
+            }),
+            [
+                navigateToFile,
+                uiDispatch,
+                updateSettings,
+                selectionState.selectedFolder,
+                fileSystemOps,
+                selectionDispatch,
+                navigateToFolder,
+                navigateToTag,
+                uiState.singlePane
+            ]
+        );
 
-    // Determine CSS classes
-    const containerClasses = ['nn-split-container'];
-    if (isMobile && uiState.singlePane) {
-        // Mobile uses sliding animations with show-list/show-files classes
-        containerClasses.push(uiState.currentSinglePaneView === 'navigation' ? 'show-navigation' : 'show-files');
-    } else if (uiState.singlePane) {
-        // Desktop single-pane mode
-        containerClasses.push('nn-desktop-single-pane');
-        containerClasses.push(uiState.currentSinglePaneView === 'navigation' ? 'show-navigation' : 'show-files');
-    } else {
-        // Desktop dual-pane mode
-        containerClasses.push('nn-desktop');
-    }
-    if (isResizing) {
-        containerClasses.push('nn-resizing');
-    }
+        // Track if initial visibility check has been performed
+        const hasCheckedInitialVisibility = useRef(false);
 
-    return (
-        <div
-            ref={containerCallbackRef}
-            className={containerClasses.join(' ')}
-            data-focus-pane={
-                uiState.singlePane ? (uiState.currentSinglePaneView === 'navigation' ? 'navigation' : 'files') : uiState.focusedPane
+        // Handle side effects when dualPane setting changes
+        useEffect(() => {
+            if (!isMobile && !settings.dualPane) {
+                // When disabling dual pane mode, switch to files view and focus it
+                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
             }
-            data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}
-            tabIndex={-1}
-            onKeyDown={() => {
-                // Allow keyboard events to bubble up from child components
-                // The actual keyboard handling is done in NavigationPane and ListPane
-            }}
-        >
-            {/* KEYBOARD EVENT FLOW:
+        }, [settings.dualPane, isMobile, uiDispatch]);
+
+        // Container ref callback that checks if file list is visible on first mount
+        const containerCallbackRef = useCallback(
+            (node: HTMLDivElement | null) => {
+                containerRef.current = node;
+
+                // Auto-disable dual pane mode on startup if viewport is too narrow for both panes
+                if (node && !isMobile && !hasCheckedInitialVisibility.current && settings.dualPane) {
+                    hasCheckedInitialVisibility.current = true;
+
+                    const containerWidth = node.getBoundingClientRect().width;
+                    // Check if container is too narrow to show both panes
+                    if (containerWidth < paneWidth + FILE_PANE_DIMENSIONS.minWidth) {
+                        updateSettings(settings => {
+                            settings.dualPane = false;
+                        });
+                    }
+                }
+            },
+            [isMobile, paneWidth, settings.dualPane, updateSettings]
+        );
+
+        // Determine CSS classes
+        const containerClasses = ['nn-split-container'];
+        if (isMobile && uiState.singlePane) {
+            // Mobile uses sliding animations with show-list/show-files classes
+            containerClasses.push(uiState.currentSinglePaneView === 'navigation' ? 'show-navigation' : 'show-files');
+        } else if (uiState.singlePane) {
+            // Desktop single-pane mode
+            containerClasses.push('nn-desktop-single-pane');
+            containerClasses.push(uiState.currentSinglePaneView === 'navigation' ? 'show-navigation' : 'show-files');
+        } else {
+            // Desktop dual-pane mode
+            containerClasses.push('nn-desktop');
+        }
+        if (isResizing) {
+            containerClasses.push('nn-resizing');
+        }
+
+        return (
+            <div
+                ref={containerCallbackRef}
+                className={containerClasses.join(' ')}
+                data-focus-pane={
+                    uiState.singlePane ? (uiState.currentSinglePaneView === 'navigation' ? 'navigation' : 'files') : uiState.focusedPane
+                }
+                data-navigator-focused={isMobile ? 'true' : isNavigatorFocused}
+                tabIndex={-1}
+                onKeyDown={() => {
+                    // Allow keyboard events to bubble up from child components
+                    // The actual keyboard handling is done in NavigationPane and ListPane
+                }}
+            >
+                {/* KEYBOARD EVENT FLOW:
                 1. Both NavigationPane and ListPane receive the same containerRef
                 2. Each pane sets up keyboard listeners on this shared container
                 3. The listeners check which pane has focus before handling events
                 4. This allows Tab/Arrow navigation between panes while keeping
                    all keyboard events scoped to the navigator container only
             */}
-            <NavigationPane
-                ref={navigationPaneRef}
-                style={{ width: uiState.singlePane ? '100%' : `${paneWidth}px` }}
-                rootContainerRef={containerRef}
-            />
-            {!uiState.singlePane && <div className="nn-resize-handle" {...resizeHandleProps} />}
-            <ListPane ref={listPaneRef} rootContainerRef={containerRef} />
-        </div>
-    );
-});
-
-NotebookNavigatorComponent.displayName = 'NotebookNavigatorComponent';
+                <NavigationPane
+                    ref={navigationPaneRef}
+                    style={{ width: uiState.singlePane ? '100%' : `${paneWidth}px` }}
+                    rootContainerRef={containerRef}
+                />
+                {!uiState.singlePane && <div className="nn-resize-handle" {...resizeHandleProps} />}
+                <ListPane ref={listPaneRef} rootContainerRef={containerRef} />
+            </div>
+        );
+    })
+);
