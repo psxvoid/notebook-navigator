@@ -775,7 +775,6 @@ const NavigationPaneComponent = forwardRef<NavigationPaneHandle, NavigationPaneP
             handleTagClick,
             handleVirtualFolderToggle,
             settings,
-            settings.folderIcons,
             isMobile,
             tagCounts,
             tagMetadata,

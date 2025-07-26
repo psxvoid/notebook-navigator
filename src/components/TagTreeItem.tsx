@@ -65,6 +65,10 @@ export const TagTreeItem = React.memo(
         const itemRef = React.useRef<HTMLDivElement>(null);
         const hasChildren = tagNode.children.size > 0;
 
+        // Get color and icon from settings directly (like FolderItem does)
+        const tagColor = settings.tagColors?.[tagNode.path] || customColor;
+        const tagIcon = settings.tagIcons?.[tagNode.path] || customIcon;
+
         // Set up forwarded ref
         React.useImperativeHandle(ref, () => itemRef.current as HTMLDivElement);
 
@@ -84,9 +88,9 @@ export const TagTreeItem = React.memo(
         // Update tag icon
         React.useEffect(() => {
             if (iconRef.current && settings.showIcons) {
-                getIconService().renderIcon(iconRef.current, customIcon || 'tags');
+                getIconService().renderIcon(iconRef.current, tagIcon || 'tags');
             }
-        }, [customIcon, settings.showIcons]);
+        }, [tagIcon, settings.showIcons]);
 
         // Handle double-click to toggle expansion
         const handleDoubleClick = React.useCallback(
@@ -126,11 +130,11 @@ export const TagTreeItem = React.memo(
                         tabIndex={-1}
                     />
                     {settings.showIcons && (
-                        <span className="nn-folder-icon" ref={iconRef} style={customColor ? { color: customColor } : undefined} />
+                        <span className="nn-folder-icon" ref={iconRef} style={tagColor ? { color: tagColor } : undefined} />
                     )}
                     <span
-                        className={`nn-folder-name ${customColor ? 'nn-has-custom-color' : ''}`}
-                        style={customColor ? { color: customColor } : undefined}
+                        className={`nn-folder-name ${tagColor ? 'nn-has-custom-color' : ''}`}
+                        style={tagColor ? { color: tagColor } : undefined}
                     >
                         {tagNode.name}
                     </span>

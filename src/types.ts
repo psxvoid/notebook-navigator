@@ -173,7 +173,8 @@ export interface LocalStorageKeys {
     selectedFileKey: string;
     navigationPaneWidthKey: string;
     fileCacheKey: string;
-    databaseVersionKey: string;
+    databaseSchemaVersionKey: string;
+    databaseContentVersionKey: string;
 }
 
 /**
@@ -188,7 +189,8 @@ export const STORAGE_KEYS: LocalStorageKeys = {
     selectedFileKey: 'notebook-navigator-selected-file',
     navigationPaneWidthKey: 'notebook-navigator-navigation-pane-width',
     fileCacheKey: 'notebook-navigator-file-cache',
-    databaseVersionKey: 'notebook-navigator-db-version'
+    databaseSchemaVersionKey: 'notebook-navigator-db-schema-version',
+    databaseContentVersionKey: 'notebook-navigator-db-content-version'
 };
 
 /**

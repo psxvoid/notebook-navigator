@@ -395,9 +395,13 @@ export const STRINGS_ZH = {
                     all: '所有文件'
                 }
             },
-            showDate: {
+            showFileDate: {
                 name: '显示日期',
                 desc: '在笔记名称下方显示日期。'
+            },
+            showFileTags: {
+                name: '显示标签',
+                desc: '在文件项中显示可点击的标签。使用标签颜色来直观区分不同的标签类型。'
             },
             dateFormat: {
                 name: '日期格式',

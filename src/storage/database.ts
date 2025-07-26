@@ -19,9 +19,10 @@
 import { DatabaseCache } from './DatabaseCache';
 import { STORAGE_KEYS } from '../types';
 
-const DB_NAME = 'notebook-navigator-db-v1';
+const DB_NAME = 'notebook-navigator-db';
 const STORE_NAME = 'files';
-const DB_VERSION = 1;
+const DB_SCHEMA_VERSION = 1; // IndexedDB structure version
+const DB_CONTENT_VERSION = 2; // Data format version (increment to force data rebuild)
 
 export interface FileData {
     path: string; // File path (primary key)
@@ -180,16 +181,37 @@ export class Database {
     }
 
     private async checkSchemaAndInit(): Promise<void> {
-        const storedVersion = localStorage.getItem(STORAGE_KEYS.databaseVersionKey);
-        const currentVersion = DB_VERSION.toString();
+        // Clean up old database from previous versions
+        await this.cleanupOldDatabases();
 
-        if (storedVersion && storedVersion !== currentVersion) {
-            console.log(`Database version changed from ${storedVersion} to ${currentVersion}. Recreating database.`);
+        const storedSchemaVersion = localStorage.getItem(STORAGE_KEYS.databaseSchemaVersionKey);
+        const storedContentVersion = localStorage.getItem(STORAGE_KEYS.databaseContentVersionKey);
+        const currentSchemaVersion = DB_SCHEMA_VERSION.toString();
+        const currentContentVersion = DB_CONTENT_VERSION.toString();
+
+        // Check version changes
+        const schemaChanged = storedSchemaVersion && storedSchemaVersion !== currentSchemaVersion;
+        const contentChanged = storedContentVersion && storedContentVersion !== currentContentVersion;
+
+        // Only schema changes require database recreation
+        if (schemaChanged) {
+            console.log(`Database schema version changed from ${storedSchemaVersion} to ${currentSchemaVersion}. Recreating database.`);
             await this.deleteDatabase();
         }
 
-        localStorage.setItem(STORAGE_KEYS.databaseVersionKey, currentVersion);
-        return this.openDatabase();
+        localStorage.setItem(STORAGE_KEYS.databaseSchemaVersionKey, currentSchemaVersion);
+        localStorage.setItem(STORAGE_KEYS.databaseContentVersionKey, currentContentVersion);
+
+        await this.openDatabase();
+
+        // Clear and rebuild content if either version changed
+        if (schemaChanged || contentChanged) {
+            if (contentChanged && !schemaChanged) {
+                console.log(`Content version changed from ${storedContentVersion} to ${currentContentVersion}. Rebuilding content.`);
+            }
+            // Clear all data to force rebuild
+            await this.clear();
+        }
     }
 
     private async deleteDatabase(): Promise<void> {
@@ -221,7 +243,7 @@ export class Database {
     private async openDatabase(): Promise<void> {
         return new Promise((resolve, reject) => {
             const startTime = performance.now();
-            const request = indexedDB.open(DB_NAME, DB_VERSION);
+            const request = indexedDB.open(DB_NAME, DB_SCHEMA_VERSION);
 
             request.onerror = () => {
                 console.error('Database open error:', request.error);
@@ -271,6 +293,35 @@ export class Database {
                 }
             };
         });
+    }
+
+    /**
+     * Clean up old databases from previous plugin versions
+     * TODO: Remove in next version, only kept for pre-public release migration
+     */
+    private async cleanupOldDatabases(): Promise<void> {
+        const oldDatabaseNames = ['notebook-navigator-db-v1'];
+
+        for (const oldDbName of oldDatabaseNames) {
+            try {
+                await new Promise<void>(resolve => {
+                    const deleteReq = indexedDB.deleteDatabase(oldDbName);
+                    deleteReq.onsuccess = () => {
+                        resolve();
+                    };
+                    deleteReq.onerror = () => {
+                        // Ignore errors - database might not exist
+                        resolve();
+                    };
+                    deleteReq.onblocked = () => {
+                        // Database is in use, skip cleanup
+                        resolve();
+                    };
+                });
+            } catch (error) {
+                // Ignore cleanup errors
+            }
+        }
     }
 
     /**
@@ -942,10 +993,7 @@ export class Database {
     getDisplayTags(path: string): string[] {
         const file = this.getFile(path);
         if (!file?.tags) return [];
-
-        // TODO: Remove this migration code in future versions
-        // Strip # prefix from tags if present (for backward compatibility)
-        return file.tags.map(tag => (tag.startsWith('#') ? tag.slice(1) : tag));
+        return file.tags;
     }
 
     /**

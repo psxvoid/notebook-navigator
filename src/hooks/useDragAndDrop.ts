@@ -18,7 +18,7 @@
 
 // src/hooks/useDragAndDrop.ts
 import { useCallback, useEffect, useRef } from 'react';
-import { TFile, Notice } from 'obsidian';
+import { TFile, Notice, setIcon } from 'obsidian';
 import { useServices, useFileSystemOps, useTagOperations } from '../context/ServicesContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useSettingsState } from '../context/SettingsContext';
@@ -135,22 +135,28 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         el?.classList.add('nn-dragging');
                     });
 
-                    // Show count in drag image
-                    if (selectedPaths.length > 1) {
-                        // Create a container to position the badge
-                        const dragContainer = document.createElement('div');
-                        dragContainer.className = 'nn-drag-image-container';
+                    // Always show custom drag image for consistency
+                    const dragContainer = document.createElement('div');
+                    dragContainer.className = 'nn-drag-image-container';
 
-                        // Create the badge inside the container
+                    if (selectedPaths.length > 1) {
+                        // Multiple items - show count badge
                         const dragInfo = document.createElement('div');
                         dragInfo.className = 'nn-drag-count-badge';
                         dragInfo.textContent = `${selectedPaths.length}`;
-
                         dragContainer.appendChild(dragInfo);
-                        document.body.appendChild(dragContainer);
-                        e.dataTransfer.setDragImage(dragContainer, 5, 5);
-                        setTimeout(() => document.body.removeChild(dragContainer), 0);
+                    } else {
+                        // Single item - show icon positioned like count badge
+                        const dragIcon = document.createElement('div');
+                        dragIcon.className = 'nn-drag-icon-badge';
+                        setIcon(dragIcon, 'file');
+                        dragContainer.appendChild(dragIcon);
                     }
+
+                    document.body.appendChild(dragContainer);
+                    // Use negative offset to position icon bottom-right of cursor
+                    e.dataTransfer.setDragImage(dragContainer, -10, -10);
+                    setTimeout(() => document.body.removeChild(dragContainer), 0);
                 } else {
                     // Single item drag
                     e.dataTransfer.setData('obsidian/file', path);
@@ -166,6 +172,23 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     }
 
                     draggable.classList.add('nn-dragging');
+
+                    // Only show custom drag image for files, not folders
+                    if (type === ItemType.FILE) {
+                        const dragContainer = document.createElement('div');
+                        dragContainer.className = 'nn-drag-image-container';
+
+                        // Add a file icon positioned like the count badge
+                        const dragIcon = document.createElement('div');
+                        dragIcon.className = 'nn-drag-icon-badge';
+                        setIcon(dragIcon, 'file');
+
+                        dragContainer.appendChild(dragIcon);
+                        document.body.appendChild(dragContainer);
+                        // Use negative offset to position icon bottom-right of cursor
+                        e.dataTransfer.setDragImage(dragContainer, -5, -5);
+                        setTimeout(() => document.body.removeChild(dragContainer), 0);
+                    }
                 }
             }
         },

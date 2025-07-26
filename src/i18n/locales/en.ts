@@ -394,9 +394,13 @@ export const STRINGS_EN = {
                 desc: 'Comma-separated list of folders to hide. Supports wildcards: assets* (starts with), *_temp (ends with).',
                 placeholder: 'templates, assets*, *_temp'
             },
-            showDate: {
+            showFileDate: {
                 name: 'Show date',
                 desc: 'Display the date below note names.'
+            },
+            showFileTags: {
+                name: 'Show tags',
+                desc: 'Display clickable tags in file items. Use tag colors to visually distinguish different tag types.'
             },
             dateFormat: {
                 name: 'Date format',

@@ -395,9 +395,13 @@ export const STRINGS_ES = {
                     all: 'Todos los archivos'
                 }
             },
-            showDate: {
+            showFileDate: {
                 name: 'Mostrar fecha',
                 desc: 'Muestra la fecha debajo de los nombres de las notas.'
+            },
+            showFileTags: {
+                name: 'Mostrar etiquetas',
+                desc: 'Muestra etiquetas clicables en los elementos de archivo. Use colores de etiquetas para distinguir visualmente diferentes tipos de etiquetas.'
             },
             dateFormat: {
                 name: 'Formato de fecha',

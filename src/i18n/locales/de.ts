@@ -395,9 +395,13 @@ export const STRINGS_DE = {
                     all: 'Alle Dateien'
                 }
             },
-            showDate: {
+            showFileDate: {
                 name: 'Datum anzeigen',
                 desc: 'Das Datum unter Notizennamen anzeigen.'
+            },
+            showFileTags: {
+                name: 'Tags anzeigen',
+                desc: 'Zeigt klickbare Tags in Datei-Elementen an. Verwenden Sie Tag-Farben, um verschiedene Tag-Typen visuell zu unterscheiden.'
             },
             dateFormat: {
                 name: 'Datumsformat',

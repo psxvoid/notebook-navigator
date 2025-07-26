@@ -378,6 +378,7 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
         settings.folderSortOverrides,
         settings.pinnedNotes,
         settings.showNotesFromSubfolders,
+        settings.showFileTags,
         selectionType,
         selectedFolder,
         selectedTag,
@@ -442,10 +443,10 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
             }
 
             // For file items - calculate height including all components
-            const { showDate, showFilePreview, showFeatureImage, fileNameRows, previewRows } = settings;
+            const { showFileDate, showFilePreview, showFeatureImage, fileNameRows, previewRows } = settings;
 
             // Check if we're in slim mode (no date, preview, or image)
-            const isSlimMode = !showDate && !showFilePreview && !showFeatureImage;
+            const isSlimMode = !showFileDate && !showFilePreview && !showFeatureImage;
 
             // Get actual preview status for accurate height calculation
             let hasPreviewText = false;
@@ -470,7 +471,7 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
                 // Single row mode - show date+preview, tags, and parent folder
                 if (previewRows < 2) {
                     // Date and preview share one line
-                    if (showFilePreview || showDate) {
+                    if (showFilePreview || showFileDate) {
                         textContentHeight += heights.metadataLineHeight;
                     }
 
@@ -490,7 +491,7 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         const showsParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
 
-                        if (showDate || showsParentFolder) {
+                        if (showFileDate || showsParentFolder) {
                             textContentHeight += heights.metadataLineHeight;
                         }
                     } else {
@@ -503,16 +504,16 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         const showsParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
 
-                        if (showDate || showsParentFolder) {
+                        if (showFileDate || showsParentFolder) {
                             textContentHeight += heights.metadataLineHeight;
                         }
                     }
                 }
             }
 
-            // Add tag row height if file has tags (but not in slim mode)
+            // Add tag row height if file has tags (but not in slim mode and only if showTags is enabled)
             // Tags are shown for both empty and non-empty preview text
-            if (!isSlimMode && item.type === ListPaneItemType.FILE && isTFile(item.data)) {
+            if (!isSlimMode && settings.showFileTags && item.type === ListPaneItemType.FILE && isTFile(item.data)) {
                 // Check if file has tags using the database
                 const db = getDB();
                 const tags = db.getDisplayTags(item.data.path);
@@ -656,12 +657,13 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
 
         rowVirtualizer.measure();
     }, [
-        settings.showDate,
+        settings.showFileDate,
         settings.showFilePreview,
         settings.showFeatureImage,
         settings.fileNameRows,
         settings.previewRows,
         settings.showParentFolderNames,
+        settings.showFileTags,
         rowVirtualizer
     ]);
 
@@ -865,9 +867,9 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
                 // Compute display date based on current sort
                 const timestamp = dateField === 'ctime' ? getFileCreatedTime(file) : getFileModifiedTime(file);
                 const display =
-                    settings.showDate && currentGroup && currentGroup !== strings.listPane.pinnedSection
+                    settings.showFileDate && currentGroup && currentGroup !== strings.listPane.pinnedSection
                         ? DateUtils.formatDateForGroup(timestamp, currentGroup, settings.dateFormat, settings.timeFormat)
-                        : settings.showDate
+                        : settings.showFileDate
                           ? DateUtils.formatDate(timestamp, settings.dateFormat)
                           : '';
 
@@ -885,7 +887,7 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
     }, [
         listItems,
         dateField,
-        settings.showDate,
+        settings.showFileDate,
         settings.dateFormat,
         settings.timeFormat,
         settings.useFrontmatterMetadata,

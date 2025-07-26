@@ -27,6 +27,7 @@ import { useFileCache } from '../context/StorageContext';
 import { isImageFile } from '../utils/fileTypeUtils';
 import { ItemType } from '../types';
 import { useTagNavigation } from '../hooks/useTagNavigation';
+import { useMetadataService } from '../context/ServicesContext';
 
 interface FileItemProps {
     file: TFile;
@@ -62,6 +63,7 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
     const { getFileDisplayName, getDB, isStorageReady } = useFileCache();
     const fileRef = useRef<HTMLDivElement>(null);
     const { navigateToTag } = useTagNavigation();
+    const metadataService = useMetadataService();
 
     // Get display name from context which handles cache and frontmatter
     const displayName = useMemo(() => {
@@ -145,6 +147,26 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
         [navigateToTag]
     );
 
+    // Get tag color based on hierarchy rules
+    const getTagColor = useCallback(
+        (tag: string): string | undefined => {
+            // For hierarchical tags like #johan/subtask/tasker, check from most specific to least specific
+            const parts = tag.split('/');
+
+            // Try from the most specific (last part) to least specific
+            for (let i = parts.length - 1; i >= 0; i--) {
+                const partialTag = parts.slice(0, i + 1).join('/');
+                const color = metadataService.getTagColor(partialTag);
+                if (color) {
+                    return color;
+                }
+            }
+
+            return undefined;
+        },
+        [metadataService]
+    );
+
     // Add Obsidian tooltip (desktop only)
     useEffect(() => {
         if (!fileRef.current) return;
@@ -181,7 +203,7 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
     }, [isMobile, file.stat.ctime, file.stat.mtime, settings, displayName, formattedDates]);
 
     // Detect slim mode when all display options are disabled
-    const isSlimMode = !settings.showDate && !settings.showFilePreview && !settings.showFeatureImage;
+    const isSlimMode = !settings.showFileDate && !settings.showFilePreview && !settings.showFeatureImage;
 
     // Determine if we should show the feature image area (either with an image or extension badge)
     const shouldShowFeatureImageArea =
@@ -222,7 +244,7 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
                                 <>
                                     {/* Date + Preview on same line */}
                                     <div className="nn-file-second-line">
-                                        {settings.showDate && <div className="nn-file-date">{displayDate}</div>}
+                                        {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
                                         {settings.showFilePreview && (
                                             <div className="nn-file-preview" style={{ '--preview-rows': 1 } as React.CSSProperties}>
                                                 {previewText}
@@ -231,19 +253,23 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
                                     </div>
 
                                     {/* Tags */}
-                                    {tags.length > 0 && (
+                                    {settings.showFileTags && tags.length > 0 && (
                                         <div className="nn-file-tags">
-                                            {tags.map((tag, index) => (
-                                                <span
-                                                    key={index}
-                                                    className="nn-file-tag nn-clickable-tag"
-                                                    onClick={e => handleTagClick(e, tag)}
-                                                    role="button"
-                                                    tabIndex={0}
-                                                >
-                                                    #{tag}
-                                                </span>
-                                            ))}
+                                            {tags.map((tag, index) => {
+                                                const tagColor = getTagColor(tag);
+                                                return (
+                                                    <span
+                                                        key={index}
+                                                        className="nn-file-tag nn-clickable-tag"
+                                                        onClick={e => handleTagClick(e, tag)}
+                                                        role="button"
+                                                        tabIndex={0}
+                                                        style={tagColor ? { backgroundColor: tagColor } : undefined}
+                                                    >
+                                                        #{tag}
+                                                    </span>
+                                                );
+                                            })}
                                         </div>
                                     )}
 
@@ -268,24 +294,28 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
                                     {!previewText && (
                                         <>
                                             {/* Tags (show even when no preview text) */}
-                                            {tags.length > 0 && (
+                                            {settings.showFileTags && tags.length > 0 && (
                                                 <div className="nn-file-tags">
-                                                    {tags.map((tag, index) => (
-                                                        <span
-                                                            key={index}
-                                                            className="nn-file-tag nn-clickable-tag"
-                                                            onClick={e => handleTagClick(e, tag)}
-                                                            role="button"
-                                                            tabIndex={0}
-                                                        >
-                                                            #{tag}
-                                                        </span>
-                                                    ))}
+                                                    {tags.map((tag, index) => {
+                                                        const tagColor = getTagColor(tag);
+                                                        return (
+                                                            <span
+                                                                key={index}
+                                                                className="nn-file-tag nn-clickable-tag"
+                                                                onClick={e => handleTagClick(e, tag)}
+                                                                role="button"
+                                                                tabIndex={0}
+                                                                style={tagColor ? { backgroundColor: tagColor } : undefined}
+                                                            >
+                                                                #{tag}
+                                                            </span>
+                                                        );
+                                                    })}
                                                 </div>
                                             )}
                                             {/* Date + Parent folder on same line */}
                                             <div className="nn-file-second-line">
-                                                {settings.showDate && <div className="nn-file-date">{displayDate}</div>}
+                                                {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
                                                 {settings.showNotesFromSubfolders &&
                                                     settings.showParentFolderNames &&
                                                     parentFolder &&
@@ -314,25 +344,29 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
                                             )}
 
                                             {/* Tags (only when preview text exists) */}
-                                            {tags.length > 0 && (
+                                            {settings.showFileTags && tags.length > 0 && (
                                                 <div className="nn-file-tags">
-                                                    {tags.map((tag, index) => (
-                                                        <span
-                                                            key={index}
-                                                            className="nn-file-tag nn-clickable-tag"
-                                                            onClick={e => handleTagClick(e, tag)}
-                                                            role="button"
-                                                            tabIndex={0}
-                                                        >
-                                                            #{tag}
-                                                        </span>
-                                                    ))}
+                                                    {tags.map((tag, index) => {
+                                                        const tagColor = getTagColor(tag);
+                                                        return (
+                                                            <span
+                                                                key={index}
+                                                                className="nn-file-tag nn-clickable-tag"
+                                                                onClick={e => handleTagClick(e, tag)}
+                                                                role="button"
+                                                                tabIndex={0}
+                                                                style={tagColor ? { backgroundColor: tagColor } : undefined}
+                                                            >
+                                                                #{tag}
+                                                            </span>
+                                                        );
+                                                    })}
                                                 </div>
                                             )}
 
                                             {/* Date + Parent folder on same line */}
                                             <div className="nn-file-second-line">
-                                                {settings.showDate && <div className="nn-file-date">{displayDate}</div>}
+                                                {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
                                                 {settings.showNotesFromSubfolders &&
                                                     settings.showParentFolderNames &&
                                                     parentFolder &&

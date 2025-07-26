@@ -87,7 +87,8 @@ export interface NotebookNavigatorSettings {
     frontmatterModifiedField: string;
     frontmatterDateFormat: string;
     fileNameRows: number;
-    showDate: boolean;
+    showFileDate: boolean;
+    showFileTags: boolean;
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;
     previewProperties: string[];
@@ -154,7 +155,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     frontmatterModifiedField: 'modified',
     frontmatterDateFormat: "yyyy-MM-dd'T'HH:mm:ss",
     fileNameRows: 1,
-    showDate: true,
+    showFileDate: true,
+    showFileTags: true,
     showFilePreview: true,
     skipHeadingsInPreview: false,
     previewProperties: [],
@@ -783,11 +785,21 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
-            .setName(strings.settings.items.showDate.name)
-            .setDesc(strings.settings.items.showDate.desc)
+            .setName(strings.settings.items.showFileDate.name)
+            .setDesc(strings.settings.items.showFileDate.desc)
             .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.showDate).onChange(async value => {
-                    this.plugin.settings.showDate = value;
+                toggle.setValue(this.plugin.settings.showFileDate).onChange(async value => {
+                    this.plugin.settings.showFileDate = value;
+                    await this.saveAndRefresh();
+                })
+            );
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.showFileTags.name)
+            .setDesc(strings.settings.items.showFileTags.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showFileTags).onChange(async value => {
+                    this.plugin.settings.showFileTags = value;
                     await this.saveAndRefresh();
                 })
             );
