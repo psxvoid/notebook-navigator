@@ -74,6 +74,14 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
     const isUserSelectionRef = useRef(false);
     const [fileVersion, setFileVersion] = useState(0);
 
+    // Keep track of the last selected file path to maintain visual selection during transitions
+    const lastSelectedFilePathRef = useRef<string | null>(null);
+    useEffect(() => {
+        if (selectedFile) {
+            lastSelectedFilePathRef.current = selectedFile.path;
+        }
+    }, [selectedFile]);
+
     // Track current visible date group for sticky header
     const [currentDateGroup, setCurrentDateGroup] = useState<string | null>(null);
 
@@ -1032,8 +1040,17 @@ const ListPaneComponent = forwardRef<ListPaneHandle, ListPaneProps>((props, ref)
                         {rowVirtualizer.getVirtualItems().map(virtualItem => {
                             const item = safeGetItem(listItems, virtualItem.index);
                             if (!item) return null;
-                            const isSelected =
-                                item.type === ListPaneItemType.FILE && isTFile(item.data) && multiSelection.isFileSelected(item.data);
+                            // Check if file is selected
+                            let isSelected = false;
+                            if (item.type === ListPaneItemType.FILE && isTFile(item.data)) {
+                                isSelected = multiSelection.isFileSelected(item.data);
+
+                                // During folder navigation transitions, if nothing is selected in the current list,
+                                // maintain the last selected file's visual selection to prevent flicker
+                                if (!isSelected && selectionState.isFolderNavigation && lastSelectedFilePathRef.current) {
+                                    isSelected = item.data.path === lastSelectedFilePathRef.current;
+                                }
+                            }
 
                             // Check if this is the last file item
                             const nextItem = safeGetItem(listItems, virtualItem.index + 1);
