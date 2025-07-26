@@ -1042,7 +1042,7 @@ body.nn-resizing {
 
 /* Drag over state - highlights valid drop targets */
 .nn-folder-content.nn-drag-over {
-    background-color: var(--interactive-accent-hover);
+    background-color: var(--text-selection);
 }
 
 /* Special visual feedback for tag drop zones */
@@ -1082,6 +1082,19 @@ body.nn-resizing {
     width: 20px;
     height: 20px;
     color: var(--text-muted);
+}
+
+/* Featured image in drag badge */
+.nn-drag-icon-badge.nn-drag-featured-image {
+    padding: 0;
+    overflow: hidden;
+}
+
+.nn-drag-icon-badge.nn-drag-featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
 }
 
 /* Drag count badge - shows number of items being dragged */

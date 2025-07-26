@@ -22,6 +22,7 @@ import { TFile, Notice, setIcon } from 'obsidian';
 import { useServices, useFileSystemOps, useTagOperations } from '../context/ServicesContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useSettingsState } from '../context/SettingsContext';
+import { getDBInstance } from '../storage/fileOperations';
 import { isTFolder, isTFile } from '../utils/typeGuards';
 import { getPathFromDataAttribute } from '../utils/domUtils';
 import { strings } from '../i18n';
@@ -76,6 +77,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const selectionState = useSelectionState();
     const dispatch = useSelectionDispatch();
     const settings = useSettingsState();
+    const db = getDBInstance();
     const dragOverElement = useRef<HTMLElement | null>(null);
 
     /**
@@ -139,19 +141,11 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     const dragContainer = document.createElement('div');
                     dragContainer.className = 'nn-drag-image-container';
 
-                    if (selectedPaths.length > 1) {
-                        // Multiple items - show count badge
-                        const dragInfo = document.createElement('div');
-                        dragInfo.className = 'nn-drag-count-badge';
-                        dragInfo.textContent = `${selectedPaths.length}`;
-                        dragContainer.appendChild(dragInfo);
-                    } else {
-                        // Single item - show icon positioned like count badge
-                        const dragIcon = document.createElement('div');
-                        dragIcon.className = 'nn-drag-icon-badge';
-                        setIcon(dragIcon, 'file');
-                        dragContainer.appendChild(dragIcon);
-                    }
+                    // Multiple items - always show count badge
+                    const dragInfo = document.createElement('div');
+                    dragInfo.className = 'nn-drag-count-badge';
+                    dragInfo.textContent = `${selectedPaths.length}`;
+                    dragContainer.appendChild(dragInfo);
 
                     document.body.appendChild(dragContainer);
                     // Use negative offset to position icon bottom-right of cursor
@@ -178,12 +172,25 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         const dragContainer = document.createElement('div');
                         dragContainer.className = 'nn-drag-image-container';
 
-                        // Add a file icon positioned like the count badge
-                        const dragIcon = document.createElement('div');
-                        dragIcon.className = 'nn-drag-icon-badge';
-                        setIcon(dragIcon, 'file');
+                        // Get featured image from cache
+                        const featureImageUrl = db.getDisplayFeatureImageUrl(path);
 
-                        dragContainer.appendChild(dragIcon);
+                        if (featureImageUrl) {
+                            // Show featured image in drag badge
+                            const dragIcon = document.createElement('div');
+                            dragIcon.className = 'nn-drag-icon-badge nn-drag-featured-image';
+                            const img = document.createElement('img');
+                            img.src = featureImageUrl;
+                            dragIcon.appendChild(img);
+                            dragContainer.appendChild(dragIcon);
+                        } else {
+                            // Show file icon as fallback
+                            const dragIcon = document.createElement('div');
+                            dragIcon.className = 'nn-drag-icon-badge';
+                            setIcon(dragIcon, 'file');
+                            dragContainer.appendChild(dragIcon);
+                        }
+
                         document.body.appendChild(dragContainer);
                         // Use negative offset to position icon bottom-right of cursor
                         e.dataTransfer.setDragImage(dragContainer, -5, -5);
