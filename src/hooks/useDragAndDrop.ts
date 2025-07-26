@@ -108,8 +108,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             const path = getPathFromDataAttribute(draggable as HTMLElement, 'data-drag-path');
             const type = draggable.getAttribute('data-drag-type');
             if (path && e.dataTransfer) {
-                // Check if dragging a selected file
-                if (type === ItemType.FILE && selectionState.selectedFiles.has(path)) {
+                // Check if dragging a selected file with multiple selections
+                if (type === ItemType.FILE && selectionState.selectedFiles.has(path) && selectionState.selectedFiles.size > 1) {
                     // Store all selected file paths
                     const selectedPaths = Array.from(selectionState.selectedFiles);
                     e.dataTransfer.setData('obsidian/files', JSON.stringify(selectedPaths));
