@@ -489,7 +489,6 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             const file = selectionState.selectedFile;
 
             // Scroll to revealed items after animation frame to ensure rendering is complete
-            // This replaces the imperative setTimeout approach with a declarative effect
             const rafId = requestAnimationFrame(() => {
                 // Scroll to folder or tag in navigation pane
                 // Don't scroll if navigation pane is hidden in single-pane mode
