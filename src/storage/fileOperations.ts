@@ -17,18 +17,18 @@
  */
 
 import { TFile, App, getAllTags } from 'obsidian';
-import { Database, FileData } from './database';
+import { IndexedDBStorage, FileData } from './IndexedDBStorage';
 
 /**
- * FileOperations - Database access layer and cache management
+ * FileOperations - IndexedDB storage access layer and cache management
  *
  * What it does:
- * - Manages singleton database instance
+ * - Manages singleton IndexedDB storage instance
  * - Provides simplified API for file operations
  * - Handles content invalidation when files change
  *
  * Relationships:
- * - Uses: Database (maintains singleton instance)
+ * - Uses: IndexedDBStorage (maintains singleton instance)
  * - Used by: StorageContext, ContentService, DiffCalculator, Statistics
  *
  * Key responsibilities:
@@ -39,18 +39,18 @@ import { Database, FileData } from './database';
  * - Clear content when mtime or tags change
  */
 
-// Global database instance
-let dbInstance: Database | null = null;
+// Global IndexedDB storage instance
+let dbInstance: IndexedDBStorage | null = null;
 
 /**
- * Get the singleton database instance.
+ * Get the singleton IndexedDB storage instance.
  * Creates the instance on first call.
  *
- * @returns The global database instance
+ * @returns The global IndexedDB storage instance
  */
-export function getDBInstance(): Database {
+export function getDBInstance(): IndexedDBStorage {
     if (!dbInstance) {
-        dbInstance = new Database();
+        dbInstance = new IndexedDBStorage();
     }
     return dbInstance;
 }

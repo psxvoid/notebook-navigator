@@ -16,17 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { FileData } from './database';
+import { FileData } from './IndexedDBStorage';
 
 /**
- * In-memory cache that mirrors the IndexedDB database for synchronous access.
+ * In-memory file cache that mirrors the IndexedDB storage for synchronous access.
  * This cache stores all file data in RAM to enable synchronous reads during rendering,
  * eliminating async operations in React components and fixing virtualizer height calculations.
  *
  * Memory usage is minimal - even 100k files at ~300 bytes each = 30MB RAM.
  */
-export class DatabaseCache {
-    private fileCache: Map<string, FileData> = new Map();
+export class MemoryFileCache {
+    private memoryMap: Map<string, FileData> = new Map();
     private isInitialized = false;
 
     /**
@@ -37,25 +37,25 @@ export class DatabaseCache {
         const startTime = performance.now();
 
         // Clear any existing data
-        this.fileCache.clear();
+        this.memoryMap.clear();
 
         // Load all files into memory
         for (const file of files) {
-            this.fileCache.set(file.path, file);
+            this.memoryMap.set(file.path, file);
         }
 
         this.isInitialized = true;
 
         const endTime = performance.now();
         const loadTime = (endTime - startTime).toFixed(2);
-        console.log(`Database cache loaded: ${this.fileCache.size} items from IndexedDB to RAM in ${loadTime}ms`);
+        console.log(`Memory file cache loaded: ${this.memoryMap.size} items from IndexedDB to RAM in ${loadTime}ms`);
     }
 
     /**
      * Get file data synchronously.
      */
     getFile(path: string): FileData | null {
-        return this.fileCache.get(path) || null;
+        return this.memoryMap.get(path) || null;
     }
 
     /**
@@ -64,7 +64,7 @@ export class DatabaseCache {
     getFiles(paths: string[]): Map<string, FileData> {
         const result = new Map<string, FileData>();
         for (const path of paths) {
-            const file = this.fileCache.get(path);
+            const file = this.memoryMap.get(path);
             if (file) {
                 result.set(path, file);
             }
@@ -76,7 +76,7 @@ export class DatabaseCache {
      * Check if a file has preview text.
      */
     hasPreview(path: string): boolean {
-        const file = this.fileCache.get(path);
+        const file = this.memoryMap.get(path);
         return !!file?.preview;
     }
 
@@ -84,21 +84,21 @@ export class DatabaseCache {
      * Check if a file exists in the cache.
      */
     hasFile(path: string): boolean {
-        return this.fileCache.has(path);
+        return this.memoryMap.has(path);
     }
 
     /**
      * Get all files as an array (use sparingly).
      */
     getAllFiles(): FileData[] {
-        return Array.from(this.fileCache.values());
+        return Array.from(this.memoryMap.values());
     }
 
     /**
      * Update or add a file in the cache.
      */
     updateFile(data: FileData): void {
-        this.fileCache.set(data.path, data);
+        this.memoryMap.set(data.path, data);
     }
 
     /**
@@ -112,7 +112,7 @@ export class DatabaseCache {
             metadata?: FileData['metadata'];
         }
     ): void {
-        const existing = this.fileCache.get(path);
+        const existing = this.memoryMap.get(path);
         if (existing) {
             // Update specific fields
             if (updates.preview !== undefined) existing.preview = updates.preview;
@@ -125,7 +125,7 @@ export class DatabaseCache {
      * Delete a file from the cache.
      */
     deleteFile(path: string): void {
-        this.fileCache.delete(path);
+        this.memoryMap.delete(path);
     }
 
     /**
@@ -133,7 +133,7 @@ export class DatabaseCache {
      */
     batchUpdate(updates: FileData[]): void {
         for (const data of updates) {
-            this.fileCache.set(data.path, data);
+            this.memoryMap.set(data.path, data);
         }
     }
 
@@ -157,7 +157,7 @@ export class DatabaseCache {
      * Clear specific content type from all files.
      */
     clearAllFileContent(type: 'preview' | 'featureImage' | 'metadata' | 'all'): void {
-        for (const file of this.fileCache.values()) {
+        for (const file of this.memoryMap.values()) {
             if (type === 'all' || type === 'preview') file.preview = null;
             if (type === 'all' || type === 'featureImage') file.featureImage = null;
             if (type === 'all' || type === 'metadata') file.metadata = null;
@@ -168,7 +168,7 @@ export class DatabaseCache {
      * Get cache statistics.
      */
     getStats(): { fileCount: number; memoryUsageEstimate: number } {
-        const fileCount = this.fileCache.size;
+        const fileCount = this.memoryMap.size;
 
         // Rough estimate: 300 bytes per file
         const memoryUsageEstimate = fileCount * 300;
@@ -187,7 +187,7 @@ export class DatabaseCache {
      * Clear the entire cache (used during cleanup).
      */
     clear(): void {
-        this.fileCache.clear();
+        this.memoryMap.clear();
         this.isInitialized = false;
     }
 }

@@ -17,7 +17,7 @@ import { STORAGE_KEYS } from '../types';
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { DatabaseCache } from './DatabaseCache';
+import { MemoryFileCache } from './MemoryFileCache';
 
 const DB_NAME = 'notebook-navigator-db';
 const STORE_NAME = 'files';
@@ -49,16 +49,16 @@ export interface FileContentChange {
 }
 
 /**
- * Database - IndexedDB wrapper for persistent file storage
+ * IndexedDBStorage - Browser's IndexedDB wrapper for persistent file storage
  *
  * What it does:
- * - Stores file metadata and generated content (previews, images, frontmatter)
+ * - Stores file metadata and generated content (previews, images, frontmatter) in browser IndexedDB
  * - Provides efficient batch operations for large vaults
  * - Emits real-time change notifications for UI updates
  *
  * Relationships:
  * - Used by: StorageContext, ContentService, FileOperations, Statistics
- * - Core storage layer that all other components depend on
+ * - Core persistent storage layer that all other components depend on
  *
  * Key responsibilities:
  * - Manage IndexedDB connection lifecycle
@@ -67,8 +67,8 @@ export interface FileContentChange {
  * - Track and notify about content changes
  * - Provide indexed queries (by tag, by content type)
  */
-export class Database {
-    private cache: DatabaseCache = new DatabaseCache();
+export class IndexedDBStorage {
+    private cache: MemoryFileCache = new MemoryFileCache();
     private changeListeners = new Set<(changes: FileContentChange[]) => void>();
     private db: IDBDatabase | null = null;
     private fileChangeListeners = new Map<string, Set<(changes: FileContentChange['changes']) => void>>();

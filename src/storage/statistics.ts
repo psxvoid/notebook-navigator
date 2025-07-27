@@ -28,7 +28,7 @@ import { getDBInstance } from './fileOperations';
  *
  * Relationships:
  * - Used by: Settings UI (displays cache statistics)
- * - Uses: Database (streams file data for analysis)
+ * - Uses: IndexedDBStorage (streams file data for analysis)
  *
  * Key responsibilities:
  * - Stream through all cached files without loading into memory

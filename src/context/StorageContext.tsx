@@ -26,7 +26,7 @@
  * - Provides real-time content updates to UI components
  *
  * Relationships:
- * - Uses: Database, ContentService, FileOperations, DiffCalculator
+ * - Uses: IndexedDBStorage, ContentService, FileOperations, DiffCalculator
  * - Provides: StorageContext to all child components
  * - Integrates with: Obsidian vault and metadata APIs
  *
@@ -43,7 +43,7 @@ import { createContext, useContext, useState, useEffect, useRef, ReactNode, useM
 import { App, TFile, debounce } from 'obsidian';
 import { ContentService } from '../services/ContentService';
 import { NotebookNavigatorSettings } from '../settings';
-import { Database, FileData as DBFileData } from '../storage/database';
+import { IndexedDBStorage, FileData as DBFileData } from '../storage/IndexedDBStorage';
 import { calculateFileDiff } from '../storage/diffCalculator';
 import {
     initializeCache,
@@ -88,8 +88,8 @@ interface StorageContextValue {
     getFileCreatedTime: (file: TFile) => number;
     getFileModifiedTime: (file: TFile) => number;
     getFileMetadata: (file: TFile) => { name: string; created: number; modified: number };
-    // Database instance for FileItem to use
-    getDB: () => Database;
+    // IndexedDB storage instance for FileItem to use
+    getDB: () => IndexedDBStorage;
     // Synchronous database access methods
     getFile: (path: string) => DBFileData | null;
     getFiles: (paths: string[]) => Map<string, DBFileData>;

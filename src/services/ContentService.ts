@@ -18,7 +18,7 @@
 
 import { App, TFile, getAllTags } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
-import { FileData } from '../storage/database';
+import { FileData } from '../storage/IndexedDBStorage';
 import { getDBInstance } from '../storage/fileOperations';
 import { isImageFile } from '../utils/fileTypeUtils';
 import { PreviewTextUtils } from '../utils/previewTextUtils';
@@ -42,7 +42,7 @@ interface ContentJob {
  *
  * Relationships:
  * - Used by: StorageContext (creates and manages the service)
- * - Uses: Database (stores generated content), PreviewTextUtils (text extraction)
+ * - Uses: IndexedDBStorage (stores generated content), PreviewTextUtils (text extraction)
  * - Works with: Obsidian metadata cache for frontmatter extraction
  *
  * Key responsibilities:
@@ -211,7 +211,7 @@ export class ContentService {
     }
 
     /**
-     * Clear all preview text from the database cache.
+     * Clear all preview text from the IndexedDB storage.
      * Uses an efficient cursor-based method to clear content without loading all data into memory.
      */
     public async clearPreviews(): Promise<void> {
@@ -221,7 +221,7 @@ export class ContentService {
     }
 
     /**
-     * Clear all feature images from the database cache.
+     * Clear all feature images from the IndexedDB storage.
      * Uses an efficient cursor-based method to clear content without loading all data into memory.
      */
     public async clearFeatureImages(): Promise<void> {
@@ -231,7 +231,7 @@ export class ContentService {
     }
 
     /**
-     * Clear all tags from the database cache.
+     * Clear all tags from the IndexedDB storage.
      * Uses an efficient cursor-based method to clear content without loading all data into memory.
      */
     public async clearTags(): Promise<void> {
@@ -241,7 +241,7 @@ export class ContentService {
     }
 
     /**
-     * Clear all metadata from the database cache.
+     * Clear all metadata from the IndexedDB storage.
      * Uses an efficient cursor-based method to clear content without loading all data into memory.
      */
     public async clearMetadata(): Promise<void> {

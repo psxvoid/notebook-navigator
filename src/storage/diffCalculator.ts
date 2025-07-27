@@ -17,7 +17,7 @@
  */
 
 import { TFile } from 'obsidian';
-import { FileData } from './database';
+import { FileData } from './IndexedDBStorage';
 import { getDBInstance } from './fileOperations';
 
 /**
@@ -30,7 +30,7 @@ import { getDBInstance } from './fileOperations';
  *
  * Relationships:
  * - Used by: StorageContext (to detect vault changes)
- * - Uses: Database (streams cached file data)
+ * - Uses: IndexedDBStorage (streams cached file data)
  *
  * Key responsibilities:
  * - Stream database files into memory-efficient map
@@ -40,7 +40,7 @@ import { getDBInstance } from './fileOperations';
  */
 
 /**
- * Calculate the difference between the database cache and current vault state.
+ * Calculate the difference between the IndexedDB storage and current vault state.
  * Identifies files that need to be added, updated, or removed from the cache.
  * Uses streaming to handle large vaults efficiently.
  *
