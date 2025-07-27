@@ -1,5 +1,4 @@
 import { Transform } from 'jscodeshift';
-import { DependencyAnalyzer } from '../utils/dependencyAnalyzer';
 
 const transform: Transform = (fileInfo, api) => {
     const j = api.jscodeshift;
@@ -49,10 +48,6 @@ const transform: Transform = (fileInfo, api) => {
             (node.declaration && node.declaration.type === 'VariableDeclaration')
         );
     };
-
-    // Create dependency analyzer
-    const analyzer = new DependencyAnalyzer(j);
-    analyzer.analyze(root);
 
     statements.forEach((statement: any) => {
         // Handle imports
@@ -151,12 +146,7 @@ const transform: Transform = (fileInfo, api) => {
         categorized.other.push(statement);
     });
 
-    // Sort using dependency analysis
-    const sortWithDependencies = (items: any[]) => {
-        return analyzer.topologicalSort(items);
-    };
-
-    // Sort components and hooks by name (fallback for items without dependencies)
+    // Sort components and hooks by name
     const sortByName = (items: any[]) => {
         return items.sort((a, b) => {
             const aName = getName(a);
@@ -183,34 +173,34 @@ const transform: Transform = (fileInfo, api) => {
     // Imports stay at top (already handled by organize-imports)
     organized.push(...categorized.imports);
 
-    // Type definitions (sorted by dependencies)
+    // Type definitions
     if (categorized.typeDefinitions.length > 0) {
         if (organized.length > 0) organized.push(j.noop());
-        organized.push(...sortWithDependencies(categorized.typeDefinitions));
+        organized.push(...sortByName(categorized.typeDefinitions));
     }
 
-    // Constants (sorted by dependencies)
+    // Constants
     if (categorized.constants.length > 0) {
         if (organized.length > 0) organized.push(j.noop());
-        organized.push(...sortWithDependencies(categorized.constants));
+        organized.push(...sortByName(categorized.constants));
     }
 
-    // Utility functions (sorted by dependencies)
+    // Utility functions
     if (categorized.utils.length > 0) {
         if (organized.length > 0) organized.push(j.noop());
-        organized.push(...sortWithDependencies(categorized.utils));
+        organized.push(...sortByName(categorized.utils));
     }
 
-    // Custom hooks (sorted by dependencies)
+    // Custom hooks
     if (categorized.customHooks.length > 0) {
         if (organized.length > 0) organized.push(j.noop());
-        organized.push(...sortWithDependencies(categorized.customHooks));
+        organized.push(...sortByName(categorized.customHooks));
     }
 
-    // Components (sorted by dependencies)
+    // Components
     if (categorized.components.length > 0) {
         if (organized.length > 0) organized.push(j.noop());
-        organized.push(...sortWithDependencies(categorized.components));
+        organized.push(...sortByName(categorized.components));
     }
 
     // Other statements

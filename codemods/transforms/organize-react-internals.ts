@@ -1,5 +1,4 @@
 import { Transform } from 'jscodeshift';
-import { DependencyAnalyzer } from '../utils/dependencyAnalyzer';
 
 const transform: Transform = (fileInfo, api) => {
     const j = api.jscodeshift;
@@ -76,11 +75,6 @@ const transform: Transform = (fileInfo, api) => {
             // The return statement
             returnStatement: null as any
         };
-
-        // Create a local dependency analyzer for the component body
-        const localAnalyzer = new DependencyAnalyzer(j);
-        const tempRoot = j(bodyStatements);
-        localAnalyzer.analyze(tempRoot);
 
         bodyStatements.forEach(statement => {
             // Skip if it's the return statement
@@ -176,23 +170,11 @@ const transform: Transform = (fileInfo, api) => {
         // Build reorganized body
         const newBody: any[] = [];
 
-        // Add sections in order with spacing, respecting dependencies
+        // Add sections in order with spacing
         const addSection = (items: any[]) => {
             if (items.length > 0) {
                 if (newBody.length > 0) {
                     // Add empty line between sections
-                    newBody.push(j.noop());
-                }
-                // Sort items within section by dependencies
-                const sorted = localAnalyzer.topologicalSort(items);
-                newBody.push(...sorted);
-            }
-        };
-
-        // For early returns and effects, we keep original order as they often have side effects
-        const addSectionPreserveOrder = (items: any[]) => {
-            if (items.length > 0) {
-                if (newBody.length > 0) {
                     newBody.push(j.noop());
                 }
                 newBody.push(...items);
@@ -205,8 +187,8 @@ const transform: Transform = (fileInfo, api) => {
         addSection(organized.variables);
         addSection(organized.handlers);
         addSection(organized.functions);
-        addSectionPreserveOrder(organized.effects);
-        addSectionPreserveOrder(organized.earlyReturns);
+        addSection(organized.effects);
+        addSection(organized.earlyReturns);
         addSection(organized.other);
 
         if (organized.returnStatement) {
