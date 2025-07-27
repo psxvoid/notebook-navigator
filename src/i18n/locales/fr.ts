@@ -574,6 +574,7 @@ export const STRINGS_FR = {
             cacheStatistics: {
                 localCache: 'Cache local',
                 items: 'éléments',
+                withTags: 'avec étiquettes',
                 withPreviewText: 'avec texte de prévisualisation',
                 withFeatureImage: 'avec image de couverture',
                 withMetadata: 'avec métadonnées'

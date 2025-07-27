@@ -573,6 +573,7 @@ export const STRINGS_EN = {
             cacheStatistics: {
                 localCache: 'Local cache',
                 items: 'items',
+                withTags: 'with tags',
                 withPreviewText: 'with preview text',
                 withFeatureImage: 'with feature image',
                 withMetadata: 'with metadata'

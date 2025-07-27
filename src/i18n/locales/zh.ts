@@ -573,6 +573,7 @@ export const STRINGS_ZH = {
             cacheStatistics: {
                 localCache: '本地缓存',
                 items: '项',
+                withTags: '包含标签',
                 withPreviewText: '包含预览文本',
                 withFeatureImage: '包含特色图片',
                 withMetadata: '包含元数据'
