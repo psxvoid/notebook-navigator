@@ -18,21 +18,22 @@
 
 import React, { useCallback, useEffect } from 'react';
 import { Menu, TFolder } from 'obsidian';
-import { useServices } from '../context/ServicesContext';
-import { useSettings } from '../context/SettingsContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
-import { useSelectionState } from '../context/SelectionContext';
-import { useUIState, useUIDispatch } from '../context/UIStateContext';
+import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useServices } from '../context/ServicesContext';
 import { useFileSystemOps, useMetadataService } from '../context/ServicesContext';
-import { isTFolder } from '../utils/typeGuards';
-import { ObsidianIcon } from './ObsidianIcon';
+import { useSettings } from '../context/SettingsContext';
+import { useFileCache } from '../context/StorageContext';
+import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { strings } from '../i18n';
 import { getIconService } from '../services/icons';
-import { UNTAGGED_TAG_ID, ItemType } from '../types';
-import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } from '../utils/sortUtils';
 import type { SortOption } from '../settings';
-import { useFileCache } from '../context/StorageContext';
+import { UNTAGGED_TAG_ID, ItemType } from '../types';
+import { getFilesForFolder } from '../utils/fileFinder';
+import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } from '../utils/sortUtils';
 import { collectAllTagPaths } from '../utils/tagTree';
+import { isTFolder } from '../utils/typeGuards';
+import { ObsidianIcon } from './ObsidianIcon';
 
 interface PaneHeaderProps {
     type: 'navigation' | 'files';
@@ -56,6 +57,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
     const selectionState = useSelectionState();
+    const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const fileSystemOps = useFileSystemOps();
@@ -204,10 +206,10 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
             const isCustomSort =
                 (selectionState.selectionType === ItemType.FOLDER &&
                     selectionState.selectedFolder &&
-                    settings.folderSortOverrides[selectionState.selectedFolder.path]) ||
+                    metadataService.getFolderSortOverride(selectionState.selectedFolder.path)) ||
                 (selectionState.selectionType === ItemType.TAG &&
                     selectionState.selectedTag &&
-                    settings.tagSortOverrides?.[selectionState.selectedTag]);
+                    metadataService.getTagSortOverride(selectionState.selectedTag));
 
             // Default option
             menu.addItem(item => {
@@ -273,10 +275,33 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
     );
 
     const handleToggleSubfolders = useCallback(async () => {
+        const wasShowingSubfolders = settings.showNotesFromSubfolders;
+
         await updateSettings(s => {
             s.showNotesFromSubfolders = !s.showNotesFromSubfolders;
         });
-    }, [updateSettings]);
+
+        // When toggling subfolders ON, check if we should select the active file
+        if (!wasShowingSubfolders && selectionState.selectedFolder && !selectionState.selectedFile) {
+            const activeFile = app.workspace.getActiveFile();
+            if (activeFile) {
+                // Check if the active file is now visible in the current folder
+                const filesInFolder = getFilesForFolder(selectionState.selectedFolder, { ...settings, showNotesFromSubfolders: true }, app);
+
+                if (filesInFolder.some(f => f.path === activeFile.path)) {
+                    // Select the active file since it's now visible
+                    selectionDispatch({ type: 'SET_SELECTED_FILE', file: activeFile });
+                }
+            }
+        }
+    }, [
+        updateSettings,
+        settings.showNotesFromSubfolders,
+        selectionState.selectedFolder,
+        selectionState.selectedFile,
+        app,
+        selectionDispatch
+    ]);
 
     const handleToggleAutoExpand = useCallback(async () => {
         await updateSettings(s => {
@@ -305,6 +330,19 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
 
         return title;
     };
+
+    // Desktop header (original code)
+    // Prepare header title for file pane
+    let headerTitle = '';
+    let folderIcon = '';
+
+    // Render icon when folderIcon changes
+    useEffect(() => {
+        if (iconRef.current && folderIcon && settings.showIcons) {
+            const iconService = getIconService();
+            iconService.renderIcon(iconRef.current, folderIcon);
+        }
+    }, [folderIcon, settings.showIcons, uiState.singlePane]);
 
     // Mobile header with back button
     if (isMobile) {
@@ -412,31 +450,18 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
         );
     }
 
-    // Desktop header (original code)
-    // Prepare header title for file pane
-    let headerTitle = '';
-    let folderIcon = '';
-
     if (type === 'files') {
         headerTitle = getHeaderTitle(false); // Use full path for desktop
 
         // Get icon based on selection type
         if (settings.showIcons) {
             if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-                folderIcon = settings.folderIcons?.[selectionState.selectedFolder.path] || 'folder';
+                folderIcon = metadataService.getFolderIcon(selectionState.selectedFolder.path) || 'folder';
             } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                folderIcon = settings.tagIcons?.[selectionState.selectedTag] || 'tags';
+                folderIcon = metadataService.getTagIcon(selectionState.selectedTag) || 'tags';
             }
         }
     }
-
-    // Render icon when folderIcon changes
-    useEffect(() => {
-        if (iconRef.current && folderIcon && settings.showIcons) {
-            const iconService = getIconService();
-            iconService.renderIcon(iconRef.current, folderIcon);
-        }
-    }, [folderIcon, settings.showIcons]);
 
     return (
         <div className="nn-pane-header">

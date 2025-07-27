@@ -96,6 +96,7 @@ export const STRINGS_EN = {
             duplicateMultipleNotes: 'Duplicate {count} notes',
             duplicateMultipleFiles: 'Duplicate {count} files',
             openVersionHistory: 'Open version history',
+            revealInFolder: 'Reveal in folder',
             revealInFinder: 'Reveal in Finder',
             showInExplorer: 'Show in system explorer',
             copyDeepLink: 'Copy deep link',
@@ -394,9 +395,13 @@ export const STRINGS_EN = {
                 desc: 'Comma-separated list of folders to hide. Supports wildcards: assets* (starts with), *_temp (ends with).',
                 placeholder: 'templates, assets*, *_temp'
             },
-            showDate: {
+            showFileDate: {
                 name: 'Show date',
                 desc: 'Display the date below note names.'
+            },
+            showFileTags: {
+                name: 'Show tags',
+                desc: 'Display clickable tags in file items. Use tag colors to visually distinguish different tag types.'
             },
             dateFormat: {
                 name: 'Date format',
@@ -568,6 +573,7 @@ export const STRINGS_EN = {
             cacheStatistics: {
                 localCache: 'Local cache',
                 items: 'items',
+                withTags: 'with tags',
                 withPreviewText: 'with preview text',
                 withFeatureImage: 'with feature image',
                 withMetadata: 'with metadata'

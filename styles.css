@@ -587,7 +587,7 @@
 /* Second line container - holds date and preview text */
 .nn-file-second-line {
     display: flex;
-    align-items: baseline; /* Align text on same baseline */
+    align-items: center; /* Center align for better icon/text alignment */
     gap: var(--size-4-1);
 }
 
@@ -674,6 +674,85 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
+}
+
+/* ========================================================================
+   Tag Display Styles
+   ======================================================================== */
+/* Tag container */
+.nn-file-tags {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: var(--size-2-2);
+    margin-top: var(--size-2-2);
+    overflow: hidden;
+    height: 22px; /* Fixed height for single row */
+    position: relative;
+}
+
+/* Individual tag pill */
+.nn-file-tag {
+    display: inline-flex;
+    align-items: center;
+    height: 20px;
+    padding: 0 var(--size-4-2);
+    background-color: var(--background-modifier-border);
+    color: var(--text-muted);
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+    flex-shrink: 0;
+    transition:
+        background-color 0.15s ease,
+        color 0.15s ease;
+}
+
+/* When tag has custom color, always use white text */
+.nn-file-tag[style*='background-color'] {
+    color: white;
+}
+
+/* Tag pill hover effect */
+.nn-file-tag:hover {
+    background-color: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
+/* Custom colored tag hover - slightly darken/lighten the background */
+.nn-file-tag[style*='background-color']:hover {
+    filter: brightness(0.9);
+    color: white;
+}
+
+/* Clickable tag styling */
+.nn-file-tag.nn-clickable-tag {
+    cursor: pointer;
+}
+
+/* Dark mode tag styles */
+.theme-dark .nn-file-tag {
+    background-color: var(--background-modifier-border);
+    color: var(--text-muted);
+}
+
+.theme-dark .nn-file-tag:hover {
+    background-color: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
+/* Override dark mode for custom colored tags - ensure white text */
+.theme-dark .nn-file-tag[style*='background-color'] {
+    color: white;
+}
+
+.theme-dark .nn-file-tag[style*='background-color']:hover {
+    color: white;
+}
+
+/* Selected file tag styles */
+.nn-file-item.nn-selected .nn-file-tag {
+    opacity: 0.85;
 }
 
 /* ========================================================================
@@ -963,7 +1042,7 @@ body.nn-resizing {
 
 /* Drag over state - highlights valid drop targets */
 .nn-folder-content.nn-drag-over {
-    background-color: var(--interactive-accent-hover);
+    background-color: var(--text-selection);
 }
 
 /* Special visual feedback for tag drop zones */
@@ -983,12 +1062,46 @@ body.nn-resizing {
     width: 48px;
     height: 48px;
 }
+/* Single file drag icon - positioned like count badge */
+.nn-drag-icon-badge {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 32px;
+    height: 32px;
+    background-color: var(--background-primary);
+    border: 2px solid var(--background-modifier-border);
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+/* Style the Lucide icon inside drag icon badge */
+.nn-drag-icon-badge svg {
+    width: 20px;
+    height: 20px;
+    color: var(--text-muted);
+}
+
+/* Featured image in drag badge */
+.nn-drag-icon-badge.nn-drag-featured-image {
+    padding: 0;
+    overflow: hidden;
+}
+
+.nn-drag-icon-badge.nn-drag-featured-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
 
 /* Drag count badge - shows number of items being dragged */
 .nn-drag-count-badge {
     position: absolute;
-    bottom: 4px;
-    right: 4px;
+    bottom: 8px;
+    right: 8px;
     background-color: #dc3545;
     color: white;
     font-weight: bold;
@@ -1000,7 +1113,7 @@ body.nn-resizing {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* File list spacer - adds spacing at the bottom of file lists */

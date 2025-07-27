@@ -18,11 +18,11 @@
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode, useMemo } from 'react';
 import { NAVIGATION_PANE_DIMENSIONS } from '../types';
-import { localStorage } from '../utils/localStorage';
-import { useSettings } from './SettingsContext';
-
 // Storage keys
 import { STORAGE_KEYS } from '../types';
+import { localStorage } from '../utils/localStorage';
+
+import { useSettings } from './SettingsContext';
 
 // State interface
 interface UIState {
@@ -72,7 +72,6 @@ interface UIStateProviderProps {
 }
 
 export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
-    // Load initial state
     const loadInitialState = (): UIState => {
         const savedWidth = localStorage.get<number>(STORAGE_KEYS.navigationPaneWidthKey);
 

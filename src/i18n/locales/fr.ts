@@ -87,6 +87,7 @@ export const STRINGS_FR = {
             duplicateNote: 'Dupliquer la note',
             duplicateMultipleNotes: 'Dupliquer {count} notes',
             openVersionHistory: "Ouvrir l'historique des versions",
+            revealInFolder: 'Afficher dans le dossier',
             revealInFinder: 'Afficher dans le Finder',
             showInExplorer: "Afficher dans l'explorateur système",
             copyDeepLink: 'Copier le lien profond',
@@ -395,9 +396,13 @@ export const STRINGS_FR = {
                     all: 'Tous les fichiers'
                 }
             },
-            showDate: {
+            showFileDate: {
                 name: 'Afficher la date',
                 desc: 'Afficher la date sous les noms des notes.'
+            },
+            showFileTags: {
+                name: 'Afficher les tags',
+                desc: 'Affiche les tags cliquables dans les éléments de fichier. Utilisez les couleurs de tags pour distinguer visuellement les différents types de tags.'
             },
             dateFormat: {
                 name: 'Format de date',
@@ -569,6 +574,7 @@ export const STRINGS_FR = {
             cacheStatistics: {
                 localCache: 'Cache local',
                 items: 'éléments',
+                withTags: 'avec étiquettes',
                 withPreviewText: 'avec texte de prévisualisation',
                 withFeatureImage: 'avec image de couverture',
                 withMetadata: 'avec métadonnées'

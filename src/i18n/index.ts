@@ -1,3 +1,5 @@
+import { moment } from 'obsidian';
+import { STRINGS_DE } from './locales/de';
 /*
  * Notebook Navigator - Plugin for Obsidian
  * Copyright (c) 2025 Johan Sanneblad
@@ -21,12 +23,10 @@
  * Dynamically loads the appropriate language based on Obsidian's language setting
  */
 import { STRINGS_EN } from './locales/en';
-import { STRINGS_DE } from './locales/de';
 import { STRINGS_ES } from './locales/es';
 import { STRINGS_FR } from './locales/fr';
 import { STRINGS_JA } from './locales/ja';
 import { STRINGS_ZH } from './locales/zh';
-import { moment } from 'obsidian';
 
 // Type for the translation strings structure
 type TranslationStrings = typeof STRINGS_EN;

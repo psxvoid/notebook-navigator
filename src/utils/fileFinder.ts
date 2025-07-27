@@ -18,12 +18,12 @@
 
 import { TFile, TFolder, App, getAllTags } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
-import { isTFile, isTFolder } from './typeGuards';
+import { UNTAGGED_TAG_ID } from '../types';
 import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders, shouldExcludeFolder } from './fileFilters';
+import { shouldDisplayFile, FILE_VISIBILITY } from './fileTypeUtils';
 import { getEffectiveSortOption, sortFiles } from './sortUtils';
 import { buildTagTree, findTagNode, collectAllTagPaths } from './tagTree';
-import { UNTAGGED_TAG_ID } from '../types';
-import { shouldDisplayFile, FILE_VISIBILITY } from './fileTypeUtils';
+import { isTFile, isTFolder } from './typeGuards';
 
 /**
  * Gets the folder note for a folder if it exists

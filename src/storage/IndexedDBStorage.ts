@@ -1,3 +1,4 @@
+import { STORAGE_KEYS } from '../types';
 /*
  * Notebook Navigator - Plugin for Obsidian
  * Copyright (c) 2025 Johan Sanneblad
@@ -16,15 +17,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { DatabaseCache } from './DatabaseCache';
+import { MemoryFileCache } from './MemoryFileCache';
 
-const DB_NAME = 'notebook-navigator-db-v1';
+const DB_NAME = 'notebook-navigator-db';
 const STORE_NAME = 'files';
+const DB_SCHEMA_VERSION = 1; // IndexedDB structure version
+const DB_CONTENT_VERSION = 2; // Data format version (increment to force data rebuild)
 
 export interface FileData {
     path: string; // File path (primary key)
     mtime: number;
-    tags: string[];
+    tags: string[] | null; // null = not extracted yet (e.g. when tags disabled)
     preview: string | null; // null = not generated yet
     featureImage: string | null; // null = not generated yet
     metadata: {
@@ -40,20 +43,22 @@ export interface FileContentChange {
         preview?: string | null;
         featureImage?: string | null;
         metadata?: FileData['metadata'] | null;
+        tags?: string[] | null;
     };
+    changeType?: 'metadata' | 'content' | 'both';
 }
 
 /**
- * Database - IndexedDB wrapper for persistent file storage
+ * IndexedDBStorage - Browser's IndexedDB wrapper for persistent file storage
  *
  * What it does:
- * - Stores file metadata and generated content (previews, images, frontmatter)
+ * - Stores file metadata and generated content (previews, images, frontmatter) in browser IndexedDB
  * - Provides efficient batch operations for large vaults
  * - Emits real-time change notifications for UI updates
  *
  * Relationships:
  * - Used by: StorageContext, ContentService, FileOperations, Statistics
- * - Core storage layer that all other components depend on
+ * - Core persistent storage layer that all other components depend on
  *
  * Key responsibilities:
  * - Manage IndexedDB connection lifecycle
@@ -62,11 +67,12 @@ export interface FileContentChange {
  * - Track and notify about content changes
  * - Provide indexed queries (by tag, by content type)
  */
-export class Database {
-    private db: IDBDatabase | null = null;
-    private initPromise: Promise<void> | null = null;
+export class IndexedDBStorage {
+    private cache: MemoryFileCache = new MemoryFileCache();
     private changeListeners = new Set<(changes: FileContentChange[]) => void>();
-    private cache: DatabaseCache = new DatabaseCache();
+    private db: IDBDatabase | null = null;
+    private fileChangeListeners = new Map<string, Set<(changes: FileContentChange['changes']) => void>>();
+    private initPromise: Promise<void> | null = null;
 
     /**
      * Subscribe to content change notifications.
@@ -81,6 +87,33 @@ export class Database {
     }
 
     /**
+     * Subscribe to content change notifications for a specific file.
+     * More efficient than onContentChange as it only receives changes for the specified file.
+     *
+     * @param path - File path to listen for changes
+     * @param listener - Function to call with content changes for this file
+     * @returns Unsubscribe function
+     */
+    onFileContentChange(path: string, listener: (changes: FileContentChange['changes']) => void): () => void {
+        let fileListeners = this.fileChangeListeners.get(path);
+        if (!fileListeners) {
+            fileListeners = new Set();
+            this.fileChangeListeners.set(path, fileListeners);
+        }
+        fileListeners.add(listener);
+
+        return () => {
+            const listeners = this.fileChangeListeners.get(path);
+            if (listeners) {
+                listeners.delete(listener);
+                if (listeners.size === 0) {
+                    this.fileChangeListeners.delete(path);
+                }
+            }
+        };
+    }
+
+    /**
      * Emit content changes to all registered listeners.
      * Catches and logs any errors in listeners to prevent cascading failures.
      *
@@ -89,8 +122,9 @@ export class Database {
     private emitChanges(changes: FileContentChange[]): void {
         if (changes.length === 0) return;
         // Only log batch operations or errors
-        if (changes.length > 1) {
-        }
+        // Only log batch operations or errors (removed for production)
+
+        // Emit to global listeners (for backward compatibility)
         this.changeListeners.forEach(listener => {
             try {
                 listener(changes);
@@ -98,6 +132,20 @@ export class Database {
                 console.error('Error in change listener:', error);
             }
         });
+
+        // Emit to file-specific listeners
+        for (const change of changes) {
+            const fileListeners = this.fileChangeListeners.get(change.path);
+            if (fileListeners) {
+                fileListeners.forEach(listener => {
+                    try {
+                        listener(change.changes);
+                    } catch (error) {
+                        console.error('Error in file change listener:', error);
+                    }
+                });
+            }
+        }
     }
 
     /**
@@ -123,7 +171,7 @@ export class Database {
             return this.initPromise;
         }
 
-        this.initPromise = this.openDatabase().catch(error => {
+        this.initPromise = this.checkSchemaAndInit().catch(error => {
             console.error('Failed to initialize database:', error);
             this.initPromise = null;
             throw error;
@@ -131,10 +179,70 @@ export class Database {
         return this.initPromise;
     }
 
+    private async checkSchemaAndInit(): Promise<void> {
+        // Clean up old database from previous versions
+        await this.cleanupOldDatabases();
+
+        const storedSchemaVersion = localStorage.getItem(STORAGE_KEYS.databaseSchemaVersionKey);
+        const storedContentVersion = localStorage.getItem(STORAGE_KEYS.databaseContentVersionKey);
+        const currentSchemaVersion = DB_SCHEMA_VERSION.toString();
+        const currentContentVersion = DB_CONTENT_VERSION.toString();
+
+        // Check version changes
+        const schemaChanged = storedSchemaVersion && storedSchemaVersion !== currentSchemaVersion;
+        const contentChanged = storedContentVersion && storedContentVersion !== currentContentVersion;
+
+        // Only schema changes require database recreation
+        if (schemaChanged) {
+            console.log(`Database schema version changed from ${storedSchemaVersion} to ${currentSchemaVersion}. Recreating database.`);
+            await this.deleteDatabase();
+        }
+
+        localStorage.setItem(STORAGE_KEYS.databaseSchemaVersionKey, currentSchemaVersion);
+        localStorage.setItem(STORAGE_KEYS.databaseContentVersionKey, currentContentVersion);
+
+        await this.openDatabase();
+
+        // Clear and rebuild content if either version changed
+        if (schemaChanged || contentChanged) {
+            if (contentChanged && !schemaChanged) {
+                console.log(`Content version changed from ${storedContentVersion} to ${currentContentVersion}. Rebuilding content.`);
+            }
+            // Clear all data to force rebuild
+            await this.clear();
+        }
+    }
+
+    private async deleteDatabase(): Promise<void> {
+        if (this.db) {
+            this.db.close();
+            this.db = null;
+        }
+
+        return new Promise((resolve, reject) => {
+            const deleteReq = indexedDB.deleteDatabase(DB_NAME);
+
+            deleteReq.onsuccess = () => {
+                console.log('Database deleted successfully');
+                resolve();
+            };
+
+            deleteReq.onerror = () => {
+                console.error('Failed to delete database:', deleteReq.error);
+                reject(deleteReq.error);
+            };
+
+            deleteReq.onblocked = () => {
+                console.warn('Database deletion blocked');
+                resolve();
+            };
+        });
+    }
+
     private async openDatabase(): Promise<void> {
         return new Promise((resolve, reject) => {
             const startTime = performance.now();
-            const request = indexedDB.open(DB_NAME);
+            const request = indexedDB.open(DB_NAME, DB_SCHEMA_VERSION);
 
             request.onerror = () => {
                 console.error('Database open error:', request.error);
@@ -184,6 +292,35 @@ export class Database {
                 }
             };
         });
+    }
+
+    /**
+     * Clean up old databases from previous plugin versions
+     * TODO: Remove in next version, only kept for pre-public release migration
+     */
+    private async cleanupOldDatabases(): Promise<void> {
+        const oldDatabaseNames = ['notebook-navigator-db-v1'];
+
+        for (const oldDbName of oldDatabaseNames) {
+            try {
+                await new Promise<void>(resolve => {
+                    const deleteReq = indexedDB.deleteDatabase(oldDbName);
+                    deleteReq.onsuccess = () => {
+                        resolve();
+                    };
+                    deleteReq.onerror = () => {
+                        // Ignore errors - database might not exist
+                        resolve();
+                    };
+                    deleteReq.onblocked = () => {
+                        // Database is in use, skip cleanup
+                        resolve();
+                    };
+                });
+            } catch (error) {
+                // Ignore cleanup errors
+            }
+        }
     }
 
     /**
@@ -291,6 +428,10 @@ export class Database {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
+        // Get existing data to check for tag changes
+        const existingData = this.getFiles(files.map(f => f.path));
+        const tagChanges: FileContentChange[] = [];
+
         const transaction = this.db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
 
@@ -304,6 +445,23 @@ export class Database {
             }
 
             files.forEach(data => {
+                // Check if tags changed
+                const existing = existingData.get(data.path);
+                const tagsChanged =
+                    !existing ||
+                    existing.tags !== data.tags || // Handle null vs non-null
+                    (existing.tags !== null &&
+                        data.tags !== null &&
+                        (existing.tags.length !== data.tags.length || !existing.tags.every((tag, i) => tag === data.tags![i])));
+
+                if (tagsChanged) {
+                    tagChanges.push({
+                        path: data.path,
+                        changes: { tags: data.tags },
+                        changeType: 'metadata'
+                    });
+                }
+
                 const request = store.put(data);
 
                 request.onsuccess = () => {
@@ -311,6 +469,12 @@ export class Database {
                     if (completed === files.length && !hasError) {
                         // Update cache after all successful database writes
                         this.cache.batchUpdate(files);
+
+                        // Emit tag changes after transaction completes
+                        if (tagChanges.length > 0) {
+                            setTimeout(() => this.emitChanges(tagChanges), 0);
+                        }
+
                         resolve();
                     }
                 };
@@ -404,7 +568,7 @@ export class Database {
      * @param type - Type of content to check for
      * @returns Set of file paths needing content
      */
-    getFilesNeedingContent(type: 'preview' | 'featureImage' | 'metadata'): Set<string> {
+    getFilesNeedingContent(type: 'tags' | 'preview' | 'featureImage' | 'metadata'): Set<string> {
         if (!this.cache.isReady()) {
             return new Set();
         }
@@ -412,6 +576,7 @@ export class Database {
         const allFiles = this.cache.getAllFiles();
         for (const file of allFiles) {
             if (
+                (type === 'tags' && file.tags === null) ||
                 (type === 'preview' && file.preview === null) ||
                 (type === 'featureImage' && file.featureImage === null) ||
                 (type === 'metadata' && file.metadata === null)
@@ -458,7 +623,12 @@ export class Database {
 
         // Emit change notification
         if (Object.keys(changes).length > 0) {
-            this.emitChanges([{ path, changes }]);
+            // Determine change type
+            const hasContentChanges = changes.preview !== undefined || changes.featureImage !== undefined;
+            const hasMetadataChanges = changes.metadata !== undefined;
+            const changeType = hasContentChanges && hasMetadataChanges ? 'both' : hasContentChanges ? 'content' : 'metadata';
+
+            this.emitChanges([{ path, changes, changeType }]);
         }
     }
 
@@ -482,7 +652,54 @@ export class Database {
         await this.setFile(file);
 
         // Emit change notification
-        this.emitChanges([{ path, changes: { metadata: file.metadata } }]);
+        this.emitChanges([{ path, changes: { metadata: file.metadata }, changeType: 'metadata' }]);
+    }
+
+    /**
+     * Update modification times for multiple files in batch.
+     * Used by ContentService after successfully generating content.
+     * Does NOT emit change notifications as this is an internal update.
+     *
+     * @param updates - Array of path and mtime pairs to update
+     */
+    async updateMtimes(updates: Array<{ path: string; mtime: number }>): Promise<void> {
+        await this.init();
+        if (!this.db) throw new Error('Database not initialized');
+
+        const paths = updates.map(u => u.path);
+        const existingFiles = this.getFiles(paths);
+        const filesToUpdate: FileData[] = [];
+
+        for (const update of updates) {
+            const file = existingFiles.get(update.path);
+            if (!file) continue;
+
+            // Update only the mtime
+            file.mtime = update.mtime;
+            filesToUpdate.push(file);
+        }
+
+        // Update all files in batch
+        if (filesToUpdate.length > 0) {
+            // Use setFiles but without triggering change notifications
+            // since this is an internal bookkeeping update
+            const transaction = this.db.transaction([STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+
+            await Promise.all(
+                filesToUpdate.map(file => {
+                    return new Promise<void>((resolve, reject) => {
+                        const request = store.put(file);
+                        request.onsuccess = () => {
+                            // Update cache
+                            this.cache.updateFile(file);
+                            resolve();
+                        };
+                        request.onerror = () => reject(request.error);
+                    });
+                })
+            );
+        }
     }
 
     /**
@@ -519,7 +736,12 @@ export class Database {
 
         // Emit change notification
         if (Object.keys(changes).length > 0) {
-            this.emitChanges([{ path, changes }]);
+            // Determine change type for clear operations
+            const hasContentCleared = changes.preview === null || changes.featureImage === null;
+            const hasMetadataCleared = changes.metadata === null;
+            const changeType = hasContentCleared && hasMetadataCleared ? 'both' : hasContentCleared ? 'content' : 'metadata';
+
+            this.emitChanges([{ path, changes, changeType }]);
         }
     }
 
@@ -531,7 +753,7 @@ export class Database {
      *
      * @param type - Type of content to clear or 'all'
      */
-    async batchClearAllFileContent(type: 'preview' | 'featureImage' | 'metadata' | 'all'): Promise<void> {
+    async batchClearAllFileContent(type: 'preview' | 'featureImage' | 'metadata' | 'tags' | 'all'): Promise<void> {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
@@ -564,18 +786,28 @@ export class Database {
                         changes.metadata = null;
                         hasChanges = true;
                     }
+                    if ((type === 'tags' || type === 'all') && file.tags !== null) {
+                        file.tags = null;
+                        changes.tags = null;
+                        hasChanges = true;
+                    }
 
                     if (hasChanges) {
                         cursor.update(file); // Update in-place
                         // Update cache immediately
                         this.cache.updateFile(file);
-                        changeNotifications.push({ path: file.path, changes });
+                        // Determine change type for batch clear
+                        const hasContentCleared = changes.preview === null || changes.featureImage === null;
+                        const hasMetadataCleared = changes.metadata === null || changes.tags !== undefined;
+                        const clearType = hasContentCleared && hasMetadataCleared ? 'both' : hasContentCleared ? 'content' : 'metadata';
+                        changeNotifications.push({ path: file.path, changes, changeType: clearType });
                     }
 
                     cursor.continue();
                 } else {
                     // Cursor iteration complete
                     transaction.oncomplete = () => {
+                        // Emit all changes at once after transaction completes
                         // Emit all changes at once after transaction completes
                         this.emitChanges(changeNotifications);
                         resolve();
@@ -596,7 +828,7 @@ export class Database {
      * @param paths - Array of file paths to clear content for
      * @param type - Type of content to clear or 'all'
      */
-    async batchClearFileContent(paths: string[], type: 'preview' | 'featureImage' | 'metadata' | 'all'): Promise<void> {
+    async batchClearFileContent(paths: string[], type: 'preview' | 'featureImage' | 'metadata' | 'tags' | 'all'): Promise<void> {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
@@ -623,10 +855,19 @@ export class Database {
                 changes.metadata = null;
                 hasChanges = true;
             }
+            if ((type === 'tags' || type === 'all') && file.tags !== null) {
+                file.tags = null;
+                changes.tags = null;
+                hasChanges = true;
+            }
 
             if (hasChanges) {
                 updates.push(file);
-                changeNotifications.push({ path, changes });
+                // Determine change type for batch clear
+                const hasContentCleared = changes.preview === null || changes.featureImage === null;
+                const hasMetadataCleared = changes.metadata === null || changes.tags !== undefined;
+                const clearType = hasContentCleared && hasMetadataCleared ? 'both' : hasContentCleared ? 'content' : 'metadata';
+                changeNotifications.push({ path, changes, changeType: clearType });
             }
         }
 
@@ -641,13 +882,15 @@ export class Database {
     /**
      * Update content for multiple files in batch.
      * More efficient than multiple updateFileContent calls.
-     * Emits a single change notification for all updates.
+     * Emits change notifications for all updates so UI components can react.
+     * This is the primary method for notifying the UI about content changes.
      *
      * @param updates - Array of content updates to apply
      */
     async batchUpdateFileContent(
         updates: Array<{
             path: string;
+            tags?: string[] | null;
             preview?: string;
             featureImage?: string;
             metadata?: FileData['metadata'];
@@ -668,6 +911,11 @@ export class Database {
             const changes: FileContentChange['changes'] = {};
             let hasChanges = false;
 
+            if (update.tags !== undefined) {
+                file.tags = update.tags;
+                changes.tags = update.tags;
+                hasChanges = true;
+            }
             if (update.preview !== undefined) {
                 file.preview = update.preview;
                 changes.preview = update.preview;
@@ -686,7 +934,12 @@ export class Database {
 
             if (hasChanges) {
                 filesToUpdate.push(file);
-                changeNotifications.push({ path: update.path, changes });
+                // Determine change type for batch update
+                const hasContentUpdates = changes.preview !== undefined || changes.featureImage !== undefined;
+                const hasMetadataUpdates = changes.metadata !== undefined || changes.tags !== undefined;
+                const updateType = hasContentUpdates && hasMetadataUpdates ? 'both' : hasContentUpdates ? 'content' : 'metadata';
+
+                changeNotifications.push({ path: update.path, changes, changeType: updateType });
             }
         }
 
@@ -712,7 +965,7 @@ export class Database {
         const result = new Map<string, FileData>();
         const allFiles = this.cache.getAllFiles();
         for (const file of allFiles) {
-            if (file.tags.includes(tag)) {
+            if (file.tags !== null && file.tags.includes(tag)) {
                 result.set(file.path, file);
             }
         }
@@ -801,6 +1054,20 @@ export class Database {
     getDisplayFeatureImageUrl(path: string): string {
         const file = this.getFile(path);
         return file?.featureImage || '';
+    }
+
+    /**
+     * Get tags for display, returning empty array if none.
+     * Helper method for UI components that need tag data.
+     *
+     * @param path - File path to get tags for
+     * @returns Array of tag strings
+     */
+    getDisplayTags(path: string): string[] {
+        const file = this.getFile(path);
+        // Return empty array if file doesn't exist or tags are null/not extracted yet
+        if (!file || file.tags === null) return [];
+        return file.tags;
     }
 
     /**

@@ -17,9 +17,9 @@
  */
 
 import { App, TFile, TFolder } from 'obsidian';
+import { SelectionState, SelectionAction } from '../context/SelectionContext';
 import { FileSystemOperations } from '../services/FileSystemService';
 import { NotebookNavigatorSettings } from '../settings';
-import { SelectionState, SelectionAction } from '../context/SelectionContext';
 import { ItemType } from '../types';
 import { getFilesForFolder, getFilesForTag } from './fileFinder';
 import { isTFolder } from './typeGuards';

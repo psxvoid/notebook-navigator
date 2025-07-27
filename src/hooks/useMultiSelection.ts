@@ -18,9 +18,9 @@
 
 import { useCallback } from 'react';
 import { TFile } from 'obsidian';
+import { Virtualizer } from '@tanstack/react-virtual';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
-import { Virtualizer } from '@tanstack/react-virtual';
 import { findFileIndex, getFilesInRange } from '../utils/selectionUtils';
 
 /**

@@ -87,6 +87,7 @@ export const STRINGS_ZH = {
             duplicateNote: '复制笔记',
             duplicateMultipleNotes: '复制 {count} 个笔记',
             openVersionHistory: '打开版本历史',
+            revealInFolder: '在文件夹中显示',
             revealInFinder: '在访达中显示',
             showInExplorer: '在系统资源管理器中显示',
             copyDeepLink: '复制深层链接',
@@ -395,9 +396,13 @@ export const STRINGS_ZH = {
                     all: '所有文件'
                 }
             },
-            showDate: {
+            showFileDate: {
                 name: '显示日期',
                 desc: '在笔记名称下方显示日期。'
+            },
+            showFileTags: {
+                name: '显示标签',
+                desc: '在文件项中显示可点击的标签。使用标签颜色来直观区分不同的标签类型。'
             },
             dateFormat: {
                 name: '日期格式',
@@ -568,6 +573,7 @@ export const STRINGS_ZH = {
             cacheStatistics: {
                 localCache: '本地缓存',
                 items: '项',
+                withTags: '包含标签',
                 withPreviewText: '包含预览文本',
                 withFeatureImage: '包含特色图片',
                 withMetadata: '包含元数据'

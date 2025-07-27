@@ -28,7 +28,7 @@ import { getDBInstance } from './fileOperations';
  *
  * Relationships:
  * - Used by: Settings UI (displays cache statistics)
- * - Uses: Database (streams file data for analysis)
+ * - Uses: IndexedDBStorage (streams file data for analysis)
  *
  * Key responsibilities:
  * - Stream through all cached files without loading into memory
@@ -39,6 +39,7 @@ import { getDBInstance } from './fileOperations';
 
 export interface CacheStatistics {
     totalItems: number;
+    itemsWithTags: number;
     itemsWithPreview: number;
     itemsWithFeature: number;
     itemsWithMetadata: number;
@@ -57,6 +58,7 @@ export function calculateCacheStatistics(): CacheStatistics | null {
 
         const stats: CacheStatistics = {
             totalItems: 0,
+            itemsWithTags: 0,
             itemsWithPreview: 0,
             itemsWithFeature: 0,
             itemsWithMetadata: 0,
@@ -70,6 +72,11 @@ export function calculateCacheStatistics(): CacheStatistics | null {
 
         for (const fileData of allFiles) {
             stats.totalItems++;
+
+            // Check for tags (not null and not empty array)
+            if (fileData.tags !== null && fileData.tags.length > 0) {
+                stats.itemsWithTags++;
+            }
 
             // Check for preview text (not null and not empty)
             if (fileData.preview && fileData.preview.length > 0) {

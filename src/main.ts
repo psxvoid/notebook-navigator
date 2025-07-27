@@ -120,13 +120,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
         const { initializeIconService } = await import('./services/icons');
         initializeIconService();
 
-        // Initialize metadata service for handling vault events
-        this.metadataService = new MetadataService(this.app, this.settings, async updater => {
-            // Update settings
-            updater(this.settings);
-            await this.saveSettings();
-            // The SettingsContext will handle updates through its listener
-        });
+        // Initialize metadata service for managing folder/tag colors, icons, and sort overrides
+        this.metadataService = new MetadataService(this);
 
         // Initialize tag operations service
         this.tagOperations = new TagOperations(this.app);
@@ -599,13 +594,10 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * Used by "Reveal in Navigator" commands and context menu actions
      * @param file - The file to navigate to in the navigator
      */
-    private async navigateToFile(file: TFile) {
-        console.log('[Main] navigateToFile called:', file.path);
-
+    async navigateToFile(file: TFile) {
         // Ensure navigator is open
         const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         if (leaves.length === 0) {
-            console.log('[Main] No navigator leaves found, activating view');
             await this.activateView(true);
         }
 
@@ -614,7 +606,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
         navigatorLeaves.forEach(leaf => {
             const view = leaf.view;
             if (view instanceof NotebookNavigatorView) {
-                console.log('[Main] Calling view.navigateToFile');
                 view.navigateToFile(file);
             }
         });

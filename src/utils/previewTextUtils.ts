@@ -38,57 +38,61 @@ const BASE_PATTERNS = [
     // Group 4: Wiki embeds - remove entirely
     // Example: ![[image.png]] or ![[_resources/Pasted image.png]] → (removed)
     /!\[\[.*?\]\]/.source,
-    // Group 5: Escape characters
+    // Group 5: Tags - remove entirely
+    // Example: #tag, #parent/child → (removed)
+    // Must be followed by whitespace or end of line to avoid matching things like #1 in issue numbers
+    /#[\w\-\/]+(?=\s|$)/.source,
+    // Group 6: Escape characters
     // Example: \* → *
     /\\([*_~`])/.source,
-    // Group 6: Bold italic stars (must come before bold/italic)
+    // Group 7: Bold italic stars (must come before bold/italic)
     // Example: ***important*** → important
     /\*\*\*((?:(?!\*\*\*).)+)\*\*\*/.source,
-    // Group 7: Bold italic underscores (must come before bold/italic)
+    // Group 8: Bold italic underscores (must come before bold/italic)
     // Example: ___important___ → important
     /___((?:(?!___).)+)___/.source,
-    // Group 8: Bold italic nested - bold stars with italic underscores
+    // Group 9: Bold italic nested - bold stars with italic underscores
     // Example: **_important_** → important
     /\*\*_((?:(?!_\*\*).)+)_\*\*/.source,
-    // Group 9: Bold italic nested - bold underscores with italic stars
+    // Group 10: Bold italic nested - bold underscores with italic stars
     // Example: __*important*__ → important
     /__\*((?:(?!\*__).)+)\*__/.source,
-    // Group 10: Bold stars
+    // Group 11: Bold stars
     // Example: **bold** → bold
     /\*\*((?:(?!\*\*).)+)\*\*/.source,
-    // Group 11: Bold underscores
+    // Group 12: Bold underscores
     // Example: __bold__ → bold
     /__((?:(?!__).)+)__/.source,
-    // Group 12: Italic stars (iOS compatible - no lookbehind)
+    // Group 13: Italic stars (iOS compatible - no lookbehind)
     // Example: *italic* → italic (but not 5*6*7)
-    // Captures: [12] = prefix, [13] = content
-    /(^|[^*\d])\*([^*\n]+)\*(?![*\d])/.source,
-    // Group 13: Italic underscores (iOS compatible - no lookbehind)
-    // Example: _italic_ → italic (but not variable_name_here)
     // Captures: [13] = prefix, [14] = content
+    /(^|[^*\d])\*([^*\n]+)\*(?![*\d])/.source,
+    // Group 14: Italic underscores (iOS compatible - no lookbehind)
+    // Example: _italic_ → italic (but not variable_name_here)
+    // Captures: [14] = prefix, [15] = content
     /(^|[^_a-zA-Z0-9])_([^_\n]+)_(?![_a-zA-Z0-9])/.source,
-    // Group 14: Strikethrough
+    // Group 15: Strikethrough
     // Example: ~~deleted~~ → deleted
     /~~((?:(?!~~).)+)~~/.source,
-    // Group 15: Highlight
+    // Group 16: Highlight
     // Example: ==highlighted== → highlighted
     /==((?:(?!==).)+)==/.source,
-    // Group 16: Links
+    // Group 17: Links
     // Example: [Google](https://google.com) → Google
     /\[([^\]]+)\]\([^\)]+\)/.source,
-    // Group 17: Wiki links with display
+    // Group 18: Wiki links with display
     // Example: [[Some Page|Display Text]] → Display Text
     /\[\[[^\]|]+\|([^\]]+)\]\]/.source,
-    // Group 18: Wiki links
+    // Group 19: Wiki links
     // Example: [[Some Page]] → Some Page
     /\[\[([^\]]+)\]\]/.source,
-    // Group 19: Callout titles (just the [!...] part)
+    // Group 20: Callout titles (just the [!...] part)
     // Example: [!info] Optional title → (removed)
     /\[![\w-]+\](?:\s+[^\n]*)?/.source,
-    // Group 20: Lists and blockquotes - non-capturing group
+    // Group 21: Lists and blockquotes - non-capturing group
     // Example: - List item → (removed), * List → (removed), > Quote → (removed)
     /^(?:[-*+]\s+|\d+\.\s+|>\s+)/.source,
-    // Group 21: Heading markers (always strip the # symbols, keep the text)
+    // Group 22: Heading markers (always strip the # symbols, keep the text)
     // Example: # Title → Title, ## Section → Section
     /^(#+)\s+(.*)$/m.source
 ];
@@ -136,6 +140,11 @@ export class PreviewTextUtils {
                 return '';
             }
 
+            // Tags
+            if (match.match(/#[\w\-\/]+(?=\s|$)/)) {
+                return '';
+            }
+
             // Headings - always strip # symbols
             if (match.match(/^#+\s+/)) {
                 // If skipHeadings is true, remove entire heading
@@ -158,17 +167,17 @@ export class PreviewTextUtils {
                 // -2 for offset and string
                 if (groups[i] !== undefined) {
                     // Special handling for italic patterns with prefixes
-                    if (i === 9 && groups[10] !== undefined) {
-                        return groups[9] + groups[10];
+                    if (i === 12 && groups[13] !== undefined) {
+                        return groups[12] + groups[13];
                     }
-                    if (i === 10 && groups[9] !== undefined) {
+                    if (i === 13 && groups[12] !== undefined) {
                         continue;
                     }
 
-                    if (i === 7 && groups[8] !== undefined) {
-                        return groups[7] + groups[8];
+                    if (i === 14 && groups[15] !== undefined) {
+                        return groups[14] + groups[15];
                     }
-                    if (i === 8 && groups[7] !== undefined) {
+                    if (i === 15 && groups[14] !== undefined) {
                         continue;
                     }
 
@@ -216,8 +225,11 @@ export class PreviewTextUtils {
         // Strip all markdown at once with appropriate regex
         const stripped = this.stripMarkdownSyntax(contentWithoutFrontmatter, settings.skipHeadingsInPreview);
 
+        // Remove lines that only contain dashes (like -, ---, ----- etc.)
+        const withoutDashLines = stripped.replace(/^-+$/gm, '');
+
         // Clean up extra whitespace and truncate
-        const preview = stripped
+        const preview = withoutDashLines
             .split(/\s+/) // Split on any whitespace
             .filter(word => word) // Remove empty strings
             .join(' ') // Join with single spaces

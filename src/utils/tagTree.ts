@@ -17,8 +17,8 @@
  */
 
 import { App, TFile, getAllTags } from 'obsidian';
+import { FileData, IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { TagTreeNode } from '../types/storage';
-import { FileData, Database } from '../storage/database';
 
 /**
  * Tag Tree Utilities
@@ -132,10 +132,10 @@ export function buildTagTree(files: TFile[], app: App): { tree: Map<string, TagT
 
 /**
  * Build a tag tree from database using streaming (scalable for large vaults)
- * @param db - Database instance
+ * @param db - IndexedDBStorage instance
  * @returns Object containing the tag tree and untagged file count
  */
-export function buildTagTreeFromDatabase(db: Database): { tree: Map<string, TagTreeNode>; untagged: number } {
+export function buildTagTreeFromDatabase(db: IndexedDBStorage): { tree: Map<string, TagTreeNode>; untagged: number } {
     const allNodes = new Map<string, TagTreeNode>(); // All nodes at all levels
     const tree = new Map<string, TagTreeNode>(); // Only root-level nodes
     let untaggedCount = 0;
@@ -149,8 +149,12 @@ export function buildTagTreeFromDatabase(db: Database): { tree: Map<string, TagT
     for (const fileData of allFiles) {
         const tags = fileData.tags;
 
-        if (!tags || tags.length === 0) {
-            untaggedCount++;
+        // Skip files with null tags (not extracted yet) or empty tags
+        if (tags === null || tags.length === 0) {
+            // Only count as untagged if tags were extracted (not null)
+            if (tags !== null) {
+                untaggedCount++;
+            }
             continue;
         }
 
@@ -300,7 +304,7 @@ export function parseTagPatterns(patterns: string): string[] {
 /**
  * Check if a tag matches a pattern (supports wildcards and regex)
  */
-function matchesTagPattern(tagPath: string, pattern: string): boolean {
+export function matchesTagPattern(tagPath: string, pattern: string): boolean {
     // Remove # prefix from both if present
     const cleanTag = tagPath.startsWith('#') ? tagPath.substring(1) : tagPath;
     const cleanPattern = pattern.startsWith('#') ? pattern.substring(1) : pattern;

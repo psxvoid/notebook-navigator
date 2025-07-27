@@ -17,30 +17,30 @@
  */
 
 import { App, Modal } from 'obsidian';
-import { MetadataService } from '../services/MetadataService';
-import { strings } from '../i18n';
-import { ItemType } from '../types';
-import { getIconService, IconDefinition, IconProvider } from '../services/icons';
 import * as emojilib from 'emojilib';
+import { strings } from '../i18n';
+import { getIconService, IconDefinition, IconProvider } from '../services/icons';
+import { MetadataService } from '../services/MetadataService';
+import { ItemType } from '../types';
 
 /**
  * Enhanced icon picker modal that supports multiple icon providers
  * Features tabs for different providers (Lucide, Emoji, etc.)
  */
 export class IconPickerModal extends Modal {
-    private metadataService: MetadataService;
-    private itemPath: string;
-    private itemType: typeof ItemType.FOLDER | typeof ItemType.TAG;
-    private searchInput: HTMLInputElement;
-    private resultsContainer: HTMLDivElement;
-    private tabContainer: HTMLDivElement;
     private currentProvider: string = 'lucide';
-    private searchDebounceTimer: NodeJS.Timeout | null = null;
     private gridColumns: number = 5;
     private iconService = getIconService();
-
+    private itemPath: string;
+    private itemType: typeof ItemType.FOLDER | typeof ItemType.TAG;
+    private metadataService: MetadataService;
     /** Callback function invoked when an icon is selected */
     public onChooseIcon: (iconId: string | null) => void;
+    private resultsContainer: HTMLDivElement;
+    private searchDebounceTimer: NodeJS.Timeout | null = null;
+    private searchInput: HTMLInputElement;
+
+    private tabContainer: HTMLDivElement;
 
     constructor(
         app: App,

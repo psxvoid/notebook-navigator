@@ -87,6 +87,7 @@ export const STRINGS_JA = {
             duplicateNote: 'ノートを複製',
             duplicateMultipleNotes: '{count}個のノートを複製',
             openVersionHistory: 'バージョン履歴を開く',
+            revealInFolder: 'フォルダで表示',
             revealInFinder: 'Finderで表示',
             showInExplorer: 'システムエクスプローラーで表示',
             copyDeepLink: 'ディープリンクをコピー',
@@ -395,9 +396,13 @@ export const STRINGS_JA = {
                     all: 'すべてのファイル'
                 }
             },
-            showDate: {
+            showFileDate: {
                 name: '日付を表示',
                 desc: 'ノート名の下に日付を表示します。'
+            },
+            showFileTags: {
+                name: 'タグを表示',
+                desc: 'ファイルアイテムにクリック可能なタグを表示します。タグの色を使用して、異なるタグタイプを視覚的に区別できます。'
             },
             dateFormat: {
                 name: '日付形式',
@@ -569,6 +574,7 @@ export const STRINGS_JA = {
             cacheStatistics: {
                 localCache: 'ローカルキャッシュ',
                 items: '項目',
+                withTags: 'タグ付き',
                 withPreviewText: 'プレビューテキスト付き',
                 withFeatureImage: 'フィーチャー画像付き',
                 withMetadata: 'メタデータ付き'

@@ -17,8 +17,8 @@
  */
 
 import { TFile, TFolder } from 'obsidian';
-import { TagTreeNode } from '../types/storage';
 import { ListPaneItemType, NavigationPaneItemType, VirtualFolder } from '../types';
+import { TagTreeNode } from '../types/storage';
 
 export interface VirtualItem<T> {
     type: string;

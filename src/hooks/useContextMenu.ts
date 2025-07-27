@@ -19,14 +19,14 @@
 // src/hooks/useContextMenu.ts
 import { useEffect, useCallback } from 'react';
 import { Menu } from 'obsidian';
+import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
+import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useFileSystemOps, useMetadataService, useTagOperations } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
-import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
-import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useUIDispatch } from '../context/UIStateContext';
-import { isTFolder, isTFile } from '../utils/typeGuards';
 import { isFileType, isFolderType, isTagType } from '../types';
 import { MenuConfig, MenuServices, MenuState, MenuDispatchers, buildFolderMenu, buildTagMenu, buildFileMenu } from '../utils/contextMenu';
+import { isTFolder, isTFile } from '../utils/typeGuards';
 
 /**
  * Custom hook that attaches a context menu to an element.

@@ -126,6 +126,7 @@ export const LISTPANE_MEASUREMENTS = {
         titleLineHeight: 20, // var(--nn-file-line-height) - for file name/title
         metadataLineHeight: 19, // var(--nn-file-second-line-height) - for metadata (date, parent folder, single preview line)
         multiLineLineHeight: 18, // var(--nn-file-preview-line-height) - for multi-line preview text
+        tagRowHeight: 26, // Height of tag row (22px container + 4px margin-top)
 
         // Constraints
         minTouchTargetHeight: 32, // Minimum height for touch targets
@@ -170,8 +171,11 @@ export interface LocalStorageKeys {
     expandedVirtualFoldersKey: string;
     selectedFolderKey: string;
     selectedFileKey: string;
+    selectedTagKey: string;
     navigationPaneWidthKey: string;
     fileCacheKey: string;
+    databaseSchemaVersionKey: string;
+    databaseContentVersionKey: string;
 }
 
 /**
@@ -184,8 +188,11 @@ export const STORAGE_KEYS: LocalStorageKeys = {
     expandedVirtualFoldersKey: 'notebook-navigator-expanded-virtual-folders',
     selectedFolderKey: 'notebook-navigator-selected-folder',
     selectedFileKey: 'notebook-navigator-selected-file',
+    selectedTagKey: 'notebook-navigator-selected-tag',
     navigationPaneWidthKey: 'notebook-navigator-navigation-pane-width',
-    fileCacheKey: 'notebook-navigator-file-cache'
+    fileCacheKey: 'notebook-navigator-file-cache',
+    databaseSchemaVersionKey: 'notebook-navigator-db-schema-version',
+    databaseContentVersionKey: 'notebook-navigator-db-content-version'
 };
 
 /**

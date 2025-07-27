@@ -16,16 +16,18 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useRef, useMemo, memo, useEffect, useState } from 'react';
+import React, { useRef, useMemo, useEffect, useState, useCallback } from 'react';
 import { TFile, setTooltip } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
+import { useMetadataService } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
-import { useContextMenu } from '../hooks/useContextMenu';
-import { strings } from '../i18n';
-import { ObsidianIcon } from './ObsidianIcon';
 import { useFileCache } from '../context/StorageContext';
-import { isImageFile } from '../utils/fileTypeUtils';
+import { useContextMenu } from '../hooks/useContextMenu';
+import { useTagNavigation } from '../hooks/useTagNavigation';
+import { strings } from '../i18n';
 import { ItemType } from '../types';
+import { isImageFile } from '../utils/fileTypeUtils';
+import { ObsidianIcon } from './ObsidianIcon';
 
 interface FileItemProps {
     file: TFile;
@@ -43,7 +45,7 @@ interface FileItemProps {
 }
 
 /**
- * Internal FileItem implementation without memoization.
+ * Memoized FileItem component.
  * Renders an individual file item in the file list with preview text and metadata.
  * Displays the file name, date, preview text, and optional feature image.
  * Handles selection state, context menus, and drag-and-drop functionality.
@@ -54,94 +56,119 @@ interface FileItemProps {
  * @param props.onClick - Handler called when the file is clicked
  * @returns A file item element with name, date, preview and optional image
  */
-
-function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow, onClick, formattedDates, parentFolder }: FileItemProps) {
+export const FileItem = React.memo(function FileItem({
+    file,
+    isSelected,
+    hasSelectedAbove,
+    hasSelectedBelow,
+    onClick,
+    formattedDates,
+    parentFolder
+}: FileItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
     const { getFileDisplayName, getDB, isStorageReady } = useFileCache();
     const fileRef = useRef<HTMLDivElement>(null);
+    const { navigateToTag } = useTagNavigation();
+    const metadataService = useMetadataService();
+
+    // Load preview text from IndexedDB
+    const [previewText, setPreviewText] = useState<string>('');
+
+    // Load tags from RAM cache
+    const [tags, setTags] = useState<string[]>([]);
+
+    // Load feature image URL
+    const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(null);
 
     // Get display name from context which handles cache and frontmatter
     const displayName = useMemo(() => {
         return getFileDisplayName(file);
     }, [file, getFileDisplayName]);
 
-    // Load preview text from IndexedDB
-    const [previewText, setPreviewText] = useState<string>('');
+    // Handle tag click
+    const handleTagClick = useCallback(
+        (e: React.MouseEvent, tag: string) => {
+            e.stopPropagation(); // Prevent file selection
 
-    // Load preview text from database and subscribe to updates
-    useEffect(() => {
-        if (!settings.showFilePreview || file.extension !== 'md' || !isStorageReady) {
-            setPreviewText(''); // Clear preview for non-markdown files
-            return;
-        }
+            // Use the shared tag navigation logic
+            navigateToTag(tag);
+        },
+        [navigateToTag]
+    );
 
-        const db = getDB();
-
-        // Initial load - use helper method that returns empty string if null
-        setPreviewText(db.getDisplayPreviewText(file.path));
-
-        // Subscribe to changes for this file
-        const unsubscribe = db.onContentChange(changes => {
-            const change = changes.find(c => c.path === file.path);
-            if (change?.changes.preview !== undefined) {
-                setPreviewText(change.changes.preview || '');
-            }
-        });
-
-        return () => {
-            unsubscribe();
-        };
-    }, [file.path, settings.showFilePreview, getDB, isStorageReady]);
+    // Get tag color
+    const getTagColor = useCallback(
+        (tag: string): string | undefined => {
+            return metadataService.getTagColor(tag);
+        },
+        [metadataService]
+    );
 
     // Get display date from pre-computed dates
     const displayDate = formattedDates?.display || '';
 
-    // Load feature image URL
-    const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(null);
+    // Detect slim mode when all display options are disabled
+    const isSlimMode = !settings.showFileDate && !settings.showFilePreview && !settings.showFeatureImage;
 
+    // Determine if we should show the feature image area (either with an image or extension badge)
+    const shouldShowFeatureImageArea =
+        settings.showFeatureImage &&
+        (featureImageUrl || // Has an actual image
+            (file.extension !== 'md' && !isImageFile(file))); // Non-markdown, non-image files show extension badge
+
+    const className = `nn-file-item ${isSelected ? 'nn-selected' : ''} ${isSlimMode ? 'nn-slim' : ''} ${isSelected && hasSelectedAbove ? 'nn-has-selected-above' : ''} ${isSelected && hasSelectedBelow ? 'nn-has-selected-below' : ''}`;
+
+    // Single subscription for all content changes
     useEffect(() => {
-        if (!settings.showFeatureImage) {
-            setFeatureImageUrl(null);
-            return;
-        }
-
-        // If the file itself is an image, use it directly
-        if (isImageFile(file)) {
-            try {
-                setFeatureImageUrl(app.vault.getResourcePath(file));
-            } catch (e) {
-                setFeatureImageUrl(null);
-            }
-            return;
-        }
-
-        // Wait for storage to be ready
         if (!isStorageReady) {
             return;
         }
 
         const db = getDB();
 
-        // Initial load from database cache - use helper method
-        const imageUrl = db.getDisplayFeatureImageUrl(file.path);
-        setFeatureImageUrl(imageUrl || null);
+        // Initial load of all data
+        if (settings.showFilePreview && file.extension === 'md') {
+            setPreviewText(db.getDisplayPreviewText(file.path));
+        } else {
+            setPreviewText('');
+        }
 
-        // Subscribe to changes for this file
-        const unsubscribe = db.onContentChange(changes => {
-            const change = changes.find(c => c.path === file.path);
-            if (change?.changes.featureImage !== undefined) {
-                setFeatureImageUrl(change.changes.featureImage || null);
+        if (settings.showFeatureImage) {
+            if (isImageFile(file)) {
+                try {
+                    setFeatureImageUrl(app.vault.getResourcePath(file));
+                } catch (e) {
+                    setFeatureImageUrl(null);
+                }
+            } else {
+                const imageUrl = db.getDisplayFeatureImageUrl(file.path);
+                setFeatureImageUrl(imageUrl || null);
+            }
+        } else {
+            setFeatureImageUrl(null);
+        }
+
+        const initialTags = db.getDisplayTags(file.path);
+        setTags(initialTags);
+
+        // Subscribe to changes for this specific file
+        const unsubscribe = db.onFileContentChange(file.path, changes => {
+            if (changes.preview !== undefined && settings.showFilePreview && file.extension === 'md') {
+                setPreviewText(changes.preview || '');
+            }
+            if (changes.featureImage !== undefined && settings.showFeatureImage && !isImageFile(file)) {
+                setFeatureImageUrl(changes.featureImage || null);
+            }
+            if (changes.tags !== undefined) {
+                setTags(changes.tags || []);
             }
         });
 
         return () => {
             unsubscribe();
         };
-    }, [file.path, settings.showFeatureImage, app, getDB, isStorageReady]);
-
-    // Enable context menu
-    useContextMenu(fileRef, { type: ItemType.FILE, item: file });
+    }, [file.path, settings.showFilePreview, settings.showFeatureImage, getDB, isStorageReady, app, file.extension]);
 
     // Add Obsidian tooltip (desktop only)
     useEffect(() => {
@@ -178,16 +205,8 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
         });
     }, [isMobile, file.stat.ctime, file.stat.mtime, settings, displayName, formattedDates]);
 
-    // Detect slim mode when all display options are disabled
-    const isSlimMode = !settings.showDate && !settings.showFilePreview && !settings.showFeatureImage;
-
-    // Determine if we should show the feature image area (either with an image or extension badge)
-    const shouldShowFeatureImageArea =
-        settings.showFeatureImage &&
-        (featureImageUrl || // Has an actual image
-            (file.extension !== 'md' && !isImageFile(file))); // Non-markdown, non-image files show extension badge
-
-    const className = `nn-file-item ${isSelected ? 'nn-selected' : ''} ${isSlimMode ? 'nn-slim' : ''} ${isSelected && hasSelectedAbove ? 'nn-has-selected-above' : ''} ${isSelected && hasSelectedBelow ? 'nn-has-selected-below' : ''}`;
+    // Enable context menu
+    useContextMenu(fileRef, { type: ItemType.FILE, item: file });
 
     return (
         <div
@@ -214,38 +233,150 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
                             <div className="nn-file-name" style={{ '--filename-rows': settings.fileNameRows } as React.CSSProperties}>
                                 {displayName}
                             </div>
-                            {/* Show preview and date on same line when preview is 1 row OR no preview text */}
-                            {(settings.previewRows < 2 || !previewText) && (settings.showDate || settings.showFilePreview) && (
-                                <div className="nn-file-second-line">
-                                    {settings.showDate && <div className="nn-file-date">{displayDate}</div>}
-                                    {settings.showFilePreview && (
-                                        <div className="nn-file-preview" style={{ '--preview-rows': 1 } as React.CSSProperties}>
-                                            {previewText}
+
+                            {/* Single row mode (preview rows = 1) - show all elements */}
+                            {settings.previewRows < 2 && (
+                                <>
+                                    {/* Date + Preview on same line */}
+                                    <div className="nn-file-second-line">
+                                        {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
+                                        {settings.showFilePreview && (
+                                            <div className="nn-file-preview" style={{ '--preview-rows': 1 } as React.CSSProperties}>
+                                                {previewText}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Tags */}
+                                    {settings.showTags && settings.showFileTags && tags.length > 0 && (
+                                        <div className="nn-file-tags">
+                                            {tags.map((tag, index) => {
+                                                const tagColor = getTagColor(tag);
+                                                return (
+                                                    <span
+                                                        key={index}
+                                                        className="nn-file-tag nn-clickable-tag"
+                                                        onClick={e => handleTagClick(e, tag)}
+                                                        role="button"
+                                                        tabIndex={0}
+                                                        style={tagColor ? { backgroundColor: tagColor } : undefined}
+                                                    >
+                                                        #{tag}
+                                                    </span>
+                                                );
+                                            })}
                                         </div>
                                     )}
-                                </div>
+
+                                    {/* Parent folder */}
+                                    {settings.showNotesFromSubfolders &&
+                                        settings.showParentFolderNames &&
+                                        parentFolder &&
+                                        file.parent &&
+                                        file.parent.path !== parentFolder && (
+                                            <div className="nn-file-folder">
+                                                <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
+                                                <span>{file.parent.name}</span>
+                                            </div>
+                                        )}
+                                </>
                             )}
-                            {/* Show preview vertically when 2+ rows AND has preview text */}
-                            {settings.previewRows >= 2 && settings.showFilePreview && previewText && (
-                                <div className="nn-file-preview" style={{ '--preview-rows': settings.previewRows } as React.CSSProperties}>
-                                    {previewText}
-                                </div>
+
+                            {/* Multi-row mode (preview rows >= 2) - different layouts based on preview content */}
+                            {settings.previewRows >= 2 && (
+                                <>
+                                    {/* Case 1: Empty preview text - show tags, then date + parent folder */}
+                                    {!previewText && (
+                                        <>
+                                            {/* Tags (show even when no preview text) */}
+                                            {settings.showTags && settings.showFileTags && tags.length > 0 && (
+                                                <div className="nn-file-tags">
+                                                    {tags.map((tag, index) => {
+                                                        const tagColor = getTagColor(tag);
+                                                        return (
+                                                            <span
+                                                                key={index}
+                                                                className="nn-file-tag nn-clickable-tag"
+                                                                onClick={e => handleTagClick(e, tag)}
+                                                                role="button"
+                                                                tabIndex={0}
+                                                                style={tagColor ? { backgroundColor: tagColor } : undefined}
+                                                            >
+                                                                #{tag}
+                                                            </span>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                            {/* Date + Parent folder on same line */}
+                                            <div className="nn-file-second-line">
+                                                {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
+                                                {settings.showNotesFromSubfolders &&
+                                                    settings.showParentFolderNames &&
+                                                    parentFolder &&
+                                                    file.parent &&
+                                                    file.parent.path !== parentFolder && (
+                                                        <div className="nn-file-folder">
+                                                            <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
+                                                            <span>{file.parent.name}</span>
+                                                        </div>
+                                                    )}
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {/* Case 2: Has preview text - show preview, tags, then date + parent folder */}
+                                    {previewText && (
+                                        <>
+                                            {/* Multi-row preview - show preview text spanning multiple rows */}
+                                            {settings.showFilePreview && (
+                                                <div
+                                                    className="nn-file-preview"
+                                                    style={{ '--preview-rows': settings.previewRows } as React.CSSProperties}
+                                                >
+                                                    {previewText}
+                                                </div>
+                                            )}
+
+                                            {/* Tags (only when preview text exists) */}
+                                            {settings.showTags && settings.showFileTags && tags.length > 0 && (
+                                                <div className="nn-file-tags">
+                                                    {tags.map((tag, index) => {
+                                                        const tagColor = getTagColor(tag);
+                                                        return (
+                                                            <span
+                                                                key={index}
+                                                                className="nn-file-tag nn-clickable-tag"
+                                                                onClick={e => handleTagClick(e, tag)}
+                                                                role="button"
+                                                                tabIndex={0}
+                                                                style={tagColor ? { backgroundColor: tagColor } : undefined}
+                                                            >
+                                                                #{tag}
+                                                            </span>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+
+                                            {/* Date + Parent folder on same line */}
+                                            <div className="nn-file-second-line">
+                                                {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
+                                                {settings.showNotesFromSubfolders &&
+                                                    settings.showParentFolderNames &&
+                                                    parentFolder &&
+                                                    file.parent &&
+                                                    file.parent.path !== parentFolder && (
+                                                        <div className="nn-file-folder">
+                                                            <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
+                                                            <span>{file.parent.name}</span>
+                                                        </div>
+                                                    )}
+                                            </div>
+                                        </>
+                                    )}
+                                </>
                             )}
-                            {/* Show date below preview when 2+ rows AND has preview text */}
-                            {settings.previewRows >= 2 && settings.showDate && previewText && (
-                                <div className="nn-file-date nn-file-date-below">{displayDate}</div>
-                            )}
-                            {/* Show folder indicator */}
-                            {settings.showNotesFromSubfolders &&
-                                settings.showParentFolderNames &&
-                                parentFolder &&
-                                file.parent &&
-                                file.parent.path !== parentFolder && (
-                                    <div className="nn-file-folder">
-                                        <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
-                                        <span>{file.parent.name}</span>
-                                    </div>
-                                )}
                         </div>
                         {shouldShowFeatureImageArea && (
                             <div className="nn-feature-image">
@@ -274,18 +405,4 @@ function FileItemInternal({ file, isSelected, hasSelectedAbove, hasSelectedBelow
             </div>
         </div>
     );
-}
-
-/**
- * Memoized FileItem component that only re-renders when necessary.
- * This optimization is critical for performance with large file lists.
- *
- * The component will only re-render when:
- * - The file path changes (different file)
- * - The file is modified (mtime changes)
- * - The selection state changes
- * - The date group changes
- * - The onClick handler changes (should be stable from parent)
- * - Settings version changes (forces re-render for settings updates)
- */
-export const FileItem = memo(FileItemInternal);
+});

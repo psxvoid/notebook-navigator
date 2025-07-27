@@ -18,11 +18,12 @@
 
 import React, { forwardRef } from 'react';
 import { setIcon } from 'obsidian';
-import { TagTreeNode } from '../types/storage';
-import { useContextMenu } from '../hooks/useContextMenu';
-import { ItemType } from '../types';
 import { useSettingsState } from '../context/SettingsContext';
+import { useMetadataService } from '../context/ServicesContext';
+import { useContextMenu } from '../hooks/useContextMenu';
 import { getIconService } from '../services/icons';
+import { ItemType } from '../types';
+import { TagTreeNode } from '../types/storage';
 
 /**
  * Props for the TagTreeItem component
@@ -44,10 +45,6 @@ interface TagTreeItemProps {
     fileCount: number;
     /** Whether to show file counts */
     showFileCount: boolean;
-    /** Custom icon for this tag (optional) */
-    customIcon?: string;
-    /** Custom color for this tag (optional) */
-    customColor?: string;
 }
 
 /**
@@ -56,37 +53,16 @@ interface TagTreeItemProps {
  */
 export const TagTreeItem = React.memo(
     forwardRef<HTMLDivElement, TagTreeItemProps>(function TagTreeItem(
-        { tagNode, level, isExpanded, isSelected, onToggle, onClick, fileCount, showFileCount, customIcon, customColor },
+        { tagNode, level, isExpanded, isSelected, onToggle, onClick, fileCount, showFileCount },
         ref
     ) {
         const settings = useSettingsState();
+        const metadataService = useMetadataService();
         const chevronRef = React.useRef<HTMLDivElement>(null);
         const iconRef = React.useRef<HTMLSpanElement>(null);
         const itemRef = React.useRef<HTMLDivElement>(null);
+
         const hasChildren = tagNode.children.size > 0;
-
-        // Set up forwarded ref
-        React.useImperativeHandle(ref, () => itemRef.current as HTMLDivElement);
-
-        // Add context menu
-        useContextMenu(itemRef, {
-            type: ItemType.TAG,
-            item: tagNode.path
-        });
-
-        // Update chevron icon based on expanded state
-        React.useEffect(() => {
-            if (chevronRef.current && hasChildren) {
-                setIcon(chevronRef.current, isExpanded ? 'chevron-down' : 'chevron-right');
-            }
-        }, [isExpanded, hasChildren]);
-
-        // Update tag icon
-        React.useEffect(() => {
-            if (iconRef.current && settings.showIcons) {
-                getIconService().renderIcon(iconRef.current, customIcon || 'tags');
-            }
-        }, [customIcon, settings.showIcons]);
 
         // Handle double-click to toggle expansion
         const handleDoubleClick = React.useCallback(
@@ -98,6 +74,33 @@ export const TagTreeItem = React.memo(
             },
             [hasChildren, onToggle]
         );
+
+        // Get color and icon from metadata service
+        const tagColor = metadataService.getTagColor(tagNode.path);
+        const tagIcon = metadataService.getTagIcon(tagNode.path);
+
+        // Update chevron icon based on expanded state
+        React.useEffect(() => {
+            if (chevronRef.current && hasChildren) {
+                setIcon(chevronRef.current, isExpanded ? 'chevron-down' : 'chevron-right');
+            }
+        }, [isExpanded, hasChildren]);
+
+        // Update tag icon
+        React.useEffect(() => {
+            if (iconRef.current && settings.showIcons) {
+                getIconService().renderIcon(iconRef.current, tagIcon || 'tags');
+            }
+        }, [tagIcon, settings.showIcons]);
+
+        // Set up forwarded ref
+        React.useImperativeHandle(ref, () => itemRef.current as HTMLDivElement);
+
+        // Add context menu
+        useContextMenu(itemRef, {
+            type: ItemType.TAG,
+            item: tagNode.path
+        });
 
         return (
             <div
@@ -126,11 +129,11 @@ export const TagTreeItem = React.memo(
                         tabIndex={-1}
                     />
                     {settings.showIcons && (
-                        <span className="nn-folder-icon" ref={iconRef} style={customColor ? { color: customColor } : undefined} />
+                        <span className="nn-folder-icon" ref={iconRef} style={tagColor ? { color: tagColor } : undefined} />
                     )}
                     <span
-                        className={`nn-folder-name ${customColor ? 'nn-has-custom-color' : ''}`}
-                        style={customColor ? { color: customColor } : undefined}
+                        className={`nn-folder-name ${tagColor ? 'nn-has-custom-color' : ''}`}
+                        style={tagColor ? { color: tagColor } : undefined}
                     >
                         {tagNode.name}
                     </span>

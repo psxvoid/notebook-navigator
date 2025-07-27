@@ -1,3 +1,5 @@
+import React from 'react';
+import { Root, createRoot } from 'react-dom/client';
 /*
  * Notebook Navigator - Plugin for Obsidian
  * Copyright (c) 2025 Johan Sanneblad
@@ -18,18 +20,16 @@
 
 // src/view/NotebookNavigatorView.tsx
 import { ItemView, WorkspaceLeaf, TFile, Platform, ViewStateResult } from 'obsidian';
-import { Root, createRoot } from 'react-dom/client';
-import React from 'react';
-import NotebookNavigatorPlugin from '../main';
-import { ServicesProvider } from '../context/ServicesContext';
-import { SettingsProvider } from '../context/SettingsContext';
+import { NotebookNavigatorComponent, NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
 import { ExpansionProvider } from '../context/ExpansionContext';
 import { SelectionProvider } from '../context/SelectionContext';
-import { UIStateProvider } from '../context/UIStateContext';
+import { ServicesProvider } from '../context/ServicesContext';
+import { SettingsProvider } from '../context/SettingsContext';
 import { StorageProvider } from '../context/StorageContext';
-import { NotebookNavigatorComponent, NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
-import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
+import { UIStateProvider } from '../context/UIStateContext';
 import { strings } from '../i18n';
+import NotebookNavigatorPlugin from '../main';
+import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 
 // State interface for view persistence - currently unused
 // interface NotebookNavigatorViewState {
@@ -42,9 +42,9 @@ import { strings } from '../i18n';
  * Obsidian's view system and the React component tree
  */
 export class NotebookNavigatorView extends ItemView {
+    private componentRef = React.createRef<NotebookNavigatorHandle>();
     plugin: NotebookNavigatorPlugin;
     private root: Root | null = null;
-    private componentRef = React.createRef<NotebookNavigatorHandle>();
 
     /**
      * Creates a new NotebookNavigatorView instance

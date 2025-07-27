@@ -16,16 +16,17 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile } from 'obsidian';
+import { App, TFile, getAllTags } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
-import { PreviewTextUtils } from '../utils/previewTextUtils';
-import { isImageFile } from '../utils/fileTypeUtils';
+import { FileData } from '../storage/IndexedDBStorage';
 import { getDBInstance } from '../storage/fileOperations';
-import { FileData } from '../storage/database';
+import { isImageFile } from '../utils/fileTypeUtils';
+import { PreviewTextUtils } from '../utils/previewTextUtils';
 
 interface ContentJob {
     file: TFile;
     path: string[];
+    needsTags: boolean;
     needsPreview: boolean;
     needsImage: boolean;
     needsMetadata: boolean;
@@ -41,7 +42,7 @@ interface ContentJob {
  *
  * Relationships:
  * - Used by: StorageContext (creates and manages the service)
- * - Uses: Database (stores generated content), PreviewTextUtils (text extraction)
+ * - Uses: IndexedDBStorage (stores generated content), PreviewTextUtils (text extraction)
  * - Works with: Obsidian metadata cache for frontmatter extraction
  *
  * Key responsibilities:
@@ -52,18 +53,18 @@ interface ContentJob {
  * - Clear content when settings change or features are disabled
  */
 export class ContentService {
-    private app: App;
-    private settings: NotebookNavigatorSettings;
-    private queue: ContentJob[] = [];
-    private isProcessing = false;
-    private totalFiles = 0;
-    private startTime = 0;
     private abortController: AbortController | null = null;
+    private app: App;
     // Removed onCacheUpdated as it's no longer used with the new database notification system
     private extractMetadata: (file: TFile) => { fn?: string; fc?: number; fm?: number };
+    private isProcessing = false;
+    private queue: ContentJob[] = [];
     private queueDebounceTimer: number | null = null;
+    private settings: NotebookNavigatorSettings;
     private settingsChanged = false;
     private shouldLogCurrentBatch = true;
+    private startTime = 0;
+    private totalFiles = 0;
 
     constructor(
         app: App,
@@ -96,7 +97,12 @@ export class ContentService {
      * @param _cache - Unused parameter (kept for backwards compatibility)
      * @param isInitialBuild - Whether this is the initial vault scan
      */
-    public async queueContent(files: TFile[], _cache: unknown, isInitialBuild: boolean = false): Promise<void> {
+    public async queueContent(
+        files: TFile[],
+        _cache: unknown,
+        isInitialBuild: boolean = false,
+        forceRegenerate: boolean = false
+    ): Promise<void> {
         // Clear any pending debounce timer
         if (this.queueDebounceTimer !== null) {
             window.clearTimeout(this.queueDebounceTimer);
@@ -109,17 +115,24 @@ export class ContentService {
         // Set whether we should log for this batch
         this.shouldLogCurrentBatch = !isRegularFileUpdate;
 
-        // Reset settingsChanged flag after using it to determine logging
-        // This prevents it from persisting and causing logs for subsequent file edits
+        // Don't clear the queue - we want to preserve already queued files
+        // Only clear on settings changes or initial builds
+        if (isInitialBuild || this.settingsChanged) {
+            this.queue.length = 0;
+        }
+
+        // Reset settingsChanged flag after using it
         if (this.settingsChanged) {
             this.settingsChanged = false;
         }
 
-        // Always clear the queue to re-evaluate what needs processing with new settings
-        this.queue.length = 0;
-
         // Check if content generation is enabled
-        if (!this.settings.showFilePreview && !this.settings.showFeatureImage && !this.settings.useFrontmatterMetadata) {
+        if (
+            !this.settings.showTags &&
+            !this.settings.showFilePreview &&
+            !this.settings.showFeatureImage &&
+            !this.settings.useFrontmatterMetadata
+        ) {
             return;
         }
 
@@ -140,17 +153,33 @@ export class ContentService {
         const jobs: ContentJob[] = files.map(file => {
             const fileData = fileDataMap.get(file.path);
 
-            // Check what needs generation based on null values
+            // For modified files, always regenerate content
+            const fileModified = fileData && fileData.mtime !== file.stat.mtime;
+
+            // Check what needs generation based on null values OR file modification
             // IMPORTANT: We check for === null specifically, not falsy values
             // Empty string '' means preview was generated but file has no content
-            const needsPreview = this.settings.showFilePreview && (!fileData || fileData.preview === null) && file.extension === 'md';
-            const needsImage = this.settings.showFeatureImage && (!fileData || fileData.featureImage === null);
-            const needsMetadata =
-                this.settings.useFrontmatterMetadata && (!fileData || fileData.metadata === null) && file.extension === 'md';
+            const needsTags = !!(
+                this.settings.showTags &&
+                (!fileData || fileData.tags === null || fileModified) &&
+                file.extension === 'md'
+            );
+            const needsPreview = !!(
+                this.settings.showFilePreview &&
+                (!fileData || fileData.preview === null || fileModified) &&
+                file.extension === 'md'
+            );
+            const needsImage = !!(this.settings.showFeatureImage && (!fileData || fileData.featureImage === null || fileModified));
+            const needsMetadata = !!(
+                this.settings.useFrontmatterMetadata &&
+                (!fileData || fileData.metadata === null || fileModified) &&
+                file.extension === 'md'
+            );
 
             return {
                 file,
                 path: file.path.split('/'),
+                needsTags,
                 needsPreview,
                 needsImage,
                 needsMetadata
@@ -158,13 +187,14 @@ export class ContentService {
         });
 
         // Filter out jobs that don't need any processing
-        const activeJobs = jobs.filter(job => job.needsPreview || job.needsImage || job.needsMetadata);
+        const activeJobs = jobs.filter(job => job.needsTags || job.needsPreview || job.needsImage || job.needsMetadata);
 
         if (activeJobs.length === 0) {
             return;
         }
 
-        // Add jobs to existing queue array instead of replacing it
+        // Add jobs to existing queue array
+        // Simple approach: just add the jobs, the debounce timer will handle duplicates
         this.queue.push(...activeJobs);
         this.totalFiles = this.queue.length;
 
@@ -181,7 +211,7 @@ export class ContentService {
     }
 
     /**
-     * Clear all preview text from the database cache.
+     * Clear all preview text from the IndexedDB storage.
      * Uses an efficient cursor-based method to clear content without loading all data into memory.
      */
     public async clearPreviews(): Promise<void> {
@@ -191,7 +221,7 @@ export class ContentService {
     }
 
     /**
-     * Clear all feature images from the database cache.
+     * Clear all feature images from the IndexedDB storage.
      * Uses an efficient cursor-based method to clear content without loading all data into memory.
      */
     public async clearFeatureImages(): Promise<void> {
@@ -201,7 +231,17 @@ export class ContentService {
     }
 
     /**
-     * Clear all metadata from the database cache.
+     * Clear all tags from the IndexedDB storage.
+     * Uses an efficient cursor-based method to clear content without loading all data into memory.
+     */
+    public async clearTags(): Promise<void> {
+        // Clear tags in database using efficient cursor-based method
+        const db = getDBInstance();
+        await db.batchClearAllFileContent('tags');
+    }
+
+    /**
+     * Clear all metadata from the IndexedDB storage.
      * Uses an efficient cursor-based method to clear content without loading all data into memory.
      */
     public async clearMetadata(): Promise<void> {
@@ -245,7 +285,7 @@ export class ContentService {
 
         // Only log if we should (not for regular file updates)
         if (this.shouldLogCurrentBatch) {
-        } else {
+            console.log(`[${new Date().toISOString()}] ContentService: Starting batch processing of ${this.totalFiles} files`);
         }
 
         // Start processing asynchronously
@@ -273,8 +313,9 @@ export class ContentService {
             const results = await Promise.all(
                 batch.map(async job => {
                     try {
-                        // Process preview, image and metadata in parallel
-                        const [preview, imageUrl, metadata] = await Promise.all([
+                        // Process tags, preview, image and metadata in parallel
+                        const [tags, preview, imageUrl, metadata] = await Promise.all([
+                            job.needsTags ? this.extractTags(job.file) : Promise.resolve(null),
                             job.needsPreview ? this.generatePreviewOptimized(job.file) : Promise.resolve(''),
                             job.needsImage ? Promise.resolve(this.getFeatureImageUrl(job.file)) : Promise.resolve(''),
                             job.needsMetadata ? Promise.resolve(this.extractMetadata(job.file)) : Promise.resolve({})
@@ -282,6 +323,7 @@ export class ContentService {
 
                         return {
                             job,
+                            tags,
                             preview,
                             imageUrl,
                             metadata: metadata as { fn?: string; fc?: number; fm?: number },
@@ -291,6 +333,7 @@ export class ContentService {
                         console.log(`Error processing ${job.file.path}:`, error);
                         return {
                             job,
+                            tags: null,
                             preview: '',
                             imageUrl: '',
                             metadata: {} as { fn?: string; fc?: number; fm?: number },
@@ -303,16 +346,20 @@ export class ContentService {
             // Collect all updates for batch processing
             const batchUpdates: Array<{
                 path: string;
+                tags?: string[] | null;
                 preview?: string;
                 featureImage?: string;
                 metadata?: { name?: string; created?: number; modified?: number };
             }> = [];
+
+            const db = getDBInstance();
 
             for (const result of results) {
                 if (!result.success) continue;
 
                 const update: {
                     path: string;
+                    tags?: string[] | null;
                     preview?: string;
                     featureImage?: string;
                     metadata?: { name?: string; created?: number; modified?: number };
@@ -320,16 +367,31 @@ export class ContentService {
 
                 let hasUpdates = false;
 
-                // Update preview if we processed it
-                if (result.job.needsPreview) {
-                    update.preview = result.preview;
-                    hasUpdates = true;
+                // Get existing file data for comparison
+                const existingFile = db.getFile(result.job.file.path);
+
+                // Update tags if we processed them AND they changed
+                if (result.job.needsTags) {
+                    if (!existingFile || !this.tagsEqual(existingFile.tags, result.tags)) {
+                        update.tags = result.tags;
+                        hasUpdates = true;
+                    }
                 }
 
-                // Update feature image if we processed it
+                // Update preview if we processed it AND it changed
+                if (result.job.needsPreview) {
+                    if (!existingFile || existingFile.preview !== result.preview) {
+                        update.preview = result.preview;
+                        hasUpdates = true;
+                    }
+                }
+
+                // Update feature image if we processed it AND it changed
                 if (result.job.needsImage) {
-                    update.featureImage = result.imageUrl;
-                    hasUpdates = true;
+                    if (!existingFile || existingFile.featureImage !== result.imageUrl) {
+                        update.featureImage = result.imageUrl;
+                        hasUpdates = true;
+                    }
                 }
 
                 // Update metadata if we processed it
@@ -349,9 +411,27 @@ export class ContentService {
             }
 
             // Update database in batch to avoid multiple notifications
+            // Note: batchUpdateFileContent emits change notifications so UI updates immediately
             if (batchUpdates.length > 0) {
-                const db = getDBInstance();
                 await db.batchUpdateFileContent(batchUpdates);
+            }
+
+            // Update mtimes for successfully processed files
+            // This is done after content generation to prevent race conditions
+            // Note: updateMtimes does NOT emit notifications - it's internal bookkeeping only
+            // The UI already updated from batchUpdateFileContent above
+            const mtimeUpdates: Array<{ path: string; mtime: number }> = [];
+            for (const result of results) {
+                if (result.success) {
+                    mtimeUpdates.push({
+                        path: result.job.file.path,
+                        mtime: result.job.file.stat.mtime
+                    });
+                }
+            }
+
+            if (mtimeUpdates.length > 0) {
+                await db.updateMtimes(mtimeUpdates);
             }
 
             // Don't notify on every batch - wait until completion
@@ -409,6 +489,10 @@ export class ContentService {
         this.abortController = null;
         // Note: settingsChanged is already reset in queueContent after determining shouldLogCurrentBatch
         // No need to notify - database will emit change events
+        if (this.shouldLogCurrentBatch) {
+            const elapsed = ((performance.now() - this.startTime) / 1000).toFixed(2);
+            console.log(`[${new Date().toISOString()}] ContentService: Completed processing ${this.totalFiles} files in ${elapsed}s`);
+        }
     }
 
     /**
@@ -469,5 +553,34 @@ export class ContentService {
         }
 
         return '';
+    }
+
+    /**
+     * Extract tags from a file's metadata.
+     * Returns tags without the # prefix for consistency with the database.
+     *
+     * @param file - The file to extract tags from
+     * @returns Array of tag strings without # prefix
+     */
+    private extractTags(file: TFile): string[] {
+        const metadata = this.app.metadataCache.getFileCache(file);
+        const rawTags = metadata ? getAllTags(metadata) : [];
+        // Remove # prefix for consistency with how we store tags
+        return rawTags?.map(tag => (tag.startsWith('#') ? tag.slice(1) : tag)) || [];
+    }
+
+    /**
+     * Check if two tag arrays are equal.
+     * Handles null values properly.
+     *
+     * @param tags1 - First tag array (can be null)
+     * @param tags2 - Second tag array (can be null)
+     * @returns True if tags are equal
+     */
+    private tagsEqual(tags1: string[] | null, tags2: string[] | null): boolean {
+        if (tags1 === tags2) return true; // Both null or same reference
+        if (tags1 === null || tags2 === null) return false; // One is null
+        if (tags1.length !== tags2.length) return false;
+        return tags1.every((tag, i) => tag === tags2[i]);
     }
 }

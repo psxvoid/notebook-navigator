@@ -18,15 +18,16 @@
 
 // src/hooks/useDragAndDrop.ts
 import { useCallback, useEffect, useRef } from 'react';
-import { TFile, Notice } from 'obsidian';
-import { useServices, useFileSystemOps, useTagOperations } from '../context/ServicesContext';
+import { TFile, Notice, setIcon } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useServices, useFileSystemOps, useTagOperations } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
-import { isTFolder, isTFile } from '../utils/typeGuards';
-import { getPathFromDataAttribute } from '../utils/domUtils';
 import { strings } from '../i18n';
+import { getDBInstance } from '../storage/fileOperations';
 import { ItemType, UNTAGGED_TAG_ID } from '../types';
+import { getPathFromDataAttribute } from '../utils/domUtils';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { isTFolder, isTFile } from '../utils/typeGuards';
 
 /**
  * Custom hook that enables drag and drop functionality for files and folders.
@@ -76,6 +77,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const selectionState = useSelectionState();
     const dispatch = useSelectionDispatch();
     const settings = useSettingsState();
+    const db = getDBInstance();
     const dragOverElement = useRef<HTMLElement | null>(null);
 
     /**
@@ -106,8 +108,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             const path = getPathFromDataAttribute(draggable as HTMLElement, 'data-drag-path');
             const type = draggable.getAttribute('data-drag-type');
             if (path && e.dataTransfer) {
-                // Check if dragging a selected file
-                if (type === ItemType.FILE && selectionState.selectedFiles.has(path)) {
+                // Check if dragging a selected file with multiple selections
+                if (type === ItemType.FILE && selectionState.selectedFiles.has(path) && selectionState.selectedFiles.size > 1) {
                     // Store all selected file paths
                     const selectedPaths = Array.from(selectionState.selectedFiles);
                     e.dataTransfer.setData('obsidian/files', JSON.stringify(selectedPaths));
@@ -135,22 +137,20 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         el?.classList.add('nn-dragging');
                     });
 
-                    // Show count in drag image
-                    if (selectedPaths.length > 1) {
-                        // Create a container to position the badge
-                        const dragContainer = document.createElement('div');
-                        dragContainer.className = 'nn-drag-image-container';
+                    // Always show custom drag image for consistency
+                    const dragContainer = document.createElement('div');
+                    dragContainer.className = 'nn-drag-image-container';
 
-                        // Create the badge inside the container
-                        const dragInfo = document.createElement('div');
-                        dragInfo.className = 'nn-drag-count-badge';
-                        dragInfo.textContent = `${selectedPaths.length}`;
+                    // Multiple items - always show count badge
+                    const dragInfo = document.createElement('div');
+                    dragInfo.className = 'nn-drag-count-badge';
+                    dragInfo.textContent = `${selectedPaths.length}`;
+                    dragContainer.appendChild(dragInfo);
 
-                        dragContainer.appendChild(dragInfo);
-                        document.body.appendChild(dragContainer);
-                        e.dataTransfer.setDragImage(dragContainer, 5, 5);
-                        setTimeout(() => document.body.removeChild(dragContainer), 0);
-                    }
+                    document.body.appendChild(dragContainer);
+                    // Use negative offset to position icon bottom-right of cursor
+                    e.dataTransfer.setDragImage(dragContainer, -10, -10);
+                    setTimeout(() => document.body.removeChild(dragContainer), 0);
                 } else {
                     // Single item drag
                     e.dataTransfer.setData('obsidian/file', path);
@@ -166,6 +166,36 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     }
 
                     draggable.classList.add('nn-dragging');
+
+                    // Only show custom drag image for files, not folders
+                    if (type === ItemType.FILE) {
+                        const dragContainer = document.createElement('div');
+                        dragContainer.className = 'nn-drag-image-container';
+
+                        // Get featured image from cache
+                        const featureImageUrl = db.getDisplayFeatureImageUrl(path);
+
+                        if (featureImageUrl) {
+                            // Show featured image in drag badge
+                            const dragIcon = document.createElement('div');
+                            dragIcon.className = 'nn-drag-icon-badge nn-drag-featured-image';
+                            const img = document.createElement('img');
+                            img.src = featureImageUrl;
+                            dragIcon.appendChild(img);
+                            dragContainer.appendChild(dragIcon);
+                        } else {
+                            // Show file icon as fallback
+                            const dragIcon = document.createElement('div');
+                            dragIcon.className = 'nn-drag-icon-badge';
+                            setIcon(dragIcon, 'file');
+                            dragContainer.appendChild(dragIcon);
+                        }
+
+                        document.body.appendChild(dragContainer);
+                        // Use negative offset to position icon bottom-right of cursor
+                        e.dataTransfer.setDragImage(dragContainer, -5, -5);
+                        setTimeout(() => document.body.removeChild(dragContainer), 0);
+                    }
                 }
             }
         },

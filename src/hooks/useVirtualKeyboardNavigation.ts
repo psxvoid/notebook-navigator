@@ -19,19 +19,19 @@
 import { useCallback, useEffect, useRef } from 'react';
 import { TFile, TFolder } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
-import { CombinedNavigationItem, ListPaneItem } from '../types/virtualization';
-import { TagTreeNode } from '../types/storage';
-import { isTypingInInput } from '../utils/domUtils';
-import { isTFolder, isTFile } from '../utils/typeGuards';
+import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
+import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useFileSystemOps } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
-import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
-import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
-import { FileView } from '../types/obsidian-extended';
 import { getSupportedLeaves, NavigationPaneItemType, ListPaneItemType, ItemType } from '../types';
-import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { FileView } from '../types/obsidian-extended';
+import { TagTreeNode } from '../types/storage';
+import { CombinedNavigationItem, ListPaneItem } from '../types/virtualization';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
+import { isTypingInInput } from '../utils/domUtils';
+import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { isTFolder, isTFile } from '../utils/typeGuards';
 import { useMultiSelection } from './useMultiSelection';
 
 type VirtualItem = CombinedNavigationItem | ListPaneItem;

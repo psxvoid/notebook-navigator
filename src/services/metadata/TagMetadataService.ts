@@ -118,9 +118,9 @@ export class TagMetadataService extends BaseMetadataService {
         const validator = (path: string) => validTags.has(path);
 
         const results = await Promise.all([
-            this.cleanupMetadata(this.settings, 'tagColors', validator),
-            this.cleanupMetadata(this.settings, 'tagIcons', validator),
-            this.cleanupMetadata(this.settings, 'tagSortOverrides', validator)
+            this.cleanupMetadata(this.plugin.settings, 'tagColors', validator),
+            this.cleanupMetadata(this.plugin.settings, 'tagIcons', validator),
+            this.cleanupMetadata(this.plugin.settings, 'tagSortOverrides', validator)
         ]);
 
         return results.some(changed => changed);

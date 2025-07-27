@@ -17,18 +17,18 @@
  */
 
 import { App, TFile, TFolder, TAbstractFile, Notice, normalizePath, Platform } from 'obsidian';
-import { ExtendedApp, TIMEOUTS, OBSIDIAN_COMMANDS } from '../types/obsidian-extended';
-import { InputModal } from '../modals/InputModal';
+import type { SelectionDispatch } from '../context/SelectionContext';
+import { strings } from '../i18n';
 import { ConfirmModal } from '../modals/ConfirmModal';
 import { FolderSuggestModal } from '../modals/FolderSuggestModal';
-import { executeCommand } from '../utils/typeGuards';
-import { strings } from '../i18n';
-import { getFolderNote } from '../utils/fileFinder';
+import { InputModal } from '../modals/InputModal';
 import { NotebookNavigatorSettings } from '../settings';
 import { NavigationItemType, ItemType } from '../types';
-import type { SelectionDispatch } from '../context/SelectionContext';
-import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
+import { ExtendedApp, TIMEOUTS, OBSIDIAN_COMMANDS } from '../types/obsidian-extended';
 import { createFileWithOptions, createDatabaseContent } from '../utils/fileCreationUtils';
+import { getFolderNote } from '../utils/fileFinder';
+import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
+import { executeCommand } from '../utils/typeGuards';
 
 /**
  * Selection context for file operations

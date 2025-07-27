@@ -25,11 +25,11 @@ import { strings } from '../i18n';
  * Supports Enter key submission and pre-filled default values
  */
 export class InputModal extends Modal {
-    private inputEl: HTMLInputElement;
     private cancelBtn: HTMLButtonElement;
-    private submitBtn: HTMLButtonElement;
-    private keydownHandler: (e: KeyboardEvent) => void;
     private cancelHandler: () => void;
+    private inputEl: HTMLInputElement;
+    private keydownHandler: (e: KeyboardEvent) => void;
+    private submitBtn: HTMLButtonElement;
     private submitHandler: () => void;
 
     /**
