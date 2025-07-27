@@ -225,8 +225,11 @@ export class PreviewTextUtils {
         // Strip all markdown at once with appropriate regex
         const stripped = this.stripMarkdownSyntax(contentWithoutFrontmatter, settings.skipHeadingsInPreview);
 
+        // Remove lines that only contain dashes (like -, ---, ----- etc.)
+        const withoutDashLines = stripped.replace(/^-+$/gm, '');
+
         // Clean up extra whitespace and truncate
-        const preview = stripped
+        const preview = withoutDashLines
             .split(/\s+/) // Split on any whitespace
             .filter(word => word) // Remove empty strings
             .join(' ') // Join with single spaces
