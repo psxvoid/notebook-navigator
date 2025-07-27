@@ -71,8 +71,9 @@ export async function initializeCache(): Promise<void> {
  *
  * @param files - Array of Obsidian files to update
  * @param app - The Obsidian app instance
+ * @param preserveMtime - If true, preserves existing mtime to prevent race conditions during content generation
  */
-export async function updateFilesInCache(files: TFile[], app: App): Promise<void> {
+export async function updateFilesInCache(files: TFile[], app: App, preserveMtime: boolean = false): Promise<void> {
     const db = getDBInstance();
     const updates: FileData[] = [];
 
@@ -113,7 +114,8 @@ export async function updateFilesInCache(files: TFile[], app: App): Promise<void
 
         const fileData: FileData = {
             path: file.path,
-            mtime: file.stat.mtime,
+            // Use existing mtime if preserveMtime is true, otherwise use current mtime
+            mtime: preserveMtime && existing ? existing.mtime : file.stat.mtime,
             tags: tags || [],
             // Always preserve existing preview - regeneration handled by ContentService
             preview: existing?.preview ?? null,

@@ -652,6 +652,53 @@ export class Database {
     }
 
     /**
+     * Update modification times for multiple files in batch.
+     * Used by ContentService after successfully generating content.
+     * Does NOT emit change notifications as this is an internal update.
+     *
+     * @param updates - Array of path and mtime pairs to update
+     */
+    async updateMtimes(updates: Array<{ path: string; mtime: number }>): Promise<void> {
+        await this.init();
+        if (!this.db) throw new Error('Database not initialized');
+
+        const paths = updates.map(u => u.path);
+        const existingFiles = this.getFiles(paths);
+        const filesToUpdate: FileData[] = [];
+
+        for (const update of updates) {
+            const file = existingFiles.get(update.path);
+            if (!file) continue;
+
+            // Update only the mtime
+            file.mtime = update.mtime;
+            filesToUpdate.push(file);
+        }
+
+        // Update all files in batch
+        if (filesToUpdate.length > 0) {
+            // Use setFiles but without triggering change notifications
+            // since this is an internal bookkeeping update
+            const transaction = this.db.transaction([STORE_NAME], 'readwrite');
+            const store = transaction.objectStore(STORE_NAME);
+
+            await Promise.all(
+                filesToUpdate.map(file => {
+                    return new Promise<void>((resolve, reject) => {
+                        const request = store.put(file);
+                        request.onsuccess = () => {
+                            // Update cache
+                            this.cache.updateFile(file);
+                            resolve();
+                        };
+                        request.onerror = () => reject(request.error);
+                    });
+                })
+            );
+        }
+    }
+
+    /**
      * Clear content for a file by path (set to null).
      * Used when content needs to be regenerated.
      * Emits change notifications.
@@ -816,7 +863,8 @@ export class Database {
     /**
      * Update content for multiple files in batch.
      * More efficient than multiple updateFileContent calls.
-     * Emits a single change notification for all updates.
+     * Emits change notifications for all updates so UI components can react.
+     * This is the primary method for notifying the UI about content changes.
      *
      * @param updates - Array of content updates to apply
      */

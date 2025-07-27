@@ -376,8 +376,27 @@ export class ContentService {
             }
 
             // Update database in batch to avoid multiple notifications
+            // Note: batchUpdateFileContent emits change notifications so UI updates immediately
             if (batchUpdates.length > 0) {
                 await db.batchUpdateFileContent(batchUpdates);
+            }
+
+            // Update mtimes for successfully processed files
+            // This is done after content generation to prevent race conditions
+            // Note: updateMtimes does NOT emit notifications - it's internal bookkeeping only
+            // The UI already updated from batchUpdateFileContent above
+            const mtimeUpdates: Array<{ path: string; mtime: number }> = [];
+            for (const result of results) {
+                if (result.success) {
+                    mtimeUpdates.push({
+                        path: result.job.file.path,
+                        mtime: result.job.file.stat.mtime
+                    });
+                }
+            }
+
+            if (mtimeUpdates.length > 0) {
+                await db.updateMtimes(mtimeUpdates);
             }
 
             // Don't notify on every batch - wait until completion

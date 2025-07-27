@@ -514,8 +514,9 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                         contentService.current.queueContent([file], null);
                     }
 
-                    // Update file in cache after queuing
-                    await updateFilesInCache([file], app);
+                    // Update file in cache but preserve mtime to avoid race condition
+                    // Mtime will be updated by ContentService after content generation
+                    await updateFilesInCache([file], app, true);
                 }
             })
         ];
