@@ -87,6 +87,7 @@ export const STRINGS_ES = {
             duplicateNote: 'Duplicar nota',
             duplicateMultipleNotes: 'Duplicar {count} notas',
             openVersionHistory: 'Abrir historial de versiones',
+            revealInFolder: 'Mostrar en carpeta',
             revealInFinder: 'Mostrar en Finder',
             showInExplorer: 'Mostrar en el explorador del sistema',
             copyDeepLink: 'Copiar enlace profundo',

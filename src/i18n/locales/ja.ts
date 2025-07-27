@@ -87,6 +87,7 @@ export const STRINGS_JA = {
             duplicateNote: 'ノートを複製',
             duplicateMultipleNotes: '{count}個のノートを複製',
             openVersionHistory: 'バージョン履歴を開く',
+            revealInFolder: 'フォルダで表示',
             revealInFinder: 'Finderで表示',
             showInExplorer: 'システムエクスプローラーで表示',
             copyDeepLink: 'ディープリンクをコピー',

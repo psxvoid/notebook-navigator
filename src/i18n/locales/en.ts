@@ -96,6 +96,7 @@ export const STRINGS_EN = {
             duplicateMultipleNotes: 'Duplicate {count} notes',
             duplicateMultipleFiles: 'Duplicate {count} files',
             openVersionHistory: 'Open version history',
+            revealInFolder: 'Reveal in folder',
             revealInFinder: 'Reveal in Finder',
             showInExplorer: 'Show in system explorer',
             copyDeepLink: 'Copy deep link',

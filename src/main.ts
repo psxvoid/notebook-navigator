@@ -599,7 +599,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * Used by "Reveal in Navigator" commands and context menu actions
      * @param file - The file to navigate to in the navigator
      */
-    private async navigateToFile(file: TFile) {
+    async navigateToFile(file: TFile) {
         // Ensure navigator is open
         const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         if (leaves.length === 0) {

@@ -1,7 +1,7 @@
 # Notebook Navigator Code Transforms
 
-This directory contains jscodeshift transforms to organize the codebase.
-All transforms run Prettier after successfulmodifications.
+This directory contains jscodeshift transforms to organize the codebase. All
+transforms run Prettier after successfulmodifications.
 
 ## Available Transforms
 

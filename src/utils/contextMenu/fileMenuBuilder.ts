@@ -87,6 +87,17 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 
     menu.addSeparator();
 
+    // Reveal in folder - works on all platforms, single selection only
+    if (!shouldShowMultiOptions) {
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.file.revealInFolder)
+                .setIcon('folder')
+                .onClick(async () => {
+                    await services.plugin.navigateToFile(file);
+                });
+        });
+    }
+
     // Reveal in system explorer - desktop only, single selection only
     if (!isMobile && !shouldShowMultiOptions) {
         menu.addItem((item: MenuItem) => {
