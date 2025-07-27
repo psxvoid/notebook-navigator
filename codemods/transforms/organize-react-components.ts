@@ -75,7 +75,7 @@ const transform: Transform = (fileInfo, api) => {
 
         // Handle function declarations
         if (j.FunctionDeclaration.check(statement)) {
-            const name = statement.id?.name || '';
+            const name = typeof statement.id?.name === 'string' ? statement.id.name : '';
             if (isReactComponent(name)) {
                 categorized.components.push(statement);
             } else if (isCustomHook(name)) {
@@ -88,7 +88,7 @@ const transform: Transform = (fileInfo, api) => {
 
         // Handle exported function declarations
         if (j.ExportNamedDeclaration.check(statement) && j.FunctionDeclaration.check(statement.declaration)) {
-            const name = statement.declaration.id?.name || '';
+            const name = typeof statement.declaration.id?.name === 'string' ? statement.declaration.id.name : '';
             if (isReactComponent(name)) {
                 categorized.components.push(statement);
             } else if (isCustomHook(name)) {
@@ -105,9 +105,9 @@ const transform: Transform = (fileInfo, api) => {
             (j.ExportNamedDeclaration.check(statement) && j.VariableDeclaration.check(statement.declaration))
         ) {
             const decl = j.VariableDeclaration.check(statement) ? statement : statement.declaration;
-            const firstDeclarator = decl.declarations[0];
+            const firstDeclarator = decl && j.VariableDeclaration.check(decl) && decl.declarations ? decl.declarations[0] : null;
 
-            if (firstDeclarator && j.Identifier.check(firstDeclarator.id)) {
+            if (firstDeclarator && j.VariableDeclarator.check(firstDeclarator) && j.Identifier.check(firstDeclarator.id)) {
                 const name = firstDeclarator.id.name;
                 const init = firstDeclarator.init;
 

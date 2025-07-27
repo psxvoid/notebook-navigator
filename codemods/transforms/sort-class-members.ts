@@ -36,7 +36,7 @@ const transform: Transform = (fileInfo, api) => {
             if (!member) return; // Skip null/undefined members
 
             if ((j.PropertyDefinition && j.PropertyDefinition.check(member)) || (j.ClassProperty && j.ClassProperty.check(member))) {
-                if (member.static) {
+                if ('static' in member && member.static) {
                     members.staticProperties.push(member);
                 } else {
                     members.properties.push(member);

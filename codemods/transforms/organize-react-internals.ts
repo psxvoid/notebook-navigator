@@ -10,7 +10,7 @@ const transform: Transform = (fileInfo, api) => {
 
         // Find regular function declarations
         root.find(j.FunctionDeclaration).forEach(path => {
-            const name = path.node.id?.name || '';
+            const name = typeof path.node.id?.name === 'string' ? path.node.id.name : '';
             if (/^[A-Z]/.test(name)) {
                 components.push(path);
             }
@@ -92,7 +92,7 @@ const transform: Transform = (fileInfo, api) => {
             // Variable declarations
             if (j.VariableDeclaration.check(statement)) {
                 const firstDeclarator = statement.declarations[0];
-                if (!firstDeclarator) {
+                if (!firstDeclarator || !j.VariableDeclarator.check(firstDeclarator)) {
                     organized.other.push(statement);
                     return;
                 }
@@ -145,7 +145,7 @@ const transform: Transform = (fileInfo, api) => {
 
             // Function declarations
             if (j.FunctionDeclaration.check(statement)) {
-                const name = statement.id?.name || '';
+                const name = typeof statement.id?.name === 'string' ? statement.id.name : '';
                 if (name.startsWith('handle') || name.startsWith('on')) {
                     organized.handlers.push(statement);
                 } else {
