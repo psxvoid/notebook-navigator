@@ -380,7 +380,7 @@ export const NavigationPane = React.memo(
                                 onToggle={() => handleFolderToggle(item.data.path)}
                                 onClick={() => handleFolderClick(item.data)}
                                 onNameClick={() => handleFolderNameClick(item.data)}
-                                icon={settings.folderIcons?.[item.data.path]}
+                                icon={metadataService.getFolderIcon(item.data.path)}
                                 fileCount={folderCounts.get(item.data.path)}
                             />
                         );

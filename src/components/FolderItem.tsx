@@ -18,7 +18,7 @@
 
 import React, { useRef, useEffect } from 'react';
 import { TFolder, setTooltip, setIcon } from 'obsidian';
-import { useServices } from '../context/ServicesContext';
+import { useServices, useMetadataService } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { strings } from '../i18n';
@@ -66,6 +66,7 @@ export const FolderItem = React.memo(function FolderItem({
 }: FolderItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
+    const metadataService = useMetadataService();
     const folderRef = useRef<HTMLDivElement>(null);
 
     const chevronRef = React.useRef<HTMLDivElement>(null);
@@ -100,7 +101,7 @@ export const FolderItem = React.memo(function FolderItem({
 
     const hasChildren = folder.children && folder.children.some(isTFolder);
 
-    const customColor = settings.folderColors?.[folder.path];
+    const customColor = metadataService.getFolderColor(folder.path);
 
     // Check if folder has a folder note
     const folderNote = settings.enableFolderNotes ? getFolderNote(folder, settings, app) : null;

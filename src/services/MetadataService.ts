@@ -16,9 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App } from 'obsidian';
-import { NotebookNavigatorSettings, SortOption } from '../settings';
+import { SortOption } from '../settings';
 import { FolderMetadataService, TagMetadataService, FileMetadataService } from './metadata';
+import type NotebookNavigatorPlugin from '../main';
 
 /**
  * Service for managing all folder, tag, and file metadata operations
@@ -32,19 +32,13 @@ export class MetadataService {
 
     /**
      * Creates a new MetadataService instance
-     * @param app - The Obsidian app instance
-     * @param settings - The current plugin settings
-     * @param updateSettings - Function to update and persist settings
+     * @param plugin - The plugin instance
      */
-    constructor(
-        app: App,
-        settings: NotebookNavigatorSettings,
-        updateSettings: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>
-    ) {
+    constructor(plugin: NotebookNavigatorPlugin) {
         // Initialize sub-services
-        this.folderService = new FolderMetadataService(app, settings, updateSettings);
-        this.tagService = new TagMetadataService(app, settings, updateSettings);
-        this.fileService = new FileMetadataService(app, settings, updateSettings);
+        this.folderService = new FolderMetadataService(plugin);
+        this.tagService = new TagMetadataService(plugin);
+        this.fileService = new FileMetadataService(plugin);
     }
     // ========== Folder Methods (delegated to FolderMetadataService) ==========
 

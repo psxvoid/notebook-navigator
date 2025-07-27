@@ -97,24 +97,12 @@ export const FileItem = React.memo(function FileItem({
         [navigateToTag]
     );
 
-    // Get tag color based on hierarchy rules
+    // Get tag color
     const getTagColor = useCallback(
         (tag: string): string | undefined => {
-            // For hierarchical tags like #johan/subtask/tasker, check from most specific to least specific
-            const parts = tag.split('/');
-
-            // Try from the most specific (last part) to least specific
-            for (let i = parts.length - 1; i >= 0; i--) {
-                const partialTag = parts.slice(0, i + 1).join('/');
-                const color = metadataService.getTagColor(partialTag);
-                if (color) {
-                    return color;
-                }
-            }
-
-            return undefined;
+            return metadataService.getTagColor(tag);
         },
-        [metadataService, settings.tagColors]
+        [metadataService]
     );
 
     // Get display date from pre-computed dates

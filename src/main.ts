@@ -120,13 +120,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
         const { initializeIconService } = await import('./services/icons');
         initializeIconService();
 
-        // Initialize metadata service for handling vault events
-        this.metadataService = new MetadataService(this.app, this.settings, async updater => {
-            // Update settings
-            updater(this.settings);
-            await this.saveSettings();
-            // The SettingsContext will handle updates through its listener
-        });
+        // Initialize metadata service for managing folder/tag colors, icons, and sort overrides
+        this.metadataService = new MetadataService(this);
 
         // Initialize tag operations service
         this.tagOperations = new TagOperations(this.app);

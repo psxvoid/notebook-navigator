@@ -206,10 +206,10 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
             const isCustomSort =
                 (selectionState.selectionType === ItemType.FOLDER &&
                     selectionState.selectedFolder &&
-                    settings.folderSortOverrides[selectionState.selectedFolder.path]) ||
+                    metadataService.getFolderSortOverride(selectionState.selectedFolder.path)) ||
                 (selectionState.selectionType === ItemType.TAG &&
                     selectionState.selectedTag &&
-                    settings.tagSortOverrides?.[selectionState.selectedTag]);
+                    metadataService.getTagSortOverride(selectionState.selectedTag));
 
             // Default option
             menu.addItem(item => {
@@ -456,9 +456,9 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
         // Get icon based on selection type
         if (settings.showIcons) {
             if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-                folderIcon = settings.folderIcons?.[selectionState.selectedFolder.path] || 'folder';
+                folderIcon = metadataService.getFolderIcon(selectionState.selectedFolder.path) || 'folder';
             } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                folderIcon = settings.tagIcons?.[selectionState.selectedTag] || 'tags';
+                folderIcon = metadataService.getTagIcon(selectionState.selectedTag) || 'tags';
             }
         }
     }

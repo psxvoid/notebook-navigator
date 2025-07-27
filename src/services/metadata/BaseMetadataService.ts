@@ -19,6 +19,7 @@
 import { App } from 'obsidian';
 import { NotebookNavigatorSettings, SortOption } from '../../settings';
 import { ItemType } from '../../types';
+import type NotebookNavigatorPlugin from '../../main';
 
 /**
  * Type helper for metadata fields in settings
@@ -47,12 +48,11 @@ export type EntityType = typeof ItemType.FOLDER | typeof ItemType.TAG;
  */
 export abstract class BaseMetadataService {
     protected updateQueue: Promise<void> = Promise.resolve();
+    protected app: App;
 
-    constructor(
-        protected app: App,
-        protected settings: NotebookNavigatorSettings,
-        protected updateSettings: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>
-    ) {}
+    constructor(protected plugin: NotebookNavigatorPlugin) {
+        this.app = plugin.app;
+    }
 
     /**
      * Saves settings and triggers UI update
@@ -62,7 +62,10 @@ export abstract class BaseMetadataService {
         // Queue this update to run after any pending updates
         this.updateQueue = this.updateQueue
             .then(async () => {
-                await this.updateSettings(updater);
+                // Update settings
+                updater(this.plugin.settings);
+                // Save settings
+                await this.plugin.saveSettings();
             })
             .catch(error => {
                 // Log error but don't break the queue for subsequent updates
@@ -117,11 +120,11 @@ export abstract class BaseMetadataService {
      * @param path - Path of the entity
      */
     protected async removeEntityColor(entityType: EntityType, path: string): Promise<void> {
-        if (entityType === ItemType.FOLDER && this.settings.folderColors?.[path]) {
+        if (entityType === ItemType.FOLDER && this.plugin.settings.folderColors?.[path]) {
             await this.saveAndUpdate(settings => {
                 delete settings.folderColors![path];
             });
-        } else if (entityType === ItemType.TAG && this.settings.tagColors?.[path]) {
+        } else if (entityType === ItemType.TAG && this.plugin.settings.tagColors?.[path]) {
             await this.saveAndUpdate(settings => {
                 delete settings.tagColors![path];
             });
@@ -136,9 +139,9 @@ export abstract class BaseMetadataService {
      */
     protected getEntityColor(entityType: EntityType, path: string): string | undefined {
         if (entityType === ItemType.FOLDER) {
-            return this.settings.folderColors?.[path];
+            return this.plugin.settings.folderColors?.[path];
         } else {
-            return this.settings.tagColors?.[path];
+            return this.plugin.settings.tagColors?.[path];
         }
     }
 
@@ -180,11 +183,11 @@ export abstract class BaseMetadataService {
      * @param path - Path of the entity
      */
     protected async removeEntityIcon(entityType: EntityType, path: string): Promise<void> {
-        if (entityType === ItemType.FOLDER && this.settings.folderIcons?.[path]) {
+        if (entityType === ItemType.FOLDER && this.plugin.settings.folderIcons?.[path]) {
             await this.saveAndUpdate(settings => {
                 delete settings.folderIcons![path];
             });
-        } else if (entityType === ItemType.TAG && this.settings.tagIcons?.[path]) {
+        } else if (entityType === ItemType.TAG && this.plugin.settings.tagIcons?.[path]) {
             await this.saveAndUpdate(settings => {
                 delete settings.tagIcons![path];
             });
@@ -199,9 +202,9 @@ export abstract class BaseMetadataService {
      */
     protected getEntityIcon(entityType: EntityType, path: string): string | undefined {
         if (entityType === ItemType.FOLDER) {
-            return this.settings.folderIcons?.[path];
+            return this.plugin.settings.folderIcons?.[path];
         } else {
-            return this.settings.tagIcons?.[path];
+            return this.plugin.settings.tagIcons?.[path];
         }
     }
 
@@ -235,11 +238,11 @@ export abstract class BaseMetadataService {
      * @param path - Path of the entity
      */
     protected async removeEntitySortOverride(entityType: EntityType, path: string): Promise<void> {
-        if (entityType === ItemType.FOLDER && this.settings.folderSortOverrides?.[path]) {
+        if (entityType === ItemType.FOLDER && this.plugin.settings.folderSortOverrides?.[path]) {
             await this.saveAndUpdate(settings => {
                 delete settings.folderSortOverrides![path];
             });
-        } else if (entityType === ItemType.TAG && this.settings.tagSortOverrides?.[path]) {
+        } else if (entityType === ItemType.TAG && this.plugin.settings.tagSortOverrides?.[path]) {
             await this.saveAndUpdate(settings => {
                 delete settings.tagSortOverrides![path];
             });
@@ -254,9 +257,9 @@ export abstract class BaseMetadataService {
      */
     protected getEntitySortOverride(entityType: EntityType, path: string): SortOption | undefined {
         if (entityType === ItemType.FOLDER) {
-            return this.settings.folderSortOverrides?.[path];
+            return this.plugin.settings.folderSortOverrides?.[path];
         } else {
-            return this.settings.tagSortOverrides?.[path];
+            return this.plugin.settings.tagSortOverrides?.[path];
         }
     }
 

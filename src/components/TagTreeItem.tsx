@@ -19,6 +19,7 @@
 import React, { forwardRef } from 'react';
 import { setIcon } from 'obsidian';
 import { useSettingsState } from '../context/SettingsContext';
+import { useMetadataService } from '../context/ServicesContext';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { getIconService } from '../services/icons';
 import { ItemType } from '../types';
@@ -56,6 +57,7 @@ export const TagTreeItem = React.memo(
         ref
     ) {
         const settings = useSettingsState();
+        const metadataService = useMetadataService();
         const chevronRef = React.useRef<HTMLDivElement>(null);
         const iconRef = React.useRef<HTMLSpanElement>(null);
         const itemRef = React.useRef<HTMLDivElement>(null);
@@ -73,9 +75,9 @@ export const TagTreeItem = React.memo(
             [hasChildren, onToggle]
         );
 
-        // Get color and icon from settings directly (like FolderItem does)
-        const tagColor = settings.tagColors?.[tagNode.path];
-        const tagIcon = settings.tagIcons?.[tagNode.path];
+        // Get color and icon from metadata service
+        const tagColor = metadataService.getTagColor(tagNode.path);
+        const tagIcon = metadataService.getTagIcon(tagNode.path);
 
         // Update chevron icon based on expanded state
         React.useEffect(() => {

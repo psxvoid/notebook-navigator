@@ -167,9 +167,9 @@ export class FolderMetadataService extends BaseMetadataService {
         };
 
         const results = await Promise.all([
-            this.cleanupMetadata(this.settings, 'folderColors', validator),
-            this.cleanupMetadata(this.settings, 'folderIcons', validator),
-            this.cleanupMetadata(this.settings, 'folderSortOverrides', validator)
+            this.cleanupMetadata(this.plugin.settings, 'folderColors', validator),
+            this.cleanupMetadata(this.plugin.settings, 'folderIcons', validator),
+            this.cleanupMetadata(this.plugin.settings, 'folderSortOverrides', validator)
         ]);
 
         return results.some(changed => changed);
