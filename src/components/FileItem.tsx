@@ -248,7 +248,7 @@ export const FileItem = React.memo(function FileItem({
                                     </div>
 
                                     {/* Tags */}
-                                    {settings.showFileTags && tags.length > 0 && (
+                                    {settings.showTags && settings.showFileTags && tags.length > 0 && (
                                         <div className="nn-file-tags">
                                             {tags.map((tag, index) => {
                                                 const tagColor = getTagColor(tag);
@@ -289,7 +289,7 @@ export const FileItem = React.memo(function FileItem({
                                     {!previewText && (
                                         <>
                                             {/* Tags (show even when no preview text) */}
-                                            {settings.showFileTags && tags.length > 0 && (
+                                            {settings.showTags && settings.showFileTags && tags.length > 0 && (
                                                 <div className="nn-file-tags">
                                                     {tags.map((tag, index) => {
                                                         const tagColor = getTagColor(tag);
@@ -339,7 +339,7 @@ export const FileItem = React.memo(function FileItem({
                                             )}
 
                                             {/* Tags (only when preview text exists) */}
-                                            {settings.showFileTags && tags.length > 0 && (
+                                            {settings.showTags && settings.showFileTags && tags.length > 0 && (
                                                 <div className="nn-file-tags">
                                                     {tags.map((tag, index) => {
                                                         const tagColor = getTagColor(tag);
