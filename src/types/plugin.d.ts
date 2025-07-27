@@ -17,9 +17,9 @@
  */
 
 import { Plugin, App } from 'obsidian';
-import { NotebookNavigatorView } from '../view/NotebookNavigatorView';
 import { MetadataService } from '../services/MetadataService';
 import { NotebookNavigatorSettings } from '../settings';
+import { NotebookNavigatorView } from '../view/NotebookNavigatorView';
 
 /**
  * Type definition for the Notebook Navigator plugin instance

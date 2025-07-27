@@ -19,27 +19,27 @@
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback } from 'react';
 import { TFile, TFolder, Notice } from 'obsidian';
-import { NavigationPane } from './NavigationPane';
-import { ListPane } from './ListPane';
-import type { NavigationPaneHandle } from './NavigationPane';
-import type { ListPaneHandle } from './ListPane';
+import { useExpansionDispatch } from '../context/ExpansionContext';
+import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
-import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
-import { useExpansionDispatch } from '../context/ExpansionContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
-import { useResizablePane } from '../hooks/useResizablePane';
 import { useFileReveal } from '../hooks/useFileReveal';
-import { useTagNavigation } from '../hooks/useTagNavigation';
-import { useMobileSwipeNavigation } from '../hooks/useSwipeGesture';
 import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
-import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, ItemType } from '../types';
+import { useResizablePane } from '../hooks/useResizablePane';
+import { useMobileSwipeNavigation } from '../hooks/useSwipeGesture';
+import { useTagNavigation } from '../hooks/useTagNavigation';
 import { strings } from '../i18n';
-import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
-import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
 import { FolderSuggestModal } from '../modals/FolderSuggestModal';
 import { TagSuggestModal } from '../modals/TagSuggestModal';
+import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, ItemType } from '../types';
+import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
+import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { ListPane } from './ListPane';
+import type { ListPaneHandle } from './ListPane';
+import { NavigationPane } from './NavigationPane';
+import type { NavigationPaneHandle } from './NavigationPane';
 
 export interface NotebookNavigatorHandle {
     navigateToFile: (file: TFile) => void;
@@ -83,9 +83,6 @@ export const NotebookNavigatorComponent = React.memo(
         const navigationPaneRef = useRef<NavigationPaneHandle>(null);
         const listPaneRef = useRef<ListPaneHandle>(null);
 
-        // Enable drag and drop only on desktop
-        useDragAndDrop(containerRef);
-
         // Enable resizable pane
         const { paneWidth, isResizing, resizeHandleProps } = useResizablePane({
             initialWidth: NAVIGATION_PANE_DIMENSIONS.defaultWidth,
@@ -99,15 +96,35 @@ export const NotebookNavigatorComponent = React.memo(
         // Use tag navigation logic
         const { navigateToTag } = useTagNavigation();
 
-        // Enable mobile swipe gestures
-        useMobileSwipeNavigation(containerRef, isMobile);
+        // Get updateSettings from SettingsContext for refresh
+        const updateSettings = useSettingsUpdate();
 
-        // Use event handlers
-        useNavigatorEventHandlers({
-            app,
-            containerRef,
-            setIsNavigatorFocused
-        });
+        // Track if initial visibility check has been performed
+        const hasCheckedInitialVisibility = useRef(false);
+
+        // Container ref callback that checks if file list is visible on first mount
+        const containerCallbackRef = useCallback(
+            (node: HTMLDivElement | null) => {
+                containerRef.current = node;
+
+                // Auto-disable dual pane mode on startup if viewport is too narrow for both panes
+                if (node && !isMobile && !hasCheckedInitialVisibility.current && settings.dualPane) {
+                    hasCheckedInitialVisibility.current = true;
+
+                    const containerWidth = node.getBoundingClientRect().width;
+                    // Check if container is too narrow to show both panes
+                    if (containerWidth < paneWidth + FILE_PANE_DIMENSIONS.minWidth) {
+                        updateSettings(settings => {
+                            settings.dualPane = false;
+                        });
+                    }
+                }
+            },
+            [isMobile, paneWidth, settings.dualPane, updateSettings]
+        );
+
+        // Determine CSS classes
+        const containerClasses = ['nn-split-container'];
 
         // Listen for mobile hide/show events
         useEffect(() => {
@@ -132,8 +149,27 @@ export const NotebookNavigatorComponent = React.memo(
             };
         }, [app, navigateToFile]);
 
-        // Get updateSettings from SettingsContext for refresh
-        const updateSettings = useSettingsUpdate();
+        // Handle side effects when dualPane setting changes
+        useEffect(() => {
+            if (!isMobile && !settings.dualPane) {
+                // When disabling dual pane mode, switch to files view and focus it
+                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+            }
+        }, [settings.dualPane, isMobile, uiDispatch]);
+
+        // Enable drag and drop only on desktop
+        useDragAndDrop(containerRef);
+
+        // Enable mobile swipe gestures
+        useMobileSwipeNavigation(containerRef, isMobile);
+
+        // Use event handlers
+        useNavigatorEventHandlers({
+            app,
+            containerRef,
+            setIsNavigatorFocused
+        });
 
         // Expose methods via ref
         useImperativeHandle(
@@ -268,41 +304,6 @@ export const NotebookNavigatorComponent = React.memo(
             ]
         );
 
-        // Track if initial visibility check has been performed
-        const hasCheckedInitialVisibility = useRef(false);
-
-        // Handle side effects when dualPane setting changes
-        useEffect(() => {
-            if (!isMobile && !settings.dualPane) {
-                // When disabling dual pane mode, switch to files view and focus it
-                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
-                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-            }
-        }, [settings.dualPane, isMobile, uiDispatch]);
-
-        // Container ref callback that checks if file list is visible on first mount
-        const containerCallbackRef = useCallback(
-            (node: HTMLDivElement | null) => {
-                containerRef.current = node;
-
-                // Auto-disable dual pane mode on startup if viewport is too narrow for both panes
-                if (node && !isMobile && !hasCheckedInitialVisibility.current && settings.dualPane) {
-                    hasCheckedInitialVisibility.current = true;
-
-                    const containerWidth = node.getBoundingClientRect().width;
-                    // Check if container is too narrow to show both panes
-                    if (containerWidth < paneWidth + FILE_PANE_DIMENSIONS.minWidth) {
-                        updateSettings(settings => {
-                            settings.dualPane = false;
-                        });
-                    }
-                }
-            },
-            [isMobile, paneWidth, settings.dualPane, updateSettings]
-        );
-
-        // Determine CSS classes
-        const containerClasses = ['nn-split-container'];
         if (isMobile && uiState.singlePane) {
             // Mobile uses sliding animations with show-list/show-files classes
             containerClasses.push(uiState.currentSinglePaneView === 'navigation' ? 'show-navigation' : 'show-files');

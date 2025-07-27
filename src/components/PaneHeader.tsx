@@ -18,22 +18,22 @@
 
 import React, { useCallback, useEffect } from 'react';
 import { Menu, TFolder } from 'obsidian';
-import { useServices } from '../context/ServicesContext';
-import { useSettings } from '../context/SettingsContext';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
-import { useUIState, useUIDispatch } from '../context/UIStateContext';
+import { useServices } from '../context/ServicesContext';
 import { useFileSystemOps, useMetadataService } from '../context/ServicesContext';
-import { isTFolder } from '../utils/typeGuards';
-import { ObsidianIcon } from './ObsidianIcon';
+import { useSettings } from '../context/SettingsContext';
+import { useFileCache } from '../context/StorageContext';
+import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { strings } from '../i18n';
 import { getIconService } from '../services/icons';
-import { UNTAGGED_TAG_ID, ItemType } from '../types';
-import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } from '../utils/sortUtils';
 import type { SortOption } from '../settings';
-import { useFileCache } from '../context/StorageContext';
-import { collectAllTagPaths } from '../utils/tagTree';
+import { UNTAGGED_TAG_ID, ItemType } from '../types';
 import { getFilesForFolder } from '../utils/fileFinder';
+import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } from '../utils/sortUtils';
+import { collectAllTagPaths } from '../utils/tagTree';
+import { isTFolder } from '../utils/typeGuards';
+import { ObsidianIcon } from './ObsidianIcon';
 
 interface PaneHeaderProps {
     type: 'navigation' | 'files';
@@ -331,6 +331,19 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
         return title;
     };
 
+    // Desktop header (original code)
+    // Prepare header title for file pane
+    let headerTitle = '';
+    let folderIcon = '';
+
+    // Render icon when folderIcon changes
+    useEffect(() => {
+        if (iconRef.current && folderIcon && settings.showIcons) {
+            const iconService = getIconService();
+            iconService.renderIcon(iconRef.current, folderIcon);
+        }
+    }, [folderIcon, settings.showIcons, uiState.singlePane]);
+
     // Mobile header with back button
     if (isMobile) {
         const headerTitle = getHeaderTitle(true); // Use folder name for mobile
@@ -437,11 +450,6 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
         );
     }
 
-    // Desktop header (original code)
-    // Prepare header title for file pane
-    let headerTitle = '';
-    let folderIcon = '';
-
     if (type === 'files') {
         headerTitle = getHeaderTitle(false); // Use full path for desktop
 
@@ -454,14 +462,6 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
             }
         }
     }
-
-    // Render icon when folderIcon changes
-    useEffect(() => {
-        if (iconRef.current && folderIcon && settings.showIcons) {
-            const iconService = getIconService();
-            iconService.renderIcon(iconRef.current, folderIcon);
-        }
-    }, [folderIcon, settings.showIcons, uiState.singlePane]);
 
     return (
         <div className="nn-pane-header">

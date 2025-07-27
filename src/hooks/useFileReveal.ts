@@ -18,14 +18,14 @@
 
 import { useEffect, useRef, useCallback, RefObject, useState } from 'react';
 import { TFile, TFolder, App, WorkspaceLeaf } from 'obsidian';
-import { useSettingsState } from '../context/SettingsContext';
+import type { ListPaneHandle } from '../components/ListPane';
+import type { NavigationPaneHandle } from '../components/NavigationPane';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
-import { isTFolder } from '../utils/typeGuards';
-import type { NavigationPaneHandle } from '../components/NavigationPane';
-import type { ListPaneHandle } from '../components/ListPane';
 import { FileView } from '../types/obsidian-extended';
+import { isTFolder } from '../utils/typeGuards';
 
 interface UseFileRevealOptions {
     app: App;

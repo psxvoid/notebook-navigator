@@ -25,8 +25,8 @@ import { App, Platform } from 'obsidian';
 export class MobileLogger {
     private static instance: MobileLogger;
     private app: App;
-    private logFileName: string;
     private isInitialized = false;
+    private logFileName: string;
 
     private constructor(app: App) {
         this.app = app;

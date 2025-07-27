@@ -19,10 +19,10 @@
 // src/context/ServicesContext.tsx
 import React, { createContext, useContext, useMemo } from 'react';
 import { App, Platform } from 'obsidian';
+import NotebookNavigatorPlugin from '../main';
 import { FileSystemOperations } from '../services/FileSystemService';
 import { MetadataService } from '../services/MetadataService';
 import { TagOperations } from '../services/TagOperations';
-import NotebookNavigatorPlugin from '../main';
 
 /**
  * Interface defining all services and stable dependencies available through the context.

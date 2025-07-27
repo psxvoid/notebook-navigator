@@ -17,8 +17,8 @@
  */
 
 import { App, TFile, getAllTags } from 'obsidian';
-import { TagTreeNode } from '../types/storage';
 import { FileData, Database } from '../storage/database';
+import { TagTreeNode } from '../types/storage';
 
 /**
  * Tag Tree Utilities

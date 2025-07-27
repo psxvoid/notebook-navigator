@@ -1,3 +1,4 @@
+import { TFile } from 'obsidian';
 /*
  * Notebook Navigator - Plugin for Obsidian
  * Copyright (c) 2025 Johan Sanneblad
@@ -18,7 +19,6 @@
 
 import { format, parse, Locale } from 'date-fns';
 import * as locales from 'date-fns/locale';
-import { TFile } from 'obsidian';
 import { strings, getCurrentLanguage } from '../i18n';
 import { NotebookNavigatorSettings } from '../settings';
 
@@ -48,6 +48,28 @@ export class DateUtils {
         'pt-br': 'ptBR', // Portuguese (Brazil)
         no: 'nb' // Norwegian (Bokmål) - date-fns uses 'nb' for Norwegian
     };
+
+    /**
+     * Languages that use lowercase month names by default in date-fns
+     * Based on testing, these languages format months in lowercase
+     */
+    private static lowercaseMonthLanguages = new Set([
+        'es',
+        'fr',
+        'no',
+        'nb',
+        'pt',
+        'pt-br',
+        'it',
+        'nl',
+        'sv',
+        'da',
+        'fi',
+        'pl',
+        'cs',
+        'ca',
+        'ro'
+    ]);
 
     /**
      * Get the current Obsidian language setting
@@ -96,28 +118,6 @@ export class DateUtils {
             }
         }
     }
-
-    /**
-     * Languages that use lowercase month names by default in date-fns
-     * Based on testing, these languages format months in lowercase
-     */
-    private static lowercaseMonthLanguages = new Set([
-        'es',
-        'fr',
-        'no',
-        'nb',
-        'pt',
-        'pt-br',
-        'it',
-        'nl',
-        'sv',
-        'da',
-        'fi',
-        'pl',
-        'cs',
-        'ca',
-        'ro'
-    ]);
 
     /**
      * Capitalize the first letter of a string

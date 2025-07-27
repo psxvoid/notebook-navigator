@@ -17,11 +17,11 @@
  */
 
 import { TFolder } from 'obsidian';
-import type { FolderTreeItem, TagTreeItem } from '../types/virtualization';
-import { TagTreeNode } from '../types/storage';
-import { shouldExcludeFolder } from './fileFilters';
-import { NavigationPaneItemType } from '../types';
 import { getCurrentLanguage } from '../i18n';
+import { NavigationPaneItemType } from '../types';
+import { TagTreeNode } from '../types/storage';
+import type { FolderTreeItem, TagTreeItem } from '../types/virtualization';
+import { shouldExcludeFolder } from './fileFilters';
 
 /**
  * Flattens a folder tree into a linear array for virtualization.

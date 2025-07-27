@@ -18,10 +18,10 @@
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode, useCallback } from 'react';
 import { App, TFile, TFolder } from 'obsidian';
-import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
-import { useSettingsState } from './SettingsContext';
 import { NavigationItemType, STORAGE_KEYS } from '../types';
 import { NotebookNavigatorPlugin } from '../types/plugin';
+import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { useSettingsState } from './SettingsContext';
 
 // State interface
 export interface SelectionState {

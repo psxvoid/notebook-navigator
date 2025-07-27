@@ -19,22 +19,22 @@
 import React, { useMemo, useCallback, useRef, useEffect, useState, useImperativeHandle, forwardRef } from 'react';
 import { TFile, debounce } from 'obsidian';
 import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
-import { useServices } from '../context/ServicesContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
-import { useUIState, useUIDispatch } from '../context/UIStateContext';
+import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useFileCache } from '../context/StorageContext';
-import { FileItem } from './FileItem';
-import { DateUtils } from '../utils/dateUtils';
-import { isTFile } from '../utils/typeGuards';
-import { getDateField, getEffectiveSortOption, sortFiles } from '../utils/sortUtils';
-import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
-import { strings } from '../i18n';
-import type { ListPaneItem } from '../types/virtualization';
-import { PaneHeader } from './PaneHeader';
-import { ListPaneItemType, ItemType, LISTPANE_MEASUREMENTS, OVERSCAN } from '../types';
-import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
+import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useMultiSelection } from '../hooks/useMultiSelection';
+import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
+import { strings } from '../i18n';
+import { ListPaneItemType, ItemType, LISTPANE_MEASUREMENTS, OVERSCAN } from '../types';
+import type { ListPaneItem } from '../types/virtualization';
+import { DateUtils } from '../utils/dateUtils';
+import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
+import { getDateField, getEffectiveSortOption, sortFiles } from '../utils/sortUtils';
+import { isTFile } from '../utils/typeGuards';
+import { FileItem } from './FileItem';
+import { PaneHeader } from './PaneHeader';
 
 /**
  * Renders the list pane displaying files from the selected folder.
@@ -69,7 +69,6 @@ export const ListPane = React.memo(
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
         const { getFileCreatedTime, getFileModifiedTime, getDB } = useFileCache();
-        const { selectionType, selectedFolder, selectedTag, selectedFile } = selectionState;
 
         // Track if the file selection is from user click vs auto-selection
         const isUserSelectionRef = useRef(false);
@@ -77,11 +76,6 @@ export const ListPane = React.memo(
 
         // Keep track of the last selected file path to maintain visual selection during transitions
         const lastSelectedFilePathRef = useRef<string | null>(null);
-        useEffect(() => {
-            if (selectedFile) {
-                lastSelectedFilePathRef.current = selectedFile.path;
-            }
-        }, [selectedFile]);
 
         // Track current visible date group for sticky header
         const [currentDateGroup, setCurrentDateGroup] = useState<string | null>(null);
@@ -89,334 +83,13 @@ export const ListPane = React.memo(
         // Initialize multi-selection hook
         const multiSelection = useMultiSelection();
 
-        const handleFileClick = useCallback(
-            (file: TFile, e: React.MouseEvent, fileIndex?: number, orderedFiles?: TFile[]) => {
-                isUserSelectionRef.current = true; // Mark this as a user selection
-
-                // Check if CMD (Mac) or Ctrl (Windows/Linux) is pressed for multi-select
-                const isMultiSelectModifier = e.metaKey || e.ctrlKey;
-                const isShiftKey = e.shiftKey;
-
-                // Don't enable multi-select on mobile
-                if (!isMobile && isMultiSelectModifier) {
-                    multiSelection.handleMultiSelectClick(file, fileIndex, orderedFiles);
-                } else if (!isMobile && isShiftKey && fileIndex !== undefined && orderedFiles) {
-                    multiSelection.handleRangeSelectClick(file, fileIndex, orderedFiles);
-                } else {
-                    // Normal click - always clear multi-selection and select only this file
-                    multiSelection.clearSelection();
-                    selectionDispatch({ type: 'SET_SELECTED_FILE', file });
-                }
-
-                // Always ensure list pane has focus when clicking a file
-                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-
-                // Only open file if not multi-selecting
-                if (!isMultiSelectModifier && !isShiftKey) {
-                    // Open file in current tab
-                    const leaf = app.workspace.getLeaf(false);
-                    if (leaf) {
-                        leaf.openFile(file, { active: false });
-                    }
-                }
-
-                // Collapse left sidebar on mobile after opening file
-                if (isMobile && app.workspace.leftSplit && !isMultiSelectModifier && !isShiftKey) {
-                    app.workspace.leftSplit.collapse();
-                }
-            },
-            [app.workspace, selectionDispatch, uiDispatch, isMobile, multiSelection]
-        );
-
-        // This effect now only listens for vault events to trigger a refresh
-        useEffect(() => {
-            // Debounce updates to prevent rapid re-renders
-            const forceUpdate = debounce(() => {
-                setFileVersion(v => v + 1);
-            }, 300); // Increased debounce time to reduce render frequency
-
-            const vaultEvents = [
-                app.vault.on('create', () => {
-                    forceUpdate();
-                }),
-                app.vault.on('delete', () => {
-                    forceUpdate();
-                }),
-                app.vault.on('rename', () => {
-                    forceUpdate();
-                })
-            ];
-            const metadataEvent = app.metadataCache.on('changed', file => {
-                // Only update if the metadata change is for a file in our current view
-                if (selectionType === ItemType.FOLDER && selectedFolder) {
-                    // Check if file is in the selected folder
-                    const fileFolder = file.parent;
-                    if (!fileFolder || fileFolder.path !== selectedFolder.path) {
-                        // If not showing subfolders, ignore files not in this folder
-                        if (!settings.showNotesFromSubfolders) {
-                            return;
-                        }
-                        // If showing subfolders, check if it's a descendant
-                        if (!fileFolder || !fileFolder.path.startsWith(selectedFolder.path + '/')) {
-                            return;
-                        }
-                    }
-                } else if (selectionType === ItemType.TAG && selectedTag) {
-                    // For tag view, we DO need to rebuild the list as files might be added/removed
-                    forceUpdate();
-                    return;
-                }
-
-                // For folder view, we don't need to rebuild the list for metadata changes
-                // Individual FileItems will update through the database subscription
-            });
-
-            // Listen for tag changes from database
-            const db = getDB();
-            const dbUnsubscribe = db.onContentChange(changes => {
-                // Check if we're in tag view and tags changed
-                if (selectionType === ItemType.TAG && selectedTag) {
-                    const hasTagChanges = changes.some(change => change.changes.tags !== undefined);
-                    if (hasTagChanges) {
-                        forceUpdate();
-                    }
-                }
-            });
-
-            return () => {
-                vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
-                app.metadataCache.offref(metadataEvent);
-                dbUnsubscribe();
-            };
-        }, [app, selectionType, selectedTag, getDB]);
-
-        // Scroll to top handler for mobile header click
-        const handleScrollToTop = useCallback(() => {
-            if (isMobile && scrollContainerRef.current) {
-                scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
-            }
-        }, [isMobile]);
-
-        // Determine if list pane is visible early to optimize
-        const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'files';
-
-        // Calculate files synchronously with useMemo
-        const files = useMemo(() => {
-            let allFiles: TFile[] = [];
-
-            if (selectionType === ItemType.FOLDER && selectedFolder) {
-                allFiles = getFilesForFolder(selectedFolder, settings, app);
-            } else if (selectionType === ItemType.TAG && selectedTag) {
-                allFiles = getFilesForTag(selectedTag, settings, app);
-            }
-
-            return allFiles;
-        }, [selectionType, selectedFolder, selectedTag, settings, app, fileVersion]);
-
-        // Auto-open file when it's selected via folder/tag change (not user click or keyboard navigation)
-        useEffect(() => {
-            // Check if this is a reveal operation - if so, skip auto-open
-            const isRevealOperation = selectionState.isRevealOperation;
-            const isFolderChangeWithAutoSelect = selectionState.isFolderChangeWithAutoSelect;
-            const isKeyboardNavigation = selectionState.isKeyboardNavigation;
-
-            // Skip auto-open if this is a reveal operation or keyboard navigation
-            if (isRevealOperation || isKeyboardNavigation) {
-                // Clear the keyboard navigation flag after processing
-                if (isKeyboardNavigation) {
-                    selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: false });
-                }
-                return;
-            }
-
-            if (selectedFile && !isUserSelectionRef.current && settings.autoSelectFirstFileOnFocusChange && !isMobile) {
-                // Check if we're actively navigating the navigator
-                const navigatorEl = document.querySelector('.nn-split-container');
-                const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
-
-                // Open the file if we're not actively using the navigator OR if this is a folder change with auto-select
-                if (!hasNavigatorFocus || isFolderChangeWithAutoSelect) {
-                    const leaf = app.workspace.getLeaf(false);
-                    if (leaf) {
-                        leaf.openFile(selectedFile!, { active: false });
-                    }
-                }
-            }
-            // Reset the flag after processing
-            isUserSelectionRef.current = false;
-        }, [
-            selectedFile,
-            app.workspace,
-            settings.autoSelectFirstFileOnFocusChange,
-            isMobile,
-            selectionState.isRevealOperation,
-            selectionState.isFolderChangeWithAutoSelect,
-            selectionState.isKeyboardNavigation,
-            selectionDispatch
-        ]);
-
-        // Auto-select active file or first file when list pane gains focus (DESKTOP ONLY)
-        useEffect(() => {
-            // Only run when list pane gains focus (desktop only - mobile doesn't have focus states)
-            if (uiState.focusedPane !== 'files' || isMobile) return;
-
-            // Check if we already have a file selected
-            if (selectedFile) return;
-
-            // This is keyboard navigation (Tab/Right), don't auto-open files
-            isUserSelectionRef.current = false;
-
-            // Try to select the currently active file in the workspace
-            const activeFile = app.workspace.getActiveFile();
-            if (activeFile && files.includes(activeFile)) {
-                // The active file is in the current folder/tag view - select it
-                selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
-                selectionDispatch({ type: 'SET_SELECTED_FILE', file: activeFile });
-            } else if (files.length > 0) {
-                // No active file in current view, select AND open the first file
-                // (regardless of autoSelectFirstFile setting when navigating with keyboard)
-                selectionDispatch({ type: 'SET_SELECTED_FILE', file: files[0] });
-                const leaf = app.workspace.getLeaf(false);
-                if (leaf) {
-                    leaf.openFile(files[0], { active: false });
-                }
-            }
-        }, [isMobile, uiState.focusedPane, selectedFile, files, selectionDispatch, app.workspace]);
-
         const [listItems, setListItems] = useState<ListPaneItem[]>([]);
-
-        useEffect(() => {
-            const rebuildListItems = () => {
-                const items: ListPaneItem[] = [];
-
-                // Get the appropriate pinned paths based on selection type
-                let pinnedPaths: Set<string>;
-
-                if (selectionType === ItemType.FOLDER && selectedFolder) {
-                    pinnedPaths = collectPinnedPaths(settings.pinnedNotes, selectedFolder, settings.showNotesFromSubfolders);
-                } else if (selectionType === ItemType.TAG) {
-                    pinnedPaths = collectPinnedPaths(settings.pinnedNotes);
-                } else {
-                    pinnedPaths = new Set<string>();
-                }
-
-                // Separate pinned and unpinned files
-                const pinnedFiles = files.filter(f => pinnedPaths.has(f.path));
-                const unpinnedFiles = files.filter(f => !pinnedPaths.has(f.path));
-
-                // Sort will happen below after determining the sort option
-
-                // Add pinned files
-                if (pinnedFiles.length > 0) {
-                    items.push({
-                        type: ListPaneItemType.HEADER,
-                        data: strings.listPane.pinnedSection,
-                        key: `header-pinned`
-                    });
-                    pinnedFiles.forEach(file => {
-                        items.push({
-                            type: ListPaneItemType.FILE,
-                            data: file,
-                            parentFolder: selectedFolder?.path,
-                            key: file.path
-                        });
-                    });
-                }
-
-                // Determine which sort option to use
-                const sortOption = getEffectiveSortOption(settings, selectionType, selectedFolder, selectedTag);
-
-                // Sort pinned and unpinned files separately
-                sortFiles(pinnedFiles, sortOption, getFileCreatedTime, getFileModifiedTime);
-                sortFiles(unpinnedFiles, sortOption, getFileCreatedTime, getFileModifiedTime);
-
-                // Add unpinned files with date grouping if enabled
-                if (!settings.groupByDate || sortOption.startsWith('title')) {
-                    // No date grouping
-                    unpinnedFiles.forEach(file => {
-                        items.push({
-                            type: ListPaneItemType.FILE,
-                            data: file,
-                            parentFolder: selectedFolder?.path,
-                            key: file.path
-                        });
-                    });
-                } else {
-                    // Group by date
-                    let currentGroup: string | null = null;
-                    unpinnedFiles.forEach(file => {
-                        const dateField = getDateField(sortOption);
-                        // Get timestamp based on sort field (created or modified)
-                        const timestamp = dateField === 'ctime' ? getFileCreatedTime(file) : getFileModifiedTime(file);
-                        const groupTitle = DateUtils.getDateGroup(timestamp);
-
-                        if (groupTitle !== currentGroup) {
-                            currentGroup = groupTitle;
-                            items.push({
-                                type: ListPaneItemType.HEADER,
-                                data: groupTitle,
-                                key: `header-${groupTitle}`
-                            });
-                        }
-
-                        items.push({
-                            type: ListPaneItemType.FILE,
-                            data: file,
-                            parentFolder: selectedFolder?.path,
-                            key: file.path
-                        });
-                    });
-                }
-
-                // Add spacer at the end for better visibility of last item
-                items.push({
-                    type: ListPaneItemType.SPACER,
-                    data: '',
-                    key: 'bottom-spacer'
-                });
-
-                setListItems(items);
-            };
-
-            // Rebuild list items when files or relevant settings change
-            rebuildListItems();
-        }, [
-            files,
-            settings.groupByDate,
-            settings.defaultFolderSort,
-            settings.folderSortOverrides,
-            settings.pinnedNotes,
-            settings.showNotesFromSubfolders,
-            settings.showFileTags,
-            selectionType,
-            selectedFolder,
-            selectedTag,
-            strings.listPane.pinnedSection,
-            settings.useFrontmatterMetadata // Rebuild when frontmatter settings change
-        ]);
 
         // Add ref for scroll container
         const scrollContainerRef = useRef<HTMLDivElement>(null);
 
         // Track render count
         const renderCountRef = useRef(0);
-        renderCountRef.current++;
-
-        // Cache selected file path to avoid repeated property access
-        const selectedFilePath = selectedFile?.path;
-
-        // Create a map for O(1) file lookups
-        const filePathToIndex = useMemo(() => {
-            const map = new Map<string, number>();
-            listItems.forEach((item, index) => {
-                if (item.type === ListPaneItemType.FILE) {
-                    if (isTFile(item.data)) {
-                        map.set(item.data.path, index);
-                    }
-                }
-            });
-            return map;
-        }, [listItems]);
 
         // Track list state changes and pending scroll operations
         const prevListKeyRef = useRef<string>(''); // Previous folder/tag context to detect navigation
@@ -425,7 +98,6 @@ export const ListPane = React.memo(
 
         // Track list items order to detect when items are reordered
         const listItemsKeyRef = useRef('');
-        const currentListItemsKey = listItems.map(item => item.key).join('|');
 
         // Get sync preview check function
         const { hasPreview, isStorageReady } = useFileCache();
@@ -546,6 +218,437 @@ export const ListPane = React.memo(
             scrollPaddingEnd: 0
         });
 
+        const handleFileClick = useCallback(
+            (file: TFile, e: React.MouseEvent, fileIndex?: number, orderedFiles?: TFile[]) => {
+                isUserSelectionRef.current = true; // Mark this as a user selection
+
+                // Check if CMD (Mac) or Ctrl (Windows/Linux) is pressed for multi-select
+                const isMultiSelectModifier = e.metaKey || e.ctrlKey;
+                const isShiftKey = e.shiftKey;
+
+                // Don't enable multi-select on mobile
+                if (!isMobile && isMultiSelectModifier) {
+                    multiSelection.handleMultiSelectClick(file, fileIndex, orderedFiles);
+                } else if (!isMobile && isShiftKey && fileIndex !== undefined && orderedFiles) {
+                    multiSelection.handleRangeSelectClick(file, fileIndex, orderedFiles);
+                } else {
+                    // Normal click - always clear multi-selection and select only this file
+                    multiSelection.clearSelection();
+                    selectionDispatch({ type: 'SET_SELECTED_FILE', file });
+                }
+
+                // Always ensure list pane has focus when clicking a file
+                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+
+                // Only open file if not multi-selecting
+                if (!isMultiSelectModifier && !isShiftKey) {
+                    // Open file in current tab
+                    const leaf = app.workspace.getLeaf(false);
+                    if (leaf) {
+                        leaf.openFile(file, { active: false });
+                    }
+                }
+
+                // Collapse left sidebar on mobile after opening file
+                if (isMobile && app.workspace.leftSplit && !isMultiSelectModifier && !isShiftKey) {
+                    app.workspace.leftSplit.collapse();
+                }
+            },
+            [app.workspace, selectionDispatch, uiDispatch, isMobile, multiSelection]
+        );
+
+        // Scroll to top handler for mobile header click
+        const handleScrollToTop = useCallback(() => {
+            if (isMobile && scrollContainerRef.current) {
+                scrollContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+            }
+        }, [isMobile]);
+
+        const { selectionType, selectedFolder, selectedTag, selectedFile } = selectionState;
+        // Cache selected file path to avoid repeated property access
+        const selectedFilePath = selectedFile?.path;
+
+        // Calculate files synchronously with useMemo
+        const files = useMemo(() => {
+            let allFiles: TFile[] = [];
+
+            if (selectionType === ItemType.FOLDER && selectedFolder) {
+                allFiles = getFilesForFolder(selectedFolder, settings, app);
+            } else if (selectionType === ItemType.TAG && selectedTag) {
+                allFiles = getFilesForTag(selectedTag, settings, app);
+            }
+
+            return allFiles;
+        }, [selectionType, selectedFolder, selectedTag, settings, app, fileVersion]);
+
+        // Create a map for O(1) file lookups
+        const filePathToIndex = useMemo(() => {
+            const map = new Map<string, number>();
+            listItems.forEach((item, index) => {
+                if (item.type === ListPaneItemType.FILE) {
+                    if (isTFile(item.data)) {
+                        map.set(item.data.path, index);
+                    }
+                }
+            });
+            return map;
+        }, [listItems]);
+
+        const getSelectionIndex = useCallback(() => {
+            if (selectedFilePath) {
+                const fileIndex = filePathToIndex.get(selectedFilePath);
+
+                if (fileIndex !== undefined && fileIndex !== -1) {
+                    // Check if there's a header immediately before this file
+                    // Only scroll to header if this is the first file in the list
+                    if (fileIndex > 0 && listItems[fileIndex - 1]?.type === ListPaneItemType.HEADER) {
+                        const isFirstFileInList = fileIndex === 1 || (fileIndex === 2 && listItems[0]?.type === ListPaneItemType.HEADER);
+                        if (isFirstFileInList) {
+                            return fileIndex - 1;
+                        }
+                    }
+                    return fileIndex;
+                }
+            }
+            return -1;
+        }, [selectedFilePath, filePathToIndex, listItems]);
+
+        // Pre-calculate date field for all files in the group
+        const dateField = useMemo(() => {
+            return getDateField(settings.defaultFolderSort);
+        }, [settings.defaultFolderSort]);
+
+        // Pre-compute formatted dates for all files
+        const filesWithDates = useMemo(() => {
+            const dataMap = new Map<
+                string,
+                {
+                    display: string;
+                    created: string;
+                    modified: string;
+                }
+            >();
+
+            // Get all files from list items
+            const allFiles: TFile[] = [];
+            listItems.forEach(item => {
+                if (item.type === ListPaneItemType.FILE && isTFile(item.data)) {
+                    allFiles.push(item.data);
+                }
+            });
+
+            // Always compute dates for tooltips even if display is disabled
+            const dateTimeFormat = settings.timeFormat ? `${settings.dateFormat} ${settings.timeFormat}` : settings.dateFormat;
+            let currentGroup: string | null = null;
+
+            listItems.forEach(item => {
+                if (item.type === ListPaneItemType.HEADER) {
+                    currentGroup = item.data as string;
+                } else if (item.type === ListPaneItemType.FILE) {
+                    const file = item.data;
+                    if (!isTFile(file)) return;
+
+                    // Compute display date based on current sort
+                    const timestamp = dateField === 'ctime' ? getFileCreatedTime(file) : getFileModifiedTime(file);
+                    const display =
+                        settings.showFileDate && currentGroup && currentGroup !== strings.listPane.pinnedSection
+                            ? DateUtils.formatDateForGroup(timestamp, currentGroup, settings.dateFormat, settings.timeFormat)
+                            : settings.showFileDate
+                              ? DateUtils.formatDate(timestamp, settings.dateFormat)
+                              : '';
+
+                    // Always compute both created and modified for tooltips
+                    const createdTimestamp = getFileCreatedTime(file);
+                    const modifiedTimestamp = getFileModifiedTime(file);
+                    const created = DateUtils.formatDate(createdTimestamp, dateTimeFormat);
+                    const modified = DateUtils.formatDate(modifiedTimestamp, dateTimeFormat);
+
+                    dataMap.set(file.path, { display, created, modified });
+                }
+            });
+
+            return dataMap;
+        }, [
+            listItems,
+            dateField,
+            settings.showFileDate,
+            settings.dateFormat,
+            settings.timeFormat,
+            settings.useFrontmatterMetadata,
+            strings.listPane.pinnedSection
+        ]);
+
+        // Build ordered files list for Shift+Click functionality - MUST be before early returns
+        const orderedFiles = useMemo(() => {
+            const files: TFile[] = [];
+            listItems.forEach(item => {
+                if (item.type === ListPaneItemType.FILE) {
+                    if (isTFile(item.data)) {
+                        files.push(item.data);
+                    }
+                }
+            });
+            return files;
+        }, [listItems]);
+
+        // Determine if list pane is visible early to optimize
+        const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'files';
+
+        const currentListItemsKey = listItems.map(item => item.key).join('|');
+
+        // Helper function for safe array access
+        const safeGetItem = <T,>(array: T[], index: number): T | undefined => {
+            return index >= 0 && index < array.length ? array[index] : undefined;
+        };
+
+        useEffect(() => {
+            if (selectedFile) {
+                lastSelectedFilePathRef.current = selectedFile.path;
+            }
+        }, [selectedFile]);
+
+        // This effect now only listens for vault events to trigger a refresh
+        useEffect(() => {
+            // Debounce updates to prevent rapid re-renders
+            const forceUpdate = debounce(() => {
+                setFileVersion(v => v + 1);
+            }, 300); // Increased debounce time to reduce render frequency
+
+            const vaultEvents = [
+                app.vault.on('create', () => {
+                    forceUpdate();
+                }),
+                app.vault.on('delete', () => {
+                    forceUpdate();
+                }),
+                app.vault.on('rename', () => {
+                    forceUpdate();
+                })
+            ];
+            const metadataEvent = app.metadataCache.on('changed', file => {
+                // Only update if the metadata change is for a file in our current view
+                if (selectionType === ItemType.FOLDER && selectedFolder) {
+                    // Check if file is in the selected folder
+                    const fileFolder = file.parent;
+                    if (!fileFolder || fileFolder.path !== selectedFolder.path) {
+                        // If not showing subfolders, ignore files not in this folder
+                        if (!settings.showNotesFromSubfolders) {
+                            return;
+                        }
+                        // If showing subfolders, check if it's a descendant
+                        if (!fileFolder || !fileFolder.path.startsWith(selectedFolder.path + '/')) {
+                            return;
+                        }
+                    }
+                } else if (selectionType === ItemType.TAG && selectedTag) {
+                    // For tag view, we DO need to rebuild the list as files might be added/removed
+                    forceUpdate();
+                    return;
+                }
+
+                // For folder view, we don't need to rebuild the list for metadata changes
+                // Individual FileItems will update through the database subscription
+            });
+
+            // Listen for tag changes from database
+            const db = getDB();
+            const dbUnsubscribe = db.onContentChange(changes => {
+                // Check if we're in tag view and tags changed
+                if (selectionType === ItemType.TAG && selectedTag) {
+                    const hasTagChanges = changes.some(change => change.changes.tags !== undefined);
+                    if (hasTagChanges) {
+                        forceUpdate();
+                    }
+                }
+            });
+
+            return () => {
+                vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
+                app.metadataCache.offref(metadataEvent);
+                dbUnsubscribe();
+            };
+        }, [app, selectionType, selectedTag, getDB]);
+
+        // Auto-open file when it's selected via folder/tag change (not user click or keyboard navigation)
+        useEffect(() => {
+            // Check if this is a reveal operation - if so, skip auto-open
+            const isRevealOperation = selectionState.isRevealOperation;
+            const isFolderChangeWithAutoSelect = selectionState.isFolderChangeWithAutoSelect;
+            const isKeyboardNavigation = selectionState.isKeyboardNavigation;
+
+            // Skip auto-open if this is a reveal operation or keyboard navigation
+            if (isRevealOperation || isKeyboardNavigation) {
+                // Clear the keyboard navigation flag after processing
+                if (isKeyboardNavigation) {
+                    selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: false });
+                }
+                return;
+            }
+
+            if (selectedFile && !isUserSelectionRef.current && settings.autoSelectFirstFileOnFocusChange && !isMobile) {
+                // Check if we're actively navigating the navigator
+                const navigatorEl = document.querySelector('.nn-split-container');
+                const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
+
+                // Open the file if we're not actively using the navigator OR if this is a folder change with auto-select
+                if (!hasNavigatorFocus || isFolderChangeWithAutoSelect) {
+                    const leaf = app.workspace.getLeaf(false);
+                    if (leaf) {
+                        leaf.openFile(selectedFile!, { active: false });
+                    }
+                }
+            }
+            // Reset the flag after processing
+            isUserSelectionRef.current = false;
+        }, [
+            selectedFile,
+            app.workspace,
+            settings.autoSelectFirstFileOnFocusChange,
+            isMobile,
+            selectionState.isRevealOperation,
+            selectionState.isFolderChangeWithAutoSelect,
+            selectionState.isKeyboardNavigation,
+            selectionDispatch
+        ]);
+
+        // Auto-select active file or first file when list pane gains focus (DESKTOP ONLY)
+        useEffect(() => {
+            // Only run when list pane gains focus (desktop only - mobile doesn't have focus states)
+            if (uiState.focusedPane !== 'files' || isMobile) return;
+
+            // Check if we already have a file selected
+            if (selectedFile) return;
+
+            // This is keyboard navigation (Tab/Right), don't auto-open files
+            isUserSelectionRef.current = false;
+
+            // Try to select the currently active file in the workspace
+            const activeFile = app.workspace.getActiveFile();
+            if (activeFile && files.includes(activeFile)) {
+                // The active file is in the current folder/tag view - select it
+                selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
+                selectionDispatch({ type: 'SET_SELECTED_FILE', file: activeFile });
+            } else if (files.length > 0) {
+                // No active file in current view, select AND open the first file
+                // (regardless of autoSelectFirstFile setting when navigating with keyboard)
+                selectionDispatch({ type: 'SET_SELECTED_FILE', file: files[0] });
+                const leaf = app.workspace.getLeaf(false);
+                if (leaf) {
+                    leaf.openFile(files[0], { active: false });
+                }
+            }
+        }, [isMobile, uiState.focusedPane, selectedFile, files, selectionDispatch, app.workspace]);
+
+        useEffect(() => {
+            const rebuildListItems = () => {
+                const items: ListPaneItem[] = [];
+
+                // Get the appropriate pinned paths based on selection type
+                let pinnedPaths: Set<string>;
+
+                if (selectionType === ItemType.FOLDER && selectedFolder) {
+                    pinnedPaths = collectPinnedPaths(settings.pinnedNotes, selectedFolder, settings.showNotesFromSubfolders);
+                } else if (selectionType === ItemType.TAG) {
+                    pinnedPaths = collectPinnedPaths(settings.pinnedNotes);
+                } else {
+                    pinnedPaths = new Set<string>();
+                }
+
+                // Separate pinned and unpinned files
+                const pinnedFiles = files.filter(f => pinnedPaths.has(f.path));
+                const unpinnedFiles = files.filter(f => !pinnedPaths.has(f.path));
+
+                // Sort will happen below after determining the sort option
+
+                // Add pinned files
+                if (pinnedFiles.length > 0) {
+                    items.push({
+                        type: ListPaneItemType.HEADER,
+                        data: strings.listPane.pinnedSection,
+                        key: `header-pinned`
+                    });
+                    pinnedFiles.forEach(file => {
+                        items.push({
+                            type: ListPaneItemType.FILE,
+                            data: file,
+                            parentFolder: selectedFolder?.path,
+                            key: file.path
+                        });
+                    });
+                }
+
+                // Determine which sort option to use
+                const sortOption = getEffectiveSortOption(settings, selectionType, selectedFolder, selectedTag);
+
+                // Sort pinned and unpinned files separately
+                sortFiles(pinnedFiles, sortOption, getFileCreatedTime, getFileModifiedTime);
+                sortFiles(unpinnedFiles, sortOption, getFileCreatedTime, getFileModifiedTime);
+
+                // Add unpinned files with date grouping if enabled
+                if (!settings.groupByDate || sortOption.startsWith('title')) {
+                    // No date grouping
+                    unpinnedFiles.forEach(file => {
+                        items.push({
+                            type: ListPaneItemType.FILE,
+                            data: file,
+                            parentFolder: selectedFolder?.path,
+                            key: file.path
+                        });
+                    });
+                } else {
+                    // Group by date
+                    let currentGroup: string | null = null;
+                    unpinnedFiles.forEach(file => {
+                        const dateField = getDateField(sortOption);
+                        // Get timestamp based on sort field (created or modified)
+                        const timestamp = dateField === 'ctime' ? getFileCreatedTime(file) : getFileModifiedTime(file);
+                        const groupTitle = DateUtils.getDateGroup(timestamp);
+
+                        if (groupTitle !== currentGroup) {
+                            currentGroup = groupTitle;
+                            items.push({
+                                type: ListPaneItemType.HEADER,
+                                data: groupTitle,
+                                key: `header-${groupTitle}`
+                            });
+                        }
+
+                        items.push({
+                            type: ListPaneItemType.FILE,
+                            data: file,
+                            parentFolder: selectedFolder?.path,
+                            key: file.path
+                        });
+                    });
+                }
+
+                // Add spacer at the end for better visibility of last item
+                items.push({
+                    type: ListPaneItemType.SPACER,
+                    data: '',
+                    key: 'bottom-spacer'
+                });
+
+                setListItems(items);
+            };
+
+            // Rebuild list items when files or relevant settings change
+            rebuildListItems();
+        }, [
+            files,
+            settings.groupByDate,
+            settings.defaultFolderSort,
+            settings.folderSortOverrides,
+            settings.pinnedNotes,
+            settings.showNotesFromSubfolders,
+            settings.showFileTags,
+            selectionType,
+            selectedFolder,
+            selectedTag,
+            strings.listPane.pinnedSection,
+            settings.useFrontmatterMetadata // Rebuild when frontmatter settings change
+        ]);
+
         // Reset virtualizer when list items are reordered
         useEffect(() => {
             if (listItemsKeyRef.current && listItemsKeyRef.current !== currentListItemsKey) {
@@ -649,17 +752,6 @@ export const ListPane = React.memo(
             return () => window.removeEventListener('notebook-navigator-visible', handleVisible);
         }, [isMobile, selectedFile, filePathToIndex, rowVirtualizer]);
 
-        // Expose the virtualizer instance and file lookup method via the ref
-        useImperativeHandle(
-            ref,
-            () => ({
-                getIndexOfPath: (path: string) => filePathToIndex.get(path) ?? -1,
-                virtualizer: rowVirtualizer,
-                scrollContainerRef: scrollContainerRef.current
-            }),
-            [filePathToIndex, rowVirtualizer]
-        );
-
         // Re-measure all items when height-affecting settings change
         useEffect(() => {
             if (!rowVirtualizer) return;
@@ -682,25 +774,6 @@ export const ListPane = React.memo(
                 rowVirtualizer.measure();
             }
         }, [isStorageReady, rowVirtualizer]);
-
-        const getSelectionIndex = useCallback(() => {
-            if (selectedFilePath) {
-                const fileIndex = filePathToIndex.get(selectedFilePath);
-
-                if (fileIndex !== undefined && fileIndex !== -1) {
-                    // Check if there's a header immediately before this file
-                    // Only scroll to header if this is the first file in the list
-                    if (fileIndex > 0 && listItems[fileIndex - 1]?.type === ListPaneItemType.HEADER) {
-                        const isFirstFileInList = fileIndex === 1 || (fileIndex === 2 && listItems[0]?.type === ListPaneItemType.HEADER);
-                        if (isFirstFileInList) {
-                            return fileIndex - 1;
-                        }
-                    }
-                    return fileIndex;
-                }
-            }
-            return -1;
-        }, [selectedFilePath, filePathToIndex, listItems]);
 
         // Handle scrolling when show subfolders setting changes
         // This ensures the list scrolls to the selected file when toggling subfolder visibility
@@ -827,82 +900,6 @@ export const ListPane = React.memo(
             listItems.length
         ]);
 
-        // Add keyboard navigation
-        // Note: We pass the root container ref, not the scroll container ref.
-        // This ensures keyboard events work across the entire navigator, allowing
-        // users to navigate between panes (navigation <-> files) with Tab/Arrow keys.
-        useVirtualKeyboardNavigation({
-            items: listItems,
-            virtualizer: rowVirtualizer,
-            focusedPane: 'files',
-            containerRef: props.rootContainerRef
-        });
-
-        // Pre-calculate date field for all files in the group
-        const dateField = useMemo(() => {
-            return getDateField(settings.defaultFolderSort);
-        }, [settings.defaultFolderSort]);
-
-        // Pre-compute formatted dates for all files
-        const filesWithDates = useMemo(() => {
-            const dataMap = new Map<
-                string,
-                {
-                    display: string;
-                    created: string;
-                    modified: string;
-                }
-            >();
-
-            // Get all files from list items
-            const allFiles: TFile[] = [];
-            listItems.forEach(item => {
-                if (item.type === ListPaneItemType.FILE && isTFile(item.data)) {
-                    allFiles.push(item.data);
-                }
-            });
-
-            // Always compute dates for tooltips even if display is disabled
-            const dateTimeFormat = settings.timeFormat ? `${settings.dateFormat} ${settings.timeFormat}` : settings.dateFormat;
-            let currentGroup: string | null = null;
-
-            listItems.forEach(item => {
-                if (item.type === ListPaneItemType.HEADER) {
-                    currentGroup = item.data as string;
-                } else if (item.type === ListPaneItemType.FILE) {
-                    const file = item.data;
-                    if (!isTFile(file)) return;
-
-                    // Compute display date based on current sort
-                    const timestamp = dateField === 'ctime' ? getFileCreatedTime(file) : getFileModifiedTime(file);
-                    const display =
-                        settings.showFileDate && currentGroup && currentGroup !== strings.listPane.pinnedSection
-                            ? DateUtils.formatDateForGroup(timestamp, currentGroup, settings.dateFormat, settings.timeFormat)
-                            : settings.showFileDate
-                              ? DateUtils.formatDate(timestamp, settings.dateFormat)
-                              : '';
-
-                    // Always compute both created and modified for tooltips
-                    const createdTimestamp = getFileCreatedTime(file);
-                    const modifiedTimestamp = getFileModifiedTime(file);
-                    const created = DateUtils.formatDate(createdTimestamp, dateTimeFormat);
-                    const modified = DateUtils.formatDate(modifiedTimestamp, dateTimeFormat);
-
-                    dataMap.set(file.path, { display, created, modified });
-                }
-            });
-
-            return dataMap;
-        }, [
-            listItems,
-            dateField,
-            settings.showFileDate,
-            settings.dateFormat,
-            settings.timeFormat,
-            settings.useFrontmatterMetadata,
-            strings.listPane.pinnedSection
-        ]);
-
         // Track current visible date group for sticky header
         useEffect(() => {
             if (!scrollContainerRef.current || !rowVirtualizer || !settings.groupByDate) {
@@ -985,23 +982,29 @@ export const ListPane = React.memo(
             };
         }, [rowVirtualizer, listItems, settings.groupByDate]);
 
-        // Helper function for safe array access
-        const safeGetItem = <T,>(array: T[], index: number): T | undefined => {
-            return index >= 0 && index < array.length ? array[index] : undefined;
-        };
+        renderCountRef.current++;
 
-        // Build ordered files list for Shift+Click functionality - MUST be before early returns
-        const orderedFiles = useMemo(() => {
-            const files: TFile[] = [];
-            listItems.forEach(item => {
-                if (item.type === ListPaneItemType.FILE) {
-                    if (isTFile(item.data)) {
-                        files.push(item.data);
-                    }
-                }
-            });
-            return files;
-        }, [listItems]);
+        // Expose the virtualizer instance and file lookup method via the ref
+        useImperativeHandle(
+            ref,
+            () => ({
+                getIndexOfPath: (path: string) => filePathToIndex.get(path) ?? -1,
+                virtualizer: rowVirtualizer,
+                scrollContainerRef: scrollContainerRef.current
+            }),
+            [filePathToIndex, rowVirtualizer]
+        );
+
+        // Add keyboard navigation
+        // Note: We pass the root container ref, not the scroll container ref.
+        // This ensures keyboard events work across the entire navigator, allowing
+        // users to navigate between panes (navigation <-> files) with Tab/Arrow keys.
+        useVirtualKeyboardNavigation({
+            items: listItems,
+            virtualizer: rowVirtualizer,
+            focusedPane: 'files',
+            containerRef: props.rootContainerRef
+        });
 
         // Early returns MUST come after all hooks
         if (!selectedFolder && !selectedTag) {

@@ -26,9 +26,9 @@ import { FolderMetadataService, TagMetadataService, FileMetadataService } from '
  * Provides a unified API for metadata operations while maintaining backward compatibility
  */
 export class MetadataService {
+    private fileService: FileMetadataService;
     private folderService: FolderMetadataService;
     private tagService: TagMetadataService;
-    private fileService: FileMetadataService;
 
     /**
      * Creates a new MetadataService instance

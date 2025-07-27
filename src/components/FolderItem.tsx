@@ -20,12 +20,12 @@ import React, { useRef, useEffect } from 'react';
 import { TFolder, setTooltip, setIcon } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
-import { getIconService } from '../services/icons';
-import { isTFile, isTFolder } from '../utils/typeGuards';
 import { useContextMenu } from '../hooks/useContextMenu';
-import { getFolderNote } from '../utils/fileFinder';
 import { strings } from '../i18n';
+import { getIconService } from '../services/icons';
 import { isSupportedFileExtension, ItemType } from '../types';
+import { getFolderNote } from '../utils/fileFinder';
+import { isTFile, isTFolder } from '../utils/typeGuards';
 
 interface FolderItemProps {
     folder: TFolder;
@@ -68,8 +68,8 @@ export const FolderItem = React.memo(function FolderItem({
     const settings = useSettingsState();
     const folderRef = useRef<HTMLDivElement>(null);
 
-    // Enable context menu
-    useContextMenu(folderRef, { type: ItemType.FOLDER, item: folder });
+    const chevronRef = React.useRef<HTMLDivElement>(null);
+    const iconRef = React.useRef<HTMLSpanElement>(null);
 
     // Count folders and files for tooltip (skip on mobile to save computation)
     const folderStats = React.useMemo(() => {
@@ -93,6 +93,24 @@ export const FolderItem = React.memo(function FolderItem({
 
         return { fileCount, folderCount };
     }, [folder.path, folder.children?.length, isMobile, settings.showTooltips]);
+
+    // Use precomputed file count from parent component
+    // NavigationPane pre-computes all folder counts for performance
+    const fileCount = precomputedFileCount ?? 0;
+
+    const hasChildren = folder.children && folder.children.some(isTFolder);
+
+    const customColor = settings.folderColors?.[folder.path];
+
+    // Check if folder has a folder note
+    const folderNote = settings.enableFolderNotes ? getFolderNote(folder, settings, app) : null;
+    const hasFolderNote = folderNote !== null;
+
+    const handleDoubleClick = () => {
+        if (hasChildren) {
+            onToggle();
+        }
+    };
 
     // Add Obsidian tooltip
     useEffect(() => {
@@ -130,26 +148,6 @@ export const FolderItem = React.memo(function FolderItem({
         });
     }, [folderStats.fileCount, folderStats.folderCount, folder.name, settings, isMobile]);
 
-    // Use precomputed file count from parent component
-    // NavigationPane pre-computes all folder counts for performance
-    const fileCount = precomputedFileCount ?? 0;
-
-    const hasChildren = folder.children && folder.children.some(isTFolder);
-
-    const handleDoubleClick = () => {
-        if (hasChildren) {
-            onToggle();
-        }
-    };
-
-    const chevronRef = React.useRef<HTMLDivElement>(null);
-    const iconRef = React.useRef<HTMLSpanElement>(null);
-    const customColor = settings.folderColors?.[folder.path];
-
-    // Check if folder has a folder note
-    const folderNote = settings.enableFolderNotes ? getFolderNote(folder, settings, app) : null;
-    const hasFolderNote = folderNote !== null;
-
     useEffect(() => {
         if (chevronRef.current) {
             setIcon(chevronRef.current, isExpanded ? 'chevron-down' : 'chevron-right');
@@ -171,6 +169,9 @@ export const FolderItem = React.memo(function FolderItem({
             }
         }
     }, [isExpanded, icon, hasChildren, settings.showIcons]);
+
+    // Enable context menu
+    useContextMenu(folderRef, { type: ItemType.FOLDER, item: folder });
 
     return (
         <div

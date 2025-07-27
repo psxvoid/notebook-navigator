@@ -17,9 +17,9 @@
  */
 
 import { App } from 'obsidian';
-import { buildTagTree, getTotalNoteCount } from '../utils/tagTree';
-import { TagTreeNode } from '../types/storage';
 import { strings } from '../i18n';
+import { TagTreeNode } from '../types/storage';
+import { buildTagTree, getTotalNoteCount } from '../utils/tagTree';
 import { BaseSuggestModal } from './BaseSuggestModal';
 
 /**

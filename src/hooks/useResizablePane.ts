@@ -18,8 +18,8 @@
 
 // src/hooks/useResizablePane.ts
 import { useState, useCallback, useEffect, useRef } from 'react';
-import { localStorage } from '../utils/localStorage';
 import { NAVIGATION_PANE_DIMENSIONS } from '../types';
+import { localStorage } from '../utils/localStorage';
 
 interface UseResizablePaneConfig {
     initialWidth?: number;

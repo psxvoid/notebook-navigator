@@ -17,8 +17,8 @@
  */
 
 import React, { createContext, useContext, useState, useCallback, ReactNode, useEffect } from 'react';
-import { NotebookNavigatorSettings } from '../settings';
 import NotebookNavigatorPlugin from '../main';
+import { NotebookNavigatorSettings } from '../settings';
 
 // Separate contexts for state and update function
 const SettingsStateContext = createContext<NotebookNavigatorSettings | null>(null);
@@ -47,6 +47,10 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
         [plugin]
     );
 
+    // Create a stable settings object that changes reference when version changes
+    // This ensures components using SettingsStateContext re-render when settings change
+    const settingsValue = React.useMemo(() => ({ ...plugin.settings }), [version]);
+
     // Listen for settings updates from the plugin (e.g., from settings tab)
     useEffect(() => {
         const id = `settings-provider-${Date.now()}`;
@@ -62,10 +66,6 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
             plugin.unregisterSettingsUpdateListener(id);
         };
     }, [plugin]);
-
-    // Create a stable settings object that changes reference when version changes
-    // This ensures components using SettingsStateContext re-render when settings change
-    const settingsValue = React.useMemo(() => ({ ...plugin.settings }), [version]);
 
     return (
         <SettingsStateContext.Provider value={settingsValue}>

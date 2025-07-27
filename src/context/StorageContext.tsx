@@ -41,19 +41,19 @@
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode, useMemo } from 'react';
 import { App, TFile, debounce } from 'obsidian';
-import { clearNoteCountCache } from '../utils/tagTree';
-import { initializeCache, updateFilesInCache, removeFilesFromCache, getDBInstance } from '../storage/fileOperations';
-import { calculateFileDiff } from '../storage/diffCalculator';
-import { buildTagTreeFromDatabase } from '../utils/tagTree';
-import { TagTreeNode } from '../types/storage';
-import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
-import { useSettingsState } from './SettingsContext';
-import { useServices } from './ServicesContext';
-import { DateUtils } from '../utils/dateUtils';
-import { getFileDisplayName as getDisplayName } from '../utils/fileNameUtils';
 import { ContentService } from '../services/ContentService';
 import { NotebookNavigatorSettings } from '../settings';
 import { Database, FileData as DBFileData } from '../storage/database';
+import { calculateFileDiff } from '../storage/diffCalculator';
+import { initializeCache, updateFilesInCache, removeFilesFromCache, getDBInstance } from '../storage/fileOperations';
+import { TagTreeNode } from '../types/storage';
+import { DateUtils } from '../utils/dateUtils';
+import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
+import { getFileDisplayName as getDisplayName } from '../utils/fileNameUtils';
+import { clearNoteCountCache } from '../utils/tagTree';
+import { buildTagTreeFromDatabase } from '../utils/tagTree';
+import { useServices } from './ServicesContext';
+import { useSettingsState } from './SettingsContext';
 
 /**
  * Processed metadata from frontmatter
@@ -150,6 +150,91 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     const contentService = useRef<ContentService | null>(null);
     const isFirstLoad = useRef(true);
 
+    // Track storage initialization state
+    const [isStorageReady, setIsStorageReady] = useState(false);
+
+    // Track if we've already built the initial cache
+    const hasBuiltInitialCache = useRef(false);
+
+    // Track content settings to detect changes and regenerate when needed
+    const prevContentSettings = useRef({
+        enabled: settings.showFilePreview || settings.showFeatureImage || settings.useFrontmatterMetadata,
+        previewSettings: `${settings.showFilePreview}-${settings.skipHeadingsInPreview}`, // Removed previewRows - it's just display
+        imageSettings: `${settings.showFeatureImage}-${JSON.stringify(settings.featureImageProperties)}`,
+        metadataSettings: `${settings.useFrontmatterMetadata}-${settings.frontmatterNameField}-${settings.frontmatterCreatedField}-${settings.frontmatterModifiedField}-${settings.frontmatterDateFormat}`
+    });
+    const isFirstSettingsCheck = useRef(true);
+
+    // Memoize the context value to prevent re-renders when fileData/cache haven't changed
+    const contextValue = useMemo(() => {
+        // Get file display name from frontmatter, falling back to file basename
+        const getFileDisplayName = (file: TFile): string => {
+            // If metadata is enabled, extract on-demand
+            if (settings.useFrontmatterMetadata) {
+                const metadata = extractMetadata(app, file, settings);
+                if (metadata.fn) {
+                    return metadata.fn;
+                }
+            }
+
+            // Fall back to default display name
+            return getDisplayName(file, undefined, settings);
+        };
+
+        const getFileCreatedTime = (file: TFile): number => {
+            // If metadata is enabled, extract on-demand
+            if (settings.useFrontmatterMetadata) {
+                const metadata = extractMetadata(app, file, settings);
+                if (metadata.fc !== undefined) {
+                    return metadata.fc;
+                }
+            }
+
+            // Fall back to file system timestamp
+            return file.stat.ctime;
+        };
+
+        const getFileModifiedTime = (file: TFile): number => {
+            // If metadata is enabled, extract on-demand
+            if (settings.useFrontmatterMetadata) {
+                const metadata = extractMetadata(app, file, settings);
+                if (metadata.fm !== undefined) {
+                    return metadata.fm;
+                }
+            }
+
+            // Fall back to file system timestamp
+            return file.stat.mtime;
+        };
+
+        const getFileMetadata = (file: TFile): { name: string; created: number; modified: number } => {
+            // If metadata is enabled, extract on-demand
+            let extractedMetadata: ProcessedMetadata | null = null;
+            if (settings.useFrontmatterMetadata) {
+                extractedMetadata = extractMetadata(app, file, settings);
+            }
+
+            return {
+                name: extractedMetadata?.fn || getDisplayName(file, undefined, settings),
+                created: extractedMetadata?.fc !== undefined ? extractedMetadata.fc : file.stat.ctime,
+                modified: extractedMetadata?.fm !== undefined ? extractedMetadata.fm : file.stat.mtime
+            };
+        };
+
+        return {
+            fileData,
+            getFileDisplayName,
+            getFileCreatedTime,
+            getFileModifiedTime,
+            getFileMetadata,
+            getDB: getDBInstance,
+            getFile: (path: string) => getDBInstance().getFile(path),
+            getFiles: (paths: string[]) => getDBInstance().getFiles(paths),
+            hasPreview: (path: string) => getDBInstance().hasPreview(path),
+            isStorageReady
+        };
+    }, [fileData, settings, app, isStorageReady]);
+
     // Helper function to rebuild tag tree and clean up metadata
     const rebuildTagTree = () => {
         const db = getDBInstance();
@@ -187,9 +272,6 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         };
     }, [app]); // Only recreate when app changes, not settings
 
-    // Track storage initialization state
-    const [isStorageReady, setIsStorageReady] = useState(false);
-
     // Initialize IndexedDB on mount
     useEffect(() => {
         initializeCache()
@@ -218,9 +300,6 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
         return unsubscribe;
     }, [isStorageReady, settings.showTags, settings.showUntagged]);
-
-    // Track if we've already built the initial cache
-    const hasBuiltInitialCache = useRef(false);
 
     // Main effect: manages cache updates and builds data structures
     useEffect(() => {
@@ -476,15 +555,6 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         };
     }, [app, settings.showUntagged, settings.excludedFiles, isStorageReady, settings.showTags]);
 
-    // Track content settings to detect changes and regenerate when needed
-    const prevContentSettings = useRef({
-        enabled: settings.showFilePreview || settings.showFeatureImage || settings.useFrontmatterMetadata,
-        previewSettings: `${settings.showFilePreview}-${settings.skipHeadingsInPreview}`, // Removed previewRows - it's just display
-        imageSettings: `${settings.showFeatureImage}-${JSON.stringify(settings.featureImageProperties)}`,
-        metadataSettings: `${settings.useFrontmatterMetadata}-${settings.frontmatterNameField}-${settings.frontmatterCreatedField}-${settings.frontmatterModifiedField}-${settings.frontmatterDateFormat}`
-    });
-    const isFirstSettingsCheck = useRef(true);
-
     // Update service settings when they change
     useEffect(() => {
         if (contentService.current) {
@@ -661,76 +731,6 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         settings.frontmatterModifiedField,
         settings.frontmatterDateFormat
     ]);
-
-    // Memoize the context value to prevent re-renders when fileData/cache haven't changed
-    const contextValue = useMemo(() => {
-        // Get file display name from frontmatter, falling back to file basename
-        const getFileDisplayName = (file: TFile): string => {
-            // If metadata is enabled, extract on-demand
-            if (settings.useFrontmatterMetadata) {
-                const metadata = extractMetadata(app, file, settings);
-                if (metadata.fn) {
-                    return metadata.fn;
-                }
-            }
-
-            // Fall back to default display name
-            return getDisplayName(file, undefined, settings);
-        };
-
-        const getFileCreatedTime = (file: TFile): number => {
-            // If metadata is enabled, extract on-demand
-            if (settings.useFrontmatterMetadata) {
-                const metadata = extractMetadata(app, file, settings);
-                if (metadata.fc !== undefined) {
-                    return metadata.fc;
-                }
-            }
-
-            // Fall back to file system timestamp
-            return file.stat.ctime;
-        };
-
-        const getFileModifiedTime = (file: TFile): number => {
-            // If metadata is enabled, extract on-demand
-            if (settings.useFrontmatterMetadata) {
-                const metadata = extractMetadata(app, file, settings);
-                if (metadata.fm !== undefined) {
-                    return metadata.fm;
-                }
-            }
-
-            // Fall back to file system timestamp
-            return file.stat.mtime;
-        };
-
-        const getFileMetadata = (file: TFile): { name: string; created: number; modified: number } => {
-            // If metadata is enabled, extract on-demand
-            let extractedMetadata: ProcessedMetadata | null = null;
-            if (settings.useFrontmatterMetadata) {
-                extractedMetadata = extractMetadata(app, file, settings);
-            }
-
-            return {
-                name: extractedMetadata?.fn || getDisplayName(file, undefined, settings),
-                created: extractedMetadata?.fc !== undefined ? extractedMetadata.fc : file.stat.ctime,
-                modified: extractedMetadata?.fm !== undefined ? extractedMetadata.fm : file.stat.mtime
-            };
-        };
-
-        return {
-            fileData,
-            getFileDisplayName,
-            getFileCreatedTime,
-            getFileModifiedTime,
-            getFileMetadata,
-            getDB: getDBInstance,
-            getFile: (path: string) => getDBInstance().getFile(path),
-            getFiles: (paths: string[]) => getDBInstance().getFiles(paths),
-            hasPreview: (path: string) => getDBInstance().hasPreview(path),
-            isStorageReady
-        };
-    }, [fileData, settings, app, isStorageReady]);
 
     return <StorageContext.Provider value={contextValue}>{children}</StorageContext.Provider>;
 }

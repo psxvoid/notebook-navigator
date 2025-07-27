@@ -17,8 +17,8 @@
  */
 
 import { TFile } from 'obsidian';
-import { getDBInstance } from './fileOperations';
 import { FileData } from './database';
+import { getDBInstance } from './fileOperations';
 
 /**
  * DiffCalculator - Efficient vault state synchronization

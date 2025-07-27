@@ -19,15 +19,15 @@
 // src/hooks/useDragAndDrop.ts
 import { useCallback, useEffect, useRef } from 'react';
 import { TFile, Notice, setIcon } from 'obsidian';
-import { useServices, useFileSystemOps, useTagOperations } from '../context/ServicesContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
+import { useServices, useFileSystemOps, useTagOperations } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
-import { getDBInstance } from '../storage/fileOperations';
-import { isTFolder, isTFile } from '../utils/typeGuards';
-import { getPathFromDataAttribute } from '../utils/domUtils';
 import { strings } from '../i18n';
+import { getDBInstance } from '../storage/fileOperations';
 import { ItemType, UNTAGGED_TAG_ID } from '../types';
+import { getPathFromDataAttribute } from '../utils/domUtils';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { isTFolder, isTFile } from '../utils/typeGuards';
 
 /**
  * Custom hook that enables drag and drop functionality for files and folders.

@@ -18,11 +18,11 @@
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode, useMemo } from 'react';
 import { NAVIGATION_PANE_DIMENSIONS } from '../types';
-import { localStorage } from '../utils/localStorage';
-import { useSettings } from './SettingsContext';
-
 // Storage keys
 import { STORAGE_KEYS } from '../types';
+import { localStorage } from '../utils/localStorage';
+
+import { useSettings } from './SettingsContext';
 
 // State interface
 interface UIState {

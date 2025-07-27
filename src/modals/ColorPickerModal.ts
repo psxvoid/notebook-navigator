@@ -17,8 +17,8 @@
  */
 
 import { App, Modal } from 'obsidian';
-import { MetadataService } from '../services/MetadataService';
 import { strings } from '../i18n';
+import { MetadataService } from '../services/MetadataService';
 import { ItemType } from '../types';
 
 /**
@@ -64,11 +64,11 @@ const COLOR_PALETTE = [
  * - Applies to folder icon and name (not chevron)
  */
 export class ColorPickerModal extends Modal {
-    private metadataService: MetadataService;
-    private itemPath: string;
-    private itemType: typeof ItemType.FOLDER | typeof ItemType.TAG;
     private colorGrid: HTMLDivElement;
     private gridColumns: number = 5;
+    private itemPath: string;
+    private itemType: typeof ItemType.FOLDER | typeof ItemType.TAG;
+    private metadataService: MetadataService;
 
     /** Callback function invoked when a color is selected */
     public onChooseColor: (color: string | null) => void;

@@ -18,11 +18,11 @@
 
 import React, { forwardRef } from 'react';
 import { setIcon } from 'obsidian';
-import { TagTreeNode } from '../types/storage';
-import { useContextMenu } from '../hooks/useContextMenu';
-import { ItemType } from '../types';
 import { useSettingsState } from '../context/SettingsContext';
+import { useContextMenu } from '../hooks/useContextMenu';
 import { getIconService } from '../services/icons';
+import { ItemType } from '../types';
+import { TagTreeNode } from '../types/storage';
 
 /**
  * Props for the TagTreeItem component
@@ -63,20 +63,23 @@ export const TagTreeItem = React.memo(
         const chevronRef = React.useRef<HTMLDivElement>(null);
         const iconRef = React.useRef<HTMLSpanElement>(null);
         const itemRef = React.useRef<HTMLDivElement>(null);
+
         const hasChildren = tagNode.children.size > 0;
+
+        // Handle double-click to toggle expansion
+        const handleDoubleClick = React.useCallback(
+            (e: React.MouseEvent) => {
+                e.preventDefault();
+                if (hasChildren) {
+                    onToggle();
+                }
+            },
+            [hasChildren, onToggle]
+        );
 
         // Get color and icon from settings directly (like FolderItem does)
         const tagColor = settings.tagColors?.[tagNode.path] || customColor;
         const tagIcon = settings.tagIcons?.[tagNode.path] || customIcon;
-
-        // Set up forwarded ref
-        React.useImperativeHandle(ref, () => itemRef.current as HTMLDivElement);
-
-        // Add context menu
-        useContextMenu(itemRef, {
-            type: ItemType.TAG,
-            item: tagNode.path
-        });
 
         // Update chevron icon based on expanded state
         React.useEffect(() => {
@@ -92,16 +95,14 @@ export const TagTreeItem = React.memo(
             }
         }, [tagIcon, settings.showIcons]);
 
-        // Handle double-click to toggle expansion
-        const handleDoubleClick = React.useCallback(
-            (e: React.MouseEvent) => {
-                e.preventDefault();
-                if (hasChildren) {
-                    onToggle();
-                }
-            },
-            [hasChildren, onToggle]
-        );
+        // Set up forwarded ref
+        React.useImperativeHandle(ref, () => itemRef.current as HTMLDivElement);
+
+        // Add context menu
+        useContextMenu(itemRef, {
+            type: ItemType.TAG,
+            item: tagNode.path
+        });
 
         return (
             <div

@@ -1,3 +1,4 @@
+import { STORAGE_KEYS } from '../types';
 /*
  * Notebook Navigator - Plugin for Obsidian
  * Copyright (c) 2025 Johan Sanneblad
@@ -17,7 +18,6 @@
  */
 
 import { DatabaseCache } from './DatabaseCache';
-import { STORAGE_KEYS } from '../types';
 
 const DB_NAME = 'notebook-navigator-db';
 const STORE_NAME = 'files';
@@ -68,11 +68,11 @@ export interface FileContentChange {
  * - Provide indexed queries (by tag, by content type)
  */
 export class Database {
-    private db: IDBDatabase | null = null;
-    private initPromise: Promise<void> | null = null;
-    private changeListeners = new Set<(changes: FileContentChange[]) => void>();
-    private fileChangeListeners = new Map<string, Set<(changes: FileContentChange['changes']) => void>>();
     private cache: DatabaseCache = new DatabaseCache();
+    private changeListeners = new Set<(changes: FileContentChange[]) => void>();
+    private db: IDBDatabase | null = null;
+    private fileChangeListeners = new Map<string, Set<(changes: FileContentChange['changes']) => void>>();
+    private initPromise: Promise<void> | null = null;
 
     /**
      * Subscribe to content change notifications.

@@ -19,8 +19,8 @@
 import React, { useRef, useEffect } from 'react';
 import { setIcon } from 'obsidian';
 import { useSettingsState } from '../context/SettingsContext';
-import { VirtualFolder } from '../types';
 import { getIconService } from '../services/icons';
+import { VirtualFolder } from '../types';
 
 interface VirtualFolderItemProps {
     virtualFolder: VirtualFolder;

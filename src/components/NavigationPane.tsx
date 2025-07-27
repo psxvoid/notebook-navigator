@@ -18,30 +18,30 @@
 
 import React, { useMemo, useRef, useEffect, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
 import { debounce } from 'obsidian';
-import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { TFolder } from 'obsidian';
-import { useServices } from '../context/ServicesContext';
+import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
-import { useUIState, useUIDispatch } from '../context/UIStateContext';
-import { useSettingsState } from '../context/SettingsContext';
-import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
-import { FolderItem } from './FolderItem';
-import { VirtualFolderComponent } from './VirtualFolderItem';
-import { TagTreeItem } from './TagTreeItem';
+import { useServices } from '../context/ServicesContext';
 import { useMetadataService } from '../context/ServicesContext';
-import { PaneHeader } from './PaneHeader';
+import { useSettingsState } from '../context/SettingsContext';
+import { useFileCache } from '../context/StorageContext';
+import { useUIState, useUIDispatch } from '../context/UIStateContext';
+import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { strings } from '../i18n';
-import { isTFolder, isTFile } from '../utils/typeGuards';
-import { shouldDisplayFile } from '../utils/fileTypeUtils';
-import type { CombinedNavigationItem } from '../types/virtualization';
-import { getTotalNoteCount, filterTagTree, excludeFromTagTree, parseTagPatterns } from '../utils/tagTree';
+import { UNTAGGED_TAG_ID, NavigationPaneItemType, ItemType, VirtualFolder, NAVITEM_HEIGHTS, OVERSCAN } from '../types';
 import { TagTreeNode } from '../types/storage';
+import type { CombinedNavigationItem } from '../types/virtualization';
 import { parseExcludedFolders, parseExcludedProperties, shouldExcludeFile, matchesFolderPattern } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
-import { UNTAGGED_TAG_ID, NavigationPaneItemType, ItemType, VirtualFolder, NAVITEM_HEIGHTS, OVERSCAN } from '../types';
-import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
-import { useFileCache } from '../context/StorageContext';
+import { shouldDisplayFile } from '../utils/fileTypeUtils';
+import { getTotalNoteCount, filterTagTree, excludeFromTagTree, parseTagPatterns } from '../utils/tagTree';
+import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
+import { isTFolder, isTFile } from '../utils/typeGuards';
+import { FolderItem } from './FolderItem';
+import { PaneHeader } from './PaneHeader';
+import { TagTreeItem } from './TagTreeItem';
+import { VirtualFolderComponent } from './VirtualFolderItem';
 
 export interface NavigationPaneHandle {
     getIndexOfPath: (path: string) => number;
@@ -74,65 +74,10 @@ export const NavigationPane = React.memo(
         const uiDispatch = useUIDispatch();
         const scrollContainerRef = useRef<HTMLDivElement>(null);
 
-        // Cache selected folder/tag path to avoid repeated property access
-        const selectedPath =
-            selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder
-                ? selectionState.selectedFolder.path
-                : selectionState.selectionType === ItemType.TAG && selectionState.selectedTag
-                  ? selectionState.selectedTag.startsWith('#')
-                      ? selectionState.selectedTag.slice(1)
-                      : selectionState.selectedTag
-                  : null;
-
-        // Determine if navigation pane is visible early for optimization
-        const isVisible = uiState.dualPane || uiState.currentSinglePaneView === 'navigation';
-
         // =================================================================================
         // We use useState to hold stable folder data across re-renders
         // =================================================================================
         const [rootFolders, setRootFolders] = useState<TFolder[]>([]);
-
-        useEffect(() => {
-            // Function to build folders
-            const buildFolders = () => {
-                const vault = app.vault;
-                const root = vault.getRoot();
-
-                let folders: TFolder[];
-                if (settings.showRootFolder) {
-                    folders = [root];
-                } else {
-                    folders = root.children
-                        .filter((child): child is TFolder => isTFolder(child))
-                        .sort((a, b) => a.name.localeCompare(b.name));
-                }
-
-                setRootFolders(folders);
-            };
-
-            // Build immediately on mount
-            buildFolders();
-
-            // Create debounced version for vault events
-            const rebuildFolders = debounce(buildFolders, 300);
-
-            // Listen to vault events for folder changes
-            const events = [
-                app.vault.on('create', file => {
-                    if (isTFolder(file)) rebuildFolders();
-                }),
-                app.vault.on('delete', file => {
-                    if (isTFolder(file)) rebuildFolders();
-                }),
-                app.vault.on('rename', file => {
-                    if (isTFolder(file)) rebuildFolders();
-                })
-            ];
-
-            return () => {
-                events.forEach(eventRef => app.vault.offref(eventRef));
-            };
-        }, [app, settings.showRootFolder]);
 
         // =================================================================================
         // Get tag data from the context
@@ -145,198 +90,6 @@ export const NavigationPane = React.memo(
         // We use useState to hold flattened items to prevent virtualizer re-initialization
         // =================================================================================
         const [items, setItems] = useState<CombinedNavigationItem[]>([]);
-
-        useEffect(() => {
-            const rebuildItems = () => {
-                const allItems: CombinedNavigationItem[] = [];
-
-                // Build folders
-                const folderItems = flattenFolderTree(
-                    rootFolders,
-                    expansionState.expandedFolders,
-                    parseExcludedFolders(settings.excludedFolders)
-                );
-
-                // Build tag section if enabled
-                const tagItems: CombinedNavigationItem[] = [];
-                if (settings.showTags) {
-                    // Parse favorite and hidden tag patterns
-                    const favoritePatterns = parseTagPatterns(settings.favoriteTags.join(','));
-                    const hiddenPatterns = parseTagPatterns(settings.hiddenTags.join(','));
-
-                    // Helper function to add untagged node
-                    const addUntaggedNode = (level: number) => {
-                        if (settings.showUntagged && untaggedCount > 0) {
-                            const untaggedNode: TagTreeNode = {
-                                path: UNTAGGED_TAG_ID,
-                                name: strings.tagList.untaggedLabel,
-                                children: new Map(),
-                                notesWithTag: new Set()
-                            };
-
-                            tagItems.push({
-                                type: NavigationPaneItemType.UNTAGGED,
-                                data: untaggedNode,
-                                key: UNTAGGED_TAG_ID,
-                                level
-                            });
-                        }
-                    };
-
-                    // Helper function to add virtual folder
-                    const addVirtualFolder = (id: string, name: string, icon?: string) => {
-                        const folder: VirtualFolder = { id, name, icon };
-                        tagItems.push({
-                            type: NavigationPaneItemType.VIRTUAL_FOLDER,
-                            data: folder,
-                            level: 0,
-                            key: id
-                        });
-                    };
-
-                    // Helper function to add tags to list
-                    const addTagItems = (tags: Map<string, TagTreeNode>, folderId: string) => {
-                        if (expansionState.expandedVirtualFolders.has(folderId)) {
-                            const items = flattenTagTree(
-                                Array.from(tags.values()),
-                                expansionState.expandedTags,
-                                1 // Start at level 1 since they're inside the virtual folder
-                            );
-                            tagItems.push(...items);
-
-                            // Add untagged node to favorites folder if enabled
-                            if (folderId === 'favorite-tags-root' && settings.showUntaggedInFavorites) {
-                                addUntaggedNode(1);
-                            }
-
-                            // Add untagged node if this is the last tag container
-                            const isLastContainer = favoritePatterns.length === 0 || folderId === 'all-tags-root';
-                            // If no favorites exist, always show untagged in Tags regardless of showUntaggedInFavorites
-                            const shouldShowUntagged = favoritePatterns.length === 0 || !settings.showUntaggedInFavorites;
-                            if (isLastContainer && shouldShowUntagged) {
-                                addUntaggedNode(1);
-                            }
-                        }
-                    };
-
-                    // First, exclude hidden tags from the entire tree
-                    const visibleTagTree = hiddenPatterns.length > 0 ? excludeFromTagTree(tagTree, hiddenPatterns) : tagTree;
-
-                    // Handle tag organization based on the new settings
-                    if (favoritePatterns.length > 0) {
-                        // We have favorite tags configured
-                        const favoriteTags = filterTagTree(visibleTagTree, favoritePatterns);
-                        const nonFavoriteTags = excludeFromTagTree(visibleTagTree, favoritePatterns);
-
-                        if (settings.showFavoriteTagsFolder) {
-                            // Show "Favorites" folder
-                            addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'star');
-                            addTagItems(favoriteTags, 'favorite-tags-root');
-                        } else {
-                            // Show favorite tags directly without folder
-                            const favoriteItems = flattenTagTree(
-                                Array.from(favoriteTags.values()),
-                                expansionState.expandedTags,
-                                0 // Start at level 0 since no virtual folder
-                            );
-                            tagItems.push(...favoriteItems);
-
-                            // Add untagged after favorite tags when folder isn't shown
-                            if (settings.showUntaggedInFavorites) {
-                                addUntaggedNode(0);
-                            }
-                        }
-
-                        if (settings.showAllTagsFolder) {
-                            // Show "Tags" folder
-                            addVirtualFolder('all-tags-root', strings.tagList.allTags, 'tags');
-                            addTagItems(nonFavoriteTags, 'all-tags-root');
-                        } else {
-                            // Show non-favorite tags directly without folder
-                            const nonFavoriteItems = flattenTagTree(
-                                Array.from(nonFavoriteTags.values()),
-                                expansionState.expandedTags,
-                                0 // Start at level 0 since no virtual folder
-                            );
-                            tagItems.push(...nonFavoriteItems);
-
-                            // Add untagged node at the end when not using folder and not in favorites
-                            if (!settings.showUntaggedInFavorites) {
-                                addUntaggedNode(0);
-                            }
-                        }
-                    } else {
-                        // No favorites configured
-                        if (settings.showAllTagsFolder) {
-                            // Show "Tags" folder
-                            addVirtualFolder('tags-root', strings.tagList.tags, 'tags');
-                            addTagItems(visibleTagTree, 'tags-root');
-                        } else {
-                            // Show all tags directly without folder
-                            const items = flattenTagTree(
-                                Array.from(visibleTagTree.values()),
-                                expansionState.expandedTags,
-                                0 // Start at level 0 since no virtual folder
-                            );
-                            tagItems.push(...items);
-
-                            // Add untagged node at the end
-                            addUntaggedNode(0);
-                        }
-                    }
-                }
-
-                // Combine items in the correct order
-                if (settings.showTags && settings.showTagsAboveFolders) {
-                    // Tags first, then folders
-                    allItems.push(...tagItems);
-                    allItems.push({
-                        type: NavigationPaneItemType.LIST_SPACER,
-                        key: 'tags-folders-spacer'
-                    });
-                    allItems.push(...folderItems);
-                } else {
-                    // Folders first, then tags (default)
-                    allItems.push(...folderItems);
-                    if (settings.showTags) {
-                        allItems.push({
-                            type: NavigationPaneItemType.LIST_SPACER,
-                            key: 'folders-tags-spacer'
-                        });
-                        allItems.push(...tagItems);
-                    }
-                }
-
-                // Add spacer at the end for better visibility
-                allItems.push({
-                    type: NavigationPaneItemType.SPACER,
-                    key: 'bottom-spacer'
-                });
-
-                setItems(allItems);
-            };
-
-            rebuildItems();
-        }, [
-            rootFolders,
-            expansionState.expandedFolders,
-            expansionState.expandedTags,
-            expansionState.expandedVirtualFolders,
-            settings.excludedFolders,
-            settings.showTags,
-            settings.showTagsAboveFolders,
-            settings.showFavoriteTagsFolder,
-            settings.showAllTagsFolder,
-            settings.showUntagged,
-            settings.showUntaggedInFavorites,
-            settings.favoriteTags,
-            settings.hiddenTags,
-            tagTree,
-            untaggedCount,
-            strings.tagList.untaggedLabel,
-            isVisible,
-            uiState.singlePane
-        ]);
 
         // Initialize virtualizer
         const rowVirtualizer = useVirtualizer({
@@ -364,6 +117,11 @@ export const NavigationPane = React.memo(
             overscan: OVERSCAN
         });
 
+        // Track previous selected path to detect actual selection changes
+        const prevSelectedPathRef = useRef<string | null>(null);
+        const prevVisibleRef = useRef<boolean>(false);
+        const prevFocusedPaneRef = useRef<string | null>(null);
+
         // Create a map for O(1) item lookups
         const pathToIndex = useMemo(() => {
             const map = new Map<string, number>();
@@ -377,66 +135,6 @@ export const NavigationPane = React.memo(
             });
             return map;
         }, [items]);
-
-        // Expose the virtualizer instance, path lookup method, and scroll container via the ref
-        useImperativeHandle(
-            ref,
-            () => ({
-                getIndexOfPath: (path: string) => pathToIndex.get(path) ?? -1,
-                virtualizer: rowVirtualizer,
-                scrollContainerRef: scrollContainerRef.current
-            }),
-            [pathToIndex, rowVirtualizer]
-        );
-
-        // Track previous selected path to detect actual selection changes
-        const prevSelectedPathRef = useRef<string | null>(null);
-        const prevVisibleRef = useRef<boolean>(false);
-        const prevFocusedPaneRef = useRef<string | null>(null);
-
-        // Scroll to selected folder/tag when needed
-        // Only scroll when:
-        // 1. Selection actually changes (not just tree structure changes)
-        // 2. Pane becomes visible or gains focus
-        // 3. During reveal operations (handled separately in useFileReveal)
-        useEffect(() => {
-            if (!selectedPath || !rowVirtualizer || !isVisible) return;
-
-            // Check if this is an actual selection change vs just a tree structure update
-            const isSelectionChange = prevSelectedPathRef.current !== selectedPath;
-
-            // Check if pane just became visible or gained focus
-            const justBecameVisible = !prevVisibleRef.current && isVisible;
-            const justGainedFocus = prevFocusedPaneRef.current !== 'navigation' && uiState.focusedPane === 'navigation';
-
-            // Update the refs for next comparison
-            prevSelectedPathRef.current = selectedPath;
-            prevVisibleRef.current = isVisible;
-            prevFocusedPaneRef.current = uiState.focusedPane;
-
-            // Only scroll on actual selection changes or visibility/focus changes
-            if (!isSelectionChange && !justBecameVisible && !justGainedFocus) return;
-
-            const index = pathToIndex.get(selectedPath);
-
-            if (index !== undefined && index >= 0) {
-                rowVirtualizer.scrollToIndex(index, {
-                    align: 'auto',
-                    behavior: 'auto'
-                });
-            }
-        }, [selectedPath, rowVirtualizer, isVisible, pathToIndex, uiState.focusedPane]);
-
-        // Add keyboard navigation
-        // Note: We pass the root container ref, not the scroll container ref.
-        // This ensures keyboard events work across the entire navigator, allowing
-        // users to navigate between panes (navigation <-> files) with Tab/Arrow keys.
-        useVirtualKeyboardNavigation({
-            items: items,
-            virtualizer: rowVirtualizer,
-            focusedPane: 'navigation',
-            containerRef: props.rootContainerRef
-        });
 
         // Handle folder toggle
         const handleFolderToggle = useCallback(
@@ -787,6 +485,308 @@ export const NavigationPane = React.memo(
                 folderCounts
             ]
         );
+
+        // Cache selected folder/tag path to avoid repeated property access
+        const selectedPath =
+            selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder
+                ? selectionState.selectedFolder.path
+                : selectionState.selectionType === ItemType.TAG && selectionState.selectedTag
+                  ? selectionState.selectedTag.startsWith('#')
+                      ? selectionState.selectedTag.slice(1)
+                      : selectionState.selectedTag
+                  : null;
+
+        // Determine if navigation pane is visible early for optimization
+        const isVisible = uiState.dualPane || uiState.currentSinglePaneView === 'navigation';
+
+        useEffect(() => {
+            // Function to build folders
+            const buildFolders = () => {
+                const vault = app.vault;
+                const root = vault.getRoot();
+
+                let folders: TFolder[];
+                if (settings.showRootFolder) {
+                    folders = [root];
+                } else {
+                    folders = root.children
+                        .filter((child): child is TFolder => isTFolder(child))
+                        .sort((a, b) => a.name.localeCompare(b.name));
+                }
+
+                setRootFolders(folders);
+            };
+
+            // Build immediately on mount
+            buildFolders();
+
+            // Create debounced version for vault events
+            const rebuildFolders = debounce(buildFolders, 300);
+
+            // Listen to vault events for folder changes
+            const events = [
+                app.vault.on('create', file => {
+                    if (isTFolder(file)) rebuildFolders();
+                }),
+                app.vault.on('delete', file => {
+                    if (isTFolder(file)) rebuildFolders();
+                }),
+                app.vault.on('rename', file => {
+                    if (isTFolder(file)) rebuildFolders();
+                })
+            ];
+
+            return () => {
+                events.forEach(eventRef => app.vault.offref(eventRef));
+            };
+        }, [app, settings.showRootFolder]);
+
+        useEffect(() => {
+            const rebuildItems = () => {
+                const allItems: CombinedNavigationItem[] = [];
+
+                // Build folders
+                const folderItems = flattenFolderTree(
+                    rootFolders,
+                    expansionState.expandedFolders,
+                    parseExcludedFolders(settings.excludedFolders)
+                );
+
+                // Build tag section if enabled
+                const tagItems: CombinedNavigationItem[] = [];
+                if (settings.showTags) {
+                    // Parse favorite and hidden tag patterns
+                    const favoritePatterns = parseTagPatterns(settings.favoriteTags.join(','));
+                    const hiddenPatterns = parseTagPatterns(settings.hiddenTags.join(','));
+
+                    // Helper function to add untagged node
+                    const addUntaggedNode = (level: number) => {
+                        if (settings.showUntagged && untaggedCount > 0) {
+                            const untaggedNode: TagTreeNode = {
+                                path: UNTAGGED_TAG_ID,
+                                name: strings.tagList.untaggedLabel,
+                                children: new Map(),
+                                notesWithTag: new Set()
+                            };
+
+                            tagItems.push({
+                                type: NavigationPaneItemType.UNTAGGED,
+                                data: untaggedNode,
+                                key: UNTAGGED_TAG_ID,
+                                level
+                            });
+                        }
+                    };
+
+                    // Helper function to add virtual folder
+                    const addVirtualFolder = (id: string, name: string, icon?: string) => {
+                        const folder: VirtualFolder = { id, name, icon };
+                        tagItems.push({
+                            type: NavigationPaneItemType.VIRTUAL_FOLDER,
+                            data: folder,
+                            level: 0,
+                            key: id
+                        });
+                    };
+
+                    // Helper function to add tags to list
+                    const addTagItems = (tags: Map<string, TagTreeNode>, folderId: string) => {
+                        if (expansionState.expandedVirtualFolders.has(folderId)) {
+                            const items = flattenTagTree(
+                                Array.from(tags.values()),
+                                expansionState.expandedTags,
+                                1 // Start at level 1 since they're inside the virtual folder
+                            );
+                            tagItems.push(...items);
+
+                            // Add untagged node to favorites folder if enabled
+                            if (folderId === 'favorite-tags-root' && settings.showUntaggedInFavorites) {
+                                addUntaggedNode(1);
+                            }
+
+                            // Add untagged node if this is the last tag container
+                            const isLastContainer = favoritePatterns.length === 0 || folderId === 'all-tags-root';
+                            // If no favorites exist, always show untagged in Tags regardless of showUntaggedInFavorites
+                            const shouldShowUntagged = favoritePatterns.length === 0 || !settings.showUntaggedInFavorites;
+                            if (isLastContainer && shouldShowUntagged) {
+                                addUntaggedNode(1);
+                            }
+                        }
+                    };
+
+                    // First, exclude hidden tags from the entire tree
+                    const visibleTagTree = hiddenPatterns.length > 0 ? excludeFromTagTree(tagTree, hiddenPatterns) : tagTree;
+
+                    // Handle tag organization based on the new settings
+                    if (favoritePatterns.length > 0) {
+                        // We have favorite tags configured
+                        const favoriteTags = filterTagTree(visibleTagTree, favoritePatterns);
+                        const nonFavoriteTags = excludeFromTagTree(visibleTagTree, favoritePatterns);
+
+                        if (settings.showFavoriteTagsFolder) {
+                            // Show "Favorites" folder
+                            addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'star');
+                            addTagItems(favoriteTags, 'favorite-tags-root');
+                        } else {
+                            // Show favorite tags directly without folder
+                            const favoriteItems = flattenTagTree(
+                                Array.from(favoriteTags.values()),
+                                expansionState.expandedTags,
+                                0 // Start at level 0 since no virtual folder
+                            );
+                            tagItems.push(...favoriteItems);
+
+                            // Add untagged after favorite tags when folder isn't shown
+                            if (settings.showUntaggedInFavorites) {
+                                addUntaggedNode(0);
+                            }
+                        }
+
+                        if (settings.showAllTagsFolder) {
+                            // Show "Tags" folder
+                            addVirtualFolder('all-tags-root', strings.tagList.allTags, 'tags');
+                            addTagItems(nonFavoriteTags, 'all-tags-root');
+                        } else {
+                            // Show non-favorite tags directly without folder
+                            const nonFavoriteItems = flattenTagTree(
+                                Array.from(nonFavoriteTags.values()),
+                                expansionState.expandedTags,
+                                0 // Start at level 0 since no virtual folder
+                            );
+                            tagItems.push(...nonFavoriteItems);
+
+                            // Add untagged node at the end when not using folder and not in favorites
+                            if (!settings.showUntaggedInFavorites) {
+                                addUntaggedNode(0);
+                            }
+                        }
+                    } else {
+                        // No favorites configured
+                        if (settings.showAllTagsFolder) {
+                            // Show "Tags" folder
+                            addVirtualFolder('tags-root', strings.tagList.tags, 'tags');
+                            addTagItems(visibleTagTree, 'tags-root');
+                        } else {
+                            // Show all tags directly without folder
+                            const items = flattenTagTree(
+                                Array.from(visibleTagTree.values()),
+                                expansionState.expandedTags,
+                                0 // Start at level 0 since no virtual folder
+                            );
+                            tagItems.push(...items);
+
+                            // Add untagged node at the end
+                            addUntaggedNode(0);
+                        }
+                    }
+                }
+
+                // Combine items in the correct order
+                if (settings.showTags && settings.showTagsAboveFolders) {
+                    // Tags first, then folders
+                    allItems.push(...tagItems);
+                    allItems.push({
+                        type: NavigationPaneItemType.LIST_SPACER,
+                        key: 'tags-folders-spacer'
+                    });
+                    allItems.push(...folderItems);
+                } else {
+                    // Folders first, then tags (default)
+                    allItems.push(...folderItems);
+                    if (settings.showTags) {
+                        allItems.push({
+                            type: NavigationPaneItemType.LIST_SPACER,
+                            key: 'folders-tags-spacer'
+                        });
+                        allItems.push(...tagItems);
+                    }
+                }
+
+                // Add spacer at the end for better visibility
+                allItems.push({
+                    type: NavigationPaneItemType.SPACER,
+                    key: 'bottom-spacer'
+                });
+
+                setItems(allItems);
+            };
+
+            rebuildItems();
+        }, [
+            rootFolders,
+            expansionState.expandedFolders,
+            expansionState.expandedTags,
+            expansionState.expandedVirtualFolders,
+            settings.excludedFolders,
+            settings.showTags,
+            settings.showTagsAboveFolders,
+            settings.showFavoriteTagsFolder,
+            settings.showAllTagsFolder,
+            settings.showUntagged,
+            settings.showUntaggedInFavorites,
+            settings.favoriteTags,
+            settings.hiddenTags,
+            tagTree,
+            untaggedCount,
+            strings.tagList.untaggedLabel,
+            isVisible,
+            uiState.singlePane
+        ]);
+
+        // Scroll to selected folder/tag when needed
+        // Only scroll when:
+        // 1. Selection actually changes (not just tree structure changes)
+        // 2. Pane becomes visible or gains focus
+        // 3. During reveal operations (handled separately in useFileReveal)
+        useEffect(() => {
+            if (!selectedPath || !rowVirtualizer || !isVisible) return;
+
+            // Check if this is an actual selection change vs just a tree structure update
+            const isSelectionChange = prevSelectedPathRef.current !== selectedPath;
+
+            // Check if pane just became visible or gained focus
+            const justBecameVisible = !prevVisibleRef.current && isVisible;
+            const justGainedFocus = prevFocusedPaneRef.current !== 'navigation' && uiState.focusedPane === 'navigation';
+
+            // Update the refs for next comparison
+            prevSelectedPathRef.current = selectedPath;
+            prevVisibleRef.current = isVisible;
+            prevFocusedPaneRef.current = uiState.focusedPane;
+
+            // Only scroll on actual selection changes or visibility/focus changes
+            if (!isSelectionChange && !justBecameVisible && !justGainedFocus) return;
+
+            const index = pathToIndex.get(selectedPath);
+
+            if (index !== undefined && index >= 0) {
+                rowVirtualizer.scrollToIndex(index, {
+                    align: 'auto',
+                    behavior: 'auto'
+                });
+            }
+        }, [selectedPath, rowVirtualizer, isVisible, pathToIndex, uiState.focusedPane]);
+
+        // Expose the virtualizer instance, path lookup method, and scroll container via the ref
+        useImperativeHandle(
+            ref,
+            () => ({
+                getIndexOfPath: (path: string) => pathToIndex.get(path) ?? -1,
+                virtualizer: rowVirtualizer,
+                scrollContainerRef: scrollContainerRef.current
+            }),
+            [pathToIndex, rowVirtualizer]
+        );
+
+        // Add keyboard navigation
+        // Note: We pass the root container ref, not the scroll container ref.
+        // This ensures keyboard events work across the entire navigator, allowing
+        // users to navigate between panes (navigation <-> files) with Tab/Arrow keys.
+        useVirtualKeyboardNavigation({
+            items: items,
+            virtualizer: rowVirtualizer,
+            focusedPane: 'navigation',
+            containerRef: props.rootContainerRef
+        });
 
         return (
             <div className="nn-navigation-pane" style={props.style}>

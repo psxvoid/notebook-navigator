@@ -18,8 +18,8 @@
 
 import { App, TFile, TFolder, Notice, normalizePath } from 'obsidian';
 import { strings } from '../i18n';
-import { executeCommand } from './typeGuards';
 import { TIMEOUTS, OBSIDIAN_COMMANDS } from '../types/obsidian-extended';
+import { executeCommand } from './typeGuards';
 
 /**
  * Options for creating a new file

@@ -17,8 +17,8 @@
  */
 
 import { useCallback } from 'react';
-import { useSelectionDispatch } from '../context/SelectionContext';
 import { useExpansionDispatch } from '../context/ExpansionContext';
+import { useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 
 /**

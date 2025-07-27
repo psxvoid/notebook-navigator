@@ -19,15 +19,15 @@
 import React, { useRef, useMemo, useEffect, useState, useCallback } from 'react';
 import { TFile, setTooltip } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
-import { useSettingsState } from '../context/SettingsContext';
-import { useContextMenu } from '../hooks/useContextMenu';
-import { strings } from '../i18n';
-import { ObsidianIcon } from './ObsidianIcon';
-import { useFileCache } from '../context/StorageContext';
-import { isImageFile } from '../utils/fileTypeUtils';
-import { ItemType } from '../types';
-import { useTagNavigation } from '../hooks/useTagNavigation';
 import { useMetadataService } from '../context/ServicesContext';
+import { useSettingsState } from '../context/SettingsContext';
+import { useFileCache } from '../context/StorageContext';
+import { useContextMenu } from '../hooks/useContextMenu';
+import { useTagNavigation } from '../hooks/useTagNavigation';
+import { strings } from '../i18n';
+import { ItemType } from '../types';
+import { isImageFile } from '../utils/fileTypeUtils';
+import { ObsidianIcon } from './ObsidianIcon';
 
 interface FileItemProps {
     file: TFile;
@@ -72,16 +72,64 @@ export const FileItem = React.memo(function FileItem({
     const { navigateToTag } = useTagNavigation();
     const metadataService = useMetadataService();
 
-    // Get display name from context which handles cache and frontmatter
-    const displayName = useMemo(() => {
-        return getFileDisplayName(file);
-    }, [file, getFileDisplayName]);
-
     // Load preview text from IndexedDB
     const [previewText, setPreviewText] = useState<string>('');
 
     // Load tags from RAM cache
     const [tags, setTags] = useState<string[]>([]);
+
+    // Load feature image URL
+    const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(null);
+
+    // Get display name from context which handles cache and frontmatter
+    const displayName = useMemo(() => {
+        return getFileDisplayName(file);
+    }, [file, getFileDisplayName]);
+
+    // Handle tag click
+    const handleTagClick = useCallback(
+        (e: React.MouseEvent, tag: string) => {
+            e.stopPropagation(); // Prevent file selection
+
+            // Use the shared tag navigation logic
+            navigateToTag(tag);
+        },
+        [navigateToTag]
+    );
+
+    // Get tag color based on hierarchy rules
+    const getTagColor = useCallback(
+        (tag: string): string | undefined => {
+            // For hierarchical tags like #johan/subtask/tasker, check from most specific to least specific
+            const parts = tag.split('/');
+
+            // Try from the most specific (last part) to least specific
+            for (let i = parts.length - 1; i >= 0; i--) {
+                const partialTag = parts.slice(0, i + 1).join('/');
+                const color = metadataService.getTagColor(partialTag);
+                if (color) {
+                    return color;
+                }
+            }
+
+            return undefined;
+        },
+        [metadataService, settings.tagColors]
+    );
+
+    // Get display date from pre-computed dates
+    const displayDate = formattedDates?.display || '';
+
+    // Detect slim mode when all display options are disabled
+    const isSlimMode = !settings.showFileDate && !settings.showFilePreview && !settings.showFeatureImage;
+
+    // Determine if we should show the feature image area (either with an image or extension badge)
+    const shouldShowFeatureImageArea =
+        settings.showFeatureImage &&
+        (featureImageUrl || // Has an actual image
+            (file.extension !== 'md' && !isImageFile(file))); // Non-markdown, non-image files show extension badge
+
+    const className = `nn-file-item ${isSelected ? 'nn-selected' : ''} ${isSlimMode ? 'nn-slim' : ''} ${isSelected && hasSelectedAbove ? 'nn-has-selected-above' : ''} ${isSelected && hasSelectedBelow ? 'nn-has-selected-below' : ''}`;
 
     // Single subscription for all content changes
     useEffect(() => {
@@ -134,46 +182,6 @@ export const FileItem = React.memo(function FileItem({
         };
     }, [file.path, settings.showFilePreview, settings.showFeatureImage, getDB, isStorageReady, app, file.extension]);
 
-    // Get display date from pre-computed dates
-    const displayDate = formattedDates?.display || '';
-
-    // Load feature image URL
-    const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(null);
-
-    // Enable context menu
-    useContextMenu(fileRef, { type: ItemType.FILE, item: file });
-
-    // Handle tag click
-    const handleTagClick = useCallback(
-        (e: React.MouseEvent, tag: string) => {
-            e.stopPropagation(); // Prevent file selection
-
-            // Use the shared tag navigation logic
-            navigateToTag(tag);
-        },
-        [navigateToTag]
-    );
-
-    // Get tag color based on hierarchy rules
-    const getTagColor = useCallback(
-        (tag: string): string | undefined => {
-            // For hierarchical tags like #johan/subtask/tasker, check from most specific to least specific
-            const parts = tag.split('/');
-
-            // Try from the most specific (last part) to least specific
-            for (let i = parts.length - 1; i >= 0; i--) {
-                const partialTag = parts.slice(0, i + 1).join('/');
-                const color = metadataService.getTagColor(partialTag);
-                if (color) {
-                    return color;
-                }
-            }
-
-            return undefined;
-        },
-        [metadataService, settings.tagColors]
-    );
-
     // Add Obsidian tooltip (desktop only)
     useEffect(() => {
         if (!fileRef.current) return;
@@ -209,16 +217,8 @@ export const FileItem = React.memo(function FileItem({
         });
     }, [isMobile, file.stat.ctime, file.stat.mtime, settings, displayName, formattedDates]);
 
-    // Detect slim mode when all display options are disabled
-    const isSlimMode = !settings.showFileDate && !settings.showFilePreview && !settings.showFeatureImage;
-
-    // Determine if we should show the feature image area (either with an image or extension badge)
-    const shouldShowFeatureImageArea =
-        settings.showFeatureImage &&
-        (featureImageUrl || // Has an actual image
-            (file.extension !== 'md' && !isImageFile(file))); // Non-markdown, non-image files show extension badge
-
-    const className = `nn-file-item ${isSelected ? 'nn-selected' : ''} ${isSlimMode ? 'nn-slim' : ''} ${isSelected && hasSelectedAbove ? 'nn-has-selected-above' : ''} ${isSelected && hasSelectedBelow ? 'nn-has-selected-below' : ''}`;
+    // Enable context menu
+    useContextMenu(fileRef, { type: ItemType.FILE, item: file });
 
     return (
         <div

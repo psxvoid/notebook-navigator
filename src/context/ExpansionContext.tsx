@@ -17,8 +17,8 @@
  */
 
 import React, { createContext, useContext, useReducer, useEffect, ReactNode } from 'react';
-import { localStorage } from '../utils/localStorage';
 import { STORAGE_KEYS } from '../types';
+import { localStorage } from '../utils/localStorage';
 
 // State interface
 interface ExpansionState {

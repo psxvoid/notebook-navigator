@@ -26,8 +26,8 @@ import { strings } from '../i18n';
  */
 export class ConfirmModal extends Modal {
     private cancelBtn: HTMLButtonElement;
-    private confirmBtn: HTMLButtonElement;
     private cancelHandler: () => void;
+    private confirmBtn: HTMLButtonElement;
     private confirmHandler: () => void;
 
     /**

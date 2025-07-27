@@ -18,9 +18,9 @@
 
 import { useEffect, RefObject, Dispatch, SetStateAction } from 'react';
 import { App, TAbstractFile, TFile, TFolder, debounce, Platform } from 'obsidian';
-import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionDispatch } from '../context/SelectionContext';
+import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { isTFolder } from '../utils/typeGuards';
 
 interface UseNavigatorEventHandlersOptions {

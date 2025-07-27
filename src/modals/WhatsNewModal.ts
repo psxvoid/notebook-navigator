@@ -1,7 +1,7 @@
 import { App, Modal } from 'obsidian';
-import { ReleaseNote } from '../releaseNotes';
-import NotebookNavigatorPlugin from '../main';
 import { strings } from '../i18n';
+import NotebookNavigatorPlugin from '../main';
+import { ReleaseNote } from '../releaseNotes';
 
 export class WhatsNewModal extends Modal {
     private releaseNotes: ReleaseNote[];

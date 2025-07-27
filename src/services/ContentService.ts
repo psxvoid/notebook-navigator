@@ -18,10 +18,10 @@
 
 import { App, TFile } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
-import { PreviewTextUtils } from '../utils/previewTextUtils';
-import { isImageFile } from '../utils/fileTypeUtils';
-import { getDBInstance } from '../storage/fileOperations';
 import { FileData } from '../storage/database';
+import { getDBInstance } from '../storage/fileOperations';
+import { isImageFile } from '../utils/fileTypeUtils';
+import { PreviewTextUtils } from '../utils/previewTextUtils';
 
 interface ContentJob {
     file: TFile;
@@ -52,18 +52,18 @@ interface ContentJob {
  * - Clear content when settings change or features are disabled
  */
 export class ContentService {
-    private app: App;
-    private settings: NotebookNavigatorSettings;
-    private queue: ContentJob[] = [];
-    private isProcessing = false;
-    private totalFiles = 0;
-    private startTime = 0;
     private abortController: AbortController | null = null;
+    private app: App;
     // Removed onCacheUpdated as it's no longer used with the new database notification system
     private extractMetadata: (file: TFile) => { fn?: string; fc?: number; fm?: number };
+    private isProcessing = false;
+    private queue: ContentJob[] = [];
     private queueDebounceTimer: number | null = null;
+    private settings: NotebookNavigatorSettings;
     private settingsChanged = false;
     private shouldLogCurrentBatch = true;
+    private startTime = 0;
+    private totalFiles = 0;
 
     constructor(
         app: App,

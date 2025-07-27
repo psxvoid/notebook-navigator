@@ -18,8 +18,8 @@
 
 import { TFile, TFolder } from 'obsidian';
 import type { SortOption, NotebookNavigatorSettings } from '../settings';
-import { DateUtils } from './dateUtils';
 import { NavigationItemType, ItemType } from '../types';
+import { DateUtils } from './dateUtils';
 
 /**
  * Available sort options in order they appear in menus

@@ -17,8 +17,8 @@
  */
 
 import { App, TFolder } from 'obsidian';
-import { isTFolder } from '../utils/typeGuards';
 import { strings } from '../i18n';
+import { isTFolder } from '../utils/typeGuards';
 import { BaseSuggestModal } from './BaseSuggestModal';
 
 /**
