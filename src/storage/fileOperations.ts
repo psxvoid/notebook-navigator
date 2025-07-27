@@ -80,17 +80,37 @@ export async function recordFileChanges(files: TFile[]): Promise<void> {
     const db = getDBInstance();
     const updates: FileData[] = [];
 
-    for (const file of files) {
-        const fileData: FileData = {
-            path: file.path,
-            mtime: file.stat.mtime,
-            tags: null, // ContentService will extract these
-            preview: null, // ContentService will generate these
-            featureImage: null, // ContentService will generate these
-            metadata: null // ContentService will extract these
-        };
+    // Get existing data to preserve content for modified files
+    const paths = files.map(f => f.path);
+    const existingData = db.getFiles(paths);
 
-        updates.push(fileData);
+    for (const file of files) {
+        const existing = existingData.get(file.path);
+
+        if (!existing) {
+            // New file - initialize with null content
+            const fileData: FileData = {
+                path: file.path,
+                mtime: file.stat.mtime,
+                tags: null, // ContentService will extract these
+                preview: null, // ContentService will generate these
+                featureImage: null, // ContentService will generate these
+                metadata: null // ContentService will extract these
+            };
+            updates.push(fileData);
+        } else {
+            // Existing file - preserve content, update mtime
+            // ContentService will detect the mtime change and regenerate content
+            const fileData: FileData = {
+                path: file.path,
+                mtime: file.stat.mtime, // Update to new mtime
+                tags: existing.tags, // Keep existing tags until regenerated
+                preview: existing.preview, // Keep existing preview
+                featureImage: existing.featureImage, // Keep existing image
+                metadata: existing.metadata // Keep existing metadata
+            };
+            updates.push(fileData);
+        }
     }
 
     await db.setFiles(updates);
@@ -131,14 +151,16 @@ export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
                 metadata: null
             });
         } else {
-            // Keep existing mtime but clear content
+            // For settings changes, we need a way to trigger regeneration
+            // Update mtime to 0 to force ContentService to regenerate
+            // This is better than clearing content as it avoids the double render
             updates.push({
                 path: existing.path,
-                mtime: existing.mtime, // Preserve mtime
-                tags: null, // Clear for regeneration
-                preview: null,
-                featureImage: null,
-                metadata: null
+                mtime: 0, // Force regeneration by setting mtime to 0
+                tags: existing.tags, // Keep existing tags
+                preview: existing.preview, // Keep existing preview
+                featureImage: existing.featureImage, // Keep existing image
+                metadata: existing.metadata // Keep existing metadata
             });
         }
     }
