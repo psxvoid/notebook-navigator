@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile } from 'obsidian';
+import { App, TFile, getAllTags } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { FileData } from '../storage/database';
 import { getDBInstance } from '../storage/fileOperations';
@@ -26,6 +26,7 @@ import { PreviewTextUtils } from '../utils/previewTextUtils';
 interface ContentJob {
     file: TFile;
     path: string[];
+    needsTags: boolean;
     needsPreview: boolean;
     needsImage: boolean;
     needsMetadata: boolean;
@@ -126,7 +127,12 @@ export class ContentService {
         }
 
         // Check if content generation is enabled
-        if (!this.settings.showFilePreview && !this.settings.showFeatureImage && !this.settings.useFrontmatterMetadata) {
+        if (
+            !this.settings.showTags &&
+            !this.settings.showFilePreview &&
+            !this.settings.showFeatureImage &&
+            !this.settings.useFrontmatterMetadata
+        ) {
             return;
         }
 
@@ -153,6 +159,11 @@ export class ContentService {
             // Check what needs generation based on null values OR file modification
             // IMPORTANT: We check for === null specifically, not falsy values
             // Empty string '' means preview was generated but file has no content
+            const needsTags = !!(
+                this.settings.showTags &&
+                (!fileData || fileData.tags === null || fileModified) &&
+                file.extension === 'md'
+            );
             const needsPreview = !!(
                 this.settings.showFilePreview &&
                 (!fileData || fileData.preview === null || fileModified) &&
@@ -168,6 +179,7 @@ export class ContentService {
             return {
                 file,
                 path: file.path.split('/'),
+                needsTags,
                 needsPreview,
                 needsImage,
                 needsMetadata
@@ -175,7 +187,7 @@ export class ContentService {
         });
 
         // Filter out jobs that don't need any processing
-        const activeJobs = jobs.filter(job => job.needsPreview || job.needsImage || job.needsMetadata);
+        const activeJobs = jobs.filter(job => job.needsTags || job.needsPreview || job.needsImage || job.needsMetadata);
 
         if (activeJobs.length === 0) {
             return;
@@ -216,6 +228,16 @@ export class ContentService {
         // Clear feature images in database using efficient cursor-based method
         const db = getDBInstance();
         await db.batchClearAllFileContent('featureImage');
+    }
+
+    /**
+     * Clear all tags from the database cache.
+     * Uses an efficient cursor-based method to clear content without loading all data into memory.
+     */
+    public async clearTags(): Promise<void> {
+        // Clear tags in database using efficient cursor-based method
+        const db = getDBInstance();
+        await db.batchClearAllFileContent('tags');
     }
 
     /**
@@ -263,7 +285,7 @@ export class ContentService {
 
         // Only log if we should (not for regular file updates)
         if (this.shouldLogCurrentBatch) {
-        } else {
+            console.log(`[${new Date().toISOString()}] ContentService: Starting batch processing of ${this.totalFiles} files`);
         }
 
         // Start processing asynchronously
@@ -291,8 +313,9 @@ export class ContentService {
             const results = await Promise.all(
                 batch.map(async job => {
                     try {
-                        // Process preview, image and metadata in parallel
-                        const [preview, imageUrl, metadata] = await Promise.all([
+                        // Process tags, preview, image and metadata in parallel
+                        const [tags, preview, imageUrl, metadata] = await Promise.all([
+                            job.needsTags ? this.extractTags(job.file) : Promise.resolve(null),
                             job.needsPreview ? this.generatePreviewOptimized(job.file) : Promise.resolve(''),
                             job.needsImage ? Promise.resolve(this.getFeatureImageUrl(job.file)) : Promise.resolve(''),
                             job.needsMetadata ? Promise.resolve(this.extractMetadata(job.file)) : Promise.resolve({})
@@ -300,6 +323,7 @@ export class ContentService {
 
                         return {
                             job,
+                            tags,
                             preview,
                             imageUrl,
                             metadata: metadata as { fn?: string; fc?: number; fm?: number },
@@ -309,6 +333,7 @@ export class ContentService {
                         console.log(`Error processing ${job.file.path}:`, error);
                         return {
                             job,
+                            tags: null,
                             preview: '',
                             imageUrl: '',
                             metadata: {} as { fn?: string; fc?: number; fm?: number },
@@ -321,6 +346,7 @@ export class ContentService {
             // Collect all updates for batch processing
             const batchUpdates: Array<{
                 path: string;
+                tags?: string[] | null;
                 preview?: string;
                 featureImage?: string;
                 metadata?: { name?: string; created?: number; modified?: number };
@@ -333,6 +359,7 @@ export class ContentService {
 
                 const update: {
                     path: string;
+                    tags?: string[] | null;
                     preview?: string;
                     featureImage?: string;
                     metadata?: { name?: string; created?: number; modified?: number };
@@ -342,6 +369,14 @@ export class ContentService {
 
                 // Get existing file data for comparison
                 const existingFile = db.getFile(result.job.file.path);
+
+                // Update tags if we processed them AND they changed
+                if (result.job.needsTags) {
+                    if (!existingFile || !this.tagsEqual(existingFile.tags, result.tags)) {
+                        update.tags = result.tags;
+                        hasUpdates = true;
+                    }
+                }
 
                 // Update preview if we processed it AND it changed
                 if (result.job.needsPreview) {
@@ -454,6 +489,10 @@ export class ContentService {
         this.abortController = null;
         // Note: settingsChanged is already reset in queueContent after determining shouldLogCurrentBatch
         // No need to notify - database will emit change events
+        if (this.shouldLogCurrentBatch) {
+            const elapsed = ((performance.now() - this.startTime) / 1000).toFixed(2);
+            console.log(`[${new Date().toISOString()}] ContentService: Completed processing ${this.totalFiles} files in ${elapsed}s`);
+        }
     }
 
     /**
@@ -514,5 +553,34 @@ export class ContentService {
         }
 
         return '';
+    }
+
+    /**
+     * Extract tags from a file's metadata.
+     * Returns tags without the # prefix for consistency with the database.
+     *
+     * @param file - The file to extract tags from
+     * @returns Array of tag strings without # prefix
+     */
+    private extractTags(file: TFile): string[] {
+        const metadata = this.app.metadataCache.getFileCache(file);
+        const rawTags = metadata ? getAllTags(metadata) : [];
+        // Remove # prefix for consistency with how we store tags
+        return rawTags?.map(tag => (tag.startsWith('#') ? tag.slice(1) : tag)) || [];
+    }
+
+    /**
+     * Check if two tag arrays are equal.
+     * Handles null values properly.
+     *
+     * @param tags1 - First tag array (can be null)
+     * @param tags2 - Second tag array (can be null)
+     * @returns True if tags are equal
+     */
+    private tagsEqual(tags1: string[] | null, tags2: string[] | null): boolean {
+        if (tags1 === tags2) return true; // Both null or same reference
+        if (tags1 === null || tags2 === null) return false; // One is null
+        if (tags1.length !== tags2.length) return false;
+        return tags1.every((tag, i) => tag === tags2[i]);
     }
 }

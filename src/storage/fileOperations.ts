@@ -65,6 +65,90 @@ export async function initializeCache(): Promise<void> {
 }
 
 /**
+ * Record file changes in the database.
+ * Sets all content fields to null to trigger regeneration by ContentService.
+ * This is used when files are added, modified, or renamed.
+ *
+ * Updates mtime to match the file's actual modification time because:
+ * - The file content has actually changed
+ * - We use mtime to detect future changes (compare DB mtime vs file mtime)
+ * - ContentService will update mtime again after generation to prevent loops
+ *
+ * @param files - Array of Obsidian files to record
+ */
+export async function recordFileChanges(files: TFile[]): Promise<void> {
+    const db = getDBInstance();
+    const updates: FileData[] = [];
+
+    for (const file of files) {
+        const fileData: FileData = {
+            path: file.path,
+            mtime: file.stat.mtime,
+            tags: null, // ContentService will extract these
+            preview: null, // ContentService will generate these
+            featureImage: null, // ContentService will generate these
+            metadata: null // ContentService will extract these
+        };
+
+        updates.push(fileData);
+    }
+
+    await db.setFiles(updates);
+}
+
+/**
+ * Mark files for content regeneration without updating mtime.
+ * This preserves existing file data but clears content fields.
+ * Used when settings change and content needs to be regenerated.
+ *
+ * Why we preserve mtime:
+ * - The file hasn't actually changed, only our settings have
+ * - Updating mtime would make ContentService think the file was modified
+ * - We want to regenerate content with new settings, not because file changed
+ *
+ * When we DO update mtime:
+ * - recordFileChanges(): When files are actually modified/added/renamed
+ * - ContentService.updateMtimes(): After content generation to prevent re-processing
+ *
+ * @param files - Array of Obsidian files to mark for regeneration
+ */
+export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
+    const db = getDBInstance();
+    const paths = files.map(f => f.path);
+    const existingData = db.getFiles(paths);
+    const updates: FileData[] = [];
+
+    for (const file of files) {
+        const existing = existingData.get(file.path);
+        if (!existing) {
+            // File not in database yet, record it
+            updates.push({
+                path: file.path,
+                mtime: file.stat.mtime,
+                tags: null,
+                preview: null,
+                featureImage: null,
+                metadata: null
+            });
+        } else {
+            // Keep existing mtime but clear content
+            updates.push({
+                path: existing.path,
+                mtime: existing.mtime, // Preserve mtime
+                tags: null, // Clear for regeneration
+                preview: null,
+                featureImage: null,
+                metadata: null
+            });
+        }
+    }
+
+    await db.setFiles(updates);
+}
+
+/**
+ * @deprecated Use recordFileChanges or markFilesForRegeneration instead
+ *
  * Add or update multiple files in the database.
  * More efficient than multiple updateFileInCache calls.
  * Clears content for modified files or files with changed tags.
@@ -93,7 +177,8 @@ export async function updateFilesInCache(files: TFile[], app: App, preserveMtime
 
         // Check if file was modified (mtime changed) or tags changed
         const wasModified = existing && existing.mtime !== file.stat.mtime;
-        const tagsChanged = existing && (existing.tags.length !== tags.length || !existing.tags.every(tag => tags.includes(tag)));
+        const tagsChanged =
+            existing && existing.tags !== null && (existing.tags.length !== tags.length || !existing.tags.every(tag => tags.includes(tag)));
 
         // Check if feature image properties changed or were added
         // We need to detect both: when properties are first added and when they change

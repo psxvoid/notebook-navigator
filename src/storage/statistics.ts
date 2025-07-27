@@ -73,8 +73,8 @@ export function calculateCacheStatistics(): CacheStatistics | null {
         for (const fileData of allFiles) {
             stats.totalItems++;
 
-            // Check for tags (not empty array)
-            if (fileData.tags && fileData.tags.length > 0) {
+            // Check for tags (not null and not empty array)
+            if (fileData.tags !== null && fileData.tags.length > 0) {
                 stats.itemsWithTags++;
             }
 

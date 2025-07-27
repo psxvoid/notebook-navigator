@@ -27,7 +27,7 @@ const DB_CONTENT_VERSION = 2; // Data format version (increment to force data re
 export interface FileData {
     path: string; // File path (primary key)
     mtime: number;
-    tags: string[];
+    tags: string[] | null; // null = not extracted yet (e.g. when tags disabled)
     preview: string | null; // null = not generated yet
     featureImage: string | null; // null = not generated yet
     metadata: {
@@ -43,7 +43,7 @@ export interface FileContentChange {
         preview?: string | null;
         featureImage?: string | null;
         metadata?: FileData['metadata'] | null;
-        tags?: string[];
+        tags?: string[] | null;
     };
     changeType?: 'metadata' | 'content' | 'both';
 }
@@ -122,8 +122,7 @@ export class Database {
     private emitChanges(changes: FileContentChange[]): void {
         if (changes.length === 0) return;
         // Only log batch operations or errors
-        if (changes.length > 1) {
-        }
+        // Only log batch operations or errors (removed for production)
 
         // Emit to global listeners (for backward compatibility)
         this.changeListeners.forEach(listener => {
@@ -449,7 +448,11 @@ export class Database {
                 // Check if tags changed
                 const existing = existingData.get(data.path);
                 const tagsChanged =
-                    !existing || existing.tags.length !== data.tags.length || !existing.tags.every((tag, i) => tag === data.tags[i]);
+                    !existing ||
+                    existing.tags !== data.tags || // Handle null vs non-null
+                    (existing.tags !== null &&
+                        data.tags !== null &&
+                        (existing.tags.length !== data.tags.length || !existing.tags.every((tag, i) => tag === data.tags![i])));
 
                 if (tagsChanged) {
                     tagChanges.push({
@@ -565,7 +568,7 @@ export class Database {
      * @param type - Type of content to check for
      * @returns Set of file paths needing content
      */
-    getFilesNeedingContent(type: 'preview' | 'featureImage' | 'metadata'): Set<string> {
+    getFilesNeedingContent(type: 'tags' | 'preview' | 'featureImage' | 'metadata'): Set<string> {
         if (!this.cache.isReady()) {
             return new Set();
         }
@@ -573,6 +576,7 @@ export class Database {
         const allFiles = this.cache.getAllFiles();
         for (const file of allFiles) {
             if (
+                (type === 'tags' && file.tags === null) ||
                 (type === 'preview' && file.preview === null) ||
                 (type === 'featureImage' && file.featureImage === null) ||
                 (type === 'metadata' && file.metadata === null)
@@ -749,7 +753,7 @@ export class Database {
      *
      * @param type - Type of content to clear or 'all'
      */
-    async batchClearAllFileContent(type: 'preview' | 'featureImage' | 'metadata' | 'all'): Promise<void> {
+    async batchClearAllFileContent(type: 'preview' | 'featureImage' | 'metadata' | 'tags' | 'all'): Promise<void> {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
@@ -782,13 +786,20 @@ export class Database {
                         changes.metadata = null;
                         hasChanges = true;
                     }
+                    if ((type === 'tags' || type === 'all') && file.tags !== null) {
+                        file.tags = null;
+                        changes.tags = null;
+                        hasChanges = true;
+                    }
 
                     if (hasChanges) {
                         cursor.update(file); // Update in-place
                         // Update cache immediately
                         this.cache.updateFile(file);
                         // Determine change type for batch clear
-                        const clearType = changes.preview === null || changes.featureImage === null ? 'content' : 'metadata';
+                        const hasContentCleared = changes.preview === null || changes.featureImage === null;
+                        const hasMetadataCleared = changes.metadata === null || changes.tags !== undefined;
+                        const clearType = hasContentCleared && hasMetadataCleared ? 'both' : hasContentCleared ? 'content' : 'metadata';
                         changeNotifications.push({ path: file.path, changes, changeType: clearType });
                     }
 
@@ -796,6 +807,7 @@ export class Database {
                 } else {
                     // Cursor iteration complete
                     transaction.oncomplete = () => {
+                        // Emit all changes at once after transaction completes
                         // Emit all changes at once after transaction completes
                         this.emitChanges(changeNotifications);
                         resolve();
@@ -816,7 +828,7 @@ export class Database {
      * @param paths - Array of file paths to clear content for
      * @param type - Type of content to clear or 'all'
      */
-    async batchClearFileContent(paths: string[], type: 'preview' | 'featureImage' | 'metadata' | 'all'): Promise<void> {
+    async batchClearFileContent(paths: string[], type: 'preview' | 'featureImage' | 'metadata' | 'tags' | 'all'): Promise<void> {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
@@ -843,11 +855,18 @@ export class Database {
                 changes.metadata = null;
                 hasChanges = true;
             }
+            if ((type === 'tags' || type === 'all') && file.tags !== null) {
+                file.tags = null;
+                changes.tags = null;
+                hasChanges = true;
+            }
 
             if (hasChanges) {
                 updates.push(file);
                 // Determine change type for batch clear
-                const clearType = changes.preview === null || changes.featureImage === null ? 'content' : 'metadata';
+                const hasContentCleared = changes.preview === null || changes.featureImage === null;
+                const hasMetadataCleared = changes.metadata === null || changes.tags !== undefined;
+                const clearType = hasContentCleared && hasMetadataCleared ? 'both' : hasContentCleared ? 'content' : 'metadata';
                 changeNotifications.push({ path, changes, changeType: clearType });
             }
         }
@@ -871,6 +890,7 @@ export class Database {
     async batchUpdateFileContent(
         updates: Array<{
             path: string;
+            tags?: string[] | null;
             preview?: string;
             featureImage?: string;
             metadata?: FileData['metadata'];
@@ -891,6 +911,11 @@ export class Database {
             const changes: FileContentChange['changes'] = {};
             let hasChanges = false;
 
+            if (update.tags !== undefined) {
+                file.tags = update.tags;
+                changes.tags = update.tags;
+                hasChanges = true;
+            }
             if (update.preview !== undefined) {
                 file.preview = update.preview;
                 changes.preview = update.preview;
@@ -911,7 +936,7 @@ export class Database {
                 filesToUpdate.push(file);
                 // Determine change type for batch update
                 const hasContentUpdates = changes.preview !== undefined || changes.featureImage !== undefined;
-                const hasMetadataUpdates = changes.metadata !== undefined;
+                const hasMetadataUpdates = changes.metadata !== undefined || changes.tags !== undefined;
                 const updateType = hasContentUpdates && hasMetadataUpdates ? 'both' : hasContentUpdates ? 'content' : 'metadata';
 
                 changeNotifications.push({ path: update.path, changes, changeType: updateType });
@@ -940,7 +965,7 @@ export class Database {
         const result = new Map<string, FileData>();
         const allFiles = this.cache.getAllFiles();
         for (const file of allFiles) {
-            if (file.tags.includes(tag)) {
+            if (file.tags !== null && file.tags.includes(tag)) {
                 result.set(file.path, file);
             }
         }
@@ -1040,7 +1065,8 @@ export class Database {
      */
     getDisplayTags(path: string): string[] {
         const file = this.getFile(path);
-        if (!file?.tags) return [];
+        // Return empty array if file doesn't exist or tags are null/not extracted yet
+        if (!file || file.tags === null) return [];
         return file.tags;
     }
 

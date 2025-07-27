@@ -161,7 +161,7 @@ export const FileItem = React.memo(function FileItem({
                 setFeatureImageUrl(changes.featureImage || null);
             }
             if (changes.tags !== undefined) {
-                setTags(changes.tags);
+                setTags(changes.tags || []);
             }
         });
 

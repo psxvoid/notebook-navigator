@@ -149,8 +149,12 @@ export function buildTagTreeFromDatabase(db: Database): { tree: Map<string, TagT
     for (const fileData of allFiles) {
         const tags = fileData.tags;
 
-        if (!tags || tags.length === 0) {
-            untaggedCount++;
+        // Skip files with null tags (not extracted yet) or empty tags
+        if (tags === null || tags.length === 0) {
+            // Only count as untagged if tags were extracted (not null)
+            if (tags !== null) {
+                untaggedCount++;
+            }
             continue;
         }
 

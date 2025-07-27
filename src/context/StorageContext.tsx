@@ -45,7 +45,13 @@ import { ContentService } from '../services/ContentService';
 import { NotebookNavigatorSettings } from '../settings';
 import { Database, FileData as DBFileData } from '../storage/database';
 import { calculateFileDiff } from '../storage/diffCalculator';
-import { initializeCache, updateFilesInCache, removeFilesFromCache, getDBInstance } from '../storage/fileOperations';
+import {
+    initializeCache,
+    recordFileChanges,
+    markFilesForRegeneration,
+    removeFilesFromCache,
+    getDBInstance
+} from '../storage/fileOperations';
 import { TagTreeNode } from '../types/storage';
 import { DateUtils } from '../utils/dateUtils';
 import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
@@ -156,14 +162,22 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     // Track if we've already built the initial cache
     const hasBuiltInitialCache = useRef(false);
 
-    // Track content settings to detect changes and regenerate when needed
-    const prevContentSettings = useRef({
-        enabled: settings.showFilePreview || settings.showFeatureImage || settings.useFrontmatterMetadata,
-        previewSettings: `${settings.showFilePreview}-${settings.skipHeadingsInPreview}`, // Removed previewRows - it's just display
-        imageSettings: `${settings.showFeatureImage}-${JSON.stringify(settings.featureImageProperties)}`,
-        metadataSettings: `${settings.useFrontmatterMetadata}-${settings.frontmatterNameField}-${settings.frontmatterCreatedField}-${settings.frontmatterModifiedField}-${settings.frontmatterDateFormat}`
-    });
-    const isFirstSettingsCheck = useRef(true);
+    // Track previous values for each setting type to detect changes
+    const prevShowFilePreview = useRef(settings.showFilePreview);
+    const prevShowFeatureImage = useRef(settings.showFeatureImage);
+    const prevShowMetadata = useRef(settings.useFrontmatterMetadata);
+    const prevShowTags = useRef(settings.showTags);
+
+    // Track previous values for settings that trigger content regeneration
+    const prevSkipHeadingsInPreview = useRef<boolean | null>(null);
+    const prevPreviewProperties = useRef<string[] | null>(null);
+    const prevFeatureImageProperties = useRef<string[] | null>(null);
+    const prevFrontmatterFields = useRef<{
+        name: string | null;
+        created: string | null;
+        modified: string | null;
+        dateFormat: string | null;
+    } | null>(null);
 
     // Memoize the context value to prevent re-renders when fileData/cache haven't changed
     const contextValue = useMemo(() => {
@@ -250,6 +264,9 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         }
     };
 
+    // ==================== Effects ====================
+
+    // Initialize content service
     useEffect(() => {
         // Only create service if it doesn't exist
         if (!contentService.current) {
@@ -328,79 +345,18 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                             // Update only the changed files in IndexedDB
                             try {
                                 const filesToUpdate = [...toAdd, ...toUpdate];
-                                await updateFilesInCache(filesToUpdate, app);
-
-                                // Check if tags actually changed by comparing before/after
-                                let tagsChanged = false;
-
-                                // For removed files, check if any had tags BEFORE removing
-                                if (toRemove.length > 0) {
-                                    // Check if any removed files had tags
-                                    const db = getDBInstance();
-                                    const removedFiles = db.getFiles(toRemove);
-                                    for (const [, fileData] of removedFiles) {
-                                        if (fileData.tags && fileData.tags.length > 0) {
-                                            tagsChanged = true;
-                                            break;
-                                        }
-                                    }
+                                if (filesToUpdate.length > 0) {
+                                    await recordFileChanges(filesToUpdate);
                                 }
 
-                                // Remove deleted files from IndexedDB after checking tags
+                                // Remove deleted files from IndexedDB
                                 if (toRemove.length > 0) {
                                     await removeFilesFromCache(toRemove);
                                 }
 
-                                // For added/updated files, check if tags differ from cached version
-                                // Note: This must check the OLD cached data before we update it
-                                if (!tagsChanged && filesToUpdate.length > 0) {
-                                    // For new files (toAdd), they always represent a tag change if they have tags
-                                    for (const file of toAdd) {
-                                        if (file.extension === 'md') {
-                                            const metadata = app.metadataCache.getFileCache(file);
-                                            const currentTags = metadata?.tags?.map(t => t.tag) || [];
-                                            if (currentTags.length > 0) {
-                                                tagsChanged = true;
-                                                break;
-                                            }
-                                        }
-                                    }
-
-                                    // For updated files, compare with the diff calculator's cached data
-                                    if (!tagsChanged && toUpdate.length > 0) {
-                                        for (const file of toUpdate) {
-                                            if (file.extension === 'md') {
-                                                const metadata = app.metadataCache.getFileCache(file);
-                                                const currentTags = metadata?.tags?.map(t => t.tag) || [];
-                                                const cachedFile = diffCachedFiles.get(file.path);
-                                                const cachedTags = cachedFile?.tags || [];
-
-                                                // Compare tag arrays
-                                                if (
-                                                    currentTags.length !== cachedTags.length ||
-                                                    !currentTags.every(tag => cachedTags.includes(tag))
-                                                ) {
-                                                    tagsChanged = true;
-                                                    break;
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-
-                                // Only rebuild tag tree if tags actually changed
-                                if (tagsChanged) {
-                                    rebuildTagTree();
-                                } else {
-                                    // Just update untagged count if needed
-                                    const untaggedAdded = toAdd.filter(f => f.extension === 'md').length;
-                                    if (untaggedAdded > 0) {
-                                        setFileData(prev => ({
-                                            ...prev,
-                                            untagged: prev.untagged + untaggedAdded
-                                        }));
-                                    }
-                                }
+                                // Note: Tag change detection is no longer needed here
+                                // Tags are now extracted by ContentService and will trigger
+                                // tag tree rebuild via database change notifications
                             } catch (error) {
                                 console.error('Failed to update IndexedDB cache:', error);
                             }
@@ -440,6 +396,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                                     // Skip on initial load to avoid unnecessary processing
                                     if (filesToProcess.length === 0 && !isInitialLoad) {
                                         // Get files needing content from database
+                                        const filesNeedingTags = settings.showTags ? db.getFilesNeedingContent('tags') : new Set<string>();
                                         const filesNeedingPreview = settings.showFilePreview
                                             ? db.getFilesNeedingContent('preview')
                                             : new Set<string>();
@@ -452,6 +409,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                                         // Combine all paths that need any content
                                         const pathsNeedingContent = new Set([
+                                            ...filesNeedingTags,
                                             ...filesNeedingPreview,
                                             ...filesNeedingImage,
                                             ...filesNeedingMetadata
@@ -508,15 +466,13 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             app.vault.on('modify', async file => {
                 // Check if it's a TFile (not a folder)
                 if (file instanceof TFile && file.extension === 'md') {
-                    // Queue content regeneration BEFORE updating cache
-                    // This ensures ContentService can detect the mtime change
+                    // Record the file change - this sets all content to null
+                    await recordFileChanges([file]);
+
+                    // ContentService will detect the null content and regenerate
                     if (contentService.current) {
                         contentService.current.queueContent([file], null);
                     }
-
-                    // Update file in cache but preserve mtime to avoid race condition
-                    // Mtime will be updated by ContentService after content generation
-                    await updateFilesInCache([file], app, true);
                 }
             })
         ];
@@ -529,24 +485,16 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                 const db = getDBInstance();
                 const existingFile = db.getFile(file.path);
 
-                // Update tags and metadata in the database
-                await updateFilesInCache([file], app);
+                // Mark file for regeneration - metadata changes might not update mtime
+                await markFilesForRegeneration([file]);
 
-                // Check if this metadata change includes feature image properties
-                const metadata = app.metadataCache.getFileCache(file);
-                const featureImageProperties = ['featureResized', 'feature'];
-
-                // Only queue if feature image properties changed (not just exist)
-                if (metadata?.frontmatter && contentService.current && existingFile) {
-                    const hadFeatureImage = existingFile.featureImage !== null;
-                    const hasFeatureImageProps = featureImageProperties.some(prop => metadata.frontmatter![prop] !== undefined);
-
-                    // Queue only if we need to generate a feature image
-                    if (hasFeatureImageProps && !hadFeatureImage) {
-                        // Queue content regeneration for feature image
-                        contentService.current.queueContent([file], null);
-                    }
+                // Queue content regeneration for the file
+                if (contentService.current) {
+                    contentService.current.queueContent([file], null);
                 }
+
+                // Note: We already queued content regeneration above
+                // No need to check for specific feature image changes
             }
         });
 
@@ -562,6 +510,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             contentService.current.updateSettings(settings);
         }
     }, [
+        settings.showTags,
         settings.showFilePreview,
         settings.showFeatureImage,
         settings.useFrontmatterMetadata,
@@ -574,164 +523,216 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         settings.previewProperties
     ]);
 
-    // Unified handler for all content settings changes
-    // When preview OR image settings change, regenerate both for consistency
+    // Handle preview settings changes
     useEffect(() => {
-        const handleContentSettingsChange = async () => {
-            if (!contentService.current) return;
+        if (prevShowFilePreview.current === settings.showFilePreview) return;
 
-            const currentContentSettings = {
-                enabled: settings.showFilePreview || settings.showFeatureImage || settings.useFrontmatterMetadata,
-                previewSettings: `${settings.showFilePreview}-${settings.skipHeadingsInPreview}-${JSON.stringify(settings.previewProperties)}`, // Removed previewRows - it's just display
-                imageSettings: `${settings.showFeatureImage}-${JSON.stringify(settings.featureImageProperties)}`,
-                metadataSettings: `${settings.useFrontmatterMetadata}-${settings.frontmatterNameField}-${settings.frontmatterCreatedField}-${settings.frontmatterModifiedField}-${settings.frontmatterDateFormat}`
-            };
+        const wasEnabled = prevShowFilePreview.current;
+        prevShowFilePreview.current = settings.showFilePreview;
 
-            // Check if any content settings changed
-            const settingsChanged =
-                prevContentSettings.current.enabled !== currentContentSettings.enabled ||
-                prevContentSettings.current.previewSettings !== currentContentSettings.previewSettings ||
-                prevContentSettings.current.imageSettings !== currentContentSettings.imageSettings ||
-                prevContentSettings.current.metadataSettings !== currentContentSettings.metadataSettings;
+        if (!contentService.current) return;
 
-            // Skip the first run to avoid clearing content on mount
-            if (isFirstSettingsCheck.current) {
-                isFirstSettingsCheck.current = false;
-                prevContentSettings.current = currentContentSettings;
-                return;
-            }
+        const db = getDBInstance();
 
-            if (!settingsChanged) {
-                return;
-            }
+        // Clear preview data when disabling
+        if (wasEnabled && !settings.showFilePreview) {
+            db.batchClearAllFileContent('preview');
+        }
+        // Regenerate when enabling
+        else if (!wasEnabled && settings.showFilePreview) {
+            const excludedProperties = parseExcludedProperties(settings.excludedFiles);
+            const allFiles = app.vault
+                .getMarkdownFiles()
+                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
+            contentService.current.queueContent(allFiles, null);
+        }
+    }, [settings.showFilePreview, settings.excludedFiles, app]);
 
-            // Store a copy of the previous settings before updating
-            const previousSettings = { ...prevContentSettings.current };
-            prevContentSettings.current = currentContentSettings;
+    // Handle preview processing settings changes (skip headings, properties)
+    useEffect(() => {
+        if (!settings.showFilePreview || !contentService.current) return;
 
-            // Process settings change immediately
-            if (!contentService.current) return;
+        // Skip on initial mount
+        if (prevSkipHeadingsInPreview.current === null || prevPreviewProperties.current === null) {
+            prevSkipHeadingsInPreview.current = settings.skipHeadingsInPreview;
+            prevPreviewProperties.current = settings.previewProperties;
+            return;
+        }
 
-            // Only clear and regenerate if settings that affect content have changed
-            let needsRegeneration = false;
+        // Check if settings actually changed
+        const skipHeadingsChanged = prevSkipHeadingsInPreview.current !== settings.skipHeadingsInPreview;
+        const previewPropsChanged = JSON.stringify(prevPreviewProperties.current) !== JSON.stringify(settings.previewProperties);
 
-            // Check if preview settings changed (including enabled/disabled)
-            const prevPreviewEnabled = previousSettings.previewSettings.startsWith('true');
-            const currentPreviewEnabled = currentContentSettings.previewSettings.startsWith('true');
+        if (skipHeadingsChanged || previewPropsChanged) {
+            prevSkipHeadingsInPreview.current = settings.skipHeadingsInPreview;
+            prevPreviewProperties.current = settings.previewProperties;
 
-            if (previousSettings.previewSettings !== currentContentSettings.previewSettings) {
-                needsRegeneration = true;
-            }
-
-            // Check if image settings changed (including enabled/disabled)
-            const prevImageEnabled = previousSettings.imageSettings.startsWith('true');
-            const currentImageEnabled = currentContentSettings.imageSettings.startsWith('true');
-
-            if (previousSettings.imageSettings !== currentContentSettings.imageSettings) {
-                needsRegeneration = true;
-            }
-
-            // Check if metadata settings changed (including enabled/disabled)
-            const prevMetadataEnabled = previousSettings.metadataSettings.startsWith('true');
-            const currentMetadataEnabled = currentContentSettings.metadataSettings.startsWith('true');
-
-            if (previousSettings.metadataSettings !== currentContentSettings.metadataSettings) {
-                needsRegeneration = true;
-            }
-
-            // Clear content in IndexedDB when features are disabled or settings change
-            if (needsRegeneration) {
-                const db = getDBInstance();
-                const clearPromises: Promise<void>[] = [];
-
-                // Use efficient cursor-based clearing when disabling features or changing settings
-                if (
-                    (prevPreviewEnabled && !currentPreviewEnabled) ||
-                    (currentPreviewEnabled && previousSettings.previewSettings !== currentContentSettings.previewSettings)
-                ) {
-                    clearPromises.push(db.batchClearAllFileContent('preview'));
-                }
-                if (
-                    (prevImageEnabled && !currentImageEnabled) ||
-                    (currentImageEnabled && previousSettings.imageSettings !== currentContentSettings.imageSettings)
-                ) {
-                    clearPromises.push(db.batchClearAllFileContent('featureImage'));
-                }
-                if (
-                    (prevMetadataEnabled && !currentMetadataEnabled) ||
-                    (currentMetadataEnabled && previousSettings.metadataSettings !== currentContentSettings.metadataSettings)
-                ) {
-                    clearPromises.push(db.batchClearAllFileContent('metadata'));
-                }
-
-                await Promise.all(clearPromises);
-            }
-
-            // Determine if we should regenerate content
-            let shouldRegenerate = false;
-            let enablingPreview = false;
-            let enablingFeature = false;
-            let enablingMetadata = false;
-
-            if (needsRegeneration) {
-                // Check if we're enabling a feature that was previously disabled
-                enablingPreview = !prevPreviewEnabled && currentPreviewEnabled;
-                enablingFeature = !prevImageEnabled && currentImageEnabled;
-                enablingMetadata = !prevMetadataEnabled && currentMetadataEnabled;
-
-                // Check if actual processing settings changed (not just enabled/disabled)
-                const prevProcessingSettings = previousSettings.previewSettings.slice(previousSettings.previewSettings.indexOf('-'));
-                const currentProcessingSettings = currentContentSettings.previewSettings.slice(
-                    currentContentSettings.previewSettings.indexOf('-')
-                );
-                const processingSettingsChanged = prevProcessingSettings !== currentProcessingSettings && currentPreviewEnabled;
-
-                // Check if image properties changed
-                const imagePropertiesChanged =
-                    previousSettings.imageSettings.includes('[') &&
-                    currentContentSettings.imageSettings.includes('[') &&
-                    previousSettings.imageSettings.slice(previousSettings.imageSettings.indexOf('[')) !==
-                        currentContentSettings.imageSettings.slice(currentContentSettings.imageSettings.indexOf('[')) &&
-                    currentImageEnabled;
-
-                // Check if metadata fields changed
-                const metadataFieldsChanged =
-                    previousSettings.metadataSettings !== currentContentSettings.metadataSettings && currentMetadataEnabled;
-
-                // Regenerate if enabling any feature or if settings changed
-                shouldRegenerate =
-                    enablingPreview ||
-                    enablingFeature ||
-                    enablingMetadata ||
-                    processingSettingsChanged ||
-                    imagePropertiesChanged ||
-                    metadataFieldsChanged;
-            }
-
-            if (shouldRegenerate && (settings.showFilePreview || settings.showFeatureImage || settings.useFrontmatterMetadata)) {
+            // Clear and regenerate preview content when processing settings change
+            const db = getDBInstance();
+            db.batchClearAllFileContent('preview').then(() => {
                 const excludedProperties = parseExcludedProperties(settings.excludedFiles);
                 const allFiles = app.vault
                     .getMarkdownFiles()
                     .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-                // Queue all files for regeneration after settings change
-                contentService.current.queueContent(allFiles, null);
-            }
-        };
+                contentService.current!.queueContent(allFiles, null);
+            });
+        }
+    }, [settings.skipHeadingsInPreview, settings.previewProperties, settings.showFilePreview, settings.excludedFiles, app]);
 
-        handleContentSettingsChange();
+    // Handle feature image settings changes
+    useEffect(() => {
+        if (prevShowFeatureImage.current === settings.showFeatureImage) return;
+
+        const wasEnabled = prevShowFeatureImage.current;
+        prevShowFeatureImage.current = settings.showFeatureImage;
+
+        if (!contentService.current) return;
+
+        const db = getDBInstance();
+
+        // Clear feature image data when disabling
+        if (wasEnabled && !settings.showFeatureImage) {
+            db.batchClearAllFileContent('featureImage');
+        }
+        // Regenerate when enabling
+        else if (!wasEnabled && settings.showFeatureImage) {
+            const excludedProperties = parseExcludedProperties(settings.excludedFiles);
+            const allFiles = app.vault
+                .getMarkdownFiles()
+                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
+            contentService.current.queueContent(allFiles, null);
+        }
+    }, [settings.showFeatureImage, settings.excludedFiles, app]);
+
+    // Handle feature image properties changes
+    useEffect(() => {
+        if (!settings.showFeatureImage || !contentService.current) return;
+
+        // Skip on initial mount
+        if (prevFeatureImageProperties.current === null) {
+            prevFeatureImageProperties.current = settings.featureImageProperties;
+            return;
+        }
+
+        // Check if properties actually changed
+        const propertiesChanged = JSON.stringify(prevFeatureImageProperties.current) !== JSON.stringify(settings.featureImageProperties);
+
+        if (propertiesChanged) {
+            prevFeatureImageProperties.current = settings.featureImageProperties;
+
+            // Clear and regenerate feature images when properties change
+            const db = getDBInstance();
+            db.batchClearAllFileContent('featureImage').then(() => {
+                const excludedProperties = parseExcludedProperties(settings.excludedFiles);
+                const allFiles = app.vault
+                    .getMarkdownFiles()
+                    .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
+                contentService.current!.queueContent(allFiles, null);
+            });
+        }
+    }, [settings.featureImageProperties, settings.showFeatureImage, settings.excludedFiles, app]);
+
+    // Handle metadata settings changes
+    useEffect(() => {
+        if (prevShowMetadata.current === settings.useFrontmatterMetadata) return;
+
+        const wasEnabled = prevShowMetadata.current;
+        prevShowMetadata.current = settings.useFrontmatterMetadata;
+
+        if (!contentService.current) return;
+
+        const db = getDBInstance();
+
+        // Clear metadata when disabling
+        if (wasEnabled && !settings.useFrontmatterMetadata) {
+            db.batchClearAllFileContent('metadata');
+        }
+        // Regenerate when enabling
+        else if (!wasEnabled && settings.useFrontmatterMetadata) {
+            const excludedProperties = parseExcludedProperties(settings.excludedFiles);
+            const allFiles = app.vault
+                .getMarkdownFiles()
+                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
+            contentService.current.queueContent(allFiles, null);
+        }
+    }, [settings.useFrontmatterMetadata, settings.excludedFiles, app]);
+
+    // Handle metadata field changes
+    useEffect(() => {
+        if (!settings.useFrontmatterMetadata || !contentService.current) return;
+
+        // Skip on initial mount
+        if (prevFrontmatterFields.current === null) {
+            prevFrontmatterFields.current = {
+                name: settings.frontmatterNameField,
+                created: settings.frontmatterCreatedField,
+                modified: settings.frontmatterModifiedField,
+                dateFormat: settings.frontmatterDateFormat
+            };
+            return;
+        }
+
+        // Check if any field actually changed
+        const fieldsChanged =
+            prevFrontmatterFields.current.name !== settings.frontmatterNameField ||
+            prevFrontmatterFields.current.created !== settings.frontmatterCreatedField ||
+            prevFrontmatterFields.current.modified !== settings.frontmatterModifiedField ||
+            prevFrontmatterFields.current.dateFormat !== settings.frontmatterDateFormat;
+
+        if (fieldsChanged) {
+            prevFrontmatterFields.current = {
+                name: settings.frontmatterNameField,
+                created: settings.frontmatterCreatedField,
+                modified: settings.frontmatterModifiedField,
+                dateFormat: settings.frontmatterDateFormat
+            };
+
+            // Clear and regenerate metadata when fields change
+            const db = getDBInstance();
+            db.batchClearAllFileContent('metadata').then(() => {
+                const excludedProperties = parseExcludedProperties(settings.excludedFiles);
+                const allFiles = app.vault
+                    .getMarkdownFiles()
+                    .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
+                contentService.current!.queueContent(allFiles, null);
+            });
+        }
     }, [
-        app,
-        settings.showFilePreview,
-        settings.skipHeadingsInPreview,
-        settings.showFeatureImage,
-        settings.featureImageProperties,
-        settings.excludedFiles,
-        settings.useFrontmatterMetadata,
         settings.frontmatterNameField,
         settings.frontmatterCreatedField,
         settings.frontmatterModifiedField,
-        settings.frontmatterDateFormat
+        settings.frontmatterDateFormat,
+        settings.useFrontmatterMetadata,
+        settings.excludedFiles,
+        app
     ]);
+
+    // Handle tags on/off - unified with other content types!
+    useEffect(() => {
+        if (prevShowTags.current === settings.showTags) return;
+
+        const wasEnabled = prevShowTags.current;
+        prevShowTags.current = settings.showTags;
+
+        const db = getDBInstance();
+
+        // Clear tags when disabling
+        if (wasEnabled && !settings.showTags) {
+            db.batchClearAllFileContent('tags');
+        }
+        // Regenerate tags when enabling
+        else if (!wasEnabled && settings.showTags && contentService.current) {
+            const excludedProperties = parseExcludedProperties(settings.excludedFiles);
+            const allFiles = app.vault
+                .getMarkdownFiles()
+                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
+            // Mark files for regeneration (preserves mtime)
+            markFilesForRegeneration(allFiles).then(() => {
+                // Queue content generation for tags
+                contentService.current!.queueContent(allFiles, null);
+            });
+        }
+    }, [settings.showTags, settings.excludedFiles, app]);
 
     return <StorageContext.Provider value={contextValue}>{children}</StorageContext.Provider>;
 }
