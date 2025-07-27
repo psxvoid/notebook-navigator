@@ -741,6 +741,21 @@ export const NavigationPane = React.memo(
             }
         }, [selectedPath, rowVirtualizer, isVisible, pathToIndex, uiState.focusedPane]);
 
+        // Special handling for startup tag scrolling
+        // Tags load after folders, so we need a separate effect to catch when they become available
+        useEffect(() => {
+            if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag && rowVirtualizer && isVisible) {
+                const tagIndex = pathToIndex.get(selectionState.selectedTag);
+
+                if (tagIndex !== undefined && tagIndex >= 0) {
+                    rowVirtualizer.scrollToIndex(tagIndex, {
+                        align: 'auto',
+                        behavior: 'auto'
+                    });
+                }
+            }
+        }, [pathToIndex, selectionState.selectionType, selectionState.selectedTag, rowVirtualizer, isVisible]);
+
         // Expose the virtualizer instance, path lookup method, and scroll container via the ref
         useImperativeHandle(
             ref,

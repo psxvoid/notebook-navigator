@@ -304,7 +304,7 @@ export function parseTagPatterns(patterns: string): string[] {
 /**
  * Check if a tag matches a pattern (supports wildcards and regex)
  */
-function matchesTagPattern(tagPath: string, pattern: string): boolean {
+export function matchesTagPattern(tagPath: string, pattern: string): boolean {
     // Remove # prefix from both if present
     const cleanTag = tagPath.startsWith('#') ? tagPath.substring(1) : tagPath;
     const cleanPattern = pattern.startsWith('#') ? pattern.substring(1) : pattern;

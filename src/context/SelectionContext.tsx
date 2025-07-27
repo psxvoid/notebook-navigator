@@ -47,7 +47,7 @@ export type SelectionAction =
     | { type: 'SET_SELECTED_FILE'; file: TFile | null }
     | { type: 'SET_SELECTION_TYPE'; selectionType: NavigationItemType }
     | { type: 'CLEAR_SELECTION' }
-    | { type: 'REVEAL_FILE'; file: TFile; preserveFolder?: boolean; isManualReveal?: boolean }
+    | { type: 'REVEAL_FILE'; file: TFile; preserveFolder?: boolean; isManualReveal?: boolean; targetTag?: string | null }
     | { type: 'CLEANUP_DELETED_FOLDER'; deletedPath: string }
     | { type: 'CLEANUP_DELETED_FILE'; deletedPath: string; nextFileToSelect?: TFile | null }
     // Multi-selection actions
@@ -189,21 +189,67 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 return state;
             }
 
-            // Check if we should preserve the current tag view
-            // Only preserve tag view for auto-reveals, not manual reveals
-            const shouldPreserveTag = state.selectionType === 'tag' && state.selectedTag && !action.isManualReveal;
-
-            // If preserveFolder is true and we have a selected folder, keep it
-            const newFolder = action.preserveFolder && state.selectedFolder ? state.selectedFolder : action.file.parent;
-
             const newSelectedFiles = new Set<string>();
             newSelectedFiles.add(action.file.path);
 
-            // If we're in tag view and this is not a manual reveal, preserve it
+            // Manual reveals always go to folder view
+            if (action.isManualReveal) {
+                return {
+                    ...state,
+                    selectionType: 'folder',
+                    selectedFolder: action.file.parent,
+                    selectedTag: null,
+                    selectedFiles: newSelectedFiles,
+                    selectedFile: action.file,
+                    anchorIndex: null,
+                    lastMovementDirection: null,
+                    isRevealOperation: true,
+                    isFolderChangeWithAutoSelect: false,
+                    isKeyboardNavigation: false
+                };
+            }
+
+            // Auto-reveals: Check if we have a target tag
+            if (action.targetTag !== undefined) {
+                if (action.targetTag) {
+                    // Switch to or stay in tag view
+                    return {
+                        ...state,
+                        selectionType: 'tag',
+                        selectedTag: action.targetTag,
+                        selectedFolder: null,
+                        selectedFiles: newSelectedFiles,
+                        selectedFile: action.file,
+                        anchorIndex: null,
+                        lastMovementDirection: null,
+                        isRevealOperation: true,
+                        isFolderChangeWithAutoSelect: false,
+                        isKeyboardNavigation: false
+                    };
+                } else {
+                    // No tag to reveal, switch to folder view
+                    const newFolder = action.preserveFolder && state.selectedFolder ? state.selectedFolder : action.file.parent;
+                    return {
+                        ...state,
+                        selectionType: 'folder',
+                        selectedFolder: newFolder,
+                        selectedTag: null,
+                        selectedFiles: newSelectedFiles,
+                        selectedFile: action.file,
+                        anchorIndex: null,
+                        lastMovementDirection: null,
+                        isRevealOperation: true,
+                        isFolderChangeWithAutoSelect: false,
+                        isKeyboardNavigation: false
+                    };
+                }
+            }
+
+            // Legacy behavior: preserve tag for auto-reveals when no targetTag specified
+            const shouldPreserveTag = state.selectionType === 'tag' && state.selectedTag;
             if (shouldPreserveTag) {
                 return {
                     ...state,
-                    // Keep the tag selection
                     selectionType: 'tag',
                     selectedTag: state.selectedTag,
                     selectedFolder: null,
@@ -217,7 +263,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 };
             }
 
-            // Otherwise, switch to folder view as normal
+            // Default: switch to folder view
+            const newFolder = action.preserveFolder && state.selectedFolder ? state.selectedFolder : action.file.parent;
             return {
                 ...state,
                 selectionType: 'folder',
@@ -229,7 +276,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 lastMovementDirection: null,
                 isRevealOperation: true,
                 isFolderChangeWithAutoSelect: false,
-                isKeyboardNavigation: false // Clear this since we're handling the reveal
+                isKeyboardNavigation: false
             };
         }
 
@@ -439,6 +486,14 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             }
         }
 
+        // Load saved tag with error handling
+        let savedTag: string | null = null;
+        try {
+            savedTag = localStorage.getItem(STORAGE_KEYS.selectedTagKey);
+        } catch (error) {
+            console.error('Failed to load selected tag from localStorage:', error);
+        }
+
         // Load saved file path with error handling
         let savedFilePath: string | null = null;
         try {
@@ -457,15 +512,20 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             }
         }
 
-        // Default to root folder if no selection
-        if (!selectedFolder) {
+        // Determine selection type based on what was saved
+        let selectionType: NavigationItemType = 'folder';
+        if (savedTag) {
+            selectionType = 'tag';
+            selectedFolder = null; // Clear folder if tag is selected
+        } else if (!selectedFolder) {
+            // Default to root folder if no selection
             selectedFolder = vault.getRoot();
         }
 
         return {
-            selectionType: 'folder',
+            selectionType,
             selectedFolder,
-            selectedTag: null,
+            selectedTag: savedTag,
             selectedFiles,
             selectedFile,
             anchorIndex: null,
@@ -561,6 +621,19 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             console.error('Failed to save selected folder to localStorage:', error);
         }
     }, [state.selectedFolder]);
+
+    // Persist selected tag to localStorage with error handling
+    useEffect(() => {
+        try {
+            if (state.selectedTag) {
+                localStorage.setItem(STORAGE_KEYS.selectedTagKey, state.selectedTag);
+            } else {
+                localStorage.removeItem(STORAGE_KEYS.selectedTagKey);
+            }
+        } catch (error) {
+            console.error('Failed to save selected tag to localStorage:', error);
+        }
+    }, [state.selectedTag]);
 
     // Persist selected file to localStorage with error handling
     useEffect(() => {

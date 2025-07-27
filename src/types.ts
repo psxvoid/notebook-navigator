@@ -171,6 +171,7 @@ export interface LocalStorageKeys {
     expandedVirtualFoldersKey: string;
     selectedFolderKey: string;
     selectedFileKey: string;
+    selectedTagKey: string;
     navigationPaneWidthKey: string;
     fileCacheKey: string;
     databaseSchemaVersionKey: string;
@@ -187,6 +188,7 @@ export const STORAGE_KEYS: LocalStorageKeys = {
     expandedVirtualFoldersKey: 'notebook-navigator-expanded-virtual-folders',
     selectedFolderKey: 'notebook-navigator-selected-folder',
     selectedFileKey: 'notebook-navigator-selected-file',
+    selectedTagKey: 'notebook-navigator-selected-tag',
     navigationPaneWidthKey: 'notebook-navigator-navigation-pane-width',
     fileCacheKey: 'notebook-navigator-file-cache',
     databaseSchemaVersionKey: 'notebook-navigator-db-schema-version',
