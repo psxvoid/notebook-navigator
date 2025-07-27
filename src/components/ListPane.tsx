@@ -1060,7 +1060,9 @@ export const ListPane = React.memo(
                                 const nextItem = safeGetItem(listItems, virtualItem.index + 1);
                                 const isLastFile =
                                     item.type === ListPaneItemType.FILE &&
-                                    (virtualItem.index === listItems.length - 1 || (nextItem && nextItem.type === ListPaneItemType.HEADER));
+                                    (virtualItem.index === listItems.length - 1 ||
+                                        (nextItem &&
+                                            (nextItem.type === ListPaneItemType.HEADER || nextItem.type === ListPaneItemType.SPACER)));
 
                                 // Check if adjacent items are selected (for styling purposes)
                                 const prevItem = safeGetItem(listItems, virtualItem.index - 1);
