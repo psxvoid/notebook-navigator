@@ -900,6 +900,15 @@ export const ListPane = React.memo(
             listItems.length
         ]);
 
+        // Handle reveal operations to use pending scroll
+        useEffect(() => {
+            if (selectionState.isRevealOperation && selectedFile && isVisible) {
+                // Always use pending scroll for reveal operations
+                // This ensures proper timing and measurement before scrolling
+                pendingScrollRef.current = { type: 'file', filePath: selectedFile.path };
+            }
+        }, [selectionState.isRevealOperation, selectedFile, isVisible]);
+
         // Track current visible date group for sticky header
         useEffect(() => {
             if (!scrollContainerRef.current || !rowVirtualizer || !settings.groupByDate) {

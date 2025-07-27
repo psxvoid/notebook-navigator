@@ -514,38 +514,8 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
                     }
                 }
 
-                // Scroll to file in list pane
-                const fileIndex = listPaneRef.current?.getIndexOfPath(file.path);
-
-                if (fileIndex !== undefined && fileIndex !== -1 && listPaneRef.current?.virtualizer) {
-                    const virtualizer = listPaneRef.current.virtualizer;
-                    const scrollElement = listPaneRef.current.scrollContainerRef;
-
-                    if (scrollElement) {
-                        // Check if the file is already visible
-                        const virtualItems = virtualizer.getVirtualItems();
-                        const virtualItem = virtualItems.find(item => item.index === fileIndex);
-
-                        if (virtualItem) {
-                            // Check if the item is fully visible in the viewport
-                            const containerHeight = scrollElement.offsetHeight;
-                            const scrollTop = scrollElement.scrollTop;
-                            const itemTop = virtualItem.start;
-                            const itemBottom = virtualItem.end;
-
-                            const isFullyVisible = itemTop >= scrollTop && itemBottom <= scrollTop + containerHeight;
-
-                            // Only scroll if the item is not fully visible
-                            if (!isFullyVisible) {
-                                virtualizer.scrollToIndex(fileIndex, { align: 'center', behavior: 'auto' });
-                            } else {
-                            }
-                        } else {
-                            // Item is not in virtual items, so it's definitely not visible
-                            virtualizer.scrollToIndex(fileIndex, { align: 'center', behavior: 'auto' });
-                        }
-                    }
-                }
+                // ListPane now handles reveal scrolling via pendingScrollRef
+                // This ensures proper measurement for large folders before scrolling
             });
 
             return () => cancelAnimationFrame(rafId);
