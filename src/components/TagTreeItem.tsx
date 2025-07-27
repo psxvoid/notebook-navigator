@@ -44,10 +44,6 @@ interface TagTreeItemProps {
     fileCount: number;
     /** Whether to show file counts */
     showFileCount: boolean;
-    /** Custom icon for this tag (optional) */
-    customIcon?: string;
-    /** Custom color for this tag (optional) */
-    customColor?: string;
 }
 
 /**
@@ -56,7 +52,7 @@ interface TagTreeItemProps {
  */
 export const TagTreeItem = React.memo(
     forwardRef<HTMLDivElement, TagTreeItemProps>(function TagTreeItem(
-        { tagNode, level, isExpanded, isSelected, onToggle, onClick, fileCount, showFileCount, customIcon, customColor },
+        { tagNode, level, isExpanded, isSelected, onToggle, onClick, fileCount, showFileCount },
         ref
     ) {
         const settings = useSettingsState();
@@ -78,8 +74,8 @@ export const TagTreeItem = React.memo(
         );
 
         // Get color and icon from settings directly (like FolderItem does)
-        const tagColor = settings.tagColors?.[tagNode.path] || customColor;
-        const tagIcon = settings.tagIcons?.[tagNode.path] || customIcon;
+        const tagColor = settings.tagColors?.[tagNode.path];
+        const tagIcon = settings.tagIcons?.[tagNode.path];
 
         // Update chevron icon based on expanded state
         React.useEffect(() => {

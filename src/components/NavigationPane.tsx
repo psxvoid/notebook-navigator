@@ -307,27 +307,6 @@ export const NavigationPane = React.memo(
             return counts;
         }, [items, settings.showTags, settings.showUntagged, untaggedCount]);
 
-        // Pre-fetch tag metadata to avoid synchronous service calls during render
-        const tagMetadata = useMemo(() => {
-            const metadata = new Map<string, { icon?: string; color?: string }>();
-
-            // Only fetch if we're showing tags
-            if (!settings.showTags) return metadata;
-
-            // Batch fetch metadata for all tag items
-            items.forEach(item => {
-                if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
-                    const tagNode = item.data as TagTreeNode;
-                    metadata.set(tagNode.path, {
-                        icon: metadataService.getTagIcon(tagNode.path),
-                        color: metadataService.getTagColor(tagNode.path)
-                    });
-                }
-            });
-
-            return metadata;
-        }, [items, settings.showTags, metadataService]);
-
         // Pre-compute folder file counts to avoid recursive counting during render
         const folderCounts = useMemo(() => {
             const counts = new Map<string, number>();
@@ -427,7 +406,6 @@ export const NavigationPane = React.memo(
                     case NavigationPaneItemType.TAG:
                     case NavigationPaneItemType.UNTAGGED: {
                         const tagNode = item.data as TagTreeNode;
-                        const metadata = tagMetadata.get(tagNode.path) || {};
                         return (
                             <TagTreeItem
                                 tagNode={tagNode}
@@ -438,8 +416,6 @@ export const NavigationPane = React.memo(
                                 onClick={() => handleTagClick(tagNode.path)}
                                 fileCount={tagCounts.get(tagNode.path) || 0}
                                 showFileCount={settings.showNoteCount}
-                                customIcon={metadata.icon}
-                                customColor={metadata.color}
                             />
                         );
                     }
@@ -481,7 +457,6 @@ export const NavigationPane = React.memo(
                 settings,
                 isMobile,
                 tagCounts,
-                tagMetadata,
                 folderCounts
             ]
         );
