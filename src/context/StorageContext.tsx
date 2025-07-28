@@ -396,8 +396,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                                     // If no changes, check if any existing files need content generation
                                     // This handles the case where settings were enabled on another device
-                                    // Skip on initial load to avoid unnecessary processing
-                                    if (filesToProcess.length === 0 && !isInitialLoad) {
+                                    // Also check on initial load to ensure content is generated on fresh install
+                                    if (filesToProcess.length === 0) {
                                         // Get files needing content from database
                                         const filesNeedingTags = settings.showTags ? db.getFilesNeedingContent('tags') : new Set<string>();
                                         const filesNeedingPreview = settings.showFilePreview

@@ -180,9 +180,6 @@ export class IndexedDBStorage {
     }
 
     private async checkSchemaAndInit(): Promise<void> {
-        // Clean up old database from previous versions
-        await this.cleanupOldDatabases();
-
         const storedSchemaVersion = localStorage.getItem(STORAGE_KEYS.databaseSchemaVersionKey);
         const storedContentVersion = localStorage.getItem(STORAGE_KEYS.databaseContentVersionKey);
         const currentSchemaVersion = DB_SCHEMA_VERSION.toString();
@@ -292,35 +289,6 @@ export class IndexedDBStorage {
                 }
             };
         });
-    }
-
-    /**
-     * Clean up old databases from previous plugin versions
-     * TODO: Remove in next version, only kept for pre-public release migration
-     */
-    private async cleanupOldDatabases(): Promise<void> {
-        const oldDatabaseNames = ['notebook-navigator-db-v1'];
-
-        for (const oldDbName of oldDatabaseNames) {
-            try {
-                await new Promise<void>(resolve => {
-                    const deleteReq = indexedDB.deleteDatabase(oldDbName);
-                    deleteReq.onsuccess = () => {
-                        resolve();
-                    };
-                    deleteReq.onerror = () => {
-                        // Ignore errors - database might not exist
-                        resolve();
-                    };
-                    deleteReq.onblocked = () => {
-                        // Database is in use, skip cleanup
-                        resolve();
-                    };
-                });
-            } catch (error) {
-                // Ignore cleanup errors
-            }
-        }
     }
 
     /**
