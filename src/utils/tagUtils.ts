@@ -94,10 +94,23 @@ export function determineTagToReveal(
         return settings.showUntagged ? UNTAGGED_TAG_ID : null;
     }
 
-    // Check if file has the currently selected tag
+    // Check if we should stay on the current tag
     if (currentTag && currentTag !== UNTAGGED_TAG_ID) {
+        // First check exact match
         if (fileHasTag(file, currentTag, storage)) {
             return currentTag; // Stay on current tag
+        }
+
+        // For auto-reveals (which tag reveals always are), check if current tag is a parent
+        // This is similar to how folder auto-reveals preserve parent folders with showNotesFromSubfolders
+        const currentTagLower = currentTag.toLowerCase();
+        const currentTagPrefix = currentTagLower + '/';
+
+        // Check if any of the file's tags are children of the current tag
+        for (const fileTag of fileTags) {
+            if (fileTag.startsWith(currentTagPrefix)) {
+                return currentTag; // Stay on parent tag (shortest path)
+            }
         }
     }
 

@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useRef, useCallback, RefObject, useState } from 'react';
-import { TFile, TFolder, App, WorkspaceLeaf } from 'obsidian';
+import { TFile, TFolder, App, WorkspaceLeaf, Platform } from 'obsidian';
 import type { ListPaneHandle } from '../components/ListPane';
 import type { NavigationPaneHandle } from '../components/NavigationPane';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
@@ -30,6 +30,7 @@ import { isTFolder } from '../utils/typeGuards';
 import { determineTagToReveal } from '../utils/tagUtils';
 import { ItemType } from '../types';
 import { buildTagTree, findTagNode, parseTagPatterns, matchesTagPattern } from '../utils/tagTree';
+import { log } from '../utils/mobileLogger';
 
 interface UseFileRevealOptions {
     app: App;
@@ -96,6 +97,12 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             }
 
             // Trigger the reveal - never preserve folder for actual folder reveals
+            log('[useFileReveal] Dispatching REVEAL_FILE action', {
+                file: file.path,
+                preserveFolder: false,
+                isManualReveal: true,
+                timestamp: new Date().toISOString()
+            });
             selectionDispatch({ type: 'REVEAL_FILE', file, preserveFolder: false, isManualReveal: true });
 
             // In single pane mode, switch to list pane view
@@ -173,9 +180,29 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             // Select the tag
             selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
 
-            // In single pane mode, ensure we're showing the navigation pane
-            if (uiState.singlePane && uiState.currentSinglePaneView === 'files') {
-                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
+            // In single pane mode, switch to list pane view (same as revealFileInActualFolder)
+            if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
+                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+            }
+
+            // Always shift focus to list pane (same as revealFileInActualFolder)
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+
+            // If we have a selected file, trigger a reveal to ensure proper scrolling
+            // This makes tag reveal follow the same flow as folder reveal
+            if (selectionState.selectedFile) {
+                log('[useFileReveal] Triggering file reveal after tag selection', {
+                    file: selectionState.selectedFile.path,
+                    tag: tagPath,
+                    timestamp: new Date().toISOString()
+                });
+                selectionDispatch({
+                    type: 'REVEAL_FILE',
+                    file: selectionState.selectedFile,
+                    preserveFolder: true, // We're in tag view, preserve it
+                    isManualReveal: false, // This is part of auto-reveal
+                    targetTag: tagPath
+                });
             }
         },
         [
@@ -437,6 +464,10 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
         // Check for currently active file on mount
         const activeFile = app.workspace.getActiveFile();
         if (activeFile && !hasInitializedRef.current) {
+            log('[useFileReveal] Startup auto-reveal triggered', {
+                file: activeFile.path,
+                timestamp: new Date().toISOString()
+            });
             setIsStartupReveal(true);
             handleFileChange(activeFile);
             hasInitializedRef.current = true;
@@ -460,9 +491,37 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
                         selectionState.selectedTag &&
                         selectionState.selectedFile?.path === fileToReveal.path
                     ) {
+                        log('[useFileReveal] Startup tag reveal triggered', {
+                            tag: selectionState.selectedTag,
+                            file: fileToReveal.path,
+                            timestamp: new Date().toISOString(),
+                            hasListPaneRef: !!listPaneRef.current,
+                            hasNavigationPaneRef: !!navigationPaneRef.current
+                        });
                         revealTag(selectionState.selectedTag);
+
+                        // After expanding the tag, trigger the file reveal
+                        // This ensures the scroll happens via pendingScroll
+                        log('[useFileReveal] Triggering file reveal after startup tag reveal', {
+                            file: fileToReveal.path,
+                            tag: selectionState.selectedTag,
+                            timestamp: new Date().toISOString()
+                        });
+                        selectionDispatch({
+                            type: 'REVEAL_FILE',
+                            file: fileToReveal,
+                            preserveFolder: true, // We're in tag view, preserve it
+                            isManualReveal: false, // This is auto-reveal
+                            targetTag: selectionState.selectedTag
+                        });
                         return;
                     }
+                    log('[useFileReveal] Startup file reveal in actual folder', {
+                        file: fileToReveal.path,
+                        timestamp: new Date().toISOString(),
+                        hasListPaneRef: !!listPaneRef.current,
+                        hasNavigationPaneRef: !!navigationPaneRef.current
+                    });
                     revealFileInActualFolder(fileToReveal); // Use actual folder for startup
                 } else {
                     revealFileInNearestFolder(fileToReveal); // Use nearest folder for sidebar clicks

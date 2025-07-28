@@ -30,6 +30,7 @@ import { UIStateProvider } from '../context/UIStateContext';
 import { strings } from '../i18n';
 import NotebookNavigatorPlugin from '../main';
 import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
+import { log } from '../utils/mobileLogger';
 
 // State interface for view persistence - currently unused
 // interface NotebookNavigatorViewState {
@@ -92,6 +93,10 @@ export class NotebookNavigatorView extends ItemView {
 
         // Detect mobile environment and add mobile class
         const isMobile = Platform.isMobile;
+        log('[NotebookNavigatorView] onOpen called', {
+            isMobile: isMobile,
+            timestamp: new Date().toISOString()
+        });
         if (isMobile) {
             container.classList.add('notebook-navigator-mobile');
         }
@@ -232,8 +237,24 @@ export class NotebookNavigatorView extends ItemView {
 
         const rect = this.containerEl.getBoundingClientRect();
 
+        log('[NotebookNavigatorView] onResize event', {
+            width: rect.width,
+            height: rect.height,
+            timestamp: new Date().toISOString(),
+            isStartup: !this.root
+        });
+
         if (rect.width > 0 && rect.height > 0) {
+            log('[NotebookNavigatorView] Dispatching notebook-navigator-visible event', {
+                timestamp: new Date().toISOString()
+            });
             window.dispatchEvent(new CustomEvent('notebook-navigator-visible'));
+        } else {
+            log('[NotebookNavigatorView] NOT dispatching visible event - dimensions are 0', {
+                width: rect.width,
+                height: rect.height,
+                timestamp: new Date().toISOString()
+            });
         }
     }
 }
