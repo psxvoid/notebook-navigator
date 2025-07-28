@@ -145,15 +145,3 @@ export async function clearLog() {
         await globalLogger.clear();
     }
 }
-
-/**
- * Legacy function for backward compatibility.
- * @deprecated Use log() instead
- * @knipignore
- */
-export function mobileLog(app: App, ...args: any[]) {
-    const logger = MobileLogger.getInstance(app);
-    if (logger) {
-        logger.log(...args);
-    }
-}

@@ -50,14 +50,6 @@ export function getEffectiveSortOption(
 }
 
 /**
- * Sorts an array of files according to the specified sort option
- * @param files - Array of files to sort (will be mutated)
- * @param sortOption - How to sort the files
- * This overload is deprecated - use the function overload instead
- */
-// @deprecated
-
-/**
  * Sorts an array of files according to the specified sort option using getter functions
  * @param files - Array of files to sort (will be mutated)
  * @param sortOption - How to sort the files
@@ -88,7 +80,7 @@ export function sortFiles(
             return type === 'created' ? getCreatedTime(file) : getModifiedTime(file);
         };
     } else {
-        // Legacy overload - just use file stats
+        // Function overload - just use file stats
         const settings = settingsOrGetModified as NotebookNavigatorSettings | undefined;
         getTimestamp = (file: TFile, type: 'created' | 'modified'): number => {
             return DateUtils.getFileTimestamp(file, type, undefined, settings);
