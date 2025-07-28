@@ -89,6 +89,19 @@ export const ListPane = React.memo(
         // Add ref for scroll container
         const scrollContainerRef = useRef<HTMLDivElement>(null);
 
+        // Callback for when scroll container ref is set
+        const scrollContainerRefCallback = useCallback((element: HTMLDivElement | null) => {
+            if (element && element !== scrollContainerRef.current) {
+                log('[ListPane] Scroll container ref set', {
+                    hasElement: !!element,
+                    clientHeight: element?.clientHeight,
+                    scrollHeight: element?.scrollHeight,
+                    timestamp: new Date().toISOString()
+                });
+            }
+            scrollContainerRef.current = element as HTMLDivElement;
+        }, []);
+
         // Track render count
         const renderCountRef = useRef(0);
 
@@ -97,6 +110,24 @@ export const ListPane = React.memo(
         const prevShowSubfoldersRef = useRef<boolean>(settings.showNotesFromSubfolders); // Previous subfolder setting to detect toggles
         const pendingScrollRef = useRef<{ type: 'file' | 'top'; filePath?: string } | null>(null); // Deferred scroll operations for async list updates
         const [pendingScrollVersion, setPendingScrollVersion] = useState(0); // Track pending scroll changes to trigger effects
+        const hasInitialScrolledRef = useRef(false); // Track if we've done the initial mobile scroll
+
+        // Log component mount
+        useEffect(() => {
+            log('[ListPane] Component mounted', {
+                selectedFile: selectedFile?.path,
+                selectedFolder: selectedFolder?.path,
+                selectedTag: selectedTag,
+                selectionType: selectionType,
+                isRevealOperation: selectionState.isRevealOperation,
+                isMobile: isMobile,
+                hasScrollContainerRef: !!scrollContainerRef.current,
+                pendingScroll: pendingScrollRef.current,
+                isVisible,
+                hasInitialScrolled: hasInitialScrolledRef.current,
+                timestamp: new Date().toISOString()
+            });
+        }, []);
 
         // Track list items order to detect when items are reordered
         const listItemsKeyRef = useRef('');
@@ -111,6 +142,9 @@ export const ListPane = React.memo(
                 log('[ListPane] Virtualizer state', {
                     itemCount: listItems.length,
                     hasScrollContainer: !!scrollContainerRef.current,
+                    hasVirtualizer: !!rowVirtualizer,
+                    scrollElementHeight: scrollContainerRef.current?.clientHeight,
+                    pendingScroll: pendingScrollRef.current,
                     timestamp: new Date().toISOString()
                 });
             }
@@ -118,7 +152,15 @@ export const ListPane = React.memo(
 
         const rowVirtualizer = useVirtualizer({
             count: listItems.length,
-            getScrollElement: () => scrollContainerRef.current,
+            getScrollElement: () => {
+                const element = scrollContainerRef.current;
+                if (!element) {
+                    log('[ListPane] Virtualizer getScrollElement called - no element', {
+                        timestamp: new Date().toISOString()
+                    });
+                }
+                return element;
+            },
             estimateSize: index => {
                 const item = listItems[index];
                 const { heights } = LISTPANE_MEASUREMENTS;
@@ -674,29 +716,131 @@ export const ListPane = React.memo(
         // Process pending scrolls after virtualizer updates or visibility changes
         // This handles deferred scrolling for single-pane mode and ensures proper timing
         useEffect(() => {
+            const effectId = Math.random().toString(36).substr(2, 9);
+            log('[ListPane] Pending scroll processor effect triggered - ENTRY', {
+                effectId: effectId,
+                hasVirtualizer: !!rowVirtualizer,
+                hasPendingScroll: !!pendingScrollRef.current,
+                pendingScroll: pendingScrollRef.current,
+                isVisible: isVisible,
+                pendingScrollVersion: pendingScrollVersion,
+                filePathToIndexSize: filePathToIndex.size,
+                listItemsLength: listItems.length,
+                isRevealOperation: selectionState.isRevealOperation,
+                selectedFile: selectedFile?.path,
+                timestamp: new Date().toISOString()
+            });
+
             if (!rowVirtualizer || !pendingScrollRef.current || !isVisible) {
+                if (pendingScrollRef.current && !isVisible) {
+                    log('[ListPane] Pending scroll processor - skipping, not visible', {
+                        pendingScroll: pendingScrollRef.current,
+                        timestamp: new Date().toISOString()
+                    });
+                } else if (!rowVirtualizer) {
+                    log('[ListPane] Pending scroll processor - skipping, no virtualizer', {
+                        hasPendingScroll: !!pendingScrollRef.current,
+                        timestamp: new Date().toISOString()
+                    });
+                } else if (!pendingScrollRef.current) {
+                    log('[ListPane] Pending scroll processor - skipping, no pending scroll', {
+                        hasVirtualizer: !!rowVirtualizer,
+                        isVisible: isVisible,
+                        timestamp: new Date().toISOString()
+                    });
+                }
                 return;
             }
 
             const pending = pendingScrollRef.current;
+            log('[ListPane] Processing pending scroll - START', {
+                type: pending.type,
+                filePath: pending.filePath,
+                fileInIndex: pending.filePath ? filePathToIndex.has(pending.filePath) : undefined,
+                fileIndexValue: pending.filePath ? filePathToIndex.get(pending.filePath) : undefined,
+                scrollElement: {
+                    hasElement: !!rowVirtualizer.scrollElement,
+                    clientHeight: rowVirtualizer.scrollElement?.clientHeight,
+                    scrollHeight: rowVirtualizer.scrollElement?.scrollHeight,
+                    scrollTop: rowVirtualizer.scrollElement?.scrollTop
+                },
+                timestamp: new Date().toISOString()
+            });
             let shouldClearPending = false;
 
             if (pending.type === 'file' && pending.filePath) {
                 const index = filePathToIndex.get(pending.filePath);
                 if (index !== undefined && index >= 0) {
-                    log('[ListPane] Processing pending scroll to file', {
+                    const scrollElement = rowVirtualizer.scrollElement;
+                    const totalSize = rowVirtualizer.getTotalSize();
+                    const virtualItems = rowVirtualizer.getVirtualItems();
+
+                    log('[ListPane] Processing pending scroll to file - PRE', {
                         file: pending.filePath,
                         index: index,
+                        scrollElementHeight: scrollElement?.clientHeight,
+                        scrollTop: scrollElement?.scrollTop,
+                        totalSize: totalSize,
+                        virtualItemsCount: virtualItems.length,
+                        firstVirtualItem: virtualItems[0]?.index,
+                        lastVirtualItem: virtualItems[virtualItems.length - 1]?.index,
                         timestamp: new Date().toISOString()
                     });
+
+                    log('[ListPane] About to call scrollToIndex', {
+                        index: index,
+                        hasScrollElement: !!scrollElement,
+                        scrollElementClientHeight: scrollElement?.clientHeight,
+                        currentScrollTop: scrollElement?.scrollTop,
+                        scrollHeight: scrollElement?.scrollHeight,
+                        timestamp: new Date().toISOString()
+                    });
+
+                    const beforeScrollTop = scrollElement?.scrollTop || 0;
+                    // Test: always use 'auto' to see if it breaks
+                    const alignment = 'auto';
+
+                    log('[ListPane] Scroll alignment decision', {
+                        isMobile,
+                        hasInitialScrolled: hasInitialScrolledRef.current,
+                        alignment,
+                        timestamp: new Date().toISOString()
+                    });
+
                     rowVirtualizer.scrollToIndex(index, {
-                        align: 'auto',
+                        align: alignment,
                         behavior: 'auto'
                     });
+
+                    // Log after scroll
+                    requestAnimationFrame(() => {
+                        const afterScrollTop = scrollElement?.scrollTop;
+                        const newVirtualItems = rowVirtualizer.getVirtualItems();
+                        log('[ListPane] Processing pending scroll to file - POST', {
+                            file: pending.filePath,
+                            index: index,
+                            beforeScrollTop: beforeScrollTop,
+                            afterScrollTop: afterScrollTop,
+                            scrollChanged: afterScrollTop !== beforeScrollTop,
+                            newVirtualItemsCount: newVirtualItems.length,
+                            newFirstVirtualItem: newVirtualItems[0]?.index,
+                            newLastVirtualItem: newVirtualItems[newVirtualItems.length - 1]?.index,
+                            itemIsVisible:
+                                index >= (newVirtualItems[0]?.index || 0) &&
+                                index <= (newVirtualItems[newVirtualItems.length - 1]?.index || 0),
+                            timestamp: new Date().toISOString()
+                        });
+                    });
+
                     shouldClearPending = true;
                 } else {
                     // File not found in index yet - keep the pending scroll
                     // This can happen when toggling showNotesFromSubfolders and the list hasn't updated yet
+                    log('[ListPane] Pending scroll - file not in index yet, keeping pending', {
+                        file: pending.filePath,
+                        filePathToIndexSize: filePathToIndex.size,
+                        timestamp: new Date().toISOString()
+                    });
                     shouldClearPending = false;
                 }
             } else if (pending.type === 'top') {
@@ -706,9 +850,41 @@ export const ListPane = React.memo(
 
             // Only clear the pending scroll if we successfully executed it or if it's a top scroll
             if (shouldClearPending) {
+                log('[ListPane] Clearing pending scroll', {
+                    type: pending.type,
+                    filePath: pending.filePath,
+                    wasSuccessful: true,
+                    timestamp: new Date().toISOString()
+                });
                 pendingScrollRef.current = null;
+            } else {
+                log('[ListPane] NOT clearing pending scroll - will retry', {
+                    type: pending.type,
+                    filePath: pending.filePath,
+                    timestamp: new Date().toISOString()
+                });
             }
+
+            // Log cleanup
+            return () => {
+                log('[ListPane] Pending scroll processor effect cleanup', {
+                    effectId: effectId,
+                    hasPendingScroll: !!pendingScrollRef.current,
+                    timestamp: new Date().toISOString()
+                });
+            };
         }, [rowVirtualizer, filePathToIndex, rowVirtualizer.getTotalSize(), isVisible, pendingScrollVersion]);
+
+        // Log when filePathToIndex changes
+        useEffect(() => {
+            log('[ListPane] filePathToIndex changed', {
+                size: filePathToIndex.size,
+                hasPendingScroll: !!pendingScrollRef.current,
+                pendingFile: pendingScrollRef.current?.filePath,
+                fileInIndex: pendingScrollRef.current?.filePath ? filePathToIndex.has(pendingScrollRef.current.filePath) : undefined,
+                timestamp: new Date().toISOString()
+            });
+        }, [filePathToIndex]);
 
         // Subscribe to database content changes to re-measure virtualizer
         useEffect(() => {
@@ -764,6 +940,9 @@ export const ListPane = React.memo(
                 if (selectedFile && rowVirtualizer) {
                     log('[ListPane] Setting pending scroll for mobile visibility', {
                         file: selectedFile.path,
+                        currentPendingScroll: pendingScrollRef.current,
+                        pendingScrollVersion: pendingScrollVersion,
+                        fileInIndex: filePathToIndex.has(selectedFile.path),
                         timestamp: new Date().toISOString()
                     });
                     pendingScrollRef.current = { type: 'file', filePath: selectedFile.path };
@@ -773,7 +952,7 @@ export const ListPane = React.memo(
 
             window.addEventListener('notebook-navigator-visible', handleVisible);
             return () => window.removeEventListener('notebook-navigator-visible', handleVisible);
-        }, [isMobile, selectedFile, rowVirtualizer]);
+        }, [isMobile, selectedFile, rowVirtualizer, filePathToIndex]);
 
         // Re-measure all items when height-affecting settings change
         useEffect(() => {
@@ -816,10 +995,17 @@ export const ListPane = React.memo(
 
             // Set a pending scroll that will be executed after list updates
             if (selectedFile) {
+                log('[ListPane] Setting pending scroll in showNotesFromSubfolders effect', {
+                    file: selectedFile.path,
+                    timestamp: new Date().toISOString()
+                });
                 pendingScrollRef.current = { type: 'file', filePath: selectedFile.path };
                 setPendingScrollVersion(v => v + 1);
             } else if (!settings.showNotesFromSubfolders) {
                 // When disabling subfolders and no file selected, scroll to top
+                log('[ListPane] Setting pending scroll to top in showNotesFromSubfolders effect', {
+                    timestamp: new Date().toISOString()
+                });
                 pendingScrollRef.current = { type: 'top' };
                 setPendingScrollVersion(v => v + 1);
             }
@@ -845,6 +1031,26 @@ export const ListPane = React.memo(
             // 2. List context changed (folder/tag change)
             const shouldScroll = isFolderNavigation || listChanged;
 
+            log('[ListPane] Folder/tag navigation effect - DETAILED', {
+                currentListKey,
+                prevListKey: prevListKeyRef.current,
+                listChanged,
+                isFolderNavigation,
+                shouldScroll,
+                isRevealOperation: selectionState.isRevealOperation,
+                selectedFile: selectedFile?.path,
+                listItemsLength: listItems.length,
+                pendingScroll: pendingScrollRef.current,
+                hasPendingScroll: !!pendingScrollRef.current,
+                conditions: {
+                    hasRowVirtualizer: !!rowVirtualizer,
+                    shouldScroll,
+                    isVisible,
+                    listEmpty: listItems.length === 0
+                },
+                timestamp: new Date().toISOString()
+            });
+
             if (!shouldScroll) {
                 return;
             }
@@ -867,6 +1073,11 @@ export const ListPane = React.memo(
                     selectionDispatch({ type: 'SET_FOLDER_NAVIGATION', isFolderNavigation: false });
                 }
 
+                log('[ListPane] Setting pending scroll in folder/tag navigation (not visible)', {
+                    file: selectedFile?.path,
+                    type: selectedFile ? 'file' : 'top',
+                    timestamp: new Date().toISOString()
+                });
                 pendingScrollRef.current = selectedFile ? { type: 'file', filePath: selectedFile.path } : { type: 'top' };
                 setPendingScrollVersion(v => v + 1);
                 return;
@@ -883,37 +1094,29 @@ export const ListPane = React.memo(
                 // Clear the folder navigation flag
                 selectionDispatch({ type: 'SET_FOLDER_NAVIGATION', isFolderNavigation: false });
 
+                log('[ListPane] Setting pending scroll in folder/tag navigation (visible)', {
+                    file: selectedFile?.path,
+                    type: selectedFile ? 'file' : 'top',
+                    timestamp: new Date().toISOString()
+                });
                 pendingScrollRef.current = selectedFile ? { type: 'file', filePath: selectedFile.path } : { type: 'top' };
                 setPendingScrollVersion(v => v + 1);
             } else {
-                // For other cases (initial load), use RAF
-                const rafId = requestAnimationFrame(() => {
-                    // Update the ref AFTER we're in the animation frame to ensure it happens after scroll
-                    if (listChanged) {
-                        prevListKeyRef.current = currentListKey;
-                    }
-
-                    if (selectedFile) {
-                        // Try to scroll to selected file
-                        const index = getSelectionIndex();
-                        if (index >= 0) {
-                            rowVirtualizer.scrollToIndex(index, {
-                                align: 'center',
-                                behavior: 'auto'
-                            });
-                        } else {
-                            // List changed but file not found - scroll to top
-                            rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
-                        }
-                    } else {
-                        // List changed with no file selected - scroll to top
-                        rowVirtualizer.scrollToOffset(0, { align: 'start', behavior: 'auto' });
-                    }
+                // For other cases (initial load), use pending scroll for consistency
+                // RAF was getting canceled due to rapid re-renders
+                log('[ListPane] Setting pending scroll in folder/tag navigation (initial load)', {
+                    file: selectedFile?.path,
+                    type: selectedFile ? 'file' : 'top',
+                    timestamp: new Date().toISOString()
                 });
 
-                return () => {
-                    cancelAnimationFrame(rafId);
-                };
+                // Update the ref
+                if (listChanged) {
+                    prevListKeyRef.current = currentListKey;
+                }
+
+                pendingScrollRef.current = selectedFile ? { type: 'file', filePath: selectedFile.path } : { type: 'top' };
+                setPendingScrollVersion(v => v + 1);
             }
         }, [
             isVisible,
@@ -929,13 +1132,33 @@ export const ListPane = React.memo(
 
         // Handle reveal operations to use pending scroll
         useEffect(() => {
+            log('[ListPane] Reveal operation effect check', {
+                isRevealOperation: selectionState.isRevealOperation,
+                selectedFile: selectedFile?.path,
+                isVisible: isVisible,
+                hasVirtualizer: !!rowVirtualizer,
+                currentPendingScroll: pendingScrollRef.current,
+                filePathToIndexSize: filePathToIndex.size,
+                timestamp: new Date().toISOString()
+            });
+
             if (selectionState.isRevealOperation && selectedFile && isVisible) {
+                log('[ListPane] Reveal operation detected, setting pending scroll', {
+                    file: selectedFile.path,
+                    previousPendingScroll: pendingScrollRef.current,
+                    isVisible: isVisible,
+                    hasVirtualizer: !!rowVirtualizer,
+                    listItemsCount: listItems.length,
+                    filePathToIndexSize: filePathToIndex.size,
+                    fileInIndex: filePathToIndex.has(selectedFile.path),
+                    timestamp: new Date().toISOString()
+                });
                 // Always use pending scroll for reveal operations
                 // This ensures proper timing and measurement before scrolling
                 pendingScrollRef.current = { type: 'file', filePath: selectedFile.path };
                 setPendingScrollVersion(v => v + 1);
             }
-        }, [selectionState.isRevealOperation, selectedFile, isVisible]);
+        }, [selectionState.isRevealOperation, selectedFile, isVisible, selectionDispatch, filePathToIndex]);
 
         // Track current visible date group for sticky header
         useEffect(() => {
@@ -1069,7 +1292,7 @@ export const ListPane = React.memo(
         return (
             <div className="nn-list-pane">
                 <PaneHeader type="files" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
-                <div ref={scrollContainerRef} className="nn-list-pane-scroller" data-pane="files" role="list" tabIndex={-1}>
+                <div ref={scrollContainerRefCallback} className="nn-list-pane-scroller" data-pane="files" role="list" tabIndex={-1}>
                     {/* Virtual list */}
                     {listItems.length > 0 && (
                         <div

@@ -241,7 +241,7 @@ export class NotebookNavigatorView extends ItemView {
             width: rect.width,
             height: rect.height,
             timestamp: new Date().toISOString(),
-            isStartup: !this.root
+            hasRoot: !!this.root
         });
 
         if (rect.width > 0 && rect.height > 0) {

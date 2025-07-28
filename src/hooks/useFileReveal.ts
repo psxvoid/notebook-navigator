@@ -376,8 +376,17 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
     // Auto-reveal effect: Reset fileToReveal after it's been consumed
     useEffect(() => {
         if (fileToReveal) {
+            log('[useFileReveal] fileToReveal set, will clear in 100ms', {
+                file: fileToReveal.path,
+                isStartupReveal: isStartupReveal,
+                timestamp: new Date().toISOString()
+            });
             // Clear after a short delay to ensure the consumer has processed it
             const timer = setTimeout(() => {
+                log('[useFileReveal] Clearing fileToReveal', {
+                    file: fileToReveal.path,
+                    timestamp: new Date().toISOString()
+                });
                 setFileToReveal(null);
                 setIsStartupReveal(false);
             }, 100);
@@ -463,6 +472,17 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
 
         // Check for currently active file on mount
         const activeFile = app.workspace.getActiveFile();
+        log('[useFileReveal] Checking for startup auto-reveal', {
+            hasActiveFile: !!activeFile,
+            activeFilePath: activeFile?.path,
+            hasInitialized: hasInitializedRef.current,
+            autoRevealEnabled: settings.autoRevealActiveFile,
+            selectionType: selectionState.selectionType,
+            selectedTag: selectionState.selectedTag,
+            selectedFile: selectionState.selectedFile?.path,
+            timestamp: new Date().toISOString()
+        });
+
         if (activeFile && !hasInitializedRef.current) {
             log('[useFileReveal] Startup auto-reveal triggered', {
                 file: activeFile.path,
@@ -481,9 +501,25 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
 
     // Handle revealing the file when detected
     useEffect(() => {
+        log('[useFileReveal] Reveal processing effect triggered', {
+            hasFileToReveal: !!fileToReveal,
+            file: fileToReveal?.path,
+            isStartupReveal: isStartupReveal,
+            timestamp: new Date().toISOString()
+        });
+
         if (fileToReveal) {
+            log('[useFileReveal] About to call requestAnimationFrame', {
+                file: fileToReveal.path,
+                timestamp: new Date().toISOString()
+            });
             // Use requestAnimationFrame to ensure state updates are processed
             requestAnimationFrame(() => {
+                log('[useFileReveal] Inside requestAnimationFrame', {
+                    file: fileToReveal.path,
+                    isStartupReveal: isStartupReveal,
+                    timestamp: new Date().toISOString()
+                });
                 if (isStartupReveal) {
                     // On startup, if we're already in tag view with the correct file selected, skip reveal but expand tags
                     if (
