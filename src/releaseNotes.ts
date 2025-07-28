@@ -51,12 +51,22 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.3.5',
+        date: '2025-07-28',
+        showOnUpdate: false,
+        features: [
+            'FIXED: Startup now works better with large vaults and large folders (>10,000 files).',
+            'FIXED: Improved auto reveal behavior for notes in untagged folder when restarting the plugin.',
+            "FIXED: 'Reveal in Finder' now says 'Show in system explorer' on Windows PCs.",
+            'CHANGED: Default value for Preview rows is now 2.'
+        ]
+    },
+    {
         version: '1.3.4',
         date: '2025-07-27',
         showOnUpdate: true,
         features: [
             'NEW: Show file tags! Tags are now shown for each file in the file list! They use your tag colors and you can click them to quickly switch to the right tag in the tag tree!',
-            'IMPROVED: Tag navigation enhancements - Restarting the app remembers your selected tag. Files opened in the editor now show in the tag tree if they have tags (or untagged if enabled). Enables 100% tag-based workflow.',
             "NEW: 'Reveal in folder' menu command - Same functionality as 'Reveal file' command. Useful with 'Show notes from subfolders' enabled or when working with tags.",
             'IMPROVED: Cleaner drag and drop visuals for easier file management.',
             'IMPROVED: Eliminated tiny flicker when changing folders/tags where selected item was temporarily deselected.',
