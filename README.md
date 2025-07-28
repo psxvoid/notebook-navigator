@@ -291,8 +291,11 @@ more minimal interface.
 - **Confirm before deleting:** Show confirmation dialog when deleting notes or
   folders
 
-(\*) These settings store data to a local cache database. You can see the total
-size of the database at the bottom of the Settings pane.
+<br>
+
+_(\*) These settings store data to a local cache database. You can see the total
+size of the database at the bottom of the Settings pane. Uncheck each item to
+remove its data from the cache._
 
 <br>
 
