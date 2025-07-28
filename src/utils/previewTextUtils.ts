@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { FrontMatterCache } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 
 // Maximum number of characters for preview text
@@ -197,7 +198,7 @@ export class PreviewTextUtils {
      * @param frontmatter Optional frontmatter object to check for preview properties
      * @returns The preview text (max characters defined by MAX_PREVIEW_TEXT_LENGTH) or empty string
      */
-    static extractPreviewText(content: string, settings: NotebookNavigatorSettings, frontmatter?: any): string {
+    static extractPreviewText(content: string, settings: NotebookNavigatorSettings, frontmatter?: FrontMatterCache): string {
         // Check preview properties first if frontmatter is provided
         if (frontmatter && settings.previewProperties && settings.previewProperties.length > 0) {
             for (const property of settings.previewProperties) {

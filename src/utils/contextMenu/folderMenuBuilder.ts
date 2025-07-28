@@ -107,8 +107,14 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         item.setTitle(strings.contextMenu.folder.searchInFolder)
             .setIcon('search')
             .onClick(() => {
-                const searchPlugin = getInternalPlugin(app, 'global-search');
-                if (searchPlugin && 'instance' in searchPlugin && searchPlugin.instance) {
+                interface SearchPlugin {
+                    enabled: boolean;
+                    instance?: {
+                        openGlobalSearch(query: string): void;
+                    };
+                }
+                const searchPlugin = getInternalPlugin<SearchPlugin>(app, 'global-search');
+                if (searchPlugin?.instance) {
                     searchPlugin.instance.openGlobalSearch(`path:"${folder.path}"`);
                 }
             });

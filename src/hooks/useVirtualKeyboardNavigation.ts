@@ -27,6 +27,7 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { getSupportedLeaves, NavigationPaneItemType, ListPaneItemType, ItemType } from '../types';
 import { FileView } from '../types/obsidian-extended';
 import { TagTreeNode } from '../types/storage';
+import { isFileView } from '../utils/typeGuards';
 import { CombinedNavigationItem, ListPaneItem } from '../types/virtualization';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
 import { isTypingInInput } from '../utils/domUtils';
@@ -321,7 +322,10 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     } else if (focusedPane === 'files' && selectionState.selectedFile) {
                         // RIGHT arrow from files pane should focus the editor (same as TAB)
                         const leaves = getSupportedLeaves(app);
-                        const targetLeaf = leaves.find(leaf => (leaf.view as FileView).file?.path === selectionState.selectedFile?.path);
+                        const targetLeaf = leaves.find(leaf => {
+                            const view = leaf.view;
+                            return isFileView(view) && view.file?.path === selectionState.selectedFile?.path;
+                        });
                         if (targetLeaf) {
                             app.workspace.setActiveLeaf(targetLeaf, { focus: true });
                         }
@@ -425,9 +429,10 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                         } else if (focusedPane === 'files' && selectionState.selectedFile) {
                             // This is the logic moved from ArrowRight to focus the editor
                             const leaves = getSupportedLeaves(app);
-                            const targetLeaf = leaves.find(
-                                leaf => (leaf.view as FileView).file?.path === selectionState.selectedFile?.path
-                            );
+                            const targetLeaf = leaves.find(leaf => {
+                                const view = leaf.view;
+                                return isFileView(view) && view.file?.path === selectionState.selectedFile?.path;
+                            });
                             if (targetLeaf) {
                                 app.workspace.setActiveLeaf(targetLeaf, { focus: true });
                             }

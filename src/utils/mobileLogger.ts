@@ -66,7 +66,7 @@ Platform: ${Platform.isMobile ? 'Mobile' : 'Desktop'}
         }
     }
 
-    async log(...args: any[]) {
+    async log(...args: unknown[]) {
         // Always log to console as well
         console.log(...args);
 
@@ -80,7 +80,7 @@ Platform: ${Platform.isMobile ? 'Mobile' : 'Desktop'}
             const timestamp = new Date().toISOString();
             const message = args
                 .map(arg => {
-                    if (typeof arg === 'object') {
+                    if (typeof arg === 'object' && arg !== null) {
                         return JSON.stringify(arg, null, 2);
                     }
                     return String(arg);
@@ -127,7 +127,7 @@ export function initializeMobileLogger(app: App) {
  * Usage: log('message', { data: 'object' });
  * @knipignore
  */
-export function log(...args: any[]) {
+export function log(...args: unknown[]) {
     if (globalLogger) {
         globalLogger.log(...args);
     } else {

@@ -26,7 +26,7 @@ import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
 import { FileView } from '../types/obsidian-extended';
-import { isTFolder } from '../utils/typeGuards';
+import { isTFolder, isFileView } from '../utils/typeGuards';
 import { determineTagToReveal } from '../utils/tagUtils';
 import { ItemType } from '../types';
 import { buildTagTree, findTagNode, parseTagPatterns, matchesTagPattern } from '../utils/tagTree';
@@ -429,8 +429,8 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             }
 
             // Get the file from the active view
-            const view = leaf.view as FileView;
-            if (view && view.file && view.file instanceof TFile) {
+            const view = leaf.view;
+            if (isFileView(view) && view.file && view.file instanceof TFile) {
                 handleFileChange(view.file);
             }
         };

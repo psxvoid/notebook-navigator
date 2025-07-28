@@ -18,7 +18,7 @@
 
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback } from 'react';
-import { TFile, TFolder, Notice } from 'obsidian';
+import { TFile, TFolder, Notice, EventRef } from 'obsidian';
 import { useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
@@ -142,8 +142,11 @@ export const NotebookNavigatorComponent = React.memo(
                 } catch {}
             };
 
-            const hideEventRef = app.workspace.on('notebook-navigator:mobile-hide' as any, handleMobileHide);
-            const showEventRef = app.workspace.on('notebook-navigator:mobile-show' as any, handleMobileShow);
+            // Use module augmentation pattern for custom events
+            // @ts-expect-error - Custom events not in Obsidian's type definitions
+            const hideEventRef = app.workspace.on('notebook-navigator:mobile-hide', handleMobileHide);
+            // @ts-expect-error - Custom events not in Obsidian's type definitions
+            const showEventRef = app.workspace.on('notebook-navigator:mobile-show', handleMobileShow);
 
             return () => {
                 app.workspace.offref(hideEventRef);
