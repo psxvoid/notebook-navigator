@@ -272,14 +272,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         // Only create service if it doesn't exist
         if (!contentService.current) {
             // Create content service that notifies us when content is generated
-            contentService.current = new ContentService(
-                app,
-                settings,
-                () => {
-                    // No longer need this callback - using database notifications instead
-                },
-                (file: TFile) => extractMetadata(app, file, settings)
-            );
+            contentService.current = new ContentService(app, settings, (file: TFile) => extractMetadata(app, file, settings));
         }
 
         return () => {
@@ -433,7 +426,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                                 }
 
                                 if (filesToProcess.length > 0) {
-                                    contentService.current.queueContent(filesToProcess, null);
+                                    contentService.current.queueContent(filesToProcess);
                                 }
                             }
                         }
@@ -479,7 +472,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                     // ContentService will detect the null content and regenerate
                     if (contentService.current) {
-                        contentService.current.queueContent([file], null);
+                        contentService.current.queueContent([file]);
                     }
                 }
             })
@@ -498,7 +491,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                 // Queue content regeneration for the file
                 if (contentService.current) {
-                    contentService.current.queueContent([file], null);
+                    contentService.current.queueContent([file]);
                 }
 
                 // Note: We already queued content regeneration above
@@ -552,7 +545,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             const allFiles = app.vault
                 .getMarkdownFiles()
                 .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-            contentService.current.queueContent(allFiles, null);
+            contentService.current.queueContent(allFiles);
         }
     }, [settings.showFilePreview, settings.excludedFiles, app]);
 
@@ -582,7 +575,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                 const allFiles = app.vault
                     .getMarkdownFiles()
                     .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-                contentService.current!.queueContent(allFiles, null);
+                contentService.current!.queueContent(allFiles);
             });
         }
     }, [settings.skipHeadingsInPreview, settings.previewProperties, settings.showFilePreview, settings.excludedFiles, app]);
@@ -608,7 +601,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             const allFiles = app.vault
                 .getMarkdownFiles()
                 .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-            contentService.current.queueContent(allFiles, null);
+            contentService.current.queueContent(allFiles);
         }
     }, [settings.showFeatureImage, settings.excludedFiles, app]);
 
@@ -635,7 +628,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                 const allFiles = app.vault
                     .getMarkdownFiles()
                     .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-                contentService.current!.queueContent(allFiles, null);
+                contentService.current!.queueContent(allFiles);
             });
         }
     }, [settings.featureImageProperties, settings.showFeatureImage, settings.excludedFiles, app]);
@@ -661,7 +654,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             const allFiles = app.vault
                 .getMarkdownFiles()
                 .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-            contentService.current.queueContent(allFiles, null);
+            contentService.current.queueContent(allFiles);
         }
     }, [settings.useFrontmatterMetadata, settings.excludedFiles, app]);
 
@@ -702,7 +695,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                 const allFiles = app.vault
                     .getMarkdownFiles()
                     .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-                contentService.current!.queueContent(allFiles, null);
+                contentService.current!.queueContent(allFiles);
             });
         }
     }, [
@@ -737,7 +730,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             // Mark files for regeneration (preserves mtime)
             markFilesForRegeneration(allFiles).then(() => {
                 // Queue content generation for tags
-                contentService.current!.queueContent(allFiles, null);
+                contentService.current!.queueContent(allFiles);
             });
         }
     }, [settings.showTags, settings.excludedFiles, app]);

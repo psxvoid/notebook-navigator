@@ -69,12 +69,10 @@ export class ContentService {
     constructor(
         app: App,
         settings: NotebookNavigatorSettings,
-        onCacheUpdated: () => void,
         extractMetadata: (file: TFile) => { fn?: string; fc?: number; fm?: number }
     ) {
         this.app = app;
         this.settings = settings;
-        // onCacheUpdated parameter kept for backwards compatibility but not used
         this.extractMetadata = extractMetadata;
     }
 
@@ -94,30 +92,23 @@ export class ContentService {
      * content needs to be generated based on current settings and existing data.
      *
      * @param files - Array of files to process
-     * @param _cache - Unused parameter (kept for backwards compatibility)
-     * @param isInitialBuild - Whether this is the initial vault scan
      */
-    public async queueContent(
-        files: TFile[],
-        _cache: unknown,
-        isInitialBuild: boolean = false,
-        forceRegenerate: boolean = false
-    ): Promise<void> {
+    public async queueContent(files: TFile[]): Promise<void> {
         // Clear any pending debounce timer
         if (this.queueDebounceTimer !== null) {
             window.clearTimeout(this.queueDebounceTimer);
             this.queueDebounceTimer = null;
         }
 
-        // Determine if this is a regular file update (not initial build or settings change)
-        const isRegularFileUpdate = !isInitialBuild && !this.settingsChanged;
+        // Determine if this is a regular file update (not settings change)
+        const isRegularFileUpdate = !this.settingsChanged;
 
         // Set whether we should log for this batch
         this.shouldLogCurrentBatch = !isRegularFileUpdate;
 
         // Don't clear the queue - we want to preserve already queued files
-        // Only clear on settings changes or initial builds
-        if (isInitialBuild || this.settingsChanged) {
+        // Only clear on settings changes
+        if (this.settingsChanged) {
             this.queue.length = 0;
         }
 

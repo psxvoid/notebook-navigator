@@ -61,31 +61,11 @@ export function sortFiles(
     sortOption: SortOption,
     getCreatedTime: (file: TFile) => number,
     getModifiedTime: (file: TFile) => number
-): void;
-
-export function sortFiles(
-    files: TFile[],
-    sortOption: SortOption,
-    cacheOrGetCreated?: unknown | ((file: TFile) => number),
-    settingsOrGetModified?: NotebookNavigatorSettings | ((file: TFile) => number)
 ): void {
     // Helper function to get timestamp for sorting
-    let getTimestamp: (file: TFile, type: 'created' | 'modified') => number;
-
-    if (typeof cacheOrGetCreated === 'function' && typeof settingsOrGetModified === 'function') {
-        // Using getter functions
-        const getCreatedTime = cacheOrGetCreated;
-        const getModifiedTime = settingsOrGetModified;
-        getTimestamp = (file: TFile, type: 'created' | 'modified'): number => {
-            return type === 'created' ? getCreatedTime(file) : getModifiedTime(file);
-        };
-    } else {
-        // Function overload - just use file stats
-        const settings = settingsOrGetModified as NotebookNavigatorSettings | undefined;
-        getTimestamp = (file: TFile, type: 'created' | 'modified'): number => {
-            return DateUtils.getFileTimestamp(file, type, undefined, settings);
-        };
-    }
+    const getTimestamp = (file: TFile, type: 'created' | 'modified'): number => {
+        return type === 'created' ? getCreatedTime(file) : getModifiedTime(file);
+    };
 
     switch (sortOption) {
         case 'modified-desc':
