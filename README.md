@@ -152,6 +152,10 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   navigator, expanding parent folders and scrolling to it. Useful if you have
   the setting "Show notes from subfolders" enabled and want to find out the
   folder of a specific note
+- `Notebook Navigator: Reveal in folder` Reveals the selected file in the
+  navigation pane by switching to its containing folder. This is especially
+  useful when viewing notes from subfolders or tags, allowing you to quickly
+  jump to the file's actual folder location
 - `Notebook Navigator: Navigate to folder` Opens a search dialog to quickly jump
   to any folder in your vault
 - `Notebook Navigator: Navigate to tag` Opens a search dialog to quickly jump to
@@ -225,7 +229,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Tags
 
-- **Show tags:** Display tags section below folders in the navigator
+- **Show tags (\*):** Display tags section below folders in the navigator
   - **Show tags above folders:** Display tags section before folders in the
     navigator. When enabled, tags appear at the top of the navigation pane
   - **Show favorites folder:** Display "Favorites" as a collapsible folder when
@@ -255,7 +259,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ### Notes
 
-- **Read metadata from frontmatter:** Read note names and timestamps from
+- **Read metadata from frontmatter (\*):** Read note names and timestamps from
   frontmatter when available, falling back to file system values
   - **Name field:** Frontmatter field to use as the note display name. Leave
     empty to use the file name
@@ -266,13 +270,15 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Timestamp format:** Format used to parse timestamps in frontmatter
 - **Title rows:** Number of rows to display for note titles (1 or 2)
 - **Show date:** Display the date below note names
-- **Show note preview:** Display preview text beneath note names
+- **Show tags:** Display tags in the file list. Tags are shown with their proper
+  color and can be clicked to navigate to that tag in the tag tree
+- **Show note preview (\*):** Display preview text beneath note names
   - **Skip headings in preview:** Skip heading lines when generating preview
     text
   - **Preview rows:** Number of rows to display for preview text (1-5)
-- **Show feature image:** Display thumbnail images from frontmatter. Tip: Use
-  the "Featured Image" plugin to automatically set feature images for all your
-  documents
+- **Show feature image (\*):** Display thumbnail images from frontmatter. Tip:
+  Use the "Featured Image" plugin to automatically set feature images for all
+  your documents
   - **Image properties:** Comma-separated list of frontmatter properties to
     check for thumbnail images. The first property with an image will be used.
     If no image is found in the properties, the first embedded image in the
@@ -286,6 +292,9 @@ more minimal interface.
 
 - **Confirm before deleting:** Show confirmation dialog when deleting notes or
   folders
+
+(\*) These settings store data to a local cache database. You can see the total
+size of the database at the bottom of the Settings pane.
 
 <br>
 
