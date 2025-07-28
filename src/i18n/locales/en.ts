@@ -418,7 +418,7 @@ export const STRINGS_EN = {
                 helpTooltip: 'Click for format reference'
             },
             showFilePreview: {
-                name: 'Show note preview',
+                name: 'Show note preview (*)',
                 desc: 'Display preview text beneath note names.'
             },
             skipHeadingsInPreview: {
@@ -451,7 +451,7 @@ export const STRINGS_EN = {
                 }
             },
             showFeatureImage: {
-                name: 'Show feature image',
+                name: 'Show feature image (*)',
                 desc: 'Display thumbnail images from frontmatter. Tip: Use the "Featured Image" plugin to automatically set feature images for all your documents.'
             },
             featureImageProperties: {
@@ -484,7 +484,7 @@ export const STRINGS_EN = {
                 }
             },
             showTags: {
-                name: 'Show tags',
+                name: 'Show tags (*)',
                 desc: 'Display tags section below folders in the navigator.'
             },
             showTagsAboveFolders: {
@@ -535,7 +535,7 @@ export const STRINGS_EN = {
                 desc: 'Show confirmation dialog when deleting notes or folders'
             },
             useFrontmatterDates: {
-                name: 'Read metadata from frontmatter',
+                name: 'Read metadata from frontmatter (*)',
                 desc: 'Read note names and timestamps from frontmatter when available, falling back to file system values'
             },
             frontmatterNameField: {
@@ -571,7 +571,7 @@ export const STRINGS_EN = {
                 buttonText: 'View recent updates'
             },
             cacheStatistics: {
-                localCache: 'Local cache',
+                localCache: '(*) Local cache',
                 items: 'items',
                 withTags: 'with tags',
                 withPreviewText: 'with preview text',

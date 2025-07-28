@@ -419,7 +419,7 @@ export const STRINGS_ZH = {
                 helpTooltip: '点击查看格式参考'
             },
             showFilePreview: {
-                name: '显示笔记预览',
+                name: '显示笔记预览 (*)',
                 desc: '在笔记名称下方显示预览文本。'
             },
             skipHeadingsInPreview: {
@@ -452,7 +452,7 @@ export const STRINGS_ZH = {
                 }
             },
             showFeatureImage: {
-                name: '显示特色图片',
+                name: '显示特色图片 (*)',
                 desc: '从前置元数据显示缩略图。提示：使用"Featured Image"插件自动为所有文档设置特色图片。'
             },
             featureImageProperties: {
@@ -484,7 +484,7 @@ export const STRINGS_ZH = {
                 }
             },
             showTags: {
-                name: '显示标签',
+                name: '显示标签 (*)',
                 desc: '在导航器中的文件夹下方显示标签部分。'
             },
             showTagsAboveFolders: {
@@ -535,7 +535,7 @@ export const STRINGS_ZH = {
                 desc: '删除笔记或文件夹时显示确认对话框'
             },
             useFrontmatterDates: {
-                name: '从前言读取元数据',
+                name: '从前言读取元数据 (*)',
                 desc: '如果可用，从前言读取笔记名称和时间戳，否则使用文件系统值'
             },
             frontmatterNameField: {
@@ -571,7 +571,7 @@ export const STRINGS_ZH = {
                 buttonText: '查看最近更新'
             },
             cacheStatistics: {
-                localCache: '本地缓存',
+                localCache: '(*) 本地缓存',
                 items: '项',
                 withTags: '包含标签',
                 withPreviewText: '包含预览文本',
