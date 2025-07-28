@@ -405,8 +405,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
                         });
                     }
                 },
-                { timeout: 2000 }
-            ); // Fallback to 2 seconds if no idle time
+                { timeout: 1000 }
+            ); // Fallback to 1 second if no idle time
 
             // Always open the view if it doesn't exist
             const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);

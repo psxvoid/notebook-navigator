@@ -433,7 +433,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                         console.error('Error processing file cache diff:', error);
                     }
                 },
-                { timeout: 1000 }
+                { timeout: 500 }
             );
         };
 
