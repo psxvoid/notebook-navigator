@@ -23,6 +23,7 @@ import { useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
+import { useFileCache } from '../context/StorageContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useFileReveal } from '../hooks/useFileReveal';
@@ -72,6 +73,12 @@ export const NotebookNavigatorComponent = React.memo(
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
         const expansionDispatch = useExpansionDispatch();
+        const { isStorageReady } = useFileCache();
+
+        // Don't render anything until storage is ready
+        if (!isStorageReady) {
+            return null;
+        }
 
         // Root container reference for the entire navigator
         // This ref is passed to both NavigationPane and ListPane to ensure
