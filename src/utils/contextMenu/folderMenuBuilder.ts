@@ -116,7 +116,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
     // Reveal in system explorer
     menu.addItem((item: MenuItem) => {
-        item.setTitle(strings.contextMenu.file.revealInFinder)
+        item.setTitle(fileSystemOps.getRevealInSystemExplorerText())
             .setIcon('folder-open')
             .onClick(async () => {
                 await fileSystemOps.revealInSystemExplorer(folder);
