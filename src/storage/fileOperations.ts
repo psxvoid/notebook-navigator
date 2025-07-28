@@ -41,6 +41,7 @@ import { IndexedDBStorage, FileData } from './IndexedDBStorage';
 
 // Global IndexedDB storage instance
 let dbInstance: IndexedDBStorage | null = null;
+let appId: string | null = null;
 
 /**
  * Get the singleton IndexedDB storage instance.
@@ -50,7 +51,10 @@ let dbInstance: IndexedDBStorage | null = null;
  */
 export function getDBInstance(): IndexedDBStorage {
     if (!dbInstance) {
-        dbInstance = new IndexedDBStorage();
+        if (!appId) {
+            throw new Error('Database not initialized. Call initializeCache with appId first.');
+        }
+        dbInstance = new IndexedDBStorage(appId);
     }
     return dbInstance;
 }
@@ -58,8 +62,11 @@ export function getDBInstance(): IndexedDBStorage {
 /**
  * Initialize the database connection.
  * Must be called before using any other file operations.
+ *
+ * @param appIdParam - The app ID to use for database naming
  */
-export async function initializeCache(): Promise<void> {
+export async function initializeCache(appIdParam: string): Promise<void> {
+    appId = appIdParam;
     const db = getDBInstance();
     await db.init();
 }
@@ -78,7 +85,7 @@ export async function initializeCache(): Promise<void> {
  */
 export async function recordFileChanges(files: TFile[]): Promise<void> {
     const db = getDBInstance();
-    const updates: FileData[] = [];
+    const updates: Array<{ path: string; data: FileData }> = [];
 
     // Get existing data to preserve content for modified files
     const paths = files.map(f => f.path);
@@ -90,26 +97,24 @@ export async function recordFileChanges(files: TFile[]): Promise<void> {
         if (!existing) {
             // New file - initialize with null content
             const fileData: FileData = {
-                path: file.path,
                 mtime: file.stat.mtime,
                 tags: null, // ContentService will extract these
                 preview: null, // ContentService will generate these
                 featureImage: null, // ContentService will generate these
                 metadata: null // ContentService will extract these
             };
-            updates.push(fileData);
+            updates.push({ path: file.path, data: fileData });
         } else {
             // Existing file - preserve content, update mtime
             // ContentService will detect the mtime change and regenerate content
             const fileData: FileData = {
-                path: file.path,
                 mtime: file.stat.mtime, // Update to new mtime
                 tags: existing.tags, // Keep existing tags until regenerated
                 preview: existing.preview, // Keep existing preview
                 featureImage: existing.featureImage, // Keep existing image
                 metadata: existing.metadata // Keep existing metadata
             };
-            updates.push(fileData);
+            updates.push({ path: file.path, data: fileData });
         }
     }
 
@@ -136,7 +141,7 @@ export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
     const db = getDBInstance();
     const paths = files.map(f => f.path);
     const existingData = db.getFiles(paths);
-    const updates: FileData[] = [];
+    const updates: Array<{ path: string; data: FileData }> = [];
 
     for (const file of files) {
         const existing = existingData.get(file.path);
@@ -144,23 +149,27 @@ export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
             // File not in database yet, record it
             updates.push({
                 path: file.path,
-                mtime: file.stat.mtime,
-                tags: null,
-                preview: null,
-                featureImage: null,
-                metadata: null
+                data: {
+                    mtime: file.stat.mtime,
+                    tags: null,
+                    preview: null,
+                    featureImage: null,
+                    metadata: null
+                }
             });
         } else {
             // For settings changes, we need a way to trigger regeneration
             // Update mtime to 0 to force ContentService to regenerate
             // This is better than clearing content as it avoids the double render
             updates.push({
-                path: existing.path,
-                mtime: 0, // Force regeneration by setting mtime to 0
-                tags: existing.tags, // Keep existing tags
-                preview: existing.preview, // Keep existing preview
-                featureImage: existing.featureImage, // Keep existing image
-                metadata: existing.metadata // Keep existing metadata
+                path: file.path,
+                data: {
+                    mtime: 0, // Force regeneration by setting mtime to 0
+                    tags: existing.tags, // Keep existing tags
+                    preview: existing.preview, // Keep existing preview
+                    featureImage: existing.featureImage, // Keep existing image
+                    metadata: existing.metadata // Keep existing metadata
+                }
             });
         }
     }
@@ -181,7 +190,7 @@ export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
  */
 export async function updateFilesInCache(files: TFile[], app: App, preserveMtime: boolean = false): Promise<void> {
     const db = getDBInstance();
-    const updates: FileData[] = [];
+    const updates: Array<{ path: string; data: FileData }> = [];
 
     // Get existing data for all files
     const paths = files.map(f => f.path);
@@ -220,7 +229,6 @@ export async function updateFilesInCache(files: TFile[], app: App, preserveMtime
         }
 
         const fileData: FileData = {
-            path: file.path,
             // Use existing mtime if preserveMtime is true, otherwise use current mtime
             mtime: preserveMtime && existing ? existing.mtime : file.stat.mtime,
             tags: tags || [],
@@ -231,7 +239,7 @@ export async function updateFilesInCache(files: TFile[], app: App, preserveMtime
             metadata: existing?.metadata ?? null
         };
 
-        updates.push(fileData);
+        updates.push({ path: file.path, data: fileData });
     }
 
     await db.setFiles(updates);

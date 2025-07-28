@@ -292,14 +292,16 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
     // Initialize IndexedDB on mount
     useEffect(() => {
-        initializeCache()
+        // @ts-ignore - appId exists on app but not in type definition
+        const appId = app.appId as string;
+        initializeCache(appId)
             .then(() => {
                 setIsIndexedDBReady(true);
             })
             .catch(error => {
                 console.error('Failed to initialize IndexedDB cache:', error);
             });
-    }, []);
+    }, [app]);
 
     // Listen for tag changes to rebuild tag tree
     useEffect(() => {
@@ -366,10 +368,13 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                             // Queue content generation
 
-                            if (
-                                contentService.current &&
-                                (settings.showFilePreview || settings.showFeatureImage || settings.useFrontmatterMetadata)
-                            ) {
+                            const contentEnabled =
+                                settings.showTags ||
+                                settings.showFilePreview ||
+                                settings.showFeatureImage ||
+                                settings.useFrontmatterMetadata;
+
+                            if (contentService.current && contentEnabled) {
                                 // Always process new and updated files (but only if they need content)
                                 // Check IndexedDB to see what content is needed
                                 const db = getDBInstance();

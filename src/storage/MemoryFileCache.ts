@@ -33,22 +33,16 @@ export class MemoryFileCache {
      * Initialize the cache by loading all data from IndexedDB.
      * This is called once during database initialization.
      */
-    initialize(files: FileData[]): void {
-        const startTime = performance.now();
-
+    initialize(filesWithPaths: Array<{ path: string; data: FileData }>): void {
         // Clear any existing data
         this.memoryMap.clear();
 
         // Load all files into memory
-        for (const file of files) {
-            this.memoryMap.set(file.path, file);
+        for (const { path, data } of filesWithPaths) {
+            this.memoryMap.set(path, data);
         }
 
         this.isInitialized = true;
-
-        const endTime = performance.now();
-        const loadTime = (endTime - startTime).toFixed(2);
-        console.log(`Memory file cache loaded: ${this.memoryMap.size} items from IndexedDB to RAM in ${loadTime}ms`);
     }
 
     /**
@@ -95,10 +89,21 @@ export class MemoryFileCache {
     }
 
     /**
+     * Get all files with their paths.
+     */
+    getAllFilesWithPaths(): Array<{ path: string; data: FileData }> {
+        const result: Array<{ path: string; data: FileData }> = [];
+        for (const [path, data] of this.memoryMap.entries()) {
+            result.push({ path, data });
+        }
+        return result;
+    }
+
+    /**
      * Update or add a file in the cache.
      */
-    updateFile(data: FileData): void {
-        this.memoryMap.set(data.path, data);
+    updateFile(path: string, data: FileData): void {
+        this.memoryMap.set(path, data);
     }
 
     /**
@@ -131,9 +136,9 @@ export class MemoryFileCache {
     /**
      * Batch update multiple files.
      */
-    batchUpdate(updates: FileData[]): void {
-        for (const data of updates) {
-            this.memoryMap.set(data.path, data);
+    batchUpdate(updates: Array<{ path: string; data: FileData }>): void {
+        for (const { path, data } of updates) {
+            this.memoryMap.set(path, data);
         }
     }
 

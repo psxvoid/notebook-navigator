@@ -70,7 +70,7 @@ export function calculateCacheStatistics(): CacheStatistics | null {
         // Get all files from cache
         const allFiles = db.getAllFiles();
 
-        for (const fileData of allFiles) {
+        for (const { path, data: fileData } of allFiles) {
             stats.totalItems++;
 
             // Check for tags (not null and not empty array)
@@ -93,8 +93,8 @@ export function calculateCacheStatistics(): CacheStatistics | null {
                 stats.itemsWithMetadata++;
             }
 
-            // Estimate size
-            totalSize += JSON.stringify(fileData).length;
+            // Estimate size including path
+            totalSize += path.length + JSON.stringify(fileData).length;
         }
 
         // Calculate cache size in MB

@@ -146,7 +146,7 @@ export function buildTagTreeFromDatabase(db: IndexedDBStorage): { tree: Map<stri
     // Get all files from cache
     const allFiles = db.getAllFiles();
 
-    for (const fileData of allFiles) {
+    for (const { path, data: fileData } of allFiles) {
         const tags = fileData.tags;
 
         // Skip files with null tags (not extracted yet) or empty tags
@@ -198,7 +198,7 @@ export function buildTagTreeFromDatabase(db: IndexedDBStorage): { tree: Map<stri
 
                 // Only add the file to the leaf tag (the exact tag it's tagged with)
                 if (i === parts.length - 1) {
-                    node.notesWithTag.add(fileData.path);
+                    node.notesWithTag.add(path);
                 }
 
                 // Link to parent

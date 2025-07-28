@@ -67,8 +67,8 @@ export async function calculateFileDiff(
         cachedFiles = new Map<string, FileData>();
         // Get all files from cache
         const allFiles = db.getAllFiles();
-        for (const file of allFiles) {
-            cachedFiles.set(file.path, file);
+        for (const { path, data } of allFiles) {
+            cachedFiles.set(path, data);
         }
     }
 

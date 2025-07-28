@@ -19,13 +19,11 @@ import { STORAGE_KEYS } from '../types';
 
 import { MemoryFileCache } from './MemoryFileCache';
 
-const DB_NAME = 'notebook-navigator-db';
-const STORE_NAME = 'files';
+const STORE_NAME = 'keyvaluepairs';
 const DB_SCHEMA_VERSION = 1; // IndexedDB structure version
-const DB_CONTENT_VERSION = 2; // Data format version (increment to force data rebuild)
+const DB_CONTENT_VERSION = 1; // Data format version
 
 export interface FileData {
-    path: string; // File path (primary key)
     mtime: number;
     tags: string[] | null; // null = not extracted yet (e.g. when tags disabled)
     preview: string | null; // null = not generated yet
@@ -71,8 +69,13 @@ export class IndexedDBStorage {
     private cache: MemoryFileCache = new MemoryFileCache();
     private changeListeners = new Set<(changes: FileContentChange[]) => void>();
     private db: IDBDatabase | null = null;
+    private dbName: string;
     private fileChangeListeners = new Map<string, Set<(changes: FileContentChange['changes']) => void>>();
     private initPromise: Promise<void> | null = null;
+
+    constructor(appId: string) {
+        this.dbName = `notebooknavigator/cache/${appId}`;
+    }
 
     /**
      * Subscribe to content change notifications.
@@ -180,6 +183,8 @@ export class IndexedDBStorage {
     }
 
     private async checkSchemaAndInit(): Promise<void> {
+        const startTime = performance.now();
+
         const storedSchemaVersion = localStorage.getItem(STORAGE_KEYS.databaseSchemaVersionKey);
         const storedContentVersion = localStorage.getItem(STORAGE_KEYS.databaseContentVersionKey);
         const currentSchemaVersion = DB_SCHEMA_VERSION.toString();
@@ -198,16 +203,28 @@ export class IndexedDBStorage {
         localStorage.setItem(STORAGE_KEYS.databaseSchemaVersionKey, currentSchemaVersion);
         localStorage.setItem(STORAGE_KEYS.databaseContentVersionKey, currentContentVersion);
 
-        await this.openDatabase();
+        const needsRebuild = !!(schemaChanged || contentChanged);
+        await this.openDatabase(needsRebuild);
 
         // Clear and rebuild content if either version changed
-        if (schemaChanged || contentChanged) {
+        if (needsRebuild) {
             if (contentChanged && !schemaChanged) {
                 console.log(`Content version changed from ${storedContentVersion} to ${currentContentVersion}. Rebuilding content.`);
             }
             // Clear all data to force rebuild
             await this.clear();
         }
+
+        // Log initialization summary
+        const totalTime = (performance.now() - startTime).toFixed(2);
+        const itemCount = this.cache.getAllFilesWithPaths().length;
+        // Calculate size using the same method as statistics
+        let totalSize = 0;
+        for (const { path, data } of this.cache.getAllFilesWithPaths()) {
+            totalSize += path.length + JSON.stringify(data).length;
+        }
+        const cacheSizeMB = (totalSize / 1024 / 1024).toFixed(2);
+        console.log(`[IndexedDB Storage] Ready in ${totalTime}ms - ${itemCount} items, ${cacheSizeMB}MB`);
     }
 
     private async deleteDatabase(): Promise<void> {
@@ -217,10 +234,9 @@ export class IndexedDBStorage {
         }
 
         return new Promise((resolve, reject) => {
-            const deleteReq = indexedDB.deleteDatabase(DB_NAME);
+            const deleteReq = indexedDB.deleteDatabase(this.dbName);
 
             deleteReq.onsuccess = () => {
-                console.log('Database deleted successfully');
                 resolve();
             };
 
@@ -236,10 +252,10 @@ export class IndexedDBStorage {
         });
     }
 
-    private async openDatabase(): Promise<void> {
+    private async openDatabase(skipCacheLoad: boolean = false): Promise<void> {
         return new Promise((resolve, reject) => {
             const startTime = performance.now();
-            const request = indexedDB.open(DB_NAME, DB_SCHEMA_VERSION);
+            const request = indexedDB.open(this.dbName, DB_SCHEMA_VERSION);
 
             request.onerror = () => {
                 console.error('Database open error:', request.error);
@@ -250,28 +266,46 @@ export class IndexedDBStorage {
                 this.db = request.result;
 
                 // Initialize the cache with all data from IndexedDB
-                try {
-                    // Use getAll() for much faster bulk loading
-                    const transaction = this.db.transaction([STORE_NAME], 'readonly');
-                    const store = transaction.objectStore(STORE_NAME);
+                if (skipCacheLoad) {
+                    this.cache.initialize([]);
+                } else {
+                    try {
+                        // Use getAll() for much faster bulk loading
+                        const transaction = this.db.transaction([STORE_NAME], 'readonly');
+                        const store = transaction.objectStore(STORE_NAME);
 
-                    const request = store.getAll();
+                        // Use openCursor to get both keys and values
+                        const request = store.openCursor();
+                        const filesWithPaths: Array<{ path: string; data: FileData }> = [];
 
-                    await new Promise<void>((resolve, reject) => {
-                        request.onsuccess = () => {
-                            const allFiles = request.result as FileData[];
-                            this.cache.initialize(allFiles);
-                            resolve();
-                        };
+                        await new Promise<void>((resolve, reject) => {
+                            let count = 0;
+                            request.onsuccess = event => {
+                                const cursor = (event.target as IDBRequest).result;
+                                if (cursor) {
+                                    filesWithPaths.push({
+                                        path: cursor.key as string,
+                                        data: cursor.value as FileData
+                                    });
+                                    count++;
+                                    if (count % 1000 === 0) {
+                                    }
+                                    cursor.continue();
+                                } else {
+                                    // Done iterating
+                                    this.cache.initialize(filesWithPaths);
+                                    resolve();
+                                }
+                            };
 
-                        request.onerror = () => reject(request.error);
-                    });
+                            request.onerror = () => reject(request.error);
+                        });
 
-                    const totalTime = (performance.now() - startTime).toFixed(2);
-                    console.log(`Database fully initialized in ${totalTime}ms`);
-                } catch (error) {
-                    console.error('Failed to initialize cache:', error);
-                    // Continue without cache - database will still work
+                        const totalTime = (performance.now() - startTime).toFixed(2);
+                    } catch (error) {
+                        console.error('[DB Cache] Failed to initialize cache:', error);
+                        // Continue without cache - database will still work
+                    }
                 }
 
                 resolve();
@@ -279,9 +313,12 @@ export class IndexedDBStorage {
 
             request.onupgradeneeded = event => {
                 const db = (event.target as IDBOpenDBRequest).result;
+                const oldVersion = event.oldVersion;
+                const newVersion = event.newVersion;
 
                 if (!db.objectStoreNames.contains(STORE_NAME)) {
-                    const store = db.createObjectStore(STORE_NAME, { keyPath: 'path' });
+                    // Use out-of-line keys since we removed path from FileData
+                    const store = db.createObjectStore(STORE_NAME);
 
                     store.createIndex('mtime', 'mtime', { unique: false });
                     store.createIndex('tags', 'tags', { unique: false, multiEntry: true });
@@ -307,6 +344,8 @@ export class IndexedDBStorage {
             request.onsuccess = () => {
                 // Clear cache after successful database clear
                 this.cache.clear();
+                // Re-initialize cache to ready state with empty data
+                this.cache.initialize([]);
                 resolve();
             };
             request.onerror = () => reject(request.error);
@@ -329,9 +368,10 @@ export class IndexedDBStorage {
     /**
      * Store or update a single file in the database.
      *
+     * @param path - File path (key)
      * @param data - File data to store
      */
-    async setFile(data: FileData): Promise<void> {
+    async setFile(path: string, data: FileData): Promise<void> {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
@@ -339,10 +379,10 @@ export class IndexedDBStorage {
         const store = transaction.objectStore(STORE_NAME);
 
         return new Promise((resolve, reject) => {
-            const request = store.put(data);
+            const request = store.put(data, path);
             request.onsuccess = () => {
                 // Update cache after successful database write
-                this.cache.updateFile(data);
+                this.cache.updateFile(path, data);
                 resolve();
             };
             request.onerror = () => reject(request.error);
@@ -390,9 +430,9 @@ export class IndexedDBStorage {
      * Store or update multiple files in the database.
      * More efficient than multiple setFile calls.
      *
-     * @param files - Array of file data to store
+     * @param files - Array of file data with paths to store
      */
-    async setFiles(files: FileData[]): Promise<void> {
+    async setFiles(files: Array<{ path: string; data: FileData }>): Promise<void> {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
@@ -412,9 +452,9 @@ export class IndexedDBStorage {
                 return;
             }
 
-            files.forEach(data => {
+            files.forEach(({ path, data }) => {
                 // Check if tags changed
-                const existing = existingData.get(data.path);
+                const existing = existingData.get(path);
                 const tagsChanged =
                     !existing ||
                     existing.tags !== data.tags || // Handle null vs non-null
@@ -424,13 +464,13 @@ export class IndexedDBStorage {
 
                 if (tagsChanged) {
                     tagChanges.push({
-                        path: data.path,
+                        path: path,
                         changes: { tags: data.tags },
                         changeType: 'metadata'
                     });
                 }
 
-                const request = store.put(data);
+                const request = store.put(data, path);
 
                 request.onsuccess = () => {
                     completed++;
@@ -530,6 +570,19 @@ export class IndexedDBStorage {
     }
 
     /**
+     * Get all files with their paths.
+     * Returns array of objects containing path and file data.
+     *
+     * @returns Array of files with paths
+     */
+    getAllFiles(): Array<{ path: string; data: FileData }> {
+        if (!this.cache.isReady()) {
+            return [];
+        }
+        return this.cache.getAllFilesWithPaths();
+    }
+
+    /**
      * Get files that need content generation.
      * Returns paths of files where the specified content type is null.
      *
@@ -541,15 +594,15 @@ export class IndexedDBStorage {
             return new Set();
         }
         const result = new Set<string>();
-        const allFiles = this.cache.getAllFiles();
-        for (const file of allFiles) {
+        const allFiles = this.cache.getAllFilesWithPaths();
+        for (const { path, data } of allFiles) {
             if (
-                (type === 'tags' && file.tags === null) ||
-                (type === 'preview' && file.preview === null) ||
-                (type === 'featureImage' && file.featureImage === null) ||
-                (type === 'metadata' && file.metadata === null)
+                (type === 'tags' && data.tags === null) ||
+                (type === 'preview' && data.preview === null) ||
+                (type === 'featureImage' && data.featureImage === null) ||
+                (type === 'metadata' && data.metadata === null)
             ) {
-                result.add(file.path);
+                result.add(path);
             }
         }
         return result;
@@ -587,7 +640,7 @@ export class IndexedDBStorage {
             changes.metadata = metadata;
         }
 
-        await this.setFile(file);
+        await this.setFile(path, file);
 
         // Emit change notification
         if (Object.keys(changes).length > 0) {
@@ -617,7 +670,7 @@ export class IndexedDBStorage {
 
         file.metadata = { ...(file.metadata || {}), ...metadata };
 
-        await this.setFile(file);
+        await this.setFile(path, file);
 
         // Emit change notification
         this.emitChanges([{ path, changes: { metadata: file.metadata }, changeType: 'metadata' }]);
@@ -636,7 +689,7 @@ export class IndexedDBStorage {
 
         const paths = updates.map(u => u.path);
         const existingFiles = this.getFiles(paths);
-        const filesToUpdate: FileData[] = [];
+        const filesToUpdate: Array<{ path: string; data: FileData }> = [];
 
         for (const update of updates) {
             const file = existingFiles.get(update.path);
@@ -644,7 +697,7 @@ export class IndexedDBStorage {
 
             // Update only the mtime
             file.mtime = update.mtime;
-            filesToUpdate.push(file);
+            filesToUpdate.push({ path: update.path, data: file });
         }
 
         // Update all files in batch
@@ -655,12 +708,12 @@ export class IndexedDBStorage {
             const store = transaction.objectStore(STORE_NAME);
 
             await Promise.all(
-                filesToUpdate.map(file => {
+                filesToUpdate.map(({ path, data }) => {
                     return new Promise<void>((resolve, reject) => {
-                        const request = store.put(file);
+                        const request = store.put(data, path);
                         request.onsuccess = () => {
                             // Update cache
-                            this.cache.updateFile(file);
+                            this.cache.updateFile(path, data);
                             resolve();
                         };
                         request.onerror = () => reject(request.error);
@@ -700,7 +753,7 @@ export class IndexedDBStorage {
             changes.metadata = null;
         }
 
-        await this.setFile(file);
+        await this.setFile(path, file);
 
         // Emit change notification
         if (Object.keys(changes).length > 0) {
@@ -763,12 +816,12 @@ export class IndexedDBStorage {
                     if (hasChanges) {
                         cursor.update(file); // Update in-place
                         // Update cache immediately
-                        this.cache.updateFile(file);
+                        this.cache.updateFile(cursor.key as string, file);
                         // Determine change type for batch clear
                         const hasContentCleared = changes.preview === null || changes.featureImage === null;
                         const hasMetadataCleared = changes.metadata === null || changes.tags !== undefined;
                         const clearType = hasContentCleared && hasMetadataCleared ? 'both' : hasContentCleared ? 'content' : 'metadata';
-                        changeNotifications.push({ path: file.path, changes, changeType: clearType });
+                        changeNotifications.push({ path: cursor.key as string, changes, changeType: clearType });
                     }
 
                     cursor.continue();
@@ -801,7 +854,7 @@ export class IndexedDBStorage {
         if (!this.db) throw new Error('Database not initialized');
 
         const files = this.getFiles(paths);
-        const updates: FileData[] = [];
+        const updates: Array<{ path: string; data: FileData }> = [];
         const changeNotifications: FileContentChange[] = [];
 
         for (const [path, file] of files) {
@@ -830,7 +883,7 @@ export class IndexedDBStorage {
             }
 
             if (hasChanges) {
-                updates.push(file);
+                updates.push({ path, data: file });
                 // Determine change type for batch clear
                 const hasContentCleared = changes.preview === null || changes.featureImage === null;
                 const hasMetadataCleared = changes.metadata === null || changes.tags !== undefined;
@@ -869,12 +922,14 @@ export class IndexedDBStorage {
 
         const paths = updates.map(u => u.path);
         const existingFiles = this.getFiles(paths);
-        const filesToUpdate: FileData[] = [];
+        const filesToUpdate: Array<{ path: string; data: FileData }> = [];
         const changeNotifications: FileContentChange[] = [];
 
         for (const update of updates) {
             const file = existingFiles.get(update.path);
-            if (!file) continue;
+            if (!file) {
+                continue;
+            }
 
             const changes: FileContentChange['changes'] = {};
             let hasChanges = false;
@@ -901,7 +956,7 @@ export class IndexedDBStorage {
             }
 
             if (hasChanges) {
-                filesToUpdate.push(file);
+                filesToUpdate.push({ path: update.path, data: file });
                 // Determine change type for batch update
                 const hasContentUpdates = changes.preview !== undefined || changes.featureImage !== undefined;
                 const hasMetadataUpdates = changes.metadata !== undefined || changes.tags !== undefined;
@@ -931,10 +986,10 @@ export class IndexedDBStorage {
             return new Map();
         }
         const result = new Map<string, FileData>();
-        const allFiles = this.cache.getAllFiles();
-        for (const file of allFiles) {
-            if (file.tags !== null && file.tags.includes(tag)) {
-                result.set(file.path, file);
+        const allFiles = this.cache.getAllFilesWithPaths();
+        for (const { path, data } of allFiles) {
+            if (data.tags !== null && data.tags.includes(tag)) {
+                result.set(path, data);
             }
         }
         return result;
@@ -947,9 +1002,9 @@ export class IndexedDBStorage {
      * More efficient than multiple setFile calls.
      * Updates cache after successful database writes.
      *
-     * @param files - Array of file data to store
+     * @param files - Array of file data with paths to store
      */
-    async batchUpdate(files: FileData[]): Promise<void> {
+    async batchUpdate(files: Array<{ path: string; data: FileData }>): Promise<void> {
         await this.setFiles(files);
     }
 
@@ -985,19 +1040,6 @@ export class IndexedDBStorage {
             return false;
         }
         return this.cache.hasFile(path);
-    }
-
-    /**
-     * Get all files synchronously from the cache.
-     * Use sparingly as this returns all files in memory.
-     *
-     * @returns Array of all file data
-     */
-    getAllFiles(): FileData[] {
-        if (!this.cache.isReady()) {
-            return [];
-        }
-        return this.cache.getAllFiles();
     }
 
     /**
