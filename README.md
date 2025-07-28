@@ -109,6 +109,8 @@ To a modern, Notes-style interface like this:
    - Open notes in new tabs or windows
    - Rename, delete, or duplicate items
    - Move files to another folder
+   - Reveal in folder - switches to the file's containing folder (useful when
+     viewing notes from subfolders or tags)
    - Pin/unpin notes
    - Change or remove folder/tag colors and icons
    - Create or delete folder notes
@@ -152,10 +154,6 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   navigator, expanding parent folders and scrolling to it. Useful if you have
   the setting "Show notes from subfolders" enabled and want to find out the
   folder of a specific note
-- `Notebook Navigator: Reveal in folder` Reveals the selected file in the
-  navigation pane by switching to its containing folder. This is especially
-  useful when viewing notes from subfolders or tags, allowing you to quickly
-  jump to the file's actual folder location
 - `Notebook Navigator: Navigate to folder` Opens a search dialog to quickly jump
   to any folder in your vault
 - `Notebook Navigator: Navigate to tag` Opens a search dialog to quickly jump to
