@@ -20,7 +20,8 @@ import { Root, createRoot } from 'react-dom/client';
 
 // src/view/NotebookNavigatorView.tsx
 import { ItemView, WorkspaceLeaf, TFile, Platform, ViewStateResult } from 'obsidian';
-import { NotebookNavigatorComponent, NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
+import { NotebookNavigatorContainer } from '../components/NotebookNavigatorContainer';
+import type { NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
 import { ExpansionProvider } from '../context/ExpansionContext';
 import { SelectionProvider } from '../context/SelectionContext';
 import { ServicesProvider } from '../context/ServicesContext';
@@ -105,7 +106,7 @@ export class NotebookNavigatorView extends ItemView {
                             <ExpansionProvider>
                                 <SelectionProvider app={this.plugin.app} plugin={this.plugin} isMobile={isMobile}>
                                     <UIStateProvider isMobile={isMobile}>
-                                        <NotebookNavigatorComponent ref={this.componentRef} />
+                                        <NotebookNavigatorContainer ref={this.componentRef} />
                                     </UIStateProvider>
                                 </SelectionProvider>
                             </ExpansionProvider>

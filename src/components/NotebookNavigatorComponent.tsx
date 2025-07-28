@@ -75,11 +75,6 @@ export const NotebookNavigatorComponent = React.memo(
         const expansionDispatch = useExpansionDispatch();
         const { isStorageReady } = useFileCache();
 
-        // Don't render anything until storage is ready
-        if (!isStorageReady) {
-            return null;
-        }
-
         // Root container reference for the entire navigator
         // This ref is passed to both NavigationPane and ListPane to ensure
         // keyboard events are captured at the navigator level, not globally.

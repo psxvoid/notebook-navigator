@@ -875,6 +875,15 @@
     width: 100%;
 }
 
+/* Skeleton view - minimal loading state */
+.nn-skeleton-navigation-pane {
+    background-color: var(--background-secondary);
+}
+
+.nn-skeleton-list-pane {
+    background-color: var(--background-primary);
+}
+
 /* ========================================================================
    Empty State
    ======================================================================== */
