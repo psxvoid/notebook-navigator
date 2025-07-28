@@ -89,7 +89,7 @@ export const STRINGS_ZH = {
             openVersionHistory: '打开版本历史',
             revealInFolder: '在文件夹中显示',
             revealInFinder: '在访达中显示',
-            showInExplorer: '在系统资源管理器中显示',
+            showInExplorer: '在资源管理器中显示',
             copyDeepLink: '复制深层链接',
             renameNote: '重命名笔记',
             deleteNote: '删除笔记',
