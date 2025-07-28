@@ -68,6 +68,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         features: [
             'NEW: Show file tags! Tags are now shown for each file in the file list! They use your tag colors and you can click them to quickly switch to the right tag in the tag tree!',
             "NEW: 'Reveal in folder' menu command - Same functionality as 'Reveal file' command. Useful with 'Show notes from subfolders' enabled or when working with tags.",
+            'IMPROVED: Tag navigation enhancements - Restarting the app remembers your selected tag. Files opened in the editor now show in the tag tree if they have tags (or untagged if enabled). Enables 100% tag-based workflow.',
             'IMPROVED: Cleaner drag and drop visuals for easier file management.',
             'IMPROVED: Eliminated tiny flicker when changing folders/tags where selected item was temporarily deselected.',
             'IMPROVED: Many minor tweaks, improvements and polishes throughout the app.',
