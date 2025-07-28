@@ -105,16 +105,16 @@ To a modern, Notes-style interface like this:
    - **Tab** to switch between navigation pane and list pane
    - **Delete/Backspace** to delete (with optional confirmation)
 4. Right-click for context menus:
+   - Pin/unpin notes
    - Create new notes, folders, canvas, or drawings
    - Open notes in new tabs or windows
    - Rename, delete, or duplicate items
    - Move files to another folder
-   - Reveal in folder - switches to the file's containing folder (useful when
-     viewing notes from subfolders or tags)
-   - Pin/unpin notes
    - Change or remove folder/tag colors and icons
    - Create or delete folder notes
    - Open version history or reveal in system explorer
+   - Reveal in folder - switches to the file's containing folder (useful when
+     viewing notes from subfolders or tags)
 5. Drag and drop notes between folders to organize, drag to tags to add tags, or
    drag to Untagged to remove all tags
 
