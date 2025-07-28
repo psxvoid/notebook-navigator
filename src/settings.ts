@@ -160,7 +160,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showFilePreview: true,
     skipHeadingsInPreview: false,
     previewProperties: [],
-    previewRows: 1,
+    previewRows: 2,
     showFeatureImage: true,
     featureImageProperties: ['featureResized', 'feature'],
     // Advanced

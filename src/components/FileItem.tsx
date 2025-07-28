@@ -67,7 +67,7 @@ export const FileItem = React.memo(function FileItem({
 }: FileItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
-    const { getFileDisplayName, getDB, isStorageReady } = useFileCache();
+    const { getFileDisplayName, getDB } = useFileCache();
     const fileRef = useRef<HTMLDivElement>(null);
     const { navigateToTag } = useTagNavigation();
     const metadataService = useMetadataService();
@@ -121,10 +121,6 @@ export const FileItem = React.memo(function FileItem({
 
     // Single subscription for all content changes
     useEffect(() => {
-        if (!isStorageReady) {
-            return;
-        }
-
         const db = getDB();
 
         // Initial load of all data
@@ -168,7 +164,7 @@ export const FileItem = React.memo(function FileItem({
         return () => {
             unsubscribe();
         };
-    }, [file.path, settings.showFilePreview, settings.showFeatureImage, getDB, isStorageReady, app, file.extension]);
+    }, [file.path, settings.showFilePreview, settings.showFeatureImage, getDB, app, file.extension]);
 
     // Add Obsidian tooltip (desktop only)
     useEffect(() => {

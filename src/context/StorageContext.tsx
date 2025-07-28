@@ -158,6 +158,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
     // Track storage initialization state
     const [isStorageReady, setIsStorageReady] = useState(false);
+    const [isIndexedDBReady, setIsIndexedDBReady] = useState(false);
 
     // Track if we've already built the initial cache
     const hasBuiltInitialCache = useRef(false);
@@ -293,7 +294,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     useEffect(() => {
         initializeCache()
             .then(() => {
-                setIsStorageReady(true);
+                setIsIndexedDBReady(true);
             })
             .catch(error => {
                 console.error('Failed to initialize IndexedDB cache:', error);
@@ -326,10 +327,12 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                 isFirstLoad.current = false;
             }
 
-            // Build tag tree only on initial load and when storage is ready
-            if (isInitialLoad && isStorageReady) {
+            // Build tag tree only on initial load
+            if (isInitialLoad) {
                 try {
                     rebuildTagTree();
+                    // Now that initial data is loaded, mark storage as ready
+                    setIsStorageReady(true);
                 } catch (error) {
                     console.error('Failed to build tag tree from IndexedDB:', error);
                 }
@@ -433,7 +436,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                         console.error('Error processing file cache diff:', error);
                     }
                 },
-                { timeout: 1000 }
+                { timeout: 500 }
             );
         };
 
@@ -452,8 +455,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         // Create debounced version for events (increased to 500ms to reduce duplicate processing)
         const rebuildFileCache = debounce(() => buildFileCache(false), 500);
 
-        // Only build initial cache if storage is ready and we haven't built it yet
-        if (isStorageReady && !hasBuiltInitialCache.current) {
+        // Only build initial cache if IndexedDB is ready and we haven't built it yet
+        if (isIndexedDBReady && !hasBuiltInitialCache.current) {
             hasBuiltInitialCache.current = true;
             buildFileCache(true);
         }
@@ -502,7 +505,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
             app.metadataCache.offref(metadataEvent);
         };
-    }, [app, settings.showUntagged, settings.excludedFiles, isStorageReady, settings.showTags]);
+    }, [app, settings.showUntagged, settings.excludedFiles, isIndexedDBReady, settings.showTags]);
 
     // Update service settings when they change
     useEffect(() => {

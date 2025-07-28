@@ -419,7 +419,7 @@ export const STRINGS_ES = {
                 helpTooltip: 'Clic para referencia de formato'
             },
             showFilePreview: {
-                name: 'Mostrar vista previa de nota',
+                name: 'Mostrar vista previa de nota (*)',
                 desc: 'Muestra texto de vista previa debajo de los nombres de las notas.'
             },
             skipHeadingsInPreview: {
@@ -452,7 +452,7 @@ export const STRINGS_ES = {
                 }
             },
             showFeatureImage: {
-                name: 'Mostrar imagen destacada',
+                name: 'Mostrar imagen destacada (*)',
                 desc: 'Muestra imágenes en miniatura desde el frontmatter. Consejo: Usa el plugin "Featured Image" para establecer automáticamente imágenes destacadas para todos tus documentos.'
             },
             featureImageProperties: {
@@ -485,7 +485,7 @@ export const STRINGS_ES = {
                 }
             },
             showTags: {
-                name: 'Mostrar etiquetas',
+                name: 'Mostrar etiquetas (*)',
                 desc: 'Muestra la sección de etiquetas debajo de las carpetas en el navegador.'
             },
             showTagsAboveFolders: {
@@ -536,7 +536,7 @@ export const STRINGS_ES = {
                 desc: 'Muestra un diálogo de confirmación al eliminar notas o carpetas'
             },
             useFrontmatterDates: {
-                name: 'Leer metadatos del frontmatter',
+                name: 'Leer metadatos del frontmatter (*)',
                 desc: 'Leer nombres de notas y marcas de tiempo del frontmatter cuando estén disponibles, usando valores del sistema como respaldo'
             },
             frontmatterNameField: {
@@ -572,7 +572,7 @@ export const STRINGS_ES = {
                 buttonText: 'Ver actualizaciones recientes'
             },
             cacheStatistics: {
-                localCache: 'Caché local',
+                localCache: '(*) Caché local',
                 items: 'elementos',
                 withTags: 'con etiquetas',
                 withPreviewText: 'con texto de vista previa',

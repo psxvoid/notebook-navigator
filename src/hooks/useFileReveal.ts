@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useRef, useCallback, RefObject, useState } from 'react';
-import { TFile, TFolder, App, WorkspaceLeaf } from 'obsidian';
+import { TFile, TFolder, App, WorkspaceLeaf, Platform } from 'obsidian';
 import type { ListPaneHandle } from '../components/ListPane';
 import type { NavigationPaneHandle } from '../components/NavigationPane';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
@@ -173,9 +173,24 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             // Select the tag
             selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
 
-            // In single pane mode, ensure we're showing the navigation pane
-            if (uiState.singlePane && uiState.currentSinglePaneView === 'files') {
-                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
+            // In single pane mode, switch to list pane view (same as revealFileInActualFolder)
+            if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
+                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+            }
+
+            // Always shift focus to list pane (same as revealFileInActualFolder)
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+
+            // If we have a selected file, trigger a reveal to ensure proper scrolling
+            // This makes tag reveal follow the same flow as folder reveal
+            if (selectionState.selectedFile) {
+                selectionDispatch({
+                    type: 'REVEAL_FILE',
+                    file: selectionState.selectedFile,
+                    preserveFolder: true, // We're in tag view, preserve it
+                    isManualReveal: false, // This is part of auto-reveal
+                    targetTag: tagPath
+                });
             }
         },
         [
@@ -436,6 +451,7 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
 
         // Check for currently active file on mount
         const activeFile = app.workspace.getActiveFile();
+
         if (activeFile && !hasInitializedRef.current) {
             setIsStartupReveal(true);
             handleFileChange(activeFile);
@@ -461,6 +477,16 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
                         selectionState.selectedFile?.path === fileToReveal.path
                     ) {
                         revealTag(selectionState.selectedTag);
+
+                        // After expanding the tag, trigger the file reveal
+                        // This ensures the scroll happens via pendingScroll
+                        selectionDispatch({
+                            type: 'REVEAL_FILE',
+                            file: fileToReveal,
+                            preserveFolder: true, // We're in tag view, preserve it
+                            isManualReveal: false, // This is auto-reveal
+                            targetTag: selectionState.selectedTag
+                        });
                         return;
                     }
                     revealFileInActualFolder(fileToReveal); // Use actual folder for startup

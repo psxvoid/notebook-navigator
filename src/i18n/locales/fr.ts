@@ -419,7 +419,7 @@ export const STRINGS_FR = {
                 helpTooltip: 'Cliquez pour la référence du format'
             },
             showFilePreview: {
-                name: "Afficher l'aperçu de la note",
+                name: "Afficher l'aperçu de la note (*)",
                 desc: "Afficher le texte d'aperçu sous les noms des notes."
             },
             skipHeadingsInPreview: {
@@ -452,7 +452,7 @@ export const STRINGS_FR = {
                 }
             },
             showFeatureImage: {
-                name: "Afficher l'image vedette",
+                name: "Afficher l'image vedette (*)",
                 desc: 'Afficher les images miniatures depuis les métadonnées. Conseil : Utilisez le plugin "Featured Image" pour définir automatiquement des images vedettes pour tous vos documents.'
             },
             featureImageProperties: {
@@ -485,7 +485,7 @@ export const STRINGS_FR = {
                 }
             },
             showTags: {
-                name: 'Afficher les étiquettes',
+                name: 'Afficher les étiquettes (*)',
                 desc: 'Afficher la section des étiquettes sous les dossiers dans le navigateur.'
             },
             showTagsAboveFolders: {
@@ -536,7 +536,7 @@ export const STRINGS_FR = {
                 desc: 'Afficher une boîte de dialogue de confirmation lors de la suppression de notes ou de dossiers'
             },
             useFrontmatterDates: {
-                name: 'Lire les métadonnées du frontmatter',
+                name: 'Lire les métadonnées du frontmatter (*)',
                 desc: "Lire les noms de notes et horodatages du frontmatter lorsqu'ils sont disponibles, sinon utiliser les valeurs du système"
             },
             frontmatterNameField: {
@@ -572,7 +572,7 @@ export const STRINGS_FR = {
                 buttonText: 'Voir les mises à jour récentes'
             },
             cacheStatistics: {
-                localCache: 'Cache local',
+                localCache: '(*) Cache local',
                 items: 'éléments',
                 withTags: 'avec étiquettes',
                 withPreviewText: 'avec texte de prévisualisation',
