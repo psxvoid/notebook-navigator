@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { Plugin, App, TFile } from 'obsidian';
+import { Plugin, App, TFile, WorkspaceLeaf } from 'obsidian';
 import { MetadataService } from '../services/MetadataService';
 import { NotebookNavigatorSettings } from '../settings';
 import { NotebookNavigatorView } from '../view/NotebookNavigatorView';
@@ -37,6 +37,7 @@ export interface NotebookNavigatorPlugin extends Plugin {
     registerFileRenameListener(id: string, callback: (oldPath: string, newPath: string) => void): void;
     unregisterFileRenameListener(id: string): void;
     navigateToFile(file: TFile): Promise<void>;
+    activateView(): Promise<WorkspaceLeaf | null>;
 }
 
 /**
