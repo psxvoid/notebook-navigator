@@ -30,7 +30,6 @@ import { isTFolder } from '../utils/typeGuards';
 import { determineTagToReveal } from '../utils/tagUtils';
 import { ItemType } from '../types';
 import { buildTagTree, findTagNode, parseTagPatterns, matchesTagPattern } from '../utils/tagTree';
-import { log } from '../utils/mobileLogger';
 
 interface UseFileRevealOptions {
     app: App;
@@ -97,12 +96,6 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             }
 
             // Trigger the reveal - never preserve folder for actual folder reveals
-            log('[useFileReveal] Dispatching REVEAL_FILE action', {
-                file: file.path,
-                preserveFolder: false,
-                isManualReveal: true,
-                timestamp: new Date().toISOString()
-            });
             selectionDispatch({ type: 'REVEAL_FILE', file, preserveFolder: false, isManualReveal: true });
 
             // In single pane mode, switch to list pane view
@@ -191,11 +184,6 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             // If we have a selected file, trigger a reveal to ensure proper scrolling
             // This makes tag reveal follow the same flow as folder reveal
             if (selectionState.selectedFile) {
-                log('[useFileReveal] Triggering file reveal after tag selection', {
-                    file: selectionState.selectedFile.path,
-                    tag: tagPath,
-                    timestamp: new Date().toISOString()
-                });
                 selectionDispatch({
                     type: 'REVEAL_FILE',
                     file: selectionState.selectedFile,
@@ -376,17 +364,8 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
     // Auto-reveal effect: Reset fileToReveal after it's been consumed
     useEffect(() => {
         if (fileToReveal) {
-            log('[useFileReveal] fileToReveal set, will clear in 100ms', {
-                file: fileToReveal.path,
-                isStartupReveal: isStartupReveal,
-                timestamp: new Date().toISOString()
-            });
             // Clear after a short delay to ensure the consumer has processed it
             const timer = setTimeout(() => {
-                log('[useFileReveal] Clearing fileToReveal', {
-                    file: fileToReveal.path,
-                    timestamp: new Date().toISOString()
-                });
                 setFileToReveal(null);
                 setIsStartupReveal(false);
             }, 100);
@@ -472,22 +451,8 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
 
         // Check for currently active file on mount
         const activeFile = app.workspace.getActiveFile();
-        log('[useFileReveal] Checking for startup auto-reveal', {
-            hasActiveFile: !!activeFile,
-            activeFilePath: activeFile?.path,
-            hasInitialized: hasInitializedRef.current,
-            autoRevealEnabled: settings.autoRevealActiveFile,
-            selectionType: selectionState.selectionType,
-            selectedTag: selectionState.selectedTag,
-            selectedFile: selectionState.selectedFile?.path,
-            timestamp: new Date().toISOString()
-        });
 
         if (activeFile && !hasInitializedRef.current) {
-            log('[useFileReveal] Startup auto-reveal triggered', {
-                file: activeFile.path,
-                timestamp: new Date().toISOString()
-            });
             setIsStartupReveal(true);
             handleFileChange(activeFile);
             hasInitializedRef.current = true;
@@ -501,25 +466,9 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
 
     // Handle revealing the file when detected
     useEffect(() => {
-        log('[useFileReveal] Reveal processing effect triggered', {
-            hasFileToReveal: !!fileToReveal,
-            file: fileToReveal?.path,
-            isStartupReveal: isStartupReveal,
-            timestamp: new Date().toISOString()
-        });
-
         if (fileToReveal) {
-            log('[useFileReveal] About to call requestAnimationFrame', {
-                file: fileToReveal.path,
-                timestamp: new Date().toISOString()
-            });
             // Use requestAnimationFrame to ensure state updates are processed
             requestAnimationFrame(() => {
-                log('[useFileReveal] Inside requestAnimationFrame', {
-                    file: fileToReveal.path,
-                    isStartupReveal: isStartupReveal,
-                    timestamp: new Date().toISOString()
-                });
                 if (isStartupReveal) {
                     // On startup, if we're already in tag view with the correct file selected, skip reveal but expand tags
                     if (
@@ -527,22 +476,10 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
                         selectionState.selectedTag &&
                         selectionState.selectedFile?.path === fileToReveal.path
                     ) {
-                        log('[useFileReveal] Startup tag reveal triggered', {
-                            tag: selectionState.selectedTag,
-                            file: fileToReveal.path,
-                            timestamp: new Date().toISOString(),
-                            hasListPaneRef: !!listPaneRef.current,
-                            hasNavigationPaneRef: !!navigationPaneRef.current
-                        });
                         revealTag(selectionState.selectedTag);
 
                         // After expanding the tag, trigger the file reveal
                         // This ensures the scroll happens via pendingScroll
-                        log('[useFileReveal] Triggering file reveal after startup tag reveal', {
-                            file: fileToReveal.path,
-                            tag: selectionState.selectedTag,
-                            timestamp: new Date().toISOString()
-                        });
                         selectionDispatch({
                             type: 'REVEAL_FILE',
                             file: fileToReveal,
@@ -552,12 +489,6 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
                         });
                         return;
                     }
-                    log('[useFileReveal] Startup file reveal in actual folder', {
-                        file: fileToReveal.path,
-                        timestamp: new Date().toISOString(),
-                        hasListPaneRef: !!listPaneRef.current,
-                        hasNavigationPaneRef: !!navigationPaneRef.current
-                    });
                     revealFileInActualFolder(fileToReveal); // Use actual folder for startup
                 } else {
                     revealFileInNearestFolder(fileToReveal); // Use nearest folder for sidebar clicks
