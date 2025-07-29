@@ -556,6 +556,17 @@
     justify-content: flex-start; /* Top-align content */
 }
 
+/* Slim mode file text content - same as above but without min-height */
+.nn-slim-file-text-content {
+    flex: 1;
+    min-width: 0; /* Enable text truncation */
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    order: 1; /* Ensure it appears on the left */
+    justify-content: flex-start; /* Top-align content */
+}
+
 /* File name - primary text with ellipsis overflow */
 .nn-file-name {
     font-size: var(--nn-file-name-size);

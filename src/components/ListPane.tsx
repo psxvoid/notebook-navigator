@@ -210,9 +210,9 @@ export const ListPane = React.memo(
                     }
                 }
 
-                // Add tag row height if file has tags (but not in slim mode and only if showTags is enabled)
+                // Add tag row height if file has tags (in both normal and slim modes when showTags is enabled)
                 // Tags are shown for both empty and non-empty preview text
-                if (!isSlimMode && settings.showFileTags && item.type === ListPaneItemType.FILE && isTFile(item.data)) {
+                if (settings.showFileTags && item.type === ListPaneItemType.FILE && isTFile(item.data)) {
                     // Check if file has tags using the database
                     const db = getDB();
                     const tags = db.getDisplayTags(item.data.path);
