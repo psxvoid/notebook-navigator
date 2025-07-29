@@ -21,7 +21,7 @@ import { MemoryFileCache } from './MemoryFileCache';
 
 const STORE_NAME = 'keyvaluepairs';
 const DB_SCHEMA_VERSION = 1; // IndexedDB structure version
-const DB_CONTENT_VERSION = 1; // Data format version
+const DB_CONTENT_VERSION = 2; // Data format version
 
 export interface FileData {
     mtime: number;

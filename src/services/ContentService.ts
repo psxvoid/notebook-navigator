@@ -513,17 +513,8 @@ export class ContentService {
                 const imageFile = this.app.metadataCache.getFirstLinkpathDest(resolvedPath, file.path);
 
                 if (imageFile) {
-                    try {
-                        const resourcePath = this.app.vault.getResourcePath(imageFile);
-                        // Validate that the resource path is valid before returning
-                        // This helps prevent broken cached URLs
-                        if (resourcePath && !resourcePath.includes('undefined')) {
-                            return resourcePath;
-                        }
-                    } catch {
-                        // Image file might have been deleted or moved
-                        continue;
-                    }
+                    // Store just the path, not the full app:// URL
+                    return imageFile.path;
                 }
             }
 
@@ -533,11 +524,8 @@ export class ContentService {
                     const embedPath = embed.link;
                     const embedFile = this.app.metadataCache.getFirstLinkpathDest(embedPath, file.path);
                     if (embedFile && isImageFile(embedFile)) {
-                        try {
-                            return this.app.vault.getResourcePath(embedFile);
-                        } catch {
-                            continue;
-                        }
+                        // Store just the path, not the full app:// URL
+                        return embedFile.path;
                     }
                 }
             }

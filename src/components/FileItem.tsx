@@ -133,13 +133,30 @@ export const FileItem = React.memo(function FileItem({
         if (settings.showFeatureImage) {
             if (isImageFile(file)) {
                 try {
-                    setFeatureImageUrl(app.vault.getResourcePath(file));
+                    const resourcePath = app.vault.getResourcePath(file);
+                    setFeatureImageUrl(resourcePath);
                 } catch {
                     setFeatureImageUrl(null);
                 }
             } else {
-                const imageUrl = db.getDisplayFeatureImageUrl(file.path);
-                setFeatureImageUrl(imageUrl || null);
+                const imagePath = db.getDisplayFeatureImageUrl(file.path);
+                
+                // If we have a path, convert it to a URL
+                if (imagePath) {
+                    const imageFile = app.vault.getAbstractFileByPath(imagePath);
+                    if (imageFile && imageFile instanceof TFile) {
+                        try {
+                            const resourceUrl = app.vault.getResourcePath(imageFile);
+                            setFeatureImageUrl(resourceUrl);
+                        } catch {
+                            setFeatureImageUrl(null);
+                        }
+                    } else {
+                        setFeatureImageUrl(null);
+                    }
+                } else {
+                    setFeatureImageUrl(null);
+                }
             }
         } else {
             setFeatureImageUrl(null);
@@ -154,7 +171,22 @@ export const FileItem = React.memo(function FileItem({
                 setPreviewText(changes.preview || '');
             }
             if (changes.featureImage !== undefined && settings.showFeatureImage && !isImageFile(file)) {
-                setFeatureImageUrl(changes.featureImage || null);
+                // Convert path to URL
+                if (changes.featureImage) {
+                    const imageFile = app.vault.getAbstractFileByPath(changes.featureImage);
+                    if (imageFile && imageFile instanceof TFile) {
+                        try {
+                            const resourceUrl = app.vault.getResourcePath(imageFile);
+                            setFeatureImageUrl(resourceUrl);
+                        } catch {
+                            setFeatureImageUrl(null);
+                        }
+                    } else {
+                        setFeatureImageUrl(null);
+                    }
+                } else {
+                    setFeatureImageUrl(null);
+                }
             }
             if (changes.tags !== undefined) {
                 setTags(changes.tags || []);
