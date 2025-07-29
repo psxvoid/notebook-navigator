@@ -18,10 +18,11 @@
 
 import { App, TFile, getAllTags } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
-import { FileData } from '../storage/IndexedDBStorage';
+import { FileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { getDBInstance } from '../storage/fileOperations';
 import { isImageFile } from '../utils/fileTypeUtils';
 import { PreviewTextUtils } from '../utils/previewTextUtils';
+import { DateUtils } from '../utils/dateUtils';
 
 interface ContentJob {
     file: TFile;
@@ -30,6 +31,15 @@ interface ContentJob {
     needsPreview: boolean;
     needsImage: boolean;
     needsMetadata: boolean;
+}
+
+/**
+ * Processed metadata from frontmatter
+ */
+export interface ProcessedMetadata {
+    fn?: string; // frontmatter name
+    fc?: number; // frontmatter created timestamp
+    fm?: number; // frontmatter modified timestamp
 }
 
 /**
@@ -55,35 +65,86 @@ interface ContentJob {
 export class ContentService {
     private abortController: AbortController | null = null;
     private app: App;
-    // Removed onCacheUpdated as it's no longer used with the new database notification system
-    private extractMetadata: (file: TFile) => { fn?: string; fc?: number; fm?: number };
     private isProcessing = false;
     private queue: ContentJob[] = [];
     private queueDebounceTimer: number | null = null;
-    private settings: NotebookNavigatorSettings;
     private settingsChanged = false;
     private shouldLogCurrentBatch = true;
     private startTime = 0;
     private totalFiles = 0;
+    private currentBatchSettings: NotebookNavigatorSettings | null = null;
 
-    constructor(
-        app: App,
-        settings: NotebookNavigatorSettings,
-        extractMetadata: (file: TFile) => { fn?: string; fc?: number; fm?: number }
-    ) {
+    constructor(app: App) {
         this.app = app;
-        this.settings = settings;
-        this.extractMetadata = extractMetadata;
     }
 
     /**
-     * Update settings without recreating the service.
-     * This allows the service to adapt to setting changes without losing its queue or state.
-     *
-     * @param settings - The new settings to apply
+     * Extract metadata from frontmatter
+     * @param app - The Obsidian app instance
+     * @param file - The file to extract metadata from
+     * @param settings - Current plugin settings
+     * @returns Processed metadata object
      */
-    public updateSettings(settings: NotebookNavigatorSettings): void {
-        this.settings = settings;
+    static extractMetadata(app: App, file: TFile, settings: NotebookNavigatorSettings): ProcessedMetadata {
+        const metadata = app.metadataCache.getFileCache(file);
+        const frontmatter = metadata?.frontmatter;
+
+        if (!frontmatter || !settings.useFrontmatterMetadata) {
+            return {};
+        }
+
+        const result: ProcessedMetadata = {};
+
+        // Extract name if field is specified
+        if (settings.frontmatterNameField && settings.frontmatterNameField.trim()) {
+            const nameValue = frontmatter[settings.frontmatterNameField];
+            if (nameValue && typeof nameValue === 'string' && nameValue.trim()) {
+                result.fn = nameValue.trim();
+            }
+        } else {
+            // Field is empty, don't set name field (leave undefined)
+            result.fn = undefined;
+        }
+
+        // Extract created date if field is specified
+        if (settings.frontmatterCreatedField && settings.frontmatterCreatedField.trim()) {
+            const createdValue = frontmatter[settings.frontmatterCreatedField];
+            
+            if (createdValue !== undefined) {
+                // Field exists, try to parse it
+                const createdTimestamp = DateUtils.parseFrontmatterDate(createdValue, settings.frontmatterDateFormat);
+                if (createdTimestamp !== undefined) {
+                    result.fc = createdTimestamp;
+                } else {
+                    // Parsing failed, use sentinel value
+                    result.fc = METADATA_SENTINEL.PARSE_FAILED;
+                }
+            }
+        } else {
+            // Field is empty, use sentinel value to clear the metadata
+            result.fc = METADATA_SENTINEL.FIELD_NOT_CONFIGURED;
+        }
+
+        // Extract modified date if field is specified
+        if (settings.frontmatterModifiedField && settings.frontmatterModifiedField.trim()) {
+            const modifiedValue = frontmatter[settings.frontmatterModifiedField];
+            
+            if (modifiedValue !== undefined) {
+                // Field exists, try to parse it
+                const modifiedTimestamp = DateUtils.parseFrontmatterDate(modifiedValue, settings.frontmatterDateFormat);
+                if (modifiedTimestamp !== undefined) {
+                    result.fm = modifiedTimestamp;
+                } else {
+                    // Parsing failed, use sentinel value
+                    result.fm = METADATA_SENTINEL.PARSE_FAILED;
+                }
+            }
+        } else {
+            // Field is empty, use sentinel value to clear the metadata
+            result.fm = METADATA_SENTINEL.FIELD_NOT_CONFIGURED;
+        }
+
+        return result;
     }
 
     /**
@@ -92,8 +153,9 @@ export class ContentService {
      * content needs to be generated based on current settings and existing data.
      *
      * @param files - Array of files to process
+     * @param settings - Current plugin settings
      */
-    public async queueContent(files: TFile[]): Promise<void> {
+    public async queueContent(files: TFile[], settings: NotebookNavigatorSettings): Promise<void> {
         // Clear any pending debounce timer
         if (this.queueDebounceTimer !== null) {
             window.clearTimeout(this.queueDebounceTimer);
@@ -119,10 +181,10 @@ export class ContentService {
 
         // Check if content generation is enabled
         if (
-            !this.settings.showTags &&
-            !this.settings.showFilePreview &&
-            !this.settings.showFeatureImage &&
-            !this.settings.useFrontmatterMetadata
+            !settings.showTags &&
+            !settings.showFilePreview &&
+            !settings.showFeatureImage &&
+            !settings.useFrontmatterMetadata
         ) {
             return;
         }
@@ -151,18 +213,18 @@ export class ContentService {
             // IMPORTANT: We check for === null specifically, not falsy values
             // Empty string '' means preview was generated but file has no content
             const needsTags = !!(
-                this.settings.showTags &&
+                settings.showTags &&
                 (!fileData || fileData.tags === null || fileModified) &&
                 file.extension === 'md'
             );
             const needsPreview = !!(
-                this.settings.showFilePreview &&
+                settings.showFilePreview &&
                 (!fileData || fileData.preview === null || fileModified) &&
                 file.extension === 'md'
             );
-            const needsImage = !!(this.settings.showFeatureImage && (!fileData || fileData.featureImage === null || fileModified));
+            const needsImage = !!(settings.showFeatureImage && (!fileData || fileData.featureImage === null || fileModified));
             const needsMetadata = !!(
-                this.settings.useFrontmatterMetadata &&
+                settings.useFrontmatterMetadata &&
                 (!fileData || fileData.metadata === null || fileModified) &&
                 file.extension === 'md'
             );
@@ -197,7 +259,7 @@ export class ContentService {
         // Debounce the start of processing to avoid race conditions
         this.queueDebounceTimer = window.setTimeout(() => {
             this.queueDebounceTimer = null;
-            this.startProcessing();
+            this.startProcessing(settings);
         }, 300); // 300ms debounce
     }
 
@@ -264,8 +326,9 @@ export class ContentService {
      * Start processing the content generation queue.
      * Processes files in batches to maintain UI responsiveness.
      * Only logs progress for initial builds or settings changes, not for regular file updates.
+     * @param settings - Current plugin settings
      */
-    private async startProcessing(): Promise<void> {
+    private async startProcessing(settings: NotebookNavigatorSettings): Promise<void> {
         if (this.isProcessing || this.queue.length === 0) {
             return;
         }
@@ -273,6 +336,7 @@ export class ContentService {
         this.isProcessing = true;
         this.startTime = performance.now();
         this.abortController = new AbortController();
+        this.currentBatchSettings = settings;
 
         // Only log if we should (not for regular file updates)
         if (this.shouldLogCurrentBatch) {
@@ -290,10 +354,12 @@ export class ContentService {
      * Updates the database in batch to minimize notification overhead.
      */
     private async processNextBatch(): Promise<void> {
-        if (!this.isProcessing || this.queue.length === 0) {
+        if (!this.isProcessing || this.queue.length === 0 || !this.currentBatchSettings) {
             this.completeProcessing();
             return;
         }
+
+        const settings = this.currentBatchSettings;
 
         // Take a larger batch for parallel processing
         const BATCH_SIZE = 100;
@@ -307,10 +373,11 @@ export class ContentService {
                         // Process tags, preview, image and metadata in parallel
                         const [tags, preview, imageUrl, metadata] = await Promise.all([
                             job.needsTags ? this.extractTags(job.file) : Promise.resolve(null),
-                            job.needsPreview ? this.generatePreviewOptimized(job.file) : Promise.resolve(''),
-                            job.needsImage ? Promise.resolve(this.getFeatureImageUrl(job.file)) : Promise.resolve(''),
-                            job.needsMetadata ? Promise.resolve(this.extractMetadata(job.file)) : Promise.resolve({})
+                            job.needsPreview ? this.generatePreviewOptimized(job.file, settings) : Promise.resolve(''),
+                            job.needsImage ? Promise.resolve(this.getFeatureImageUrl(job.file, settings)) : Promise.resolve(''),
+                            job.needsMetadata ? Promise.resolve(ContentService.extractMetadata(this.app, job.file, settings)) : Promise.resolve({})
                         ]);
+
 
                         return {
                             job,
@@ -446,9 +513,10 @@ export class ContentService {
      * Handles special cases like Excalidraw files and respects skipHeadingsInPreview setting.
      *
      * @param file - The file to generate preview for
+     * @param settings - Current plugin settings
      * @returns Preview text string, or 'EXCALIDRAW' for Excalidraw files
      */
-    private async generatePreviewOptimized(file: TFile): Promise<string> {
+    private async generatePreviewOptimized(file: TFile, settings: NotebookNavigatorSettings): Promise<string> {
         const metadata = this.app.metadataCache.getFileCache(file);
 
         // Fast Excalidraw detection using metadata
@@ -468,7 +536,7 @@ export class ContentService {
 
         // Fall back to file read only if necessary
         const content = await this.app.vault.cachedRead(file);
-        return PreviewTextUtils.extractPreviewText(content, this.settings, metadata?.frontmatter);
+        return PreviewTextUtils.extractPreviewText(content, settings, metadata?.frontmatter);
     }
 
     /**
@@ -478,6 +546,7 @@ export class ContentService {
     private completeProcessing(): void {
         this.isProcessing = false;
         this.abortController = null;
+        this.currentBatchSettings = null;
         // Note: settingsChanged is already reset in queueContent after determining shouldLogCurrentBatch
         // No need to notify - database will emit change events
         if (this.shouldLogCurrentBatch) {
@@ -492,15 +561,16 @@ export class ContentService {
      * Falls back to first embedded image if no frontmatter image found.
      *
      * @param file - The file to extract image from
+     * @param settings - Current plugin settings
      * @returns Image URL string, or empty string if no image found
      */
-    private getFeatureImageUrl(file: TFile): string {
+    private getFeatureImageUrl(file: TFile, settings: NotebookNavigatorSettings): string {
         // Only process markdown files for feature images
         if (file.extension === 'md') {
             const metadata = this.app.metadataCache.getFileCache(file);
 
             // Try each property in order until we find an image
-            for (const property of this.settings.featureImageProperties) {
+            for (const property of settings.featureImageProperties) {
                 const imagePath = metadata?.frontmatter?.[property];
 
                 if (!imagePath) {

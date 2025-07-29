@@ -23,6 +23,16 @@ const STORE_NAME = 'keyvaluepairs';
 const DB_SCHEMA_VERSION = 1; // IndexedDB structure version
 const DB_CONTENT_VERSION = 2; // Data format version
 
+/**
+ * Sentinel values for metadata date fields
+ */
+export const METADATA_SENTINEL = {
+    /** Indicates that the frontmatter field name is empty/not configured */
+    FIELD_NOT_CONFIGURED: 0,
+    /** Indicates that parsing the date value failed */
+    PARSE_FAILED: -1
+} as const;
+
 export interface FileData {
     mtime: number;
     tags: string[] | null; // null = not extracted yet (e.g. when tags disabled)
@@ -30,8 +40,8 @@ export interface FileData {
     featureImage: string | null; // null = not generated yet
     metadata: {
         name?: string;
-        created?: number;
-        modified?: number;
+        created?: number;  // Valid timestamp, 0 = field not configured, -1 = parse failed
+        modified?: number; // Valid timestamp, 0 = field not configured, -1 = parse failed
     } | null; // null = not generated yet
 }
 
@@ -295,7 +305,6 @@ export class IndexedDBStorage {
 
                             request.onerror = () => reject(request.error);
                         });
-
                     } catch (error) {
                         console.error('[DB Cache] Failed to initialize cache:', error);
                         // Continue without cache - database will still work

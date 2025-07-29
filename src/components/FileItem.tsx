@@ -140,7 +140,7 @@ export const FileItem = React.memo(function FileItem({
                 }
             } else {
                 const imagePath = db.getDisplayFeatureImageUrl(file.path);
-                
+
                 // If we have a path, convert it to a URL
                 if (imagePath) {
                     const imageFile = app.vault.getAbstractFileByPath(imagePath);

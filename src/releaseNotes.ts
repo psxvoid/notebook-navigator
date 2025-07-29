@@ -56,7 +56,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: false,
         features: [
             'IMPROVED: Selection rectangle and drop targets in Navigation Pane are now full-width, making it easier to select and work with folders and tags.',
-            'IMPROVED: Plugin is now always made visible when you run commands, such as \'Reveal file\' and \'Focus file\'.',
+            "IMPROVED: Plugin is now always made visible when you run commands, such as 'Reveal file' and 'Focus file'.",
             'CHANGED: Tags in PaneHeader now show with hashtag prefix (#).'
         ]
     },

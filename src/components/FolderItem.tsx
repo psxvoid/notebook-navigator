@@ -193,9 +193,7 @@ export const FolderItem = React.memo(function FolderItem({
             aria-expanded={hasChildren ? isExpanded : undefined}
             aria-level={level + 1}
         >
-            <div
-                className="nn-folder-content"
-            >
+            <div className="nn-folder-content">
                 <div
                     className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}
                     ref={chevronRef}

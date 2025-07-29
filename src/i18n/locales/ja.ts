@@ -542,22 +542,21 @@ export const STRINGS_JA = {
             frontmatterNameField: {
                 name: '名前フィールド',
                 desc: 'ノートの表示名として使用するフロントマターフィールド。空のままにするとファイル名を使用。',
-                placeholder: 'title'
+                placeholder: 'タイトル'
             },
             frontmatterCreatedField: {
                 name: '作成タイムスタンプフィールド',
                 desc: '作成タイムスタンプのフロントマターフィールド名。空のままにするとファイルシステムの日付のみを使用。',
-                placeholder: 'created'
+                placeholder: '作成日'
             },
             frontmatterModifiedField: {
                 name: '変更タイムスタンプフィールド',
                 desc: '変更タイムスタンプのフロントマターフィールド名。空のままにするとファイルシステムの日付のみを使用。',
-                placeholder: 'modified'
+                placeholder: '更新日'
             },
             frontmatterDateFormat: {
                 name: 'タイムスタンプ形式',
-                desc: 'フロントマター内のタイムスタンプを解析するために使用される形式',
-                placeholder: "yyyy-MM-dd'T'HH:mm:ss",
+                desc: 'フロントマター内のタイムスタンプを解析するために使用される形式。空のままにするとISO 8601形式を使用',
                 helpTooltip: 'date-fnsフォーマットのドキュメントを参照',
                 help: "一般的な形式:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
@@ -578,6 +577,17 @@ export const STRINGS_JA = {
                 withPreviewText: 'プレビューテキスト付き',
                 withFeatureImage: 'フィーチャー画像付き',
                 withMetadata: 'メタデータ付き'
+            },
+            metadataInfo: {
+                successfullyParsed: '正常に解析済み',
+                itemsWithName: '名前付き項目',
+                withCreatedDate: '作成日付き',
+                withModifiedDate: '変更日付き',
+                failedToParse: '解析に失敗',
+                createdDates: '作成日',
+                modifiedDates: '変更日',
+                checkTimestampFormat: 'タイムスタンプ形式を確認してください。',
+                exportFailed: 'エラーをエクスポート'
             }
         }
     },

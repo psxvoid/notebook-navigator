@@ -40,10 +40,9 @@
  */
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode, useMemo } from 'react';
-import { App, TFile, debounce } from 'obsidian';
-import { ContentService } from '../services/ContentService';
-import { NotebookNavigatorSettings } from '../settings';
-import { IndexedDBStorage, FileData as DBFileData } from '../storage/IndexedDBStorage';
+import { App, TFile, TFolder, debounce } from 'obsidian';
+import { ContentService, ProcessedMetadata } from '../services/ContentService';
+import { IndexedDBStorage, FileData as DBFileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { calculateFileDiff } from '../storage/diffCalculator';
 import {
     initializeCache,
@@ -53,22 +52,13 @@ import {
     getDBInstance
 } from '../storage/fileOperations';
 import { TagTreeNode } from '../types/storage';
-import { DateUtils } from '../utils/dateUtils';
-import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
+import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders, shouldExcludeFolder } from '../utils/fileFilters';
 import { getFileDisplayName as getDisplayName } from '../utils/fileNameUtils';
 import { clearNoteCountCache } from '../utils/tagTree';
 import { buildTagTreeFromDatabase } from '../utils/tagTree';
 import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
 
-/**
- * Processed metadata from frontmatter
- */
-interface ProcessedMetadata {
-    fn?: string; // frontmatter name
-    fc?: number; // frontmatter created timestamp
-    fm?: number; // frontmatter modified timestamp
-}
 
 /**
  * Data structure containing the hierarchical tag tree and untagged file count
@@ -105,47 +95,6 @@ interface StorageProviderProps {
     children: ReactNode;
 }
 
-/**
- * Extract metadata from frontmatter
- */
-function extractMetadata(app: App, file: TFile, settings: NotebookNavigatorSettings): ProcessedMetadata {
-    const metadata = app.metadataCache.getFileCache(file);
-    const frontmatter = metadata?.frontmatter;
-
-    if (!frontmatter || !settings.useFrontmatterMetadata) {
-        return {};
-    }
-
-    const result: ProcessedMetadata = {};
-
-    // Extract name if field is specified
-    if (settings.frontmatterNameField && settings.frontmatterNameField.trim()) {
-        const nameValue = frontmatter[settings.frontmatterNameField];
-        if (nameValue && typeof nameValue === 'string' && nameValue.trim()) {
-            result.fn = nameValue.trim();
-        }
-    }
-
-    // Extract created date if field is specified
-    if (settings.frontmatterCreatedField && settings.frontmatterCreatedField.trim()) {
-        const createdValue = frontmatter[settings.frontmatterCreatedField];
-        const createdTimestamp = DateUtils.parseFrontmatterDate(createdValue, settings.frontmatterDateFormat);
-        if (createdTimestamp !== undefined) {
-            result.fc = createdTimestamp;
-        }
-    }
-
-    // Extract modified date if field is specified
-    if (settings.frontmatterModifiedField && settings.frontmatterModifiedField.trim()) {
-        const modifiedValue = frontmatter[settings.frontmatterModifiedField];
-        const modifiedTimestamp = DateUtils.parseFrontmatterDate(modifiedValue, settings.frontmatterDateFormat);
-        if (modifiedTimestamp !== undefined) {
-            result.fm = modifiedTimestamp;
-        }
-    }
-
-    return result;
-}
 
 export function StorageProvider({ app, children }: StorageProviderProps) {
     const settings = useSettingsState();
@@ -186,7 +135,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         const getFileDisplayName = (file: TFile): string => {
             // If metadata is enabled, extract on-demand
             if (settings.useFrontmatterMetadata) {
-                const metadata = extractMetadata(app, file, settings);
+                const metadata = ContentService.extractMetadata(app, file, settings);
                 if (metadata.fn) {
                     return metadata.fn;
                 }
@@ -199,8 +148,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         const getFileCreatedTime = (file: TFile): number => {
             // If metadata is enabled, extract on-demand
             if (settings.useFrontmatterMetadata) {
-                const metadata = extractMetadata(app, file, settings);
-                if (metadata.fc !== undefined) {
+                const metadata = ContentService.extractMetadata(app, file, settings);
+                if (metadata.fc !== undefined && metadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED) {
                     return metadata.fc;
                 }
             }
@@ -212,8 +161,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         const getFileModifiedTime = (file: TFile): number => {
             // If metadata is enabled, extract on-demand
             if (settings.useFrontmatterMetadata) {
-                const metadata = extractMetadata(app, file, settings);
-                if (metadata.fm !== undefined) {
+                const metadata = ContentService.extractMetadata(app, file, settings);
+                if (metadata.fm !== undefined && metadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED) {
                     return metadata.fm;
                 }
             }
@@ -226,13 +175,13 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             // If metadata is enabled, extract on-demand
             let extractedMetadata: ProcessedMetadata | null = null;
             if (settings.useFrontmatterMetadata) {
-                extractedMetadata = extractMetadata(app, file, settings);
+                extractedMetadata = ContentService.extractMetadata(app, file, settings);
             }
 
             return {
                 name: extractedMetadata?.fn || getDisplayName(file, undefined, settings),
-                created: extractedMetadata?.fc !== undefined ? extractedMetadata.fc : file.stat.ctime,
-                modified: extractedMetadata?.fm !== undefined ? extractedMetadata.fm : file.stat.mtime
+                created: extractedMetadata?.fc !== undefined && extractedMetadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED ? extractedMetadata.fc : file.stat.ctime,
+                modified: extractedMetadata?.fm !== undefined && extractedMetadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED ? extractedMetadata.fm : file.stat.mtime
             };
         };
 
@@ -265,14 +214,42 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         }
     };
 
+    // Helper function to get markdown files filtered by excluded properties and folders
+    const getFilteredMarkdownFiles = (): TFile[] => {
+        const excludedProperties = parseExcludedProperties(settings.excludedFiles);
+        const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
+        
+        return app.vault
+            .getMarkdownFiles()
+            .filter(file => {
+                // Filter by excluded properties
+                if (excludedProperties.length > 0 && shouldExcludeFile(file, excludedProperties, app)) {
+                    return false;
+                }
+                
+                // Filter by excluded folders
+                if (excludedFolderPatterns.length > 0 && file.parent) {
+                    let currentFolder: TFolder | null = file.parent;
+                    while (currentFolder) {
+                        if (shouldExcludeFolder(currentFolder.name, excludedFolderPatterns)) {
+                            return false;
+                        }
+                        currentFolder = currentFolder.parent;
+                    }
+                }
+                
+                return true;
+            });
+    };
+
     // ==================== Effects ====================
 
     // Initialize content service
     useEffect(() => {
         // Only create service if it doesn't exist
         if (!contentService.current) {
-            // Create content service that notifies us when content is generated
-            contentService.current = new ContentService(app, settings, (file: TFile) => extractMetadata(app, file, settings));
+            // Create content service
+            contentService.current = new ContentService(app);
         }
 
         return () => {
@@ -426,7 +403,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                                 }
 
                                 if (filesToProcess.length > 0) {
-                                    contentService.current.queueContent(filesToProcess);
+                                    contentService.current.queueContent(filesToProcess, settings);
                                 }
                             }
                         }
@@ -442,11 +419,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
         // Main function that orchestrates the file cache building
         const buildFileCache = async (isInitialLoad: boolean = false) => {
-            const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-            const allFiles = app.vault
-                .getMarkdownFiles()
-                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-
+            const allFiles = getFilteredMarkdownFiles();
             await processExistingCache(allFiles, isInitialLoad);
         };
 
@@ -472,7 +445,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                     // ContentService will detect the null content and regenerate
                     if (contentService.current) {
-                        contentService.current.queueContent([file]);
+                        contentService.current.queueContent([file], settings);
                     }
                 }
             })
@@ -487,7 +460,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                 // Queue content regeneration for the file
                 if (contentService.current) {
-                    contentService.current.queueContent([file]);
+                    contentService.current.queueContent([file], settings);
                 }
 
                 // Note: We already queued content regeneration above
@@ -499,26 +472,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
             app.metadataCache.offref(metadataEvent);
         };
-    }, [app, settings.showUntagged, settings.excludedFiles, isIndexedDBReady, settings.showTags]);
+    }, [app, settings.showUntagged, settings.excludedFiles, settings.excludedFolders, isIndexedDBReady, settings.showTags]);
 
-    // Update service settings when they change
-    useEffect(() => {
-        if (contentService.current) {
-            contentService.current.updateSettings(settings);
-        }
-    }, [
-        settings.showTags,
-        settings.showFilePreview,
-        settings.showFeatureImage,
-        settings.useFrontmatterMetadata,
-        settings.frontmatterNameField,
-        settings.frontmatterCreatedField,
-        settings.frontmatterModifiedField,
-        settings.frontmatterDateFormat,
-        settings.skipHeadingsInPreview,
-        settings.featureImageProperties,
-        settings.previewProperties
-    ]);
 
     // Handle preview settings changes
     useEffect(() => {
@@ -537,13 +492,10 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         }
         // Regenerate when enabling
         else if (!wasEnabled && settings.showFilePreview) {
-            const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-            const allFiles = app.vault
-                .getMarkdownFiles()
-                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-            contentService.current.queueContent(allFiles);
+            const allFiles = getFilteredMarkdownFiles();
+            contentService.current.queueContent(allFiles, settings);
         }
-    }, [settings.showFilePreview, settings.excludedFiles, app]);
+    }, [settings.showFilePreview, settings.excludedFiles, settings.excludedFolders, app]);
 
     // Handle preview processing settings changes (skip headings, properties)
     useEffect(() => {
@@ -567,14 +519,11 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             // Clear and regenerate preview content when processing settings change
             const db = getDBInstance();
             db.batchClearAllFileContent('preview').then(() => {
-                const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-                const allFiles = app.vault
-                    .getMarkdownFiles()
-                    .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-                contentService.current!.queueContent(allFiles);
+                const allFiles = getFilteredMarkdownFiles();
+                contentService.current!.queueContent(allFiles, settings);
             });
         }
-    }, [settings.skipHeadingsInPreview, settings.previewProperties, settings.showFilePreview, settings.excludedFiles, app]);
+    }, [settings.skipHeadingsInPreview, settings.previewProperties, settings.showFilePreview, settings.excludedFiles, settings.excludedFolders, app]);
 
     // Handle feature image settings changes
     useEffect(() => {
@@ -593,13 +542,10 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         }
         // Regenerate when enabling
         else if (!wasEnabled && settings.showFeatureImage) {
-            const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-            const allFiles = app.vault
-                .getMarkdownFiles()
-                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-            contentService.current.queueContent(allFiles);
+            const allFiles = getFilteredMarkdownFiles();
+            contentService.current.queueContent(allFiles, settings);
         }
-    }, [settings.showFeatureImage, settings.excludedFiles, app]);
+    }, [settings.showFeatureImage, settings.excludedFiles, settings.excludedFolders, app]);
 
     // Handle feature image properties changes
     useEffect(() => {
@@ -620,14 +566,11 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             // Clear and regenerate feature images when properties change
             const db = getDBInstance();
             db.batchClearAllFileContent('featureImage').then(() => {
-                const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-                const allFiles = app.vault
-                    .getMarkdownFiles()
-                    .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-                contentService.current!.queueContent(allFiles);
+                const allFiles = getFilteredMarkdownFiles();
+                contentService.current!.queueContent(allFiles, settings);
             });
         }
-    }, [settings.featureImageProperties, settings.showFeatureImage, settings.excludedFiles, app]);
+    }, [settings.featureImageProperties, settings.showFeatureImage, settings.excludedFiles, settings.excludedFolders, app]);
 
     // Handle metadata settings changes
     useEffect(() => {
@@ -646,13 +589,10 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         }
         // Regenerate when enabling
         else if (!wasEnabled && settings.useFrontmatterMetadata) {
-            const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-            const allFiles = app.vault
-                .getMarkdownFiles()
-                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-            contentService.current.queueContent(allFiles);
+            const allFiles = getFilteredMarkdownFiles();
+            contentService.current.queueContent(allFiles, settings);
         }
-    }, [settings.useFrontmatterMetadata, settings.excludedFiles, app]);
+    }, [settings.useFrontmatterMetadata, settings.excludedFiles, settings.excludedFolders, app]);
 
     // Handle metadata field changes
     useEffect(() => {
@@ -687,11 +627,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             // Clear and regenerate metadata when fields change
             const db = getDBInstance();
             db.batchClearAllFileContent('metadata').then(() => {
-                const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-                const allFiles = app.vault
-                    .getMarkdownFiles()
-                    .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-                contentService.current!.queueContent(allFiles);
+                const allFiles = getFilteredMarkdownFiles();
+                contentService.current!.queueContent(allFiles, settings);
             });
         }
     }, [
@@ -701,6 +638,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         settings.frontmatterDateFormat,
         settings.useFrontmatterMetadata,
         settings.excludedFiles,
+        settings.excludedFolders,
         app
     ]);
 
@@ -719,17 +657,14 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         }
         // Regenerate tags when enabling
         else if (!wasEnabled && settings.showTags && contentService.current) {
-            const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-            const allFiles = app.vault
-                .getMarkdownFiles()
-                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
+            const allFiles = getFilteredMarkdownFiles();
             // Mark files for regeneration (preserves mtime)
             markFilesForRegeneration(allFiles).then(() => {
                 // Queue content generation for tags
-                contentService.current!.queueContent(allFiles);
+                contentService.current!.queueContent(allFiles, settings);
             });
         }
-    }, [settings.showTags, settings.excludedFiles, app]);
+    }, [settings.showTags, settings.excludedFiles, settings.excludedFolders, app]);
 
     return <StorageContext.Provider value={contextValue}>{children}</StorageContext.Provider>;
 }

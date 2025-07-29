@@ -541,22 +541,21 @@ export const STRINGS_ZH = {
             frontmatterNameField: {
                 name: '名称字段',
                 desc: '用作笔记显示名称的前言字段。留空使用文件名。',
-                placeholder: 'title'
+                placeholder: '标题'
             },
             frontmatterCreatedField: {
                 name: '创建时间戳字段',
                 desc: '创建时间戳的前言字段名称。留空仅使用文件系统日期。',
-                placeholder: 'created'
+                placeholder: '创建时间'
             },
             frontmatterModifiedField: {
                 name: '修改时间戳字段',
                 desc: '修改时间戳的前言字段名称。留空仅使用文件系统日期。',
-                placeholder: 'modified'
+                placeholder: '修改时间'
             },
             frontmatterDateFormat: {
                 name: '时间戳格式',
-                desc: '用于解析前言中时间戳的格式',
-                placeholder: "yyyy-MM-dd'T'HH:mm:ss",
+                desc: '用于解析前言中时间戳的格式。留空使用 ISO 8601 格式',
                 helpTooltip: '查看 date-fns 格式文档',
                 help: "常用格式:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
@@ -577,6 +576,17 @@ export const STRINGS_ZH = {
                 withPreviewText: '包含预览文本',
                 withFeatureImage: '包含特色图片',
                 withMetadata: '包含元数据'
+            },
+            metadataInfo: {
+                successfullyParsed: '成功解析',
+                itemsWithName: '个带名称的项目',
+                withCreatedDate: '个带创建日期',
+                withModifiedDate: '个带修改日期',
+                failedToParse: '解析失败',
+                createdDates: '个创建日期',
+                modifiedDates: '个修改日期',
+                checkTimestampFormat: '请检查您的时间戳格式。',
+                exportFailed: '导出失败'
             }
         }
     },

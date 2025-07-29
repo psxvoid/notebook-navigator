@@ -542,22 +542,21 @@ export const STRINGS_ES = {
             frontmatterNameField: {
                 name: 'Campo de nombre',
                 desc: 'Campo del frontmatter para usar como nombre de la nota. Dejar vacío para usar el nombre del archivo.',
-                placeholder: 'title'
+                placeholder: 'título'
             },
             frontmatterCreatedField: {
                 name: 'Campo de marca de tiempo de creación',
                 desc: 'Nombre del campo del frontmatter para la marca de tiempo de creación. Dejar vacío para usar solo la fecha del sistema.',
-                placeholder: 'created'
+                placeholder: 'creado'
             },
             frontmatterModifiedField: {
                 name: 'Campo de marca de tiempo de modificación',
                 desc: 'Nombre del campo del frontmatter para la marca de tiempo de modificación. Dejar vacío para usar solo la fecha del sistema.',
-                placeholder: 'modified'
+                placeholder: 'modificado'
             },
             frontmatterDateFormat: {
                 name: 'Formato de marca de tiempo',
-                desc: 'Formato utilizado para analizar marcas de tiempo en el frontmatter',
-                placeholder: "yyyy-MM-dd'T'HH:mm:ss",
+                desc: 'Formato utilizado para analizar marcas de tiempo en el frontmatter. Dejar vacío para usar formato ISO 8601',
                 helpTooltip: 'Ver documentación de formato date-fns',
                 help: "Formatos comunes:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
@@ -578,6 +577,17 @@ export const STRINGS_ES = {
                 withPreviewText: 'con texto de vista previa',
                 withFeatureImage: 'con imagen destacada',
                 withMetadata: 'con metadatos'
+            },
+            metadataInfo: {
+                successfullyParsed: 'Analizados correctamente',
+                itemsWithName: 'elementos con nombre',
+                withCreatedDate: 'con fecha de creación',
+                withModifiedDate: 'con fecha de modificación',
+                failedToParse: 'Error al analizar',
+                createdDates: 'fechas de creación',
+                modifiedDates: 'fechas de modificación',
+                checkTimestampFormat: 'Verifica el formato de marca de tiempo.',
+                exportFailed: 'Exportar errores'
             }
         }
     },
