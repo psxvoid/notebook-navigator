@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useRef, useCallback, RefObject, useState } from 'react';
-import { TFile, TFolder, App, WorkspaceLeaf, Platform } from 'obsidian';
+import { TFile, TFolder, App, WorkspaceLeaf } from 'obsidian';
 import type { ListPaneHandle } from '../components/ListPane';
 import type { NavigationPaneHandle } from '../components/NavigationPane';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
@@ -25,7 +25,6 @@ import { useSelectionState, useSelectionDispatch } from '../context/SelectionCon
 import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
-import { FileView } from '../types/obsidian-extended';
 import { isTFolder, isFileView } from '../utils/typeGuards';
 import { determineTagToReveal } from '../utils/tagUtils';
 import { ItemType } from '../types';
@@ -441,7 +440,6 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
                 const activeLeaf = app.workspace.activeLeaf;
                 if (activeLeaf && activeLeaf.getRoot() === app.workspace.rootSplit) {
                     handleFileChange(file);
-                } else {
                 }
             }
         };

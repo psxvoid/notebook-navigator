@@ -17,7 +17,7 @@
  */
 
 import { useCallback, useEffect, useRef } from 'react';
-import { TFile, TFolder } from 'obsidian';
+import { TFile } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -25,13 +25,11 @@ import { useServices, useFileSystemOps } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { getSupportedLeaves, NavigationPaneItemType, ListPaneItemType, ItemType } from '../types';
-import { FileView } from '../types/obsidian-extended';
 import { TagTreeNode } from '../types/storage';
 import { isFileView } from '../utils/typeGuards';
 import { CombinedNavigationItem, ListPaneItem } from '../types/virtualization';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
 import { isTypingInInput } from '../utils/domUtils';
-import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { isTFolder, isTFile } from '../utils/typeGuards';
 import { useMultiSelection } from './useMultiSelection';
 

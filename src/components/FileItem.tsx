@@ -134,7 +134,7 @@ export const FileItem = React.memo(function FileItem({
             if (isImageFile(file)) {
                 try {
                     setFeatureImageUrl(app.vault.getResourcePath(file));
-                } catch (e) {
+                } catch {
                     setFeatureImageUrl(null);
                 }
             } else {

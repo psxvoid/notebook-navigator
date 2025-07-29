@@ -204,13 +204,14 @@ export class ColorPickerModal extends Modal {
                         break;
 
                     case 'Enter':
-                    case ' ':
+                    case ' ': {
                         e.preventDefault();
                         const color = currentFocused.getAttribute('data-color');
                         if (color) {
                             this.selectColor(color);
                         }
                         break;
+                    }
 
                     case 'Escape':
                         e.preventDefault();

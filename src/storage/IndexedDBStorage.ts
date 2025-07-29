@@ -254,7 +254,6 @@ export class IndexedDBStorage {
 
     private async openDatabase(skipCacheLoad: boolean = false): Promise<void> {
         return new Promise((resolve, reject) => {
-            const startTime = performance.now();
             const request = indexedDB.open(this.dbName, DB_SCHEMA_VERSION);
 
             request.onerror = () => {
@@ -279,7 +278,6 @@ export class IndexedDBStorage {
                         const filesWithPaths: Array<{ path: string; data: FileData }> = [];
 
                         await new Promise<void>((resolve, reject) => {
-                            let count = 0;
                             request.onsuccess = event => {
                                 const cursor = (event.target as IDBRequest).result;
                                 if (cursor) {
@@ -287,9 +285,6 @@ export class IndexedDBStorage {
                                         path: cursor.key as string,
                                         data: cursor.value as FileData
                                     });
-                                    count++;
-                                    if (count % 1000 === 0) {
-                                    }
                                     cursor.continue();
                                 } else {
                                     // Done iterating
@@ -301,7 +296,6 @@ export class IndexedDBStorage {
                             request.onerror = () => reject(request.error);
                         });
 
-                        const totalTime = (performance.now() - startTime).toFixed(2);
                     } catch (error) {
                         console.error('[DB Cache] Failed to initialize cache:', error);
                         // Continue without cache - database will still work
@@ -313,8 +307,6 @@ export class IndexedDBStorage {
 
             request.onupgradeneeded = event => {
                 const db = (event.target as IDBOpenDBRequest).result;
-                const oldVersion = event.oldVersion;
-                const newVersion = event.newVersion;
 
                 if (!db.objectStoreNames.contains(STORE_NAME)) {
                     // Use out-of-line keys since we removed path from FileData
@@ -322,7 +314,6 @@ export class IndexedDBStorage {
 
                     store.createIndex('mtime', 'mtime', { unique: false });
                     store.createIndex('tags', 'tags', { unique: false, multiEntry: true });
-                } else {
                 }
             };
         });

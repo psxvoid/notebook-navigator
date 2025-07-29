@@ -91,6 +91,7 @@ export const ListPane = React.memo(
         // Callback for when scroll container ref is set
         const scrollContainerRefCallback = useCallback((element: HTMLDivElement | null) => {
             if (element && element !== scrollContainerRef.current) {
+                // Intentionally empty - just updating the ref
             }
             scrollContainerRef.current = element as HTMLDivElement;
         }, []);
@@ -711,7 +712,6 @@ export const ListPane = React.memo(
             // Only clear the pending scroll if we successfully executed it or if it's a top scroll
             if (shouldClearPending) {
                 pendingScrollRef.current = null;
-            } else {
             }
         }, [rowVirtualizer, filePathToIndex, rowVirtualizer.getTotalSize(), isVisible, pendingScrollVersion]);
 

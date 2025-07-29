@@ -62,7 +62,7 @@ export function shouldDisplayFile(file: TFile, visibility: FileVisibility, app: 
         case FILE_VISIBILITY.MARKDOWN:
             return file.extension === 'md';
 
-        case FILE_VISIBILITY.SUPPORTED:
+        case FILE_VISIBILITY.SUPPORTED: {
             // Get supported extensions inline
             const extensions = new Set<string>(CORE_OBSIDIAN_EXTENSIONS);
 
@@ -93,11 +93,12 @@ export function shouldDisplayFile(file: TFile, visibility: FileVisibility, app: 
                         }
                     }
                 }
-            } catch (e) {
+            } catch {
                 // If we can't access internal APIs, just use the core extensions
             }
 
             return extensions.has(file.extension);
+        }
 
         case FILE_VISIBILITY.ALL:
             return true;

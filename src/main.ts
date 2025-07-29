@@ -556,7 +556,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
         listeners.forEach(callback => {
             try {
                 callback();
-            } catch (error) {}
+            } catch {
+                // Silently ignore errors from settings update callbacks
+            }
         });
     }
 

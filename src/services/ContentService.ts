@@ -520,7 +520,7 @@ export class ContentService {
                         if (resourcePath && !resourcePath.includes('undefined')) {
                             return resourcePath;
                         }
-                    } catch (e) {
+                    } catch {
                         // Image file might have been deleted or moved
                         continue;
                     }
@@ -535,7 +535,7 @@ export class ContentService {
                     if (embedFile && isImageFile(embedFile)) {
                         try {
                             return this.app.vault.getResourcePath(embedFile);
-                        } catch (e) {
+                        } catch {
                             continue;
                         }
                     }

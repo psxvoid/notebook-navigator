@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, App, getAllTags } from 'obsidian';
+import { TFile } from 'obsidian';
 import { IndexedDBStorage, FileData } from './IndexedDBStorage';
 
 /**

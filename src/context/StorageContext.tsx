@@ -285,7 +285,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
     // Initialize IndexedDB on mount
     useEffect(() => {
-        // @ts-ignore - appId exists on app but not in type definition
+        // @ts-expect-error - appId exists on app but not in type definition
         const appId = app.appId as string;
         initializeCache(appId)
             .then(() => {
@@ -337,7 +337,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             requestIdleCallback(
                 async () => {
                     try {
-                        const { toAdd, toUpdate, toRemove, cachedFiles: diffCachedFiles } = await calculateFileDiff(allFiles);
+                        const { toAdd, toUpdate, toRemove } = await calculateFileDiff(allFiles);
 
                         if (toAdd.length > 0 || toUpdate.length > 0 || toRemove.length > 0) {
                             // Update only the changed files in IndexedDB
@@ -482,10 +482,6 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         // Tags are already handled by the modify event above
         const metadataEvent = app.metadataCache.on('changed', async file => {
             if (file && file.extension === 'md') {
-                // Get existing data before updating
-                const db = getDBInstance();
-                const existingFile = db.getFile(file.path);
-
                 // Mark file for regeneration - metadata changes might not update mtime
                 await markFilesForRegeneration([file]);
 
