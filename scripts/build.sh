@@ -9,13 +9,30 @@ SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 # Change to project root directory
 cd "$SCRIPT_DIR/.."
 
-# Run the standard npm build
-echo "Building notebook-navigator..."
-npm run build
+# Track overall status
+BUILD_WARNINGS=0
+BUILD_ERRORS=0
 
-# Check if build was successful
-if [ $? -eq 0 ]; then
-    echo "✅ Build completed successfully"
+# Step 1: Run ESLint
+echo "Running ESLint..."
+npm run lint
+ESLINT_STATUS=$?
+if [ $ESLINT_STATUS -ne 0 ]; then
+    echo "❌ ESLint found errors"
+    BUILD_ERRORS=$((BUILD_ERRORS + 1))
+else
+    echo "✅ ESLint passed"
+fi
+
+# Step 2: Run TypeScript type checking
+echo -e "\nChecking TypeScript types..."
+npx tsc --noEmit --skipLibCheck
+TSC_STATUS=$?
+if [ $TSC_STATUS -ne 0 ]; then
+    echo "❌ TypeScript type checking failed"
+    BUILD_ERRORS=$((BUILD_ERRORS + 1))
+else
+    echo "✅ TypeScript types are valid"
     
     # Check for unused imports and variables (warning only)
     echo "Checking for unused imports..."
@@ -23,29 +40,71 @@ if [ $? -eq 0 ]; then
     if [ $UNUSED_COUNT -gt 0 ]; then
         echo "⚠️  Warning: Found $UNUSED_COUNT unused imports or variables"
         echo "Run 'npx tsc --noEmit --noUnusedLocals --noUnusedParameters' to see details"
+        BUILD_WARNINGS=$((BUILD_WARNINGS + 1))
     else
         echo "✅ No unused imports found"
     fi
+fi
+
+# Step 3: Check for dead code with Knip (warning only)
+echo -e "\nChecking for dead code..."
+KNIP_OUTPUT=$(npx knip --no-progress 2>/dev/null)
+DEAD_FILES=$(echo "$KNIP_OUTPUT" | grep -c "^src/.*\.(ts|tsx)" || true)
+DEAD_EXPORTS=$(echo "$KNIP_OUTPUT" | grep -c "function\|class\|interface\|type\|const" || true)
+
+if [ $DEAD_FILES -gt 0 ] || [ $DEAD_EXPORTS -gt 0 ]; then
+    echo "⚠️  Warning: Found dead code - $DEAD_FILES unused files, $DEAD_EXPORTS unused exports"
+    echo "Run 'npx knip' to see details"
+    BUILD_WARNINGS=$((BUILD_WARNINGS + 1))
+else
+    echo "✅ No dead code found"
+fi
+
+# Step 4: Check formatting with Prettier
+echo -e "\nChecking code formatting..."
+npm run format:check
+PRETTIER_STATUS=$?
+if [ $PRETTIER_STATUS -ne 0 ]; then
+    echo "⚠️  Warning: Code formatting issues found"
+    echo "Run 'npm run format' to fix formatting"
+    BUILD_WARNINGS=$((BUILD_WARNINGS + 1))
+else
+    echo "✅ Code formatting is correct"
+fi
+
+# Only run the build if no errors (warnings are OK)
+if [ $BUILD_ERRORS -eq 0 ]; then
+    # Run the standard npm build
+    echo -e "\nBuilding notebook-navigator..."
+    npm run build
     
-    # Check for dead code with Knip (warning only)
-    echo "Checking for dead code..."
-    KNIP_OUTPUT=$(npx knip --no-progress 2>/dev/null)
-    DEAD_FILES=$(echo "$KNIP_OUTPUT" | grep -c "^src/.*\.(ts|tsx)" || true)
-    DEAD_EXPORTS=$(echo "$KNIP_OUTPUT" | grep -c "function\|class\|interface\|type\|const" || true)
-    
-    if [ $DEAD_FILES -gt 0 ] || [ $DEAD_EXPORTS -gt 0 ]; then
-        echo "⚠️  Warning: Found dead code - $DEAD_FILES unused files, $DEAD_EXPORTS unused exports"
-        echo "Run 'npx knip' to see details"
+    # Check if build was successful
+    if [ $? -eq 0 ]; then
+        echo "✅ Build completed successfully"
+        
+        # Check if local post-build script exists and run it
+        if [ -f "$SCRIPT_DIR/build-local.sh" ]; then
+            echo "Running local post-build script..."
+            "$SCRIPT_DIR/build-local.sh"
+        fi
+        
+        # Summary
+        echo -e "\n=== Build Summary ==="
+        echo "✅ Build successful"
+        if [ $BUILD_WARNINGS -gt 0 ]; then
+            echo "⚠️  $BUILD_WARNINGS warning(s) found"
+        else
+            echo "✅ No warnings"
+        fi
     else
-        echo "✅ No dead code found"
-    fi
-    
-    # Check if local post-build script exists and run it
-    if [ -f "$SCRIPT_DIR/build-local.sh" ]; then
-        echo "Running local post-build script..."
-        "$SCRIPT_DIR/build-local.sh"
+        echo "❌ Build failed"
+        exit 1
     fi
 else
-    echo "❌ Build failed"
+    echo -e "\n=== Build Summary ==="
+    echo "❌ Build aborted due to $BUILD_ERRORS error(s)"
+    if [ $BUILD_WARNINGS -gt 0 ]; then
+        echo "⚠️  Also found $BUILD_WARNINGS warning(s)"
+    fi
     exit 1
 fi
