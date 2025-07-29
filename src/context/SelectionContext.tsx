@@ -22,6 +22,7 @@ import { NavigationItemType, STORAGE_KEYS } from '../types';
 import { NotebookNavigatorPlugin } from '../types/plugin';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { useSettingsState } from './SettingsContext';
+import { localStorage } from '../utils/localStorage';
 
 // State interface
 export interface SelectionState {
@@ -473,7 +474,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
         // Load saved folder path with error handling
         let savedFolderPath: string | null = null;
         try {
-            savedFolderPath = localStorage.getItem(STORAGE_KEYS.selectedFolderKey);
+            savedFolderPath = localStorage.get<string>(STORAGE_KEYS.selectedFolderKey);
         } catch (error) {
             console.error('Failed to load selected folder from localStorage:', error);
         }
@@ -489,7 +490,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
         // Load saved tag with error handling
         let savedTag: string | null = null;
         try {
-            savedTag = localStorage.getItem(STORAGE_KEYS.selectedTagKey);
+            savedTag = localStorage.get<string>(STORAGE_KEYS.selectedTagKey);
         } catch (error) {
             console.error('Failed to load selected tag from localStorage:', error);
         }
@@ -497,7 +498,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
         // Load saved file path with error handling
         let savedFilePath: string | null = null;
         try {
-            savedFilePath = localStorage.getItem(STORAGE_KEYS.selectedFileKey);
+            savedFilePath = localStorage.get<string>(STORAGE_KEYS.selectedFileKey);
         } catch (error) {
             console.error('Failed to load selected file from localStorage:', error);
         }
@@ -613,9 +614,9 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
     useEffect(() => {
         try {
             if (state.selectedFolder) {
-                localStorage.setItem(STORAGE_KEYS.selectedFolderKey, state.selectedFolder.path);
+                localStorage.set(STORAGE_KEYS.selectedFolderKey, state.selectedFolder.path);
             } else {
-                localStorage.removeItem(STORAGE_KEYS.selectedFolderKey);
+                localStorage.remove(STORAGE_KEYS.selectedFolderKey);
             }
         } catch (error) {
             console.error('Failed to save selected folder to localStorage:', error);
@@ -626,9 +627,9 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
     useEffect(() => {
         try {
             if (state.selectedTag) {
-                localStorage.setItem(STORAGE_KEYS.selectedTagKey, state.selectedTag);
+                localStorage.set(STORAGE_KEYS.selectedTagKey, state.selectedTag);
             } else {
-                localStorage.removeItem(STORAGE_KEYS.selectedTagKey);
+                localStorage.remove(STORAGE_KEYS.selectedTagKey);
             }
         } catch (error) {
             console.error('Failed to save selected tag to localStorage:', error);
@@ -641,9 +642,9 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             // Save the first selected file for backward compatibility
             const firstFile = state.selectedFile || getFirstSelectedFile(state.selectedFiles, app);
             if (firstFile) {
-                localStorage.setItem(STORAGE_KEYS.selectedFileKey, firstFile.path);
+                localStorage.set(STORAGE_KEYS.selectedFileKey, firstFile.path);
             } else {
-                localStorage.removeItem(STORAGE_KEYS.selectedFileKey);
+                localStorage.remove(STORAGE_KEYS.selectedFileKey);
             }
         } catch (error) {
             console.error('Failed to save selected file to localStorage:', error);

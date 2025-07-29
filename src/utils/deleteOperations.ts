@@ -22,7 +22,6 @@ import { FileSystemOperations } from '../services/FileSystemService';
 import { NotebookNavigatorSettings } from '../settings';
 import { ItemType } from '../types';
 import { getFilesForFolder, getFilesForTag } from './fileFinder';
-import { isTFolder } from './typeGuards';
 
 interface DeleteOperationsContext {
     app: App;
@@ -107,9 +106,9 @@ export async function deleteSelectedFolder({
 
     // Try to find next sibling folder
     const parentFolder = folderToDelete.parent;
-    if (parentFolder && isTFolder(parentFolder)) {
+    if (parentFolder) {
         const siblings = parentFolder.children
-            .filter((child): child is TFolder => isTFolder(child))
+            .filter((child): child is TFolder => child instanceof TFolder)
             .sort((a, b) => a.name.localeCompare(b.name));
 
         const currentIndex = siblings.findIndex(f => f.path === folderToDelete.path);
@@ -131,7 +130,7 @@ export async function deleteSelectedFolder({
         // Try to find any other root folder
         const rootFolder = app.vault.getRoot();
         const rootFolders = rootFolder.children
-            .filter((child): child is TFolder => isTFolder(child) && child.path !== folderToDelete.path)
+            .filter((child): child is TFolder => child instanceof TFolder && child.path !== folderToDelete.path)
             .sort((a, b) => a.name.localeCompare(b.name));
 
         if (rootFolders.length > 0) {

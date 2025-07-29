@@ -18,7 +18,7 @@
 
 // src/hooks/useDragAndDrop.ts
 import { useCallback, useEffect, useRef } from 'react';
-import { TFile, Notice, setIcon } from 'obsidian';
+import { TFile, TFolder, Notice, setIcon } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useFileSystemOps, useTagOperations } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
@@ -27,7 +27,6 @@ import { getDBInstance } from '../storage/fileOperations';
 import { ItemType, UNTAGGED_TAG_ID } from '../types';
 import { getPathFromDataAttribute } from '../utils/domUtils';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
-import { isTFolder, isTFile } from '../utils/typeGuards';
 
 /**
  * Custom hook that enables drag and drop functionality for files and folders.
@@ -119,7 +118,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     const markdownLinks: string[] = [];
                     selectedPaths.forEach(selectedPath => {
                         const file = app.vault.getAbstractFileByPath(selectedPath);
-                        if (isTFile(file)) {
+                        if (file instanceof TFile) {
                             // Generate markdown link respecting user's wikilink setting
                             const link = app.fileManager.generateMarkdownLink(file, '');
                             markdownLinks.push(link);
@@ -159,7 +158,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     // Generate markdown link for single file
                     if (type === ItemType.FILE) {
                         const file = app.vault.getAbstractFileByPath(path);
-                        if (isTFile(file)) {
+                        if (file instanceof TFile) {
                             const link = app.fileManager.generateMarkdownLink(file, '');
                             e.dataTransfer.setData('text/plain', link);
                         }
@@ -254,7 +253,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     if (Array.isArray(selectedPaths)) {
                         for (const path of selectedPaths) {
                             const file = app.vault.getAbstractFileByPath(path);
-                            if (isTFile(file)) {
+                            if (file instanceof TFile) {
                                 files.push(file);
                             }
                         }
@@ -267,7 +266,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 const singleFileData = e.dataTransfer?.getData('obsidian/file');
                 if (singleFileData) {
                     const file = app.vault.getAbstractFileByPath(singleFileData);
-                    if (isTFile(file)) {
+                    if (file instanceof TFile) {
                         files.push(file);
                     }
                 }
@@ -342,7 +341,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
             // Handle folder drops (existing logic)
             const targetFolder = app.vault.getAbstractFileByPath(targetPath);
-            if (!isTFolder(targetFolder)) return;
+            if (!(targetFolder instanceof TFolder)) return;
 
             // Check if dragging multiple files
             const multipleFilesData = e.dataTransfer?.getData('obsidian/files');
@@ -354,7 +353,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         const filesToMove: TFile[] = [];
                         for (const path of selectedPaths) {
                             const file = app.vault.getAbstractFileByPath(path);
-                            if (isTFile(file)) {
+                            if (file instanceof TFile) {
                                 filesToMove.push(file);
                             }
                         }
@@ -385,7 +384,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             if (!singleFileData) return;
 
             const sourceItem = app.vault.getAbstractFileByPath(singleFileData);
-            if (!sourceItem || !isTFile(sourceItem)) return;
+            if (!sourceItem || !(sourceItem instanceof TFile)) return;
 
             // Use the shared moveFilesToFolder method for single files too
             const currentFiles = getCurrentFileList();

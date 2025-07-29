@@ -17,6 +17,7 @@
  */
 
 import { IconProvider, IconDefinition, ParsedIconId, IconServiceConfig } from './types';
+import { localStorage } from '../../utils/localStorage';
 
 /**
  * Central service for managing icon providers and rendering icons.
@@ -234,9 +235,9 @@ export class IconService {
 
     private loadRecentIcons(): void {
         try {
-            const stored = localStorage.getItem(IconService.RECENT_ICONS_STORAGE_KEY);
+            const stored = localStorage.get<string[]>(IconService.RECENT_ICONS_STORAGE_KEY);
             if (stored) {
-                this.recentIcons = JSON.parse(stored);
+                this.recentIcons = stored;
             }
         } catch (error) {
             console.log(`Error loading recent icons: ${error}`);
@@ -246,7 +247,7 @@ export class IconService {
 
     private saveRecentIcons(): void {
         try {
-            localStorage.setItem(IconService.RECENT_ICONS_STORAGE_KEY, JSON.stringify(this.recentIcons));
+            localStorage.set(IconService.RECENT_ICONS_STORAGE_KEY, this.recentIcons);
         } catch (error) {
             console.log(`Error saving recent icons: ${error}`);
         }

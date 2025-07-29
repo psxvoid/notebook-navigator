@@ -16,37 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, TFolder, App, View } from 'obsidian';
-import { FileView } from '../types/obsidian-extended';
-
-/**
- * Type guard to check if an object is a TFile
- */
-export function isTFile(obj: unknown): obj is TFile {
-    return obj !== null && typeof obj === 'object' && 'vault' in obj && 'path' in obj && 'extension' in obj && !('children' in obj); // TFolder has children, TFile doesn't
-}
-
-/**
- * Type guard to check if an object is a TFolder
- */
-export function isTFolder(obj: unknown): obj is TFolder {
-    return (
-        obj !== null &&
-        typeof obj === 'object' &&
-        'vault' in obj &&
-        'path' in obj &&
-        'children' in obj &&
-        // Safe property access since we already checked 'children' exists
-        Array.isArray((obj as Record<string, unknown>).children)
-    );
-}
-
-/**
- * Type guard to check if a View is a FileView
- */
-export function isFileView(view: View): view is FileView {
-    return view !== null && typeof view === 'object' && 'file' in view;
-}
+import { TFolder, App } from 'obsidian';
 
 /**
  * Interface for internal plugin structure

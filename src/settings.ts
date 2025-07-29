@@ -262,15 +262,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
     }
 
     /**
-     * Helper function to toggle element visibility using CSS class
-     * @param element - The HTML element to show/hide
-     * @param show - Whether to show (true) or hide (false) the element
-     */
-    private setElementVisibility(element: HTMLElement, show: boolean): void {
-        element.toggleClass('nn-setting-hidden', !show);
-    }
-
-    /**
      * Helper to save settings
      * Settings changes are automatically propagated through context providers
      */
@@ -555,7 +546,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     this.plugin.settings.enableFolderNotes = value;
                     await this.saveAndRefresh();
                     // Update folder notes sub-settings visibility
-                    this.setElementVisibility(folderNotesSettingsEl, value);
+                    folderNotesSettingsEl.toggle(value);
                 })
             );
 
@@ -597,10 +588,10 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     this.plugin.settings.showTags = value;
                     await this.saveAndRefresh();
                     // Update tag sub-settings visibility
-                    this.setElementVisibility(tagSubSettingsEl, value);
+                    tagSubSettingsEl.toggle(value);
                     // Update visibility of "Show tags" setting in Notes section
                     if (showFileTagsSetting) {
-                        this.setElementVisibility(showFileTagsSetting.settingEl, value);
+                        showFileTagsSetting.settingEl.toggle(value);
                     }
                 })
             );
@@ -737,7 +728,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     this.plugin.settings.showNotesFromSubfolders = value;
                     await this.saveAndRefresh();
                     // Update subfolder names visibility
-                    this.setElementVisibility(subfolderNamesEl, value);
+                    subfolderNamesEl.toggle(value);
                 })
             );
 
@@ -755,7 +746,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             );
 
         // Set initial visibility
-        this.setElementVisibility(subfolderNamesEl, this.plugin.settings.showNotesFromSubfolders);
+        subfolderNamesEl.toggle(this.plugin.settings.showNotesFromSubfolders);
 
         this.createDebouncedTextSetting(
             containerEl,
@@ -803,7 +794,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 toggle.setValue(this.plugin.settings.useFrontmatterMetadata).onChange(async value => {
                     this.plugin.settings.useFrontmatterMetadata = value;
                     await this.saveAndRefresh();
-                    this.setElementVisibility(frontmatterSettingsEl, value);
+                    frontmatterSettingsEl.toggle(value);
                 })
             );
 
@@ -909,7 +900,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 toggle.setValue(this.plugin.settings.showFilePreview).onChange(async value => {
                     this.plugin.settings.showFilePreview = value;
                     await this.saveAndRefresh();
-                    this.setElementVisibility(previewSettingsEl, value);
+                    previewSettingsEl.toggle(value);
                 })
             );
 
@@ -974,7 +965,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 toggle.setValue(this.plugin.settings.showFeatureImage).onChange(async value => {
                     this.plugin.settings.showFeatureImage = value;
                     await this.saveAndRefresh();
-                    this.setElementVisibility(featureImageSettingsEl, value);
+                    featureImageSettingsEl.toggle(value);
                 })
             );
 
@@ -1080,14 +1071,14 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         }, 1000);
 
         // Set initial visibility
-        this.setElementVisibility(previewSettingsEl, this.plugin.settings.showFilePreview);
-        this.setElementVisibility(featureImageSettingsEl, this.plugin.settings.showFeatureImage);
-        this.setElementVisibility(tagSubSettingsEl, this.plugin.settings.showTags);
-        this.setElementVisibility(frontmatterSettingsEl, this.plugin.settings.useFrontmatterMetadata);
-        this.setElementVisibility(folderNotesSettingsEl, this.plugin.settings.enableFolderNotes);
+        previewSettingsEl.toggle(this.plugin.settings.showFilePreview);
+        featureImageSettingsEl.toggle(this.plugin.settings.showFeatureImage);
+        tagSubSettingsEl.toggle(this.plugin.settings.showTags);
+        frontmatterSettingsEl.toggle(this.plugin.settings.useFrontmatterMetadata);
+        folderNotesSettingsEl.toggle(this.plugin.settings.enableFolderNotes);
         // Hide "Show tags" in Notes section if main "Show tags" is disabled
         if (showFileTagsSetting) {
-            this.setElementVisibility(showFileTagsSetting.settingEl, this.plugin.settings.showTags);
+            showFileTagsSetting.settingEl.toggle(this.plugin.settings.showTags);
         }
     }
 

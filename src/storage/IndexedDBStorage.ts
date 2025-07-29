@@ -1,4 +1,5 @@
 import { STORAGE_KEYS } from '../types';
+import { localStorage } from '../utils/localStorage';
 /*
  * Notebook Navigator - Plugin for Obsidian
  * Copyright (c) 2025 Johan Sanneblad
@@ -195,8 +196,8 @@ export class IndexedDBStorage {
     private async checkSchemaAndInit(): Promise<void> {
         const startTime = performance.now();
 
-        const storedSchemaVersion = localStorage.getItem(STORAGE_KEYS.databaseSchemaVersionKey);
-        const storedContentVersion = localStorage.getItem(STORAGE_KEYS.databaseContentVersionKey);
+        const storedSchemaVersion = localStorage.get<string>(STORAGE_KEYS.databaseSchemaVersionKey);
+        const storedContentVersion = localStorage.get<string>(STORAGE_KEYS.databaseContentVersionKey);
         const currentSchemaVersion = DB_SCHEMA_VERSION.toString();
         const currentContentVersion = DB_CONTENT_VERSION.toString();
 
@@ -210,8 +211,8 @@ export class IndexedDBStorage {
             await this.deleteDatabase();
         }
 
-        localStorage.setItem(STORAGE_KEYS.databaseSchemaVersionKey, currentSchemaVersion);
-        localStorage.setItem(STORAGE_KEYS.databaseContentVersionKey, currentContentVersion);
+        localStorage.set(STORAGE_KEYS.databaseSchemaVersionKey, currentSchemaVersion);
+        localStorage.set(STORAGE_KEYS.databaseContentVersionKey, currentContentVersion);
 
         const needsRebuild = !!(schemaChanged || contentChanged);
         await this.openDatabase(needsRebuild);

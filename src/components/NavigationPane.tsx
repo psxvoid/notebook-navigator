@@ -18,7 +18,7 @@
 
 import React, { useMemo, useRef, useEffect, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
 import { debounce } from 'obsidian';
-import { TFolder } from 'obsidian';
+import { TFolder, TFile } from 'obsidian';
 import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -37,7 +37,6 @@ import { getFolderNote } from '../utils/fileFinder';
 import { shouldDisplayFile } from '../utils/fileTypeUtils';
 import { getTotalNoteCount, filterTagTree, excludeFromTagTree, parseTagPatterns } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
-import { isTFolder, isTFile } from '../utils/typeGuards';
 import { FolderItem } from './FolderItem';
 import { PaneHeader } from './PaneHeader';
 import { TagTreeItem } from './TagTreeItem';
@@ -151,7 +150,7 @@ export const NavigationPane = React.memo(
                 selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
 
                 // Auto-expand if enabled and folder has children
-                if (settings.autoExpandFoldersTags && folder.children.some(child => isTFolder(child))) {
+                if (settings.autoExpandFoldersTags && folder.children.some(child => child instanceof TFolder)) {
                     // Only expand if not already expanded
                     if (!expansionState.expandedFolders.has(folder.path)) {
                         expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
@@ -321,13 +320,13 @@ export const NavigationPane = React.memo(
             const countFiles = (folder: TFolder): number => {
                 let count = 0;
                 for (const child of folder.children) {
-                    if (isTFile(child)) {
+                    if (child instanceof TFile) {
                         if (shouldDisplayFile(child, settings.fileVisibility, app)) {
                             if (!shouldExcludeFile(child, excludedProperties, app)) {
                                 count++;
                             }
                         }
-                    } else if (settings.showNotesFromSubfolders && isTFolder(child)) {
+                    } else if (settings.showNotesFromSubfolders && child instanceof TFolder) {
                         // Check if this subfolder should be excluded
                         const isExcluded = excludedFolderPatterns.some(pattern => matchesFolderPattern(child.name, pattern));
 
@@ -341,7 +340,7 @@ export const NavigationPane = React.memo(
 
             // Compute counts for all folder items
             items.forEach(item => {
-                if (item.type === NavigationPaneItemType.FOLDER && isTFolder(item.data)) {
+                if (item.type === NavigationPaneItemType.FOLDER && item.data instanceof TFolder) {
                     counts.set(item.data.path, countFiles(item.data));
                 }
             });
@@ -487,7 +486,7 @@ export const NavigationPane = React.memo(
                     folders = [root];
                 } else {
                     folders = root.children
-                        .filter((child): child is TFolder => isTFolder(child))
+                        .filter((child): child is TFolder => child instanceof TFolder)
                         .sort((a, b) => a.name.localeCompare(b.name));
                 }
 
@@ -503,13 +502,13 @@ export const NavigationPane = React.memo(
             // Listen to vault events for folder changes
             const events = [
                 app.vault.on('create', file => {
-                    if (isTFolder(file)) rebuildFolders();
+                    if (file instanceof TFolder) rebuildFolders();
                 }),
                 app.vault.on('delete', file => {
-                    if (isTFolder(file)) rebuildFolders();
+                    if (file instanceof TFolder) rebuildFolders();
                 }),
                 app.vault.on('rename', file => {
-                    if (isTFolder(file)) rebuildFolders();
+                    if (file instanceof TFolder) rebuildFolders();
                 })
             ];
 

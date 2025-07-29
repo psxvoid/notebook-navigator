@@ -23,6 +23,7 @@ import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS } from '../types';
 import { NotebookNavigatorComponent } from './NotebookNavigatorComponent';
 import type { NotebookNavigatorHandle } from './NotebookNavigatorComponent';
 import { SkeletonView } from './SkeletonView';
+import { localStorage } from '../utils/localStorage';
 
 /**
  * Container component that handles storage initialization.
@@ -36,9 +37,9 @@ export const NotebookNavigatorContainer = React.memo(
 
         // Load saved pane width
         useEffect(() => {
-            const savedWidth = localStorage.getItem(STORAGE_KEYS.navigationPaneWidthKey);
+            const savedWidth = localStorage.get<number>(STORAGE_KEYS.navigationPaneWidthKey);
             if (savedWidth) {
-                setPaneWidth(parseInt(savedWidth, 10));
+                setPaneWidth(savedWidth);
             }
         }, []);
 

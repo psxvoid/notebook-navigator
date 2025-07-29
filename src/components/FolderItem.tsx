@@ -17,7 +17,7 @@
  */
 
 import React, { useRef, useEffect } from 'react';
-import { TFolder, setTooltip, setIcon } from 'obsidian';
+import { TFolder, TFile, setTooltip, setIcon } from 'obsidian';
 import { useServices, useMetadataService } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useContextMenu } from '../hooks/useContextMenu';
@@ -25,7 +25,6 @@ import { strings } from '../i18n';
 import { getIconService } from '../services/icons';
 import { isSupportedFileExtension, ItemType } from '../types';
 import { getFolderNote } from '../utils/fileFinder';
-import { isTFile, isTFolder } from '../utils/typeGuards';
 
 interface FolderItemProps {
     folder: TFolder;
@@ -83,11 +82,11 @@ export const FolderItem = React.memo(function FolderItem({
         let folderCount = 0;
 
         for (const child of folder.children) {
-            if (isTFile(child)) {
+            if (child instanceof TFile) {
                 if (isSupportedFileExtension(child.extension)) {
                     fileCount++;
                 }
-            } else if (isTFolder(child)) {
+            } else if (child instanceof TFolder) {
                 folderCount++;
             }
         }
@@ -99,7 +98,7 @@ export const FolderItem = React.memo(function FolderItem({
     // NavigationPane pre-computes all folder counts for performance
     const fileCount = precomputedFileCount ?? 0;
 
-    const hasChildren = folder.children && folder.children.some(isTFolder);
+    const hasChildren = folder.children && folder.children.some(child => child instanceof TFolder);
 
     const customColor = metadataService.getFolderColor(folder.path);
 

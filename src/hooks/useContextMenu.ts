@@ -26,7 +26,7 @@ import { useSettingsState } from '../context/SettingsContext';
 import { useUIDispatch } from '../context/UIStateContext';
 import { isFileType, isFolderType, isTagType } from '../types';
 import { MenuConfig, MenuServices, MenuState, MenuDispatchers, buildFolderMenu, buildTagMenu, buildFileMenu } from '../utils/contextMenu';
-import { isTFolder, isTFile } from '../utils/typeGuards';
+import { TFile, TFolder } from 'obsidian';
 
 /**
  * Custom hook that attaches a context menu to an element.
@@ -107,7 +107,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
 
             // Call the appropriate builder based on item type
             if (isFolderType(config.type)) {
-                if (!isTFolder(config.item)) return;
+                if (!(config.item instanceof TFolder)) return;
                 buildFolderMenu({
                     folder: config.item,
                     menu,
@@ -127,7 +127,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                     dispatchers
                 });
             } else if (isFileType(config.type)) {
-                if (!isTFile(config.item)) return;
+                if (!(config.item instanceof TFile)) return;
                 buildFileMenu({
                     file: config.item,
                     menu,

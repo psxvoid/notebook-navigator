@@ -32,7 +32,6 @@ import type { ListPaneItem } from '../types/virtualization';
 import { DateUtils } from '../utils/dateUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
 import { getDateField, getEffectiveSortOption, sortFiles } from '../utils/sortUtils';
-import { isTFile } from '../utils/typeGuards';
 import { FileItem } from './FileItem';
 import { PaneHeader } from './PaneHeader';
 
@@ -149,7 +148,7 @@ export const ListPane = React.memo(
 
                 // Get actual preview status for accurate height calculation
                 let hasPreviewText = false;
-                if (item.type === ListPaneItemType.FILE && isTFile(item.data) && showFilePreview && item.data.extension === 'md') {
+                if (item.type === ListPaneItemType.FILE && item.data instanceof TFile && showFilePreview && item.data.extension === 'md') {
                     // Use synchronous check from cache
                     hasPreviewText = hasPreview(item.data.path);
                 }
@@ -176,7 +175,7 @@ export const ListPane = React.memo(
 
                         // Parent folder gets its own line
                         if (settings.showParentFolderNames && settings.showNotesFromSubfolders) {
-                            const file = isTFile(item.data) ? item.data : null;
+                            const file = item.data instanceof TFile ? item.data : null;
                             const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                             if (isInSubfolder) {
                                 textContentHeight += heights.metadataLineHeight;
@@ -186,7 +185,7 @@ export const ListPane = React.memo(
                         // Multi-row mode - different layouts based on preview content
                         if (!hasPreviewText) {
                             // Empty preview: show date + parent folder on same line
-                            const file = isTFile(item.data) ? item.data : null;
+                            const file = item.data instanceof TFile ? item.data : null;
                             const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                             const showsParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
 
@@ -199,7 +198,7 @@ export const ListPane = React.memo(
                                 textContentHeight += heights.multiLineLineHeight * effectivePreviewRows;
                             }
                             // Only add metadata line if date is shown OR parent folder is shown
-                            const file = isTFile(item.data) ? item.data : null;
+                            const file = item.data instanceof TFile ? item.data : null;
                             const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                             const showsParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
 
@@ -212,7 +211,7 @@ export const ListPane = React.memo(
 
                 // Add tag row height if file has tags (in both normal and slim modes when showTags is enabled)
                 // Tags are shown for both empty and non-empty preview text
-                if (settings.showFileTags && item.type === ListPaneItemType.FILE && isTFile(item.data)) {
+                if (settings.showFileTags && item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
                     // Check if file has tags using the database
                     const db = getDB();
                     const tags = db.getDisplayTags(item.data.path);
@@ -306,7 +305,7 @@ export const ListPane = React.memo(
             const map = new Map<string, number>();
             listItems.forEach((item, index) => {
                 if (item.type === ListPaneItemType.FILE) {
-                    if (isTFile(item.data)) {
+                    if (item.data instanceof TFile) {
                         map.set(item.data.path, index);
                     }
                 }
@@ -352,7 +351,7 @@ export const ListPane = React.memo(
             // Get all files from list items
             const allFiles: TFile[] = [];
             listItems.forEach(item => {
-                if (item.type === ListPaneItemType.FILE && isTFile(item.data)) {
+                if (item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
                     allFiles.push(item.data);
                 }
             });
@@ -366,7 +365,7 @@ export const ListPane = React.memo(
                     currentGroup = item.data as string;
                 } else if (item.type === ListPaneItemType.FILE) {
                     const file = item.data;
-                    if (!isTFile(file)) return;
+                    if (!(file instanceof TFile)) return;
 
                     // Compute display date based on current sort
                     const timestamp = dateField === 'ctime' ? getFileCreatedTime(file) : getFileModifiedTime(file);
@@ -403,7 +402,7 @@ export const ListPane = React.memo(
             const files: TFile[] = [];
             listItems.forEach(item => {
                 if (item.type === ListPaneItemType.FILE) {
-                    if (isTFile(item.data)) {
+                    if (item.data instanceof TFile) {
                         files.push(item.data);
                     }
                 }
@@ -1050,7 +1049,7 @@ export const ListPane = React.memo(
                                 if (!item) return null;
                                 // Check if file is selected
                                 let isSelected = false;
-                                if (item.type === ListPaneItemType.FILE && isTFile(item.data)) {
+                                if (item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
                                     isSelected = multiSelection.isFileSelected(item.data);
 
                                     // During folder navigation transitions, if nothing is selected in the current list,
@@ -1073,12 +1072,12 @@ export const ListPane = React.memo(
                                 const hasSelectedAbove =
                                     item.type === ListPaneItemType.FILE &&
                                     prevItem?.type === ListPaneItemType.FILE &&
-                                    isTFile(prevItem.data) &&
+                                    prevItem.data instanceof TFile &&
                                     multiSelection.isFileSelected(prevItem.data);
                                 const hasSelectedBelow =
                                     item.type === ListPaneItemType.FILE &&
                                     nextItem?.type === ListPaneItemType.FILE &&
-                                    isTFile(nextItem.data) &&
+                                    nextItem.data instanceof TFile &&
                                     multiSelection.isFileSelected(nextItem.data);
 
                                 // Check if this is the first header (same logic as in estimateSize)
@@ -1112,7 +1111,7 @@ export const ListPane = React.memo(
                                             </div>
                                         ) : item.type === ListPaneItemType.SPACER ? (
                                             <div className="nn-list-pane-spacer" />
-                                        ) : item.type === ListPaneItemType.FILE && isTFile(item.data) ? (
+                                        ) : item.type === ListPaneItemType.FILE && item.data instanceof TFile ? (
                                             <FileItem
                                                 file={item.data}
                                                 isSelected={isSelected}
@@ -1127,12 +1126,14 @@ export const ListPane = React.memo(
                                                             fileIndex++;
                                                         }
                                                     }
-                                                    if (isTFile(item.data)) {
+                                                    if (item.data instanceof TFile) {
                                                         handleFileClick(item.data, e, fileIndex, orderedFiles);
                                                     }
                                                 }}
                                                 dateGroup={dateGroup}
-                                                formattedDates={isTFile(item.data) ? filesWithDates?.get(item.data.path) : undefined}
+                                                formattedDates={
+                                                    item.data instanceof TFile ? filesWithDates?.get(item.data.path) : undefined
+                                                }
                                                 parentFolder={item.parentFolder}
                                             />
                                         ) : null}

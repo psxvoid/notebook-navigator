@@ -17,7 +17,7 @@
  */
 
 import { useCallback, useEffect, useRef } from 'react';
-import { TFile } from 'obsidian';
+import { TFile, TFolder, FileView } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -26,11 +26,9 @@ import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { getSupportedLeaves, NavigationPaneItemType, ListPaneItemType, ItemType } from '../types';
 import { TagTreeNode } from '../types/storage';
-import { isFileView } from '../utils/typeGuards';
 import { CombinedNavigationItem, ListPaneItem } from '../types/virtualization';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
 import { isTypingInInput } from '../utils/domUtils';
-import { isTFolder, isTFile } from '../utils/typeGuards';
 import { useMultiSelection } from './useMultiSelection';
 
 type VirtualItem = CombinedNavigationItem | ListPaneItem;
@@ -203,7 +201,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             if (focusedPane === 'files') {
                 const fileItem = item as ListPaneItem;
                 if (fileItem.type === ListPaneItemType.FILE) {
-                    const file = isTFile(fileItem.data) ? fileItem.data : null;
+                    const file = fileItem.data instanceof TFile ? fileItem.data : null;
                     if (!file) return;
                     // Normal navigation clears multi-selection
                     selectionDispatch({ type: 'SET_SELECTED_FILE', file });
@@ -221,7 +219,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
 
                     // Auto-expand if enabled and folder has children
-                    if (settings.autoExpandFoldersTags && folder.children.some(child => isTFolder(child))) {
+                    if (settings.autoExpandFoldersTags && folder.children.some(child => child instanceof TFolder)) {
                         // Only expand if not already expanded
                         if (!expansionState.expandedFolders.has(folder.path)) {
                             expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
@@ -319,7 +317,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                 currentIndex = items.findIndex(item => {
                     if ('type' in item && item.type === ListPaneItemType.FILE) {
                         const fileItem = item as ListPaneItem;
-                        return isTFile(fileItem.data) && fileItem.data.path === selectionState.selectedFile?.path;
+                        return fileItem.data instanceof TFile && fileItem.data.path === selectionState.selectedFile?.path;
                     }
                     return false;
                 });
@@ -365,7 +363,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                             .filter(item => item.type === ListPaneItemType.FILE)
                             .map(item => {
                                 const fileItem = item as ListPaneItem;
-                                return isTFile(fileItem.data) ? fileItem.data : null;
+                                return fileItem.data instanceof TFile ? fileItem.data : null;
                             })
                             .filter((file): file is TFile => file !== null);
 
@@ -394,7 +392,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                             .filter(item => item.type === ListPaneItemType.FILE)
                             .map(item => {
                                 const fileItem = item as ListPaneItem;
-                                return isTFile(fileItem.data) ? fileItem.data : null;
+                                return fileItem.data instanceof TFile ? fileItem.data : null;
                             })
                             .filter((file): file is TFile => file !== null);
 
@@ -476,7 +474,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                         if (item.type === NavigationPaneItemType.FOLDER) {
                             const folder = item.data;
                             const isExpanded = expansionState.expandedFolders.has(folder.path);
-                            const hasChildren = folder.children.some(child => isTFolder(child));
+                            const hasChildren = folder.children.some(child => child instanceof TFolder);
 
                             if (hasChildren && !isExpanded) {
                                 // If it has children and is collapsed, expand it.
@@ -517,7 +515,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                         const leaves = getSupportedLeaves(app);
                         const targetLeaf = leaves.find(leaf => {
                             const view = leaf.view;
-                            return isFileView(view) && view.file?.path === selectionState.selectedFile?.path;
+                            return view instanceof FileView && view.file?.path === selectionState.selectedFile?.path;
                         });
                         if (targetLeaf) {
                             app.workspace.setActiveLeaf(targetLeaf, { focus: true });
@@ -550,10 +548,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                                 // Navigate to parent folder
                                 const parentPath = folder.parent.path;
                                 const parentIndex = items.findIndex(i => {
-                                    if (i.type === NavigationPaneItemType.FOLDER && i.data && typeof i.data === 'object') {
-                                        const folderData = isTFolder(i.data) ? i.data : null;
-                                        if (!folderData) return;
-                                        return folderData.path === parentPath;
+                                    if (i.type === NavigationPaneItemType.FOLDER && i.data instanceof TFolder) {
+                                        return i.data.path === parentPath;
                                     }
                                     return false;
                                 });
@@ -625,7 +621,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                             const leaves = getSupportedLeaves(app);
                             const targetLeaf = leaves.find(leaf => {
                                 const view = leaf.view;
-                                return isFileView(view) && view.file?.path === selectionState.selectedFile?.path;
+                                return view instanceof FileView && view.file?.path === selectionState.selectedFile?.path;
                             });
                             if (targetLeaf) {
                                 app.workspace.setActiveLeaf(targetLeaf, { focus: true });
@@ -675,7 +671,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                             .filter(item => item.type === ListPaneItemType.FILE)
                             .map(item => {
                                 const fileItem = item as ListPaneItem;
-                                return isTFile(fileItem.data) ? fileItem.data : null;
+                                return fileItem.data instanceof TFile ? fileItem.data : null;
                             })
                             .filter((file): file is TFile => file !== null);
 

@@ -113,6 +113,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
     async onload() {
         await this.loadSettings();
 
+        // Initialize localStorage with app instance for vault-specific storage
+        localStorage.init(this.app);
+
         // Initialize mobile logger
         initializeMobileLogger(this.app);
 
@@ -324,7 +327,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
         );
 
         // Ribbon Icon For Opening
-        this.refreshIconRibbon();
+        this.ribbonIconEl = this.addRibbonIcon('notebook', strings.plugin.ribbonTooltip, async () => {
+            await this.activateView();
+        });
 
         // Register rename event handler to update folder metadata and notify file renames
         //
@@ -605,26 +610,6 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 view.navigateToFile(file);
             }
         });
-    }
-
-    /**
-     * Refreshes the ribbon icon based on current view state
-     * Adds icon to open navigator if no navigator leaves exist
-     * Removes icon if navigator is already open
-     */
-    refreshIconRibbon() {
-        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-
-        if (leaves.length === 0 && !this.ribbonIconEl) {
-            // Add ribbon icon only if no navigator view exists
-            this.ribbonIconEl = this.addRibbonIcon('notebook', strings.plugin.ribbonTooltip, async () => {
-                await this.activateView();
-            });
-        } else if (leaves.length > 0 && this.ribbonIconEl) {
-            // Remove ribbon icon if navigator view exists
-            this.ribbonIconEl.remove();
-            this.ribbonIconEl = undefined;
-        }
     }
 
     /**

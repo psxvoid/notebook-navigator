@@ -23,7 +23,6 @@ import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders, shoul
 import { shouldDisplayFile, FILE_VISIBILITY } from './fileTypeUtils';
 import { getEffectiveSortOption, sortFiles } from './sortUtils';
 import { buildTagTree, findTagNode, collectAllTagPaths } from './tagTree';
-import { isTFile, isTFolder } from './typeGuards';
 
 /**
  * Gets the folder note for a folder if it exists
@@ -36,7 +35,7 @@ export function getFolderNote(folder: TFolder, settings: NotebookNavigatorSettin
     // Look for the folder note in the folder
     for (const child of folder.children) {
         // Only check files, not folders
-        if (isTFile(child)) {
+        if (child instanceof TFile) {
             // Check if file is a folder note
             // Must be directly in the folder
             if (child.parent?.path !== folder.path) {
@@ -73,7 +72,7 @@ export function collectPinnedPaths(pinnedNotes: Record<string, string[]>, folder
 
             if (includeSubfolders) {
                 for (const child of f.children) {
-                    if (isTFolder(child)) {
+                    if (child instanceof TFolder) {
                         collectFromFolder(child);
                     }
                 }
@@ -107,12 +106,12 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
 
     const collectFiles = (f: TFolder): void => {
         for (const child of f.children) {
-            if (isTFile(child)) {
+            if (child instanceof TFile) {
                 // Check if file should be displayed based on visibility setting
                 if (shouldDisplayFile(child, settings.fileVisibility, app)) {
                     files.push(child);
                 }
-            } else if (settings.showNotesFromSubfolders && isTFolder(child)) {
+            } else if (settings.showNotesFromSubfolders && child instanceof TFolder) {
                 // Skip excluded folders when collecting files
                 if (excludedFolderPatterns.length === 0 || !shouldExcludeFolder(child.name, excludedFolderPatterns)) {
                     collectFiles(child);
@@ -128,9 +127,9 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
     if (settings.enableFolderNotes && settings.hideFolderNoteInList) {
         allFiles = allFiles.filter(file => {
             // Check if this file is a folder note for its parent folder
-            if (file.parent && isTFolder(file.parent)) {
-                // Must be directly in the folder
-                if (file.parent?.path !== file.parent.path) {
+            if (file.parent && file.parent instanceof TFolder) {
+                // Must be directly in the folder we're querying (not in a subfolder)
+                if (file.parent.path !== folder.path) {
                     return true;
                 }
 
