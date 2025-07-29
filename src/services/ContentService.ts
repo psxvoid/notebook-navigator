@@ -109,7 +109,7 @@ export class ContentService {
         // Extract created date if field is specified
         if (settings.frontmatterCreatedField && settings.frontmatterCreatedField.trim()) {
             const createdValue = frontmatter[settings.frontmatterCreatedField];
-            
+
             if (createdValue !== undefined) {
                 // Field exists, try to parse it
                 const createdTimestamp = DateUtils.parseFrontmatterDate(createdValue, settings.frontmatterDateFormat);
@@ -128,7 +128,7 @@ export class ContentService {
         // Extract modified date if field is specified
         if (settings.frontmatterModifiedField && settings.frontmatterModifiedField.trim()) {
             const modifiedValue = frontmatter[settings.frontmatterModifiedField];
-            
+
             if (modifiedValue !== undefined) {
                 // Field exists, try to parse it
                 const modifiedTimestamp = DateUtils.parseFrontmatterDate(modifiedValue, settings.frontmatterDateFormat);
@@ -180,12 +180,7 @@ export class ContentService {
         }
 
         // Check if content generation is enabled
-        if (
-            !settings.showTags &&
-            !settings.showFilePreview &&
-            !settings.showFeatureImage &&
-            !settings.useFrontmatterMetadata
-        ) {
+        if (!settings.showTags && !settings.showFilePreview && !settings.showFeatureImage && !settings.useFrontmatterMetadata) {
             return;
         }
 
@@ -212,11 +207,7 @@ export class ContentService {
             // Check what needs generation based on null values OR file modification
             // IMPORTANT: We check for === null specifically, not falsy values
             // Empty string '' means preview was generated but file has no content
-            const needsTags = !!(
-                settings.showTags &&
-                (!fileData || fileData.tags === null || fileModified) &&
-                file.extension === 'md'
-            );
+            const needsTags = !!(settings.showTags && (!fileData || fileData.tags === null || fileModified) && file.extension === 'md');
             const needsPreview = !!(
                 settings.showFilePreview &&
                 (!fileData || fileData.preview === null || fileModified) &&
@@ -375,9 +366,10 @@ export class ContentService {
                             job.needsTags ? this.extractTags(job.file) : Promise.resolve(null),
                             job.needsPreview ? this.generatePreviewOptimized(job.file, settings) : Promise.resolve(''),
                             job.needsImage ? Promise.resolve(this.getFeatureImageUrl(job.file, settings)) : Promise.resolve(''),
-                            job.needsMetadata ? Promise.resolve(ContentService.extractMetadata(this.app, job.file, settings)) : Promise.resolve({})
+                            job.needsMetadata
+                                ? Promise.resolve(ContentService.extractMetadata(this.app, job.file, settings))
+                                : Promise.resolve({})
                         ]);
-
 
                         return {
                             job,

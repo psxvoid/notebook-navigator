@@ -78,7 +78,7 @@ export const ListPane = React.memo(
 
         // Track current visible date group for sticky header
         const [currentDateGroup, setCurrentDateGroup] = useState<string | null>(null);
-        
+
         // State to force updates when vault changes
         const [updateKey, setUpdateKey] = useState(0);
 
@@ -655,15 +655,7 @@ export const ListPane = React.memo(
 
             // Rebuild list items when files or relevant settings change
             rebuildListItems();
-        }, [
-            files,
-            settings,
-            selectionType,
-            selectedFolder,
-            selectedTag,
-            getFileCreatedTime,
-            getFileModifiedTime
-        ]);
+        }, [files, settings, selectionType, selectedFolder, selectedTag, getFileCreatedTime, getFileModifiedTime]);
 
         // Reset virtualizer when list items are reordered
         useEffect(() => {

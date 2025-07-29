@@ -294,7 +294,12 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
     /**
      * Generate metadata parsing info text
      */
-    private generateMetadataInfoText(stats: CacheStatistics): { infoText: string; failedText: string | null; hasFailures: boolean; failurePercentage: number } {
+    private generateMetadataInfoText(stats: CacheStatistics): {
+        infoText: string;
+        failedText: string | null;
+        hasFailures: boolean;
+        failurePercentage: number;
+    } {
         if (!stats) return { infoText: '', failedText: null, hasFailures: false, failurePercentage: 0 };
 
         const nameCount = stats.itemsWithMetadataName || 0;
@@ -340,34 +345,34 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Update metadata parsing info
         if (this.metadataInfoEl && this.plugin.settings.useFrontmatterMetadata) {
             const { infoText, failedText, hasFailures, failurePercentage } = this.generateMetadataInfoText(stats);
-            
+
             // Clear previous content
             this.metadataInfoEl.empty();
-            
+
             // Create a flex container for the entire metadata info
             const metadataContainer = this.metadataInfoEl.createEl('div', {
                 cls: 'nn-metadata-info-row'
             });
-            
+
             // Left side: text content
             const textContainer = metadataContainer.createEl('div', {
                 cls: 'nn-metadata-info-text'
             });
-            
+
             // Add info text
             textContainer.createSpan({ text: infoText });
-            
+
             if (failedText) {
                 // Add line break and failed parse message
                 textContainer.createEl('br');
                 // Only apply error styling if failure percentage > 70%
                 const shouldHighlight = failurePercentage > 70;
-                textContainer.createSpan({ 
+                textContainer.createSpan({
                     text: failedText,
                     cls: shouldHighlight ? 'nn-metadata-error-text' : undefined
                 });
             }
-            
+
             // Right side: export button (only if there are failures)
             if (hasFailures) {
                 const exportButton = metadataContainer.createEl('button', {
@@ -1026,7 +1031,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     const { WhatsNewModal } = await import('./modals/WhatsNewModal');
                     const { getLatestReleaseNotes } = await import('./releaseNotes');
                     const latestNotes = getLatestReleaseNotes(3);
-                    new WhatsNewModal(this.app, this.plugin, latestNotes).open();
+                    new WhatsNewModal(this.app, latestNotes).open();
                 })
             );
 
@@ -1107,7 +1112,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Generate markdown content
         let content = `# Metadata Parsing Failures\n\n`;
         content += `Generated on: ${readableDate}\n\n`;
-        
+
         content += `## Failed Created Date Parsing\n`;
         content += `Total files: ${failedCreatedFiles.length}\n\n`;
         if (failedCreatedFiles.length > 0) {
@@ -1118,7 +1123,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             content += `*No failures*\n`;
         }
         content += `\n`;
-        
+
         content += `## Failed Modified Date Parsing\n`;
         content += `Total files: ${failedModifiedFiles.length}\n\n`;
         if (failedModifiedFiles.length > 0) {

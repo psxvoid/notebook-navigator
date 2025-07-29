@@ -40,7 +40,7 @@ export interface FileData {
     featureImage: string | null; // null = not generated yet
     metadata: {
         name?: string;
-        created?: number;  // Valid timestamp, 0 = field not configured, -1 = parse failed
+        created?: number; // Valid timestamp, 0 = field not configured, -1 = parse failed
         modified?: number; // Valid timestamp, 0 = field not configured, -1 = parse failed
     } | null; // null = not generated yet
 }
@@ -457,7 +457,7 @@ export class IndexedDBStorage {
                 const existing = existingData.get(path);
                 const existingTags = existing?.tags;
                 const newTags = data.tags;
-                
+
                 const tagsChanged =
                     !existing ||
                     existingTags !== newTags || // Handle null vs non-null

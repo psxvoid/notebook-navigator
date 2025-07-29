@@ -60,16 +60,15 @@ else
     echo "✅ No dead code found"
 fi
 
-# Step 4: Check formatting with Prettier
-echo -e "\nChecking code formatting..."
-npm run format:check
+# Step 4: Fix formatting with Prettier
+echo -e "\nFixing code formatting..."
+npm run format
 PRETTIER_STATUS=$?
 if [ $PRETTIER_STATUS -ne 0 ]; then
-    echo "⚠️  Warning: Code formatting issues found"
-    echo "Run 'npm run format' to fix formatting"
-    BUILD_WARNINGS=$((BUILD_WARNINGS + 1))
+    echo "❌ Failed to fix code formatting"
+    BUILD_ERRORS=$((BUILD_ERRORS + 1))
 else
-    echo "✅ Code formatting is correct"
+    echo "✅ Code formatting fixed"
 fi
 
 # Only run the build if no errors (warnings are OK)

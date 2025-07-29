@@ -110,11 +110,13 @@ export function calculateCacheStatistics(): CacheStatistics | null {
             if (fileData.metadata) {
                 // Check if any metadata field has a valid value (not a sentinel value)
                 const hasValidName = !!fileData.metadata.name;
-                const hasValidCreated = fileData.metadata.created !== undefined && 
-                    fileData.metadata.created !== METADATA_SENTINEL.PARSE_FAILED && 
+                const hasValidCreated =
+                    fileData.metadata.created !== undefined &&
+                    fileData.metadata.created !== METADATA_SENTINEL.PARSE_FAILED &&
                     fileData.metadata.created !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED;
-                const hasValidModified = fileData.metadata.modified !== undefined && 
-                    fileData.metadata.modified !== METADATA_SENTINEL.PARSE_FAILED && 
+                const hasValidModified =
+                    fileData.metadata.modified !== undefined &&
+                    fileData.metadata.modified !== METADATA_SENTINEL.PARSE_FAILED &&
                     fileData.metadata.modified !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED;
 
                 if (hasValidName || hasValidCreated || hasValidModified) {
@@ -125,7 +127,7 @@ export function calculateCacheStatistics(): CacheStatistics | null {
                 if (hasValidName) {
                     stats.itemsWithMetadataName++;
                 }
-                
+
                 // Handle created date - check for specific sentinel values
                 if (fileData.metadata.created !== undefined && fileData.metadata.created !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED) {
                     if (fileData.metadata.created === METADATA_SENTINEL.PARSE_FAILED) {
@@ -135,7 +137,7 @@ export function calculateCacheStatistics(): CacheStatistics | null {
                         stats.itemsWithMetadataCreated++;
                     }
                 }
-                
+
                 // Handle modified date - check for specific sentinel values
                 if (fileData.metadata.modified !== undefined && fileData.metadata.modified !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED) {
                     if (fileData.metadata.modified === METADATA_SENTINEL.PARSE_FAILED) {

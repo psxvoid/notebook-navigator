@@ -1,13 +1,12 @@
 import { App, Modal } from 'obsidian';
 import { strings } from '../i18n';
-import NotebookNavigatorPlugin from '../main';
 import { ReleaseNote } from '../releaseNotes';
 
 export class WhatsNewModal extends Modal {
     private releaseNotes: ReleaseNote[];
     private thanksButton: HTMLButtonElement | null = null;
 
-    constructor(app: App, plugin: NotebookNavigatorPlugin, releaseNotes: ReleaseNote[]) {
+    constructor(app: App, releaseNotes: ReleaseNote[]) {
         super(app);
         this.releaseNotes = releaseNotes;
     }

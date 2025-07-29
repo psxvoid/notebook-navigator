@@ -60,7 +60,6 @@ import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
 
-
 /**
  * Types of content that can be generated
  */
@@ -85,7 +84,7 @@ const CONTENT_SETTINGS_REGISTRY: ContentSettingMetadata[] = [
     { key: 'showFeatureImage', contentType: 'featureImage', isToggle: true },
     { key: 'useFrontmatterMetadata', contentType: 'metadata', isToggle: true },
     { key: 'showTags', contentType: 'tags', isToggle: true },
-    
+
     // Property settings (change how content is generated)
     { key: 'skipHeadingsInPreview', contentType: 'preview', isToggle: false },
     { key: 'previewProperties', contentType: 'preview', isToggle: false },
@@ -93,7 +92,7 @@ const CONTENT_SETTINGS_REGISTRY: ContentSettingMetadata[] = [
     { key: 'frontmatterNameField', contentType: 'metadata', isToggle: false },
     { key: 'frontmatterCreatedField', contentType: 'metadata', isToggle: false },
     { key: 'frontmatterModifiedField', contentType: 'metadata', isToggle: false },
-    { key: 'frontmatterDateFormat', contentType: 'metadata', isToggle: false },
+    { key: 'frontmatterDateFormat', contentType: 'metadata', isToggle: false }
 ];
 
 /**
@@ -146,17 +145,16 @@ interface StorageProviderProps {
     children: ReactNode;
 }
 
-
 /**
  * Extracts content-related settings from the full settings object
  */
 function extractContentSettings(settings: NotebookNavigatorSettings): ContentSettingsRecord {
     const contentSettings: ContentSettingsRecord = {} as ContentSettingsRecord;
-    
+
     CONTENT_SETTINGS_REGISTRY.forEach(({ key }) => {
         contentSettings[key] = settings[key];
     });
-    
+
     return contentSettings;
 }
 
@@ -170,21 +168,17 @@ function getContentSettingsDependencies(settings: NotebookNavigatorSettings): un
 /**
  * Detects changes in content settings
  */
-function detectContentSettingsChanges(
-    prevSettings: ContentSettingsRecord,
-    currentSettings: NotebookNavigatorSettings
-): SettingChange[] {
+function detectContentSettingsChanges(prevSettings: ContentSettingsRecord, currentSettings: NotebookNavigatorSettings): SettingChange[] {
     const changes: SettingChange[] = [];
-    
+
     CONTENT_SETTINGS_REGISTRY.forEach(metadata => {
         const prevValue = prevSettings[metadata.key];
         const currentValue = currentSettings[metadata.key];
-        
+
         // Handle arrays and objects
-        const hasChanged = typeof currentValue === 'object' 
-            ? JSON.stringify(prevValue) !== JSON.stringify(currentValue)
-            : prevValue !== currentValue;
-            
+        const hasChanged =
+            typeof currentValue === 'object' ? JSON.stringify(prevValue) !== JSON.stringify(currentValue) : prevValue !== currentValue;
+
         if (hasChanged) {
             changes.push({
                 key: metadata.key,
@@ -194,7 +188,7 @@ function detectContentSettingsChanges(
             });
         }
     });
-    
+
     return changes;
 }
 
@@ -268,8 +262,14 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
             return {
                 name: extractedMetadata?.fn || getDisplayName(file, undefined, settings),
-                created: extractedMetadata?.fc !== undefined && extractedMetadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED ? extractedMetadata.fc : file.stat.ctime,
-                modified: extractedMetadata?.fm !== undefined && extractedMetadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED ? extractedMetadata.fm : file.stat.mtime
+                created:
+                    extractedMetadata?.fc !== undefined && extractedMetadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED
+                        ? extractedMetadata.fc
+                        : file.stat.ctime,
+                modified:
+                    extractedMetadata?.fm !== undefined && extractedMetadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED
+                        ? extractedMetadata.fm
+                        : file.stat.mtime
             };
         };
 
@@ -306,84 +306,85 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     const getFilteredMarkdownFiles = useCallback((): TFile[] => {
         const excludedProperties = parseExcludedProperties(settings.excludedFiles);
         const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
-        
-        return app.vault
-            .getMarkdownFiles()
-            .filter(file => {
-                // Filter by excluded properties
-                if (excludedProperties.length > 0 && shouldExcludeFile(file, excludedProperties, app)) {
-                    return false;
-                }
-                
-                // Filter by excluded folders
-                if (excludedFolderPatterns.length > 0 && file.parent) {
-                    let currentFolder: TFolder | null = file.parent;
-                    while (currentFolder) {
-                        if (shouldExcludeFolder(currentFolder.name, excludedFolderPatterns)) {
-                            return false;
-                        }
-                        currentFolder = currentFolder.parent;
+
+        return app.vault.getMarkdownFiles().filter(file => {
+            // Filter by excluded properties
+            if (excludedProperties.length > 0 && shouldExcludeFile(file, excludedProperties, app)) {
+                return false;
+            }
+
+            // Filter by excluded folders
+            if (excludedFolderPatterns.length > 0 && file.parent) {
+                let currentFolder: TFolder | null = file.parent;
+                while (currentFolder) {
+                    if (shouldExcludeFolder(currentFolder.name, excludedFolderPatterns)) {
+                        return false;
                     }
+                    currentFolder = currentFolder.parent;
                 }
-                
-                return true;
-            });
+            }
+
+            return true;
+        });
     }, [app, settings.excludedFiles, settings.excludedFolders]);
 
     /**
      * Centralized handler for all content-related settings changes
-     * 
+     *
      * This function processes setting changes and determines what content needs to be:
      * 1. Cleared from the database (when features are disabled or settings change)
      * 2. Regenerated (when features are enabled or settings change)
-     * 
+     *
      * The logic follows these patterns:
      * - Toggle settings (show/hide): Clear when disabled, regenerate when enabled
      * - Property changes: Always clear and regenerate to ensure fresh content
      */
-    const handleSettingsChanges = useCallback(async (changes: SettingChange[]) => {
-        const db = getDBInstance();
-        
-        // Collect all clear operations to run in parallel
-        const clearPromises: Promise<void>[] = [];
-        
-        // Track which content types need regeneration
-        const needsRegeneration = new Set<ContentType>();
-        
-        // Process each change
-        for (const change of changes) {
-            const { metadata, newValue } = change;
-            
-            if (metadata.isToggle) {
-                // Toggle settings: clear when disabled, regenerate when enabled
-                if (!newValue) {
-                    // Feature disabled: clear content from DB
-                    clearPromises.push(db.batchClearAllFileContent(metadata.contentType));
+    const handleSettingsChanges = useCallback(
+        async (changes: SettingChange[]) => {
+            const db = getDBInstance();
+
+            // Collect all clear operations to run in parallel
+            const clearPromises: Promise<void>[] = [];
+
+            // Track which content types need regeneration
+            const needsRegeneration = new Set<ContentType>();
+
+            // Process each change
+            for (const change of changes) {
+                const { metadata, newValue } = change;
+
+                if (metadata.isToggle) {
+                    // Toggle settings: clear when disabled, regenerate when enabled
+                    if (!newValue) {
+                        // Feature disabled: clear content from DB
+                        clearPromises.push(db.batchClearAllFileContent(metadata.contentType));
+                    } else {
+                        // Feature enabled: mark for regeneration
+                        needsRegeneration.add(metadata.contentType);
+                    }
                 } else {
-                    // Feature enabled: mark for regeneration
+                    // Property settings: always clear and regenerate
+                    clearPromises.push(db.batchClearAllFileContent(metadata.contentType));
                     needsRegeneration.add(metadata.contentType);
                 }
-            } else {
-                // Property settings: always clear and regenerate
-                clearPromises.push(db.batchClearAllFileContent(metadata.contentType));
-                needsRegeneration.add(metadata.contentType);
             }
-        }
-        
-        // Execute all clear operations in parallel for better performance
-        await Promise.all(clearPromises);
-        
-        // Regenerate content if needed
-        if (needsRegeneration.size > 0 && contentService.current) {
-            // Get all files that should be processed (respects exclusion settings)
-            const allFiles = getFilteredMarkdownFiles();
-            
-            // Queue content generation for all files
-            // The content service will determine what actually needs to be generated
-            // based on current settings and what's already in the database
-            contentService.current.queueContent(allFiles, settings);
-        }
-    }, [settings, getFilteredMarkdownFiles]);
+
+            // Execute all clear operations in parallel for better performance
+            await Promise.all(clearPromises);
+
+            // Regenerate content if needed
+            if (needsRegeneration.size > 0 && contentService.current) {
+                // Get all files that should be processed (respects exclusion settings)
+                const allFiles = getFilteredMarkdownFiles();
+
+                // Queue content generation for all files
+                // The content service will determine what actually needs to be generated
+                // based on current settings and what's already in the database
+                contentService.current.queueContent(allFiles, settings);
+            }
+        },
+        [settings, getFilteredMarkdownFiles]
+    );
 
     // ==================== Effects ====================
 
@@ -436,7 +437,6 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
     // Main initialization and vault monitoring effect
     useEffect(() => {
-        
         // Process existing files and handle updates
         const processExistingCache = async (allFiles: TFile[], isInitialLoad: boolean = false) => {
             if (isFirstLoad.current) {
@@ -623,16 +623,16 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     useEffect(() => {
         // Extract current content settings
         const contentSettings = extractContentSettings(settings);
-        
+
         // Skip on initial mount
         if (!prevContentSettings.current) {
             prevContentSettings.current = contentSettings;
             return;
         }
-        
+
         // Detect what changed
         const changes = detectContentSettingsChanges(prevContentSettings.current, settings);
-        
+
         // Handle changes if any
         if (changes.length > 0) {
             handleSettingsChanges(changes);

@@ -2,8 +2,6 @@
 
 import { exec } from 'child_process';
 import { promisify } from 'util';
-import * as path from 'path';
-import * as fs from 'fs';
 
 const execAsync = promisify(exec);
 
@@ -69,7 +67,7 @@ async function runTransform(transform: TransformConfig, dryRun: boolean = false)
                 console.log(`\n🎨 Running Prettier on modified files...`);
                 try {
                     const prettierCommand = `npx prettier --write ${filePattern}`;
-                    const { stdout: prettierStdout } = await execAsync(prettierCommand);
+                    await execAsync(prettierCommand);
                     console.log(`✅ Prettier formatting completed`);
                 } catch (prettierError: any) {
                     console.error(`⚠️  Warning: Prettier formatting failed:`, prettierError.message);

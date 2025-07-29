@@ -85,12 +85,7 @@ const findNextSelectableIndex = (items: VirtualItem[], currentIndex: number, pan
 };
 
 // Helper function to find previous selectable item
-const findPreviousSelectableIndex = (
-    items: VirtualItem[],
-    currentIndex: number,
-    pane: string,
-    includeCurrent: boolean = false
-): number => {
+const findPreviousSelectableIndex = (items: VirtualItem[], currentIndex: number, pane: string, includeCurrent: boolean = false): number => {
     // If no items or invalid index, return -1
     if (items.length === 0 || currentIndex < 0) return -1;
 
@@ -201,77 +196,83 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     const multiSelection = useMultiSelection(virtualizer);
 
     // Select item at given index
-    const selectItemAtIndex = useCallback((item: VirtualItem) => {
-        if (!item || !('type' in item)) return;
+    const selectItemAtIndex = useCallback(
+        (item: VirtualItem) => {
+            if (!item || !('type' in item)) return;
 
-        if (focusedPane === 'files') {
-            const fileItem = item as ListPaneItem;
-            if (fileItem.type === ListPaneItemType.FILE) {
-                const file = isTFile(fileItem.data) ? fileItem.data : null;
-                if (!file) return;
-                // Normal navigation clears multi-selection
-                selectionDispatch({ type: 'SET_SELECTED_FILE', file });
+            if (focusedPane === 'files') {
+                const fileItem = item as ListPaneItem;
+                if (fileItem.type === ListPaneItemType.FILE) {
+                    const file = isTFile(fileItem.data) ? fileItem.data : null;
+                    if (!file) return;
+                    // Normal navigation clears multi-selection
+                    selectionDispatch({ type: 'SET_SELECTED_FILE', file });
 
-                // Open the file in the editor but keep focus in file list
-                const leaf = app.workspace.getLeaf(false);
-                if (leaf) {
-                    leaf.openFile(file, { active: false });
+                    // Open the file in the editor but keep focus in file list
+                    const leaf = app.workspace.getLeaf(false);
+                    if (leaf) {
+                        leaf.openFile(file, { active: false });
+                    }
+                }
+            } else {
+                const navigationPaneItem = item as CombinedNavigationItem;
+                if (navigationPaneItem.type === NavigationPaneItemType.FOLDER) {
+                    const folder = navigationPaneItem.data;
+                    selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
+
+                    // Auto-expand if enabled and folder has children
+                    if (settings.autoExpandFoldersTags && folder.children.some(child => isTFolder(child))) {
+                        // Only expand if not already expanded
+                        if (!expansionState.expandedFolders.has(folder.path)) {
+                            expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
+                        }
+                    }
+                } else if (
+                    navigationPaneItem.type === NavigationPaneItemType.TAG ||
+                    navigationPaneItem.type === NavigationPaneItemType.UNTAGGED
+                ) {
+                    const tagNode = navigationPaneItem.data as TagTreeNode;
+                    selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path });
+
+                    // Auto-expand if enabled and tag has children
+                    if (settings.autoExpandFoldersTags && tagNode.children.size > 0) {
+                        // Only expand if not already expanded
+                        if (!expansionState.expandedTags.has(tagNode.path)) {
+                            expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tagNode.path });
+                        }
+                    }
                 }
             }
-        } else {
+        },
+        [focusedPane, selectionDispatch, app, settings, expansionState, expansionDispatch]
+    );
+
+    // Handle expand/collapse for folders and tags
+    const handleExpandCollapse = useCallback(
+        (item: VirtualItem, expand: boolean) => {
+            if (!item || !('type' in item)) return;
+
             const navigationPaneItem = item as CombinedNavigationItem;
             if (navigationPaneItem.type === NavigationPaneItemType.FOLDER) {
                 const folder = navigationPaneItem.data;
-                selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
-
-                // Auto-expand if enabled and folder has children
-                if (settings.autoExpandFoldersTags && folder.children.some(child => isTFolder(child))) {
-                    // Only expand if not already expanded
-                    if (!expansionState.expandedFolders.has(folder.path)) {
-                        expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
-                    }
+                const isExpanded = expansionState.expandedFolders.has(folder.path);
+                if (expand && !isExpanded && folder.children.length > 0) {
+                    expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
+                } else if (!expand && isExpanded) {
+                    expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
                 }
-            } else if (
-                navigationPaneItem.type === NavigationPaneItemType.TAG ||
-                navigationPaneItem.type === NavigationPaneItemType.UNTAGGED
-            ) {
-                const tagNode = navigationPaneItem.data as TagTreeNode;
-                selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path });
-
-                // Auto-expand if enabled and tag has children
-                if (settings.autoExpandFoldersTags && tagNode.children.size > 0) {
-                    // Only expand if not already expanded
-                    if (!expansionState.expandedTags.has(tagNode.path)) {
-                        expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tagNode.path });
-                    }
+            } else if (navigationPaneItem.type === NavigationPaneItemType.TAG) {
+                const tag = navigationPaneItem.data as TagTreeNode;
+                const isExpanded = expansionState.expandedTags.has(tag.path);
+                if (expand && !isExpanded && tag.children.size > 0) {
+                    expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tag.path });
+                } else if (!expand && isExpanded) {
+                    expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tag.path });
                 }
             }
-        }
-    }, [focusedPane, selectionDispatch, app, settings, expansionState, expansionDispatch]);
-
-    // Handle expand/collapse for folders and tags
-    const handleExpandCollapse = useCallback((item: VirtualItem, expand: boolean) => {
-        if (!item || !('type' in item)) return;
-
-        const navigationPaneItem = item as CombinedNavigationItem;
-        if (navigationPaneItem.type === NavigationPaneItemType.FOLDER) {
-            const folder = navigationPaneItem.data;
-            const isExpanded = expansionState.expandedFolders.has(folder.path);
-            if (expand && !isExpanded && folder.children.length > 0) {
-                expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
-            } else if (!expand && isExpanded) {
-                expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
-            }
-        } else if (navigationPaneItem.type === NavigationPaneItemType.TAG) {
-            const tag = navigationPaneItem.data as TagTreeNode;
-            const isExpanded = expansionState.expandedTags.has(tag.path);
-            if (expand && !isExpanded && tag.children.size > 0) {
-                expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tag.path });
-            } else if (!expand && isExpanded) {
-                expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tag.path });
-            }
-        }
-    }, [expansionState, expansionDispatch]);
+        },
+        [expansionState, expansionDispatch]
+    );
 
     const handleKeyDown = useCallback(
         (e: KeyboardEvent) => {

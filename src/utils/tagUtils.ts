@@ -24,7 +24,7 @@ import { IndexedDBStorage } from '../storage/IndexedDBStorage';
 /**
  * Gets normalized tags for a file (without # prefix and in lowercase)
  */
-export function getNormalizedTagsForFile(file: TFile, storage: IndexedDBStorage): string[] {
+function getNormalizedTagsForFile(file: TFile, storage: IndexedDBStorage): string[] {
     if (file.extension !== 'md') {
         return [];
     }
@@ -44,7 +44,7 @@ export function getNormalizedTagsForFile(file: TFile, storage: IndexedDBStorage)
 /**
  * Checks if a file has a specific tag (case-insensitive)
  */
-export function fileHasTag(file: TFile, tag: string, storage: IndexedDBStorage): boolean {
+function fileHasTag(file: TFile, tag: string, storage: IndexedDBStorage): boolean {
     const normalizedTags = getNormalizedTagsForFile(file, storage);
     const normalizedSearchTag = tag.toLowerCase();
 
@@ -55,7 +55,7 @@ export function fileHasTag(file: TFile, tag: string, storage: IndexedDBStorage):
  * Finds the first tag from a file that matches any tag in the given list
  * Returns the original tag path (not normalized) or null if no match
  */
-export function findFirstMatchingTag(file: TFile, availableTags: string[], storage: IndexedDBStorage): string | null {
+function findFirstMatchingTag(file: TFile, availableTags: string[], storage: IndexedDBStorage): string | null {
     const fileTags = getNormalizedTagsForFile(file, storage);
     if (fileTags.length === 0) {
         return null;

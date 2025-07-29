@@ -294,14 +294,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                 }
             }
         }
-    }, [
-        updateSettings,
-        settings,
-        selectionState.selectedFolder,
-        selectionState.selectedFile,
-        app,
-        selectionDispatch
-    ]);
+    }, [updateSettings, settings, selectionState.selectedFolder, selectionState.selectedFile, app, selectionDispatch]);
 
     const handleToggleAutoExpand = useCallback(async () => {
         await updateSettings(s => {

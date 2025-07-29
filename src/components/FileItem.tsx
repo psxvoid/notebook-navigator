@@ -130,7 +130,7 @@ export const FileItem = React.memo(function FileItem({
                 })}
             </div>
         );
-    }, [settings.showTags, settings.showFileTags, tags, getTagColor, handleTagClick])
+    }, [settings.showTags, settings.showFileTags, tags, getTagColor, handleTagClick]);
 
     // Get display date from pre-computed dates
     const displayDate = formattedDates?.display || '';
