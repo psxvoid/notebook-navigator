@@ -93,7 +93,7 @@ export const FolderItem = React.memo(function FolderItem({
         }
 
         return { fileCount, folderCount };
-    }, [folder.path, folder.children?.length, isMobile, settings.showTooltips]);
+    }, [folder.children, isMobile, settings.showTooltips]);
 
     // Use precomputed file count from parent component
     // NavigationPane pre-computes all folder counts for performance

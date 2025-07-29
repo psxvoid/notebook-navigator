@@ -455,12 +455,15 @@ export class IndexedDBStorage {
             files.forEach(({ path, data }) => {
                 // Check if tags changed
                 const existing = existingData.get(path);
+                const existingTags = existing?.tags;
+                const newTags = data.tags;
+                
                 const tagsChanged =
                     !existing ||
-                    existing.tags !== data.tags || // Handle null vs non-null
-                    (existing.tags !== null &&
-                        data.tags !== null &&
-                        (existing.tags.length !== data.tags.length || !existing.tags.every((tag, i) => tag === data.tags![i])));
+                    existingTags !== newTags || // Handle null vs non-null
+                    (existingTags !== null &&
+                        newTags !== null &&
+                        (existingTags.length !== newTags.length || !existingTags.every((tag, i) => tag === newTags[i])));
 
                 if (tagsChanged) {
                     tagChanges.push({

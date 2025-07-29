@@ -47,7 +47,7 @@ interface Services {
  * React context for dependency injection of services.
  * Provides a centralized way to access business logic throughout the app.
  */
-const ServicesContext = createContext<Services>(null!);
+const ServicesContext = createContext<Services | null>(null);
 
 /**
  * Provider component that instantiates and provides services to child components.
@@ -87,7 +87,11 @@ export function ServicesProvider({ children, plugin }: { children: React.ReactNo
  * @throws If used outside of ServicesProvider
  */
 export function useServices() {
-    return useContext(ServicesContext);
+    const services = useContext(ServicesContext);
+    if (!services) {
+        throw new Error('useServices must be used within a ServicesProvider');
+    }
+    return services;
 }
 
 /**

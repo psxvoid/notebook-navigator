@@ -280,7 +280,8 @@ export const NavigationPane = React.memo(
                 tagTree,
                 expansionState.expandedTags,
                 expansionDispatch,
-                selectionState.selectedTag
+                selectionState.selectedTag,
+                selectionState.selectionType
             ]
         );
 
@@ -457,7 +458,8 @@ export const NavigationPane = React.memo(
                 settings,
                 isMobile,
                 tagCounts,
-                folderCounts
+                folderCounts,
+                metadataService
             ]
         );
 
@@ -703,7 +705,6 @@ export const NavigationPane = React.memo(
             settings.hiddenTags,
             tagTree,
             untaggedCount,
-            strings.tagList.untaggedLabel,
             isVisible,
             uiState.singlePane
         ]);

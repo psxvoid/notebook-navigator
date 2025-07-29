@@ -432,7 +432,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         });
 
         return unsubscribe;
-    }, [isStorageReady, settings.showTags, settings.showUntagged]);
+    }, [isStorageReady, settings.showTags, settings.showUntagged, rebuildTagTree]);
 
     // Main initialization and vault monitoring effect
     useEffect(() => {
@@ -617,7 +617,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
             app.metadataCache.offref(metadataEvent);
         };
-    }, [app, isIndexedDBReady]); // Simplified dependencies - only structural changes
+    }, [app, isIndexedDBReady, getFilteredMarkdownFiles, rebuildTagTree, settings]);
 
     // Single effect to handle ALL content-related settings changes
     useEffect(() => {
@@ -646,7 +646,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         // but our usage is safe since the registry is constant and deterministic.
         // eslint-disable-next-line react-hooks/exhaustive-deps
         ...getContentSettingsDependencies(settings),
-        handleSettingsChanges
+        handleSettingsChanges,
+        settings
     ]);
 
     return <StorageContext.Provider value={contextValue}>{children}</StorageContext.Provider>;

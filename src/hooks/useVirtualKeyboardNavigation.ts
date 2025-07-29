@@ -35,6 +35,132 @@ import { useMultiSelection } from './useMultiSelection';
 
 type VirtualItem = CombinedNavigationItem | ListPaneItem;
 
+// Helper function for safe array access
+const safeGetItem = <T>(array: T[], index: number): T | undefined => {
+    return index >= 0 && index < array.length ? array[index] : undefined;
+};
+
+// Check if item is selectable (not a header or spacer)
+const isSelectableItem = (item: VirtualItem, pane: string): boolean => {
+    if (!item || !('type' in item)) return false;
+
+    if (pane === 'files') {
+        const fileItem = item as ListPaneItem;
+        return fileItem.type === ListPaneItemType.FILE;
+    } else {
+        const navigationPaneItem = item as CombinedNavigationItem;
+        return (
+            navigationPaneItem.type === NavigationPaneItemType.FOLDER ||
+            navigationPaneItem.type === NavigationPaneItemType.TAG ||
+            navigationPaneItem.type === NavigationPaneItemType.UNTAGGED
+        );
+    }
+};
+
+// Helper function to find next selectable item
+const findNextSelectableIndex = (items: VirtualItem[], currentIndex: number, pane: string, includeCurrent: boolean = false): number => {
+    // If no items, return -1
+    if (items.length === 0) return -1;
+
+    // If no current selection, find the first selectable item
+    if (currentIndex < 0) {
+        for (let i = 0; i < items.length; i++) {
+            const item = safeGetItem(items, i);
+            if (item && isSelectableItem(item, pane)) {
+                return i;
+            }
+        }
+        return -1; // No selectable items found
+    }
+
+    const start = includeCurrent ? currentIndex : currentIndex + 1;
+    for (let i = start; i < items.length; i++) {
+        const item = safeGetItem(items, i);
+        if (item && isSelectableItem(item, pane)) {
+            return i;
+        }
+    }
+
+    return currentIndex; // Stay at current if no next item
+};
+
+// Helper function to find previous selectable item
+const findPreviousSelectableIndex = (
+    items: VirtualItem[],
+    currentIndex: number,
+    pane: string,
+    includeCurrent: boolean = false
+): number => {
+    // If no items or invalid index, return -1
+    if (items.length === 0 || currentIndex < 0) return -1;
+
+    const start = includeCurrent ? currentIndex : currentIndex - 1;
+    for (let i = start; i >= 0; i--) {
+        const item = safeGetItem(items, i);
+        if (item && isSelectableItem(item, pane)) {
+            return i;
+        }
+    }
+
+    return currentIndex; // Stay at current if no previous item
+};
+
+/**
+ * Calculates the number of items that fit in the viewport based on geometry.
+ * This is the only reliable way to get a consistent page size.
+ *
+ * Algorithm:
+ * 1. Get all currently rendered virtual items (not all items, just visible ones)
+ * 2. Calculate the total height spanned by these rendered items
+ * 3. Divide by the number of items to get average item height
+ * 4. Divide viewport height by average item height to get items per page
+ * 5. Subtract 1 from page size to maintain visual context when paging
+ *
+ * Edge cases handled:
+ * - No items rendered: returns default of 10
+ * - Zero height items: returns default of 10
+ * - Very small viewport: ensures minimum jump of 1 item
+ *
+ * @param virtualizer The virtualizer instance.
+ * @returns The number of items to jump for a page up/down action.
+ */
+const getVisiblePageSize = (virtualizer: Virtualizer<HTMLDivElement, Element>): number => {
+    const virtualItems = virtualizer.getVirtualItems();
+    // If the virtualizer or its scroll element isn't ready, return a sensible default.
+    if (virtualItems.length === 0 || !virtualizer.scrollElement) {
+        return 10;
+    }
+
+    // Get the height of the visible scroll area.
+    const viewportHeight = virtualizer.scrollElement.offsetHeight;
+
+    // To find the average item height, we measure the total height of all *rendered*
+    // items and divide by the number of rendered items.
+    if (virtualItems.length === 0) {
+        return 10;
+    }
+    const firstItem = virtualItems[0];
+    const lastItem = virtualItems[virtualItems.length - 1];
+    const totalMeasuredHeight = lastItem.start + lastItem.size - firstItem.start;
+
+    // Avoid division by zero if height is somehow 0.
+    if (totalMeasuredHeight <= 0) {
+        return 10;
+    }
+
+    const averageItemHeight = totalMeasuredHeight / virtualItems.length;
+
+    if (averageItemHeight <= 0) {
+        return 10;
+    }
+
+    // The true page size is how many average-sized items fit in the viewport.
+    const pageSize = Math.floor(viewportHeight / averageItemHeight);
+
+    // Jump by a full page minus one item for visual context, ensuring we jump at least 1.
+    return Math.max(1, pageSize > 1 ? pageSize - 1 : 1);
+};
+
 interface UseVirtualKeyboardNavigationProps<T extends VirtualItem> {
     items: T[];
     virtualizer: Virtualizer<HTMLDivElement, Element>;
@@ -62,7 +188,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     focusedPane,
     containerRef
 }: UseVirtualKeyboardNavigationProps<T>) {
-    const { app, plugin, isMobile } = useServices();
+    const { app, isMobile } = useServices();
     const settings = useSettingsState();
     const fileSystemOps = useFileSystemOps();
     const selectionState = useSelectionState();
@@ -74,10 +200,78 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     const lastKeyPressTime = useRef(0);
     const multiSelection = useMultiSelection(virtualizer);
 
-    // Helper function for safe array access
-    const safeGetItem = <T>(array: T[], index: number): T | undefined => {
-        return index >= 0 && index < array.length ? array[index] : undefined;
-    };
+    // Select item at given index
+    const selectItemAtIndex = useCallback((item: VirtualItem) => {
+        if (!item || !('type' in item)) return;
+
+        if (focusedPane === 'files') {
+            const fileItem = item as ListPaneItem;
+            if (fileItem.type === ListPaneItemType.FILE) {
+                const file = isTFile(fileItem.data) ? fileItem.data : null;
+                if (!file) return;
+                // Normal navigation clears multi-selection
+                selectionDispatch({ type: 'SET_SELECTED_FILE', file });
+
+                // Open the file in the editor but keep focus in file list
+                const leaf = app.workspace.getLeaf(false);
+                if (leaf) {
+                    leaf.openFile(file, { active: false });
+                }
+            }
+        } else {
+            const navigationPaneItem = item as CombinedNavigationItem;
+            if (navigationPaneItem.type === NavigationPaneItemType.FOLDER) {
+                const folder = navigationPaneItem.data;
+                selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
+
+                // Auto-expand if enabled and folder has children
+                if (settings.autoExpandFoldersTags && folder.children.some(child => isTFolder(child))) {
+                    // Only expand if not already expanded
+                    if (!expansionState.expandedFolders.has(folder.path)) {
+                        expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
+                    }
+                }
+            } else if (
+                navigationPaneItem.type === NavigationPaneItemType.TAG ||
+                navigationPaneItem.type === NavigationPaneItemType.UNTAGGED
+            ) {
+                const tagNode = navigationPaneItem.data as TagTreeNode;
+                selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path });
+
+                // Auto-expand if enabled and tag has children
+                if (settings.autoExpandFoldersTags && tagNode.children.size > 0) {
+                    // Only expand if not already expanded
+                    if (!expansionState.expandedTags.has(tagNode.path)) {
+                        expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tagNode.path });
+                    }
+                }
+            }
+        }
+    }, [focusedPane, selectionDispatch, app, settings, expansionState, expansionDispatch]);
+
+    // Handle expand/collapse for folders and tags
+    const handleExpandCollapse = useCallback((item: VirtualItem, expand: boolean) => {
+        if (!item || !('type' in item)) return;
+
+        const navigationPaneItem = item as CombinedNavigationItem;
+        if (navigationPaneItem.type === NavigationPaneItemType.FOLDER) {
+            const folder = navigationPaneItem.data;
+            const isExpanded = expansionState.expandedFolders.has(folder.path);
+            if (expand && !isExpanded && folder.children.length > 0) {
+                expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
+            } else if (!expand && isExpanded) {
+                expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
+            }
+        } else if (navigationPaneItem.type === NavigationPaneItemType.TAG) {
+            const tag = navigationPaneItem.data as TagTreeNode;
+            const isExpanded = expansionState.expandedTags.has(tag.path);
+            if (expand && !isExpanded && tag.children.size > 0) {
+                expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tag.path });
+            } else if (!expand && isExpanded) {
+                expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tag.path });
+            }
+        }
+    }, [expansionState, expansionDispatch]);
 
     const handleKeyDown = useCallback(
         (e: KeyboardEvent) => {
@@ -353,11 +547,12 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                                 handleExpandCollapse(item, false);
                             } else if (folder.parent && (!settings.showRootFolder || folder.path !== '/')) {
                                 // Navigate to parent folder
+                                const parentPath = folder.parent.path;
                                 const parentIndex = items.findIndex(i => {
                                     if (i.type === NavigationPaneItemType.FOLDER && i.data && typeof i.data === 'object') {
                                         const folderData = isTFolder(i.data) ? i.data : null;
                                         if (!folderData) return;
-                                        return folderData.path === folder.parent!.path;
+                                        return folderData.path === parentPath;
                                     }
                                     return false;
                                 });
@@ -527,211 +722,18 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             selectionState,
             expansionState,
             selectionDispatch,
-            expansionDispatch,
             uiState,
             uiDispatch,
-            plugin,
             app,
             isMobile,
             settings,
             fileSystemOps,
-            multiSelection
+            multiSelection,
+            containerRef,
+            selectItemAtIndex,
+            handleExpandCollapse
         ]
     );
-
-    // Helper function to find next selectable item
-    const findNextSelectableIndex = (items: VirtualItem[], currentIndex: number, pane: string, includeCurrent: boolean = false): number => {
-        // If no items, return -1
-        if (items.length === 0) return -1;
-
-        // If no current selection, find the first selectable item
-        if (currentIndex < 0) {
-            for (let i = 0; i < items.length; i++) {
-                const item = safeGetItem(items, i);
-                if (item && isSelectableItem(item, pane)) {
-                    return i;
-                }
-            }
-            return -1; // No selectable items found
-        }
-
-        const start = includeCurrent ? currentIndex : currentIndex + 1;
-        for (let i = start; i < items.length; i++) {
-            const item = safeGetItem(items, i);
-            if (item && isSelectableItem(item, pane)) {
-                return i;
-            }
-        }
-
-        return currentIndex; // Stay at current if no next item
-    };
-
-    // Helper function to find previous selectable item
-    const findPreviousSelectableIndex = (
-        items: VirtualItem[],
-        currentIndex: number,
-        pane: string,
-        includeCurrent: boolean = false
-    ): number => {
-        // If no items or invalid index, return -1
-        if (items.length === 0 || currentIndex < 0) return -1;
-
-        const start = includeCurrent ? currentIndex : currentIndex - 1;
-        for (let i = start; i >= 0; i--) {
-            const item = safeGetItem(items, i);
-            if (item && isSelectableItem(item, pane)) {
-                return i;
-            }
-        }
-
-        return currentIndex; // Stay at current if no previous item
-    };
-
-    // Check if item is selectable (not a header or spacer)
-    const isSelectableItem = (item: VirtualItem, pane: string): boolean => {
-        if (!item || !('type' in item)) return false;
-
-        if (pane === 'files') {
-            const fileItem = item as ListPaneItem;
-            return fileItem.type === ListPaneItemType.FILE;
-        } else {
-            const navigationPaneItem = item as CombinedNavigationItem;
-            return (
-                navigationPaneItem.type === NavigationPaneItemType.FOLDER ||
-                navigationPaneItem.type === NavigationPaneItemType.TAG ||
-                navigationPaneItem.type === NavigationPaneItemType.UNTAGGED
-            );
-        }
-    };
-
-    /**
-     * Calculates the number of items that fit in the viewport based on geometry.
-     * This is the only reliable way to get a consistent page size.
-     *
-     * Algorithm:
-     * 1. Get all currently rendered virtual items (not all items, just visible ones)
-     * 2. Calculate the total height spanned by these rendered items
-     * 3. Divide by the number of items to get average item height
-     * 4. Divide viewport height by average item height to get items per page
-     * 5. Subtract 1 from page size to maintain visual context when paging
-     *
-     * Edge cases handled:
-     * - No items rendered: returns default of 10
-     * - Zero height items: returns default of 10
-     * - Very small viewport: ensures minimum jump of 1 item
-     *
-     * @param virtualizer The virtualizer instance.
-     * @returns The number of items to jump for a page up/down action.
-     */
-    const getVisiblePageSize = (virtualizer: Virtualizer<HTMLDivElement, Element>): number => {
-        const virtualItems = virtualizer.getVirtualItems();
-        // If the virtualizer or its scroll element isn't ready, return a sensible default.
-        if (virtualItems.length === 0 || !virtualizer.scrollElement) {
-            return 10;
-        }
-
-        // Get the height of the visible scroll area.
-        const viewportHeight = virtualizer.scrollElement.offsetHeight;
-
-        // To find the average item height, we measure the total height of all *rendered*
-        // items and divide by the number of rendered items.
-        if (virtualItems.length === 0) {
-            return 10;
-        }
-        const firstItem = virtualItems[0];
-        const lastItem = virtualItems[virtualItems.length - 1];
-        const totalMeasuredHeight = lastItem.start + lastItem.size - firstItem.start;
-
-        // Avoid division by zero if height is somehow 0.
-        if (totalMeasuredHeight <= 0) {
-            return 10;
-        }
-
-        const averageItemHeight = totalMeasuredHeight / virtualItems.length;
-
-        if (averageItemHeight <= 0) {
-            return 10;
-        }
-
-        // The true page size is how many average-sized items fit in the viewport.
-        const pageSize = Math.floor(viewportHeight / averageItemHeight);
-
-        // Jump by a full page minus one item for visual context, ensuring we jump at least 1.
-        return Math.max(1, pageSize > 1 ? pageSize - 1 : 1);
-    };
-
-    // Select item at given index
-    const selectItemAtIndex = (item: VirtualItem) => {
-        if (!item || !('type' in item)) return;
-
-        if (focusedPane === 'files') {
-            const fileItem = item as ListPaneItem;
-            if (fileItem.type === ListPaneItemType.FILE) {
-                const file = isTFile(fileItem.data) ? fileItem.data : null;
-                if (!file) return;
-                // Normal navigation clears multi-selection
-                selectionDispatch({ type: 'SET_SELECTED_FILE', file });
-
-                // Open the file in the editor but keep focus in file list
-                const leaf = app.workspace.getLeaf(false);
-                if (leaf) {
-                    leaf.openFile(file, { active: false });
-                }
-            }
-        } else {
-            const navigationPaneItem = item as CombinedNavigationItem;
-            if (navigationPaneItem.type === NavigationPaneItemType.FOLDER) {
-                const folder = navigationPaneItem.data;
-                selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
-
-                // Auto-expand if enabled and folder has children
-                if (settings.autoExpandFoldersTags && folder.children.some(child => isTFolder(child))) {
-                    // Only expand if not already expanded
-                    if (!expansionState.expandedFolders.has(folder.path)) {
-                        expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
-                    }
-                }
-            } else if (
-                navigationPaneItem.type === NavigationPaneItemType.TAG ||
-                navigationPaneItem.type === NavigationPaneItemType.UNTAGGED
-            ) {
-                const tagNode = navigationPaneItem.data as TagTreeNode;
-                selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path });
-
-                // Auto-expand if enabled and tag has children
-                if (settings.autoExpandFoldersTags && tagNode.children.size > 0) {
-                    // Only expand if not already expanded
-                    if (!expansionState.expandedTags.has(tagNode.path)) {
-                        expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tagNode.path });
-                    }
-                }
-            }
-        }
-    };
-
-    // Handle expand/collapse for folders and tags
-    const handleExpandCollapse = (item: VirtualItem, expand: boolean) => {
-        if (!item || !('type' in item)) return;
-
-        const navigationPaneItem = item as CombinedNavigationItem;
-        if (navigationPaneItem.type === NavigationPaneItemType.FOLDER) {
-            const folder = navigationPaneItem.data;
-            const isExpanded = expansionState.expandedFolders.has(folder.path);
-            if (expand && !isExpanded && folder.children.length > 0) {
-                expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
-            } else if (!expand && isExpanded) {
-                expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
-            }
-        } else if (navigationPaneItem.type === NavigationPaneItemType.TAG) {
-            const tag = navigationPaneItem.data as TagTreeNode;
-            const isExpanded = expansionState.expandedTags.has(tag.path);
-            if (expand && !isExpanded && tag.children.size > 0) {
-                expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tag.path });
-            } else if (!expand && isExpanded) {
-                expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tag.path });
-            }
-        }
-    };
 
     // Add event listener to the navigator container
     useEffect(() => {

@@ -46,15 +46,15 @@ export interface CacheStatistics {
     itemsWithMetadata: number;
     totalSizeMB: number;
     // Detailed metadata breakdown
-    itemsWithMetadataName?: number;
-    itemsWithMetadataCreated?: number;
-    itemsWithMetadataModified?: number;
+    itemsWithMetadataName: number;
+    itemsWithMetadataCreated: number;
+    itemsWithMetadataModified: number;
     // Failed date parsing counts
-    itemsWithFailedCreatedParse?: number;
-    itemsWithFailedModifiedParse?: number;
+    itemsWithFailedCreatedParse: number;
+    itemsWithFailedModifiedParse: number;
     // Full paths of files with failed parsing
-    failedCreatedFiles?: string[];
-    failedModifiedFiles?: string[];
+    failedCreatedFiles: string[];
+    failedModifiedFiles: string[];
 }
 
 /**
@@ -123,26 +123,26 @@ export function calculateCacheStatistics(): CacheStatistics | null {
 
                 // Count individual metadata fields
                 if (hasValidName) {
-                    stats.itemsWithMetadataName!++;
+                    stats.itemsWithMetadataName++;
                 }
                 
                 // Handle created date - check for specific sentinel values
                 if (fileData.metadata.created !== undefined && fileData.metadata.created !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED) {
                     if (fileData.metadata.created === METADATA_SENTINEL.PARSE_FAILED) {
-                        stats.itemsWithFailedCreatedParse!++;
-                        stats.failedCreatedFiles!.push(path);
+                        stats.itemsWithFailedCreatedParse++;
+                        stats.failedCreatedFiles.push(path);
                     } else {
-                        stats.itemsWithMetadataCreated!++;
+                        stats.itemsWithMetadataCreated++;
                     }
                 }
                 
                 // Handle modified date - check for specific sentinel values
                 if (fileData.metadata.modified !== undefined && fileData.metadata.modified !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED) {
                     if (fileData.metadata.modified === METADATA_SENTINEL.PARSE_FAILED) {
-                        stats.itemsWithFailedModifiedParse!++;
-                        stats.failedModifiedFiles!.push(path);
+                        stats.itemsWithFailedModifiedParse++;
+                        stats.failedModifiedFiles.push(path);
                     } else {
-                        stats.itemsWithMetadataModified!++;
+                        stats.itemsWithMetadataModified++;
                     }
                 }
             }

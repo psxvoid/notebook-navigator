@@ -296,7 +296,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
         }
     }, [
         updateSettings,
-        settings.showNotesFromSubfolders,
+        settings,
         selectionState.selectedFolder,
         selectionState.selectedFile,
         app,

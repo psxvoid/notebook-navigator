@@ -270,12 +270,16 @@ export const NotebookNavigatorComponent = React.memo(
                 navigateToFile,
                 uiDispatch,
                 updateSettings,
-                selectionState.selectedFolder,
+                selectionState,
                 fileSystemOps,
                 selectionDispatch,
                 navigateToFolder,
                 navigateToTag,
-                uiState.singlePane
+                uiState.singlePane,
+                uiState.currentSinglePaneView,
+                uiState.focusedPane,
+                app,
+                settings
             ]
         );
 

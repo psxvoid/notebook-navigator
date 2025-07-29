@@ -49,7 +49,12 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
 
     // Create a stable settings object that changes reference when version changes
     // This ensures components using SettingsStateContext re-render when settings change
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const settingsValue = React.useMemo(() => ({ ...plugin.settings }), [version]);
+    // We intentionally use 'version' instead of 'plugin.settings' as the dependency because:
+    // 1. plugin.settings is mutated in place by the updater function (line 39)
+    // 2. Its reference never changes, so including it would never trigger re-computation
+    // 3. 'version' is incremented whenever settings change, forcing a new object creation
 
     // Listen for settings updates from the plugin (e.g., from settings tab)
     useEffect(() => {

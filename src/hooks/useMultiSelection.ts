@@ -122,7 +122,7 @@ export function useMultiSelection(virtualizer?: Virtualizer<HTMLDivElement, Elem
                 leaf.openFile(file, { active: false });
             }
         },
-        [selectionState.selectedFile, selectionState.selectedFiles, selectionDispatch]
+        [selectionState.selectedFile, selectionState.selectedFiles, selectionDispatch, app.workspace]
     );
 
     /**

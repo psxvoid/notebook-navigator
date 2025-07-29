@@ -72,13 +72,15 @@ export const ListPane = React.memo(
 
         // Track if the file selection is from user click vs auto-selection
         const isUserSelectionRef = useRef(false);
-        const [fileVersion, setFileVersion] = useState(0);
 
         // Keep track of the last selected file path to maintain visual selection during transitions
         const lastSelectedFilePathRef = useRef<string | null>(null);
 
         // Track current visible date group for sticky header
         const [currentDateGroup, setCurrentDateGroup] = useState<string | null>(null);
+        
+        // State to force updates when vault changes
+        const [updateKey, setUpdateKey] = useState(0);
 
         // Initialize multi-selection hook
         const multiSelection = useMultiSelection();
@@ -295,7 +297,9 @@ export const ListPane = React.memo(
             }
 
             return allFiles;
-        }, [selectionType, selectedFolder, selectedTag, settings, app, fileVersion]);
+        }, [selectionType, selectedFolder, selectedTag, settings, app, updateKey]); // eslint-disable-line react-hooks/exhaustive-deps
+        // updateKey is intentionally included to force re-computation when vault files change (create/delete/rename).
+        // Without it, the file list wouldn't update when files are modified outside of the plugin.
 
         // Create a map for O(1) file lookups
         const filePathToIndex = useMemo(() => {
@@ -390,8 +394,8 @@ export const ListPane = React.memo(
             settings.showFileDate,
             settings.dateFormat,
             settings.timeFormat,
-            settings.useFrontmatterMetadata,
-            strings.listPane.pinnedSection
+            getFileCreatedTime,
+            getFileModifiedTime
         ]);
 
         // Build ordered files list for Shift+Click functionality - MUST be before early returns
@@ -427,7 +431,8 @@ export const ListPane = React.memo(
         useEffect(() => {
             // Debounce updates to prevent rapid re-renders
             const forceUpdate = debounce(() => {
-                setFileVersion(v => v + 1);
+                // Force re-render by incrementing update key
+                setUpdateKey(k => k + 1);
             }, 300); // Increased debounce time to reduce render frequency
 
             const vaultEvents = [
@@ -483,7 +488,7 @@ export const ListPane = React.memo(
                 app.metadataCache.offref(metadataEvent);
                 dbUnsubscribe();
             };
-        }, [app, selectionType, selectedTag, getDB]);
+        }, [app, selectionType, selectedTag, selectedFolder, settings.showNotesFromSubfolders, getDB]);
 
         // Auto-open file when it's selected via folder/tag change (not user click or keyboard navigation)
         useEffect(() => {
@@ -510,7 +515,7 @@ export const ListPane = React.memo(
                 if (!hasNavigatorFocus || isFolderChangeWithAutoSelect) {
                     const leaf = app.workspace.getLeaf(false);
                     if (leaf) {
-                        leaf.openFile(selectedFile!, { active: false });
+                        leaf.openFile(selectedFile, { active: false });
                     }
                 }
             }
@@ -652,17 +657,12 @@ export const ListPane = React.memo(
             rebuildListItems();
         }, [
             files,
-            settings.groupByDate,
-            settings.defaultFolderSort,
-            settings.folderSortOverrides,
-            settings.pinnedNotes,
-            settings.showNotesFromSubfolders,
-            settings.showFileTags,
+            settings,
             selectionType,
             selectedFolder,
             selectedTag,
-            strings.listPane.pinnedSection,
-            settings.useFrontmatterMetadata // Rebuild when frontmatter settings change
+            getFileCreatedTime,
+            getFileModifiedTime
         ]);
 
         // Reset virtualizer when list items are reordered
@@ -713,7 +713,7 @@ export const ListPane = React.memo(
             if (shouldClearPending) {
                 pendingScrollRef.current = null;
             }
-        }, [rowVirtualizer, filePathToIndex, rowVirtualizer.getTotalSize(), isVisible, pendingScrollVersion]);
+        }, [rowVirtualizer, filePathToIndex, isVisible, pendingScrollVersion]);
 
         // Subscribe to database content changes to re-measure virtualizer
         useEffect(() => {

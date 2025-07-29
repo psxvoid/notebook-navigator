@@ -77,10 +77,11 @@ export function buildTagTree(files: TFile[], app: App): { tree: Map<string, TagT
             const lowerPath = tagPath.toLowerCase();
 
             // Determine the canonical casing for this tag
-            if (!caseMap.has(lowerPath)) {
+            let canonicalPath = caseMap.get(lowerPath);
+            if (!canonicalPath) {
+                canonicalPath = tagPath;
                 caseMap.set(lowerPath, tagPath);
             }
-            const canonicalPath = caseMap.get(lowerPath)!;
 
             // Split the tag into parts
             const parts = canonicalPath.split('/');
@@ -165,10 +166,11 @@ export function buildTagTreeFromDatabase(db: IndexedDBStorage): { tree: Map<stri
             const lowerPath = tagPath.toLowerCase();
 
             // Determine the canonical casing for this tag
-            if (!caseMap.has(lowerPath)) {
+            let canonicalPath = caseMap.get(lowerPath);
+            if (!canonicalPath) {
+                canonicalPath = tagPath;
                 caseMap.set(lowerPath, tagPath);
             }
-            const canonicalPath = caseMap.get(lowerPath)!;
 
             // Split the tag into parts
             const parts = canonicalPath.split('/');
@@ -227,8 +229,9 @@ export function getTotalNoteCount(node: TagTreeNode): number {
     const cache = getNoteCountCache();
 
     // Check cache first
-    if (cache.has(node)) {
-        return cache.get(node)!;
+    const cachedCount = cache.get(node);
+    if (cachedCount !== undefined) {
+        return cachedCount;
     }
 
     // Calculate count

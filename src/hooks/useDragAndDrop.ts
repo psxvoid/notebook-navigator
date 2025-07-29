@@ -199,7 +199,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 }
             }
         },
-        [selectionState, containerRef, app]
+        [selectionState, containerRef, app, db]
     );
 
     /**
@@ -400,7 +400,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 showNotifications: true
             });
         },
-        [app, fileSystemOps, tagOperations, selectionState, getCurrentFileList, dispatch]
+        [app, fileSystemOps, selectionState, getCurrentFileList, dispatch, handleTagDrop]
     );
 
     /**

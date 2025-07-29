@@ -141,8 +141,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             menu.showAtMouseEvent(e);
         },
         [
-            config?.type,
-            config?.item,
+            config,
+            elementRef,
             app,
             plugin,
             settings,

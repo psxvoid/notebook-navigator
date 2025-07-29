@@ -196,7 +196,7 @@ export const FileItem = React.memo(function FileItem({
         return () => {
             unsubscribe();
         };
-    }, [file.path, settings.showFilePreview, settings.showFeatureImage, getDB, app, file.extension]);
+    }, [file, settings.showFilePreview, settings.showFeatureImage, getDB, app]);
 
     // Add Obsidian tooltip (desktop only)
     useEffect(() => {

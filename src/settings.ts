@@ -237,8 +237,9 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .onChange(async value => {
                         // Clear existing timer for this setting
                         const timerId = `setting-${name}`;
-                        if (this.debounceTimers.has(timerId)) {
-                            clearTimeout(this.debounceTimers.get(timerId)!);
+                        const existingTimer = this.debounceTimers.get(timerId);
+                        if (existingTimer !== undefined) {
+                            clearTimeout(existingTimer);
                         }
 
                         // Set new timer
