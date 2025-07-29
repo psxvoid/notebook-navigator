@@ -577,6 +577,9 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 })
             );
 
+        // Store reference to showFileTagsSetting for later use (defined here to be available in Tags section)
+        let showFileTagsSetting: Setting | null = null;
+
         // Section 3: Tags
         new Setting(containerEl).setName(strings.settings.sections.tags).setHeading();
 
@@ -589,6 +592,10 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     await this.saveAndRefresh();
                     // Update tag sub-settings visibility
                     this.setElementVisibility(tagSubSettingsEl, value);
+                    // Update visibility of "Show tags" setting in Notes section
+                    if (showFileTagsSetting) {
+                        this.setElementVisibility(showFileTagsSetting.settingEl, value);
+                    }
                 })
             );
 
@@ -879,7 +886,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 })
             );
 
-        new Setting(containerEl)
+        showFileTagsSetting = new Setting(containerEl)
             .setName(strings.settings.items.showFileTags.name)
             .setDesc(strings.settings.items.showFileTags.desc)
             .addToggle(toggle =>
@@ -1072,6 +1079,10 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         this.setElementVisibility(tagSubSettingsEl, this.plugin.settings.showTags);
         this.setElementVisibility(frontmatterSettingsEl, this.plugin.settings.useFrontmatterMetadata);
         this.setElementVisibility(folderNotesSettingsEl, this.plugin.settings.enableFolderNotes);
+        // Hide "Show tags" in Notes section if main "Show tags" is disabled
+        if (showFileTagsSetting) {
+            this.setElementVisibility(showFileTagsSetting.settingEl, this.plugin.settings.showTags);
+        }
     }
 
     /**
