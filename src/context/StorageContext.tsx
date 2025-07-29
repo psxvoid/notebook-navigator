@@ -58,32 +58,57 @@ import { clearNoteCountCache } from '../utils/tagTree';
 import { buildTagTreeFromDatabase } from '../utils/tagTree';
 import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
+import { NotebookNavigatorSettings } from '../settings';
 
 
 /**
- * Settings related to content generation
+ * Types of content that can be generated
  */
-interface ContentSettings {
-    showFilePreview: boolean;
-    skipHeadingsInPreview: boolean;
-    previewProperties: string[];
-    showFeatureImage: boolean;
-    featureImageProperties: string[];
-    useFrontmatterMetadata: boolean;
-    frontmatterNameField: string;
-    frontmatterCreatedField: string;
-    frontmatterModifiedField: string;
-    frontmatterDateFormat: string;
-    showTags: boolean;
+type ContentType = 'preview' | 'featureImage' | 'metadata' | 'tags';
+
+/**
+ * Metadata for a content-related setting
+ */
+interface ContentSettingMetadata {
+    key: keyof NotebookNavigatorSettings;
+    contentType: ContentType;
+    isToggle: boolean; // true for show/hide settings, false for property settings
 }
+
+/**
+ * Registry of all settings that affect content generation
+ * This is the single source of truth for content-related settings
+ */
+const CONTENT_SETTINGS_REGISTRY: ContentSettingMetadata[] = [
+    // Toggle settings (enable/disable features)
+    { key: 'showFilePreview', contentType: 'preview', isToggle: true },
+    { key: 'showFeatureImage', contentType: 'featureImage', isToggle: true },
+    { key: 'useFrontmatterMetadata', contentType: 'metadata', isToggle: true },
+    { key: 'showTags', contentType: 'tags', isToggle: true },
+    
+    // Property settings (change how content is generated)
+    { key: 'skipHeadingsInPreview', contentType: 'preview', isToggle: false },
+    { key: 'previewProperties', contentType: 'preview', isToggle: false },
+    { key: 'featureImageProperties', contentType: 'featureImage', isToggle: false },
+    { key: 'frontmatterNameField', contentType: 'metadata', isToggle: false },
+    { key: 'frontmatterCreatedField', contentType: 'metadata', isToggle: false },
+    { key: 'frontmatterModifiedField', contentType: 'metadata', isToggle: false },
+    { key: 'frontmatterDateFormat', contentType: 'metadata', isToggle: false },
+];
+
+/**
+ * Type for the extracted content settings
+ */
+type ContentSettingsRecord = Record<keyof NotebookNavigatorSettings, unknown>;
 
 /**
  * Represents a change in settings
  */
 interface SettingChange {
-    type: keyof ContentSettings;
-    oldValue: ContentSettings[keyof ContentSettings];
-    newValue: ContentSettings[keyof ContentSettings];
+    key: keyof NotebookNavigatorSettings;
+    metadata: ContentSettingMetadata;
+    oldValue: unknown;
+    newValue: unknown;
 }
 
 /**
@@ -123,14 +148,37 @@ interface StorageProviderProps {
 
 
 /**
- * Detects changes between two content settings objects
+ * Extracts content-related settings from the full settings object
  */
-function detectChanges(prev: ContentSettings, current: ContentSettings): SettingChange[] {
+function extractContentSettings(settings: NotebookNavigatorSettings): ContentSettingsRecord {
+    const contentSettings: ContentSettingsRecord = {} as ContentSettingsRecord;
+    
+    CONTENT_SETTINGS_REGISTRY.forEach(({ key }) => {
+        contentSettings[key] = settings[key];
+    });
+    
+    return contentSettings;
+}
+
+/**
+ * Gets an array of content setting values for useEffect dependencies
+ */
+function getContentSettingsDependencies(settings: NotebookNavigatorSettings): unknown[] {
+    return CONTENT_SETTINGS_REGISTRY.map(({ key }) => settings[key]);
+}
+
+/**
+ * Detects changes in content settings
+ */
+function detectContentSettingsChanges(
+    prevSettings: ContentSettingsRecord,
+    currentSettings: NotebookNavigatorSettings
+): SettingChange[] {
     const changes: SettingChange[] = [];
     
-    (Object.keys(current) as Array<keyof ContentSettings>).forEach(key => {
-        const prevValue = prev[key];
-        const currentValue = current[key];
+    CONTENT_SETTINGS_REGISTRY.forEach(metadata => {
+        const prevValue = prevSettings[metadata.key];
+        const currentValue = currentSettings[metadata.key];
         
         // Handle arrays and objects
         const hasChanged = typeof currentValue === 'object' 
@@ -139,7 +187,8 @@ function detectChanges(prev: ContentSettings, current: ContentSettings): Setting
             
         if (hasChanged) {
             changes.push({
-                type: key,
+                key: metadata.key,
+                metadata,
                 oldValue: prevValue,
                 newValue: currentValue
             });
@@ -166,7 +215,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     const hasBuiltInitialCache = useRef(false);
 
     // Track previous content settings to detect changes
-    const prevContentSettings = useRef<ContentSettings | null>(null);
+    const prevContentSettings = useRef<ContentSettingsRecord | null>(null);
 
     // Memoize the context value to prevent re-renders when fileData/cache haven't changed
     const contextValue = useMemo(() => {
@@ -299,82 +348,25 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         const clearPromises: Promise<void>[] = [];
         
         // Track which content types need regeneration
-        const needsRegeneration = new Set<'preview' | 'featureImage' | 'metadata' | 'tags'>();
+        const needsRegeneration = new Set<ContentType>();
         
         // Process each change
         for (const change of changes) {
-            switch (change.type) {
-                // ========== Toggle Settings ==========
-                // These settings enable/disable features entirely
-                
-                case 'showFilePreview':
-                    if (!change.newValue) {
-                        // Feature disabled: clear all preview content from DB
-                        clearPromises.push(db.batchClearAllFileContent('preview'));
-                    } else {
-                        // Feature enabled: mark for regeneration
-                        needsRegeneration.add('preview');
-                    }
-                    break;
-                    
-                case 'showFeatureImage':
-                    if (!change.newValue) {
-                        // Feature disabled: clear all feature images from DB
-                        clearPromises.push(db.batchClearAllFileContent('featureImage'));
-                    } else {
-                        // Feature enabled: mark for regeneration
-                        needsRegeneration.add('featureImage');
-                    }
-                    break;
-                    
-                case 'useFrontmatterMetadata':
-                    if (!change.newValue) {
-                        // Feature disabled: clear all metadata from DB
-                        clearPromises.push(db.batchClearAllFileContent('metadata'));
-                    } else {
-                        // Feature enabled: mark for regeneration
-                        needsRegeneration.add('metadata');
-                    }
-                    break;
-                    
-                case 'showTags':
-                    if (!change.newValue) {
-                        // Feature disabled: clear all tags from DB
-                        clearPromises.push(db.batchClearAllFileContent('tags'));
-                    } else {
-                        // Feature enabled: mark for regeneration
-                        needsRegeneration.add('tags');
-                    }
-                    break;
-                
-                // ========== Property Changes ==========
-                // These settings change HOW content is generated
-                // Always clear and regenerate to ensure content matches new settings
-                
-                case 'previewProperties':
-                case 'skipHeadingsInPreview':
-                    // Preview generation settings changed
-                    // Clear old previews and regenerate with new settings
-                    clearPromises.push(db.batchClearAllFileContent('preview'));
-                    needsRegeneration.add('preview');
-                    break;
-                    
-                case 'featureImageProperties':
-                    // Feature image source properties changed
-                    // Clear old images and regenerate from new properties
-                    clearPromises.push(db.batchClearAllFileContent('featureImage'));
-                    needsRegeneration.add('featureImage');
-                    break;
-                    
-                case 'frontmatterNameField':
-                case 'frontmatterCreatedField':
-                case 'frontmatterModifiedField':
-                case 'frontmatterDateFormat':
-                    // Metadata extraction settings changed
-                    // Clear old metadata and re-extract with new field names/format
-                    clearPromises.push(db.batchClearAllFileContent('metadata'));
-                    needsRegeneration.add('metadata');
-                    break;
+            const { metadata, newValue } = change;
+            
+            if (metadata.isToggle) {
+                // Toggle settings: clear when disabled, regenerate when enabled
+                if (!newValue) {
+                    // Feature disabled: clear content from DB
+                    clearPromises.push(db.batchClearAllFileContent(metadata.contentType));
+                } else {
+                    // Feature enabled: mark for regeneration
+                    needsRegeneration.add(metadata.contentType);
+                }
+            } else {
+                // Property settings: always clear and regenerate
+                clearPromises.push(db.batchClearAllFileContent(metadata.contentType));
+                needsRegeneration.add(metadata.contentType);
             }
         }
         
@@ -629,20 +621,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
     // Single effect to handle ALL content-related settings changes
     useEffect(() => {
-        // Build current content settings
-        const contentSettings: ContentSettings = {
-            showFilePreview: settings.showFilePreview,
-            skipHeadingsInPreview: settings.skipHeadingsInPreview,
-            previewProperties: settings.previewProperties,
-            showFeatureImage: settings.showFeatureImage,
-            featureImageProperties: settings.featureImageProperties,
-            useFrontmatterMetadata: settings.useFrontmatterMetadata,
-            frontmatterNameField: settings.frontmatterNameField,
-            frontmatterCreatedField: settings.frontmatterCreatedField,
-            frontmatterModifiedField: settings.frontmatterModifiedField,
-            frontmatterDateFormat: settings.frontmatterDateFormat,
-            showTags: settings.showTags
-        };
+        // Extract current content settings
+        const contentSettings = extractContentSettings(settings);
         
         // Skip on initial mount
         if (!prevContentSettings.current) {
@@ -651,7 +631,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         }
         
         // Detect what changed
-        const changes = detectChanges(prevContentSettings.current, contentSettings);
+        const changes = detectContentSettingsChanges(prevContentSettings.current, settings);
         
         // Handle changes if any
         if (changes.length > 0) {
@@ -659,18 +639,13 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             prevContentSettings.current = contentSettings;
         }
     }, [
-        // Track individual settings to detect changes
-        settings.showFilePreview,
-        settings.skipHeadingsInPreview,
-        settings.previewProperties,
-        settings.showFeatureImage,
-        settings.featureImageProperties,
-        settings.useFrontmatterMetadata,
-        settings.frontmatterNameField,
-        settings.frontmatterCreatedField,
-        settings.frontmatterModifiedField,
-        settings.frontmatterDateFormat,
-        settings.showTags,
+        // Use the registry to track all content settings dynamically
+        // We intentionally use a spread here to avoid manually maintaining a list of dependencies.
+        // The registry ensures we track all content-related settings automatically.
+        // ESLint flags this because it can't statically analyze what's inside the spread,
+        // but our usage is safe since the registry is constant and deterministic.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        ...getContentSettingsDependencies(settings),
         handleSettingsChanges
     ]);
 
