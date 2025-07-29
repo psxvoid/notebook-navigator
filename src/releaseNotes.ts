@@ -51,12 +51,28 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.3.7',
+        date: '2025-07-29',
+        showOnUpdate: true,
+        features: [
+            'IMPROVED: Read metadata from frontmatter: Timestamp format will now no longer fallback to ISO 8601 if parsing fails and will instead show you the number of failed files.',
+            'IMPROVED: Read metadata from frontmatter: You can now export the files that could not be parsed with your Timestamp format! This markdown file will be saved in your root vault so you can click on the links to go directly to the notes that failed parsing!',
+            'IMPROVED: Read metadata from frontmatter: You will now see detailed statistics for each field being parsed.',
+            'IMPROVED: Slim mode can now also show clickable tags. If you only want note title and tags in your list you got it!',
+            "FIXED: Ribbon icon now remains in place after plugin load instead of disappearing/reappearing based on Navigator view state, preserving user's custom ribbon ordering.",
+            "FIXED: Replaced direct localStorage usage with Obsidian's vault-specific storage API to properly isolate data between different vaults on the same device.",
+            'FIXED: Replaced verbose toggleClass() calls with cleaner toggle() API for showing/hiding UI elements.',
+            'FIXED: Replaced custom type guard functions with standard instanceof checks, aligning with Obsidian API best practices.',
+            'FIXED: Removed dynamic ribbon icon management that could interfere with user preferences and cause unexpected UI behavior.'
+        ]
+    },
+    {
         version: '1.3.6',
         date: '2025-07-29',
         showOnUpdate: false,
         features: [
             'IMPROVED: Selection rectangle and drop targets in Navigation Pane are now full-width, making it easier to select and work with folders and tags.',
-            'IMPROVED: Plugin is now always made visible when you run commands, such as \'Reveal file\' and \'Focus file\'.',
+            "IMPROVED: Plugin is now always made visible when you run commands, such as 'Reveal file' and 'Focus file'.",
             'CHANGED: Tags in PaneHeader now show with hashtag prefix (#).'
         ]
     },

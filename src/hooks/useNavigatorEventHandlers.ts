@@ -21,7 +21,6 @@ import { App, TAbstractFile, TFile, TFolder, debounce, Platform } from 'obsidian
 import { useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState } from '../context/UIStateContext';
-import { isTFolder } from '../utils/typeGuards';
 
 interface UseNavigatorEventHandlersOptions {
     app: App;
@@ -47,13 +46,13 @@ export function useNavigatorEventHandlers({ app, containerRef, setIsNavigatorFoc
     // Handle delete events to clean up stale state
     useEffect(() => {
         const handleDelete = (file: TAbstractFile) => {
-            if (isTFolder(file)) {
+            if (file instanceof TFolder) {
                 // Cleanup expanded folders
                 const existingPaths = new Set<string>();
                 const collectAllFolderPaths = (folder: TFolder) => {
                     existingPaths.add(folder.path);
                     folder.children.forEach(child => {
-                        if (isTFolder(child)) {
+                        if (child instanceof TFolder) {
                             collectAllFolderPaths(child);
                         }
                     });

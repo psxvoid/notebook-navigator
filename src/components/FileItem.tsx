@@ -105,6 +105,33 @@ export const FileItem = React.memo(function FileItem({
         [metadataService]
     );
 
+    // Render tags - extracted to avoid duplication
+    const renderTags = useCallback(() => {
+        if (!settings.showTags || !settings.showFileTags || tags.length === 0) {
+            return null;
+        }
+
+        return (
+            <div className="nn-file-tags">
+                {tags.map((tag, index) => {
+                    const tagColor = getTagColor(tag);
+                    return (
+                        <span
+                            key={index}
+                            className="nn-file-tag nn-clickable-tag"
+                            onClick={e => handleTagClick(e, tag)}
+                            role="button"
+                            tabIndex={0}
+                            style={tagColor ? { backgroundColor: tagColor } : undefined}
+                        >
+                            #{tag}
+                        </span>
+                    );
+                })}
+            </div>
+        );
+    }, [settings.showTags, settings.showFileTags, tags, getTagColor, handleTagClick]);
+
     // Get display date from pre-computed dates
     const displayDate = formattedDates?.display || '';
 
@@ -140,7 +167,7 @@ export const FileItem = React.memo(function FileItem({
                 }
             } else {
                 const imagePath = db.getDisplayFeatureImageUrl(file.path);
-                
+
                 // If we have a path, convert it to a URL
                 if (imagePath) {
                     const imageFile = app.vault.getAbstractFileByPath(imagePath);
@@ -196,7 +223,7 @@ export const FileItem = React.memo(function FileItem({
         return () => {
             unsubscribe();
         };
-    }, [file.path, settings.showFilePreview, settings.showFeatureImage, getDB, app, file.extension]);
+    }, [file, settings.showFilePreview, settings.showFeatureImage, getDB, app]);
 
     // Add Obsidian tooltip (desktop only)
     useEffect(() => {
@@ -250,9 +277,12 @@ export const FileItem = React.memo(function FileItem({
         >
             <div className="nn-file-content">
                 {isSlimMode ? (
-                    // Slim mode: Only show file name with minimal styling
-                    <div className="nn-file-name" style={{ '--filename-rows': settings.fileNameRows } as React.CSSProperties}>
-                        {displayName}
+                    // Slim mode: Show file name and tags with minimal styling
+                    <div className="nn-slim-file-text-content">
+                        <div className="nn-file-name" style={{ '--filename-rows': settings.fileNameRows } as React.CSSProperties}>
+                            {displayName}
+                        </div>
+                        {renderTags()}
                     </div>
                 ) : (
                     // Normal mode: Show all enabled elements
@@ -276,25 +306,7 @@ export const FileItem = React.memo(function FileItem({
                                     </div>
 
                                     {/* Tags */}
-                                    {settings.showTags && settings.showFileTags && tags.length > 0 && (
-                                        <div className="nn-file-tags">
-                                            {tags.map((tag, index) => {
-                                                const tagColor = getTagColor(tag);
-                                                return (
-                                                    <span
-                                                        key={index}
-                                                        className="nn-file-tag nn-clickable-tag"
-                                                        onClick={e => handleTagClick(e, tag)}
-                                                        role="button"
-                                                        tabIndex={0}
-                                                        style={tagColor ? { backgroundColor: tagColor } : undefined}
-                                                    >
-                                                        #{tag}
-                                                    </span>
-                                                );
-                                            })}
-                                        </div>
-                                    )}
+                                    {renderTags()}
 
                                     {/* Parent folder */}
                                     {settings.showNotesFromSubfolders &&
@@ -317,25 +329,7 @@ export const FileItem = React.memo(function FileItem({
                                     {!previewText && (
                                         <>
                                             {/* Tags (show even when no preview text) */}
-                                            {settings.showTags && settings.showFileTags && tags.length > 0 && (
-                                                <div className="nn-file-tags">
-                                                    {tags.map((tag, index) => {
-                                                        const tagColor = getTagColor(tag);
-                                                        return (
-                                                            <span
-                                                                key={index}
-                                                                className="nn-file-tag nn-clickable-tag"
-                                                                onClick={e => handleTagClick(e, tag)}
-                                                                role="button"
-                                                                tabIndex={0}
-                                                                style={tagColor ? { backgroundColor: tagColor } : undefined}
-                                                            >
-                                                                #{tag}
-                                                            </span>
-                                                        );
-                                                    })}
-                                                </div>
-                                            )}
+                                            {renderTags()}
                                             {/* Date + Parent folder on same line */}
                                             <div className="nn-file-second-line">
                                                 {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
@@ -367,25 +361,7 @@ export const FileItem = React.memo(function FileItem({
                                             )}
 
                                             {/* Tags (only when preview text exists) */}
-                                            {settings.showTags && settings.showFileTags && tags.length > 0 && (
-                                                <div className="nn-file-tags">
-                                                    {tags.map((tag, index) => {
-                                                        const tagColor = getTagColor(tag);
-                                                        return (
-                                                            <span
-                                                                key={index}
-                                                                className="nn-file-tag nn-clickable-tag"
-                                                                onClick={e => handleTagClick(e, tag)}
-                                                                role="button"
-                                                                tabIndex={0}
-                                                                style={tagColor ? { backgroundColor: tagColor } : undefined}
-                                                            >
-                                                                #{tag}
-                                                            </span>
-                                                        );
-                                                    })}
-                                                </div>
-                                            )}
+                                            {renderTags()}
 
                                             {/* Date + Parent folder on same line */}
                                             <div className="nn-file-second-line">

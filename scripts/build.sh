@@ -60,16 +60,32 @@ else
     echo "✅ No dead code found"
 fi
 
-# Step 4: Check formatting with Prettier
+# Step 4: Fix formatting with Prettier
 echo -e "\nChecking code formatting..."
-npm run format:check
+# Run prettier and capture output
+PRETTIER_OUTPUT=$(npm run format 2>&1)
 PRETTIER_STATUS=$?
+
 if [ $PRETTIER_STATUS -ne 0 ]; then
-    echo "⚠️  Warning: Code formatting issues found"
-    echo "Run 'npm run format' to fix formatting"
-    BUILD_WARNINGS=$((BUILD_WARNINGS + 1))
+    echo "❌ Failed to fix code formatting"
+    echo "$PRETTIER_OUTPUT"
+    BUILD_ERRORS=$((BUILD_ERRORS + 1))
 else
-    echo "✅ Code formatting is correct"
+    # Check if any files were changed
+    if echo "$PRETTIER_OUTPUT" | grep -q "(unchanged)"; then
+        # Count changed vs unchanged files
+        CHANGED_COUNT=$(echo "$PRETTIER_OUTPUT" | grep -v "(unchanged)" | grep -E "\.(ts|tsx|js|jsx|json|md|css).*[0-9]+ms$" | wc -l | tr -d ' ')
+        UNCHANGED_COUNT=$(echo "$PRETTIER_OUTPUT" | grep -c "(unchanged)" || true)
+        
+        if [ $CHANGED_COUNT -eq 0 ]; then
+            echo "✅ Code formatting is already correct (all $UNCHANGED_COUNT files unchanged)"
+        else
+            echo "✅ Code formatting fixed ($CHANGED_COUNT files updated, $UNCHANGED_COUNT unchanged)"
+        fi
+    else
+        # Old prettier version or different output format
+        echo "✅ Code formatting complete"
+    fi
 fi
 
 # Only run the build if no errors (warnings are OK)

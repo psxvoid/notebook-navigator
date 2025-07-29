@@ -39,11 +39,10 @@
  * - Provide metadata extraction methods with frontmatter fallback
  */
 
-import { createContext, useContext, useState, useEffect, useRef, ReactNode, useMemo } from 'react';
-import { App, TFile, debounce } from 'obsidian';
-import { ContentService } from '../services/ContentService';
-import { NotebookNavigatorSettings } from '../settings';
-import { IndexedDBStorage, FileData as DBFileData } from '../storage/IndexedDBStorage';
+import { createContext, useContext, useState, useEffect, useRef, ReactNode, useMemo, useCallback } from 'react';
+import { App, TFile, TFolder, debounce } from 'obsidian';
+import { ContentService, ProcessedMetadata } from '../services/ContentService';
+import { IndexedDBStorage, FileData as DBFileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { calculateFileDiff } from '../storage/diffCalculator';
 import {
     initializeCache,
@@ -53,21 +52,62 @@ import {
     getDBInstance
 } from '../storage/fileOperations';
 import { TagTreeNode } from '../types/storage';
-import { DateUtils } from '../utils/dateUtils';
-import { parseExcludedProperties, shouldExcludeFile } from '../utils/fileFilters';
+import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders, shouldExcludeFolder } from '../utils/fileFilters';
 import { getFileDisplayName as getDisplayName } from '../utils/fileNameUtils';
 import { clearNoteCountCache } from '../utils/tagTree';
 import { buildTagTreeFromDatabase } from '../utils/tagTree';
 import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
+import { NotebookNavigatorSettings } from '../settings';
 
 /**
- * Processed metadata from frontmatter
+ * Types of content that can be generated
  */
-interface ProcessedMetadata {
-    fn?: string; // frontmatter name
-    fc?: number; // frontmatter created timestamp
-    fm?: number; // frontmatter modified timestamp
+type ContentType = 'preview' | 'featureImage' | 'metadata' | 'tags';
+
+/**
+ * Metadata for a content-related setting
+ */
+interface ContentSettingMetadata {
+    key: keyof NotebookNavigatorSettings;
+    contentType: ContentType;
+    isToggle: boolean; // true for show/hide settings, false for property settings
+}
+
+/**
+ * Registry of all settings that affect content generation
+ * This is the single source of truth for content-related settings
+ */
+const CONTENT_SETTINGS_REGISTRY: ContentSettingMetadata[] = [
+    // Toggle settings (enable/disable features)
+    { key: 'showFilePreview', contentType: 'preview', isToggle: true },
+    { key: 'showFeatureImage', contentType: 'featureImage', isToggle: true },
+    { key: 'useFrontmatterMetadata', contentType: 'metadata', isToggle: true },
+    { key: 'showTags', contentType: 'tags', isToggle: true },
+
+    // Property settings (change how content is generated)
+    { key: 'skipHeadingsInPreview', contentType: 'preview', isToggle: false },
+    { key: 'previewProperties', contentType: 'preview', isToggle: false },
+    { key: 'featureImageProperties', contentType: 'featureImage', isToggle: false },
+    { key: 'frontmatterNameField', contentType: 'metadata', isToggle: false },
+    { key: 'frontmatterCreatedField', contentType: 'metadata', isToggle: false },
+    { key: 'frontmatterModifiedField', contentType: 'metadata', isToggle: false },
+    { key: 'frontmatterDateFormat', contentType: 'metadata', isToggle: false }
+];
+
+/**
+ * Type for the extracted content settings
+ */
+type ContentSettingsRecord = Record<keyof NotebookNavigatorSettings, unknown>;
+
+/**
+ * Represents a change in settings
+ */
+interface SettingChange {
+    key: keyof NotebookNavigatorSettings;
+    metadata: ContentSettingMetadata;
+    oldValue: unknown;
+    newValue: unknown;
 }
 
 /**
@@ -106,45 +146,50 @@ interface StorageProviderProps {
 }
 
 /**
- * Extract metadata from frontmatter
+ * Extracts content-related settings from the full settings object
  */
-function extractMetadata(app: App, file: TFile, settings: NotebookNavigatorSettings): ProcessedMetadata {
-    const metadata = app.metadataCache.getFileCache(file);
-    const frontmatter = metadata?.frontmatter;
+function extractContentSettings(settings: NotebookNavigatorSettings): ContentSettingsRecord {
+    const contentSettings: ContentSettingsRecord = {} as ContentSettingsRecord;
 
-    if (!frontmatter || !settings.useFrontmatterMetadata) {
-        return {};
-    }
+    CONTENT_SETTINGS_REGISTRY.forEach(({ key }) => {
+        contentSettings[key] = settings[key];
+    });
 
-    const result: ProcessedMetadata = {};
+    return contentSettings;
+}
 
-    // Extract name if field is specified
-    if (settings.frontmatterNameField && settings.frontmatterNameField.trim()) {
-        const nameValue = frontmatter[settings.frontmatterNameField];
-        if (nameValue && typeof nameValue === 'string' && nameValue.trim()) {
-            result.fn = nameValue.trim();
+/**
+ * Gets an array of content setting values for useEffect dependencies
+ */
+function getContentSettingsDependencies(settings: NotebookNavigatorSettings): unknown[] {
+    return CONTENT_SETTINGS_REGISTRY.map(({ key }) => settings[key]);
+}
+
+/**
+ * Detects changes in content settings
+ */
+function detectContentSettingsChanges(prevSettings: ContentSettingsRecord, currentSettings: NotebookNavigatorSettings): SettingChange[] {
+    const changes: SettingChange[] = [];
+
+    CONTENT_SETTINGS_REGISTRY.forEach(metadata => {
+        const prevValue = prevSettings[metadata.key];
+        const currentValue = currentSettings[metadata.key];
+
+        // Handle arrays and objects
+        const hasChanged =
+            typeof currentValue === 'object' ? JSON.stringify(prevValue) !== JSON.stringify(currentValue) : prevValue !== currentValue;
+
+        if (hasChanged) {
+            changes.push({
+                key: metadata.key,
+                metadata,
+                oldValue: prevValue,
+                newValue: currentValue
+            });
         }
-    }
+    });
 
-    // Extract created date if field is specified
-    if (settings.frontmatterCreatedField && settings.frontmatterCreatedField.trim()) {
-        const createdValue = frontmatter[settings.frontmatterCreatedField];
-        const createdTimestamp = DateUtils.parseFrontmatterDate(createdValue, settings.frontmatterDateFormat);
-        if (createdTimestamp !== undefined) {
-            result.fc = createdTimestamp;
-        }
-    }
-
-    // Extract modified date if field is specified
-    if (settings.frontmatterModifiedField && settings.frontmatterModifiedField.trim()) {
-        const modifiedValue = frontmatter[settings.frontmatterModifiedField];
-        const modifiedTimestamp = DateUtils.parseFrontmatterDate(modifiedValue, settings.frontmatterDateFormat);
-        if (modifiedTimestamp !== undefined) {
-            result.fm = modifiedTimestamp;
-        }
-    }
-
-    return result;
+    return changes;
 }
 
 export function StorageProvider({ app, children }: StorageProviderProps) {
@@ -163,22 +208,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     // Track if we've already built the initial cache
     const hasBuiltInitialCache = useRef(false);
 
-    // Track previous values for each setting type to detect changes
-    const prevShowFilePreview = useRef(settings.showFilePreview);
-    const prevShowFeatureImage = useRef(settings.showFeatureImage);
-    const prevShowMetadata = useRef(settings.useFrontmatterMetadata);
-    const prevShowTags = useRef(settings.showTags);
-
-    // Track previous values for settings that trigger content regeneration
-    const prevSkipHeadingsInPreview = useRef<boolean | null>(null);
-    const prevPreviewProperties = useRef<string[] | null>(null);
-    const prevFeatureImageProperties = useRef<string[] | null>(null);
-    const prevFrontmatterFields = useRef<{
-        name: string | null;
-        created: string | null;
-        modified: string | null;
-        dateFormat: string | null;
-    } | null>(null);
+    // Track previous content settings to detect changes
+    const prevContentSettings = useRef<ContentSettingsRecord | null>(null);
 
     // Memoize the context value to prevent re-renders when fileData/cache haven't changed
     const contextValue = useMemo(() => {
@@ -186,7 +217,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         const getFileDisplayName = (file: TFile): string => {
             // If metadata is enabled, extract on-demand
             if (settings.useFrontmatterMetadata) {
-                const metadata = extractMetadata(app, file, settings);
+                const metadata = ContentService.extractMetadata(app, file, settings);
                 if (metadata.fn) {
                     return metadata.fn;
                 }
@@ -199,8 +230,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         const getFileCreatedTime = (file: TFile): number => {
             // If metadata is enabled, extract on-demand
             if (settings.useFrontmatterMetadata) {
-                const metadata = extractMetadata(app, file, settings);
-                if (metadata.fc !== undefined) {
+                const metadata = ContentService.extractMetadata(app, file, settings);
+                if (metadata.fc !== undefined && metadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED) {
                     return metadata.fc;
                 }
             }
@@ -212,8 +243,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         const getFileModifiedTime = (file: TFile): number => {
             // If metadata is enabled, extract on-demand
             if (settings.useFrontmatterMetadata) {
-                const metadata = extractMetadata(app, file, settings);
-                if (metadata.fm !== undefined) {
+                const metadata = ContentService.extractMetadata(app, file, settings);
+                if (metadata.fm !== undefined && metadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED) {
                     return metadata.fm;
                 }
             }
@@ -226,13 +257,19 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             // If metadata is enabled, extract on-demand
             let extractedMetadata: ProcessedMetadata | null = null;
             if (settings.useFrontmatterMetadata) {
-                extractedMetadata = extractMetadata(app, file, settings);
+                extractedMetadata = ContentService.extractMetadata(app, file, settings);
             }
 
             return {
                 name: extractedMetadata?.fn || getDisplayName(file, undefined, settings),
-                created: extractedMetadata?.fc !== undefined ? extractedMetadata.fc : file.stat.ctime,
-                modified: extractedMetadata?.fm !== undefined ? extractedMetadata.fm : file.stat.mtime
+                created:
+                    extractedMetadata?.fc !== undefined && extractedMetadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED
+                        ? extractedMetadata.fc
+                        : file.stat.ctime,
+                modified:
+                    extractedMetadata?.fm !== undefined && extractedMetadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED
+                        ? extractedMetadata.fm
+                        : file.stat.mtime
             };
         };
 
@@ -251,7 +288,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     }, [fileData, settings, app, isStorageReady]);
 
     // Helper function to rebuild tag tree and clean up metadata
-    const rebuildTagTree = () => {
+    const rebuildTagTree = useCallback(() => {
         const db = getDBInstance();
         const { tree: newTree, untagged: newUntagged } = buildTagTreeFromDatabase(db);
         clearNoteCountCache();
@@ -263,7 +300,91 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                 console.error('Error during tag metadata cleanup:', error);
             });
         }
-    };
+    }, [metadataService, settings.showTags, settings.showUntagged]);
+
+    // Helper function to get markdown files filtered by excluded properties and folders
+    const getFilteredMarkdownFiles = useCallback((): TFile[] => {
+        const excludedProperties = parseExcludedProperties(settings.excludedFiles);
+        const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
+
+        return app.vault.getMarkdownFiles().filter(file => {
+            // Filter by excluded properties
+            if (excludedProperties.length > 0 && shouldExcludeFile(file, excludedProperties, app)) {
+                return false;
+            }
+
+            // Filter by excluded folders
+            if (excludedFolderPatterns.length > 0 && file.parent) {
+                let currentFolder: TFolder | null = file.parent;
+                while (currentFolder) {
+                    if (shouldExcludeFolder(currentFolder.name, excludedFolderPatterns)) {
+                        return false;
+                    }
+                    currentFolder = currentFolder.parent;
+                }
+            }
+
+            return true;
+        });
+    }, [app, settings.excludedFiles, settings.excludedFolders]);
+
+    /**
+     * Centralized handler for all content-related settings changes
+     *
+     * This function processes setting changes and determines what content needs to be:
+     * 1. Cleared from the database (when features are disabled or settings change)
+     * 2. Regenerated (when features are enabled or settings change)
+     *
+     * The logic follows these patterns:
+     * - Toggle settings (show/hide): Clear when disabled, regenerate when enabled
+     * - Property changes: Always clear and regenerate to ensure fresh content
+     */
+    const handleSettingsChanges = useCallback(
+        async (changes: SettingChange[]) => {
+            const db = getDBInstance();
+
+            // Collect all clear operations to run in parallel
+            const clearPromises: Promise<void>[] = [];
+
+            // Track which content types need regeneration
+            const needsRegeneration = new Set<ContentType>();
+
+            // Process each change
+            for (const change of changes) {
+                const { metadata, newValue } = change;
+
+                if (metadata.isToggle) {
+                    // Toggle settings: clear when disabled, regenerate when enabled
+                    if (!newValue) {
+                        // Feature disabled: clear content from DB
+                        clearPromises.push(db.batchClearAllFileContent(metadata.contentType));
+                    } else {
+                        // Feature enabled: mark for regeneration
+                        needsRegeneration.add(metadata.contentType);
+                    }
+                } else {
+                    // Property settings: always clear and regenerate
+                    clearPromises.push(db.batchClearAllFileContent(metadata.contentType));
+                    needsRegeneration.add(metadata.contentType);
+                }
+            }
+
+            // Execute all clear operations in parallel for better performance
+            await Promise.all(clearPromises);
+
+            // Regenerate content if needed
+            if (needsRegeneration.size > 0 && contentService.current) {
+                // Get all files that should be processed (respects exclusion settings)
+                const allFiles = getFilteredMarkdownFiles();
+
+                // Queue content generation for all files
+                // The content service will determine what actually needs to be generated
+                // based on current settings and what's already in the database
+                contentService.current.queueContent(allFiles, settings);
+            }
+        },
+        [settings, getFilteredMarkdownFiles]
+    );
 
     // ==================== Effects ====================
 
@@ -271,8 +392,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     useEffect(() => {
         // Only create service if it doesn't exist
         if (!contentService.current) {
-            // Create content service that notifies us when content is generated
-            contentService.current = new ContentService(app, settings, (file: TFile) => extractMetadata(app, file, settings));
+            // Create content service
+            contentService.current = new ContentService(app);
         }
 
         return () => {
@@ -312,9 +433,9 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         });
 
         return unsubscribe;
-    }, [isStorageReady, settings.showTags, settings.showUntagged]);
+    }, [isStorageReady, settings.showTags, settings.showUntagged, rebuildTagTree]);
 
-    // Main effect: manages cache updates and builds data structures
+    // Main initialization and vault monitoring effect
     useEffect(() => {
         // Process existing files and handle updates
         const processExistingCache = async (allFiles: TFile[], isInitialLoad: boolean = false) => {
@@ -426,7 +547,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                                 }
 
                                 if (filesToProcess.length > 0) {
-                                    contentService.current.queueContent(filesToProcess);
+                                    contentService.current.queueContent(filesToProcess, settings);
                                 }
                             }
                         }
@@ -442,11 +563,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
         // Main function that orchestrates the file cache building
         const buildFileCache = async (isInitialLoad: boolean = false) => {
-            const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-            const allFiles = app.vault
-                .getMarkdownFiles()
-                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-
+            const allFiles = getFilteredMarkdownFiles();
             await processExistingCache(allFiles, isInitialLoad);
         };
 
@@ -472,7 +589,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                     // ContentService will detect the null content and regenerate
                     if (contentService.current) {
-                        contentService.current.queueContent([file]);
+                        contentService.current.queueContent([file], settings);
                     }
                 }
             })
@@ -487,7 +604,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                 // Queue content regeneration for the file
                 if (contentService.current) {
-                    contentService.current.queueContent([file]);
+                    contentService.current.queueContent([file], settings);
                 }
 
                 // Note: We already queued content regeneration above
@@ -495,241 +612,43 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             }
         });
 
+        // Cleanup
         return () => {
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
             app.metadataCache.offref(metadataEvent);
         };
-    }, [app, settings.showUntagged, settings.excludedFiles, isIndexedDBReady, settings.showTags]);
+    }, [app, isIndexedDBReady, getFilteredMarkdownFiles, rebuildTagTree, settings]);
 
-    // Update service settings when they change
+    // Single effect to handle ALL content-related settings changes
     useEffect(() => {
-        if (contentService.current) {
-            contentService.current.updateSettings(settings);
+        // Extract current content settings
+        const contentSettings = extractContentSettings(settings);
+
+        // Skip on initial mount
+        if (!prevContentSettings.current) {
+            prevContentSettings.current = contentSettings;
+            return;
+        }
+
+        // Detect what changed
+        const changes = detectContentSettingsChanges(prevContentSettings.current, settings);
+
+        // Handle changes if any
+        if (changes.length > 0) {
+            handleSettingsChanges(changes);
+            prevContentSettings.current = contentSettings;
         }
     }, [
-        settings.showTags,
-        settings.showFilePreview,
-        settings.showFeatureImage,
-        settings.useFrontmatterMetadata,
-        settings.frontmatterNameField,
-        settings.frontmatterCreatedField,
-        settings.frontmatterModifiedField,
-        settings.frontmatterDateFormat,
-        settings.skipHeadingsInPreview,
-        settings.featureImageProperties,
-        settings.previewProperties
+        // Use the registry to track all content settings dynamically
+        // We intentionally use a spread here to avoid manually maintaining a list of dependencies.
+        // The registry ensures we track all content-related settings automatically.
+        // ESLint flags this because it can't statically analyze what's inside the spread,
+        // but our usage is safe since the registry is constant and deterministic.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        ...getContentSettingsDependencies(settings),
+        handleSettingsChanges,
+        settings
     ]);
-
-    // Handle preview settings changes
-    useEffect(() => {
-        if (prevShowFilePreview.current === settings.showFilePreview) return;
-
-        const wasEnabled = prevShowFilePreview.current;
-        prevShowFilePreview.current = settings.showFilePreview;
-
-        if (!contentService.current) return;
-
-        const db = getDBInstance();
-
-        // Clear preview data when disabling
-        if (wasEnabled && !settings.showFilePreview) {
-            db.batchClearAllFileContent('preview');
-        }
-        // Regenerate when enabling
-        else if (!wasEnabled && settings.showFilePreview) {
-            const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-            const allFiles = app.vault
-                .getMarkdownFiles()
-                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-            contentService.current.queueContent(allFiles);
-        }
-    }, [settings.showFilePreview, settings.excludedFiles, app]);
-
-    // Handle preview processing settings changes (skip headings, properties)
-    useEffect(() => {
-        if (!settings.showFilePreview || !contentService.current) return;
-
-        // Skip on initial mount
-        if (prevSkipHeadingsInPreview.current === null || prevPreviewProperties.current === null) {
-            prevSkipHeadingsInPreview.current = settings.skipHeadingsInPreview;
-            prevPreviewProperties.current = settings.previewProperties;
-            return;
-        }
-
-        // Check if settings actually changed
-        const skipHeadingsChanged = prevSkipHeadingsInPreview.current !== settings.skipHeadingsInPreview;
-        const previewPropsChanged = JSON.stringify(prevPreviewProperties.current) !== JSON.stringify(settings.previewProperties);
-
-        if (skipHeadingsChanged || previewPropsChanged) {
-            prevSkipHeadingsInPreview.current = settings.skipHeadingsInPreview;
-            prevPreviewProperties.current = settings.previewProperties;
-
-            // Clear and regenerate preview content when processing settings change
-            const db = getDBInstance();
-            db.batchClearAllFileContent('preview').then(() => {
-                const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-                const allFiles = app.vault
-                    .getMarkdownFiles()
-                    .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-                contentService.current!.queueContent(allFiles);
-            });
-        }
-    }, [settings.skipHeadingsInPreview, settings.previewProperties, settings.showFilePreview, settings.excludedFiles, app]);
-
-    // Handle feature image settings changes
-    useEffect(() => {
-        if (prevShowFeatureImage.current === settings.showFeatureImage) return;
-
-        const wasEnabled = prevShowFeatureImage.current;
-        prevShowFeatureImage.current = settings.showFeatureImage;
-
-        if (!contentService.current) return;
-
-        const db = getDBInstance();
-
-        // Clear feature image data when disabling
-        if (wasEnabled && !settings.showFeatureImage) {
-            db.batchClearAllFileContent('featureImage');
-        }
-        // Regenerate when enabling
-        else if (!wasEnabled && settings.showFeatureImage) {
-            const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-            const allFiles = app.vault
-                .getMarkdownFiles()
-                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-            contentService.current.queueContent(allFiles);
-        }
-    }, [settings.showFeatureImage, settings.excludedFiles, app]);
-
-    // Handle feature image properties changes
-    useEffect(() => {
-        if (!settings.showFeatureImage || !contentService.current) return;
-
-        // Skip on initial mount
-        if (prevFeatureImageProperties.current === null) {
-            prevFeatureImageProperties.current = settings.featureImageProperties;
-            return;
-        }
-
-        // Check if properties actually changed
-        const propertiesChanged = JSON.stringify(prevFeatureImageProperties.current) !== JSON.stringify(settings.featureImageProperties);
-
-        if (propertiesChanged) {
-            prevFeatureImageProperties.current = settings.featureImageProperties;
-
-            // Clear and regenerate feature images when properties change
-            const db = getDBInstance();
-            db.batchClearAllFileContent('featureImage').then(() => {
-                const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-                const allFiles = app.vault
-                    .getMarkdownFiles()
-                    .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-                contentService.current!.queueContent(allFiles);
-            });
-        }
-    }, [settings.featureImageProperties, settings.showFeatureImage, settings.excludedFiles, app]);
-
-    // Handle metadata settings changes
-    useEffect(() => {
-        if (prevShowMetadata.current === settings.useFrontmatterMetadata) return;
-
-        const wasEnabled = prevShowMetadata.current;
-        prevShowMetadata.current = settings.useFrontmatterMetadata;
-
-        if (!contentService.current) return;
-
-        const db = getDBInstance();
-
-        // Clear metadata when disabling
-        if (wasEnabled && !settings.useFrontmatterMetadata) {
-            db.batchClearAllFileContent('metadata');
-        }
-        // Regenerate when enabling
-        else if (!wasEnabled && settings.useFrontmatterMetadata) {
-            const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-            const allFiles = app.vault
-                .getMarkdownFiles()
-                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-            contentService.current.queueContent(allFiles);
-        }
-    }, [settings.useFrontmatterMetadata, settings.excludedFiles, app]);
-
-    // Handle metadata field changes
-    useEffect(() => {
-        if (!settings.useFrontmatterMetadata || !contentService.current) return;
-
-        // Skip on initial mount
-        if (prevFrontmatterFields.current === null) {
-            prevFrontmatterFields.current = {
-                name: settings.frontmatterNameField,
-                created: settings.frontmatterCreatedField,
-                modified: settings.frontmatterModifiedField,
-                dateFormat: settings.frontmatterDateFormat
-            };
-            return;
-        }
-
-        // Check if any field actually changed
-        const fieldsChanged =
-            prevFrontmatterFields.current.name !== settings.frontmatterNameField ||
-            prevFrontmatterFields.current.created !== settings.frontmatterCreatedField ||
-            prevFrontmatterFields.current.modified !== settings.frontmatterModifiedField ||
-            prevFrontmatterFields.current.dateFormat !== settings.frontmatterDateFormat;
-
-        if (fieldsChanged) {
-            prevFrontmatterFields.current = {
-                name: settings.frontmatterNameField,
-                created: settings.frontmatterCreatedField,
-                modified: settings.frontmatterModifiedField,
-                dateFormat: settings.frontmatterDateFormat
-            };
-
-            // Clear and regenerate metadata when fields change
-            const db = getDBInstance();
-            db.batchClearAllFileContent('metadata').then(() => {
-                const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-                const allFiles = app.vault
-                    .getMarkdownFiles()
-                    .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-                contentService.current!.queueContent(allFiles);
-            });
-        }
-    }, [
-        settings.frontmatterNameField,
-        settings.frontmatterCreatedField,
-        settings.frontmatterModifiedField,
-        settings.frontmatterDateFormat,
-        settings.useFrontmatterMetadata,
-        settings.excludedFiles,
-        app
-    ]);
-
-    // Handle tags on/off - unified with other content types!
-    useEffect(() => {
-        if (prevShowTags.current === settings.showTags) return;
-
-        const wasEnabled = prevShowTags.current;
-        prevShowTags.current = settings.showTags;
-
-        const db = getDBInstance();
-
-        // Clear tags when disabling
-        if (wasEnabled && !settings.showTags) {
-            db.batchClearAllFileContent('tags');
-        }
-        // Regenerate tags when enabling
-        else if (!wasEnabled && settings.showTags && contentService.current) {
-            const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-            const allFiles = app.vault
-                .getMarkdownFiles()
-                .filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
-            // Mark files for regeneration (preserves mtime)
-            markFilesForRegeneration(allFiles).then(() => {
-                // Queue content generation for tags
-                contentService.current!.queueContent(allFiles);
-            });
-        }
-    }, [settings.showTags, settings.excludedFiles, app]);
 
     return <StorageContext.Provider value={contextValue}>{children}</StorageContext.Provider>;
 }

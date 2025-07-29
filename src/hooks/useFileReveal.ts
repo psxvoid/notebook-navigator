@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useRef, useCallback, RefObject, useState } from 'react';
-import { TFile, TFolder, App, WorkspaceLeaf } from 'obsidian';
+import { TFile, TFolder, App, WorkspaceLeaf, FileView } from 'obsidian';
 import type { ListPaneHandle } from '../components/ListPane';
 import type { NavigationPaneHandle } from '../components/NavigationPane';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
@@ -25,7 +25,6 @@ import { useSelectionState, useSelectionDispatch } from '../context/SelectionCon
 import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
-import { isTFolder, isFileView } from '../utils/typeGuards';
 import { determineTagToReveal } from '../utils/tagUtils';
 import { ItemType } from '../types';
 import { buildTagTree, findTagNode, parseTagPatterns, matchesTagPattern } from '../utils/tagTree';
@@ -105,7 +104,7 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             // Always shift focus to list pane
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
         },
-        [selectionState.selectedFolder, expansionState.expandedFolders, expansionDispatch, selectionDispatch, uiState, uiDispatch]
+        [expansionState.expandedFolders, expansionDispatch, selectionDispatch, uiState, uiDispatch]
     );
 
     /**
@@ -200,7 +199,8 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             selectionDispatch,
             uiState,
             uiDispatch,
-            settings
+            settings,
+            selectionState.selectedFile
         ]
     );
 
@@ -286,7 +286,6 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             // Don't change focus - let Obsidian handle focus naturally when opening files
         },
         [
-            app,
             settings,
             selectionState.selectedFolder,
             selectionState.selectionType,
@@ -324,7 +323,7 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
     const navigateToFolder = useCallback(
         (folderPath: string) => {
             const folder = app.vault.getAbstractFileByPath(folderPath);
-            if (!folder || !isTFolder(folder)) return;
+            if (!folder || !(folder instanceof TFolder)) return;
 
             // Expand all ancestors to make the folder visible
             const foldersToExpand: string[] = [];
@@ -429,7 +428,7 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
 
             // Get the file from the active view
             const view = leaf.view;
-            if (isFileView(view) && view.file && view.file instanceof TFile) {
+            if (view instanceof FileView && view.file && view.file instanceof TFile) {
                 handleFileChange(view.file);
             }
         };
@@ -500,7 +499,9 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
         revealFileInNearestFolder,
         selectionState.selectionType,
         selectionState.selectedTag,
-        revealTag
+        selectionState.selectedFile,
+        revealTag,
+        selectionDispatch
     ]);
 
     /**
@@ -526,10 +527,10 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
                         if (tagIndex !== undefined && tagIndex !== -1) {
                             navigationPaneRef.current?.virtualizer?.scrollToIndex(tagIndex, { align: 'center', behavior: 'auto' });
                         }
-                    } else if (selectionState.selectedFolder && selectionState.selectedFolder.path === file.parent!.path) {
+                    } else if (selectionState.selectedFolder && file.parent && selectionState.selectedFolder.path === file.parent.path) {
                         // Scroll to folder - but only if we're not preserving the current folder
                         // When preserveFolder is true (showNotesFromSubfolders), we don't want to jump to the subfolder
-                        const folderIndex = navigationPaneRef.current?.getIndexOfPath(file.parent!.path);
+                        const folderIndex = navigationPaneRef.current?.getIndexOfPath(file.parent.path);
 
                         if (folderIndex !== undefined && folderIndex !== -1) {
                             navigationPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: 'center', behavior: 'auto' });
@@ -547,6 +548,8 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
         selectionState.isRevealOperation,
         selectionState.selectedFolder,
         selectionState.selectedFile,
+        selectionState.selectionType,
+        selectionState.selectedTag,
         navigationPaneRef,
         listPaneRef,
         uiState.singlePane,

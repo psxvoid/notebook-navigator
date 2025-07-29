@@ -542,22 +542,21 @@ export const STRINGS_DE = {
             frontmatterNameField: {
                 name: 'Namensfeld',
                 desc: 'Frontmatter-Feld für den angezeigten Notiznamen. Leer lassen, um den Dateinamen zu verwenden.',
-                placeholder: 'title'
+                placeholder: 'titel'
             },
             frontmatterCreatedField: {
                 name: 'Feld für Erstellungszeitstempel',
                 desc: 'Frontmatter-Feldname für den Erstellungszeitstempel. Leer lassen, um nur das Dateisystemdatum zu verwenden.',
-                placeholder: 'created'
+                placeholder: 'erstellt'
             },
             frontmatterModifiedField: {
                 name: 'Feld für Änderungszeitstempel',
                 desc: 'Frontmatter-Feldname für den Änderungszeitstempel. Leer lassen, um nur das Dateisystemdatum zu verwenden.',
-                placeholder: 'modified'
+                placeholder: 'geändert'
             },
             frontmatterDateFormat: {
                 name: 'Zeitstempelformat',
-                desc: 'Format zum Parsen von Zeitstempeln im Frontmatter',
-                placeholder: "yyyy-MM-dd'T'HH:mm:ss",
+                desc: 'Format zum Parsen von Zeitstempeln im Frontmatter. Leer lassen, um ISO 8601-Format zu verwenden',
                 helpTooltip: 'Siehe date-fns Formatdokumentation',
                 help: "Häufige Formate:\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
@@ -578,6 +577,17 @@ export const STRINGS_DE = {
                 withPreviewText: 'mit Vorschautext',
                 withFeatureImage: 'mit Vorschaubild',
                 withMetadata: 'mit Metadaten'
+            },
+            metadataInfo: {
+                successfullyParsed: 'Erfolgreich geparst',
+                itemsWithName: 'Einträge mit Name',
+                withCreatedDate: 'mit Erstellungsdatum',
+                withModifiedDate: 'mit Änderungsdatum',
+                failedToParse: 'Parsing fehlgeschlagen',
+                createdDates: 'Erstellungsdaten',
+                modifiedDates: 'Änderungsdaten',
+                checkTimestampFormat: 'Überprüfen Sie Ihr Zeitstempelformat.',
+                exportFailed: 'Fehler exportieren'
             }
         }
     },

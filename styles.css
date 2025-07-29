@@ -556,6 +556,17 @@
     justify-content: flex-start; /* Top-align content */
 }
 
+/* Slim mode file text content - same as above but without min-height */
+.nn-slim-file-text-content {
+    flex: 1;
+    min-width: 0; /* Enable text truncation */
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    order: 1; /* Ensure it appears on the left */
+    justify-content: flex-start; /* Top-align content */
+}
+
 /* File name - primary text with ellipsis overflow */
 .nn-file-name {
     font-size: var(--nn-file-name-size);
@@ -2209,4 +2220,32 @@ body.nn-resizing {
     height: 1px;
     background: var(--background-modifier-border);
     margin: var(--size-4-4) 0 var(--size-4-3) 0;
+}
+
+/* ========================================================================
+   Metadata Info Styles
+   ======================================================================== */
+
+/* Container for metadata parsing info - flex row layout */
+.nn-metadata-info-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--size-4-4);
+}
+
+/* Text container - takes up available space */
+.nn-metadata-info-text {
+    flex: 1;
+}
+
+/* Error text styling */
+.nn-metadata-error-text {
+    color: var(--text-error);
+    font-weight: bold;
+}
+
+/* Export button - stays on the right */
+.nn-metadata-export-button {
+    flex-shrink: 0;
 }

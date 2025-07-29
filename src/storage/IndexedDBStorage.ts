@@ -1,4 +1,5 @@
 import { STORAGE_KEYS } from '../types';
+import { localStorage } from '../utils/localStorage';
 /*
  * Notebook Navigator - Plugin for Obsidian
  * Copyright (c) 2025 Johan Sanneblad
@@ -23,6 +24,16 @@ const STORE_NAME = 'keyvaluepairs';
 const DB_SCHEMA_VERSION = 1; // IndexedDB structure version
 const DB_CONTENT_VERSION = 2; // Data format version
 
+/**
+ * Sentinel values for metadata date fields
+ */
+export const METADATA_SENTINEL = {
+    /** Indicates that the frontmatter field name is empty/not configured */
+    FIELD_NOT_CONFIGURED: 0,
+    /** Indicates that parsing the date value failed */
+    PARSE_FAILED: -1
+} as const;
+
 export interface FileData {
     mtime: number;
     tags: string[] | null; // null = not extracted yet (e.g. when tags disabled)
@@ -30,8 +41,8 @@ export interface FileData {
     featureImage: string | null; // null = not generated yet
     metadata: {
         name?: string;
-        created?: number;
-        modified?: number;
+        created?: number; // Valid timestamp, 0 = field not configured, -1 = parse failed
+        modified?: number; // Valid timestamp, 0 = field not configured, -1 = parse failed
     } | null; // null = not generated yet
 }
 
@@ -185,8 +196,8 @@ export class IndexedDBStorage {
     private async checkSchemaAndInit(): Promise<void> {
         const startTime = performance.now();
 
-        const storedSchemaVersion = localStorage.getItem(STORAGE_KEYS.databaseSchemaVersionKey);
-        const storedContentVersion = localStorage.getItem(STORAGE_KEYS.databaseContentVersionKey);
+        const storedSchemaVersion = localStorage.get<string>(STORAGE_KEYS.databaseSchemaVersionKey);
+        const storedContentVersion = localStorage.get<string>(STORAGE_KEYS.databaseContentVersionKey);
         const currentSchemaVersion = DB_SCHEMA_VERSION.toString();
         const currentContentVersion = DB_CONTENT_VERSION.toString();
 
@@ -200,8 +211,8 @@ export class IndexedDBStorage {
             await this.deleteDatabase();
         }
 
-        localStorage.setItem(STORAGE_KEYS.databaseSchemaVersionKey, currentSchemaVersion);
-        localStorage.setItem(STORAGE_KEYS.databaseContentVersionKey, currentContentVersion);
+        localStorage.set(STORAGE_KEYS.databaseSchemaVersionKey, currentSchemaVersion);
+        localStorage.set(STORAGE_KEYS.databaseContentVersionKey, currentContentVersion);
 
         const needsRebuild = !!(schemaChanged || contentChanged);
         await this.openDatabase(needsRebuild);
@@ -295,7 +306,6 @@ export class IndexedDBStorage {
 
                             request.onerror = () => reject(request.error);
                         });
-
                     } catch (error) {
                         console.error('[DB Cache] Failed to initialize cache:', error);
                         // Continue without cache - database will still work
@@ -446,12 +456,15 @@ export class IndexedDBStorage {
             files.forEach(({ path, data }) => {
                 // Check if tags changed
                 const existing = existingData.get(path);
+                const existingTags = existing?.tags;
+                const newTags = data.tags;
+
                 const tagsChanged =
                     !existing ||
-                    existing.tags !== data.tags || // Handle null vs non-null
-                    (existing.tags !== null &&
-                        data.tags !== null &&
-                        (existing.tags.length !== data.tags.length || !existing.tags.every((tag, i) => tag === data.tags![i])));
+                    existingTags !== newTags || // Handle null vs non-null
+                    (existingTags !== null &&
+                        newTags !== null &&
+                        (existingTags.length !== newTags.length || !existingTags.every((tag, i) => tag === newTags[i])));
 
                 if (tagsChanged) {
                     tagChanges.push({

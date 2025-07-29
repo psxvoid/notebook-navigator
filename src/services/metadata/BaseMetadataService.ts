@@ -122,11 +122,15 @@ export abstract class BaseMetadataService {
     protected async removeEntityColor(entityType: EntityType, path: string): Promise<void> {
         if (entityType === ItemType.FOLDER && this.plugin.settings.folderColors?.[path]) {
             await this.saveAndUpdate(settings => {
-                delete settings.folderColors![path];
+                if (settings.folderColors) {
+                    delete settings.folderColors[path];
+                }
             });
         } else if (entityType === ItemType.TAG && this.plugin.settings.tagColors?.[path]) {
             await this.saveAndUpdate(settings => {
-                delete settings.tagColors![path];
+                if (settings.tagColors) {
+                    delete settings.tagColors[path];
+                }
             });
         }
     }
@@ -185,11 +189,15 @@ export abstract class BaseMetadataService {
     protected async removeEntityIcon(entityType: EntityType, path: string): Promise<void> {
         if (entityType === ItemType.FOLDER && this.plugin.settings.folderIcons?.[path]) {
             await this.saveAndUpdate(settings => {
-                delete settings.folderIcons![path];
+                if (settings.folderIcons) {
+                    delete settings.folderIcons[path];
+                }
             });
         } else if (entityType === ItemType.TAG && this.plugin.settings.tagIcons?.[path]) {
             await this.saveAndUpdate(settings => {
-                delete settings.tagIcons![path];
+                if (settings.tagIcons) {
+                    delete settings.tagIcons[path];
+                }
             });
         }
     }
@@ -240,11 +248,15 @@ export abstract class BaseMetadataService {
     protected async removeEntitySortOverride(entityType: EntityType, path: string): Promise<void> {
         if (entityType === ItemType.FOLDER && this.plugin.settings.folderSortOverrides?.[path]) {
             await this.saveAndUpdate(settings => {
-                delete settings.folderSortOverrides![path];
+                if (settings.folderSortOverrides) {
+                    delete settings.folderSortOverrides[path];
+                }
             });
         } else if (entityType === ItemType.TAG && this.plugin.settings.tagSortOverrides?.[path]) {
             await this.saveAndUpdate(settings => {
-                delete settings.tagSortOverrides![path];
+                if (settings.tagSortOverrides) {
+                    delete settings.tagSortOverrides[path];
+                }
             });
         }
     }

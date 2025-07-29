@@ -17,6 +17,7 @@
  */
 
 import { getDBInstance } from './fileOperations';
+import { METADATA_SENTINEL } from './IndexedDBStorage';
 
 /**
  * Statistics - Cache analytics and monitoring
@@ -44,6 +45,16 @@ export interface CacheStatistics {
     itemsWithFeature: number;
     itemsWithMetadata: number;
     totalSizeMB: number;
+    // Detailed metadata breakdown
+    itemsWithMetadataName: number;
+    itemsWithMetadataCreated: number;
+    itemsWithMetadataModified: number;
+    // Failed date parsing counts
+    itemsWithFailedCreatedParse: number;
+    itemsWithFailedModifiedParse: number;
+    // Full paths of files with failed parsing
+    failedCreatedFiles: string[];
+    failedModifiedFiles: string[];
 }
 
 /**
@@ -62,7 +73,14 @@ export function calculateCacheStatistics(): CacheStatistics | null {
             itemsWithPreview: 0,
             itemsWithFeature: 0,
             itemsWithMetadata: 0,
-            totalSizeMB: 0
+            totalSizeMB: 0,
+            itemsWithMetadataName: 0,
+            itemsWithMetadataCreated: 0,
+            itemsWithMetadataModified: 0,
+            itemsWithFailedCreatedParse: 0,
+            itemsWithFailedModifiedParse: 0,
+            failedCreatedFiles: [],
+            failedModifiedFiles: []
         };
 
         let totalSize = 0;
@@ -88,9 +106,47 @@ export function calculateCacheStatistics(): CacheStatistics | null {
                 stats.itemsWithFeature++;
             }
 
-            // Check for metadata (not null)
+            // Check for metadata (not null and has actual values)
             if (fileData.metadata) {
-                stats.itemsWithMetadata++;
+                // Check if any metadata field has a valid value (not a sentinel value)
+                const hasValidName = !!fileData.metadata.name;
+                const hasValidCreated =
+                    fileData.metadata.created !== undefined &&
+                    fileData.metadata.created !== METADATA_SENTINEL.PARSE_FAILED &&
+                    fileData.metadata.created !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED;
+                const hasValidModified =
+                    fileData.metadata.modified !== undefined &&
+                    fileData.metadata.modified !== METADATA_SENTINEL.PARSE_FAILED &&
+                    fileData.metadata.modified !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED;
+
+                if (hasValidName || hasValidCreated || hasValidModified) {
+                    stats.itemsWithMetadata++;
+                }
+
+                // Count individual metadata fields
+                if (hasValidName) {
+                    stats.itemsWithMetadataName++;
+                }
+
+                // Handle created date - check for specific sentinel values
+                if (fileData.metadata.created !== undefined && fileData.metadata.created !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED) {
+                    if (fileData.metadata.created === METADATA_SENTINEL.PARSE_FAILED) {
+                        stats.itemsWithFailedCreatedParse++;
+                        stats.failedCreatedFiles.push(path);
+                    } else {
+                        stats.itemsWithMetadataCreated++;
+                    }
+                }
+
+                // Handle modified date - check for specific sentinel values
+                if (fileData.metadata.modified !== undefined && fileData.metadata.modified !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED) {
+                    if (fileData.metadata.modified === METADATA_SENTINEL.PARSE_FAILED) {
+                        stats.itemsWithFailedModifiedParse++;
+                        stats.failedModifiedFiles.push(path);
+                    } else {
+                        stats.itemsWithMetadataModified++;
+                    }
+                }
             }
 
             // Estimate size including path

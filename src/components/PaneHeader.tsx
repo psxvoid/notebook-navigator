@@ -32,7 +32,6 @@ import { UNTAGGED_TAG_ID, ItemType } from '../types';
 import { getFilesForFolder } from '../utils/fileFinder';
 import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } from '../utils/sortUtils';
 import { collectAllTagPaths } from '../utils/tagTree';
-import { isTFolder } from '../utils/typeGuards';
 import { ObsidianIcon } from './ObsidianIcon';
 
 interface PaneHeaderProps {
@@ -132,7 +131,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
 
                 const collectAllFolders = (folder: TFolder) => {
                     folder.children.forEach(child => {
-                        if (isTFolder(child)) {
+                        if (child instanceof TFolder) {
                             allFolders.add(child.path);
                             collectAllFolders(child);
                         }
@@ -294,14 +293,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                 }
             }
         }
-    }, [
-        updateSettings,
-        settings.showNotesFromSubfolders,
-        selectionState.selectedFolder,
-        selectionState.selectedFile,
-        app,
-        selectionDispatch
-    ]);
+    }, [updateSettings, settings, selectionState.selectedFolder, selectionState.selectedFile, app, selectionDispatch]);
 
     const handleToggleAutoExpand = useCallback(async () => {
         await updateSettings(s => {

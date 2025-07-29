@@ -40,15 +40,6 @@ const transform: Transform = (fileInfo, api) => {
         return name.startsWith('use') && /^use[A-Z]/.test(name);
     };
 
-    // Helper to check if identifier is exported
-    const isExported = (node: any) => {
-        return (
-            node.type === 'ExportNamedDeclaration' ||
-            node.type === 'ExportDefaultDeclaration' ||
-            (node.declaration && node.declaration.type === 'VariableDeclaration')
-        );
-    };
-
     statements.forEach((statement: any) => {
         // Handle imports
         if (j.ImportDeclaration.check(statement)) {

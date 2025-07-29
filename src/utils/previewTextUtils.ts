@@ -20,7 +20,7 @@ import { FrontMatterCache } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 
 // Maximum number of characters for preview text
-export const MAX_PREVIEW_TEXT_LENGTH = 500;
+const MAX_PREVIEW_TEXT_LENGTH = 500;
 
 // Base patterns used in both regex versions
 const BASE_PATTERNS = [

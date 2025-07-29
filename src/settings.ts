@@ -21,6 +21,7 @@ import NotebookNavigatorPlugin from './main';
 import { strings } from './i18n';
 import { FileVisibility, FILE_VISIBILITY } from './utils/fileTypeUtils';
 import { calculateCacheStatistics, CacheStatistics } from './storage/statistics';
+import { ISO_DATE_FORMAT } from './utils/dateUtils';
 
 /**
  * Available sort options for file listing
@@ -151,9 +152,9 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Notes
     useFrontmatterMetadata: false,
     frontmatterNameField: '',
-    frontmatterCreatedField: 'created',
-    frontmatterModifiedField: 'modified',
-    frontmatterDateFormat: "yyyy-MM-dd'T'HH:mm:ss",
+    frontmatterCreatedField: '',
+    frontmatterModifiedField: '',
+    frontmatterDateFormat: '',
     fileNameRows: 1,
     showFileDate: true,
     showFileTags: true,
@@ -189,6 +190,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
     // Reference to stats element and update interval
     private statsTextEl: HTMLElement | null = null;
     private statsUpdateInterval: number | null = null;
+    // Reference to metadata parsing info element
+    private metadataInfoEl: HTMLElement | null = null;
 
     /**
      * Creates a new settings tab
@@ -234,8 +237,9 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .onChange(async value => {
                         // Clear existing timer for this setting
                         const timerId = `setting-${name}`;
-                        if (this.debounceTimers.has(timerId)) {
-                            clearTimeout(this.debounceTimers.get(timerId)!);
+                        const existingTimer = this.debounceTimers.get(timerId);
+                        if (existingTimer !== undefined) {
+                            clearTimeout(existingTimer);
                         }
 
                         // Set new timer
@@ -255,15 +259,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                         this.debounceTimers.set(timerId, timer);
                     })
             );
-    }
-
-    /**
-     * Helper function to toggle element visibility using CSS class
-     * @param element - The HTML element to show/hide
-     * @param show - Whether to show (true) or hide (false) the element
-     */
-    private setElementVisibility(element: HTMLElement, show: boolean): void {
-        element.toggleClass('nn-setting-hidden', !show);
     }
 
     /**
@@ -288,15 +283,95 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
     }
 
     /**
+     * Generate metadata parsing info text
+     */
+    private generateMetadataInfoText(stats: CacheStatistics): {
+        infoText: string;
+        failedText: string | null;
+        hasFailures: boolean;
+        failurePercentage: number;
+    } {
+        if (!stats) return { infoText: '', failedText: null, hasFailures: false, failurePercentage: 0 };
+
+        const nameCount = stats.itemsWithMetadataName || 0;
+        const createdCount = stats.itemsWithMetadataCreated || 0;
+        const modifiedCount = stats.itemsWithMetadataModified || 0;
+        const failedCreatedCount = stats.itemsWithFailedCreatedParse || 0;
+        const failedModifiedCount = stats.itemsWithFailedModifiedParse || 0;
+
+        const infoText = `${strings.settings.items.metadataInfo.successfullyParsed}: ${nameCount} ${strings.settings.items.metadataInfo.itemsWithName}, ${createdCount} ${strings.settings.items.metadataInfo.withCreatedDate}, ${modifiedCount} ${strings.settings.items.metadataInfo.withModifiedDate}.`;
+
+        // Calculate failure percentage
+        const totalCreatedAttempts = createdCount + failedCreatedCount;
+        const totalModifiedAttempts = modifiedCount + failedModifiedCount;
+        const totalAttempts = totalCreatedAttempts + totalModifiedAttempts;
+        const totalFailures = failedCreatedCount + failedModifiedCount;
+        const failurePercentage = totalAttempts > 0 ? (totalFailures / totalAttempts) * 100 : 0;
+
+        // Show failed parse counts if any
+        let failedText = null;
+        if (failedCreatedCount > 0 || failedModifiedCount > 0) {
+            failedText = `${strings.settings.items.metadataInfo.failedToParse}: ${failedCreatedCount} ${strings.settings.items.metadataInfo.createdDates}, ${failedModifiedCount} ${strings.settings.items.metadataInfo.modifiedDates}.`;
+            // Only add suggestion if more than 70% failed
+            if (failurePercentage > 70) {
+                failedText += ' ' + strings.settings.items.metadataInfo.checkTimestampFormat;
+            }
+        }
+
+        return { infoText, failedText, hasFailures: failedCreatedCount > 0 || failedModifiedCount > 0, failurePercentage };
+    }
+
+    /**
      * Update the statistics display
      */
     private updateStatistics(): void {
-        if (!this.statsTextEl) return;
-
         const stats = calculateCacheStatistics();
+        if (!stats) return;
 
-        if (stats) {
+        // Update bottom statistics
+        if (this.statsTextEl) {
             this.statsTextEl.setText(this.generateStatisticsText(stats));
+        }
+
+        // Update metadata parsing info
+        if (this.metadataInfoEl && this.plugin.settings.useFrontmatterMetadata) {
+            const { infoText, failedText, hasFailures, failurePercentage } = this.generateMetadataInfoText(stats);
+
+            // Clear previous content
+            this.metadataInfoEl.empty();
+
+            // Create a flex container for the entire metadata info
+            const metadataContainer = this.metadataInfoEl.createEl('div', {
+                cls: 'nn-metadata-info-row'
+            });
+
+            // Left side: text content
+            const textContainer = metadataContainer.createEl('div', {
+                cls: 'nn-metadata-info-text'
+            });
+
+            // Add info text
+            textContainer.createSpan({ text: infoText });
+
+            if (failedText) {
+                // Add line break and failed parse message
+                textContainer.createEl('br');
+                // Only apply error styling if failure percentage > 70%
+                const shouldHighlight = failurePercentage > 70;
+                textContainer.createSpan({
+                    text: failedText,
+                    cls: shouldHighlight ? 'nn-metadata-error-text' : undefined
+                });
+            }
+
+            // Right side: export button (only if there are failures)
+            if (hasFailures) {
+                const exportButton = metadataContainer.createEl('button', {
+                    text: strings.settings.items.metadataInfo.exportFailed,
+                    cls: 'nn-metadata-export-button'
+                });
+                exportButton.onclick = () => this.exportFailedMetadataReport(stats);
+            }
         }
     }
 
@@ -471,7 +546,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     this.plugin.settings.enableFolderNotes = value;
                     await this.saveAndRefresh();
                     // Update folder notes sub-settings visibility
-                    this.setElementVisibility(folderNotesSettingsEl, value);
+                    folderNotesSettingsEl.toggle(value);
                 })
             );
 
@@ -499,6 +574,9 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 })
             );
 
+        // Store reference to showFileTagsSetting for later use (defined here to be available in Tags section)
+        let showFileTagsSetting: Setting | null = null;
+
         // Section 3: Tags
         new Setting(containerEl).setName(strings.settings.sections.tags).setHeading();
 
@@ -510,7 +588,11 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     this.plugin.settings.showTags = value;
                     await this.saveAndRefresh();
                     // Update tag sub-settings visibility
-                    this.setElementVisibility(tagSubSettingsEl, value);
+                    tagSubSettingsEl.toggle(value);
+                    // Update visibility of "Show tags" setting in Notes section
+                    if (showFileTagsSetting) {
+                        showFileTagsSetting.settingEl.toggle(value);
+                    }
                 })
             );
 
@@ -646,7 +728,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     this.plugin.settings.showNotesFromSubfolders = value;
                     await this.saveAndRefresh();
                     // Update subfolder names visibility
-                    this.setElementVisibility(subfolderNamesEl, value);
+                    subfolderNamesEl.toggle(value);
                 })
             );
 
@@ -664,7 +746,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             );
 
         // Set initial visibility
-        this.setElementVisibility(subfolderNamesEl, this.plugin.settings.showNotesFromSubfolders);
+        subfolderNamesEl.toggle(this.plugin.settings.showNotesFromSubfolders);
 
         this.createDebouncedTextSetting(
             containerEl,
@@ -712,7 +794,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 toggle.setValue(this.plugin.settings.useFrontmatterMetadata).onChange(async value => {
                     this.plugin.settings.useFrontmatterMetadata = value;
                     await this.saveAndRefresh();
-                    this.setElementVisibility(frontmatterSettingsEl, value);
+                    frontmatterSettingsEl.toggle(value);
                 })
             );
 
@@ -737,7 +819,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.frontmatterCreatedField.placeholder,
             () => this.plugin.settings.frontmatterCreatedField,
             value => {
-                this.plugin.settings.frontmatterCreatedField = value || 'created';
+                this.plugin.settings.frontmatterCreatedField = value;
             }
         );
 
@@ -748,18 +830,18 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             strings.settings.items.frontmatterModifiedField.placeholder,
             () => this.plugin.settings.frontmatterModifiedField,
             value => {
-                this.plugin.settings.frontmatterModifiedField = value || 'modified';
+                this.plugin.settings.frontmatterModifiedField = value;
             }
         );
 
-        this.createDebouncedTextSetting(
+        const dateFormatSetting = this.createDebouncedTextSetting(
             frontmatterSettingsEl,
             strings.settings.items.frontmatterDateFormat.name,
             strings.settings.items.frontmatterDateFormat.desc,
-            strings.settings.items.frontmatterDateFormat.placeholder,
+            ISO_DATE_FORMAT,
             () => this.plugin.settings.frontmatterDateFormat,
             value => {
-                this.plugin.settings.frontmatterDateFormat = value || "yyyy-MM-dd'T'HH:mm:ss";
+                this.plugin.settings.frontmatterDateFormat = value;
             }
         ).addExtraButton(button =>
             button
@@ -769,6 +851,13 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     new Notice(strings.settings.items.frontmatterDateFormat.help, 10000);
                 })
         );
+        dateFormatSetting.controlEl.addClass('nn-setting-wide-input');
+
+        // Add metadata parsing info container
+        const metadataInfoContainer = frontmatterSettingsEl.createDiv('nn-setting-info-container');
+        this.metadataInfoEl = metadataInfoContainer.createEl('div', {
+            cls: 'setting-item-description'
+        });
 
         new Setting(containerEl)
             .setName(strings.settings.items.fileNameRows.name)
@@ -794,7 +883,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 })
             );
 
-        new Setting(containerEl)
+        showFileTagsSetting = new Setting(containerEl)
             .setName(strings.settings.items.showFileTags.name)
             .setDesc(strings.settings.items.showFileTags.desc)
             .addToggle(toggle =>
@@ -811,7 +900,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 toggle.setValue(this.plugin.settings.showFilePreview).onChange(async value => {
                     this.plugin.settings.showFilePreview = value;
                     await this.saveAndRefresh();
-                    this.setElementVisibility(previewSettingsEl, value);
+                    previewSettingsEl.toggle(value);
                 })
             );
 
@@ -876,7 +965,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 toggle.setValue(this.plugin.settings.showFeatureImage).onChange(async value => {
                     this.plugin.settings.showFeatureImage = value;
                     await this.saveAndRefresh();
-                    this.setElementVisibility(featureImageSettingsEl, value);
+                    featureImageSettingsEl.toggle(value);
                 })
             );
 
@@ -933,7 +1022,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     const { WhatsNewModal } = await import('./modals/WhatsNewModal');
                     const { getLatestReleaseNotes } = await import('./releaseNotes');
                     const latestNotes = getLatestReleaseNotes(3);
-                    new WhatsNewModal(this.app, this.plugin, latestNotes).open();
+                    new WhatsNewModal(this.app, latestNotes).open();
                 })
             );
 
@@ -982,11 +1071,68 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         }, 1000);
 
         // Set initial visibility
-        this.setElementVisibility(previewSettingsEl, this.plugin.settings.showFilePreview);
-        this.setElementVisibility(featureImageSettingsEl, this.plugin.settings.showFeatureImage);
-        this.setElementVisibility(tagSubSettingsEl, this.plugin.settings.showTags);
-        this.setElementVisibility(frontmatterSettingsEl, this.plugin.settings.useFrontmatterMetadata);
-        this.setElementVisibility(folderNotesSettingsEl, this.plugin.settings.enableFolderNotes);
+        previewSettingsEl.toggle(this.plugin.settings.showFilePreview);
+        featureImageSettingsEl.toggle(this.plugin.settings.showFeatureImage);
+        tagSubSettingsEl.toggle(this.plugin.settings.showTags);
+        frontmatterSettingsEl.toggle(this.plugin.settings.useFrontmatterMetadata);
+        folderNotesSettingsEl.toggle(this.plugin.settings.enableFolderNotes);
+        // Hide "Show tags" in Notes section if main "Show tags" is disabled
+        if (showFileTagsSetting) {
+            showFileTagsSetting.settingEl.toggle(this.plugin.settings.showTags);
+        }
+    }
+
+    /**
+     * Export failed metadata parsing report to markdown file
+     */
+    private async exportFailedMetadataReport(stats: CacheStatistics): Promise<void> {
+        if (!stats.failedCreatedFiles || !stats.failedModifiedFiles) return;
+
+        // Generate timestamp
+        const now = new Date();
+        const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, -5); // YYYY-MM-DDTHH-mm-ss
+        const readableDate = now.toLocaleString();
+
+        // Generate filename
+        const filename = `metadata-parsing-failures-${timestamp}.md`;
+
+        // Sort file paths alphabetically
+        const failedCreatedFiles = [...stats.failedCreatedFiles].sort();
+        const failedModifiedFiles = [...stats.failedModifiedFiles].sort();
+
+        // Generate markdown content
+        let content = `# Metadata Parsing Failures\n\n`;
+        content += `Generated on: ${readableDate}\n\n`;
+
+        content += `## Failed Created Date Parsing\n`;
+        content += `Total files: ${failedCreatedFiles.length}\n\n`;
+        if (failedCreatedFiles.length > 0) {
+            failedCreatedFiles.forEach(path => {
+                content += `- [[${path}]]\n`;
+            });
+        } else {
+            content += `*No failures*\n`;
+        }
+        content += `\n`;
+
+        content += `## Failed Modified Date Parsing\n`;
+        content += `Total files: ${failedModifiedFiles.length}\n\n`;
+        if (failedModifiedFiles.length > 0) {
+            failedModifiedFiles.forEach(path => {
+                content += `- [[${path}]]\n`;
+            });
+        } else {
+            content += `*No failures*\n`;
+        }
+
+        try {
+            // Create the file in vault root
+            await this.app.vault.create(filename, content);
+            new Notice(`Failed metadata report exported to: ${filename}`);
+        } catch (error) {
+            console.error('Failed to export metadata report:', error);
+            new Notice('Failed to export metadata report');
+        }
     }
 
     /**
@@ -1006,5 +1152,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         // Clear reference to stats element
         this.statsTextEl = null;
+        this.metadataInfoEl = null;
     }
 }

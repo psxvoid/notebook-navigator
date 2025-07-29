@@ -18,7 +18,6 @@
 
 import { App, TFolder } from 'obsidian';
 import { strings } from '../i18n';
-import { isTFolder } from '../utils/typeGuards';
 import { BaseSuggestModal } from './BaseSuggestModal';
 
 /**
@@ -64,7 +63,7 @@ export class FolderSuggestModal extends BaseSuggestModal<TFolder> {
                 folders.push(folder);
             }
             for (const child of folder.children) {
-                if (isTFolder(child)) {
+                if (child instanceof TFolder) {
                     collectFolders(child);
                 }
             }

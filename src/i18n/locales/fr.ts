@@ -542,22 +542,21 @@ export const STRINGS_FR = {
             frontmatterNameField: {
                 name: 'Champ de nom',
                 desc: "Champ frontmatter à utiliser comme nom d'affichage de la note. Laisser vide pour utiliser le nom du fichier.",
-                placeholder: 'title'
+                placeholder: 'titre'
             },
             frontmatterCreatedField: {
                 name: "Champ d'horodatage de création",
                 desc: "Nom du champ frontmatter pour l'horodatage de création. Laisser vide pour utiliser uniquement la date du système.",
-                placeholder: 'created'
+                placeholder: 'créé'
             },
             frontmatterModifiedField: {
                 name: "Champ d'horodatage de modification",
                 desc: "Nom du champ frontmatter pour l'horodatage de modification. Laisser vide pour utiliser uniquement la date du système.",
-                placeholder: 'modified'
+                placeholder: 'modifié'
             },
             frontmatterDateFormat: {
                 name: "Format d'horodatage",
-                desc: 'Format utilisé pour analyser les horodatages dans le frontmatter',
-                placeholder: "yyyy-MM-dd'T'HH:mm:ss",
+                desc: 'Format utilisé pour analyser les horodatages dans le frontmatter. Laisser vide pour utiliser le format ISO 8601',
                 helpTooltip: 'Voir la documentation du format date-fns',
                 help: "Formats courants :\nyyyy-MM-dd'T'HH:mm:ss → 2025-01-04T14:30:45\ndd/MM/yyyy HH:mm:ss → 04/01/2025 14:30:45\nMM/dd/yyyy h:mm:ss a → 01/04/2025 2:30:45 PM"
             },
@@ -578,6 +577,17 @@ export const STRINGS_FR = {
                 withPreviewText: 'avec texte de prévisualisation',
                 withFeatureImage: 'avec image de couverture',
                 withMetadata: 'avec métadonnées'
+            },
+            metadataInfo: {
+                successfullyParsed: 'Analysés avec succès',
+                itemsWithName: 'éléments avec nom',
+                withCreatedDate: 'avec date de création',
+                withModifiedDate: 'avec date de modification',
+                failedToParse: "Échec de l'analyse",
+                createdDates: 'dates de création',
+                modifiedDates: 'dates de modification',
+                checkTimestampFormat: "Vérifiez le format d'horodatage.",
+                exportFailed: 'Exporter les erreurs'
             }
         }
     },

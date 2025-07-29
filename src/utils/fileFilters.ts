@@ -32,9 +32,10 @@ export function shouldExcludeFile(file: TFile, excludedProperties: string[], app
     if (excludedProperties.length === 0) return false;
 
     const metadata = app.metadataCache.getFileCache(file);
-    if (!metadata?.frontmatter) return false;
+    const frontmatter = metadata?.frontmatter;
+    if (!frontmatter) return false;
 
-    return excludedProperties.some(prop => prop in metadata.frontmatter!);
+    return excludedProperties.some(prop => prop in frontmatter);
 }
 
 /**

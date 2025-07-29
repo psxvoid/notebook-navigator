@@ -25,6 +25,9 @@ import { NotebookNavigatorSettings } from '../settings';
 // Type the locales object properly
 type LocalesMap = typeof locales & Record<string, Locale>;
 
+// Default ISO 8601 date format used when no format is specified
+export const ISO_DATE_FORMAT = "yyyy-MM-dd'T'HH:mm:ss";
+
 export class DateUtils {
     /**
      * Map of Obsidian language codes to date-fns locale names
@@ -253,14 +256,9 @@ export class DateUtils {
 
             // If it's a string, parse it
             if (typeof value === 'string') {
-                // First try to parse as ISO 8601 (standard format)
-                const isoDate = new Date(value);
-                if (!isNaN(isoDate.getTime())) {
-                    return isoDate.getTime();
-                }
-
-                // If ISO parsing failed, try with the configured format
-                const parsedDate = parse(value, dateFormat, new Date());
+                // Use ISO format if dateFormat is empty
+                const formatToUse = dateFormat || ISO_DATE_FORMAT;
+                const parsedDate = parse(value, formatToUse, new Date());
 
                 // Check if parsing succeeded
                 if (!isNaN(parsedDate.getTime())) {
