@@ -219,7 +219,6 @@
     border: none !important;
     border-radius: var(--radius-s);
     padding: var(--size-2-2) var(--size-4-1);
-    cursor: pointer;
     color: var(--text-muted);
     display: flex;
     align-items: center;
@@ -333,13 +332,12 @@
     box-sizing: border-box;
 }
 
-/* Folder content - clickable area containing folder UI elements */
+/* Folder content - contains folder UI elements */
 .nn-folder-content {
     display: flex;
     align-items: center;
     padding: var(--nn-nav-padding-vertical) var(--size-4-2);
     padding-inline-start: 0; /* Remove start padding since it's on the parent */
-    cursor: pointer;
     border-radius: var(--radius-s);
     margin: 0;
     background: transparent;
@@ -349,9 +347,10 @@
     box-sizing: border-box;
 }
 
-/* Folder content hover state - desktop only */
-.nn-desktop .nn-folder-content:hover {
+/* Folder hover state - desktop only */
+.nn-desktop .nn-folder-item:hover {
     background-color: var(--background-modifier-hover);
+    border-radius: var(--radius-s);
 }
 
 /* Folder chevron/arrow - expand/collapse indicator */
@@ -376,7 +375,6 @@
 /* Chevron states for folders with children */
 .nn-folder-chevron--has-children {
     visibility: visible;
-    cursor: pointer;
 }
 
 /* Folder icon - displays folder open/closed or custom icons */
@@ -499,7 +497,6 @@
     background: transparent;
     border-radius: 0;
     padding: 0;
-    cursor: pointer;
     -webkit-user-select: none;
     user-select: none;
     position: relative;
@@ -727,7 +724,6 @@
 
 /* Clickable tag styling */
 .nn-file-tag.nn-clickable-tag {
-    cursor: pointer;
 }
 
 /* Dark mode tag styles */
@@ -934,13 +930,16 @@
 }
 
 /* Selected folder - transparent background for pseudo-element approach */
-.nn-folder-item.nn-selected > .nn-folder-content {
+.nn-folder-item.nn-selected {
     position: relative;
+}
+
+.nn-folder-item.nn-selected > .nn-folder-content {
     background: transparent;
 }
 
 /* Selected folder background - uses pseudo-element for better control */
-.nn-folder-item.nn-selected > .nn-folder-content::before {
+.nn-folder-item.nn-selected::before {
     content: '';
     position: absolute;
     top: 0;
@@ -1014,9 +1013,9 @@
    1. Navigator unfocused (all selections dimmed)
    2. Navigator focused but inactive pane (cross-pane dimming) */
 .nn-split-container[data-navigator-focused='false'] .nn-file-item.nn-selected .nn-file-content::before,
-.nn-split-container[data-navigator-focused='false'] .nn-folder-item.nn-selected > .nn-folder-content::before,
+.nn-split-container[data-navigator-focused='false'] .nn-folder-item.nn-selected::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-file-item.nn-selected .nn-file-content::before,
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-folder-item.nn-selected > .nn-folder-content::before {
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-folder-item.nn-selected::before {
     background-color: var(--background-modifier-hover);
 }
 
@@ -1050,18 +1049,21 @@ body.nn-resizing {
 }
 
 /* Drag over state - highlights valid drop targets */
-.nn-folder-content.nn-drag-over {
+.nn-folder-item.nn-drag-over {
     background-color: var(--text-selection);
+    border-radius: var(--radius-s);
 }
 
 /* Special visual feedback for tag drop zones */
-[data-drop-zone='tag'].nn-drag-over .nn-folder-content {
+[data-drop-zone='tag'].nn-drag-over {
     background-color: var(--background-modifier-success);
+    border-radius: var(--radius-s);
 }
 
 /* Different style for untagged drop zone */
-[data-drop-zone='tag'][data-tag='__untagged__'].nn-drag-over .nn-folder-content {
+[data-drop-zone='tag'][data-tag='__untagged__'].nn-drag-over {
     background-color: var(--background-modifier-error-hover);
+    border-radius: var(--radius-s);
 }
 
 /* Drag image container - positions the custom drag image off-screen */
@@ -1150,12 +1152,12 @@ body.nn-resizing {
    ======================================================================== */
 
 /* Context menu active folder - prepares for outline */
-.nn-folder-item.nn-context-menu-active > .nn-folder-content {
+.nn-folder-item.nn-context-menu-active {
     position: relative;
 }
 
 /* Context menu outline for folders - shows which item menu affects */
-.nn-folder-item.nn-context-menu-active:not(.nn-selected) > .nn-folder-content::after {
+.nn-folder-item.nn-context-menu-active:not(.nn-selected)::after {
     content: '';
     position: absolute;
     top: 0;
@@ -1169,7 +1171,7 @@ body.nn-resizing {
 }
 
 /* Dark mode context menu outline for folders */
-.theme-dark .nn-folder-item.nn-context-menu-active:not(.nn-selected) > .nn-folder-content::after {
+.theme-dark .nn-folder-item.nn-context-menu-active:not(.nn-selected)::after {
     border-color: var(--text-selection);
     opacity: 0.5;
 }
@@ -1450,7 +1452,6 @@ body.nn-resizing {
     align-items: center;
     padding: var(--size-4-2) var(--size-4-2);
     border-radius: var(--radius-s);
-    cursor: pointer;
 }
 
 /* Icon item hover/focus states */
@@ -1839,7 +1840,6 @@ body.nn-resizing {
     gap: var(--size-4-1);
     padding: var(--size-4-2);
     border-radius: var(--radius-m);
-    cursor: pointer;
 }
 
 /* Color item hover/focus states */
@@ -2026,7 +2026,6 @@ body.nn-resizing {
     margin: 0;
     background: none;
     border: none;
-    cursor: pointer;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -2103,7 +2102,6 @@ body.nn-resizing {
 
 .nn-icon-provider-tab {
     padding: var(--size-2-2) var(--size-4-3);
-    cursor: pointer;
     border-radius: var(--radius-s);
     color: var(--text-muted);
 }
@@ -2195,7 +2193,6 @@ body.nn-resizing {
     color: var(--text-on-accent);
     border: none;
     border-radius: var(--radius-s);
-    cursor: pointer;
     font-size: var(--font-ui-small);
 }
 
