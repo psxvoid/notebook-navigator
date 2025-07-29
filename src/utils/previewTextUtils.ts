@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { FrontMatterCache } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 
 // Maximum number of characters for preview text
@@ -34,14 +35,14 @@ const BASE_PATTERNS = [
     /`[^`]+`/.source,
     // Group 3: Images and embeds - remove entirely
     // Example: ![alt](image.png) → (removed)
-    /!\[.*?\]\([^\)]+\)/.source,
+    /!\[.*?\]\([^)]+\)/.source,
     // Group 4: Wiki embeds - remove entirely
     // Example: ![[image.png]] or ![[_resources/Pasted image.png]] → (removed)
     /!\[\[.*?\]\]/.source,
     // Group 5: Tags - remove entirely
     // Example: #tag, #parent/child → (removed)
     // Must be followed by whitespace or end of line to avoid matching things like #1 in issue numbers
-    /#[\w\-\/]+(?=\s|$)/.source,
+    /#[\w\-/]+(?=\s|$)/.source,
     // Group 6: Escape characters
     // Example: \* → *
     /\\([*_~`])/.source,
@@ -79,7 +80,7 @@ const BASE_PATTERNS = [
     /==((?:(?!==).)+)==/.source,
     // Group 17: Links
     // Example: [Google](https://google.com) → Google
-    /\[([^\]]+)\]\([^\)]+\)/.source,
+    /\[([^\]]+)\]\([^)]+\)/.source,
     // Group 18: Wiki links with display
     // Example: [[Some Page|Display Text]] → Display Text
     /\[\[[^\]|]+\|([^\]]+)\]\]/.source,
@@ -141,7 +142,7 @@ export class PreviewTextUtils {
             }
 
             // Tags
-            if (match.match(/#[\w\-\/]+(?=\s|$)/)) {
+            if (match.match(/#[\w\-/]+(?=\s|$)/)) {
                 return '';
             }
 
@@ -197,7 +198,7 @@ export class PreviewTextUtils {
      * @param frontmatter Optional frontmatter object to check for preview properties
      * @returns The preview text (max characters defined by MAX_PREVIEW_TEXT_LENGTH) or empty string
      */
-    static extractPreviewText(content: string, settings: NotebookNavigatorSettings, frontmatter?: any): string {
+    static extractPreviewText(content: string, settings: NotebookNavigatorSettings, frontmatter?: FrontMatterCache): string {
         // Check preview properties first if frontmatter is provided
         if (frontmatter && settings.previewProperties && settings.previewProperties.length > 0) {
             for (const property of settings.previewProperties) {

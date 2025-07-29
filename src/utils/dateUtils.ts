@@ -108,11 +108,11 @@ export class DateUtils {
 
         try {
             return format(date, dateFormat, { locale });
-        } catch (e) {
+        } catch {
             // If invalid format string, fall back to a default format
             try {
                 return format(date, 'PPP', { locale }); // localized date format
-            } catch (e2) {
+            } catch {
                 // Last resort fallback
                 return date.toLocaleDateString();
             }
@@ -267,7 +267,7 @@ export class DateUtils {
                     return parsedDate.getTime();
                 }
             }
-        } catch (e) {
+        } catch {
             // Parsing failed
         }
 

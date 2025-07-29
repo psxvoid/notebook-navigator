@@ -183,6 +183,11 @@ export const FolderItem = React.memo(function FolderItem({
             data-drag-type="folder"
             data-draggable={!isMobile ? 'true' : undefined}
             draggable={!isMobile}
+            data-drop-zone="folder"
+            data-drop-path={folder.path}
+            data-clickable="folder"
+            onClick={onClick}
+            onDoubleClick={handleDoubleClick}
             style={{ paddingInlineStart: `${level * 20}px` }}
             role="treeitem"
             aria-expanded={hasChildren ? isExpanded : undefined}
@@ -190,11 +195,6 @@ export const FolderItem = React.memo(function FolderItem({
         >
             <div
                 className="nn-folder-content"
-                onClick={onClick}
-                onDoubleClick={handleDoubleClick}
-                data-drop-zone="folder"
-                data-drop-path={folder.path}
-                data-clickable="folder"
             >
                 <div
                     className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}

@@ -19,11 +19,9 @@
 // src/components/NotebookNavigatorComponent.tsx
 import React, { useEffect, useImperativeHandle, forwardRef, useRef, useState, useCallback } from 'react';
 import { TFile, TFolder, Notice } from 'obsidian';
-import { useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
-import { useFileCache } from '../context/StorageContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useFileReveal } from '../hooks/useFileReveal';
@@ -72,8 +70,6 @@ export const NotebookNavigatorComponent = React.memo(
         const selectionDispatch = useSelectionDispatch();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
-        const expansionDispatch = useExpansionDispatch();
-        const { isStorageReady } = useFileCache();
 
         // Root container reference for the entire navigator
         // This ref is passed to both NavigationPane and ListPane to ensure
@@ -127,29 +123,6 @@ export const NotebookNavigatorComponent = React.memo(
 
         // Determine CSS classes
         const containerClasses = ['nn-split-container'];
-
-        // Listen for mobile hide/show events
-        useEffect(() => {
-            const handleMobileHide = (file: TFile) => {
-                try {
-                    // Navigate to file when navigator is shown
-                    navigateToFile(file);
-                } catch {}
-            };
-
-            const handleMobileShow = () => {
-                try {
-                } catch {}
-            };
-
-            const hideEventRef = app.workspace.on('notebook-navigator:mobile-hide' as any, handleMobileHide);
-            const showEventRef = app.workspace.on('notebook-navigator:mobile-show' as any, handleMobileShow);
-
-            return () => {
-                app.workspace.offref(hideEventRef);
-                app.workspace.offref(showEventRef);
-            };
-        }, [app, navigateToFile]);
 
         // Handle side effects when dualPane setting changes
         useEffect(() => {

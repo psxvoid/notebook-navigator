@@ -20,7 +20,7 @@ import { useEffect, RefObject, Dispatch, SetStateAction } from 'react';
 import { App, TAbstractFile, TFile, TFolder, debounce, Platform } from 'obsidian';
 import { useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionDispatch } from '../context/SelectionContext';
-import { useUIState, useUIDispatch } from '../context/UIStateContext';
+import { useUIState } from '../context/UIStateContext';
 import { isTFolder } from '../utils/typeGuards';
 
 interface UseNavigatorEventHandlersOptions {
@@ -40,7 +40,6 @@ interface UseNavigatorEventHandlersOptions {
  */
 export function useNavigatorEventHandlers({ app, containerRef, setIsNavigatorFocused }: UseNavigatorEventHandlersOptions) {
     const uiState = useUIState();
-    const uiDispatch = useUIDispatch();
     const expansionDispatch = useExpansionDispatch();
     const selectionDispatch = useSelectionDispatch();
     const isMobile = Platform.isMobile;

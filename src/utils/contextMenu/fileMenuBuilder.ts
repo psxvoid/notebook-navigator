@@ -98,6 +98,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 item.setTitle(strings.contextMenu.file.revealInFolder)
                     .setIcon('folder')
                     .onClick(async () => {
+                        await services.plugin.activateView();
                         await services.plugin.navigateToFile(file);
                     });
             });

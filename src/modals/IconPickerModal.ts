@@ -310,13 +310,14 @@ export class IconPickerModal extends Modal {
                         break;
 
                     case 'Enter':
-                    case ' ':
+                    case ' ': {
                         e.preventDefault();
                         const iconId = currentFocused.getAttribute('data-icon-id');
                         if (iconId) {
                             this.selectIcon(iconId);
                         }
                         break;
+                    }
                 }
 
                 if (newIndex !== currentIndex && newIndex >= 0 && newIndex < iconItems.length) {

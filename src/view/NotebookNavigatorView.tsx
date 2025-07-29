@@ -235,7 +235,6 @@ export class NotebookNavigatorView extends ItemView {
 
         if (rect.width > 0 && rect.height > 0) {
             window.dispatchEvent(new CustomEvent('notebook-navigator-visible'));
-        } else {
         }
     }
 }

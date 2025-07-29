@@ -171,7 +171,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                     expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: selectionState.selectedFolder.path });
                 }
             });
-        } catch (error) {
+        } catch {
             // Error is handled by FileSystemOperations with user notification
         }
     }, [selectionState.selectedFolder, expansionState.expandedFolders, fileSystemOps, type, expansionDispatch]);
@@ -184,7 +184,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
             if (file) {
                 uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: file.path });
             }
-        } catch (error) {
+        } catch {
             // Error is handled by FileSystemOperations with user notification
         }
     }, [selectionState.selectedFolder, fileSystemOps, type, uiDispatch]);
@@ -320,7 +320,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                 title = useFolderName ? selectionState.selectedFolder.name : selectionState.selectedFolder.path;
             }
         } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            title = selectionState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : selectionState.selectedTag;
+            title = selectionState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : `#${selectionState.selectedTag}`;
         }
 
         // Replace with current date group if available

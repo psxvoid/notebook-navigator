@@ -17,7 +17,7 @@
  */
 
 import { useCallback, useEffect, useRef } from 'react';
-import { TFile, TFolder } from 'obsidian';
+import { TFile } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -25,12 +25,11 @@ import { useServices, useFileSystemOps } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { getSupportedLeaves, NavigationPaneItemType, ListPaneItemType, ItemType } from '../types';
-import { FileView } from '../types/obsidian-extended';
 import { TagTreeNode } from '../types/storage';
+import { isFileView } from '../utils/typeGuards';
 import { CombinedNavigationItem, ListPaneItem } from '../types/virtualization';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
 import { isTypingInInput } from '../utils/domUtils';
-import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { isTFolder, isTFile } from '../utils/typeGuards';
 import { useMultiSelection } from './useMultiSelection';
 
@@ -321,7 +320,10 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     } else if (focusedPane === 'files' && selectionState.selectedFile) {
                         // RIGHT arrow from files pane should focus the editor (same as TAB)
                         const leaves = getSupportedLeaves(app);
-                        const targetLeaf = leaves.find(leaf => (leaf.view as FileView).file?.path === selectionState.selectedFile?.path);
+                        const targetLeaf = leaves.find(leaf => {
+                            const view = leaf.view;
+                            return isFileView(view) && view.file?.path === selectionState.selectedFile?.path;
+                        });
                         if (targetLeaf) {
                             app.workspace.setActiveLeaf(targetLeaf, { focus: true });
                         }
@@ -425,9 +427,10 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                         } else if (focusedPane === 'files' && selectionState.selectedFile) {
                             // This is the logic moved from ArrowRight to focus the editor
                             const leaves = getSupportedLeaves(app);
-                            const targetLeaf = leaves.find(
-                                leaf => (leaf.view as FileView).file?.path === selectionState.selectedFile?.path
-                            );
+                            const targetLeaf = leaves.find(leaf => {
+                                const view = leaf.view;
+                                return isFileView(view) && view.file?.path === selectionState.selectedFile?.path;
+                            });
                             if (targetLeaf) {
                                 app.workspace.setActiveLeaf(targetLeaf, { focus: true });
                             }

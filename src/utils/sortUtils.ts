@@ -19,7 +19,6 @@
 import { TFile, TFolder } from 'obsidian';
 import type { SortOption, NotebookNavigatorSettings } from '../settings';
 import { NavigationItemType, ItemType } from '../types';
-import { DateUtils } from './dateUtils';
 
 /**
  * Available sort options in order they appear in menus
@@ -50,14 +49,6 @@ export function getEffectiveSortOption(
 }
 
 /**
- * Sorts an array of files according to the specified sort option
- * @param files - Array of files to sort (will be mutated)
- * @param sortOption - How to sort the files
- * This overload is deprecated - use the function overload instead
- */
-// @deprecated
-
-/**
  * Sorts an array of files according to the specified sort option using getter functions
  * @param files - Array of files to sort (will be mutated)
  * @param sortOption - How to sort the files
@@ -69,31 +60,11 @@ export function sortFiles(
     sortOption: SortOption,
     getCreatedTime: (file: TFile) => number,
     getModifiedTime: (file: TFile) => number
-): void;
-
-export function sortFiles(
-    files: TFile[],
-    sortOption: SortOption,
-    cacheOrGetCreated?: unknown | ((file: TFile) => number),
-    settingsOrGetModified?: NotebookNavigatorSettings | ((file: TFile) => number)
 ): void {
     // Helper function to get timestamp for sorting
-    let getTimestamp: (file: TFile, type: 'created' | 'modified') => number;
-
-    if (typeof cacheOrGetCreated === 'function' && typeof settingsOrGetModified === 'function') {
-        // Using getter functions
-        const getCreatedTime = cacheOrGetCreated;
-        const getModifiedTime = settingsOrGetModified;
-        getTimestamp = (file: TFile, type: 'created' | 'modified'): number => {
-            return type === 'created' ? getCreatedTime(file) : getModifiedTime(file);
-        };
-    } else {
-        // Legacy overload - just use file stats
-        const settings = settingsOrGetModified as NotebookNavigatorSettings | undefined;
-        getTimestamp = (file: TFile, type: 'created' | 'modified'): number => {
-            return DateUtils.getFileTimestamp(file, type, undefined, settings);
-        };
-    }
+    const getTimestamp = (file: TFile, type: 'created' | 'modified'): number => {
+        return type === 'created' ? getCreatedTime(file) : getModifiedTime(file);
+    };
 
     switch (sortOption) {
         case 'modified-desc':

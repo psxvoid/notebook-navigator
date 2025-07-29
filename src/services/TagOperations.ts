@@ -259,6 +259,6 @@ export class TagOperations {
     private removeAllInlineTags(content: string): string {
         // Remove all tags that start with # followed by word characters, hyphens, or slashes
         // Must be followed by whitespace or end of line to avoid matching things like #1 in issue numbers
-        return content.replace(/#[\w\-\/]+(?=\s|$)/g, '');
+        return content.replace(/#[\w\-/]+(?=\s|$)/g, '');
     }
 }

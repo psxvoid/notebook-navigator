@@ -17,7 +17,7 @@
  */
 
 import { App, TFile, getAllTags } from 'obsidian';
-import { FileData, IndexedDBStorage } from '../storage/IndexedDBStorage';
+import { IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { TagTreeNode } from '../types/storage';
 
 /**

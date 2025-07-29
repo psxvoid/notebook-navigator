@@ -135,7 +135,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
             id: 'open-notebook-navigator',
             name: strings.commands.open,
             callback: async () => {
-                await this.activateView(true);
+                await this.activateView();
             }
         });
 
@@ -146,7 +146,13 @@ export default class NotebookNavigatorPlugin extends Plugin {
                 const activeFile = this.app.workspace.getActiveFile();
                 if (activeFile && activeFile.parent) {
                     if (!checking) {
-                        this.navigateToFile(activeFile);
+                        (async () => {
+                            // Ensure navigator is open and visible
+                            await this.activateView();
+
+                            // Navigate to file
+                            await this.navigateToFile(activeFile);
+                        })();
                     }
                     return true;
                 }
@@ -158,11 +164,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
             id: 'navigate-to-folder',
             name: strings.commands.navigateToFolder,
             callback: async () => {
-                // Ensure navigator is open
-                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-                if (leaves.length === 0) {
-                    await this.activateView(true);
-                }
+                // Ensure navigator is open and visible
+                await this.activateView();
 
                 // Show folder navigation modal
                 const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
@@ -180,11 +183,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
             id: 'navigate-to-tag',
             name: strings.commands.navigateToTag,
             callback: async () => {
-                // Ensure navigator is open
-                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-                if (leaves.length === 0) {
-                    await this.activateView(true);
-                }
+                // Ensure navigator is open and visible
+                await this.activateView();
 
                 // Show tag navigation modal
                 const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
@@ -202,11 +202,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
             id: 'focus-file',
             name: strings.commands.focusFile,
             callback: async () => {
-                // Ensure navigator is open
-                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-                if (leaves.length === 0) {
-                    await this.activateView(true);
-                }
+                // Ensure navigator is open and visible
+                await this.activateView();
 
                 // Find and focus the file pane
                 const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
@@ -224,6 +221,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
             id: 'toggle-dual-pane',
             name: strings.commands.toggleDualPane,
             callback: async () => {
+                // Ensure navigator is open and visible
+                await this.activateView();
+
                 // Toggle the dual pane setting
                 this.settings.dualPane = !this.settings.dualPane;
                 await this.saveSettings();
@@ -234,6 +234,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
             id: 'toggle-show-notes-from-subfolders',
             name: strings.commands.toggleSubfolders,
             callback: async () => {
+                // Ensure navigator is open and visible
+                await this.activateView();
+
                 this.settings.showNotesFromSubfolders = !this.settings.showNotesFromSubfolders;
                 await this.saveSettings();
                 this.onSettingsUpdate();
@@ -245,11 +248,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
             id: 'create-new-note',
             name: strings.commands.createNewNote,
             callback: async () => {
-                // Ensure navigator is open
-                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-                if (leaves.length === 0) {
-                    await this.activateView(true);
-                }
+                // Ensure navigator is open and visible
+                await this.activateView();
 
                 // Create new note in selected folder
                 const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
@@ -267,11 +267,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
             id: 'move-files',
             name: strings.commands.moveFiles,
             callback: async () => {
-                // Ensure navigator is open
-                const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-                if (leaves.length === 0) {
-                    await this.activateView(true);
-                }
+                // Ensure navigator is open and visible
+                await this.activateView();
 
                 // Move selected files
                 const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
@@ -288,7 +285,10 @@ export default class NotebookNavigatorPlugin extends Plugin {
         this.addCommand({
             id: 'delete-file',
             name: strings.commands.deleteFile,
-            callback: () => {
+            callback: async () => {
+                // Ensure navigator is open and visible
+                await this.activateView();
+
                 // Find and trigger delete in all navigator views
                 const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
                 navigatorLeaves.forEach(leaf => {
@@ -312,6 +312,10 @@ export default class NotebookNavigatorPlugin extends Plugin {
                         item.setTitle(strings.plugin.revealInNavigator)
                             .setIcon('folder-open')
                             .onClick(async () => {
+                                // Ensure navigator is open and visible
+                                await this.activateView();
+
+                                // Navigate to file
                                 await this.navigateToFile(file);
                             });
                     });
@@ -411,7 +415,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
             // Always open the view if it doesn't exist
             const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
             if (leaves.length === 0 && !this.isUnloading) {
-                await this.activateView(true);
+                await this.activateView();
             }
 
             // Check for version updates
@@ -552,17 +556,19 @@ export default class NotebookNavigatorPlugin extends Plugin {
         listeners.forEach(callback => {
             try {
                 callback();
-            } catch (error) {}
+            } catch {
+                // Silently ignore errors from settings update callbacks
+            }
         });
     }
 
     /**
      * Activates or creates the Notebook Navigator view
      * Reuses existing view if available, otherwise creates new one in left sidebar
-     * @param showAfterAttach - Whether to reveal/focus the view after activation
+     * Always reveals the view to ensure it's visible
      * @returns The workspace leaf containing the view, or null if creation failed
      */
-    async activateView(showAfterAttach = true) {
+    async activateView() {
         const { workspace } = this.app;
 
         let leaf: WorkspaceLeaf | null = null;
@@ -571,17 +577,13 @@ export default class NotebookNavigatorPlugin extends Plugin {
         if (leaves.length > 0) {
             // View already exists - just reveal it
             leaf = leaves[0];
-            if (showAfterAttach) {
-                workspace.revealLeaf(leaf);
-            }
+            workspace.revealLeaf(leaf);
         } else {
             // Create new leaf only if none exists
             leaf = workspace.getLeftLeaf(false);
             if (leaf) {
                 await leaf.setViewState({ type: VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, active: true });
-                if (showAfterAttach) {
-                    workspace.revealLeaf(leaf);
-                }
+                workspace.revealLeaf(leaf);
             }
         }
 
@@ -589,18 +591,12 @@ export default class NotebookNavigatorPlugin extends Plugin {
     }
 
     /**
-     * Navigates to a specific file in the navigator, opening the view if needed
+     * Navigates to a specific file in the navigator
      * Expands parent folders and scrolls to make the file visible
-     * Used by "Reveal in Navigator" commands and context menu actions
+     * Note: This does NOT activate/show the view - callers must do that if needed
      * @param file - The file to navigate to in the navigator
      */
     async navigateToFile(file: TFile) {
-        // Ensure navigator is open
-        const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-        if (leaves.length === 0) {
-            await this.activateView(true);
-        }
-
         // Find all navigator views and reveal the file
         const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         navigatorLeaves.forEach(leaf => {
@@ -622,7 +618,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         if (leaves.length === 0 && !this.ribbonIconEl) {
             // Add ribbon icon only if no navigator view exists
             this.ribbonIconEl = this.addRibbonIcon('notebook', strings.plugin.ribbonTooltip, async () => {
-                await this.activateView(true);
+                await this.activateView();
             });
         } else if (leaves.length > 0 && this.ribbonIconEl) {
             // Remove ribbon icon if navigator view exists

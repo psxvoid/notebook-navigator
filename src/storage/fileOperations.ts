@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, App, getAllTags } from 'obsidian';
+import { TFile } from 'obsidian';
 import { IndexedDBStorage, FileData } from './IndexedDBStorage';
 
 /**
@@ -172,74 +172,6 @@ export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
                 }
             });
         }
-    }
-
-    await db.setFiles(updates);
-}
-
-/**
- * @deprecated Use recordFileChanges or markFilesForRegeneration instead
- *
- * Add or update multiple files in the database.
- * More efficient than multiple updateFileInCache calls.
- * Clears content for modified files or files with changed tags.
- *
- * @param files - Array of Obsidian files to update
- * @param app - The Obsidian app instance
- * @param preserveMtime - If true, preserves existing mtime to prevent race conditions during content generation
- */
-export async function updateFilesInCache(files: TFile[], app: App, preserveMtime: boolean = false): Promise<void> {
-    const db = getDBInstance();
-    const updates: Array<{ path: string; data: FileData }> = [];
-
-    // Get existing data for all files
-    const paths = files.map(f => f.path);
-    const existingData = db.getFiles(paths);
-
-    // Get feature image properties from settings (we need to import settings)
-    const featureImageProperties = ['featureResized', 'feature']; // Default from settings
-
-    for (const file of files) {
-        const metadata = app.metadataCache.getFileCache(file);
-        // getAllTags returns tags with # prefix, but we store them without it for consistency
-        const rawTags = metadata ? getAllTags(metadata) : [];
-        const tags = rawTags?.map(tag => (tag.startsWith('#') ? tag.slice(1) : tag)) || [];
-        const existing = existingData.get(file.path);
-
-        // Check if file was modified (mtime changed) or tags changed
-        const wasModified = existing && existing.mtime !== file.stat.mtime;
-        const tagsChanged =
-            existing && existing.tags !== null && (existing.tags.length !== tags.length || !existing.tags.every(tag => tags.includes(tag)));
-
-        // Check if feature image properties changed or were added
-        // We need to detect both: when properties are first added and when they change
-        let featureImageChanged = false;
-        if (metadata?.frontmatter) {
-            // Check if any feature image properties exist in frontmatter
-            const hasFeatureImageProps = featureImageProperties.some(prop => metadata.frontmatter![prop] !== undefined);
-
-            if (hasFeatureImageProps) {
-                // If we have feature image properties and either:
-                // 1. File was modified (properties might have changed)
-                // 2. We don't have a feature image yet (properties were just added)
-                if (wasModified || !existing?.featureImage) {
-                    featureImageChanged = true;
-                }
-            }
-        }
-
-        const fileData: FileData = {
-            // Use existing mtime if preserveMtime is true, otherwise use current mtime
-            mtime: preserveMtime && existing ? existing.mtime : file.stat.mtime,
-            tags: tags || [],
-            // Always preserve existing preview - regeneration handled by ContentService
-            preview: existing?.preview ?? null,
-            // Clear feature image if properties changed so it gets regenerated
-            featureImage: featureImageChanged ? null : (existing?.featureImage ?? null),
-            metadata: existing?.metadata ?? null
-        };
-
-        updates.push({ path: file.path, data: fileData });
     }
 
     await db.setFiles(updates);

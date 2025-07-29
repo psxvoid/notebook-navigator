@@ -16,7 +16,8 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, TFolder, App } from 'obsidian';
+import { TFile, TFolder, App, View } from 'obsidian';
+import { FileView } from '../types/obsidian-extended';
 
 /**
  * Type guard to check if an object is a TFile
@@ -41,17 +42,50 @@ export function isTFolder(obj: unknown): obj is TFolder {
 }
 
 /**
+ * Type guard to check if a View is a FileView
+ */
+export function isFileView(view: View): view is FileView {
+    return view !== null && typeof view === 'object' && 'file' in view;
+}
+
+/**
+ * Interface for internal plugin structure
+ */
+interface InternalPlugin {
+    enabled: boolean;
+    instance?: unknown;
+}
+
+/**
+ * Interface for app with internal APIs
+ */
+interface AppWithInternals extends App {
+    internalPlugins?: {
+        getPluginById?(id: string): InternalPlugin | undefined;
+    };
+}
+
+/**
  * Safe access to internal Obsidian APIs with type inference
  * Note: internalPlugins is not in Obsidian's public TypeScript API but is widely used
  * This provides safe access to internal plugins (e.g., search, sync) that many community plugins use
  */
-export function getInternalPlugin<T = any>(app: App, pluginId: string): T | undefined {
-    const appWithInternals = app as App & {
-        internalPlugins?: {
-            getPluginById?(id: string): T;
-        };
+export function getInternalPlugin<T = InternalPlugin>(app: App, pluginId: string): T | undefined {
+    if (!app || typeof app !== 'object') return undefined;
+
+    const appWithInternals = app as AppWithInternals;
+    const plugin = appWithInternals.internalPlugins?.getPluginById?.(pluginId);
+
+    return plugin as T | undefined;
+}
+
+/**
+ * Interface for app with command APIs
+ */
+interface AppWithCommands extends App {
+    commands?: {
+        executeCommandById?(id: string): boolean;
     };
-    return appWithInternals.internalPlugins?.getPluginById?.(pluginId);
 }
 
 /**
@@ -60,11 +94,9 @@ export function getInternalPlugin<T = any>(app: App, pluginId: string): T | unde
  * This is accessing internal Obsidian APIs that many plugins rely on
  */
 export function executeCommand(app: App, commandId: string): boolean {
-    const appWithCommands = app as App & {
-        commands?: {
-            executeCommandById?(id: string): boolean;
-        };
-    };
+    if (!app || typeof app !== 'object') return false;
+
+    const appWithCommands = app as AppWithCommands;
     try {
         return appWithCommands.commands?.executeCommandById?.(commandId) ?? false;
     } catch {

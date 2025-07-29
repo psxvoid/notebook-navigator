@@ -51,6 +51,16 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.3.6',
+        date: '2025-07-29',
+        showOnUpdate: false,
+        features: [
+            'IMPROVED: Selection rectangle and drop targets in Navigation Pane are now full-width, making it easier to select and work with folders and tags.',
+            'IMPROVED: Plugin is now always made visible when you run commands, such as \'Reveal file\' and \'Focus file\'.',
+            'CHANGED: Tags in PaneHeader now show with hashtag prefix (#).'
+        ]
+    },
+    {
         version: '1.3.5',
         date: '2025-07-28',
         showOnUpdate: false,
