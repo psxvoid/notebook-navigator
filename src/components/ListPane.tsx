@@ -540,6 +540,45 @@ export const ListPane = React.memo(
             selectionDispatch
         ]);
 
+        // Auto-select first file when navigating to files pane with keyboard in dual-pane mode
+        useEffect(() => {
+            // Only run in dual-pane mode on desktop when using keyboard navigation
+            if (uiState.singlePane || isMobile) return;
+
+            // Check if we just gained focus AND it's from keyboard navigation
+            if (uiState.focusedPane === 'files' && selectionState.isKeyboardNavigation) {
+                // Clear the keyboard navigation flag
+                selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: false });
+
+                // If no file is selected and we have files
+                if (!selectedFile && files.length > 0) {
+                    // Check if the active file is in the current view
+                    const activeFile = app.workspace.getActiveFile();
+                    if (activeFile && files.some(f => f.path === activeFile.path)) {
+                        // Select the active file
+                        selectionDispatch({ type: 'SET_SELECTED_FILE', file: activeFile });
+                    } else {
+                        // Select the first file
+                        selectionDispatch({ type: 'SET_SELECTED_FILE', file: files[0] });
+                        // Open it in the editor without focus
+                        const leaf = app.workspace.getLeaf(false);
+                        if (leaf) {
+                            leaf.openFile(files[0], { active: false });
+                        }
+                    }
+                }
+            }
+        }, [
+            uiState.focusedPane,
+            uiState.singlePane,
+            isMobile,
+            selectionState.isKeyboardNavigation,
+            selectedFile,
+            files,
+            selectionDispatch,
+            app.workspace
+        ]);
+
         useEffect(() => {
             const rebuildListItems = () => {
                 const items: ListPaneItem[] = [];
