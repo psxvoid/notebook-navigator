@@ -1306,6 +1306,20 @@ body.nn-resizing {
     margin-left: var(--size-4-4);
 }
 
+/* Category headers */
+.nn-whats-new-category {
+    font-weight: bold;
+    margin-top: var(--size-4-2);
+    margin-bottom: var(--size-4-1);
+}
+
+/* Info text */
+.nn-whats-new-info {
+    margin-bottom: var(--size-4-3);
+    color: var(--text-normal);
+    line-height: 1.5;
+}
+
 /* What's new divider */
 .nn-whats-new-divider {
     border-top: 1px solid var(--background-modifier-border);

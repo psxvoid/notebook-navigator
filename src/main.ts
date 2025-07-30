@@ -652,7 +652,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
             // Show the modal only if the current version doesn't have skipAutoShow
             if (shouldShowReleaseNotesForVersion(currentVersion)) {
-                new WhatsNewModal(this.app, releaseNotes).open();
+                new WhatsNewModal(this.app, releaseNotes, this.settings.dateFormat).open();
             }
         }
     }
