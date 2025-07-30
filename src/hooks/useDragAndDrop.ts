@@ -171,24 +171,36 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         const dragContainer = document.createElement('div');
                         dragContainer.className = 'nn-drag-image-container';
 
-                        // Get featured image from cache
-                        const featureImageUrl = db.getDisplayFeatureImageUrl(path);
+                        // Create drag icon element
+                        const dragIcon = document.createElement('div');
+                        dragIcon.className = 'nn-drag-icon-badge';
 
-                        if (featureImageUrl) {
-                            // Show featured image in drag badge
-                            const dragIcon = document.createElement('div');
-                            dragIcon.className = 'nn-drag-icon-badge nn-drag-featured-image';
-                            const img = document.createElement('img');
-                            img.src = featureImageUrl;
-                            dragIcon.appendChild(img);
-                            dragContainer.appendChild(dragIcon);
-                        } else {
-                            // Show file icon as fallback
-                            const dragIcon = document.createElement('div');
-                            dragIcon.className = 'nn-drag-icon-badge';
-                            setIcon(dragIcon, 'file');
-                            dragContainer.appendChild(dragIcon);
+                        // Try to use featured image if available
+                        const featureImagePath = db.getDisplayFeatureImageUrl(path);
+                        let imageLoaded = false;
+
+                        if (featureImagePath) {
+                            const imageFile = app.vault.getAbstractFileByPath(featureImagePath);
+                            if (imageFile instanceof TFile) {
+                                try {
+                                    const featureImageUrl = app.vault.getResourcePath(imageFile);
+                                    dragIcon.className = 'nn-drag-icon-badge nn-drag-featured-image';
+                                    const img = document.createElement('img');
+                                    img.src = featureImageUrl;
+                                    dragIcon.appendChild(img);
+                                    imageLoaded = true;
+                                } catch {
+                                    // Image load failed, will use fallback
+                                }
+                            }
                         }
+
+                        // Use file icon as fallback if no image loaded
+                        if (!imageLoaded) {
+                            setIcon(dragIcon, 'file');
+                        }
+
+                        dragContainer.appendChild(dragIcon);
 
                         document.body.appendChild(dragContainer);
                         // Use negative offset to position icon bottom-right of cursor
