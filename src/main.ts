@@ -401,22 +401,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
             })
         );
 
-        // Clean up settings after workspace is ready
-        // Use onLayoutReady for more reliable initialization
+        // Use onLayoutReady for reliable initialization
         this.app.workspace.onLayoutReady(async () => {
-            // Defer folder and file metadata cleanup to idle time
-            // Note: Tag metadata cleanup happens after tag tree is built to ensure accuracy
-            requestIdleCallback(
-                () => {
-                    if (this.metadataService && !this.isUnloading) {
-                        this.metadataService.cleanupAllMetadata().catch(error => {
-                            console.error('Error during metadata cleanup:', error);
-                        });
-                    }
-                },
-                { timeout: 1000 }
-            ); // Fallback to 1 second if no idle time
-
             // Always open the view if it doesn't exist
             const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
             if (leaves.length === 0 && !this.isUnloading) {

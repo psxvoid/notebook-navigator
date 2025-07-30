@@ -19,6 +19,17 @@
 import { SortOption } from '../settings';
 import { FolderMetadataService, TagMetadataService, FileMetadataService } from './metadata';
 import type NotebookNavigatorPlugin from '../main';
+import { TagTreeNode } from '../types/storage';
+import { FileData } from '../storage/IndexedDBStorage';
+
+/**
+ * Validators object containing all data needed for cleanup operations
+ */
+export interface CleanupValidators {
+    dbFiles: Array<{ path: string; data: FileData }>;
+    tagTree: Map<string, TagTreeNode>;
+    vaultFiles: Set<string>;
+}
 
 /**
  * Service for managing all folder, tag, and file metadata operations
@@ -174,5 +185,26 @@ export class MetadataService {
      */
     async cleanupTagMetadata(): Promise<boolean> {
         return this.tagService.cleanupTagMetadata();
+    }
+
+    /**
+     * Run unified cleanup using pre-loaded data from StorageContext
+     * This avoids multiple file iterations during startup
+     * @param validators - Object containing database files, tag tree, and vault files
+     * @returns true if any changes were made
+     */
+    async runUnifiedCleanup(validators: CleanupValidators): Promise<boolean> {
+        let hasChanges = false;
+
+        // Run all cleanup operations in parallel using the provided data
+        const [folderChanges, fileChanges, tagChanges] = await Promise.all([
+            this.folderService.cleanupWithValidators(validators),
+            this.fileService.cleanupWithValidators(validators),
+            this.tagService.cleanupWithValidators(validators)
+        ]);
+
+        hasChanges = folderChanges || fileChanges || tagChanges;
+
+        return hasChanges;
     }
 }

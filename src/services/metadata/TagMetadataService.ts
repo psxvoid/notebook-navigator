@@ -22,6 +22,7 @@ import { BaseMetadataService } from './BaseMetadataService';
 import { buildTagTree } from '../../utils/tagTree';
 import { TagTreeNode } from '../../types/storage';
 import { getFilteredMarkdownFiles } from '../../utils/fileFilters';
+import type { CleanupValidators } from '../MetadataService';
 
 /**
  * Service for managing tag-specific metadata operations
@@ -145,5 +146,25 @@ export class TagMetadataService extends BaseMetadataService {
         }
 
         return paths;
+    }
+
+    /**
+     * Clean up tag metadata using pre-loaded validators
+     * @param validators - Pre-loaded data for validation
+     * @returns True if any changes were made
+     */
+    async cleanupWithValidators(validators: CleanupValidators): Promise<boolean> {
+        // Use the already built tag tree to collect valid tags
+        const validTags = this.collectAllTagPaths(validators.tagTree);
+
+        const validator = (path: string) => validTags.has(path);
+
+        const results = await Promise.all([
+            this.cleanupMetadata(this.plugin.settings, 'tagColors', validator),
+            this.cleanupMetadata(this.plugin.settings, 'tagIcons', validator),
+            this.cleanupMetadata(this.plugin.settings, 'tagSortOverrides', validator)
+        ]);
+
+        return results.some(changed => changed);
     }
 }

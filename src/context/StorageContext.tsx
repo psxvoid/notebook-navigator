@@ -287,25 +287,45 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         };
     }, [fileData, settings, app, isStorageReady]);
 
-    // Helper function to rebuild tag tree and clean up metadata
+    // Helper function to get markdown files filtered by excluded properties and folders
+    const getFilteredMarkdownFilesCallback = useCallback((): TFile[] => {
+        return getFilteredMarkdownFiles(app, settings);
+    }, [app, settings]);
+
+    // Helper function to rebuild tag tree
     const rebuildTagTree = useCallback(() => {
         const db = getDBInstance();
         const { tree: newTree, untagged: newUntagged } = buildTagTreeFromDatabase(db);
         clearNoteCountCache();
         setFileData({ tree: newTree, untagged: settings.showTags && settings.showUntagged ? newUntagged : 0 });
+        return newTree;
+    }, [settings.showTags, settings.showUntagged]);
 
-        // Clean up tag metadata now that we have the complete tag tree
-        if (metadataService) {
-            metadataService.cleanupTagMetadata().catch(error => {
-                console.error('Error during tag metadata cleanup:', error);
-            });
-        }
-    }, [metadataService, settings.showTags, settings.showUntagged]);
+    // Unified cleanup function that runs all cleanup operations in a single pass
+    const runUnifiedCleanup = useCallback(
+        async (db: IndexedDBStorage, tagTree: Map<string, TagTreeNode>) => {
+            if (!metadataService) return;
 
-    // Helper function to get markdown files filtered by excluded properties and folders
-    const getFilteredMarkdownFilesCallback = useCallback((): TFile[] => {
-        return getFilteredMarkdownFiles(app, settings);
-    }, [app, settings]);
+            // Get all files from database with their data
+            const allFiles = db.getAllFiles();
+
+            // Get filtered vault files
+            const vaultFiles = getFilteredMarkdownFilesCallback();
+
+            // Create validators object with all necessary data
+            const validators = {
+                dbFiles: allFiles,
+                tagTree: tagTree,
+                // Add vault files for validation
+                vaultFiles: new Set(vaultFiles.map(f => f.path))
+            };
+
+            // Run unified cleanup
+            const hasChanges = await metadataService.runUnifiedCleanup(validators);
+            return hasChanges;
+        },
+        [metadataService, getFilteredMarkdownFilesCallback]
+    );
 
     /**
      * Centralized handler for all content-related settings changes
@@ -422,120 +442,148 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                 isFirstLoad.current = false;
             }
 
-            // Build tag tree only on initial load
             if (isInitialLoad) {
                 try {
-                    rebuildTagTree();
-                    // Now that initial data is loaded, mark storage as ready
-                    setIsStorageReady(true);
-                } catch (error) {
-                    console.error('Failed to build tag tree from IndexedDB:', error);
-                }
-            }
+                    // Step 1: Process file changes FIRST to clean the database
+                    const { toAdd, toUpdate, toRemove } = await calculateFileDiff(allFiles);
 
-            // Process changes in background to avoid blocking UI
-            requestIdleCallback(
-                async () => {
-                    try {
-                        const { toAdd, toUpdate, toRemove } = await calculateFileDiff(allFiles);
-
-                        if (toAdd.length > 0 || toUpdate.length > 0 || toRemove.length > 0) {
-                            // Update only the changed files in IndexedDB
-                            try {
-                                const filesToUpdate = [...toAdd, ...toUpdate];
-                                if (filesToUpdate.length > 0) {
-                                    await recordFileChanges(filesToUpdate);
-                                }
-
-                                // Remove deleted files from IndexedDB
-                                if (toRemove.length > 0) {
-                                    await removeFilesFromCache(toRemove);
-                                }
-
-                                // Note: Tag change detection is no longer needed here
-                                // Tags are now extracted by ContentService and will trigger
-                                // tag tree rebuild via database change notifications
-                            } catch (error) {
-                                console.error('Failed to update IndexedDB cache:', error);
-                            }
-
-                            // Queue content generation
-
-                            const contentEnabled =
-                                settings.showTags ||
-                                settings.showFilePreview ||
-                                settings.showFeatureImage ||
-                                settings.useFrontmatterMetadata;
-
-                            if (contentService.current && contentEnabled) {
-                                // Always process new and updated files (but only if they need content)
-                                // Check IndexedDB to see what content is needed
-                                const db = getDBInstance();
-                                let filesToProcess: TFile[] = [];
-
-                                try {
-                                    const filesToCheck = [...toAdd, ...toUpdate];
-                                    const paths = filesToCheck.map(f => f.path);
-                                    const indexedFiles = db.getFiles(paths);
-
-                                    filesToProcess = filesToCheck.filter(file => {
-                                        const fileData = indexedFiles.get(file.path);
-                                        if (!fileData) {
-                                            return true; // New file, needs all content
-                                        }
-
-                                        const needsContent =
-                                            (settings.showFilePreview && fileData.preview === null && file.extension === 'md') ||
-                                            (settings.showFeatureImage && fileData.featureImage === null) ||
-                                            (settings.useFrontmatterMetadata && fileData.metadata === null && file.extension === 'md');
-
-                                        return needsContent;
-                                    });
-
-                                    // If no changes, check if any existing files need content generation
-                                    // This handles the case where settings were enabled on another device
-                                    // Also check on initial load to ensure content is generated on fresh install
-                                    if (filesToProcess.length === 0) {
-                                        // Get files needing content from database
-                                        const filesNeedingTags = settings.showTags ? db.getFilesNeedingContent('tags') : new Set<string>();
-                                        const filesNeedingPreview = settings.showFilePreview
-                                            ? db.getFilesNeedingContent('preview')
-                                            : new Set<string>();
-                                        const filesNeedingImage = settings.showFeatureImage
-                                            ? db.getFilesNeedingContent('featureImage')
-                                            : new Set<string>();
-                                        const filesNeedingMetadata = settings.useFrontmatterMetadata
-                                            ? db.getFilesNeedingContent('metadata')
-                                            : new Set<string>();
-
-                                        // Combine all paths that need any content
-                                        const pathsNeedingContent = new Set([
-                                            ...filesNeedingTags,
-                                            ...filesNeedingPreview,
-                                            ...filesNeedingImage,
-                                            ...filesNeedingMetadata
-                                        ]);
-
-                                        // Filter vault files to only those needing content
-                                        if (pathsNeedingContent.size > 0) {
-                                            filesToProcess = allFiles.filter(file => pathsNeedingContent.has(file.path));
-                                        }
-                                    }
-                                } catch (error) {
-                                    console.error('Failed to check content needs from IndexedDB:', error);
-                                }
-
-                                if (filesToProcess.length > 0) {
-                                    contentService.current.queueContent(filesToProcess, settings);
-                                }
-                            }
-                        }
-                    } catch (error) {
-                        console.error('Error processing file cache diff:', error);
+                    // Step 2: Update database with changes
+                    if (toRemove.length > 0) {
+                        await removeFilesFromCache(toRemove);
                     }
-                },
-                { timeout: 500 }
-            );
+
+                    if (toAdd.length > 0 || toUpdate.length > 0) {
+                        await recordFileChanges([...toAdd, ...toUpdate]);
+                    }
+
+                    // Step 3: Build tag tree from CLEAN database
+                    const tagTree = rebuildTagTree();
+
+                    // Step 4: Mark storage as ready
+                    setIsStorageReady(true);
+
+                    // Step 5: Run cleanup with accurate data
+                    if (metadataService) {
+                        await runUnifiedCleanup(getDBInstance(), tagTree);
+                    }
+
+                    // Step 6: Queue content generation for new/modified files
+                    const contentEnabled =
+                        settings.showTags || settings.showFilePreview || settings.showFeatureImage || settings.useFrontmatterMetadata;
+
+                    if (contentService.current && contentEnabled && (toAdd.length > 0 || toUpdate.length > 0)) {
+                        contentService.current.queueContent([...toAdd, ...toUpdate], settings);
+                    }
+                } catch (error) {
+                    console.error('Failed during initial load sequence:', error);
+                }
+            } else {
+                // Non-initial loads still process in background
+                requestIdleCallback(
+                    async () => {
+                        try {
+                            const { toAdd, toUpdate, toRemove } = await calculateFileDiff(allFiles);
+
+                            if (toAdd.length > 0 || toUpdate.length > 0 || toRemove.length > 0) {
+                                // Update only the changed files in IndexedDB
+                                try {
+                                    const filesToUpdate = [...toAdd, ...toUpdate];
+                                    if (filesToUpdate.length > 0) {
+                                        await recordFileChanges(filesToUpdate);
+                                    }
+
+                                    // Remove deleted files from IndexedDB
+                                    if (toRemove.length > 0) {
+                                        await removeFilesFromCache(toRemove);
+                                    }
+
+                                    // Note: Tag change detection is no longer needed here
+                                    // Tags are now extracted by ContentService and will trigger
+                                    // tag tree rebuild via database change notifications
+                                } catch (error) {
+                                    console.error('Failed to update IndexedDB cache:', error);
+                                }
+
+                                // Queue content generation
+
+                                const contentEnabled =
+                                    settings.showTags ||
+                                    settings.showFilePreview ||
+                                    settings.showFeatureImage ||
+                                    settings.useFrontmatterMetadata;
+
+                                if (contentService.current && contentEnabled) {
+                                    // Always process new and updated files (but only if they need content)
+                                    // Check IndexedDB to see what content is needed
+                                    const db = getDBInstance();
+                                    let filesToProcess: TFile[] = [];
+
+                                    try {
+                                        const filesToCheck = [...toAdd, ...toUpdate];
+                                        const paths = filesToCheck.map(f => f.path);
+                                        const indexedFiles = db.getFiles(paths);
+
+                                        filesToProcess = filesToCheck.filter(file => {
+                                            const fileData = indexedFiles.get(file.path);
+                                            if (!fileData) {
+                                                return true; // New file, needs all content
+                                            }
+
+                                            const needsContent =
+                                                (settings.showFilePreview && fileData.preview === null && file.extension === 'md') ||
+                                                (settings.showFeatureImage && fileData.featureImage === null) ||
+                                                (settings.useFrontmatterMetadata && fileData.metadata === null && file.extension === 'md');
+
+                                            return needsContent;
+                                        });
+
+                                        // If no changes, check if any existing files need content generation
+                                        // This handles the case where settings were enabled on another device
+                                        // Also check on initial load to ensure content is generated on fresh install
+                                        if (filesToProcess.length === 0) {
+                                            // Get files needing content from database
+                                            const filesNeedingTags = settings.showTags
+                                                ? db.getFilesNeedingContent('tags')
+                                                : new Set<string>();
+                                            const filesNeedingPreview = settings.showFilePreview
+                                                ? db.getFilesNeedingContent('preview')
+                                                : new Set<string>();
+                                            const filesNeedingImage = settings.showFeatureImage
+                                                ? db.getFilesNeedingContent('featureImage')
+                                                : new Set<string>();
+                                            const filesNeedingMetadata = settings.useFrontmatterMetadata
+                                                ? db.getFilesNeedingContent('metadata')
+                                                : new Set<string>();
+
+                                            // Combine all paths that need any content
+                                            const pathsNeedingContent = new Set([
+                                                ...filesNeedingTags,
+                                                ...filesNeedingPreview,
+                                                ...filesNeedingImage,
+                                                ...filesNeedingMetadata
+                                            ]);
+
+                                            // Filter vault files to only those needing content
+                                            if (pathsNeedingContent.size > 0) {
+                                                filesToProcess = allFiles.filter(file => pathsNeedingContent.has(file.path));
+                                            }
+                                        }
+                                    } catch (error) {
+                                        console.error('Failed to check content needs from IndexedDB:', error);
+                                    }
+
+                                    if (filesToProcess.length > 0) {
+                                        contentService.current.queueContent(filesToProcess, settings);
+                                    }
+                                }
+                            }
+                        } catch (error) {
+                            console.error('Error processing file cache diff:', error);
+                        }
+                    },
+                    { timeout: 500 }
+                );
+            }
         };
 
         // The initial build is handled by processExistingCache with isInitialLoad=true
@@ -596,7 +644,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
             app.metadataCache.offref(metadataEvent);
         };
-    }, [app, isIndexedDBReady, getFilteredMarkdownFilesCallback, rebuildTagTree, settings]);
+    }, [app, isIndexedDBReady, getFilteredMarkdownFilesCallback, rebuildTagTree, settings, metadataService, runUnifiedCleanup]);
 
     // Single effect to handle ALL content-related settings changes
     useEffect(() => {

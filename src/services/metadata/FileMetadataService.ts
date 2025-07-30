@@ -18,6 +18,7 @@
 
 import { TFile } from 'obsidian';
 import { BaseMetadataService } from './BaseMetadataService';
+import type { CleanupValidators } from '../MetadataService';
 
 /**
  * Service for managing file-specific metadata operations
@@ -146,6 +147,44 @@ export class FileMetadataService extends BaseMetadataService {
                     // Remove empty entries
                     if (validFiles.length === 0) {
                         delete settings.pinnedNotes[folderPath];
+                        hasChanges = true;
+                    }
+                }
+            }
+        });
+
+        return hasChanges;
+    }
+
+    /**
+     * Clean up pinned notes using pre-loaded validators
+     * @param validators - Pre-loaded data for validation
+     * @returns True if any changes were made
+     */
+    async cleanupWithValidators(validators: CleanupValidators): Promise<boolean> {
+        let hasChanges = false;
+
+        await this.saveAndUpdate(settings => {
+            if (settings.pinnedNotes) {
+                for (const folderPath in settings.pinnedNotes) {
+                    const filePaths = settings.pinnedNotes[folderPath];
+                    if (!Array.isArray(filePaths)) {
+                        // Remove invalid entry
+                        delete settings.pinnedNotes[folderPath];
+                        hasChanges = true;
+                        continue;
+                    }
+
+                    // Use pre-loaded vault files for validation
+                    const validFiles = filePaths.filter((filePath: string) => {
+                        return validators.vaultFiles.has(filePath);
+                    });
+
+                    if (validFiles.length !== filePaths.length) {
+                        settings.pinnedNotes[folderPath] = validFiles;
+                        if (validFiles.length === 0) {
+                            delete settings.pinnedNotes[folderPath];
+                        }
                         hasChanges = true;
                     }
                 }
