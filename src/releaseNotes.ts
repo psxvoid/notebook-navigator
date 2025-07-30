@@ -55,6 +55,17 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.3.8',
+        date: '2025-07-30',
+        showOnUpdate: true,
+        improved: ['You can now rename the root vault folder! The root vault folder now also uses your current vault name as default, not just "Vault".'],
+        fixed: [
+            'Changing folders on desktop in single-pane mode will no longer auto select the first file if current folder does not contain the current file (#105).',
+            'Tags from excluded folders were showing in the tag tree (including the Untagged section) (#104).',
+            'Moving files with tags outside the vault or to ignored folders using Finder or Explorer did not update tag counts properly.'
+        ]
+    },
+    {
         version: '1.3.7',
         date: '2025-07-29',
         showOnUpdate: true,
