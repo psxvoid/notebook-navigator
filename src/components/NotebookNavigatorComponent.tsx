@@ -280,7 +280,8 @@ export const NotebookNavigatorComponent = React.memo(
                 uiState.currentSinglePaneView,
                 uiState.focusedPane,
                 app,
-                settings
+                settings,
+                plugin
             ]
         );
 

@@ -39,11 +39,6 @@ export const STRINGS_JA = {
         pinnedSection: '📌 ピン留め' // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
     },
 
-    // Folder tree
-    folderTree: {
-        rootFolderName: '保管庫' // Display name for the vault root folder in the tree (English: Vault)
-    },
-
     // Tag list
     tagList: {
         untaggedLabel: 'タグなし', // Label for the special item showing notes without tags (English: Untagged)
@@ -193,6 +188,8 @@ export const STRINGS_JA = {
             deleteFileTitle: "'{name}'を削除しますか？",
             folderNamePrompt: 'フォルダ名を入力：',
             renamePrompt: '新しい名前を入力：',
+            renameVaultTitle: 'ボールトの表示名を変更',
+            renameVaultPrompt: 'カスタム表示名を入力（空にするとデフォルトを使用）：',
             deleteFolderConfirm: 'このフォルダとそのすべての内容を削除してもよろしいですか？',
             deleteFileConfirm: 'このファイルを削除してもよろしいですか？'
         },
@@ -465,7 +462,7 @@ export const STRINGS_JA = {
             },
             showRootFolder: {
                 name: 'ルートフォルダを表示',
-                desc: 'ツリーにルートフォルダとして「保管庫」を表示します。'
+                desc: 'ツリーにルートフォルダ名を表示します。'
             },
             showNoteCount: {
                 name: 'ノート数を表示',

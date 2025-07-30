@@ -62,6 +62,7 @@ export interface NotebookNavigatorSettings {
     collapseButtonBehavior: CollapseButtonBehavior;
     // Folders
     showRootFolder: boolean;
+    customVaultName: string;
     enableFolderNotes: boolean;
     folderNoteName: string;
     hideFolderNoteInList: boolean;
@@ -130,6 +131,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     collapseButtonBehavior: 'all',
     // Folders
     showRootFolder: true,
+    customVaultName: '',
     enableFolderNotes: false,
     folderNoteName: '',
     hideFolderNoteInList: true,
