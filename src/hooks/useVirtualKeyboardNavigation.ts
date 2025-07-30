@@ -29,6 +29,7 @@ import { TagTreeNode } from '../types/storage';
 import { CombinedNavigationItem, ListPaneItem } from '../types/virtualization';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
 import { isTypingInInput } from '../utils/domUtils';
+import { getFilesInRange } from '../utils/selectionUtils';
 import { useMultiSelection } from './useMultiSelection';
 
 type VirtualItem = CombinedNavigationItem | ListPaneItem;
@@ -276,6 +277,45 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             }
         },
         [expansionState, expansionDispatch]
+    );
+
+    // Helper function to handle range selection with Home/End
+    const handleRangeSelection = useCallback(
+        (direction: 'home' | 'end', currentFileIndex: number) => {
+            const targetIndex = direction === 'home' ? 0 : files.length - 1;
+            const targetFile = files[targetIndex];
+            if (!targetFile) return;
+
+            // Get files in range
+            const filesInRange = getFilesInRange(
+                files,
+                direction === 'home' ? 0 : currentFileIndex,
+                direction === 'home' ? currentFileIndex : files.length - 1
+            );
+
+            // Select all files in range that aren't already selected
+            filesInRange.forEach(f => {
+                if (!selectionState.selectedFiles.has(f.path)) {
+                    selectionDispatch({ type: 'TOGGLE_FILE_SELECTION', file: f });
+                }
+            });
+
+            // Move cursor to target position
+            selectionDispatch({ type: 'UPDATE_CURRENT_FILE', file: targetFile });
+
+            // Open the file without changing focus
+            const leaf = app.workspace.getLeaf(false);
+            if (leaf) {
+                leaf.openFile(targetFile, { active: false });
+            }
+
+            // Scroll to target position
+            virtualizer.scrollToIndex(targetIndex, {
+                align: 'auto',
+                behavior: 'auto'
+            });
+        },
+        [files, selectionState.selectedFiles, selectionDispatch, app.workspace, virtualizer]
     );
 
     const handleKeyDown = useCallback(
@@ -644,12 +684,26 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
 
                 case 'Home':
                     e.preventDefault();
+                    if (e.shiftKey && focusedPane === 'files' && !isMobile && selectionState.selectedFile?.path) {
+                        const currentFileIndex = fileIndexMap.get(selectionState.selectedFile.path);
+                        if (currentFileIndex !== undefined && currentFileIndex !== -1) {
+                            handleRangeSelection('home', currentFileIndex);
+                        }
+                        return;
+                    }
                     // Find the first selectable item
                     targetIndex = findNextSelectableIndex(items, -1, focusedPane);
                     break;
 
                 case 'End':
                     e.preventDefault();
+                    if (e.shiftKey && focusedPane === 'files' && !isMobile && selectionState.selectedFile?.path) {
+                        const currentFileIndex = fileIndexMap.get(selectionState.selectedFile.path);
+                        if (currentFileIndex !== undefined && currentFileIndex !== -1) {
+                            handleRangeSelection('end', currentFileIndex);
+                        }
+                        return;
+                    }
                     // Find the last selectable item
                     for (let i = items.length - 1; i >= 0; i--) {
                         const item = safeGetItem(items, i);
@@ -695,7 +749,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             tagTreeService,
             pathToIndex,
             files,
-            fileIndexMap
+            fileIndexMap,
+            handleRangeSelection
         ]
     );
 
