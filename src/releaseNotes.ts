@@ -55,6 +55,18 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.3.9',
+        date: '2025-07-30',
+        showOnUpdate: true,
+        info: 'This is the first public community release version of Notebook Navigator!',
+        new: ['Added SHIFT+HOME and SHIFT+END keyboard shortcuts for selecting text in the list pane.'],
+        improved: ['Slim mode interface now has cleaner appearance with no separator lines and tighter spacing.'],
+        fixed: [
+            'Fixed file date display not updating when files are modified.',
+            'Fixed auto-select behavior to select the first file when navigating to files pane with keyboard in dual pane mode on desktop.'
+        ]
+    },
+    {
         version: '1.3.8',
         date: '2025-07-30',
         showOnUpdate: true,
