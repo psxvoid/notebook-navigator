@@ -531,34 +531,6 @@ export const ListPane = React.memo(
             selectionDispatch
         ]);
 
-        // Auto-select active file or first file when list pane gains focus (DESKTOP ONLY)
-        useEffect(() => {
-            // Only run when list pane gains focus (desktop only - mobile doesn't have focus states)
-            if (uiState.focusedPane !== 'files' || isMobile) return;
-
-            // Check if we already have a file selected
-            if (selectedFile) return;
-
-            // This is keyboard navigation (Tab/Right), don't auto-open files
-            isUserSelectionRef.current = false;
-
-            // Try to select the currently active file in the workspace
-            const activeFile = app.workspace.getActiveFile();
-            if (activeFile && files.includes(activeFile)) {
-                // The active file is in the current folder/tag view - select it
-                selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: true });
-                selectionDispatch({ type: 'SET_SELECTED_FILE', file: activeFile });
-            } else if (files.length > 0) {
-                // No active file in current view, select AND open the first file
-                // (regardless of autoSelectFirstFile setting when navigating with keyboard)
-                selectionDispatch({ type: 'SET_SELECTED_FILE', file: files[0] });
-                const leaf = app.workspace.getLeaf(false);
-                if (leaf) {
-                    leaf.openFile(files[0], { active: false });
-                }
-            }
-        }, [isMobile, uiState.focusedPane, selectedFile, files, selectionDispatch, app.workspace]);
-
         useEffect(() => {
             const rebuildListItems = () => {
                 const items: ListPaneItem[] = [];
