@@ -21,6 +21,7 @@ import { ItemType } from '../../types';
 import { BaseMetadataService } from './BaseMetadataService';
 import { buildTagTree } from '../../utils/tagTree';
 import { TagTreeNode } from '../../types/storage';
+import { getFilteredMarkdownFiles } from '../../utils/fileFilters';
 
 /**
  * Service for managing tag-specific metadata operations
@@ -111,7 +112,7 @@ export class TagMetadataService extends BaseMetadataService {
      */
     async cleanupTagMetadata(): Promise<boolean> {
         // Build valid tags set first
-        const allFiles = this.app.vault.getMarkdownFiles();
+        const allFiles = getFilteredMarkdownFiles(this.app, this.plugin.settings);
         const { tree: tagTree } = buildTagTree(allFiles, this.app);
         const validTags = this.collectAllTagPaths(tagTree);
 

@@ -28,6 +28,7 @@ import { useFileCache } from '../context/StorageContext';
 import { determineTagToReveal } from '../utils/tagUtils';
 import { ItemType } from '../types';
 import { buildTagTree, findTagNode, parseTagPatterns, matchesTagPattern } from '../utils/tagTree';
+import { getFilteredMarkdownFiles } from '../utils/fileFilters';
 
 interface UseFileRevealOptions {
     app: App;
@@ -117,7 +118,7 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             if (!tagPath) return;
 
             // Build tag tree to find parent tags
-            const { tree: tagTree } = buildTagTree(app.vault.getMarkdownFiles(), app);
+            const { tree: tagTree } = buildTagTree(getFilteredMarkdownFiles(app, settings), app);
             const tagNode = findTagNode(tagTree, tagPath);
 
             if (!tagNode) return;

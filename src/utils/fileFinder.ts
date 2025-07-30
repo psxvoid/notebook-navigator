@@ -19,7 +19,14 @@
 import { TFile, TFolder, App, getAllTags } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { UNTAGGED_TAG_ID } from '../types';
-import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders, shouldExcludeFolder } from './fileFilters';
+import {
+    parseExcludedProperties,
+    shouldExcludeFile,
+    parseExcludedFolders,
+    shouldExcludeFolder,
+    getFilteredMarkdownFiles,
+    getFilteredFiles
+} from './fileFilters';
 import { shouldDisplayFile, FILE_VISIBILITY } from './fileTypeUtils';
 import { getEffectiveSortOption, sortFiles } from './sortUtils';
 import { buildTagTree, findTagNode, collectAllTagPaths } from './tagTree';
@@ -181,21 +188,16 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
  * Gets a sorted list of files for a given tag, respecting all plugin settings.
  */
 export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings, app: App): TFile[] {
-    const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-
-    // Get all files based on visibility setting
+    // Get all files based on visibility setting, with proper filtering
     let allFiles: TFile[] = [];
 
     if (settings.fileVisibility === FILE_VISIBILITY.MARKDOWN) {
         // Only markdown files
-        allFiles = app.vault.getMarkdownFiles();
+        allFiles = getFilteredMarkdownFiles(app, settings);
     } else {
-        // Get all files and filter based on visibility setting
-        allFiles = app.vault.getFiles().filter(file => shouldDisplayFile(file, settings.fileVisibility, app));
+        // Get all files with filtering
+        allFiles = getFilteredFiles(app, settings);
     }
-
-    // Apply exclusion filter
-    allFiles = allFiles.filter(file => excludedProperties.length === 0 || !shouldExcludeFile(file, excludedProperties, app));
 
     let filteredFiles: TFile[] = [];
 

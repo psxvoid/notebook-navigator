@@ -40,7 +40,7 @@
  */
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode, useMemo, useCallback } from 'react';
-import { App, TFile, TFolder, debounce } from 'obsidian';
+import { App, TFile, debounce } from 'obsidian';
 import { ContentService, ProcessedMetadata } from '../services/ContentService';
 import { IndexedDBStorage, FileData as DBFileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { calculateFileDiff } from '../storage/diffCalculator';
@@ -52,7 +52,7 @@ import {
     getDBInstance
 } from '../storage/fileOperations';
 import { TagTreeNode } from '../types/storage';
-import { parseExcludedProperties, shouldExcludeFile, parseExcludedFolders, shouldExcludeFolder } from '../utils/fileFilters';
+import { getFilteredMarkdownFiles } from '../utils/fileFilters';
 import { getFileDisplayName as getDisplayName } from '../utils/fileNameUtils';
 import { clearNoteCountCache } from '../utils/tagTree';
 import { buildTagTreeFromDatabase } from '../utils/tagTree';
@@ -303,30 +303,9 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     }, [metadataService, settings.showTags, settings.showUntagged]);
 
     // Helper function to get markdown files filtered by excluded properties and folders
-    const getFilteredMarkdownFiles = useCallback((): TFile[] => {
-        const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-        const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
-
-        return app.vault.getMarkdownFiles().filter(file => {
-            // Filter by excluded properties
-            if (excludedProperties.length > 0 && shouldExcludeFile(file, excludedProperties, app)) {
-                return false;
-            }
-
-            // Filter by excluded folders
-            if (excludedFolderPatterns.length > 0 && file.parent) {
-                let currentFolder: TFolder | null = file.parent;
-                while (currentFolder) {
-                    if (shouldExcludeFolder(currentFolder.name, excludedFolderPatterns)) {
-                        return false;
-                    }
-                    currentFolder = currentFolder.parent;
-                }
-            }
-
-            return true;
-        });
-    }, [app, settings.excludedFiles, settings.excludedFolders]);
+    const getFilteredMarkdownFilesCallback = useCallback((): TFile[] => {
+        return getFilteredMarkdownFiles(app, settings);
+    }, [app, settings]);
 
     /**
      * Centralized handler for all content-related settings changes
@@ -375,7 +354,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             // Regenerate content if needed
             if (needsRegeneration.size > 0 && contentService.current) {
                 // Get all files that should be processed (respects exclusion settings)
-                const allFiles = getFilteredMarkdownFiles();
+                const allFiles = getFilteredMarkdownFilesCallback();
 
                 // Queue content generation for all files
                 // The content service will determine what actually needs to be generated
@@ -383,7 +362,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                 contentService.current.queueContent(allFiles, settings);
             }
         },
-        [settings, getFilteredMarkdownFiles]
+        [settings, getFilteredMarkdownFilesCallback]
     );
 
     // ==================== Effects ====================
@@ -563,7 +542,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
         // Main function that orchestrates the file cache building
         const buildFileCache = async (isInitialLoad: boolean = false) => {
-            const allFiles = getFilteredMarkdownFiles();
+            const allFiles = getFilteredMarkdownFilesCallback();
             await processExistingCache(allFiles, isInitialLoad);
         };
 
@@ -617,7 +596,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
             app.metadataCache.offref(metadataEvent);
         };
-    }, [app, isIndexedDBReady, getFilteredMarkdownFiles, rebuildTagTree, settings]);
+    }, [app, isIndexedDBReady, getFilteredMarkdownFilesCallback, rebuildTagTree, settings]);
 
     // Single effect to handle ALL content-related settings changes
     useEffect(() => {

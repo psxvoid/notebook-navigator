@@ -16,7 +16,9 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, App } from 'obsidian';
+import { TFile, TFolder, App } from 'obsidian';
+import { NotebookNavigatorSettings } from '../settings';
+import { shouldDisplayFile } from './fileTypeUtils';
 
 /**
  * Filters the excluded files array to remove empty entries
@@ -84,4 +86,79 @@ export function matchesFolderPattern(folderName: string, pattern: string): boole
  */
 export function shouldExcludeFolder(folderName: string, patterns: string[]): boolean {
     return patterns.some(pattern => matchesFolderPattern(folderName, pattern));
+}
+
+/**
+ * Checks if a file is in an excluded folder by checking all parent folders
+ */
+export function isFileInExcludedFolder(file: TFile, excludedFolderPatterns: string[]): boolean {
+    if (!file || excludedFolderPatterns.length === 0) return false;
+
+    let currentFolder: TFolder | null = file.parent;
+    while (currentFolder) {
+        if (shouldExcludeFolder(currentFolder.name, excludedFolderPatterns)) {
+            return true;
+        }
+        currentFolder = currentFolder.parent;
+    }
+
+    return false;
+}
+
+/**
+ * Gets filtered markdown files from the vault, excluding files based on:
+ * - Excluded folder patterns
+ * - Excluded frontmatter properties
+ */
+export function getFilteredMarkdownFiles(app: App, settings: NotebookNavigatorSettings): TFile[] {
+    if (!app || !settings) return [];
+
+    const excludedProperties = parseExcludedProperties(settings.excludedFiles);
+    const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
+
+    return app.vault.getMarkdownFiles().filter(file => {
+        // Filter by excluded properties
+        if (excludedProperties.length > 0 && shouldExcludeFile(file, excludedProperties, app)) {
+            return false;
+        }
+
+        // Filter by excluded folders
+        if (isFileInExcludedFolder(file, excludedFolderPatterns)) {
+            return false;
+        }
+
+        return true;
+    });
+}
+
+/**
+ * Gets all filtered files from the vault (markdown and non-markdown), excluding:
+ * - Excluded folder patterns
+ * - Excluded frontmatter properties (for markdown files only)
+ * - Files based on visibility settings
+ */
+export function getFilteredFiles(app: App, settings: NotebookNavigatorSettings): TFile[] {
+    if (!app || !settings) return [];
+
+    const excludedProperties = parseExcludedProperties(settings.excludedFiles);
+    const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
+
+    return app.vault.getFiles().filter(file => {
+        // Filter by visibility settings
+        if (!shouldDisplayFile(file, settings.fileVisibility, app)) {
+            return false;
+        }
+
+        // Filter by excluded properties (only for markdown files)
+        if (file.extension === 'md' && excludedProperties.length > 0 && shouldExcludeFile(file, excludedProperties, app)) {
+            return false;
+        }
+
+        // Filter by excluded folders
+        if (isFileInExcludedFolder(file, excludedFolderPatterns)) {
+            return false;
+        }
+
+        return true;
+    });
 }

@@ -64,7 +64,7 @@ export interface NotebookNavigatorHandle {
  */
 export const NotebookNavigatorComponent = React.memo(
     forwardRef<NotebookNavigatorHandle>(function NotebookNavigatorComponent(_, ref) {
-        const { app, isMobile, fileSystemOps } = useServices();
+        const { app, isMobile, fileSystemOps, plugin } = useServices();
         const settings = useSettingsState();
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
@@ -255,6 +255,7 @@ export const NotebookNavigatorComponent = React.memo(
                     // Show the tag selection modal for navigation
                     const modal = new TagSuggestModal(
                         app,
+                        plugin,
                         (tagPath: string) => {
                             // Use the shared tag navigation logic
                             navigateToTag(tagPath);
