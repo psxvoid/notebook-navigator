@@ -389,6 +389,8 @@ export const FileItem = React.memo(function FileItem({
                                         src={featureImageUrl}
                                         alt={strings.common.featureImageAlt}
                                         className="nn-feature-image-img"
+                                        draggable={false}
+                                        onDragStart={e => e.preventDefault()}
                                         onError={e => {
                                             const img = e.target as HTMLImageElement;
                                             const featureImageDiv = img.closest('.nn-feature-image');

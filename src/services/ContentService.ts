@@ -73,8 +73,6 @@ export class ContentService {
     private queue: ContentJob[] = [];
     private queueDebounceTimer: number | null = null;
     private settingsChanged = false;
-    private startTime = 0;
-    private totalFiles = 0;
     private currentBatchSettings: NotebookNavigatorSettings | null = null;
 
     constructor(app: App) {
@@ -237,7 +235,6 @@ export class ContentService {
         // Add jobs to existing queue array
         // Simple approach: just add the jobs, the debounce timer will handle duplicates
         this.queue.push(...activeJobs);
-        this.totalFiles = this.queue.length;
 
         // If already processing, stop and restart with new settings
         if (this.isProcessing) {
@@ -322,7 +319,6 @@ export class ContentService {
         }
 
         this.isProcessing = true;
-        this.startTime = performance.now();
         this.abortController = new AbortController();
         this.currentBatchSettings = settings;
 
