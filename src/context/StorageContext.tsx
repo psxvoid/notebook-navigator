@@ -379,6 +379,9 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             // Track which content types need regeneration
             const needsRegeneration = new Set<ContentType>();
 
+            // Track if any changes require content regeneration
+            let requiresRegeneration = false;
+
             // Process each change
             for (const change of changes) {
                 const { metadata, newValue } = change;
@@ -391,19 +394,22 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                     } else {
                         // Feature enabled: mark for regeneration
                         needsRegeneration.add(metadata.contentType);
+                        requiresRegeneration = true;
                     }
                 } else {
                     // Property settings: always clear and regenerate
                     clearPromises.push(db.batchClearAllFileContent(metadata.contentType));
                     needsRegeneration.add(metadata.contentType);
+                    requiresRegeneration = true;
                 }
             }
 
             // Execute all clear operations in parallel for better performance
             await Promise.all(clearPromises);
 
-            // Regenerate content if needed
-            if (needsRegeneration.size > 0 && contentService.current) {
+            // Only regenerate content if any changes require it
+            // Skip regeneration if ALL changes are feature disables
+            if (requiresRegeneration && needsRegeneration.size > 0 && contentService.current) {
                 // Get all files that should be processed (respects exclusion settings)
                 const allFiles = getFilteredMarkdownFilesCallback();
 
