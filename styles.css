@@ -735,6 +735,7 @@
 
 /* Clickable tag styling */
 .nn-file-tag.nn-clickable-tag {
+    cursor: pointer;
 }
 
 /* Dark mode tag styles */
