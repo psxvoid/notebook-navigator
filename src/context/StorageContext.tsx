@@ -446,7 +446,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             if (isInitialLoad) {
                 try {
                     // Step 1: Process file changes FIRST to clean the database
-                    const { toAdd, toUpdate, toRemove } = await calculateFileDiff(allFiles);
+                    const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles);
 
                     // Step 2: Update database with changes
                     if (toRemove.length > 0) {
@@ -454,7 +454,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                     }
 
                     if (toAdd.length > 0 || toUpdate.length > 0) {
-                        await recordFileChanges([...toAdd, ...toUpdate]);
+                        await recordFileChanges([...toAdd, ...toUpdate], cachedFiles);
                     }
 
                     // Step 3: Build tag tree from CLEAN database
@@ -483,14 +483,14 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                 requestIdleCallback(
                     async () => {
                         try {
-                            const { toAdd, toUpdate, toRemove } = await calculateFileDiff(allFiles);
+                            const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles);
 
                             if (toAdd.length > 0 || toUpdate.length > 0 || toRemove.length > 0) {
                                 // Update only the changed files in IndexedDB
                                 try {
                                     const filesToUpdate = [...toAdd, ...toUpdate];
                                     if (filesToUpdate.length > 0) {
-                                        await recordFileChanges(filesToUpdate);
+                                        await recordFileChanges(filesToUpdate, cachedFiles);
                                     }
 
                                     // Remove deleted files from IndexedDB
@@ -616,8 +616,12 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             app.vault.on('modify', async file => {
                 // Check if it's a TFile (not a folder)
                 if (file instanceof TFile && file.extension === 'md') {
+                    // Get existing data for the file
+                    const db = getDBInstance();
+                    const existingData = db.getFiles([file.path]);
+
                     // Record the file change - this sets all content to null
-                    await recordFileChanges([file]);
+                    await recordFileChanges([file], existingData);
 
                     // ContentService will detect the null content and regenerate
                     if (contentService.current) {
