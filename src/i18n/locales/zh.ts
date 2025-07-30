@@ -53,7 +53,7 @@ export const STRINGS_ZH = {
         collapseAllFolders: '全部折叠', // Tooltip for button that collapses all expanded items (English: Collapse all)
         expandAllFolders: '全部展开', // Tooltip for button that expands all items (English: Expand all)
         newFolder: '新建文件夹', // Tooltip for create new folder button (English: New folder)
-        newNote: '创建新笔记', // Tooltip for create new note button (English: Create new note)
+        newNote: '新笔记', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: '返回导航', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
         changeSortOrder: '更改排序方式', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: '默认', // Label for default sorting mode (English: Default)
@@ -106,7 +106,7 @@ export const STRINGS_ZH = {
             deleteMultipleFiles: '删除 {count} 个文件'
         },
         folder: {
-            newNote: '创建新笔记',
+            newNote: '新笔记',
             newFolder: '新建文件夹',
             newCanvas: '新建画布',
             newBase: '新建数据库',

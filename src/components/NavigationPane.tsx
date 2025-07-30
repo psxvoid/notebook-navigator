@@ -775,7 +775,10 @@ export const NavigationPane = React.memo(
             items: items,
             virtualizer: rowVirtualizer,
             focusedPane: 'navigation',
-            containerRef: props.rootContainerRef
+            containerRef: props.rootContainerRef,
+            pathToIndex: pathToIndex,
+            files: [], // Not used in navigation pane
+            fileIndexMap: new Map() // Not used in navigation pane
         });
 
         return (

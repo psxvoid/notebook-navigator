@@ -25,8 +25,11 @@ import { useFileCache } from '../context/StorageContext';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { useTagNavigation } from '../hooks/useTagNavigation';
 import { strings } from '../i18n';
+import { SortOption } from '../settings';
 import { ItemType } from '../types';
+import { DateUtils } from '../utils/dateUtils';
 import { isImageFile } from '../utils/fileTypeUtils';
+import { getDateField } from '../utils/sortUtils';
 import { ObsidianIcon } from './ObsidianIcon';
 
 interface FileItemProps {
@@ -36,11 +39,7 @@ interface FileItemProps {
     hasSelectedBelow?: boolean;
     onClick: (e: React.MouseEvent) => void;
     dateGroup?: string | null;
-    formattedDates?: {
-        display: string;
-        created: string;
-        modified: string;
-    };
+    sortOption?: SortOption;
     parentFolder?: string | null;
 }
 
@@ -62,12 +61,13 @@ export const FileItem = React.memo(function FileItem({
     hasSelectedAbove,
     hasSelectedBelow,
     onClick,
-    formattedDates,
+    dateGroup,
+    sortOption,
     parentFolder
 }: FileItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
-    const { getFileDisplayName, getDB } = useFileCache();
+    const { getFileDisplayName, getDB, getFileCreatedTime, getFileModifiedTime } = useFileCache();
     const fileRef = useRef<HTMLDivElement>(null);
     const { navigateToTag } = useTagNavigation();
     const metadataService = useMetadataService();
@@ -132,8 +132,34 @@ export const FileItem = React.memo(function FileItem({
         );
     }, [settings.showTags, settings.showFileTags, tags, getTagColor, handleTagClick]);
 
-    // Get display date from pre-computed dates
-    const displayDate = formattedDates?.display || '';
+    // Format display date based on current sort
+    const displayDate = useMemo(() => {
+        if (!settings.showFileDate || !sortOption) return '';
+
+        // Determine which date to show based on sort option
+        const dateField = getDateField(sortOption);
+        const timestamp = dateField === 'ctime' ? getFileCreatedTime(file) : getFileModifiedTime(file);
+
+        // If in a date group and not in pinned section, format relative to group
+        if (dateGroup && dateGroup !== strings.listPane.pinnedSection) {
+            return DateUtils.formatDateForGroup(timestamp, dateGroup, settings.dateFormat, settings.timeFormat);
+        }
+
+        // Otherwise format as absolute date
+        return DateUtils.formatDate(timestamp, settings.dateFormat);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- file.stat.mtime and file.stat.ctime are needed to detect file changes
+    }, [
+        file,
+        file.stat.mtime,
+        file.stat.ctime,
+        sortOption,
+        dateGroup,
+        settings.showFileDate,
+        settings.dateFormat,
+        settings.timeFormat,
+        getFileCreatedTime,
+        getFileModifiedTime
+    ]);
 
     // Detect slim mode when all display options are disabled
     const isSlimMode = !settings.showFileDate && !settings.showFilePreview && !settings.showFeatureImage;
@@ -238,10 +264,15 @@ export const FileItem = React.memo(function FileItem({
             return;
         }
 
-        const createdDate = formattedDates?.created || '';
-        const modifiedDate = formattedDates?.modified || '';
+        // Format dates for tooltip with time
+        const dateTimeFormat = settings.timeFormat ? `${settings.dateFormat} ${settings.timeFormat}` : settings.dateFormat;
+        const createdTimestamp = getFileCreatedTime(file);
+        const modifiedTimestamp = getFileModifiedTime(file);
+        const createdDate = DateUtils.formatDate(createdTimestamp, dateTimeFormat);
+        const modifiedDate = DateUtils.formatDate(modifiedTimestamp, dateTimeFormat);
+
         // Check current sort to determine date order
-        const isCreatedSort = settings.defaultFolderSort.startsWith('created-');
+        const isCreatedSort = sortOption ? sortOption.startsWith('created-') : false;
 
         // Build tooltip with filename and dates
         const datesTooltip = isCreatedSort
@@ -258,7 +289,7 @@ export const FileItem = React.memo(function FileItem({
         setTooltip(fileRef.current, tooltip, {
             placement: isRTL ? 'left' : 'right'
         });
-    }, [isMobile, file.stat.ctime, file.stat.mtime, settings, displayName, formattedDates]);
+    }, [isMobile, file, file.stat.ctime, file.stat.mtime, settings, displayName, getFileCreatedTime, getFileModifiedTime, sortOption]);
 
     // Enable context menu
     useContextMenu(fileRef, { type: ItemType.FILE, item: file });

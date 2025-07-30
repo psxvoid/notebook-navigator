@@ -53,7 +53,7 @@ export const STRINGS_DE = {
         collapseAllFolders: 'Alle einklappen', // Tooltip for button that collapses all expanded items (English: Collapse all)
         expandAllFolders: 'Alle ausklappen', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'Neuer Ordner', // Tooltip for create new folder button (English: New folder)
-        newNote: 'Neue Notiz erstellen', // Tooltip for create new note button (English: Create new note)
+        newNote: 'Neue Notiz', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Zurück zur Navigation', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
         changeSortOrder: 'Sortierreihenfolge ändern', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: 'Standard', // Label for default sorting mode (English: Default)
@@ -106,7 +106,7 @@ export const STRINGS_DE = {
             deleteMultipleFiles: '{count} Dateien löschen'
         },
         folder: {
-            newNote: 'Neue Notiz erstellen',
+            newNote: 'Neue Notiz',
             newFolder: 'Neuer Ordner',
             newCanvas: 'Neue Canvas',
             newBase: 'Neue Datenbank',

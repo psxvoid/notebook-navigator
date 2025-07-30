@@ -29,6 +29,7 @@ import { TagTreeNode } from '../types/storage';
 import { CombinedNavigationItem, ListPaneItem } from '../types/virtualization';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
 import { isTypingInInput } from '../utils/domUtils';
+import { getFilesInRange } from '../utils/selectionUtils';
 import { useMultiSelection } from './useMultiSelection';
 
 type VirtualItem = CombinedNavigationItem | ListPaneItem;
@@ -168,6 +169,9 @@ interface UseVirtualKeyboardNavigationProps<T extends VirtualItem> {
      * Obsidian views like the canvas editor, where Delete key has different functionality.
      */
     containerRef: React.RefObject<HTMLDivElement | null>;
+    pathToIndex: Map<string, number>; // O(1) lookup for item positions
+    files: TFile[]; // Array of files for multi-selection optimization
+    fileIndexMap: Map<string, number>; // O(1) lookup for file positions in files array
 }
 
 /**
@@ -179,7 +183,10 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     items,
     virtualizer,
     focusedPane,
-    containerRef
+    containerRef,
+    pathToIndex,
+    files,
+    fileIndexMap
 }: UseVirtualKeyboardNavigationProps<T>) {
     const { app, isMobile, tagTreeService } = useServices();
     const settings = useSettingsState();
@@ -272,6 +279,45 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
         [expansionState, expansionDispatch]
     );
 
+    // Helper function to handle range selection with Home/End
+    const handleRangeSelection = useCallback(
+        (direction: 'home' | 'end', currentFileIndex: number) => {
+            const targetIndex = direction === 'home' ? 0 : files.length - 1;
+            const targetFile = files[targetIndex];
+            if (!targetFile) return;
+
+            // Get files in range
+            const filesInRange = getFilesInRange(
+                files,
+                direction === 'home' ? 0 : currentFileIndex,
+                direction === 'home' ? currentFileIndex : files.length - 1
+            );
+
+            // Select all files in range that aren't already selected
+            filesInRange.forEach(f => {
+                if (!selectionState.selectedFiles.has(f.path)) {
+                    selectionDispatch({ type: 'TOGGLE_FILE_SELECTION', file: f });
+                }
+            });
+
+            // Move cursor to target position
+            selectionDispatch({ type: 'UPDATE_CURRENT_FILE', file: targetFile });
+
+            // Open the file without changing focus
+            const leaf = app.workspace.getLeaf(false);
+            if (leaf) {
+                leaf.openFile(targetFile, { active: false });
+            }
+
+            // Scroll to target position
+            virtualizer.scrollToIndex(targetIndex, {
+                align: 'auto',
+                behavior: 'auto'
+            });
+        },
+        [files, selectionState.selectedFiles, selectionDispatch, app.workspace, virtualizer]
+    );
+
     const handleKeyDown = useCallback(
         (e: KeyboardEvent) => {
             // KEYBOARD EVENT FILTERING:
@@ -312,32 +358,15 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             let currentIndex = -1;
             let targetIndex = -1;
 
-            // Find current selection index
-            if (focusedPane === 'files') {
-                currentIndex = items.findIndex(item => {
-                    if ('type' in item && item.type === ListPaneItemType.FILE) {
-                        const fileItem = item as ListPaneItem;
-                        return fileItem.data instanceof TFile && fileItem.data.path === selectionState.selectedFile?.path;
-                    }
-                    return false;
-                });
-            } else {
-                currentIndex = items.findIndex(item => {
-                    if ('type' in item) {
-                        const navigationPaneItem = item as CombinedNavigationItem;
-                        if (navigationPaneItem.type === NavigationPaneItemType.FOLDER && selectionState.selectionType === ItemType.FOLDER) {
-                            return navigationPaneItem.data.path === selectionState.selectedFolder?.path;
-                        } else if (
-                            (navigationPaneItem.type === NavigationPaneItemType.TAG ||
-                                navigationPaneItem.type === NavigationPaneItemType.UNTAGGED) &&
-                            selectionState.selectionType === ItemType.TAG
-                        ) {
-                            const tagNode = navigationPaneItem.data as TagTreeNode;
-                            return tagNode.path === selectionState.selectedTag;
-                        }
-                    }
-                    return false;
-                });
+            // Find current selection index using O(1) lookup
+            if (focusedPane === 'files' && selectionState.selectedFile?.path) {
+                currentIndex = pathToIndex.get(selectionState.selectedFile.path) ?? -1;
+            } else if (focusedPane === 'navigation') {
+                if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder?.path) {
+                    currentIndex = pathToIndex.get(selectionState.selectedFolder.path) ?? -1;
+                } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+                    currentIndex = pathToIndex.get(selectionState.selectedTag) ?? -1;
+                }
             }
 
             // Swap left/right arrow behavior for RTL layouts
@@ -356,21 +385,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             switch (effectiveKey) {
                 case 'ArrowDown':
                     e.preventDefault();
-                    if (e.shiftKey && focusedPane === 'files' && !isMobile) {
+                    if (e.shiftKey && focusedPane === 'files' && !isMobile && selectionState.selectedFile?.path) {
                         // Multi-selection with Shift+Down
-                        // Extract only file items from the items array
-                        const fileItems = items
-                            .filter(item => item.type === ListPaneItemType.FILE)
-                            .map(item => {
-                                const fileItem = item as ListPaneItem;
-                                return fileItem.data instanceof TFile ? fileItem.data : null;
-                            })
-                            .filter((file): file is TFile => file !== null);
-
-                        const currentFileIndex = fileItems.findIndex(f => f.path === selectionState.selectedFile?.path);
-
-                        if (currentFileIndex !== -1) {
-                            multiSelection.handleShiftArrowSelection('down', currentFileIndex, fileItems);
+                        const currentFileIndex = fileIndexMap.get(selectionState.selectedFile.path);
+                        if (currentFileIndex !== undefined && currentFileIndex !== -1) {
+                            multiSelection.handleShiftArrowSelection('down', currentFileIndex, files);
                         }
                         return; // Don't process normal navigation
                     }
@@ -385,21 +404,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
 
                 case 'ArrowUp':
                     e.preventDefault();
-                    if (e.shiftKey && focusedPane === 'files' && !isMobile && currentIndex !== -1) {
+                    if (e.shiftKey && focusedPane === 'files' && !isMobile && currentIndex !== -1 && selectionState.selectedFile?.path) {
                         // Multi-selection with Shift+Up
-                        // Extract only file items from the items array
-                        const fileItems = items
-                            .filter(item => item.type === ListPaneItemType.FILE)
-                            .map(item => {
-                                const fileItem = item as ListPaneItem;
-                                return fileItem.data instanceof TFile ? fileItem.data : null;
-                            })
-                            .filter((file): file is TFile => file !== null);
-
-                        const currentFileIndex = fileItems.findIndex(f => f.path === selectionState.selectedFile?.path);
-
-                        if (currentFileIndex !== -1) {
-                            multiSelection.handleShiftArrowSelection('up', currentFileIndex, fileItems);
+                        const currentFileIndex = fileIndexMap.get(selectionState.selectedFile.path);
+                        if (currentFileIndex !== undefined && currentFileIndex !== -1) {
+                            multiSelection.handleShiftArrowSelection('up', currentFileIndex, files);
                         }
                         return; // Don't process normal navigation
                     }
@@ -547,12 +556,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                             } else if (folder.parent && (!settings.showRootFolder || folder.path !== '/')) {
                                 // Navigate to parent folder
                                 const parentPath = folder.parent.path;
-                                const parentIndex = items.findIndex(i => {
-                                    if (i.type === NavigationPaneItemType.FOLDER && i.data instanceof TFolder) {
-                                        return i.data.path === parentPath;
-                                    }
-                                    return false;
-                                });
+                                const parentIndex = pathToIndex.get(parentPath) ?? -1;
                                 if (parentIndex >= 0) {
                                     const parentItem = safeGetItem(items, parentIndex);
                                     if (parentItem) {
@@ -572,9 +576,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                                 const lastSlashIndex = tag.path.lastIndexOf('/');
                                 if (lastSlashIndex > 0) {
                                     const parentPath = tag.path.substring(0, lastSlashIndex);
-                                    const parentIndex = items.findIndex(
-                                        i => i.type === NavigationPaneItemType.TAG && (i.data as TagTreeNode).path === parentPath
-                                    );
+                                    const parentIndex = pathToIndex.get(parentPath) ?? -1;
                                     if (parentIndex >= 0) {
                                         const parentItem = safeGetItem(items, parentIndex);
                                         if (parentItem) {
@@ -682,12 +684,26 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
 
                 case 'Home':
                     e.preventDefault();
+                    if (e.shiftKey && focusedPane === 'files' && !isMobile && selectionState.selectedFile?.path) {
+                        const currentFileIndex = fileIndexMap.get(selectionState.selectedFile.path);
+                        if (currentFileIndex !== undefined && currentFileIndex !== -1) {
+                            handleRangeSelection('home', currentFileIndex);
+                        }
+                        return;
+                    }
                     // Find the first selectable item
                     targetIndex = findNextSelectableIndex(items, -1, focusedPane);
                     break;
 
                 case 'End':
                     e.preventDefault();
+                    if (e.shiftKey && focusedPane === 'files' && !isMobile && selectionState.selectedFile?.path) {
+                        const currentFileIndex = fileIndexMap.get(selectionState.selectedFile.path);
+                        if (currentFileIndex !== undefined && currentFileIndex !== -1) {
+                            handleRangeSelection('end', currentFileIndex);
+                        }
+                        return;
+                    }
                     // Find the last selectable item
                     for (let i = items.length - 1; i >= 0; i--) {
                         const item = safeGetItem(items, i);
@@ -730,7 +746,11 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             containerRef,
             selectItemAtIndex,
             handleExpandCollapse,
-            tagTreeService
+            tagTreeService,
+            pathToIndex,
+            files,
+            fileIndexMap,
+            handleRangeSelection
         ]
     );
 

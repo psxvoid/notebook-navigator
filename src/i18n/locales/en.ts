@@ -53,7 +53,7 @@ export const STRINGS_EN = {
         collapseAllFolders: 'Collapse all', // Tooltip for button that collapses all expanded items (English: Collapse all)
         expandAllFolders: 'Expand all', // Tooltip for button that expands all items (English: Expand all)
         newFolder: 'New folder', // Tooltip for create new folder button (English: New folder)
-        newNote: 'Create new note', // Tooltip for create new note button (English: Create new note)
+        newNote: 'New note', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Back to navigation', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
         changeSortOrder: 'Change sort order', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: 'Default', // Label for default sorting mode (English: Default)
@@ -105,7 +105,7 @@ export const STRINGS_EN = {
             moveMultipleToFolder: 'Move {count} files to...'
         },
         folder: {
-            newNote: 'Create new note',
+            newNote: 'New note',
             newFolder: 'New folder',
             newCanvas: 'New canvas',
             newBase: 'New base',

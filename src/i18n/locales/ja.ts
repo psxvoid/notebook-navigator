@@ -53,7 +53,7 @@ export const STRINGS_JA = {
         collapseAllFolders: 'すべて折りたたむ', // Tooltip for button that collapses all expanded items (English: Collapse all)
         expandAllFolders: 'すべて展開', // Tooltip for button that expands all items (English: Expand all)
         newFolder: '新規フォルダ', // Tooltip for create new folder button (English: New folder)
-        newNote: '新規ノートを作成', // Tooltip for create new note button (English: Create new note)
+        newNote: '新規ノート', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'ナビゲーションに戻る', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
         changeSortOrder: '並び順を変更', // Tooltip for the sort order toggle button (English: Change sort order)
         defaultSort: 'デフォルト', // Label for default sorting mode (English: Default)
@@ -106,7 +106,7 @@ export const STRINGS_JA = {
             deleteMultipleFiles: '{count}個のファイルを削除'
         },
         folder: {
-            newNote: '新規ノートを作成',
+            newNote: '新規ノート',
             newFolder: '新規フォルダ',
             newCanvas: '新規キャンバス',
             newBase: '新規データベース',

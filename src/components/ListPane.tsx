@@ -112,8 +112,10 @@ export const ListPane = React.memo(
         // Get sync preview check function
         const { hasPreview, isStorageReady } = useFileCache();
 
-        // Initialize virtualizer
+        // Check if we're in slim mode
+        const isSlimMode = !settings.showFileDate && !settings.showFilePreview && !settings.showFeatureImage;
 
+        // Initialize virtualizer
         const rowVirtualizer = useVirtualizer({
             count: listItems.length,
             getScrollElement: () => {
@@ -141,10 +143,7 @@ export const ListPane = React.memo(
                 }
 
                 // For file items - calculate height including all components
-                const { showFileDate, showFilePreview, showFeatureImage, fileNameRows, previewRows } = settings;
-
-                // Check if we're in slim mode (no date, preview, or image)
-                const isSlimMode = !showFileDate && !showFilePreview && !showFeatureImage;
+                const { showFileDate, showFilePreview, fileNameRows, previewRows } = settings;
 
                 // Get actual preview status for accurate height calculation
                 let hasPreviewText = false;
@@ -223,12 +222,14 @@ export const ListPane = React.memo(
                 }
 
                 // Apply min-height constraint AFTER including all content (but not in slim mode)
-                // This ensures text content aligns with feature image height (42px) when shown
-                if (!isSlimMode && textContentHeight < 42) {
-                    textContentHeight = 42;
+                // This ensures text content aligns with feature image height when shown
+                if (!isSlimMode && textContentHeight < heights.featureImageHeight) {
+                    textContentHeight = heights.featureImageHeight;
                 }
 
-                return heights.basePadding + textContentHeight;
+                // Use reduced padding for slim mode
+                const padding = isSlimMode ? heights.slimPadding : heights.basePadding;
+                return padding + textContentHeight;
             },
             overscan: OVERSCAN,
             scrollPaddingStart: 0,
@@ -313,6 +314,15 @@ export const ListPane = React.memo(
             return map;
         }, [listItems]);
 
+        // Create a map for O(1) file position lookups in the files array (for multi-selection)
+        const fileIndexMap = useMemo(() => {
+            const map = new Map<string, number>();
+            files.forEach((file, index) => {
+                map.set(file.path, index);
+            });
+            return map;
+        }, [files]);
+
         const getSelectionIndex = useCallback(() => {
             if (selectedFilePath) {
                 const fileIndex = filePathToIndex.get(selectedFilePath);
@@ -332,70 +342,10 @@ export const ListPane = React.memo(
             return -1;
         }, [selectedFilePath, filePathToIndex, listItems]);
 
-        // Pre-calculate date field for all files in the group
-        const dateField = useMemo(() => {
-            return getDateField(settings.defaultFolderSort);
-        }, [settings.defaultFolderSort]);
-
-        // Pre-compute formatted dates for all files
-        const filesWithDates = useMemo(() => {
-            const dataMap = new Map<
-                string,
-                {
-                    display: string;
-                    created: string;
-                    modified: string;
-                }
-            >();
-
-            // Get all files from list items
-            const allFiles: TFile[] = [];
-            listItems.forEach(item => {
-                if (item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
-                    allFiles.push(item.data);
-                }
-            });
-
-            // Always compute dates for tooltips even if display is disabled
-            const dateTimeFormat = settings.timeFormat ? `${settings.dateFormat} ${settings.timeFormat}` : settings.dateFormat;
-            let currentGroup: string | null = null;
-
-            listItems.forEach(item => {
-                if (item.type === ListPaneItemType.HEADER) {
-                    currentGroup = item.data as string;
-                } else if (item.type === ListPaneItemType.FILE) {
-                    const file = item.data;
-                    if (!(file instanceof TFile)) return;
-
-                    // Compute display date based on current sort
-                    const timestamp = dateField === 'ctime' ? getFileCreatedTime(file) : getFileModifiedTime(file);
-                    const display =
-                        settings.showFileDate && currentGroup && currentGroup !== strings.listPane.pinnedSection
-                            ? DateUtils.formatDateForGroup(timestamp, currentGroup, settings.dateFormat, settings.timeFormat)
-                            : settings.showFileDate
-                              ? DateUtils.formatDate(timestamp, settings.dateFormat)
-                              : '';
-
-                    // Always compute both created and modified for tooltips
-                    const createdTimestamp = getFileCreatedTime(file);
-                    const modifiedTimestamp = getFileModifiedTime(file);
-                    const created = DateUtils.formatDate(createdTimestamp, dateTimeFormat);
-                    const modified = DateUtils.formatDate(modifiedTimestamp, dateTimeFormat);
-
-                    dataMap.set(file.path, { display, created, modified });
-                }
-            });
-
-            return dataMap;
-        }, [
-            listItems,
-            dateField,
-            settings.showFileDate,
-            settings.dateFormat,
-            settings.timeFormat,
-            getFileCreatedTime,
-            getFileModifiedTime
-        ]);
+        // Get effective sort option for the current view
+        const effectiveSortOption = useMemo(() => {
+            return getEffectiveSortOption(settings, selectionType, selectedFolder, selectedTag);
+        }, [settings, selectionType, selectedFolder, selectedTag]);
 
         // Build ordered files list for Shift+Click functionality - MUST be before early returns
         const orderedFiles = useMemo(() => {
@@ -529,6 +479,45 @@ export const ListPane = React.memo(
             selectionState.isFolderChangeWithAutoSelect,
             selectionState.isKeyboardNavigation,
             selectionDispatch
+        ]);
+
+        // Auto-select first file when navigating to files pane with keyboard in dual-pane mode
+        useEffect(() => {
+            // Only run in dual-pane mode on desktop when using keyboard navigation
+            if (uiState.singlePane || isMobile) return;
+
+            // Check if we just gained focus AND it's from keyboard navigation
+            if (uiState.focusedPane === 'files' && selectionState.isKeyboardNavigation) {
+                // Clear the keyboard navigation flag
+                selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: false });
+
+                // If no file is selected and we have files
+                if (!selectedFile && files.length > 0) {
+                    // Check if the active file is in the current view
+                    const activeFile = app.workspace.getActiveFile();
+                    if (activeFile && files.some(f => f.path === activeFile.path)) {
+                        // Select the active file
+                        selectionDispatch({ type: 'SET_SELECTED_FILE', file: activeFile });
+                    } else {
+                        // Select the first file
+                        selectionDispatch({ type: 'SET_SELECTED_FILE', file: files[0] });
+                        // Open it in the editor without focus
+                        const leaf = app.workspace.getLeaf(false);
+                        if (leaf) {
+                            leaf.openFile(files[0], { active: false });
+                        }
+                    }
+                }
+            }
+        }, [
+            uiState.focusedPane,
+            uiState.singlePane,
+            isMobile,
+            selectionState.isKeyboardNavigation,
+            selectedFile,
+            files,
+            selectionDispatch,
+            app.workspace
         ]);
 
         useEffect(() => {
@@ -978,7 +967,10 @@ export const ListPane = React.memo(
             items: listItems,
             virtualizer: rowVirtualizer,
             focusedPane: 'files',
-            containerRef: props.rootContainerRef
+            containerRef: props.rootContainerRef,
+            pathToIndex: filePathToIndex,
+            files: files,
+            fileIndexMap: fileIndexMap
         });
 
         // Early returns MUST come after all hooks
@@ -1007,7 +999,13 @@ export const ListPane = React.memo(
         return (
             <div className="nn-list-pane">
                 <PaneHeader type="files" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
-                <div ref={scrollContainerRefCallback} className="nn-list-pane-scroller" data-pane="files" role="list" tabIndex={-1}>
+                <div
+                    ref={scrollContainerRefCallback}
+                    className={`nn-list-pane-scroller ${isSlimMode ? 'nn-slim-mode' : ''}`}
+                    data-pane="files"
+                    role="list"
+                    tabIndex={-1}
+                >
                     {/* Virtual list */}
                     {listItems.length > 0 && (
                         <div
@@ -1103,9 +1101,7 @@ export const ListPane = React.memo(
                                                     }
                                                 }}
                                                 dateGroup={dateGroup}
-                                                formattedDates={
-                                                    item.data instanceof TFile ? filesWithDates?.get(item.data.path) : undefined
-                                                }
+                                                sortOption={effectiveSortOption}
                                                 parentFolder={item.parentFolder}
                                             />
                                         ) : null}

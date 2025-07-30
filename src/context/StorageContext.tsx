@@ -379,6 +379,9 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             // Track which content types need regeneration
             const needsRegeneration = new Set<ContentType>();
 
+            // Track if any changes require content regeneration
+            let requiresRegeneration = false;
+
             // Process each change
             for (const change of changes) {
                 const { metadata, newValue } = change;
@@ -391,19 +394,22 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                     } else {
                         // Feature enabled: mark for regeneration
                         needsRegeneration.add(metadata.contentType);
+                        requiresRegeneration = true;
                     }
                 } else {
                     // Property settings: always clear and regenerate
                     clearPromises.push(db.batchClearAllFileContent(metadata.contentType));
                     needsRegeneration.add(metadata.contentType);
+                    requiresRegeneration = true;
                 }
             }
 
             // Execute all clear operations in parallel for better performance
             await Promise.all(clearPromises);
 
-            // Regenerate content if needed
-            if (needsRegeneration.size > 0 && contentService.current) {
+            // Only regenerate content if any changes require it
+            // Skip regeneration if ALL changes are feature disables
+            if (requiresRegeneration && needsRegeneration.size > 0 && contentService.current) {
                 // Get all files that should be processed (respects exclusion settings)
                 const allFiles = getFilteredMarkdownFilesCallback();
 
@@ -475,10 +481,19 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
             if (isInitialLoad) {
                 try {
-                    // Step 1: Process file changes FIRST to clean the database
+                    // Step 1: Run cleanup FIRST to remove stale metadata
+                    // This needs to run before database sync to detect orphaned entries
+                    if (metadataService) {
+                        // Create temporary tag tree to detect if items for tag colors and icons still exist
+                        // This may be empty (first install) or stale (after external moves) - that's intentional
+                        const tempTagTree = rebuildTagTree();
+                        await runUnifiedCleanup(getDBInstance(), tempTagTree);
+                    }
+
+                    // Step 2: Process file changes to sync the database
                     const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles);
 
-                    // Step 2: Update database with changes
+                    // Step 3: Update database with changes
                     if (toRemove.length > 0) {
                         await removeFilesFromCache(toRemove);
                     }
@@ -487,16 +502,11 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                         await recordFileChanges([...toAdd, ...toUpdate], cachedFiles);
                     }
 
-                    // Step 3: Build tag tree from CLEAN database
-                    const tagTree = rebuildTagTree();
+                    // Step 4: Build tag tree from updated database
+                    rebuildTagTree();
 
-                    // Step 4: Mark storage as ready
+                    // Step 5: Mark storage as ready
                     setIsStorageReady(true);
-
-                    // Step 5: Run cleanup with accurate data
-                    if (metadataService) {
-                        await runUnifiedCleanup(getDBInstance(), tagTree);
-                    }
 
                     // Step 6: Queue content generation for new/modified files
                     const contentEnabled =
