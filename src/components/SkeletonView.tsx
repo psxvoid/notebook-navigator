@@ -21,10 +21,9 @@ import React from 'react';
 interface SkeletonViewProps {
     paneWidth: number;
     singlePane: boolean;
-    currentSinglePaneView: 'navigation' | 'files';
 }
 
-export const SkeletonView = React.memo(function SkeletonView({ paneWidth, singlePane, currentSinglePaneView }: SkeletonViewProps) {
+export const SkeletonView = React.memo(function SkeletonView({ paneWidth, singlePane }: SkeletonViewProps) {
     if (singlePane) {
         return <div className="nn-skeleton-list-pane" />;
     }

@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile, getAllTags } from 'obsidian';
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { TagTreeNode } from '../types/storage';
 import { isPathInExcludedFolder } from './fileFilters';
@@ -46,90 +45,6 @@ function getNoteCountCache(): WeakMap<TagTreeNode, number> {
         noteCountCache = new WeakMap();
     }
     return noteCountCache;
-}
-
-/**
- * Build a tag tree from an array of files
- * @param files - Array of TFile objects to process
- * @param app - Obsidian app instance
- * @returns Object containing the tag tree and untagged file count
- */
-export function buildTagTree(files: TFile[], app: App): { tree: Map<string, TagTreeNode>; untagged: number } {
-    const allNodes = new Map<string, TagTreeNode>(); // All nodes at all levels
-    const tree = new Map<string, TagTreeNode>(); // Only root-level nodes
-    let untaggedCount = 0;
-
-    // Track which case variant we saw first for each lowercased tag
-    const caseMap = new Map<string, string>();
-
-    for (const file of files) {
-        const metadata = app.metadataCache.getFileCache(file);
-        const tags = metadata ? getAllTags(metadata) : [];
-
-        if (!tags || tags.length === 0) {
-            untaggedCount++;
-            continue;
-        }
-
-        // Process each tag
-        for (const tag of tags) {
-            // Remove the # prefix
-            const tagPath = tag.startsWith('#') ? tag.substring(1) : tag;
-            const lowerPath = tagPath.toLowerCase();
-
-            // Determine the canonical casing for this tag
-            let canonicalPath = caseMap.get(lowerPath);
-            if (!canonicalPath) {
-                canonicalPath = tagPath;
-                caseMap.set(lowerPath, tagPath);
-            }
-
-            // Split the tag into parts
-            const parts = canonicalPath.split('/');
-            let currentPath = '';
-
-            for (let i = 0; i < parts.length; i++) {
-                const part = parts[i];
-                currentPath = i === 0 ? part : `${currentPath}/${part}`;
-                const lowerCurrentPath = currentPath.toLowerCase();
-
-                // Get or create the node
-                let node = allNodes.get(lowerCurrentPath);
-                if (!node) {
-                    node = {
-                        name: part,
-                        path: currentPath,
-                        children: new Map(),
-                        notesWithTag: new Set()
-                    };
-                    allNodes.set(lowerCurrentPath, node);
-
-                    // Only add root-level tags to the tree Map
-                    if (i === 0) {
-                        tree.set(lowerCurrentPath, node);
-                    }
-                }
-
-                // Add the file to this node
-                // For leaf tags, the file is directly tagged with this tag
-                // For parent tags, we only add if it's the exact tag (not just an ancestor)
-                if (i === parts.length - 1) {
-                    node.notesWithTag.add(file.path);
-                }
-
-                // Link to parent
-                if (i > 0) {
-                    const parentPath = parts.slice(0, i).join('/').toLowerCase();
-                    const parent = allNodes.get(parentPath);
-                    if (parent && !parent.children.has(lowerCurrentPath)) {
-                        parent.children.set(lowerCurrentPath, node);
-                    }
-                }
-            }
-        }
-    }
-
-    return { tree, untagged: untaggedCount };
 }
 
 /**

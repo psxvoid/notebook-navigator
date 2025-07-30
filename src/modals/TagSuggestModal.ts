@@ -19,9 +19,8 @@
 import { App } from 'obsidian';
 import { strings } from '../i18n';
 import { TagTreeNode } from '../types/storage';
-import { buildTagTree, getTotalNoteCount } from '../utils/tagTree';
+import { getTotalNoteCount } from '../utils/tagTree';
 import { BaseSuggestModal } from './BaseSuggestModal';
-import { getFilteredMarkdownFiles } from '../utils/fileFilters';
 import NotebookNavigatorPlugin from '../main';
 
 /**
@@ -80,9 +79,8 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
             tags.push(this.untaggedNode);
         }
 
-        // Build tag tree from all files
-        const allFiles = getFilteredMarkdownFiles(this.app, this.plugin.settings);
-        const { tree: tagTree } = buildTagTree(allFiles, this.app);
+        // Get tag tree from the TagTreeService
+        const tagTree = this.plugin.tagTreeService?.getTagTree() || new Map();
 
         // Flatten the tree into a list
         const flattenTree = (nodes: Map<string, TagTreeNode>) => {

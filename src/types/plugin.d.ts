@@ -18,6 +18,8 @@
 
 import { Plugin, App, TFile, WorkspaceLeaf } from 'obsidian';
 import { MetadataService } from '../services/MetadataService';
+import { TagOperations } from '../services/TagOperations';
+import { TagTreeService } from '../services/TagTreeService';
 import { NotebookNavigatorSettings } from '../settings';
 import { NotebookNavigatorView } from '../view/NotebookNavigatorView';
 
@@ -28,6 +30,8 @@ export interface NotebookNavigatorPlugin extends Plugin {
     app: App;
     settings: NotebookNavigatorSettings;
     metadataService: MetadataService | null;
+    tagOperations: TagOperations | null;
+    tagTreeService: TagTreeService | null;
     navigatorView?: NotebookNavigatorView;
 
     // Methods

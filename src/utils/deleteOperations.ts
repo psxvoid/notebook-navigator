@@ -19,16 +19,21 @@
 import { App, TFile, TFolder } from 'obsidian';
 import { SelectionState, SelectionAction } from '../context/SelectionContext';
 import { FileSystemOperations } from '../services/FileSystemService';
+import { TagTreeService } from '../services/TagTreeService';
 import { NotebookNavigatorSettings } from '../settings';
 import { ItemType } from '../types';
 import { getFilesForFolder, getFilesForTag } from './fileFinder';
 
-interface DeleteOperationsContext {
+interface BaseDeleteOperationsContext {
     app: App;
     fileSystemOps: FileSystemOperations;
     settings: NotebookNavigatorSettings;
     selectionState: SelectionState;
     selectionDispatch: React.Dispatch<SelectionAction>;
+}
+
+interface DeleteFilesContext extends BaseDeleteOperationsContext {
+    tagTreeService: TagTreeService | null;
 }
 
 /**
@@ -40,8 +45,9 @@ export async function deleteSelectedFiles({
     fileSystemOps,
     settings,
     selectionState,
-    selectionDispatch
-}: DeleteOperationsContext): Promise<void> {
+    selectionDispatch,
+    tagTreeService
+}: DeleteFilesContext): Promise<void> {
     // Check if multiple files are selected
     if (selectionState.selectedFiles.size > 1) {
         // Get all files in the current view for smart selection
@@ -49,7 +55,7 @@ export async function deleteSelectedFiles({
         if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
             allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
         } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
+            allFiles = getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
         }
 
         // Use centralized delete method with smart selection
@@ -91,7 +97,7 @@ export async function deleteSelectedFolder({
     settings,
     selectionState,
     selectionDispatch
-}: DeleteOperationsContext): Promise<void> {
+}: BaseDeleteOperationsContext): Promise<void> {
     if (!selectionState.selectedFolder) return;
 
     const folderToDelete = selectionState.selectedFolder;

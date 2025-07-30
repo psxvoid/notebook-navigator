@@ -64,7 +64,7 @@ export interface NotebookNavigatorHandle {
  */
 export const NotebookNavigatorComponent = React.memo(
     forwardRef<NotebookNavigatorHandle>(function NotebookNavigatorComponent(_, ref) {
-        const { app, isMobile, fileSystemOps, plugin } = useServices();
+        const { app, isMobile, fileSystemOps, plugin, tagTreeService } = useServices();
         const settings = useSettingsState();
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
@@ -177,7 +177,8 @@ export const NotebookNavigatorComponent = React.memo(
                             fileSystemOps,
                             settings,
                             selectionState,
-                            selectionDispatch
+                            selectionDispatch,
+                            tagTreeService
                         });
                     } else if (
                         uiState.focusedPane === 'navigation' &&
@@ -226,7 +227,7 @@ export const NotebookNavigatorComponent = React.memo(
                     if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                         allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
                     } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                        allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
+                        allFiles = getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
                     }
 
                     // Move files with modal
@@ -281,7 +282,8 @@ export const NotebookNavigatorComponent = React.memo(
                 uiState.focusedPane,
                 app,
                 settings,
-                plugin
+                plugin,
+                tagTreeService
             ]
         );
 

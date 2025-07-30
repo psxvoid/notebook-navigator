@@ -61,7 +61,7 @@ interface ListPaneProps {
 
 export const ListPane = React.memo(
     forwardRef<ListPaneHandle, ListPaneProps>(function ListPane(props, ref) {
-        const { app, isMobile } = useServices();
+        const { app, isMobile, tagTreeService } = useServices();
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
         const settings = useSettingsState();
@@ -292,11 +292,11 @@ export const ListPane = React.memo(
             if (selectionType === ItemType.FOLDER && selectedFolder) {
                 allFiles = getFilesForFolder(selectedFolder, settings, app);
             } else if (selectionType === ItemType.TAG && selectedTag) {
-                allFiles = getFilesForTag(selectedTag, settings, app);
+                allFiles = getFilesForTag(selectedTag, settings, app, tagTreeService);
             }
 
             return allFiles;
-        }, [selectionType, selectedFolder, selectedTag, settings, app, updateKey]); // eslint-disable-line react-hooks/exhaustive-deps
+        }, [selectionType, selectedFolder, selectedTag, settings, app, tagTreeService, updateKey]); // eslint-disable-line react-hooks/exhaustive-deps
         // updateKey is intentionally included to force re-computation when vault files change (create/delete/rename).
         // Without it, the file list wouldn't update when files are modified outside of the plugin.
 

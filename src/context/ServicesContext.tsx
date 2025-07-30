@@ -23,6 +23,7 @@ import NotebookNavigatorPlugin from '../main';
 import { FileSystemOperations } from '../services/FileSystemService';
 import { MetadataService } from '../services/MetadataService';
 import { TagOperations } from '../services/TagOperations';
+import { TagTreeService } from '../services/TagTreeService';
 
 /**
  * Interface defining all services and stable dependencies available through the context.
@@ -41,6 +42,8 @@ interface Services {
     metadataService: MetadataService | null;
     /** Tag operations service for renaming and deleting tags */
     tagOperations: TagOperations | null;
+    /** Tag tree service for accessing the current tag tree */
+    tagTreeService: TagTreeService | null;
 }
 
 /**
@@ -69,9 +72,10 @@ export function ServicesProvider({ children, plugin }: { children: React.ReactNo
             app: plugin.app,
             plugin,
             isMobile,
-            fileSystemOps: new FileSystemOperations(plugin.app),
+            fileSystemOps: new FileSystemOperations(plugin.app, () => plugin.tagTreeService),
             metadataService: plugin.metadataService, // Use the single instance from plugin
-            tagOperations: plugin.tagOperations // Use the single instance from plugin
+            tagOperations: plugin.tagOperations, // Use the single instance from plugin
+            tagTreeService: plugin.tagTreeService // Use the single instance from plugin
         }),
         [plugin, isMobile]
     );

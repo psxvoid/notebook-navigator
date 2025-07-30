@@ -181,7 +181,7 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
     focusedPane,
     containerRef
 }: UseVirtualKeyboardNavigationProps<T>) {
-    const { app, isMobile } = useServices();
+    const { app, isMobile, tagTreeService } = useServices();
     const settings = useSettingsState();
     const fileSystemOps = useFileSystemOps();
     const selectionState = useSelectionState();
@@ -641,7 +641,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                             fileSystemOps,
                             settings,
                             selectionState,
-                            selectionDispatch
+                            selectionDispatch,
+                            tagTreeService
                         });
                     } else if (
                         focusedPane === 'navigation' &&
@@ -728,7 +729,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
             multiSelection,
             containerRef,
             selectItemAtIndex,
-            handleExpandCollapse
+            handleExpandCollapse,
+            tagTreeService
         ]
     );
 

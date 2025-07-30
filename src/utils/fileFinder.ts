@@ -29,7 +29,7 @@ import {
 } from './fileFilters';
 import { shouldDisplayFile, FILE_VISIBILITY } from './fileTypeUtils';
 import { getEffectiveSortOption, sortFiles } from './sortUtils';
-import { buildTagTree, findTagNode, collectAllTagPaths } from './tagTree';
+import { TagTreeService } from '../services/TagTreeService';
 
 /**
  * Gets the folder note for a folder if it exists
@@ -187,7 +187,7 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
 /**
  * Gets a sorted list of files for a given tag, respecting all plugin settings.
  */
-export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings, app: App): TFile[] {
+export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings, app: App, tagTreeService: TagTreeService | null): TFile[] {
     // Get all files based on visibility setting, with proper filtering
     let allFiles: TFile[] = [];
 
@@ -217,15 +217,12 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
         // For regular tags, only consider markdown files since only they can have tags
         const markdownFiles = allFiles.filter(file => file.extension === 'md');
 
-        // Build the tag tree
-        const { tree: tagTree } = buildTagTree(markdownFiles, app);
-
-        // Find the selected tag node
-        const selectedNode = findTagNode(tagTree, tag);
+        // Find the selected tag node using TagTreeService
+        const selectedNode = tagTreeService?.findTagNode(tag) || null;
 
         if (selectedNode) {
             // Collect all tags to include (selected tag and all children)
-            const tagsToInclude = collectAllTagPaths(selectedNode);
+            const tagsToInclude = tagTreeService?.collectTagPaths(selectedNode) || new Set<string>();
 
             // Create a lowercase set for case-insensitive comparison
             const tagsToIncludeLower = new Set(Array.from(tagsToInclude).map((tag: string) => tag.toLowerCase()));

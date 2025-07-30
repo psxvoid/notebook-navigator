@@ -55,7 +55,7 @@ import { TagTreeNode } from '../types/storage';
 import { getFilteredMarkdownFiles, parseExcludedFolders } from '../utils/fileFilters';
 import { getFileDisplayName as getDisplayName } from '../utils/fileNameUtils';
 import { clearNoteCountCache } from '../utils/tagTree';
-import { buildTagTreeFromDatabase } from '../utils/tagTree';
+import { buildTagTreeFromDatabase, findTagNode, collectAllTagPaths } from '../utils/tagTree';
 import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
@@ -132,6 +132,10 @@ interface StorageContextValue {
     getDB: () => IndexedDBStorage;
     // Synchronous database access methods
     getFile: (path: string) => DBFileData | null;
+    // Tag tree access methods
+    getTagTree: () => Map<string, TagTreeNode>;
+    findTagInTree: (tagPath: string) => TagTreeNode | null;
+    getAllTagPaths: () => string[];
     getFiles: (paths: string[]) => Map<string, DBFileData>;
     hasPreview: (path: string) => boolean;
     // Storage initialization state
@@ -194,7 +198,7 @@ function detectContentSettingsChanges(prevSettings: ContentSettingsRecord, curre
 
 export function StorageProvider({ app, children }: StorageProviderProps) {
     const settings = useSettingsState();
-    const { metadataService } = useServices();
+    const { metadataService, tagTreeService } = useServices();
     const [fileData, setFileData] = useState<FileData>({ tree: new Map(), untagged: 0 });
 
     // Content service handles content generation (preview text + feature images)
@@ -273,6 +277,22 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             };
         };
 
+        // Tag tree accessor methods
+        const getTagTree = () => fileData.tree;
+
+        const findTagInTree = (tagPath: string) => {
+            return findTagNode(fileData.tree, tagPath);
+        };
+
+        const getAllTagPaths = () => {
+            const allPaths: string[] = [];
+            for (const rootNode of fileData.tree.values()) {
+                const paths = collectAllTagPaths(rootNode);
+                allPaths.push(...paths);
+            }
+            return allPaths;
+        };
+
         return {
             fileData,
             getFileDisplayName,
@@ -283,7 +303,10 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             getFile: (path: string) => getDBInstance().getFile(path),
             getFiles: (paths: string[]) => getDBInstance().getFiles(paths),
             hasPreview: (path: string) => getDBInstance().hasPreview(path),
-            isStorageReady
+            isStorageReady,
+            getTagTree,
+            findTagInTree,
+            getAllTagPaths
         };
     }, [fileData, settings, app, isStorageReady]);
 
@@ -298,9 +321,16 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
         const { tree: newTree, untagged: newUntagged } = buildTagTreeFromDatabase(db, excludedFolderPatterns);
         clearNoteCountCache();
-        setFileData({ tree: newTree, untagged: settings.showTags && settings.showUntagged ? newUntagged : 0 });
+        const untaggedCount = settings.showTags && settings.showUntagged ? newUntagged : 0;
+        setFileData({ tree: newTree, untagged: untaggedCount });
+
+        // Update the TagTreeService with the new tree
+        if (tagTreeService) {
+            tagTreeService.updateTagTree(newTree, untaggedCount);
+        }
+
         return newTree;
-    }, [settings.showTags, settings.showUntagged, settings.excludedFolders]);
+    }, [settings.showTags, settings.showUntagged, settings.excludedFolders, tagTreeService]);
 
     // Unified cleanup function that runs all cleanup operations in a single pass
     const runUnifiedCleanup = useCallback(

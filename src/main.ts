@@ -21,6 +21,7 @@ import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTa
 import { LocalStorageKeys, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, STORAGE_KEYS } from './types';
 import { MetadataService } from './services/MetadataService';
 import { TagOperations } from './services/TagOperations';
+import { TagTreeService } from './services/TagTreeService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage } from './utils/localStorage';
@@ -82,6 +83,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
     ribbonIconEl: HTMLElement | undefined = undefined;
     metadataService: MetadataService | null = null;
     tagOperations: TagOperations | null = null;
+    tagTreeService: TagTreeService | null = null;
     // A map of callbacks to notify open React views of changes
     private settingsUpdateListeners = new Map<string, () => void>();
     // A map of callbacks to notify open React views of file renames
@@ -128,6 +130,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
         // Initialize tag operations service
         this.tagOperations = new TagOperations(this.app);
+
+        // Initialize tag tree service
+        this.tagTreeService = new TagTreeService();
 
         this.registerView(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, leaf => {
             return new NotebookNavigatorView(leaf, this);

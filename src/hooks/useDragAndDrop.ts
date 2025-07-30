@@ -70,7 +70,7 @@ import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
  * ```
  */
 export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>) {
-    const { app, isMobile } = useServices();
+    const { app, isMobile, tagTreeService } = useServices();
     const fileSystemOps = useFileSystemOps();
     const tagOperations = useTagOperations();
     const selectionState = useSelectionState();
@@ -86,10 +86,10 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
             return getFilesForFolder(selectionState.selectedFolder, settings, app);
         } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            return getFilesForTag(selectionState.selectedTag, settings, app);
+            return getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
         }
         return [];
-    }, [selectionState, settings, app]);
+    }, [selectionState, settings, app, tagTreeService]);
 
     /**
      * Handles the drag start event.

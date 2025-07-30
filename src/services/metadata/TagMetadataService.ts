@@ -19,9 +19,6 @@
 import { SortOption } from '../../settings';
 import { ItemType } from '../../types';
 import { BaseMetadataService } from './BaseMetadataService';
-import { buildTagTree } from '../../utils/tagTree';
-import { TagTreeNode } from '../../types/storage';
-import { getFilteredMarkdownFiles } from '../../utils/fileFilters';
 import type { CleanupValidators } from '../MetadataService';
 
 /**
@@ -112,10 +109,9 @@ export class TagMetadataService extends BaseMetadataService {
      * @returns True if any changes were made
      */
     async cleanupTagMetadata(): Promise<boolean> {
-        // Build valid tags set first
-        const allFiles = getFilteredMarkdownFiles(this.app, this.plugin.settings);
-        const { tree: tagTree } = buildTagTree(allFiles, this.app);
-        const validTags = this.collectAllTagPaths(tagTree);
+        // Get valid tags from TagTreeService
+        const validTagPaths = this.plugin.tagTreeService?.getAllTagPaths() || [];
+        const validTags = new Set(validTagPaths);
 
         const validator = (path: string) => validTags.has(path);
 
@@ -129,33 +125,14 @@ export class TagMetadataService extends BaseMetadataService {
     }
 
     /**
-     * Collects all tag paths from tag tree
-     */
-    private collectAllTagPaths(tree: Map<string, TagTreeNode>): Set<string> {
-        const paths = new Set<string>();
-
-        function addNode(node: TagTreeNode): void {
-            paths.add(node.path);
-            for (const child of node.children.values()) {
-                addNode(child);
-            }
-        }
-
-        for (const node of tree.values()) {
-            addNode(node);
-        }
-
-        return paths;
-    }
-
-    /**
      * Clean up tag metadata using pre-loaded validators
      * @param validators - Pre-loaded data for validation
      * @returns True if any changes were made
      */
-    async cleanupWithValidators(validators: CleanupValidators): Promise<boolean> {
-        // Use the already built tag tree to collect valid tags
-        const validTags = this.collectAllTagPaths(validators.tagTree);
+    async cleanupWithValidators(_validators: CleanupValidators): Promise<boolean> {
+        // Get valid tags from TagTreeService
+        const validTagPaths = this.plugin.tagTreeService?.getAllTagPaths() || [];
+        const validTags = new Set(validTagPaths);
 
         const validator = (path: string) => validTags.has(path);
 
