@@ -59,7 +59,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-07-30',
         showOnUpdate: true,
         improved: [
-            'You can now rename the root vault folder! The root vault folder now also uses your current vault name as default, not just "Vault".'
+            'You can now rename the root vault folder! The root vault folder now also uses your current vault name as default, not just "Vault".',
+            'Removed markdown tables from preview text - should result in cleaner previews.'
         ],
         fixed: [
             'Changing folders on desktop in single-pane mode will no longer auto select the first file if current folder does not contain the current file (#105).',
