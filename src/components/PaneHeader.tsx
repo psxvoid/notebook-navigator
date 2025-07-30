@@ -307,7 +307,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
 
         if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
             if (selectionState.selectedFolder.path === '/') {
-                title = strings.folderTree.rootFolderName;
+                title = settings.customVaultName || app.vault.getName();
             } else {
                 title = useFolderName ? selectionState.selectedFolder.name : selectionState.selectedFolder.path;
             }

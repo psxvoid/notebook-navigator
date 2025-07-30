@@ -39,11 +39,6 @@ export const STRINGS_EN = {
         pinnedSection: '📌 Pinned' // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
     },
 
-    // Folder tree
-    folderTree: {
-        rootFolderName: 'Vault' // Display name for the vault root folder in the tree (English: Vault)
-    },
-
     // Tag list
     tagList: {
         untaggedLabel: 'Untagged', // Label for the special item showing notes without tags (English: Untagged)
@@ -192,6 +187,8 @@ export const STRINGS_EN = {
             deleteFileTitle: "Delete '{name}'?",
             folderNamePrompt: 'Enter folder name:',
             renamePrompt: 'Enter new name:',
+            renameVaultTitle: 'Change vault display name',
+            renameVaultPrompt: 'Enter custom display name (leave empty to use default):',
             deleteFolderConfirm: 'Are you sure you want to delete this folder and all its contents?',
             deleteFileConfirm: 'Are you sure you want to delete this file?'
         },
@@ -464,7 +461,7 @@ export const STRINGS_EN = {
             },
             showRootFolder: {
                 name: 'Show root folder',
-                desc: 'Display "Vault" as the root folder in the tree.'
+                desc: 'Display the vault name as the root folder in the tree.'
             },
             showNoteCount: {
                 name: 'Show note count',

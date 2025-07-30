@@ -20,6 +20,7 @@ import { TFolder } from 'obsidian';
 import { SortOption } from '../../settings';
 import { ItemType } from '../../types';
 import { BaseMetadataService } from './BaseMetadataService';
+import type { CleanupValidators } from '../MetadataService';
 
 /**
  * Service for managing folder-specific metadata operations
@@ -165,6 +166,39 @@ export class FolderMetadataService extends BaseMetadataService {
             const folder = this.app.vault.getAbstractFileByPath(path);
             return folder instanceof TFolder;
         };
+
+        const results = await Promise.all([
+            this.cleanupMetadata(this.plugin.settings, 'folderColors', validator),
+            this.cleanupMetadata(this.plugin.settings, 'folderIcons', validator),
+            this.cleanupMetadata(this.plugin.settings, 'folderSortOverrides', validator)
+        ]);
+
+        return results.some(changed => changed);
+    }
+
+    /**
+     * Clean up folder metadata using pre-loaded validators
+     * @param validators - Pre-loaded data for validation
+     * @returns True if any changes were made
+     */
+    async cleanupWithValidators(validators: CleanupValidators): Promise<boolean> {
+        // Use vault files to check if folders exist
+        const folderPaths = new Set<string>();
+
+        // Extract folder paths from vault files
+        validators.vaultFiles.forEach(filePath => {
+            // Add parent folders up to root
+            const parts = filePath.split('/');
+            for (let i = 1; i < parts.length; i++) {
+                const folderPath = parts.slice(0, i).join('/');
+                folderPaths.add(folderPath);
+            }
+        });
+
+        // Add root folder
+        folderPaths.add('/');
+
+        const validator = (path: string) => folderPaths.has(path);
 
         const results = await Promise.all([
             this.cleanupMetadata(this.plugin.settings, 'folderColors', validator),

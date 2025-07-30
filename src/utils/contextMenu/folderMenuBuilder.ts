@@ -237,34 +237,53 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         item.setTitle(strings.contextMenu.folder.renameFolder)
             .setIcon('pencil')
             .onClick(async () => {
-                await fileSystemOps.renameFolder(folder, settings);
+                // Handle root folder rename differently
+                if (folder.path === '/') {
+                    const { InputModal } = await import('../../modals/InputModal');
+                    const modal = new InputModal(
+                        app,
+                        strings.modals.fileSystem.renameVaultTitle,
+                        strings.modals.fileSystem.renameVaultPrompt,
+                        async newName => {
+                            // Update custom vault name setting (allow empty string)
+                            services.plugin.settings.customVaultName = newName;
+                            await services.plugin.saveSettings();
+                        },
+                        settings.customVaultName
+                    );
+                    modal.open();
+                } else {
+                    await fileSystemOps.renameFolder(folder, settings);
+                }
             });
     });
 
-    // Delete folder
-    menu.addItem((item: MenuItem) => {
-        item.setTitle(strings.contextMenu.folder.deleteFolder)
-            .setIcon('trash')
-            .onClick(async () => {
-                const parentFolder = folder.parent;
+    // Delete folder (not available for vault root)
+    if (folder.path !== '/') {
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.folder.deleteFolder)
+                .setIcon('trash')
+                .onClick(async () => {
+                    const parentFolder = folder.parent;
 
-                await fileSystemOps.deleteFolder(folder, settings.confirmBeforeDelete, () => {
-                    // Check if we need to update selection
-                    if (selectionState.selectedFolder) {
-                        const isSelectedFolderDeleted = folder.path === selectionState.selectedFolder.path;
-                        const isAncestorDeleted = isFolderAncestor(folder, selectionState.selectedFolder);
+                    await fileSystemOps.deleteFolder(folder, settings.confirmBeforeDelete, () => {
+                        // Check if we need to update selection
+                        if (selectionState.selectedFolder) {
+                            const isSelectedFolderDeleted = folder.path === selectionState.selectedFolder.path;
+                            const isAncestorDeleted = isFolderAncestor(folder, selectionState.selectedFolder);
 
-                        if (isSelectedFolderDeleted || isAncestorDeleted) {
-                            // If parent exists and is not root (or root is visible), select it
-                            if (parentFolder && (parentFolder.path !== '' || settings.showRootFolder)) {
-                                selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: parentFolder });
-                            } else {
-                                // Clear selection if no valid parent
-                                selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: null });
+                            if (isSelectedFolderDeleted || isAncestorDeleted) {
+                                // If parent exists and is not root (or root is visible), select it
+                                if (parentFolder && (parentFolder.path !== '' || settings.showRootFolder)) {
+                                    selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: parentFolder });
+                                } else {
+                                    // Clear selection if no valid parent
+                                    selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: null });
+                                }
                             }
                         }
-                    }
+                    });
                 });
-            });
-    });
+        });
+    }
 }

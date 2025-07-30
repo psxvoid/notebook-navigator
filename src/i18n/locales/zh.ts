@@ -39,11 +39,6 @@ export const STRINGS_ZH = {
         pinnedSection: '📌 已固定' // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
     },
 
-    // Folder tree
-    folderTree: {
-        rootFolderName: '仓库' // Display name for the vault root folder in the tree (English: Vault)
-    },
-
     // Tag list
     tagList: {
         untaggedLabel: '无标签', // Label for the special item showing notes without tags (English: Untagged)
@@ -193,6 +188,8 @@ export const STRINGS_ZH = {
             deleteFileTitle: "删除 '{name}'？",
             folderNamePrompt: '输入文件夹名称：',
             renamePrompt: '输入新名称：',
+            renameVaultTitle: '更改仓库显示名称',
+            renameVaultPrompt: '输入自定义显示名称（留空使用默认值）：',
             deleteFolderConfirm: '您确定要删除此文件夹及其所有内容吗？',
             deleteFileConfirm: '您确定要删除此文件吗？'
         },
@@ -464,7 +461,7 @@ export const STRINGS_ZH = {
             },
             showRootFolder: {
                 name: '显示根文件夹',
-                desc: '在树中显示"仓库"作为根文件夹。'
+                desc: '在树中显示根文件夹名称。'
             },
             showNoteCount: {
                 name: '显示笔记数',

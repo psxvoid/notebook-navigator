@@ -21,6 +21,7 @@ import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTa
 import { LocalStorageKeys, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, STORAGE_KEYS } from './types';
 import { MetadataService } from './services/MetadataService';
 import { TagOperations } from './services/TagOperations';
+import { TagTreeService } from './services/TagTreeService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage } from './utils/localStorage';
@@ -82,6 +83,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
     ribbonIconEl: HTMLElement | undefined = undefined;
     metadataService: MetadataService | null = null;
     tagOperations: TagOperations | null = null;
+    tagTreeService: TagTreeService | null = null;
     // A map of callbacks to notify open React views of changes
     private settingsUpdateListeners = new Map<string, () => void>();
     // A map of callbacks to notify open React views of file renames
@@ -128,6 +130,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
         // Initialize tag operations service
         this.tagOperations = new TagOperations(this.app);
+
+        // Initialize tag tree service
+        this.tagTreeService = new TagTreeService();
 
         this.registerView(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, leaf => {
             return new NotebookNavigatorView(leaf, this);
@@ -401,22 +406,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
             })
         );
 
-        // Clean up settings after workspace is ready
-        // Use onLayoutReady for more reliable initialization
+        // Use onLayoutReady for reliable initialization
         this.app.workspace.onLayoutReady(async () => {
-            // Defer folder and file metadata cleanup to idle time
-            // Note: Tag metadata cleanup happens after tag tree is built to ensure accuracy
-            requestIdleCallback(
-                () => {
-                    if (this.metadataService && !this.isUnloading) {
-                        this.metadataService.cleanupAllMetadata().catch(error => {
-                            console.error('Error during metadata cleanup:', error);
-                        });
-                    }
-                },
-                { timeout: 1000 }
-            ); // Fallback to 1 second if no idle time
-
             // Always open the view if it doesn't exist
             const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
             if (leaves.length === 0 && !this.isUnloading) {
@@ -652,7 +643,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
             // Show the modal only if the current version doesn't have skipAutoShow
             if (shouldShowReleaseNotesForVersion(currentVersion)) {
-                new WhatsNewModal(this.app, releaseNotes).open();
+                new WhatsNewModal(this.app, releaseNotes, this.settings.dateFormat).open();
             }
         }
     }

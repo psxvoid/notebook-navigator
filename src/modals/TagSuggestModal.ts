@@ -19,8 +19,9 @@
 import { App } from 'obsidian';
 import { strings } from '../i18n';
 import { TagTreeNode } from '../types/storage';
-import { buildTagTree, getTotalNoteCount } from '../utils/tagTree';
+import { getTotalNoteCount } from '../utils/tagTree';
 import { BaseSuggestModal } from './BaseSuggestModal';
+import NotebookNavigatorPlugin from '../main';
 
 /**
  * Modal for selecting a tag to navigate to
@@ -29,10 +30,12 @@ import { BaseSuggestModal } from './BaseSuggestModal';
 export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
     private includeUntagged: boolean;
     private untaggedNode: TagTreeNode;
+    private plugin: NotebookNavigatorPlugin;
 
     /**
      * Creates a new TagSuggestModal
      * @param app - The Obsidian app instance
+     * @param plugin - The NotebookNavigator plugin instance
      * @param onChooseTag - Callback when a tag is selected
      * @param placeholderText - Placeholder text for the search input
      * @param actionText - Action text for the enter key instruction
@@ -40,6 +43,7 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
      */
     constructor(
         app: App,
+        plugin: NotebookNavigatorPlugin,
         onChooseTag: (tag: string) => void,
         placeholderText: string,
         actionText: string,
@@ -51,6 +55,7 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
             action: actionText,
             dismiss: strings.modals.tagSuggest.instructions.dismiss
         });
+        this.plugin = plugin;
         this.includeUntagged = includeUntagged;
 
         // Create special untagged node
@@ -74,9 +79,8 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
             tags.push(this.untaggedNode);
         }
 
-        // Build tag tree from all files
-        const allFiles = this.app.vault.getMarkdownFiles();
-        const { tree: tagTree } = buildTagTree(allFiles, this.app);
+        // Get tag tree from the TagTreeService
+        const tagTree = this.plugin.tagTreeService?.getTagTree() || new Map();
 
         // Flatten the tree into a list
         const flattenTree = (nodes: Map<string, TagTreeNode>) => {

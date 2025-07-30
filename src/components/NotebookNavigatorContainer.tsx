@@ -46,11 +46,7 @@ export const NotebookNavigatorContainer = React.memo(
         if (!isStorageReady) {
             return (
                 <div className="nn-split-container nn-desktop">
-                    <SkeletonView
-                        paneWidth={paneWidth}
-                        singlePane={uiState.singlePane}
-                        currentSinglePaneView={uiState.currentSinglePaneView}
-                    />
+                    <SkeletonView paneWidth={paneWidth} singlePane={uiState.singlePane} />
                 </div>
             );
         }

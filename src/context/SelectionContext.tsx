@@ -575,7 +575,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             // Handle auto-select logic for tag selection
             else if (action.type === 'SET_SELECTED_TAG' && action.autoSelectedFile === undefined) {
                 if (action.tag) {
-                    const filesForTag = getFilesForTag(action.tag, settings, app);
+                    const filesForTag = getFilesForTag(action.tag, settings, app, plugin.tagTreeService);
 
                     // Desktop with autoSelectFirstFile enabled: ALWAYS select first file
                     if (!isMobile && settings.autoSelectFirstFileOnFocusChange && filesForTag.length > 0) {
@@ -607,7 +607,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
                 dispatch(action);
             }
         },
-        [app, settings, isMobile, dispatch]
+        [app, settings, isMobile, plugin.tagTreeService, dispatch]
     );
 
     // Persist selected folder to localStorage with error handling

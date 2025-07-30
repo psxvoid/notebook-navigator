@@ -63,15 +63,16 @@ export interface ProcessedMetadata {
  * - Clear content when settings change or features are disabled
  */
 export class ContentService {
+    // Configuration for batch processing
+    private readonly QUEUE_BATCH_SIZE = 100; // Files to take from queue at once
+    private readonly PARALLEL_LIMIT = 10; // Max concurrent file operations
+
     private abortController: AbortController | null = null;
     private app: App;
     private isProcessing = false;
     private queue: ContentJob[] = [];
     private queueDebounceTimer: number | null = null;
     private settingsChanged = false;
-    private shouldLogCurrentBatch = true;
-    private startTime = 0;
-    private totalFiles = 0;
     private currentBatchSettings: NotebookNavigatorSettings | null = null;
 
     constructor(app: App) {
@@ -162,12 +163,6 @@ export class ContentService {
             this.queueDebounceTimer = null;
         }
 
-        // Determine if this is a regular file update (not settings change)
-        const isRegularFileUpdate = !this.settingsChanged;
-
-        // Set whether we should log for this batch
-        this.shouldLogCurrentBatch = !isRegularFileUpdate;
-
         // Don't clear the queue - we want to preserve already queued files
         // Only clear on settings changes
         if (this.settingsChanged) {
@@ -240,7 +235,6 @@ export class ContentService {
         // Add jobs to existing queue array
         // Simple approach: just add the jobs, the debounce timer will handle duplicates
         this.queue.push(...activeJobs);
-        this.totalFiles = this.queue.length;
 
         // If already processing, stop and restart with new settings
         if (this.isProcessing) {
@@ -325,14 +319,8 @@ export class ContentService {
         }
 
         this.isProcessing = true;
-        this.startTime = performance.now();
         this.abortController = new AbortController();
         this.currentBatchSettings = settings;
-
-        // Only log if we should (not for regular file updates)
-        if (this.shouldLogCurrentBatch) {
-            console.log(`[${new Date().toISOString()}] ContentService: Starting batch processing of ${this.totalFiles} files`);
-        }
 
         // Start processing asynchronously
         await this.processNextBatch();
@@ -352,46 +340,54 @@ export class ContentService {
 
         const settings = this.currentBatchSettings;
 
-        // Take a larger batch for parallel processing
-        const BATCH_SIZE = 100;
-        const batch = this.queue.splice(0, Math.min(BATCH_SIZE, this.queue.length));
+        // Take files from queue for processing
+        const batch = this.queue.splice(0, Math.min(this.QUEUE_BATCH_SIZE, this.queue.length));
 
         try {
-            // Process all files in parallel
-            const results = await Promise.all(
-                batch.map(async job => {
-                    try {
-                        // Process tags, preview, image and metadata in parallel
-                        const [tags, preview, imageUrl, metadata] = await Promise.all([
-                            job.needsTags ? this.extractTags(job.file) : Promise.resolve(null),
-                            job.needsPreview ? this.generatePreviewOptimized(job.file, settings) : Promise.resolve(''),
-                            job.needsImage ? Promise.resolve(this.getFeatureImageUrl(job.file, settings)) : Promise.resolve(''),
-                            job.needsMetadata
-                                ? Promise.resolve(ContentService.extractMetadata(this.app, job.file, settings))
-                                : Promise.resolve({})
-                        ]);
+            // Process files in chunks to limit concurrent I/O operations
+            const results = [];
 
-                        return {
-                            job,
-                            tags,
-                            preview,
-                            imageUrl,
-                            metadata: metadata as { fn?: string; fc?: number; fm?: number },
-                            success: true
-                        };
-                    } catch (error) {
-                        console.log(`Error processing ${job.file.path}:`, error);
-                        return {
-                            job,
-                            tags: null,
-                            preview: '',
-                            imageUrl: '',
-                            metadata: {} as { fn?: string; fc?: number; fm?: number },
-                            success: false
-                        };
-                    }
-                })
-            );
+            for (let i = 0; i < batch.length; i += this.PARALLEL_LIMIT) {
+                const chunk = batch.slice(i, i + this.PARALLEL_LIMIT);
+
+                // Process this chunk in parallel
+                const chunkResults = await Promise.all(
+                    chunk.map(async job => {
+                        try {
+                            // Process tags, preview, image and metadata in parallel
+                            const [tags, preview, imageUrl, metadata] = await Promise.all([
+                                job.needsTags ? this.extractTags(job.file) : Promise.resolve(null),
+                                job.needsPreview ? this.generatePreviewOptimized(job.file, settings) : Promise.resolve(''),
+                                job.needsImage ? Promise.resolve(this.getFeatureImageUrl(job.file, settings)) : Promise.resolve(''),
+                                job.needsMetadata
+                                    ? Promise.resolve(ContentService.extractMetadata(this.app, job.file, settings))
+                                    : Promise.resolve({})
+                            ]);
+
+                            return {
+                                job,
+                                tags,
+                                preview,
+                                imageUrl,
+                                metadata: metadata as { fn?: string; fc?: number; fm?: number },
+                                success: true
+                            };
+                        } catch (error) {
+                            console.log(`Error processing ${job.file.path}:`, error);
+                            return {
+                                job,
+                                tags: null,
+                                preview: '',
+                                imageUrl: '',
+                                metadata: {} as { fn?: string; fc?: number; fm?: number },
+                                success: false
+                            };
+                        }
+                    })
+                );
+
+                results.push(...chunkResults);
+            }
 
             // Collect all updates for batch processing
             const batchUpdates: Array<{
@@ -539,12 +535,7 @@ export class ContentService {
         this.isProcessing = false;
         this.abortController = null;
         this.currentBatchSettings = null;
-        // Note: settingsChanged is already reset in queueContent after determining shouldLogCurrentBatch
         // No need to notify - database will emit change events
-        if (this.shouldLogCurrentBatch) {
-            const elapsed = ((performance.now() - this.startTime) / 1000).toFixed(2);
-            console.log(`[${new Date().toISOString()}] ContentService: Completed processing ${this.totalFiles} files in ${elapsed}s`);
-        }
     }
 
     /**

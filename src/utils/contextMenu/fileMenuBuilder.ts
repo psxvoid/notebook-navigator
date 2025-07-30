@@ -24,6 +24,7 @@ import { getFilesForFolder, getFilesForTag } from '../../utils/fileFinder';
 import { ItemType } from '../../types';
 import { MetadataService } from '../../services/MetadataService';
 import { FileSystemOperations } from '../../services/FileSystemService';
+import { TagTreeService } from '../../services/TagTreeService';
 import { SelectionState, SelectionAction } from '../../context/SelectionContext';
 import { NotebookNavigatorSettings } from '../../settings';
 
@@ -32,7 +33,7 @@ import { NotebookNavigatorSettings } from '../../settings';
  */
 export function buildFileMenu(params: FileMenuBuilderParams): void {
     const { file, menu, services, settings, state, dispatchers } = params;
-    const { app, isMobile, fileSystemOps, metadataService } = services;
+    const { app, isMobile, fileSystemOps, metadataService, tagTreeService } = services;
     const { selectionState } = state;
     const { selectionDispatch } = dispatchers;
 
@@ -157,7 +158,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                     if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                         allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
                     } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                        allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
+                        allFiles = getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
                     }
 
                     await fileSystemOps.moveFilesWithModal([file], {
@@ -182,7 +183,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                     if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                         allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
                     } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                        allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
+                        allFiles = getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
                     }
 
                     await fileSystemOps.moveFilesWithModal(selectedFiles, {
@@ -198,7 +199,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     if (!shouldShowMultiOptions) {
         addSingleFileDeleteOption(menu, file, selectionState, settings, fileSystemOps, selectionDispatch);
     } else {
-        addMultipleFilesDeleteOption(menu, selectedCount, selectionState, settings, app, fileSystemOps, selectionDispatch);
+        addMultipleFilesDeleteOption(menu, selectedCount, selectionState, settings, app, fileSystemOps, selectionDispatch, tagTreeService);
     }
 }
 
@@ -480,7 +481,8 @@ function addMultipleFilesDeleteOption(
     settings: NotebookNavigatorSettings,
     app: App,
     fileSystemOps: FileSystemOperations,
-    selectionDispatch: React.Dispatch<SelectionAction>
+    selectionDispatch: React.Dispatch<SelectionAction>,
+    tagTreeService: TagTreeService | null
 ): void {
     // Check if all files are markdown
     const selectedFiles = Array.from(selectionState.selectedFiles)
@@ -501,7 +503,7 @@ function addMultipleFilesDeleteOption(
                 if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                     allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
                 } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                    allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
+                    allFiles = getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
                 }
 
                 // Use centralized delete method with smart selection

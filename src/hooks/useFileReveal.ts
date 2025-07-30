@@ -27,7 +27,7 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
 import { determineTagToReveal } from '../utils/tagUtils';
 import { ItemType } from '../types';
-import { buildTagTree, findTagNode, parseTagPatterns, matchesTagPattern } from '../utils/tagTree';
+import { parseTagPatterns, matchesTagPattern } from '../utils/tagTree';
 
 interface UseFileRevealOptions {
     app: App;
@@ -53,7 +53,7 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
     const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
-    const { getDB } = useFileCache();
+    const { getDB, findTagInTree } = useFileCache();
 
     // Auto-reveal state
     const [fileToReveal, setFileToReveal] = useState<TFile | null>(null);
@@ -116,9 +116,8 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
         (tagPath: string) => {
             if (!tagPath) return;
 
-            // Build tag tree to find parent tags
-            const { tree: tagTree } = buildTagTree(app.vault.getMarkdownFiles(), app);
-            const tagNode = findTagNode(tagTree, tagPath);
+            // Get tag node from StorageContext
+            const tagNode = findTagInTree(tagPath);
 
             if (!tagNode) return;
 
@@ -192,7 +191,6 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             }
         },
         [
-            app,
             expansionState.expandedTags,
             expansionState.expandedVirtualFolders,
             expansionDispatch,
@@ -200,7 +198,8 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             uiState,
             uiDispatch,
             settings,
-            selectionState.selectedFile
+            selectionState.selectedFile,
+            findTagInTree
         ]
     );
 

@@ -39,11 +39,6 @@ export const STRINGS_FR = {
         pinnedSection: '📌 Épinglées' // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
     },
 
-    // Folder tree
-    folderTree: {
-        rootFolderName: 'Coffre' // Display name for the vault root folder in the tree (English: Vault)
-    },
-
     // Tag list
     tagList: {
         untaggedLabel: 'Sans étiquette', // Label for the special item showing notes without tags (English: Untagged)
@@ -193,6 +188,8 @@ export const STRINGS_FR = {
             deleteFileTitle: "Supprimer '{name}' ?",
             folderNamePrompt: 'Entrez le nom du dossier :',
             renamePrompt: 'Entrez le nouveau nom :',
+            renameVaultTitle: "Changer le nom d'affichage du coffre",
+            renameVaultPrompt: "Entrez un nom d'affichage personnalisé (laissez vide pour utiliser le nom par défaut) :",
             deleteFolderConfirm: 'Êtes-vous sûr de vouloir supprimer ce dossier et tout son contenu ?',
             deleteFileConfirm: 'Êtes-vous sûr de vouloir supprimer ce fichier ?'
         },
@@ -465,7 +462,7 @@ export const STRINGS_FR = {
             },
             showRootFolder: {
                 name: 'Afficher le dossier racine',
-                desc: 'Afficher "Coffre" comme dossier racine dans l\'arborescence.'
+                desc: "Afficher le nom du dossier racine dans l'arborescence."
             },
             showNoteCount: {
                 name: 'Afficher le nombre de notes',

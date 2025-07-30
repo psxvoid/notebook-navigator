@@ -64,7 +64,7 @@ export interface NotebookNavigatorHandle {
  */
 export const NotebookNavigatorComponent = React.memo(
     forwardRef<NotebookNavigatorHandle>(function NotebookNavigatorComponent(_, ref) {
-        const { app, isMobile, fileSystemOps } = useServices();
+        const { app, isMobile, fileSystemOps, plugin, tagTreeService } = useServices();
         const settings = useSettingsState();
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
@@ -177,7 +177,8 @@ export const NotebookNavigatorComponent = React.memo(
                             fileSystemOps,
                             settings,
                             selectionState,
-                            selectionDispatch
+                            selectionDispatch,
+                            tagTreeService
                         });
                     } else if (
                         uiState.focusedPane === 'navigation' &&
@@ -226,7 +227,7 @@ export const NotebookNavigatorComponent = React.memo(
                     if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
                         allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
                     } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                        allFiles = getFilesForTag(selectionState.selectedTag, settings, app);
+                        allFiles = getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
                     }
 
                     // Move files with modal
@@ -255,6 +256,7 @@ export const NotebookNavigatorComponent = React.memo(
                     // Show the tag selection modal for navigation
                     const modal = new TagSuggestModal(
                         app,
+                        plugin,
                         (tagPath: string) => {
                             // Use the shared tag navigation logic
                             navigateToTag(tagPath);
@@ -279,7 +281,9 @@ export const NotebookNavigatorComponent = React.memo(
                 uiState.currentSinglePaneView,
                 uiState.focusedPane,
                 app,
-                settings
+                settings,
+                plugin,
+                tagTreeService
             ]
         );
 

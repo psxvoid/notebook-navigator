@@ -39,11 +39,6 @@ export const STRINGS_ES = {
         pinnedSection: '📌 Fijadas' // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
     },
 
-    // Folder tree
-    folderTree: {
-        rootFolderName: 'Bóveda' // Display name for the vault root folder in the tree (English: Vault)
-    },
-
     // Tag list
     tagList: {
         untaggedLabel: 'Sin etiquetas', // Label for the special item showing notes without tags (English: Untagged)
@@ -193,6 +188,8 @@ export const STRINGS_ES = {
             deleteFileTitle: "¿Eliminar '{name}'?",
             folderNamePrompt: 'Introduce el nombre de la carpeta:',
             renamePrompt: 'Introduce el nuevo nombre:',
+            renameVaultTitle: 'Cambiar nombre de visualización del vault',
+            renameVaultPrompt: 'Introduce un nombre de visualización personalizado (deja vacío para usar el predeterminado):',
             deleteFolderConfirm: '¿Estás seguro de que quieres eliminar esta carpeta y todo su contenido?',
             deleteFileConfirm: '¿Estás seguro de que quieres eliminar este archivo?'
         },
@@ -465,7 +462,7 @@ export const STRINGS_ES = {
             },
             showRootFolder: {
                 name: 'Mostrar carpeta raíz',
-                desc: 'Muestra "Bóveda" como la carpeta raíz en el árbol.'
+                desc: 'Muestra el nombre de la carpeta raíz en el árbol.'
             },
             showNoteCount: {
                 name: 'Mostrar conteo de notas',

@@ -82,14 +82,11 @@ export async function initializeCache(appIdParam: string): Promise<void> {
  * - ContentService will update mtime again after generation to prevent loops
  *
  * @param files - Array of Obsidian files to record
+ * @param existingData - Pre-fetched map of existing file data
  */
-export async function recordFileChanges(files: TFile[]): Promise<void> {
+export async function recordFileChanges(files: TFile[], existingData: Map<string, FileData>): Promise<void> {
     const db = getDBInstance();
     const updates: Array<{ path: string; data: FileData }> = [];
-
-    // Get existing data to preserve content for modified files
-    const paths = files.map(f => f.path);
-    const existingData = db.getFiles(paths);
 
     for (const file of files) {
         const existing = existingData.get(file.path);

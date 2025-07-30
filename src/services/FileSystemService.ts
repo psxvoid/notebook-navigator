@@ -29,6 +29,7 @@ import { createFileWithOptions, createDatabaseContent } from '../utils/fileCreat
 import { getFolderNote } from '../utils/fileFinder';
 import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
 import { executeCommand } from '../utils/typeGuards';
+import { TagTreeService } from './TagTreeService';
 
 /**
  * Selection context for file operations
@@ -79,8 +80,12 @@ export class FileSystemOperations {
     /**
      * Creates a new FileSystemOperations instance
      * @param app - The Obsidian app instance for vault operations
+     * @param getTagTreeService - Function to get the TagTreeService instance
      */
-    constructor(private app: App) {}
+    constructor(
+        private app: App,
+        private getTagTreeService: () => TagTreeService | null
+    ) {}
 
     /**
      * Creates a new folder with user-provided name
@@ -312,7 +317,7 @@ export class FileSystemOperations {
             currentFiles = getFilesForFolder(selectionContext.selectedFolder, settings, this.app);
         } else if (selectionContext.selectionType === ItemType.TAG && selectionContext.selectedTag) {
             const { getFilesForTag } = await import('../utils/fileFinder');
-            currentFiles = getFilesForTag(selectionContext.selectedTag, settings, this.app);
+            currentFiles = getFilesForTag(selectionContext.selectedTag, settings, this.app, this.getTagTreeService());
         }
 
         // Find next file to select

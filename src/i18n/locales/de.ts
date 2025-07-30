@@ -39,11 +39,6 @@ export const STRINGS_DE = {
         pinnedSection: '📌 Angeheftet' // Header for the pinned notes section at the top of file list (English: 📌 Pinned)
     },
 
-    // Folder tree
-    folderTree: {
-        rootFolderName: 'Tresor' // Display name for the vault root folder in the tree (English: Vault)
-    },
-
     // Tag list
     tagList: {
         untaggedLabel: 'Ohne Tag', // Label for the special item showing notes without tags (English: Untagged)
@@ -193,6 +188,8 @@ export const STRINGS_DE = {
             deleteFileTitle: "'{name}' löschen?",
             folderNamePrompt: 'Ordnernamen eingeben:',
             renamePrompt: 'Neuen Namen eingeben:',
+            renameVaultTitle: 'Anzeigenamen des Tresors ändern',
+            renameVaultPrompt: 'Benutzerdefinierten Anzeigenamen eingeben (leer lassen für Standard):',
             deleteFolderConfirm: 'Sind Sie sicher, dass Sie diesen Ordner und seinen gesamten Inhalt löschen möchten?',
             deleteFileConfirm: 'Sind Sie sicher, dass Sie diese Datei löschen möchten?'
         },
@@ -465,7 +462,7 @@ export const STRINGS_DE = {
             },
             showRootFolder: {
                 name: 'Wurzelordner anzeigen',
-                desc: '"Tresor" als Wurzelordner im Baum anzeigen.'
+                desc: 'Den Namen des Wurzelordners im Baum anzeigen.'
             },
             showNoteCount: {
                 name: 'Notizenzahl anzeigen',

@@ -22,6 +22,7 @@ import { NotebookNavigatorSettings } from '../../settings';
 import { FileSystemOperations } from '../../services/FileSystemService';
 import { MetadataService } from '../../services/MetadataService';
 import { TagOperations } from '../../services/TagOperations';
+import { TagTreeService } from '../../services/TagTreeService';
 import { SelectionState, SelectionAction } from '../../context/SelectionContext';
 import { NotebookNavigatorPlugin } from '../../types/plugin';
 import { ExpansionAction } from '../../context/ExpansionContext';
@@ -47,6 +48,7 @@ export interface MenuServices {
     fileSystemOps: FileSystemOperations;
     metadataService: MetadataService;
     tagOperations: TagOperations;
+    tagTreeService: TagTreeService | null;
 }
 
 /**

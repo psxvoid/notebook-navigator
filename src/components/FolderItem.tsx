@@ -219,7 +219,7 @@ export const FolderItem = React.memo(function FolderItem({
                         }
                     }}
                 >
-                    {folder.path === '/' ? strings.folderTree.rootFolderName : folder.name}
+                    {folder.path === '/' ? settings.customVaultName || app.vault.getName() : folder.name}
                 </span>
                 <span className="nn-folder-spacer" />
                 {settings.showNoteCount && fileCount > 0 && <span className="nn-folder-count">{fileCount}</span>}

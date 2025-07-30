@@ -62,6 +62,7 @@ export interface NotebookNavigatorSettings {
     collapseButtonBehavior: CollapseButtonBehavior;
     // Folders
     showRootFolder: boolean;
+    customVaultName: string;
     enableFolderNotes: boolean;
     folderNoteName: string;
     hideFolderNoteInList: boolean;
@@ -130,6 +131,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     collapseButtonBehavior: 'all',
     // Folders
     showRootFolder: true,
+    customVaultName: '',
     enableFolderNotes: false,
     folderNoteName: '',
     hideFolderNoteInList: true,
@@ -1021,8 +1023,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 button.setButtonText(strings.settings.items.whatsNew.buttonText).onClick(async () => {
                     const { WhatsNewModal } = await import('./modals/WhatsNewModal');
                     const { getLatestReleaseNotes } = await import('./releaseNotes');
-                    const latestNotes = getLatestReleaseNotes(3);
-                    new WhatsNewModal(this.app, latestNotes).open();
+                    const latestNotes = getLatestReleaseNotes();
+                    new WhatsNewModal(this.app, latestNotes, this.plugin.settings.dateFormat).open();
                 })
             );
 

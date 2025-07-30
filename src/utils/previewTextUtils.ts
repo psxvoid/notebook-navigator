@@ -95,7 +95,11 @@ const BASE_PATTERNS = [
     /^(?:[-*+]\s+|\d+\.\s+|>\s+)/.source,
     // Group 22: Heading markers (always strip the # symbols, keep the text)
     // Example: # Title → Title, ## Section → Section
-    /^(#+)\s+(.*)$/m.source
+    /^(#+)\s+(.*)$/m.source,
+    // Group 23: Markdown tables - matches table rows (lines with pipes)
+    // Example: | Header | Another | → (removed)
+    // This captures lines that start with optional whitespace, then |, and contain at least one more |
+    /^\s*\|.*\|.*$/m.source
 ];
 
 // Regex without heading removal
@@ -160,6 +164,11 @@ export class PreviewTextUtils {
 
             // Lists and blockquotes
             if (match.match(/^[-+>\d]/) || match.match(/^\*\s+/)) {
+                return '';
+            }
+
+            // Markdown tables
+            if (match.match(/^\s*\|.*\|/)) {
                 return '';
             }
 

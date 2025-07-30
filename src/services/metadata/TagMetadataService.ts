@@ -19,8 +19,7 @@
 import { SortOption } from '../../settings';
 import { ItemType } from '../../types';
 import { BaseMetadataService } from './BaseMetadataService';
-import { buildTagTree } from '../../utils/tagTree';
-import { TagTreeNode } from '../../types/storage';
+import type { CleanupValidators } from '../MetadataService';
 
 /**
  * Service for managing tag-specific metadata operations
@@ -110,10 +109,9 @@ export class TagMetadataService extends BaseMetadataService {
      * @returns True if any changes were made
      */
     async cleanupTagMetadata(): Promise<boolean> {
-        // Build valid tags set first
-        const allFiles = this.app.vault.getMarkdownFiles();
-        const { tree: tagTree } = buildTagTree(allFiles, this.app);
-        const validTags = this.collectAllTagPaths(tagTree);
+        // Get valid tags from TagTreeService
+        const validTagPaths = this.plugin.tagTreeService?.getAllTagPaths() || [];
+        const validTags = new Set(validTagPaths);
 
         const validator = (path: string) => validTags.has(path);
 
@@ -127,22 +125,23 @@ export class TagMetadataService extends BaseMetadataService {
     }
 
     /**
-     * Collects all tag paths from tag tree
+     * Clean up tag metadata using pre-loaded validators
+     * @param validators - Pre-loaded data for validation
+     * @returns True if any changes were made
      */
-    private collectAllTagPaths(tree: Map<string, TagTreeNode>): Set<string> {
-        const paths = new Set<string>();
+    async cleanupWithValidators(_validators: CleanupValidators): Promise<boolean> {
+        // Get valid tags from TagTreeService
+        const validTagPaths = this.plugin.tagTreeService?.getAllTagPaths() || [];
+        const validTags = new Set(validTagPaths);
 
-        function addNode(node: TagTreeNode): void {
-            paths.add(node.path);
-            for (const child of node.children.values()) {
-                addNode(child);
-            }
-        }
+        const validator = (path: string) => validTags.has(path);
 
-        for (const node of tree.values()) {
-            addNode(node);
-        }
+        const results = await Promise.all([
+            this.cleanupMetadata(this.plugin.settings, 'tagColors', validator),
+            this.cleanupMetadata(this.plugin.settings, 'tagIcons', validator),
+            this.cleanupMetadata(this.plugin.settings, 'tagSortOverrides', validator)
+        ]);
 
-        return paths;
+        return results.some(changed => changed);
     }
 }

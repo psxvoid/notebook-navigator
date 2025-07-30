@@ -37,8 +37,12 @@
 export interface ReleaseNote {
     version: string;
     date: string;
-    showOnUpdate?: boolean; // If false, won't show automatically on upgrade (defaults to true)
-    features: string[];
+    showOnUpdate: boolean; // If false, won't show automatically on upgrade
+    info?: string; // General information about the release, shown at top without bullets
+    new?: string[];
+    improved?: string[];
+    changed?: string[];
+    fixed?: string[];
 }
 
 /**
@@ -47,97 +51,121 @@ export interface ReleaseNote {
  * When adding a new release:
  * 1. Add it at the beginning of the array (newest first)
  * 2. Set showOnUpdate to false for minor bug fixes that don't need user attention
- * 3. Features should start with NEW:, IMPROVED:, CHANGED: or FIXED:
+ * 3. Categorize features into: new, improved, changed, or fixed arrays
  */
 const RELEASE_NOTES: ReleaseNote[] = [
+    {
+        version: '1.3.8',
+        date: '2025-07-30',
+        showOnUpdate: true,
+        improved: [
+            'You can now rename the root vault folder! The root vault folder now also uses your current vault name as default, not just "Vault".',
+            'Removed markdown tables from preview text - should result in cleaner previews.'
+        ],
+        fixed: [
+            'Changing folders on desktop in single-pane mode will no longer auto select the first file if current folder does not contain the current file (#105).',
+            'Tags from excluded folders were showing in the tag tree (including the Untagged section) (#104).',
+            'Moving files with tags outside the vault or to ignored folders using Finder or Explorer did not update tag counts properly.'
+        ]
+    },
     {
         version: '1.3.7',
         date: '2025-07-29',
         showOnUpdate: true,
-        features: [
-            'IMPROVED: Read metadata from frontmatter: Timestamp format will now no longer fallback to ISO 8601 if parsing fails and will instead show you the number of failed files.',
-            'IMPROVED: Read metadata from frontmatter: You can now export the files that could not be parsed with your Timestamp format! This markdown file will be saved in your root vault so you can click on the links to go directly to the notes that failed parsing!',
-            'IMPROVED: Read metadata from frontmatter: You will now see detailed statistics for each field being parsed.',
-            'IMPROVED: Slim mode can now also show clickable tags. If you only want note title and tags in your list you got it!',
-            "FIXED: Ribbon icon now remains in place after plugin load instead of disappearing/reappearing based on Navigator view state, preserving user's custom ribbon ordering.",
-            "FIXED: Replaced direct localStorage usage with Obsidian's vault-specific storage API to properly isolate data between different vaults on the same device.",
-            'FIXED: Replaced verbose toggleClass() calls with cleaner toggle() API for showing/hiding UI elements.',
-            'FIXED: Replaced custom type guard functions with standard instanceof checks, aligning with Obsidian API best practices.',
-            'FIXED: Removed dynamic ribbon icon management that could interfere with user preferences and cause unexpected UI behavior.'
+        improved: [
+            'Read metadata from frontmatter: Timestamp format will now no longer fallback to ISO 8601 if parsing fails and will instead show you the number of failed files.',
+            'Read metadata from frontmatter: You can now export the files that could not be parsed with your Timestamp format! This markdown file will be saved in your root vault so you can click on the links to go directly to the notes that failed parsing!',
+            'Read metadata from frontmatter: You will now see detailed statistics for each field being parsed.',
+            'Slim mode can now also show clickable tags. If you only want note title and tags in your list you got it!'
+        ],
+        fixed: [
+            "Ribbon icon now remains in place after plugin load instead of disappearing/reappearing based on Navigator view state, preserving user's custom ribbon ordering.",
+            "Replaced direct localStorage usage with Obsidian's vault-specific storage API to properly isolate data between different vaults on the same device.",
+            'Replaced verbose toggleClass() calls with cleaner toggle() API for showing/hiding UI elements.',
+            'Replaced custom type guard functions with standard instanceof checks, aligning with Obsidian API best practices.',
+            'Removed dynamic ribbon icon management that could interfere with user preferences and cause unexpected UI behavior.'
         ]
     },
     {
         version: '1.3.6',
         date: '2025-07-29',
         showOnUpdate: false,
-        features: [
-            'IMPROVED: Selection rectangle and drop targets in Navigation Pane are now full-width, making it easier to select and work with folders and tags.',
-            "IMPROVED: Plugin is now always made visible when you run commands, such as 'Reveal file' and 'Focus file'.",
-            'CHANGED: Tags in PaneHeader now show with hashtag prefix (#).'
-        ]
+        improved: [
+            'Selection rectangle and drop targets in Navigation Pane are now full-width, making it easier to select and work with folders and tags.',
+            "Plugin is now always made visible when you run commands, such as 'Reveal file' and 'Focus file'."
+        ],
+        changed: ['Tags in PaneHeader now show with hashtag prefix (#).']
     },
     {
         version: '1.3.5',
         date: '2025-07-28',
         showOnUpdate: false,
-        features: [
-            'FIXED: Startup now works better with large vaults and large folders (>10,000 files).',
-            'FIXED: Improved auto reveal behavior for notes in untagged folder when restarting the plugin.',
-            "FIXED: 'Reveal in Finder' now says 'Show in system explorer' on Windows PCs.",
-            'CHANGED: Default value for Preview rows is now 2.'
-        ]
+        fixed: [
+            'Startup now works better with large vaults and large folders (>10,000 files).',
+            'Improved auto reveal behavior for notes in untagged folder when restarting the plugin.',
+            "'Reveal in Finder' now says 'Show in system explorer' on Windows PCs."
+        ],
+        changed: ['Default value for Preview rows is now 2.']
     },
     {
         version: '1.3.4',
         date: '2025-07-27',
         showOnUpdate: true,
-        features: [
-            'NEW: Show file tags! Tags are now shown for each file in the file list! They use your tag colors and you can click them to quickly switch to the right tag in the tag tree!',
-            "NEW: 'Reveal in folder' menu command - Same functionality as 'Reveal file' command. Useful with 'Show notes from subfolders' enabled or when working with tags.",
-            'IMPROVED: Tag navigation enhancements - Restarting the app remembers your selected tag. Files opened in the editor now show in the tag tree if they have tags (or untagged if enabled). Enables 100% tag-based workflow.',
-            'IMPROVED: Cleaner drag and drop visuals for easier file management.',
-            'IMPROVED: Eliminated tiny flicker when changing folders/tags where selected item was temporarily deselected.',
-            'IMPROVED: Many minor tweaks, improvements and polishes throughout the app.',
-            'CHANGED: Tag storage in database was restructured - you will need to re-assign icons to your tags.'
-        ]
+        new: [
+            'Show file tags! Tags are now shown for each file in the file list! They use your tag colors and you can click them to quickly switch to the right tag in the tag tree!',
+            "'Reveal in folder' menu command - Same functionality as 'Reveal file' command. Useful with 'Show notes from subfolders' enabled or when working with tags."
+        ],
+        improved: [
+            'Tag navigation enhancements - Restarting the app remembers your selected tag. Files opened in the editor now show in the tag tree if they have tags (or untagged if enabled). Enables 100% tag-based workflow.',
+            'Cleaner drag and drop visuals for easier file management.',
+            'Eliminated tiny flicker when changing folders/tags where selected item was temporarily deselected.',
+            'Many minor tweaks, improvements and polishes throughout the app.'
+        ],
+        changed: ['Tag storage in database was restructured - you will need to re-assign icons to your tags.']
     },
     {
         version: '1.3.3',
         date: '2025-07-24',
         showOnUpdate: false,
-        features: [
-            'IMPROVED: Keyboard input is now only captured within the Notebook Navigator window. So if you press DELETE in your canvas document it will not be captured by Notebook Navigator.',
-            "CHANGED: Default setting for 'Show file types' is now 'Supported files'.",
-            'FIXED: Scroll to selected file is now working much better. Current solution is clean, robust and future proof.',
-            'FIXED: Preview text filter improvements. Spent lots of time improving the filtering system to remove markdown symbols from preview text. Now properly removes 21 different formatting styles from preview text.'
+        improved: [
+            'Keyboard input is now only captured within the Notebook Navigator window. So if you press DELETE in your canvas document it will not be captured by Notebook Navigator.'
+        ],
+        changed: ["Default setting for 'Show file types' is now 'Supported files'."],
+        fixed: [
+            'Scroll to selected file is now working much better. Current solution is clean, robust and future proof.',
+            'Preview text filter improvements. Spent lots of time improving the filtering system to remove markdown symbols from preview text. Now properly removes 21 different formatting styles from preview text.'
         ]
     },
     {
         version: '1.3.2',
         date: '2025-07-23',
         showOnUpdate: true,
-        features: [
-            "NEW: Added setting: 'Preview properties'. You can now specify frontmatter properties to use as preview text.",
-            'IMPROVED: Migrated to IndexedDB with RAM cache for database storage, significantly improving performance and reliability with large vaults.',
-            'IMPROVED: Files with no preview text now render with just 1 preview text line for better readability.',
-            "CHANGED: The setting 'Skip text before first heading' was removed since it added too much performance overhead.",
-            "CHANGED: The setting 'Skip non-text in preview' was removed since it is now always applied.",
-            'FIXED: Preview text generation now properly excludes code blocks and most markdown markers.'
-        ]
+        new: ["Added setting: 'Preview properties'. You can now specify frontmatter properties to use as preview text."],
+        improved: [
+            'Migrated to IndexedDB with RAM cache for database storage, significantly improving performance and reliability with large vaults.',
+            'Files with no preview text now render with just 1 preview text line for better readability.'
+        ],
+        changed: [
+            "The setting 'Skip text before first heading' was removed since it added too much performance overhead.",
+            "The setting 'Skip non-text in preview' was removed since it is now always applied."
+        ],
+        fixed: ['Preview text generation now properly excludes code blocks and most markdown markers.']
     },
     {
         version: '1.3.1',
         date: '2025-07-20',
         showOnUpdate: true,
-        features: [
-            'NEW: Support for EMOJI icons! Notebook Navigator now also has an Icon provider module for further expansions.',
-            "NEW: Added command 'Navigate to Tag'.",
-            "NEW: Added folder menu option 'Reveal in Finder / System explorer'.",
-            "NEW: Added preview text setting 'Skip text before first heading'.",
-            'IMPROVED: Added an advanced caching system for all display elements. This significantly improves overall performance when using the plugin.',
-            'IMPROVED: Mobile clients now persist state perfectly when switching between plugin and editor.',
-            'IMPROVED: Significantly increased scrolling performance where all items now have predetermined heights.',
-            'IMPROVED: Lots of internal tweaks and optimizations, code is now in an excellent state for further development.'
+        new: [
+            'Support for EMOJI icons! Notebook Navigator now also has an Icon provider module for further expansions.',
+            "Added command 'Navigate to Tag'.",
+            "Added folder menu option 'Reveal in Finder / System explorer'.",
+            "Added preview text setting 'Skip text before first heading'."
+        ],
+        improved: [
+            'Added an advanced caching system for all display elements. This significantly improves overall performance when using the plugin.',
+            'Mobile clients now persist state perfectly when switching between plugin and editor.',
+            'Significantly increased scrolling performance where all items now have predetermined heights.',
+            'Lots of internal tweaks and optimizations, code is now in an excellent state for further development.'
         ]
     }
 ];
