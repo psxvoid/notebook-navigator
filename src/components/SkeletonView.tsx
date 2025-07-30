@@ -26,13 +26,13 @@ interface SkeletonViewProps {
 
 export const SkeletonView = React.memo(function SkeletonView({ paneWidth, singlePane, currentSinglePaneView }: SkeletonViewProps) {
     if (singlePane) {
-        return <div className={`nn-skeleton-${currentSinglePaneView}-pane`} style={{ width: '100%', height: '100%' }} />;
+        return <div className="nn-skeleton-list-pane" />;
     }
 
     return (
         <>
-            <div className="nn-skeleton-navigation-pane" style={{ width: `${paneWidth}px`, height: '100%' }} />
-            <div className="nn-skeleton-list-pane" style={{ flex: 1, height: '100%' }} />
+            <div className="nn-skeleton-navigation-pane" style={{ width: `${paneWidth}px` }} />
+            <div className="nn-skeleton-list-pane" />
         </>
     );
 });
