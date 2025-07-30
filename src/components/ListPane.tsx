@@ -313,6 +313,15 @@ export const ListPane = React.memo(
             return map;
         }, [listItems]);
 
+        // Create a map for O(1) file position lookups in the files array (for multi-selection)
+        const fileIndexMap = useMemo(() => {
+            const map = new Map<string, number>();
+            files.forEach((file, index) => {
+                map.set(file.path, index);
+            });
+            return map;
+        }, [files]);
+
         const getSelectionIndex = useCallback(() => {
             if (selectedFilePath) {
                 const fileIndex = filePathToIndex.get(selectedFilePath);
@@ -978,7 +987,10 @@ export const ListPane = React.memo(
             items: listItems,
             virtualizer: rowVirtualizer,
             focusedPane: 'files',
-            containerRef: props.rootContainerRef
+            containerRef: props.rootContainerRef,
+            pathToIndex: filePathToIndex,
+            files: files,
+            fileIndexMap: fileIndexMap
         });
 
         // Early returns MUST come after all hooks
