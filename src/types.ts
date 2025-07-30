@@ -123,10 +123,12 @@ export const LISTPANE_MEASUREMENTS = {
 
         // File item components
         basePadding: 16, // var(--nn-file-padding-vertical) * 2
+        slimPadding: 8, // Reduced padding for slim mode (4px * 2)
         titleLineHeight: 20, // var(--nn-file-line-height) - for file name/title
         metadataLineHeight: 19, // var(--nn-file-second-line-height) - for metadata (date, parent folder, single preview line)
         multiLineLineHeight: 18, // var(--nn-file-preview-line-height) - for multi-line preview text
         tagRowHeight: 26, // Height of tag row (22px container + 4px margin-top)
+        featureImageHeight: 42, // Feature image height (width and height are 42px)
 
         // Constraints
         minTouchTargetHeight: 32, // Minimum height for touch targets

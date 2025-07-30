@@ -112,8 +112,10 @@ export const ListPane = React.memo(
         // Get sync preview check function
         const { hasPreview, isStorageReady } = useFileCache();
 
-        // Initialize virtualizer
+        // Check if we're in slim mode
+        const isSlimMode = !settings.showFileDate && !settings.showFilePreview && !settings.showFeatureImage;
 
+        // Initialize virtualizer
         const rowVirtualizer = useVirtualizer({
             count: listItems.length,
             getScrollElement: () => {
@@ -141,10 +143,7 @@ export const ListPane = React.memo(
                 }
 
                 // For file items - calculate height including all components
-                const { showFileDate, showFilePreview, showFeatureImage, fileNameRows, previewRows } = settings;
-
-                // Check if we're in slim mode (no date, preview, or image)
-                const isSlimMode = !showFileDate && !showFilePreview && !showFeatureImage;
+                const { showFileDate, showFilePreview, fileNameRows, previewRows } = settings;
 
                 // Get actual preview status for accurate height calculation
                 let hasPreviewText = false;
@@ -223,12 +222,14 @@ export const ListPane = React.memo(
                 }
 
                 // Apply min-height constraint AFTER including all content (but not in slim mode)
-                // This ensures text content aligns with feature image height (42px) when shown
-                if (!isSlimMode && textContentHeight < 42) {
-                    textContentHeight = 42;
+                // This ensures text content aligns with feature image height when shown
+                if (!isSlimMode && textContentHeight < heights.featureImageHeight) {
+                    textContentHeight = heights.featureImageHeight;
                 }
 
-                return heights.basePadding + textContentHeight;
+                // Use reduced padding for slim mode
+                const padding = isSlimMode ? heights.slimPadding : heights.basePadding;
+                return padding + textContentHeight;
             },
             overscan: OVERSCAN,
             scrollPaddingStart: 0,
@@ -998,7 +999,13 @@ export const ListPane = React.memo(
         return (
             <div className="nn-list-pane">
                 <PaneHeader type="files" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
-                <div ref={scrollContainerRefCallback} className="nn-list-pane-scroller" data-pane="files" role="list" tabIndex={-1}>
+                <div
+                    ref={scrollContainerRefCallback}
+                    className={`nn-list-pane-scroller ${isSlimMode ? 'nn-slim-mode' : ''}`}
+                    data-pane="files"
+                    role="list"
+                    tabIndex={-1}
+                >
                     {/* Virtual list */}
                     {listItems.length > 0 && (
                         <div
