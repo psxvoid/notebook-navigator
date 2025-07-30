@@ -52,7 +52,7 @@ import {
     getDBInstance
 } from '../storage/fileOperations';
 import { TagTreeNode } from '../types/storage';
-import { getFilteredMarkdownFiles } from '../utils/fileFilters';
+import { getFilteredMarkdownFiles, parseExcludedFolders } from '../utils/fileFilters';
 import { getFileDisplayName as getDisplayName } from '../utils/fileNameUtils';
 import { clearNoteCountCache } from '../utils/tagTree';
 import { buildTagTreeFromDatabase } from '../utils/tagTree';
@@ -295,11 +295,12 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     // Helper function to rebuild tag tree
     const rebuildTagTree = useCallback(() => {
         const db = getDBInstance();
-        const { tree: newTree, untagged: newUntagged } = buildTagTreeFromDatabase(db);
+        const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
+        const { tree: newTree, untagged: newUntagged } = buildTagTreeFromDatabase(db, excludedFolderPatterns);
         clearNoteCountCache();
         setFileData({ tree: newTree, untagged: settings.showTags && settings.showUntagged ? newUntagged : 0 });
         return newTree;
-    }, [settings.showTags, settings.showUntagged]);
+    }, [settings.showTags, settings.showUntagged, settings.excludedFolders]);
 
     // Unified cleanup function that runs all cleanup operations in a single pass
     const runUnifiedCleanup = useCallback(
@@ -495,6 +496,10 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                                     // Remove deleted files from IndexedDB
                                     if (toRemove.length > 0) {
                                         await removeFilesFromCache(toRemove);
+                                        // Rebuild tag tree after removing files
+                                        if (settings.showTags) {
+                                            rebuildTagTree();
+                                        }
                                     }
 
                                     // Note: Tag change detection is no longer needed here

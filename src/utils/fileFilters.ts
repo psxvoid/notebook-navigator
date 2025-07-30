@@ -91,7 +91,7 @@ export function shouldExcludeFolder(folderName: string, patterns: string[]): boo
 /**
  * Checks if a file is in an excluded folder by checking all parent folders
  */
-export function isFileInExcludedFolder(file: TFile, excludedFolderPatterns: string[]): boolean {
+function isFileInExcludedFolder(file: TFile, excludedFolderPatterns: string[]): boolean {
     if (!file || excludedFolderPatterns.length === 0) return false;
 
     let currentFolder: TFolder | null = file.parent;
@@ -100,6 +100,25 @@ export function isFileInExcludedFolder(file: TFile, excludedFolderPatterns: stri
             return true;
         }
         currentFolder = currentFolder.parent;
+    }
+
+    return false;
+}
+
+/**
+ * Checks if a file path is in an excluded folder by checking all parent folders
+ * This is a path-based version that doesn't require a TFile object
+ */
+export function isPathInExcludedFolder(filePath: string, excludedFolderPatterns: string[]): boolean {
+    if (!filePath || excludedFolderPatterns.length === 0) return false;
+
+    const pathParts = filePath.split('/');
+    // Check each folder in the path (excluding the file name itself)
+    for (let i = 0; i < pathParts.length - 1; i++) {
+        const folderName = pathParts[i];
+        if (shouldExcludeFolder(folderName, excludedFolderPatterns)) {
+            return true;
+        }
     }
 
     return false;

@@ -19,6 +19,7 @@
 import { App, TFile, getAllTags } from 'obsidian';
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { TagTreeNode } from '../types/storage';
+import { isPathInExcludedFolder } from './fileFilters';
 
 /**
  * Tag Tree Utilities
@@ -134,9 +135,13 @@ export function buildTagTree(files: TFile[], app: App): { tree: Map<string, TagT
 /**
  * Build a tag tree from database using streaming (scalable for large vaults)
  * @param db - IndexedDBStorage instance
+ * @param excludedFolderPatterns - Optional array of folder patterns to exclude
  * @returns Object containing the tag tree and untagged file count
  */
-export function buildTagTreeFromDatabase(db: IndexedDBStorage): { tree: Map<string, TagTreeNode>; untagged: number } {
+export function buildTagTreeFromDatabase(
+    db: IndexedDBStorage,
+    excludedFolderPatterns?: string[]
+): { tree: Map<string, TagTreeNode>; untagged: number } {
     const allNodes = new Map<string, TagTreeNode>(); // All nodes at all levels
     const tree = new Map<string, TagTreeNode>(); // Only root-level nodes
     let untaggedCount = 0;
@@ -148,6 +153,11 @@ export function buildTagTreeFromDatabase(db: IndexedDBStorage): { tree: Map<stri
     const allFiles = db.getAllFiles();
 
     for (const { path, data: fileData } of allFiles) {
+        // Skip files in excluded folders if patterns provided
+        if (excludedFolderPatterns && isPathInExcludedFolder(path, excludedFolderPatterns)) {
+            continue;
+        }
+
         const tags = fileData.tags;
 
         // Skip files with null tags (not extracted yet) or empty tags
