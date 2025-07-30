@@ -341,70 +341,10 @@ export const ListPane = React.memo(
             return -1;
         }, [selectedFilePath, filePathToIndex, listItems]);
 
-        // Pre-calculate date field for all files in the group
-        const dateField = useMemo(() => {
-            return getDateField(settings.defaultFolderSort);
-        }, [settings.defaultFolderSort]);
-
-        // Pre-compute formatted dates for all files
-        const filesWithDates = useMemo(() => {
-            const dataMap = new Map<
-                string,
-                {
-                    display: string;
-                    created: string;
-                    modified: string;
-                }
-            >();
-
-            // Get all files from list items
-            const allFiles: TFile[] = [];
-            listItems.forEach(item => {
-                if (item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
-                    allFiles.push(item.data);
-                }
-            });
-
-            // Always compute dates for tooltips even if display is disabled
-            const dateTimeFormat = settings.timeFormat ? `${settings.dateFormat} ${settings.timeFormat}` : settings.dateFormat;
-            let currentGroup: string | null = null;
-
-            listItems.forEach(item => {
-                if (item.type === ListPaneItemType.HEADER) {
-                    currentGroup = item.data as string;
-                } else if (item.type === ListPaneItemType.FILE) {
-                    const file = item.data;
-                    if (!(file instanceof TFile)) return;
-
-                    // Compute display date based on current sort
-                    const timestamp = dateField === 'ctime' ? getFileCreatedTime(file) : getFileModifiedTime(file);
-                    const display =
-                        settings.showFileDate && currentGroup && currentGroup !== strings.listPane.pinnedSection
-                            ? DateUtils.formatDateForGroup(timestamp, currentGroup, settings.dateFormat, settings.timeFormat)
-                            : settings.showFileDate
-                              ? DateUtils.formatDate(timestamp, settings.dateFormat)
-                              : '';
-
-                    // Always compute both created and modified for tooltips
-                    const createdTimestamp = getFileCreatedTime(file);
-                    const modifiedTimestamp = getFileModifiedTime(file);
-                    const created = DateUtils.formatDate(createdTimestamp, dateTimeFormat);
-                    const modified = DateUtils.formatDate(modifiedTimestamp, dateTimeFormat);
-
-                    dataMap.set(file.path, { display, created, modified });
-                }
-            });
-
-            return dataMap;
-        }, [
-            listItems,
-            dateField,
-            settings.showFileDate,
-            settings.dateFormat,
-            settings.timeFormat,
-            getFileCreatedTime,
-            getFileModifiedTime
-        ]);
+        // Get effective sort option for the current view
+        const effectiveSortOption = useMemo(() => {
+            return getEffectiveSortOption(settings, selectionType, selectedFolder, selectedTag);
+        }, [settings, selectionType, selectedFolder, selectedTag]);
 
         // Build ordered files list for Shift+Click functionality - MUST be before early returns
         const orderedFiles = useMemo(() => {
@@ -1154,9 +1094,7 @@ export const ListPane = React.memo(
                                                     }
                                                 }}
                                                 dateGroup={dateGroup}
-                                                formattedDates={
-                                                    item.data instanceof TFile ? filesWithDates?.get(item.data.path) : undefined
-                                                }
+                                                sortOption={effectiveSortOption}
                                                 parentFolder={item.parentFolder}
                                             />
                                         ) : null}
