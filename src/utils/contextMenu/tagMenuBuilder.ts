@@ -19,13 +19,31 @@
 import { MenuItem } from 'obsidian';
 import { TagMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
+import { isTagFavorite } from '../tagUtils';
 
 /**
  * Builds the context menu for a tag
  */
 export function buildTagMenu(params: TagMenuBuilderParams): void {
-    const { tagPath, menu, services } = params;
-    const { app, metadataService } = services;
+    const { tagPath, menu, services, settings } = params;
+    const { app, metadataService, plugin } = services;
+
+    // Check if this tag or any ancestor is a favorite
+    const isFavorite = isTagFavorite(tagPath, settings.favoriteTags);
+
+    if (!isFavorite) {
+        // Tag is not a favorite - show "Add to favorites"
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.tag.addToFavorites)
+                .setIcon('star')
+                .onClick(async () => {
+                    plugin.settings.favoriteTags = [...plugin.settings.favoriteTags, tagPath];
+                    await plugin.saveSettings();
+                });
+        });
+
+        menu.addSeparator();
+    }
 
     // Change icon
     menu.addItem((item: MenuItem) => {

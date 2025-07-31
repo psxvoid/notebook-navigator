@@ -126,7 +126,9 @@ export const STRINGS_JA = {
             changeIcon: 'アイコンを変更',
             removeIcon: 'アイコンを削除',
             changeColor: '色を変更',
-            removeColor: '色を削除'
+            removeColor: '色を削除',
+            addToFavorites: 'お気に入りに追加',
+            removeFromFavorites: 'お気に入りから削除'
         }
     },
 

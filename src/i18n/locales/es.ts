@@ -126,7 +126,9 @@ export const STRINGS_ES = {
             changeIcon: 'Cambiar icono',
             removeIcon: 'Quitar icono',
             changeColor: 'Cambiar color',
-            removeColor: 'Quitar color'
+            removeColor: 'Quitar color',
+            addToFavorites: 'Añadir a favoritos',
+            removeFromFavorites: 'Quitar de favoritos'
         }
     },
 

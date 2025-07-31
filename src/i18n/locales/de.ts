@@ -126,7 +126,9 @@ export const STRINGS_DE = {
             changeIcon: 'Symbol ändern',
             removeIcon: 'Symbol entfernen',
             changeColor: 'Farbe ändern',
-            removeColor: 'Farbe entfernen'
+            removeColor: 'Farbe entfernen',
+            addToFavorites: 'Zu Favoriten hinzufügen',
+            removeFromFavorites: 'Aus Favoriten entfernen'
         }
     },
 

@@ -126,7 +126,9 @@ export const STRINGS_ZH = {
             changeIcon: '更改图标',
             removeIcon: '移除图标',
             changeColor: '更改颜色',
-            removeColor: '移除颜色'
+            removeColor: '移除颜色',
+            addToFavorites: '添加到收藏',
+            removeFromFavorites: '从收藏中移除'
         }
     },
 

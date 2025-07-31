@@ -55,6 +55,16 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.3.11',
+        date: '2025-08-01',
+        showOnUpdate: true,
+        new: ['You can now right click a tag and choose "Add to favorites" and it will be added to your favorite list.'],
+        improved: [
+            'Tags in list pane will now use smart sorting: (1) Favorite tags will show first, then (2) Colored tags, then (3) uncolored normal tags. The goal here is to help you quickly find the items you are looking for, and hopefully this helps out if you have many tags assigned to your notes.'
+        ],
+        fixed: ['Fixed an issue with auto reveal file where it sometimes would not scroll to the selected folder in navigation pane.']
+    },
+    {
         version: '1.3.10',
         date: '2025-07-31',
         showOnUpdate: false,
