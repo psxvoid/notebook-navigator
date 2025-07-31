@@ -30,6 +30,7 @@ import { ItemType } from '../types';
 import { DateUtils } from '../utils/dateUtils';
 import { isImageFile } from '../utils/fileTypeUtils';
 import { getDateField } from '../utils/sortUtils';
+import { parseTagPatterns, matchesTagPattern } from '../utils/tagTree';
 import { ObsidianIcon } from './ObsidianIcon';
 
 interface FileItemProps {
@@ -105,15 +106,45 @@ export const FileItem = React.memo(function FileItem({
         [metadataService]
     );
 
+    // Categorize tags by priority: favorites first, then colored, then regular
+    const categorizedTags = useMemo(() => {
+        if (tags.length === 0) return tags;
+
+        // Parse favorite tag patterns
+        const favoritePatterns = parseTagPatterns(settings.favoriteTags.join(','));
+
+        // Categorize tags
+        const favoriteTags: string[] = [];
+        const coloredTags: string[] = [];
+        const regularTags: string[] = [];
+
+        tags.forEach(tag => {
+            // Check if it's a favorite tag
+            const isFavorite = favoritePatterns.some(pattern => matchesTagPattern(tag, pattern));
+
+            if (isFavorite) {
+                favoriteTags.push(tag);
+            } else if (getTagColor(tag)) {
+                // Check if it has a custom color
+                coloredTags.push(tag);
+            } else {
+                regularTags.push(tag);
+            }
+        });
+
+        // Combine in priority order without sorting
+        return [...favoriteTags, ...coloredTags, ...regularTags];
+    }, [tags, settings.favoriteTags, getTagColor]);
+
     // Render tags - extracted to avoid duplication
     const renderTags = useCallback(() => {
-        if (!settings.showTags || !settings.showFileTags || tags.length === 0) {
+        if (!settings.showTags || !settings.showFileTags || categorizedTags.length === 0) {
             return null;
         }
 
         return (
             <div className="nn-file-tags">
-                {tags.map((tag, index) => {
+                {categorizedTags.map((tag, index) => {
                     const tagColor = getTagColor(tag);
                     return (
                         <span
@@ -130,7 +161,7 @@ export const FileItem = React.memo(function FileItem({
                 })}
             </div>
         );
-    }, [settings.showTags, settings.showFileTags, tags, getTagColor, handleTagClick]);
+    }, [settings.showTags, settings.showFileTags, categorizedTags, getTagColor, handleTagClick]);
 
     // Format display date based on current sort
     const displayDate = useMemo(() => {
