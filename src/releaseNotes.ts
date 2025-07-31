@@ -60,7 +60,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: true,
         new: ['You can now right click a tag and choose "Add to favorites" and it will be added to your favorite list.'],
         improved: [
-            'Tags in list pane will now use smart sorting: (1) Favorite tags will show first, then (2) Colored tags, then (3) uncolored normal tags. The goal here is to help you quickly find the items you are looking for, and hopefully this helps out if you have many tags assigned to your notes.'
+            'Tags in list pane will now use smart sorting: (1) Favorite tags will show first, then (2) Colored tags, then (3) uncolored normal tags. The goal here is to help you quickly find the items you are looking for, and hopefully this helps out if you have many tags assigned to your notes.',
+            'Tags now inherit parent colors'
         ],
         fixed: ['Fixed an issue with auto reveal file where it sometimes would not scroll to the selected folder in navigation pane.']
     },
