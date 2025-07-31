@@ -435,6 +435,17 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                         <ObsidianIcon name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'} />
                     </button>
                     <button
+                        className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}
+                        aria-label={strings.paneHeader.autoExpandFoldersTags}
+                        onClick={e => {
+                            e.stopPropagation();
+                            handleToggleAutoExpand();
+                        }}
+                        tabIndex={-1}
+                    >
+                        <ObsidianIcon name="folder-tree" />
+                    </button>
+                    <button
                         className="nn-icon-button"
                         aria-label={strings.paneHeader.newFolder}
                         onClick={e => {
@@ -483,14 +494,6 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                         </button>
                         <div className="nn-header-actions">
                             <button
-                                className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}
-                                aria-label={strings.paneHeader.autoExpandFoldersTags}
-                                onClick={handleToggleAutoExpand}
-                                tabIndex={-1}
-                            >
-                                <ObsidianIcon name="folder-tree" />
-                            </button>
-                            <button
                                 className="nn-icon-button"
                                 aria-label={
                                     shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders
@@ -499,6 +502,14 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                                 tabIndex={-1}
                             >
                                 <ObsidianIcon name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'} />
+                            </button>
+                            <button
+                                className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}
+                                aria-label={strings.paneHeader.autoExpandFoldersTags}
+                                onClick={handleToggleAutoExpand}
+                                tabIndex={-1}
+                            >
+                                <ObsidianIcon name="folder-tree" />
                             </button>
                             <button
                                 className="nn-icon-button"
