@@ -59,6 +59,7 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
     const [fileToReveal, setFileToReveal] = useState<TFile | null>(null);
     const [isStartupReveal, setIsStartupReveal] = useState<boolean>(false);
     const lastRevealedFileRef = useRef<string | null>(null);
+    const lastRevealTimeRef = useRef<number>(0);
     const hasInitializedRef = useRef<boolean>(false);
 
     /**
@@ -253,7 +254,7 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             }
 
             // Only expand folders if we're not preserving the current folder and not switching to tag view
-            if (!preserveFolder && targetTag === null) {
+            if (!preserveFolder && (targetTag === null || targetTag === undefined)) {
                 const foldersToExpand: string[] = [];
                 let currentFolder: TFolder | null = file.parent;
 
@@ -407,10 +408,16 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
                 return;
             }
 
-            // Don't reveal the same file twice in a row
-            if (lastRevealedFileRef.current === file.path) {
+            // Prevent duplicate reveals of the same file within a short time window.
+            // This is necessary because Obsidian fires both 'active-leaf-change' AND 'file-open'
+            // events when clicking a file, causing handleFileChange to be called multiple times.
+            // We use a 100ms window to ignore these duplicate events while still allowing
+            // users to manually reveal the same file again after a short delay.
+            const now = Date.now();
+            if (lastRevealedFileRef.current === file.path && now - lastRevealTimeRef.current < 100) {
                 return;
             }
+            lastRevealTimeRef.current = now;
 
             // Reveal the file
             setFileToReveal(file);
