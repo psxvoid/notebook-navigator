@@ -55,10 +55,19 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.3.10',
+        date: '2025-07-31',
+        showOnUpdate: false,
+        improved: [
+            'If a custom sort order is set for a folder, the custom sort button in Pane header will now be highlighted.',
+            'Navigation pane on mobile will now auto scroll to the selected folder or tag when view is resized',
+            'Improved cold startup time'
+        ]
+    },
+    {
         version: '1.3.9',
         date: '2025-07-30',
         showOnUpdate: true,
-        info: 'This is the first public community release version of Notebook Navigator!',
         new: ['Added SHIFT+HOME and SHIFT+END keyboard shortcuts for selecting text in the list pane.'],
         improved: ['Slim mode interface now has cleaner appearance with no separator lines and tighter spacing.'],
         fixed: [
