@@ -46,6 +46,7 @@ export interface NavigationPaneHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
     scrollContainerRef: HTMLDivElement | null;
+    requestScroll: (path: string) => void;
 }
 
 interface NavigationPaneProps {
@@ -89,6 +90,10 @@ export const NavigationPane = React.memo(
         // We use useState to hold flattened items to prevent virtualizer re-initialization
         // =================================================================================
         const [items, setItems] = useState<CombinedNavigationItem[]>([]);
+
+        // Pending scroll state for handling reveal operations
+        const pendingScrollRef = useRef<string | null>(null);
+        const [pendingScrollVersion, setPendingScrollVersion] = useState(0);
 
         // Initialize virtualizer
         const rowVirtualizer = useVirtualizer({
@@ -783,10 +788,30 @@ export const NavigationPane = React.memo(
             () => ({
                 getIndexOfPath: (path: string) => pathToIndex.get(path) ?? -1,
                 virtualizer: rowVirtualizer,
-                scrollContainerRef: scrollContainerRef.current
+                scrollContainerRef: scrollContainerRef.current,
+                requestScroll: (path: string) => {
+                    pendingScrollRef.current = path;
+                    setPendingScrollVersion(v => v + 1);
+                }
             }),
             [pathToIndex, rowVirtualizer]
         );
+
+        // Process pending scrolls when pathToIndex is ready
+        useEffect(() => {
+            if (!rowVirtualizer || !pendingScrollRef.current || !isVisible) {
+                return;
+            }
+
+            const pathToScroll = pendingScrollRef.current;
+            const index = pathToIndex.get(pathToScroll);
+
+            if (index !== undefined && index !== -1) {
+                rowVirtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' });
+                pendingScrollRef.current = null;
+            }
+            // If index not found, keep the pending scroll for next rebuild
+        }, [rowVirtualizer, pathToIndex, isVisible, pendingScrollVersion]);
 
         // Add keyboard navigation
         // Note: We pass the root container ref, not the scroll container ref.

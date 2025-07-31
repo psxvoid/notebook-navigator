@@ -528,19 +528,11 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
                 if (shouldScrollNavigation) {
                     if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
                         // Scroll to tag
-                        const tagIndex = navigationPaneRef.current?.getIndexOfPath(selectionState.selectedTag);
-
-                        if (tagIndex !== undefined && tagIndex !== -1) {
-                            navigationPaneRef.current?.virtualizer?.scrollToIndex(tagIndex, { align: 'center', behavior: 'auto' });
-                        }
+                        navigationPaneRef.current?.requestScroll(selectionState.selectedTag);
                     } else if (selectionState.selectedFolder && file.parent && selectionState.selectedFolder.path === file.parent.path) {
                         // Scroll to folder - but only if we're not preserving the current folder
                         // When preserveFolder is true (showNotesFromSubfolders), we don't want to jump to the subfolder
-                        const folderIndex = navigationPaneRef.current?.getIndexOfPath(file.parent.path);
-
-                        if (folderIndex !== undefined && folderIndex !== -1) {
-                            navigationPaneRef.current?.virtualizer?.scrollToIndex(folderIndex, { align: 'center', behavior: 'auto' });
-                        }
+                        navigationPaneRef.current?.requestScroll(file.parent.path);
                     }
                 }
 
