@@ -20,6 +20,7 @@ import { TFile } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { UNTAGGED_TAG_ID } from '../types';
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
+import { matchesTagPattern, parseTagPatterns } from './tagTree';
 
 /**
  * Gets normalized tags for a file (without # prefix and in lowercase)
@@ -133,4 +134,25 @@ export function determineTagToReveal(
     }
 
     return null;
+}
+
+/**
+ * Checks if a tag is considered a favorite, including checking if any ancestor tag is a favorite
+ * @param tagPath - The tag path to check (e.g., "foto/kamera/fuji")
+ * @param favoriteTags - Array of favorite tag strings
+ * @returns true if the tag or any of its ancestors is a favorite
+ */
+export function isTagFavorite(tagPath: string, favoriteTags: string[]): boolean {
+    const favoritePatterns = parseTagPatterns(favoriteTags.join(','));
+    const pathParts = tagPath.split('/');
+
+    // Check from most specific to least specific
+    for (let i = pathParts.length; i > 0; i--) {
+        const partialPath = pathParts.slice(0, i).join('/');
+        if (favoritePatterns.some(pattern => matchesTagPattern(partialPath, pattern))) {
+            return true;
+        }
+    }
+
+    return false;
 }

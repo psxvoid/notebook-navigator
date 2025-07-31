@@ -30,7 +30,7 @@ import { ItemType } from '../types';
 import { DateUtils } from '../utils/dateUtils';
 import { isImageFile } from '../utils/fileTypeUtils';
 import { getDateField } from '../utils/sortUtils';
-import { parseTagPatterns, matchesTagPattern } from '../utils/tagTree';
+import { isTagFavorite } from '../utils/tagUtils';
 import { ObsidianIcon } from './ObsidianIcon';
 
 interface FileItemProps {
@@ -110,17 +110,14 @@ export const FileItem = React.memo(function FileItem({
     const categorizedTags = useMemo(() => {
         if (tags.length === 0) return tags;
 
-        // Parse favorite tag patterns
-        const favoritePatterns = parseTagPatterns(settings.favoriteTags.join(','));
-
         // Categorize tags
         const favoriteTags: string[] = [];
         const coloredTags: string[] = [];
         const regularTags: string[] = [];
 
         tags.forEach(tag => {
-            // Check if it's a favorite tag
-            const isFavorite = favoritePatterns.some(pattern => matchesTagPattern(tag, pattern));
+            // Check if it's a favorite tag (including ancestors)
+            const isFavorite = isTagFavorite(tag, settings.favoriteTags);
 
             if (isFavorite) {
                 favoriteTags.push(tag);
