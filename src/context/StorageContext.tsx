@@ -481,19 +481,11 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
             if (isInitialLoad) {
                 try {
-                    // Step 1: Run cleanup FIRST to remove stale metadata
-                    // This needs to run before database sync to detect orphaned entries
-                    if (metadataService) {
-                        // Create temporary tag tree to detect if items for tag colors and icons still exist
-                        // This may be empty (first install) or stale (after external moves) - that's intentional
-                        const tempTagTree = rebuildTagTree();
-                        await runUnifiedCleanup(getDBInstance(), tempTagTree);
-                    }
-
-                    // Step 2: Process file changes to sync the database
+                    // Step 1: Process file changes to sync the database
+                    // This MUST happen first to ensure the database reflects the current vault state
                     const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles);
 
-                    // Step 3: Update database with changes
+                    // Step 2: Update database with changes
                     if (toRemove.length > 0) {
                         await removeFilesFromCache(toRemove);
                     }
@@ -502,11 +494,21 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                         await recordFileChanges([...toAdd, ...toUpdate], cachedFiles);
                     }
 
-                    // Step 4: Build tag tree from updated database
-                    rebuildTagTree();
+                    // Step 3: Build tag tree from the now-synced database
+                    // This ensures the tag tree accurately reflects the current vault state
+                    const tagTree = rebuildTagTree();
 
-                    // Step 5: Mark storage as ready
+                    // Step 4: Mark storage as ready
                     setIsStorageReady(true);
+
+                    // Step 5: Run metadata cleanup with accurate data
+                    // This MUST run after database sync and tag tree build to ensure:
+                    // - Tag metadata cleanup uses the current tag tree (not stale data)
+                    // - Folder metadata cleanup uses current vault structure
+                    // - All orphaned metadata is properly detected and removed
+                    if (metadataService) {
+                        await runUnifiedCleanup(getDBInstance(), tagTree);
+                    }
 
                     // Step 6: Queue content generation for new/modified files
                     const contentEnabled =
