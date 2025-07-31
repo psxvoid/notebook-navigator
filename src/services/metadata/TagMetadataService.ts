@@ -44,12 +44,24 @@ export class TagMetadataService extends BaseMetadataService {
     }
 
     /**
-     * Gets the custom color for a tag
+     * Gets the custom color for a tag, checking ancestors if not directly set
      * @param tagPath - Path of the tag
      * @returns The color value or undefined
      */
     getTagColor(tagPath: string): string | undefined {
-        return this.getEntityColor(ItemType.TAG, tagPath);
+        // First check if this tag has a color directly set
+        const directColor = this.getEntityColor(ItemType.TAG, tagPath);
+        if (directColor) return directColor;
+
+        // If no direct color, check ancestors
+        const pathParts = tagPath.split('/');
+        for (let i = pathParts.length - 1; i > 0; i--) {
+            const ancestorPath = pathParts.slice(0, i).join('/');
+            const ancestorColor = this.getEntityColor(ItemType.TAG, ancestorPath);
+            if (ancestorColor) return ancestorColor;
+        }
+
+        return undefined;
     }
 
     /**
