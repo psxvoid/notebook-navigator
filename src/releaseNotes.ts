@@ -68,7 +68,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.3.9',
         date: '2025-07-30',
         showOnUpdate: true,
-        new: ['Added SHIFT+HOME and SHIFT+END keyboard shortcuts for selecting text in the list pane.'],
+        new: ['Added SHIFT+HOME and SHIFT+END keyboard shortcuts for selecting items in the list pane.'],
         improved: ['Slim mode interface now has cleaner appearance with no separator lines and tighter spacing.'],
         fixed: [
             'Fixed file date display not updating when files are modified.',
