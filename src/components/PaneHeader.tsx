@@ -301,6 +301,15 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
         });
     }, [updateSettings]);
 
+    // Check if custom sort is active
+    const isCustomSort =
+        (selectionState.selectionType === ItemType.FOLDER &&
+            selectionState.selectedFolder &&
+            metadataService.getFolderSortOverride(selectionState.selectedFolder.path)) ||
+        (selectionState.selectionType === ItemType.TAG &&
+            selectionState.selectedTag &&
+            metadataService.getTagSortOverride(selectionState.selectedTag));
+
     // Helper function to get header title
     const getHeaderTitle = (useFolderName = false): string => {
         let title = strings.common.noSelection;
@@ -381,7 +390,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                                 <ObsidianIcon name="layers" />
                             </button>
                             <button
-                                className="nn-icon-button"
+                                className={`nn-icon-button ${isCustomSort ? 'nn-icon-button-active' : ''}`}
                                 aria-label={strings.paneHeader.changeSortOrder}
                                 onClick={e => {
                                     e.stopPropagation();
@@ -424,6 +433,17 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                         tabIndex={-1}
                     >
                         <ObsidianIcon name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'} />
+                    </button>
+                    <button
+                        className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}
+                        aria-label={strings.paneHeader.autoExpandFoldersTags}
+                        onClick={e => {
+                            e.stopPropagation();
+                            handleToggleAutoExpand();
+                        }}
+                        tabIndex={-1}
+                    >
+                        <ObsidianIcon name="folder-tree" />
                     </button>
                     <button
                         className="nn-icon-button"
@@ -474,14 +494,6 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                         </button>
                         <div className="nn-header-actions">
                             <button
-                                className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}
-                                aria-label={strings.paneHeader.autoExpandFoldersTags}
-                                onClick={handleToggleAutoExpand}
-                                tabIndex={-1}
-                            >
-                                <ObsidianIcon name="folder-tree" />
-                            </button>
-                            <button
                                 className="nn-icon-button"
                                 aria-label={
                                     shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders
@@ -490,6 +502,14 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                                 tabIndex={-1}
                             >
                                 <ObsidianIcon name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'} />
+                            </button>
+                            <button
+                                className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}
+                                aria-label={strings.paneHeader.autoExpandFoldersTags}
+                                onClick={handleToggleAutoExpand}
+                                tabIndex={-1}
+                            >
+                                <ObsidianIcon name="folder-tree" />
                             </button>
                             <button
                                 className="nn-icon-button"
@@ -534,7 +554,7 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                                 <ObsidianIcon name="layers" />
                             </button>
                             <button
-                                className="nn-icon-button"
+                                className={`nn-icon-button ${isCustomSort ? 'nn-icon-button-active' : ''}`}
                                 aria-label={strings.paneHeader.changeSortOrder}
                                 onClick={handleSortMenu}
                                 disabled={!selectionState.selectedFolder && !selectionState.selectedTag}

@@ -756,6 +756,27 @@ export const NavigationPane = React.memo(
             }
         }, [pathToIndex, selectionState.selectionType, selectionState.selectedTag, rowVirtualizer, isVisible]);
 
+        // Listen for mobile drawer visibility
+        useEffect(() => {
+            if (!isMobile) return;
+
+            const handleVisible = () => {
+                // If we have a selected folder or tag, scroll to it
+                if (selectedPath && rowVirtualizer) {
+                    const index = pathToIndex.get(selectedPath);
+                    if (index !== undefined && index >= 0) {
+                        rowVirtualizer.scrollToIndex(index, {
+                            align: 'auto',
+                            behavior: 'auto'
+                        });
+                    }
+                }
+            };
+
+            window.addEventListener('notebook-navigator-visible', handleVisible);
+            return () => window.removeEventListener('notebook-navigator-visible', handleVisible);
+        }, [isMobile, selectedPath, rowVirtualizer, pathToIndex]);
+
         // Expose the virtualizer instance, path lookup method, and scroll container via the ref
         useImperativeHandle(
             ref,
