@@ -459,33 +459,30 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
     // Handle revealing the file when detected
     useEffect(() => {
         if (fileToReveal) {
-            // Use requestAnimationFrame to ensure state updates are processed
-            requestAnimationFrame(() => {
-                if (isStartupReveal) {
-                    // On startup, if we're already in tag view with the correct file selected, skip reveal but expand tags
-                    if (
-                        selectionState.selectionType === ItemType.TAG &&
-                        selectionState.selectedTag &&
-                        selectionState.selectedFile?.path === fileToReveal.path
-                    ) {
-                        revealTag(selectionState.selectedTag);
+            if (isStartupReveal) {
+                // On startup, if we're already in tag view with the correct file selected, skip reveal but expand tags
+                if (
+                    selectionState.selectionType === ItemType.TAG &&
+                    selectionState.selectedTag &&
+                    selectionState.selectedFile?.path === fileToReveal.path
+                ) {
+                    revealTag(selectionState.selectedTag);
 
-                        // After expanding the tag, trigger the file reveal
-                        // This ensures the scroll happens via pendingScroll
-                        selectionDispatch({
-                            type: 'REVEAL_FILE',
-                            file: fileToReveal,
-                            preserveFolder: true, // We're in tag view, preserve it
-                            isManualReveal: false, // This is auto-reveal
-                            targetTag: selectionState.selectedTag
-                        });
-                        return;
-                    }
-                    revealFileInActualFolder(fileToReveal); // Use actual folder for startup
-                } else {
-                    revealFileInNearestFolder(fileToReveal); // Use nearest folder for sidebar clicks
+                    // After expanding the tag, trigger the file reveal
+                    // This ensures the scroll happens via pendingScroll
+                    selectionDispatch({
+                        type: 'REVEAL_FILE',
+                        file: fileToReveal,
+                        preserveFolder: true, // We're in tag view, preserve it
+                        isManualReveal: false, // This is auto-reveal
+                        targetTag: selectionState.selectedTag
+                    });
+                    return;
                 }
-            });
+                revealFileInActualFolder(fileToReveal); // Use actual folder for startup
+            } else {
+                revealFileInNearestFolder(fileToReveal); // Use nearest folder for sidebar clicks
+            }
         }
     }, [
         fileToReveal,
@@ -508,28 +505,23 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
         if (selectionState.isRevealOperation && selectionState.selectedFile) {
             const file = selectionState.selectedFile;
 
-            // Scroll to revealed items after animation frame to ensure rendering is complete
-            const rafId = requestAnimationFrame(() => {
-                // Scroll to folder or tag in navigation pane
-                // Don't scroll if navigation pane is hidden in single-pane mode
-                const shouldScrollNavigation = !uiState.singlePane || uiState.currentSinglePaneView === 'navigation';
+            // Scroll to folder or tag in navigation pane
+            // Don't scroll if navigation pane is hidden in single-pane mode
+            const shouldScrollNavigation = !uiState.singlePane || uiState.currentSinglePaneView === 'navigation';
 
-                if (shouldScrollNavigation) {
-                    if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                        // Scroll to tag
-                        navigationPaneRef.current?.requestScroll(selectionState.selectedTag);
-                    } else if (selectionState.selectedFolder && file.parent && selectionState.selectedFolder.path === file.parent.path) {
-                        // Scroll to folder - but only if we're not preserving the current folder
-                        // When preserveFolder is true (showNotesFromSubfolders), we don't want to jump to the subfolder
-                        navigationPaneRef.current?.requestScroll(file.parent.path);
-                    }
+            if (shouldScrollNavigation) {
+                if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+                    // Scroll to tag
+                    navigationPaneRef.current?.requestScroll(selectionState.selectedTag);
+                } else if (selectionState.selectedFolder && file.parent && selectionState.selectedFolder.path === file.parent.path) {
+                    // Scroll to folder - but only if we're not preserving the current folder
+                    // When preserveFolder is true (showNotesFromSubfolders), we don't want to jump to the subfolder
+                    navigationPaneRef.current?.requestScroll(file.parent.path);
                 }
+            }
 
-                // ListPane now handles reveal scrolling via pendingScrollRef
-                // This ensures proper measurement for large folders before scrolling
-            });
-
-            return () => cancelAnimationFrame(rafId);
+            // ListPane handles reveal scrolling via its own pendingScrollRef mechanism
+            // This ensures proper measurement for large folders before scrolling
         }
     }, [
         selectionState.isRevealOperation,
