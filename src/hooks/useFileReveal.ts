@@ -17,7 +17,7 @@
  */
 
 import { useEffect, useRef, useCallback, RefObject, useState } from 'react';
-import { TFile, TFolder, App, WorkspaceLeaf, FileView } from 'obsidian';
+import { TFile, TFolder, App, FileView } from 'obsidian';
 import type { ListPaneHandle } from '../components/ListPane';
 import type { NavigationPaneHandle } from '../components/NavigationPane';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
@@ -58,8 +58,7 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
     // Auto-reveal state
     const [fileToReveal, setFileToReveal] = useState<TFile | null>(null);
     const [isStartupReveal, setIsStartupReveal] = useState<boolean>(false);
-    const lastRevealedFileRef = useRef<string | null>(null);
-    const lastRevealTimeRef = useRef<number>(0);
+    const activeFileRef = useRef<string | null>(null);
     const hasInitializedRef = useRef<boolean>(false);
 
     /**
@@ -375,27 +374,44 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
     useEffect(() => {
         if (!settings.autoRevealActiveFile) return;
 
-        const handleFileChange = (file: TFile | null) => {
-            if (!file) return;
+        /**
+         * Detects if the active file has changed and triggers reveal if needed.
+         * This is the single entry point for both file-open and active-leaf-change events.
+         */
+        const detectActiveFileChange = () => {
+            // Get the currently active file
+            const activeLeaf = app.workspace.activeLeaf;
+            if (!activeLeaf || activeLeaf.getRoot() !== app.workspace.rootSplit) {
+                return;
+            }
+
+            const view = activeLeaf.view;
+            if (!(view instanceof FileView) || !view.file || !(view.file instanceof TFile)) {
+                return;
+            }
+
+            const file = view.file;
+
+            // Check if this is actually a different file
+            if (activeFileRef.current === file.path) {
+                return; // Same file, no change
+            }
+
+            // Update the active file reference
+            activeFileRef.current = file.path;
 
             // Check if this is a file we just created via the plugin
             const isNewlyCreatedFile = uiState.newlyCreatedPath && file.path === uiState.newlyCreatedPath;
 
-            // Check if this is a newly created file (any file created within last 200ms)
-            const isRecentlyCreated = file.stat.ctime === file.stat.mtime && Date.now() - file.stat.ctime < 200;
-
             // Always reveal newly created files
-            if (isNewlyCreatedFile || isRecentlyCreated) {
+            if (isNewlyCreatedFile) {
                 setFileToReveal(file);
-                lastRevealedFileRef.current = file.path;
                 // Clear the newly created path after consuming it
-                if (isNewlyCreatedFile) {
-                    uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: null });
-                }
+                uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: null });
                 return;
             }
 
-            // Simple rule: Don't reveal if navigator has focus
+            // Don't reveal if navigator has focus
             const navigatorEl = document.querySelector('.nn-split-container');
             const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
 
@@ -408,56 +424,29 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
                 return;
             }
 
-            // Prevent duplicate reveals of the same file within a short time window.
-            // This is necessary because Obsidian fires both 'active-leaf-change' AND 'file-open'
-            // events when clicking a file, causing handleFileChange to be called multiple times.
-            // We use a 100ms window to ignore these duplicate events while still allowing
-            // users to manually reveal the same file again after a short delay.
-            const now = Date.now();
-            if (lastRevealedFileRef.current === file.path && now - lastRevealTimeRef.current < 100) {
-                return;
-            }
-            lastRevealTimeRef.current = now;
-
             // Reveal the file
             setFileToReveal(file);
-            lastRevealedFileRef.current = file.path;
         };
 
-        const handleActiveLeafChange = (leaf: WorkspaceLeaf | null) => {
-            if (!leaf) return;
-
-            // Only process leaves in the main editor area
-            if (leaf.getRoot() !== app.workspace.rootSplit) {
-                return;
-            }
-
-            // Get the file from the active view
-            const view = leaf.view;
-            if (view instanceof FileView && view.file && view.file instanceof TFile) {
-                handleFileChange(view.file);
-            }
+        const handleActiveLeafChange = () => {
+            detectActiveFileChange();
         };
 
-        const handleFileOpen = (file: TFile | null) => {
-            if (file instanceof TFile) {
-                // Only process if the file is opened in the main editor area
-                const activeLeaf = app.workspace.activeLeaf;
-                if (activeLeaf && activeLeaf.getRoot() === app.workspace.rootSplit) {
-                    handleFileChange(file);
-                }
-            }
+        const handleFileOpen = () => {
+            detectActiveFileChange();
         };
 
         const activeLeafEventRef = app.workspace.on('active-leaf-change', handleActiveLeafChange);
         const fileOpenEventRef = app.workspace.on('file-open', handleFileOpen);
 
         // Check for currently active file on mount
-        const activeFile = app.workspace.getActiveFile();
-
-        if (activeFile && !hasInitializedRef.current) {
-            setIsStartupReveal(true);
-            handleFileChange(activeFile);
+        if (!hasInitializedRef.current) {
+            const activeFile = app.workspace.getActiveFile();
+            if (activeFile) {
+                activeFileRef.current = activeFile.path;
+                setIsStartupReveal(true);
+                setFileToReveal(activeFile);
+            }
             hasInitializedRef.current = true;
         }
 
