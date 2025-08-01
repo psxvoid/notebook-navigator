@@ -24,7 +24,7 @@ import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
-import { useFileReveal } from '../hooks/useFileReveal';
+import { useNavigatorReveal } from '../hooks/useNavigatorReveal';
 import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useMobileSwipeNavigation } from '../hooks/useSwipeGesture';
@@ -88,8 +88,8 @@ export const NotebookNavigatorComponent = React.memo(
             storageKey: STORAGE_KEYS.navigationPaneWidthKey
         });
 
-        // Use file reveal logic
-        const { revealFileInActualFolder, navigateToFolder } = useFileReveal({ app, navigationPaneRef, listPaneRef });
+        // Use navigator reveal logic
+        const { revealFileInActualFolder, navigateToFolder } = useNavigatorReveal({ app, navigationPaneRef, listPaneRef });
 
         // Use tag navigation logic
         const { navigateToTag } = useTagNavigation();

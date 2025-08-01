@@ -29,23 +29,23 @@ import { determineTagToReveal } from '../utils/tagUtils';
 import { ItemType } from '../types';
 import { parsePatterns, matchesAnyPattern } from '../utils/tagPatternMatcher';
 
-interface UseFileRevealOptions {
+interface UseNavigatorRevealOptions {
     app: App;
     navigationPaneRef: RefObject<NavigationPaneHandle | null>;
     listPaneRef: RefObject<ListPaneHandle | null>;
 }
 
 /**
- * Custom hook that handles all file reveal logic, including:
- * - Manual reveal (via "Reveal file" command)
- * - Auto-reveal (on file open/startup)
- * - Folder expansion behavior
- * - Scroll management
+ * Custom hook that handles revealing items (files, folders, tags) in the Navigator, including:
+ * - Manual reveal (via commands, context menus, or direct navigation)
+ * - Auto-reveal (on file open/startup when enabled in settings)
+ * - Parent expansion behavior (expanding ancestor folders/tags to make items visible)
+ * - View switching (between navigation and file list in single-pane mode)
  *
  * This hook encapsulates the complex reveal logic that was previously
  * in the NotebookNavigatorComponent, making it reusable and testable.
  */
-export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRevealOptions) {
+export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseNavigatorRevealOptions) {
     const settings = useSettingsState();
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
@@ -178,7 +178,7 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             // Always shift focus to list pane (same as revealFileInActualFolder)
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
 
-            // If we have a selected file, trigger a reveal to ensure proper scrolling
+            // If we have a selected file, trigger a reveal to ensure proper item visibility
             // This makes tag reveal follow the same flow as folder reveal
             if (selectionState.selectedFile) {
                 selectionDispatch({
@@ -453,7 +453,7 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
                     revealTag(selectionState.selectedTag);
 
                     // After expanding the tag, trigger the file reveal
-                    // This ensures the scroll happens via pendingScroll
+                    // This ensures proper visibility in the list pane
                     selectionDispatch({
                         type: 'REVEAL_FILE',
                         file: fileToReveal,
@@ -481,30 +481,30 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
     ]);
 
     /**
-     * Handle reveal scrolling after selection changes.
-     * Folder expansion happens in the reveal functions BEFORE selection changes.
+     * Request scrolling to revealed items after selection changes.
+     * Folder/tag expansion happens in the reveal functions BEFORE selection changes.
+     * The actual scrolling is handled by the navigation and list panes.
      */
     useEffect(() => {
         // ONLY process if this is a reveal operation, not normal keyboard navigation
         if (selectionState.isRevealOperation && selectionState.selectedFile) {
             const file = selectionState.selectedFile;
 
-            // Scroll to folder or tag in navigation pane
-            // Don't scroll if navigation pane is hidden in single-pane mode
+            // Request scroll in navigation pane if visible
             const shouldScrollNavigation = !uiState.singlePane || uiState.currentSinglePaneView === 'navigation';
 
             if (shouldScrollNavigation) {
                 if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                    // Scroll to tag
+                    // Request scroll to tag
                     navigationPaneRef.current?.requestScroll(selectionState.selectedTag);
                 } else if (selectionState.selectedFolder && file.parent && selectionState.selectedFolder.path === file.parent.path) {
-                    // Scroll to folder - but only if we're not preserving the current folder
+                    // Request scroll to folder - but only if we're not preserving the current folder
                     // When preserveFolder is true (showNotesFromSubfolders), we don't want to jump to the subfolder
                     navigationPaneRef.current?.requestScroll(file.parent.path);
                 }
             }
 
-            // ListPane handles reveal scrolling via its own pendingScrollRef mechanism
+            // ListPane handles its own scroll requests via pendingScrollRef
             // This ensures proper measurement for large folders before scrolling
         }
     }, [
