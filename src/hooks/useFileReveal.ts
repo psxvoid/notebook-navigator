@@ -386,8 +386,8 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             // Update the active file reference
             activeFileRef.current = file.path;
 
-            // Check if this is a newly created file (any file created within last 200ms)
-            const isRecentlyCreated = file.stat.ctime === file.stat.mtime && Date.now() - file.stat.ctime < 200;
+            // Check if this is a newly created file (any file created within last 100ms)
+            const isRecentlyCreated = file.stat.ctime === file.stat.mtime && Date.now() - file.stat.ctime < 100;
 
             // Always reveal newly created files
             if (isRecentlyCreated) {
