@@ -19,7 +19,8 @@
 import { MenuItem } from 'obsidian';
 import { TagMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
-import { isTagFavorite, findMatchingFavoritePatterns } from '../tagUtils';
+import { isTagOrDescendantFavorite, findMatchingFavoritePatterns } from '../tagUtils';
+import { UNTAGGED_TAG_ID } from '../../types';
 
 /**
  * Builds the context menu for a tag
@@ -28,37 +29,40 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
     const { tagPath, menu, services, settings } = params;
     const { app, metadataService, plugin } = services;
 
-    // Check if this tag or any ancestor is a favorite
-    const isFavorite = isTagFavorite(tagPath, settings.favoriteTags);
+    // Don't show favorites options for the Untagged virtual tag
+    if (tagPath !== UNTAGGED_TAG_ID) {
+        // Check if this tag or any descendant is directly marked as favorite
+        const isFavorite = isTagOrDescendantFavorite(tagPath, settings.favoriteTags);
 
-    if (!isFavorite) {
-        // Tag is not a favorite - show "Add to favorites"
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.tag.addToFavorites)
-                .setIcon('star')
-                .onClick(async () => {
-                    plugin.settings.favoriteTags = [...plugin.settings.favoriteTags, tagPath];
-                    await plugin.saveSettings();
-                });
-        });
-    } else {
-        // Tag is a favorite - show "Remove from favorites"
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.tag.removeFromFavorites)
-                .setIcon('star-off')
-                .onClick(async () => {
-                    // Find all patterns that match this tag
-                    const matchingPatterns = findMatchingFavoritePatterns(tagPath, settings.favoriteTags);
+        if (!isFavorite) {
+            // Tag is not a favorite - show "Add to favorites"
+            menu.addItem((item: MenuItem) => {
+                item.setTitle(strings.contextMenu.tag.addToFavorites)
+                    .setIcon('star')
+                    .onClick(async () => {
+                        plugin.settings.favoriteTags = [...plugin.settings.favoriteTags, tagPath];
+                        await plugin.saveSettings();
+                    });
+            });
+        } else {
+            // Tag is a favorite - show "Remove from favorites"
+            menu.addItem((item: MenuItem) => {
+                item.setTitle(strings.contextMenu.tag.removeFromFavorites)
+                    .setIcon('star-off')
+                    .onClick(async () => {
+                        // Find all patterns that match this tag
+                        const matchingPatterns = findMatchingFavoritePatterns(tagPath, settings.favoriteTags);
 
-                    // Remove all matching patterns from favorites
-                    plugin.settings.favoriteTags = settings.favoriteTags.filter(pattern => !matchingPatterns.includes(pattern));
+                        // Remove all matching patterns from favorites
+                        plugin.settings.favoriteTags = settings.favoriteTags.filter(pattern => !matchingPatterns.includes(pattern));
 
-                    await plugin.saveSettings();
-                });
-        });
+                        await plugin.saveSettings();
+                    });
+            });
+        }
+
+        menu.addSeparator();
     }
-
-    menu.addSeparator();
 
     // Change icon
     menu.addItem((item: MenuItem) => {

@@ -35,7 +35,7 @@ import type { CombinedNavigationItem } from '../types/virtualization';
 import { parseExcludedFolders, parseExcludedProperties, shouldExcludeFile, matchesFolderPattern } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
 import { shouldDisplayFile } from '../utils/fileTypeUtils';
-import { getTotalNoteCount, filterTagTree, excludeFromTagTree, parseTagPatterns } from '../utils/tagTree';
+import { getTotalNoteCount, filterTagTree, excludeFromTagTree } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
 import { FolderItem } from './FolderItem';
 import { PaneHeader } from './PaneHeader';
@@ -537,8 +537,9 @@ export const NavigationPane = React.memo(
                 const tagItems: CombinedNavigationItem[] = [];
                 if (settings.showTags) {
                     // Parse favorite and hidden tag patterns
-                    const favoritePatterns = parseTagPatterns(settings.favoriteTags.join(','));
-                    const hiddenPatterns = parseTagPatterns(settings.hiddenTags.join(','));
+                    // Note: We pass arrays directly now, not comma-separated strings
+                    const favoritePatterns = settings.favoriteTags;
+                    const hiddenPatterns = settings.hiddenTags;
 
                     // Helper function to add untagged node
                     const addUntaggedNode = (level: number) => {
@@ -726,7 +727,8 @@ export const NavigationPane = React.memo(
             tagTree,
             untaggedCount,
             isVisible,
-            uiState.singlePane
+            uiState.singlePane,
+            expansionDispatch
         ]);
 
         // Scroll to selected folder/tag when needed

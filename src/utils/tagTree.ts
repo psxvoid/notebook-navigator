@@ -19,6 +19,7 @@
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { TagTreeNode } from '../types/storage';
 import { isPathInExcludedFolder } from './fileFilters';
+import { parsePatterns, matchesPattern } from './tagPatternMatcher';
 
 /**
  * Tag Tree Utilities
@@ -220,65 +221,89 @@ export function findTagNode(tree: Map<string, TagTreeNode>, tagPath: string): Ta
 }
 
 /**
- * Parse tag patterns from a comma-separated string
- */
-export function parseTagPatterns(patterns: string): string[] {
-    return patterns
-        .split(',')
-        .map(p => p.trim())
-        .filter(p => p.length > 0);
-}
-
-/**
- * Check if a tag matches a pattern (supports wildcards and regex)
- */
-export function matchesTagPattern(tagPath: string, pattern: string): boolean {
-    // Remove # prefix from both if present
-    const cleanTag = tagPath.startsWith('#') ? tagPath.substring(1) : tagPath;
-    const cleanPattern = pattern.startsWith('#') ? pattern.substring(1) : pattern;
-
-    // Check for regex pattern (starts and ends with /)
-    if (cleanPattern.startsWith('/') && cleanPattern.endsWith('/')) {
-        try {
-            const regex = new RegExp(cleanPattern.slice(1, -1), 'i');
-            return regex.test(cleanTag);
-        } catch (e) {
-            console.error('Invalid regex pattern:', cleanPattern, e);
-            return false;
-        }
-    }
-
-    // Convert wildcard pattern to regex
-    // Escape special regex characters except *
-    const escapedPattern = cleanPattern.replace(/[.+?^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*');
-    const regex = new RegExp(`^${escapedPattern}$`, 'i');
-    return regex.test(cleanTag);
-}
-
-/**
  * Filter tag tree based on inclusion patterns
+ *
+ * This function creates a new tree containing only tags that match the given patterns.
+ * Key behaviors:
+ * 1. Each tag is evaluated individually against all patterns
+ * 2. Parent tags are included if they match OR if any descendant matches
+ * 3. When a tag matches, its children are still evaluated individually (no automatic inclusion)
+ *
+ * Examples:
+ * - Pattern "foto/kamera" → includes only "foto/kamera", not its children
+ * - Pattern "foto/kamera/*" → includes "foto/kamera/fuji", "foto/kamera/sony", etc.
+ * - Pattern "foto/*" → includes all direct children of "foto"
+ *
+ * @param tree - The original tag tree to filter
+ * @param includePatterns - Array of pattern strings (exact, wildcard, or regex)
+ * @returns A new filtered tree containing only matching tags and their ancestors
  */
 export function filterTagTree(tree: Map<string, TagTreeNode>, includePatterns: string[]): Map<string, TagTreeNode> {
     if (includePatterns.length === 0) return tree;
 
     const filtered = new Map<string, TagTreeNode>();
-    const patterns = parseTagPatterns(includePatterns.join(','));
+    const parsedPatterns = parsePatterns(includePatterns);
 
-    for (const [key, node] of tree) {
-        // Check if this tag or any ancestor matches the patterns
-        let shouldInclude = false;
-        const pathParts = node.path.split('/');
+    // Helper to check if a specific tag path matches any pattern
+    function nodeMatchesPatterns(tagPath: string): boolean {
+        return parsedPatterns.some(pattern => matchesPattern(tagPath, pattern));
+    }
 
-        for (let i = pathParts.length; i > 0; i--) {
-            const partialPath = pathParts.slice(0, i).join('/');
-            if (patterns.some(pattern => matchesTagPattern(partialPath, pattern))) {
-                shouldInclude = true;
-                break;
+    // Helper to clone a node with filtered children
+    // Key behavior: When a node matches, we still check each child individually
+    // This prevents "foto/kamera" from automatically including "foto/kamera/fuji"
+    function cloneNodeWithFilteredChildren(node: TagTreeNode): TagTreeNode | null {
+        // Check if this specific node matches any pattern
+        const nodeMatches = nodeMatchesPatterns(node.path);
+
+        if (nodeMatches) {
+            // IMPORTANT: Even though this node matches, we still check each child
+            // Example: "foto/kamera" matches exact pattern "foto/kamera"
+            //          but "foto/kamera/fuji" must be checked separately
+            const filteredChildren = new Map<string, TagTreeNode>();
+
+            for (const [childKey, child] of node.children) {
+                const filteredChild = cloneNodeWithFilteredChildren(child);
+                if (filteredChild) {
+                    filteredChildren.set(childKey, filteredChild);
+                }
+            }
+
+            return {
+                name: node.name,
+                path: node.path,
+                children: filteredChildren,
+                notesWithTag: node.notesWithTag
+            };
+        }
+
+        // Node doesn't match, but check if any children should be included
+        const filteredChildren = new Map<string, TagTreeNode>();
+        for (const [childKey, child] of node.children) {
+            const filteredChild = cloneNodeWithFilteredChildren(child);
+            if (filteredChild) {
+                filteredChildren.set(childKey, filteredChild);
             }
         }
 
-        if (shouldInclude) {
-            filtered.set(key, node);
+        // If we have filtered children, include this node as their parent
+        if (filteredChildren.size > 0) {
+            return {
+                name: node.name,
+                path: node.path,
+                children: filteredChildren,
+                notesWithTag: node.notesWithTag
+            };
+        }
+
+        return null;
+    }
+
+    // Process each root node
+    for (const [key, node] of tree) {
+        const filteredNode = cloneNodeWithFilteredChildren(node);
+        if (filteredNode) {
+            filtered.set(key, filteredNode);
         }
     }
 
@@ -287,19 +312,55 @@ export function filterTagTree(tree: Map<string, TagTreeNode>, includePatterns: s
 
 /**
  * Exclude tags from tree based on exclusion patterns
+ *
+ * Removes tags that match the patterns and all their descendants.
+ * This is used for the "hidden tags" feature.
+ *
+ * Example: Pattern "private/*" removes "private/diary", "private/notes", etc.
+ *
+ * @param tree - The original tag tree
+ * @param excludePatterns - Array of patterns to exclude
+ * @returns A new tree with excluded tags removed
  */
 export function excludeFromTagTree(tree: Map<string, TagTreeNode>, excludePatterns: string[]): Map<string, TagTreeNode> {
     if (excludePatterns.length === 0) return tree;
 
     const filtered = new Map<string, TagTreeNode>();
-    const patterns = parseTagPatterns(excludePatterns.join(','));
+    const parsedPatterns = parsePatterns(excludePatterns);
 
-    for (const [key, node] of tree) {
+    // Helper to recursively check and filter nodes
+    // Returns null if node should be excluded, otherwise returns node with filtered children
+    function shouldIncludeNode(node: TagTreeNode): TagTreeNode | null {
         // Check if this tag matches any exclusion pattern
-        const shouldExclude = patterns.some(pattern => matchesTagPattern(node.path, pattern));
+        const shouldExclude = parsedPatterns.some(pattern => matchesPattern(node.path, pattern));
 
-        if (!shouldExclude) {
-            filtered.set(key, node);
+        if (shouldExclude) {
+            return null;
+        }
+
+        // Process children
+        const filteredChildren = new Map<string, TagTreeNode>();
+        for (const [childKey, child] of node.children) {
+            const filteredChild = shouldIncludeNode(child);
+            if (filteredChild) {
+                filteredChildren.set(childKey, filteredChild);
+            }
+        }
+
+        // Return node with filtered children
+        return {
+            name: node.name,
+            path: node.path,
+            children: filteredChildren,
+            notesWithTag: node.notesWithTag
+        };
+    }
+
+    // Process each root node
+    for (const [key, node] of tree) {
+        const filteredNode = shouldIncludeNode(node);
+        if (filteredNode) {
+            filtered.set(key, filteredNode);
         }
     }
 

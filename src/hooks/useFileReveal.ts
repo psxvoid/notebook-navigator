@@ -27,7 +27,7 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
 import { determineTagToReveal } from '../utils/tagUtils';
 import { ItemType } from '../types';
-import { parseTagPatterns, matchesTagPattern } from '../utils/tagTree';
+import { parsePatterns, matchesAnyPattern } from '../utils/tagPatternMatcher';
 
 interface UseFileRevealOptions {
     app: App;
@@ -127,8 +127,8 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             // Check if we need to expand virtual folders based on settings
             if (settings.showTags) {
                 // Parse favorite patterns to determine which virtual folder contains this tag
-                const favoritePatterns = parseTagPatterns(settings.favoriteTags.join(','));
-                const isFavorite = favoritePatterns.length > 0 && favoritePatterns.some(pattern => matchesTagPattern(tagPath, pattern));
+                const favoritePatterns = parsePatterns(settings.favoriteTags);
+                const isFavorite = favoritePatterns.length > 0 && matchesAnyPattern(tagPath, favoritePatterns);
 
                 if (favoritePatterns.length > 0) {
                     // We have favorites configured

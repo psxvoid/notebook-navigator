@@ -20,7 +20,7 @@ import { TFile } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { UNTAGGED_TAG_ID } from '../types';
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
-import { matchesTagPattern, parseTagPatterns } from './tagTree';
+import { parsePatterns, tagOrAncestorMatchesPatterns, tagOrDescendantMatchesPatterns, findMatchingPatterns } from './tagPatternMatcher';
 
 /**
  * Gets normalized tags for a file (without # prefix and in lowercase)
@@ -143,18 +143,20 @@ export function determineTagToReveal(
  * @returns true if the tag or any of its ancestors is a favorite
  */
 export function isTagFavorite(tagPath: string, favoriteTags: string[]): boolean {
-    const favoritePatterns = parseTagPatterns(favoriteTags.join(','));
-    const pathParts = tagPath.split('/');
+    const favoritePatterns = parsePatterns(favoriteTags);
+    return tagOrAncestorMatchesPatterns(tagPath, favoritePatterns);
+}
 
-    // Check from most specific to least specific
-    for (let i = pathParts.length; i > 0; i--) {
-        const partialPath = pathParts.slice(0, i).join('/');
-        if (favoritePatterns.some(pattern => matchesTagPattern(partialPath, pattern))) {
-            return true;
-        }
-    }
-
-    return false;
+/**
+ * Checks if a tag or any of its descendants is a favorite
+ * Used to determine if a tag should show "Add to favorites" or "Remove from favorites"
+ * @param tagPath - The tag path to check (e.g., "foto")
+ * @param favoriteTags - Array of favorite tag strings
+ * @returns true if the tag or any of its descendants is directly marked as favorite
+ */
+export function isTagOrDescendantFavorite(tagPath: string, favoriteTags: string[]): boolean {
+    const favoritePatterns = parsePatterns(favoriteTags);
+    return tagOrDescendantMatchesPatterns(tagPath, favoritePatterns);
 }
 
 /**
@@ -164,26 +166,7 @@ export function isTagFavorite(tagPath: string, favoriteTags: string[]): boolean 
  * @returns Array of original pattern strings that match this tag
  */
 export function findMatchingFavoritePatterns(tagPath: string, favoriteTags: string[]): string[] {
-    const matchingPatterns: string[] = [];
-    const pathParts = tagPath.split('/');
-
-    // Check each favorite tag pattern
-    for (const favoriteTag of favoriteTags) {
-        const patterns = parseTagPatterns(favoriteTag);
-
-        // Check from most specific to least specific path
-        for (let i = pathParts.length; i > 0; i--) {
-            const partialPath = pathParts.slice(0, i).join('/');
-
-            // If any parsed pattern from this favorite tag matches, include the original
-            if (patterns.some(pattern => matchesTagPattern(partialPath, pattern))) {
-                if (!matchingPatterns.includes(favoriteTag)) {
-                    matchingPatterns.push(favoriteTag);
-                }
-                break; // No need to check other partial paths for this pattern
-            }
-        }
-    }
-
-    return matchingPatterns;
+    const favoritePatterns = parsePatterns(favoriteTags);
+    const matchingPatterns = findMatchingPatterns(tagPath, favoritePatterns);
+    return matchingPatterns.map(pattern => pattern.original);
 }
