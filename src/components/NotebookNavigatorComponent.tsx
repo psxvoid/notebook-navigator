@@ -201,10 +201,7 @@ export const NotebookNavigatorComponent = React.memo(
                     }
 
                     // Use the same logic as the context menu
-                    const file = await fileSystemOps.createNewFile(selectionState.selectedFolder);
-                    if (file) {
-                        uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: file.path });
-                    }
+                    await fileSystemOps.createNewFile(selectionState.selectedFolder);
                 },
                 moveSelectedFiles: async () => {
                     // Get selected files

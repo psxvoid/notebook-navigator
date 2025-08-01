@@ -30,17 +30,14 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     const { folder, menu, services, settings, state, dispatchers } = params;
     const { app, fileSystemOps, metadataService } = services;
     const { selectionState, expandedFolders } = state;
-    const { selectionDispatch, expansionDispatch, uiDispatch } = dispatchers;
+    const { selectionDispatch, expansionDispatch } = dispatchers;
 
     // New note
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.folder.newNote)
             .setIcon('pen-box')
             .onClick(async () => {
-                const file = await fileSystemOps.createNewFile(folder);
-                if (file) {
-                    uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: file.path });
-                }
+                await fileSystemOps.createNewFile(folder);
             });
     });
 

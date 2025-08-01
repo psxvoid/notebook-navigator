@@ -400,14 +400,12 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             // Update the active file reference
             activeFileRef.current = file.path;
 
-            // Check if this is a file we just created via the plugin
-            const isNewlyCreatedFile = uiState.newlyCreatedPath && file.path === uiState.newlyCreatedPath;
+            // Check if this is a newly created file (any file created within last 200ms)
+            const isRecentlyCreated = file.stat.ctime === file.stat.mtime && Date.now() - file.stat.ctime < 200;
 
             // Always reveal newly created files
-            if (isNewlyCreatedFile) {
+            if (isRecentlyCreated) {
                 setFileToReveal(file);
-                // Clear the newly created path after consuming it
-                uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: null });
                 return;
             }
 
@@ -454,7 +452,7 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
             app.workspace.offref(activeLeafEventRef);
             app.workspace.offref(fileOpenEventRef);
         };
-    }, [app.workspace, settings.autoRevealActiveFile, uiState.newlyCreatedPath, uiDispatch]);
+    }, [app.workspace, settings.autoRevealActiveFile]);
 
     // Handle revealing the file when detected
     useEffect(() => {

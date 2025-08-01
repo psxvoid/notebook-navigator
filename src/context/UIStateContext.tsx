@@ -29,7 +29,6 @@ interface UIState {
     focusedPane: 'navigation' | 'files';
     currentSinglePaneView: 'navigation' | 'files';
     paneWidth: number;
-    newlyCreatedPath: string | null;
     dualPane: boolean;
     singlePane: boolean;
 }
@@ -38,8 +37,7 @@ interface UIState {
 export type UIAction =
     | { type: 'SET_FOCUSED_PANE'; pane: 'navigation' | 'files' }
     | { type: 'SET_SINGLE_PANE_VIEW'; view: 'navigation' | 'files' }
-    | { type: 'SET_PANE_WIDTH'; width: number }
-    | { type: 'SET_NEWLY_CREATED_PATH'; path: string | null };
+    | { type: 'SET_PANE_WIDTH'; width: number };
 
 // Create contexts
 const UIStateContext = createContext<UIState | null>(null);
@@ -56,9 +54,6 @@ function uiStateReducer(state: UIState, action: UIAction): UIState {
 
         case 'SET_PANE_WIDTH':
             return { ...state, paneWidth: action.width };
-
-        case 'SET_NEWLY_CREATED_PATH':
-            return { ...state, newlyCreatedPath: action.path };
 
         default:
             return state;
@@ -81,7 +76,6 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
             focusedPane: 'navigation' as const,
             currentSinglePaneView: 'files' as const,
             paneWidth: Math.max(NAVIGATION_PANE_DIMENSIONS.minWidth, paneWidth),
-            newlyCreatedPath: null,
             dualPane: false, // Will be computed later
             singlePane: false // Will be computed later
         };

@@ -179,14 +179,11 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
         if (type !== 'files' || !selectionState.selectedFolder) return;
 
         try {
-            const file = await fileSystemOps.createNewFile(selectionState.selectedFolder);
-            if (file) {
-                uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: file.path });
-            }
+            await fileSystemOps.createNewFile(selectionState.selectedFolder);
         } catch {
             // Error is handled by FileSystemOperations with user notification
         }
-    }, [selectionState.selectedFolder, fileSystemOps, type, uiDispatch]);
+    }, [selectionState.selectedFolder, fileSystemOps, type]);
 
     const getCurrentSortOption = useCallback((): SortOption => {
         return getEffectiveSortOption(settings, selectionState.selectionType, selectionState.selectedFolder, selectionState.selectedTag);
