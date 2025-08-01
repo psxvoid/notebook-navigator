@@ -38,7 +38,7 @@ import { shouldDisplayFile } from '../utils/fileTypeUtils';
 import { getTotalNoteCount, excludeFromTagTree } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
 import { FolderItem } from './FolderItem';
-import { PaneHeader } from './PaneHeader';
+import { NavigationPaneHeader } from './NavigationPaneHeader';
 import { TagTreeItem } from './TagTreeItem';
 import { VirtualFolderComponent } from './VirtualFolderItem';
 
@@ -962,7 +962,7 @@ export const NavigationPane = React.memo(
 
         return (
             <div className="nn-navigation-pane" style={props.style}>
-                <PaneHeader type="navigation" onHeaderClick={handleScrollToTop} />
+                <NavigationPaneHeader onHeaderClick={handleScrollToTop} />
                 <div ref={scrollContainerRef} className="nn-navigation-pane-scroller" data-pane="navigation" role="tree" tabIndex={-1}>
                     {items.length > 0 && (
                         <div

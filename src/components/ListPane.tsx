@@ -33,7 +33,7 @@ import { DateUtils } from '../utils/dateUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
 import { getDateField, getEffectiveSortOption, sortFiles } from '../utils/sortUtils';
 import { FileItem } from './FileItem';
-import { PaneHeader } from './PaneHeader';
+import { ListPaneHeader } from './ListPaneHeader';
 
 /**
  * Renders the list pane displaying files from the selected folder.
@@ -977,7 +977,7 @@ export const ListPane = React.memo(
         if (!selectedFolder && !selectedTag) {
             return (
                 <div className="nn-list-pane">
-                    <PaneHeader type="files" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
+                    <ListPaneHeader onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
                     <div className="nn-list-pane-scroller nn-empty-state">
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoSelection}</div>
                     </div>
@@ -988,7 +988,7 @@ export const ListPane = React.memo(
         if (files.length === 0) {
             return (
                 <div className="nn-list-pane">
-                    <PaneHeader type="files" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
+                    <ListPaneHeader onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
                     <div className="nn-list-pane-scroller nn-empty-state">
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoNotes}</div>
                     </div>
@@ -998,7 +998,7 @@ export const ListPane = React.memo(
 
         return (
             <div className="nn-list-pane">
-                <PaneHeader type="files" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
+                <ListPaneHeader onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
                 <div
                     ref={scrollContainerRefCallback}
                     className={`nn-list-pane-scroller ${isSlimMode ? 'nn-slim-mode' : ''}`}
