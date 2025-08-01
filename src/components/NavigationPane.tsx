@@ -86,6 +86,11 @@ export const NavigationPane = React.memo(
         const tagTree = fileData.tree;
         const untaggedCount = fileData.untagged;
 
+        // Track previous settings for smart auto-expand
+        const prevShowFavoritesFolder = useRef(settings.showFavoriteTagsFolder);
+        const prevShowAllTagsFolder = useRef(settings.showAllTagsFolder);
+        const prevFavoritesCount = useRef(settings.favoriteTags.length);
+
         // =================================================================================
         // We use useState to hold flattened items to prevent virtualizer re-initialization
         // =================================================================================
@@ -609,14 +614,6 @@ export const NavigationPane = React.memo(
                             // Show "Favorites" folder
                             addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'star');
                             addTagItems(favoriteTags, 'favorite-tags-root');
-
-                            // Auto-expand favorite-tags-root if it's not already expanded
-                            if (!expansionState.expandedVirtualFolders.has('favorite-tags-root')) {
-                                // Use setTimeout to dispatch after the current render cycle
-                                setTimeout(() => {
-                                    expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId: 'favorite-tags-root' });
-                                }, 0);
-                            }
                         } else {
                             // Show favorite tags directly without folder
                             const favoriteItems = flattenTagTree(
@@ -636,14 +633,6 @@ export const NavigationPane = React.memo(
                             // Show "Tags" folder
                             addVirtualFolder('all-tags-root', strings.tagList.allTags, 'tags');
                             addTagItems(nonFavoriteTags, 'all-tags-root');
-
-                            // Auto-expand all-tags-root if it's not already expanded
-                            if (!expansionState.expandedVirtualFolders.has('all-tags-root')) {
-                                // Use setTimeout to dispatch after the current render cycle
-                                setTimeout(() => {
-                                    expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId: 'all-tags-root' });
-                                }, 0);
-                            }
                         } else {
                             // Show non-favorite tags directly without folder
                             const nonFavoriteItems = flattenTagTree(
@@ -728,6 +717,42 @@ export const NavigationPane = React.memo(
             untaggedCount,
             isVisible,
             uiState.singlePane,
+            expansionDispatch
+        ]);
+
+        // Smart auto-expand: Only expand virtual folders on specific setting transitions
+        useEffect(() => {
+            // Auto-expand favorites folder when:
+            // 1. Setting changes from false to true
+            // 2. First favorite tag is added (0 -> 1+)
+            if (settings.showFavoriteTagsFolder) {
+                const shouldAutoExpandFavorites =
+                    (!prevShowFavoritesFolder.current && settings.showFavoriteTagsFolder) || // Setting enabled
+                    (prevFavoritesCount.current === 0 && settings.favoriteTags.length > 0); // First favorite added
+
+                if (shouldAutoExpandFavorites && !expansionState.expandedVirtualFolders.has('favorite-tags-root')) {
+                    expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId: 'favorite-tags-root' });
+                }
+            }
+
+            // Auto-expand all tags folder when setting changes from false to true
+            if (settings.showAllTagsFolder) {
+                const shouldAutoExpandAllTags = !prevShowAllTagsFolder.current && settings.showAllTagsFolder;
+
+                if (shouldAutoExpandAllTags && !expansionState.expandedVirtualFolders.has('all-tags-root')) {
+                    expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId: 'all-tags-root' });
+                }
+            }
+
+            // Update refs for next comparison
+            prevShowFavoritesFolder.current = settings.showFavoriteTagsFolder;
+            prevShowAllTagsFolder.current = settings.showAllTagsFolder;
+            prevFavoritesCount.current = settings.favoriteTags.length;
+        }, [
+            settings.showFavoriteTagsFolder,
+            settings.showAllTagsFolder,
+            settings.favoriteTags.length,
+            expansionState.expandedVirtualFolders,
             expansionDispatch
         ]);
 
