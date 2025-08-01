@@ -608,6 +608,14 @@ export const NavigationPane = React.memo(
                             // Show "Favorites" folder
                             addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'star');
                             addTagItems(favoriteTags, 'favorite-tags-root');
+
+                            // Auto-expand favorite-tags-root if it's not already expanded
+                            if (!expansionState.expandedVirtualFolders.has('favorite-tags-root')) {
+                                // Use setTimeout to dispatch after the current render cycle
+                                setTimeout(() => {
+                                    expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId: 'favorite-tags-root' });
+                                }, 0);
+                            }
                         } else {
                             // Show favorite tags directly without folder
                             const favoriteItems = flattenTagTree(
@@ -627,6 +635,14 @@ export const NavigationPane = React.memo(
                             // Show "Tags" folder
                             addVirtualFolder('all-tags-root', strings.tagList.allTags, 'tags');
                             addTagItems(nonFavoriteTags, 'all-tags-root');
+
+                            // Auto-expand all-tags-root if it's not already expanded
+                            if (!expansionState.expandedVirtualFolders.has('all-tags-root')) {
+                                // Use setTimeout to dispatch after the current render cycle
+                                setTimeout(() => {
+                                    expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId: 'all-tags-root' });
+                                }, 0);
+                            }
                         } else {
                             // Show non-favorite tags directly without folder
                             const nonFavoriteItems = flattenTagTree(
