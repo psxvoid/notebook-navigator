@@ -131,6 +131,7 @@ export const NavigationPane = React.memo(
         const prevSelectedPathRef = useRef<string | null>(null);
         const prevVisibleRef = useRef<boolean>(false);
         const prevFocusedPaneRef = useRef<string | null>(null);
+        const prevSelectedTagRef = useRef<string | null>(null);
 
         // Create a map for O(1) item lookups
         const pathToIndex = useMemo(() => {
@@ -794,6 +795,15 @@ export const NavigationPane = React.memo(
         // Tags load after folders, so we need a separate effect to catch when they become available
         useEffect(() => {
             if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag && rowVirtualizer && isVisible) {
+                // Check if this is an actual tag selection change
+                const isTagSelectionChange = prevSelectedTagRef.current !== selectionState.selectedTag;
+
+                // Update the ref for next comparison
+                prevSelectedTagRef.current = selectionState.selectedTag;
+
+                // Only scroll on actual tag selection changes
+                if (!isTagSelectionChange) return;
+
                 const tagIndex = pathToIndex.get(selectionState.selectedTag);
 
                 if (tagIndex !== undefined && tagIndex >= 0) {
