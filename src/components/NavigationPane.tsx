@@ -240,6 +240,44 @@ export const NavigationPane = React.memo(
             [expansionDispatch]
         );
 
+        // Get all descendant folders recursively
+        const getAllDescendantFolders = useCallback((folder: TFolder): string[] => {
+            const descendants: string[] = [];
+
+            const collectDescendants = (currentFolder: TFolder) => {
+                currentFolder.children.forEach(child => {
+                    if (child instanceof TFolder) {
+                        descendants.push(child.path);
+                        collectDescendants(child);
+                    }
+                });
+            };
+
+            collectDescendants(folder);
+            return descendants;
+        }, []);
+
+        // Get all descendant tags recursively
+        const getAllDescendantTags = useCallback(
+            (tagPath: string): string[] => {
+                const descendants: string[] = [];
+                const tagNode = tagTree.get(tagPath);
+
+                if (!tagNode) return descendants;
+
+                const collectDescendants = (node: TagTreeNode) => {
+                    node.children.forEach(child => {
+                        descendants.push(child.path);
+                        collectDescendants(child);
+                    });
+                };
+
+                collectDescendants(tagNode);
+                return descendants;
+            },
+            [tagTree]
+        );
+
         // Handle tag click
         const handleTagClick = useCallback(
             (tagPath: string) => {
@@ -392,6 +430,25 @@ export const NavigationPane = React.memo(
                                 onToggle={() => handleFolderToggle(item.data.path)}
                                 onClick={() => handleFolderClick(item.data)}
                                 onNameClick={() => handleFolderNameClick(item.data)}
+                                onToggleAllSiblings={() => {
+                                    const isCurrentlyExpanded = expansionState.expandedFolders.has(item.data.path);
+
+                                    if (isCurrentlyExpanded) {
+                                        // If expanded, collapse everything (parent and all descendants)
+                                        handleFolderToggle(item.data.path);
+                                        const descendantPaths = getAllDescendantFolders(item.data);
+                                        if (descendantPaths.length > 0) {
+                                            expansionDispatch({ type: 'TOGGLE_DESCENDANT_FOLDERS', descendantPaths, expand: false });
+                                        }
+                                    } else {
+                                        // If collapsed, expand parent and all descendants
+                                        handleFolderToggle(item.data.path);
+                                        const descendantPaths = getAllDescendantFolders(item.data);
+                                        if (descendantPaths.length > 0) {
+                                            expansionDispatch({ type: 'TOGGLE_DESCENDANT_FOLDERS', descendantPaths, expand: true });
+                                        }
+                                    }
+                                }}
                                 icon={metadataService.getFolderIcon(item.data.path)}
                                 fileCount={folderCounts.get(item.data.path)}
                             />
@@ -426,6 +483,25 @@ export const NavigationPane = React.memo(
                                 isSelected={selectionState.selectionType === ItemType.TAG && selectionState.selectedTag === tagNode.path}
                                 onToggle={() => handleTagToggle(tagNode.path)}
                                 onClick={() => handleTagClick(tagNode.path)}
+                                onToggleAllSiblings={() => {
+                                    const isCurrentlyExpanded = expansionState.expandedTags.has(tagNode.path);
+
+                                    if (isCurrentlyExpanded) {
+                                        // If expanded, collapse everything (parent and all descendants)
+                                        handleTagToggle(tagNode.path);
+                                        const descendantPaths = getAllDescendantTags(tagNode.path);
+                                        if (descendantPaths.length > 0) {
+                                            expansionDispatch({ type: 'TOGGLE_DESCENDANT_TAGS', descendantPaths, expand: false });
+                                        }
+                                    } else {
+                                        // If collapsed, expand parent and all descendants
+                                        handleTagToggle(tagNode.path);
+                                        const descendantPaths = getAllDescendantTags(tagNode.path);
+                                        if (descendantPaths.length > 0) {
+                                            expansionDispatch({ type: 'TOGGLE_DESCENDANT_TAGS', descendantPaths, expand: true });
+                                        }
+                                    }
+                                }}
                                 fileCount={tagCounts.get(tagNode.path) || 0}
                                 showFileCount={settings.showNoteCount}
                             />
@@ -466,6 +542,9 @@ export const NavigationPane = React.memo(
                 handleTagToggle,
                 handleTagClick,
                 handleVirtualFolderToggle,
+                getAllDescendantFolders,
+                getAllDescendantTags,
+                expansionDispatch,
                 settings,
                 isMobile,
                 tagCounts,

@@ -41,6 +41,8 @@ interface TagTreeItemProps {
     onToggle: () => void;
     /** Callback when the tag name is clicked */
     onClick: () => void;
+    /** Callback when all sibling tags should be toggled */
+    onToggleAllSiblings?: () => void;
     /** Total count of files with this tag (including children) */
     fileCount: number;
     /** Whether to show file counts */
@@ -53,7 +55,7 @@ interface TagTreeItemProps {
  */
 export const TagTreeItem = React.memo(
     forwardRef<HTMLDivElement, TagTreeItemProps>(function TagTreeItem(
-        { tagNode, level, isExpanded, isSelected, onToggle, onClick, fileCount, showFileCount },
+        { tagNode, level, isExpanded, isSelected, onToggle, onClick, onToggleAllSiblings, fileCount, showFileCount },
         ref
     ) {
         const settings = useSettingsState();
@@ -120,7 +122,13 @@ export const TagTreeItem = React.memo(
                         className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}
                         onClick={e => {
                             e.stopPropagation();
-                            if (hasChildren) onToggle();
+                            if (hasChildren) {
+                                if (e.altKey && onToggleAllSiblings) {
+                                    onToggleAllSiblings();
+                                } else {
+                                    onToggle();
+                                }
+                            }
                         }}
                         onDoubleClick={e => {
                             e.stopPropagation();

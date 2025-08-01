@@ -34,6 +34,7 @@ interface FolderItemProps {
     onToggle: () => void;
     onClick: () => void;
     onNameClick?: () => void;
+    onToggleAllSiblings?: () => void;
     icon?: string;
     fileCount?: number;
 }
@@ -60,6 +61,7 @@ export const FolderItem = React.memo(function FolderItem({
     onToggle,
     onClick,
     onNameClick,
+    onToggleAllSiblings,
     icon,
     fileCount: precomputedFileCount
 }: FolderItemProps) {
@@ -198,7 +200,13 @@ export const FolderItem = React.memo(function FolderItem({
                     ref={chevronRef}
                     onClick={e => {
                         e.stopPropagation();
-                        if (hasChildren) onToggle();
+                        if (hasChildren) {
+                            if (e.altKey && onToggleAllSiblings) {
+                                onToggleAllSiblings();
+                            } else {
+                                onToggle();
+                            }
+                        }
                     }}
                     onDoubleClick={e => {
                         e.stopPropagation();
