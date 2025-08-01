@@ -19,7 +19,7 @@
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { TagTreeNode } from '../types/storage';
 import { isPathInExcludedFolder } from './fileFilters';
-import { parsePatterns, matchesPattern } from './tagPatternMatcher';
+import { parsePatterns, matchesPattern, matchesAnyPattern } from './tagPatternMatcher';
 
 /**
  * Tag Tree Utilities
@@ -107,18 +107,8 @@ export function buildTagTreeFromDatabase(
                 canonicalPath = tagPath;
                 caseMap.set(lowerPath, canonicalPath);
 
-                // Check if this tag or any of its ancestors match favorite patterns
-                let isFavorite = false;
-                const parts = canonicalPath.split('/');
-
-                // Check each level from root to current tag
-                for (let i = 1; i <= parts.length; i++) {
-                    const partialPath = parts.slice(0, i).join('/');
-                    if (parsedFavoritePatterns.some(pattern => matchesPattern(partialPath, pattern))) {
-                        isFavorite = true;
-                        break;
-                    }
-                }
+                // Check if this tag matches any favorite patterns directly
+                const isFavorite = matchesAnyPattern(canonicalPath, parsedFavoritePatterns);
 
                 if (isFavorite) {
                     tagFavoriteList.push(canonicalPath);
