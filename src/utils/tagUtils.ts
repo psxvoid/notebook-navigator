@@ -20,7 +20,7 @@ import { TFile } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { UNTAGGED_TAG_ID } from '../types';
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
-import { parsePatterns, tagOrAncestorMatchesPatterns, tagOrDescendantMatchesPatterns, findMatchingPatterns } from './tagPatternMatcher';
+import { parsePatterns, findMatchingPatterns } from './tagPatternMatcher';
 
 /**
  * Gets normalized tags for a file (without # prefix and in lowercase)
@@ -134,29 +134,6 @@ export function determineTagToReveal(
     }
 
     return null;
-}
-
-/**
- * Checks if a tag is considered a favorite, including checking if any ancestor tag is a favorite
- * @param tagPath - The tag path to check (e.g., "foto/kamera/fuji")
- * @param favoriteTags - Array of favorite tag strings
- * @returns true if the tag or any of its ancestors is a favorite
- */
-export function isTagFavorite(tagPath: string, favoriteTags: string[]): boolean {
-    const favoritePatterns = parsePatterns(favoriteTags);
-    return tagOrAncestorMatchesPatterns(tagPath, favoritePatterns);
-}
-
-/**
- * Checks if a tag or any of its descendants is a favorite
- * Used to determine if a tag should show "Add to favorites" or "Remove from favorites"
- * @param tagPath - The tag path to check (e.g., "foto")
- * @param favoriteTags - Array of favorite tag strings
- * @returns true if the tag or any of its descendants is directly marked as favorite
- */
-export function isTagOrDescendantFavorite(tagPath: string, favoriteTags: string[]): boolean {
-    const favoritePatterns = parsePatterns(favoriteTags);
-    return tagOrDescendantMatchesPatterns(tagPath, favoritePatterns);
 }
 
 /**

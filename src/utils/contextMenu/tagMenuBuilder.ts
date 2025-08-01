@@ -19,7 +19,7 @@
 import { MenuItem } from 'obsidian';
 import { TagMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
-import { isTagOrDescendantFavorite, findMatchingFavoritePatterns } from '../tagUtils';
+import { findMatchingFavoritePatterns } from '../tagUtils';
 import { UNTAGGED_TAG_ID } from '../../types';
 
 /**
@@ -31,8 +31,8 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
 
     // Don't show favorites options for the Untagged virtual tag
     if (tagPath !== UNTAGGED_TAG_ID) {
-        // Check if this tag or any descendant is directly marked as favorite
-        const isFavorite = isTagOrDescendantFavorite(tagPath, settings.favoriteTags);
+        // Check if this tag exists in the favoriteTree
+        const isFavorite = services.findTagInFavoriteTree ? services.findTagInFavoriteTree(tagPath) !== null : false;
 
         if (!isFavorite) {
             // Tag is not a favorite - show "Add to favorites"

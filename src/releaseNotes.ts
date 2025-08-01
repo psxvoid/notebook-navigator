@@ -56,7 +56,7 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.3.11',
-        date: '2025-08-01',
+        date: '2025-08-03',
         showOnUpdate: true,
         new: [
             'You can now right click a tag and choose "Add to favorites" or "Remove from favorites". Remove from favorites will remove all matching patterns (e.g., both "mytag" and "my*" if they match).'

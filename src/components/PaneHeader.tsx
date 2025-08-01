@@ -22,7 +22,7 @@ import { useExpansionState, useExpansionDispatch } from '../context/ExpansionCon
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
 import { useFileSystemOps, useMetadataService } from '../context/ServicesContext';
-import { useSettings } from '../context/SettingsContext';
+import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useFileCache } from '../context/StorageContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { strings } from '../i18n';
@@ -52,7 +52,8 @@ interface PaneHeaderProps {
 export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeaderProps) {
     const iconRef = React.useRef<HTMLSpanElement>(null);
     const { app, isMobile } = useServices();
-    const { settings, updateSettings } = useSettings();
+    const settings = useSettingsState();
+    const updateSettings = useSettingsUpdate();
     const expansionState = useExpansionState();
     const expansionDispatch = useExpansionDispatch();
     const selectionState = useSelectionState();
@@ -150,15 +151,27 @@ export function PaneHeader({ type, onHeaderClick, currentDateGroup }: PaneHeader
                 // Collect all tag paths from the tag tree
                 const allTagPaths = new Set<string>();
 
-                // Collect paths from all root-level tags
-                for (const tagNode of fileData.tree.values()) {
+                // Collect paths from all root-level tags in both trees
+                for (const tagNode of fileData.favoriteTree.values()) {
+                    collectAllTagPaths(tagNode, allTagPaths);
+                }
+                for (const tagNode of fileData.tagTree.values()) {
                     collectAllTagPaths(tagNode, allTagPaths);
                 }
 
                 expansionDispatch({ type: 'SET_EXPANDED_TAGS', tags: allTagPaths });
             }
         }
-    }, [app, expansionDispatch, type, settings.showRootFolder, settings.collapseButtonBehavior, fileData.tree, shouldCollapseItems]);
+    }, [
+        app,
+        expansionDispatch,
+        type,
+        settings.showRootFolder,
+        settings.collapseButtonBehavior,
+        fileData.favoriteTree,
+        fileData.tagTree,
+        shouldCollapseItems
+    ]);
 
     const handleNewFolder = useCallback(async () => {
         if (type !== 'navigation' || !selectionState.selectedFolder) return;

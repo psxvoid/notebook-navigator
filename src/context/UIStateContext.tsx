@@ -22,7 +22,7 @@ import { NAVIGATION_PANE_DIMENSIONS } from '../types';
 import { STORAGE_KEYS } from '../types';
 import { localStorage } from '../utils/localStorage';
 
-import { useSettings } from './SettingsContext';
+import { useSettingsState } from './SettingsContext';
 
 // State interface
 interface UIState {
@@ -84,7 +84,7 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
     };
 
     const [state, dispatch] = useReducer(uiStateReducer, undefined, loadInitialState);
-    const { settings } = useSettings();
+    const settings = useSettingsState();
 
     // Compute dualPane and singlePane based on isMobile and settings
     const stateWithPaneMode = useMemo(() => {

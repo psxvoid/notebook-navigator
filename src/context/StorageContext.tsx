@@ -111,10 +111,11 @@ interface SettingChange {
 }
 
 /**
- * Data structure containing the hierarchical tag tree and untagged file count
+ * Data structure containing the hierarchical tag trees and untagged file count
  */
 interface FileData {
-    tree: Map<string, TagTreeNode>;
+    favoriteTree: Map<string, TagTreeNode>;
+    tagTree: Map<string, TagTreeNode>;
     untagged: number;
 }
 
@@ -134,7 +135,9 @@ interface StorageContextValue {
     getFile: (path: string) => DBFileData | null;
     // Tag tree access methods
     getTagTree: () => Map<string, TagTreeNode>;
+    getFavoriteTree: () => Map<string, TagTreeNode>;
     findTagInTree: (tagPath: string) => TagTreeNode | null;
+    findTagInFavoriteTree: (tagPath: string) => TagTreeNode | null;
     getAllTagPaths: () => string[];
     getFiles: (paths: string[]) => Map<string, DBFileData>;
     hasPreview: (path: string) => boolean;
@@ -199,7 +202,7 @@ function detectContentSettingsChanges(prevSettings: ContentSettingsRecord, curre
 export function StorageProvider({ app, children }: StorageProviderProps) {
     const settings = useSettingsState();
     const { metadataService, tagTreeService } = useServices();
-    const [fileData, setFileData] = useState<FileData>({ tree: new Map(), untagged: 0 });
+    const [fileData, setFileData] = useState<FileData>({ favoriteTree: new Map(), tagTree: new Map(), untagged: 0 });
 
     // Content service handles content generation (preview text + feature images)
     const contentService = useRef<ContentService | null>(null);
@@ -214,6 +217,9 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
     // Track previous content settings to detect changes
     const prevContentSettings = useRef<ContentSettingsRecord | null>(null);
+
+    // Track previous favoriteTags to detect changes
+    const prevFavoriteTags = useRef<string[]>(settings.favoriteTags);
 
     // Memoize the context value to prevent re-renders when fileData/cache haven't changed
     const contextValue = useMemo(() => {
@@ -278,15 +284,25 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         };
 
         // Tag tree accessor methods
-        const getTagTree = () => fileData.tree;
+        const getTagTree = () => fileData.tagTree;
+        const getFavoriteTree = () => fileData.favoriteTree;
 
         const findTagInTree = (tagPath: string) => {
-            return findTagNode(fileData.tree, tagPath);
+            return findTagNode(fileData.tagTree, tagPath);
+        };
+
+        const findTagInFavoriteTree = (tagPath: string) => {
+            return findTagNode(fileData.favoriteTree, tagPath);
         };
 
         const getAllTagPaths = () => {
             const allPaths: string[] = [];
-            for (const rootNode of fileData.tree.values()) {
+            // Collect from both trees
+            for (const rootNode of fileData.favoriteTree.values()) {
+                const paths = collectAllTagPaths(rootNode);
+                allPaths.push(...paths);
+            }
+            for (const rootNode of fileData.tagTree.values()) {
                 const paths = collectAllTagPaths(rootNode);
                 allPaths.push(...paths);
             }
@@ -305,7 +321,9 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             hasPreview: (path: string) => getDBInstance().hasPreview(path),
             isStorageReady,
             getTagTree,
+            getFavoriteTree,
             findTagInTree,
+            findTagInFavoriteTree,
             getAllTagPaths
         };
     }, [fileData, settings, app, isStorageReady]);
@@ -319,18 +337,22 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     const rebuildTagTree = useCallback(() => {
         const db = getDBInstance();
         const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
-        const { tree: newTree, untagged: newUntagged } = buildTagTreeFromDatabase(db, excludedFolderPatterns);
+        const {
+            favoriteTree,
+            tagTree,
+            untagged: newUntagged
+        } = buildTagTreeFromDatabase(db, excludedFolderPatterns, settings.favoriteTags);
         clearNoteCountCache();
         const untaggedCount = settings.showTags && settings.showUntagged ? newUntagged : 0;
-        setFileData({ tree: newTree, untagged: untaggedCount });
+        setFileData({ favoriteTree, tagTree, untagged: untaggedCount });
 
-        // Update the TagTreeService with the new tree
+        // Update the TagTreeService with the new trees
         if (tagTreeService) {
-            tagTreeService.updateTagTree(newTree, untaggedCount);
+            tagTreeService.updateTagTree(tagTree, untaggedCount);
         }
 
-        return newTree;
-    }, [settings.showTags, settings.showUntagged, settings.excludedFolders, tagTreeService]);
+        return { favoriteTree, tagTree };
+    }, [settings.showTags, settings.showUntagged, settings.excludedFolders, settings.favoriteTags, tagTreeService]);
 
     // Unified cleanup function that runs all cleanup operations in a single pass
     const runUnifiedCleanup = useCallback(
@@ -496,7 +518,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                     // Step 3: Build tag tree from the now-synced database
                     // This ensures the tag tree accurately reflects the current vault state
-                    const tagTree = rebuildTagTree();
+                    const { tagTree } = rebuildTagTree();
 
                     // Step 4: Mark storage as ready
                     setIsStorageReady(true);
@@ -716,6 +738,13 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             handleSettingsChanges(changes);
             prevContentSettings.current = contentSettings;
         }
+
+        // Check for favoriteTags changes separately (not a content setting)
+        const favoriteTagsChanged = JSON.stringify(prevFavoriteTags.current) !== JSON.stringify(settings.favoriteTags);
+        if (favoriteTagsChanged && settings.showTags) {
+            rebuildTagTree();
+            prevFavoriteTags.current = settings.favoriteTags;
+        }
     }, [
         // Use the registry to track all content settings dynamically
         // We intentionally use a spread here to avoid manually maintaining a list of dependencies.
@@ -725,7 +754,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         // eslint-disable-next-line react-hooks/exhaustive-deps
         ...getContentSettingsDependencies(settings),
         handleSettingsChanges,
-        settings
+        settings,
+        rebuildTagTree
     ]);
 
     return <StorageContext.Provider value={contextValue}>{children}</StorageContext.Provider>;

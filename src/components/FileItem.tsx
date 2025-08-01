@@ -30,7 +30,6 @@ import { ItemType } from '../types';
 import { DateUtils } from '../utils/dateUtils';
 import { isImageFile } from '../utils/fileTypeUtils';
 import { getDateField } from '../utils/sortUtils';
-import { isTagFavorite } from '../utils/tagUtils';
 import { ObsidianIcon } from './ObsidianIcon';
 
 interface FileItemProps {
@@ -68,7 +67,7 @@ export const FileItem = React.memo(function FileItem({
 }: FileItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
-    const { getFileDisplayName, getDB, getFileCreatedTime, getFileModifiedTime } = useFileCache();
+    const { getFileDisplayName, getDB, getFileCreatedTime, getFileModifiedTime, findTagInFavoriteTree } = useFileCache();
     const fileRef = useRef<HTMLDivElement>(null);
     const { navigateToTag } = useTagNavigation();
     const metadataService = useMetadataService();
@@ -116,8 +115,8 @@ export const FileItem = React.memo(function FileItem({
         const regularTags: string[] = [];
 
         tags.forEach(tag => {
-            // Check if it's a favorite tag (including ancestors)
-            const isFavorite = isTagFavorite(tag, settings.favoriteTags);
+            // Check if it's a favorite tag by looking in the favoriteTree
+            const isFavorite = findTagInFavoriteTree(tag) !== null;
 
             if (isFavorite) {
                 favoriteTags.push(tag);
@@ -131,7 +130,7 @@ export const FileItem = React.memo(function FileItem({
 
         // Combine in priority order without sorting
         return [...favoriteTags, ...coloredTags, ...regularTags];
-    }, [tags, settings.favoriteTags, getTagColor]);
+    }, [tags, findTagInFavoriteTree, getTagColor]);
 
     // Render tags - extracted to avoid duplication
     const renderTags = useCallback(() => {

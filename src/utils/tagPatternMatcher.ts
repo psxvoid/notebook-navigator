@@ -56,13 +56,6 @@ export interface ParsedPattern {
 const patternCache = new Map<string, ParsedPattern>();
 
 /**
- * Clears the pattern cache (useful for testing or when patterns change significantly)
- */
-export function clearPatternCache(): void {
-    patternCache.clear();
-}
-
-/**
  * Normalizes a tag path by removing # prefix and converting to lowercase
  */
 function normalizeTag(tag: string): string {
@@ -73,7 +66,7 @@ function normalizeTag(tag: string): string {
 /**
  * Parses a single pattern string into a ParsedPattern object
  */
-export function parsePattern(pattern: string): ParsedPattern {
+function parsePattern(pattern: string): ParsedPattern {
     // Check cache first
     const cached = patternCache.get(pattern);
     if (cached) {
@@ -173,59 +166,6 @@ export function matchesPattern(tagPath: string, pattern: ParsedPattern): boolean
  */
 export function matchesAnyPattern(tagPath: string, patterns: ParsedPattern[]): boolean {
     return patterns.some(pattern => matchesPattern(tagPath, pattern));
-}
-
-/**
- * Checks if a tag or any of its ancestors matches the given patterns
- * Example: "foto/kamera/fuji" matches if "foto" or "foto/kamera" is in patterns
- */
-export function tagOrAncestorMatchesPatterns(tagPath: string, patterns: ParsedPattern[]): boolean {
-    const normalizedTag = normalizeTag(tagPath);
-    const pathParts = normalizedTag.split('/');
-
-    // Check from most specific to least specific
-    for (let i = pathParts.length; i > 0; i--) {
-        const partialPath = pathParts.slice(0, i).join('/');
-        if (matchesAnyPattern(partialPath, patterns)) {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-/**
- * Checks if a tag or any of its descendants matches the given patterns
- * Example: "foto" matches if "foto/kamera" is in patterns
- */
-export function tagOrDescendantMatchesPatterns(tagPath: string, patterns: ParsedPattern[]): boolean {
-    const normalizedTag = normalizeTag(tagPath);
-
-    for (const pattern of patterns) {
-        // Check exact match first
-        if (matchesPattern(tagPath, pattern)) {
-            return true;
-        }
-
-        // For exact patterns, check if they are descendants
-        if (pattern.type === PatternType.EXACT) {
-            // Check if pattern is a descendant of this tag
-            // e.g., pattern "foto/kamera" starts with "foto/"
-            if (pattern.normalized.startsWith(normalizedTag + '/')) {
-                return true;
-            }
-        }
-        // For wildcard/regex patterns, we need to check if they could match descendants
-        else if (pattern.regex) {
-            // Create a test pattern for potential descendants
-            const testDescendant = normalizedTag + '/test';
-            if (pattern.regex.test(testDescendant)) {
-                return true;
-            }
-        }
-    }
-
-    return false;
 }
 
 /**

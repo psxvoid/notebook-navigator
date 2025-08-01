@@ -49,25 +49,35 @@ function getNoteCountCache(): WeakMap<TagTreeNode, number> {
 }
 
 /**
- * Build a tag tree from database using streaming (scalable for large vaults)
+ * Build tag trees from database
  * @param db - IndexedDBStorage instance
  * @param excludedFolderPatterns - Optional array of folder patterns to exclude
- * @returns Object containing the tag tree and untagged file count
+ * @param favoritePatterns - Array of patterns for favorite tags
+ * @returns Object containing favorite tree, tag tree, and untagged file count
  */
 export function buildTagTreeFromDatabase(
     db: IndexedDBStorage,
-    excludedFolderPatterns?: string[]
-): { tree: Map<string, TagTreeNode>; untagged: number } {
-    const allNodes = new Map<string, TagTreeNode>(); // All nodes at all levels
-    const tree = new Map<string, TagTreeNode>(); // Only root-level nodes
+    excludedFolderPatterns?: string[],
+    favoritePatterns: string[] = []
+): { favoriteTree: Map<string, TagTreeNode>; tagTree: Map<string, TagTreeNode>; untagged: number } {
+    // Parse favorite patterns once
+    const parsedFavoritePatterns = parsePatterns(favoritePatterns);
+
+    // Two flat lists to collect tags
+    const tagFavoriteList: string[] = [];
+    const tagList: string[] = [];
     let untaggedCount = 0;
 
     // Track which case variant we saw first for each lowercased tag
     const caseMap = new Map<string, string>();
 
+    // Map to store file associations for each tag
+    const tagFiles = new Map<string, Set<string>>();
+
     // Get all files from cache
     const allFiles = db.getAllFiles();
 
+    // First pass: collect all tags into flat lists
     for (const { path, data: fileData } of allFiles) {
         // Skip files in excluded folders if patterns provided
         if (excludedFolderPatterns && isPathInExcludedFolder(path, excludedFolderPatterns)) {
@@ -89,17 +99,55 @@ export function buildTagTreeFromDatabase(
         for (const tag of tags) {
             // Remove the # prefix if present
             const tagPath = tag.startsWith('#') ? tag.substring(1) : tag;
-            const lowerPath = tagPath.toLowerCase();
 
             // Determine the canonical casing for this tag
+            const lowerPath = tagPath.toLowerCase();
             let canonicalPath = caseMap.get(lowerPath);
             if (!canonicalPath) {
                 canonicalPath = tagPath;
-                caseMap.set(lowerPath, tagPath);
+                caseMap.set(lowerPath, canonicalPath);
+
+                // Check if this tag or any of its ancestors match favorite patterns
+                let isFavorite = false;
+                const parts = canonicalPath.split('/');
+
+                // Check each level from root to current tag
+                for (let i = 1; i <= parts.length; i++) {
+                    const partialPath = parts.slice(0, i).join('/');
+                    if (parsedFavoritePatterns.some(pattern => matchesPattern(partialPath, pattern))) {
+                        isFavorite = true;
+                        break;
+                    }
+                }
+
+                if (isFavorite) {
+                    tagFavoriteList.push(canonicalPath);
+                } else {
+                    tagList.push(canonicalPath);
+                }
             }
 
-            // Split the tag into parts
-            const parts = canonicalPath.split('/');
+            // Store file association
+            if (!tagFiles.has(canonicalPath)) {
+                tagFiles.set(canonicalPath, new Set());
+            }
+            const fileSet = tagFiles.get(canonicalPath);
+            if (fileSet) {
+                fileSet.add(path);
+            }
+        }
+    }
+
+    // Helper function to build a tree from a flat list
+    const buildTreeFromList = (tagPaths: string[]): Map<string, TagTreeNode> => {
+        const allNodes = new Map<string, TagTreeNode>();
+        const tree = new Map<string, TagTreeNode>();
+
+        // Sort tags to ensure parents are processed before children
+        tagPaths.sort();
+
+        for (const tagPath of tagPaths) {
+            const parts = tagPath.split('/');
             let currentPath = '';
 
             for (let i = 0; i < parts.length; i++) {
@@ -124,9 +172,12 @@ export function buildTagTreeFromDatabase(
                     }
                 }
 
-                // Only add the file to the leaf tag (the exact tag it's tagged with)
+                // Add files only to the exact tag (not ancestors)
                 if (i === parts.length - 1) {
-                    node.notesWithTag.add(path);
+                    const files = tagFiles.get(currentPath);
+                    if (files) {
+                        node.notesWithTag = files;
+                    }
                 }
 
                 // Link to parent
@@ -139,12 +190,18 @@ export function buildTagTreeFromDatabase(
                 }
             }
         }
-    }
+
+        return tree;
+    };
+
+    // Build the two trees
+    const favoriteTree = buildTreeFromList(tagFavoriteList);
+    const tagTree = buildTreeFromList(tagList);
 
     // Clear note count cache since tree structure has changed
     clearNoteCountCache();
 
-    return { tree, untagged: untaggedCount };
+    return { favoriteTree, tagTree, untagged: untaggedCount };
 }
 
 /**
@@ -221,106 +278,14 @@ export function findTagNode(tree: Map<string, TagTreeNode>, tagPath: string): Ta
 }
 
 /**
- * Filter tag tree based on inclusion patterns
- *
- * This function creates a new tree containing only tags that match the given patterns.
- * Key behaviors:
- * 1. Each tag is evaluated individually against all patterns
- * 2. Parent tags are included if they match OR if any descendant matches
- * 3. When a tag matches, its children are still evaluated individually (no automatic inclusion)
- *
- * Examples:
- * - Pattern "foto/kamera" → includes only "foto/kamera", not its children
- * - Pattern "foto/kamera/*" → includes "foto/kamera/fuji", "foto/kamera/sony", etc.
- * - Pattern "foto/*" → includes all direct children of "foto"
- *
- * @param tree - The original tag tree to filter
- * @param includePatterns - Array of pattern strings (exact, wildcard, or regex)
- * @returns A new filtered tree containing only matching tags and their ancestors
- */
-export function filterTagTree(tree: Map<string, TagTreeNode>, includePatterns: string[]): Map<string, TagTreeNode> {
-    if (includePatterns.length === 0) return tree;
-
-    const filtered = new Map<string, TagTreeNode>();
-    const parsedPatterns = parsePatterns(includePatterns);
-
-    // Helper to check if a specific tag path matches any pattern
-    function nodeMatchesPatterns(tagPath: string): boolean {
-        return parsedPatterns.some(pattern => matchesPattern(tagPath, pattern));
-    }
-
-    // Helper to clone a node with filtered children
-    // Key behavior: When a node matches, we still check each child individually
-    // This prevents "foto/kamera" from automatically including "foto/kamera/fuji"
-    function cloneNodeWithFilteredChildren(node: TagTreeNode): TagTreeNode | null {
-        // Check if this specific node matches any pattern
-        const nodeMatches = nodeMatchesPatterns(node.path);
-
-        if (nodeMatches) {
-            // IMPORTANT: Even though this node matches, we still check each child
-            // Example: "foto/kamera" matches exact pattern "foto/kamera"
-            //          but "foto/kamera/fuji" must be checked separately
-            const filteredChildren = new Map<string, TagTreeNode>();
-
-            for (const [childKey, child] of node.children) {
-                const filteredChild = cloneNodeWithFilteredChildren(child);
-                if (filteredChild) {
-                    filteredChildren.set(childKey, filteredChild);
-                }
-            }
-
-            return {
-                name: node.name,
-                path: node.path,
-                children: filteredChildren,
-                notesWithTag: node.notesWithTag
-            };
-        }
-
-        // Node doesn't match, but check if any children should be included
-        const filteredChildren = new Map<string, TagTreeNode>();
-        for (const [childKey, child] of node.children) {
-            const filteredChild = cloneNodeWithFilteredChildren(child);
-            if (filteredChild) {
-                filteredChildren.set(childKey, filteredChild);
-            }
-        }
-
-        // If we have filtered children, include this node as their parent
-        if (filteredChildren.size > 0) {
-            return {
-                name: node.name,
-                path: node.path,
-                children: filteredChildren,
-                notesWithTag: node.notesWithTag
-            };
-        }
-
-        return null;
-    }
-
-    // Process each root node
-    for (const [key, node] of tree) {
-        const filteredNode = cloneNodeWithFilteredChildren(node);
-        if (filteredNode) {
-            filtered.set(key, filteredNode);
-        }
-    }
-
-    return filtered;
-}
-
-/**
  * Exclude tags from tree based on exclusion patterns
  *
  * Removes tags that match the patterns and all their descendants.
- * This is used for the "hidden tags" feature.
- *
- * Example: Pattern "private/*" removes "private/diary", "private/notes", etc.
+ * Also removes parent tags that become empty (no notes and no children).
  *
  * @param tree - The original tag tree
  * @param excludePatterns - Array of patterns to exclude
- * @returns A new tree with excluded tags removed
+ * @returns A new tree with excluded tags and empty parents removed
  */
 export function excludeFromTagTree(tree: Map<string, TagTreeNode>, excludePatterns: string[]): Map<string, TagTreeNode> {
     if (excludePatterns.length === 0) return tree;
@@ -345,6 +310,12 @@ export function excludeFromTagTree(tree: Map<string, TagTreeNode>, excludePatter
             if (filteredChild) {
                 filteredChildren.set(childKey, filteredChild);
             }
+        }
+
+        // Remove empty nodes (no notes and no children after filtering)
+        // This ensures parent tags don't show if all their children are excluded
+        if (filteredChildren.size === 0 && node.notesWithTag.size === 0) {
+            return null;
         }
 
         // Return node with filtered children

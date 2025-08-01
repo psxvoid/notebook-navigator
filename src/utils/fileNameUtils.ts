@@ -22,7 +22,7 @@ import { NotebookNavigatorSettings } from '../settings';
 /**
  * Get the display name for a file
  * @param file - The file to get the name for
- * @param cachedData - Optional cached file data containing frontmatter name (deprecated)
+ * @param cachedData - Optional cached file data containing frontmatter name
  * @param settings - Plugin settings to check if frontmatter is enabled
  * @returns The display name for the file
  */

@@ -37,8 +37,7 @@ export interface SelectionState {
     isKeyboardNavigation: boolean; // Flag to track if selection is from Tab/Right arrow navigation
     isFolderNavigation: boolean; // Flag to track if we just navigated to a different folder
 
-    // Computed property for backward compatibility
-    selectedFile: TFile | null; // First file in selection or null
+    selectedFile: TFile | null; // Current cursor position / primary selected file
 }
 
 // Action types
@@ -70,7 +69,7 @@ export type SelectionDispatch = React.Dispatch<SelectionAction>;
 const SelectionContext = createContext<SelectionState | null>(null);
 const SelectionDispatchContext = createContext<React.Dispatch<SelectionAction> | null>(null);
 
-// Helper function to get first file from selection (for backward compatibility)
+// Helper function to get first file from selection
 function getFirstSelectedFile(selectedFiles: Set<string>, app: App): TFile | null {
     if (selectedFiles.size === 0) return null;
     const firstPath = Array.from(selectedFiles)[0];
@@ -246,7 +245,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 }
             }
 
-            // Legacy behavior: preserve tag for auto-reveals when no targetTag specified
+            // When targetTag is not specified, preserve current view type
             const shouldPreserveTag = state.selectionType === 'tag' && state.selectedTag;
             if (shouldPreserveTag) {
                 return {
@@ -639,7 +638,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
     // Persist selected file to localStorage with error handling
     useEffect(() => {
         try {
-            // Save the first selected file for backward compatibility
+            // Save the first selected file
             const firstFile = state.selectedFile || getFirstSelectedFile(state.selectedFiles, app);
             if (firstFile) {
                 localStorage.set(STORAGE_KEYS.selectedFileKey, firstFile.path);

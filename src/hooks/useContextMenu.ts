@@ -23,6 +23,7 @@ import { useExpansionState, useExpansionDispatch } from '../context/ExpansionCon
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useFileSystemOps, useMetadataService, useTagOperations } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
+import { useFileCache } from '../context/StorageContext';
 import { useUIDispatch } from '../context/UIStateContext';
 import { isFileType, isFolderType, isTagType } from '../types';
 import { MenuConfig, MenuServices, MenuState, MenuDispatchers, buildFolderMenu, buildTagMenu, buildFileMenu } from '../utils/contextMenu';
@@ -48,6 +49,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
     const settings = useSettingsState();
     const fileSystemOps = useFileSystemOps();
     const metadataService = useMetadataService();
+    const { getFavoriteTree, findTagInFavoriteTree } = useFileCache();
     const tagOperations = useTagOperations();
     const selectionState = useSelectionState();
     const { expandedFolders, expandedTags } = useExpansionState();
@@ -91,7 +93,9 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 fileSystemOps,
                 metadataService,
                 tagOperations,
-                tagTreeService
+                tagTreeService,
+                getFavoriteTree,
+                findTagInFavoriteTree
             };
 
             const state: MenuState = {
@@ -157,7 +161,9 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             expansionDispatch,
             uiDispatch,
             isMobile,
-            tagTreeService
+            tagTreeService,
+            getFavoriteTree,
+            findTagInFavoriteTree
         ]
     );
 

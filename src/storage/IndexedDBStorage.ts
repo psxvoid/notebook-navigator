@@ -138,7 +138,7 @@ export class IndexedDBStorage {
         // Only log batch operations or errors
         // Only log batch operations or errors (removed for production)
 
-        // Emit to global listeners (for backward compatibility)
+        // Emit to global listeners
         this.changeListeners.forEach(listener => {
             try {
                 listener(changes);

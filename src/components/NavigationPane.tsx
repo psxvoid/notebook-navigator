@@ -35,7 +35,7 @@ import type { CombinedNavigationItem } from '../types/virtualization';
 import { parseExcludedFolders, parseExcludedProperties, shouldExcludeFile, matchesFolderPattern } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
 import { shouldDisplayFile } from '../utils/fileTypeUtils';
-import { getTotalNoteCount, filterTagTree, excludeFromTagTree } from '../utils/tagTree';
+import { getTotalNoteCount, excludeFromTagTree } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
 import { FolderItem } from './FolderItem';
 import { PaneHeader } from './PaneHeader';
@@ -83,7 +83,8 @@ export const NavigationPane = React.memo(
         // Get tag data from the context
         // =================================================================================
         const { fileData } = useFileCache();
-        const tagTree = fileData.tree;
+        const favoriteTree = fileData.favoriteTree;
+        const tagTree = fileData.tagTree;
         const untaggedCount = fileData.untagged;
 
         // Track previous settings for smart auto-expand
@@ -601,23 +602,22 @@ export const NavigationPane = React.memo(
                         }
                     };
 
-                    // First, exclude hidden tags from the entire tree
+                    // Apply hidden tag exclusion to both trees
+                    const visibleFavoriteTree = hiddenPatterns.length > 0 ? excludeFromTagTree(favoriteTree, hiddenPatterns) : favoriteTree;
                     const visibleTagTree = hiddenPatterns.length > 0 ? excludeFromTagTree(tagTree, hiddenPatterns) : tagTree;
 
-                    // Handle tag organization based on the new settings
+                    // Handle tag organization
                     if (favoritePatterns.length > 0) {
-                        // We have favorite tags configured
-                        const favoriteTags = filterTagTree(visibleTagTree, favoritePatterns);
-                        const nonFavoriteTags = excludeFromTagTree(visibleTagTree, favoritePatterns);
+                        // We already have separate trees from StorageContext
 
                         if (settings.showFavoriteTagsFolder) {
                             // Show "Favorites" folder
                             addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'star');
-                            addTagItems(favoriteTags, 'favorite-tags-root');
+                            addTagItems(visibleFavoriteTree, 'favorite-tags-root');
                         } else {
                             // Show favorite tags directly without folder
                             const favoriteItems = flattenTagTree(
-                                Array.from(favoriteTags.values()),
+                                Array.from(visibleFavoriteTree.values()),
                                 expansionState.expandedTags,
                                 0 // Start at level 0 since no virtual folder
                             );
@@ -632,11 +632,11 @@ export const NavigationPane = React.memo(
                         if (settings.showAllTagsFolder) {
                             // Show "Tags" folder
                             addVirtualFolder('all-tags-root', strings.tagList.allTags, 'tags');
-                            addTagItems(nonFavoriteTags, 'all-tags-root');
+                            addTagItems(visibleTagTree, 'all-tags-root');
                         } else {
                             // Show non-favorite tags directly without folder
                             const nonFavoriteItems = flattenTagTree(
-                                Array.from(nonFavoriteTags.values()),
+                                Array.from(visibleTagTree.values()),
                                 expansionState.expandedTags,
                                 0 // Start at level 0 since no virtual folder
                             );
@@ -713,6 +713,7 @@ export const NavigationPane = React.memo(
             settings.showUntaggedInFavorites,
             settings.favoriteTags,
             settings.hiddenTags,
+            favoriteTree,
             tagTree,
             untaggedCount,
             isVisible,

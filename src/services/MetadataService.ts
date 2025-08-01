@@ -34,7 +34,7 @@ export interface CleanupValidators {
 /**
  * Service for managing all folder, tag, and file metadata operations
  * Delegates to specialized sub-services for better organization
- * Provides a unified API for metadata operations while maintaining backward compatibility
+ * Provides a unified API for metadata operations
  */
 export class MetadataService {
     private fileService: FileMetadataService;
