@@ -89,7 +89,7 @@ export const NotebookNavigatorComponent = React.memo(
         });
 
         // Use file reveal logic
-        const { navigateToFile, navigateToFolder } = useFileReveal({ app, navigationPaneRef, listPaneRef });
+        const { revealFileInActualFolder, navigateToFolder } = useFileReveal({ app, navigationPaneRef, listPaneRef });
 
         // Use tag navigation logic
         const { navigateToTag } = useTagNavigation();
@@ -150,7 +150,7 @@ export const NotebookNavigatorComponent = React.memo(
         useImperativeHandle(
             ref,
             () => ({
-                navigateToFile,
+                navigateToFile: revealFileInActualFolder,
                 focusFilePane: () => {
                     // In single pane mode, switch to file list view
                     if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
@@ -266,7 +266,7 @@ export const NotebookNavigatorComponent = React.memo(
                 }
             }),
             [
-                navigateToFile,
+                revealFileInActualFolder,
                 uiDispatch,
                 updateSettings,
                 selectionState,

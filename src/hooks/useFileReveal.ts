@@ -300,20 +300,6 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
     );
 
     /**
-     * Navigates to the file's parent folder and reveals it.
-     * Always expands folders to show the file's actual location.
-     * Use this when the user explicitly wants to see where a file is located.
-     *
-     * @param file - The file to navigate to
-     */
-    const navigateToFile = useCallback(
-        (file: TFile) => {
-            revealFileInActualFolder(file);
-        },
-        [revealFileInActualFolder]
-    );
-
-    /**
      * Navigates to a folder by path, expanding ancestors and selecting it.
      * Used by the "Navigate to folder" command.
      *
@@ -534,7 +520,7 @@ export function useFileReveal({ app, navigationPaneRef, listPaneRef }: UseFileRe
     ]);
 
     return {
-        navigateToFile,
+        revealFileInActualFolder,
         navigateToFolder,
         revealTag
     };

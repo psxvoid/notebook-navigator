@@ -159,7 +159,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                             await this.activateView();
 
                             // Navigate to file
-                            await this.navigateToFile(activeFile);
+                            await this.revealFileInActualFolder(activeFile);
                         })();
                     }
                     return true;
@@ -324,7 +324,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                                 await this.activateView();
 
                                 // Navigate to file
-                                await this.navigateToFile(file);
+                                await this.revealFileInActualFolder(file);
                             });
                     });
                 }
@@ -376,7 +376,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                     if (movedToDifferentFolder && file === this.app.workspace.getActiveFile()) {
                         // Check if this move was initiated by the Navigator
                         if (!window.notebookNavigatorMovingFile) {
-                            await this.navigateToFile(file);
+                            await this.revealFileInActualFolder(file);
                         }
                     }
 
@@ -592,7 +592,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * Note: This does NOT activate/show the view - callers must do that if needed
      * @param file - The file to navigate to in the navigator
      */
-    async navigateToFile(file: TFile) {
+    async revealFileInActualFolder(file: TFile) {
         // Find all navigator views and reveal the file
         const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         navigatorLeaves.forEach(leaf => {
