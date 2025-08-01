@@ -19,7 +19,7 @@
 import { MenuItem } from 'obsidian';
 import { TagMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
-import { isTagFavorite } from '../tagUtils';
+import { isTagFavorite, findMatchingFavoritePatterns } from '../tagUtils';
 
 /**
  * Builds the context menu for a tag
@@ -41,9 +41,24 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                     await plugin.saveSettings();
                 });
         });
+    } else {
+        // Tag is a favorite - show "Remove from favorites"
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.tag.removeFromFavorites)
+                .setIcon('star-off')
+                .onClick(async () => {
+                    // Find all patterns that match this tag
+                    const matchingPatterns = findMatchingFavoritePatterns(tagPath, settings.favoriteTags);
 
-        menu.addSeparator();
+                    // Remove all matching patterns from favorites
+                    plugin.settings.favoriteTags = settings.favoriteTags.filter(pattern => !matchingPatterns.includes(pattern));
+
+                    await plugin.saveSettings();
+                });
+        });
     }
+
+    menu.addSeparator();
 
     // Change icon
     menu.addItem((item: MenuItem) => {

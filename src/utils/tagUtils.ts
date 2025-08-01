@@ -156,3 +156,34 @@ export function isTagFavorite(tagPath: string, favoriteTags: string[]): boolean 
 
     return false;
 }
+
+/**
+ * Finds all favorite tag patterns that match a given tag (including ancestor matches)
+ * @param tagPath - The tag path to check (e.g., "foto/kamera/fuji")
+ * @param favoriteTags - Array of favorite tag strings from settings
+ * @returns Array of original pattern strings that match this tag
+ */
+export function findMatchingFavoritePatterns(tagPath: string, favoriteTags: string[]): string[] {
+    const matchingPatterns: string[] = [];
+    const pathParts = tagPath.split('/');
+
+    // Check each favorite tag pattern
+    for (const favoriteTag of favoriteTags) {
+        const patterns = parseTagPatterns(favoriteTag);
+
+        // Check from most specific to least specific path
+        for (let i = pathParts.length; i > 0; i--) {
+            const partialPath = pathParts.slice(0, i).join('/');
+
+            // If any parsed pattern from this favorite tag matches, include the original
+            if (patterns.some(pattern => matchesTagPattern(partialPath, pattern))) {
+                if (!matchingPatterns.includes(favoriteTag)) {
+                    matchingPatterns.push(favoriteTag);
+                }
+                break; // No need to check other partial paths for this pattern
+            }
+        }
+    }
+
+    return matchingPatterns;
+}

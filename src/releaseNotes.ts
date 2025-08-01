@@ -58,7 +58,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.3.11',
         date: '2025-08-01',
         showOnUpdate: true,
-        new: ['You can now right click a tag and choose "Add to favorites" and it will be added to your favorite list.'],
+        new: ['You can now right click a tag and choose "Add to favorites" or "Remove from favorites". Remove from favorites will remove all matching patterns (e.g., both "mytag" and "my*" if they match).'],
         improved: [
             'Tags in list pane will now use smart sorting: (1) Favorite tags will show first, then (2) Colored tags, then (3) uncolored normal tags. The goal here is to help you quickly find the items you are looking for, and hopefully this helps out if you have many tags assigned to your notes.',
             'Tags now inherit parent colors'
