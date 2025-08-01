@@ -346,9 +346,9 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         const untaggedCount = settings.showTags && settings.showUntagged ? newUntagged : 0;
         setFileData({ favoriteTree, tagTree, untagged: untaggedCount });
 
-        // Update the TagTreeService with the new trees
+        // Update the TagTreeService with both trees
         if (tagTreeService) {
-            tagTreeService.updateTagTree(tagTree, untaggedCount);
+            tagTreeService.updateTagTree(tagTree, untaggedCount, favoriteTree);
         }
 
         return { favoriteTree, tagTree };
@@ -518,7 +518,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                     // Step 3: Build tag tree from the now-synced database
                     // This ensures the tag tree accurately reflects the current vault state
-                    const { tagTree } = rebuildTagTree();
+                    const { favoriteTree, tagTree } = rebuildTagTree();
 
                     // Step 4: Mark storage as ready
                     setIsStorageReady(true);
@@ -529,7 +529,9 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                     // - Folder metadata cleanup uses current vault structure
                     // - All orphaned metadata is properly detected and removed
                     if (metadataService) {
-                        await runUnifiedCleanup(getDBInstance(), tagTree);
+                        // Combine both trees for cleanup so favorite tags aren't treated as orphaned
+                        const combinedTree = new Map([...favoriteTree, ...tagTree]);
+                        await runUnifiedCleanup(getDBInstance(), combinedTree);
                     }
 
                     // Step 6: Queue content generation for new/modified files
