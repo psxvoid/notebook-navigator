@@ -64,7 +64,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         ],
         improved: [
             'Tags in list pane will now use smart sorting: (1) Favorite tags will show first, then (2) Colored tags, then (3) uncolored normal tags. The goal here is to help you quickly find the items you are looking for, and hopefully this helps out if you have many tags assigned to your notes.',
-            'Tags now inherit their parent colors, so if you have a parent tag with a color, all child tags will automatically use that color unless they have their own color set.'
+            'Tags now inherit their parent colors, so if you have a parent tag with a color, all child tags will automatically use that color unless they have their own color set.',
+            'Many performance optimizations under the hood. Rendering is faster, startup faster, and overall experience is smoother.',
         ],
         fixed: ['Fixed an issue with auto reveal file where it sometimes would not scroll to the selected folder in navigation pane.']
     },
