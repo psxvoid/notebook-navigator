@@ -16,6 +16,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * OPTIMIZATIONS:
+ *
+ * 1. React.memo with forwardRef - Only re-renders on prop changes
+ *
+ * 2. Virtualization:
+ *    - TanStack Virtual for rendering only visible items
+ *    - Dynamic height calculation based on content (preview text, tags, metadata)
+ *    - Direct memory cache lookups in estimateSize function
+ *    - Virtualizer resets only when list order changes (tracked by key)
+ *
+ * 3. List building optimization:
+ *    - useMemo rebuilds list items only when dependencies change
+ *    - File filtering happens once during list build
+ *    - Sort operations optimized with pre-computed values
+ *    - Pinned files handled separately for efficiency
+ *
+ * 4. Event handling:
+ *    - Debounced vault event handlers via forceUpdate
+ *    - Selective updates based on file location (folder/tag context)
+ *    - Database content changes trigger selective remeasurement
+ *
+ * 5. Selection handling:
+ *    - Stable file index for onClick handlers
+ *    - Multi-selection support without re-render
+ *    - Keyboard navigation optimized
+ */
+
 import React, { useMemo, useCallback, useRef, useEffect, useState, useImperativeHandle, forwardRef } from 'react';
 import { TFile } from 'obsidian';
 import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';

@@ -16,6 +16,32 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * OPTIMIZATIONS:
+ *
+ * 1. React.memo - Component only re-renders when props actually change
+ *
+ * 2. Minimal state:
+ *    - No complex computations or memoizations needed
+ *    - Props directly used for rendering
+ *
+ * 3. Stable callbacks:
+ *    - handleDoubleClick: Memoized to handle expansion toggle
+ *    - handleChevronClick: Memoized with event propagation handling
+ *
+ * 4. Icon optimization:
+ *    - Icons set via useEffect to avoid render blocking
+ *    - Chevron updates based on hasChildren and isExpanded
+ *    - Virtual folder icons are static (folder-minus)
+ *
+ * 5. Conditional features:
+ *    - File counts only shown when showFileCount is true
+ *    - Chevron only interactive when folder has children
+ *
+ * 6. No tooltip overhead:
+ *    - Virtual folders don't need tooltips (simple structure)
+ */
+
 import React, { useRef, useEffect, useCallback } from 'react';
 import { setIcon } from 'obsidian';
 import { useSettingsState } from '../context/SettingsContext';

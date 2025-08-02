@@ -16,6 +16,35 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * OPTIMIZATIONS:
+ *
+ * 1. React.memo with forwardRef - Component only re-renders when props change
+ *
+ * 2. Props-based state:
+ *    - color and icon passed as props from NavigationPane for proper reactivity
+ *    - File count pre-computed by parent component
+ *
+ * 3. Memoized values:
+ *    - hasChildren: Cached check using tagNode.children.size
+ *    - className: Cached CSS class string construction
+ *    - tagNameClassName: Cached tag name styling classes
+ *
+ * 4. Stable callbacks:
+ *    - handleDoubleClick: Memoized expansion handler
+ *    - handleChevronClick: Memoized with Alt+click support for bulk operations
+ *    - handleChevronDoubleClick: Prevents unwanted event propagation
+ *
+ * 5. Icon optimization:
+ *    - Icons rendered via useEffect to avoid blocking
+ *    - Chevron icon updates based on expansion state
+ *    - Custom tag icons support with color inheritance
+ *
+ * 6. Color inheritance:
+ *    - Tag colors can inherit from parent tags
+ *    - Handled by MetadataService.getTagColor in NavigationPane
+ */
+
 import React, { forwardRef, useMemo, useCallback } from 'react';
 import { setIcon } from 'obsidian';
 import { useSettingsState } from '../context/SettingsContext';

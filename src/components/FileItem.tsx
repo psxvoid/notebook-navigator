@@ -16,6 +16,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * OPTIMIZATIONS:
+ *
+ * 1. React.memo - Component only re-renders when props actually change
+ *
+ * 2. Memoized values:
+ *    - displayName: Cached computation of file display name from frontmatter/filename
+ *    - displayDate: Cached date formatting to avoid repeated date calculations
+ *    - showExtensionBadge: Cached logic for when to show file extension badges
+ *    - className: Cached CSS class string to avoid string concatenation on each render
+ *
+ * 3. Stable callbacks:
+ *    - handleTagClick: Memoized to prevent re-creating function on each render
+ *
+ * 4. Content subscription optimization:
+ *    - Single useEffect subscribes to all content changes (preview, tags, feature image)
+ *    - Uses file.path as dependency to properly handle file renames
+ *    - Direct memory cache access via getDB() for synchronous data retrieval
+ *
+ * 5. Lazy loading:
+ *    - Preview text, tags, and feature images are loaded asynchronously
+ *    - Initial render shows skeleton, then updates when content is available
+ *
+ * 6. Image optimization:
+ *    - Feature images use native browser lazy loading
+ *    - Resource paths are cached to avoid repeated vault.getResourcePath calls
+ */
+
 import React, { useRef, useMemo, useEffect, useState, useCallback } from 'react';
 import { TFile, setTooltip } from 'obsidian';
 import { useServices } from '../context/ServicesContext';

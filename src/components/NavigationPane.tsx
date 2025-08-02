@@ -16,6 +16,44 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * OPTIMIZATIONS:
+ *
+ * 1. React.memo with forwardRef - Only re-renders on prop changes
+ *
+ * 2. Virtualization:
+ *    - TanStack Virtual for rendering only visible items
+ *    - Single virtualizer handles both folders and tags
+ *    - Dynamic item heights with efficient measurement
+ *    - Scroll position preserved during updates
+ *
+ * 3. Tree building optimization:
+ *    - useMemo rebuilds navigation items only when structure changes
+ *    - Efficient tree flattening with level tracking
+ *    - Virtual folders injected at correct positions
+ *    - Tag contexts (favorites/all) handled separately
+ *
+ * 4. Pre-computed values:
+ *    - Folder counts calculated once during tree build
+ *    - Tag counts from pre-built tag tree
+ *    - Metadata (colors/icons) passed as props to avoid lookups
+ *
+ * 5. Event handling:
+ *    - Vault events trigger selective rebuilds
+ *    - Expansion state managed efficiently with Sets
+ *    - Keyboard navigation with minimal re-renders
+ *
+ * 6. Search optimization:
+ *    - Search filtering at tree build time
+ *    - Automatic expansion of search results
+ *    - Minimal impact on non-search performance
+ *
+ * 7. Stable callbacks:
+ *    - All event handlers memoized
+ *    - Props passed to child components are stable
+ *    - Prevents unnecessary child re-renders
+ */
+
 import React, { useMemo, useRef, useEffect, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
 import { TFolder, TFile } from 'obsidian';
 import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';

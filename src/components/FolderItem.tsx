@@ -16,6 +16,39 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * OPTIMIZATIONS:
+ *
+ * 1. React.memo - Component only re-renders when props actually change
+ *
+ * 2. Props-based state:
+ *    - icon and color passed as props from NavigationPane to enable proper reactivity
+ *    - File count pre-computed by parent to avoid redundant calculations
+ *
+ * 3. Memoized values:
+ *    - hasFolderNote: Cached check for folder note existence
+ *    - className: Cached CSS class string construction
+ *    - folderNameClassName: Cached folder name styling classes
+ *
+ * 4. Stable callbacks:
+ *    - handleDoubleClick: Memoized folder expansion handler
+ *    - handleChevronClick: Memoized chevron click with Alt+click support
+ *    - handleChevronDoubleClick: Prevents event propagation
+ *    - handleNameClick: Optional folder name click handler
+ *
+ * 5. Direct computations:
+ *    - hasChildren: NOT memoized because Obsidian mutates folder.children array
+ *    - This ensures chevron updates immediately when subfolders are added/removed
+ *
+ * 6. Icon rendering optimization:
+ *    - Icons rendered via useEffect to avoid blocking main render
+ *    - Conditional rendering based on settings.showIcons
+ *
+ * 7. Tooltip optimization:
+ *    - Tooltip only created on desktop (mobile skipped)
+ *    - Tooltip creation deferred to useEffect
+ */
+
 import React, { useRef, useEffect, useMemo, useCallback } from 'react';
 import { TFolder, TFile, setTooltip, setIcon } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
