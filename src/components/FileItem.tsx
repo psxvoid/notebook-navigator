@@ -284,7 +284,8 @@ export const FileItem = React.memo(function FileItem({
         return () => {
             unsubscribe();
         };
-    }, [file, settings.showFilePreview, settings.showFeatureImage, getDB, app]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- file.path is needed to resubscribe when file is renamed
+    }, [file.path, settings.showFilePreview, settings.showFeatureImage, getDB, app]);
 
     // Add Obsidian tooltip (desktop only)
     useEffect(() => {
