@@ -38,6 +38,8 @@ export interface ListPaneItem {
         hasPreview?: boolean;
         isInSubfolder?: boolean;
     };
+    // Pre-computed file index for stable onClick handlers
+    fileIndex?: number;
 }
 
 export interface FolderTreeItem {

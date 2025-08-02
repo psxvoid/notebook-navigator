@@ -355,6 +355,14 @@ export const ListPane = React.memo(
             return files;
         }, [listItems]);
 
+        // Create a stable onClick handler for FileItem that uses pre-calculated fileIndex
+        const handleFileItemClick = useCallback(
+            (file: TFile, fileIndex: number | undefined) => (e: React.MouseEvent) => {
+                handleFileClick(file, e, fileIndex, orderedFiles);
+            },
+            [handleFileClick, orderedFiles]
+        );
+
         // Determine if list pane is visible early to optimize
         const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'files';
 
@@ -551,6 +559,9 @@ export const ListPane = React.memo(
 
                 // Sort will happen below after determining the sort option
 
+                // Track file index for stable onClick handlers
+                let fileIndexCounter = 0;
+
                 // Add pinned files
                 if (pinnedFiles.length > 0) {
                     items.push({
@@ -565,7 +576,8 @@ export const ListPane = React.memo(
                             data: file,
                             parentFolder: selectedFolder?.path,
                             key: file.path,
-                            metadata
+                            metadata,
+                            fileIndex: fileIndexCounter++
                         });
                     });
                 }
@@ -587,7 +599,8 @@ export const ListPane = React.memo(
                             data: file,
                             parentFolder: selectedFolder?.path,
                             key: file.path,
-                            metadata
+                            metadata,
+                            fileIndex: fileIndexCounter++
                         });
                     });
                 } else {
@@ -614,7 +627,8 @@ export const ListPane = React.memo(
                             data: file,
                             parentFolder: selectedFolder?.path,
                             key: file.path,
-                            metadata
+                            metadata,
+                            fileIndex: fileIndexCounter++
                         });
                     });
                 }
@@ -1103,19 +1117,7 @@ export const ListPane = React.memo(
                                                 isSelected={isSelected}
                                                 hasSelectedAbove={hasSelectedAbove}
                                                 hasSelectedBelow={hasSelectedBelow}
-                                                onClick={e => {
-                                                    // Find the actual index of this file in the display order
-                                                    // Count only file items, not headers or spacers
-                                                    let fileIndex = 0;
-                                                    for (let i = 0; i < virtualItem.index; i++) {
-                                                        if (listItems[i]?.type === ListPaneItemType.FILE) {
-                                                            fileIndex++;
-                                                        }
-                                                    }
-                                                    if (item.data instanceof TFile) {
-                                                        handleFileClick(item.data, e, fileIndex, orderedFiles);
-                                                    }
-                                                }}
+                                                onClick={handleFileItemClick(item.data, item.fileIndex)}
                                                 dateGroup={dateGroup}
                                                 sortOption={effectiveSortOption}
                                                 parentFolder={item.parentFolder}
