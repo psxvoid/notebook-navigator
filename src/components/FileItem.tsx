@@ -337,7 +337,7 @@ export const FileItem = React.memo(function FileItem({
             data-drag-path={file.path}
             data-drag-type="file"
             data-draggable={!isMobile ? 'true' : undefined}
-            onClick={e => onClick(e)}
+            onClick={onClick}
             draggable={!isMobile}
             role="listitem"
         >

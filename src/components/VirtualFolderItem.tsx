@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback } from 'react';
 import { setIcon } from 'obsidian';
 import { useSettingsState } from '../context/SettingsContext';
 import { getIconService } from '../services/icons';
@@ -55,11 +55,24 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
     const chevronRef = useRef<HTMLDivElement>(null);
     const iconRef = useRef<HTMLSpanElement>(null);
 
-    const handleDoubleClick = () => {
+    const handleDoubleClick = useCallback(() => {
         if (hasChildren) {
             onToggle();
         }
-    };
+    }, [hasChildren, onToggle]);
+
+    const handleChevronClick = useCallback(
+        (e: React.MouseEvent) => {
+            e.stopPropagation();
+            if (hasChildren) onToggle();
+        },
+        [hasChildren, onToggle]
+    );
+
+    const handleChevronDoubleClick = useCallback((e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+    }, []);
 
     useEffect(() => {
         if (chevronRef.current) {
@@ -87,14 +100,8 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
                 <div
                     className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}
                     ref={chevronRef}
-                    onClick={e => {
-                        e.stopPropagation();
-                        if (hasChildren) onToggle();
-                    }}
-                    onDoubleClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                    }}
+                    onClick={handleChevronClick}
+                    onDoubleClick={handleChevronDoubleClick}
                     tabIndex={-1}
                 />
                 {settings.showIcons && virtualFolder.icon && <span className="nn-folder-icon" ref={iconRef} />}

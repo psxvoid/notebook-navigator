@@ -75,7 +75,7 @@ export const FolderItem = React.memo(function FolderItem({
 
     // Count folders and files for tooltip (skip on mobile to save computation)
     const folderStats = React.useMemo(() => {
-        // Skip computation on mobile since tooltips aren't shown
+        // Return early if tooltips aren't needed
         if (isMobile || !settings.showTooltips) {
             return { fileCount: 0, folderCount: 0 };
         }

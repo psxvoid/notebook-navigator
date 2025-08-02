@@ -281,6 +281,9 @@ export const NavigationPane = React.memo(
             [tagTree, favoriteTree]
         );
 
+        // Determine if navigation pane is visible early for optimization
+        const isVisible = uiState.dualPane || uiState.currentSinglePaneView === 'navigation';
+
         // Handle tag click
         const handleTagClick = useCallback(
             (tagPath: string, context?: 'favorites' | 'tags') => {
@@ -344,8 +347,8 @@ export const NavigationPane = React.memo(
         const tagCounts = useMemo(() => {
             const counts = new Map<string, number>();
 
-            // Only compute if we're showing tags
-            if (!settings.showTags) return counts;
+            // Skip computation if pane is not visible or not showing tags
+            if (!isVisible || !settings.showTags) return counts;
 
             // Add untagged count
             if (settings.showUntagged) {
@@ -361,14 +364,14 @@ export const NavigationPane = React.memo(
             });
 
             return counts;
-        }, [items, settings.showTags, settings.showUntagged, untaggedCount]);
+        }, [items, settings.showTags, settings.showUntagged, untaggedCount, isVisible]);
 
         // Pre-compute folder file counts to avoid recursive counting during render
         const folderCounts = useMemo(() => {
             const counts = new Map<string, number>();
 
-            // Only compute if we're showing note counts
-            if (!settings.showNoteCount) return counts;
+            // Skip computation if pane is not visible or not showing note counts
+            if (!isVisible || !settings.showNoteCount) return counts;
 
             const excludedProperties = parseExcludedProperties(settings.excludedFiles);
             const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
@@ -409,7 +412,8 @@ export const NavigationPane = React.memo(
             settings.excludedFiles,
             settings.excludedFolders,
             settings.fileVisibility,
-            app
+            app,
+            isVisible
         ]);
 
         // Scroll to top handler for mobile header click
@@ -574,9 +578,6 @@ export const NavigationPane = React.memo(
                       ? selectionState.selectedTag.slice(1)
                       : selectionState.selectedTag
                   : null;
-
-        // Determine if navigation pane is visible early for optimization
-        const isVisible = uiState.dualPane || uiState.currentSinglePaneView === 'navigation';
 
         useEffect(() => {
             // Function to build folders

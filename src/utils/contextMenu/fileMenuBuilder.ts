@@ -24,7 +24,6 @@ import { getFilesForFolder, getFilesForTag } from '../../utils/fileFinder';
 import { ItemType } from '../../types';
 import { MetadataService } from '../../services/MetadataService';
 import { FileSystemOperations } from '../../services/FileSystemService';
-import { TagTreeService } from '../../services/TagTreeService';
 import { SelectionState, SelectionAction } from '../../context/SelectionContext';
 import { NotebookNavigatorSettings } from '../../settings';
 
@@ -200,10 +199,8 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
             selectedCount,
             selectionState,
             settings,
-            app,
             fileSystemOps,
             selectionDispatch,
-            tagTreeService,
             cachedFileList,
             cachedSelectedFiles
         );
@@ -495,10 +492,8 @@ function addMultipleFilesDeleteOption(
     selectedCount: number,
     selectionState: SelectionState,
     settings: NotebookNavigatorSettings,
-    app: App,
     fileSystemOps: FileSystemOperations,
     selectionDispatch: React.Dispatch<SelectionAction>,
-    tagTreeService: TagTreeService | null,
     cachedFileList: TFile[],
     cachedSelectedFiles: TFile[]
 ): void {
