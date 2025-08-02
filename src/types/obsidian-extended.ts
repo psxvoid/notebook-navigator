@@ -89,8 +89,6 @@ export const TIMEOUTS = {
     DEBOUNCE_KEYBOARD: 100,
     /** Debounce for content processing and tree updates */
     DEBOUNCE_CONTENT: 300,
-    /** Debounce for cache rebuilds and heavy operations */
-    DEBOUNCE_CACHE: 1000,
     /** Debounce for settings text input */
     DEBOUNCE_SETTINGS: 1000,
 

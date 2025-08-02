@@ -40,7 +40,7 @@
  */
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode, useMemo, useCallback } from 'react';
-import { App, TFile, debounce } from 'obsidian';
+import { App, TFile } from 'obsidian';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { ContentService, ProcessedMetadata } from '../services/ContentService';
 import { IndexedDBStorage, FileData as DBFileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
@@ -57,6 +57,7 @@ import { getFilteredMarkdownFiles, parseExcludedFolders } from '../utils/fileFil
 import { getFileDisplayName as getDisplayName } from '../utils/fileNameUtils';
 import { clearNoteCountCache } from '../utils/tagTree';
 import { buildTagTreeFromDatabase, findTagNode, collectAllTagPaths } from '../utils/tagTree';
+import { leadingEdgeDebounce } from '../utils/leadingEdgeDebounce';
 import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
@@ -666,8 +667,9 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             await processExistingCache(allFiles, isInitialLoad);
         };
 
-        // Create debounced version for events (increased to 500ms to reduce duplicate processing)
-        const rebuildFileCache = debounce(() => buildFileCache(false), TIMEOUTS.DEBOUNCE_CACHE);
+        // Create debounced version for events with leading edge execution
+        // This ensures files are added to database immediately on first event
+        const rebuildFileCache = leadingEdgeDebounce(() => buildFileCache(false), TIMEOUTS.DEBOUNCE_CONTENT);
 
         // Only build initial cache if IndexedDB is ready and we haven't built it yet
         if (isIndexedDBReady && !hasBuiltInitialCache.current) {

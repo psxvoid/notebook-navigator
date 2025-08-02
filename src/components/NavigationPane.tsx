@@ -17,7 +17,6 @@
  */
 
 import React, { useMemo, useRef, useEffect, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
-import { debounce } from 'obsidian';
 import { TFolder, TFile } from 'obsidian';
 import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
@@ -36,6 +35,7 @@ import type { CombinedNavigationItem } from '../types/virtualization';
 import { parseExcludedFolders, parseExcludedProperties, shouldExcludeFile, matchesFolderPattern } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
 import { shouldDisplayFile } from '../utils/fileTypeUtils';
+import { leadingEdgeDebounce } from '../utils/leadingEdgeDebounce';
 import { getTotalNoteCount, excludeFromTagTree, findTagNode } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
 import { FolderItem } from './FolderItem';
@@ -786,8 +786,8 @@ export const NavigationPane = React.memo(
             // Build immediately on mount
             buildFolders();
 
-            // Create debounced version for vault events
-            const rebuildFolders = debounce(buildFolders, TIMEOUTS.DEBOUNCE_CONTENT);
+            // Use leading edge debounce for immediate folder updates
+            const rebuildFolders = leadingEdgeDebounce(buildFolders, TIMEOUTS.DEBOUNCE_CONTENT);
 
             // Listen to vault events for folder changes
             const events = [

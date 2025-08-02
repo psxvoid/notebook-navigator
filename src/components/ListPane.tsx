@@ -17,7 +17,7 @@
  */
 
 import React, { useMemo, useCallback, useRef, useEffect, useState, useImperativeHandle, forwardRef } from 'react';
-import { TFile, debounce } from 'obsidian';
+import { TFile } from 'obsidian';
 import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
@@ -28,9 +28,11 @@ import { useMultiSelection } from '../hooks/useMultiSelection';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { strings } from '../i18n';
 import { ListPaneItemType, ItemType, LISTPANE_MEASUREMENTS, OVERSCAN } from '../types';
+import { TIMEOUTS } from '../types/obsidian-extended';
 import type { ListPaneItem } from '../types/virtualization';
 import { DateUtils } from '../utils/dateUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
+import { leadingEdgeDebounce } from '../utils/leadingEdgeDebounce';
 import { getDateField, getEffectiveSortOption, sortFiles } from '../utils/sortUtils';
 import { FileItem } from './FileItem';
 import { ListPaneHeader } from './ListPaneHeader';
@@ -389,11 +391,11 @@ export const ListPane = React.memo(
 
         // This effect now only listens for vault events to trigger a refresh
         useEffect(() => {
-            // Debounce updates to prevent rapid re-renders
-            const forceUpdate = debounce(() => {
+            // Use leading edge debounce for immediate UI updates
+            const forceUpdate = leadingEdgeDebounce(() => {
                 // Force re-render by incrementing update key
                 setUpdateKey(k => k + 1);
-            }, 300); // Increased debounce time to reduce render frequency
+            }, TIMEOUTS.DEBOUNCE_CONTENT);
 
             const vaultEvents = [
                 app.vault.on('create', () => {

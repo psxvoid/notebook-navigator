@@ -358,7 +358,13 @@ export class ContentService {
                             // Process tags, preview, image and metadata in parallel
                             const [tags, preview, imageUrl, metadata] = await Promise.all([
                                 job.needsTags ? this.extractTags(job.file) : Promise.resolve(null),
-                                job.needsPreview ? this.generatePreviewOptimized(job.file, settings) : Promise.resolve(''),
+                                job.needsPreview
+                                    ? (async () => {
+                                          const content = await this.app.vault.cachedRead(job.file);
+                                          const fileMetadata = this.app.metadataCache.getFileCache(job.file);
+                                          return PreviewTextUtils.extractPreviewText(content, settings, fileMetadata?.frontmatter);
+                                      })()
+                                    : Promise.resolve(''),
                                 job.needsImage ? Promise.resolve(this.getFeatureImageUrl(job.file, settings)) : Promise.resolve(''),
                                 job.needsMetadata
                                     ? Promise.resolve(ContentService.extractMetadata(this.app, job.file, settings))
@@ -495,37 +501,6 @@ export class ContentService {
             console.error('Error in batch processing:', error);
             this.completeProcessing();
         }
-    }
-
-    /**
-     * Generate preview text for a single file.
-     * Handles special cases like Excalidraw files and respects skipHeadingsInPreview setting.
-     *
-     * @param file - The file to generate preview for
-     * @param settings - Current plugin settings
-     * @returns Preview text string, or 'EXCALIDRAW' for Excalidraw files
-     */
-    private async generatePreviewOptimized(file: TFile, settings: NotebookNavigatorSettings): Promise<string> {
-        const metadata = this.app.metadataCache.getFileCache(file);
-
-        // Fast Excalidraw detection using metadata
-        if (
-            file.name.endsWith('.excalidraw.md') ||
-            metadata?.frontmatter?.['excalidraw-plugin'] ||
-            (metadata?.frontmatter?.tags &&
-                (Array.isArray(metadata.frontmatter.tags)
-                    ? metadata.frontmatter.tags.includes('excalidraw')
-                    : metadata.frontmatter.tags === 'excalidraw'))
-        ) {
-            return 'EXCALIDRAW';
-        }
-
-        // Note: In the future, we could extract preview from metadata without file read
-        // if Obsidian exposes section text content in metadata cache
-
-        // Fall back to file read only if necessary
-        const content = await this.app.vault.cachedRead(file);
-        return PreviewTextUtils.extractPreviewText(content, settings, metadata?.frontmatter);
     }
 
     /**

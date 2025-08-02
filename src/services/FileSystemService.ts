@@ -794,7 +794,7 @@ export class FileSystemOperations {
             // Clear the flag after a delay to ensure the modal has time to open
             setTimeout(() => {
                 delete window.notebookNavigatorOpeningVersionHistory;
-            }, TIMEOUTS.DEBOUNCE_CACHE);
+            }, TIMEOUTS.FILE_OPERATION_DELAY);
         }
     }
 
