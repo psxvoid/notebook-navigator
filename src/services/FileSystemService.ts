@@ -607,18 +607,42 @@ export class FileSystemOperations {
 
             await this.app.vault.createFolder(newPath);
 
-            // Copy all contents recursively
+            // Copy all contents recursively with batching
             const copyContents = async (sourceFolder: TFolder, destPath: string) => {
-                for (const child of sourceFolder.children) {
-                    if (child instanceof TFile) {
-                        const content = await this.app.vault.read(child);
-                        const childPath = normalizePath(`${destPath}/${child.name}`);
-                        await this.app.vault.create(childPath, content);
-                    } else if (child instanceof TFolder) {
-                        const childPath = normalizePath(`${destPath}/${child.name}`);
-                        await this.app.vault.createFolder(childPath);
-                        await copyContents(child, childPath);
+                // Collect all operations first
+                const filesToCopy: Array<{ source: TFile; destPath: string }> = [];
+                const foldersToCreate: string[] = [];
+
+                const collectOperations = (folder: TFolder, currentDestPath: string) => {
+                    for (const child of folder.children) {
+                        if (child instanceof TFile) {
+                            const childPath = normalizePath(`${currentDestPath}/${child.name}`);
+                            filesToCopy.push({ source: child, destPath: childPath });
+                        } else if (child instanceof TFolder) {
+                            const childPath = normalizePath(`${currentDestPath}/${child.name}`);
+                            foldersToCreate.push(childPath);
+                            collectOperations(child, childPath);
+                        }
                     }
+                };
+
+                collectOperations(sourceFolder, destPath);
+
+                // Create all folders first
+                for (const folderPath of foldersToCreate) {
+                    await this.app.vault.createFolder(folderPath);
+                }
+
+                // Copy files in batches of 10 to avoid overwhelming the system
+                const BATCH_SIZE = 10;
+                for (let i = 0; i < filesToCopy.length; i += BATCH_SIZE) {
+                    const batch = filesToCopy.slice(i, i + BATCH_SIZE);
+                    await Promise.all(
+                        batch.map(async ({ source, destPath }) => {
+                            const content = await this.app.vault.read(source);
+                            await this.app.vault.create(destPath, content);
+                        })
+                    );
                 }
             };
 
@@ -638,18 +662,42 @@ export class FileSystemOperations {
         if (files.length === 0) return;
 
         const performDelete = async () => {
-            // Delete all files
-            for (const file of files) {
-                try {
-                    await this.app.fileManager.trashFile(file);
-                } catch (error) {
-                    console.error('Error deleting file:', file.path, error);
-                    new Notice(strings.fileSystem.errors.failedToDeleteFile.replace('{name}', file.name).replace('{error}', error.message));
-                }
-            }
-            new Notice(strings.fileSystem.notifications.deletedMultipleFiles.replace('{count}', files.length.toString()));
+            // Delete files in batches to improve performance
+            const BATCH_SIZE = 10;
+            const errors: Array<{ file: TFile; error: unknown }> = [];
+            let deletedCount = 0;
 
-            if (onSuccess) {
+            for (let i = 0; i < files.length; i += BATCH_SIZE) {
+                const batch = files.slice(i, i + BATCH_SIZE);
+                const results = await Promise.allSettled(batch.map(file => this.app.fileManager.trashFile(file)));
+
+                results.forEach((result, index) => {
+                    if (result.status === 'fulfilled') {
+                        deletedCount++;
+                    } else {
+                        const file = batch[index];
+                        errors.push({ file, error: result.reason });
+                        console.error('Error deleting file:', file.path, result.reason);
+                    }
+                });
+            }
+
+            // Show appropriate notifications
+            if (deletedCount > 0) {
+                new Notice(strings.fileSystem.notifications.deletedMultipleFiles.replace('{count}', deletedCount.toString()));
+            }
+
+            if (errors.length > 0) {
+                const errorMsg =
+                    errors.length === 1
+                        ? strings.fileSystem.errors.failedToDeleteFile
+                              .replace('{name}', errors[0].file.name)
+                              .replace('{error}', String(errors[0].error))
+                        : `Failed to delete ${errors.length} files`;
+                new Notice(errorMsg);
+            }
+
+            if (onSuccess && deletedCount > 0) {
                 onSuccess();
             }
         };

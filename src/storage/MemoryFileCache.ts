@@ -134,6 +134,15 @@ export class MemoryFileCache {
     }
 
     /**
+     * Batch delete multiple files from the cache.
+     */
+    batchDelete(paths: string[]): void {
+        for (const path of paths) {
+            this.memoryMap.delete(path);
+        }
+    }
+
+    /**
      * Batch update multiple files.
      */
     batchUpdate(updates: Array<{ path: string; data: FileData }>): void {

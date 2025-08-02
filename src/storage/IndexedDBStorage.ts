@@ -528,8 +528,8 @@ export class IndexedDBStorage {
                 request.onsuccess = () => {
                     completed++;
                     if (completed === paths.length && !hasError) {
-                        // Update cache after all successful database deletes
-                        paths.forEach(p => this.cache.deleteFile(p));
+                        // Update cache after all successful database deletes using batch operation
+                        this.cache.batchDelete(paths);
                         resolve();
                     }
                 };
