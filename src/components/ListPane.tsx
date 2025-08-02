@@ -148,8 +148,8 @@ export const ListPane = React.memo(
                 // Get actual preview status for accurate height calculation
                 let hasPreviewText = false;
                 if (item.type === ListPaneItemType.FILE && item.data instanceof TFile && showFilePreview && item.data.extension === 'md') {
-                    // Use synchronous check from cache
-                    hasPreviewText = hasPreview(item.data.path);
+                    // Use pre-computed metadata instead of cache lookup
+                    hasPreviewText = item.metadata?.hasPreview ?? false;
                 }
 
                 // Calculate effective preview rows based on actual content
@@ -174,8 +174,7 @@ export const ListPane = React.memo(
 
                         // Parent folder gets its own line
                         if (settings.showParentFolderNames && settings.showNotesFromSubfolders) {
-                            const file = item.data instanceof TFile ? item.data : null;
-                            const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
+                            const isInSubfolder = item.metadata?.isInSubfolder ?? false;
                             if (isInSubfolder) {
                                 textContentHeight += heights.metadataLineHeight;
                             }
@@ -184,8 +183,7 @@ export const ListPane = React.memo(
                         // Multi-row mode - different layouts based on preview content
                         if (!hasPreviewText) {
                             // Empty preview: show date + parent folder on same line
-                            const file = item.data instanceof TFile ? item.data : null;
-                            const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
+                            const isInSubfolder = item.metadata?.isInSubfolder ?? false;
                             const showsParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
 
                             if (showFileDate || showsParentFolder) {
@@ -197,8 +195,7 @@ export const ListPane = React.memo(
                                 textContentHeight += heights.multiLineLineHeight * effectivePreviewRows;
                             }
                             // Only add metadata line if date is shown OR parent folder is shown
-                            const file = item.data instanceof TFile ? item.data : null;
-                            const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
+                            const isInSubfolder = item.metadata?.isInSubfolder ?? false;
                             const showsParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
 
                             if (showFileDate || showsParentFolder) {
@@ -211,10 +208,8 @@ export const ListPane = React.memo(
                 // Add tag row height if file has tags (in both normal and slim modes when showTags is enabled)
                 // Tags are shown for both empty and non-empty preview text
                 if (settings.showFileTags && item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
-                    // Check if file has tags using the database
-                    const db = getDB();
-                    const tags = db.getDisplayTags(item.data.path);
-                    const hasTags = tags.length > 0;
+                    // Use pre-computed metadata instead of database lookup
+                    const hasTags = item.metadata?.hasTags ?? false;
 
                     if (hasTags) {
                         textContentHeight += heights.tagRowHeight;
@@ -539,6 +534,21 @@ export const ListPane = React.memo(
                 const pinnedFiles = files.filter(f => pinnedPaths.has(f.path));
                 const unpinnedFiles = files.filter(f => !pinnedPaths.has(f.path));
 
+                // Pre-compute metadata for all files to avoid database lookups during render
+                const db = getDB();
+                const fileMetadataCache = new Map<string, { hasTags: boolean; hasPreview: boolean; isInSubfolder: boolean }>();
+
+                [...pinnedFiles, ...unpinnedFiles].forEach(file => {
+                    const tags = db.getDisplayTags(file.path);
+                    const isInSubfolder = selectedFolder && file.parent && file.parent.path !== selectedFolder.path;
+
+                    fileMetadataCache.set(file.path, {
+                        hasTags: tags.length > 0,
+                        hasPreview: file.extension === 'md' ? hasPreview(file.path) : false,
+                        isInSubfolder: !!isInSubfolder
+                    });
+                });
+
                 // Sort will happen below after determining the sort option
 
                 // Add pinned files
@@ -549,11 +559,13 @@ export const ListPane = React.memo(
                         key: `header-pinned`
                     });
                     pinnedFiles.forEach(file => {
+                        const metadata = fileMetadataCache.get(file.path);
                         items.push({
                             type: ListPaneItemType.FILE,
                             data: file,
                             parentFolder: selectedFolder?.path,
-                            key: file.path
+                            key: file.path,
+                            metadata
                         });
                     });
                 }
@@ -569,11 +581,13 @@ export const ListPane = React.memo(
                 if (!settings.groupByDate || sortOption.startsWith('title')) {
                     // No date grouping
                     unpinnedFiles.forEach(file => {
+                        const metadata = fileMetadataCache.get(file.path);
                         items.push({
                             type: ListPaneItemType.FILE,
                             data: file,
                             parentFolder: selectedFolder?.path,
-                            key: file.path
+                            key: file.path,
+                            metadata
                         });
                     });
                 } else {
@@ -594,11 +608,13 @@ export const ListPane = React.memo(
                             });
                         }
 
+                        const metadata = fileMetadataCache.get(file.path);
                         items.push({
                             type: ListPaneItemType.FILE,
                             data: file,
                             parentFolder: selectedFolder?.path,
-                            key: file.path
+                            key: file.path,
+                            metadata
                         });
                     });
                 }
@@ -615,7 +631,7 @@ export const ListPane = React.memo(
 
             // Rebuild list items when files or relevant settings change
             rebuildListItems();
-        }, [files, settings, selectionType, selectedFolder, selectedTag, getFileCreatedTime, getFileModifiedTime]);
+        }, [files, settings, selectionType, selectedFolder, selectedTag, getFileCreatedTime, getFileModifiedTime, getDB, hasPreview]);
 
         // Reset virtualizer when list items are reordered
         useEffect(() => {
