@@ -32,12 +32,6 @@ export interface ListPaneItem {
     data: TFile | string; // File or header text
     parentFolder?: string | null;
     key: string;
-    // Pre-computed metadata for performance optimization
-    metadata?: {
-        hasTags?: boolean;
-        hasPreview?: boolean;
-        isInSubfolder?: boolean;
-    };
     // Pre-computed file index for stable onClick handlers
     fileIndex?: number;
 }
