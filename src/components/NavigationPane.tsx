@@ -93,14 +93,203 @@ export const NavigationPane = React.memo(
         const prevShowAllTagsFolder = useRef(settings.showAllTagsFolder);
         const prevFavoritesCount = useRef(settings.favoriteTags.length);
 
-        // =================================================================================
-        // We use useState to hold flattened items to prevent virtualizer re-initialization
-        // =================================================================================
-        const [items, setItems] = useState<CombinedNavigationItem[]>([]);
-
         // Pending scroll state for handling reveal operations
         const pendingScrollRef = useRef<string | null>(null);
         const [pendingScrollVersion, setPendingScrollVersion] = useState(0);
+
+        // Determine if navigation pane is visible early for optimization
+        const isVisible = uiState.dualPane || uiState.currentSinglePaneView === 'navigation';
+
+        // Build folder items when folders or expansion changes
+        const folderItems = useMemo(() => {
+            return flattenFolderTree(rootFolders, expansionState.expandedFolders, parseExcludedFolders(settings.excludedFolders));
+        }, [rootFolders, expansionState.expandedFolders, settings.excludedFolders]);
+
+        // Build tag items when tags or settings change
+        const tagItems = useMemo(() => {
+            const items: CombinedNavigationItem[] = [];
+
+            if (!settings.showTags) return items;
+
+            // Parse favorite and hidden tag patterns
+            const favoritePatterns = settings.favoriteTags;
+            const hiddenPatterns = settings.hiddenTags;
+
+            // Helper function to add untagged node
+            const addUntaggedNode = (level: number, context?: 'favorites' | 'tags') => {
+                if (settings.showUntagged && untaggedCount > 0) {
+                    const untaggedNode: TagTreeNode = {
+                        path: UNTAGGED_TAG_ID,
+                        name: strings.tagList.untaggedLabel,
+                        children: new Map(),
+                        notesWithTag: new Set()
+                    };
+
+                    items.push({
+                        type: NavigationPaneItemType.UNTAGGED,
+                        data: untaggedNode,
+                        key: UNTAGGED_TAG_ID,
+                        level,
+                        context
+                    });
+                }
+            };
+
+            // Helper function to add virtual folder
+            const addVirtualFolder = (id: string, name: string, icon?: string) => {
+                const folder: VirtualFolder = { id, name, icon };
+                items.push({
+                    type: NavigationPaneItemType.VIRTUAL_FOLDER,
+                    data: folder,
+                    level: 0,
+                    key: id
+                });
+            };
+
+            // Helper function to add tags to list
+            const addTagItems = (tags: Map<string, TagTreeNode>, folderId: string) => {
+                if (expansionState.expandedVirtualFolders.has(folderId)) {
+                    const tagItems = flattenTagTree(
+                        Array.from(tags.values()),
+                        expansionState.expandedTags,
+                        1, // Start at level 1 since they're inside the virtual folder
+                        folderId === 'favorite-tags-root' ? 'favorites' : 'tags'
+                    );
+                    items.push(...tagItems);
+
+                    // Add untagged node to favorites folder if enabled
+                    if (folderId === 'favorite-tags-root' && settings.showUntaggedInFavorites) {
+                        addUntaggedNode(1, 'favorites');
+                    }
+
+                    // Add untagged node if this is the last tag container
+                    const isLastContainer = favoritePatterns.length === 0 || folderId === 'all-tags-root';
+                    // If no favorites exist, always show untagged in Tags regardless of showUntaggedInFavorites
+                    const shouldShowUntagged = favoritePatterns.length === 0 || !settings.showUntaggedInFavorites;
+                    if (isLastContainer && shouldShowUntagged) {
+                        addUntaggedNode(1, 'tags');
+                    }
+                }
+            };
+
+            // Apply hidden tag exclusion to both trees
+            const visibleFavoriteTree = hiddenPatterns.length > 0 ? excludeFromTagTree(favoriteTree, hiddenPatterns) : favoriteTree;
+            const visibleTagTree = hiddenPatterns.length > 0 ? excludeFromTagTree(tagTree, hiddenPatterns) : tagTree;
+
+            // Handle tag organization
+            if (favoritePatterns.length > 0) {
+                // We already have separate trees from StorageContext
+
+                if (settings.showFavoriteTagsFolder) {
+                    // Show "Favorites" folder
+                    addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'star');
+                    addTagItems(visibleFavoriteTree, 'favorite-tags-root');
+                } else {
+                    // Show favorite tags directly without folder
+                    const favoriteItems = flattenTagTree(
+                        Array.from(visibleFavoriteTree.values()),
+                        expansionState.expandedTags,
+                        0, // Start at level 0 since no virtual folder
+                        'favorites'
+                    );
+                    items.push(...favoriteItems);
+
+                    // Add untagged after favorite tags when folder isn't shown
+                    if (settings.showUntaggedInFavorites) {
+                        addUntaggedNode(0, 'favorites');
+                    }
+                }
+
+                if (settings.showAllTagsFolder) {
+                    // Show "Tags" folder
+                    addVirtualFolder('all-tags-root', strings.tagList.allTags, 'tags');
+                    addTagItems(visibleTagTree, 'all-tags-root');
+                } else {
+                    // Show non-favorite tags directly without folder
+                    const nonFavoriteItems = flattenTagTree(
+                        Array.from(visibleTagTree.values()),
+                        expansionState.expandedTags,
+                        0, // Start at level 0 since no virtual folder
+                        'tags'
+                    );
+                    items.push(...nonFavoriteItems);
+
+                    // Add untagged node at the end when not using folder and not in favorites
+                    if (!settings.showUntaggedInFavorites) {
+                        addUntaggedNode(0, 'tags');
+                    }
+                }
+            } else {
+                // No favorites configured
+                if (settings.showAllTagsFolder) {
+                    // Show "Tags" folder
+                    addVirtualFolder('tags-root', strings.tagList.tags, 'tags');
+                    addTagItems(visibleTagTree, 'tags-root');
+                } else {
+                    // Show all tags directly without folder
+                    const tagTreeItems = flattenTagTree(
+                        Array.from(visibleTagTree.values()),
+                        expansionState.expandedTags,
+                        0, // Start at level 0 since no virtual folder
+                        'tags'
+                    );
+                    items.push(...tagTreeItems);
+
+                    // Add untagged node at the end
+                    addUntaggedNode(0, 'tags');
+                }
+            }
+
+            return items;
+        }, [
+            settings.showTags,
+            settings.favoriteTags,
+            settings.hiddenTags,
+            settings.showUntagged,
+            settings.showUntaggedInFavorites,
+            settings.showFavoriteTagsFolder,
+            settings.showAllTagsFolder,
+            favoriteTree,
+            tagTree,
+            untaggedCount,
+            expansionState.expandedTags,
+            expansionState.expandedVirtualFolders
+        ]);
+
+        // Combine folder and tag items based on display order
+        const items = useMemo(() => {
+            const allItems: CombinedNavigationItem[] = [];
+
+            if (settings.showTags && settings.showTagsAboveFolders) {
+                // Tags first, then folders
+                allItems.push(...tagItems);
+                if (folderItems.length > 0 && tagItems.length > 0) {
+                    allItems.push({
+                        type: NavigationPaneItemType.LIST_SPACER,
+                        key: 'tags-folders-spacer'
+                    });
+                }
+                allItems.push(...folderItems);
+            } else {
+                // Folders first, then tags (default)
+                allItems.push(...folderItems);
+                if (settings.showTags && tagItems.length > 0) {
+                    allItems.push({
+                        type: NavigationPaneItemType.LIST_SPACER,
+                        key: 'folders-tags-spacer'
+                    });
+                    allItems.push(...tagItems);
+                }
+            }
+
+            // Add spacer at the end for better visibility
+            allItems.push({
+                type: NavigationPaneItemType.SPACER,
+                key: 'bottom-spacer'
+            });
+
+            return allItems;
+        }, [folderItems, tagItems, settings.showTags, settings.showTagsAboveFolders]);
 
         // Initialize virtualizer
         const rowVirtualizer = useVirtualizer({
@@ -280,9 +469,6 @@ export const NavigationPane = React.memo(
             },
             [tagTree, favoriteTree]
         );
-
-        // Determine if navigation pane is visible early for optimization
-        const isVisible = uiState.dualPane || uiState.currentSinglePaneView === 'navigation';
 
         // Handle tag click
         const handleTagClick = useCallback(
@@ -620,204 +806,6 @@ export const NavigationPane = React.memo(
                 events.forEach(eventRef => app.vault.offref(eventRef));
             };
         }, [app, settings.showRootFolder]);
-
-        useEffect(() => {
-            const rebuildItems = () => {
-                const allItems: CombinedNavigationItem[] = [];
-
-                // Build folders
-                const folderItems = flattenFolderTree(
-                    rootFolders,
-                    expansionState.expandedFolders,
-                    parseExcludedFolders(settings.excludedFolders)
-                );
-
-                // Build tag section if enabled
-                const tagItems: CombinedNavigationItem[] = [];
-                if (settings.showTags) {
-                    // Parse favorite and hidden tag patterns
-                    // Note: We pass arrays directly now, not comma-separated strings
-                    const favoritePatterns = settings.favoriteTags;
-                    const hiddenPatterns = settings.hiddenTags;
-
-                    // Helper function to add untagged node
-                    const addUntaggedNode = (level: number, context?: 'favorites' | 'tags') => {
-                        if (settings.showUntagged && untaggedCount > 0) {
-                            const untaggedNode: TagTreeNode = {
-                                path: UNTAGGED_TAG_ID,
-                                name: strings.tagList.untaggedLabel,
-                                children: new Map(),
-                                notesWithTag: new Set()
-                            };
-
-                            tagItems.push({
-                                type: NavigationPaneItemType.UNTAGGED,
-                                data: untaggedNode,
-                                key: UNTAGGED_TAG_ID,
-                                level,
-                                context
-                            });
-                        }
-                    };
-
-                    // Helper function to add virtual folder
-                    const addVirtualFolder = (id: string, name: string, icon?: string) => {
-                        const folder: VirtualFolder = { id, name, icon };
-                        tagItems.push({
-                            type: NavigationPaneItemType.VIRTUAL_FOLDER,
-                            data: folder,
-                            level: 0,
-                            key: id
-                        });
-                    };
-
-                    // Helper function to add tags to list
-                    const addTagItems = (tags: Map<string, TagTreeNode>, folderId: string) => {
-                        if (expansionState.expandedVirtualFolders.has(folderId)) {
-                            const items = flattenTagTree(
-                                Array.from(tags.values()),
-                                expansionState.expandedTags,
-                                1, // Start at level 1 since they're inside the virtual folder
-                                folderId === 'favorite-tags-root' ? 'favorites' : 'tags'
-                            );
-                            tagItems.push(...items);
-
-                            // Add untagged node to favorites folder if enabled
-                            if (folderId === 'favorite-tags-root' && settings.showUntaggedInFavorites) {
-                                addUntaggedNode(1, 'favorites');
-                            }
-
-                            // Add untagged node if this is the last tag container
-                            const isLastContainer = favoritePatterns.length === 0 || folderId === 'all-tags-root';
-                            // If no favorites exist, always show untagged in Tags regardless of showUntaggedInFavorites
-                            const shouldShowUntagged = favoritePatterns.length === 0 || !settings.showUntaggedInFavorites;
-                            if (isLastContainer && shouldShowUntagged) {
-                                addUntaggedNode(1, 'tags');
-                            }
-                        }
-                    };
-
-                    // Apply hidden tag exclusion to both trees
-                    const visibleFavoriteTree = hiddenPatterns.length > 0 ? excludeFromTagTree(favoriteTree, hiddenPatterns) : favoriteTree;
-                    const visibleTagTree = hiddenPatterns.length > 0 ? excludeFromTagTree(tagTree, hiddenPatterns) : tagTree;
-
-                    // Handle tag organization
-                    if (favoritePatterns.length > 0) {
-                        // We already have separate trees from StorageContext
-
-                        if (settings.showFavoriteTagsFolder) {
-                            // Show "Favorites" folder
-                            addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'star');
-                            addTagItems(visibleFavoriteTree, 'favorite-tags-root');
-                        } else {
-                            // Show favorite tags directly without folder
-                            const favoriteItems = flattenTagTree(
-                                Array.from(visibleFavoriteTree.values()),
-                                expansionState.expandedTags,
-                                0, // Start at level 0 since no virtual folder
-                                'favorites'
-                            );
-                            tagItems.push(...favoriteItems);
-
-                            // Add untagged after favorite tags when folder isn't shown
-                            if (settings.showUntaggedInFavorites) {
-                                addUntaggedNode(0, 'favorites');
-                            }
-                        }
-
-                        if (settings.showAllTagsFolder) {
-                            // Show "Tags" folder
-                            addVirtualFolder('all-tags-root', strings.tagList.allTags, 'tags');
-                            addTagItems(visibleTagTree, 'all-tags-root');
-                        } else {
-                            // Show non-favorite tags directly without folder
-                            const nonFavoriteItems = flattenTagTree(
-                                Array.from(visibleTagTree.values()),
-                                expansionState.expandedTags,
-                                0, // Start at level 0 since no virtual folder
-                                'tags'
-                            );
-                            tagItems.push(...nonFavoriteItems);
-
-                            // Add untagged node at the end when not using folder and not in favorites
-                            if (!settings.showUntaggedInFavorites) {
-                                addUntaggedNode(0, 'tags');
-                            }
-                        }
-                    } else {
-                        // No favorites configured
-                        if (settings.showAllTagsFolder) {
-                            // Show "Tags" folder
-                            addVirtualFolder('tags-root', strings.tagList.tags, 'tags');
-                            addTagItems(visibleTagTree, 'tags-root');
-                        } else {
-                            // Show all tags directly without folder
-                            const items = flattenTagTree(
-                                Array.from(visibleTagTree.values()),
-                                expansionState.expandedTags,
-                                0, // Start at level 0 since no virtual folder
-                                'tags'
-                            );
-                            tagItems.push(...items);
-
-                            // Add untagged node at the end
-                            addUntaggedNode(0, 'tags');
-                        }
-                    }
-                }
-
-                // Combine items in the correct order
-                if (settings.showTags && settings.showTagsAboveFolders) {
-                    // Tags first, then folders
-                    allItems.push(...tagItems);
-                    allItems.push({
-                        type: NavigationPaneItemType.LIST_SPACER,
-                        key: 'tags-folders-spacer'
-                    });
-                    allItems.push(...folderItems);
-                } else {
-                    // Folders first, then tags (default)
-                    allItems.push(...folderItems);
-                    if (settings.showTags) {
-                        allItems.push({
-                            type: NavigationPaneItemType.LIST_SPACER,
-                            key: 'folders-tags-spacer'
-                        });
-                        allItems.push(...tagItems);
-                    }
-                }
-
-                // Add spacer at the end for better visibility
-                allItems.push({
-                    type: NavigationPaneItemType.SPACER,
-                    key: 'bottom-spacer'
-                });
-
-                setItems(allItems);
-            };
-
-            rebuildItems();
-        }, [
-            rootFolders,
-            expansionState.expandedFolders,
-            expansionState.expandedTags,
-            expansionState.expandedVirtualFolders,
-            settings.excludedFolders,
-            settings.showTags,
-            settings.showTagsAboveFolders,
-            settings.showFavoriteTagsFolder,
-            settings.showAllTagsFolder,
-            settings.showUntagged,
-            settings.showUntaggedInFavorites,
-            settings.favoriteTags,
-            settings.hiddenTags,
-            favoriteTree,
-            tagTree,
-            untaggedCount,
-            isVisible,
-            uiState.singlePane,
-            expansionDispatch
-        ]);
 
         // Smart auto-expand: Only expand virtual folders on specific setting transitions
         useEffect(() => {
