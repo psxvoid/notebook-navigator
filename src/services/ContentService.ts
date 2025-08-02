@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile, getAllTags } from 'obsidian';
+import { App, TFile, getAllTags, CachedMetadata } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { FileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { getDBInstance } from '../storage/fileOperations';
@@ -89,6 +89,10 @@ export class ContentService {
      */
     static extractMetadata(app: App, file: TFile, settings: NotebookNavigatorSettings): ProcessedMetadata {
         const metadata = app.metadataCache.getFileCache(file);
+        return ContentService.extractMetadataFromCache(metadata, file, settings);
+    }
+
+    static extractMetadataFromCache(metadata: CachedMetadata | null, _file: TFile, settings: NotebookNavigatorSettings): ProcessedMetadata {
         const frontmatter = metadata?.frontmatter;
 
         if (!frontmatter || !settings.useFrontmatterMetadata) {
@@ -355,28 +359,30 @@ export class ContentService {
                 const chunkResults = await Promise.all(
                     chunk.map(async job => {
                         try {
-                            // Process tags, preview, image and metadata in parallel
-                            const [tags, preview, imageUrl, metadata] = await Promise.all([
-                                job.needsTags ? this.extractTags(job.file) : Promise.resolve(null),
-                                job.needsPreview
-                                    ? (async () => {
-                                          const content = await this.app.vault.cachedRead(job.file);
-                                          const fileMetadata = this.app.metadataCache.getFileCache(job.file);
-                                          return PreviewTextUtils.extractPreviewText(content, settings, fileMetadata?.frontmatter);
-                                      })()
-                                    : Promise.resolve(''),
-                                job.needsImage ? Promise.resolve(this.getFeatureImageUrl(job.file, settings)) : Promise.resolve(''),
-                                job.needsMetadata
-                                    ? Promise.resolve(ContentService.extractMetadata(this.app, job.file, settings))
-                                    : Promise.resolve({})
-                            ]);
+                            // Get metadata once for all operations
+                            const metadata = this.app.metadataCache.getFileCache(job.file);
+
+                            // Only read file content if we need preview text
+                            const needsFileRead = job.needsPreview && job.file.extension === 'md';
+                            const content = needsFileRead ? await this.app.vault.cachedRead(job.file) : null;
+
+                            // Process all operations with shared metadata and content
+                            const tags = job.needsTags ? this.extractTagsFromMetadata(metadata) : null;
+                            const preview =
+                                job.needsPreview && content
+                                    ? PreviewTextUtils.extractPreviewText(content, settings, metadata?.frontmatter)
+                                    : '';
+                            const imageUrl = job.needsImage ? this.getFeatureImageUrlFromMetadata(job.file, metadata, settings) : '';
+                            const metadataResult = job.needsMetadata
+                                ? ContentService.extractMetadataFromCache(metadata, job.file, settings)
+                                : {};
 
                             return {
                                 job,
                                 tags,
                                 preview,
                                 imageUrl,
-                                metadata: metadata as { fn?: string; fc?: number; fm?: number },
+                                metadata: metadataResult as { fn?: string; fc?: number; fm?: number },
                                 success: true
                             };
                         } catch (error) {
@@ -514,48 +520,39 @@ export class ContentService {
         // No need to notify - database will emit change events
     }
 
-    /**
-     * Extract feature image URL from a file's frontmatter or embedded images.
-     * Checks frontmatter properties in order specified by settings.
-     * Falls back to first embedded image if no frontmatter image found.
-     *
-     * @param file - The file to extract image from
-     * @param settings - Current plugin settings
-     * @returns Image URL string, or empty string if no image found
-     */
-    private getFeatureImageUrl(file: TFile, settings: NotebookNavigatorSettings): string {
+    private getFeatureImageUrlFromMetadata(file: TFile, metadata: CachedMetadata | null, settings: NotebookNavigatorSettings): string {
         // Only process markdown files for feature images
-        if (file.extension === 'md') {
-            const metadata = this.app.metadataCache.getFileCache(file);
+        if (file.extension !== 'md') {
+            return '';
+        }
 
-            // Try each property in order until we find an image
-            for (const property of settings.featureImageProperties) {
-                const imagePath = metadata?.frontmatter?.[property];
+        // Try each property in order until we find an image
+        for (const property of settings.featureImageProperties) {
+            const imagePath = metadata?.frontmatter?.[property];
 
-                if (!imagePath) {
-                    continue;
-                }
-
-                // Handle wikilinks e.g., [[image.png]]
-                const resolvedPath = imagePath.startsWith('[[') && imagePath.endsWith(']]') ? imagePath.slice(2, -2) : imagePath;
-
-                const imageFile = this.app.metadataCache.getFirstLinkpathDest(resolvedPath, file.path);
-
-                if (imageFile) {
-                    // Store just the path, not the full app:// URL
-                    return imageFile.path;
-                }
+            if (!imagePath) {
+                continue;
             }
 
-            // Check embedded images as fallback
-            if (metadata?.embeds && metadata.embeds.length > 0) {
-                for (const embed of metadata.embeds) {
-                    const embedPath = embed.link;
-                    const embedFile = this.app.metadataCache.getFirstLinkpathDest(embedPath, file.path);
-                    if (embedFile && isImageFile(embedFile)) {
-                        // Store just the path, not the full app:// URL
-                        return embedFile.path;
-                    }
+            // Handle wikilinks e.g., [[image.png]]
+            const resolvedPath = imagePath.startsWith('[[') && imagePath.endsWith(']]') ? imagePath.slice(2, -2) : imagePath;
+
+            const imageFile = this.app.metadataCache.getFirstLinkpathDest(resolvedPath, file.path);
+
+            if (imageFile) {
+                // Store just the path, not the full app:// URL
+                return imageFile.path;
+            }
+        }
+
+        // Check embedded images as fallback
+        if (metadata?.embeds && metadata.embeds.length > 0) {
+            for (const embed of metadata.embeds) {
+                const embedPath = embed.link;
+                const embedFile = this.app.metadataCache.getFirstLinkpathDest(embedPath, file.path);
+                if (embedFile && isImageFile(embedFile)) {
+                    // Store just the path, not the full app:// URL
+                    return embedFile.path;
                 }
             }
         }
@@ -563,15 +560,7 @@ export class ContentService {
         return '';
     }
 
-    /**
-     * Extract tags from a file's metadata.
-     * Returns tags without the # prefix for consistency with the database.
-     *
-     * @param file - The file to extract tags from
-     * @returns Array of tag strings without # prefix
-     */
-    private extractTags(file: TFile): string[] {
-        const metadata = this.app.metadataCache.getFileCache(file);
+    private extractTagsFromMetadata(metadata: CachedMetadata | null): string[] {
         const rawTags = metadata ? getAllTags(metadata) : [];
         // Remove # prefix for consistency with how we store tags
         return rawTags?.map(tag => (tag.startsWith('#') ? tag.slice(1) : tag)) || [];
