@@ -366,7 +366,15 @@ export const ListPane = React.memo(
         // Determine if list pane is visible early to optimize
         const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'files';
 
-        const currentListItemsKey = listItems.map(item => item.key).join('|');
+        const currentListItemsKey = listItems
+            .map(item => {
+                // Include metadata in key for files to detect tag changes
+                if (item.type === ListPaneItemType.FILE && item.metadata) {
+                    return `${item.key}:${item.metadata.hasTags ? 'tags' : 'notags'}`;
+                }
+                return item.key;
+            })
+            .join('|');
 
         // Helper function for safe array access
         const safeGetItem = <T,>(array: T[], index: number): T | undefined => {
@@ -426,12 +434,12 @@ export const ListPane = React.memo(
             // Listen for tag changes from database
             const db = getDB();
             const dbUnsubscribe = db.onContentChange(changes => {
-                // Check if we're in tag view and tags changed
-                if (selectionType === ItemType.TAG && selectedTag) {
-                    const hasTagChanges = changes.some(change => change.changes.tags !== undefined);
-                    if (hasTagChanges) {
-                        forceUpdate();
-                    }
+                // Check if any tags changed - we need to rebuild list items to update metadata
+                const hasTagChanges = changes.some(change => change.changes.tags !== undefined);
+                if (hasTagChanges) {
+                    // In tag view, files might be added/removed from the list
+                    // In folder view, we need to update the metadata for proper height calculation
+                    forceUpdate();
                 }
             });
 
@@ -714,11 +722,8 @@ export const ListPane = React.memo(
                         return true;
                     }
 
-                    // For tag changes, always remeasure to handle height changes
-                    // When tags are added/removed, the height of the item changes
-                    if (change.changes.tags !== undefined) {
-                        return true;
-                    }
+                    // Tag changes are handled by list rebuild, not here
+                    // The forceUpdate() will rebuild list items with correct metadata
 
                     return false;
                 });
