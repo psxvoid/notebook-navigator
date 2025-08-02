@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { forwardRef } from 'react';
+import React, { forwardRef, useMemo, useCallback } from 'react';
 import { setIcon } from 'obsidian';
 import { useSettingsState } from '../context/SettingsContext';
 import { useMetadataService } from '../context/ServicesContext';
@@ -66,10 +66,28 @@ export const TagTreeItem = React.memo(
         const iconRef = React.useRef<HTMLSpanElement>(null);
         const itemRef = React.useRef<HTMLDivElement>(null);
 
-        const hasChildren = tagNode.children.size > 0;
+        // Memoize computed values
+        const hasChildren = useMemo(() => tagNode.children.size > 0, [tagNode.children.size]);
 
-        // Handle double-click to toggle expansion
-        const handleDoubleClick = React.useCallback(
+        const tagColor = useMemo(() => metadataService.getTagColor(tagNode.path), [metadataService, tagNode.path]);
+
+        const tagIcon = useMemo(() => metadataService.getTagIcon(tagNode.path), [metadataService, tagNode.path]);
+
+        // Memoize className to avoid string concatenation on every render
+        const className = useMemo(() => {
+            const classes = ['nn-folder-item'];
+            if (isSelected) classes.push('nn-selected');
+            return classes.join(' ');
+        }, [isSelected]);
+
+        const tagNameClassName = useMemo(() => {
+            const classes = ['nn-folder-name'];
+            if (tagColor) classes.push('nn-has-custom-color');
+            return classes.join(' ');
+        }, [tagColor]);
+
+        // Stable event handlers
+        const handleDoubleClick = useCallback(
             (e: React.MouseEvent) => {
                 e.preventDefault();
                 if (hasChildren) {
@@ -79,9 +97,24 @@ export const TagTreeItem = React.memo(
             [hasChildren, onToggle]
         );
 
-        // Get color and icon from metadata service
-        const tagColor = metadataService.getTagColor(tagNode.path);
-        const tagIcon = metadataService.getTagIcon(tagNode.path);
+        const handleChevronClick = useCallback(
+            (e: React.MouseEvent) => {
+                e.stopPropagation();
+                if (hasChildren) {
+                    if (e.altKey && onToggleAllSiblings) {
+                        onToggleAllSiblings();
+                    } else {
+                        onToggle();
+                    }
+                }
+            },
+            [hasChildren, onToggle, onToggleAllSiblings]
+        );
+
+        const handleChevronDoubleClick = useCallback((e: React.MouseEvent) => {
+            e.stopPropagation();
+            e.preventDefault();
+        }, []);
 
         // Update chevron icon based on expanded state
         React.useEffect(() => {
@@ -109,7 +142,7 @@ export const TagTreeItem = React.memo(
         return (
             <div
                 ref={itemRef}
-                className={`nn-folder-item ${isSelected ? 'nn-selected' : ''}`}
+                className={className}
                 data-tag={tagNode.path}
                 data-drop-zone="tag"
                 data-drop-path={tagNode.path}
@@ -123,29 +156,14 @@ export const TagTreeItem = React.memo(
                     <div
                         ref={chevronRef}
                         className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}
-                        onClick={e => {
-                            e.stopPropagation();
-                            if (hasChildren) {
-                                if (e.altKey && onToggleAllSiblings) {
-                                    onToggleAllSiblings();
-                                } else {
-                                    onToggle();
-                                }
-                            }
-                        }}
-                        onDoubleClick={e => {
-                            e.stopPropagation();
-                            e.preventDefault();
-                        }}
+                        onClick={handleChevronClick}
+                        onDoubleClick={handleChevronDoubleClick}
                         tabIndex={-1}
                     />
                     {settings.showIcons && (
                         <span className="nn-folder-icon" ref={iconRef} style={tagColor ? { color: tagColor } : undefined} />
                     )}
-                    <span
-                        className={`nn-folder-name ${tagColor ? 'nn-has-custom-color' : ''}`}
-                        style={tagColor ? { color: tagColor } : undefined}
-                    >
+                    <span className={tagNameClassName} style={tagColor ? { color: tagColor } : undefined}>
                         {tagNode.name}
                     </span>
                     <span className="nn-folder-spacer" />

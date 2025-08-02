@@ -197,7 +197,15 @@ export const FileItem = React.memo(function FileItem({
         (featureImageUrl || // Has an actual image
             (file.extension !== 'md' && !isImageFile(file))); // Non-markdown, non-image files show extension badge
 
-    const className = `nn-file-item ${isSelected ? 'nn-selected' : ''} ${isSlimMode ? 'nn-slim' : ''} ${isSelected && hasSelectedAbove ? 'nn-has-selected-above' : ''} ${isSelected && hasSelectedBelow ? 'nn-has-selected-below' : ''}`;
+    // Memoize className to avoid string concatenation on every render
+    const className = useMemo(() => {
+        const classes = ['nn-file-item'];
+        if (isSelected) classes.push('nn-selected');
+        if (isSlimMode) classes.push('nn-slim');
+        if (isSelected && hasSelectedAbove) classes.push('nn-has-selected-above');
+        if (isSelected && hasSelectedBelow) classes.push('nn-has-selected-below');
+        return classes.join(' ');
+    }, [isSelected, isSlimMode, hasSelectedAbove, hasSelectedBelow]);
 
     // Single subscription for all content changes
     useEffect(() => {

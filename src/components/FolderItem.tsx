@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useMemo, useCallback } from 'react';
 import { TFolder, TFile, setTooltip, setIcon } from 'obsidian';
 import { useServices, useMetadataService } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
@@ -100,19 +100,66 @@ export const FolderItem = React.memo(function FolderItem({
     // NavigationPane pre-computes all folder counts for performance
     const fileCount = precomputedFileCount ?? 0;
 
-    const hasChildren = folder.children && folder.children.some(child => child instanceof TFolder);
+    // Memoize computed values
+    const hasChildren = useMemo(() => folder.children && folder.children.some(child => child instanceof TFolder), [folder.children]);
 
-    const customColor = metadataService.getFolderColor(folder.path);
+    const customColor = useMemo(() => metadataService.getFolderColor(folder.path), [metadataService, folder.path]);
 
-    // Check if folder has a folder note
-    const folderNote = settings.enableFolderNotes ? getFolderNote(folder, settings, app) : null;
-    const hasFolderNote = folderNote !== null;
+    const hasFolderNote = useMemo(() => {
+        if (!settings.enableFolderNotes) return false;
+        const folderNote = getFolderNote(folder, settings, app);
+        return folderNote !== null;
+    }, [folder, settings, app]);
 
-    const handleDoubleClick = () => {
+    // Memoize className to avoid string concatenation on every render
+    const className = useMemo(() => {
+        const classes = ['nn-folder-item'];
+        if (isSelected) classes.push('nn-selected');
+        return classes.join(' ');
+    }, [isSelected]);
+
+    const folderNameClassName = useMemo(() => {
+        const classes = ['nn-folder-name'];
+        if (hasFolderNote) classes.push('nn-has-folder-note');
+        if (customColor) classes.push('nn-has-custom-color');
+        return classes.join(' ');
+    }, [hasFolderNote, customColor]);
+
+    // Stable event handlers
+    const handleDoubleClick = useCallback(() => {
         if (hasChildren) {
             onToggle();
         }
-    };
+    }, [hasChildren, onToggle]);
+
+    const handleChevronClick = useCallback(
+        (e: React.MouseEvent) => {
+            e.stopPropagation();
+            if (hasChildren) {
+                if (e.altKey && onToggleAllSiblings) {
+                    onToggleAllSiblings();
+                } else {
+                    onToggle();
+                }
+            }
+        },
+        [hasChildren, onToggle, onToggleAllSiblings]
+    );
+
+    const handleChevronDoubleClick = useCallback((e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+    }, []);
+
+    const handleNameClick = useCallback(
+        (e: React.MouseEvent) => {
+            if (onNameClick) {
+                e.stopPropagation();
+                onNameClick();
+            }
+        },
+        [onNameClick]
+    );
 
     // Add Obsidian tooltip
     useEffect(() => {
@@ -178,7 +225,7 @@ export const FolderItem = React.memo(function FolderItem({
     return (
         <div
             ref={folderRef}
-            className={`nn-folder-item ${isSelected ? 'nn-selected' : ''}`}
+            className={className}
             data-path={folder.path}
             data-drag-path={folder.path}
             data-drag-type="folder"
@@ -198,35 +245,14 @@ export const FolderItem = React.memo(function FolderItem({
                 <div
                     className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}
                     ref={chevronRef}
-                    onClick={e => {
-                        e.stopPropagation();
-                        if (hasChildren) {
-                            if (e.altKey && onToggleAllSiblings) {
-                                onToggleAllSiblings();
-                            } else {
-                                onToggle();
-                            }
-                        }
-                    }}
-                    onDoubleClick={e => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                    }}
+                    onClick={handleChevronClick}
+                    onDoubleClick={handleChevronDoubleClick}
                     tabIndex={-1}
                 />
                 {settings.showIcons && (
                     <span className="nn-folder-icon" ref={iconRef} style={customColor ? { color: customColor } : undefined}></span>
                 )}
-                <span
-                    className={`nn-folder-name ${hasFolderNote ? 'nn-has-folder-note' : ''} ${customColor ? 'nn-has-custom-color' : ''}`}
-                    style={customColor ? { color: customColor } : undefined}
-                    onClick={e => {
-                        if (onNameClick) {
-                            e.stopPropagation();
-                            onNameClick();
-                        }
-                    }}
-                >
+                <span className={folderNameClassName} style={customColor ? { color: customColor } : undefined} onClick={handleNameClick}>
                     {folder.path === '/' ? settings.customVaultName || app.vault.getName() : folder.name}
                 </span>
                 <span className="nn-folder-spacer" />
