@@ -509,13 +509,13 @@ export const STRINGS_FR = {
             },
             favoriteTags: {
                 name: 'Étiquettes favorites',
-                desc: "Liste séparée par des virgules de modèles d'étiquettes favorites. Prend en charge la correspondance exacte, les jokers (*) et les regex (/modèle/).",
-                placeholder: 'boîte-de-réception, projet-*, /^quotidien-\\d{4}/'
+                desc: 'Liste séparée par des virgules de préfixes d\'étiquettes. Ajouter une étiquette inclut toutes ses sous-étiquettes (par ex. "photo" inclut "photo/camera/fuji").',
+                placeholder: 'boîte-de-réception, projets/travail, quotidien/2025'
             },
             hiddenTags: {
                 name: 'Étiquettes cachées',
-                desc: "Liste séparée par des virgules de modèles d'étiquettes à masquer de l'arbre des étiquettes. Prend en charge la correspondance exacte, les jokers (*) et les regex (/modèle/).",
-                placeholder: 'interne, temp-*, /^archive-\\d{4}/'
+                desc: 'Liste séparée par des virgules de préfixes d\'étiquettes à masquer. Masquer une étiquette masque aussi toutes ses sous-étiquettes (par ex. "archive" masque "archive/2024/docs").',
+                placeholder: 'interne, temp/brouillons, archive/2024'
             },
             enableFolderNotes: {
                 name: 'Activer les notes de dossier',

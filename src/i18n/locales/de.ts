@@ -509,13 +509,13 @@ export const STRINGS_DE = {
             },
             favoriteTags: {
                 name: 'Favoriten-Tags',
-                desc: 'Kommagetrennte Liste von favorisierten Tag-Mustern. Unterstützt exakte Übereinstimmung, Platzhalter (*) und Regex (/muster/).',
-                placeholder: 'inbox, projekt-*, /^täglich-\\d{4}/'
+                desc: 'Kommagetrennte Liste von Tag-Präfixen. Ein Tag schließt alle Unter-Tags ein (z.B. "photo" schließt "photo/camera/fuji" ein).',
+                placeholder: 'inbox, projekte/arbeit, täglich/2025'
             },
             hiddenTags: {
                 name: 'Versteckte Tags',
-                desc: 'Kommagetrennte Liste von Tag-Mustern, die im Tag-Baum ausgeblendet werden sollen. Unterstützt exakte Übereinstimmung, Platzhalter (*) und Regex (/muster/).',
-                placeholder: 'intern, temp-*, /^archiv-\\d{4}/'
+                desc: 'Kommagetrennte Liste von Tag-Präfixen zum Ausblenden. Ein versteckter Tag blendet auch alle Unter-Tags aus (z.B. "archiv" blendet "archiv/2024/docs" aus).',
+                placeholder: 'intern, temp/entwürfe, archiv/2024'
             },
             enableFolderNotes: {
                 name: 'Ordnernotizen aktivieren',

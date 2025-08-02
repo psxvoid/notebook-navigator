@@ -260,9 +260,11 @@ export const NavigationPane = React.memo(
 
         // Get all descendant tags recursively
         const getAllDescendantTags = useCallback(
-            (tagPath: string): string[] => {
+            (tagPath: string, context?: 'favorites' | 'tags'): string[] => {
                 const descendants: string[] = [];
-                const tagNode = tagTree.get(tagPath);
+                // Use the appropriate tree based on context
+                const searchTree = context === 'favorites' ? favoriteTree : tagTree;
+                const tagNode = searchTree.get(tagPath);
 
                 if (!tagNode) return descendants;
 
@@ -276,7 +278,7 @@ export const NavigationPane = React.memo(
                 collectDescendants(tagNode);
                 return descendants;
             },
-            [tagTree]
+            [tagTree, favoriteTree]
         );
 
         // Handle tag click
@@ -498,14 +500,14 @@ export const NavigationPane = React.memo(
                                     if (isCurrentlyExpanded) {
                                         // If expanded, collapse everything (parent and all descendants)
                                         handleTagToggle(tagNode.path);
-                                        const descendantPaths = getAllDescendantTags(tagNode.path);
+                                        const descendantPaths = getAllDescendantTags(tagNode.path, item.context);
                                         if (descendantPaths.length > 0) {
                                             expansionDispatch({ type: 'TOGGLE_DESCENDANT_TAGS', descendantPaths, expand: false });
                                         }
                                     } else {
                                         // If collapsed, expand parent and all descendants
                                         handleTagToggle(tagNode.path);
-                                        const descendantPaths = getAllDescendantTags(tagNode.path);
+                                        const descendantPaths = getAllDescendantTags(tagNode.path, item.context);
                                         if (descendantPaths.length > 0) {
                                             expansionDispatch({ type: 'TOGGLE_DESCENDANT_TAGS', descendantPaths, expand: true });
                                         }

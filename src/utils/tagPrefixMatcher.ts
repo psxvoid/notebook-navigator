@@ -39,19 +39,12 @@ function normalizeTag(tag: string): string {
 }
 
 /**
- * Normalizes a list of tags/prefixes
- */
-export function normalizePrefixes(prefixes: string[]): string[] {
-    return prefixes.map(prefix => normalizeTag(prefix));
-}
-
-/**
  * Checks if a tag matches a specific prefix
  * @param tagPath - The tag path to check (e.g., "photo/camera/fuji")
  * @param prefix - The prefix to match against (e.g., "photo/camera")
  * @returns true if the tag starts with the prefix
  */
-export function matchesPrefix(tagPath: string, prefix: string): boolean {
+function matchesPrefix(tagPath: string, prefix: string): boolean {
     const normalizedTag = normalizeTag(tagPath);
     const normalizedPrefix = normalizeTag(prefix);
 
@@ -96,32 +89,4 @@ export function findMatchingPrefixes(tagPath: string, prefixes: string[]): strin
     }
 
     return matchingPrefixes;
-}
-
-/**
- * Checks if a tag or any of its ancestors matches the given prefixes
- * Used for determining if a tag should show a favorite indicator
- *
- * @param tagPath - The tag path to check
- * @param prefixes - Array of prefixes to check against
- * @returns true if the tag or any ancestor matches a prefix
- */
-export function tagOrAncestorMatchesPrefix(tagPath: string, prefixes: string[]): boolean {
-    const normalizedTag = normalizeTag(tagPath);
-
-    // Check direct match first
-    if (matchesAnyPrefix(tagPath, prefixes)) {
-        return true;
-    }
-
-    // Check each ancestor
-    const parts = normalizedTag.split('/');
-    for (let i = parts.length - 1; i > 0; i--) {
-        const ancestor = parts.slice(0, i).join('/');
-        if (matchesAnyPrefix(ancestor, prefixes)) {
-            return true;
-        }
-    }
-
-    return false;
 }

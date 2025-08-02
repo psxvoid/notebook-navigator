@@ -508,12 +508,12 @@ export const STRINGS_EN = {
             },
             favoriteTags: {
                 name: 'Favorite tags',
-                desc: 'Comma-separated list of favorite tag prefixes. Adding a tag includes all its sub-tags.',
+                desc: 'Comma-separated list of tag prefixes. Adding a tag includes all its sub-tags (e.g., "photo" includes "photo/camera/fuji").',
                 placeholder: 'inbox, projects/work, daily/2025'
             },
             hiddenTags: {
                 name: 'Hidden tags',
-                desc: 'Comma-separated list of tag prefixes to hide from the tag tree. Hiding a tag also hides all its sub-tags.',
+                desc: 'Comma-separated list of tag prefixes to hide. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs").',
                 placeholder: 'internal, temp/drafts, archive/2024'
             },
             enableFolderNotes: {

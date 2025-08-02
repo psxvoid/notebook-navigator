@@ -508,13 +508,13 @@ export const STRINGS_ZH = {
             },
             favoriteTags: {
                 name: '收藏标签',
-                desc: '收藏标签模式的逗号分隔列表。支持精确匹配、通配符（*）和正则表达式（/模式/）。',
-                placeholder: '收件箱, 项目-*, /^日记-\\d{4}/'
+                desc: '标签前缀的逗号分隔列表。添加标签包含所有子标签（例如："photo"包含"photo/camera/fuji"）。',
+                placeholder: '收件箱, 项目/工作, 日记/2025'
             },
             hiddenTags: {
                 name: '隐藏标签',
-                desc: '要从标签树中隐藏的标签模式逗号分隔列表。支持精确匹配、通配符（*）和正则表达式（/模式/）。',
-                placeholder: '内部, 临时-*, /^归档-\\d{4}/'
+                desc: '要隐藏的标签前缀的逗号分隔列表。隐藏标签也会隐藏所有子标签（例如："归档"隐藏"归档/2024/docs"）。',
+                placeholder: '内部, 临时/草稿, 归档/2024'
             },
             enableFolderNotes: {
                 name: '启用文件夹笔记',
