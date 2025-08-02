@@ -101,6 +101,7 @@ To a modern, Notes-style interface like this:
    - **Cmd/Ctrl+Click** to add notes to selection
    - **Shift+Click** to select a range of notes
    - **Double-click** folders and tags to expand/collapse
+   - **Option/Alt+Click** on chevrons to expand/collapse all descendants
    - **Arrow keys** for navigation
    - **Tab** to switch between navigation pane and list pane
    - **Delete/Backspace** to delete (with optional confirmation)
