@@ -19,7 +19,6 @@
 import React, { forwardRef, useMemo, useCallback } from 'react';
 import { setIcon } from 'obsidian';
 import { useSettingsState } from '../context/SettingsContext';
-import { useMetadataService } from '../context/ServicesContext';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { getIconService } from '../services/icons';
 import { ItemType } from '../types';
@@ -49,6 +48,10 @@ interface TagTreeItemProps {
     showFileCount: boolean;
     /** Context indicating which section this tag is in */
     context?: 'favorites' | 'tags';
+    /** Custom color for the tag */
+    color?: string;
+    /** Custom icon for the tag */
+    icon?: string;
 }
 
 /**
@@ -57,11 +60,10 @@ interface TagTreeItemProps {
  */
 export const TagTreeItem = React.memo(
     forwardRef<HTMLDivElement, TagTreeItemProps>(function TagTreeItem(
-        { tagNode, level, isExpanded, isSelected, onToggle, onClick, onToggleAllSiblings, fileCount, showFileCount, context },
+        { tagNode, level, isExpanded, isSelected, onToggle, onClick, onToggleAllSiblings, fileCount, showFileCount, context, color, icon },
         ref
     ) {
         const settings = useSettingsState();
-        const metadataService = useMetadataService();
         const chevronRef = React.useRef<HTMLDivElement>(null);
         const iconRef = React.useRef<HTMLSpanElement>(null);
         const itemRef = React.useRef<HTMLDivElement>(null);
@@ -69,9 +71,9 @@ export const TagTreeItem = React.memo(
         // Memoize computed values
         const hasChildren = useMemo(() => tagNode.children.size > 0, [tagNode.children.size]);
 
-        const tagColor = useMemo(() => metadataService.getTagColor(tagNode.path), [metadataService, tagNode.path]);
-
-        const tagIcon = useMemo(() => metadataService.getTagIcon(tagNode.path), [metadataService, tagNode.path]);
+        // Use color and icon from props (passed from NavigationPane)
+        const tagColor = color;
+        const tagIcon = icon;
 
         // Memoize className to avoid string concatenation on every render
         const className = useMemo(() => {

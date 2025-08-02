@@ -646,6 +646,7 @@ export const NavigationPane = React.memo(
                                     }
                                 }}
                                 icon={metadataService.getFolderIcon(item.data.path)}
+                                color={metadataService.getFolderColor(item.data.path)}
                                 fileCount={folderCounts.get(item.data.path)}
                             />
                         );
@@ -684,6 +685,8 @@ export const NavigationPane = React.memo(
                                 onToggle={() => handleTagToggle(tagNode.path)}
                                 onClick={() => handleTagClick(tagNode.path, item.context)}
                                 context={'context' in item ? item.context : undefined}
+                                color={metadataService.getTagColor(tagNode.path)}
+                                icon={metadataService.getTagIcon(tagNode.path)}
                                 onToggleAllSiblings={() => {
                                     const isCurrentlyExpanded = expansionState.expandedTags.has(tagNode.path);
 

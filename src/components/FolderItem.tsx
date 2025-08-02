@@ -18,7 +18,7 @@
 
 import React, { useRef, useEffect, useMemo, useCallback } from 'react';
 import { TFolder, TFile, setTooltip, setIcon } from 'obsidian';
-import { useServices, useMetadataService } from '../context/ServicesContext';
+import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { strings } from '../i18n';
@@ -36,6 +36,7 @@ interface FolderItemProps {
     onNameClick?: () => void;
     onToggleAllSiblings?: () => void;
     icon?: string;
+    color?: string;
     fileCount?: number;
 }
 
@@ -63,11 +64,11 @@ export const FolderItem = React.memo(function FolderItem({
     onNameClick,
     onToggleAllSiblings,
     icon,
+    color,
     fileCount: precomputedFileCount
 }: FolderItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
-    const metadataService = useMetadataService();
     const folderRef = useRef<HTMLDivElement>(null);
 
     const chevronRef = React.useRef<HTMLDivElement>(null);
@@ -100,10 +101,11 @@ export const FolderItem = React.memo(function FolderItem({
     // NavigationPane pre-computes all folder counts for performance
     const fileCount = precomputedFileCount ?? 0;
 
-    // Memoize computed values
-    const hasChildren = useMemo(() => folder.children && folder.children.some(child => child instanceof TFolder), [folder.children]);
+    // Check if folder has children - not memoized because Obsidian mutates the children array
+    const hasChildren = folder.children && folder.children.some(child => child instanceof TFolder);
 
-    const customColor = useMemo(() => metadataService.getFolderColor(folder.path), [metadataService, folder.path]);
+    // Use color from props (passed from NavigationPane)
+    const customColor = color;
 
     const hasFolderNote = useMemo(() => {
         if (!settings.enableFolderNotes) return false;
