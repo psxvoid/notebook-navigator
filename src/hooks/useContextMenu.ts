@@ -123,13 +123,16 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 });
             } else if (isTagType(config.type)) {
                 if (typeof config.item !== 'string') return;
+                // Get context from data attribute if available
+                const context = (elementRef.current as HTMLElement).dataset?.tagContext as 'favorites' | 'tags' | undefined;
                 buildTagMenu({
                     tagPath: config.item,
                     menu,
                     services,
                     settings,
                     state,
-                    dispatchers
+                    dispatchers,
+                    context
                 });
             } else if (isFileType(config.type)) {
                 if (!(config.item instanceof TFile)) return;

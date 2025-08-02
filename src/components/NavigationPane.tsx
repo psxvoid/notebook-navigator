@@ -36,7 +36,7 @@ import type { CombinedNavigationItem } from '../types/virtualization';
 import { parseExcludedFolders, parseExcludedProperties, shouldExcludeFile, matchesFolderPattern } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
 import { shouldDisplayFile } from '../utils/fileTypeUtils';
-import { getTotalNoteCount, excludeFromTagTree } from '../utils/tagTree';
+import { getTotalNoteCount, excludeFromTagTree, findTagNode } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
 import { FolderItem } from './FolderItem';
 import { NavigationPaneHeader } from './NavigationPaneHeader';
@@ -281,10 +281,12 @@ export const NavigationPane = React.memo(
 
         // Handle tag click
         const handleTagClick = useCallback(
-            (tagPath: string) => {
-                // Check if clicking the same tag
+            (tagPath: string, context?: 'favorites' | 'tags') => {
+                // Check if clicking the same tag with same context
                 const isSameTag =
-                    selectionState.selectionType === 'tag' && selectionState.selectedTag && selectionState.selectedTag === tagPath;
+                    selectionState.selectionType === 'tag' &&
+                    selectionState.selectedTag === tagPath &&
+                    selectionState.selectedTagContext === context;
 
                 // If clicking the same tag, just handle view switching
                 if (isSameTag) {
@@ -298,7 +300,7 @@ export const NavigationPane = React.memo(
                     return;
                 }
 
-                selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
+                selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath, context });
 
                 // Auto-expand if enabled and tag has children
                 if (settings.autoExpandFoldersTags) {
@@ -331,6 +333,7 @@ export const NavigationPane = React.memo(
                 expansionState.expandedTags,
                 expansionDispatch,
                 selectionState.selectedTag,
+                selectionState.selectedTagContext,
                 selectionState.selectionType
             ]
         );
@@ -481,9 +484,14 @@ export const NavigationPane = React.memo(
                                 tagNode={tagNode}
                                 level={item.level ?? 0}
                                 isExpanded={expansionState.expandedTags.has(tagNode.path)}
-                                isSelected={selectionState.selectionType === ItemType.TAG && selectionState.selectedTag === tagNode.path}
+                                isSelected={
+                                    selectionState.selectionType === ItemType.TAG &&
+                                    selectionState.selectedTag === tagNode.path &&
+                                    selectionState.selectedTagContext === item.context
+                                }
                                 onToggle={() => handleTagToggle(tagNode.path)}
-                                onClick={() => handleTagClick(tagNode.path)}
+                                onClick={() => handleTagClick(tagNode.path, item.context)}
+                                context={'context' in item ? item.context : undefined}
                                 onToggleAllSiblings={() => {
                                     const isCurrentlyExpanded = expansionState.expandedTags.has(tagNode.path);
 
@@ -537,6 +545,7 @@ export const NavigationPane = React.memo(
                 selectionState.selectionType,
                 selectionState.selectedFolder?.path,
                 selectionState.selectedTag,
+                selectionState.selectedTagContext,
                 handleFolderToggle,
                 handleFolderClick,
                 handleFolderNameClick,
@@ -629,7 +638,7 @@ export const NavigationPane = React.memo(
                     const hiddenPatterns = settings.hiddenTags;
 
                     // Helper function to add untagged node
-                    const addUntaggedNode = (level: number) => {
+                    const addUntaggedNode = (level: number, context?: 'favorites' | 'tags') => {
                         if (settings.showUntagged && untaggedCount > 0) {
                             const untaggedNode: TagTreeNode = {
                                 path: UNTAGGED_TAG_ID,
@@ -642,7 +651,8 @@ export const NavigationPane = React.memo(
                                 type: NavigationPaneItemType.UNTAGGED,
                                 data: untaggedNode,
                                 key: UNTAGGED_TAG_ID,
-                                level
+                                level,
+                                context
                             });
                         }
                     };
@@ -664,13 +674,14 @@ export const NavigationPane = React.memo(
                             const items = flattenTagTree(
                                 Array.from(tags.values()),
                                 expansionState.expandedTags,
-                                1 // Start at level 1 since they're inside the virtual folder
+                                1, // Start at level 1 since they're inside the virtual folder
+                                folderId === 'favorite-tags-root' ? 'favorites' : 'tags'
                             );
                             tagItems.push(...items);
 
                             // Add untagged node to favorites folder if enabled
                             if (folderId === 'favorite-tags-root' && settings.showUntaggedInFavorites) {
-                                addUntaggedNode(1);
+                                addUntaggedNode(1, 'favorites');
                             }
 
                             // Add untagged node if this is the last tag container
@@ -678,7 +689,7 @@ export const NavigationPane = React.memo(
                             // If no favorites exist, always show untagged in Tags regardless of showUntaggedInFavorites
                             const shouldShowUntagged = favoritePatterns.length === 0 || !settings.showUntaggedInFavorites;
                             if (isLastContainer && shouldShowUntagged) {
-                                addUntaggedNode(1);
+                                addUntaggedNode(1, 'tags');
                             }
                         }
                     };
@@ -700,13 +711,14 @@ export const NavigationPane = React.memo(
                             const favoriteItems = flattenTagTree(
                                 Array.from(visibleFavoriteTree.values()),
                                 expansionState.expandedTags,
-                                0 // Start at level 0 since no virtual folder
+                                0, // Start at level 0 since no virtual folder
+                                'favorites'
                             );
                             tagItems.push(...favoriteItems);
 
                             // Add untagged after favorite tags when folder isn't shown
                             if (settings.showUntaggedInFavorites) {
-                                addUntaggedNode(0);
+                                addUntaggedNode(0, 'favorites');
                             }
                         }
 
@@ -719,13 +731,14 @@ export const NavigationPane = React.memo(
                             const nonFavoriteItems = flattenTagTree(
                                 Array.from(visibleTagTree.values()),
                                 expansionState.expandedTags,
-                                0 // Start at level 0 since no virtual folder
+                                0, // Start at level 0 since no virtual folder
+                                'tags'
                             );
                             tagItems.push(...nonFavoriteItems);
 
                             // Add untagged node at the end when not using folder and not in favorites
                             if (!settings.showUntaggedInFavorites) {
-                                addUntaggedNode(0);
+                                addUntaggedNode(0, 'tags');
                             }
                         }
                     } else {
@@ -739,12 +752,13 @@ export const NavigationPane = React.memo(
                             const items = flattenTagTree(
                                 Array.from(visibleTagTree.values()),
                                 expansionState.expandedTags,
-                                0 // Start at level 0 since no virtual folder
+                                0, // Start at level 0 since no virtual folder
+                                'tags'
                             );
                             tagItems.push(...items);
 
                             // Add untagged node at the end
-                            addUntaggedNode(0);
+                            addUntaggedNode(0, 'tags');
                         }
                     }
                 }
@@ -836,6 +850,36 @@ export const NavigationPane = React.memo(
             settings.favoriteTags.length,
             expansionState.expandedVirtualFolders,
             expansionDispatch
+        ]);
+
+        // Update tag context when favorite tags change
+        // Memoize the expected context to avoid redundant calculations
+        const expectedTagContext = useMemo(() => {
+            if (selectionState.selectionType !== 'tag' || !selectionState.selectedTag) {
+                return null;
+            }
+
+            // Check if tag exists in favorites
+            const tagInFavorites = findTagNode(favoriteTree, selectionState.selectedTag) !== null;
+            return tagInFavorites ? 'favorites' : 'tags';
+        }, [selectionState.selectionType, selectionState.selectedTag, favoriteTree]);
+
+        useEffect(() => {
+            // Only update if there's a mismatch
+            if (expectedTagContext && selectionState.selectedTagContext !== expectedTagContext && selectionState.selectedTag) {
+                selectionDispatch({
+                    type: 'SET_SELECTED_TAG',
+                    tag: selectionState.selectedTag,
+                    context: expectedTagContext,
+                    autoSelectedFile: selectionState.selectedFile
+                });
+            }
+        }, [
+            expectedTagContext,
+            selectionState.selectedTagContext,
+            selectionState.selectedTag,
+            selectionState.selectedFile,
+            selectionDispatch
         ]);
 
         // Scroll to selected folder/tag when needed

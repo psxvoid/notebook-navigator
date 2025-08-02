@@ -26,26 +26,13 @@ import { UNTAGGED_TAG_ID } from '../../types';
  * Builds the context menu for a tag
  */
 export function buildTagMenu(params: TagMenuBuilderParams): void {
-    const { tagPath, menu, services, settings } = params;
+    const { tagPath, menu, services, settings, context } = params;
     const { app, metadataService, plugin } = services;
 
     // Don't show favorites options for the Untagged virtual tag
     if (tagPath !== UNTAGGED_TAG_ID) {
-        // Check if this tag exists in the favoriteTree
-        const isFavorite = services.findTagInFavoriteTree ? services.findTagInFavoriteTree(tagPath) !== null : false;
-
-        if (!isFavorite) {
-            // Tag is not a favorite - show "Add to favorites"
-            menu.addItem((item: MenuItem) => {
-                item.setTitle(strings.contextMenu.tag.addToFavorites)
-                    .setIcon('star')
-                    .onClick(async () => {
-                        plugin.settings.favoriteTags = [...plugin.settings.favoriteTags, tagPath];
-                        await plugin.saveSettings();
-                    });
-            });
-        } else {
-            // Tag is a favorite - show "Remove from favorites"
+        if (context === 'favorites') {
+            // In favorites section - always show "Remove from favorites"
             menu.addItem((item: MenuItem) => {
                 item.setTitle(strings.contextMenu.tag.removeFromFavorites)
                     .setIcon('star-off')
@@ -59,6 +46,43 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                         await plugin.saveSettings();
                     });
             });
+        } else {
+            // In tags section - check for exact match in favorites array
+            const isExactFavorite = settings.favoriteTags.includes(tagPath);
+
+            if (!isExactFavorite) {
+                // Tag is not a favorite - show "Add to favorites"
+                menu.addItem((item: MenuItem) => {
+                    item.setTitle(strings.contextMenu.tag.addToFavorites)
+                        .setIcon('star')
+                        .onClick(async () => {
+                            // Clean up redundant entries when adding new favorite
+                            const cleanedFavorites = settings.favoriteTags.filter(existing => {
+                                // Remove entries that would become redundant
+                                // If we're adding "photo/camera", remove "photo/camera/fuji"
+                                return !existing.startsWith(tagPath + '/');
+                            });
+
+                            plugin.settings.favoriteTags = [...cleanedFavorites, tagPath];
+                            await plugin.saveSettings();
+                        });
+                });
+            } else {
+                // Tag is already a favorite - show "Remove from favorites"
+                menu.addItem((item: MenuItem) => {
+                    item.setTitle(strings.contextMenu.tag.removeFromFavorites)
+                        .setIcon('star-off')
+                        .onClick(async () => {
+                            // Find all patterns that match this tag
+                            const matchingPatterns = findMatchingFavoritePatterns(tagPath, settings.favoriteTags);
+
+                            // Remove all matching patterns from favorites
+                            plugin.settings.favoriteTags = settings.favoriteTags.filter(pattern => !matchingPatterns.includes(pattern));
+
+                            await plugin.saveSettings();
+                        });
+                });
+            }
         }
 
         menu.addSeparator();
@@ -101,9 +125,9 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
             });
     });
 
-    // Remove color (only show if custom color is set)
-    const currentColor = metadataService.getTagColor(tagPath);
-    if (currentColor) {
+    // Remove color (only show if custom color is set directly on this tag)
+    const hasDirectColor = settings.tagColors && settings.tagColors[tagPath];
+    if (hasDirectColor) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.tag.removeColor)
                 .setIcon('x')

@@ -95,7 +95,12 @@ export function flattenFolderTree(
  * @param level - Current nesting level (for indentation)
  * @returns Array of flattened tag items
  */
-export function flattenTagTree(tagNodes: TagTreeNode[], expandedTags: Set<string>, level: number = 0): TagTreeItem[] {
+export function flattenTagTree(
+    tagNodes: TagTreeNode[],
+    expandedTags: Set<string>,
+    level: number = 0,
+    context?: 'favorites' | 'tags'
+): TagTreeItem[] {
     const items: TagTreeItem[] = [];
 
     // Sort tags alphabetically
@@ -107,7 +112,8 @@ export function flattenTagTree(tagNodes: TagTreeNode[], expandedTags: Set<string
             data: node,
             level: currentLevel,
             path: node.path,
-            key: node.path
+            key: node.path,
+            context
         });
 
         // Add children if expanded and has children

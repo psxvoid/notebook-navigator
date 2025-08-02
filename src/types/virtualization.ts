@@ -48,6 +48,15 @@ export interface TagTreeItem {
     level: number;
     path?: string;
     key: string;
+    context?: 'favorites' | 'tags'; // Indicates which section this tag is in
+}
+
+export interface UntaggedItem {
+    type: typeof NavigationPaneItemType.UNTAGGED;
+    data: TagTreeNode;
+    level: number;
+    key: string;
+    context?: 'favorites' | 'tags'; // Indicates which section this item is in
 }
 
 export interface VirtualFolderItem {
@@ -61,6 +70,6 @@ export type CombinedNavigationItem =
     | FolderTreeItem
     | VirtualFolderItem
     | TagTreeItem
-    | { type: typeof NavigationPaneItemType.UNTAGGED; data: TagTreeNode; key: string; level?: number }
+    | UntaggedItem
     | { type: typeof NavigationPaneItemType.SPACER; key: string }
     | { type: typeof NavigationPaneItemType.LIST_SPACER; key: string };

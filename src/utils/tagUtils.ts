@@ -20,7 +20,7 @@ import { TFile } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { UNTAGGED_TAG_ID } from '../types';
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
-import { parsePatterns, findMatchingPatterns } from './tagPatternMatcher';
+import { findMatchingPrefixes } from './tagPrefixMatcher';
 
 /**
  * Gets normalized tags for a file (without # prefix and in lowercase)
@@ -143,7 +143,5 @@ export function determineTagToReveal(
  * @returns Array of original pattern strings that match this tag
  */
 export function findMatchingFavoritePatterns(tagPath: string, favoriteTags: string[]): string[] {
-    const favoritePatterns = parsePatterns(favoriteTags);
-    const matchingPatterns = findMatchingPatterns(tagPath, favoritePatterns);
-    return matchingPatterns.map(pattern => pattern.original);
+    return findMatchingPrefixes(tagPath, favoriteTags);
 }

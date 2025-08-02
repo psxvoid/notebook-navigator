@@ -28,7 +28,7 @@ import { useFileCache } from '../context/StorageContext';
 import { determineTagToReveal } from '../utils/tagUtils';
 import { ItemType } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
-import { parsePatterns, matchesAnyPattern } from '../utils/tagPatternMatcher';
+import { matchesAnyPrefix } from '../utils/tagPrefixMatcher';
 
 interface UseNavigatorRevealOptions {
     app: App;
@@ -54,7 +54,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
     const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
-    const { getDB, findTagInTree } = useFileCache();
+    const { getDB, findTagInTree, findTagInFavoriteTree } = useFileCache();
 
     // Auto-reveal state
     const [fileToReveal, setFileToReveal] = useState<TFile | null>(null);
@@ -127,11 +127,10 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
 
             // Check if we need to expand virtual folders based on settings
             if (settings.showTags) {
-                // Parse favorite patterns to determine which virtual folder contains this tag
-                const favoritePatterns = parsePatterns(settings.favoriteTags);
-                const isFavorite = favoritePatterns.length > 0 && matchesAnyPattern(tagPath, favoritePatterns);
+                // Check if this tag matches any favorite prefixes
+                const isFavorite = settings.favoriteTags.length > 0 && matchesAnyPrefix(tagPath, settings.favoriteTags);
 
-                if (favoritePatterns.length > 0) {
+                if (settings.favoriteTags.length > 0) {
                     // We have favorites configured
                     if (settings.showFavoriteTagsFolder && isFavorite) {
                         virtualFoldersToExpand.push('favorite-tags-root');
@@ -168,8 +167,12 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 expansionDispatch({ type: 'EXPAND_TAGS', tagPaths: tagsToExpand });
             }
 
-            // Select the tag
-            selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
+            // Determine context based on whether tag exists in favorites
+            const tagInFavorites = findTagInFavoriteTree(tagPath);
+            const context: 'favorites' | 'tags' = tagInFavorites ? 'favorites' : 'tags';
+
+            // Select the tag with context
+            selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath, context });
 
             // In single pane mode, switch to list pane view (same as revealFileInActualFolder)
             if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
@@ -200,7 +203,8 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             uiDispatch,
             settings,
             selectionState.selectedFile,
-            findTagInTree
+            findTagInTree,
+            findTagInFavoriteTree
         ]
     );
 

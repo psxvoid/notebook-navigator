@@ -29,6 +29,7 @@ export interface SelectionState {
     selectionType: NavigationItemType;
     selectedFolder: TFolder | null;
     selectedTag: string | null;
+    selectedTagContext?: 'favorites' | 'tags'; // Track which section the tag was selected from
     selectedFiles: Set<string>; // Changed from single file to Set of file paths
     anchorIndex: number | null; // Anchor position for multi-selection
     lastMovementDirection: 'up' | 'down' | null; // Track direction for expand/contract
@@ -43,7 +44,7 @@ export interface SelectionState {
 // Action types
 export type SelectionAction =
     | { type: 'SET_SELECTED_FOLDER'; folder: TFolder | null; autoSelectedFile?: TFile | null }
-    | { type: 'SET_SELECTED_TAG'; tag: string | null; autoSelectedFile?: TFile | null }
+    | { type: 'SET_SELECTED_TAG'; tag: string | null; context?: 'favorites' | 'tags'; autoSelectedFile?: TFile | null }
     | { type: 'SET_SELECTED_FILE'; file: TFile | null }
     | { type: 'SET_SELECTION_TYPE'; selectionType: NavigationItemType }
     | { type: 'CLEAR_SELECTION' }
@@ -129,6 +130,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             return {
                 ...state,
                 selectedTag: action.tag,
+                selectedTagContext: action.context,
                 selectedFolder: null,
                 selectionType: 'tag',
                 selectedFiles: newSelectedFiles,
@@ -175,6 +177,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 ...state,
                 selectedFolder: null,
                 selectedTag: null,
+                selectedTagContext: undefined,
                 selectedFiles: new Set<string>(),
                 selectedFile: null,
                 anchorIndex: null,
@@ -494,6 +497,14 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             console.error('Failed to load selected tag from localStorage:', error);
         }
 
+        // Load saved tag context with error handling
+        let savedTagContext: 'favorites' | 'tags' | null = null;
+        try {
+            savedTagContext = localStorage.get<'favorites' | 'tags'>(STORAGE_KEYS.selectedTagContextKey);
+        } catch (error) {
+            console.error('Failed to load selected tag context from localStorage:', error);
+        }
+
         // Load saved file path with error handling
         let savedFilePath: string | null = null;
         try {
@@ -526,6 +537,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             selectionType,
             selectedFolder,
             selectedTag: savedTag,
+            selectedTagContext: savedTagContext || undefined,
             selectedFiles,
             selectedFile,
             anchorIndex: null,
@@ -634,6 +646,19 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             console.error('Failed to save selected tag to localStorage:', error);
         }
     }, [state.selectedTag]);
+
+    // Persist selected tag context to localStorage with error handling
+    useEffect(() => {
+        try {
+            if (state.selectedTagContext) {
+                localStorage.set(STORAGE_KEYS.selectedTagContextKey, state.selectedTagContext);
+            } else {
+                localStorage.remove(STORAGE_KEYS.selectedTagContextKey);
+            }
+        } catch (error) {
+            console.error('Failed to save selected tag context to localStorage:', error);
+        }
+    }, [state.selectedTagContext]);
 
     // Persist selected file to localStorage with error handling
     useEffect(() => {

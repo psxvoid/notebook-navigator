@@ -95,6 +95,7 @@ export interface FolderMenuBuilderParams extends MenuBuilderParams {
  */
 export interface TagMenuBuilderParams extends MenuBuilderParams {
     tagPath: string;
+    context?: 'favorites' | 'tags';
 }
 
 /**

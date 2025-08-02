@@ -508,13 +508,13 @@ export const STRINGS_EN = {
             },
             favoriteTags: {
                 name: 'Favorite tags',
-                desc: 'Comma-separated list of favorite tag patterns. Supports exact match, wildcards (*), and regex (/pattern/).',
-                placeholder: 'inbox, project-*, /^daily-\\d{4}/'
+                desc: 'Comma-separated list of favorite tag prefixes. Adding a tag includes all its sub-tags.',
+                placeholder: 'inbox, projects/work, daily/2025'
             },
             hiddenTags: {
                 name: 'Hidden tags',
-                desc: 'Comma-separated list of tag patterns to hide from the tag tree. Supports exact match, wildcards (*), and regex (/pattern/).',
-                placeholder: 'internal, temp-*, /^archive-\\d{4}/'
+                desc: 'Comma-separated list of tag prefixes to hide from the tag tree. Hiding a tag also hides all its sub-tags.',
+                placeholder: 'internal, temp/drafts, archive/2024'
             },
             enableFolderNotes: {
                 name: 'Enable folder notes',

@@ -237,7 +237,8 @@ export function useVirtualKeyboardNavigation<T extends VirtualItem>({
                     navigationPaneItem.type === NavigationPaneItemType.UNTAGGED
                 ) {
                     const tagNode = navigationPaneItem.data as TagTreeNode;
-                    selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path });
+                    const context = 'context' in navigationPaneItem ? navigationPaneItem.context : undefined;
+                    selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path, context });
 
                     // Auto-expand if enabled and tag has children
                     if (settings.autoExpandFoldersTags && tagNode.children.size > 0) {

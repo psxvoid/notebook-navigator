@@ -47,6 +47,8 @@ interface TagTreeItemProps {
     fileCount: number;
     /** Whether to show file counts */
     showFileCount: boolean;
+    /** Context indicating which section this tag is in */
+    context?: 'favorites' | 'tags';
 }
 
 /**
@@ -55,7 +57,7 @@ interface TagTreeItemProps {
  */
 export const TagTreeItem = React.memo(
     forwardRef<HTMLDivElement, TagTreeItemProps>(function TagTreeItem(
-        { tagNode, level, isExpanded, isSelected, onToggle, onClick, onToggleAllSiblings, fileCount, showFileCount },
+        { tagNode, level, isExpanded, isSelected, onToggle, onClick, onToggleAllSiblings, fileCount, showFileCount, context },
         ref
     ) {
         const settings = useSettingsState();
@@ -111,6 +113,7 @@ export const TagTreeItem = React.memo(
                 data-tag={tagNode.path}
                 data-drop-zone="tag"
                 data-drop-path={tagNode.path}
+                data-tag-context={context}
                 style={{ paddingInlineStart: `${level * 20}px` }}
                 role="treeitem"
                 aria-expanded={hasChildren ? isExpanded : undefined}

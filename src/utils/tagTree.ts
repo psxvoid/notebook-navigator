@@ -19,7 +19,7 @@
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { TagTreeNode } from '../types/storage';
 import { isPathInExcludedFolder } from './fileFilters';
-import { parsePatterns, matchesPattern, matchesAnyPattern } from './tagPatternMatcher';
+import { matchesAnyPrefix } from './tagPrefixMatcher';
 
 /**
  * Tag Tree Utilities
@@ -60,12 +60,11 @@ export function buildTagTreeFromDatabase(
     excludedFolderPatterns?: string[],
     favoritePatterns: string[] = []
 ): { favoriteTree: Map<string, TagTreeNode>; tagTree: Map<string, TagTreeNode>; untagged: number } {
-    // Parse favorite patterns once
-    const parsedFavoritePatterns = parsePatterns(favoritePatterns);
+    // Favorite prefixes will be used for simple prefix matching
 
-    // Two flat lists to collect tags
-    const tagFavoriteList: string[] = [];
-    const tagList: string[] = [];
+    // Track all unique tags that exist in the vault
+    const allTagsSet = new Set<string>();
+    const tagFavoriteSet = new Set<string>();
     let untaggedCount = 0;
 
     // Track which case variant we saw first for each lowercased tag
@@ -77,7 +76,7 @@ export function buildTagTreeFromDatabase(
     // Get all files from cache
     const allFiles = db.getAllFiles();
 
-    // First pass: collect all tags into flat lists
+    // First pass: collect all tags and their file associations
     for (const { path, data: fileData } of allFiles) {
         // Skip files in excluded folders if patterns provided
         if (excludedFolderPatterns && isPathInExcludedFolder(path, excludedFolderPatterns)) {
@@ -106,16 +105,10 @@ export function buildTagTreeFromDatabase(
             if (!canonicalPath) {
                 canonicalPath = tagPath;
                 caseMap.set(lowerPath, canonicalPath);
-
-                // Check if this tag matches any favorite patterns directly
-                const isFavorite = matchesAnyPattern(canonicalPath, parsedFavoritePatterns);
-
-                if (isFavorite) {
-                    tagFavoriteList.push(canonicalPath);
-                } else {
-                    tagList.push(canonicalPath);
-                }
             }
+
+            // Add to all tags set
+            allTagsSet.add(canonicalPath);
 
             // Store file association
             if (!tagFiles.has(canonicalPath)) {
@@ -127,6 +120,36 @@ export function buildTagTreeFromDatabase(
             }
         }
     }
+
+    // Second pass: determine which tags go into favorites
+    // Include any tag that matches a favorite prefix AND all its ancestors
+
+    // First, collect all tags that match favorite patterns
+    const matchingTags = new Set<string>();
+    for (const tagPath of allTagsSet) {
+        if (matchesAnyPrefix(tagPath, favoritePatterns)) {
+            matchingTags.add(tagPath);
+        }
+    }
+
+    // Then add all matching tags and their ancestors to favorites
+    // This avoids redundant ancestor calculations
+    for (const tagPath of matchingTags) {
+        // Add this tag
+        tagFavoriteSet.add(tagPath);
+
+        // Add all its ancestors
+        const parts = tagPath.split('/');
+        let currentPath = '';
+        for (let i = 0; i < parts.length - 1; i++) {
+            currentPath = i === 0 ? parts[i] : `${currentPath}/${parts[i]}`;
+            tagFavoriteSet.add(currentPath);
+        }
+    }
+
+    // Convert to lists for building trees
+    const tagFavoriteList = Array.from(tagFavoriteSet);
+    const tagList = Array.from(allTagsSet).filter(tag => !tagFavoriteSet.has(tag));
 
     // Helper function to build a tree from a flat list
     const buildTreeFromList = (tagPaths: string[]): Map<string, TagTreeNode> => {
@@ -281,13 +304,12 @@ export function excludeFromTagTree(tree: Map<string, TagTreeNode>, excludePatter
     if (excludePatterns.length === 0) return tree;
 
     const filtered = new Map<string, TagTreeNode>();
-    const parsedPatterns = parsePatterns(excludePatterns);
 
     // Helper to recursively check and filter nodes
     // Returns null if node should be excluded, otherwise returns node with filtered children
     function shouldIncludeNode(node: TagTreeNode): TagTreeNode | null {
-        // Check if this tag matches any exclusion pattern
-        const shouldExclude = parsedPatterns.some(pattern => matchesPattern(node.path, pattern));
+        // Check if this tag matches any exclusion prefix
+        const shouldExclude = matchesAnyPrefix(node.path, excludePatterns);
 
         if (shouldExclude) {
             return null;
