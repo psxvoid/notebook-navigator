@@ -60,12 +60,11 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: true,
         new: [
             'Completely revamped the tag favorites system! You can now right-click any tag to add/remove from favorites! When adding a parent tag (e.g., "photo"), the system intelligently removes redundant child tags (e.g., "photo/camera") from favorites automatically.',
-            'Added Alt / Option + Click on folder or tag chevrons to expand/collapse all descendants recursively. Super efficient for managing large tag trees or folder structures.',
+            'Added Alt / Option + Click on folder or tag chevrons to expand/collapse all descendants recursively. Super efficient for managing large tag trees or folder structures.'
         ],
         improved: [
             'Tags in list pane will now use smart sorting: (1) Favorite tags will show first, then (2) Colored tags, then (3) uncolored normal tags. The goal here is to help you quickly find the items you are looking for, and hopefully this helps out if you have many tags assigned to your notes.',
-            'Tags now inherit their parent colors, so if you have a parent tag with a color, all child tags will automatically use that color unless they have their own color set.',
-            
+            'Tags now inherit their parent colors, so if you have a parent tag with a color, all child tags will automatically use that color unless they have their own color set.'
         ],
         fixed: ['Fixed an issue with auto reveal file where it sometimes would not scroll to the selected folder in navigation pane.']
     },
