@@ -20,7 +20,6 @@ import { TFile } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { UNTAGGED_TAG_ID } from '../types';
 import { IndexedDBStorage } from '../storage/IndexedDBStorage';
-import { findMatchingPrefixes } from './tagPrefixMatcher';
 
 /**
  * Gets normalized tags for a file (without # prefix and in lowercase)
@@ -134,14 +133,4 @@ export function determineTagToReveal(
     }
 
     return null;
-}
-
-/**
- * Finds all favorite tag patterns that match a given tag (including ancestor matches)
- * @param tagPath - The tag path to check (e.g., "foto/kamera/fuji")
- * @param favoriteTags - Array of favorite tag strings from settings
- * @returns Array of original pattern strings that match this tag
- */
-export function findMatchingFavoritePatterns(tagPath: string, favoriteTags: string[]): string[] {
-    return findMatchingPrefixes(tagPath, favoriteTags);
 }

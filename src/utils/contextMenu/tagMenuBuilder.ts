@@ -19,7 +19,7 @@
 import { MenuItem } from 'obsidian';
 import { TagMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
-import { findMatchingFavoritePatterns } from '../tagUtils';
+import { findMatchingPrefixes } from '../tagPrefixMatcher';
 import { UNTAGGED_TAG_ID } from '../../types';
 
 /**
@@ -38,7 +38,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                     .setIcon('star-off')
                     .onClick(async () => {
                         // Find all patterns that match this tag
-                        const matchingPatterns = findMatchingFavoritePatterns(tagPath, settings.favoriteTags);
+                        const matchingPatterns = findMatchingPrefixes(tagPath, settings.favoriteTags);
 
                         // Remove all matching patterns from favorites
                         plugin.settings.favoriteTags = settings.favoriteTags.filter(pattern => !matchingPatterns.includes(pattern));
@@ -74,7 +74,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                         .setIcon('star-off')
                         .onClick(async () => {
                             // Find all patterns that match this tag
-                            const matchingPatterns = findMatchingFavoritePatterns(tagPath, settings.favoriteTags);
+                            const matchingPatterns = findMatchingPrefixes(tagPath, settings.favoriteTags);
 
                             // Remove all matching patterns from favorites
                             plugin.settings.favoriteTags = settings.favoriteTags.filter(pattern => !matchingPatterns.includes(pattern));
