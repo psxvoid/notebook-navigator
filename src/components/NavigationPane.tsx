@@ -30,6 +30,7 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { strings } from '../i18n';
 import { UNTAGGED_TAG_ID, NavigationPaneItemType, ItemType, VirtualFolder, NAVITEM_HEIGHTS, OVERSCAN } from '../types';
+import { TIMEOUTS } from '../types/obsidian-extended';
 import { TagTreeNode } from '../types/storage';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import { parseExcludedFolders, parseExcludedProperties, shouldExcludeFile, matchesFolderPattern } from '../utils/fileFilters';
@@ -588,7 +589,7 @@ export const NavigationPane = React.memo(
             buildFolders();
 
             // Create debounced version for vault events
-            const rebuildFolders = debounce(buildFolders, 300);
+            const rebuildFolders = debounce(buildFolders, TIMEOUTS.DEBOUNCE_CONTENT);
 
             // Listen to vault events for folder changes
             const events = [

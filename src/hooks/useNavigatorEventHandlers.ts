@@ -18,6 +18,7 @@
 
 import { useEffect, RefObject, Dispatch, SetStateAction } from 'react';
 import { App, TAbstractFile, TFile, TFolder, debounce, Platform } from 'obsidian';
+import { TIMEOUTS } from '../types/obsidian-extended';
 import { useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState } from '../context/UIStateContext';
@@ -94,7 +95,7 @@ export function useNavigatorEventHandlers({ app, containerRef, setIsNavigatorFoc
         // Create debounced focus handlers to prevent rapid state changes
         const debouncedSetFocused = debounce((focused: boolean) => {
             setIsNavigatorFocused(focused);
-        }, 100);
+        }, TIMEOUTS.DEBOUNCE_KEYBOARD);
 
         const handleFocus = () => {
             debouncedSetFocused(true);

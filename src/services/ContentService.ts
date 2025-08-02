@@ -20,6 +20,7 @@ import { App, TFile, getAllTags } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { FileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { getDBInstance } from '../storage/fileOperations';
+import { TIMEOUTS } from '../types/obsidian-extended';
 import { isImageFile } from '../utils/fileTypeUtils';
 import { PreviewTextUtils } from '../utils/previewTextUtils';
 import { DateUtils } from '../utils/dateUtils';
@@ -245,7 +246,7 @@ export class ContentService {
         this.queueDebounceTimer = window.setTimeout(() => {
             this.queueDebounceTimer = null;
             this.startProcessing(settings);
-        }, 300); // 300ms debounce
+        }, TIMEOUTS.DEBOUNCE_CONTENT);
     }
 
     /**
@@ -486,7 +487,7 @@ export class ContentService {
             // Process next batch if there are more files
             if (this.queue.length > 0 && !this.abortController?.signal.aborted) {
                 // Use setImmediate/setTimeout to avoid blocking
-                setTimeout(() => this.processNextBatch(), 0);
+                setTimeout(() => this.processNextBatch(), TIMEOUTS.YIELD_TO_EVENT_LOOP);
             } else {
                 this.completeProcessing();
             }

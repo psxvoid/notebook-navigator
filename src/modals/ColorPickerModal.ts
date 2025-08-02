@@ -117,9 +117,10 @@ export class ColorPickerModal extends Modal {
         this.setupKeyboardNavigation();
 
         // Focus first color
-        setTimeout(() => {
+        // Use requestAnimationFrame to ensure DOM is ready
+        requestAnimationFrame(() => {
             this.focusFirstColor();
-        }, 50);
+        });
     }
 
     /**

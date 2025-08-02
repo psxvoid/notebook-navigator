@@ -78,7 +78,7 @@ export async function createFileWithOptions(parent: TFolder, app: App, options: 
                 // Note: This is a known workaround for a race condition in Obsidian and may fail on slower systems.
                 setTimeout(() => {
                     executeCommand(app, OBSIDIAN_COMMANDS.EDIT_FILE_TITLE);
-                }, TIMEOUTS.RENAME_MODE_DELAY);
+                }, TIMEOUTS.FILE_OPERATION_DELAY);
             }
         }
 

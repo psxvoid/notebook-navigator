@@ -84,22 +84,37 @@ export interface NavigatorWindowFlags {
  * Common timeout values used throughout the plugin
  */
 export const TIMEOUTS = {
-    /** Delay for auto-reveal clear operation */
-    AUTO_REVEAL_CLEAR: 100,
-    /** Threshold for detecting file creation vs rename */
-    FILE_CREATION_THRESHOLD: 200,
-    /** Delay for version history modal to open */
-    VERSION_HISTORY_DELAY: 500,
-    /** Delay for rename mode trigger */
-    RENAME_MODE_DELAY: 0,
-    /** Delay for focus restoration after deletion */
-    FOCUS_RESTORE_DELAY: 100,
-    /** Delay for drag image cleanup */
-    DRAG_IMAGE_CLEANUP: 0,
-    /** Debounce delay for resize observer */
-    RESIZE_DEBOUNCE: 100,
-    /** Throttle delay for keyboard navigation */
-    KEYBOARD_NAV_THROTTLE: 16
+    // Debounce Delays
+    /** Debounce for keyboard, focus, and search input */
+    DEBOUNCE_KEYBOARD: 100,
+    /** Debounce for content processing and tree updates */
+    DEBOUNCE_CONTENT: 300,
+    /** Debounce for cache rebuilds and heavy operations */
+    DEBOUNCE_CACHE: 1000,
+    /** Debounce for settings text input */
+    DEBOUNCE_SETTINGS: 1000,
+
+    // Throttle Delays
+    /** Throttle delay for keyboard navigation (60fps) */
+    KEYBOARD_THROTTLE: 16,
+
+    // Operation Delays
+    /** Delay for file system operations to complete */
+    FILE_OPERATION_DELAY: 100,
+
+    // Intervals
+    /** Interval for statistics refresh */
+    INTERVAL_STATISTICS: 1000,
+
+    // Notice Durations
+    /** Duration for error messages */
+    NOTICE_ERROR: 2000,
+    /** Duration for help messages */
+    NOTICE_HELP: 10000,
+
+    // Special
+    /** Yields control to the event loop, allowing pending operations to complete */
+    YIELD_TO_EVENT_LOOP: 0
 } as const;
 
 /**

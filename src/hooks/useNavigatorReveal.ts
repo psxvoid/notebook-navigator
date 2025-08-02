@@ -27,6 +27,7 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
 import { determineTagToReveal } from '../utils/tagUtils';
 import { ItemType } from '../types';
+import { TIMEOUTS } from '../types/obsidian-extended';
 import { parsePatterns, matchesAnyPattern } from '../utils/tagPatternMatcher';
 
 interface UseNavigatorRevealOptions {
@@ -351,7 +352,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             const timer = setTimeout(() => {
                 setFileToReveal(null);
                 setIsStartupReveal(false);
-            }, 100);
+            }, TIMEOUTS.DEBOUNCE_KEYBOARD);
             return () => clearTimeout(timer);
         }
     }, [fileToReveal]);
@@ -387,7 +388,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             activeFileRef.current = file.path;
 
             // Check if this is a newly created file (any file created within last 100ms)
-            const isRecentlyCreated = file.stat.ctime === file.stat.mtime && Date.now() - file.stat.ctime < 100;
+            const isRecentlyCreated = file.stat.ctime === file.stat.mtime && Date.now() - file.stat.ctime < TIMEOUTS.FILE_OPERATION_DELAY;
 
             // Always reveal newly created files
             if (isRecentlyCreated) {

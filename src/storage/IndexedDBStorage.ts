@@ -1,4 +1,5 @@
 import { STORAGE_KEYS } from '../types';
+import { TIMEOUTS } from '../types/obsidian-extended';
 import { localStorage } from '../utils/localStorage';
 /*
  * Notebook Navigator - Plugin for Obsidian
@@ -484,7 +485,7 @@ export class IndexedDBStorage {
 
                         // Emit tag changes after transaction completes
                         if (tagChanges.length > 0) {
-                            setTimeout(() => this.emitChanges(tagChanges), 0);
+                            setTimeout(() => this.emitChanges(tagChanges), TIMEOUTS.YIELD_TO_EVENT_LOOP);
                         }
 
                         resolve();

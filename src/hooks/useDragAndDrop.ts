@@ -25,6 +25,7 @@ import { useSettingsState } from '../context/SettingsContext';
 import { strings } from '../i18n';
 import { getDBInstance } from '../storage/fileOperations';
 import { ItemType, UNTAGGED_TAG_ID } from '../types';
+import { TIMEOUTS } from '../types/obsidian-extended';
 import { getPathFromDataAttribute } from '../utils/domUtils';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 
@@ -149,7 +150,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     document.body.appendChild(dragContainer);
                     // Use negative offset to position icon bottom-right of cursor
                     e.dataTransfer.setDragImage(dragContainer, -10, -10);
-                    setTimeout(() => document.body.removeChild(dragContainer), 0);
+                    setTimeout(() => document.body.removeChild(dragContainer), TIMEOUTS.YIELD_TO_EVENT_LOOP);
                 } else {
                     // Single item drag
                     e.dataTransfer.setData('obsidian/file', path);
@@ -205,7 +206,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         document.body.appendChild(dragContainer);
                         // Use negative offset to position icon bottom-right of cursor
                         e.dataTransfer.setDragImage(dragContainer, -5, -5);
-                        setTimeout(() => document.body.removeChild(dragContainer), 0);
+                        setTimeout(() => document.body.removeChild(dragContainer), TIMEOUTS.YIELD_TO_EVENT_LOOP);
                     }
                 }
             }
@@ -310,7 +311,10 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         );
                     }
                     if (skipped > 0) {
-                        new Notice(strings.dragDrop.notifications.filesAlreadyHaveTag.replace('{count}', skipped.toString()), 2000);
+                        new Notice(
+                            strings.dragDrop.notifications.filesAlreadyHaveTag.replace('{count}', skipped.toString()),
+                            TIMEOUTS.NOTICE_ERROR
+                        );
                     }
                 } catch (error) {
                     console.error('Error adding tag:', error);

@@ -360,7 +360,7 @@ export class FileSystemOperations {
                 if (fileListEl) {
                     fileListEl.focus();
                 }
-            }, TIMEOUTS.FOCUS_RESTORE_DELAY);
+            }, TIMEOUTS.FILE_OPERATION_DELAY);
         });
     }
 
@@ -399,7 +399,7 @@ export class FileSystemOperations {
             const sourceItem = files[0];
             if (sourceItem instanceof TFolder && this.isDescendant(sourceItem, targetFolder)) {
                 if (showNotifications) {
-                    new Notice(strings.dragDrop.errors.cannotMoveIntoSelf, 2000);
+                    new Notice(strings.dragDrop.errors.cannotMoveIntoSelf, TIMEOUTS.NOTICE_ERROR);
                 }
                 result.errors.push({
                     file: sourceItem,
@@ -458,7 +458,7 @@ export class FileSystemOperations {
                     files.length === 1
                         ? strings.dragDrop.errors.itemAlreadyExists.replace('{name}', files[0].name)
                         : strings.dragDrop.notifications.filesAlreadyExist.replace('{count}', result.skippedCount.toString());
-                new Notice(message, 2000);
+                new Notice(message, TIMEOUTS.NOTICE_ERROR);
             }
 
             if (result.errors.length > 0 && files.length === 1) {
@@ -734,7 +734,7 @@ export class FileSystemOperations {
             await this.app.workspace.openLinkText(file.path, '', false);
 
             // Small delay to ensure the editor is ready
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, TIMEOUTS.FILE_OPERATION_DELAY));
 
             // Execute the version history command
             if (!executeCommand(this.app, OBSIDIAN_COMMANDS.VERSION_HISTORY)) {
@@ -746,7 +746,7 @@ export class FileSystemOperations {
             // Clear the flag after a delay to ensure the modal has time to open
             setTimeout(() => {
                 delete window.notebookNavigatorOpeningVersionHistory;
-            }, TIMEOUTS.VERSION_HISTORY_DELAY);
+            }, TIMEOUTS.DEBOUNCE_CACHE);
         }
     }
 

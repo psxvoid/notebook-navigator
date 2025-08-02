@@ -41,6 +41,7 @@
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode, useMemo, useCallback } from 'react';
 import { App, TFile, debounce } from 'obsidian';
+import { TIMEOUTS } from '../types/obsidian-extended';
 import { ContentService, ProcessedMetadata } from '../services/ContentService';
 import { IndexedDBStorage, FileData as DBFileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { calculateFileDiff } from '../storage/diffCalculator';
@@ -666,7 +667,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         };
 
         // Create debounced version for events (increased to 500ms to reduce duplicate processing)
-        const rebuildFileCache = debounce(() => buildFileCache(false), 500);
+        const rebuildFileCache = debounce(() => buildFileCache(false), TIMEOUTS.DEBOUNCE_CACHE);
 
         // Only build initial cache if IndexedDB is ready and we haven't built it yet
         if (isIndexedDBReady && !hasBuiltInitialCache.current) {
