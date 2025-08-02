@@ -130,13 +130,13 @@ export class ColorPickerModal extends Modal {
      */
     onClose() {
         const { contentEl } = this;
-        
+
         // Remove event listener if it was added
         if (this.keydownHandler) {
             contentEl.removeEventListener('keydown', this.keydownHandler);
             this.keydownHandler = null;
         }
-        
+
         contentEl.empty();
     }
 
@@ -233,7 +233,7 @@ export class ColorPickerModal extends Modal {
                 }
             }
         };
-        
+
         this.contentEl.addEventListener('keydown', this.keydownHandler);
     }
 
