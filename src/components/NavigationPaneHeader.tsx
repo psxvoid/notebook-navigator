@@ -147,17 +147,6 @@ export function NavigationPaneHeader({ onHeaderClick }: NavigationPaneHeaderProp
             <div className="nn-pane-header" onClick={onHeaderClick}>
                 <div className="nn-header-actions nn-header-actions--flex-end">
                     <button
-                        className="nn-icon-button"
-                        aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
-                        onClick={e => {
-                            e.stopPropagation();
-                            handleExpandCollapseAll();
-                        }}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'} />
-                    </button>
-                    <button
                         className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}
                         aria-label={strings.paneHeader.autoExpandFoldersTags}
                         onClick={e => {
@@ -167,6 +156,17 @@ export function NavigationPaneHeader({ onHeaderClick }: NavigationPaneHeaderProp
                         tabIndex={-1}
                     >
                         <ObsidianIcon name="folder-tree" />
+                    </button>
+                    <button
+                        className="nn-icon-button"
+                        aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
+                        onClick={e => {
+                            e.stopPropagation();
+                            handleExpandCollapseAll();
+                        }}
+                        tabIndex={-1}
+                    >
+                        <ObsidianIcon name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'} />
                     </button>
                     <button
                         className="nn-icon-button"
@@ -202,20 +202,20 @@ export function NavigationPaneHeader({ onHeaderClick }: NavigationPaneHeaderProp
                 </button>
                 <div className="nn-header-actions">
                     <button
-                        className="nn-icon-button"
-                        aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
-                        onClick={handleExpandCollapseAll}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'} />
-                    </button>
-                    <button
                         className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}
                         aria-label={strings.paneHeader.autoExpandFoldersTags}
                         onClick={handleToggleAutoExpand}
                         tabIndex={-1}
                     >
                         <ObsidianIcon name="folder-tree" />
+                    </button>
+                    <button
+                        className="nn-icon-button"
+                        aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
+                        onClick={handleExpandCollapseAll}
+                        tabIndex={-1}
+                    >
+                        <ObsidianIcon name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'} />
                     </button>
                     <button
                         className="nn-icon-button"
