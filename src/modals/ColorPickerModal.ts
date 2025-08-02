@@ -69,6 +69,7 @@ export class ColorPickerModal extends Modal {
     private itemPath: string;
     private itemType: typeof ItemType.FOLDER | typeof ItemType.TAG;
     private metadataService: MetadataService;
+    private keydownHandler: ((e: KeyboardEvent) => void) | null = null;
 
     /** Callback function invoked when a color is selected */
     public onChooseColor: (color: string | null) => void;
@@ -129,6 +130,13 @@ export class ColorPickerModal extends Modal {
      */
     onClose() {
         const { contentEl } = this;
+        
+        // Remove event listener if it was added
+        if (this.keydownHandler) {
+            contentEl.removeEventListener('keydown', this.keydownHandler);
+            this.keydownHandler = null;
+        }
+        
         contentEl.empty();
     }
 
@@ -164,7 +172,7 @@ export class ColorPickerModal extends Modal {
      * Arrow keys navigate the grid, Enter/Space selects
      */
     private setupKeyboardNavigation() {
-        this.contentEl.addEventListener('keydown', e => {
+        this.keydownHandler = (e: KeyboardEvent) => {
             const colorItems = Array.from(this.colorGrid.querySelectorAll('.nn-color-item')) as HTMLElement[];
             if (colorItems.length === 0) return;
 
@@ -224,7 +232,9 @@ export class ColorPickerModal extends Modal {
                     colorItems[newIndex].focus();
                 }
             }
-        });
+        };
+        
+        this.contentEl.addEventListener('keydown', this.keydownHandler);
     }
 
     /**
