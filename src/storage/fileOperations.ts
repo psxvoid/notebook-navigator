@@ -109,13 +109,13 @@ export async function recordFileChanges(files: TFile[], existingData: Map<string
                 // File was modified - DON'T update the database mtime yet
                 // Content providers check if db.mtime != file.mtime to detect changes
                 // By keeping the old mtime, providers will see the mismatch and regenerate
-                // After regeneration, they'll update mtime to match the file
+                // Keep existing content to avoid flicker - providers will update it
                 const fileData: FileData = {
                     mtime: existing.mtime, // Keep OLD mtime temporarily
-                    tags: null, // Clear to force regeneration
-                    preview: null, // Clear to force regeneration
-                    featureImage: null, // Clear to force regeneration
-                    metadata: null // Clear to force regeneration
+                    tags: existing.tags, // Keep existing to avoid flicker
+                    preview: existing.preview, // Keep existing to avoid flicker
+                    featureImage: existing.featureImage, // Keep existing to avoid flicker
+                    metadata: existing.metadata // Keep existing to avoid flicker
                 };
                 updates.push({ path: file.path, data: fileData });
             } else {

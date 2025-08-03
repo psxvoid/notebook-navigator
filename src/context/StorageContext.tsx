@@ -558,7 +558,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                     const db = getDBInstance();
                     const existingData = db.getFiles([file.path]);
 
-                    // Record the file change - this clears content but keeps old mtime
+                    // Record the file change - this keeps old mtime without clearing content
                     await recordFileChanges([file], existingData);
 
                     // Content providers will detect the mtime mismatch (db.mtime != file.mtime) and regenerate
