@@ -24,7 +24,7 @@ import { useServices } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useDragAndDrop } from '../hooks/useDragAndDrop';
-import { useFileReveal } from '../hooks/useFileReveal';
+import { useNavigatorReveal } from '../hooks/useNavigatorReveal';
 import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
 import { useResizablePane } from '../hooks/useResizablePane';
 import { useMobileSwipeNavigation } from '../hooks/useSwipeGesture';
@@ -64,7 +64,7 @@ export interface NotebookNavigatorHandle {
  */
 export const NotebookNavigatorComponent = React.memo(
     forwardRef<NotebookNavigatorHandle>(function NotebookNavigatorComponent(_, ref) {
-        const { app, isMobile, fileSystemOps, plugin, tagTreeService } = useServices();
+        const { app, isMobile, fileSystemOps, plugin, tagTreeService, commandQueue } = useServices();
         const settings = useSettingsState();
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
@@ -88,8 +88,8 @@ export const NotebookNavigatorComponent = React.memo(
             storageKey: STORAGE_KEYS.navigationPaneWidthKey
         });
 
-        // Use file reveal logic
-        const { navigateToFile, navigateToFolder } = useFileReveal({ app, navigationPaneRef, listPaneRef });
+        // Use navigator reveal logic
+        const { revealFileInActualFolder, navigateToFolder } = useNavigatorReveal({ app, navigationPaneRef, listPaneRef });
 
         // Use tag navigation logic
         const { navigateToTag } = useTagNavigation();
@@ -150,7 +150,7 @@ export const NotebookNavigatorComponent = React.memo(
         useImperativeHandle(
             ref,
             () => ({
-                navigateToFile,
+                navigateToFile: revealFileInActualFolder,
                 focusFilePane: () => {
                     // In single pane mode, switch to file list view
                     if (uiState.singlePane && uiState.currentSinglePaneView === 'navigation') {
@@ -160,7 +160,7 @@ export const NotebookNavigatorComponent = React.memo(
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                     // Focus the container to ensure keyboard navigation works
                     // Don't steal focus if we're opening version history
-                    const isOpeningVersionHistory = window.notebookNavigatorOpeningVersionHistory;
+                    const isOpeningVersionHistory = commandQueue?.isOpeningVersionHistory() || false;
                     if (!isOpeningVersionHistory) {
                         containerRef.current?.focus();
                     }
@@ -201,10 +201,7 @@ export const NotebookNavigatorComponent = React.memo(
                     }
 
                     // Use the same logic as the context menu
-                    const file = await fileSystemOps.createNewFile(selectionState.selectedFolder);
-                    if (file) {
-                        uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: file.path });
-                    }
+                    await fileSystemOps.createNewFile(selectionState.selectedFolder);
                 },
                 moveSelectedFiles: async () => {
                     // Get selected files
@@ -269,7 +266,7 @@ export const NotebookNavigatorComponent = React.memo(
                 }
             }),
             [
-                navigateToFile,
+                revealFileInActualFolder,
                 uiDispatch,
                 updateSettings,
                 selectionState,
@@ -283,7 +280,8 @@ export const NotebookNavigatorComponent = React.memo(
                 app,
                 settings,
                 plugin,
-                tagTreeService
+                tagTreeService,
+                commandQueue
             ]
         );
 

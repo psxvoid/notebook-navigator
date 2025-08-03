@@ -16,6 +16,34 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * OPTIMIZATIONS:
+ *
+ * 1. React.memo - Component only re-renders when props actually change
+ *
+ * 2. Memoized values:
+ *    - displayName: Cached computation of file display name from frontmatter/filename
+ *    - displayDate: Cached date formatting to avoid repeated date calculations
+ *    - showExtensionBadge: Cached logic for when to show file extension badges
+ *    - className: Cached CSS class string to avoid string concatenation on each render
+ *
+ * 3. Stable callbacks:
+ *    - handleTagClick: Memoized to prevent re-creating function on each render
+ *
+ * 4. Content subscription optimization:
+ *    - Single useEffect subscribes to all content changes (preview, tags, feature image)
+ *    - Uses file.path as dependency to properly handle file renames
+ *    - Direct memory cache access via getDB() for synchronous data retrieval
+ *
+ * 5. Lazy loading:
+ *    - Preview text, tags, and feature images are loaded asynchronously
+ *    - Initial render shows skeleton, then updates when content is available
+ *
+ * 6. Image optimization:
+ *    - Feature images use native browser lazy loading
+ *    - Resource paths are cached to avoid repeated vault.getResourcePath calls
+ */
+
 import React, { useRef, useMemo, useEffect, useState, useCallback } from 'react';
 import { TFile, setTooltip } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
@@ -67,7 +95,7 @@ export const FileItem = React.memo(function FileItem({
 }: FileItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
-    const { getFileDisplayName, getDB, getFileCreatedTime, getFileModifiedTime } = useFileCache();
+    const { getFileDisplayName, getDB, getFileCreatedTime, getFileModifiedTime, findTagInFavoriteTree } = useFileCache();
     const fileRef = useRef<HTMLDivElement>(null);
     const { navigateToTag } = useTagNavigation();
     const metadataService = useMetadataService();
@@ -105,15 +133,42 @@ export const FileItem = React.memo(function FileItem({
         [metadataService]
     );
 
+    // Categorize tags by priority: favorites first, then colored, then regular
+    const categorizedTags = useMemo(() => {
+        if (tags.length === 0) return tags;
+
+        // Categorize tags
+        const favoriteTags: string[] = [];
+        const coloredTags: string[] = [];
+        const regularTags: string[] = [];
+
+        tags.forEach(tag => {
+            // Check if it's a favorite tag by looking in the favoriteTree
+            const isFavorite = findTagInFavoriteTree(tag) !== null;
+
+            if (isFavorite) {
+                favoriteTags.push(tag);
+            } else if (getTagColor(tag)) {
+                // Check if it has a custom color
+                coloredTags.push(tag);
+            } else {
+                regularTags.push(tag);
+            }
+        });
+
+        // Combine in priority order without sorting
+        return [...favoriteTags, ...coloredTags, ...regularTags];
+    }, [tags, findTagInFavoriteTree, getTagColor]);
+
     // Render tags - extracted to avoid duplication
     const renderTags = useCallback(() => {
-        if (!settings.showTags || !settings.showFileTags || tags.length === 0) {
+        if (!settings.showTags || !settings.showFileTags || categorizedTags.length === 0) {
             return null;
         }
 
         return (
             <div className="nn-file-tags">
-                {tags.map((tag, index) => {
+                {categorizedTags.map((tag, index) => {
                     const tagColor = getTagColor(tag);
                     return (
                         <span
@@ -130,7 +185,7 @@ export const FileItem = React.memo(function FileItem({
                 })}
             </div>
         );
-    }, [settings.showTags, settings.showFileTags, tags, getTagColor, handleTagClick]);
+    }, [settings.showTags, settings.showFileTags, categorizedTags, getTagColor, handleTagClick]);
 
     // Format display date based on current sort
     const displayDate = useMemo(() => {
@@ -170,7 +225,15 @@ export const FileItem = React.memo(function FileItem({
         (featureImageUrl || // Has an actual image
             (file.extension !== 'md' && !isImageFile(file))); // Non-markdown, non-image files show extension badge
 
-    const className = `nn-file-item ${isSelected ? 'nn-selected' : ''} ${isSlimMode ? 'nn-slim' : ''} ${isSelected && hasSelectedAbove ? 'nn-has-selected-above' : ''} ${isSelected && hasSelectedBelow ? 'nn-has-selected-below' : ''}`;
+    // Memoize className to avoid string concatenation on every render
+    const className = useMemo(() => {
+        const classes = ['nn-file-item'];
+        if (isSelected) classes.push('nn-selected');
+        if (isSlimMode) classes.push('nn-slim');
+        if (isSelected && hasSelectedAbove) classes.push('nn-has-selected-above');
+        if (isSelected && hasSelectedBelow) classes.push('nn-has-selected-below');
+        return classes.join(' ');
+    }, [isSelected, isSlimMode, hasSelectedAbove, hasSelectedBelow]);
 
     // Single subscription for all content changes
     useEffect(() => {
@@ -178,7 +241,7 @@ export const FileItem = React.memo(function FileItem({
 
         // Initial load of all data
         if (settings.showFilePreview && file.extension === 'md') {
-            setPreviewText(db.getDisplayPreviewText(file.path));
+            setPreviewText(db.getCachedPreviewText(file.path));
         } else {
             setPreviewText('');
         }
@@ -192,7 +255,7 @@ export const FileItem = React.memo(function FileItem({
                     setFeatureImageUrl(null);
                 }
             } else {
-                const imagePath = db.getDisplayFeatureImageUrl(file.path);
+                const imagePath = db.getCachedFeatureImageUrl(file.path);
 
                 // If we have a path, convert it to a URL
                 if (imagePath) {
@@ -215,7 +278,7 @@ export const FileItem = React.memo(function FileItem({
             setFeatureImageUrl(null);
         }
 
-        const initialTags = db.getDisplayTags(file.path);
+        const initialTags = db.getCachedTags(file.path);
         setTags(initialTags);
 
         // Subscribe to changes for this specific file
@@ -249,7 +312,8 @@ export const FileItem = React.memo(function FileItem({
         return () => {
             unsubscribe();
         };
-    }, [file, settings.showFilePreview, settings.showFeatureImage, getDB, app]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- file.path is needed to resubscribe when file is renamed
+    }, [file.path, settings.showFilePreview, settings.showFeatureImage, getDB, app]);
 
     // Add Obsidian tooltip (desktop only)
     useEffect(() => {
@@ -302,7 +366,7 @@ export const FileItem = React.memo(function FileItem({
             data-drag-path={file.path}
             data-drag-type="file"
             data-draggable={!isMobile ? 'true' : undefined}
-            onClick={e => onClick(e)}
+            onClick={onClick}
             draggable={!isMobile}
             role="listitem"
         >

@@ -28,19 +28,16 @@ import { ExtendedApp } from '../../types/obsidian-extended';
  */
 export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     const { folder, menu, services, settings, state, dispatchers } = params;
-    const { app, fileSystemOps, metadataService } = services;
+    const { app, fileSystemOps, metadataService, commandQueue } = services;
     const { selectionState, expandedFolders } = state;
-    const { selectionDispatch, expansionDispatch, uiDispatch } = dispatchers;
+    const { selectionDispatch, expansionDispatch } = dispatchers;
 
     // New note
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.folder.newNote)
             .setIcon('pen-box')
             .onClick(async () => {
-                const file = await fileSystemOps.createNewFile(folder);
-                if (file) {
-                    uiDispatch({ type: 'SET_NEWLY_CREATED_PATH', path: file.path });
-                }
+                await fileSystemOps.createNewFile(folder);
             });
     });
 
@@ -120,14 +117,16 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
             });
     });
 
-    // Reveal in system explorer
-    menu.addItem((item: MenuItem) => {
-        item.setTitle(fileSystemOps.getRevealInSystemExplorerText())
-            .setIcon('folder-open')
-            .onClick(async () => {
-                await fileSystemOps.revealInSystemExplorer(folder);
-            });
-    });
+    // Reveal in system explorer - desktop only
+    if (!services.isMobile) {
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(fileSystemOps.getRevealInSystemExplorerText())
+                .setIcon('folder-open')
+                .onClick(async () => {
+                    await fileSystemOps.revealInSystemExplorer(folder);
+                });
+        });
+    }
 
     // Folder note operations
     if (settings.enableFolderNotes) {
@@ -161,17 +160,23 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                             return;
                         }
 
-                        const file = await app.vault.create(notePath, '');
+                        // Create content with frontmatter if folderNoteProperties are set
+                        let content = '';
+                        if (settings.folderNoteProperties.length > 0) {
+                            const properties = settings.folderNoteProperties.map(prop => `${prop}: true`).join('\n');
+                            content = `---\n${properties}\n---\n`;
+                        }
 
-                        // Set a temporary flag to prevent auto-reveal
-                        window.notebookNavigatorOpeningFolderNote = true;
+                        const file = await app.vault.create(notePath, content);
 
-                        await app.workspace.getLeaf().openFile(file);
-
-                        // Clear the flag after a short delay
-                        setTimeout(() => {
-                            delete window.notebookNavigatorOpeningFolderNote;
-                        }, 100);
+                        if (commandQueue) {
+                            await commandQueue.executeOpenFolderNote(folder.path, async () => {
+                                await app.workspace.getLeaf().openFile(file);
+                            });
+                        } else {
+                            // Fallback: just open the file without command queue
+                            await app.workspace.getLeaf().openFile(file);
+                        }
                     });
             });
         }

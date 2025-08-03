@@ -37,6 +37,8 @@ export type ExpansionAction =
     | { type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED'; folderId: string }
     | { type: 'EXPAND_FOLDERS'; folderPaths: string[] }
     | { type: 'EXPAND_TAGS'; tagPaths: string[] }
+    | { type: 'TOGGLE_DESCENDANT_FOLDERS'; descendantPaths: string[]; expand: boolean }
+    | { type: 'TOGGLE_DESCENDANT_TAGS'; descendantPaths: string[]; expand: boolean }
     | { type: 'CLEANUP_DELETED_FOLDERS'; existingPaths: Set<string> }
     | { type: 'CLEANUP_DELETED_TAGS'; existingTags: Set<string> };
 
@@ -95,6 +97,30 @@ function expansionReducer(state: ExpansionState, action: ExpansionAction): Expan
         case 'EXPAND_TAGS': {
             const newExpanded = new Set(state.expandedTags);
             action.tagPaths.forEach(path => newExpanded.add(path));
+            return { ...state, expandedTags: newExpanded };
+        }
+
+        case 'TOGGLE_DESCENDANT_FOLDERS': {
+            const newExpanded = new Set(state.expandedFolders);
+            action.descendantPaths.forEach(path => {
+                if (action.expand) {
+                    newExpanded.add(path);
+                } else {
+                    newExpanded.delete(path);
+                }
+            });
+            return { ...state, expandedFolders: newExpanded };
+        }
+
+        case 'TOGGLE_DESCENDANT_TAGS': {
+            const newExpanded = new Set(state.expandedTags);
+            action.descendantPaths.forEach(path => {
+                if (action.expand) {
+                    newExpanded.add(path);
+                } else {
+                    newExpanded.delete(path);
+                }
+            });
             return { ...state, expandedTags: newExpanded };
         }
 

@@ -126,7 +126,9 @@ export const STRINGS_ES = {
             changeIcon: 'Cambiar icono',
             removeIcon: 'Quitar icono',
             changeColor: 'Cambiar color',
-            removeColor: 'Quitar color'
+            removeColor: 'Quitar color',
+            addToFavorites: 'Añadir a favoritos',
+            removeFromFavorites: 'Quitar de favoritos'
         }
     },
 
@@ -507,13 +509,13 @@ export const STRINGS_ES = {
             },
             favoriteTags: {
                 name: 'Etiquetas favoritas',
-                desc: 'Lista separada por comas de patrones de etiquetas favoritas. Admite coincidencia exacta, comodines (*) y regex (/patrón/).',
-                placeholder: 'bandeja, proyecto-*, /^diario-\\d{4}/'
+                desc: 'Lista separada por comas de prefijos de etiquetas. Añadir una etiqueta incluye todas sus sub-etiquetas (ej. "photo" incluye "photo/camera/fuji").',
+                placeholder: 'bandeja, proyectos/trabajo, diario/2025'
             },
             hiddenTags: {
                 name: 'Etiquetas ocultas',
-                desc: 'Lista separada por comas de patrones de etiquetas para ocultar del árbol de etiquetas. Admite coincidencia exacta, comodines (*) y regex (/patrón/).',
-                placeholder: 'interno, temp-*, /^archivo-\\d{4}/'
+                desc: 'Lista separada por comas de prefijos de etiquetas para ocultar. Ocultar una etiqueta también oculta todas sus sub-etiquetas (ej. "archivo" oculta "archivo/2024/docs").',
+                placeholder: 'interno, temp/borradores, archivo/2024'
             },
             enableFolderNotes: {
                 name: 'Habilitar notas de carpeta',
@@ -523,6 +525,11 @@ export const STRINGS_ES = {
                 name: 'Nombre de la nota de carpeta',
                 desc: 'Nombre de la nota de carpeta. Dejar vacío para usar el mismo nombre que la carpeta.',
                 placeholder: 'Dejar vacío para el nombre de la carpeta'
+            },
+            folderNoteProperties: {
+                name: 'Propiedades de nota de carpeta',
+                desc: 'Propiedades frontmatter para agregar a las notas de carpeta recién creadas (separadas por comas).',
+                placeholder: 'foldernote, darktheme'
             },
             hideFolderNoteInList: {
                 name: 'Ocultar notas de carpeta en la lista',

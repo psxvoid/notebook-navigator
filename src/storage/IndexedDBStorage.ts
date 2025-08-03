@@ -1,4 +1,5 @@
 import { STORAGE_KEYS } from '../types';
+import { TIMEOUTS } from '../types/obsidian-extended';
 import { localStorage } from '../utils/localStorage';
 /*
  * Notebook Navigator - Plugin for Obsidian
@@ -138,7 +139,7 @@ export class IndexedDBStorage {
         // Only log batch operations or errors
         // Only log batch operations or errors (removed for production)
 
-        // Emit to global listeners (for backward compatibility)
+        // Emit to global listeners
         this.changeListeners.forEach(listener => {
             try {
                 listener(changes);
@@ -484,7 +485,7 @@ export class IndexedDBStorage {
 
                         // Emit tag changes after transaction completes
                         if (tagChanges.length > 0) {
-                            setTimeout(() => this.emitChanges(tagChanges), 0);
+                            setTimeout(() => this.emitChanges(tagChanges), TIMEOUTS.YIELD_TO_EVENT_LOOP);
                         }
 
                         resolve();
@@ -527,8 +528,8 @@ export class IndexedDBStorage {
                 request.onsuccess = () => {
                     completed++;
                     if (completed === paths.length && !hasError) {
-                        // Update cache after all successful database deletes
-                        paths.forEach(p => this.cache.deleteFile(p));
+                        // Update cache after all successful database deletes using batch operation
+                        this.cache.batchDelete(paths);
                         resolve();
                     }
                 };
@@ -1047,37 +1048,37 @@ export class IndexedDBStorage {
     }
 
     /**
-     * Get preview text for display, returning empty string if null.
+     * Get preview text from memory cache, returning empty string if null.
      * Helper method for UI components that need non-null strings.
      *
      * @param path - File path to get preview for
      * @returns Preview text or empty string
      */
-    getDisplayPreviewText(path: string): string {
+    getCachedPreviewText(path: string): string {
         const file = this.getFile(path);
         return file?.preview || '';
     }
 
     /**
-     * Get feature image URL for display, returning empty string if null.
+     * Get feature image URL from memory cache, returning empty string if null.
      * Helper method for UI components that need non-null strings.
      *
      * @param path - File path to get image for
      * @returns Feature image URL or empty string
      */
-    getDisplayFeatureImageUrl(path: string): string {
+    getCachedFeatureImageUrl(path: string): string {
         const file = this.getFile(path);
         return file?.featureImage || '';
     }
 
     /**
-     * Get tags for display, returning empty array if none.
+     * Get tags from memory cache, returning empty array if none.
      * Helper method for UI components that need tag data.
      *
      * @param path - File path to get tags for
      * @returns Array of tag strings
      */
-    getDisplayTags(path: string): string[] {
+    getCachedTags(path: string): string[] {
         const file = this.getFile(path);
         // Return empty array if file doesn't exist or tags are null/not extracted yet
         if (!file || file.tags === null) return [];

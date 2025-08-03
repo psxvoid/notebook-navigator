@@ -55,6 +55,22 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.3.11',
+        date: '2025-08-03',
+        showOnUpdate: true,
+        new: [
+            'Completely revamped the tag favorites system! You can now right-click any tag to add/remove from favorites! When adding a parent tag (e.g., "photo"), the system intelligently removes redundant child tags (e.g., "photo/camera") from favorites automatically.',
+            'Added Alt / Option + Click on folder or tag chevrons to expand/collapse all descendants recursively. Super efficient for managing large tag trees or folder structures.',
+            'Added "Folder note properties" setting - automatically add custom frontmatter properties to newly created folder notes.'
+        ],
+        improved: [
+            'Tags in list pane will now use smart sorting: (1) Favorite tags will show first, then (2) Colored tags, then (3) uncolored normal tags. The goal here is to help you quickly find the items you are looking for, and hopefully this helps out if you have many tags assigned to your notes.',
+            'Tags now inherit their parent colors, so if you have a parent tag with a color, all child tags will automatically use that color unless they have their own color set.',
+            'Many performance optimizations under the hood. Rendering is faster, startup faster, and overall experience is smoother.'
+        ],
+        fixed: ['Fixed an issue with auto reveal file where it sometimes would not scroll to the selected folder in navigation pane.']
+    },
+    {
         version: '1.3.10',
         date: '2025-07-31',
         showOnUpdate: false,
@@ -68,7 +84,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.3.9',
         date: '2025-07-30',
         showOnUpdate: true,
-        new: ['Added SHIFT+HOME and SHIFT+END keyboard shortcuts for selecting text in the list pane.'],
+        new: ['Added SHIFT+HOME and SHIFT+END keyboard shortcuts for selecting items in the list pane.'],
         improved: ['Slim mode interface now has cleaner appearance with no separator lines and tighter spacing.'],
         fixed: [
             'Fixed file date display not updating when files are modified.',

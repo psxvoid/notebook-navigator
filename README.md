@@ -101,6 +101,7 @@ To a modern, Notes-style interface like this:
    - **Cmd/Ctrl+Click** to add notes to selection
    - **Shift+Click** to select a range of notes
    - **Double-click** folders and tags to expand/collapse
+   - **Option/Alt+Click** on chevrons to expand/collapse all descendants
    - **Arrow keys** for navigation
    - **Tab** to switch between navigation pane and list pane
    - **Delete/Backspace** to delete (with optional confirmation)
@@ -134,6 +135,7 @@ activate Notebook Navigator in case you close it by mistake.
 | Shift+Tab                                   | Switch from list pane to navigation pane                                                |
 | PageUp/PageDown                             | Scroll up/down in navigation pane and list pane                                         |
 | Home/End                                    | Jump to first/last item in current pane                                                 |
+| Option/Alt+Click on chevron                 | Expand/collapse all descendants of a folder or tag                                      |
 | Delete (Windows/Linux)<br>Backspace (macOS) | Delete selected item                                                                    |
 | Cmd/Ctrl+A                                  | Select all notes in current folder                                                      |
 | Cmd/Ctrl+Click                              | Toggle notes selection                                                                  |

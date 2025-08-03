@@ -29,6 +29,7 @@ export interface SelectionState {
     selectionType: NavigationItemType;
     selectedFolder: TFolder | null;
     selectedTag: string | null;
+    selectedTagContext?: 'favorites' | 'tags'; // Track which section the tag was selected from
     selectedFiles: Set<string>; // Changed from single file to Set of file paths
     anchorIndex: number | null; // Anchor position for multi-selection
     lastMovementDirection: 'up' | 'down' | null; // Track direction for expand/contract
@@ -37,14 +38,13 @@ export interface SelectionState {
     isKeyboardNavigation: boolean; // Flag to track if selection is from Tab/Right arrow navigation
     isFolderNavigation: boolean; // Flag to track if we just navigated to a different folder
 
-    // Computed property for backward compatibility
-    selectedFile: TFile | null; // First file in selection or null
+    selectedFile: TFile | null; // Current cursor position / primary selected file
 }
 
 // Action types
 export type SelectionAction =
     | { type: 'SET_SELECTED_FOLDER'; folder: TFolder | null; autoSelectedFile?: TFile | null }
-    | { type: 'SET_SELECTED_TAG'; tag: string | null; autoSelectedFile?: TFile | null }
+    | { type: 'SET_SELECTED_TAG'; tag: string | null; context?: 'favorites' | 'tags'; autoSelectedFile?: TFile | null }
     | { type: 'SET_SELECTED_FILE'; file: TFile | null }
     | { type: 'SET_SELECTION_TYPE'; selectionType: NavigationItemType }
     | { type: 'CLEAR_SELECTION' }
@@ -70,7 +70,7 @@ export type SelectionDispatch = React.Dispatch<SelectionAction>;
 const SelectionContext = createContext<SelectionState | null>(null);
 const SelectionDispatchContext = createContext<React.Dispatch<SelectionAction> | null>(null);
 
-// Helper function to get first file from selection (for backward compatibility)
+// Helper function to get first file from selection
 function getFirstSelectedFile(selectedFiles: Set<string>, app: App): TFile | null {
     if (selectedFiles.size === 0) return null;
     const firstPath = Array.from(selectedFiles)[0];
@@ -130,6 +130,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             return {
                 ...state,
                 selectedTag: action.tag,
+                selectedTagContext: action.context,
                 selectedFolder: null,
                 selectionType: 'tag',
                 selectedFiles: newSelectedFiles,
@@ -176,6 +177,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 ...state,
                 selectedFolder: null,
                 selectedTag: null,
+                selectedTagContext: undefined,
                 selectedFiles: new Set<string>(),
                 selectedFile: null,
                 anchorIndex: null,
@@ -246,7 +248,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                 }
             }
 
-            // Legacy behavior: preserve tag for auto-reveals when no targetTag specified
+            // When targetTag is not specified, preserve current view type
             const shouldPreserveTag = state.selectionType === 'tag' && state.selectedTag;
             if (shouldPreserveTag) {
                 return {
@@ -495,6 +497,14 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             console.error('Failed to load selected tag from localStorage:', error);
         }
 
+        // Load saved tag context with error handling
+        let savedTagContext: 'favorites' | 'tags' | null = null;
+        try {
+            savedTagContext = localStorage.get<'favorites' | 'tags'>(STORAGE_KEYS.selectedTagContextKey);
+        } catch (error) {
+            console.error('Failed to load selected tag context from localStorage:', error);
+        }
+
         // Load saved file path with error handling
         let savedFilePath: string | null = null;
         try {
@@ -527,6 +537,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             selectionType,
             selectedFolder,
             selectedTag: savedTag,
+            selectedTagContext: savedTagContext || undefined,
             selectedFiles,
             selectedFile,
             anchorIndex: null,
@@ -636,10 +647,23 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
         }
     }, [state.selectedTag]);
 
+    // Persist selected tag context to localStorage with error handling
+    useEffect(() => {
+        try {
+            if (state.selectedTagContext) {
+                localStorage.set(STORAGE_KEYS.selectedTagContextKey, state.selectedTagContext);
+            } else {
+                localStorage.remove(STORAGE_KEYS.selectedTagContextKey);
+            }
+        } catch (error) {
+            console.error('Failed to save selected tag context to localStorage:', error);
+        }
+    }, [state.selectedTagContext]);
+
     // Persist selected file to localStorage with error handling
     useEffect(() => {
         try {
-            // Save the first selected file for backward compatibility
+            // Save the first selected file
             const firstFile = state.selectedFile || getFirstSelectedFile(state.selectedFiles, app);
             if (firstFile) {
                 localStorage.set(STORAGE_KEYS.selectedFileKey, firstFile.path);

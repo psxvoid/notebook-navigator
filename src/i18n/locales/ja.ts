@@ -126,7 +126,9 @@ export const STRINGS_JA = {
             changeIcon: 'アイコンを変更',
             removeIcon: 'アイコンを削除',
             changeColor: '色を変更',
-            removeColor: '色を削除'
+            removeColor: '色を削除',
+            addToFavorites: 'お気に入りに追加',
+            removeFromFavorites: 'お気に入りから削除'
         }
     },
 
@@ -507,13 +509,13 @@ export const STRINGS_JA = {
             },
             favoriteTags: {
                 name: 'お気に入りタグ',
-                desc: 'お気に入りタグパターンのカンマ区切りリスト。完全一致、ワイルドカード（*）、正規表現（/パターン/）をサポートします。',
-                placeholder: 'インボックス, プロジェクト-*, /^日記-\\d{4}/'
+                desc: 'タグの接頭辞のカンマ区切りリスト。タグを追加すると、すべてのサブタグが含まれます（例："photo"には"photo/camera/fuji"が含まれる）。',
+                placeholder: 'インボックス, プロジェクト/作業, 日記/2025'
             },
             hiddenTags: {
                 name: '非表示タグ',
-                desc: 'タグツリーから非表示にするタグパターンのカンマ区切りリスト。完全一致、ワイルドカード（*）、正規表現（/パターン/）をサポートします。',
-                placeholder: '内部, temp-*, /^アーカイブ-\\d{4}/'
+                desc: '非表示にするタグの接頭辞のカンマ区切りリスト。タグを非表示にすると、すべてのサブタグも非表示になります（例："アーカイブ"で"アーカイブ/2024/docs"も非表示）。',
+                placeholder: '内部, temp/下書き, アーカイブ/2024'
             },
             enableFolderNotes: {
                 name: 'フォルダノートを有効化',
@@ -523,6 +525,11 @@ export const STRINGS_JA = {
                 name: 'フォルダノート名',
                 desc: 'フォルダノートの名前。空のままにするとフォルダと同じ名前を使用します。',
                 placeholder: 'フォルダ名には空のまま'
+            },
+            folderNoteProperties: {
+                name: 'フォルダノートプロパティ',
+                desc: '新しく作成されたフォルダノートに追加するフロントマタープロパティ（カンマ区切り）。',
+                placeholder: 'foldernote, darktheme'
             },
             hideFolderNoteInList: {
                 name: 'リストでフォルダノートを非表示',

@@ -16,13 +16,50 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * OPTIMIZATIONS:
+ *
+ * 1. React.memo with forwardRef - Only re-renders on prop changes
+ *
+ * 2. Virtualization:
+ *    - TanStack Virtual for rendering only visible items
+ *    - Single virtualizer handles both folders and tags
+ *    - Dynamic item heights with efficient measurement
+ *    - Scroll position preserved during updates
+ *
+ * 3. Tree building optimization:
+ *    - useMemo rebuilds navigation items only when structure changes
+ *    - Efficient tree flattening with level tracking
+ *    - Virtual folders injected at correct positions
+ *    - Tag contexts (favorites/all) handled separately
+ *
+ * 4. Pre-computed values:
+ *    - Folder counts calculated once during tree build
+ *    - Tag counts from pre-built tag tree
+ *    - Metadata (colors/icons) passed as props to avoid lookups
+ *
+ * 5. Event handling:
+ *    - Vault events trigger selective rebuilds
+ *    - Expansion state managed efficiently with Sets
+ *    - Keyboard navigation with minimal re-renders
+ *
+ * 6. Search optimization:
+ *    - Search filtering at tree build time
+ *    - Automatic expansion of search results
+ *    - Minimal impact on non-search performance
+ *
+ * 7. Stable callbacks:
+ *    - All event handlers memoized
+ *    - Props passed to child components are stable
+ *    - Prevents unnecessary child re-renders
+ */
+
 import React, { useMemo, useRef, useEffect, useCallback, useState, useImperativeHandle, forwardRef } from 'react';
-import { debounce } from 'obsidian';
 import { TFolder, TFile } from 'obsidian';
 import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
-import { useServices } from '../context/ServicesContext';
+import { useServices, useCommandQueue } from '../context/ServicesContext';
 import { useMetadataService } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useFileCache } from '../context/StorageContext';
@@ -30,15 +67,17 @@ import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { strings } from '../i18n';
 import { UNTAGGED_TAG_ID, NavigationPaneItemType, ItemType, VirtualFolder, NAVITEM_HEIGHTS, OVERSCAN } from '../types';
+import { TIMEOUTS } from '../types/obsidian-extended';
 import { TagTreeNode } from '../types/storage';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import { parseExcludedFolders, parseExcludedProperties, shouldExcludeFile, matchesFolderPattern } from '../utils/fileFilters';
 import { getFolderNote } from '../utils/fileFinder';
 import { shouldDisplayFile } from '../utils/fileTypeUtils';
-import { getTotalNoteCount, filterTagTree, excludeFromTagTree, parseTagPatterns } from '../utils/tagTree';
+import { leadingEdgeDebounce } from '../utils/leadingEdgeDebounce';
+import { getTotalNoteCount, excludeFromTagTree, findTagNode } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
 import { FolderItem } from './FolderItem';
-import { PaneHeader } from './PaneHeader';
+import { NavigationPaneHeader } from './NavigationPaneHeader';
 import { TagTreeItem } from './TagTreeItem';
 import { VirtualFolderComponent } from './VirtualFolderItem';
 
@@ -46,6 +85,7 @@ export interface NavigationPaneHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
     scrollContainerRef: HTMLDivElement | null;
+    requestScroll: (path: string) => void;
 }
 
 interface NavigationPaneProps {
@@ -63,6 +103,7 @@ interface NavigationPaneProps {
 export const NavigationPane = React.memo(
     forwardRef<NavigationPaneHandle, NavigationPaneProps>(function NavigationPane(props, ref) {
         const { app, isMobile } = useServices();
+        const commandQueue = useCommandQueue();
         const metadataService = useMetadataService();
         const expansionState = useExpansionState();
         const expansionDispatch = useExpansionDispatch();
@@ -82,13 +123,212 @@ export const NavigationPane = React.memo(
         // Get tag data from the context
         // =================================================================================
         const { fileData } = useFileCache();
-        const tagTree = fileData.tree;
+        const favoriteTree = fileData.favoriteTree;
+        const tagTree = fileData.tagTree;
         const untaggedCount = fileData.untagged;
 
-        // =================================================================================
-        // We use useState to hold flattened items to prevent virtualizer re-initialization
-        // =================================================================================
-        const [items, setItems] = useState<CombinedNavigationItem[]>([]);
+        // Track previous settings for smart auto-expand
+        const prevShowFavoritesFolder = useRef(settings.showFavoriteTagsFolder);
+        const prevShowAllTagsFolder = useRef(settings.showAllTagsFolder);
+        const prevFavoritesCount = useRef(settings.favoriteTags.length);
+
+        // Pending scroll state for handling reveal operations
+        const pendingScrollRef = useRef<string | null>(null);
+        const [pendingScrollVersion, setPendingScrollVersion] = useState(0);
+
+        // Determine if navigation pane is visible early for optimization
+        const isVisible = uiState.dualPane || uiState.currentSinglePaneView === 'navigation';
+
+        // Build folder items when folders or expansion changes
+        const folderItems = useMemo(() => {
+            return flattenFolderTree(rootFolders, expansionState.expandedFolders, parseExcludedFolders(settings.excludedFolders));
+        }, [rootFolders, expansionState.expandedFolders, settings.excludedFolders]);
+
+        // Build tag items when tags or settings change
+        const tagItems = useMemo(() => {
+            const items: CombinedNavigationItem[] = [];
+
+            if (!settings.showTags) return items;
+
+            // Parse favorite and hidden tag patterns
+            const favoritePatterns = settings.favoriteTags;
+            const hiddenPatterns = settings.hiddenTags;
+
+            // Helper function to add untagged node
+            const addUntaggedNode = (level: number, context?: 'favorites' | 'tags') => {
+                if (settings.showUntagged && untaggedCount > 0) {
+                    const untaggedNode: TagTreeNode = {
+                        path: UNTAGGED_TAG_ID,
+                        name: strings.tagList.untaggedLabel,
+                        children: new Map(),
+                        notesWithTag: new Set()
+                    };
+
+                    items.push({
+                        type: NavigationPaneItemType.UNTAGGED,
+                        data: untaggedNode,
+                        key: UNTAGGED_TAG_ID,
+                        level,
+                        context
+                    });
+                }
+            };
+
+            // Helper function to add virtual folder
+            const addVirtualFolder = (id: string, name: string, icon?: string) => {
+                const folder: VirtualFolder = { id, name, icon };
+                items.push({
+                    type: NavigationPaneItemType.VIRTUAL_FOLDER,
+                    data: folder,
+                    level: 0,
+                    key: id
+                });
+            };
+
+            // Helper function to add tags to list
+            const addTagItems = (tags: Map<string, TagTreeNode>, folderId: string) => {
+                if (expansionState.expandedVirtualFolders.has(folderId)) {
+                    const tagItems = flattenTagTree(
+                        Array.from(tags.values()),
+                        expansionState.expandedTags,
+                        1, // Start at level 1 since they're inside the virtual folder
+                        folderId === 'favorite-tags-root' ? 'favorites' : 'tags'
+                    );
+                    items.push(...tagItems);
+
+                    // Add untagged node to favorites folder if enabled
+                    if (folderId === 'favorite-tags-root' && settings.showUntaggedInFavorites) {
+                        addUntaggedNode(1, 'favorites');
+                    }
+
+                    // Add untagged node if this is the last tag container
+                    const isLastContainer = favoritePatterns.length === 0 || folderId === 'all-tags-root';
+                    // If no favorites exist, always show untagged in Tags regardless of showUntaggedInFavorites
+                    const shouldShowUntagged = favoritePatterns.length === 0 || !settings.showUntaggedInFavorites;
+                    if (isLastContainer && shouldShowUntagged) {
+                        addUntaggedNode(1, 'tags');
+                    }
+                }
+            };
+
+            // Apply hidden tag exclusion to both trees
+            const visibleFavoriteTree = hiddenPatterns.length > 0 ? excludeFromTagTree(favoriteTree, hiddenPatterns) : favoriteTree;
+            const visibleTagTree = hiddenPatterns.length > 0 ? excludeFromTagTree(tagTree, hiddenPatterns) : tagTree;
+
+            // Handle tag organization
+            if (favoritePatterns.length > 0) {
+                // We already have separate trees from StorageContext
+
+                if (settings.showFavoriteTagsFolder) {
+                    // Show "Favorites" folder
+                    addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'star');
+                    addTagItems(visibleFavoriteTree, 'favorite-tags-root');
+                } else {
+                    // Show favorite tags directly without folder
+                    const favoriteItems = flattenTagTree(
+                        Array.from(visibleFavoriteTree.values()),
+                        expansionState.expandedTags,
+                        0, // Start at level 0 since no virtual folder
+                        'favorites'
+                    );
+                    items.push(...favoriteItems);
+
+                    // Add untagged after favorite tags when folder isn't shown
+                    if (settings.showUntaggedInFavorites) {
+                        addUntaggedNode(0, 'favorites');
+                    }
+                }
+
+                if (settings.showAllTagsFolder) {
+                    // Show "Tags" folder
+                    addVirtualFolder('all-tags-root', strings.tagList.allTags, 'tags');
+                    addTagItems(visibleTagTree, 'all-tags-root');
+                } else {
+                    // Show non-favorite tags directly without folder
+                    const nonFavoriteItems = flattenTagTree(
+                        Array.from(visibleTagTree.values()),
+                        expansionState.expandedTags,
+                        0, // Start at level 0 since no virtual folder
+                        'tags'
+                    );
+                    items.push(...nonFavoriteItems);
+
+                    // Add untagged node at the end when not using folder and not in favorites
+                    if (!settings.showUntaggedInFavorites) {
+                        addUntaggedNode(0, 'tags');
+                    }
+                }
+            } else {
+                // No favorites configured
+                if (settings.showAllTagsFolder) {
+                    // Show "Tags" folder
+                    addVirtualFolder('tags-root', strings.tagList.tags, 'tags');
+                    addTagItems(visibleTagTree, 'tags-root');
+                } else {
+                    // Show all tags directly without folder
+                    const tagTreeItems = flattenTagTree(
+                        Array.from(visibleTagTree.values()),
+                        expansionState.expandedTags,
+                        0, // Start at level 0 since no virtual folder
+                        'tags'
+                    );
+                    items.push(...tagTreeItems);
+
+                    // Add untagged node at the end
+                    addUntaggedNode(0, 'tags');
+                }
+            }
+
+            return items;
+        }, [
+            settings.showTags,
+            settings.favoriteTags,
+            settings.hiddenTags,
+            settings.showUntagged,
+            settings.showUntaggedInFavorites,
+            settings.showFavoriteTagsFolder,
+            settings.showAllTagsFolder,
+            favoriteTree,
+            tagTree,
+            untaggedCount,
+            expansionState.expandedTags,
+            expansionState.expandedVirtualFolders
+        ]);
+
+        // Combine folder and tag items based on display order
+        const items = useMemo(() => {
+            const allItems: CombinedNavigationItem[] = [];
+
+            if (settings.showTags && settings.showTagsAboveFolders) {
+                // Tags first, then folders
+                allItems.push(...tagItems);
+                if (folderItems.length > 0 && tagItems.length > 0) {
+                    allItems.push({
+                        type: NavigationPaneItemType.LIST_SPACER,
+                        key: 'tags-folders-spacer'
+                    });
+                }
+                allItems.push(...folderItems);
+            } else {
+                // Folders first, then tags (default)
+                allItems.push(...folderItems);
+                if (settings.showTags && tagItems.length > 0) {
+                    allItems.push({
+                        type: NavigationPaneItemType.LIST_SPACER,
+                        key: 'folders-tags-spacer'
+                    });
+                    allItems.push(...tagItems);
+                }
+            }
+
+            // Add spacer at the end for better visibility
+            allItems.push({
+                type: NavigationPaneItemType.SPACER,
+                key: 'bottom-spacer'
+            });
+
+            return allItems;
+        }, [folderItems, tagItems, settings.showTags, settings.showTagsAboveFolders]);
 
         // Initialize virtualizer
         const rowVirtualizer = useVirtualizer({
@@ -120,6 +360,7 @@ export const NavigationPane = React.memo(
         const prevSelectedPathRef = useRef<string | null>(null);
         const prevVisibleRef = useRef<boolean>(false);
         const prevFocusedPaneRef = useRef<string | null>(null);
+        const prevSelectedTagRef = useRef<string | null>(null);
 
         // Create a map for O(1) item lookups
         const pathToIndex = useMemo(() => {
@@ -188,19 +429,9 @@ export const NavigationPane = React.memo(
                         // Set folder as selected without auto-selecting first file
                         selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder, autoSelectedFile: null });
 
-                        // Set a temporary flag to prevent auto-reveal
-                        window.notebookNavigatorOpeningFolderNote = true;
-
-                        // Open the folder note
-                        app.workspace
-                            .getLeaf()
-                            .openFile(folderNote)
-                            .then(() => {
-                                // Clear the flag after a short delay
-                                setTimeout(() => {
-                                    delete window.notebookNavigatorOpeningFolderNote;
-                                }, 100);
-                            });
+                        commandQueue.executeOpenFolderNote(folder.path, async () => {
+                            await app.workspace.getLeaf().openFile(folderNote);
+                        });
 
                         return;
                     }
@@ -209,7 +440,7 @@ export const NavigationPane = React.memo(
                 // If no folder note, fall back to normal folder click behavior
                 handleFolderClick(folder);
             },
-            [settings, app, selectionDispatch, handleFolderClick]
+            [settings, app, selectionDispatch, handleFolderClick, commandQueue]
         );
 
         // Handle tag toggle
@@ -228,12 +459,54 @@ export const NavigationPane = React.memo(
             [expansionDispatch]
         );
 
+        // Get all descendant folders recursively
+        const getAllDescendantFolders = useCallback((folder: TFolder): string[] => {
+            const descendants: string[] = [];
+
+            const collectDescendants = (currentFolder: TFolder) => {
+                currentFolder.children.forEach(child => {
+                    if (child instanceof TFolder) {
+                        descendants.push(child.path);
+                        collectDescendants(child);
+                    }
+                });
+            };
+
+            collectDescendants(folder);
+            return descendants;
+        }, []);
+
+        // Get all descendant tags recursively
+        const getAllDescendantTags = useCallback(
+            (tagPath: string, context?: 'favorites' | 'tags'): string[] => {
+                const descendants: string[] = [];
+                // Use the appropriate tree based on context
+                const searchTree = context === 'favorites' ? favoriteTree : tagTree;
+                const tagNode = searchTree.get(tagPath);
+
+                if (!tagNode) return descendants;
+
+                const collectDescendants = (node: TagTreeNode) => {
+                    node.children.forEach(child => {
+                        descendants.push(child.path);
+                        collectDescendants(child);
+                    });
+                };
+
+                collectDescendants(tagNode);
+                return descendants;
+            },
+            [tagTree, favoriteTree]
+        );
+
         // Handle tag click
         const handleTagClick = useCallback(
-            (tagPath: string) => {
-                // Check if clicking the same tag
+            (tagPath: string, context?: 'favorites' | 'tags') => {
+                // Check if clicking the same tag with same context
                 const isSameTag =
-                    selectionState.selectionType === 'tag' && selectionState.selectedTag && selectionState.selectedTag === tagPath;
+                    selectionState.selectionType === 'tag' &&
+                    selectionState.selectedTag === tagPath &&
+                    selectionState.selectedTagContext === context;
 
                 // If clicking the same tag, just handle view switching
                 if (isSameTag) {
@@ -247,7 +520,7 @@ export const NavigationPane = React.memo(
                     return;
                 }
 
-                selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
+                selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath, context });
 
                 // Auto-expand if enabled and tag has children
                 if (settings.autoExpandFoldersTags) {
@@ -280,6 +553,7 @@ export const NavigationPane = React.memo(
                 expansionState.expandedTags,
                 expansionDispatch,
                 selectionState.selectedTag,
+                selectionState.selectedTagContext,
                 selectionState.selectionType
             ]
         );
@@ -288,8 +562,8 @@ export const NavigationPane = React.memo(
         const tagCounts = useMemo(() => {
             const counts = new Map<string, number>();
 
-            // Only compute if we're showing tags
-            if (!settings.showTags) return counts;
+            // Skip computation if pane is not visible or not showing tags
+            if (!isVisible || !settings.showTags) return counts;
 
             // Add untagged count
             if (settings.showUntagged) {
@@ -305,14 +579,14 @@ export const NavigationPane = React.memo(
             });
 
             return counts;
-        }, [items, settings.showTags, settings.showUntagged, untaggedCount]);
+        }, [items, settings.showTags, settings.showUntagged, untaggedCount, isVisible]);
 
         // Pre-compute folder file counts to avoid recursive counting during render
         const folderCounts = useMemo(() => {
             const counts = new Map<string, number>();
 
-            // Only compute if we're showing note counts
-            if (!settings.showNoteCount) return counts;
+            // Skip computation if pane is not visible or not showing note counts
+            if (!isVisible || !settings.showNoteCount) return counts;
 
             const excludedProperties = parseExcludedProperties(settings.excludedFiles);
             const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
@@ -353,7 +627,8 @@ export const NavigationPane = React.memo(
             settings.excludedFiles,
             settings.excludedFolders,
             settings.fileVisibility,
-            app
+            app,
+            isVisible
         ]);
 
         // Scroll to top handler for mobile header click
@@ -380,7 +655,27 @@ export const NavigationPane = React.memo(
                                 onToggle={() => handleFolderToggle(item.data.path)}
                                 onClick={() => handleFolderClick(item.data)}
                                 onNameClick={() => handleFolderNameClick(item.data)}
+                                onToggleAllSiblings={() => {
+                                    const isCurrentlyExpanded = expansionState.expandedFolders.has(item.data.path);
+
+                                    if (isCurrentlyExpanded) {
+                                        // If expanded, collapse everything (parent and all descendants)
+                                        handleFolderToggle(item.data.path);
+                                        const descendantPaths = getAllDescendantFolders(item.data);
+                                        if (descendantPaths.length > 0) {
+                                            expansionDispatch({ type: 'TOGGLE_DESCENDANT_FOLDERS', descendantPaths, expand: false });
+                                        }
+                                    } else {
+                                        // If collapsed, expand parent and all descendants
+                                        handleFolderToggle(item.data.path);
+                                        const descendantPaths = getAllDescendantFolders(item.data);
+                                        if (descendantPaths.length > 0) {
+                                            expansionDispatch({ type: 'TOGGLE_DESCENDANT_FOLDERS', descendantPaths, expand: true });
+                                        }
+                                    }
+                                }}
                                 icon={metadataService.getFolderIcon(item.data.path)}
+                                color={metadataService.getFolderColor(item.data.path)}
                                 fileCount={folderCounts.get(item.data.path)}
                             />
                         );
@@ -411,9 +706,35 @@ export const NavigationPane = React.memo(
                                 tagNode={tagNode}
                                 level={item.level ?? 0}
                                 isExpanded={expansionState.expandedTags.has(tagNode.path)}
-                                isSelected={selectionState.selectionType === ItemType.TAG && selectionState.selectedTag === tagNode.path}
+                                isSelected={
+                                    selectionState.selectionType === ItemType.TAG &&
+                                    selectionState.selectedTag === tagNode.path &&
+                                    selectionState.selectedTagContext === item.context
+                                }
                                 onToggle={() => handleTagToggle(tagNode.path)}
-                                onClick={() => handleTagClick(tagNode.path)}
+                                onClick={() => handleTagClick(tagNode.path, item.context)}
+                                context={'context' in item ? item.context : undefined}
+                                color={metadataService.getTagColor(tagNode.path)}
+                                icon={metadataService.getTagIcon(tagNode.path)}
+                                onToggleAllSiblings={() => {
+                                    const isCurrentlyExpanded = expansionState.expandedTags.has(tagNode.path);
+
+                                    if (isCurrentlyExpanded) {
+                                        // If expanded, collapse everything (parent and all descendants)
+                                        handleTagToggle(tagNode.path);
+                                        const descendantPaths = getAllDescendantTags(tagNode.path, item.context);
+                                        if (descendantPaths.length > 0) {
+                                            expansionDispatch({ type: 'TOGGLE_DESCENDANT_TAGS', descendantPaths, expand: false });
+                                        }
+                                    } else {
+                                        // If collapsed, expand parent and all descendants
+                                        handleTagToggle(tagNode.path);
+                                        const descendantPaths = getAllDescendantTags(tagNode.path, item.context);
+                                        if (descendantPaths.length > 0) {
+                                            expansionDispatch({ type: 'TOGGLE_DESCENDANT_TAGS', descendantPaths, expand: true });
+                                        }
+                                    }
+                                }}
                                 fileCount={tagCounts.get(tagNode.path) || 0}
                                 showFileCount={settings.showNoteCount}
                             />
@@ -448,12 +769,16 @@ export const NavigationPane = React.memo(
                 selectionState.selectionType,
                 selectionState.selectedFolder?.path,
                 selectionState.selectedTag,
+                selectionState.selectedTagContext,
                 handleFolderToggle,
                 handleFolderClick,
                 handleFolderNameClick,
                 handleTagToggle,
                 handleTagClick,
                 handleVirtualFolderToggle,
+                getAllDescendantFolders,
+                getAllDescendantTags,
+                expansionDispatch,
                 settings,
                 isMobile,
                 tagCounts,
@@ -471,9 +796,6 @@ export const NavigationPane = React.memo(
                       ? selectionState.selectedTag.slice(1)
                       : selectionState.selectedTag
                   : null;
-
-        // Determine if navigation pane is visible early for optimization
-        const isVisible = uiState.dualPane || uiState.currentSinglePaneView === 'navigation';
 
         useEffect(() => {
             // Function to build folders
@@ -496,8 +818,8 @@ export const NavigationPane = React.memo(
             // Build immediately on mount
             buildFolders();
 
-            // Create debounced version for vault events
-            const rebuildFolders = debounce(buildFolders, 300);
+            // Use leading edge debounce for immediate folder updates
+            const rebuildFolders = leadingEdgeDebounce(buildFolders, TIMEOUTS.DEBOUNCE_CONTENT);
 
             // Listen to vault events for folder changes
             const events = [
@@ -517,195 +839,70 @@ export const NavigationPane = React.memo(
             };
         }, [app, settings.showRootFolder]);
 
+        // Smart auto-expand: Only expand virtual folders on specific setting transitions
         useEffect(() => {
-            const rebuildItems = () => {
-                const allItems: CombinedNavigationItem[] = [];
+            // Auto-expand favorites folder when:
+            // 1. Setting changes from false to true
+            // 2. First favorite tag is added (0 -> 1+)
+            if (settings.showFavoriteTagsFolder) {
+                const shouldAutoExpandFavorites =
+                    (!prevShowFavoritesFolder.current && settings.showFavoriteTagsFolder) || // Setting enabled
+                    (prevFavoritesCount.current === 0 && settings.favoriteTags.length > 0); // First favorite added
 
-                // Build folders
-                const folderItems = flattenFolderTree(
-                    rootFolders,
-                    expansionState.expandedFolders,
-                    parseExcludedFolders(settings.excludedFolders)
-                );
-
-                // Build tag section if enabled
-                const tagItems: CombinedNavigationItem[] = [];
-                if (settings.showTags) {
-                    // Parse favorite and hidden tag patterns
-                    const favoritePatterns = parseTagPatterns(settings.favoriteTags.join(','));
-                    const hiddenPatterns = parseTagPatterns(settings.hiddenTags.join(','));
-
-                    // Helper function to add untagged node
-                    const addUntaggedNode = (level: number) => {
-                        if (settings.showUntagged && untaggedCount > 0) {
-                            const untaggedNode: TagTreeNode = {
-                                path: UNTAGGED_TAG_ID,
-                                name: strings.tagList.untaggedLabel,
-                                children: new Map(),
-                                notesWithTag: new Set()
-                            };
-
-                            tagItems.push({
-                                type: NavigationPaneItemType.UNTAGGED,
-                                data: untaggedNode,
-                                key: UNTAGGED_TAG_ID,
-                                level
-                            });
-                        }
-                    };
-
-                    // Helper function to add virtual folder
-                    const addVirtualFolder = (id: string, name: string, icon?: string) => {
-                        const folder: VirtualFolder = { id, name, icon };
-                        tagItems.push({
-                            type: NavigationPaneItemType.VIRTUAL_FOLDER,
-                            data: folder,
-                            level: 0,
-                            key: id
-                        });
-                    };
-
-                    // Helper function to add tags to list
-                    const addTagItems = (tags: Map<string, TagTreeNode>, folderId: string) => {
-                        if (expansionState.expandedVirtualFolders.has(folderId)) {
-                            const items = flattenTagTree(
-                                Array.from(tags.values()),
-                                expansionState.expandedTags,
-                                1 // Start at level 1 since they're inside the virtual folder
-                            );
-                            tagItems.push(...items);
-
-                            // Add untagged node to favorites folder if enabled
-                            if (folderId === 'favorite-tags-root' && settings.showUntaggedInFavorites) {
-                                addUntaggedNode(1);
-                            }
-
-                            // Add untagged node if this is the last tag container
-                            const isLastContainer = favoritePatterns.length === 0 || folderId === 'all-tags-root';
-                            // If no favorites exist, always show untagged in Tags regardless of showUntaggedInFavorites
-                            const shouldShowUntagged = favoritePatterns.length === 0 || !settings.showUntaggedInFavorites;
-                            if (isLastContainer && shouldShowUntagged) {
-                                addUntaggedNode(1);
-                            }
-                        }
-                    };
-
-                    // First, exclude hidden tags from the entire tree
-                    const visibleTagTree = hiddenPatterns.length > 0 ? excludeFromTagTree(tagTree, hiddenPatterns) : tagTree;
-
-                    // Handle tag organization based on the new settings
-                    if (favoritePatterns.length > 0) {
-                        // We have favorite tags configured
-                        const favoriteTags = filterTagTree(visibleTagTree, favoritePatterns);
-                        const nonFavoriteTags = excludeFromTagTree(visibleTagTree, favoritePatterns);
-
-                        if (settings.showFavoriteTagsFolder) {
-                            // Show "Favorites" folder
-                            addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'star');
-                            addTagItems(favoriteTags, 'favorite-tags-root');
-                        } else {
-                            // Show favorite tags directly without folder
-                            const favoriteItems = flattenTagTree(
-                                Array.from(favoriteTags.values()),
-                                expansionState.expandedTags,
-                                0 // Start at level 0 since no virtual folder
-                            );
-                            tagItems.push(...favoriteItems);
-
-                            // Add untagged after favorite tags when folder isn't shown
-                            if (settings.showUntaggedInFavorites) {
-                                addUntaggedNode(0);
-                            }
-                        }
-
-                        if (settings.showAllTagsFolder) {
-                            // Show "Tags" folder
-                            addVirtualFolder('all-tags-root', strings.tagList.allTags, 'tags');
-                            addTagItems(nonFavoriteTags, 'all-tags-root');
-                        } else {
-                            // Show non-favorite tags directly without folder
-                            const nonFavoriteItems = flattenTagTree(
-                                Array.from(nonFavoriteTags.values()),
-                                expansionState.expandedTags,
-                                0 // Start at level 0 since no virtual folder
-                            );
-                            tagItems.push(...nonFavoriteItems);
-
-                            // Add untagged node at the end when not using folder and not in favorites
-                            if (!settings.showUntaggedInFavorites) {
-                                addUntaggedNode(0);
-                            }
-                        }
-                    } else {
-                        // No favorites configured
-                        if (settings.showAllTagsFolder) {
-                            // Show "Tags" folder
-                            addVirtualFolder('tags-root', strings.tagList.tags, 'tags');
-                            addTagItems(visibleTagTree, 'tags-root');
-                        } else {
-                            // Show all tags directly without folder
-                            const items = flattenTagTree(
-                                Array.from(visibleTagTree.values()),
-                                expansionState.expandedTags,
-                                0 // Start at level 0 since no virtual folder
-                            );
-                            tagItems.push(...items);
-
-                            // Add untagged node at the end
-                            addUntaggedNode(0);
-                        }
-                    }
+                if (shouldAutoExpandFavorites && !expansionState.expandedVirtualFolders.has('favorite-tags-root')) {
+                    expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId: 'favorite-tags-root' });
                 }
+            }
 
-                // Combine items in the correct order
-                if (settings.showTags && settings.showTagsAboveFolders) {
-                    // Tags first, then folders
-                    allItems.push(...tagItems);
-                    allItems.push({
-                        type: NavigationPaneItemType.LIST_SPACER,
-                        key: 'tags-folders-spacer'
-                    });
-                    allItems.push(...folderItems);
-                } else {
-                    // Folders first, then tags (default)
-                    allItems.push(...folderItems);
-                    if (settings.showTags) {
-                        allItems.push({
-                            type: NavigationPaneItemType.LIST_SPACER,
-                            key: 'folders-tags-spacer'
-                        });
-                        allItems.push(...tagItems);
-                    }
+            // Auto-expand all tags folder when setting changes from false to true
+            if (settings.showAllTagsFolder) {
+                const shouldAutoExpandAllTags = !prevShowAllTagsFolder.current && settings.showAllTagsFolder;
+
+                if (shouldAutoExpandAllTags && !expansionState.expandedVirtualFolders.has('all-tags-root')) {
+                    expansionDispatch({ type: 'TOGGLE_VIRTUAL_FOLDER_EXPANDED', folderId: 'all-tags-root' });
                 }
+            }
 
-                // Add spacer at the end for better visibility
-                allItems.push({
-                    type: NavigationPaneItemType.SPACER,
-                    key: 'bottom-spacer'
-                });
-
-                setItems(allItems);
-            };
-
-            rebuildItems();
+            // Update refs for next comparison
+            prevShowFavoritesFolder.current = settings.showFavoriteTagsFolder;
+            prevShowAllTagsFolder.current = settings.showAllTagsFolder;
+            prevFavoritesCount.current = settings.favoriteTags.length;
         }, [
-            rootFolders,
-            expansionState.expandedFolders,
-            expansionState.expandedTags,
-            expansionState.expandedVirtualFolders,
-            settings.excludedFolders,
-            settings.showTags,
-            settings.showTagsAboveFolders,
             settings.showFavoriteTagsFolder,
             settings.showAllTagsFolder,
-            settings.showUntagged,
-            settings.showUntaggedInFavorites,
-            settings.favoriteTags,
-            settings.hiddenTags,
-            tagTree,
-            untaggedCount,
-            isVisible,
-            uiState.singlePane
+            settings.favoriteTags.length,
+            expansionState.expandedVirtualFolders,
+            expansionDispatch
+        ]);
+
+        // Update tag context when favorite tags change
+        // Memoize the expected context to avoid redundant calculations
+        const expectedTagContext = useMemo(() => {
+            if (selectionState.selectionType !== 'tag' || !selectionState.selectedTag) {
+                return null;
+            }
+
+            // Check if tag exists in favorites
+            const tagInFavorites = findTagNode(favoriteTree, selectionState.selectedTag) !== null;
+            return tagInFavorites ? 'favorites' : 'tags';
+        }, [selectionState.selectionType, selectionState.selectedTag, favoriteTree]);
+
+        useEffect(() => {
+            // Only update if there's a mismatch
+            if (expectedTagContext && selectionState.selectedTagContext !== expectedTagContext && selectionState.selectedTag) {
+                selectionDispatch({
+                    type: 'SET_SELECTED_TAG',
+                    tag: selectionState.selectedTag,
+                    context: expectedTagContext,
+                    autoSelectedFile: selectionState.selectedFile
+                });
+            }
+        }, [
+            expectedTagContext,
+            selectionState.selectedTagContext,
+            selectionState.selectedTag,
+            selectionState.selectedFile,
+            selectionDispatch
         ]);
 
         // Scroll to selected folder/tag when needed
@@ -745,6 +942,15 @@ export const NavigationPane = React.memo(
         // Tags load after folders, so we need a separate effect to catch when they become available
         useEffect(() => {
             if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag && rowVirtualizer && isVisible) {
+                // Check if this is an actual tag selection change
+                const isTagSelectionChange = prevSelectedTagRef.current !== selectionState.selectedTag;
+
+                // Update the ref for next comparison
+                prevSelectedTagRef.current = selectionState.selectedTag;
+
+                // Only scroll on actual tag selection changes
+                if (!isTagSelectionChange) return;
+
                 const tagIndex = pathToIndex.get(selectionState.selectedTag);
 
                 if (tagIndex !== undefined && tagIndex >= 0) {
@@ -783,10 +989,30 @@ export const NavigationPane = React.memo(
             () => ({
                 getIndexOfPath: (path: string) => pathToIndex.get(path) ?? -1,
                 virtualizer: rowVirtualizer,
-                scrollContainerRef: scrollContainerRef.current
+                scrollContainerRef: scrollContainerRef.current,
+                requestScroll: (path: string) => {
+                    pendingScrollRef.current = path;
+                    setPendingScrollVersion(v => v + 1);
+                }
             }),
             [pathToIndex, rowVirtualizer]
         );
+
+        // Process pending scrolls when pathToIndex is ready
+        useEffect(() => {
+            if (!rowVirtualizer || !pendingScrollRef.current || !isVisible) {
+                return;
+            }
+
+            const pathToScroll = pendingScrollRef.current;
+            const index = pathToIndex.get(pathToScroll);
+
+            if (index !== undefined && index !== -1) {
+                rowVirtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' });
+                pendingScrollRef.current = null;
+            }
+            // If index not found, keep the pending scroll for next rebuild
+        }, [rowVirtualizer, pathToIndex, isVisible, pendingScrollVersion]);
 
         // Add keyboard navigation
         // Note: We pass the root container ref, not the scroll container ref.
@@ -804,7 +1030,7 @@ export const NavigationPane = React.memo(
 
         return (
             <div className="nn-navigation-pane" style={props.style}>
-                <PaneHeader type="navigation" onHeaderClick={handleScrollToTop} />
+                <NavigationPaneHeader onHeaderClick={handleScrollToTop} />
                 <div ref={scrollContainerRef} className="nn-navigation-pane-scroller" data-pane="navigation" role="tree" tabIndex={-1}>
                     {items.length > 0 && (
                         <div

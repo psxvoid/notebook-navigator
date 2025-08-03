@@ -20,6 +20,7 @@ import { useCallback } from 'react';
 import { useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
+import { useFileCache } from '../context/StorageContext';
 
 /**
  * Custom hook that provides tag navigation functionality.
@@ -33,6 +34,7 @@ export function useTagNavigation() {
     const expansionDispatch = useExpansionDispatch();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
+    const { findTagInFavoriteTree } = useFileCache();
 
     /**
      * Navigates to a tag, expanding parent tags if it's hierarchical.
@@ -57,8 +59,12 @@ export function useTagNavigation() {
                 }
             }
 
-            // Navigate to the selected tag
-            selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath });
+            // Determine context based on whether tag exists in favorites
+            const tagInFavorites = findTagInFavoriteTree(tagPath);
+            const context: 'favorites' | 'tags' = tagInFavorites ? 'favorites' : 'tags';
+
+            // Navigate to the selected tag with context
+            selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath, context });
 
             // Switch to files view in single-pane mode
             if (uiState.singlePane) {
@@ -68,7 +74,7 @@ export function useTagNavigation() {
             // Set focus to navigation pane to show the selected tag
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
         },
-        [selectionDispatch, expansionDispatch, uiState.singlePane, uiDispatch]
+        [selectionDispatch, expansionDispatch, uiState.singlePane, uiDispatch, findTagInFavoriteTree]
     );
 
     return {

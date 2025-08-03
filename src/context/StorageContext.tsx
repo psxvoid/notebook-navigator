@@ -40,8 +40,14 @@
  */
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode, useMemo, useCallback } from 'react';
-import { App, TFile, debounce } from 'obsidian';
-import { ContentService, ProcessedMetadata } from '../services/ContentService';
+import { App, TFile } from 'obsidian';
+import { TIMEOUTS } from '../types/obsidian-extended';
+import { ProcessedMetadata, extractMetadata } from '../utils/metadataExtractor';
+import { ContentProviderRegistry } from '../services/content/ContentProviderRegistry';
+import { PreviewContentProvider } from '../services/content/PreviewContentProvider';
+import { FeatureImageContentProvider } from '../services/content/FeatureImageContentProvider';
+import { MetadataContentProvider } from '../services/content/MetadataContentProvider';
+import { TagContentProvider } from '../services/content/TagContentProvider';
 import { IndexedDBStorage, FileData as DBFileData, METADATA_SENTINEL } from '../storage/IndexedDBStorage';
 import { calculateFileDiff } from '../storage/diffCalculator';
 import {
@@ -56,65 +62,17 @@ import { getFilteredMarkdownFiles, parseExcludedFolders } from '../utils/fileFil
 import { getFileDisplayName as getDisplayName } from '../utils/fileNameUtils';
 import { clearNoteCountCache } from '../utils/tagTree';
 import { buildTagTreeFromDatabase, findTagNode, collectAllTagPaths } from '../utils/tagTree';
+import { leadingEdgeDebounce } from '../utils/leadingEdgeDebounce';
 import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
 
 /**
- * Types of content that can be generated
- */
-type ContentType = 'preview' | 'featureImage' | 'metadata' | 'tags';
-
-/**
- * Metadata for a content-related setting
- */
-interface ContentSettingMetadata {
-    key: keyof NotebookNavigatorSettings;
-    contentType: ContentType;
-    isToggle: boolean; // true for show/hide settings, false for property settings
-}
-
-/**
- * Registry of all settings that affect content generation
- * This is the single source of truth for content-related settings
- */
-const CONTENT_SETTINGS_REGISTRY: ContentSettingMetadata[] = [
-    // Toggle settings (enable/disable features)
-    { key: 'showFilePreview', contentType: 'preview', isToggle: true },
-    { key: 'showFeatureImage', contentType: 'featureImage', isToggle: true },
-    { key: 'useFrontmatterMetadata', contentType: 'metadata', isToggle: true },
-    { key: 'showTags', contentType: 'tags', isToggle: true },
-
-    // Property settings (change how content is generated)
-    { key: 'skipHeadingsInPreview', contentType: 'preview', isToggle: false },
-    { key: 'previewProperties', contentType: 'preview', isToggle: false },
-    { key: 'featureImageProperties', contentType: 'featureImage', isToggle: false },
-    { key: 'frontmatterNameField', contentType: 'metadata', isToggle: false },
-    { key: 'frontmatterCreatedField', contentType: 'metadata', isToggle: false },
-    { key: 'frontmatterModifiedField', contentType: 'metadata', isToggle: false },
-    { key: 'frontmatterDateFormat', contentType: 'metadata', isToggle: false }
-];
-
-/**
- * Type for the extracted content settings
- */
-type ContentSettingsRecord = Record<keyof NotebookNavigatorSettings, unknown>;
-
-/**
- * Represents a change in settings
- */
-interface SettingChange {
-    key: keyof NotebookNavigatorSettings;
-    metadata: ContentSettingMetadata;
-    oldValue: unknown;
-    newValue: unknown;
-}
-
-/**
- * Data structure containing the hierarchical tag tree and untagged file count
+ * Data structure containing the hierarchical tag trees and untagged file count
  */
 interface FileData {
-    tree: Map<string, TagTreeNode>;
+    favoriteTree: Map<string, TagTreeNode>;
+    tagTree: Map<string, TagTreeNode>;
     untagged: number;
 }
 
@@ -134,7 +92,9 @@ interface StorageContextValue {
     getFile: (path: string) => DBFileData | null;
     // Tag tree access methods
     getTagTree: () => Map<string, TagTreeNode>;
+    getFavoriteTree: () => Map<string, TagTreeNode>;
     findTagInTree: (tagPath: string) => TagTreeNode | null;
+    findTagInFavoriteTree: (tagPath: string) => TagTreeNode | null;
     getAllTagPaths: () => string[];
     getFiles: (paths: string[]) => Map<string, DBFileData>;
     hasPreview: (path: string) => boolean;
@@ -149,60 +109,13 @@ interface StorageProviderProps {
     children: ReactNode;
 }
 
-/**
- * Extracts content-related settings from the full settings object
- */
-function extractContentSettings(settings: NotebookNavigatorSettings): ContentSettingsRecord {
-    const contentSettings: ContentSettingsRecord = {} as ContentSettingsRecord;
-
-    CONTENT_SETTINGS_REGISTRY.forEach(({ key }) => {
-        contentSettings[key] = settings[key];
-    });
-
-    return contentSettings;
-}
-
-/**
- * Gets an array of content setting values for useEffect dependencies
- */
-function getContentSettingsDependencies(settings: NotebookNavigatorSettings): unknown[] {
-    return CONTENT_SETTINGS_REGISTRY.map(({ key }) => settings[key]);
-}
-
-/**
- * Detects changes in content settings
- */
-function detectContentSettingsChanges(prevSettings: ContentSettingsRecord, currentSettings: NotebookNavigatorSettings): SettingChange[] {
-    const changes: SettingChange[] = [];
-
-    CONTENT_SETTINGS_REGISTRY.forEach(metadata => {
-        const prevValue = prevSettings[metadata.key];
-        const currentValue = currentSettings[metadata.key];
-
-        // Handle arrays and objects
-        const hasChanged =
-            typeof currentValue === 'object' ? JSON.stringify(prevValue) !== JSON.stringify(currentValue) : prevValue !== currentValue;
-
-        if (hasChanged) {
-            changes.push({
-                key: metadata.key,
-                metadata,
-                oldValue: prevValue,
-                newValue: currentValue
-            });
-        }
-    });
-
-    return changes;
-}
-
 export function StorageProvider({ app, children }: StorageProviderProps) {
     const settings = useSettingsState();
     const { metadataService, tagTreeService } = useServices();
-    const [fileData, setFileData] = useState<FileData>({ tree: new Map(), untagged: 0 });
+    const [fileData, setFileData] = useState<FileData>({ favoriteTree: new Map(), tagTree: new Map(), untagged: 0 });
 
-    // Content service handles content generation (preview text + feature images)
-    const contentService = useRef<ContentService | null>(null);
+    // Content provider registry handles content generation (preview text, feature images, metadata, tags)
+    const contentRegistry = useRef<ContentProviderRegistry | null>(null);
     const isFirstLoad = useRef(true);
 
     // Track storage initialization state
@@ -212,8 +125,11 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     // Track if we've already built the initial cache
     const hasBuiltInitialCache = useRef(false);
 
-    // Track previous content settings to detect changes
-    const prevContentSettings = useRef<ContentSettingsRecord | null>(null);
+    // Track previous settings to detect changes
+    const prevSettings = useRef<NotebookNavigatorSettings | null>(null);
+
+    // Track previous favoriteTags to detect changes
+    const prevFavoriteTags = useRef<string[]>(settings.favoriteTags);
 
     // Memoize the context value to prevent re-renders when fileData/cache haven't changed
     const contextValue = useMemo(() => {
@@ -221,7 +137,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         const getFileDisplayName = (file: TFile): string => {
             // If metadata is enabled, extract on-demand
             if (settings.useFrontmatterMetadata) {
-                const metadata = ContentService.extractMetadata(app, file, settings);
+                const metadata = extractMetadata(app, file, settings);
                 if (metadata.fn) {
                     return metadata.fn;
                 }
@@ -234,7 +150,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         const getFileCreatedTime = (file: TFile): number => {
             // If metadata is enabled, extract on-demand
             if (settings.useFrontmatterMetadata) {
-                const metadata = ContentService.extractMetadata(app, file, settings);
+                const metadata = extractMetadata(app, file, settings);
                 if (metadata.fc !== undefined && metadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED) {
                     return metadata.fc;
                 }
@@ -247,7 +163,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         const getFileModifiedTime = (file: TFile): number => {
             // If metadata is enabled, extract on-demand
             if (settings.useFrontmatterMetadata) {
-                const metadata = ContentService.extractMetadata(app, file, settings);
+                const metadata = extractMetadata(app, file, settings);
                 if (metadata.fm !== undefined && metadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED) {
                     return metadata.fm;
                 }
@@ -261,7 +177,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             // If metadata is enabled, extract on-demand
             let extractedMetadata: ProcessedMetadata | null = null;
             if (settings.useFrontmatterMetadata) {
-                extractedMetadata = ContentService.extractMetadata(app, file, settings);
+                extractedMetadata = extractMetadata(app, file, settings);
             }
 
             return {
@@ -278,15 +194,25 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         };
 
         // Tag tree accessor methods
-        const getTagTree = () => fileData.tree;
+        const getTagTree = () => fileData.tagTree;
+        const getFavoriteTree = () => fileData.favoriteTree;
 
         const findTagInTree = (tagPath: string) => {
-            return findTagNode(fileData.tree, tagPath);
+            return findTagNode(fileData.tagTree, tagPath);
+        };
+
+        const findTagInFavoriteTree = (tagPath: string) => {
+            return findTagNode(fileData.favoriteTree, tagPath);
         };
 
         const getAllTagPaths = () => {
             const allPaths: string[] = [];
-            for (const rootNode of fileData.tree.values()) {
+            // Collect from both trees
+            for (const rootNode of fileData.favoriteTree.values()) {
+                const paths = collectAllTagPaths(rootNode);
+                allPaths.push(...paths);
+            }
+            for (const rootNode of fileData.tagTree.values()) {
                 const paths = collectAllTagPaths(rootNode);
                 allPaths.push(...paths);
             }
@@ -305,7 +231,9 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             hasPreview: (path: string) => getDBInstance().hasPreview(path),
             isStorageReady,
             getTagTree,
+            getFavoriteTree,
             findTagInTree,
+            findTagInFavoriteTree,
             getAllTagPaths
         };
     }, [fileData, settings, app, isStorageReady]);
@@ -319,18 +247,22 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     const rebuildTagTree = useCallback(() => {
         const db = getDBInstance();
         const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
-        const { tree: newTree, untagged: newUntagged } = buildTagTreeFromDatabase(db, excludedFolderPatterns);
+        const {
+            favoriteTree,
+            tagTree,
+            untagged: newUntagged
+        } = buildTagTreeFromDatabase(db, excludedFolderPatterns, settings.favoriteTags);
         clearNoteCountCache();
         const untaggedCount = settings.showTags && settings.showUntagged ? newUntagged : 0;
-        setFileData({ tree: newTree, untagged: untaggedCount });
+        setFileData({ favoriteTree, tagTree, untagged: untaggedCount });
 
-        // Update the TagTreeService with the new tree
+        // Update the TagTreeService with both trees
         if (tagTreeService) {
-            tagTreeService.updateTagTree(newTree, untaggedCount);
+            tagTreeService.updateTagTree(tagTree, untaggedCount, favoriteTree);
         }
 
-        return newTree;
-    }, [settings.showTags, settings.showUntagged, settings.excludedFolders, tagTreeService]);
+        return { favoriteTree, tagTree };
+    }, [settings.showTags, settings.showUntagged, settings.excludedFolders, settings.favoriteTags, tagTreeService]);
 
     // Unified cleanup function that runs all cleanup operations in a single pass
     const runUnifiedCleanup = useCallback(
@@ -360,82 +292,40 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
     /**
      * Centralized handler for all content-related settings changes
-     *
-     * This function processes setting changes and determines what content needs to be:
-     * 1. Cleared from the database (when features are disabled or settings change)
-     * 2. Regenerated (when features are enabled or settings change)
-     *
-     * The logic follows these patterns:
-     * - Toggle settings (show/hide): Clear when disabled, regenerate when enabled
-     * - Property changes: Always clear and regenerate to ensure fresh content
+     * Delegates to the ContentProviderRegistry to determine what needs regeneration
      */
     const handleSettingsChanges = useCallback(
-        async (changes: SettingChange[]) => {
-            const db = getDBInstance();
+        async (oldSettings: NotebookNavigatorSettings, newSettings: NotebookNavigatorSettings) => {
+            if (!contentRegistry.current) return;
 
-            // Collect all clear operations to run in parallel
-            const clearPromises: Promise<void>[] = [];
+            // Let the registry handle settings changes
+            await contentRegistry.current.handleSettingsChange(oldSettings, newSettings);
 
-            // Track which content types need regeneration
-            const needsRegeneration = new Set<ContentType>();
-
-            // Track if any changes require content regeneration
-            let requiresRegeneration = false;
-
-            // Process each change
-            for (const change of changes) {
-                const { metadata, newValue } = change;
-
-                if (metadata.isToggle) {
-                    // Toggle settings: clear when disabled, regenerate when enabled
-                    if (!newValue) {
-                        // Feature disabled: clear content from DB
-                        clearPromises.push(db.batchClearAllFileContent(metadata.contentType));
-                    } else {
-                        // Feature enabled: mark for regeneration
-                        needsRegeneration.add(metadata.contentType);
-                        requiresRegeneration = true;
-                    }
-                } else {
-                    // Property settings: always clear and regenerate
-                    clearPromises.push(db.batchClearAllFileContent(metadata.contentType));
-                    needsRegeneration.add(metadata.contentType);
-                    requiresRegeneration = true;
-                }
-            }
-
-            // Execute all clear operations in parallel for better performance
-            await Promise.all(clearPromises);
-
-            // Only regenerate content if any changes require it
-            // Skip regeneration if ALL changes are feature disables
-            if (requiresRegeneration && needsRegeneration.size > 0 && contentService.current) {
-                // Get all files that should be processed (respects exclusion settings)
-                const allFiles = getFilteredMarkdownFilesCallback();
-
-                // Queue content generation for all files
-                // The content service will determine what actually needs to be generated
-                // based on current settings and what's already in the database
-                contentService.current.queueContent(allFiles, settings);
-            }
+            // Queue content generation for all files if needed
+            const allFiles = getFilteredMarkdownFilesCallback();
+            contentRegistry.current.queueFilesForAllProviders(allFiles, newSettings);
         },
-        [settings, getFilteredMarkdownFilesCallback]
+        [getFilteredMarkdownFilesCallback]
     );
 
     // ==================== Effects ====================
 
     // Initialize content service
     useEffect(() => {
-        // Only create service if it doesn't exist
-        if (!contentService.current) {
-            // Create content service
-            contentService.current = new ContentService(app);
+        // Only create registry if it doesn't exist
+        if (!contentRegistry.current) {
+            // Create content provider registry and register providers
+            contentRegistry.current = new ContentProviderRegistry();
+            contentRegistry.current.registerProvider(new PreviewContentProvider(app));
+            contentRegistry.current.registerProvider(new FeatureImageContentProvider(app));
+            contentRegistry.current.registerProvider(new MetadataContentProvider(app));
+            contentRegistry.current.registerProvider(new TagContentProvider(app));
         }
 
         return () => {
-            if (contentService.current) {
-                contentService.current.stop();
-                contentService.current = null;
+            if (contentRegistry.current) {
+                contentRegistry.current.stopAllProcessing();
+                contentRegistry.current = null;
             }
         };
     }, [app]); // Only recreate when app changes, not settings
@@ -496,7 +386,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                     // Step 3: Build tag tree from the now-synced database
                     // This ensures the tag tree accurately reflects the current vault state
-                    const tagTree = rebuildTagTree();
+                    const { favoriteTree, tagTree } = rebuildTagTree();
 
                     // Step 4: Mark storage as ready
                     setIsStorageReady(true);
@@ -507,15 +397,17 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                     // - Folder metadata cleanup uses current vault structure
                     // - All orphaned metadata is properly detected and removed
                     if (metadataService) {
-                        await runUnifiedCleanup(getDBInstance(), tagTree);
+                        // Combine both trees for cleanup so favorite tags aren't treated as orphaned
+                        const combinedTree = new Map([...favoriteTree, ...tagTree]);
+                        await runUnifiedCleanup(getDBInstance(), combinedTree);
                     }
 
                     // Step 6: Queue content generation for new/modified files
                     const contentEnabled =
                         settings.showTags || settings.showFilePreview || settings.showFeatureImage || settings.useFrontmatterMetadata;
 
-                    if (contentService.current && contentEnabled && (toAdd.length > 0 || toUpdate.length > 0)) {
-                        contentService.current.queueContent([...toAdd, ...toUpdate], settings);
+                    if (contentRegistry.current && contentEnabled && (toAdd.length > 0 || toUpdate.length > 0)) {
+                        contentRegistry.current.queueFilesForAllProviders([...toAdd, ...toUpdate], settings);
                     }
                 } catch (error) {
                     console.error('Failed during initial load sequence:', error);
@@ -545,7 +437,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                                     }
 
                                     // Note: Tag change detection is no longer needed here
-                                    // Tags are now extracted by ContentService and will trigger
+                                    // Tags are now extracted by TagContentProvider and will trigger
                                     // tag tree rebuild via database change notifications
                                 } catch (error) {
                                     console.error('Failed to update IndexedDB cache:', error);
@@ -559,7 +451,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                                     settings.showFeatureImage ||
                                     settings.useFrontmatterMetadata;
 
-                                if (contentService.current && contentEnabled) {
+                                if (contentRegistry.current && contentEnabled) {
                                     // Always process new and updated files (but only if they need content)
                                     // Check IndexedDB to see what content is needed
                                     const db = getDBInstance();
@@ -620,7 +512,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                                     }
 
                                     if (filesToProcess.length > 0) {
-                                        contentService.current.queueContent(filesToProcess, settings);
+                                        contentRegistry.current.queueFilesForAllProviders(filesToProcess, settings);
                                     }
                                 }
                             }
@@ -641,8 +533,9 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             await processExistingCache(allFiles, isInitialLoad);
         };
 
-        // Create debounced version for events (increased to 500ms to reduce duplicate processing)
-        const rebuildFileCache = debounce(() => buildFileCache(false), 500);
+        // Create debounced version for events with leading edge execution
+        // This ensures files are added to database immediately on first event
+        const rebuildFileCache = leadingEdgeDebounce(() => buildFileCache(false), TIMEOUTS.DEBOUNCE_CONTENT);
 
         // Only build initial cache if IndexedDB is ready and we haven't built it yet
         if (isIndexedDBReady && !hasBuiltInitialCache.current) {
@@ -662,12 +555,12 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                     const db = getDBInstance();
                     const existingData = db.getFiles([file.path]);
 
-                    // Record the file change - this sets all content to null
+                    // Record the file change (only does something for new files)
                     await recordFileChanges([file], existingData);
 
-                    // ContentService will detect the null content and regenerate
-                    if (contentService.current) {
-                        contentService.current.queueContent([file], settings);
+                    // Content providers will detect the mtime mismatch (db.mtime != file.mtime) and regenerate
+                    if (contentRegistry.current) {
+                        contentRegistry.current.queueFilesForAllProviders([file], settings);
                     }
                 }
             })
@@ -681,8 +574,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                 await markFilesForRegeneration([file]);
 
                 // Queue content regeneration for the file
-                if (contentService.current) {
-                    contentService.current.queueContent([file], settings);
+                if (contentRegistry.current) {
+                    contentRegistry.current.queueFilesForAllProviders([file], settings);
                 }
 
                 // Note: We already queued content regeneration above
@@ -699,34 +592,23 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
     // Single effect to handle ALL content-related settings changes
     useEffect(() => {
-        // Extract current content settings
-        const contentSettings = extractContentSettings(settings);
-
         // Skip on initial mount
-        if (!prevContentSettings.current) {
-            prevContentSettings.current = contentSettings;
+        if (!prevSettings.current) {
+            prevSettings.current = settings;
             return;
         }
 
-        // Detect what changed
-        const changes = detectContentSettingsChanges(prevContentSettings.current, settings);
+        // Let content providers handle settings changes
+        handleSettingsChanges(prevSettings.current, settings);
+        prevSettings.current = settings;
 
-        // Handle changes if any
-        if (changes.length > 0) {
-            handleSettingsChanges(changes);
-            prevContentSettings.current = contentSettings;
+        // Check for favoriteTags changes separately (not a content setting)
+        const favoriteTagsChanged = JSON.stringify(prevFavoriteTags.current) !== JSON.stringify(settings.favoriteTags);
+        if (favoriteTagsChanged && settings.showTags) {
+            rebuildTagTree();
+            prevFavoriteTags.current = settings.favoriteTags;
         }
-    }, [
-        // Use the registry to track all content settings dynamically
-        // We intentionally use a spread here to avoid manually maintaining a list of dependencies.
-        // The registry ensures we track all content-related settings automatically.
-        // ESLint flags this because it can't statically analyze what's inside the spread,
-        // but our usage is safe since the registry is constant and deterministic.
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-        ...getContentSettingsDependencies(settings),
-        handleSettingsChanges,
-        settings
-    ]);
+    }, [settings, handleSettingsChanges, rebuildTagTree]);
 
     return <StorageContext.Provider value={contextValue}>{children}</StorageContext.Provider>;
 }

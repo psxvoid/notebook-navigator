@@ -126,7 +126,9 @@ export const STRINGS_ZH = {
             changeIcon: '更改图标',
             removeIcon: '移除图标',
             changeColor: '更改颜色',
-            removeColor: '移除颜色'
+            removeColor: '移除颜色',
+            addToFavorites: '添加到收藏',
+            removeFromFavorites: '从收藏中移除'
         }
     },
 
@@ -506,13 +508,13 @@ export const STRINGS_ZH = {
             },
             favoriteTags: {
                 name: '收藏标签',
-                desc: '收藏标签模式的逗号分隔列表。支持精确匹配、通配符（*）和正则表达式（/模式/）。',
-                placeholder: '收件箱, 项目-*, /^日记-\\d{4}/'
+                desc: '标签前缀的逗号分隔列表。添加标签包含所有子标签（例如："photo"包含"photo/camera/fuji"）。',
+                placeholder: '收件箱, 项目/工作, 日记/2025'
             },
             hiddenTags: {
                 name: '隐藏标签',
-                desc: '要从标签树中隐藏的标签模式逗号分隔列表。支持精确匹配、通配符（*）和正则表达式（/模式/）。',
-                placeholder: '内部, 临时-*, /^归档-\\d{4}/'
+                desc: '要隐藏的标签前缀的逗号分隔列表。隐藏标签也会隐藏所有子标签（例如："归档"隐藏"归档/2024/docs"）。',
+                placeholder: '内部, 临时/草稿, 归档/2024'
             },
             enableFolderNotes: {
                 name: '启用文件夹笔记',
@@ -522,6 +524,11 @@ export const STRINGS_ZH = {
                 name: '文件夹笔记名称',
                 desc: '文件夹笔记的名称。留空以使用与文件夹相同的名称。',
                 placeholder: '留空以使用文件夹名称'
+            },
+            folderNoteProperties: {
+                name: '文件夹笔记属性',
+                desc: '添加到新创建的文件夹笔记的 frontmatter 属性（逗号分隔）。',
+                placeholder: 'foldernote, darktheme'
             },
             hideFolderNoteInList: {
                 name: '在列表中隐藏文件夹笔记',

@@ -16,8 +16,36 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+/**
+ * OPTIMIZATIONS:
+ *
+ * 1. React.memo with forwardRef - Only re-renders on prop changes
+ *
+ * 2. Virtualization:
+ *    - TanStack Virtual for rendering only visible items
+ *    - Dynamic height calculation based on content (preview text, tags, metadata)
+ *    - Direct memory cache lookups in estimateSize function
+ *    - Virtualizer resets only when list order changes (tracked by key)
+ *
+ * 3. List building optimization:
+ *    - useMemo rebuilds list items only when dependencies change
+ *    - File filtering happens once during list build
+ *    - Sort operations optimized with pre-computed values
+ *    - Pinned files handled separately for efficiency
+ *
+ * 4. Event handling:
+ *    - Debounced vault event handlers via forceUpdate
+ *    - Selective updates based on file location (folder/tag context)
+ *    - Database content changes trigger selective remeasurement
+ *
+ * 5. Selection handling:
+ *    - Stable file index for onClick handlers
+ *    - Multi-selection support without re-render
+ *    - Keyboard navigation optimized
+ */
+
 import React, { useMemo, useCallback, useRef, useEffect, useState, useImperativeHandle, forwardRef } from 'react';
-import { TFile, debounce } from 'obsidian';
+import { TFile } from 'obsidian';
 import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
@@ -28,12 +56,14 @@ import { useMultiSelection } from '../hooks/useMultiSelection';
 import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
 import { strings } from '../i18n';
 import { ListPaneItemType, ItemType, LISTPANE_MEASUREMENTS, OVERSCAN } from '../types';
+import { TIMEOUTS } from '../types/obsidian-extended';
 import type { ListPaneItem } from '../types/virtualization';
 import { DateUtils } from '../utils/dateUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
+import { leadingEdgeDebounce } from '../utils/leadingEdgeDebounce';
 import { getDateField, getEffectiveSortOption, sortFiles } from '../utils/sortUtils';
 import { FileItem } from './FileItem';
-import { PaneHeader } from './PaneHeader';
+import { ListPaneHeader } from './ListPaneHeader';
 
 /**
  * Renders the list pane displaying files from the selected folder.
@@ -213,7 +243,7 @@ export const ListPane = React.memo(
                 if (settings.showFileTags && item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
                     // Check if file has tags using the database
                     const db = getDB();
-                    const tags = db.getDisplayTags(item.data.path);
+                    const tags = db.getCachedTags(item.data.path);
                     const hasTags = tags.length > 0;
 
                     if (hasTags) {
@@ -360,6 +390,14 @@ export const ListPane = React.memo(
             return files;
         }, [listItems]);
 
+        // Create a stable onClick handler for FileItem that uses pre-calculated fileIndex
+        const handleFileItemClick = useCallback(
+            (file: TFile, fileIndex: number | undefined) => (e: React.MouseEvent) => {
+                handleFileClick(file, e, fileIndex, orderedFiles);
+            },
+            [handleFileClick, orderedFiles]
+        );
+
         // Determine if list pane is visible early to optimize
         const isVisible = !uiState.singlePane || uiState.currentSinglePaneView === 'files';
 
@@ -378,11 +416,11 @@ export const ListPane = React.memo(
 
         // This effect now only listens for vault events to trigger a refresh
         useEffect(() => {
-            // Debounce updates to prevent rapid re-renders
-            const forceUpdate = debounce(() => {
+            // Use leading edge debounce for immediate UI updates
+            const forceUpdate = leadingEdgeDebounce(() => {
                 // Force re-render by incrementing update key
                 setUpdateKey(k => k + 1);
-            }, 300); // Increased debounce time to reduce render frequency
+            }, TIMEOUTS.DEBOUNCE_CONTENT);
 
             const vaultEvents = [
                 app.vault.on('create', () => {
@@ -541,6 +579,9 @@ export const ListPane = React.memo(
 
                 // Sort will happen below after determining the sort option
 
+                // Track file index for stable onClick handlers
+                let fileIndexCounter = 0;
+
                 // Add pinned files
                 if (pinnedFiles.length > 0) {
                     items.push({
@@ -553,7 +594,8 @@ export const ListPane = React.memo(
                             type: ListPaneItemType.FILE,
                             data: file,
                             parentFolder: selectedFolder?.path,
-                            key: file.path
+                            key: file.path,
+                            fileIndex: fileIndexCounter++
                         });
                     });
                 }
@@ -573,7 +615,8 @@ export const ListPane = React.memo(
                             type: ListPaneItemType.FILE,
                             data: file,
                             parentFolder: selectedFolder?.path,
-                            key: file.path
+                            key: file.path,
+                            fileIndex: fileIndexCounter++
                         });
                     });
                 } else {
@@ -598,7 +641,8 @@ export const ListPane = React.memo(
                             type: ListPaneItemType.FILE,
                             data: file,
                             parentFolder: selectedFolder?.path,
-                            key: file.path
+                            key: file.path,
+                            fileIndex: fileIndexCounter++
                         });
                     });
                 }
@@ -615,7 +659,7 @@ export const ListPane = React.memo(
 
             // Rebuild list items when files or relevant settings change
             rebuildListItems();
-        }, [files, settings, selectionType, selectedFolder, selectedTag, getFileCreatedTime, getFileModifiedTime]);
+        }, [files, settings, selectionType, selectedFolder, selectedTag, getFileCreatedTime, getFileModifiedTime, getDB, hasPreview]);
 
         // Reset virtualizer when list items are reordered
         useEffect(() => {
@@ -977,7 +1021,7 @@ export const ListPane = React.memo(
         if (!selectedFolder && !selectedTag) {
             return (
                 <div className="nn-list-pane">
-                    <PaneHeader type="files" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
+                    <ListPaneHeader onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
                     <div className="nn-list-pane-scroller nn-empty-state">
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoSelection}</div>
                     </div>
@@ -988,7 +1032,7 @@ export const ListPane = React.memo(
         if (files.length === 0) {
             return (
                 <div className="nn-list-pane">
-                    <PaneHeader type="files" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
+                    <ListPaneHeader onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
                     <div className="nn-list-pane-scroller nn-empty-state">
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoNotes}</div>
                     </div>
@@ -998,7 +1042,7 @@ export const ListPane = React.memo(
 
         return (
             <div className="nn-list-pane">
-                <PaneHeader type="files" onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
+                <ListPaneHeader onHeaderClick={handleScrollToTop} currentDateGroup={currentDateGroup} />
                 <div
                     ref={scrollContainerRefCallback}
                     className={`nn-list-pane-scroller ${isSlimMode ? 'nn-slim-mode' : ''}`}
@@ -1087,19 +1131,7 @@ export const ListPane = React.memo(
                                                 isSelected={isSelected}
                                                 hasSelectedAbove={hasSelectedAbove}
                                                 hasSelectedBelow={hasSelectedBelow}
-                                                onClick={e => {
-                                                    // Find the actual index of this file in the display order
-                                                    // Count only file items, not headers or spacers
-                                                    let fileIndex = 0;
-                                                    for (let i = 0; i < virtualItem.index; i++) {
-                                                        if (listItems[i]?.type === ListPaneItemType.FILE) {
-                                                            fileIndex++;
-                                                        }
-                                                    }
-                                                    if (item.data instanceof TFile) {
-                                                        handleFileClick(item.data, e, fileIndex, orderedFiles);
-                                                    }
-                                                }}
+                                                onClick={handleFileItemClick(item.data, item.fileIndex)}
                                                 dateGroup={dateGroup}
                                                 sortOption={effectiveSortOption}
                                                 parentFolder={item.parentFolder}

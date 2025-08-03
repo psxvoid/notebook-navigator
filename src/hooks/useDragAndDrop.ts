@@ -25,6 +25,7 @@ import { useSettingsState } from '../context/SettingsContext';
 import { strings } from '../i18n';
 import { getDBInstance } from '../storage/fileOperations';
 import { ItemType, UNTAGGED_TAG_ID } from '../types';
+import { TIMEOUTS } from '../types/obsidian-extended';
 import { getPathFromDataAttribute } from '../utils/domUtils';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 
@@ -149,7 +150,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     document.body.appendChild(dragContainer);
                     // Use negative offset to position icon bottom-right of cursor
                     e.dataTransfer.setDragImage(dragContainer, -10, -10);
-                    setTimeout(() => document.body.removeChild(dragContainer), 0);
+                    setTimeout(() => document.body.removeChild(dragContainer), TIMEOUTS.YIELD_TO_EVENT_LOOP);
                 } else {
                     // Single item drag
                     e.dataTransfer.setData('obsidian/file', path);
@@ -176,7 +177,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         dragIcon.className = 'nn-drag-icon-badge';
 
                         // Try to use featured image if available
-                        const featureImagePath = db.getDisplayFeatureImageUrl(path);
+                        const featureImagePath = db.getCachedFeatureImageUrl(path);
                         let imageLoaded = false;
 
                         if (featureImagePath) {
@@ -205,7 +206,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         document.body.appendChild(dragContainer);
                         // Use negative offset to position icon bottom-right of cursor
                         e.dataTransfer.setDragImage(dragContainer, -5, -5);
-                        setTimeout(() => document.body.removeChild(dragContainer), 0);
+                        setTimeout(() => document.body.removeChild(dragContainer), TIMEOUTS.YIELD_TO_EVENT_LOOP);
                     }
                 }
             }
@@ -272,6 +273,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     }
                 } catch (error) {
                     console.error('Error parsing multiple files data:', error);
+                    return; // Early return on parse error
                 }
             } else {
                 // Check if dragging single file
@@ -310,7 +312,10 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         );
                     }
                     if (skipped > 0) {
-                        new Notice(strings.dragDrop.notifications.filesAlreadyHaveTag.replace('{count}', skipped.toString()), 2000);
+                        new Notice(
+                            strings.dragDrop.notifications.filesAlreadyHaveTag.replace('{count}', skipped.toString()),
+                            TIMEOUTS.NOTICE_ERROR
+                        );
                     }
                 } catch (error) {
                     console.error('Error adding tag:', error);
@@ -355,6 +360,9 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             const targetFolder = app.vault.getAbstractFileByPath(targetPath);
             if (!(targetFolder instanceof TFolder)) return;
 
+            // Collect files to move
+            const filesToMove: TFile[] = [];
+
             // Check if dragging multiple files
             const multipleFilesData = e.dataTransfer?.getData('obsidian/files');
             if (multipleFilesData) {
@@ -362,54 +370,42 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     const selectedPaths = JSON.parse(multipleFilesData);
                     if (Array.isArray(selectedPaths)) {
                         // Convert paths to TFile objects
-                        const filesToMove: TFile[] = [];
                         for (const path of selectedPaths) {
                             const file = app.vault.getAbstractFileByPath(path);
                             if (file instanceof TFile) {
                                 filesToMove.push(file);
                             }
                         }
-
-                        if (filesToMove.length > 0) {
-                            // Use the shared moveFilesToFolder method
-                            const currentFiles = getCurrentFileList();
-                            await fileSystemOps.moveFilesToFolder({
-                                files: filesToMove,
-                                targetFolder,
-                                selectionContext: {
-                                    selectedFile: selectionState.selectedFile,
-                                    dispatch,
-                                    allFiles: currentFiles
-                                },
-                                showNotifications: true
-                            });
-                        }
-                        return;
                     }
                 } catch (error) {
                     console.error('Error parsing multiple files data:', error);
+                    return; // Early return on parse error
                 }
+            } else {
+                // Check if dragging single file
+                const singleFileData = e.dataTransfer?.getData('obsidian/file');
+                if (!singleFileData) return;
+
+                const sourceItem = app.vault.getAbstractFileByPath(singleFileData);
+                if (!sourceItem || !(sourceItem instanceof TFile)) return;
+
+                filesToMove.push(sourceItem);
             }
 
-            // Check if dragging single file
-            const singleFileData = e.dataTransfer?.getData('obsidian/file');
-            if (!singleFileData) return;
-
-            const sourceItem = app.vault.getAbstractFileByPath(singleFileData);
-            if (!sourceItem || !(sourceItem instanceof TFile)) return;
-
-            // Use the shared moveFilesToFolder method for single files too
-            const currentFiles = getCurrentFileList();
-            await fileSystemOps.moveFilesToFolder({
-                files: [sourceItem],
-                targetFolder,
-                selectionContext: {
-                    selectedFile: selectionState.selectedFile,
-                    dispatch,
-                    allFiles: currentFiles
-                },
-                showNotifications: true
-            });
+            // Process all files at once
+            if (filesToMove.length > 0) {
+                const currentFiles = getCurrentFileList();
+                await fileSystemOps.moveFilesToFolder({
+                    files: filesToMove,
+                    targetFolder,
+                    selectionContext: {
+                        selectedFile: selectionState.selectedFile,
+                        dispatch,
+                        allFiles: currentFiles
+                    },
+                    showNotifications: true
+                });
+            }
         },
         [app, fileSystemOps, selectionState, getCurrentFileList, dispatch, handleTagDrop]
     );

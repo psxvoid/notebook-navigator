@@ -22,6 +22,7 @@ import { strings } from '../i18n';
 import { getIconService, IconDefinition, IconProvider } from '../services/icons';
 import { MetadataService } from '../services/MetadataService';
 import { ItemType } from '../types';
+import { TIMEOUTS } from '../types/obsidian-extended';
 
 /**
  * Enhanced icon picker modal that supports multiple icon providers
@@ -80,7 +81,7 @@ export class IconPickerModal extends Modal {
             }
             this.searchDebounceTimer = setTimeout(() => {
                 this.updateResults();
-            }, 150);
+            }, TIMEOUTS.DEBOUNCE_KEYBOARD);
         });
 
         // Set up keyboard navigation

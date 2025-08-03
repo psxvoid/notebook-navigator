@@ -16,9 +16,11 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { App } from 'obsidian';
 import { SortOption } from '../settings';
+import { ISettingsProvider } from '../interfaces/ISettingsProvider';
+import { ITagTreeProvider } from '../interfaces/ITagTreeProvider';
 import { FolderMetadataService, TagMetadataService, FileMetadataService } from './metadata';
-import type NotebookNavigatorPlugin from '../main';
 import { TagTreeNode } from '../types/storage';
 import { FileData } from '../storage/IndexedDBStorage';
 
@@ -34,7 +36,7 @@ export interface CleanupValidators {
 /**
  * Service for managing all folder, tag, and file metadata operations
  * Delegates to specialized sub-services for better organization
- * Provides a unified API for metadata operations while maintaining backward compatibility
+ * Provides a unified API for metadata operations
  */
 export class MetadataService {
     private fileService: FileMetadataService;
@@ -43,13 +45,15 @@ export class MetadataService {
 
     /**
      * Creates a new MetadataService instance
-     * @param plugin - The plugin instance
+     * @param app - The Obsidian app instance
+     * @param settingsProvider - Provider for accessing and saving settings
+     * @param getTagTreeProvider - Function to get the tag tree provider
      */
-    constructor(plugin: NotebookNavigatorPlugin) {
+    constructor(app: App, settingsProvider: ISettingsProvider, getTagTreeProvider: () => ITagTreeProvider | null) {
         // Initialize sub-services
-        this.folderService = new FolderMetadataService(plugin);
-        this.tagService = new TagMetadataService(plugin);
-        this.fileService = new FileMetadataService(plugin);
+        this.folderService = new FolderMetadataService(app, settingsProvider);
+        this.tagService = new TagMetadataService(app, settingsProvider, getTagTreeProvider);
+        this.fileService = new FileMetadataService(app, settingsProvider);
     }
     // ========== Folder Methods (delegated to FolderMetadataService) ==========
 

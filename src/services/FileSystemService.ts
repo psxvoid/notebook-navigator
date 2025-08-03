@@ -30,6 +30,7 @@ import { getFolderNote } from '../utils/fileFinder';
 import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
 import { executeCommand } from '../utils/typeGuards';
 import { TagTreeService } from './TagTreeService';
+import { CommandQueueService } from './CommandQueueService';
 
 /**
  * Selection context for file operations
@@ -72,7 +73,7 @@ interface MoveFilesResult {
 }
 
 /**
- * Handles all file system operations for the Notebook Navigator
+ * Handles all file system operations for Notebook Navigator
  * Provides centralized methods for creating, renaming, and deleting files/folders
  * Manages user input modals and confirmation dialogs
  */
@@ -81,10 +82,12 @@ export class FileSystemOperations {
      * Creates a new FileSystemOperations instance
      * @param app - The Obsidian app instance for vault operations
      * @param getTagTreeService - Function to get the TagTreeService instance
+     * @param getCommandQueue - Function to get the CommandQueueService instance
      */
     constructor(
         private app: App,
-        private getTagTreeService: () => TagTreeService | null
+        private getTagTreeService: () => TagTreeService | null,
+        private getCommandQueue: () => CommandQueueService | null
     ) {}
 
     /**
@@ -152,22 +155,24 @@ export class FileSystemOperations {
                             folderNote = getFolderNote(folder, settings, this.app);
                         }
 
-                        // Rename the folder
                         const newPath = normalizePath(folder.parent?.path ? `${folder.parent.path}/${newName}` : newName);
-                        await this.app.fileManager.renameFile(folder, newPath);
 
-                        // Rename the folder note if it exists and uses the same name as folder
+                        // Rename the folder note FIRST if it exists and uses the same name as folder
                         if (folderNote && settings && !settings.folderNoteName) {
                             // Only rename if folderNoteName is empty (meaning it uses folder name)
                             try {
                                 const newNoteName = `${newName}.${folderNote.extension}`;
-                                const newNotePath = normalizePath(`${newPath}/${newNoteName}`);
+                                // Use the current folder path since folder hasn't been renamed yet
+                                const newNotePath = normalizePath(`${folder.path}/${newNoteName}`);
                                 await this.app.fileManager.renameFile(folderNote, newNotePath);
                             } catch (error) {
-                                // Silently fail folder note rename - the main folder rename succeeded
+                                // Log error but continue with folder rename
                                 console.error('Failed to rename folder note:', error);
                             }
                         }
+
+                        // Now rename the folder - this will move the already-renamed folder note with it
+                        await this.app.fileManager.renameFile(folder, newPath);
                     } catch (error) {
                         new Notice(strings.fileSystem.errors.renameFolder.replace('{error}', error.message));
                     }
@@ -360,7 +365,7 @@ export class FileSystemOperations {
                 if (fileListEl) {
                     fileListEl.focus();
                 }
-            }, TIMEOUTS.FOCUS_RESTORE_DELAY);
+            }, TIMEOUTS.FILE_OPERATION_DELAY);
         });
     }
 
@@ -399,7 +404,7 @@ export class FileSystemOperations {
             const sourceItem = files[0];
             if (sourceItem instanceof TFolder && this.isDescendant(sourceItem, targetFolder)) {
                 if (showNotifications) {
-                    new Notice(strings.dragDrop.errors.cannotMoveIntoSelf, 2000);
+                    new Notice(strings.dragDrop.errors.cannotMoveIntoSelf, TIMEOUTS.NOTICE_ERROR);
                 }
                 result.errors.push({
                     file: sourceItem,
@@ -419,31 +424,16 @@ export class FileSystemOperations {
             nextFileToSelect = findNextFileAfterRemoval(selectionContext.allFiles, pathsToMove);
         }
 
-        // Set flag to prevent auto-navigation when moving from Navigator
-        window.notebookNavigatorMovingFile = true;
-
-        try {
-            // Move each file
-            for (const file of files) {
-                const newPath = `${targetFolder.path}/${file.name}`;
-
-                // Check for name conflicts
-                if (this.app.vault.getAbstractFileByPath(newPath)) {
-                    result.skippedCount++;
-                    continue;
-                }
-
-                try {
-                    await this.app.fileManager.renameFile(file, newPath);
-                    result.movedCount++;
-                } catch (error) {
-                    console.error('Error moving file:', file.path, error);
-                    result.errors.push({ file, error: error as Error });
-                }
+        const commandQueue = this.getCommandQueue();
+        if (commandQueue) {
+            const moveResult = await commandQueue.executeMoveFiles(files, targetFolder);
+            if (moveResult.success && moveResult.data) {
+                result.movedCount = moveResult.data.movedCount;
+                result.skippedCount = moveResult.data.skippedCount;
+            } else if (moveResult.error) {
+                console.error('Error during move operation:', moveResult.error);
+                throw moveResult.error;
             }
-        } finally {
-            // Always clear the flag
-            delete window.notebookNavigatorMovingFile;
         }
 
         // Handle selection updates if needed
@@ -458,7 +448,7 @@ export class FileSystemOperations {
                     files.length === 1
                         ? strings.dragDrop.errors.itemAlreadyExists.replace('{name}', files[0].name)
                         : strings.dragDrop.notifications.filesAlreadyExist.replace('{count}', result.skippedCount.toString());
-                new Notice(message, 2000);
+                new Notice(message, TIMEOUTS.NOTICE_ERROR);
             }
 
             if (result.errors.length > 0 && files.length === 1) {
@@ -607,18 +597,42 @@ export class FileSystemOperations {
 
             await this.app.vault.createFolder(newPath);
 
-            // Copy all contents recursively
+            // Copy all contents recursively with batching
             const copyContents = async (sourceFolder: TFolder, destPath: string) => {
-                for (const child of sourceFolder.children) {
-                    if (child instanceof TFile) {
-                        const content = await this.app.vault.read(child);
-                        const childPath = normalizePath(`${destPath}/${child.name}`);
-                        await this.app.vault.create(childPath, content);
-                    } else if (child instanceof TFolder) {
-                        const childPath = normalizePath(`${destPath}/${child.name}`);
-                        await this.app.vault.createFolder(childPath);
-                        await copyContents(child, childPath);
+                // Collect all operations first
+                const filesToCopy: Array<{ source: TFile; destPath: string }> = [];
+                const foldersToCreate: string[] = [];
+
+                const collectOperations = (folder: TFolder, currentDestPath: string) => {
+                    for (const child of folder.children) {
+                        if (child instanceof TFile) {
+                            const childPath = normalizePath(`${currentDestPath}/${child.name}`);
+                            filesToCopy.push({ source: child, destPath: childPath });
+                        } else if (child instanceof TFolder) {
+                            const childPath = normalizePath(`${currentDestPath}/${child.name}`);
+                            foldersToCreate.push(childPath);
+                            collectOperations(child, childPath);
+                        }
                     }
+                };
+
+                collectOperations(sourceFolder, destPath);
+
+                // Create all folders first
+                for (const folderPath of foldersToCreate) {
+                    await this.app.vault.createFolder(folderPath);
+                }
+
+                // Copy files in batches of 10 to avoid overwhelming the system
+                const BATCH_SIZE = 10;
+                for (let i = 0; i < filesToCopy.length; i += BATCH_SIZE) {
+                    const batch = filesToCopy.slice(i, i + BATCH_SIZE);
+                    await Promise.all(
+                        batch.map(async ({ source, destPath }) => {
+                            const content = await this.app.vault.read(source);
+                            await this.app.vault.create(destPath, content);
+                        })
+                    );
                 }
             };
 
@@ -638,18 +652,42 @@ export class FileSystemOperations {
         if (files.length === 0) return;
 
         const performDelete = async () => {
-            // Delete all files
-            for (const file of files) {
-                try {
-                    await this.app.fileManager.trashFile(file);
-                } catch (error) {
-                    console.error('Error deleting file:', file.path, error);
-                    new Notice(strings.fileSystem.errors.failedToDeleteFile.replace('{name}', file.name).replace('{error}', error.message));
-                }
-            }
-            new Notice(strings.fileSystem.notifications.deletedMultipleFiles.replace('{count}', files.length.toString()));
+            // Delete files in batches to improve performance
+            const BATCH_SIZE = 10;
+            const errors: Array<{ file: TFile; error: unknown }> = [];
+            let deletedCount = 0;
 
-            if (onSuccess) {
+            for (let i = 0; i < files.length; i += BATCH_SIZE) {
+                const batch = files.slice(i, i + BATCH_SIZE);
+                const results = await Promise.allSettled(batch.map(file => this.app.fileManager.trashFile(file)));
+
+                results.forEach((result, index) => {
+                    if (result.status === 'fulfilled') {
+                        deletedCount++;
+                    } else {
+                        const file = batch[index];
+                        errors.push({ file, error: result.reason });
+                        console.error('Error deleting file:', file.path, result.reason);
+                    }
+                });
+            }
+
+            // Show appropriate notifications
+            if (deletedCount > 0) {
+                new Notice(strings.fileSystem.notifications.deletedMultipleFiles.replace('{count}', deletedCount.toString()));
+            }
+
+            if (errors.length > 0) {
+                const errorMsg =
+                    errors.length === 1
+                        ? strings.fileSystem.errors.failedToDeleteFile
+                              .replace('{name}', errors[0].file.name)
+                              .replace('{error}', String(errors[0].error))
+                        : `Failed to delete ${errors.length} files`;
+                new Notice(errorMsg);
+            }
+
+            if (onSuccess && deletedCount > 0) {
                 onSuccess();
             }
         };
@@ -716,37 +754,35 @@ export class FileSystemOperations {
      * The Notebook Navigator's aggressive focus management can interfere with this.
      *
      * Solution:
-     * 1. Set a flag to prevent the navigator from stealing focus
+     * 1. Track the operation to prevent the navigator from stealing focus
      * 2. Always use openLinkText to open/re-open the file (ensures proper editor focus)
      * 3. Wait briefly for the editor to be ready
      * 4. Execute the version history command
-     * 5. Clear the flag after a delay
      *
      * @param file - The file to view version history for
      */
     async openVersionHistory(file: TFile): Promise<void> {
-        // Set a flag to prevent the navigator from stealing focus back
-        window.notebookNavigatorOpeningVersionHistory = true;
+        const commandQueue = this.getCommandQueue();
+        if (!commandQueue) {
+            new Notice('Version history service not available');
+            return;
+        }
 
-        try {
+        const result = await commandQueue.executeOpenVersionHistory(file, async () => {
             // Always open/re-open the file to ensure proper focus
-            // This works for non-selected files, so let's use it for all files
             await this.app.workspace.openLinkText(file.path, '', false);
 
             // Small delay to ensure the editor is ready
-            await new Promise(resolve => setTimeout(resolve, 100));
+            await new Promise(resolve => setTimeout(resolve, TIMEOUTS.FILE_OPERATION_DELAY));
 
             // Execute the version history command
             if (!executeCommand(this.app, OBSIDIAN_COMMANDS.VERSION_HISTORY)) {
                 new Notice(strings.fileSystem.errors.versionHistoryNotFound);
             }
-        } catch (error) {
-            new Notice(strings.fileSystem.errors.openVersionHistory.replace('{error}', error.message));
-        } finally {
-            // Clear the flag after a delay to ensure the modal has time to open
-            setTimeout(() => {
-                delete window.notebookNavigatorOpeningVersionHistory;
-            }, TIMEOUTS.VERSION_HISTORY_DELAY);
+        });
+
+        if (!result.success && result.error) {
+            new Notice(strings.fileSystem.errors.openVersionHistory.replace('{error}', result.error.message));
         }
     }
 

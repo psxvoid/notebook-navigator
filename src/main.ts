@@ -19,9 +19,11 @@
 import { Plugin, WorkspaceLeaf, TFile, TFolder } from 'obsidian';
 import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
 import { LocalStorageKeys, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, STORAGE_KEYS } from './types';
+import { ISettingsProvider } from './interfaces/ISettingsProvider';
 import { MetadataService } from './services/MetadataService';
 import { TagOperations } from './services/TagOperations';
 import { TagTreeService } from './services/TagTreeService';
+import { CommandQueueService } from './services/CommandQueueService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage } from './utils/localStorage';
@@ -78,12 +80,13 @@ if (typeof window !== 'undefined' && !window.requestIdleCallback) {
  * Provides a Notes-style file explorer for Obsidian with two-pane layout
  * Manages plugin lifecycle, settings, and view registration
  */
-export default class NotebookNavigatorPlugin extends Plugin {
+export default class NotebookNavigatorPlugin extends Plugin implements ISettingsProvider {
     settings: NotebookNavigatorSettings;
     ribbonIconEl: HTMLElement | undefined = undefined;
     metadataService: MetadataService | null = null;
     tagOperations: TagOperations | null = null;
     tagTreeService: TagTreeService | null = null;
+    commandQueue: CommandQueueService | null = null;
     // A map of callbacks to notify open React views of changes
     private settingsUpdateListeners = new Map<string, () => void>();
     // A map of callbacks to notify open React views of file renames
@@ -126,13 +129,16 @@ export default class NotebookNavigatorPlugin extends Plugin {
         initializeIconService();
 
         // Initialize metadata service for managing folder/tag colors, icons, and sort overrides
-        this.metadataService = new MetadataService(this);
+        this.metadataService = new MetadataService(this.app, this, () => this.tagTreeService);
 
         // Initialize tag operations service
         this.tagOperations = new TagOperations(this.app);
 
         // Initialize tag tree service
         this.tagTreeService = new TagTreeService();
+
+        // Initialize command queue service
+        this.commandQueue = new CommandQueueService(this.app);
 
         this.registerView(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, leaf => {
             return new NotebookNavigatorView(leaf, this);
@@ -159,7 +165,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                             await this.activateView();
 
                             // Navigate to file
-                            await this.navigateToFile(activeFile);
+                            await this.revealFileInActualFolder(activeFile);
                         })();
                     }
                     return true;
@@ -324,7 +330,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                                 await this.activateView();
 
                                 // Navigate to file
-                                await this.navigateToFile(file);
+                                await this.revealFileInActualFolder(file);
                             });
                     });
                 }
@@ -374,9 +380,8 @@ export default class NotebookNavigatorPlugin extends Plugin {
                     // If the active file moved to a different folder, reveal it
                     // UNLESS it was moved from within the Navigator (drag-drop or context menu)
                     if (movedToDifferentFolder && file === this.app.workspace.getActiveFile()) {
-                        // Check if this move was initiated by the Navigator
-                        if (!window.notebookNavigatorMovingFile) {
-                            await this.navigateToFile(file);
+                        if (this.commandQueue && !this.commandQueue.isMovingFile()) {
+                            await this.revealFileInActualFolder(file);
                         }
                     }
 
@@ -473,6 +478,12 @@ export default class NotebookNavigatorPlugin extends Plugin {
         // Clean up the tag operations service
         if (this.tagOperations) {
             this.tagOperations = null;
+        }
+
+        // Clean up the command queue service
+        if (this.commandQueue) {
+            this.commandQueue.clearAllOperations();
+            this.commandQueue = null;
         }
 
         // Clean up the ribbon icon
@@ -592,7 +603,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
      * Note: This does NOT activate/show the view - callers must do that if needed
      * @param file - The file to navigate to in the navigator
      */
-    async navigateToFile(file: TFile) {
+    async revealFileInActualFolder(file: TFile) {
         // Find all navigator views and reveal the file
         const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
         navigatorLeaves.forEach(leaf => {

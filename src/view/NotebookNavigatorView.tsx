@@ -32,10 +32,6 @@ import { strings } from '../i18n';
 import NotebookNavigatorPlugin from '../main';
 import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
 
-// State interface for view persistence - currently unused
-// interface NotebookNavigatorViewState {
-//     activeFilePath?: string;
-// }
 
 /**
  * Custom Obsidian view that hosts the React-based Notebook Navigator interface

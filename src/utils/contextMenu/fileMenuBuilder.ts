@@ -24,7 +24,6 @@ import { getFilesForFolder, getFilesForTag } from '../../utils/fileFinder';
 import { ItemType } from '../../types';
 import { MetadataService } from '../../services/MetadataService';
 import { FileSystemOperations } from '../../services/FileSystemService';
-import { TagTreeService } from '../../services/TagTreeService';
 import { SelectionState, SelectionAction } from '../../context/SelectionContext';
 import { NotebookNavigatorSettings } from '../../settings';
 
@@ -49,11 +48,28 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     // treat it as a single file operation
     const shouldShowMultiOptions = isMultipleSelected && isFileSelected;
 
+    // Cache the current file list to avoid regenerating it multiple times
+    const cachedFileList = (() => {
+        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+            return getFilesForFolder(selectionState.selectedFolder, settings, app);
+        } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+            return getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
+        }
+        return [];
+    })();
+
+    // Cache selected files to avoid repeated path-to-file conversions
+    const cachedSelectedFiles = shouldShowMultiOptions
+        ? Array.from(selectionState.selectedFiles)
+              .map(path => app.vault.getAbstractFileByPath(path))
+              .filter((f): f is TFile => f instanceof TFile)
+        : [];
+
     // Open options - show for single or multiple selection
     if (!shouldShowMultiOptions) {
         addSingleFileOpenOptions(menu, file, app, isMobile);
     } else {
-        addMultipleFilesOpenOptions(menu, selectedCount, selectionState, app, isMobile);
+        addMultipleFilesOpenOptions(menu, selectedCount, selectionState, app, isMobile, cachedSelectedFiles);
     }
 
     menu.addSeparator();
@@ -72,8 +88,8 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         addMultipleFilesDuplicateOption(menu, selectedCount, selectionState, app, fileSystemOps);
     }
 
-    // Open version history (if Sync is enabled) - desktop only, single selection only
-    if (!isMobile && !shouldShowMultiOptions) {
+    // Open version history (if Sync is enabled) - single selection only
+    if (!shouldShowMultiOptions) {
         const syncPlugin = getInternalPlugin(app, 'sync');
         if (syncPlugin && 'enabled' in syncPlugin && syncPlugin.enabled) {
             menu.addItem((item: MenuItem) => {
@@ -100,7 +116,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                     .setIcon('folder')
                     .onClick(async () => {
                         await services.plugin.activateView();
-                        await services.plugin.navigateToFile(file);
+                        await services.plugin.revealFileInActualFolder(file);
                     });
             });
         }
@@ -153,18 +169,10 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
             item.setTitle(strings.contextMenu.file.moveToFolder)
                 .setIcon('folder-input')
                 .onClick(async () => {
-                    // Get current files list for smart selection
-                    let allFiles: TFile[] = [];
-                    if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-                        allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
-                    } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                        allFiles = getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
-                    }
-
                     await fileSystemOps.moveFilesWithModal([file], {
                         selectedFile: selectionState.selectedFile,
                         dispatch: selectionDispatch,
-                        allFiles
+                        allFiles: cachedFileList
                     });
                 });
         });
@@ -173,23 +181,10 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
             item.setTitle(strings.contextMenu.file.moveMultipleToFolder.replace('{count}', selectedCount.toString()))
                 .setIcon('folder-input')
                 .onClick(async () => {
-                    // Convert selected paths to files
-                    const selectedFiles = Array.from(selectionState.selectedFiles)
-                        .map(path => app.vault.getAbstractFileByPath(path))
-                        .filter((f): f is TFile => f instanceof TFile);
-
-                    // Get current files list for smart selection
-                    let allFiles: TFile[] = [];
-                    if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-                        allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
-                    } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                        allFiles = getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
-                    }
-
-                    await fileSystemOps.moveFilesWithModal(selectedFiles, {
+                    await fileSystemOps.moveFilesWithModal(cachedSelectedFiles, {
                         selectedFile: selectionState.selectedFile,
                         dispatch: selectionDispatch,
-                        allFiles
+                        allFiles: cachedFileList
                     });
                 });
         });
@@ -199,7 +194,16 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     if (!shouldShowMultiOptions) {
         addSingleFileDeleteOption(menu, file, selectionState, settings, fileSystemOps, selectionDispatch);
     } else {
-        addMultipleFilesDeleteOption(menu, selectedCount, selectionState, settings, app, fileSystemOps, selectionDispatch, tagTreeService);
+        addMultipleFilesDeleteOption(
+            menu,
+            selectedCount,
+            selectionState,
+            settings,
+            fileSystemOps,
+            selectionDispatch,
+            cachedFileList,
+            cachedSelectedFiles
+        );
     }
 }
 
@@ -240,11 +244,20 @@ function addSingleFileOpenOptions(menu: Menu, file: TFile, app: App, isMobile: b
 /**
  * Add open options for multiple files
  */
-function addMultipleFilesOpenOptions(menu: Menu, selectedCount: number, selectionState: SelectionState, app: App, isMobile: boolean): void {
-    // Check if all files are markdown
-    const selectedFiles = Array.from(selectionState.selectedFiles)
-        .map(path => app.vault.getAbstractFileByPath(path))
-        .filter((f): f is TFile => f instanceof TFile);
+function addMultipleFilesOpenOptions(
+    menu: Menu,
+    selectedCount: number,
+    selectionState: SelectionState,
+    app: App,
+    isMobile: boolean,
+    cachedSelectedFiles?: TFile[]
+): void {
+    // Use cached files if provided, otherwise convert paths to files
+    const selectedFiles =
+        cachedSelectedFiles ||
+        Array.from(selectionState.selectedFiles)
+            .map(path => app.vault.getAbstractFileByPath(path))
+            .filter((f): f is TFile => f instanceof TFile);
     const allMarkdown = selectedFiles.every(f => f.extension === 'md');
 
     menu.addItem((item: MenuItem) => {
@@ -479,15 +492,13 @@ function addMultipleFilesDeleteOption(
     selectedCount: number,
     selectionState: SelectionState,
     settings: NotebookNavigatorSettings,
-    app: App,
     fileSystemOps: FileSystemOperations,
     selectionDispatch: React.Dispatch<SelectionAction>,
-    tagTreeService: TagTreeService | null
+    cachedFileList: TFile[],
+    cachedSelectedFiles: TFile[]
 ): void {
-    // Check if all files are markdown
-    const selectedFiles = Array.from(selectionState.selectedFiles)
-        .map(path => app.vault.getAbstractFileByPath(path))
-        .filter((f): f is TFile => f instanceof TFile);
+    // Use cached files
+    const selectedFiles = cachedSelectedFiles;
     const allMarkdown = selectedFiles.every(f => f.extension === 'md');
 
     menu.addItem((item: MenuItem) => {
@@ -498,18 +509,10 @@ function addMultipleFilesDeleteOption(
         )
             .setIcon('trash')
             .onClick(async () => {
-                // Get all files in the current view for smart selection
-                let allFiles: TFile[] = [];
-                if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-                    allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
-                } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                    allFiles = getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
-                }
-
                 // Use centralized delete method with smart selection
                 await fileSystemOps.deleteFilesWithSmartSelection(
                     selectionState.selectedFiles,
-                    allFiles,
+                    cachedFileList,
                     settings,
                     {
                         selectionType: selectionState.selectionType,

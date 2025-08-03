@@ -21,8 +21,9 @@ import { useEffect, useCallback } from 'react';
 import { Menu } from 'obsidian';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
-import { useServices, useFileSystemOps, useMetadataService, useTagOperations } from '../context/ServicesContext';
+import { useServices, useFileSystemOps, useMetadataService, useTagOperations, useCommandQueue } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
+import { useFileCache } from '../context/StorageContext';
 import { useUIDispatch } from '../context/UIStateContext';
 import { isFileType, isFolderType, isTagType } from '../types';
 import { MenuConfig, MenuServices, MenuState, MenuDispatchers, buildFolderMenu, buildTagMenu, buildFileMenu } from '../utils/contextMenu';
@@ -48,7 +49,9 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
     const settings = useSettingsState();
     const fileSystemOps = useFileSystemOps();
     const metadataService = useMetadataService();
+    const { getFavoriteTree, findTagInFavoriteTree } = useFileCache();
     const tagOperations = useTagOperations();
+    const commandQueue = useCommandQueue();
     const selectionState = useSelectionState();
     const { expandedFolders, expandedTags } = useExpansionState();
     const selectionDispatch = useSelectionDispatch();
@@ -91,7 +94,10 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 fileSystemOps,
                 metadataService,
                 tagOperations,
-                tagTreeService
+                tagTreeService,
+                commandQueue,
+                getFavoriteTree,
+                findTagInFavoriteTree
             };
 
             const state: MenuState = {
@@ -119,13 +125,16 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 });
             } else if (isTagType(config.type)) {
                 if (typeof config.item !== 'string') return;
+                // Get context from data attribute if available
+                const context = (elementRef.current as HTMLElement).dataset?.tagContext as 'favorites' | 'tags' | undefined;
                 buildTagMenu({
                     tagPath: config.item,
                     menu,
                     services,
                     settings,
                     state,
-                    dispatchers
+                    dispatchers,
+                    context
                 });
             } else if (isFileType(config.type)) {
                 if (!(config.item instanceof TFile)) return;
@@ -157,7 +166,10 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             expansionDispatch,
             uiDispatch,
             isMobile,
-            tagTreeService
+            tagTreeService,
+            getFavoriteTree,
+            findTagInFavoriteTree,
+            commandQueue
         ]
     );
 

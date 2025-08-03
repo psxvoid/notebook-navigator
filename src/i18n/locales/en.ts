@@ -125,7 +125,9 @@ export const STRINGS_EN = {
             changeIcon: 'Change icon',
             removeIcon: 'Remove icon',
             changeColor: 'Change color',
-            removeColor: 'Remove color'
+            removeColor: 'Remove color',
+            addToFavorites: 'Add to favorites',
+            removeFromFavorites: 'Remove from favorites'
         }
     },
 
@@ -506,13 +508,13 @@ export const STRINGS_EN = {
             },
             favoriteTags: {
                 name: 'Favorite tags',
-                desc: 'Comma-separated list of favorite tag patterns. Supports exact match, wildcards (*), and regex (/pattern/).',
-                placeholder: 'inbox, project-*, /^daily-\\d{4}/'
+                desc: 'Comma-separated list of tag prefixes. Adding a tag includes all its sub-tags (e.g., "photo" includes "photo/camera/fuji").',
+                placeholder: 'inbox, projects/work, daily/2025'
             },
             hiddenTags: {
                 name: 'Hidden tags',
-                desc: 'Comma-separated list of tag patterns to hide from the tag tree. Supports exact match, wildcards (*), and regex (/pattern/).',
-                placeholder: 'internal, temp-*, /^archive-\\d{4}/'
+                desc: 'Comma-separated list of tag prefixes to hide. Hiding a tag also hides all its sub-tags (e.g., "archive" hides "archive/2024/docs").',
+                placeholder: 'internal, temp/drafts, archive/2024'
             },
             enableFolderNotes: {
                 name: 'Enable folder notes',
@@ -522,6 +524,11 @@ export const STRINGS_EN = {
                 name: 'Folder note name',
                 desc: 'Name of the folder note without extension. Leave empty to use the same name as the folder.',
                 placeholder: 'index'
+            },
+            folderNoteProperties: {
+                name: 'Folder note properties',
+                desc: 'Frontmatter properties to add to newly created folder notes (comma-separated).',
+                placeholder: 'foldernote, darktheme'
             },
             hideFolderNoteInList: {
                 name: 'Hide folder notes in list',

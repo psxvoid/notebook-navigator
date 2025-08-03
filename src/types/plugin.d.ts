@@ -40,7 +40,7 @@ export interface NotebookNavigatorPlugin extends Plugin {
     loadSettings(): Promise<void>;
     registerFileRenameListener(id: string, callback: (oldPath: string, newPath: string) => void): void;
     unregisterFileRenameListener(id: string): void;
-    navigateToFile(file: TFile): Promise<void>;
+    revealFileInActualFolder(file: TFile): Promise<void>;
     activateView(): Promise<WorkspaceLeaf | null>;
 }
 
@@ -51,13 +51,4 @@ export interface PluginWindow extends Window {
     notebookNavigatorOpeningVersionHistory?: boolean;
     notebookNavigatorOpeningFolderNote?: boolean;
     notebookNavigatorMovingFile?: boolean;
-}
-
-// Extend the global Window interface
-declare global {
-    interface Window {
-        notebookNavigatorOpeningVersionHistory?: boolean;
-        notebookNavigatorOpeningFolderNote?: boolean;
-        notebookNavigatorMovingFile?: boolean;
-    }
 }

@@ -96,10 +96,3 @@ export function useSettingsUpdate() {
     }
     return context;
 }
-
-// Legacy hook that returns both (kept for compatibility but less optimal)
-export function useSettings() {
-    const settings = useSettingsState();
-    const updateSettings = useSettingsUpdate();
-    return { settings, updateSettings };
-}

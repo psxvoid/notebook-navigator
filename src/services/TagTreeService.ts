@@ -18,22 +18,27 @@
 
 import { TagTreeNode } from '../types/storage';
 import { findTagNode, collectAllTagPaths } from '../utils/tagTree';
+import { ITagTreeProvider } from '../interfaces/ITagTreeProvider';
 
 /**
  * Service that provides access to the tag tree from StorageContext
  * Acts as a bridge between React (StorageContext) and non-React code
  */
-export class TagTreeService {
+export class TagTreeService implements ITagTreeProvider {
     private tagTree: Map<string, TagTreeNode> = new Map();
+    private favoriteTree: Map<string, TagTreeNode> = new Map();
     private untaggedCount = 0;
 
     /**
      * Updates the tag tree data from StorageContext
      * Called whenever StorageContext rebuilds the tag tree
      */
-    updateTagTree(tree: Map<string, TagTreeNode>, untagged: number): void {
+    updateTagTree(tree: Map<string, TagTreeNode>, untagged: number, favoriteTree?: Map<string, TagTreeNode>): void {
         this.tagTree = tree;
         this.untaggedCount = untagged;
+        if (favoriteTree) {
+            this.favoriteTree = favoriteTree;
+        }
     }
 
     /**
@@ -51,17 +56,29 @@ export class TagTreeService {
     }
 
     /**
-     * Finds a tag node by its path
+     * Finds a tag node by its path, searching both favorite and regular trees
      */
     findTagNode(tagPath: string): TagTreeNode | null {
+        // First check favorite tree
+        const favoriteNode = findTagNode(this.favoriteTree, tagPath);
+        if (favoriteNode) {
+            return favoriteNode;
+        }
+        // Then check regular tree
         return findTagNode(this.tagTree, tagPath);
     }
 
     /**
-     * Gets all tag paths in the tree
+     * Gets all tag paths in both trees
      */
     getAllTagPaths(): string[] {
         const allPaths: string[] = [];
+        // Collect from favorite tree
+        for (const rootNode of this.favoriteTree.values()) {
+            const paths = collectAllTagPaths(rootNode);
+            allPaths.push(...paths);
+        }
+        // Collect from regular tree
         for (const rootNode of this.tagTree.values()) {
             const paths = collectAllTagPaths(rootNode);
             allPaths.push(...paths);

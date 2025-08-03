@@ -18,11 +18,13 @@
 
 import { Menu, TFile, TFolder, App } from 'obsidian';
 import { ItemType } from '../../types';
+import { TagTreeNode } from '../../types/storage';
 import { NotebookNavigatorSettings } from '../../settings';
 import { FileSystemOperations } from '../../services/FileSystemService';
 import { MetadataService } from '../../services/MetadataService';
 import { TagOperations } from '../../services/TagOperations';
 import { TagTreeService } from '../../services/TagTreeService';
+import { CommandQueueService } from '../../services/CommandQueueService';
 import { SelectionState, SelectionAction } from '../../context/SelectionContext';
 import { NotebookNavigatorPlugin } from '../../types/plugin';
 import { ExpansionAction } from '../../context/ExpansionContext';
@@ -49,6 +51,9 @@ export interface MenuServices {
     metadataService: MetadataService;
     tagOperations: TagOperations;
     tagTreeService: TagTreeService | null;
+    commandQueue: CommandQueueService | null;
+    getFavoriteTree?: () => Map<string, TagTreeNode>;
+    findTagInFavoriteTree?: (tagPath: string) => TagTreeNode | null;
 }
 
 /**
@@ -92,6 +97,7 @@ export interface FolderMenuBuilderParams extends MenuBuilderParams {
  */
 export interface TagMenuBuilderParams extends MenuBuilderParams {
     tagPath: string;
+    context?: 'favorites' | 'tags';
 }
 
 /**

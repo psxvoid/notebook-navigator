@@ -29,7 +29,7 @@ import { localStorage } from '../../utils/localStorage';
  * - Provider registration and management
  * - Icon ID parsing with provider prefixes (e.g., "emoji:📁" or plain "folder")
  * - Recent icons tracking for improved user experience
- * - Fallback to default provider for backward compatibility
+ * - Fallback to default provider for unprefixed icons
  * - Unified search across all providers
  *
  * The service uses a singleton pattern to ensure consistent state across the plugin.
@@ -101,7 +101,7 @@ export class IconService {
         const colonIndex = iconId.indexOf(':');
 
         if (colonIndex === -1) {
-            // No provider specified - this is a legacy Lucide icon
+            // No provider specified - use default provider
             return {
                 provider: this.config.defaultProvider || IconService.DEFAULT_PROVIDER,
                 identifier: iconId,
@@ -118,7 +118,7 @@ export class IconService {
 
     /**
      * Formats an icon ID with appropriate provider prefix.
-     * Omits prefix for default provider to maintain backward compatibility.
+     * Omits prefix for default provider to keep icon IDs simple.
      *
      * @param provider - The provider ID
      * @param identifier - The icon identifier

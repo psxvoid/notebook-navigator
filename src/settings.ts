@@ -19,6 +19,7 @@
 import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
 import NotebookNavigatorPlugin from './main';
 import { strings } from './i18n';
+import { TIMEOUTS } from './types/obsidian-extended';
 import { FileVisibility, FILE_VISIBILITY } from './utils/fileTypeUtils';
 import { calculateCacheStatistics, CacheStatistics } from './storage/statistics';
 import { ISO_DATE_FORMAT } from './utils/dateUtils';
@@ -65,6 +66,7 @@ export interface NotebookNavigatorSettings {
     customVaultName: string;
     enableFolderNotes: boolean;
     folderNoteName: string;
+    folderNoteProperties: string[];
     hideFolderNoteInList: boolean;
     // Tags
     showTags: boolean;
@@ -134,6 +136,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     customVaultName: '',
     enableFolderNotes: false,
     folderNoteName: '',
+    folderNoteProperties: [],
     hideFolderNoteInList: true,
     // Tags
     showTags: true,
@@ -256,7 +259,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                             }
 
                             this.debounceTimers.delete(timerId);
-                        }, 1000);
+                        }, TIMEOUTS.DEBOUNCE_SETTINGS);
 
                         this.debounceTimers.set(timerId, timer);
                     })
@@ -566,6 +569,21 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             }
         );
 
+        const folderNotePropertiesSetting = this.createDebouncedTextSetting(
+            folderNotesSettingsEl,
+            strings.settings.items.folderNoteProperties.name,
+            strings.settings.items.folderNoteProperties.desc,
+            strings.settings.items.folderNoteProperties.placeholder,
+            () => this.plugin.settings.folderNoteProperties.join(', '),
+            value => {
+                this.plugin.settings.folderNoteProperties = value
+                    .split(',')
+                    .map(prop => prop.trim())
+                    .filter(prop => prop.length > 0);
+            }
+        );
+        folderNotePropertiesSetting.controlEl.addClass('nn-setting-wide-input');
+
         new Setting(folderNotesSettingsEl)
             .setName(strings.settings.items.hideFolderNoteInList.name)
             .setDesc(strings.settings.items.hideFolderNoteInList.desc)
@@ -667,6 +685,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 this.plugin.settings.favoriteTags = value
                     .split(',')
                     .map(tag => tag.trim())
+                    .map(tag => tag.replace(/^#/, '')) // Remove leading hashtag
+                    .map(tag => tag.replace(/^\/+|\/+$/g, '')) // Trim leading/trailing slashes
                     .filter(tag => tag.length > 0);
             }
         );
@@ -684,6 +704,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 this.plugin.settings.hiddenTags = value
                     .split(',')
                     .map(tag => tag.trim())
+                    .map(tag => tag.replace(/^#/, '')) // Remove leading hashtag
+                    .map(tag => tag.replace(/^\/+|\/+$/g, '')) // Trim leading/trailing slashes
                     .filter(tag => tag.length > 0);
             }
         );
@@ -764,7 +786,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setIcon('help')
                 .setTooltip(strings.settings.items.dateFormat.helpTooltip)
                 .onClick(() => {
-                    new Notice(strings.settings.items.dateFormat.help, 10000);
+                    new Notice(strings.settings.items.dateFormat.help, TIMEOUTS.NOTICE_HELP);
                 })
         );
 
@@ -782,7 +804,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setIcon('help')
                 .setTooltip(strings.settings.items.timeFormat.helpTooltip)
                 .onClick(() => {
-                    new Notice(strings.settings.items.timeFormat.help, 10000);
+                    new Notice(strings.settings.items.timeFormat.help, TIMEOUTS.NOTICE_HELP);
                 })
         );
 
@@ -850,7 +872,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 .setIcon('help')
                 .setTooltip(strings.settings.items.frontmatterDateFormat.helpTooltip)
                 .onClick(() => {
-                    new Notice(strings.settings.items.frontmatterDateFormat.help, 10000);
+                    new Notice(strings.settings.items.frontmatterDateFormat.help, TIMEOUTS.NOTICE_HELP);
                 })
         );
         dateFormatSetting.controlEl.addClass('nn-setting-wide-input');
@@ -1070,7 +1092,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Start periodic updates every 1 second
         this.statsUpdateInterval = window.setInterval(() => {
             this.updateStatistics();
-        }, 1000);
+        }, TIMEOUTS.INTERVAL_STATISTICS);
 
         // Set initial visibility
         previewSettingsEl.toggle(this.plugin.settings.showFilePreview);
