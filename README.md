@@ -84,8 +84,8 @@ To a modern, Notes-style interface like this:
 - **Dependency Injection Architecture** - Clean separation of concerns with
   interface-based design (`ISettingsProvider`, `ITagTreeProvider`) enabling
   testable, maintainable code
-- **Command Queue Service** - Centralized operation tracking replaces fragile
-  global state, providing atomic context management for complex operations
+- **Command Queue Service** - Centralized operation tracking with atomic context
+  management for complex multi-step operations
 - **Batch Processing Engine** - Intelligent content generation with parallel
   processing, debounced queuing, and graceful cancellation
 - **Unified Cleanup System** - Single-pass startup optimization aggregates all
