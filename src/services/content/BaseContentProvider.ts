@@ -41,6 +41,8 @@ export abstract class BaseContentProvider implements IContentProvider {
     protected abortController: AbortController | null = null;
     protected queueDebounceTimer: number | null = null;
     protected currentBatchSettings: NotebookNavigatorSettings | null = null;
+    // Track files currently being processed to prevent race conditions
+    protected processingFiles: Set<string> = new Set();
 
     constructor(protected app: App) {}
 
@@ -78,12 +80,17 @@ export abstract class BaseContentProvider implements IContentProvider {
     protected abstract needsProcessing(fileData: FileData | null, file: TFile, settings: NotebookNavigatorSettings): boolean;
 
     queueFiles(files: TFile[]): void {
-        const newJobs = files.map(file => ({
-            file,
-            path: file.path.split('/')
-        }));
+        // Filter out files that are currently being processed
+        const newJobs = files
+            .filter(file => !this.processingFiles.has(file.path))
+            .map(file => ({
+                file,
+                path: file.path.split('/')
+            }));
 
-        this.queue.push(...newJobs);
+        if (newJobs.length > 0) {
+            this.queue.push(...newJobs);
+        }
     }
 
     startProcessing(settings: NotebookNavigatorSettings): void {
@@ -114,6 +121,7 @@ export abstract class BaseContentProvider implements IContentProvider {
 
         this.isProcessing = false;
         this.queue = [];
+        this.processingFiles.clear();
     }
 
     onSettingsChanged(settings: NotebookNavigatorSettings): void {
@@ -128,6 +136,9 @@ export abstract class BaseContentProvider implements IContentProvider {
         this.isProcessing = true;
         this.abortController = new AbortController();
 
+        // Declare activeJobs outside try block so it's accessible in finally
+        let activeJobs: Array<{ job: ContentJob; fileData: FileData | null; needsProcessing: boolean }> = [];
+
         try {
             const db = getDBInstance();
             const batch = this.queue.splice(0, this.QUEUE_BATCH_SIZE);
@@ -141,7 +152,7 @@ export abstract class BaseContentProvider implements IContentProvider {
                 })
             );
 
-            const activeJobs = jobsWithData.filter(item => item.needsProcessing);
+            activeJobs = jobsWithData.filter(item => item.needsProcessing);
 
             if (activeJobs.length === 0) {
                 this.isProcessing = false;
@@ -150,6 +161,11 @@ export abstract class BaseContentProvider implements IContentProvider {
                 }
                 return;
             }
+
+            // Mark files as being processed
+            activeJobs.forEach(({ job }) => {
+                this.processingFiles.add(job.file.path);
+            });
 
             // Process files in parallel batches
             const updates: Array<{
@@ -217,6 +233,11 @@ export abstract class BaseContentProvider implements IContentProvider {
                 console.error('Error processing batch:', error);
             }
         } finally {
+            // Remove processed files from tracking set
+            activeJobs.forEach(({ job }) => {
+                this.processingFiles.delete(job.file.path);
+            });
+
             this.isProcessing = false;
 
             if (this.queue.length > 0 && !this.abortController?.signal.aborted) {

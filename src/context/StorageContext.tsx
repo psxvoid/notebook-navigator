@@ -551,14 +551,17 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             app.vault.on('modify', async file => {
                 // Check if it's a TFile (not a folder)
                 if (file instanceof TFile && file.extension === 'md') {
+                    // Always process the modify event - the content providers will handle deduplication
+                    // This ensures we don't miss actual content changes
+
                     // Get existing data for the file
                     const db = getDBInstance();
                     const existingData = db.getFiles([file.path]);
 
-                    // Record the file change - this sets all content to null
+                    // Record the file change - this clears content but keeps old mtime
                     await recordFileChanges([file], existingData);
 
-                    // Content providers will detect the null content and regenerate
+                    // Content providers will detect the mtime mismatch (db.mtime != file.mtime) and regenerate
                     if (contentRegistry.current) {
                         contentRegistry.current.queueFilesForAllProviders([file], settings);
                     }

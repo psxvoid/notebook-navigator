@@ -102,16 +102,34 @@ export async function recordFileChanges(files: TFile[], existingData: Map<string
             };
             updates.push({ path: file.path, data: fileData });
         } else {
-            // Existing file - preserve content, update mtime
-            // Content providers will detect the mtime change and regenerate content as needed
-            const fileData: FileData = {
-                mtime: file.stat.mtime, // Update to new mtime
-                tags: existing.tags, // Keep existing tags until regenerated
-                preview: existing.preview, // Keep existing preview until regenerated
-                featureImage: existing.featureImage, // Keep existing image until regenerated
-                metadata: existing.metadata // Keep existing metadata until regenerated
-            };
-            updates.push({ path: file.path, data: fileData });
+            // Existing file - check if it was actually modified
+            const fileModified = existing.mtime !== file.stat.mtime;
+
+            if (fileModified) {
+                // File was modified - DON'T update the database mtime yet
+                // Content providers check if db.mtime != file.mtime to detect changes
+                // By keeping the old mtime, providers will see the mismatch and regenerate
+                // After regeneration, they'll update mtime to match the file
+                const fileData: FileData = {
+                    mtime: existing.mtime, // Keep OLD mtime temporarily
+                    tags: null, // Clear to force regeneration
+                    preview: null, // Clear to force regeneration
+                    featureImage: null, // Clear to force regeneration
+                    metadata: null // Clear to force regeneration
+                };
+                updates.push({ path: file.path, data: fileData });
+            } else {
+                // File not actually modified (maybe just metadata change)
+                // Keep everything as is
+                const fileData: FileData = {
+                    mtime: existing.mtime,
+                    tags: existing.tags,
+                    preview: existing.preview,
+                    featureImage: existing.featureImage,
+                    metadata: existing.metadata
+                };
+                updates.push({ path: file.path, data: fileData });
+            }
         }
     }
 
