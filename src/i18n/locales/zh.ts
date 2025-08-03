@@ -525,10 +525,10 @@ export const STRINGS_ZH = {
                 desc: '文件夹笔记的名称。留空以使用与文件夹相同的名称。',
                 placeholder: '留空以使用文件夹名称'
             },
-            folderNoteProperty: {
+            folderNoteProperties: {
                 name: '文件夹笔记属性',
-                desc: '添加到新创建的文件夹笔记的 frontmatter 属性。',
-                placeholder: 'foldernote'
+                desc: '添加到新创建的文件夹笔记的 frontmatter 属性（逗号分隔）。',
+                placeholder: 'foldernote, darktheme'
             },
             hideFolderNoteInList: {
                 name: '在列表中隐藏文件夹笔记',

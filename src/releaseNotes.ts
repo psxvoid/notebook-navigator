@@ -61,7 +61,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         new: [
             'Completely revamped the tag favorites system! You can now right-click any tag to add/remove from favorites! When adding a parent tag (e.g., "photo"), the system intelligently removes redundant child tags (e.g., "photo/camera") from favorites automatically.',
             'Added Alt / Option + Click on folder or tag chevrons to expand/collapse all descendants recursively. Super efficient for managing large tag trees or folder structures.',
-            'Added "Folder note property" setting - automatically add a custom frontmatter property to newly created folder notes.'
+            'Added "Folder note properties" setting - automatically add custom frontmatter properties to newly created folder notes.'
         ],
         improved: [
             'Tags in list pane will now use smart sorting: (1) Favorite tags will show first, then (2) Colored tags, then (3) uncolored normal tags. The goal here is to help you quickly find the items you are looking for, and hopefully this helps out if you have many tags assigned to your notes.',

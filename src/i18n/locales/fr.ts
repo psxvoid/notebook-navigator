@@ -526,10 +526,10 @@ export const STRINGS_FR = {
                 desc: 'Nom de la note de dossier. Laisser vide pour utiliser le même nom que le dossier.',
                 placeholder: 'Laisser vide pour le nom du dossier'
             },
-            folderNoteProperty: {
-                name: 'Propriété de note de dossier',
-                desc: 'Propriété frontmatter à ajouter aux notes de dossier nouvellement créées.',
-                placeholder: 'foldernote'
+            folderNoteProperties: {
+                name: 'Propriétés de note de dossier',
+                desc: 'Propriétés frontmatter à ajouter aux notes de dossier nouvellement créées (séparées par des virgules).',
+                placeholder: 'foldernote, darktheme'
             },
             hideFolderNoteInList: {
                 name: 'Masquer les notes de dossier dans la liste',

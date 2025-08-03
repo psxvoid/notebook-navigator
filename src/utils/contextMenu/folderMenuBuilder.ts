@@ -160,10 +160,11 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                             return;
                         }
 
-                        // Create content with frontmatter if folderNoteProperty is set
+                        // Create content with frontmatter if folderNoteProperties are set
                         let content = '';
-                        if (settings.folderNoteProperty) {
-                            content = `---\n${settings.folderNoteProperty}: true\n---\n`;
+                        if (settings.folderNoteProperties.length > 0) {
+                            const properties = settings.folderNoteProperties.map(prop => `${prop}: true`).join('\n');
+                            content = `---\n${properties}\n---\n`;
                         }
 
                         const file = await app.vault.create(notePath, content);

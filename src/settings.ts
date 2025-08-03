@@ -66,7 +66,7 @@ export interface NotebookNavigatorSettings {
     customVaultName: string;
     enableFolderNotes: boolean;
     folderNoteName: string;
-    folderNoteProperty: string;
+    folderNoteProperties: string[];
     hideFolderNoteInList: boolean;
     // Tags
     showTags: boolean;
@@ -136,7 +136,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     customVaultName: '',
     enableFolderNotes: false,
     folderNoteName: '',
-    folderNoteProperty: '',
+    folderNoteProperties: [],
     hideFolderNoteInList: true,
     // Tags
     showTags: true,
@@ -569,16 +569,20 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             }
         );
 
-        this.createDebouncedTextSetting(
+        const folderNotePropertiesSetting = this.createDebouncedTextSetting(
             folderNotesSettingsEl,
-            strings.settings.items.folderNoteProperty.name,
-            strings.settings.items.folderNoteProperty.desc,
-            strings.settings.items.folderNoteProperty.placeholder,
-            () => this.plugin.settings.folderNoteProperty,
+            strings.settings.items.folderNoteProperties.name,
+            strings.settings.items.folderNoteProperties.desc,
+            strings.settings.items.folderNoteProperties.placeholder,
+            () => this.plugin.settings.folderNoteProperties.join(', '),
             value => {
-                this.plugin.settings.folderNoteProperty = value;
+                this.plugin.settings.folderNoteProperties = value
+                    .split(',')
+                    .map(prop => prop.trim())
+                    .filter(prop => prop.length > 0);
             }
         );
+        folderNotePropertiesSetting.controlEl.addClass('nn-setting-wide-input');
 
         new Setting(folderNotesSettingsEl)
             .setName(strings.settings.items.hideFolderNoteInList.name)
