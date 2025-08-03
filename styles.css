@@ -415,6 +415,11 @@
     text-decoration: underline;
 }
 
+/* Folder with folder note - show pointer cursor on hover */
+.nn-folder-name.nn-has-folder-note:hover {
+    cursor: pointer;
+}
+
 /* Spacer element to push count to the end */
 .nn-folder-spacer {
     flex: 1;
