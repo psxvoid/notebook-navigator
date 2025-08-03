@@ -95,8 +95,8 @@ To a modern, Notes-style interface like this:
 - **Zero-Tolerance Code Quality** - Strict ESLint configuration with
   `no-explicit-any` enforced, resulting in 0 errors, 0 warnings across 20,000+
   lines of TypeScript
-- **Type-Safe Obsidian Integration** - Custom type guards for all Obsidian APIs,
-  never using unsafe type assertions
+- **Type-Safe Obsidian Integration** - Comprehensive type checking with
+  `instanceof` guards throughout, never using unsafe type assertions
 - **Event-Driven State Management** - Real-time sync with Obsidian's vault
   events using proper cleanup and memory management
 - **Mobile-First Performance** - Touch-optimized event handling with 120Hz
