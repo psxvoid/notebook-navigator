@@ -102,30 +102,16 @@ export async function recordFileChanges(files: TFile[], existingData: Map<string
             };
             updates.push({ path: file.path, data: fileData });
         } else {
-            // Existing file - check if actually modified
-            const fileModified = existing.mtime !== file.stat.mtime;
-
-            if (fileModified) {
-                // File was modified - clear all content to trigger regeneration
-                const fileData: FileData = {
-                    mtime: file.stat.mtime, // Update to new mtime
-                    tags: null, // Clear tags to regenerate
-                    preview: null, // Clear preview to regenerate
-                    featureImage: null, // Clear image to regenerate
-                    metadata: null // Clear metadata to regenerate
-                };
-                updates.push({ path: file.path, data: fileData });
-            } else {
-                // File not modified (e.g., just a rename) - preserve content
-                const fileData: FileData = {
-                    mtime: file.stat.mtime,
-                    tags: existing.tags,
-                    preview: existing.preview,
-                    featureImage: existing.featureImage,
-                    metadata: existing.metadata
-                };
-                updates.push({ path: file.path, data: fileData });
-            }
+            // Existing file - preserve content, update mtime
+            // Content providers will detect the mtime change and regenerate content as needed
+            const fileData: FileData = {
+                mtime: file.stat.mtime, // Update to new mtime
+                tags: existing.tags, // Keep existing tags until regenerated
+                preview: existing.preview, // Keep existing preview until regenerated
+                featureImage: existing.featureImage, // Keep existing image until regenerated
+                metadata: existing.metadata // Keep existing metadata until regenerated
+            };
+            updates.push({ path: file.path, data: fileData });
         }
     }
 
