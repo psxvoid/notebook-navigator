@@ -15,11 +15,32 @@ BUILD_ERRORS=0
 
 # Step 1: Run ESLint
 echo "Running ESLint..."
-npm run lint
+ESLINT_OUTPUT=$(npm run lint 2>&1)
 ESLINT_STATUS=$?
-if [ $ESLINT_STATUS -ne 0 ]; then
-    echo "❌ ESLint found errors"
-    BUILD_ERRORS=$((BUILD_ERRORS + 1))
+echo "$ESLINT_OUTPUT"
+
+# Count ESLint errors and warnings from the summary line
+ESLINT_SUMMARY=$(echo "$ESLINT_OUTPUT" | grep "✖" | grep "problem")
+if [ -n "$ESLINT_SUMMARY" ]; then
+    # Extract error count
+    ESLINT_ERROR_COUNT=$(echo "$ESLINT_SUMMARY" | sed -n 's/.*(\([0-9]*\) error.*/\1/p')
+    if [ -z "$ESLINT_ERROR_COUNT" ]; then
+        ESLINT_ERROR_COUNT=0
+    fi
+    
+    # Extract warning count
+    ESLINT_WARNING_COUNT=$(echo "$ESLINT_SUMMARY" | sed -n 's/.* \([0-9]*\) warning.*/\1/p')
+    if [ -z "$ESLINT_WARNING_COUNT" ]; then
+        ESLINT_WARNING_COUNT=0
+    fi
+    
+    if [ $ESLINT_ERROR_COUNT -gt 0 ]; then
+        echo "❌ ESLint found $ESLINT_ERROR_COUNT errors"
+        BUILD_ERRORS=$((BUILD_ERRORS + 1))
+    elif [ $ESLINT_WARNING_COUNT -gt 0 ]; then
+        echo "⚠️  ESLint found $ESLINT_WARNING_COUNT warnings"
+        BUILD_WARNINGS=$((BUILD_WARNINGS + 1))
+    fi
 else
     echo "✅ ESLint passed"
 fi

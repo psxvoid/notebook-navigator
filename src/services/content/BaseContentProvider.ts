@@ -136,6 +136,7 @@ export abstract class BaseContentProvider implements IContentProvider {
 
         this.isProcessing = true;
         this.abortController = new AbortController();
+        const settings = this.currentBatchSettings;
 
         // Declare activeJobs outside try block so it's accessible in finally
         let activeJobs: Array<{ job: ContentJob; fileData: FileData | null; needsProcessing: boolean }> = [];
@@ -148,7 +149,7 @@ export abstract class BaseContentProvider implements IContentProvider {
             const jobsWithData = await Promise.all(
                 batch.map(async job => {
                     const fileData = await db.getFile(job.file.path);
-                    const needsProcessing = this.needsProcessing(fileData, job.file, this.currentBatchSettings!);
+                    const needsProcessing = this.needsProcessing(fileData, job.file, settings);
                     return { job, fileData, needsProcessing };
                 })
             );
@@ -184,7 +185,7 @@ export abstract class BaseContentProvider implements IContentProvider {
                 const results = await Promise.all(
                     parallelBatch.map(async ({ job, fileData }) => {
                         try {
-                            return await this.processFile(job, fileData, this.currentBatchSettings!);
+                            return await this.processFile(job, fileData, settings);
                         } catch (error) {
                             console.error(`Error processing ${job.file.path}:`, error);
                             return null;

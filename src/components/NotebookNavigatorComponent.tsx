@@ -280,7 +280,8 @@ export const NotebookNavigatorComponent = React.memo(
                 app,
                 settings,
                 plugin,
-                tagTreeService
+                tagTreeService,
+                commandQueue
             ]
         );
 

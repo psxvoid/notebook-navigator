@@ -763,8 +763,12 @@ export class FileSystemOperations {
      */
     async openVersionHistory(file: TFile): Promise<void> {
         const commandQueue = this.getCommandQueue();
+        if (!commandQueue) {
+            new Notice('Version history service not available');
+            return;
+        }
 
-        const result = await commandQueue!.executeOpenVersionHistory(file, async () => {
+        const result = await commandQueue.executeOpenVersionHistory(file, async () => {
             // Always open/re-open the file to ensure proper focus
             await this.app.workspace.openLinkText(file.path, '', false);
 

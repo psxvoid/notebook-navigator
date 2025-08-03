@@ -450,7 +450,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             app.workspace.offref(activeLeafEventRef);
             app.workspace.offref(fileOpenEventRef);
         };
-    }, [app.workspace, settings.autoRevealActiveFile]);
+    }, [app.workspace, settings.autoRevealActiveFile, commandQueue]);
 
     // Handle revealing the file when detected
     useEffect(() => {

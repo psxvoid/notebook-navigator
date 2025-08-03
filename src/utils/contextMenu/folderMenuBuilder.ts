@@ -168,9 +168,14 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
                         const file = await app.vault.create(notePath, content);
 
-                        await commandQueue!.executeOpenFolderNote(folder.path, async () => {
+                        if (commandQueue) {
+                            await commandQueue.executeOpenFolderNote(folder.path, async () => {
+                                await app.workspace.getLeaf().openFile(file);
+                            });
+                        } else {
+                            // Fallback: just open the file without command queue
                             await app.workspace.getLeaf().openFile(file);
-                        });
+                        }
                     });
             });
         }
