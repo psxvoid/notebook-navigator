@@ -27,7 +27,7 @@ export class TagOperations {
 
     /**
      * Escapes special regex characters in a string
-     * 
+     *
      * Examples:
      * - "file.txt" → "file\\.txt"
      * - "tag*" → "tag\\*"
@@ -267,7 +267,7 @@ export class TagOperations {
 
     /**
      * Removes all inline tags from content
-     * 
+     *
      * Examples:
      * - "text #tag more text" → "text more text"
      * - "#todo finish this #urgent" → "finish this"
