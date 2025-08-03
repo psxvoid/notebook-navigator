@@ -18,12 +18,13 @@
 
 import { TagTreeNode } from '../types/storage';
 import { findTagNode, collectAllTagPaths } from '../utils/tagTree';
+import { ITagTreeProvider } from '../interfaces/ITagTreeProvider';
 
 /**
  * Service that provides access to the tag tree from StorageContext
  * Acts as a bridge between React (StorageContext) and non-React code
  */
-export class TagTreeService {
+export class TagTreeService implements ITagTreeProvider {
     private tagTree: Map<string, TagTreeNode> = new Map();
     private favoriteTree: Map<string, TagTreeNode> = new Map();
     private untaggedCount = 0;

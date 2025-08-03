@@ -60,7 +60,7 @@ export class FileMetadataService extends BaseMetadataService {
      * @returns True if the note is pinned
      */
     isPinned(folderPath: string, filePath: string): boolean {
-        const pinnedNotes = this.plugin.settings.pinnedNotes?.[folderPath] || [];
+        const pinnedNotes = this.settingsProvider.settings.pinnedNotes?.[folderPath] || [];
         return pinnedNotes.includes(filePath);
     }
 
@@ -70,7 +70,7 @@ export class FileMetadataService extends BaseMetadataService {
      * @returns Array of pinned file paths
      */
     getPinnedNotes(folderPath: string): string[] {
-        return this.plugin.settings.pinnedNotes?.[folderPath] || [];
+        return this.settingsProvider.settings.pinnedNotes?.[folderPath] || [];
     }
 
     /**

@@ -168,9 +168,9 @@ export class FolderMetadataService extends BaseMetadataService {
         };
 
         const results = await Promise.all([
-            this.cleanupMetadata(this.plugin.settings, 'folderColors', validator),
-            this.cleanupMetadata(this.plugin.settings, 'folderIcons', validator),
-            this.cleanupMetadata(this.plugin.settings, 'folderSortOverrides', validator)
+            this.cleanupMetadata(this.settingsProvider.settings, 'folderColors', validator),
+            this.cleanupMetadata(this.settingsProvider.settings, 'folderIcons', validator),
+            this.cleanupMetadata(this.settingsProvider.settings, 'folderSortOverrides', validator)
         ]);
 
         return results.some(changed => changed);
@@ -201,9 +201,9 @@ export class FolderMetadataService extends BaseMetadataService {
         const validator = (path: string) => folderPaths.has(path);
 
         const results = await Promise.all([
-            this.cleanupMetadata(this.plugin.settings, 'folderColors', validator),
-            this.cleanupMetadata(this.plugin.settings, 'folderIcons', validator),
-            this.cleanupMetadata(this.plugin.settings, 'folderSortOverrides', validator)
+            this.cleanupMetadata(this.settingsProvider.settings, 'folderColors', validator),
+            this.cleanupMetadata(this.settingsProvider.settings, 'folderIcons', validator),
+            this.cleanupMetadata(this.settingsProvider.settings, 'folderSortOverrides', validator)
         ]);
 
         return results.some(changed => changed);

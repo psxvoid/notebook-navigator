@@ -19,6 +19,7 @@
 import { Plugin, WorkspaceLeaf, TFile, TFolder } from 'obsidian';
 import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
 import { LocalStorageKeys, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, STORAGE_KEYS } from './types';
+import { ISettingsProvider } from './interfaces/ISettingsProvider';
 import { MetadataService } from './services/MetadataService';
 import { TagOperations } from './services/TagOperations';
 import { TagTreeService } from './services/TagTreeService';
@@ -79,7 +80,7 @@ if (typeof window !== 'undefined' && !window.requestIdleCallback) {
  * Provides a Notes-style file explorer for Obsidian with two-pane layout
  * Manages plugin lifecycle, settings, and view registration
  */
-export default class NotebookNavigatorPlugin extends Plugin {
+export default class NotebookNavigatorPlugin extends Plugin implements ISettingsProvider {
     settings: NotebookNavigatorSettings;
     ribbonIconEl: HTMLElement | undefined = undefined;
     metadataService: MetadataService | null = null;
@@ -128,7 +129,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
         initializeIconService();
 
         // Initialize metadata service for managing folder/tag colors, icons, and sort overrides
-        this.metadataService = new MetadataService(this);
+        this.metadataService = new MetadataService(this.app, this, () => this.tagTreeService);
 
         // Initialize tag operations service
         this.tagOperations = new TagOperations(this.app);
