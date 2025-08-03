@@ -493,9 +493,6 @@ export class ContentService {
                 await db.updateMtimes(mtimeUpdates);
             }
 
-            // Don't notify on every batch - wait until completion
-            // This prevents saving intermediate states to localStorage
-
             // Process next batch if there are more files
             if (this.queue.length > 0 && !this.abortController?.signal.aborted) {
                 // Use setImmediate/setTimeout to avoid blocking

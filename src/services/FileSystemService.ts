@@ -73,7 +73,7 @@ interface MoveFilesResult {
 }
 
 /**
- * Handles all file system operations for the Notebook Navigator
+ * Handles all file system operations for Notebook Navigator
  * Provides centralized methods for creating, renaming, and deleting files/folders
  * Manages user input modals and confirmation dialogs
  */
