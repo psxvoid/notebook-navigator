@@ -135,11 +135,6 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
         allFiles = allFiles.filter(file => {
             // Check if this file is a folder note for its parent folder
             if (file.parent && file.parent instanceof TFolder) {
-                // Must be directly in the folder we're querying (not in a subfolder)
-                if (file.parent.path !== folder.path) {
-                    return true;
-                }
-
                 // Only markdown files can be folder notes
                 if (file.extension !== 'md') {
                     return true;
