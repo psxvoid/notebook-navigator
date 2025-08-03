@@ -22,6 +22,7 @@ import { TIMEOUTS } from '../types/obsidian-extended';
 import { useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionDispatch } from '../context/SelectionContext';
 import { useUIState } from '../context/UIStateContext';
+import { useCommandQueue } from '../context/ServicesContext';
 
 interface UseNavigatorEventHandlersOptions {
     app: App;
@@ -42,6 +43,7 @@ export function useNavigatorEventHandlers({ app, containerRef, setIsNavigatorFoc
     const uiState = useUIState();
     const expansionDispatch = useExpansionDispatch();
     const selectionDispatch = useSelectionDispatch();
+    const commandQueue = useCommandQueue();
     const isMobile = Platform.isMobile;
 
     // Handle delete events to clean up stale state
@@ -124,9 +126,9 @@ export function useNavigatorEventHandlers({ app, containerRef, setIsNavigatorFoc
     // Ensure the container has focus when the focused pane changes
     useEffect(() => {
         // Don't steal focus if we're opening version history
-        const isOpeningVersionHistory = window.notebookNavigatorOpeningVersionHistory;
+        const isOpeningVersionHistory = commandQueue.isOpeningVersionHistory();
         if (uiState.focusedPane && !isOpeningVersionHistory) {
             containerRef.current?.focus();
         }
-    }, [uiState.focusedPane, containerRef]);
+    }, [uiState.focusedPane, containerRef, commandQueue]);
 }

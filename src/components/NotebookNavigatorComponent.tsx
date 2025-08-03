@@ -64,7 +64,7 @@ export interface NotebookNavigatorHandle {
  */
 export const NotebookNavigatorComponent = React.memo(
     forwardRef<NotebookNavigatorHandle>(function NotebookNavigatorComponent(_, ref) {
-        const { app, isMobile, fileSystemOps, plugin, tagTreeService } = useServices();
+        const { app, isMobile, fileSystemOps, plugin, tagTreeService, commandQueue } = useServices();
         const settings = useSettingsState();
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
@@ -160,7 +160,7 @@ export const NotebookNavigatorComponent = React.memo(
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                     // Focus the container to ensure keyboard navigation works
                     // Don't steal focus if we're opening version history
-                    const isOpeningVersionHistory = window.notebookNavigatorOpeningVersionHistory;
+                    const isOpeningVersionHistory = commandQueue?.isOpeningVersionHistory() || false;
                     if (!isOpeningVersionHistory) {
                         containerRef.current?.focus();
                     }

@@ -28,7 +28,7 @@ import { ExtendedApp } from '../../types/obsidian-extended';
  */
 export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     const { folder, menu, services, settings, state, dispatchers } = params;
-    const { app, fileSystemOps, metadataService } = services;
+    const { app, fileSystemOps, metadataService, commandQueue } = services;
     const { selectionState, expandedFolders } = state;
     const { selectionDispatch, expansionDispatch } = dispatchers;
 
@@ -160,15 +160,9 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
                         const file = await app.vault.create(notePath, '');
 
-                        // Set a temporary flag to prevent auto-reveal
-                        window.notebookNavigatorOpeningFolderNote = true;
-
-                        await app.workspace.getLeaf().openFile(file);
-
-                        // Clear the flag after a short delay
-                        setTimeout(() => {
-                            delete window.notebookNavigatorOpeningFolderNote;
-                        }, 100);
+                        await commandQueue!.executeOpenFolderNote(folder.path, async () => {
+                            await app.workspace.getLeaf().openFile(file);
+                        });
                     });
             });
         }

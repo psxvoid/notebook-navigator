@@ -30,6 +30,7 @@ import { getFolderNote } from '../utils/fileFinder';
 import { updateSelectionAfterFileOperation, findNextFileAfterRemoval } from '../utils/selectionUtils';
 import { executeCommand } from '../utils/typeGuards';
 import { TagTreeService } from './TagTreeService';
+import { CommandQueueService } from './CommandQueueService';
 
 /**
  * Selection context for file operations
@@ -81,10 +82,12 @@ export class FileSystemOperations {
      * Creates a new FileSystemOperations instance
      * @param app - The Obsidian app instance for vault operations
      * @param getTagTreeService - Function to get the TagTreeService instance
+     * @param getCommandQueue - Function to get the CommandQueueService instance
      */
     constructor(
         private app: App,
-        private getTagTreeService: () => TagTreeService | null
+        private getTagTreeService: () => TagTreeService | null,
+        private getCommandQueue: () => CommandQueueService | null
     ) {}
 
     /**
@@ -419,31 +422,16 @@ export class FileSystemOperations {
             nextFileToSelect = findNextFileAfterRemoval(selectionContext.allFiles, pathsToMove);
         }
 
-        // Set flag to prevent auto-navigation when moving from Navigator
-        window.notebookNavigatorMovingFile = true;
-
-        try {
-            // Move each file
-            for (const file of files) {
-                const newPath = `${targetFolder.path}/${file.name}`;
-
-                // Check for name conflicts
-                if (this.app.vault.getAbstractFileByPath(newPath)) {
-                    result.skippedCount++;
-                    continue;
-                }
-
-                try {
-                    await this.app.fileManager.renameFile(file, newPath);
-                    result.movedCount++;
-                } catch (error) {
-                    console.error('Error moving file:', file.path, error);
-                    result.errors.push({ file, error: error as Error });
-                }
+        const commandQueue = this.getCommandQueue();
+        if (commandQueue) {
+            const moveResult = await commandQueue.executeMoveFiles(files, targetFolder);
+            if (moveResult.success && moveResult.data) {
+                result.movedCount = moveResult.data.movedCount;
+                result.skippedCount = moveResult.data.skippedCount;
+            } else if (moveResult.error) {
+                console.error('Error during move operation:', moveResult.error);
+                throw moveResult.error;
             }
-        } finally {
-            // Always clear the flag
-            delete window.notebookNavigatorMovingFile;
         }
 
         // Handle selection updates if needed
@@ -764,21 +752,18 @@ export class FileSystemOperations {
      * The Notebook Navigator's aggressive focus management can interfere with this.
      *
      * Solution:
-     * 1. Set a flag to prevent the navigator from stealing focus
+     * 1. Track the operation to prevent the navigator from stealing focus
      * 2. Always use openLinkText to open/re-open the file (ensures proper editor focus)
      * 3. Wait briefly for the editor to be ready
      * 4. Execute the version history command
-     * 5. Clear the flag after a delay
      *
      * @param file - The file to view version history for
      */
     async openVersionHistory(file: TFile): Promise<void> {
-        // Set a flag to prevent the navigator from stealing focus back
-        window.notebookNavigatorOpeningVersionHistory = true;
+        const commandQueue = this.getCommandQueue();
 
-        try {
+        const result = await commandQueue!.executeOpenVersionHistory(file, async () => {
             // Always open/re-open the file to ensure proper focus
-            // This works for non-selected files, so let's use it for all files
             await this.app.workspace.openLinkText(file.path, '', false);
 
             // Small delay to ensure the editor is ready
@@ -788,13 +773,10 @@ export class FileSystemOperations {
             if (!executeCommand(this.app, OBSIDIAN_COMMANDS.VERSION_HISTORY)) {
                 new Notice(strings.fileSystem.errors.versionHistoryNotFound);
             }
-        } catch (error) {
-            new Notice(strings.fileSystem.errors.openVersionHistory.replace('{error}', error.message));
-        } finally {
-            // Clear the flag after a delay to ensure the modal has time to open
-            setTimeout(() => {
-                delete window.notebookNavigatorOpeningVersionHistory;
-            }, TIMEOUTS.FILE_OPERATION_DELAY);
+        });
+
+        if (!result.success && result.error) {
+            new Notice(strings.fileSystem.errors.openVersionHistory.replace('{error}', result.error.message));
         }
     }
 

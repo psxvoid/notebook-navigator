@@ -21,7 +21,7 @@ import { useEffect, useCallback } from 'react';
 import { Menu } from 'obsidian';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
-import { useServices, useFileSystemOps, useMetadataService, useTagOperations } from '../context/ServicesContext';
+import { useServices, useFileSystemOps, useMetadataService, useTagOperations, useCommandQueue } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useFileCache } from '../context/StorageContext';
 import { useUIDispatch } from '../context/UIStateContext';
@@ -51,6 +51,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
     const metadataService = useMetadataService();
     const { getFavoriteTree, findTagInFavoriteTree } = useFileCache();
     const tagOperations = useTagOperations();
+    const commandQueue = useCommandQueue();
     const selectionState = useSelectionState();
     const { expandedFolders, expandedTags } = useExpansionState();
     const selectionDispatch = useSelectionDispatch();
@@ -94,6 +95,7 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 metadataService,
                 tagOperations,
                 tagTreeService,
+                commandQueue,
                 getFavoriteTree,
                 findTagInFavoriteTree
             };
@@ -166,7 +168,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             isMobile,
             tagTreeService,
             getFavoriteTree,
-            findTagInFavoriteTree
+            findTagInFavoriteTree,
+            commandQueue
         ]
     );
 

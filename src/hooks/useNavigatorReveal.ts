@@ -25,6 +25,7 @@ import { useSelectionState, useSelectionDispatch } from '../context/SelectionCon
 import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
+import { useCommandQueue } from '../context/ServicesContext';
 import { determineTagToReveal } from '../utils/tagUtils';
 import { ItemType } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
@@ -55,6 +56,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
     const { getDB, findTagInTree, findTagInFavoriteTree } = useFileCache();
+    const commandQueue = useCommandQueue();
 
     // Auto-reveal state
     const [fileToReveal, setFileToReveal] = useState<TFile | null>(null);
@@ -409,7 +411,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
             }
 
             // Don't reveal if we're opening a folder note
-            if (window.notebookNavigatorOpeningFolderNote) {
+            if (commandQueue && commandQueue.isOpeningFolderNote()) {
                 return;
             }
 

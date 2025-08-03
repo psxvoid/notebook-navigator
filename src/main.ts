@@ -22,6 +22,7 @@ import { LocalStorageKeys, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, STORAGE_KEYS } fr
 import { MetadataService } from './services/MetadataService';
 import { TagOperations } from './services/TagOperations';
 import { TagTreeService } from './services/TagTreeService';
+import { CommandQueueService } from './services/CommandQueueService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage } from './utils/localStorage';
@@ -84,6 +85,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
     metadataService: MetadataService | null = null;
     tagOperations: TagOperations | null = null;
     tagTreeService: TagTreeService | null = null;
+    commandQueue: CommandQueueService | null = null;
     // A map of callbacks to notify open React views of changes
     private settingsUpdateListeners = new Map<string, () => void>();
     // A map of callbacks to notify open React views of file renames
@@ -133,6 +135,9 @@ export default class NotebookNavigatorPlugin extends Plugin {
 
         // Initialize tag tree service
         this.tagTreeService = new TagTreeService();
+
+        // Initialize command queue service
+        this.commandQueue = new CommandQueueService(this.app);
 
         this.registerView(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, leaf => {
             return new NotebookNavigatorView(leaf, this);
@@ -374,8 +379,7 @@ export default class NotebookNavigatorPlugin extends Plugin {
                     // If the active file moved to a different folder, reveal it
                     // UNLESS it was moved from within the Navigator (drag-drop or context menu)
                     if (movedToDifferentFolder && file === this.app.workspace.getActiveFile()) {
-                        // Check if this move was initiated by the Navigator
-                        if (!window.notebookNavigatorMovingFile) {
+                        if (this.commandQueue && !this.commandQueue.isMovingFile()) {
                             await this.revealFileInActualFolder(file);
                         }
                     }
@@ -473,6 +477,12 @@ export default class NotebookNavigatorPlugin extends Plugin {
         // Clean up the tag operations service
         if (this.tagOperations) {
             this.tagOperations = null;
+        }
+
+        // Clean up the command queue service
+        if (this.commandQueue) {
+            this.commandQueue.clearAllOperations();
+            this.commandQueue = null;
         }
 
         // Clean up the ribbon icon

@@ -59,7 +59,7 @@ import { TFolder, TFile } from 'obsidian';
 import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
-import { useServices } from '../context/ServicesContext';
+import { useServices, useCommandQueue } from '../context/ServicesContext';
 import { useMetadataService } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useFileCache } from '../context/StorageContext';
@@ -103,6 +103,7 @@ interface NavigationPaneProps {
 export const NavigationPane = React.memo(
     forwardRef<NavigationPaneHandle, NavigationPaneProps>(function NavigationPane(props, ref) {
         const { app, isMobile } = useServices();
+        const commandQueue = useCommandQueue();
         const metadataService = useMetadataService();
         const expansionState = useExpansionState();
         const expansionDispatch = useExpansionDispatch();
@@ -428,19 +429,9 @@ export const NavigationPane = React.memo(
                         // Set folder as selected without auto-selecting first file
                         selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder, autoSelectedFile: null });
 
-                        // Set a temporary flag to prevent auto-reveal
-                        window.notebookNavigatorOpeningFolderNote = true;
-
-                        // Open the folder note
-                        app.workspace
-                            .getLeaf()
-                            .openFile(folderNote)
-                            .then(() => {
-                                // Clear the flag after a short delay
-                                setTimeout(() => {
-                                    delete window.notebookNavigatorOpeningFolderNote;
-                                }, 100);
-                            });
+                        commandQueue.executeOpenFolderNote(folder.path, async () => {
+                            await app.workspace.getLeaf().openFile(folderNote);
+                        });
 
                         return;
                     }
@@ -449,7 +440,7 @@ export const NavigationPane = React.memo(
                 // If no folder note, fall back to normal folder click behavior
                 handleFolderClick(folder);
             },
-            [settings, app, selectionDispatch, handleFolderClick]
+            [settings, app, selectionDispatch, handleFolderClick, commandQueue]
         );
 
         // Handle tag toggle
