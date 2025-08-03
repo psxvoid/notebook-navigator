@@ -410,9 +410,10 @@
     font-weight: 600;
 }
 
-/* Folder with folder note - underlined */
+/* Folder with folder note - underlined and bold */
 .nn-folder-name.nn-has-folder-note {
     text-decoration: underline;
+    font-weight: 600;
 }
 
 /* Folder with folder note - show pointer cursor on hover */
