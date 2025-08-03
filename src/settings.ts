@@ -66,6 +66,7 @@ export interface NotebookNavigatorSettings {
     customVaultName: string;
     enableFolderNotes: boolean;
     folderNoteName: string;
+    folderNoteProperty: string;
     hideFolderNoteInList: boolean;
     // Tags
     showTags: boolean;
@@ -135,6 +136,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     customVaultName: '',
     enableFolderNotes: false,
     folderNoteName: '',
+    folderNoteProperty: '',
     hideFolderNoteInList: true,
     // Tags
     showTags: true,
@@ -564,6 +566,17 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             () => this.plugin.settings.folderNoteName,
             value => {
                 this.plugin.settings.folderNoteName = value;
+            }
+        );
+
+        this.createDebouncedTextSetting(
+            folderNotesSettingsEl,
+            strings.settings.items.folderNoteProperty.name,
+            strings.settings.items.folderNoteProperty.desc,
+            strings.settings.items.folderNoteProperty.placeholder,
+            () => this.plugin.settings.folderNoteProperty,
+            value => {
+                this.plugin.settings.folderNoteProperty = value;
             }
         );
 

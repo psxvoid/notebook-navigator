@@ -525,6 +525,11 @@ export const STRINGS_EN = {
                 desc: 'Name of the folder note without extension. Leave empty to use the same name as the folder.',
                 placeholder: 'index'
             },
+            folderNoteProperty: {
+                name: 'Folder note property',
+                desc: 'Frontmatter property to add to newly created folder notes.',
+                placeholder: 'foldernote'
+            },
             hideFolderNoteInList: {
                 name: 'Hide folder notes in list',
                 desc: "Hide the folder note from appearing in the folder's note list."

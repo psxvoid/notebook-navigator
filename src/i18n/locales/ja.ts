@@ -526,6 +526,11 @@ export const STRINGS_JA = {
                 desc: 'フォルダノートの名前。空のままにするとフォルダと同じ名前を使用します。',
                 placeholder: 'フォルダ名には空のまま'
             },
+            folderNoteProperty: {
+                name: 'フォルダノートプロパティ',
+                desc: '新しく作成されたフォルダノートに追加するフロントマタープロパティ。',
+                placeholder: 'foldernote'
+            },
             hideFolderNoteInList: {
                 name: 'リストでフォルダノートを非表示',
                 desc: 'フォルダのノートリストにフォルダノートが表示されないようにします。'

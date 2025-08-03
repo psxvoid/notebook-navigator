@@ -526,6 +526,11 @@ export const STRINGS_DE = {
                 desc: 'Name der Ordnernotiz. Leer lassen, um denselben Namen wie der Ordner zu verwenden.',
                 placeholder: 'Leer lassen für Ordnernamen'
             },
+            folderNoteProperty: {
+                name: 'Ordnernotiz-Eigenschaft',
+                desc: 'Frontmatter-Eigenschaft, die neu erstellten Ordnernotizen hinzugefügt wird.',
+                placeholder: 'foldernote'
+            },
             hideFolderNoteInList: {
                 name: 'Ordnernotizen in Liste ausblenden',
                 desc: 'Die Ordnernotiz in der Notizliste des Ordners ausblenden.'

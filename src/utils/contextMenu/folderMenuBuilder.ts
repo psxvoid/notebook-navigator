@@ -160,7 +160,13 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                             return;
                         }
 
-                        const file = await app.vault.create(notePath, '');
+                        // Create content with frontmatter if folderNoteProperty is set
+                        let content = '';
+                        if (settings.folderNoteProperty) {
+                            content = `---\n${settings.folderNoteProperty}: true\n---\n`;
+                        }
+
+                        const file = await app.vault.create(notePath, content);
 
                         await commandQueue!.executeOpenFolderNote(folder.path, async () => {
                             await app.workspace.getLeaf().openFile(file);

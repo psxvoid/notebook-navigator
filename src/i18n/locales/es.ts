@@ -526,6 +526,11 @@ export const STRINGS_ES = {
                 desc: 'Nombre de la nota de carpeta. Dejar vacío para usar el mismo nombre que la carpeta.',
                 placeholder: 'Dejar vacío para el nombre de la carpeta'
             },
+            folderNoteProperty: {
+                name: 'Propiedad de nota de carpeta',
+                desc: 'Propiedad frontmatter para agregar a las notas de carpeta recién creadas.',
+                placeholder: 'foldernote'
+            },
             hideFolderNoteInList: {
                 name: 'Ocultar notas de carpeta en la lista',
                 desc: 'Ocultar la nota de carpeta para que no aparezca en la lista de notas de la carpeta.'
