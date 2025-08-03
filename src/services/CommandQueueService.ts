@@ -191,17 +191,16 @@ export class CommandQueueService {
 
         try {
             await openFile();
+            // Clean up immediately after the file is opened
+            this.activeOperations.delete(operationId);
             return { success: true };
         } catch (error) {
+            // Clean up on error as well
+            this.activeOperations.delete(operationId);
             return {
                 success: false,
                 error: error as Error
             };
-        } finally {
-            // Clean up after a short delay to ensure event handlers see the flag
-            setTimeout(() => {
-                this.activeOperations.delete(operationId);
-            }, 100);
         }
     }
 
@@ -221,17 +220,16 @@ export class CommandQueueService {
 
         try {
             await openHistory();
+            // Clean up immediately after the version history command is executed
+            this.activeOperations.delete(operationId);
             return { success: true };
         } catch (error) {
+            // Clean up on error as well
+            this.activeOperations.delete(operationId);
             return {
                 success: false,
                 error: error as Error
             };
-        } finally {
-            // Clean up after a delay
-            setTimeout(() => {
-                this.activeOperations.delete(operationId);
-            }, 100);
         }
     }
 

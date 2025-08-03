@@ -402,16 +402,21 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 return;
             }
 
-            // Don't reveal if navigator has focus
+            // Check if we're opening version history
+            const isOpeningVersionHistory = commandQueue && commandQueue.isOpeningVersionHistory();
+
+            // Don't reveal if navigator has focus (unless we're opening version history)
             const navigatorEl = document.querySelector('.nn-split-container');
             const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
 
-            if (hasNavigatorFocus) {
+            if (hasNavigatorFocus && !isOpeningVersionHistory) {
                 return;
             }
 
             // Don't reveal if we're opening a folder note
-            if (commandQueue && commandQueue.isOpeningFolderNote()) {
+            const isOpeningFolderNote = commandQueue && commandQueue.isOpeningFolderNote();
+
+            if (isOpeningFolderNote) {
                 return;
             }
 
