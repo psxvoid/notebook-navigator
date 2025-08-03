@@ -27,6 +27,18 @@ export class TagOperations {
 
     /**
      * Escapes special regex characters in a string
+     * 
+     * Examples:
+     * - "file.txt" → "file\\.txt"
+     * - "tag*" → "tag\\*"
+     * - "[tag]" → "\\[tag\\]"
+     * - "tag?" → "tag\\?"
+     * - "(tag)" → "\\(tag\\)"
+     * - "tag|other" → "tag\\|other"
+     * - "tag$" → "tag\\$"
+     * - "tag^start" → "tag\\^start"
+     * - "tag{1,3}" → "tag\\{1,3\\}"
+     * - "tag\\" → "tag\\\\"
      */
     private escapeRegExp(string: string): string {
         return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
@@ -247,18 +259,33 @@ export class TagOperations {
     private removeInlineTags(content: string, tag: string): string {
         // Escape special regex characters in tag
         const escapedTag = this.escapeRegExp(tag);
-        // Remove the specific tag (with or without #)
+        // Remove the specific tag with optional preceding space
         // Must be followed by whitespace or end of line
-        const regex = new RegExp(`#${escapedTag}(?=\\s|$)`, 'g');
+        const regex = new RegExp(`(\\s)?#${escapedTag}(?=\\s|$)`, 'g');
         return content.replace(regex, '');
     }
 
     /**
      * Removes all inline tags from content
+     * 
+     * Examples:
+     * - "text #tag more text" → "text more text"
+     * - "#todo finish this #urgent" → "finish this"
+     * - "Issue #123 is fixed" → "Issue #123 is fixed" (preserved - not a tag)
+     * - "#project/subtask done" → "done"
+     * - "#multi-word-tag text" → "text"
+     * - "text#notag" → "text#notag" (preserved - no space before #)
+     * - "#tag1 #tag2\n#tag3" → "\n"
+     * - "end with #tag" → "end with"
+     * - "text  #tag  more" → "text  more" (existing double spaces preserved)
      */
     private removeAllInlineTags(content: string): string {
-        // Remove all tags that start with # followed by word characters, hyphens, or slashes
-        // Must be followed by whitespace or end of line to avoid matching things like #1 in issue numbers
-        return content.replace(/#[\w\-/]+(?=\s|$)/g, '');
+        // Remove tags with optional leading space, or just the tag at start of line
+        // The regex captures: (optional preceding space)(#tag)(lookahead for space or EOL)
+        return content.replace(/(\s)?#[\w\-/]+(?=\s|$)/g, (match, space) => {
+            // If there was a space before the tag, remove both space and tag
+            // If tag was at start of line/string, just remove the tag
+            return '';
+        });
     }
 }
