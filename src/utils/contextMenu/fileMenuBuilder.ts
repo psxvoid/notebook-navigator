@@ -88,8 +88,8 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         addMultipleFilesDuplicateOption(menu, selectedCount, selectionState, app, fileSystemOps);
     }
 
-    // Open version history (if Sync is enabled) - desktop only, single selection only
-    if (!isMobile && !shouldShowMultiOptions) {
+    // Open version history (if Sync is enabled) - single selection only
+    if (!shouldShowMultiOptions) {
         const syncPlugin = getInternalPlugin(app, 'sync');
         if (syncPlugin && 'enabled' in syncPlugin && syncPlugin.enabled) {
             menu.addItem((item: MenuItem) => {
