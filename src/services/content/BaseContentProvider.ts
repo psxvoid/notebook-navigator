@@ -41,7 +41,8 @@ export abstract class BaseContentProvider implements IContentProvider {
     protected abortController: AbortController | null = null;
     protected queueDebounceTimer: number | null = null;
     protected currentBatchSettings: NotebookNavigatorSettings | null = null;
-    // Track files currently being processed to prevent race conditions
+    // Track files currently being processed to prevent duplicate processing
+    // when multiple events fire for the same file in quick succession
     protected processingFiles: Set<string> = new Set();
 
     constructor(protected app: App) {}

@@ -73,13 +73,15 @@ export async function initializeCache(appIdParam: string): Promise<void> {
 
 /**
  * Record file changes in the database.
- * Sets all content fields to null to trigger regeneration by ContentService.
- * This is used when files are added, modified, or renamed.
  *
- * Updates mtime to match the file's actual modification time because:
- * - The file content has actually changed
- * - We use mtime to detect future changes (compare DB mtime vs file mtime)
- * - ContentService will update mtime again after generation to prevent loops
+ * Behavior:
+ * - New files: Initialize with null content fields for content generation
+ * - Modified files: Skip update entirely, letting content providers detect mtime mismatch
+ * - Unchanged files: Update the record (useful for sync scenarios)
+ *
+ * When files are modified, the database mtime is intentionally not updated.
+ * This creates an mtime mismatch that content providers use to trigger regeneration.
+ * Existing content remains visible until regeneration completes, avoiding UI flicker.
  *
  * @param files - Array of Obsidian files to record
  * @param existingData - Pre-fetched map of existing file data
@@ -101,36 +103,21 @@ export async function recordFileChanges(files: TFile[], existingData: Map<string
                 metadata: null // ContentService will extract these
             };
             updates.push({ path: file.path, data: fileData });
-        } else {
-            // Existing file - check if it was actually modified
-            const fileModified = existing.mtime !== file.stat.mtime;
-
-            if (fileModified) {
-                // File was modified - DON'T update the database mtime yet
-                // Content providers check if db.mtime != file.mtime to detect changes
-                // By keeping the old mtime, providers will see the mismatch and regenerate
-                // Keep existing content to avoid flicker - providers will update it
-                const fileData: FileData = {
-                    mtime: existing.mtime, // Keep OLD mtime temporarily
-                    tags: existing.tags, // Keep existing to avoid flicker
-                    preview: existing.preview, // Keep existing to avoid flicker
-                    featureImage: existing.featureImage, // Keep existing to avoid flicker
-                    metadata: existing.metadata // Keep existing to avoid flicker
-                };
-                updates.push({ path: file.path, data: fileData });
-            } else {
-                // File not actually modified (maybe just metadata change)
-                // Keep everything as is
-                const fileData: FileData = {
-                    mtime: existing.mtime,
-                    tags: existing.tags,
-                    preview: existing.preview,
-                    featureImage: existing.featureImage,
-                    metadata: existing.metadata
-                };
-                updates.push({ path: file.path, data: fileData });
-            }
+        } else if (existing.mtime === file.stat.mtime) {
+            // File hasn't changed (mtime matches)
+            // This can happen during sync operations or cache rebuilds
+            const fileData: FileData = {
+                mtime: existing.mtime,
+                tags: existing.tags,
+                preview: existing.preview,
+                featureImage: existing.featureImage,
+                metadata: existing.metadata
+            };
+            updates.push({ path: file.path, data: fileData });
         }
+        // If file was actually modified (existing.mtime !== file.stat.mtime),
+        // we intentionally skip the update. Content providers will detect
+        // the mtime mismatch and regenerate content as needed.
     }
 
     await db.setFiles(updates);
