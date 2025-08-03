@@ -1048,37 +1048,37 @@ export class IndexedDBStorage {
     }
 
     /**
-     * Get preview text for display, returning empty string if null.
+     * Get preview text from memory cache, returning empty string if null.
      * Helper method for UI components that need non-null strings.
      *
      * @param path - File path to get preview for
      * @returns Preview text or empty string
      */
-    getDisplayPreviewText(path: string): string {
+    getCachedPreviewText(path: string): string {
         const file = this.getFile(path);
         return file?.preview || '';
     }
 
     /**
-     * Get feature image URL for display, returning empty string if null.
+     * Get feature image URL from memory cache, returning empty string if null.
      * Helper method for UI components that need non-null strings.
      *
      * @param path - File path to get image for
      * @returns Feature image URL or empty string
      */
-    getDisplayFeatureImageUrl(path: string): string {
+    getCachedFeatureImageUrl(path: string): string {
         const file = this.getFile(path);
         return file?.featureImage || '';
     }
 
     /**
-     * Get tags for display, returning empty array if none.
+     * Get tags from memory cache, returning empty array if none.
      * Helper method for UI components that need tag data.
      *
      * @param path - File path to get tags for
      * @returns Array of tag strings
      */
-    getDisplayTags(path: string): string[] {
+    getCachedTags(path: string): string[] {
         const file = this.getFile(path);
         // Return empty array if file doesn't exist or tags are null/not extracted yet
         if (!file || file.tags === null) return [];

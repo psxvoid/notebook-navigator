@@ -241,7 +241,7 @@ export const FileItem = React.memo(function FileItem({
 
         // Initial load of all data
         if (settings.showFilePreview && file.extension === 'md') {
-            setPreviewText(db.getDisplayPreviewText(file.path));
+            setPreviewText(db.getCachedPreviewText(file.path));
         } else {
             setPreviewText('');
         }
@@ -255,7 +255,7 @@ export const FileItem = React.memo(function FileItem({
                     setFeatureImageUrl(null);
                 }
             } else {
-                const imagePath = db.getDisplayFeatureImageUrl(file.path);
+                const imagePath = db.getCachedFeatureImageUrl(file.path);
 
                 // If we have a path, convert it to a URL
                 if (imagePath) {
@@ -278,7 +278,7 @@ export const FileItem = React.memo(function FileItem({
             setFeatureImageUrl(null);
         }
 
-        const initialTags = db.getDisplayTags(file.path);
+        const initialTags = db.getCachedTags(file.path);
         setTags(initialTags);
 
         // Subscribe to changes for this specific file

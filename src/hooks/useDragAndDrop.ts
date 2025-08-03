@@ -177,7 +177,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         dragIcon.className = 'nn-drag-icon-badge';
 
                         // Try to use featured image if available
-                        const featureImagePath = db.getDisplayFeatureImageUrl(path);
+                        const featureImagePath = db.getCachedFeatureImageUrl(path);
                         let imageLoaded = false;
 
                         if (featureImagePath) {

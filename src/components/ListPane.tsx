@@ -243,7 +243,7 @@ export const ListPane = React.memo(
                 if (settings.showFileTags && item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
                     // Check if file has tags using the database
                     const db = getDB();
-                    const tags = db.getDisplayTags(item.data.path);
+                    const tags = db.getCachedTags(item.data.path);
                     const hasTags = tags.length > 0;
 
                     if (hasTags) {
