@@ -117,14 +117,16 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
             });
     });
 
-    // Reveal in system explorer
-    menu.addItem((item: MenuItem) => {
-        item.setTitle(fileSystemOps.getRevealInSystemExplorerText())
-            .setIcon('folder-open')
-            .onClick(async () => {
-                await fileSystemOps.revealInSystemExplorer(folder);
-            });
-    });
+    // Reveal in system explorer - desktop only
+    if (!services.isMobile) {
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(fileSystemOps.getRevealInSystemExplorerText())
+                .setIcon('folder-open')
+                .onClick(async () => {
+                    await fileSystemOps.revealInSystemExplorer(folder);
+                });
+        });
+    }
 
     // Folder note operations
     if (settings.enableFolderNotes) {
