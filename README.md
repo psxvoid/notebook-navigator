@@ -78,17 +78,29 @@ To a modern, Notes-style interface like this:
 ## Architecture & Performance
 
 - **React + TanStack Virtual** - Modern React architecture with virtualized
-  rendering handling 100,000+ notes
+  rendering handling 100,000+ notes with buttery-smooth 120Hz scrolling
 - **IndexedDB + RAM Cache** - Dual-layer caching system provides instant access
   to metadata while maintaining zero memory overhead
-- **TypeScript Throughout** - 100% type-safe codebase with zero `any` types and
-  comprehensive type guards
-- **Promise Queue Architecture** - Serialized file operations prevent race
-  conditions during rapid vault changes
+- **Dependency Injection Architecture** - Clean separation of concerns with
+  interface-based design (`ISettingsProvider`, `ITagTreeProvider`) enabling
+  testable, maintainable code
+- **Command Queue Service** - Centralized operation tracking replaces fragile
+  global state, providing atomic context management for complex operations
+- **Batch Processing Engine** - Intelligent content generation with parallel
+  processing, debounced queuing, and graceful cancellation
+- **Unified Cleanup System** - Single-pass startup optimization aggregates all
+  metadata validation, eliminating redundant file system traversals
+- **Promise Queue Serialization** - All settings updates and file operations are
+  serialized through promise queues, preventing race conditions
+- **Zero-Tolerance Code Quality** - Strict ESLint configuration with
+  `no-explicit-any` enforced, resulting in 0 errors, 0 warnings across 20,000+
+  lines of TypeScript
+- **Type-Safe Obsidian Integration** - Custom type guards for all Obsidian APIs,
+  never using unsafe type assertions
 - **Event-Driven State Management** - Real-time sync with Obsidian's vault
   events using proper cleanup and memory management
-- **Mobile-First Performance** - Touch-optimized event handling and 120Hz
-  animations
+- **Mobile-First Performance** - Touch-optimized event handling with 120Hz
+  animations and efficient gesture recognition
 
 <br>
 
@@ -135,7 +147,6 @@ activate Notebook Navigator in case you close it by mistake.
 | Shift+Tab                                   | Switch from list pane to navigation pane                                                |
 | PageUp/PageDown                             | Scroll up/down in navigation pane and list pane                                         |
 | Home/End                                    | Jump to first/last item in current pane                                                 |
-| Option/Alt+Click on chevron                 | Expand/collapse all descendants of a folder or tag                                      |
 | Delete (Windows/Linux)<br>Backspace (macOS) | Delete selected item                                                                    |
 | Cmd/Ctrl+A                                  | Select all notes in current folder                                                      |
 | Cmd/Ctrl+Click                              | Toggle notes selection                                                                  |
