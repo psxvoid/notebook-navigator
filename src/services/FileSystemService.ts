@@ -155,22 +155,24 @@ export class FileSystemOperations {
                             folderNote = getFolderNote(folder, settings, this.app);
                         }
 
-                        // Rename the folder
                         const newPath = normalizePath(folder.parent?.path ? `${folder.parent.path}/${newName}` : newName);
-                        await this.app.fileManager.renameFile(folder, newPath);
 
-                        // Rename the folder note if it exists and uses the same name as folder
+                        // Rename the folder note FIRST if it exists and uses the same name as folder
                         if (folderNote && settings && !settings.folderNoteName) {
                             // Only rename if folderNoteName is empty (meaning it uses folder name)
                             try {
                                 const newNoteName = `${newName}.${folderNote.extension}`;
-                                const newNotePath = normalizePath(`${newPath}/${newNoteName}`);
+                                // Use the current folder path since folder hasn't been renamed yet
+                                const newNotePath = normalizePath(`${folder.path}/${newNoteName}`);
                                 await this.app.fileManager.renameFile(folderNote, newNotePath);
                             } catch (error) {
-                                // Silently fail folder note rename - the main folder rename succeeded
+                                // Log error but continue with folder rename
                                 console.error('Failed to rename folder note:', error);
                             }
                         }
+
+                        // Now rename the folder - this will move the already-renamed folder note with it
+                        await this.app.fileManager.renameFile(folder, newPath);
                     } catch (error) {
                         new Notice(strings.fileSystem.errors.renameFolder.replace('{error}', error.message));
                     }
