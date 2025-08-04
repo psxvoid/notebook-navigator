@@ -282,7 +282,7 @@ export class TagOperations {
     private removeAllInlineTags(content: string): string {
         // Remove tags with optional leading space, or just the tag at start of line
         // The regex captures: (optional preceding space)(#tag)(lookahead for space or EOL)
-        return content.replace(/(\s)?#[\w\-/]+(?=\s|$)/g, (match, space) => {
+        return content.replace(/(\s)?#[\w\-/]+(?=\s|$)/g, (_match, _space) => {
             // If there was a space before the tag, remove both space and tag
             // If tag was at start of line/string, just remove the tag
             return '';
