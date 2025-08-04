@@ -56,7 +56,7 @@ interface UseListPaneScrollParams {
     /** Plugin settings */
     settings: NotebookNavigatorSettings;
     /** Effective settings for the current folder */
-    effectiveSettings?: {
+    folderSettings: {
         titleRows: number;
         previewRows: number;
         showDate: boolean;
@@ -101,7 +101,7 @@ export function useListPaneScroll({
     selectedFolder,
     selectedTag,
     settings,
-    effectiveSettings,
+    folderSettings,
     isVisible,
     selectionState,
     selectionDispatch
@@ -126,7 +126,7 @@ export function useListPaneScroll({
     const currentListItemsKey = listItems.map(item => item.key).join('|');
 
     // Check if we're in slim mode
-    const isSlimMode = !settings.showFileDate && !settings.showFilePreview && !settings.showFeatureImage;
+    const isSlimMode = !folderSettings.showDate && !folderSettings.showPreview && !folderSettings.showImage;
 
     /**
      * Safe array access helper to prevent out-of-bounds errors
@@ -166,38 +166,38 @@ export function useListPaneScroll({
             }
 
             // For file items - calculate height including all components
-            // Use effective settings if available, otherwise fall back to global settings
-            const showFileDate = effectiveSettings?.showDate ?? settings.showFileDate;
-            const showFilePreview = effectiveSettings?.showPreview ?? settings.showFilePreview;
-            const fileNameRows = effectiveSettings?.titleRows ?? settings.fileNameRows;
-            const previewRows = effectiveSettings?.previewRows ?? settings.previewRows;
 
             // Get actual preview status for accurate height calculation
             let hasPreviewText = false;
-            if (item.type === ListPaneItemType.FILE && item.data instanceof TFile && showFilePreview && item.data.extension === 'md') {
+            if (
+                item.type === ListPaneItemType.FILE &&
+                item.data instanceof TFile &&
+                folderSettings.showPreview &&
+                item.data.extension === 'md'
+            ) {
                 // Use synchronous check from cache
                 hasPreviewText = hasPreview(item.data.path);
             }
 
             // Calculate effective preview rows based on actual content
             // For pinned items, limit to 1 row max
-            const effectivePreviewRows = item.isPinned ? 1 : hasPreviewText ? previewRows : 1;
+            const effectivePreviewRows = item.isPinned ? 1 : hasPreviewText ? folderSettings.previewRows : 1;
 
             // Start with base padding
             let textContentHeight = 0;
 
             if (isSlimMode) {
                 // Slim mode: only shows file name
-                textContentHeight = heights.titleLineHeight * (fileNameRows || 1);
+                textContentHeight = heights.titleLineHeight * (folderSettings.titleRows || 1);
             } else {
                 // Normal mode
-                textContentHeight += heights.titleLineHeight * (fileNameRows || 1); // File name
+                textContentHeight += heights.titleLineHeight * (folderSettings.titleRows || 1); // File name
 
                 // Single row mode - show date+preview, tags, and parent folder
                 // Pinned items are always treated as single row mode
-                if (item.isPinned || previewRows < 2) {
+                if (item.isPinned || folderSettings.previewRows < 2) {
                     // Date and preview share one line
-                    if (showFilePreview || showFileDate) {
+                    if (folderSettings.showPreview || folderSettings.showDate) {
                         textContentHeight += heights.metadataLineHeight;
                     }
 
@@ -215,22 +215,22 @@ export function useListPaneScroll({
                         // Empty preview: show date + parent folder on same line
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
-                        const showsParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
+                        const showParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
 
-                        if (showFileDate || showsParentFolder) {
+                        if (folderSettings.showDate || showParentFolder) {
                             textContentHeight += heights.metadataLineHeight;
                         }
                     } else {
                         // Has preview text: show multi-line preview, then date + parent folder
-                        if (showFilePreview) {
+                        if (folderSettings.showPreview) {
                             textContentHeight += heights.multiLineLineHeight * effectivePreviewRows;
                         }
                         // Only add metadata line if date is shown OR parent folder is shown
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
-                        const showsParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
+                        const showParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
 
-                        if (showFileDate || showsParentFolder) {
+                        if (folderSettings.showDate || showParentFolder) {
                             textContentHeight += heights.metadataLineHeight;
                         }
                     }
@@ -438,11 +438,11 @@ export function useListPaneScroll({
         settings.previewRows,
         settings.showParentFolderNames,
         settings.showFileTags,
-        effectiveSettings?.showDate,
-        effectiveSettings?.showPreview,
-        effectiveSettings?.showImage,
-        effectiveSettings?.titleRows,
-        effectiveSettings?.previewRows,
+        folderSettings.showDate,
+        folderSettings.showPreview,
+        folderSettings.showImage,
+        folderSettings.titleRows,
+        folderSettings.previewRows,
         rowVirtualizer
     ]);
 

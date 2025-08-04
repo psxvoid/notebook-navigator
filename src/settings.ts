@@ -23,7 +23,7 @@ import { TIMEOUTS } from './types/obsidian-extended';
 import { FileVisibility, FILE_VISIBILITY } from './utils/fileTypeUtils';
 import { calculateCacheStatistics, CacheStatistics } from './storage/statistics';
 import { ISO_DATE_FORMAT } from './utils/dateUtils';
-import { FolderAppearance } from './hooks/useEffectiveSettings';
+import { FolderAppearance } from './hooks/useListPaneFolderSettings';
 
 /**
  * Available sort options for file listing

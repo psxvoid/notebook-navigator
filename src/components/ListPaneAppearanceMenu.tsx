@@ -1,6 +1,6 @@
 import { Menu } from 'obsidian';
 import { strings } from '../i18n';
-import { FolderAppearance } from '../hooks/useEffectiveSettings';
+import { FolderAppearance } from '../hooks/useListPaneFolderSettings';
 import { NotebookNavigatorSettings } from '../settings';
 import { TFolder } from 'obsidian';
 
@@ -16,7 +16,7 @@ interface FolderAppearanceMenuProps {
     updateSettings: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>;
 }
 
-export function showFolderAppearanceMenu({
+export function showListPaneAppearanceMenu({
     event,
     titleRows,
     previewRows,
@@ -38,8 +38,9 @@ export function showFolderAppearanceMenu({
             // Merge updates
             newAppearances[folderPath] = { ...currentAppearance, ...updates };
 
-            // Remove empty objects
-            if (Object.keys(newAppearances[folderPath]).length === 0) {
+            // Remove folder entry if all settings are cleared (back to defaults)
+            const hasDefinedValues = Object.values(newAppearances[folderPath]).some(value => value !== undefined);
+            if (!hasDefinedValues) {
                 delete newAppearances[folderPath];
             }
 

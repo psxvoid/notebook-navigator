@@ -29,8 +29,8 @@ import { UNTAGGED_TAG_ID, ItemType } from '../types';
 import { getFilesForFolder } from '../utils/fileFinder';
 import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } from '../utils/sortUtils';
 import { ObsidianIcon } from './ObsidianIcon';
-import { showFolderAppearanceMenu } from './FolderAppearanceMenu';
-import { useEffectiveSettings } from '../hooks/useEffectiveSettings';
+import { showListPaneAppearanceMenu } from './ListPaneAppearanceMenu';
+import { useListPaneFolderSettings } from '../hooks/useListPaneFolderSettings';
 
 interface ListPaneHeaderProps {
     onHeaderClick?: () => void;
@@ -48,7 +48,7 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
     const uiDispatch = useUIDispatch();
     const fileSystemOps = useFileSystemOps();
     const metadataService = useMetadataService();
-    const effectiveSettings = useEffectiveSettings();
+    const folderSettings = useListPaneFolderSettings();
 
     const handleNewFile = useCallback(async () => {
         if (!selectionState.selectedFolder) return;
@@ -70,19 +70,19 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
 
     const handleAppearanceMenu = useCallback(
         (event: React.MouseEvent) => {
-            showFolderAppearanceMenu({
+            showListPaneAppearanceMenu({
                 event: event.nativeEvent,
-                titleRows: effectiveSettings.titleRows,
-                previewRows: effectiveSettings.previewRows,
-                showDate: effectiveSettings.showDate,
-                showPreview: effectiveSettings.showPreview,
-                showImage: effectiveSettings.showImage,
+                titleRows: folderSettings.titleRows,
+                previewRows: folderSettings.previewRows,
+                showDate: folderSettings.showDate,
+                showPreview: folderSettings.showPreview,
+                showImage: folderSettings.showImage,
                 settings,
                 selectedFolder: selectionState.selectedFolder,
                 updateSettings
             });
         },
-        [effectiveSettings, settings, selectionState.selectedFolder, updateSettings]
+        [folderSettings, settings, selectionState.selectedFolder, updateSettings]
     );
 
     const handleSortMenu = useCallback(
@@ -181,6 +181,13 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
             selectionState.selectedTag &&
             metadataService.getTagSortOverride(selectionState.selectedTag));
 
+    // Check if folder has custom appearance settings
+    const hasCustomAppearance =
+        selectionState.selectedFolder &&
+        settings.folderAppearances &&
+        settings.folderAppearances[selectionState.selectedFolder.path] &&
+        Object.keys(settings.folderAppearances[selectionState.selectedFolder.path]).length > 0;
+
     const getHeaderTitle = (useFolderName = false): string => {
         let title = strings.common.noSelection;
 
@@ -265,7 +272,7 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
                             <ObsidianIcon name={getSortIcon()} />
                         </button>
                         <button
-                            className="nn-icon-button"
+                            className={`nn-icon-button ${hasCustomAppearance ? 'nn-icon-button-active' : ''}`}
                             aria-label={strings.paneHeader.changeAppearance}
                             onClick={e => {
                                 e.stopPropagation();
@@ -346,7 +353,7 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
                         <ObsidianIcon name={getSortIcon()} />
                     </button>
                     <button
-                        className="nn-icon-button"
+                        className={`nn-icon-button ${hasCustomAppearance ? 'nn-icon-button-active' : ''}`}
                         aria-label={strings.paneHeader.changeAppearance}
                         onClick={handleAppearanceMenu}
                         disabled={!selectionState.selectedFolder}

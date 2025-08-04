@@ -14,7 +14,7 @@ export interface FolderAppearance {
  * Hook to get effective settings for the current folder
  * Merges folder-specific settings with defaults
  */
-export function useEffectiveSettings() {
+export function useListPaneFolderSettings() {
     const settings = useSettingsState();
     const { selectedFolder } = useSelectionState();
 
