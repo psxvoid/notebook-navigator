@@ -139,7 +139,17 @@ export function showListPaneAppearanceMenu({
         item.setTitle('    ' + strings.folderAppearance.defaultPreviewOption(settings.previewRows))
             .setChecked(isDefaultPreview && !isSlim)
             .onClick(() => {
-                updateFolderAppearance({ previewRows: undefined });
+                if (isSlim) {
+                    // Exit slim mode and reset to default preview rows
+                    updateFolderAppearance({
+                        previewRows: undefined,
+                        showDate: undefined,
+                        showPreview: undefined,
+                        showImage: undefined
+                    });
+                } else {
+                    updateFolderAppearance({ previewRows: undefined });
+                }
             });
     });
 
@@ -151,7 +161,17 @@ export function showListPaneAppearanceMenu({
             item.setTitle('    ' + strings.folderAppearance.previewRowOption(rows))
                 .setChecked(isChecked)
                 .onClick(() => {
-                    updateFolderAppearance({ previewRows: rows });
+                    if (isSlim) {
+                        // Exit slim mode and apply the selected preview rows
+                        updateFolderAppearance({
+                            previewRows: rows,
+                            showDate: undefined,
+                            showPreview: undefined,
+                            showImage: undefined
+                        });
+                    } else {
+                        updateFolderAppearance({ previewRows: rows });
+                    }
                 });
         });
     });
