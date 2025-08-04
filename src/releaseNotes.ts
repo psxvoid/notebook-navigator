@@ -59,7 +59,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-08-04',
         showOnUpdate: true,
         new: [
-            'You can now set custom appearances for each folder and tag! With the new "Change appearance" button in list pane you can make each folder have a unique style: use slim mode to show as many items as possible, or use 5 preview rows for those folders where you want to see lots of the preview text!'
+            'You can now set custom appearances for each folder and tag! Using the new Change appearance button you can make each folder or tag have a unique style - like slim mode to show as many items as possible, or 5 preview rows for those folders where you want to see lots of the preview text!'
         ],
         improved: ['Pinned notes now show at max 1 preview row without parent folder, taking up less vertical space.']
     },

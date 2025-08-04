@@ -72,6 +72,8 @@ To a modern, Notes-style interface like this:
 - **Smart filtering** - Exclude folders and notes with patterns
 - **Visual customization** - Folder and tag colors with customizable icons
   (Lucide icons or emojis)
+- **Custom appearances** - Set unique display styles for each folder and tag,
+  like slim mode or 5 preview rows
 
 <br>
 
@@ -401,6 +403,28 @@ Each folder and tag can have its own sort preference:
    - **Default**: Uses the global sort setting from preferences
    - **Custom**: Choose a specific sort order for this folder/tag only
 4. Your custom sort preference is remembered for each folder and tag
+
+### Custom appearances per folder and tag
+
+Make each folder and tag display exactly how you want:
+
+1. Select a folder or tag
+2. Click the "Change appearance" button in the list pane header
+3. Customize display settings for that specific folder or tag:
+   - **Title rows**: Show titles in 1 or 2 rows or default
+   - **Preview rows**: Set 1-5 rows of preview text or default
+4. Use presets for quick setup:
+   - **Default appearance**: Reset to global settings
+   - **Slim mode**: Turn off date, preview, and images for maximum file density
+
+Perfect for:
+
+- **Slim mode folders**: Turn off date, preview, and images for maximum file
+  density
+- **Content-rich folders**: Use 5 preview rows for folders where preview text is
+  important
+- **Quick scan folders**: Use 1-2 preview rows for folders you need to scan
+  quickly
 
 ### Using tags effectively
 

@@ -54,7 +54,7 @@ import { useSettingsState } from '../context/SettingsContext';
 import { useFileCache } from '../context/StorageContext';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { useTagNavigation } from '../hooks/useTagNavigation';
-import { useListPaneFolderSettings } from '../hooks/useListPaneFolderSettings';
+import { useListPaneAppearance } from '../hooks/useListPaneAppearance';
 import { strings } from '../i18n';
 import { SortOption } from '../settings';
 import { ItemType } from '../types';
@@ -100,7 +100,7 @@ export const FileItem = React.memo(function FileItem({
 }: FileItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
-    const folderSettings = useListPaneFolderSettings();
+    const appearanceSettings = useListPaneAppearance();
     const { getFileDisplayName, getDB, getFileCreatedTime, getFileModifiedTime, findTagInFavoriteTree } = useFileCache();
     const fileRef = useRef<HTMLDivElement>(null);
     const { navigateToTag } = useTagNavigation();
@@ -195,7 +195,7 @@ export const FileItem = React.memo(function FileItem({
 
     // Format display date based on current sort
     const displayDate = useMemo(() => {
-        if (!folderSettings.showDate || !sortOption) return '';
+        if (!appearanceSettings.showDate || !sortOption) return '';
 
         // Determine which date to show based on sort option
         const dateField = getDateField(sortOption);
@@ -215,7 +215,7 @@ export const FileItem = React.memo(function FileItem({
         file.stat.ctime,
         sortOption,
         dateGroup,
-        folderSettings.showDate,
+        appearanceSettings.showDate,
         settings.dateFormat,
         settings.timeFormat,
         getFileCreatedTime,
@@ -223,11 +223,11 @@ export const FileItem = React.memo(function FileItem({
     ]);
 
     // Detect slim mode when all display options are disabled
-    const isSlimMode = !folderSettings.showDate && !folderSettings.showPreview && !folderSettings.showImage;
+    const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
 
     // Determine if we should show the feature image area (either with an image or extension badge)
     const shouldShowFeatureImageArea =
-        folderSettings.showImage &&
+        appearanceSettings.showImage &&
         (featureImageUrl || // Has an actual image
             (file.extension !== 'md' && !isImageFile(file))); // Non-markdown, non-image files show extension badge
 
@@ -246,13 +246,13 @@ export const FileItem = React.memo(function FileItem({
         const db = getDB(); // Get MemoryFileCache instance
 
         // Initial load of all data from RAM cache
-        if (folderSettings.showPreview && file.extension === 'md') {
+        if (appearanceSettings.showPreview && file.extension === 'md') {
             setPreviewText(db.getCachedPreviewText(file.path));
         } else {
             setPreviewText('');
         }
 
-        if (folderSettings.showImage) {
+        if (appearanceSettings.showImage) {
             if (isImageFile(file)) {
                 try {
                     const resourcePath = app.vault.getResourcePath(file);
@@ -289,10 +289,10 @@ export const FileItem = React.memo(function FileItem({
 
         // Subscribe to RAM cache changes for this specific file
         const unsubscribe = db.onFileContentChange(file.path, changes => {
-            if (changes.preview !== undefined && folderSettings.showPreview && file.extension === 'md') {
+            if (changes.preview !== undefined && appearanceSettings.showPreview && file.extension === 'md') {
                 setPreviewText(changes.preview || '');
             }
-            if (changes.featureImage !== undefined && folderSettings.showImage && !isImageFile(file)) {
+            if (changes.featureImage !== undefined && appearanceSettings.showImage && !isImageFile(file)) {
                 // Convert path to URL
                 if (changes.featureImage) {
                     const imageFile = app.vault.getAbstractFileByPath(changes.featureImage);
@@ -319,7 +319,7 @@ export const FileItem = React.memo(function FileItem({
             unsubscribe();
         };
         // eslint-disable-next-line react-hooks/exhaustive-deps -- file.path is needed to resubscribe when file is renamed
-    }, [file.path, folderSettings.showPreview, folderSettings.showImage, getDB, app]);
+    }, [file.path, appearanceSettings.showPreview, appearanceSettings.showImage, getDB, app]);
 
     // Add Obsidian tooltip (desktop only)
     useEffect(() => {
@@ -380,7 +380,7 @@ export const FileItem = React.memo(function FileItem({
                 {isSlimMode ? (
                     // Slim mode: Show file name and tags with minimal styling
                     <div className="nn-slim-file-text-content">
-                        <div className="nn-file-name" style={{ '--filename-rows': folderSettings.titleRows } as React.CSSProperties}>
+                        <div className="nn-file-name" style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}>
                             {displayName}
                         </div>
                         {renderTags()}
@@ -389,12 +389,15 @@ export const FileItem = React.memo(function FileItem({
                     // Normal mode: Show all enabled elements
                     <>
                         <div className="nn-file-text-content">
-                            <div className="nn-file-name" style={{ '--filename-rows': folderSettings.titleRows } as React.CSSProperties}>
+                            <div
+                                className="nn-file-name"
+                                style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}
+                            >
                                 {displayName}
                             </div>
 
                             {/* Single row mode (preview rows = 1) - show all elements */}
-                            {(isPinned || folderSettings.previewRows < 2) && (
+                            {(isPinned || appearanceSettings.previewRows < 2) && (
                                 <>
                                     {/* Date + Preview on same line */}
                                     <div className="nn-file-second-line">
@@ -425,7 +428,7 @@ export const FileItem = React.memo(function FileItem({
                             )}
 
                             {/* Multi-row mode (preview rows >= 2) - different layouts based on preview content */}
-                            {!isPinned && folderSettings.previewRows >= 2 && (
+                            {!isPinned && appearanceSettings.previewRows >= 2 && (
                                 <>
                                     {/* Case 1: Empty preview text - show tags, then date + parent folder */}
                                     {!previewText && (
@@ -456,7 +459,7 @@ export const FileItem = React.memo(function FileItem({
                                             {settings.showFilePreview && (
                                                 <div
                                                     className="nn-file-preview"
-                                                    style={{ '--preview-rows': folderSettings.previewRows } as React.CSSProperties}
+                                                    style={{ '--preview-rows': appearanceSettings.previewRows } as React.CSSProperties}
                                                 >
                                                     {previewText}
                                                 </div>

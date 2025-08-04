@@ -20,7 +20,7 @@ import { App } from 'obsidian';
 import { NotebookNavigatorSettings, SortOption } from '../../settings';
 import { ItemType } from '../../types';
 import { ISettingsProvider } from '../../interfaces/ISettingsProvider';
-import { FolderAppearance } from '../../hooks/useListPaneFolderSettings';
+import { FolderAppearance, TagAppearance } from '../../hooks/useListPaneAppearance';
 
 /**
  * Type helper for metadata fields in settings
@@ -35,6 +35,7 @@ type MetadataFields = {
     tagColors: Record<string, string>;
     tagIcons: Record<string, string>;
     tagSortOverrides: Record<string, SortOption>;
+    tagAppearances: Record<string, TagAppearance>;
 };
 
 type MetadataKey = keyof MetadataFields;

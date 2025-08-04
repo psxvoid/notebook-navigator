@@ -30,7 +30,7 @@ import { getFilesForFolder } from '../utils/fileFinder';
 import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } from '../utils/sortUtils';
 import { ObsidianIcon } from './ObsidianIcon';
 import { showListPaneAppearanceMenu } from './ListPaneAppearanceMenu';
-import { useListPaneFolderSettings } from '../hooks/useListPaneFolderSettings';
+import { useListPaneAppearance } from '../hooks/useListPaneAppearance';
 
 interface ListPaneHeaderProps {
     onHeaderClick?: () => void;
@@ -48,7 +48,7 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
     const uiDispatch = useUIDispatch();
     const fileSystemOps = useFileSystemOps();
     const metadataService = useMetadataService();
-    const folderSettings = useListPaneFolderSettings();
+    const appearanceSettings = useListPaneAppearance();
 
     const handleNewFile = useCallback(async () => {
         if (!selectionState.selectedFolder) return;
@@ -72,17 +72,26 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
         (event: React.MouseEvent) => {
             showListPaneAppearanceMenu({
                 event: event.nativeEvent,
-                titleRows: folderSettings.titleRows,
-                previewRows: folderSettings.previewRows,
-                showDate: folderSettings.showDate,
-                showPreview: folderSettings.showPreview,
-                showImage: folderSettings.showImage,
+                titleRows: appearanceSettings.titleRows,
+                previewRows: appearanceSettings.previewRows,
+                showDate: appearanceSettings.showDate,
+                showPreview: appearanceSettings.showPreview,
+                showImage: appearanceSettings.showImage,
                 settings,
                 selectedFolder: selectionState.selectedFolder,
+                selectedTag: selectionState.selectedTag,
+                selectionType: selectionState.selectionType,
                 updateSettings
             });
         },
-        [folderSettings, settings, selectionState.selectedFolder, updateSettings]
+        [
+            appearanceSettings,
+            settings,
+            selectionState.selectedFolder,
+            selectionState.selectedTag,
+            selectionState.selectionType,
+            updateSettings
+        ]
     );
 
     const handleSortMenu = useCallback(
@@ -181,12 +190,16 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
             selectionState.selectedTag &&
             metadataService.getTagSortOverride(selectionState.selectedTag));
 
-    // Check if folder has custom appearance settings
+    // Check if folder or tag has custom appearance settings
     const hasCustomAppearance =
-        selectionState.selectedFolder &&
-        settings.folderAppearances &&
-        settings.folderAppearances[selectionState.selectedFolder.path] &&
-        Object.keys(settings.folderAppearances[selectionState.selectedFolder.path]).length > 0;
+        (selectionState.selectedFolder &&
+            settings.folderAppearances &&
+            settings.folderAppearances[selectionState.selectedFolder.path] &&
+            Object.keys(settings.folderAppearances[selectionState.selectedFolder.path]).length > 0) ||
+        (selectionState.selectedTag &&
+            settings.tagAppearances &&
+            settings.tagAppearances[selectionState.selectedTag] &&
+            Object.keys(settings.tagAppearances[selectionState.selectedTag]).length > 0);
 
     const getHeaderTitle = (useFolderName = false): string => {
         let title = strings.common.noSelection;
@@ -278,7 +291,7 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
                                 e.stopPropagation();
                                 handleAppearanceMenu(e);
                             }}
-                            disabled={!selectionState.selectedFolder}
+                            disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
                             tabIndex={-1}
                         >
                             <ObsidianIcon name="palette" />
@@ -290,7 +303,7 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
                                 e.stopPropagation();
                                 handleNewFile();
                             }}
-                            disabled={!selectionState.selectedFolder}
+                            disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
                             tabIndex={-1}
                         >
                             <ObsidianIcon name="pen-box" />
@@ -356,7 +369,7 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
                         className={`nn-icon-button ${hasCustomAppearance ? 'nn-icon-button-active' : ''}`}
                         aria-label={strings.paneHeader.changeAppearance}
                         onClick={handleAppearanceMenu}
-                        disabled={!selectionState.selectedFolder}
+                        disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
                         tabIndex={-1}
                     >
                         <ObsidianIcon name="palette" />

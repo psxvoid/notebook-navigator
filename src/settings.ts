@@ -23,7 +23,7 @@ import { TIMEOUTS } from './types/obsidian-extended';
 import { FileVisibility, FILE_VISIBILITY } from './utils/fileTypeUtils';
 import { calculateCacheStatistics, CacheStatistics } from './storage/statistics';
 import { ISO_DATE_FORMAT } from './utils/dateUtils';
-import { FolderAppearance } from './hooks/useListPaneFolderSettings';
+import { FolderAppearance, TagAppearance } from './hooks/useListPaneAppearance';
 
 /**
  * Available sort options for file listing
@@ -111,6 +111,7 @@ export interface NotebookNavigatorSettings {
     tagIcons: Record<string, string>;
     tagColors: Record<string, string>;
     tagSortOverrides: Record<string, SortOption>;
+    tagAppearances: Record<string, TagAppearance>;
     recentlyUsedIcons: string[];
     lastShownVersion: string;
 }
@@ -182,6 +183,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     tagIcons: {},
     tagColors: {},
     tagSortOverrides: {},
+    tagAppearances: {},
     recentlyUsedIcons: [],
     lastShownVersion: ''
 };

@@ -141,7 +141,8 @@ export class TagMetadataService extends BaseMetadataService {
         const results = await Promise.all([
             this.cleanupMetadata(this.settingsProvider.settings, 'tagColors', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'tagIcons', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'tagSortOverrides', validator)
+            this.cleanupMetadata(this.settingsProvider.settings, 'tagSortOverrides', validator),
+            this.cleanupMetadata(this.settingsProvider.settings, 'tagAppearances', validator)
         ]);
 
         return results.some(changed => changed);
@@ -181,7 +182,8 @@ export class TagMetadataService extends BaseMetadataService {
         const results = await Promise.all([
             this.cleanupMetadata(this.settingsProvider.settings, 'tagColors', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'tagIcons', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'tagSortOverrides', validator)
+            this.cleanupMetadata(this.settingsProvider.settings, 'tagSortOverrides', validator),
+            this.cleanupMetadata(this.settingsProvider.settings, 'tagAppearances', validator)
         ]);
 
         return results.some(changed => changed);

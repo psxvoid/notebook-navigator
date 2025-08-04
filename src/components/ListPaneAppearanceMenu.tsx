@@ -1,10 +1,10 @@
-import { Menu } from 'obsidian';
+import { Menu, TFolder } from 'obsidian';
 import { strings } from '../i18n';
-import { FolderAppearance } from '../hooks/useListPaneFolderSettings';
+import { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
 import { NotebookNavigatorSettings } from '../settings';
-import { TFolder } from 'obsidian';
+import { ItemType } from '../types';
 
-interface FolderAppearanceMenuProps {
+interface AppearanceMenuProps {
     event: MouseEvent;
     titleRows: number;
     previewRows: number;
@@ -13,6 +13,8 @@ interface FolderAppearanceMenuProps {
     showImage: boolean;
     settings: NotebookNavigatorSettings;
     selectedFolder: TFolder | null;
+    selectedTag?: string | null;
+    selectionType?: ItemType;
     updateSettings: (updater: (settings: NotebookNavigatorSettings) => void) => Promise<void>;
 }
 
@@ -25,41 +27,67 @@ export function showListPaneAppearanceMenu({
     showImage,
     settings,
     selectedFolder,
+    selectedTag,
+    selectionType,
     updateSettings
-}: FolderAppearanceMenuProps) {
-    const updateFolderAppearance = (updates: Partial<FolderAppearance>) => {
-        if (!selectedFolder) return;
+}: AppearanceMenuProps) {
+    const updateAppearance = (updates: Partial<FolderAppearance | TagAppearance>) => {
+        if (selectionType === ItemType.TAG && selectedTag) {
+            // Update tag appearance
+            updateSettings(s => {
+                const newAppearances = { ...s.tagAppearances };
+                const currentAppearance = newAppearances[selectedTag] || {};
 
-        const folderPath = selectedFolder.path;
-        updateSettings(s => {
-            const newAppearances = { ...s.folderAppearances };
-            const currentAppearance = newAppearances[folderPath] || {};
+                // Merge updates
+                newAppearances[selectedTag] = { ...currentAppearance, ...updates };
 
-            // Merge updates
-            newAppearances[folderPath] = { ...currentAppearance, ...updates };
+                // Remove tag entry if all settings are cleared (back to defaults)
+                const hasDefinedValues = Object.values(newAppearances[selectedTag]).some(value => value !== undefined);
+                if (!hasDefinedValues) {
+                    delete newAppearances[selectedTag];
+                }
 
-            // Remove folder entry if all settings are cleared (back to defaults)
-            const hasDefinedValues = Object.values(newAppearances[folderPath]).some(value => value !== undefined);
-            if (!hasDefinedValues) {
-                delete newAppearances[folderPath];
-            }
+                s.tagAppearances = newAppearances;
+            });
+        } else if (selectionType === ItemType.FOLDER && selectedFolder) {
+            // Update folder appearance
+            const folderPath = selectedFolder.path;
+            updateSettings(s => {
+                const newAppearances = { ...s.folderAppearances };
+                const currentAppearance = newAppearances[folderPath] || {};
 
-            s.folderAppearances = newAppearances;
-        });
+                // Merge updates
+                newAppearances[folderPath] = { ...currentAppearance, ...updates };
+
+                // Remove folder entry if all settings are cleared (back to defaults)
+                const hasDefinedValues = Object.values(newAppearances[folderPath]).some(value => value !== undefined);
+                if (!hasDefinedValues) {
+                    delete newAppearances[folderPath];
+                }
+
+                s.folderAppearances = newAppearances;
+            });
+        }
     };
 
     const menu = new Menu();
 
     // Check if we're using default values
-    // Only true if NO custom values are set for this folder
-    const folderPath = selectedFolder?.path || '';
-    const folderAppearance = settings.folderAppearances?.[folderPath] || {};
+    // Only true if NO custom values are set for this folder/tag
+    let appearance: FolderAppearance | TagAppearance | undefined;
+    if (selectionType === ItemType.TAG && selectedTag) {
+        appearance = settings.tagAppearances?.[selectedTag];
+    } else if (selectionType === ItemType.FOLDER && selectedFolder) {
+        appearance = settings.folderAppearances?.[selectedFolder.path];
+    }
+
     const hasAnyCustomValues =
-        folderAppearance.titleRows !== undefined ||
-        folderAppearance.previewRows !== undefined ||
-        folderAppearance.showDate !== undefined ||
-        folderAppearance.showPreview !== undefined ||
-        folderAppearance.showImage !== undefined;
+        appearance &&
+        (appearance.titleRows !== undefined ||
+            appearance.previewRows !== undefined ||
+            appearance.showDate !== undefined ||
+            appearance.showPreview !== undefined ||
+            appearance.showImage !== undefined);
 
     const isUsingDefaults = !hasAnyCustomValues;
 
@@ -71,7 +99,7 @@ export function showListPaneAppearanceMenu({
         item.setTitle(strings.folderAppearance.defaultPreset)
             .setChecked(isUsingDefaults)
             .onClick(() => {
-                updateFolderAppearance({
+                updateAppearance({
                     titleRows: undefined,
                     previewRows: undefined,
                     showDate: undefined,
@@ -86,7 +114,7 @@ export function showListPaneAppearanceMenu({
         item.setTitle(strings.folderAppearance.slimPreset)
             .setChecked(isSlim)
             .onClick(() => {
-                updateFolderAppearance({
+                updateAppearance({
                     showDate: false,
                     showPreview: false,
                     showImage: false
@@ -103,24 +131,24 @@ export function showListPaneAppearanceMenu({
 
     // Default title rows option
     menu.addItem(item => {
-        const hasCustomTitleRows = folderAppearance.titleRows !== undefined;
+        const hasCustomTitleRows = appearance?.titleRows !== undefined;
         const isDefaultTitle = titleRows === settings.fileNameRows && !hasCustomTitleRows;
         item.setTitle('    ' + strings.folderAppearance.defaultTitleOption(settings.fileNameRows))
             .setChecked(isDefaultTitle)
             .onClick(() => {
-                updateFolderAppearance({ titleRows: undefined });
+                updateAppearance({ titleRows: undefined });
             });
     });
 
     // Title row options
     [1, 2].forEach(rows => {
         menu.addItem(item => {
-            const hasCustomTitleRows = folderAppearance.titleRows !== undefined;
+            const hasCustomTitleRows = appearance?.titleRows !== undefined;
             const isChecked = titleRows === rows && hasCustomTitleRows;
             item.setTitle('    ' + strings.folderAppearance.titleRowOption(rows))
                 .setChecked(isChecked)
                 .onClick(() => {
-                    updateFolderAppearance({ titleRows: rows });
+                    updateAppearance({ titleRows: rows });
                 });
         });
     });
@@ -134,21 +162,21 @@ export function showListPaneAppearanceMenu({
 
     // Default preview rows option
     menu.addItem(item => {
-        const hasCustomPreviewRows = folderAppearance.previewRows !== undefined;
+        const hasCustomPreviewRows = appearance?.previewRows !== undefined;
         const isDefaultPreview = previewRows === settings.previewRows && !hasCustomPreviewRows;
         item.setTitle('    ' + strings.folderAppearance.defaultPreviewOption(settings.previewRows))
             .setChecked(isDefaultPreview && !isSlim)
             .onClick(() => {
                 if (isSlim) {
                     // Exit slim mode and reset to default preview rows
-                    updateFolderAppearance({
+                    updateAppearance({
                         previewRows: undefined,
                         showDate: undefined,
                         showPreview: undefined,
                         showImage: undefined
                     });
                 } else {
-                    updateFolderAppearance({ previewRows: undefined });
+                    updateAppearance({ previewRows: undefined });
                 }
             });
     });
@@ -156,21 +184,21 @@ export function showListPaneAppearanceMenu({
     // Preview row options
     [1, 2, 3, 4, 5].forEach(rows => {
         menu.addItem(item => {
-            const hasCustomPreviewRows = folderAppearance.previewRows !== undefined;
+            const hasCustomPreviewRows = appearance?.previewRows !== undefined;
             const isChecked = previewRows === rows && hasCustomPreviewRows && !isSlim;
             item.setTitle('    ' + strings.folderAppearance.previewRowOption(rows))
                 .setChecked(isChecked)
                 .onClick(() => {
                     if (isSlim) {
                         // Exit slim mode and apply the selected preview rows
-                        updateFolderAppearance({
+                        updateAppearance({
                             previewRows: rows,
                             showDate: undefined,
                             showPreview: undefined,
                             showImage: undefined
                         });
                     } else {
-                        updateFolderAppearance({ previewRows: rows });
+                        updateAppearance({ previewRows: rows });
                     }
                 });
         });
