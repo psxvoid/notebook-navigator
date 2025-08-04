@@ -137,7 +137,6 @@ export class IndexedDBStorage {
     private emitChanges(changes: FileContentChange[]): void {
         if (changes.length === 0) return;
         // Only log batch operations or errors
-        // Only log batch operations or errors (removed for production)
 
         // Emit to global listeners
         this.changeListeners.forEach(listener => {
