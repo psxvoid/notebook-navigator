@@ -106,7 +106,7 @@ export function showListPaneAppearanceMenu({
         const hasCustomTitleRows = folderAppearance.titleRows !== undefined;
         const isDefaultTitle = titleRows === settings.fileNameRows && !hasCustomTitleRows;
         item.setTitle('    ' + strings.folderAppearance.defaultTitleOption(settings.fileNameRows))
-            .setChecked(isDefaultTitle && !isSlim)
+            .setChecked(isDefaultTitle)
             .onClick(() => {
                 updateFolderAppearance({ titleRows: undefined });
             });
@@ -116,7 +116,7 @@ export function showListPaneAppearanceMenu({
     [1, 2].forEach(rows => {
         menu.addItem(item => {
             const hasCustomTitleRows = folderAppearance.titleRows !== undefined;
-            const isChecked = titleRows === rows && hasCustomTitleRows && !isSlim;
+            const isChecked = titleRows === rows && hasCustomTitleRows;
             item.setTitle('    ' + strings.folderAppearance.titleRowOption(rows))
                 .setChecked(isChecked)
                 .onClick(() => {
