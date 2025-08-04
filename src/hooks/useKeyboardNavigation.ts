@@ -204,7 +204,6 @@ export function useKeyboardNavigation<T>({
     focusedPane,
     containerRef,
     isSelectable,
-    _getCurrentIndex,
     onKeyDown
 }: UseKeyboardNavigationParams<T>) {
     const uiState = useUIState();
