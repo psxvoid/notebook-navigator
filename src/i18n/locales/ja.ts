@@ -140,6 +140,8 @@ export const STRINGS_JA = {
         titleRows: 'タイトル行数',
         previewRows: 'プレビュー行数',
         defaultOption: (rows: number) => `デフォルト (${rows})`,
+        defaultTitleOption: (rows: number) => `デフォルトタイトル行数 (${rows})`,
+        defaultPreviewOption: (rows: number) => `デフォルトプレビュー行数 (${rows})`,
         titleRowOption: (rows: number) => `タイトル${rows}行`,
         previewRowOption: (rows: number) => `プレビュー${rows}行`
     },

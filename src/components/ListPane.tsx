@@ -55,6 +55,7 @@ import { useMultiSelection } from '../hooks/useMultiSelection';
 import { useListPaneKeyboard } from '../hooks/useListPaneKeyboard';
 import { useListPaneData } from '../hooks/useListPaneData';
 import { useListPaneScroll } from '../hooks/useListPaneScroll';
+import { useEffectiveSettings } from '../hooks/useEffectiveSettings';
 import { strings } from '../i18n';
 import { ListPaneItemType } from '../types';
 import { getEffectiveSortOption } from '../utils/sortUtils';
@@ -91,6 +92,7 @@ export const ListPane = React.memo(
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
         const settings = useSettingsState();
+        const effectiveSettings = useEffectiveSettings();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
 
@@ -127,13 +129,14 @@ export const ListPane = React.memo(
             selectedFolder,
             selectedTag,
             settings,
+            effectiveSettings,
             isVisible,
             selectionState,
             selectionDispatch
         });
 
         // Check if we're in slim mode
-        const isSlimMode = !settings.showFileDate && !settings.showFilePreview && !settings.showFeatureImage;
+        const isSlimMode = !effectiveSettings.showDate && !effectiveSettings.showPreview && !effectiveSettings.showImage;
 
         const handleFileClick = useCallback(
             (file: TFile, e: React.MouseEvent, fileIndex?: number, orderedFiles?: TFile[]) => {

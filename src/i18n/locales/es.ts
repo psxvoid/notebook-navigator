@@ -140,6 +140,8 @@ export const STRINGS_ES = {
         titleRows: 'Filas de título',
         previewRows: 'Filas de vista previa',
         defaultOption: (rows: number) => `Predeterminado (${rows})`,
+        defaultTitleOption: (rows: number) => `Filas de título predeterminadas (${rows})`,
+        defaultPreviewOption: (rows: number) => `Filas de vista previa predeterminadas (${rows})`,
         titleRowOption: (rows: number) => `${rows} fila${rows === 1 ? '' : 's'} de título`,
         previewRowOption: (rows: number) => `${rows} fila${rows === 1 ? '' : 's'} de vista previa`
     },

@@ -139,6 +139,8 @@ export const STRINGS_EN = {
         titleRows: 'Title rows',
         previewRows: 'Preview rows',
         defaultOption: (rows: number) => `Default (${rows})`,
+        defaultTitleOption: (rows: number) => `Default title rows (${rows})`,
+        defaultPreviewOption: (rows: number) => `Default preview rows (${rows})`,
         titleRowOption: (rows: number) => `${rows} title row${rows === 1 ? '' : 's'}`,
         previewRowOption: (rows: number) => `${rows} preview row${rows === 1 ? '' : 's'}`
     },

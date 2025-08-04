@@ -140,6 +140,8 @@ export const STRINGS_ZH = {
         titleRows: '标题行数',
         previewRows: '预览行数',
         defaultOption: (rows: number) => `默认 (${rows})`,
+        defaultTitleOption: (rows: number) => `默认标题行数 (${rows})`,
+        defaultPreviewOption: (rows: number) => `默认预览行数 (${rows})`,
         titleRowOption: (rows: number) => `标题${rows}行`,
         previewRowOption: (rows: number) => `预览${rows}行`
     },

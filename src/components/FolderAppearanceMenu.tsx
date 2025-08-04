@@ -50,12 +50,17 @@ export function showFolderAppearanceMenu({
     const menu = new Menu();
 
     // Check if we're using default values
-    const isUsingDefaults =
-        titleRows === settings.fileNameRows &&
-        previewRows === settings.previewRows &&
-        showDate === settings.showFileDate &&
-        showPreview === settings.showFilePreview &&
-        showImage === settings.showFeatureImage;
+    // Only true if NO custom values are set for this folder
+    const folderPath = selectedFolder?.path || '';
+    const folderAppearance = settings.folderAppearances?.[folderPath] || {};
+    const hasAnyCustomValues =
+        folderAppearance.titleRows !== undefined ||
+        folderAppearance.previewRows !== undefined ||
+        folderAppearance.showDate !== undefined ||
+        folderAppearance.showPreview !== undefined ||
+        folderAppearance.showImage !== undefined;
+
+    const isUsingDefaults = !hasAnyCustomValues;
 
     // Check if we're in slim mode
     const isSlim = !showDate && !showPreview && !showImage;
@@ -97,10 +102,9 @@ export function showFolderAppearanceMenu({
 
     // Default title rows option
     menu.addItem(item => {
-        const folderPath = selectedFolder?.path || '';
-        const hasCustomTitleRows = settings.folderAppearances?.[folderPath]?.titleRows !== undefined;
+        const hasCustomTitleRows = folderAppearance.titleRows !== undefined;
         const isDefaultTitle = titleRows === settings.fileNameRows && !hasCustomTitleRows;
-        item.setTitle('    ' + strings.folderAppearance.defaultOption(settings.fileNameRows))
+        item.setTitle('    ' + strings.folderAppearance.defaultTitleOption(settings.fileNameRows))
             .setChecked(isDefaultTitle && !isSlim)
             .onClick(() => {
                 updateFolderAppearance({ titleRows: undefined });
@@ -110,8 +114,7 @@ export function showFolderAppearanceMenu({
     // Title row options
     [1, 2].forEach(rows => {
         menu.addItem(item => {
-            const folderPath = selectedFolder?.path || '';
-            const hasCustomTitleRows = settings.folderAppearances?.[folderPath]?.titleRows !== undefined;
+            const hasCustomTitleRows = folderAppearance.titleRows !== undefined;
             const isChecked = titleRows === rows && hasCustomTitleRows && !isSlim;
             item.setTitle('    ' + strings.folderAppearance.titleRowOption(rows))
                 .setChecked(isChecked)
@@ -130,10 +133,9 @@ export function showFolderAppearanceMenu({
 
     // Default preview rows option
     menu.addItem(item => {
-        const folderPath = selectedFolder?.path || '';
-        const hasCustomPreviewRows = settings.folderAppearances?.[folderPath]?.previewRows !== undefined;
+        const hasCustomPreviewRows = folderAppearance.previewRows !== undefined;
         const isDefaultPreview = previewRows === settings.previewRows && !hasCustomPreviewRows;
-        item.setTitle('    ' + strings.folderAppearance.defaultOption(settings.previewRows))
+        item.setTitle('    ' + strings.folderAppearance.defaultPreviewOption(settings.previewRows))
             .setChecked(isDefaultPreview && !isSlim)
             .onClick(() => {
                 updateFolderAppearance({ previewRows: undefined });
@@ -143,8 +145,7 @@ export function showFolderAppearanceMenu({
     // Preview row options
     [1, 2, 3, 4, 5].forEach(rows => {
         menu.addItem(item => {
-            const folderPath = selectedFolder?.path || '';
-            const hasCustomPreviewRows = settings.folderAppearances?.[folderPath]?.previewRows !== undefined;
+            const hasCustomPreviewRows = folderAppearance.previewRows !== undefined;
             const isChecked = previewRows === rows && hasCustomPreviewRows && !isSlim;
             item.setTitle('    ' + strings.folderAppearance.previewRowOption(rows))
                 .setChecked(isChecked)

@@ -140,6 +140,8 @@ export const STRINGS_FR = {
         titleRows: 'Lignes de titre',
         previewRows: "Lignes d'aperçu",
         defaultOption: (rows: number) => `Défaut (${rows})`,
+        defaultTitleOption: (rows: number) => `Lignes de titre par défaut (${rows})`,
+        defaultPreviewOption: (rows: number) => `Lignes d'aperçu par défaut (${rows})`,
         titleRowOption: (rows: number) => `${rows} ligne${rows === 1 ? '' : 's'} de titre`,
         previewRowOption: (rows: number) => `${rows} ligne${rows === 1 ? '' : 's'} d'aperçu`
     },

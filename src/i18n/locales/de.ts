@@ -140,6 +140,8 @@ export const STRINGS_DE = {
         titleRows: 'Titelzeilen',
         previewRows: 'Vorschauzeilen',
         defaultOption: (rows: number) => `Standard (${rows})`,
+        defaultTitleOption: (rows: number) => `Standard-Titelzeilen (${rows})`,
+        defaultPreviewOption: (rows: number) => `Standard-Vorschauzeilen (${rows})`,
         titleRowOption: (rows: number) => `${rows} Titelzeile${rows === 1 ? '' : 'n'}`,
         previewRowOption: (rows: number) => `${rows} Vorschauzeile${rows === 1 ? '' : 'n'}`
     },

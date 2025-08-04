@@ -55,6 +55,14 @@ interface UseListPaneScrollParams {
     selectedTag: string | null;
     /** Plugin settings */
     settings: NotebookNavigatorSettings;
+    /** Effective settings for the current folder */
+    effectiveSettings?: {
+        titleRows: number;
+        previewRows: number;
+        showDate: boolean;
+        showPreview: boolean;
+        showImage: boolean;
+    };
     /** Whether the list pane is currently visible */
     isVisible: boolean;
     /** Current selection state */
@@ -93,6 +101,7 @@ export function useListPaneScroll({
     selectedFolder,
     selectedTag,
     settings,
+    effectiveSettings,
     isVisible,
     selectionState,
     selectionDispatch
@@ -157,7 +166,11 @@ export function useListPaneScroll({
             }
 
             // For file items - calculate height including all components
-            const { showFileDate, showFilePreview, fileNameRows, previewRows } = settings;
+            // Use effective settings if available, otherwise fall back to global settings
+            const showFileDate = effectiveSettings?.showDate ?? settings.showFileDate;
+            const showFilePreview = effectiveSettings?.showPreview ?? settings.showFilePreview;
+            const fileNameRows = effectiveSettings?.titleRows ?? settings.fileNameRows;
+            const previewRows = effectiveSettings?.previewRows ?? settings.previewRows;
 
             // Get actual preview status for accurate height calculation
             let hasPreviewText = false;
@@ -425,6 +438,11 @@ export function useListPaneScroll({
         settings.previewRows,
         settings.showParentFolderNames,
         settings.showFileTags,
+        effectiveSettings?.showDate,
+        effectiveSettings?.showPreview,
+        effectiveSettings?.showImage,
+        effectiveSettings?.titleRows,
+        effectiveSettings?.previewRows,
         rowVirtualizer
     ]);
 
