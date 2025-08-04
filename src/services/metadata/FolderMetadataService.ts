@@ -133,6 +133,7 @@ export class FolderMetadataService extends BaseMetadataService {
             this.updateNestedPaths(settings.folderColors, oldPath, newPath);
             this.updateNestedPaths(settings.folderIcons, oldPath, newPath);
             this.updateNestedPaths(settings.folderSortOverrides, oldPath, newPath);
+            this.updateNestedPaths(settings.folderAppearances, oldPath, newPath);
 
             // Handle pinned notes separately (different structure)
             if (settings.pinnedNotes?.[oldPath]) {
@@ -151,6 +152,7 @@ export class FolderMetadataService extends BaseMetadataService {
             this.deleteNestedPaths(settings.folderColors, folderPath);
             this.deleteNestedPaths(settings.folderIcons, folderPath);
             this.deleteNestedPaths(settings.folderSortOverrides, folderPath);
+            this.deleteNestedPaths(settings.folderAppearances, folderPath);
 
             // Delete pinned notes
             delete settings.pinnedNotes?.[folderPath];
@@ -170,24 +172,43 @@ export class FolderMetadataService extends BaseMetadataService {
         const results = await Promise.all([
             this.cleanupMetadata(this.settingsProvider.settings, 'folderColors', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'folderIcons', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'folderSortOverrides', validator)
+            this.cleanupMetadata(this.settingsProvider.settings, 'folderSortOverrides', validator),
+            this.cleanupMetadata(this.settingsProvider.settings, 'folderAppearances', validator)
         ]);
 
         return results.some(changed => changed);
     }
 
     /**
-     * Clean up folder metadata using pre-loaded validators
-     * @param validators - Pre-loaded data for validation
-     * @returns True if any changes were made
+     * Clean up folder metadata using pre-loaded validators.
+     *
+     * This method is called during plugin startup as part of a unified cleanup process
+     * to avoid multiple iterations over vault files. Instead of each metadata type
+     * (colors, icons, sort overrides, appearances) separately checking if folders exist,
+     * this method uses pre-loaded data for better performance.
+     *
+     * The cleanup process:
+     * 1. Called from StorageContext during initial sync after all files are processed
+     * 2. Uses validators object that contains:
+     *    - dbFiles: All files from IndexedDB cache
+     *    - tagTree: Complete tag hierarchy
+     *    - vaultFiles: Set of all file paths in the vault
+     * 3. Builds a set of valid folder paths by extracting parent folders from all files
+     * 4. Removes metadata for any folders that no longer exist in the vault
+     *
+     * @param validators - Pre-loaded data containing vault files, database files, and tag tree
+     * @returns True if any metadata was removed/changed
      */
     async cleanupWithValidators(validators: CleanupValidators): Promise<boolean> {
-        // Use vault files to check if folders exist
+        // Build a set of all valid folder paths by examining the vault's file structure
         const folderPaths = new Set<string>();
 
-        // Extract folder paths from vault files
+        // Extract folder paths from all vault files
+        // For example, if we have "folder1/folder2/file.md", we extract:
+        // - "folder1"
+        // - "folder1/folder2"
         validators.vaultFiles.forEach(filePath => {
-            // Add parent folders up to root
+            // Split path and rebuild parent folders incrementally
             const parts = filePath.split('/');
             for (let i = 1; i < parts.length; i++) {
                 const folderPath = parts.slice(0, i).join('/');
@@ -195,15 +216,17 @@ export class FolderMetadataService extends BaseMetadataService {
             }
         });
 
-        // Add root folder
+        // Always include root folder
         folderPaths.add('/');
 
+        // Create validator function that checks if a folder path exists
         const validator = (path: string) => folderPaths.has(path);
 
         const results = await Promise.all([
             this.cleanupMetadata(this.settingsProvider.settings, 'folderColors', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'folderIcons', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'folderSortOverrides', validator)
+            this.cleanupMetadata(this.settingsProvider.settings, 'folderSortOverrides', validator),
+            this.cleanupMetadata(this.settingsProvider.settings, 'folderAppearances', validator)
         ]);
 
         return results.some(changed => changed);
