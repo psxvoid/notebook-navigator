@@ -26,6 +26,9 @@ import { MetadataService } from '../../services/MetadataService';
 import { FileSystemOperations } from '../../services/FileSystemService';
 import { SelectionState, SelectionAction } from '../../context/SelectionContext';
 import { NotebookNavigatorSettings } from '../../settings';
+import { TagSuggestModal } from '../../modals/TagSuggestModal';
+import { RemoveTagModal } from '../../modals/RemoveTagModal';
+import { ConfirmModal } from '../../modals/ConfirmModal';
 
 /**
  * Builds the context menu for a file
@@ -101,6 +104,83 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
             });
         }
     }
+
+    // Tag operations
+    menu.addSeparator();
+
+    const filesForTagOps = shouldShowMultiOptions ? cachedSelectedFiles : [file];
+
+    // Add tag - always shown
+    menu.addItem((item: MenuItem) => {
+        item.setTitle(strings.contextMenu.file.addTag)
+            .setIcon('tag-plus')
+            .onClick(async () => {
+                const modal = new TagSuggestModal(
+                    app,
+                    services.plugin,
+                    async (tag: string) => {
+                        const result = await services.tagOperations.addTagToFiles(tag, filesForTagOps);
+                        const message = strings.fileSystem.notifications.tagsAdded
+                            .replace('{added}', result.added.toString())
+                            .replace('{skipped}', result.skipped.toString());
+                        new Notice(message);
+                    },
+                    strings.modals.tagSuggest.addPlaceholder,
+                    strings.modals.tagSuggest.instructions.add,
+                    false // Don't include untagged
+                );
+                modal.open();
+            });
+    });
+
+    // Remove tag - fetch tags when clicked
+    menu.addItem((item: MenuItem) => {
+        item.setTitle(strings.contextMenu.file.removeTag)
+            .setIcon('tag-minus')
+            .onClick(async () => {
+                // Get tags from selected files
+                const existingTags = await services.tagOperations.getTagsFromFiles(filesForTagOps);
+
+                if (existingTags.length === 0) {
+                    new Notice('No tags to remove');
+                    return;
+                }
+
+                // Create modal to select which tag to remove
+                const modal = new RemoveTagModal(app, existingTags, async (tag: string) => {
+                    const result = await services.tagOperations.removeTagFromFiles(tag, filesForTagOps);
+                    new Notice(strings.fileSystem.notifications.tagRemoved.replace('{count}', result.toString()));
+                });
+                modal.open();
+            });
+    });
+
+    // Remove all tags
+    menu.addItem((item: MenuItem) => {
+        item.setTitle(strings.contextMenu.file.removeAllTags)
+            .setIcon('tags-off')
+            .onClick(async () => {
+                // Check if files have tags first
+                const existingTags = await services.tagOperations.getTagsFromFiles(filesForTagOps);
+
+                if (existingTags.length === 0) {
+                    new Notice('No tags to remove');
+                    return;
+                }
+
+                // Show confirmation dialog
+                const confirmModal = new ConfirmModal(
+                    app,
+                    strings.modals.fileSystem.removeAllTagsTitle,
+                    strings.modals.fileSystem.removeAllTagsMessage.replace('{count}', filesForTagOps.length.toString()),
+                    async () => {
+                        const result = await services.tagOperations.clearAllTagsFromFiles(filesForTagOps);
+                        new Notice(strings.fileSystem.notifications.tagsCleared.replace('{count}', result.toString()));
+                    }
+                );
+                confirmModal.open();
+            });
+    });
 
     menu.addSeparator();
 

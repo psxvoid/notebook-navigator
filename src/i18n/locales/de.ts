@@ -92,6 +92,9 @@ export const STRINGS_DE = {
             deleteMultipleNotes: '{count} Notizen löschen',
             moveToFolder: 'Move to...',
             moveMultipleToFolder: 'Move {count} files to...',
+            addTag: 'Add tag',
+            removeTag: 'Remove tag',
+            removeAllTags: 'Remove all tags',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count} Dateien in neuen Tabs öffnen',
             openMultipleFilesToRight: '{count} Dateien rechts öffnen',
@@ -207,7 +210,9 @@ export const STRINGS_DE = {
             renameVaultTitle: 'Anzeigenamen des Tresors ändern',
             renameVaultPrompt: 'Benutzerdefinierten Anzeigenamen eingeben (leer lassen für Standard):',
             deleteFolderConfirm: 'Sind Sie sicher, dass Sie diesen Ordner und seinen gesamten Inhalt löschen möchten?',
-            deleteFileConfirm: 'Sind Sie sicher, dass Sie diese Datei löschen möchten?'
+            deleteFileConfirm: 'Sind Sie sicher, dass Sie diese Datei löschen möchten?',
+            removeAllTagsTitle: 'Remove all tags',
+            removeAllTagsMessage: 'Are you sure you want to remove all tags from {count} files?'
         },
         folderSuggest: {
             placeholder: 'In Ordner verschieben...',
@@ -222,10 +227,14 @@ export const STRINGS_DE = {
         tagSuggest: {
             placeholder: 'Tags suchen...',
             navigatePlaceholder: 'Zu Tag navigieren...',
+            addPlaceholder: 'Search for tag to add...',
+            removePlaceholder: 'Select tag to remove...',
             instructions: {
                 navigate: 'zum Navigieren',
                 select: 'zum Auswählen',
-                dismiss: 'zum Abbrechen'
+                dismiss: 'zum Abbrechen',
+                add: 'to add tag',
+                remove: 'to remove tag'
             }
         }
     },
@@ -255,7 +264,10 @@ export const STRINGS_DE = {
         },
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',
-            deepLinkCopied: 'Deep Link in die Zwischenablage kopiert'
+            deepLinkCopied: 'Deep Link in die Zwischenablage kopiert',
+            tagsAdded: 'Added tag to {added} files, skipped {skipped} files',
+            tagRemoved: 'Removed tag from {count} files',
+            tagsCleared: 'Cleared all tags from {count} files'
         },
         confirmations: {
             deleteMultipleFiles: 'Möchten Sie wirklich {count} Dateien löschen?',

@@ -92,6 +92,9 @@ export const STRINGS_JA = {
             deleteMultipleNotes: '{count}個のノートを削除',
             moveToFolder: 'Move to...',
             moveMultipleToFolder: 'Move {count} files to...',
+            addTag: 'Add tag',
+            removeTag: 'Remove tag',
+            removeAllTags: 'Remove all tags',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count}個のファイルを新しいタブで開く',
             openMultipleFilesToRight: '{count}個のファイルを右側で開く',
@@ -207,7 +210,9 @@ export const STRINGS_JA = {
             renameVaultTitle: 'ボールトの表示名を変更',
             renameVaultPrompt: 'カスタム表示名を入力（空にするとデフォルトを使用）：',
             deleteFolderConfirm: 'このフォルダとそのすべての内容を削除してもよろしいですか？',
-            deleteFileConfirm: 'このファイルを削除してもよろしいですか？'
+            deleteFileConfirm: 'このファイルを削除してもよろしいですか？',
+            removeAllTagsTitle: 'Remove all tags',
+            removeAllTagsMessage: 'Are you sure you want to remove all tags from {count} files?'
         },
         folderSuggest: {
             placeholder: 'フォルダに移動...',
@@ -222,10 +227,14 @@ export const STRINGS_JA = {
         tagSuggest: {
             placeholder: 'タグを検索...',
             navigatePlaceholder: 'タグにナビゲート...',
+            addPlaceholder: 'Search for tag to add...',
+            removePlaceholder: 'Select tag to remove...',
             instructions: {
                 navigate: 'でナビゲート',
                 select: 'で選択',
-                dismiss: 'でキャンセル'
+                dismiss: 'でキャンセル',
+                add: 'to add tag',
+                remove: 'to remove tag'
             }
         }
     },
@@ -255,7 +264,10 @@ export const STRINGS_JA = {
         },
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',
-            deepLinkCopied: 'ディープリンクをクリップボードにコピーしました'
+            deepLinkCopied: 'ディープリンクをクリップボードにコピーしました',
+            tagsAdded: 'Added tag to {added} files, skipped {skipped} files',
+            tagRemoved: 'Removed tag from {count} files',
+            tagsCleared: 'Cleared all tags from {count} files'
         },
         confirmations: {
             deleteMultipleFiles: '本当に{count}個のファイルを削除しますか？',

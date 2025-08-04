@@ -26,7 +26,7 @@ import { TagOperations } from '../../services/TagOperations';
 import { TagTreeService } from '../../services/TagTreeService';
 import { CommandQueueService } from '../../services/CommandQueueService';
 import { SelectionState, SelectionAction } from '../../context/SelectionContext';
-import { NotebookNavigatorPlugin } from '../../types/plugin';
+import type NotebookNavigatorPlugin from '../../main';
 import { ExpansionAction } from '../../context/ExpansionContext';
 import { UIAction } from '../../context/UIStateContext';
 

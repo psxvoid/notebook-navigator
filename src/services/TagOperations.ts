@@ -45,21 +45,6 @@ export class TagOperations {
     }
 
     /**
-     * Gets all parent tags of a given tag
-     * e.g., for "project/example/task" returns ["project", "project/example"]
-     */
-    private getParentTags(tag: string): string[] {
-        const parts = tag.split('/');
-        const parents: string[] = [];
-
-        for (let i = 1; i < parts.length; i++) {
-            parents.push(parts.slice(0, i).join('/'));
-        }
-
-        return parents;
-    }
-
-    /**
      * Adds a tag to multiple files
      * @param tag - The tag to add (without #)
      * @param files - Files to add the tag to
@@ -84,6 +69,67 @@ export class TagOperations {
     }
 
     /**
+     * Gets all unique tags from multiple files
+     * @param files - Files to get tags from
+     * @returns Array of unique tag strings (without #)
+     */
+    async getTagsFromFiles(files: TFile[]): Promise<string[]> {
+        const allTags = new Set<string>();
+
+        for (const file of files) {
+            const metadata = this.app.metadataCache.getFileCache(file);
+            if (!metadata) continue;
+
+            // Collect frontmatter tags
+            const frontmatterTags = metadata.frontmatter?.tags;
+            if (frontmatterTags) {
+                if (Array.isArray(frontmatterTags)) {
+                    frontmatterTags.forEach((tag: string) => {
+                        const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
+                        allTags.add(cleanTag);
+                    });
+                } else if (typeof frontmatterTags === 'string') {
+                    const tags = frontmatterTags.split(',').map((t: string) => t.trim());
+                    tags.forEach((tag: string) => {
+                        const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
+                        allTags.add(cleanTag);
+                    });
+                }
+            }
+
+            // Collect inline tags
+            if (metadata.tags) {
+                metadata.tags.forEach(t => {
+                    const cleanTag = t.tag.substring(1);
+                    allTags.add(cleanTag);
+                });
+            }
+        }
+
+        // Sort tags alphabetically
+        return Array.from(allTags).sort();
+    }
+
+    /**
+     * Removes a specific tag from multiple files
+     * @param tag - The tag to remove (without #)
+     * @param files - Files to remove the tag from
+     * @returns Number of files modified
+     */
+    async removeTagFromFiles(tag: string, files: TFile[]): Promise<number> {
+        let removed = 0;
+
+        for (const file of files) {
+            const hadTag = await this.removeTagFromFile(file, tag);
+            if (hadTag) {
+                removed++;
+            }
+        }
+
+        return removed;
+    }
+
+    /**
      * Removes all tags from multiple files
      * @param files - Files to clear tags from
      * @returns Number of files modified
@@ -102,7 +148,7 @@ export class TagOperations {
     }
 
     /**
-     * Checks if a file already has a specific tag or a more specific nested version
+     * Checks if a file already has a specific tag or an ancestor tag
      */
     private async fileHasTag(file: TFile, tag: string): Promise<boolean> {
         const metadata = this.app.metadataCache.getFileCache(file);
@@ -127,14 +173,14 @@ export class TagOperations {
             allTags.push(...metadata.tags.map(t => t.tag.substring(1)));
         }
 
-        // Check if any existing tag is the same or more specific
+        // Check if any existing tag is the same or an ancestor
         return allTags.some((existingTag: string) => {
             // Exact match
             if (existingTag === tag) return true;
 
-            // Check if existing tag is a child of the tag we want to add
-            // e.g., if we want to add "project" but file has "project/example"
-            return existingTag.startsWith(tag + '/');
+            // Check if we already have an ancestor tag
+            // e.g., if we want to add "project/example" but file has "project"
+            return tag.startsWith(existingTag + '/');
         });
     }
 
@@ -142,8 +188,8 @@ export class TagOperations {
      * Adds a tag to a single file's frontmatter
      */
     private async addTagToFile(file: TFile, tag: string): Promise<void> {
-        // First, remove any parent tags of the new tag
-        await this.removeParentTagsFromFile(file, tag);
+        // First, remove any descendant tags of the new tag
+        await this.removeDescendantTagsFromFile(file, tag);
 
         try {
             await this.app.fileManager.processFrontMatter(file, fm => {
@@ -169,14 +215,81 @@ export class TagOperations {
     }
 
     /**
-     * Removes any parent tags of the given tag from a file
-     * e.g., if adding "project/example", removes "project"
+     * Removes a specific tag from a single file
+     * @param file - The file to remove the tag from
+     * @param tag - The tag to remove (without #)
+     * @returns Whether the file had the tag
      */
-    private async removeParentTagsFromFile(file: TFile, childTag: string): Promise<void> {
-        const parentTags = this.getParentTags(childTag);
-        if (parentTags.length === 0) return;
+    private async removeTagFromFile(file: TFile, tag: string): Promise<boolean> {
+        let hadTag = false;
 
-        // Remove parent tags from frontmatter
+        // Remove from frontmatter
+        try {
+            await this.app.fileManager.processFrontMatter(file, fm => {
+                if (!fm.tags) return;
+
+                if (Array.isArray(fm.tags)) {
+                    const originalLength = fm.tags.length;
+                    fm.tags = fm.tags.filter((t: string) => {
+                        const cleanTag = t.startsWith('#') ? t.substring(1) : t;
+                        return cleanTag !== tag;
+                    });
+
+                    if (fm.tags.length < originalLength) {
+                        hadTag = true;
+                    }
+
+                    if (fm.tags.length === 0) {
+                        delete fm.tags;
+                    }
+                } else if (typeof fm.tags === 'string') {
+                    const tags = fm.tags.split(',').map((t: string) => t.trim());
+                    const filteredTags = tags.filter((t: string) => {
+                        const cleanTag = t.startsWith('#') ? t.substring(1) : t;
+                        return cleanTag !== tag;
+                    });
+
+                    if (filteredTags.length < tags.length) {
+                        hadTag = true;
+                    }
+
+                    if (filteredTags.length === 0) {
+                        delete fm.tags;
+                    } else {
+                        fm.tags = filteredTags.length === 1 ? filteredTags[0] : filteredTags;
+                    }
+                }
+            });
+        } catch (error) {
+            console.error('Error removing tag from frontmatter:', error);
+        }
+
+        // Remove from inline content
+        const content = await this.app.vault.read(file);
+        const newContent = this.removeInlineTags(content, tag);
+
+        if (newContent !== content) {
+            hadTag = true;
+            await this.app.vault.modify(file, newContent);
+        }
+
+        return hadTag;
+    }
+
+    /**
+     * Removes any descendant tags of the given tag from a file
+     * e.g., if adding "project", removes "project/example", "project/task1", etc.
+     */
+    private async removeDescendantTagsFromFile(file: TFile, ancestorTag: string): Promise<void> {
+        // Get all current tags from the file
+        const currentTags = await this.getTagsFromFiles([file]);
+
+        // Find descendant tags to remove
+        const descendantTags = currentTags.filter(tag => tag.startsWith(ancestorTag + '/'));
+
+        if (descendantTags.length === 0) return;
+
+        // Remove descendant tags from frontmatter
         try {
             await this.app.fileManager.processFrontMatter(file, fm => {
                 if (!fm.tags) return;
@@ -184,7 +297,7 @@ export class TagOperations {
                 if (Array.isArray(fm.tags)) {
                     fm.tags = fm.tags.filter((tag: string) => {
                         const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
-                        return !parentTags.includes(cleanTag);
+                        return !descendantTags.includes(cleanTag);
                     });
 
                     if (fm.tags.length === 0) {
@@ -194,7 +307,7 @@ export class TagOperations {
                     const tags = fm.tags.split(',').map((t: string) => t.trim());
                     const filteredTags = tags.filter((tag: string) => {
                         const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
-                        return !parentTags.includes(cleanTag);
+                        return !descendantTags.includes(cleanTag);
                     });
 
                     if (filteredTags.length === 0) {
@@ -205,15 +318,15 @@ export class TagOperations {
                 }
             });
         } catch (error) {
-            console.error('Error removing parent tags from frontmatter:', error);
+            console.error('Error removing descendant tags from frontmatter:', error);
         }
 
-        // Remove parent tags from inline content
+        // Remove descendant tags from inline content
         const content = await this.app.vault.read(file);
         let newContent = content;
 
-        for (const parentTag of parentTags) {
-            newContent = this.removeInlineTags(newContent, parentTag);
+        for (const descendantTag of descendantTags) {
+            newContent = this.removeInlineTags(newContent, descendantTag);
         }
 
         if (newContent !== content) {

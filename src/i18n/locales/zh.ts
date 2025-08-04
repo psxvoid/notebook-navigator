@@ -92,6 +92,9 @@ export const STRINGS_ZH = {
             deleteMultipleNotes: '删除 {count} 个笔记',
             moveToFolder: 'Move to...',
             moveMultipleToFolder: 'Move {count} files to...',
+            addTag: 'Add tag',
+            removeTag: 'Remove tag',
+            removeAllTags: 'Remove all tags',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '在新标签页中打开 {count} 个文件',
             openMultipleFilesToRight: '在右侧打开 {count} 个文件',
@@ -207,7 +210,9 @@ export const STRINGS_ZH = {
             renameVaultTitle: '更改仓库显示名称',
             renameVaultPrompt: '输入自定义显示名称（留空使用默认值）：',
             deleteFolderConfirm: '您确定要删除此文件夹及其所有内容吗？',
-            deleteFileConfirm: '您确定要删除此文件吗？'
+            deleteFileConfirm: '您确定要删除此文件吗？',
+            removeAllTagsTitle: 'Remove all tags',
+            removeAllTagsMessage: 'Are you sure you want to remove all tags from {count} files?'
         },
         folderSuggest: {
             placeholder: '移动到文件夹...',
@@ -222,10 +227,14 @@ export const STRINGS_ZH = {
         tagSuggest: {
             placeholder: '搜索标签...',
             navigatePlaceholder: '导航到标签...',
+            addPlaceholder: 'Search for tag to add...',
+            removePlaceholder: 'Select tag to remove...',
             instructions: {
                 navigate: '导航',
                 select: '选择',
-                dismiss: '取消'
+                dismiss: '取消',
+                add: 'to add tag',
+                remove: 'to remove tag'
             }
         }
     },
@@ -255,7 +264,10 @@ export const STRINGS_ZH = {
         },
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',
-            deepLinkCopied: '深层链接已复制到剪贴板'
+            deepLinkCopied: '深层链接已复制到剪贴板',
+            tagsAdded: 'Added tag to {added} files, skipped {skipped} files',
+            tagRemoved: 'Removed tag from {count} files',
+            tagsCleared: 'Cleared all tags from {count} files'
         },
         confirmations: {
             deleteMultipleFiles: '确定要删除 {count} 个文件吗？',

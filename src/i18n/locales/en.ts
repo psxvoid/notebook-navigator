@@ -103,7 +103,10 @@ export const STRINGS_EN = {
             deleteMultipleNotes: 'Delete {count} notes',
             deleteMultipleFiles: 'Delete {count} files',
             moveToFolder: 'Move to...',
-            moveMultipleToFolder: 'Move {count} files to...'
+            moveMultipleToFolder: 'Move {count} files to...',
+            addTag: 'Add tag',
+            removeTag: 'Remove tag',
+            removeAllTags: 'Remove all tags'
         },
         folder: {
             newNote: 'New note',
@@ -206,7 +209,9 @@ export const STRINGS_EN = {
             renameVaultTitle: 'Change vault display name',
             renameVaultPrompt: 'Enter custom display name (leave empty to use default):',
             deleteFolderConfirm: 'Are you sure you want to delete this folder and all its contents?',
-            deleteFileConfirm: 'Are you sure you want to delete this file?'
+            deleteFileConfirm: 'Are you sure you want to delete this file?',
+            removeAllTagsTitle: 'Remove all tags',
+            removeAllTagsMessage: 'Are you sure you want to remove all tags from {count} files?'
         },
         folderSuggest: {
             placeholder: 'Move to folder...',
@@ -221,10 +226,14 @@ export const STRINGS_EN = {
         tagSuggest: {
             placeholder: 'Search tags...',
             navigatePlaceholder: 'Navigate to tag...',
+            addPlaceholder: 'Search for tag to add...',
+            removePlaceholder: 'Select tag to remove...',
             instructions: {
                 navigate: 'to navigate',
                 select: 'to select',
-                dismiss: 'to dismiss'
+                dismiss: 'to dismiss',
+                add: 'to add tag',
+                remove: 'to remove tag'
             }
         }
     },
@@ -254,7 +263,10 @@ export const STRINGS_EN = {
         },
         notifications: {
             deletedMultipleFiles: 'Deleted {count} files',
-            deepLinkCopied: 'Deep link copied to clipboard'
+            deepLinkCopied: 'Deep link copied to clipboard',
+            tagsAdded: 'Added tag to {added} files, skipped {skipped} files',
+            tagRemoved: 'Removed tag from {count} files',
+            tagsCleared: 'Cleared all tags from {count} files'
         },
         confirmations: {
             deleteMultipleFiles: 'Are you sure you want to delete {count} files?',

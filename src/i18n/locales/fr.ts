@@ -92,6 +92,9 @@ export const STRINGS_FR = {
             deleteMultipleNotes: 'Supprimer {count} notes',
             moveToFolder: 'Move to...',
             moveMultipleToFolder: 'Move {count} files to...',
+            addTag: 'Add tag',
+            removeTag: 'Remove tag',
+            removeAllTags: 'Remove all tags',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: 'Ouvrir {count} fichiers dans de nouveaux onglets',
             openMultipleFilesToRight: 'Ouvrir {count} fichiers à droite',
@@ -207,7 +210,9 @@ export const STRINGS_FR = {
             renameVaultTitle: "Changer le nom d'affichage du coffre",
             renameVaultPrompt: "Entrez un nom d'affichage personnalisé (laissez vide pour utiliser le nom par défaut) :",
             deleteFolderConfirm: 'Êtes-vous sûr de vouloir supprimer ce dossier et tout son contenu ?',
-            deleteFileConfirm: 'Êtes-vous sûr de vouloir supprimer ce fichier ?'
+            deleteFileConfirm: 'Êtes-vous sûr de vouloir supprimer ce fichier ?',
+            removeAllTagsTitle: 'Remove all tags',
+            removeAllTagsMessage: 'Are you sure you want to remove all tags from {count} files?'
         },
         folderSuggest: {
             placeholder: 'Déplacer vers le dossier...',
@@ -222,10 +227,14 @@ export const STRINGS_FR = {
         tagSuggest: {
             placeholder: 'Rechercher des étiquettes...',
             navigatePlaceholder: "Naviguer vers l'étiquette...",
+            addPlaceholder: 'Search for tag to add...',
+            removePlaceholder: 'Select tag to remove...',
             instructions: {
                 navigate: 'pour naviguer',
                 select: 'pour sélectionner',
-                dismiss: 'pour annuler'
+                dismiss: 'pour annuler',
+                add: 'to add tag',
+                remove: 'to remove tag'
             }
         }
     },
@@ -255,7 +264,10 @@ export const STRINGS_FR = {
         },
         notifications: {
             deletedMultipleFiles: '{count} fichiers supprimés',
-            deepLinkCopied: 'Lien profond copié dans le presse-papiers'
+            deepLinkCopied: 'Lien profond copié dans le presse-papiers',
+            tagsAdded: 'Added tag to {added} files, skipped {skipped} files',
+            tagRemoved: 'Removed tag from {count} files',
+            tagsCleared: 'Cleared all tags from {count} files'
         },
         confirmations: {
             deleteMultipleFiles: 'Voulez-vous vraiment supprimer {count} fichiers ?',
