@@ -55,6 +55,15 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.3.12',
+        date: '2025-08-04',
+        showOnUpdate: true,
+        new: [
+            'You can now set custom appearances for each folder and tag! With the new "Change appearance" button in list pane you can make each folder have a unique style: use slim mode to show as many items as possible, or use 5 preview rows for those folders where you want to see lots of the preview text!'
+        ],
+        improved: ['Pinned notes now show at max 1 preview row without parent folder, taking up less vertical space.']
+    },
+    {
         version: '1.3.11',
         date: '2025-08-03',
         showOnUpdate: true,
