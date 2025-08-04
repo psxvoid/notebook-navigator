@@ -314,6 +314,64 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             }
         });
 
+        // Tag Operations commands
+        this.addCommand({
+            id: 'add-tag',
+            name: strings.commands.addTag,
+            callback: async () => {
+                // Ensure navigator is open and visible
+                await this.activateView();
+
+                // Add tag to selected files
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.addTagToSelectedFiles();
+                        break;
+                    }
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'remove-tag',
+            name: strings.commands.removeTag,
+            callback: async () => {
+                // Ensure navigator is open and visible
+                await this.activateView();
+
+                // Remove tag from selected files
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.removeTagFromSelectedFiles();
+                        break;
+                    }
+                }
+            }
+        });
+
+        this.addCommand({
+            id: 'remove-all-tags',
+            name: strings.commands.removeAllTags,
+            callback: async () => {
+                // Ensure navigator is open and visible
+                await this.activateView();
+
+                // Remove all tags from selected files
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        await view.removeAllTagsFromSelectedFiles();
+                        break;
+                    }
+                }
+            }
+        });
+
         this.addSettingTab(new NotebookNavigatorSettingTab(this.app, this));
 
         // Register editor context menu

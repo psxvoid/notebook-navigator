@@ -327,7 +327,10 @@ export const STRINGS_JA = {
         moveFiles: 'ファイルを移動', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'フォルダにナビゲート', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'タグにナビゲート', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleSubfolders: 'サブフォルダのノート表示を切り替え' // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
+        toggleSubfolders: 'サブフォルダのノート表示を切り替え', // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
+        addTag: '選択したファイルにタグを追加', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
+        removeTag: '選択したファイルからタグを削除', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
+        removeAllTags: '選択したファイルからすべてのタグを削除' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
     },
 
     // Plugin UI

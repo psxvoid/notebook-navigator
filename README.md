@@ -125,13 +125,17 @@ To a modern, Notes-style interface like this:
    - Open notes in new tabs or windows
    - Rename, delete, or duplicate items
    - Move files to another folder
+   - Add tag - Add tags to selected files
+   - Remove tag - Remove specific tags from selected files
+   - Remove all tags - Clear all tags from selected files
    - Change or remove folder/tag colors and icons
    - Create or delete folder notes
    - Open version history or reveal in system explorer
    - Reveal in folder - switches to the file's containing folder (useful when
      viewing notes from subfolders or tags)
 5. Drag and drop notes between folders to organize, drag to tags to add tags, or
-   drag to Untagged to remove all tags
+   drag to Untagged to remove all tags. For more precise tag management, use the
+   right-click context menu options
 
 **Tip:** You can use the ribbon icon (folder tree icon) in the left sidebar to
 activate Notebook Navigator in case you close it by mistake.
@@ -437,6 +441,8 @@ The tags section provides powerful ways to organize and find your notes:
 - **Untagged notes:** Find notes without tags by clicking "Untagged"
 - **Drag to tag:** Drag notes onto tags to add that tag to the notes
 - **Remove tags:** Drag notes to "Untagged" to remove all tags from those notes
+- **Tag management:** Right-click files to add tags, remove specific tags, or
+  clear all tags at once - with smart tag hierarchy handling
 
 ### Managing draft and private notes
 

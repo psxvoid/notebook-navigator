@@ -327,7 +327,10 @@ export const STRINGS_ES = {
         moveFiles: 'Mover archivos', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'Navegar a carpeta', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navegar a etiqueta', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleSubfolders: 'Alternar mostrar notas de subcarpetas' // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
+        toggleSubfolders: 'Alternar mostrar notas de subcarpetas', // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
+        addTag: 'Añadir etiqueta a archivos seleccionados', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
+        removeTag: 'Eliminar etiqueta de archivos seleccionados', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
+        removeAllTags: 'Eliminar todas las etiquetas de archivos seleccionados' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
     },
 
     // Plugin UI

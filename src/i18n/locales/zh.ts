@@ -327,7 +327,10 @@ export const STRINGS_ZH = {
         moveFiles: '移动文件', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: '导航到文件夹', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '导航到标签', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleSubfolders: '切换显示子文件夹中的笔记' // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
+        toggleSubfolders: '切换显示子文件夹中的笔记', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
+        addTag: '为选定文件添加标签', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
+        removeTag: '从选定文件移除标签', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
+        removeAllTags: '从选定文件移除所有标签' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
     },
 
     // Plugin UI
