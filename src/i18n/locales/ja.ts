@@ -63,7 +63,8 @@ export const STRINGS_JA = {
         toggleSubfolders: 'サブフォルダのノートを表示', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
         autoExpandFoldersTags: 'フォルダとタグを自動展開', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showDualPane: 'デュアルペインを表示', // Tooltip for button to show dual-pane layout (English: Show dual panes)
-        showSinglePane: 'シングルペインを表示' // Tooltip for button to show single-pane layout (English: Show single pane)
+        showSinglePane: 'シングルペインを表示', // Tooltip for button to show single-pane layout (English: Show single pane)
+        changeAppearance: '外観を変更' // Tooltip for button to change folder appearance settings (English: Change appearance)
     },
 
     // Context menus
@@ -130,6 +131,17 @@ export const STRINGS_JA = {
             addToFavorites: 'お気に入りに追加',
             removeFromFavorites: 'お気に入りから削除'
         }
+    },
+
+    // Folder appearance menu
+    folderAppearance: {
+        defaultPreset: 'デフォルトの外観',
+        slimPreset: 'スリム（日付/プレビュー/画像なし）',
+        titleRows: 'タイトル行数',
+        previewRows: 'プレビュー行数',
+        defaultOption: (rows: number) => `デフォルト (${rows})`,
+        titleRowOption: (rows: number) => `タイトル${rows}行`,
+        previewRowOption: (rows: number) => `プレビュー${rows}行`
     },
 
     // Modal dialogs

@@ -63,7 +63,8 @@ export const STRINGS_ZH = {
         toggleSubfolders: '显示子文件夹中的笔记', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
         autoExpandFoldersTags: '自动展开文件夹和标签', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showDualPane: '显示双窗格', // Tooltip for button to show dual-pane layout (English: Show dual panes)
-        showSinglePane: '显示单窗格' // Tooltip for button to show single-pane layout (English: Show single pane)
+        showSinglePane: '显示单窗格', // Tooltip for button to show single-pane layout (English: Show single pane)
+        changeAppearance: '更改外观' // Tooltip for button to change folder appearance settings (English: Change appearance)
     },
 
     // Context menus
@@ -130,6 +131,17 @@ export const STRINGS_ZH = {
             addToFavorites: '添加到收藏',
             removeFromFavorites: '从收藏中移除'
         }
+    },
+
+    // Folder appearance menu
+    folderAppearance: {
+        defaultPreset: '默认外观',
+        slimPreset: '精简（无日期/预览/图片）',
+        titleRows: '标题行数',
+        previewRows: '预览行数',
+        defaultOption: (rows: number) => `默认 (${rows})`,
+        titleRowOption: (rows: number) => `标题${rows}行`,
+        previewRowOption: (rows: number) => `预览${rows}行`
     },
 
     // Modal dialogs

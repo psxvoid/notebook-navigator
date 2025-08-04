@@ -63,7 +63,8 @@ export const STRINGS_ES = {
         toggleSubfolders: 'Mostrar notas de subcarpetas', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
         autoExpandFoldersTags: 'Expandir carpetas y etiquetas automáticamente', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showDualPane: 'Mostrar paneles dobles', // Tooltip for button to show dual-pane layout (English: Show dual panes)
-        showSinglePane: 'Mostrar panel único' // Tooltip for button to show single-pane layout (English: Show single pane)
+        showSinglePane: 'Mostrar panel único', // Tooltip for button to show single-pane layout (English: Show single pane)
+        changeAppearance: 'Cambiar apariencia' // Tooltip for button to change folder appearance settings (English: Change appearance)
     },
 
     // Context menus
@@ -130,6 +131,17 @@ export const STRINGS_ES = {
             addToFavorites: 'Añadir a favoritos',
             removeFromFavorites: 'Quitar de favoritos'
         }
+    },
+
+    // Folder appearance menu
+    folderAppearance: {
+        defaultPreset: 'Apariencia predeterminada',
+        slimPreset: 'Compacto (sin fecha/vista previa/imagen)',
+        titleRows: 'Filas de título',
+        previewRows: 'Filas de vista previa',
+        defaultOption: (rows: number) => `Predeterminado (${rows})`,
+        titleRowOption: (rows: number) => `${rows} fila${rows === 1 ? '' : 's'} de título`,
+        previewRowOption: (rows: number) => `${rows} fila${rows === 1 ? '' : 's'} de vista previa`
     },
 
     // Modal dialogs

@@ -29,6 +29,8 @@ import { UNTAGGED_TAG_ID, ItemType } from '../types';
 import { getFilesForFolder } from '../utils/fileFinder';
 import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } from '../utils/sortUtils';
 import { ObsidianIcon } from './ObsidianIcon';
+import { showFolderAppearanceMenu } from './FolderAppearanceMenu';
+import { useEffectiveSettings } from '../hooks/useEffectiveSettings';
 
 interface ListPaneHeaderProps {
     onHeaderClick?: () => void;
@@ -46,6 +48,7 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
     const uiDispatch = useUIDispatch();
     const fileSystemOps = useFileSystemOps();
     const metadataService = useMetadataService();
+    const effectiveSettings = useEffectiveSettings();
 
     const handleNewFile = useCallback(async () => {
         if (!selectionState.selectedFolder) return;
@@ -64,6 +67,23 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
     const getSortIcon = useCallback(() => {
         return getSortIconName(getCurrentSortOption());
     }, [getCurrentSortOption]);
+
+    const handleAppearanceMenu = useCallback(
+        (event: React.MouseEvent) => {
+            showFolderAppearanceMenu({
+                event: event.nativeEvent,
+                titleRows: effectiveSettings.titleRows,
+                previewRows: effectiveSettings.previewRows,
+                showDate: effectiveSettings.showDate,
+                showPreview: effectiveSettings.showPreview,
+                showImage: effectiveSettings.showImage,
+                settings,
+                selectedFolder: selectionState.selectedFolder,
+                updateSettings
+            });
+        },
+        [effectiveSettings, settings, selectionState.selectedFolder, updateSettings]
+    );
 
     const handleSortMenu = useCallback(
         (event: React.MouseEvent) => {
@@ -246,6 +266,18 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
                         </button>
                         <button
                             className="nn-icon-button"
+                            aria-label={strings.paneHeader.changeAppearance}
+                            onClick={e => {
+                                e.stopPropagation();
+                                handleAppearanceMenu(e);
+                            }}
+                            disabled={!selectionState.selectedFolder}
+                            tabIndex={-1}
+                        >
+                            <ObsidianIcon name="palette" />
+                        </button>
+                        <button
+                            className="nn-icon-button"
                             aria-label={strings.paneHeader.newNote}
                             onClick={e => {
                                 e.stopPropagation();
@@ -312,6 +344,15 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
                         tabIndex={-1}
                     >
                         <ObsidianIcon name={getSortIcon()} />
+                    </button>
+                    <button
+                        className="nn-icon-button"
+                        aria-label={strings.paneHeader.changeAppearance}
+                        onClick={handleAppearanceMenu}
+                        disabled={!selectionState.selectedFolder}
+                        tabIndex={-1}
+                    >
+                        <ObsidianIcon name="palette" />
                     </button>
                     <button
                         className="nn-icon-button"
