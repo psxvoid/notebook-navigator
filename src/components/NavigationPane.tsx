@@ -64,7 +64,7 @@ import { useMetadataService } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useFileCache } from '../context/StorageContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
-import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
+import { useNavigationPaneKeyboard } from '../hooks/useNavigationPaneKeyboard';
 import { useNavigationPaneData } from '../hooks/useNavigationPaneData';
 import { useNavigationPaneScroll } from '../hooks/useNavigationPaneScroll';
 import type { CombinedNavigationItem } from '../types/virtualization';
@@ -547,14 +547,11 @@ export const NavigationPane = React.memo(
         // Note: We pass the root container ref, not the scroll container ref.
         // This ensures keyboard events work across the entire navigator, allowing
         // users to navigate between panes (navigation <-> files) with Tab/Arrow keys.
-        useVirtualKeyboardNavigation({
-            items: items,
+        useNavigationPaneKeyboard({
+            items,
             virtualizer: rowVirtualizer,
-            focusedPane: 'navigation',
             containerRef: props.rootContainerRef,
-            pathToIndex: pathToIndex,
-            files: [], // Not used in navigation pane
-            fileIndexMap: new Map() // Not used in navigation pane
+            pathToIndex
         });
 
         return (

@@ -52,7 +52,7 @@ import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useMultiSelection } from '../hooks/useMultiSelection';
-import { useVirtualKeyboardNavigation } from '../hooks/useVirtualKeyboardNavigation';
+import { useListPaneKeyboard } from '../hooks/useListPaneKeyboard';
 import { useListPaneData } from '../hooks/useListPaneData';
 import { useListPaneScroll } from '../hooks/useListPaneScroll';
 import { strings } from '../i18n';
@@ -295,14 +295,13 @@ export const ListPane = React.memo(
         // Note: We pass the root container ref, not the scroll container ref.
         // This ensures keyboard events work across the entire navigator, allowing
         // users to navigate between panes (navigation <-> files) with Tab/Arrow keys.
-        useVirtualKeyboardNavigation({
+        useListPaneKeyboard({
             items: listItems,
             virtualizer: rowVirtualizer,
-            focusedPane: 'files',
             containerRef: props.rootContainerRef,
             pathToIndex: filePathToIndex,
-            files: files,
-            fileIndexMap: fileIndexMap
+            files,
+            fileIndexMap
         });
 
         // Early returns MUST come after all hooks
