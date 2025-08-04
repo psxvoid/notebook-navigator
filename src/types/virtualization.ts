@@ -34,6 +34,8 @@ export interface ListPaneItem {
     key: string;
     // Pre-computed file index for stable onClick handlers
     fileIndex?: number;
+    // Indicates if this file is pinned
+    isPinned?: boolean;
 }
 
 export interface FolderTreeItem {

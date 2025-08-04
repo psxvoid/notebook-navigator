@@ -69,6 +69,7 @@ interface FileItemProps {
     dateGroup?: string | null;
     sortOption?: SortOption;
     parentFolder?: string | null;
+    isPinned?: boolean;
 }
 
 /**
@@ -91,7 +92,8 @@ export const FileItem = React.memo(function FileItem({
     onClick,
     dateGroup,
     sortOption,
-    parentFolder
+    parentFolder,
+    isPinned = false
 }: FileItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
@@ -388,7 +390,7 @@ export const FileItem = React.memo(function FileItem({
                             </div>
 
                             {/* Single row mode (preview rows = 1) - show all elements */}
-                            {settings.previewRows < 2 && (
+                            {(isPinned || settings.previewRows < 2) && (
                                 <>
                                     {/* Date + Preview on same line */}
                                     <div className="nn-file-second-line">
@@ -403,8 +405,9 @@ export const FileItem = React.memo(function FileItem({
                                     {/* Tags */}
                                     {renderTags()}
 
-                                    {/* Parent folder */}
-                                    {settings.showNotesFromSubfolders &&
+                                    {/* Parent folder - not shown for pinned items */}
+                                    {!isPinned &&
+                                        settings.showNotesFromSubfolders &&
                                         settings.showParentFolderNames &&
                                         parentFolder &&
                                         file.parent &&
@@ -418,7 +421,7 @@ export const FileItem = React.memo(function FileItem({
                             )}
 
                             {/* Multi-row mode (preview rows >= 2) - different layouts based on preview content */}
-                            {settings.previewRows >= 2 && (
+                            {!isPinned && settings.previewRows >= 2 && (
                                 <>
                                     {/* Case 1: Empty preview text - show tags, then date + parent folder */}
                                     {!previewText && (

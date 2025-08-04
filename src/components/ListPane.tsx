@@ -183,7 +183,8 @@ export const ListPane = React.memo(
                 }
 
                 // Calculate effective preview rows based on actual content
-                const effectivePreviewRows = hasPreviewText ? previewRows : 1;
+                // For pinned items, limit to 1 row max
+                const effectivePreviewRows = item.isPinned ? 1 : hasPreviewText ? previewRows : 1;
 
                 // Start with base padding
                 let textContentHeight = 0;
@@ -196,14 +197,15 @@ export const ListPane = React.memo(
                     textContentHeight += heights.titleLineHeight * (fileNameRows || 1); // File name
 
                     // Single row mode - show date+preview, tags, and parent folder
-                    if (previewRows < 2) {
+                    // Pinned items are always treated as single row mode
+                    if (item.isPinned || previewRows < 2) {
                         // Date and preview share one line
                         if (showFilePreview || showFileDate) {
                             textContentHeight += heights.metadataLineHeight;
                         }
 
-                        // Parent folder gets its own line
-                        if (settings.showParentFolderNames && settings.showNotesFromSubfolders) {
+                        // Parent folder gets its own line (not shown for pinned items)
+                        if (!item.isPinned && settings.showParentFolderNames && settings.showNotesFromSubfolders) {
                             const file = item.data instanceof TFile ? item.data : null;
                             const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                             if (isInSubfolder) {
@@ -239,7 +241,6 @@ export const ListPane = React.memo(
                 }
 
                 // Add tag row height if file has tags (in both normal and slim modes when showTags is enabled)
-                // Tags are shown for both empty and non-empty preview text
                 if (settings.showFileTags && item.type === ListPaneItemType.FILE && item.data instanceof TFile) {
                     // Check if file has tags using the database
                     const db = getDB();
@@ -595,7 +596,8 @@ export const ListPane = React.memo(
                             data: file,
                             parentFolder: selectedFolder?.path,
                             key: file.path,
-                            fileIndex: fileIndexCounter++
+                            fileIndex: fileIndexCounter++,
+                            isPinned: true
                         });
                     });
                 }
@@ -1135,6 +1137,7 @@ export const ListPane = React.memo(
                                                 dateGroup={dateGroup}
                                                 sortOption={effectiveSortOption}
                                                 parentFolder={item.parentFolder}
+                                                isPinned={item.isPinned}
                                             />
                                         ) : null}
                                     </div>
