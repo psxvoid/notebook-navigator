@@ -21,9 +21,12 @@
  *
  * 1. React.memo - Component only re-renders when props actually change
  *
- * 2. Minimal state:
- *    - No complex computations or memoizations needed
- *    - Props directly used for rendering
+ * 2. Props-based data flow:
+ *    - All data comes from NavigationPane via props
+ *    - virtualFolder: Static UI construct defined in NavigationPane
+ *    - isExpanded: Expansion state from ExpansionContext (via NavigationPane)
+ *    - hasChildren: Computed by NavigationPane based on tag tree structure
+ *    - No direct service or cache access
  *
  * 3. Stable callbacks:
  *    - handleDoubleClick: Memoized to handle expansion toggle
@@ -32,14 +35,12 @@
  * 4. Icon optimization:
  *    - Icons set via useEffect to avoid render blocking
  *    - Chevron updates based on hasChildren and isExpanded
- *    - Virtual folder icons are static (folder-minus)
+ *    - Virtual folder icons are defined in the virtualFolder prop
  *
- * 5. Conditional features:
- *    - File counts only shown when showFileCount is true
- *    - Chevron only interactive when folder has children
- *
- * 6. No tooltip overhead:
- *    - Virtual folders don't need tooltips (simple structure)
+ * 5. Minimal overhead:
+ *    - No file operations or context menus
+ *    - No tooltip functionality needed
+ *    - Pure presentational component
  */
 
 import React, { useRef, useEffect, useCallback } from 'react';
@@ -49,11 +50,11 @@ import { getIconService } from '../services/icons';
 import { VirtualFolder } from '../types';
 
 interface VirtualFolderItemProps {
-    virtualFolder: VirtualFolder;
-    level: number;
-    isExpanded: boolean;
-    hasChildren: boolean;
-    onToggle: () => void;
+    virtualFolder: VirtualFolder; // Static data structure from NavigationPane
+    level: number; // Nesting level for indentation
+    isExpanded: boolean; // From ExpansionContext via NavigationPane
+    hasChildren: boolean; // Computed by NavigationPane from tag tree
+    onToggle: () => void; // Expansion toggle handler
 }
 
 /**
@@ -61,11 +62,13 @@ interface VirtualFolderItemProps {
  * Virtual folders are UI-only constructs that group tags (e.g., "Favorite tags", "All tags").
  * They have expand/collapse functionality but no file operations or context menus.
  *
+ * This is a pure presentational component - all data flows from NavigationPane via props.
+ *
  * @param props - The component props
- * @param props.virtualFolder - The virtual folder data containing id, name, and optional icon
+ * @param props.virtualFolder - The virtual folder data containing id, name, and optional icon (defined in NavigationPane)
  * @param props.level - The nesting level for indentation
- * @param props.isExpanded - Whether this folder is currently expanded
- * @param props.hasChildren - Whether this folder contains child items
+ * @param props.isExpanded - Whether this folder is currently expanded (from ExpansionContext via NavigationPane)
+ * @param props.hasChildren - Whether this folder contains child items (computed by NavigationPane)
  * @param props.onToggle - Handler called when the expand/collapse chevron is clicked
  * @returns A virtual folder item element with chevron, icon, and name
  */

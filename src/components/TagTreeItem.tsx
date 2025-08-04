@@ -21,9 +21,12 @@
  *
  * 1. React.memo with forwardRef - Component only re-renders when props change
  *
- * 2. Props-based state:
- *    - color and icon passed as props from NavigationPane for proper reactivity
- *    - File count pre-computed by parent component
+ * 2. Props-based data flow:
+ *    - All data comes from NavigationPane via props (no direct cache access)
+ *    - color: Custom tag color from MetadataService (via NavigationPane)
+ *    - icon: Custom tag icon from MetadataService (via NavigationPane)
+ *    - fileCount: Pre-computed in NavigationPane from RAM cache
+ *    - tagNode: Tag tree structure from StorageContext (via NavigationPane)
  *
  * 3. Memoized values:
  *    - hasChildren: Cached check using tagNode.children.size
@@ -40,9 +43,10 @@
  *    - Chevron icon updates based on expansion state
  *    - Custom tag icons support with color inheritance
  *
- * 6. Color inheritance:
- *    - Tag colors can inherit from parent tags
- *    - Handled by MetadataService.getTagColor in NavigationPane
+ * 6. Data source hierarchy:
+ *    - NavigationPane fetches all data from services/contexts
+ *    - TagTreeItem is purely presentational with no service dependencies
+ *    - Enables efficient re-rendering only when specific props change
  */
 
 import React, { forwardRef, useMemo, useCallback } from 'react';
@@ -71,21 +75,22 @@ interface TagTreeItemProps {
     onClick: () => void;
     /** Callback when all sibling tags should be toggled */
     onToggleAllSiblings?: () => void;
-    /** Total count of files with this tag (including children) */
+    /** Total count of files with this tag (including children) - computed by NavigationPane from RAM cache */
     fileCount: number;
     /** Whether to show file counts */
     showFileCount: boolean;
     /** Context indicating which section this tag is in */
     context?: 'favorites' | 'tags';
-    /** Custom color for the tag */
+    /** Custom color for the tag - fetched by NavigationPane from MetadataService */
     color?: string;
-    /** Custom icon for the tag */
+    /** Custom icon for the tag - fetched by NavigationPane from MetadataService */
     icon?: string;
 }
 
 /**
  * Component that renders a single tag in the hierarchical tag tree.
  * Handles indentation, expand/collapse state, and selection state.
+ * All data is passed via props from NavigationPane - no direct service access.
  */
 export const TagTreeItem = React.memo(
     forwardRef<HTMLDivElement, TagTreeItemProps>(function TagTreeItem(
@@ -100,7 +105,7 @@ export const TagTreeItem = React.memo(
         // Memoize computed values
         const hasChildren = useMemo(() => tagNode.children.size > 0, [tagNode.children.size]);
 
-        // Use color and icon from props (passed from NavigationPane)
+        // Use color and icon from props (fetched by NavigationPane from MetadataService)
         const tagColor = color;
         const tagIcon = icon;
 

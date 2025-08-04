@@ -33,11 +33,13 @@
  * 4. Content subscription optimization:
  *    - Single useEffect subscribes to all content changes (preview, tags, feature image)
  *    - Uses file.path as dependency to properly handle file renames
- *    - Direct memory cache access via getDB() for synchronous data retrieval
+ *    - All data is fetched from RAM cache (MemoryFileCache) for synchronous access
+ *    - RAM cache is kept in sync with IndexedDB by StorageContext
  *
- * 5. Lazy loading:
- *    - Preview text, tags, and feature images are loaded asynchronously
- *    - Initial render shows skeleton, then updates when content is available
+ * 5. Data loading pattern:
+ *    - Initial load: Synchronously fetch all data from RAM cache
+ *    - Updates: Subscribe to cache changes and update state when data changes
+ *    - Background: ContentService asynchronously generates preview text and finds feature images
  *
  * 6. Image optimization:
  *    - Feature images use native browser lazy loading
@@ -102,16 +104,16 @@ export const FileItem = React.memo(function FileItem({
     const { navigateToTag } = useTagNavigation();
     const metadataService = useMetadataService();
 
-    // Load preview text from IndexedDB
+    // Preview text state - loaded from RAM cache
     const [previewText, setPreviewText] = useState<string>('');
 
-    // Load tags from RAM cache
+    // Tags state - loaded from RAM cache
     const [tags, setTags] = useState<string[]>([]);
 
-    // Load feature image URL
+    // Feature image URL state - path loaded from RAM cache, converted to resource URL
     const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(null);
 
-    // Get display name from context which handles cache and frontmatter
+    // Get display name from RAM cache (handles frontmatter title)
     const displayName = useMemo(() => {
         return getFileDisplayName(file);
     }, [file, getFileDisplayName]);
@@ -239,9 +241,9 @@ export const FileItem = React.memo(function FileItem({
 
     // Single subscription for all content changes
     useEffect(() => {
-        const db = getDB();
+        const db = getDB(); // Get MemoryFileCache instance
 
-        // Initial load of all data
+        // Initial load of all data from RAM cache
         if (settings.showFilePreview && file.extension === 'md') {
             setPreviewText(db.getCachedPreviewText(file.path));
         } else {
@@ -257,7 +259,7 @@ export const FileItem = React.memo(function FileItem({
                     setFeatureImageUrl(null);
                 }
             } else {
-                const imagePath = db.getCachedFeatureImageUrl(file.path);
+                const imagePath = db.getCachedFeatureImageUrl(file.path); // Get path from RAM cache
 
                 // If we have a path, convert it to a URL
                 if (imagePath) {
@@ -280,10 +282,10 @@ export const FileItem = React.memo(function FileItem({
             setFeatureImageUrl(null);
         }
 
-        const initialTags = db.getCachedTags(file.path);
+        const initialTags = db.getCachedTags(file.path); // Get tags from RAM cache
         setTags(initialTags);
 
-        // Subscribe to changes for this specific file
+        // Subscribe to RAM cache changes for this specific file
         const unsubscribe = db.onFileContentChange(file.path, changes => {
             if (changes.preview !== undefined && settings.showFilePreview && file.extension === 'md') {
                 setPreviewText(changes.preview || '');
