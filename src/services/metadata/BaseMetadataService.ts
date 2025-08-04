@@ -20,6 +20,7 @@ import { App } from 'obsidian';
 import { NotebookNavigatorSettings, SortOption } from '../../settings';
 import { ItemType } from '../../types';
 import { ISettingsProvider } from '../../interfaces/ISettingsProvider';
+import { FolderAppearance } from '../../hooks/useListPaneFolderSettings';
 
 /**
  * Type helper for metadata fields in settings
@@ -29,6 +30,7 @@ type MetadataFields = {
     folderIcons: Record<string, string>;
     folderColors: Record<string, string>;
     folderSortOverrides: Record<string, SortOption>;
+    folderAppearances: Record<string, FolderAppearance>;
     pinnedNotes: Record<string, string[]>;
     tagColors: Record<string, string>;
     tagIcons: Record<string, string>;

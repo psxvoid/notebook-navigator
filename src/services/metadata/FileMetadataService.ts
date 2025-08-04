@@ -157,31 +157,54 @@ export class FileMetadataService extends BaseMetadataService {
     }
 
     /**
-     * Clean up pinned notes using pre-loaded validators
-     * @param validators - Pre-loaded data for validation
-     * @returns True if any changes were made
+     * Clean up pinned notes using pre-loaded validators.
+     *
+     * This method is called during plugin startup as part of a unified cleanup process
+     * to remove references to deleted files from the pinned notes list.
+     *
+     * The cleanup process:
+     * 1. Called from StorageContext during initial sync after all files are processed
+     * 2. Uses validators.vaultFiles which contains all current file paths in the vault
+     * 3. Iterates through each folder's pinned notes list
+     * 4. Removes any pinned files that no longer exist in the vault
+     * 5. Removes empty pinned note entries for folders with no remaining pins
+     *
+     * Structure of pinnedNotes:
+     * {
+     *   "folder/path": ["file1.md", "file2.md"],
+     *   "another/folder": ["note.md"]
+     * }
+     *
+     * @param validators - Pre-loaded data containing vault files, database files, and tag tree
+     * @returns True if any pinned notes were removed
      */
     async cleanupWithValidators(validators: CleanupValidators): Promise<boolean> {
         let hasChanges = false;
 
         await this.saveAndUpdate(settings => {
             if (settings.pinnedNotes) {
+                // Check each folder's pinned notes
                 for (const folderPath in settings.pinnedNotes) {
                     const filePaths = settings.pinnedNotes[folderPath];
+
+                    // Validate data structure (should be an array)
                     if (!Array.isArray(filePaths)) {
-                        // Remove invalid entry
+                        // Remove corrupted entry
                         delete settings.pinnedNotes[folderPath];
                         hasChanges = true;
                         continue;
                     }
 
-                    // Use pre-loaded vault files for validation
+                    // Filter out files that no longer exist in the vault
                     const validFiles = filePaths.filter((filePath: string) => {
                         return validators.vaultFiles.has(filePath);
                     });
 
+                    // Update if any files were removed
                     if (validFiles.length !== filePaths.length) {
                         settings.pinnedNotes[folderPath] = validFiles;
+
+                        // Remove the folder entry entirely if no pinned files remain
                         if (validFiles.length === 0) {
                             delete settings.pinnedNotes[folderPath];
                         }
