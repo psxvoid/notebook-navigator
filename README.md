@@ -46,9 +46,29 @@ To a modern, Notes-style interface like this:
 - **RTL language support** - Full support for right-to-left languages with
   proper layout mirroring and navigation
 
+### Tag Management System
+
+- **Hierarchical tag tree** - Browse nested tags with full parent/child
+  relationships (e.g., `projects/work/urgent`)
+- **Tag operations** - Add, remove, or clear all tags from notes via context
+  menus and commands
+- **Drag to tag** - Simply drag notes onto tags to add them, or drag to
+  "Untagged" to remove all tags
+- **Favorite tags** - Pin your most-used tags to a dedicated favorites section
+  for quick access
+- **Hidden tags** - Hide sensitive or internal tags from the navigation while
+  keeping them functional
+- **Tag organization options** - Display tags above or below folders, show/hide
+  favorites and tags in collapsible folders
+- **Visual customization** - Set custom colors and icons (Lucide or emoji) for
+  each tag
+- **Tag-specific appearances** - Configure unique display styles per tag (e.g.,
+  show 5 preview lines for `reading-list` tag)
+- **Clickable tags in notes** - Tags displayed in note items are clickable for
+  quick navigation
+
 ### Navigation & Organization
 
-- **Tag browser** - Hierarchical tag tree with nested tag support
 - **Pin notes** - Keep important notes at the top of folders and tags
 - **Auto-reveal** - Automatically show the location of the current note
 - **Keyboard first** - Full navigation with arrow keys and Tab
@@ -66,8 +86,7 @@ To a modern, Notes-style interface like this:
 
 ### Productivity
 
-- **Drag & drop** - Move notes between folders, drag to tags to add tags, drag
-  to Untagged to remove all tags
+- **Drag & drop** - Move notes between folders with full multi-selection support
 - **Resizable panes** - Adjust the layout to your needs
 - **Smart filtering** - Exclude folders and notes with patterns
 - **Visual customization** - Folder and tag colors with customizable icons
@@ -201,6 +220,16 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   selected folder)
 - `Notebook Navigator: Delete files` Delete selected files and automatically
   select the next file in the current folder (stays in the selected folder)
+
+**Tag Operations**
+- `Notebook Navigator: Add tag to selected files` Opens a dialog to select a tag
+  to add to all selected files. Supports creating new tags directly in the
+  dialog
+- `Notebook Navigator: Remove tag from selected files` Opens a dialog to select
+  which tag to remove from selected files. If files have only one tag, removes
+  it immediately
+- `Notebook Navigator: Remove all tags from selected files` Removes all tags
+  from selected files after confirmation
 
 <br>
 
