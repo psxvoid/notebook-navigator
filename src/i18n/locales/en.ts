@@ -25,6 +25,7 @@ export const STRINGS_EN = {
     common: {
         cancel: 'Cancel', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Delete', // Button text for delete operations in dialogs (English: Delete)
+        remove: 'Remove', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Submit', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'No selection', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: 'Untagged', // Label for notes without any tags (English: Untagged)
@@ -63,7 +64,8 @@ export const STRINGS_EN = {
         toggleSubfolders: 'Show notes from subfolders', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
         autoExpandFoldersTags: 'Auto-expand folders and tags', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showDualPane: 'Show dual panes', // Tooltip for button to show dual-pane layout (English: Show dual panes)
-        showSinglePane: 'Show single pane' // Tooltip for button to show single-pane layout (English: Show single pane)
+        showSinglePane: 'Show single pane', // Tooltip for button to show single-pane layout (English: Show single pane)
+        changeAppearance: 'Change appearance' // Tooltip for button to change folder appearance settings (English: Change appearance)
     },
 
     // Context menus
@@ -102,7 +104,10 @@ export const STRINGS_EN = {
             deleteMultipleNotes: 'Delete {count} notes',
             deleteMultipleFiles: 'Delete {count} files',
             moveToFolder: 'Move to...',
-            moveMultipleToFolder: 'Move {count} files to...'
+            moveMultipleToFolder: 'Move {count} files to...',
+            addTag: 'Add tag',
+            removeTag: 'Remove tag',
+            removeAllTags: 'Remove all tags'
         },
         folder: {
             newNote: 'New note',
@@ -129,6 +134,19 @@ export const STRINGS_EN = {
             addToFavorites: 'Add to favorites',
             removeFromFavorites: 'Remove from favorites'
         }
+    },
+
+    // Folder appearance menu
+    folderAppearance: {
+        defaultPreset: 'Default appearance',
+        slimPreset: 'Slim (no date/preview/image)',
+        titleRows: 'Title rows',
+        previewRows: 'Preview rows',
+        defaultOption: (rows: number) => `Default (${rows})`,
+        defaultTitleOption: (rows: number) => `Default title rows (${rows})`,
+        defaultPreviewOption: (rows: number) => `Default preview rows (${rows})`,
+        titleRowOption: (rows: number) => `${rows} title row${rows === 1 ? '' : 's'}`,
+        previewRowOption: (rows: number) => `${rows} preview row${rows === 1 ? '' : 's'}`
     },
 
     // Modal dialogs
@@ -192,7 +210,10 @@ export const STRINGS_EN = {
             renameVaultTitle: 'Change vault display name',
             renameVaultPrompt: 'Enter custom display name (leave empty to use default):',
             deleteFolderConfirm: 'Are you sure you want to delete this folder and all its contents?',
-            deleteFileConfirm: 'Are you sure you want to delete this file?'
+            deleteFileConfirm: 'Are you sure you want to delete this file?',
+            removeAllTagsTitle: 'Remove all tags',
+            removeAllTagsFromNote: 'Are you sure you want to remove all tags from this note?',
+            removeAllTagsFromNotes: 'Are you sure you want to remove all tags from {count} notes?'
         },
         folderSuggest: {
             placeholder: 'Move to folder...',
@@ -207,10 +228,15 @@ export const STRINGS_EN = {
         tagSuggest: {
             placeholder: 'Search tags...',
             navigatePlaceholder: 'Navigate to tag...',
+            addPlaceholder: 'Search for tag to add...',
+            removePlaceholder: 'Select tag to remove...',
+            createNewTag: 'Create new tag: #{tag}',
             instructions: {
                 navigate: 'to navigate',
                 select: 'to select',
-                dismiss: 'to dismiss'
+                dismiss: 'to dismiss',
+                add: 'to add tag',
+                remove: 'to remove tag'
             }
         }
     },
@@ -240,7 +266,16 @@ export const STRINGS_EN = {
         },
         notifications: {
             deletedMultipleFiles: 'Deleted {count} files',
-            deepLinkCopied: 'Deep link copied to clipboard'
+            deepLinkCopied: 'Deep link copied to clipboard',
+            tagAddedToNote: 'Added tag to 1 note',
+            tagAddedToNotes: 'Added tag to {count} notes',
+            tagRemovedFromNote: 'Removed tag from 1 note',
+            tagRemovedFromNotes: 'Removed tag from {count} notes',
+            tagsClearedFromNote: 'Cleared all tags from 1 note',
+            tagsClearedFromNotes: 'Cleared all tags from {count} notes',
+            noTagsToRemove: 'No tags to remove',
+            noFilesSelected: 'No files selected',
+            tagOperationsNotAvailable: 'Tag operations not available'
         },
         confirmations: {
             deleteMultipleFiles: 'Are you sure you want to delete {count} files?',
@@ -300,7 +335,10 @@ export const STRINGS_EN = {
         moveFiles: 'Move files', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'Navigate to folder', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navigate to tag', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleSubfolders: 'Toggle show notes from subfolders' // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
+        toggleSubfolders: 'Toggle show notes from subfolders', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
+        addTag: 'Add tag to selected files', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
+        removeTag: 'Remove tag from selected files', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
+        removeAllTags: 'Remove all tags from selected files' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
     },
 
     // Plugin UI

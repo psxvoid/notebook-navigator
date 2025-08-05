@@ -25,6 +25,7 @@ export const STRINGS_JA = {
     common: {
         cancel: 'キャンセル', // Button text for canceling dialogs and operations (English: Cancel)
         delete: '削除', // Button text for delete operations in dialogs (English: Delete)
+        remove: '削除', // Button text for remove operations in dialogs (English: Remove)
         submit: '送信', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: '選択なし', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: 'タグなし', // Label for notes without any tags (English: Untagged)
@@ -63,7 +64,8 @@ export const STRINGS_JA = {
         toggleSubfolders: 'サブフォルダのノートを表示', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
         autoExpandFoldersTags: 'フォルダとタグを自動展開', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showDualPane: 'デュアルペインを表示', // Tooltip for button to show dual-pane layout (English: Show dual panes)
-        showSinglePane: 'シングルペインを表示' // Tooltip for button to show single-pane layout (English: Show single pane)
+        showSinglePane: 'シングルペインを表示', // Tooltip for button to show single-pane layout (English: Show single pane)
+        changeAppearance: '外観を変更' // Tooltip for button to change folder appearance settings (English: Change appearance)
     },
 
     // Context menus
@@ -89,8 +91,11 @@ export const STRINGS_JA = {
             renameNote: 'ノートの名前を変更',
             deleteNote: 'ノートを削除',
             deleteMultipleNotes: '{count}個のノートを削除',
-            moveToFolder: 'Move to...',
-            moveMultipleToFolder: 'Move {count} files to...',
+            moveToFolder: '移動先...',
+            moveMultipleToFolder: '{count}個のファイルを移動先...',
+            addTag: 'タグを追加',
+            removeTag: 'タグを削除',
+            removeAllTags: 'すべてのタグを削除',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count}個のファイルを新しいタブで開く',
             openMultipleFilesToRight: '{count}個のファイルを右側で開く',
@@ -130,6 +135,19 @@ export const STRINGS_JA = {
             addToFavorites: 'お気に入りに追加',
             removeFromFavorites: 'お気に入りから削除'
         }
+    },
+
+    // Folder appearance menu
+    folderAppearance: {
+        defaultPreset: 'デフォルトの外観',
+        slimPreset: 'スリム（日付/プレビュー/画像なし）',
+        titleRows: 'タイトル行数',
+        previewRows: 'プレビュー行数',
+        defaultOption: (rows: number) => `デフォルト (${rows})`,
+        defaultTitleOption: (rows: number) => `デフォルトタイトル行数 (${rows})`,
+        defaultPreviewOption: (rows: number) => `デフォルトプレビュー行数 (${rows})`,
+        titleRowOption: (rows: number) => `タイトル${rows}行`,
+        previewRowOption: (rows: number) => `プレビュー${rows}行`
     },
 
     // Modal dialogs
@@ -193,7 +211,10 @@ export const STRINGS_JA = {
             renameVaultTitle: 'ボールトの表示名を変更',
             renameVaultPrompt: 'カスタム表示名を入力（空にするとデフォルトを使用）：',
             deleteFolderConfirm: 'このフォルダとそのすべての内容を削除してもよろしいですか？',
-            deleteFileConfirm: 'このファイルを削除してもよろしいですか？'
+            deleteFileConfirm: 'このファイルを削除してもよろしいですか？',
+            removeAllTagsTitle: 'すべてのタグを削除',
+            removeAllTagsFromNote: 'このノートからすべてのタグを削除してもよろしいですか？',
+            removeAllTagsFromNotes: '{count}個のノートからすべてのタグを削除してもよろしいですか？'
         },
         folderSuggest: {
             placeholder: 'フォルダに移動...',
@@ -208,10 +229,15 @@ export const STRINGS_JA = {
         tagSuggest: {
             placeholder: 'タグを検索...',
             navigatePlaceholder: 'タグにナビゲート...',
+            addPlaceholder: '追加するタグを検索...',
+            removePlaceholder: '削除するタグを選択...',
+            createNewTag: '新しいタグを作成: #{tag}',
             instructions: {
                 navigate: 'でナビゲート',
                 select: 'で選択',
-                dismiss: 'でキャンセル'
+                dismiss: 'でキャンセル',
+                add: 'タグを追加',
+                remove: 'タグを削除'
             }
         }
     },
@@ -241,7 +267,16 @@ export const STRINGS_JA = {
         },
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',
-            deepLinkCopied: 'ディープリンクをクリップボードにコピーしました'
+            deepLinkCopied: 'ディープリンクをクリップボードにコピーしました',
+            tagAddedToNote: '1個のノートにタグを追加しました',
+            tagAddedToNotes: '{count}個のノートにタグを追加しました',
+            tagRemovedFromNote: '1個のノートからタグを削除しました',
+            tagRemovedFromNotes: '{count}個のノートからタグを削除しました',
+            tagsClearedFromNote: '1個のノートからすべてのタグをクリアしました',
+            tagsClearedFromNotes: '{count}個のノートからすべてのタグをクリアしました',
+            noTagsToRemove: '削除するタグがありません',
+            noFilesSelected: 'ファイルが選択されていません',
+            tagOperationsNotAvailable: 'タグ操作は利用できません'
         },
         confirmations: {
             deleteMultipleFiles: '本当に{count}個のファイルを削除しますか？',
@@ -301,7 +336,10 @@ export const STRINGS_JA = {
         moveFiles: 'ファイルを移動', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'フォルダにナビゲート', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'タグにナビゲート', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleSubfolders: 'サブフォルダのノート表示を切り替え' // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
+        toggleSubfolders: 'サブフォルダのノート表示を切り替え', // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
+        addTag: '選択したファイルにタグを追加', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
+        removeTag: '選択したファイルからタグを削除', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
+        removeAllTags: '選択したファイルからすべてのタグを削除' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
     },
 
     // Plugin UI

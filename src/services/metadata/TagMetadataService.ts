@@ -141,29 +141,49 @@ export class TagMetadataService extends BaseMetadataService {
         const results = await Promise.all([
             this.cleanupMetadata(this.settingsProvider.settings, 'tagColors', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'tagIcons', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'tagSortOverrides', validator)
+            this.cleanupMetadata(this.settingsProvider.settings, 'tagSortOverrides', validator),
+            this.cleanupMetadata(this.settingsProvider.settings, 'tagAppearances', validator)
         ]);
 
         return results.some(changed => changed);
     }
 
     /**
-     * Clean up tag metadata using pre-loaded validators
-     * @param validators - Pre-loaded data for validation
-     * @returns True if any changes were made
+     * Clean up tag metadata using pre-loaded validators.
+     *
+     * This method is called during plugin startup as part of a unified cleanup process
+     * to remove metadata for tags that no longer exist in the vault.
+     *
+     * The cleanup process:
+     * 1. Called from StorageContext during initial sync after all files are processed
+     * 2. Unlike folders and files, tags are validated against the TagTreeService
+     *    because tags are dynamically extracted from file content/frontmatter
+     * 3. Gets all valid tag paths from the tag tree (includes nested tags like "parent/child")
+     * 4. Removes metadata (colors, icons, sort overrides) for any tags not in the tree
+     *
+     * Note: The validators parameter is provided for consistency with other cleanup methods
+     * but is not used here because tag validation requires the complete tag tree structure
+     * which is maintained by TagTreeService.
+     *
+     * @param _validators - Pre-loaded data (unused for tags - uses TagTreeService instead)
+     * @returns True if any tag metadata was removed
      */
     async cleanupWithValidators(_validators: CleanupValidators): Promise<boolean> {
-        // Get valid tags from TagTreeService
+        // Get all valid tags from the tag tree maintained by TagTreeService
+        // This includes all tags found in files, including nested tags
         const tagTreeProvider = this.getTagTreeProvider();
         const validTagPaths = tagTreeProvider?.getAllTagPaths() || [];
         const validTags = new Set(validTagPaths);
 
+        // Create validator function that checks if a tag exists in the tree
         const validator = (path: string) => validTags.has(path);
 
+        // Clean up all tag metadata types in parallel
         const results = await Promise.all([
             this.cleanupMetadata(this.settingsProvider.settings, 'tagColors', validator),
             this.cleanupMetadata(this.settingsProvider.settings, 'tagIcons', validator),
-            this.cleanupMetadata(this.settingsProvider.settings, 'tagSortOverrides', validator)
+            this.cleanupMetadata(this.settingsProvider.settings, 'tagSortOverrides', validator),
+            this.cleanupMetadata(this.settingsProvider.settings, 'tagAppearances', validator)
         ]);
 
         return results.some(changed => changed);

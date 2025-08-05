@@ -32,6 +32,8 @@ import { useTagNavigation } from '../hooks/useTagNavigation';
 import { strings } from '../i18n';
 import { FolderSuggestModal } from '../modals/FolderSuggestModal';
 import { TagSuggestModal } from '../modals/TagSuggestModal';
+import { RemoveTagModal } from '../modals/RemoveTagModal';
+import { ConfirmModal } from '../modals/ConfirmModal';
 import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, ItemType } from '../types';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
@@ -50,6 +52,9 @@ export interface NotebookNavigatorHandle {
     navigateToFolder: (folderPath: string) => void;
     navigateToFolderWithModal: () => void;
     navigateToTagWithModal: () => void;
+    addTagToSelectedFiles: () => Promise<void>;
+    removeTagFromSelectedFiles: () => Promise<void>;
+    removeAllTagsFromSelectedFiles: () => Promise<void>;
 }
 
 /**
@@ -64,7 +69,7 @@ export interface NotebookNavigatorHandle {
  */
 export const NotebookNavigatorComponent = React.memo(
     forwardRef<NotebookNavigatorHandle>(function NotebookNavigatorComponent(_, ref) {
-        const { app, isMobile, fileSystemOps, plugin, tagTreeService, commandQueue } = useServices();
+        const { app, isMobile, fileSystemOps, plugin, tagTreeService, commandQueue, tagOperations } = useServices();
         const settings = useSettingsState();
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
@@ -147,9 +152,25 @@ export const NotebookNavigatorComponent = React.memo(
         });
 
         // Expose methods via ref
-        useImperativeHandle(
-            ref,
-            () => ({
+        useImperativeHandle(ref, () => {
+            // Helper function to get selected files
+            const getSelectedFiles = (): TFile[] => {
+                // Get selected files
+                const selectedFiles = Array.from(selectionState.selectedFiles)
+                    .map(path => app.vault.getAbstractFileByPath(path))
+                    .filter((f): f is TFile => f instanceof TFile);
+
+                if (selectedFiles.length === 0) {
+                    // No files selected, try current file
+                    if (selectionState.selectedFile) {
+                        selectedFiles.push(selectionState.selectedFile);
+                    }
+                }
+
+                return selectedFiles;
+            };
+
+            return {
                 navigateToFile: revealFileInActualFolder,
                 focusFilePane: () => {
                     // In single pane mode, switch to file list view
@@ -205,18 +226,11 @@ export const NotebookNavigatorComponent = React.memo(
                 },
                 moveSelectedFiles: async () => {
                     // Get selected files
-                    const selectedFiles = Array.from(selectionState.selectedFiles)
-                        .map(path => app.vault.getAbstractFileByPath(path))
-                        .filter((f): f is TFile => f instanceof TFile);
+                    const selectedFiles = getSelectedFiles();
 
                     if (selectedFiles.length === 0) {
-                        // No files selected, try current file
-                        if (selectionState.selectedFile) {
-                            selectedFiles.push(selectionState.selectedFile);
-                        } else {
-                            new Notice(strings.fileSystem.errors.noFileSelected);
-                            return;
-                        }
+                        new Notice(strings.fileSystem.errors.noFileSelected);
+                        return;
                     }
 
                     // Get all files in the current view for smart selection
@@ -263,27 +277,139 @@ export const NotebookNavigatorComponent = React.memo(
                         true // Include untagged option
                     );
                     modal.open();
+                },
+                addTagToSelectedFiles: async () => {
+                    if (!tagOperations) {
+                        new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable);
+                        return;
+                    }
+
+                    // Get selected files
+                    const selectedFiles = getSelectedFiles();
+                    if (selectedFiles.length === 0) {
+                        new Notice(strings.fileSystem.notifications.noFilesSelected);
+                        return;
+                    }
+
+                    // Show tag selection modal
+                    const modal = new TagSuggestModal(
+                        app,
+                        plugin,
+                        async (tag: string) => {
+                            const result = await tagOperations.addTagToFiles(tag, selectedFiles);
+                            const message =
+                                result.added === 1
+                                    ? strings.fileSystem.notifications.tagAddedToNote
+                                    : strings.fileSystem.notifications.tagAddedToNotes.replace('{count}', result.added.toString());
+                            new Notice(message);
+                        },
+                        strings.modals.tagSuggest.addPlaceholder,
+                        strings.modals.tagSuggest.instructions.add,
+                        false // Don't include untagged
+                    );
+                    modal.open();
+                },
+                removeTagFromSelectedFiles: async () => {
+                    if (!tagOperations) {
+                        new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable);
+                        return;
+                    }
+
+                    // Get selected files
+                    const selectedFiles = getSelectedFiles();
+                    if (selectedFiles.length === 0) {
+                        new Notice(strings.fileSystem.notifications.noFilesSelected);
+                        return;
+                    }
+
+                    // Get tags from selected files
+                    const existingTags = tagOperations.getTagsFromFiles(selectedFiles);
+                    if (existingTags.length === 0) {
+                        new Notice(strings.fileSystem.notifications.noTagsToRemove);
+                        return;
+                    }
+
+                    // If only one tag exists, remove it directly without showing modal
+                    if (existingTags.length === 1) {
+                        const result = await tagOperations.removeTagFromFiles(existingTags[0], selectedFiles);
+                        const message =
+                            result === 1
+                                ? strings.fileSystem.notifications.tagRemovedFromNote
+                                : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
+                        new Notice(message);
+                        return;
+                    }
+
+                    // Show modal to select which tag to remove
+                    const modal = new RemoveTagModal(app, existingTags, async (tag: string) => {
+                        const result = await tagOperations.removeTagFromFiles(tag, selectedFiles);
+                        const message =
+                            result === 1
+                                ? strings.fileSystem.notifications.tagRemovedFromNote
+                                : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
+                        new Notice(message);
+                    });
+                    modal.open();
+                },
+                removeAllTagsFromSelectedFiles: async () => {
+                    if (!tagOperations) {
+                        new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable);
+                        return;
+                    }
+
+                    // Get selected files
+                    const selectedFiles = getSelectedFiles();
+                    if (selectedFiles.length === 0) {
+                        new Notice(strings.fileSystem.notifications.noFilesSelected);
+                        return;
+                    }
+
+                    // Check if files have tags
+                    const existingTags = tagOperations.getTagsFromFiles(selectedFiles);
+                    if (existingTags.length === 0) {
+                        new Notice(strings.fileSystem.notifications.noTagsToRemove);
+                        return;
+                    }
+
+                    // Show confirmation dialog
+                    const confirmModal = new ConfirmModal(
+                        app,
+                        strings.modals.fileSystem.removeAllTagsTitle,
+                        selectedFiles.length === 1
+                            ? strings.modals.fileSystem.removeAllTagsFromNote
+                            : strings.modals.fileSystem.removeAllTagsFromNotes.replace('{count}', selectedFiles.length.toString()),
+                        async () => {
+                            const result = await tagOperations.clearAllTagsFromFiles(selectedFiles);
+                            const message =
+                                result === 1
+                                    ? strings.fileSystem.notifications.tagsClearedFromNote
+                                    : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', result.toString());
+                            new Notice(message);
+                        },
+                        strings.common.remove
+                    );
+                    confirmModal.open();
                 }
-            }),
-            [
-                revealFileInActualFolder,
-                uiDispatch,
-                updateSettings,
-                selectionState,
-                fileSystemOps,
-                selectionDispatch,
-                navigateToFolder,
-                navigateToTag,
-                uiState.singlePane,
-                uiState.currentSinglePaneView,
-                uiState.focusedPane,
-                app,
-                settings,
-                plugin,
-                tagTreeService,
-                commandQueue
-            ]
-        );
+            };
+        }, [
+            revealFileInActualFolder,
+            uiDispatch,
+            updateSettings,
+            selectionState,
+            fileSystemOps,
+            selectionDispatch,
+            navigateToFolder,
+            navigateToTag,
+            uiState.singlePane,
+            uiState.currentSinglePaneView,
+            uiState.focusedPane,
+            app,
+            settings,
+            plugin,
+            tagTreeService,
+            commandQueue,
+            tagOperations
+        ]);
 
         if (isMobile && uiState.singlePane) {
             // Mobile uses sliding animations with show-list/show-files classes

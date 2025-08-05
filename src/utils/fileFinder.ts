@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, TFolder, App, getAllTags } from 'obsidian';
+import { TFile, TFolder, App } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { UNTAGGED_TAG_ID } from '../types';
 import {
@@ -30,6 +30,7 @@ import {
 import { shouldDisplayFile, FILE_VISIBILITY } from './fileTypeUtils';
 import { getEffectiveSortOption, sortFiles } from './sortUtils';
 import { TagTreeService } from '../services/TagTreeService';
+import { getDBInstance } from '../storage/fileOperations';
 
 /**
  * Gets the folder note for a folder if it exists
@@ -196,6 +197,8 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
 
     let filteredFiles: TFile[] = [];
 
+    const db = getDBInstance();
+
     // Special case for untagged files
     if (tag === UNTAGGED_TAG_ID) {
         filteredFiles = allFiles.filter(file => {
@@ -203,10 +206,9 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
             if (file.extension !== 'md') {
                 return true;
             }
-            // For markdown files, check if they have tags
-            const cache = app.metadataCache.getFileCache(file);
-            const fileTags = cache ? getAllTags(cache) : null;
-            return !fileTags || fileTags.length === 0;
+            // For markdown files, check if they have tags using our cache
+            const fileTags = db.getCachedTags(file.path);
+            return fileTags.length === 0;
         });
     } else {
         // For regular tags, only consider markdown files since only they can have tags
@@ -224,16 +226,10 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
 
             // Filter files that have any of the collected tags (case-insensitive)
             filteredFiles = markdownFiles.filter(file => {
-                const cache = app.metadataCache.getFileCache(file);
-                const fileTags = cache ? getAllTags(cache) : null;
-                return (
-                    fileTags &&
-                    fileTags.some(tag => {
-                        // Remove # prefix from file tags before comparison
-                        const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
-                        return tagsToIncludeLower.has(cleanTag.toLowerCase());
-                    })
-                );
+                const fileTags = db.getCachedTags(file.path);
+                return fileTags.some(tag => {
+                    return tagsToIncludeLower.has(tag.toLowerCase());
+                });
             });
         } else {
             // Fallback to empty if tag not found

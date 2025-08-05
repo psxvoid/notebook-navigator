@@ -46,9 +46,29 @@ To a modern, Notes-style interface like this:
 - **RTL language support** - Full support for right-to-left languages with
   proper layout mirroring and navigation
 
+### Tag Management System
+
+- **Hierarchical tag tree** - Browse nested tags with full parent/child
+  relationships (e.g., `projects/work/urgent`)
+- **Tag operations** - Add, remove, or clear all tags from notes via context
+  menus and commands
+- **Drag to tag** - Simply drag notes onto tags to add them, or drag to
+  "Untagged" to remove all tags
+- **Favorite tags** - Pin your most-used tags to a dedicated favorites section
+  for quick access
+- **Hidden tags** - Hide sensitive or internal tags from the navigation while
+  keeping them functional
+- **Tag organization options** - Display tags above or below folders, show/hide
+  favorites and tags in collapsible folders
+- **Visual customization** - Set custom colors and icons (Lucide or emoji) for
+  each tag
+- **Tag-specific appearances** - Configure unique display styles per tag (e.g.,
+  show 5 preview lines for `reading-list` tag)
+- **Clickable tags in notes** - Tags displayed in note items are clickable for
+  quick navigation
+
 ### Navigation & Organization
 
-- **Tag browser** - Hierarchical tag tree with nested tag support
 - **Pin notes** - Keep important notes at the top of folders and tags
 - **Auto-reveal** - Automatically show the location of the current note
 - **Keyboard first** - Full navigation with arrow keys and Tab
@@ -66,12 +86,13 @@ To a modern, Notes-style interface like this:
 
 ### Productivity
 
-- **Drag & drop** - Move notes between folders, drag to tags to add tags, drag
-  to Untagged to remove all tags
+- **Drag & drop** - Move notes between folders with full multi-selection support
 - **Resizable panes** - Adjust the layout to your needs
 - **Smart filtering** - Exclude folders and notes with patterns
 - **Visual customization** - Folder and tag colors with customizable icons
   (Lucide icons or emojis)
+- **Custom appearances** - Set unique display styles for each folder and tag,
+  like slim mode or 5 preview rows
 
 <br>
 
@@ -123,13 +144,17 @@ To a modern, Notes-style interface like this:
    - Open notes in new tabs or windows
    - Rename, delete, or duplicate items
    - Move files to another folder
+   - Add tag - Add tags to selected files
+   - Remove tag - Remove specific tags from selected files
+   - Remove all tags - Clear all tags from selected files
    - Change or remove folder/tag colors and icons
    - Create or delete folder notes
    - Open version history or reveal in system explorer
    - Reveal in folder - switches to the file's containing folder (useful when
      viewing notes from subfolders or tags)
 5. Drag and drop notes between folders to organize, drag to tags to add tags, or
-   drag to Untagged to remove all tags
+   drag to Untagged to remove all tags. For more precise tag management, use the
+   right-click context menu options
 
 **Tip:** You can use the ribbon icon (folder tree icon) in the left sidebar to
 activate Notebook Navigator in case you close it by mistake.
@@ -195,6 +220,17 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   selected folder)
 - `Notebook Navigator: Delete files` Delete selected files and automatically
   select the next file in the current folder (stays in the selected folder)
+
+**Tag Operations**
+
+- `Notebook Navigator: Add tag to selected files` Opens a dialog to select a tag
+  to add to all selected files. Supports creating new tags directly in the
+  dialog
+- `Notebook Navigator: Remove tag from selected files` Opens a dialog to select
+  which tag to remove from selected files. If files have only one tag, removes
+  it immediately
+- `Notebook Navigator: Remove all tags from selected files` Removes all tags
+  from selected files after confirmation
 
 <br>
 
@@ -402,6 +438,28 @@ Each folder and tag can have its own sort preference:
    - **Custom**: Choose a specific sort order for this folder/tag only
 4. Your custom sort preference is remembered for each folder and tag
 
+### Custom appearances per folder and tag
+
+Make each folder and tag display exactly how you want:
+
+1. Select a folder or tag
+2. Click the "Change appearance" button in the list pane header
+3. Customize display settings for that specific folder or tag:
+   - **Title rows**: Show titles in 1 or 2 rows or default
+   - **Preview rows**: Set 1-5 rows of preview text or default
+4. Use presets for quick setup:
+   - **Default appearance**: Reset to global settings
+   - **Slim mode**: Turn off date, preview, and images for maximum file density
+
+Perfect for:
+
+- **Slim mode folders**: Turn off date, preview, and images for maximum file
+  density
+- **Content-rich folders**: Use 5 preview rows for folders where preview text is
+  important
+- **Quick scan folders**: Use 1-2 preview rows for folders you need to scan
+  quickly
+
 ### Using tags effectively
 
 The tags section provides powerful ways to organize and find your notes:
@@ -413,6 +471,8 @@ The tags section provides powerful ways to organize and find your notes:
 - **Untagged notes:** Find notes without tags by clicking "Untagged"
 - **Drag to tag:** Drag notes onto tags to add that tag to the notes
 - **Remove tags:** Drag notes to "Untagged" to remove all tags from those notes
+- **Tag management:** Right-click files to add tags, remove specific tags, or
+  clear all tags at once - with smart tag hierarchy handling
 
 ### Managing draft and private notes
 

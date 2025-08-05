@@ -182,6 +182,27 @@ export class NotebookNavigatorView extends ItemView {
     }
 
     /**
+     * Add a tag to the currently selected files
+     */
+    async addTagToSelectedFiles(): Promise<void> {
+        await this.componentRef.current?.addTagToSelectedFiles();
+    }
+
+    /**
+     * Remove a tag from the currently selected files
+     */
+    async removeTagFromSelectedFiles(): Promise<void> {
+        await this.componentRef.current?.removeTagFromSelectedFiles();
+    }
+
+    /**
+     * Remove all tags from the currently selected files
+     */
+    async removeAllTagsFromSelectedFiles(): Promise<void> {
+        await this.componentRef.current?.removeAllTagsFromSelectedFiles();
+    }
+
+    /**
      * Gets the current view state for persistence
      * Called by Obsidian when saving workspace state (e.g., when switching layouts)
      * Currently returns empty state as the view doesn't persist any specific data

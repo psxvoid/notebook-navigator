@@ -25,6 +25,7 @@ export const STRINGS_DE = {
     common: {
         cancel: 'Abbrechen', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Löschen', // Button text for delete operations in dialogs (English: Delete)
+        remove: 'Entfernen', // Button text for remove operations in dialogs (English: Remove)
         submit: 'OK', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Keine Auswahl', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: 'Ohne Tag', // Label for notes without any tags (English: Untagged)
@@ -63,7 +64,8 @@ export const STRINGS_DE = {
         toggleSubfolders: 'Notizen aus Unterordnern anzeigen', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
         autoExpandFoldersTags: 'Ordner und Tags automatisch erweitern', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showDualPane: 'Zweispaltige Ansicht anzeigen', // Tooltip for button to show dual-pane layout (English: Show dual panes)
-        showSinglePane: 'Einspaltige Ansicht anzeigen' // Tooltip for button to show single-pane layout (English: Show single pane)
+        showSinglePane: 'Einspaltige Ansicht anzeigen', // Tooltip for button to show single-pane layout (English: Show single pane)
+        changeAppearance: 'Erscheinungsbild ändern' // Tooltip for button to change folder appearance settings (English: Change appearance)
     },
 
     // Context menus
@@ -89,8 +91,11 @@ export const STRINGS_DE = {
             renameNote: 'Notiz umbenennen',
             deleteNote: 'Notiz löschen',
             deleteMultipleNotes: '{count} Notizen löschen',
-            moveToFolder: 'Move to...',
-            moveMultipleToFolder: 'Move {count} files to...',
+            moveToFolder: 'Verschieben nach...',
+            moveMultipleToFolder: '{count} Dateien verschieben nach...',
+            addTag: 'Tag hinzufügen',
+            removeTag: 'Tag entfernen',
+            removeAllTags: 'Alle Tags entfernen',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count} Dateien in neuen Tabs öffnen',
             openMultipleFilesToRight: '{count} Dateien rechts öffnen',
@@ -130,6 +135,19 @@ export const STRINGS_DE = {
             addToFavorites: 'Zu Favoriten hinzufügen',
             removeFromFavorites: 'Aus Favoriten entfernen'
         }
+    },
+
+    // Folder appearance menu
+    folderAppearance: {
+        defaultPreset: 'Standard-Aussehen',
+        slimPreset: 'Schmal (ohne Datum/Vorschau/Bild)',
+        titleRows: 'Titelzeilen',
+        previewRows: 'Vorschauzeilen',
+        defaultOption: (rows: number) => `Standard (${rows})`,
+        defaultTitleOption: (rows: number) => `Standard-Titelzeilen (${rows})`,
+        defaultPreviewOption: (rows: number) => `Standard-Vorschauzeilen (${rows})`,
+        titleRowOption: (rows: number) => `${rows} Titelzeile${rows === 1 ? '' : 'n'}`,
+        previewRowOption: (rows: number) => `${rows} Vorschauzeile${rows === 1 ? '' : 'n'}`
     },
 
     // Modal dialogs
@@ -193,7 +211,10 @@ export const STRINGS_DE = {
             renameVaultTitle: 'Anzeigenamen des Tresors ändern',
             renameVaultPrompt: 'Benutzerdefinierten Anzeigenamen eingeben (leer lassen für Standard):',
             deleteFolderConfirm: 'Sind Sie sicher, dass Sie diesen Ordner und seinen gesamten Inhalt löschen möchten?',
-            deleteFileConfirm: 'Sind Sie sicher, dass Sie diese Datei löschen möchten?'
+            deleteFileConfirm: 'Sind Sie sicher, dass Sie diese Datei löschen möchten?',
+            removeAllTagsTitle: 'Alle Tags entfernen',
+            removeAllTagsFromNote: 'Sind Sie sicher, dass Sie alle Tags von dieser Notiz entfernen möchten?',
+            removeAllTagsFromNotes: 'Sind Sie sicher, dass Sie alle Tags von {count} Notizen entfernen möchten?'
         },
         folderSuggest: {
             placeholder: 'In Ordner verschieben...',
@@ -208,10 +229,15 @@ export const STRINGS_DE = {
         tagSuggest: {
             placeholder: 'Tags suchen...',
             navigatePlaceholder: 'Zu Tag navigieren...',
+            addPlaceholder: 'Nach hinzuzufügendem Tag suchen...',
+            removePlaceholder: 'Tag zum Entfernen auswählen...',
+            createNewTag: 'Neuen Tag erstellen: #{tag}',
             instructions: {
                 navigate: 'zum Navigieren',
                 select: 'zum Auswählen',
-                dismiss: 'zum Abbrechen'
+                dismiss: 'zum Abbrechen',
+                add: 'zum Hinzufügen des Tags',
+                remove: 'zum Entfernen des Tags'
             }
         }
     },
@@ -241,7 +267,16 @@ export const STRINGS_DE = {
         },
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',
-            deepLinkCopied: 'Deep Link in die Zwischenablage kopiert'
+            deepLinkCopied: 'Deep Link in die Zwischenablage kopiert',
+            tagAddedToNote: 'Tag zu 1 Notiz hinzugefügt',
+            tagAddedToNotes: 'Tag zu {count} Notizen hinzugefügt',
+            tagRemovedFromNote: 'Tag von 1 Notiz entfernt',
+            tagRemovedFromNotes: 'Tag von {count} Notizen entfernt',
+            tagsClearedFromNote: 'Alle Tags von 1 Notiz entfernt',
+            tagsClearedFromNotes: 'Alle Tags von {count} Notizen entfernt',
+            noTagsToRemove: 'Keine Tags zum Entfernen',
+            noFilesSelected: 'Keine Dateien ausgewählt',
+            tagOperationsNotAvailable: 'Tag-Operationen nicht verfügbar'
         },
         confirmations: {
             deleteMultipleFiles: 'Möchten Sie wirklich {count} Dateien löschen?',
@@ -301,7 +336,10 @@ export const STRINGS_DE = {
         moveFiles: 'Dateien verschieben', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'Zu Ordner navigieren', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Zu Tag navigieren', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleSubfolders: 'Notizen aus Unterordnern umschalten' // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
+        toggleSubfolders: 'Notizen aus Unterordnern umschalten', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
+        addTag: 'Tag zu ausgewählten Dateien hinzufügen', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
+        removeTag: 'Tag von ausgewählten Dateien entfernen', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
+        removeAllTags: 'Alle Tags von ausgewählten Dateien entfernen' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
     },
 
     // Plugin UI

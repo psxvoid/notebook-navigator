@@ -293,7 +293,11 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 try {
                     const clearedCount = await tagOperations.clearAllTagsFromFiles(files);
                     if (clearedCount > 0) {
-                        new Notice(strings.dragDrop.notifications.clearedTags.replace('{count}', clearedCount.toString()));
+                        const message =
+                            clearedCount === 1
+                                ? strings.fileSystem.notifications.tagsClearedFromNote
+                                : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', clearedCount.toString());
+                        new Notice(message);
                     } else {
                         new Notice(strings.dragDrop.notifications.noTagsToClear);
                     }
@@ -307,9 +311,11 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     const { added, skipped } = await tagOperations.addTagToFiles(targetTag, files);
 
                     if (added > 0) {
-                        new Notice(
-                            strings.dragDrop.notifications.addedTag.replace('{tag}', targetTag).replace('{count}', added.toString())
-                        );
+                        const message =
+                            added === 1
+                                ? strings.fileSystem.notifications.tagAddedToNote
+                                : strings.fileSystem.notifications.tagAddedToNotes.replace('{count}', added.toString());
+                        new Notice(message);
                     }
                     if (skipped > 0) {
                         new Notice(

@@ -25,6 +25,7 @@ export const STRINGS_ZH = {
     common: {
         cancel: '取消', // Button text for canceling dialogs and operations (English: Cancel)
         delete: '删除', // Button text for delete operations in dialogs (English: Delete)
+        remove: '移除', // Button text for remove operations in dialogs (English: Remove)
         submit: '提交', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: '未选择', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: '无标签', // Label for notes without any tags (English: Untagged)
@@ -63,7 +64,8 @@ export const STRINGS_ZH = {
         toggleSubfolders: '显示子文件夹中的笔记', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
         autoExpandFoldersTags: '自动展开文件夹和标签', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showDualPane: '显示双窗格', // Tooltip for button to show dual-pane layout (English: Show dual panes)
-        showSinglePane: '显示单窗格' // Tooltip for button to show single-pane layout (English: Show single pane)
+        showSinglePane: '显示单窗格', // Tooltip for button to show single-pane layout (English: Show single pane)
+        changeAppearance: '更改外观' // Tooltip for button to change folder appearance settings (English: Change appearance)
     },
 
     // Context menus
@@ -89,8 +91,11 @@ export const STRINGS_ZH = {
             renameNote: '重命名笔记',
             deleteNote: '删除笔记',
             deleteMultipleNotes: '删除 {count} 个笔记',
-            moveToFolder: 'Move to...',
-            moveMultipleToFolder: 'Move {count} files to...',
+            moveToFolder: '移动到...',
+            moveMultipleToFolder: '将 {count} 个文件移动到...',
+            addTag: '添加标签',
+            removeTag: '移除标签',
+            removeAllTags: '移除所有标签',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '在新标签页中打开 {count} 个文件',
             openMultipleFilesToRight: '在右侧打开 {count} 个文件',
@@ -130,6 +135,19 @@ export const STRINGS_ZH = {
             addToFavorites: '添加到收藏',
             removeFromFavorites: '从收藏中移除'
         }
+    },
+
+    // Folder appearance menu
+    folderAppearance: {
+        defaultPreset: '默认外观',
+        slimPreset: '精简（无日期/预览/图片）',
+        titleRows: '标题行数',
+        previewRows: '预览行数',
+        defaultOption: (rows: number) => `默认 (${rows})`,
+        defaultTitleOption: (rows: number) => `默认标题行数 (${rows})`,
+        defaultPreviewOption: (rows: number) => `默认预览行数 (${rows})`,
+        titleRowOption: (rows: number) => `标题${rows}行`,
+        previewRowOption: (rows: number) => `预览${rows}行`
     },
 
     // Modal dialogs
@@ -193,7 +211,10 @@ export const STRINGS_ZH = {
             renameVaultTitle: '更改仓库显示名称',
             renameVaultPrompt: '输入自定义显示名称（留空使用默认值）：',
             deleteFolderConfirm: '您确定要删除此文件夹及其所有内容吗？',
-            deleteFileConfirm: '您确定要删除此文件吗？'
+            deleteFileConfirm: '您确定要删除此文件吗？',
+            removeAllTagsTitle: '移除所有标签',
+            removeAllTagsFromNote: '您确定要从这个笔记中移除所有标签吗？',
+            removeAllTagsFromNotes: '您确定要从 {count} 个笔记中移除所有标签吗？'
         },
         folderSuggest: {
             placeholder: '移动到文件夹...',
@@ -208,10 +229,15 @@ export const STRINGS_ZH = {
         tagSuggest: {
             placeholder: '搜索标签...',
             navigatePlaceholder: '导航到标签...',
+            addPlaceholder: '搜索要添加的标签...',
+            removePlaceholder: '选择要移除的标签...',
+            createNewTag: '创建新标签: #{tag}',
             instructions: {
                 navigate: '导航',
                 select: '选择',
-                dismiss: '取消'
+                dismiss: '取消',
+                add: '添加标签',
+                remove: '移除标签'
             }
         }
     },
@@ -241,7 +267,16 @@ export const STRINGS_ZH = {
         },
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',
-            deepLinkCopied: '深层链接已复制到剪贴板'
+            deepLinkCopied: '深层链接已复制到剪贴板',
+            tagAddedToNote: '已将标签添加到 1 个笔记',
+            tagAddedToNotes: '已将标签添加到 {count} 个笔记',
+            tagRemovedFromNote: '已从 1 个笔记中移除标签',
+            tagRemovedFromNotes: '已从 {count} 个笔记中移除标签',
+            tagsClearedFromNote: '已从 1 个笔记中清除所有标签',
+            tagsClearedFromNotes: '已从 {count} 个笔记中清除所有标签',
+            noTagsToRemove: '没有可移除的标签',
+            noFilesSelected: '未选择文件',
+            tagOperationsNotAvailable: '标签操作不可用'
         },
         confirmations: {
             deleteMultipleFiles: '确定要删除 {count} 个文件吗？',
@@ -301,7 +336,10 @@ export const STRINGS_ZH = {
         moveFiles: '移动文件', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: '导航到文件夹', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '导航到标签', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleSubfolders: '切换显示子文件夹中的笔记' // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
+        toggleSubfolders: '切换显示子文件夹中的笔记', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
+        addTag: '为选定文件添加标签', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
+        removeTag: '从选定文件移除标签', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
+        removeAllTags: '从选定文件移除所有标签' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
     },
 
     // Plugin UI

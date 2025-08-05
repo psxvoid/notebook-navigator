@@ -25,6 +25,7 @@ export const STRINGS_FR = {
     common: {
         cancel: 'Annuler', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Supprimer', // Button text for delete operations in dialogs (English: Delete)
+        remove: 'Supprimer', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Soumettre', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'Aucune sélection', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: 'Sans étiquette', // Label for notes without any tags (English: Untagged)
@@ -63,7 +64,8 @@ export const STRINGS_FR = {
         toggleSubfolders: 'Afficher les notes des sous-dossiers', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
         autoExpandFoldersTags: 'Développer automatiquement les dossiers et les étiquettes', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showDualPane: 'Afficher les panneaux doubles', // Tooltip for button to show dual-pane layout (English: Show dual panes)
-        showSinglePane: 'Afficher panneau unique' // Tooltip for button to show single-pane layout (English: Show single pane)
+        showSinglePane: 'Afficher panneau unique', // Tooltip for button to show single-pane layout (English: Show single pane)
+        changeAppearance: "Changer l'apparence" // Tooltip for button to change folder appearance settings (English: Change appearance)
     },
 
     // Context menus
@@ -89,8 +91,11 @@ export const STRINGS_FR = {
             renameNote: 'Renommer la note',
             deleteNote: 'Supprimer la note',
             deleteMultipleNotes: 'Supprimer {count} notes',
-            moveToFolder: 'Move to...',
-            moveMultipleToFolder: 'Move {count} files to...',
+            moveToFolder: 'Déplacer vers...',
+            moveMultipleToFolder: 'Déplacer {count} fichiers vers...',
+            addTag: 'Ajouter une étiquette',
+            removeTag: 'Supprimer l’étiquette',
+            removeAllTags: 'Supprimer toutes les étiquettes',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: 'Ouvrir {count} fichiers dans de nouveaux onglets',
             openMultipleFilesToRight: 'Ouvrir {count} fichiers à droite',
@@ -130,6 +135,19 @@ export const STRINGS_FR = {
             addToFavorites: 'Ajouter aux favoris',
             removeFromFavorites: 'Retirer des favoris'
         }
+    },
+
+    // Folder appearance menu
+    folderAppearance: {
+        defaultPreset: 'Apparence par défaut',
+        slimPreset: 'Compact (sans date/aperçu/image)',
+        titleRows: 'Lignes de titre',
+        previewRows: "Lignes d'aperçu",
+        defaultOption: (rows: number) => `Défaut (${rows})`,
+        defaultTitleOption: (rows: number) => `Lignes de titre par défaut (${rows})`,
+        defaultPreviewOption: (rows: number) => `Lignes d'aperçu par défaut (${rows})`,
+        titleRowOption: (rows: number) => `${rows} ligne${rows === 1 ? '' : 's'} de titre`,
+        previewRowOption: (rows: number) => `${rows} ligne${rows === 1 ? '' : 's'} d'aperçu`
     },
 
     // Modal dialogs
@@ -193,7 +211,10 @@ export const STRINGS_FR = {
             renameVaultTitle: "Changer le nom d'affichage du coffre",
             renameVaultPrompt: "Entrez un nom d'affichage personnalisé (laissez vide pour utiliser le nom par défaut) :",
             deleteFolderConfirm: 'Êtes-vous sûr de vouloir supprimer ce dossier et tout son contenu ?',
-            deleteFileConfirm: 'Êtes-vous sûr de vouloir supprimer ce fichier ?'
+            deleteFileConfirm: 'Êtes-vous sûr de vouloir supprimer ce fichier ?',
+            removeAllTagsTitle: 'Supprimer toutes les étiquettes',
+            removeAllTagsFromNote: 'Êtes-vous sûr de vouloir supprimer toutes les étiquettes de cette note ?',
+            removeAllTagsFromNotes: 'Êtes-vous sûr de vouloir supprimer toutes les étiquettes de {count} notes ?'
         },
         folderSuggest: {
             placeholder: 'Déplacer vers le dossier...',
@@ -208,10 +229,15 @@ export const STRINGS_FR = {
         tagSuggest: {
             placeholder: 'Rechercher des étiquettes...',
             navigatePlaceholder: "Naviguer vers l'étiquette...",
+            addPlaceholder: 'Rechercher une étiquette à ajouter...',
+            removePlaceholder: "Sélectionner l'étiquette à supprimer...",
+            createNewTag: 'Créer une nouvelle étiquette : #{tag}',
             instructions: {
                 navigate: 'pour naviguer',
                 select: 'pour sélectionner',
-                dismiss: 'pour annuler'
+                dismiss: 'pour annuler',
+                add: "pour ajouter l'étiquette",
+                remove: "pour supprimer l'étiquette"
             }
         }
     },
@@ -241,7 +267,16 @@ export const STRINGS_FR = {
         },
         notifications: {
             deletedMultipleFiles: '{count} fichiers supprimés',
-            deepLinkCopied: 'Lien profond copié dans le presse-papiers'
+            deepLinkCopied: 'Lien profond copié dans le presse-papiers',
+            tagAddedToNote: 'Étiquette ajoutée à 1 note',
+            tagAddedToNotes: 'Étiquette ajoutée à {count} notes',
+            tagRemovedFromNote: 'Étiquette supprimée de 1 note',
+            tagRemovedFromNotes: 'Étiquette supprimée de {count} notes',
+            tagsClearedFromNote: 'Toutes les étiquettes supprimées de 1 note',
+            tagsClearedFromNotes: 'Toutes les étiquettes supprimées de {count} notes',
+            noTagsToRemove: 'Aucune étiquette à supprimer',
+            noFilesSelected: 'Aucun fichier sélectionné',
+            tagOperationsNotAvailable: "Opérations d'étiquettes non disponibles"
         },
         confirmations: {
             deleteMultipleFiles: 'Voulez-vous vraiment supprimer {count} fichiers ?',
@@ -301,7 +336,10 @@ export const STRINGS_FR = {
         moveFiles: 'Déplacer les fichiers', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'Naviguer vers le dossier', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: "Naviguer vers l'étiquette", // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleSubfolders: "Basculer l'affichage des notes des sous-dossiers"
+        toggleSubfolders: "Basculer l'affichage des notes des sous-dossiers",
+        addTag: 'Ajouter une étiquette aux fichiers sélectionnés', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
+        removeTag: 'Supprimer une étiquette des fichiers sélectionnés', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
+        removeAllTags: 'Supprimer toutes les étiquettes des fichiers sélectionnés' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
     },
 
     // Plugin UI
