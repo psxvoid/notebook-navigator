@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, Platform } from 'obsidian';
+import { App, Platform, TFile } from 'obsidian';
 
 /**
  * Mobile logger that writes debug logs to a file in the vault.
@@ -48,7 +48,8 @@ export class MobileLogger {
 
         try {
             // Check if file exists
-            const fileExists = await this.app.vault.adapter.exists(this.logFileName);
+            const file = this.app.vault.getAbstractFileByPath(this.logFileName);
+            const fileExists = file !== null;
 
             if (!fileExists) {
                 // Create file with header
@@ -89,9 +90,12 @@ Platform: ${Platform.isMobile ? 'Mobile' : 'Desktop'}
 
             const logEntry = `[${timestamp}] ${message}\n`;
 
-            // Append to file
-            const currentContent = await this.app.vault.adapter.read(this.logFileName);
-            await this.app.vault.adapter.write(this.logFileName, currentContent + logEntry);
+            // Append to file using Vault API
+            const file = this.app.vault.getFileByPath(this.logFileName);
+            if (file instanceof TFile) {
+                const currentContent = await this.app.vault.read(file);
+                await this.app.vault.modify(file, currentContent + logEntry);
+            }
         } catch (error) {
             console.error('Failed to write to log file:', error);
         }
@@ -101,8 +105,9 @@ Platform: ${Platform.isMobile ? 'Mobile' : 'Desktop'}
         if (!Platform.isMobile) return;
 
         try {
-            if (await this.app.vault.adapter.exists(this.logFileName)) {
-                await this.app.vault.adapter.remove(this.logFileName);
+            const file = this.app.vault.getFileByPath(this.logFileName);
+            if (file instanceof TFile) {
+                await this.app.fileManager.trashFile(file);
                 this.isInitialized = false;
             }
         } catch (error) {

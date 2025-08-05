@@ -113,6 +113,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     // Check if files have tags
     const existingTags = services.tagOperations.getTagsFromFiles(filesForTagOps);
     const hasTags = existingTags.length > 0;
+    const hasMultipleTags = existingTags.length > 1;
 
     // Add tag - always shown
     menu.addItem((item: MenuItem) => {
@@ -176,39 +177,41 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 });
         });
 
-        // Remove all tags - only show if files have tags
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.file.removeAllTags)
-                .setIcon('x')
-                .onClick(async () => {
-                    // Check if files have tags first
-                    const existingTags = services.tagOperations.getTagsFromFiles(filesForTagOps);
+        // Remove all tags - only show if files have multiple tags
+        if (hasMultipleTags) {
+            menu.addItem((item: MenuItem) => {
+                item.setTitle(strings.contextMenu.file.removeAllTags)
+                    .setIcon('x')
+                    .onClick(async () => {
+                        // Check if files have tags first
+                        const existingTags = services.tagOperations.getTagsFromFiles(filesForTagOps);
 
-                    if (existingTags.length === 0) {
-                        new Notice(strings.fileSystem.notifications.noTagsToRemove);
-                        return;
-                    }
+                        if (existingTags.length === 0) {
+                            new Notice(strings.fileSystem.notifications.noTagsToRemove);
+                            return;
+                        }
 
-                    // Show confirmation dialog
-                    const confirmModal = new ConfirmModal(
-                        app,
-                        strings.modals.fileSystem.removeAllTagsTitle,
-                        filesForTagOps.length === 1
-                            ? strings.modals.fileSystem.removeAllTagsFromNote
-                            : strings.modals.fileSystem.removeAllTagsFromNotes.replace('{count}', filesForTagOps.length.toString()),
-                        async () => {
-                            const result = await services.tagOperations.clearAllTagsFromFiles(filesForTagOps);
-                            const message =
-                                result === 1
-                                    ? strings.fileSystem.notifications.tagsClearedFromNote
-                                    : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', result.toString());
-                            new Notice(message);
-                        },
-                        strings.common.remove
-                    );
-                    confirmModal.open();
-                });
-        });
+                        // Show confirmation dialog
+                        const confirmModal = new ConfirmModal(
+                            app,
+                            strings.modals.fileSystem.removeAllTagsTitle,
+                            filesForTagOps.length === 1
+                                ? strings.modals.fileSystem.removeAllTagsFromNote
+                                : strings.modals.fileSystem.removeAllTagsFromNotes.replace('{count}', filesForTagOps.length.toString()),
+                            async () => {
+                                const result = await services.tagOperations.clearAllTagsFromFiles(filesForTagOps);
+                                const message =
+                                    result === 1
+                                        ? strings.fileSystem.notifications.tagsClearedFromNote
+                                        : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', result.toString());
+                                new Notice(message);
+                            },
+                            strings.common.remove
+                        );
+                        confirmModal.open();
+                    });
+            });
+        }
     }
 
     menu.addSeparator();

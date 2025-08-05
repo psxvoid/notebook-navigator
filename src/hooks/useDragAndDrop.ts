@@ -118,8 +118,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     // Generate markdown links for all selected files
                     const markdownLinks: string[] = [];
                     selectedPaths.forEach(selectedPath => {
-                        const file = app.vault.getAbstractFileByPath(selectedPath);
-                        if (file instanceof TFile) {
+                        const file = app.vault.getFileByPath(selectedPath);
+                        if (file) {
                             // Generate markdown link respecting user's wikilink setting
                             const link = app.fileManager.generateMarkdownLink(file, '');
                             markdownLinks.push(link);
@@ -150,7 +150,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     document.body.appendChild(dragContainer);
                     // Use negative offset to position icon bottom-right of cursor
                     e.dataTransfer.setDragImage(dragContainer, -10, -10);
-                    setTimeout(() => document.body.removeChild(dragContainer), TIMEOUTS.YIELD_TO_EVENT_LOOP);
+                    window.setTimeout(() => document.body.removeChild(dragContainer), TIMEOUTS.YIELD_TO_EVENT_LOOP);
                 } else {
                     // Single item drag
                     e.dataTransfer.setData('obsidian/file', path);
@@ -158,8 +158,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
                     // Generate markdown link for single file
                     if (type === ItemType.FILE) {
-                        const file = app.vault.getAbstractFileByPath(path);
-                        if (file instanceof TFile) {
+                        const file = app.vault.getFileByPath(path);
+                        if (file) {
                             const link = app.fileManager.generateMarkdownLink(file, '');
                             e.dataTransfer.setData('text/plain', link);
                         }
@@ -181,8 +181,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         let imageLoaded = false;
 
                         if (featureImagePath) {
-                            const imageFile = app.vault.getAbstractFileByPath(featureImagePath);
-                            if (imageFile instanceof TFile) {
+                            const imageFile = app.vault.getFileByPath(featureImagePath);
+                            if (imageFile) {
                                 try {
                                     const featureImageUrl = app.vault.getResourcePath(imageFile);
                                     dragIcon.className = 'nn-drag-icon-badge nn-drag-featured-image';
@@ -206,7 +206,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         document.body.appendChild(dragContainer);
                         // Use negative offset to position icon bottom-right of cursor
                         e.dataTransfer.setDragImage(dragContainer, -5, -5);
-                        setTimeout(() => document.body.removeChild(dragContainer), TIMEOUTS.YIELD_TO_EVENT_LOOP);
+                        window.setTimeout(() => document.body.removeChild(dragContainer), TIMEOUTS.YIELD_TO_EVENT_LOOP);
                     }
                 }
             }
@@ -265,8 +265,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     const selectedPaths = JSON.parse(multipleFilesData);
                     if (Array.isArray(selectedPaths)) {
                         for (const path of selectedPaths) {
-                            const file = app.vault.getAbstractFileByPath(path);
-                            if (file instanceof TFile) {
+                            const file = app.vault.getFileByPath(path);
+                            if (file) {
                                 files.push(file);
                             }
                         }
@@ -279,8 +279,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 // Check if dragging single file
                 const singleFileData = e.dataTransfer?.getData('obsidian/file');
                 if (singleFileData) {
-                    const file = app.vault.getAbstractFileByPath(singleFileData);
-                    if (file instanceof TFile) {
+                    const file = app.vault.getFileByPath(singleFileData);
+                    if (file) {
                         files.push(file);
                     }
                 }
@@ -377,8 +377,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     if (Array.isArray(selectedPaths)) {
                         // Convert paths to TFile objects
                         for (const path of selectedPaths) {
-                            const file = app.vault.getAbstractFileByPath(path);
-                            if (file instanceof TFile) {
+                            const file = app.vault.getFileByPath(path);
+                            if (file) {
                                 filesToMove.push(file);
                             }
                         }
@@ -392,8 +392,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 const singleFileData = e.dataTransfer?.getData('obsidian/file');
                 if (!singleFileData) return;
 
-                const sourceItem = app.vault.getAbstractFileByPath(singleFileData);
-                if (!sourceItem || !(sourceItem instanceof TFile)) return;
+                const sourceItem = app.vault.getFileByPath(singleFileData);
+                if (!sourceItem) return;
 
                 filesToMove.push(sourceItem);
             }

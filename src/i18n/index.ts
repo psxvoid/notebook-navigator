@@ -1,4 +1,4 @@
-import { moment } from 'obsidian';
+import { getLanguage } from 'obsidian';
 import { STRINGS_DE } from './locales/de';
 /*
  * Notebook Navigator - Plugin for Obsidian
@@ -43,13 +43,10 @@ const LANGUAGE_MAP: Record<string, TranslationStrings> = {
 };
 
 /**
- * Gets the current language setting
- * Checks localStorage first, then falls back to moment locale
+ * Gets the current language setting from Obsidian
  */
 export function getCurrentLanguage(): string {
-    // Obsidian stores language as a plain string, not JSON
-    const savedLang = window.localStorage.getItem('language');
-    return savedLang || moment.locale();
+    return getLanguage();
 }
 
 /**

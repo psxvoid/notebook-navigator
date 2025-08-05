@@ -355,11 +355,11 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
     useEffect(() => {
         if (fileToReveal) {
             // Clear after a short delay to ensure the consumer has processed it
-            const timer = setTimeout(() => {
+            const timer = window.setTimeout(() => {
                 setFileToReveal(null);
                 setIsStartupReveal(false);
             }, TIMEOUTS.DEBOUNCE_KEYBOARD);
-            return () => clearTimeout(timer);
+            return () => window.clearTimeout(timer);
         }
     }, [fileToReveal]);
 
@@ -372,14 +372,9 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
          * This is the single entry point for both file-open and active-leaf-change events.
          */
         const detectActiveFileChange = () => {
-            // Get the currently active file
-            const activeLeaf = app.workspace.activeLeaf;
-            if (!activeLeaf || activeLeaf.getRoot() !== app.workspace.rootSplit) {
-                return;
-            }
-
-            const view = activeLeaf.view;
-            if (!(view instanceof FileView) || !view.file || !(view.file instanceof TFile)) {
+            // Get the currently active file view
+            const view = app.workspace.getActiveViewOfType(FileView);
+            if (!view || !view.file || !(view.file instanceof TFile)) {
                 return;
             }
 

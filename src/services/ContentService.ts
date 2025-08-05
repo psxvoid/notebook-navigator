@@ -496,7 +496,7 @@ export class ContentService {
             // Process next batch if there are more files
             if (this.queue.length > 0 && !this.abortController?.signal.aborted) {
                 // Use setImmediate/setTimeout to avoid blocking
-                setTimeout(() => this.processNextBatch(), TIMEOUTS.YIELD_TO_EVENT_LOOP);
+                window.setTimeout(() => this.processNextBatch(), TIMEOUTS.YIELD_TO_EVENT_LOOP);
             } else {
                 this.completeProcessing();
             }

@@ -76,7 +76,7 @@ export async function createFileWithOptions(parent: TFolder, app: App, options: 
                 // This gives Obsidian's workspace time to finish opening the file and rendering the editor,
                 // making it more likely that the 'edit-file-title' command will find an active editor title to focus.
                 // Note: This is a known workaround for a race condition in Obsidian and may fail on slower systems.
-                setTimeout(() => {
+                window.setTimeout(() => {
                     executeCommand(app, OBSIDIAN_COMMANDS.EDIT_FILE_TITLE);
                 }, TIMEOUTS.FILE_OPERATION_DELAY);
             }
