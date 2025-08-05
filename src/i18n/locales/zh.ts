@@ -229,6 +229,7 @@ export const STRINGS_ZH = {
             navigatePlaceholder: '导航到标签...',
             addPlaceholder: '搜索要添加的标签...',
             removePlaceholder: '选择要移除的标签...',
+            createNewTag: '创建新标签: #{tag}',
             instructions: {
                 navigate: '导航',
                 select: '选择',

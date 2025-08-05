@@ -229,6 +229,7 @@ export const STRINGS_DE = {
             navigatePlaceholder: 'Zu Tag navigieren...',
             addPlaceholder: 'Nach hinzuzufügendem Tag suchen...',
             removePlaceholder: 'Tag zum Entfernen auswählen...',
+            createNewTag: 'Neuen Tag erstellen: #{tag}',
             instructions: {
                 navigate: 'zum Navigieren',
                 select: 'zum Auswählen',

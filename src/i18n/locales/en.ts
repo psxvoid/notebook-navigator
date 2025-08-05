@@ -228,6 +228,7 @@ export const STRINGS_EN = {
             navigatePlaceholder: 'Navigate to tag...',
             addPlaceholder: 'Search for tag to add...',
             removePlaceholder: 'Select tag to remove...',
+            createNewTag: 'Create new tag: #{tag}',
             instructions: {
                 navigate: 'to navigate',
                 select: 'to select',

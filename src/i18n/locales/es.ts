@@ -229,6 +229,7 @@ export const STRINGS_ES = {
             navigatePlaceholder: 'Navegar a etiqueta...',
             addPlaceholder: 'Buscar etiqueta para añadir...',
             removePlaceholder: 'Seleccionar etiqueta para eliminar...',
+            createNewTag: 'Crear nueva etiqueta: #{tag}',
             instructions: {
                 navigate: 'para navegar',
                 select: 'para seleccionar',

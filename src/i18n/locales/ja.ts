@@ -229,6 +229,7 @@ export const STRINGS_JA = {
             navigatePlaceholder: 'タグにナビゲート...',
             addPlaceholder: '追加するタグを検索...',
             removePlaceholder: '削除するタグを選択...',
+            createNewTag: '新しいタグを作成: #{tag}',
             instructions: {
                 navigate: 'でナビゲート',
                 select: 'で選択',

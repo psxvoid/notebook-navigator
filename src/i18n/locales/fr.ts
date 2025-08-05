@@ -228,13 +228,14 @@ export const STRINGS_FR = {
             placeholder: 'Rechercher des étiquettes...',
             navigatePlaceholder: "Naviguer vers l'étiquette...",
             addPlaceholder: 'Rechercher une étiquette à ajouter...',
-            removePlaceholder: 'Sélectionner l’étiquette à supprimer...',
+            removePlaceholder: "Sélectionner l'étiquette à supprimer...",
+            createNewTag: 'Créer une nouvelle étiquette : #{tag}',
             instructions: {
                 navigate: 'pour naviguer',
                 select: 'pour sélectionner',
                 dismiss: 'pour annuler',
-                add: 'pour ajouter l’étiquette',
-                remove: 'pour supprimer l’étiquette'
+                add: "pour ajouter l'étiquette",
+                remove: "pour supprimer l'étiquette"
             }
         }
     },
