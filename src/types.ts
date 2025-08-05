@@ -124,6 +124,7 @@ export const LISTPANE_MEASUREMENTS = {
         // File item components
         basePadding: 16, // var(--nn-file-padding-vertical) * 2
         slimPadding: 10, // Reduced padding for slim mode (5px * 2)
+        slimPaddingMobile: 16, // Mobile slim mode padding (8px * 2)
         titleLineHeight: 20, // var(--nn-file-line-height) - for file name/title
         metadataLineHeight: 19, // var(--nn-file-second-line-height) - for metadata (date, parent folder, single preview line)
         multiLineLineHeight: 18, // var(--nn-file-preview-line-height) - for multi-line preview text

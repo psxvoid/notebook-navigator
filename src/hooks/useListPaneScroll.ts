@@ -255,8 +255,8 @@ export function useListPaneScroll({
                 textContentHeight = heights.featureImageHeight;
             }
 
-            // Use reduced padding for slim mode
-            const padding = isSlimMode ? heights.slimPadding : heights.basePadding;
+            // Use reduced padding for slim mode (with mobile-specific padding)
+            const padding = isSlimMode ? (isMobile ? heights.slimPaddingMobile : heights.slimPadding) : heights.basePadding;
             return padding + textContentHeight;
         },
         overscan: OVERSCAN,
