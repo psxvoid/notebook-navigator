@@ -25,6 +25,7 @@ export const STRINGS_EN = {
     common: {
         cancel: 'Cancel', // Button text for canceling dialogs and operations (English: Cancel)
         delete: 'Delete', // Button text for delete operations in dialogs (English: Delete)
+        remove: 'Remove', // Button text for remove operations in dialogs (English: Remove)
         submit: 'Submit', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: 'No selection', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: 'Untagged', // Label for notes without any tags (English: Untagged)

@@ -36,12 +36,14 @@ export class ConfirmModal extends Modal {
      * @param title - Modal title (e.g., "Delete 'filename'?")
      * @param message - Confirmation message to display
      * @param onConfirm - Callback to execute when user confirms the action
+     * @param confirmButtonText - Optional custom text for the confirm button (defaults to "Delete")
      */
     constructor(
         app: App,
         title: string,
         message: string,
-        private onConfirm: () => void
+        private onConfirm: () => void,
+        confirmButtonText?: string
     ) {
         super(app);
         this.titleEl.setText(title);
@@ -60,7 +62,7 @@ export class ConfirmModal extends Modal {
         this.cancelBtn.addEventListener('click', this.cancelHandler);
 
         this.confirmBtn = buttonContainer.createEl('button', {
-            text: strings.common.delete,
+            text: confirmButtonText || strings.common.delete,
             cls: 'mod-warning'
         });
         this.confirmBtn.addEventListener('click', this.confirmHandler);

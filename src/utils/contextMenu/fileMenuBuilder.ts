@@ -152,6 +152,17 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                         return;
                     }
 
+                    // If only one tag exists, remove it directly without showing modal
+                    if (existingTags.length === 1) {
+                        const result = await services.tagOperations.removeTagFromFiles(existingTags[0], filesForTagOps);
+                        const message =
+                            result === 1
+                                ? strings.fileSystem.notifications.tagRemovedFromNote
+                                : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
+                        new Notice(message);
+                        return;
+                    }
+
                     // Create modal to select which tag to remove
                     const modal = new RemoveTagModal(app, existingTags, async (tag: string) => {
                         const result = await services.tagOperations.removeTagFromFiles(tag, filesForTagOps);
@@ -192,7 +203,8 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                                     ? strings.fileSystem.notifications.tagsClearedFromNote
                                     : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', result.toString());
                             new Notice(message);
-                        }
+                        },
+                        strings.common.remove
                     );
                     confirmModal.open();
                 });

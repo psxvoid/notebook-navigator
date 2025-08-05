@@ -25,6 +25,7 @@ export const STRINGS_ZH = {
     common: {
         cancel: '取消', // Button text for canceling dialogs and operations (English: Cancel)
         delete: '删除', // Button text for delete operations in dialogs (English: Delete)
+        remove: '移除', // Button text for remove operations in dialogs (English: Remove)
         submit: '提交', // Button text for submitting forms and dialogs (English: Submit)
         noSelection: '未选择', // Placeholder text when no folder or tag is selected (English: No selection)
         untagged: '无标签', // Label for notes without any tags (English: Untagged)

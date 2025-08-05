@@ -329,6 +329,17 @@ export const NotebookNavigatorComponent = React.memo(
                         return;
                     }
 
+                    // If only one tag exists, remove it directly without showing modal
+                    if (existingTags.length === 1) {
+                        const result = await tagOperations.removeTagFromFiles(existingTags[0], selectedFiles);
+                        const message =
+                            result === 1
+                                ? strings.fileSystem.notifications.tagRemovedFromNote
+                                : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
+                        new Notice(message);
+                        return;
+                    }
+
                     // Show modal to select which tag to remove
                     const modal = new RemoveTagModal(app, existingTags, async (tag: string) => {
                         const result = await tagOperations.removeTagFromFiles(tag, selectedFiles);
@@ -374,7 +385,8 @@ export const NotebookNavigatorComponent = React.memo(
                                     ? strings.fileSystem.notifications.tagsClearedFromNote
                                     : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', result.toString());
                             new Notice(message);
-                        }
+                        },
+                        strings.common.remove
                     );
                     confirmModal.open();
                 }
