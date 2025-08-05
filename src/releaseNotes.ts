@@ -55,6 +55,12 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.3.13',
+        date: '2025-08-05',
+        showOnUpdate: false,
+        fixed: ['Enhanced compatibility with Obsidian updates and other plugins through modernized API usage.']
+    },
+    {
         version: '1.3.12',
         date: '2025-08-04',
         showOnUpdate: true,
