@@ -17,6 +17,7 @@
  */
 
 import { App, TFile } from 'obsidian';
+import { getDBInstance } from '../storage/fileOperations';
 
 /**
  * Service for managing tag operations.
@@ -75,35 +76,11 @@ export class TagOperations {
      */
     getTagsFromFiles(files: TFile[]): string[] {
         const allTags = new Set<string>();
+        const db = getDBInstance();
 
         for (const file of files) {
-            const metadata = this.app.metadataCache.getFileCache(file);
-            if (!metadata) continue;
-
-            // Collect frontmatter tags
-            const frontmatterTags = metadata.frontmatter?.tags;
-            if (frontmatterTags) {
-                if (Array.isArray(frontmatterTags)) {
-                    frontmatterTags.forEach((tag: string) => {
-                        const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
-                        allTags.add(cleanTag);
-                    });
-                } else if (typeof frontmatterTags === 'string') {
-                    const tags = frontmatterTags.split(',').map((t: string) => t.trim());
-                    tags.forEach((tag: string) => {
-                        const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
-                        allTags.add(cleanTag);
-                    });
-                }
-            }
-
-            // Collect inline tags
-            if (metadata.tags) {
-                metadata.tags.forEach(t => {
-                    const cleanTag = t.tag.substring(1);
-                    allTags.add(cleanTag);
-                });
-            }
+            const tags = db.getCachedTags(file.path);
+            tags.forEach(tag => allTags.add(tag));
         }
 
         // Sort tags alphabetically
@@ -151,27 +128,8 @@ export class TagOperations {
      * Checks if a file already has a specific tag or an ancestor tag
      */
     private async fileHasTag(file: TFile, tag: string): Promise<boolean> {
-        const metadata = this.app.metadataCache.getFileCache(file);
-        if (!metadata) return false;
-
-        // Get all tags from the file
-        const allTags: string[] = [];
-
-        // Collect frontmatter tags
-        const frontmatterTags = metadata.frontmatter?.tags;
-        if (frontmatterTags) {
-            if (Array.isArray(frontmatterTags)) {
-                allTags.push(...frontmatterTags.map((t: string) => (t.startsWith('#') ? t.substring(1) : t)));
-            } else if (typeof frontmatterTags === 'string') {
-                const tags = frontmatterTags.split(',').map((t: string) => t.trim());
-                allTags.push(...tags.map((t: string) => (t.startsWith('#') ? t.substring(1) : t)));
-            }
-        }
-
-        // Collect inline tags
-        if (metadata.tags) {
-            allTags.push(...metadata.tags.map(t => t.tag.substring(1)));
-        }
+        const db = getDBInstance();
+        const allTags = db.getCachedTags(file.path);
 
         // Check if any existing tag is the same or an ancestor
         return allTags.some((existingTag: string) => {
@@ -341,6 +299,15 @@ export class TagOperations {
     private async clearAllTagsFromFile(file: TFile): Promise<boolean> {
         let hadTags = false;
 
+        // Check if file has any tags using our memory cache
+        const db = getDBInstance();
+        const cachedTags = db.getCachedTags(file.path);
+
+        if (cachedTags.length === 0) {
+            // No tags to remove, skip processing
+            return false;
+        }
+
         // Clear frontmatter tags
         try {
             await this.app.fileManager.processFrontMatter(file, fm => {
@@ -354,7 +321,8 @@ export class TagOperations {
             throw error;
         }
 
-        // Clear inline tags
+        // Always process the file content for inline tags since we know tags exist
+        // Our cache told us there are tags, so we need to remove any inline ones
         const content = await this.app.vault.read(file);
         const newContent = this.removeAllInlineTags(content);
 
@@ -395,10 +363,6 @@ export class TagOperations {
     private removeAllInlineTags(content: string): string {
         // Remove tags with optional leading space, or just the tag at start of line
         // The regex captures: (optional preceding space)(#tag)(lookahead for space or EOL)
-        return content.replace(/(\s)?#[\w\-/]+(?=\s|$)/g, (_match, _space) => {
-            // If there was a space before the tag, remove both space and tag
-            // If tag was at start of line/string, just remove the tag
-            return '';
-        });
+        return content.replace(/(\s)?#[\w\-/]+(?=\s|$)/g, '');
     }
 }

@@ -222,6 +222,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   select the next file in the current folder (stays in the selected folder)
 
 **Tag Operations**
+
 - `Notebook Navigator: Add tag to selected files` Opens a dialog to select a tag
   to add to all selected files. Supports creating new tags directly in the
   dialog
