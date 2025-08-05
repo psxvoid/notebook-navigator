@@ -344,8 +344,8 @@ export class FileSystemOperations {
             // Pre-delete action: select next file or close editor
             if (nextFileToSelect) {
                 // Verify the next file still exists (in case of concurrent deletions)
-                const stillExists = this.app.vault.getAbstractFileByPath(nextFileToSelect.path);
-                if (stillExists && stillExists instanceof TFile) {
+                const stillExists = this.app.vault.getFileByPath(nextFileToSelect.path);
+                if (stillExists) {
                     // Update selection and open the file
                     await updateSelectionAfterFileOperation(nextFileToSelect, selectionDispatch, this.app);
                 } else {
@@ -728,8 +728,8 @@ export class FileSystemOperations {
     ): Promise<void> {
         // Convert selected paths to files
         const filesToDelete = Array.from(selectedFiles)
-            .map(path => this.app.vault.getAbstractFileByPath(path))
-            .filter((f): f is TFile => f instanceof TFile);
+            .map(path => this.app.vault.getFileByPath(path))
+            .filter((f): f is TFile => f !== null);
 
         if (filesToDelete.length === 0) return;
 

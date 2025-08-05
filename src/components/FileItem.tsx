@@ -265,8 +265,8 @@ export const FileItem = React.memo(function FileItem({
 
                 // If we have a path, convert it to a URL
                 if (imagePath) {
-                    const imageFile = app.vault.getAbstractFileByPath(imagePath);
-                    if (imageFile && imageFile instanceof TFile) {
+                    const imageFile = app.vault.getFileByPath(imagePath);
+                    if (imageFile) {
                         try {
                             const resourceUrl = app.vault.getResourcePath(imageFile);
                             setFeatureImageUrl(resourceUrl);
@@ -295,8 +295,8 @@ export const FileItem = React.memo(function FileItem({
             if (changes.featureImage !== undefined && appearanceSettings.showImage && !isImageFile(file)) {
                 // Convert path to URL
                 if (changes.featureImage) {
-                    const imageFile = app.vault.getAbstractFileByPath(changes.featureImage);
-                    if (imageFile && imageFile instanceof TFile) {
+                    const imageFile = app.vault.getFileByPath(changes.featureImage);
+                    if (imageFile) {
                         try {
                             const resourceUrl = app.vault.getResourcePath(imageFile);
                             setFeatureImageUrl(resourceUrl);

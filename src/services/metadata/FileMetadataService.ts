@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile } from 'obsidian';
 import { BaseMetadataService } from './BaseMetadataService';
 import type { CleanupValidators } from '../MetadataService';
 
@@ -135,8 +134,8 @@ export class FileMetadataService extends BaseMetadataService {
                     }
 
                     const validFiles = filePaths.filter((filePath: string) => {
-                        const file = this.app.vault.getAbstractFileByPath(filePath);
-                        return file instanceof TFile;
+                        const file = this.app.vault.getFileByPath(filePath);
+                        return file !== null;
                     });
 
                     if (validFiles.length !== filePaths.length) {
