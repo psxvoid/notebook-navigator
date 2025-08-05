@@ -113,7 +113,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     // Add tag - always shown
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.file.addTag)
-            .setIcon('tag-plus')
+            .setIcon('plus')
             .onClick(async () => {
                 const modal = new TagSuggestModal(
                     app,
@@ -136,7 +136,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     // Remove tag - fetch tags when clicked
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.file.removeTag)
-            .setIcon('tag-minus')
+            .setIcon('minus')
             .onClick(async () => {
                 // Get tags from selected files
                 const existingTags = await services.tagOperations.getTagsFromFiles(filesForTagOps);
@@ -158,7 +158,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     // Remove all tags
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.file.removeAllTags)
-            .setIcon('tags-off')
+            .setIcon('x')
             .onClick(async () => {
                 // Check if files have tags first
                 const existingTags = await services.tagOperations.getTagsFromFiles(filesForTagOps);
