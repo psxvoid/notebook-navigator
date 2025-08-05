@@ -212,7 +212,8 @@ export const STRINGS_ZH = {
             deleteFolderConfirm: '您确定要删除此文件夹及其所有内容吗？',
             deleteFileConfirm: '您确定要删除此文件吗？',
             removeAllTagsTitle: '移除所有标签',
-            removeAllTagsMessage: '您确定要从 {count} 个文件中移除所有标签吗？'
+            removeAllTagsFromNote: '您确定要从这个笔记中移除所有标签吗？',
+            removeAllTagsFromNotes: '您确定要从 {count} 个笔记中移除所有标签吗？'
         },
         folderSuggest: {
             placeholder: '移动到文件夹...',
@@ -266,9 +267,12 @@ export const STRINGS_ZH = {
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',
             deepLinkCopied: '深层链接已复制到剪贴板',
-            tagsAdded: '已将标签添加到 {added} 个文件，跳过了 {skipped} 个文件',
-            tagRemoved: '已从 {count} 个文件中移除标签',
-            tagsCleared: '已从 {count} 个文件中清除所有标签',
+            tagAddedToNote: '已将标签添加到 1 个笔记',
+            tagAddedToNotes: '已将标签添加到 {count} 个笔记',
+            tagRemovedFromNote: '已从 1 个笔记中移除标签',
+            tagRemovedFromNotes: '已从 {count} 个笔记中移除标签',
+            tagsClearedFromNote: '已从 1 个笔记中清除所有标签',
+            tagsClearedFromNotes: '已从 {count} 个笔记中清除所有标签',
             noTagsToRemove: '没有可移除的标签',
             noFilesSelected: '未选择文件',
             tagOperationsNotAvailable: '标签操作不可用'

@@ -212,7 +212,8 @@ export const STRINGS_JA = {
             deleteFolderConfirm: 'このフォルダとそのすべての内容を削除してもよろしいですか？',
             deleteFileConfirm: 'このファイルを削除してもよろしいですか？',
             removeAllTagsTitle: 'すべてのタグを削除',
-            removeAllTagsMessage: '{count}個のファイルからすべてのタグを削除してもよろしいですか？'
+            removeAllTagsFromNote: 'このノートからすべてのタグを削除してもよろしいですか？',
+            removeAllTagsFromNotes: '{count}個のノートからすべてのタグを削除してもよろしいですか？'
         },
         folderSuggest: {
             placeholder: 'フォルダに移動...',
@@ -266,9 +267,12 @@ export const STRINGS_JA = {
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',
             deepLinkCopied: 'ディープリンクをクリップボードにコピーしました',
-            tagsAdded: '{added}個のファイルにタグを追加、{skipped}個のファイルをスキップしました',
-            tagRemoved: '{count}個のファイルからタグを削除しました',
-            tagsCleared: '{count}個のファイルからすべてのタグをクリアしました',
+            tagAddedToNote: '1個のノートにタグを追加しました',
+            tagAddedToNotes: '{count}個のノートにタグを追加しました',
+            tagRemovedFromNote: '1個のノートからタグを削除しました',
+            tagRemovedFromNotes: '{count}個のノートからタグを削除しました',
+            tagsClearedFromNote: '1個のノートからすべてのタグをクリアしました',
+            tagsClearedFromNotes: '{count}個のノートからすべてのタグをクリアしました',
             noTagsToRemove: '削除するタグがありません',
             noFilesSelected: 'ファイルが選択されていません',
             tagOperationsNotAvailable: 'タグ操作は利用できません'

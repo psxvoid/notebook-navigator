@@ -212,7 +212,8 @@ export const STRINGS_ES = {
             deleteFolderConfirm: '¿Estás seguro de que quieres eliminar esta carpeta y todo su contenido?',
             deleteFileConfirm: '¿Estás seguro de que quieres eliminar este archivo?',
             removeAllTagsTitle: 'Eliminar todas las etiquetas',
-            removeAllTagsMessage: '¿Estás seguro de que quieres eliminar todas las etiquetas de {count} archivos?'
+            removeAllTagsFromNote: '¿Estás seguro de que quieres eliminar todas las etiquetas de esta nota?',
+            removeAllTagsFromNotes: '¿Estás seguro de que quieres eliminar todas las etiquetas de {count} notas?'
         },
         folderSuggest: {
             placeholder: 'Mover a carpeta...',
@@ -266,9 +267,12 @@ export const STRINGS_ES = {
         notifications: {
             deletedMultipleFiles: '{count} archivos eliminados',
             deepLinkCopied: 'Enlace profundo copiado al portapapeles',
-            tagsAdded: 'Etiqueta añadida a {added} archivos, omitidos {skipped} archivos',
-            tagRemoved: 'Etiqueta eliminada de {count} archivos',
-            tagsCleared: 'Todas las etiquetas eliminadas de {count} archivos',
+            tagAddedToNote: 'Etiqueta añadida a 1 nota',
+            tagAddedToNotes: 'Etiqueta añadida a {count} notas',
+            tagRemovedFromNote: 'Etiqueta eliminada de 1 nota',
+            tagRemovedFromNotes: 'Etiqueta eliminada de {count} notas',
+            tagsClearedFromNote: 'Todas las etiquetas eliminadas de 1 nota',
+            tagsClearedFromNotes: 'Todas las etiquetas eliminadas de {count} notas',
             noTagsToRemove: 'No hay etiquetas para eliminar',
             noFilesSelected: 'No hay archivos seleccionados',
             tagOperationsNotAvailable: 'Operaciones de etiquetas no disponibles'

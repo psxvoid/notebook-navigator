@@ -212,7 +212,8 @@ export const STRINGS_FR = {
             deleteFolderConfirm: 'Êtes-vous sûr de vouloir supprimer ce dossier et tout son contenu ?',
             deleteFileConfirm: 'Êtes-vous sûr de vouloir supprimer ce fichier ?',
             removeAllTagsTitle: 'Supprimer toutes les étiquettes',
-            removeAllTagsMessage: 'Êtes-vous sûr de vouloir supprimer toutes les étiquettes de {count} fichiers ?'
+            removeAllTagsFromNote: 'Êtes-vous sûr de vouloir supprimer toutes les étiquettes de cette note ?',
+            removeAllTagsFromNotes: 'Êtes-vous sûr de vouloir supprimer toutes les étiquettes de {count} notes ?'
         },
         folderSuggest: {
             placeholder: 'Déplacer vers le dossier...',
@@ -266,9 +267,12 @@ export const STRINGS_FR = {
         notifications: {
             deletedMultipleFiles: '{count} fichiers supprimés',
             deepLinkCopied: 'Lien profond copié dans le presse-papiers',
-            tagsAdded: 'Étiquette ajoutée à {added} fichiers, {skipped} fichiers ignorés',
-            tagRemoved: 'Étiquette supprimée de {count} fichiers',
-            tagsCleared: 'Toutes les étiquettes supprimées de {count} fichiers',
+            tagAddedToNote: 'Étiquette ajoutée à 1 note',
+            tagAddedToNotes: 'Étiquette ajoutée à {count} notes',
+            tagRemovedFromNote: 'Étiquette supprimée de 1 note',
+            tagRemovedFromNotes: 'Étiquette supprimée de {count} notes',
+            tagsClearedFromNote: 'Toutes les étiquettes supprimées de 1 note',
+            tagsClearedFromNotes: 'Toutes les étiquettes supprimées de {count} notes',
             noTagsToRemove: 'Aucune étiquette à supprimer',
             noFilesSelected: 'Aucun fichier sélectionné',
             tagOperationsNotAvailable: "Opérations d'étiquettes non disponibles"

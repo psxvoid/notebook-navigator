@@ -211,7 +211,8 @@ export const STRINGS_EN = {
             deleteFolderConfirm: 'Are you sure you want to delete this folder and all its contents?',
             deleteFileConfirm: 'Are you sure you want to delete this file?',
             removeAllTagsTitle: 'Remove all tags',
-            removeAllTagsMessage: 'Are you sure you want to remove all tags from {count} files?'
+            removeAllTagsFromNote: 'Are you sure you want to remove all tags from this note?',
+            removeAllTagsFromNotes: 'Are you sure you want to remove all tags from {count} notes?'
         },
         folderSuggest: {
             placeholder: 'Move to folder...',
@@ -265,9 +266,12 @@ export const STRINGS_EN = {
         notifications: {
             deletedMultipleFiles: 'Deleted {count} files',
             deepLinkCopied: 'Deep link copied to clipboard',
-            tagsAdded: 'Added tag to {added} files, skipped {skipped} files',
-            tagRemoved: 'Removed tag from {count} files',
-            tagsCleared: 'Cleared all tags from {count} files',
+            tagAddedToNote: 'Added tag to 1 note',
+            tagAddedToNotes: 'Added tag to {count} notes',
+            tagRemovedFromNote: 'Removed tag from 1 note',
+            tagRemovedFromNotes: 'Removed tag from {count} notes',
+            tagsClearedFromNote: 'Cleared all tags from 1 note',
+            tagsClearedFromNotes: 'Cleared all tags from {count} notes',
             noTagsToRemove: 'No tags to remove',
             noFilesSelected: 'No files selected',
             tagOperationsNotAvailable: 'Tag operations not available'

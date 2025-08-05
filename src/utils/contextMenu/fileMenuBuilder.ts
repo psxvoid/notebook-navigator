@@ -124,9 +124,10 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                     services.plugin,
                     async (tag: string) => {
                         const result = await services.tagOperations.addTagToFiles(tag, filesForTagOps);
-                        const message = strings.fileSystem.notifications.tagsAdded
-                            .replace('{added}', result.added.toString())
-                            .replace('{skipped}', result.skipped.toString());
+                        const message =
+                            result.added === 1
+                                ? strings.fileSystem.notifications.tagAddedToNote
+                                : strings.fileSystem.notifications.tagAddedToNotes.replace('{count}', result.added.toString());
                         new Notice(message);
                     },
                     strings.modals.tagSuggest.addPlaceholder,
@@ -154,7 +155,11 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                     // Create modal to select which tag to remove
                     const modal = new RemoveTagModal(app, existingTags, async (tag: string) => {
                         const result = await services.tagOperations.removeTagFromFiles(tag, filesForTagOps);
-                        new Notice(strings.fileSystem.notifications.tagRemoved.replace('{count}', result.toString()));
+                        const message =
+                            result === 1
+                                ? strings.fileSystem.notifications.tagRemovedFromNote
+                                : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
+                        new Notice(message);
                     });
                     modal.open();
                 });
@@ -177,10 +182,16 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                     const confirmModal = new ConfirmModal(
                         app,
                         strings.modals.fileSystem.removeAllTagsTitle,
-                        strings.modals.fileSystem.removeAllTagsMessage.replace('{count}', filesForTagOps.length.toString()),
+                        filesForTagOps.length === 1
+                            ? strings.modals.fileSystem.removeAllTagsFromNote
+                            : strings.modals.fileSystem.removeAllTagsFromNotes.replace('{count}', filesForTagOps.length.toString()),
                         async () => {
                             const result = await services.tagOperations.clearAllTagsFromFiles(filesForTagOps);
-                            new Notice(strings.fileSystem.notifications.tagsCleared.replace('{count}', result.toString()));
+                            const message =
+                                result === 1
+                                    ? strings.fileSystem.notifications.tagsClearedFromNote
+                                    : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', result.toString());
+                            new Notice(message);
                         }
                     );
                     confirmModal.open();

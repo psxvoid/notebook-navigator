@@ -212,7 +212,8 @@ export const STRINGS_DE = {
             deleteFolderConfirm: 'Sind Sie sicher, dass Sie diesen Ordner und seinen gesamten Inhalt löschen möchten?',
             deleteFileConfirm: 'Sind Sie sicher, dass Sie diese Datei löschen möchten?',
             removeAllTagsTitle: 'Alle Tags entfernen',
-            removeAllTagsMessage: 'Sind Sie sicher, dass Sie alle Tags von {count} Dateien entfernen möchten?'
+            removeAllTagsFromNote: 'Sind Sie sicher, dass Sie alle Tags von dieser Notiz entfernen möchten?',
+            removeAllTagsFromNotes: 'Sind Sie sicher, dass Sie alle Tags von {count} Notizen entfernen möchten?'
         },
         folderSuggest: {
             placeholder: 'In Ordner verschieben...',
@@ -266,9 +267,12 @@ export const STRINGS_DE = {
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',
             deepLinkCopied: 'Deep Link in die Zwischenablage kopiert',
-            tagsAdded: 'Tag zu {added} Dateien hinzugefügt, {skipped} Dateien übersprungen',
-            tagRemoved: 'Tag von {count} Dateien entfernt',
-            tagsCleared: 'Alle Tags von {count} Dateien entfernt',
+            tagAddedToNote: 'Tag zu 1 Notiz hinzugefügt',
+            tagAddedToNotes: 'Tag zu {count} Notizen hinzugefügt',
+            tagRemovedFromNote: 'Tag von 1 Notiz entfernt',
+            tagRemovedFromNotes: 'Tag von {count} Notizen entfernt',
+            tagsClearedFromNote: 'Alle Tags von 1 Notiz entfernt',
+            tagsClearedFromNotes: 'Alle Tags von {count} Notizen entfernt',
             noTagsToRemove: 'Keine Tags zum Entfernen',
             noFilesSelected: 'Keine Dateien ausgewählt',
             tagOperationsNotAvailable: 'Tag-Operationen nicht verfügbar'

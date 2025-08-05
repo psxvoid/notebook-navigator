@@ -297,9 +297,10 @@ export const NotebookNavigatorComponent = React.memo(
                         plugin,
                         async (tag: string) => {
                             const result = await tagOperations.addTagToFiles(tag, selectedFiles);
-                            const message = strings.fileSystem.notifications.tagsAdded
-                                .replace('{added}', result.added.toString())
-                                .replace('{skipped}', result.skipped.toString());
+                            const message =
+                                result.added === 1
+                                    ? strings.fileSystem.notifications.tagAddedToNote
+                                    : strings.fileSystem.notifications.tagAddedToNotes.replace('{count}', result.added.toString());
                             new Notice(message);
                         },
                         strings.modals.tagSuggest.addPlaceholder,
@@ -331,7 +332,11 @@ export const NotebookNavigatorComponent = React.memo(
                     // Show modal to select which tag to remove
                     const modal = new RemoveTagModal(app, existingTags, async (tag: string) => {
                         const result = await tagOperations.removeTagFromFiles(tag, selectedFiles);
-                        new Notice(strings.fileSystem.notifications.tagRemoved.replace('{count}', result.toString()));
+                        const message =
+                            result === 1
+                                ? strings.fileSystem.notifications.tagRemovedFromNote
+                                : strings.fileSystem.notifications.tagRemovedFromNotes.replace('{count}', result.toString());
+                        new Notice(message);
                     });
                     modal.open();
                 },
@@ -359,10 +364,16 @@ export const NotebookNavigatorComponent = React.memo(
                     const confirmModal = new ConfirmModal(
                         app,
                         strings.modals.fileSystem.removeAllTagsTitle,
-                        strings.modals.fileSystem.removeAllTagsMessage.replace('{count}', selectedFiles.length.toString()),
+                        selectedFiles.length === 1
+                            ? strings.modals.fileSystem.removeAllTagsFromNote
+                            : strings.modals.fileSystem.removeAllTagsFromNotes.replace('{count}', selectedFiles.length.toString()),
                         async () => {
                             const result = await tagOperations.clearAllTagsFromFiles(selectedFiles);
-                            new Notice(strings.fileSystem.notifications.tagsCleared.replace('{count}', result.toString()));
+                            const message =
+                                result === 1
+                                    ? strings.fileSystem.notifications.tagsClearedFromNote
+                                    : strings.fileSystem.notifications.tagsClearedFromNotes.replace('{count}', result.toString());
+                            new Notice(message);
                         }
                     );
                     confirmModal.open();
