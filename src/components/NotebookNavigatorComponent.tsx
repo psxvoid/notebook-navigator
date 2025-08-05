@@ -226,18 +226,11 @@ export const NotebookNavigatorComponent = React.memo(
                 },
                 moveSelectedFiles: async () => {
                     // Get selected files
-                    const selectedFiles = Array.from(selectionState.selectedFiles)
-                        .map(path => app.vault.getAbstractFileByPath(path))
-                        .filter((f): f is TFile => f instanceof TFile);
+                    const selectedFiles = getSelectedFiles();
 
                     if (selectedFiles.length === 0) {
-                        // No files selected, try current file
-                        if (selectionState.selectedFile) {
-                            selectedFiles.push(selectionState.selectedFile);
-                        } else {
-                            new Notice(strings.fileSystem.errors.noFileSelected);
-                            return;
-                        }
+                        new Notice(strings.fileSystem.errors.noFileSelected);
+                        return;
                     }
 
                     // Get all files in the current view for smart selection
