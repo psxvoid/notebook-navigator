@@ -10,7 +10,7 @@
     /* File item heights - fixed pixel values to prevent fractional rendering */
     --nn-file-line-height: 20px; /* Height of single line of text */
     --nn-file-padding-vertical: 8px; /* var(--size-4-2) typically equals 8px */
-    --nn-file-padding-vertical-slim: 6px; /* Reduced padding for slim mode */
+    --nn-file-padding-vertical-slim: 5px; /* Reduced padding for slim mode */
     --nn-file-second-line-height: 19px; /* Height for date/preview line - tighter spacing */
     --nn-file-preview-line-height: 18px; /* Height for multi-line preview only */
 
