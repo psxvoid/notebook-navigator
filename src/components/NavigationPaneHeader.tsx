@@ -17,7 +17,6 @@
  */
 
 import { useCallback } from 'react';
-import { TFolder } from 'obsidian';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState } from '../context/SelectionContext';
 import { useServices, useFileSystemOps } from '../context/ServicesContext';
@@ -60,7 +59,6 @@ export function NavigationPaneHeader({ onHeaderClick }: NavigationPaneHeaderProp
 
     const handleExpandCollapseAll = useCallback(() => {
         const behavior = settings.collapseButtonBehavior;
-        const rootFolder = app.vault.getRoot();
         const shouldCollapse = shouldCollapseItems();
 
         const shouldAffectFolders = behavior === 'all' || behavior === 'folders-only';
@@ -80,23 +78,11 @@ export function NavigationPaneHeader({ onHeaderClick }: NavigationPaneHeaderProp
             }
         } else {
             if (shouldAffectFolders) {
-                const allFolders = new Set<string>();
+                // Get all folder paths in the vault
+                const allFolders = app.vault.getAllFolders();
+                const allFolderPaths = new Set<string>(allFolders.map(folder => folder.path));
 
-                const collectAllFolders = (folder: TFolder) => {
-                    folder.children.forEach(child => {
-                        if (child instanceof TFolder) {
-                            allFolders.add(child.path);
-                            collectAllFolders(child);
-                        }
-                    });
-                };
-
-                if (settings.showRootFolder) {
-                    allFolders.add(rootFolder.path);
-                }
-
-                collectAllFolders(rootFolder);
-                expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: allFolders });
+                expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: allFolderPaths });
             }
 
             if (shouldAffectTags) {
