@@ -59,7 +59,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-08-04',
         showOnUpdate: true,
         new: [
-            'You can now set custom appearances for each folder and tag! Using the new Change appearance button you can make each folder or tag have a unique style - like slim mode to show as many items as possible, or 5 preview rows for those folders where you want to see lots of the preview text!',
+            'You can now set custom appearances for each folder and tag! Use the new "Change appearance" button to make each folder or tag have a unique style - like slim mode to show as many items as possible, or 5 preview rows for those folders where you want to see lots of the preview text!',
             'New tag operations in the file context menu: Add tag, Remove tag, and Remove all tags. You can also access them from the command palette. They are smart and use fuzzy search to add tags, and will only show used tags when you want to remove a tag. If you add a tag that is an ancestor of an existing tag, the new tag will replace the current tag.'
         ],
         improved: ['Pinned notes now show at max 1 preview row without parent folder, taking up less vertical space.']
