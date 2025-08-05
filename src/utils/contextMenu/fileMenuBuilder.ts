@@ -31,32 +31,6 @@ import { RemoveTagModal } from '../../modals/RemoveTagModal';
 import { ConfirmModal } from '../../modals/ConfirmModal';
 
 /**
- * Synchronously checks if any of the given files have tags
- */
-function filesHaveTags(files: TFile[], app: App): boolean {
-    for (const file of files) {
-        const metadata = app.metadataCache.getFileCache(file);
-        if (!metadata) continue;
-
-        // Check frontmatter tags
-        const frontmatterTags = metadata.frontmatter?.tags;
-        if (
-            frontmatterTags &&
-            ((Array.isArray(frontmatterTags) && frontmatterTags.length > 0) ||
-                (typeof frontmatterTags === 'string' && frontmatterTags.trim() !== ''))
-        ) {
-            return true;
-        }
-
-        // Check inline tags
-        if (metadata.tags && metadata.tags.length > 0) {
-            return true;
-        }
-    }
-    return false;
-}
-
-/**
  * Builds the context menu for a file
  */
 export function buildFileMenu(params: FileMenuBuilderParams): void {
@@ -135,7 +109,10 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     menu.addSeparator();
 
     const filesForTagOps = shouldShowMultiOptions ? cachedSelectedFiles : [file];
-    const hasTags = filesHaveTags(filesForTagOps, app);
+
+    // Check if files have tags
+    const existingTags = services.tagOperations.getTagsFromFiles(filesForTagOps);
+    const hasTags = existingTags.length > 0;
 
     // Add tag - always shown
     menu.addItem((item: MenuItem) => {
@@ -167,7 +144,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 .setIcon('minus')
                 .onClick(async () => {
                     // Get tags from selected files
-                    const existingTags = await services.tagOperations.getTagsFromFiles(filesForTagOps);
+                    const existingTags = services.tagOperations.getTagsFromFiles(filesForTagOps);
 
                     if (existingTags.length === 0) {
                         new Notice(strings.fileSystem.notifications.noTagsToRemove);
@@ -189,7 +166,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 .setIcon('x')
                 .onClick(async () => {
                     // Check if files have tags first
-                    const existingTags = await services.tagOperations.getTagsFromFiles(filesForTagOps);
+                    const existingTags = services.tagOperations.getTagsFromFiles(filesForTagOps);
 
                     if (existingTags.length === 0) {
                         new Notice(strings.fileSystem.notifications.noTagsToRemove);

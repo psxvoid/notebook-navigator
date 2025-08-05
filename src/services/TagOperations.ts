@@ -73,7 +73,7 @@ export class TagOperations {
      * @param files - Files to get tags from
      * @returns Array of unique tag strings (without #)
      */
-    async getTagsFromFiles(files: TFile[]): Promise<string[]> {
+    getTagsFromFiles(files: TFile[]): string[] {
         const allTags = new Set<string>();
 
         for (const file of files) {
@@ -282,7 +282,7 @@ export class TagOperations {
      */
     private async removeDescendantTagsFromFile(file: TFile, ancestorTag: string): Promise<void> {
         // Get all current tags from the file
-        const currentTags = await this.getTagsFromFiles([file]);
+        const currentTags = this.getTagsFromFiles([file]);
 
         // Find descendant tags to remove
         const descendantTags = currentTags.filter(tag => tag.startsWith(ancestorTag + '/'));

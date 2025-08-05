@@ -322,7 +322,7 @@ export const NotebookNavigatorComponent = React.memo(
                     }
 
                     // Get tags from selected files
-                    const existingTags = await tagOperations.getTagsFromFiles(selectedFiles);
+                    const existingTags = tagOperations.getTagsFromFiles(selectedFiles);
                     if (existingTags.length === 0) {
                         new Notice(strings.fileSystem.notifications.noTagsToRemove);
                         return;
@@ -349,7 +349,7 @@ export const NotebookNavigatorComponent = React.memo(
                     }
 
                     // Check if files have tags
-                    const existingTags = await tagOperations.getTagsFromFiles(selectedFiles);
+                    const existingTags = tagOperations.getTagsFromFiles(selectedFiles);
                     if (existingTags.length === 0) {
                         new Notice(strings.fileSystem.notifications.noTagsToRemove);
                         return;
