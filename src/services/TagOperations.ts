@@ -223,13 +223,13 @@ export class TagOperations {
         }
 
         // Remove from inline content
-        const content = await this.app.vault.read(file);
-        const newContent = this.removeInlineTags(content, tag);
-
-        if (newContent !== content) {
-            hadTag = true;
-            await this.app.vault.modify(file, newContent);
-        }
+        await this.app.vault.process(file, content => {
+            const newContent = this.removeInlineTags(content, tag);
+            if (newContent !== content) {
+                hadTag = true;
+            }
+            return newContent;
+        });
 
         return hadTag;
     }
@@ -280,16 +280,13 @@ export class TagOperations {
         }
 
         // Remove descendant tags from inline content
-        const content = await this.app.vault.read(file);
-        let newContent = content;
-
-        for (const descendantTag of descendantTags) {
-            newContent = this.removeInlineTags(newContent, descendantTag);
-        }
-
-        if (newContent !== content) {
-            await this.app.vault.modify(file, newContent);
-        }
+        await this.app.vault.process(file, content => {
+            let newContent = content;
+            for (const descendantTag of descendantTags) {
+                newContent = this.removeInlineTags(newContent, descendantTag);
+            }
+            return newContent;
+        });
     }
 
     /**
@@ -323,13 +320,13 @@ export class TagOperations {
 
         // Always process the file content for inline tags since we know tags exist
         // Our cache told us there are tags, so we need to remove any inline ones
-        const content = await this.app.vault.read(file);
-        const newContent = this.removeAllInlineTags(content);
-
-        if (newContent !== content) {
-            hadTags = true;
-            await this.app.vault.modify(file, newContent);
-        }
+        await this.app.vault.process(file, content => {
+            const newContent = this.removeAllInlineTags(content);
+            if (newContent !== content) {
+                hadTags = true;
+            }
+            return newContent;
+        });
 
         return hadTags;
     }

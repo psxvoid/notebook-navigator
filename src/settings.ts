@@ -197,9 +197,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
     plugin: NotebookNavigatorPlugin;
     // Map of active debounce timers for text inputs
     private debounceTimers: Map<string, NodeJS.Timeout> = new Map();
-    // Reference to stats element and update interval
+    // Reference to stats element
     private statsTextEl: HTMLElement | null = null;
-    private statsUpdateInterval: number | null = null;
     // Reference to metadata parsing info element
     private metadataInfoEl: HTMLElement | null = null;
 
@@ -1095,9 +1094,11 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         this.updateStatistics();
 
         // Start periodic updates every 1 second
-        this.statsUpdateInterval = window.setInterval(() => {
-            this.updateStatistics();
-        }, TIMEOUTS.INTERVAL_STATISTICS);
+        this.plugin.registerInterval(
+            window.setInterval(() => {
+                this.updateStatistics();
+            }, TIMEOUTS.INTERVAL_STATISTICS)
+        );
 
         // Set initial visibility
         previewSettingsEl.toggle(this.plugin.settings.showFilePreview);
@@ -1173,11 +1174,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         this.debounceTimers.forEach(timer => clearTimeout(timer));
         this.debounceTimers.clear();
 
-        // Clean up statistics update interval
-        if (this.statsUpdateInterval !== null) {
-            window.clearInterval(this.statsUpdateInterval);
-            this.statsUpdateInterval = null;
-        }
+        // Note: statsUpdateInterval is automatically cleaned up by plugin.registerInterval
 
         // Clear reference to stats element
         this.statsTextEl = null;

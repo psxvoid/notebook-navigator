@@ -48,7 +48,8 @@ export class MobileLogger {
 
         try {
             // Check if file exists
-            const fileExists = await this.app.vault.adapter.exists(this.logFileName);
+            const file = this.app.vault.getAbstractFileByPath(this.logFileName);
+            const fileExists = file !== null;
 
             if (!fileExists) {
                 // Create file with header
@@ -101,7 +102,8 @@ Platform: ${Platform.isMobile ? 'Mobile' : 'Desktop'}
         if (!Platform.isMobile) return;
 
         try {
-            if (await this.app.vault.adapter.exists(this.logFileName)) {
+            const file = this.app.vault.getAbstractFileByPath(this.logFileName);
+            if (file !== null) {
                 await this.app.vault.adapter.remove(this.logFileName);
                 this.isInitialized = false;
             }
