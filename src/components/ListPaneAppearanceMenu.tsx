@@ -72,8 +72,8 @@ export function showListPaneAppearanceMenu({
 
     const menu = new Menu();
 
-    // Check if we're using default values
-    // Only true if NO custom values are set for this folder/tag
+    // Get custom appearance settings for the selected folder/tag
+    // Will be undefined if no custom appearance has been set
     let appearance: FolderAppearance | TagAppearance | undefined;
     if (selectionType === ItemType.TAG && selectedTag) {
         appearance = settings.tagAppearances?.[selectedTag];
