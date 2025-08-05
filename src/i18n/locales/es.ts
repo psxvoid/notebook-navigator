@@ -90,11 +90,11 @@ export const STRINGS_ES = {
             renameNote: 'Renombrar nota',
             deleteNote: 'Eliminar nota',
             deleteMultipleNotes: 'Eliminar {count} notas',
-            moveToFolder: 'Move to...',
-            moveMultipleToFolder: 'Move {count} files to...',
-            addTag: 'Add tag',
-            removeTag: 'Remove tag',
-            removeAllTags: 'Remove all tags',
+            moveToFolder: 'Mover a...',
+            moveMultipleToFolder: 'Mover {count} archivos a...',
+            addTag: 'Añadir etiqueta',
+            removeTag: 'Eliminar etiqueta',
+            removeAllTags: 'Eliminar todas las etiquetas',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: 'Abrir {count} archivos en nuevas pestañas',
             openMultipleFilesToRight: 'Abrir {count} archivos a la derecha',
@@ -211,8 +211,8 @@ export const STRINGS_ES = {
             renameVaultPrompt: 'Introduce un nombre de visualización personalizado (deja vacío para usar el predeterminado):',
             deleteFolderConfirm: '¿Estás seguro de que quieres eliminar esta carpeta y todo su contenido?',
             deleteFileConfirm: '¿Estás seguro de que quieres eliminar este archivo?',
-            removeAllTagsTitle: 'Remove all tags',
-            removeAllTagsMessage: 'Are you sure you want to remove all tags from {count} files?'
+            removeAllTagsTitle: 'Eliminar todas las etiquetas',
+            removeAllTagsMessage: '¿Estás seguro de que quieres eliminar todas las etiquetas de {count} archivos?'
         },
         folderSuggest: {
             placeholder: 'Mover a carpeta...',
@@ -227,14 +227,14 @@ export const STRINGS_ES = {
         tagSuggest: {
             placeholder: 'Buscar etiquetas...',
             navigatePlaceholder: 'Navegar a etiqueta...',
-            addPlaceholder: 'Search for tag to add...',
-            removePlaceholder: 'Select tag to remove...',
+            addPlaceholder: 'Buscar etiqueta para añadir...',
+            removePlaceholder: 'Seleccionar etiqueta para eliminar...',
             instructions: {
                 navigate: 'para navegar',
                 select: 'para seleccionar',
                 dismiss: 'para cancelar',
-                add: 'to add tag',
-                remove: 'to remove tag'
+                add: 'para añadir etiqueta',
+                remove: 'para eliminar etiqueta'
             }
         }
     },
@@ -265,9 +265,9 @@ export const STRINGS_ES = {
         notifications: {
             deletedMultipleFiles: '{count} archivos eliminados',
             deepLinkCopied: 'Enlace profundo copiado al portapapeles',
-            tagsAdded: 'Added tag to {added} files, skipped {skipped} files',
-            tagRemoved: 'Removed tag from {count} files',
-            tagsCleared: 'Cleared all tags from {count} files'
+            tagsAdded: 'Etiqueta añadida a {added} archivos, omitidos {skipped} archivos',
+            tagRemoved: 'Etiqueta eliminada de {count} archivos',
+            tagsCleared: 'Todas las etiquetas eliminadas de {count} archivos'
         },
         confirmations: {
             deleteMultipleFiles: '¿Está seguro de que desea eliminar {count} archivos?',

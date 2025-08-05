@@ -90,11 +90,11 @@ export const STRINGS_JA = {
             renameNote: 'ノートの名前を変更',
             deleteNote: 'ノートを削除',
             deleteMultipleNotes: '{count}個のノートを削除',
-            moveToFolder: 'Move to...',
-            moveMultipleToFolder: 'Move {count} files to...',
-            addTag: 'Add tag',
-            removeTag: 'Remove tag',
-            removeAllTags: 'Remove all tags',
+            moveToFolder: '移動先...',
+            moveMultipleToFolder: '{count}個のファイルを移動先...',
+            addTag: 'タグを追加',
+            removeTag: 'タグを削除',
+            removeAllTags: 'すべてのタグを削除',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count}個のファイルを新しいタブで開く',
             openMultipleFilesToRight: '{count}個のファイルを右側で開く',
@@ -211,8 +211,8 @@ export const STRINGS_JA = {
             renameVaultPrompt: 'カスタム表示名を入力（空にするとデフォルトを使用）：',
             deleteFolderConfirm: 'このフォルダとそのすべての内容を削除してもよろしいですか？',
             deleteFileConfirm: 'このファイルを削除してもよろしいですか？',
-            removeAllTagsTitle: 'Remove all tags',
-            removeAllTagsMessage: 'Are you sure you want to remove all tags from {count} files?'
+            removeAllTagsTitle: 'すべてのタグを削除',
+            removeAllTagsMessage: '{count}個のファイルからすべてのタグを削除してもよろしいですか？'
         },
         folderSuggest: {
             placeholder: 'フォルダに移動...',
@@ -227,14 +227,14 @@ export const STRINGS_JA = {
         tagSuggest: {
             placeholder: 'タグを検索...',
             navigatePlaceholder: 'タグにナビゲート...',
-            addPlaceholder: 'Search for tag to add...',
-            removePlaceholder: 'Select tag to remove...',
+            addPlaceholder: '追加するタグを検索...',
+            removePlaceholder: '削除するタグを選択...',
             instructions: {
                 navigate: 'でナビゲート',
                 select: 'で選択',
                 dismiss: 'でキャンセル',
-                add: 'to add tag',
-                remove: 'to remove tag'
+                add: 'タグを追加',
+                remove: 'タグを削除'
             }
         }
     },
@@ -265,9 +265,9 @@ export const STRINGS_JA = {
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',
             deepLinkCopied: 'ディープリンクをクリップボードにコピーしました',
-            tagsAdded: 'Added tag to {added} files, skipped {skipped} files',
-            tagRemoved: 'Removed tag from {count} files',
-            tagsCleared: 'Cleared all tags from {count} files'
+            tagsAdded: '{added}個のファイルにタグを追加、{skipped}個のファイルをスキップしました',
+            tagRemoved: '{count}個のファイルからタグを削除しました',
+            tagsCleared: '{count}個のファイルからすべてのタグをクリアしました'
         },
         confirmations: {
             deleteMultipleFiles: '本当に{count}個のファイルを削除しますか？',

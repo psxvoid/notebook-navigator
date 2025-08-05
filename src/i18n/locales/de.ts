@@ -90,11 +90,11 @@ export const STRINGS_DE = {
             renameNote: 'Notiz umbenennen',
             deleteNote: 'Notiz löschen',
             deleteMultipleNotes: '{count} Notizen löschen',
-            moveToFolder: 'Move to...',
-            moveMultipleToFolder: 'Move {count} files to...',
-            addTag: 'Add tag',
-            removeTag: 'Remove tag',
-            removeAllTags: 'Remove all tags',
+            moveToFolder: 'Verschieben nach...',
+            moveMultipleToFolder: '{count} Dateien verschieben nach...',
+            addTag: 'Tag hinzufügen',
+            removeTag: 'Tag entfernen',
+            removeAllTags: 'Alle Tags entfernen',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '{count} Dateien in neuen Tabs öffnen',
             openMultipleFilesToRight: '{count} Dateien rechts öffnen',
@@ -211,8 +211,8 @@ export const STRINGS_DE = {
             renameVaultPrompt: 'Benutzerdefinierten Anzeigenamen eingeben (leer lassen für Standard):',
             deleteFolderConfirm: 'Sind Sie sicher, dass Sie diesen Ordner und seinen gesamten Inhalt löschen möchten?',
             deleteFileConfirm: 'Sind Sie sicher, dass Sie diese Datei löschen möchten?',
-            removeAllTagsTitle: 'Remove all tags',
-            removeAllTagsMessage: 'Are you sure you want to remove all tags from {count} files?'
+            removeAllTagsTitle: 'Alle Tags entfernen',
+            removeAllTagsMessage: 'Sind Sie sicher, dass Sie alle Tags von {count} Dateien entfernen möchten?'
         },
         folderSuggest: {
             placeholder: 'In Ordner verschieben...',
@@ -227,14 +227,14 @@ export const STRINGS_DE = {
         tagSuggest: {
             placeholder: 'Tags suchen...',
             navigatePlaceholder: 'Zu Tag navigieren...',
-            addPlaceholder: 'Search for tag to add...',
-            removePlaceholder: 'Select tag to remove...',
+            addPlaceholder: 'Nach hinzuzufügendem Tag suchen...',
+            removePlaceholder: 'Tag zum Entfernen auswählen...',
             instructions: {
                 navigate: 'zum Navigieren',
                 select: 'zum Auswählen',
                 dismiss: 'zum Abbrechen',
-                add: 'to add tag',
-                remove: 'to remove tag'
+                add: 'zum Hinzufügen des Tags',
+                remove: 'zum Entfernen des Tags'
             }
         }
     },
@@ -265,9 +265,9 @@ export const STRINGS_DE = {
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',
             deepLinkCopied: 'Deep Link in die Zwischenablage kopiert',
-            tagsAdded: 'Added tag to {added} files, skipped {skipped} files',
-            tagRemoved: 'Removed tag from {count} files',
-            tagsCleared: 'Cleared all tags from {count} files'
+            tagsAdded: 'Tag zu {added} Dateien hinzugefügt, {skipped} Dateien übersprungen',
+            tagRemoved: 'Tag von {count} Dateien entfernt',
+            tagsCleared: 'Alle Tags von {count} Dateien entfernt'
         },
         confirmations: {
             deleteMultipleFiles: 'Möchten Sie wirklich {count} Dateien löschen?',

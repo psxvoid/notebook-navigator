@@ -90,11 +90,11 @@ export const STRINGS_ZH = {
             renameNote: '重命名笔记',
             deleteNote: '删除笔记',
             deleteMultipleNotes: '删除 {count} 个笔记',
-            moveToFolder: 'Move to...',
-            moveMultipleToFolder: 'Move {count} files to...',
-            addTag: 'Add tag',
-            removeTag: 'Remove tag',
-            removeAllTags: 'Remove all tags',
+            moveToFolder: '移动到...',
+            moveMultipleToFolder: '将 {count} 个文件移动到...',
+            addTag: '添加标签',
+            removeTag: '移除标签',
+            removeAllTags: '移除所有标签',
             // File-specific context menu items (non-markdown files)
             openMultipleFilesInNewTabs: '在新标签页中打开 {count} 个文件',
             openMultipleFilesToRight: '在右侧打开 {count} 个文件',
@@ -211,8 +211,8 @@ export const STRINGS_ZH = {
             renameVaultPrompt: '输入自定义显示名称（留空使用默认值）：',
             deleteFolderConfirm: '您确定要删除此文件夹及其所有内容吗？',
             deleteFileConfirm: '您确定要删除此文件吗？',
-            removeAllTagsTitle: 'Remove all tags',
-            removeAllTagsMessage: 'Are you sure you want to remove all tags from {count} files?'
+            removeAllTagsTitle: '移除所有标签',
+            removeAllTagsMessage: '您确定要从 {count} 个文件中移除所有标签吗？'
         },
         folderSuggest: {
             placeholder: '移动到文件夹...',
@@ -227,14 +227,14 @@ export const STRINGS_ZH = {
         tagSuggest: {
             placeholder: '搜索标签...',
             navigatePlaceholder: '导航到标签...',
-            addPlaceholder: 'Search for tag to add...',
-            removePlaceholder: 'Select tag to remove...',
+            addPlaceholder: '搜索要添加的标签...',
+            removePlaceholder: '选择要移除的标签...',
             instructions: {
                 navigate: '导航',
                 select: '选择',
                 dismiss: '取消',
-                add: 'to add tag',
-                remove: 'to remove tag'
+                add: '添加标签',
+                remove: '移除标签'
             }
         }
     },
@@ -265,9 +265,9 @@ export const STRINGS_ZH = {
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',
             deepLinkCopied: '深层链接已复制到剪贴板',
-            tagsAdded: 'Added tag to {added} files, skipped {skipped} files',
-            tagRemoved: 'Removed tag from {count} files',
-            tagsCleared: 'Cleared all tags from {count} files'
+            tagsAdded: '已将标签添加到 {added} 个文件，跳过了 {skipped} 个文件',
+            tagRemoved: '已从 {count} 个文件中移除标签',
+            tagsCleared: '已从 {count} 个文件中清除所有标签'
         },
         confirmations: {
             deleteMultipleFiles: '确定要删除 {count} 个文件吗？',
