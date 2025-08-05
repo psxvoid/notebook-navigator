@@ -31,6 +31,32 @@ import { RemoveTagModal } from '../../modals/RemoveTagModal';
 import { ConfirmModal } from '../../modals/ConfirmModal';
 
 /**
+ * Synchronously checks if any of the given files have tags
+ */
+function filesHaveTags(files: TFile[], app: App): boolean {
+    for (const file of files) {
+        const metadata = app.metadataCache.getFileCache(file);
+        if (!metadata) continue;
+
+        // Check frontmatter tags
+        const frontmatterTags = metadata.frontmatter?.tags;
+        if (
+            frontmatterTags &&
+            ((Array.isArray(frontmatterTags) && frontmatterTags.length > 0) ||
+                (typeof frontmatterTags === 'string' && frontmatterTags.trim() !== ''))
+        ) {
+            return true;
+        }
+
+        // Check inline tags
+        if (metadata.tags && metadata.tags.length > 0) {
+            return true;
+        }
+    }
+    return false;
+}
+
+/**
  * Builds the context menu for a file
  */
 export function buildFileMenu(params: FileMenuBuilderParams): void {
@@ -109,6 +135,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     menu.addSeparator();
 
     const filesForTagOps = shouldShowMultiOptions ? cachedSelectedFiles : [file];
+    const hasTags = filesHaveTags(filesForTagOps, app);
 
     // Add tag - always shown
     menu.addItem((item: MenuItem) => {
@@ -133,54 +160,56 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
             });
     });
 
-    // Remove tag - fetch tags when clicked
-    menu.addItem((item: MenuItem) => {
-        item.setTitle(strings.contextMenu.file.removeTag)
-            .setIcon('minus')
-            .onClick(async () => {
-                // Get tags from selected files
-                const existingTags = await services.tagOperations.getTagsFromFiles(filesForTagOps);
+    // Remove tag - only show if files have tags
+    if (hasTags) {
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.file.removeTag)
+                .setIcon('minus')
+                .onClick(async () => {
+                    // Get tags from selected files
+                    const existingTags = await services.tagOperations.getTagsFromFiles(filesForTagOps);
 
-                if (existingTags.length === 0) {
-                    new Notice(strings.fileSystem.notifications.noTagsToRemove);
-                    return;
-                }
-
-                // Create modal to select which tag to remove
-                const modal = new RemoveTagModal(app, existingTags, async (tag: string) => {
-                    const result = await services.tagOperations.removeTagFromFiles(tag, filesForTagOps);
-                    new Notice(strings.fileSystem.notifications.tagRemoved.replace('{count}', result.toString()));
-                });
-                modal.open();
-            });
-    });
-
-    // Remove all tags
-    menu.addItem((item: MenuItem) => {
-        item.setTitle(strings.contextMenu.file.removeAllTags)
-            .setIcon('x')
-            .onClick(async () => {
-                // Check if files have tags first
-                const existingTags = await services.tagOperations.getTagsFromFiles(filesForTagOps);
-
-                if (existingTags.length === 0) {
-                    new Notice(strings.fileSystem.notifications.noTagsToRemove);
-                    return;
-                }
-
-                // Show confirmation dialog
-                const confirmModal = new ConfirmModal(
-                    app,
-                    strings.modals.fileSystem.removeAllTagsTitle,
-                    strings.modals.fileSystem.removeAllTagsMessage.replace('{count}', filesForTagOps.length.toString()),
-                    async () => {
-                        const result = await services.tagOperations.clearAllTagsFromFiles(filesForTagOps);
-                        new Notice(strings.fileSystem.notifications.tagsCleared.replace('{count}', result.toString()));
+                    if (existingTags.length === 0) {
+                        new Notice(strings.fileSystem.notifications.noTagsToRemove);
+                        return;
                     }
-                );
-                confirmModal.open();
-            });
-    });
+
+                    // Create modal to select which tag to remove
+                    const modal = new RemoveTagModal(app, existingTags, async (tag: string) => {
+                        const result = await services.tagOperations.removeTagFromFiles(tag, filesForTagOps);
+                        new Notice(strings.fileSystem.notifications.tagRemoved.replace('{count}', result.toString()));
+                    });
+                    modal.open();
+                });
+        });
+
+        // Remove all tags - only show if files have tags
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.file.removeAllTags)
+                .setIcon('x')
+                .onClick(async () => {
+                    // Check if files have tags first
+                    const existingTags = await services.tagOperations.getTagsFromFiles(filesForTagOps);
+
+                    if (existingTags.length === 0) {
+                        new Notice(strings.fileSystem.notifications.noTagsToRemove);
+                        return;
+                    }
+
+                    // Show confirmation dialog
+                    const confirmModal = new ConfirmModal(
+                        app,
+                        strings.modals.fileSystem.removeAllTagsTitle,
+                        strings.modals.fileSystem.removeAllTagsMessage.replace('{count}', filesForTagOps.length.toString()),
+                        async () => {
+                            const result = await services.tagOperations.clearAllTagsFromFiles(filesForTagOps);
+                            new Notice(strings.fileSystem.notifications.tagsCleared.replace('{count}', result.toString()));
+                        }
+                    );
+                    confirmModal.open();
+                });
+        });
+    }
 
     menu.addSeparator();
 
