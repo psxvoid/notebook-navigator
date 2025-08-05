@@ -360,7 +360,7 @@ export class FileSystemOperations {
             }
 
             // Try to maintain focus on file list using a more reliable method
-            setTimeout(() => {
+            window.setTimeout(() => {
                 const fileListEl = document.querySelector('.nn-file-list-virtualizer') as HTMLElement;
                 if (fileListEl) {
                     fileListEl.focus();
@@ -773,7 +773,7 @@ export class FileSystemOperations {
             await this.app.workspace.openLinkText(file.path, '', false);
 
             // Small delay to ensure the editor is ready
-            await new Promise(resolve => setTimeout(resolve, TIMEOUTS.FILE_OPERATION_DELAY));
+            await new Promise(resolve => window.setTimeout(resolve, TIMEOUTS.FILE_OPERATION_DELAY));
 
             // Execute the version history command
             if (!executeCommand(this.app, OBSIDIAN_COMMANDS.VERSION_HISTORY)) {

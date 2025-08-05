@@ -28,7 +28,7 @@
  * @returns Debounced function with leading edge execution
  */
 export function leadingEdgeDebounce<T extends (...args: unknown[]) => unknown>(func: T, wait: number): T {
-    let timeout: NodeJS.Timeout | null = null;
+    let timeout: number | null = null;
     let lastCallTime = 0;
 
     return ((...args: Parameters<T>) => {
@@ -42,10 +42,10 @@ export function leadingEdgeDebounce<T extends (...args: unknown[]) => unknown>(f
         }
 
         // Clear existing timeout
-        if (timeout) clearTimeout(timeout);
+        if (timeout) window.clearTimeout(timeout);
 
         // Set new timeout for trailing execution
-        timeout = setTimeout(() => {
+        timeout = window.setTimeout(() => {
             const currentTime = Date.now();
             if (currentTime - lastCallTime >= wait) {
                 func(...args);

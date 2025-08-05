@@ -71,7 +71,7 @@ if (typeof window !== 'undefined' && !window.requestIdleCallback) {
     };
 
     window.cancelIdleCallback = function (id: number) {
-        clearTimeout(id);
+        window.clearTimeout(id);
     };
 }
 

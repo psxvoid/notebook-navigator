@@ -150,7 +150,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     document.body.appendChild(dragContainer);
                     // Use negative offset to position icon bottom-right of cursor
                     e.dataTransfer.setDragImage(dragContainer, -10, -10);
-                    setTimeout(() => document.body.removeChild(dragContainer), TIMEOUTS.YIELD_TO_EVENT_LOOP);
+                    window.setTimeout(() => document.body.removeChild(dragContainer), TIMEOUTS.YIELD_TO_EVENT_LOOP);
                 } else {
                     // Single item drag
                     e.dataTransfer.setData('obsidian/file', path);
@@ -206,7 +206,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         document.body.appendChild(dragContainer);
                         // Use negative offset to position icon bottom-right of cursor
                         e.dataTransfer.setDragImage(dragContainer, -5, -5);
-                        setTimeout(() => document.body.removeChild(dragContainer), TIMEOUTS.YIELD_TO_EVENT_LOOP);
+                        window.setTimeout(() => document.body.removeChild(dragContainer), TIMEOUTS.YIELD_TO_EVENT_LOOP);
                     }
                 }
             }

@@ -38,7 +38,7 @@ export class IconPickerModal extends Modal {
     /** Callback function invoked when an icon is selected */
     public onChooseIcon: (iconId: string | null) => void;
     private resultsContainer: HTMLDivElement;
-    private searchDebounceTimer: NodeJS.Timeout | null = null;
+    private searchDebounceTimer: number | null = null;
     private searchInput: HTMLInputElement;
 
     private tabContainer: HTMLDivElement;
@@ -77,9 +77,9 @@ export class IconPickerModal extends Modal {
         // Set up search functionality with debouncing
         this.searchInput.addEventListener('input', () => {
             if (this.searchDebounceTimer) {
-                clearTimeout(this.searchDebounceTimer);
+                window.clearTimeout(this.searchDebounceTimer);
             }
-            this.searchDebounceTimer = setTimeout(() => {
+            this.searchDebounceTimer = window.setTimeout(() => {
                 this.updateResults();
             }, TIMEOUTS.DEBOUNCE_KEYBOARD);
         });
@@ -347,7 +347,7 @@ export class IconPickerModal extends Modal {
 
     onClose() {
         if (this.searchDebounceTimer) {
-            clearTimeout(this.searchDebounceTimer);
+            window.clearTimeout(this.searchDebounceTimer);
             this.searchDebounceTimer = null;
         }
 

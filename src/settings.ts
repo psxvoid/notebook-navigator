@@ -196,7 +196,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
 export class NotebookNavigatorSettingTab extends PluginSettingTab {
     plugin: NotebookNavigatorPlugin;
     // Map of active debounce timers for text inputs
-    private debounceTimers: Map<string, NodeJS.Timeout> = new Map();
+    private debounceTimers: Map<string, number> = new Map();
     // Reference to stats element
     private statsTextEl: HTMLElement | null = null;
     // Reference to metadata parsing info element
@@ -248,11 +248,11 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                         const timerId = `setting-${name}`;
                         const existingTimer = this.debounceTimers.get(timerId);
                         if (existingTimer !== undefined) {
-                            clearTimeout(existingTimer);
+                            window.clearTimeout(existingTimer);
                         }
 
                         // Set new timer
-                        const timer = setTimeout(async () => {
+                        const timer = window.setTimeout(async () => {
                             // Validate if validator provided
                             if (!validator || validator(value)) {
                                 setValue(value);
@@ -1171,7 +1171,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
      */
     hide(): void {
         // Clean up all pending debounce timers when settings tab is closed
-        this.debounceTimers.forEach(timer => clearTimeout(timer));
+        this.debounceTimers.forEach(timer => window.clearTimeout(timer));
         this.debounceTimers.clear();
 
         // Note: statsUpdateInterval is automatically cleaned up by plugin.registerInterval

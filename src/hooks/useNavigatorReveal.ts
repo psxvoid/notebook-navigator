@@ -355,11 +355,11 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
     useEffect(() => {
         if (fileToReveal) {
             // Clear after a short delay to ensure the consumer has processed it
-            const timer = setTimeout(() => {
+            const timer = window.setTimeout(() => {
                 setFileToReveal(null);
                 setIsStartupReveal(false);
             }, TIMEOUTS.DEBOUNCE_KEYBOARD);
-            return () => clearTimeout(timer);
+            return () => window.clearTimeout(timer);
         }
     }, [fileToReveal]);
 
