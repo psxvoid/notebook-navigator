@@ -51,16 +51,9 @@ export function useNavigatorEventHandlers({ app, containerRef, setIsNavigatorFoc
         const handleDelete = (file: TAbstractFile) => {
             if (file instanceof TFolder) {
                 // Cleanup expanded folders
-                const existingPaths = new Set<string>();
-                const collectAllFolderPaths = (folder: TFolder) => {
-                    existingPaths.add(folder.path);
-                    folder.children.forEach(child => {
-                        if (child instanceof TFolder) {
-                            collectAllFolderPaths(child);
-                        }
-                    });
-                };
-                collectAllFolderPaths(app.vault.getRoot());
+                // Get all remaining folder paths in the vault
+                const allFolders = app.vault.getAllFolders();
+                const existingPaths = new Set<string>(allFolders.map(folder => folder.path));
 
                 expansionDispatch({ type: 'CLEANUP_DELETED_FOLDERS', existingPaths });
                 selectionDispatch({ type: 'CLEANUP_DELETED_FOLDER', deletedPath: file.path });
