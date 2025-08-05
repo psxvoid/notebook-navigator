@@ -17,12 +17,6 @@ If you love using Notebook Navigator, please consider
 
 ### Desktop
 
-Transform your Obsidian file explorer from the default UI like this:
-
-![Default Obsidian File Explorer](https://github.com/johansan/notebook-navigator/blob/main/images/screenshot0.png?raw=true)
-
-To a modern, Notes-style interface like this:
-
 ![Notebook Navigator Interface](https://github.com/johansan/notebook-navigator/blob/main/images/screenshot1.png?raw=true)
 
 ### Mobile
