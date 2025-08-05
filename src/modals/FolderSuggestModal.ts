@@ -55,11 +55,22 @@ export class FolderSuggestModal extends BaseSuggestModal<TFolder> {
      * @returns Array of folders available for selection
      */
     getItems(): TFolder[] {
-        // Get all folders in the vault
-        const allFolders = this.app.vault.getAllFolders();
+        const folders: TFolder[] = [];
 
-        // Filter out excluded folders
-        const folders = allFolders.filter(folder => !this.excludeFolders.has(folder.path));
+        // Recursively collect all folders
+        const collectFolders = (folder: TFolder) => {
+            if (!this.excludeFolders.has(folder.path)) {
+                folders.push(folder);
+            }
+            for (const child of folder.children) {
+                if (child instanceof TFolder) {
+                    collectFolders(child);
+                }
+            }
+        };
+
+        // Start from root folder
+        collectFolders(this.app.vault.getRoot());
 
         // Sort folders by path for consistent ordering
         folders.sort((a, b) => a.path.localeCompare(b.path));
