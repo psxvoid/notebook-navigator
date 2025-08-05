@@ -267,7 +267,10 @@ export const STRINGS_ZH = {
             deepLinkCopied: '深层链接已复制到剪贴板',
             tagsAdded: '已将标签添加到 {added} 个文件，跳过了 {skipped} 个文件',
             tagRemoved: '已从 {count} 个文件中移除标签',
-            tagsCleared: '已从 {count} 个文件中清除所有标签'
+            tagsCleared: '已从 {count} 个文件中清除所有标签',
+            noTagsToRemove: '没有可移除的标签',
+            noFilesSelected: '未选择文件',
+            tagOperationsNotAvailable: '标签操作不可用'
         },
         confirmations: {
             deleteMultipleFiles: '确定要删除 {count} 个文件吗？',

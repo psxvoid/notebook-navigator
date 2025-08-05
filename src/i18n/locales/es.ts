@@ -267,7 +267,10 @@ export const STRINGS_ES = {
             deepLinkCopied: 'Enlace profundo copiado al portapapeles',
             tagsAdded: 'Etiqueta añadida a {added} archivos, omitidos {skipped} archivos',
             tagRemoved: 'Etiqueta eliminada de {count} archivos',
-            tagsCleared: 'Todas las etiquetas eliminadas de {count} archivos'
+            tagsCleared: 'Todas las etiquetas eliminadas de {count} archivos',
+            noTagsToRemove: 'No hay etiquetas para eliminar',
+            noFilesSelected: 'No hay archivos seleccionados',
+            tagOperationsNotAvailable: 'Operaciones de etiquetas no disponibles'
         },
         confirmations: {
             deleteMultipleFiles: '¿Está seguro de que desea eliminar {count} archivos?',

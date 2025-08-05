@@ -267,7 +267,10 @@ export const STRINGS_FR = {
             deepLinkCopied: 'Lien profond copié dans le presse-papiers',
             tagsAdded: 'Étiquette ajoutée à {added} fichiers, {skipped} fichiers ignorés',
             tagRemoved: 'Étiquette supprimée de {count} fichiers',
-            tagsCleared: 'Toutes les étiquettes supprimées de {count} fichiers'
+            tagsCleared: 'Toutes les étiquettes supprimées de {count} fichiers',
+            noTagsToRemove: 'Aucune étiquette à supprimer',
+            noFilesSelected: 'Aucun fichier sélectionné',
+            tagOperationsNotAvailable: "Opérations d'étiquettes non disponibles"
         },
         confirmations: {
             deleteMultipleFiles: 'Voulez-vous vraiment supprimer {count} fichiers ?',

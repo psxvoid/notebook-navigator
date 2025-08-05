@@ -287,14 +287,14 @@ export const NotebookNavigatorComponent = React.memo(
                 },
                 addTagToSelectedFiles: async () => {
                     if (!tagOperations) {
-                        new Notice('Tag operations not available');
+                        new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable);
                         return;
                     }
 
                     // Get selected files
                     const selectedFiles = getSelectedFiles();
                     if (selectedFiles.length === 0) {
-                        new Notice('No files selected');
+                        new Notice(strings.fileSystem.notifications.noFilesSelected);
                         return;
                     }
 
@@ -317,21 +317,21 @@ export const NotebookNavigatorComponent = React.memo(
                 },
                 removeTagFromSelectedFiles: async () => {
                     if (!tagOperations) {
-                        new Notice('Tag operations not available');
+                        new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable);
                         return;
                     }
 
                     // Get selected files
                     const selectedFiles = getSelectedFiles();
                     if (selectedFiles.length === 0) {
-                        new Notice('No files selected');
+                        new Notice(strings.fileSystem.notifications.noFilesSelected);
                         return;
                     }
 
                     // Get tags from selected files
                     const existingTags = await tagOperations.getTagsFromFiles(selectedFiles);
                     if (existingTags.length === 0) {
-                        new Notice('No tags to remove');
+                        new Notice(strings.fileSystem.notifications.noTagsToRemove);
                         return;
                     }
 
@@ -344,21 +344,21 @@ export const NotebookNavigatorComponent = React.memo(
                 },
                 removeAllTagsFromSelectedFiles: async () => {
                     if (!tagOperations) {
-                        new Notice('Tag operations not available');
+                        new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable);
                         return;
                     }
 
                     // Get selected files
                     const selectedFiles = getSelectedFiles();
                     if (selectedFiles.length === 0) {
-                        new Notice('No files selected');
+                        new Notice(strings.fileSystem.notifications.noFilesSelected);
                         return;
                     }
 
                     // Check if files have tags
                     const existingTags = await tagOperations.getTagsFromFiles(selectedFiles);
                     if (existingTags.length === 0) {
-                        new Notice('No tags to remove');
+                        new Notice(strings.fileSystem.notifications.noTagsToRemove);
                         return;
                     }
 

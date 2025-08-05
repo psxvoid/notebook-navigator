@@ -142,7 +142,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 const existingTags = await services.tagOperations.getTagsFromFiles(filesForTagOps);
 
                 if (existingTags.length === 0) {
-                    new Notice('No tags to remove');
+                    new Notice(strings.fileSystem.notifications.noTagsToRemove);
                     return;
                 }
 
@@ -164,7 +164,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
                 const existingTags = await services.tagOperations.getTagsFromFiles(filesForTagOps);
 
                 if (existingTags.length === 0) {
-                    new Notice('No tags to remove');
+                    new Notice(strings.fileSystem.notifications.noTagsToRemove);
                     return;
                 }
 

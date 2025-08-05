@@ -267,7 +267,10 @@ export const STRINGS_JA = {
             deepLinkCopied: 'ディープリンクをクリップボードにコピーしました',
             tagsAdded: '{added}個のファイルにタグを追加、{skipped}個のファイルをスキップしました',
             tagRemoved: '{count}個のファイルからタグを削除しました',
-            tagsCleared: '{count}個のファイルからすべてのタグをクリアしました'
+            tagsCleared: '{count}個のファイルからすべてのタグをクリアしました',
+            noTagsToRemove: '削除するタグがありません',
+            noFilesSelected: 'ファイルが選択されていません',
+            tagOperationsNotAvailable: 'タグ操作は利用できません'
         },
         confirmations: {
             deleteMultipleFiles: '本当に{count}個のファイルを削除しますか？',

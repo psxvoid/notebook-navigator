@@ -266,7 +266,10 @@ export const STRINGS_EN = {
             deepLinkCopied: 'Deep link copied to clipboard',
             tagsAdded: 'Added tag to {added} files, skipped {skipped} files',
             tagRemoved: 'Removed tag from {count} files',
-            tagsCleared: 'Cleared all tags from {count} files'
+            tagsCleared: 'Cleared all tags from {count} files',
+            noTagsToRemove: 'No tags to remove',
+            noFilesSelected: 'No files selected',
+            tagOperationsNotAvailable: 'Tag operations not available'
         },
         confirmations: {
             deleteMultipleFiles: 'Are you sure you want to delete {count} files?',

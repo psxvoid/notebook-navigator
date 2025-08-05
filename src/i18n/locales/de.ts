@@ -267,7 +267,10 @@ export const STRINGS_DE = {
             deepLinkCopied: 'Deep Link in die Zwischenablage kopiert',
             tagsAdded: 'Tag zu {added} Dateien hinzugefügt, {skipped} Dateien übersprungen',
             tagRemoved: 'Tag von {count} Dateien entfernt',
-            tagsCleared: 'Alle Tags von {count} Dateien entfernt'
+            tagsCleared: 'Alle Tags von {count} Dateien entfernt',
+            noTagsToRemove: 'Keine Tags zum Entfernen',
+            noFilesSelected: 'Keine Dateien ausgewählt',
+            tagOperationsNotAvailable: 'Tag-Operationen nicht verfügbar'
         },
         confirmations: {
             deleteMultipleFiles: 'Möchten Sie wirklich {count} Dateien löschen?',
