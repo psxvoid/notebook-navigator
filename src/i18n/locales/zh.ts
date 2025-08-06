@@ -394,6 +394,14 @@ export const STRINGS_ZH = {
                 name: '显示父文件夹名称',
                 desc: '为子文件夹中的笔记显示父文件夹名称。'
             },
+            showQuickActions: {
+                name: '快速操作',
+                desc: '在文件项上显示悬停操作。'
+            },
+            quickActionsRevealInFolder: {
+                name: '在文件夹中显示',
+                desc: '当文件显示在其父文件夹之外时，显示在文件夹中显示图标。'
+            },
             dualPane: {
                 name: '双窗格布局（仅桌面端）',
                 desc: '在桌面端并排显示导航窗格和列表窗格。'

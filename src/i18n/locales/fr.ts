@@ -394,6 +394,14 @@ export const STRINGS_FR = {
                 name: 'Afficher les noms des dossiers parents',
                 desc: 'Afficher le nom du dossier parent pour les notes provenant des sous-dossiers.'
             },
+            showQuickActions: {
+                name: 'Actions rapides',
+                desc: 'Afficher les actions au survol sur les éléments de fichier.'
+            },
+            quickActionsRevealInFolder: {
+                name: 'Révéler dans le dossier',
+                desc: "Afficher l'icône de révélation dans le dossier lorsque le fichier est affiché en dehors de son dossier parent."
+            },
             dualPane: {
                 name: 'Disposition à double panneau (ordinateur uniquement)',
                 desc: 'Afficher le panneau de navigation et le panneau de liste côte à côte sur ordinateur.'

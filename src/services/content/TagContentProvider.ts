@@ -98,12 +98,42 @@ export class TagContentProvider extends BaseContentProvider {
     }
 
     /**
-     * Extract tags from cached metadata
+     * Extract tags from cached metadata.
+     *
+     * Tags are returned with their original casing as found in the vault,
+     * without the # prefix. For example, "#ToDo" becomes "ToDo".
+     *
+     * Duplicate tags with different casing are deduplicated - only the first
+     * occurrence is kept. For example, if a file has #todo and #TODO, only
+     * "todo" (the first one) is returned.
+     *
+     * The tag tree building process will later normalize these to lowercase
+     * for the `path` property while preserving the original casing in `displayPath`.
+     *
+     * @param metadata - Cached metadata from Obsidian's metadata cache
+     * @returns Array of unique tag strings without # prefix, in original casing
      */
     private extractTagsFromMetadata(metadata: CachedMetadata | null): string[] {
         const rawTags = metadata ? getAllTags(metadata) : [];
-        // Remove # prefix for consistency with how we store tags
-        return rawTags?.map(tag => (tag.startsWith('#') ? tag.slice(1) : tag)) || [];
+        if (!rawTags || rawTags.length === 0) return [];
+
+        // Deduplicate tags while preserving the first occurrence's casing
+        const seen = new Set<string>();
+        const uniqueTags: string[] = [];
+
+        for (const tag of rawTags) {
+            // Remove # prefix
+            const cleanTag = tag.startsWith('#') ? tag.slice(1) : tag;
+            const lowerTag = cleanTag.toLowerCase();
+
+            // Only add if we haven't seen this tag (case-insensitive)
+            if (!seen.has(lowerTag)) {
+                seen.add(lowerTag);
+                uniqueTags.push(cleanTag);
+            }
+        }
+
+        return uniqueTags;
     }
 
     /**

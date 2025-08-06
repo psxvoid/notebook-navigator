@@ -393,6 +393,14 @@ export const STRINGS_EN = {
                 name: 'Show parent folder names',
                 desc: 'Display the parent folder name for notes from subfolders.'
             },
+            showQuickActions: {
+                name: 'Quick actions',
+                desc: 'Show hover actions on file items.'
+            },
+            quickActionsRevealInFolder: {
+                name: 'Reveal in folder',
+                desc: 'Show reveal in folder icon when file is displayed outside its parent folder.'
+            },
             dualPane: {
                 name: 'Dual pane layout (desktop only)',
                 desc: 'Show navigation pane and list pane side by side on desktop.'

@@ -394,6 +394,14 @@ export const STRINGS_DE = {
                 name: 'Übergeordnete Ordnernamen anzeigen',
                 desc: 'Den übergeordneten Ordnernamen für Notizen aus Unterordnern anzeigen.'
             },
+            showQuickActions: {
+                name: 'Schnellaktionen',
+                desc: 'Zeige Hover-Aktionen auf Dateielementen.'
+            },
+            quickActionsRevealInFolder: {
+                name: 'Im Ordner anzeigen',
+                desc: 'Zeige das Symbol "Im Ordner anzeigen", wenn die Datei außerhalb ihres übergeordneten Ordners angezeigt wird.'
+            },
             dualPane: {
                 name: 'Doppelbereichslayout (nur Desktop)',
                 desc: 'Navigationsbereich und Listenbereich nebeneinander auf dem Desktop anzeigen.'

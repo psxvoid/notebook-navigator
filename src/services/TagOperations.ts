@@ -56,7 +56,7 @@ export class TagOperations {
         let skipped = 0;
 
         for (const file of files) {
-            const alreadyHasTag = await this.fileHasTag(file, tag);
+            const alreadyHasTag = await this.fileHasTagOrAncestor(file, tag);
             if (alreadyHasTag) {
                 skipped++;
                 continue;
@@ -75,16 +75,23 @@ export class TagOperations {
      * @returns Array of unique tag strings (without #)
      */
     getTagsFromFiles(files: TFile[]): string[] {
-        const allTags = new Set<string>();
+        // Use a Map to track lowercase tag -> first canonical form encountered
+        const canonicalTags = new Map<string, string>();
         const db = getDBInstance();
 
         for (const file of files) {
             const tags = db.getCachedTags(file.path);
-            tags.forEach(tag => allTags.add(tag));
+            tags.forEach(tag => {
+                const lowerTag = tag.toLowerCase();
+                // Only add if we haven't seen this tag (case-insensitive)
+                if (!canonicalTags.has(lowerTag)) {
+                    canonicalTags.set(lowerTag, tag);
+                }
+            });
         }
 
-        // Sort tags alphabetically
-        return Array.from(allTags).sort();
+        // Return canonical forms sorted alphabetically
+        return Array.from(canonicalTags.values()).sort();
     }
 
     /**
@@ -125,20 +132,27 @@ export class TagOperations {
     }
 
     /**
-     * Checks if a file already has a specific tag or an ancestor tag
+     * Checks if a file already has a specific tag or an ancestor tag.
+     * Comparison is case-insensitive (e.g., "TODO" matches "todo").
+     * Also returns true if file has an ancestor tag (e.g., won't add "project/task" if file has "project").
      */
-    private async fileHasTag(file: TFile, tag: string): Promise<boolean> {
+    private async fileHasTagOrAncestor(file: TFile, tag: string): Promise<boolean> {
         const db = getDBInstance();
         const allTags = db.getCachedTags(file.path);
 
+        // Normalize to lowercase for comparison
+        const lowerTag = tag.toLowerCase();
+
         // Check if any existing tag is the same or an ancestor
         return allTags.some((existingTag: string) => {
-            // Exact match
-            if (existingTag === tag) return true;
+            const lowerExistingTag = existingTag.toLowerCase();
+
+            // Exact match (case-insensitive)
+            if (lowerExistingTag === lowerTag) return true;
 
             // Check if we already have an ancestor tag
             // e.g., if we want to add "project/example" but file has "project"
-            return tag.startsWith(existingTag + '/');
+            return lowerTag.startsWith(lowerExistingTag + '/');
         });
     }
 
@@ -190,7 +204,7 @@ export class TagOperations {
                     const originalLength = fm.tags.length;
                     fm.tags = fm.tags.filter((t: string) => {
                         const cleanTag = t.startsWith('#') ? t.substring(1) : t;
-                        return cleanTag !== tag;
+                        return cleanTag.toLowerCase() !== tag.toLowerCase();
                     });
 
                     if (fm.tags.length < originalLength) {
@@ -204,7 +218,7 @@ export class TagOperations {
                     const tags = fm.tags.split(',').map((t: string) => t.trim());
                     const filteredTags = tags.filter((t: string) => {
                         const cleanTag = t.startsWith('#') ? t.substring(1) : t;
-                        return cleanTag !== tag;
+                        return cleanTag.toLowerCase() !== tag.toLowerCase();
                     });
 
                     if (filteredTags.length < tags.length) {
@@ -339,7 +353,7 @@ export class TagOperations {
         const escapedTag = this.escapeRegExp(tag);
         // Remove the specific tag with optional preceding space
         // Must be followed by whitespace or end of line
-        const regex = new RegExp(`(\\s)?#${escapedTag}(?=\\s|$)`, 'g');
+        const regex = new RegExp(`(\\s)?#${escapedTag}(?=\\s|$)`, 'gi');
         return content.replace(regex, '');
     }
 

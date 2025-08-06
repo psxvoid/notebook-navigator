@@ -29,7 +29,7 @@ import { IndexedDBStorage, FileData } from './IndexedDBStorage';
  *
  * Relationships:
  * - Uses: IndexedDBStorage (maintains singleton instance)
- * - Used by: StorageContext, ContentService, DiffCalculator, Statistics
+ * - Used by: StorageContext, ContentProviders, DiffCalculator, Statistics
  *
  * Key responsibilities:
  * - Initialize and provide database access
@@ -97,10 +97,10 @@ export async function recordFileChanges(files: TFile[], existingData: Map<string
             // New file - initialize with null content
             const fileData: FileData = {
                 mtime: file.stat.mtime,
-                tags: null, // ContentService will extract these
-                preview: null, // ContentService will generate these
-                featureImage: null, // ContentService will generate these
-                metadata: null // ContentService will extract these
+                tags: null, // TagContentProvider will extract these
+                preview: null, // PreviewContentProvider will generate these
+                featureImage: null, // FeatureImageContentProvider will generate these
+                metadata: null // MetadataContentProvider will extract these
             };
             updates.push({ path: file.path, data: fileData });
         } else if (existing.mtime === file.stat.mtime) {
@@ -130,12 +130,12 @@ export async function recordFileChanges(files: TFile[], existingData: Map<string
  *
  * Why we preserve mtime:
  * - The file hasn't actually changed, only our settings have
- * - Updating mtime would make ContentService think the file was modified
+ * - Updating mtime would make content providers think the file was modified
  * - We want to regenerate content with new settings, not because file changed
  *
  * When we DO update mtime:
  * - recordFileChanges(): When files are actually modified/added/renamed
- * - ContentService.updateMtimes(): After content generation to prevent re-processing
+ * - Content providers update mtime after generation to prevent re-processing
  *
  * @param files - Array of Obsidian files to mark for regeneration
  */
@@ -161,7 +161,7 @@ export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
             });
         } else {
             // For settings changes, we need a way to trigger regeneration
-            // Update mtime to 0 to force ContentService to regenerate
+            // Update mtime to 0 to force content providers to regenerate
             // This is better than clearing content as it avoids the double render
             updates.push({
                 path: file.path,

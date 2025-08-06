@@ -58,8 +58,11 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
                 // Handle special cases
                 if (tagNode.path === '__create_new__' && this.currentInput) {
                     onChooseTag(this.currentInput);
-                } else {
+                } else if (tagNode.path === '__untagged__') {
                     onChooseTag(tagNode.path);
+                } else {
+                    // Use displayPath to preserve canonical casing
+                    onChooseTag(tagNode.displayPath);
                 }
             },
             placeholderText,
@@ -76,6 +79,7 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
         this.untaggedNode = {
             name: strings.common.untagged,
             path: '__untagged__',
+            displayPath: '__untagged__',
             children: new Map(),
             notesWithTag: new Set()
         };
@@ -109,8 +113,9 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
             return suggestions;
         }
 
-        // Check if an exact match already exists
-        const exactMatch = suggestions.find(s => s.item.path === this.currentInput);
+        // Check if an exact match already exists (case-insensitive)
+        const lowerInput = this.currentInput.toLowerCase();
+        const exactMatch = suggestions.find(s => s.item.path === lowerInput);
         if (exactMatch) {
             return suggestions;
         }
@@ -119,6 +124,7 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
         this.createNewNode = {
             name: strings.modals.tagSuggest.createNewTag.replace('{tag}', this.currentInput),
             path: '__create_new__',
+            displayPath: '__create_new__',
             children: new Map(),
             notesWithTag: new Set()
         };
@@ -182,8 +188,8 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
         if (tag.path === '__create_new__') {
             return this.currentInput; // Return the input for fuzzy matching
         }
-        // Return full path with # prefix for fuzzy matching
-        return `#${tag.path}`;
+        // Return displayPath with # prefix for fuzzy matching
+        return `#${tag.displayPath}`;
     }
 
     /**
@@ -198,8 +204,8 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
         if (tag.path === '__create_new__') {
             return tag.name; // Already contains the full text
         }
-        // Show tag with # prefix
-        return `#${tag.path}`;
+        // Show tag with # prefix using displayPath for correct casing
+        return `#${tag.displayPath}`;
     }
 
     /**

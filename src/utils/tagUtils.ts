@@ -42,9 +42,10 @@ function getNormalizedTagsForFile(file: TFile, storage: IndexedDBStorage): strin
 }
 
 /**
- * Checks if a file has a specific tag (case-insensitive)
+ * Checks if a file has a specific tag - exact match only, no ancestor checking.
+ * Comparison is case-insensitive (e.g., "TODO" matches "todo").
  */
-function fileHasTag(file: TFile, tag: string, storage: IndexedDBStorage): boolean {
+function fileHasExactTag(file: TFile, tag: string, storage: IndexedDBStorage): boolean {
     const normalizedTags = getNormalizedTagsForFile(file, storage);
     const normalizedSearchTag = tag.toLowerCase();
 
@@ -97,7 +98,7 @@ export function determineTagToReveal(
     // Check if we should stay on the current tag
     if (currentTag && currentTag !== UNTAGGED_TAG_ID) {
         // First check exact match
-        if (fileHasTag(file, currentTag, storage)) {
+        if (fileHasExactTag(file, currentTag, storage)) {
             return currentTag; // Stay on current tag
         }
 

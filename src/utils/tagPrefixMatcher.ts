@@ -30,32 +30,32 @@
  */
 
 /**
- * Normalizes a tag path by removing # prefix, trimming slashes, and converting to lowercase
+ * Cleans a tag path by removing # prefix and trimming slashes.
+ * Assumes the input string is already lowercase.
  */
-function normalizeTag(tag: string): string {
-    let cleaned = tag.startsWith('#') ? tag.substring(1) : tag;
-    cleaned = cleaned.replace(/^\/+|\/+$/g, ''); // Trim leading/trailing slashes
-    return cleaned.toLowerCase();
+function cleanTagPath(tag: string): string {
+    const cleaned = tag.startsWith('#') ? tag.substring(1) : tag;
+    return cleaned.replace(/^\/+|\/+$/g, ''); // Trim leading/trailing slashes
 }
 
 /**
- * Checks if a tag matches a specific prefix
- * @param tagPath - The tag path to check (e.g., "photo/camera/fuji")
- * @param prefix - The prefix to match against (e.g., "photo/camera")
+ * Checks if a tag matches a specific prefix. Assumes lowercase inputs.
+ * @param tagPath - The tag path to check (e.g., "photo/camera/fuji") - must be lowercase
+ * @param prefix - The prefix to match against (e.g., "photo/camera") - must be lowercase
  * @returns true if the tag starts with the prefix
  */
 function matchesPrefix(tagPath: string, prefix: string): boolean {
-    const normalizedTag = normalizeTag(tagPath);
-    const normalizedPrefix = normalizeTag(prefix);
+    const cleanedTag = cleanTagPath(tagPath);
+    // prefix from settings is already clean and lowercase
 
     // Check both exact match and prefix match in one expression
-    return normalizedTag === normalizedPrefix || normalizedTag.startsWith(normalizedPrefix + '/');
+    return cleanedTag === prefix || cleanedTag.startsWith(prefix + '/');
 }
 
 /**
- * Checks if a tag matches any of the given prefixes
- * @param tagPath - The tag path to check
- * @param prefixes - Array of prefixes to match against
+ * Checks if a tag matches any of the given prefixes. Assumes lowercase inputs.
+ * @param tagPath - The tag path to check - must be lowercase
+ * @param prefixes - Array of prefixes to match against - must be lowercase
  * @returns true if the tag matches any prefix
  */
 export function matchesAnyPrefix(tagPath: string, prefixes: string[]): boolean {
@@ -65,25 +65,26 @@ export function matchesAnyPrefix(tagPath: string, prefixes: string[]): boolean {
 /**
  * Finds all prefixes that would match a given tag
  * Used for "Remove from favorites" to find which favorite entries to remove
+ * Assumes lowercase inputs.
  *
- * @param tagPath - The tag path to check
- * @param prefixes - Array of prefixes to check against
- * @returns Array of prefixes that match this tag (preserving original casing)
+ * @param tagPath - The tag path to check - must be lowercase
+ * @param prefixes - Array of prefixes to check against - must be lowercase
+ * @returns Array of prefixes that match this tag
  */
 export function findMatchingPrefixes(tagPath: string, prefixes: string[]): string[] {
-    const normalizedTag = normalizeTag(tagPath);
+    const cleanedTag = cleanTagPath(tagPath);
     const matchingPrefixes: string[] = [];
 
     for (const prefix of prefixes) {
-        const normalizedPrefix = normalizeTag(prefix);
+        // prefixes from settings are already clean and lowercase
 
         // Check if this prefix would match the tag
-        if (normalizedTag === normalizedPrefix || normalizedTag.startsWith(normalizedPrefix + '/')) {
+        if (cleanedTag === prefix || cleanedTag.startsWith(prefix + '/')) {
             matchingPrefixes.push(prefix);
         }
         // Also check if the tag is an ancestor of the prefix
         // (e.g., clicking "photo" when "photo/camera" is favorited)
-        else if (normalizedPrefix.startsWith(normalizedTag + '/')) {
+        else if (prefix.startsWith(cleanedTag + '/')) {
             matchingPrefixes.push(prefix);
         }
     }

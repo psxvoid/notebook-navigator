@@ -45,6 +45,14 @@ export type CollapseButtonBehavior =
     | 'tags-only'; // Collapse/expand only tags
 
 /**
+ * Quick actions configuration
+ */
+export interface QuickActionsConfig {
+    revealInFolder: boolean; // Show reveal in folder icon on hover
+    // Future quick actions can be added here
+}
+
+/**
  * Plugin settings interface defining all configurable options
  * These settings control the appearance and behavior of the navigator
  */
@@ -83,6 +91,8 @@ export interface NotebookNavigatorSettings {
     groupByDate: boolean;
     showNotesFromSubfolders: boolean;
     showParentFolderNames: boolean;
+    showQuickActions: boolean;
+    quickActions: QuickActionsConfig;
     dateFormat: string;
     timeFormat: string;
     // Notes
@@ -155,6 +165,10 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     groupByDate: true,
     showNotesFromSubfolders: true,
     showParentFolderNames: true,
+    showQuickActions: true,
+    quickActions: {
+        revealInFolder: true
+    },
     dateFormat: 'MMM d, yyyy',
     timeFormat: 'h:mm a',
     // Notes
@@ -691,6 +705,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .map(tag => tag.trim())
                     .map(tag => tag.replace(/^#/, '')) // Remove leading hashtag
                     .map(tag => tag.replace(/^\/+|\/+$/g, '')) // Trim leading/trailing slashes
+                    .map(tag => tag.toLowerCase())
                     .filter(tag => tag.length > 0);
             }
         );
@@ -710,6 +725,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .map(tag => tag.trim())
                     .map(tag => tag.replace(/^#/, '')) // Remove leading hashtag
                     .map(tag => tag.replace(/^\/+|\/+$/g, '')) // Trim leading/trailing slashes
+                    .map(tag => tag.toLowerCase())
                     .filter(tag => tag.length > 0);
             }
         );
@@ -775,6 +791,34 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         // Set initial visibility
         subfolderNamesEl.toggle(this.plugin.settings.showNotesFromSubfolders);
+
+        // Quick actions settings
+        new Setting(containerEl)
+            .setName(strings.settings.items.showQuickActions.name)
+            .setDesc(strings.settings.items.showQuickActions.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showQuickActions).onChange(async value => {
+                    this.plugin.settings.showQuickActions = value;
+                    await this.saveAndRefresh();
+                    // Update quick actions sub-settings visibility
+                    quickActionsEl.toggle(value);
+                })
+            );
+
+        // Container for quick actions sub-settings
+        const quickActionsEl = containerEl.createDiv('nn-sub-settings');
+        new Setting(quickActionsEl)
+            .setName(strings.settings.items.quickActionsRevealInFolder.name)
+            .setDesc(strings.settings.items.quickActionsRevealInFolder.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.quickActions.revealInFolder).onChange(async value => {
+                    this.plugin.settings.quickActions.revealInFolder = value;
+                    await this.saveAndRefresh();
+                })
+            );
+
+        // Set initial visibility
+        quickActionsEl.toggle(this.plugin.settings.showQuickActions);
 
         this.createDebouncedTextSetting(
             containerEl,

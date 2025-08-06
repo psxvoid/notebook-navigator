@@ -55,6 +55,23 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.3.14',
+        date: '2025-08-06',
+        showOnUpdate: true,
+        new: [
+            'New setting: **Quick actions**. When enabled (default on), quick action icons appear when hovering notes in the list pane.',
+            'New quick action: **Reveal in folder**. Click the quick action folder icon to quickly navigate to the actual folder of the file (from parent or tag view).'
+        ],
+        improved: [
+            '**Tag system improvement**: Tags are now stored with separate lowercase paths for logic and canonical display paths for UI. This ensures consistent case-insensitive matching while preserving your preferred tag capitalization throughout the interface.'
+        ],
+        fixed: [
+            '**Tag system improvement**: Tag operations are now case-insensitive. Adding #TODO to a file that already has #todo will be skipped, and removing tags will match regardless of case.',
+            '**Tag system improvement**: Tag removal in the UI now shows each unique tag only once (e.g., #todo and #ToDo appear as single option).',
+            '**Tag system improvement**: Excluded and ignored tags in settings are now automatically converted to lowercase for consistent matching.'
+        ]
+    },
+    {
         version: '1.3.13',
         date: '2025-08-05',
         showOnUpdate: false,
