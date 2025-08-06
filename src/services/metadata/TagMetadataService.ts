@@ -59,12 +59,15 @@ export class TagMetadataService extends BaseMetadataService {
      * @returns The color value or undefined
      */
     getTagColor(tagPath: string): string | undefined {
+        // Normalize to lowercase for lookup (tag paths are stored as lowercase keys)
+        const lowerPath = tagPath.toLowerCase();
+
         // First check if this tag has a color directly set
-        const directColor = this.getEntityColor(ItemType.TAG, tagPath);
+        const directColor = this.getEntityColor(ItemType.TAG, lowerPath);
         if (directColor) return directColor;
 
         // If no direct color, check ancestors
-        const pathParts = tagPath.split('/');
+        const pathParts = lowerPath.split('/');
         for (let i = pathParts.length - 1; i > 0; i--) {
             const ancestorPath = pathParts.slice(0, i).join('/');
             const ancestorColor = this.getEntityColor(ItemType.TAG, ancestorPath);
@@ -97,7 +100,8 @@ export class TagMetadataService extends BaseMetadataService {
      * @returns The icon ID or undefined
      */
     getTagIcon(tagPath: string): string | undefined {
-        return this.getEntityIcon(ItemType.TAG, tagPath);
+        // Normalize to lowercase for lookup (tag paths are stored as lowercase keys)
+        return this.getEntityIcon(ItemType.TAG, tagPath.toLowerCase());
     }
 
     /**
