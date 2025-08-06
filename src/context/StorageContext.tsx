@@ -66,6 +66,7 @@ import { leadingEdgeDebounce } from '../utils/leadingEdgeDebounce';
 import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
+import { useInitialCleanup } from '../hooks/useInitialCleanup';
 
 /**
  * Data structure containing the hierarchical tag trees and untagged file count
@@ -272,31 +273,13 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         return { favoriteTree, tagTree };
     }, [settings.showTags, settings.showUntagged, settings.excludedFolders, settings.favoriteTags, tagTreeService]);
 
-    // Unified cleanup function that runs all cleanup operations in a single pass
-    const runUnifiedCleanup = useCallback(
-        async (db: IndexedDBStorage, tagTree: Map<string, TagTreeNode>) => {
-            if (!metadataService) return;
-
-            // Get all files from database with their data
-            const allFiles = db.getAllFiles();
-
-            // Get filtered vault files
-            const vaultFiles = getFilteredMarkdownFilesCallback();
-
-            // Create validators object with all necessary data
-            const validators = {
-                dbFiles: allFiles,
-                tagTree: tagTree,
-                // Add vault files for validation
-                vaultFiles: new Set(vaultFiles.map(f => f.path))
-            };
-
-            // Run unified cleanup
-            const hasChanges = await metadataService.runUnifiedCleanup(validators);
-            return hasChanges;
-        },
-        [metadataService, getFilteredMarkdownFilesCallback]
-    );
+    // Hook for handling deferred cleanup after tag extraction
+    const { startTracking, handleTagsExtracted, waitForMetadataCache } = useInitialCleanup({
+        app,
+        metadataService,
+        isStorageReady,
+        showTags: settings.showTags
+    });
 
     /**
      * Centralized handler for all content-related settings changes
@@ -351,7 +334,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             });
     }, [app]);
 
-    // Listen for tag changes to rebuild tag tree
+    // Listen for tag changes to rebuild tag tree and trigger initial cleanup
     useEffect(() => {
         if (!isStorageReady) return;
 
@@ -362,12 +345,18 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
             if (hasTagChanges && settings.showTags) {
                 // Rebuild tag tree when tags change
-                rebuildTagTree();
+                const { favoriteTree, tagTree } = rebuildTagTree();
+
+                // Handle initial cleanup tracking
+                const tagChanges = changes.filter(change => change.changes.tags !== undefined);
+                if (tagChanges.length > 0) {
+                    handleTagsExtracted(tagChanges.length, tagTree, favoriteTree);
+                }
             }
         });
 
         return unsubscribe;
-    }, [isStorageReady, settings.showTags, settings.showUntagged, rebuildTagTree]);
+    }, [isStorageReady, settings.showTags, rebuildTagTree, handleTagsExtracted]);
 
     // Main initialization and vault monitoring effect
     useEffect(() => {
@@ -390,32 +379,37 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                     if (toAdd.length > 0 || toUpdate.length > 0) {
                         await recordFileChanges([...toAdd, ...toUpdate], cachedFiles);
+
+                        // Log database stats only after initial rebuild (when we had files to add)
+                        if (toAdd.length > 0) {
+                            const db = getDBInstance();
+                            const stats = db.getDatabaseStats();
+                            console.log(`[IndexedDB] Rebuild complete - ${stats.itemCount} items, ${stats.sizeMB.toFixed(2)}MB`);
+                        }
                     }
 
                     // Step 3: Build tag tree from the now-synced database
                     // This ensures the tag tree accurately reflects the current vault state
-                    const { favoriteTree, tagTree } = rebuildTagTree();
+                    rebuildTagTree();
 
                     // Step 4: Mark storage as ready
                     setIsStorageReady(true);
 
-                    // Step 5: Run metadata cleanup with accurate data
-                    // This MUST run after database sync and tag tree build to ensure:
-                    // - Tag metadata cleanup uses the current tag tree (not stale data)
-                    // - Folder metadata cleanup uses current vault structure
-                    // - All orphaned metadata is properly detected and removed
-                    if (metadataService) {
-                        // Combine both trees for cleanup so favorite tags aren't treated as orphaned
-                        const combinedTree = new Map([...favoriteTree, ...tagTree]);
-                        await runUnifiedCleanup(getDBInstance(), combinedTree);
-                    }
-
-                    // Step 6: Queue content generation for new/modified files
+                    // Step 5: Queue content generation for new/modified files
                     const contentEnabled =
                         settings.showTags || settings.showFilePreview || settings.showFeatureImage || settings.useFrontmatterMetadata;
 
                     if (contentRegistry.current && contentEnabled && (toAdd.length > 0 || toUpdate.length > 0)) {
-                        contentRegistry.current.queueFilesForAllProviders([...toAdd, ...toUpdate], settings);
+                        // For initial load with tags enabled, wait for metadata cache
+                        if (toAdd.length > 0 && settings.showTags) {
+                            startTracking(toAdd.length);
+
+                            waitForMetadataCache(() => {
+                                contentRegistry.current?.queueFilesForAllProviders([...toAdd, ...toUpdate], settings);
+                            });
+                        } else {
+                            contentRegistry.current.queueFilesForAllProviders([...toAdd, ...toUpdate], settings);
+                        }
                     }
                 } catch (error) {
                     console.error('Failed during initial load sequence:', error);
@@ -596,7 +590,16 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
             app.metadataCache.offref(metadataEvent);
         };
-    }, [app, isIndexedDBReady, getFilteredMarkdownFilesCallback, rebuildTagTree, settings, metadataService, runUnifiedCleanup]);
+    }, [
+        app,
+        isIndexedDBReady,
+        getFilteredMarkdownFilesCallback,
+        rebuildTagTree,
+        settings,
+        metadataService,
+        startTracking,
+        waitForMetadataCache
+    ]);
 
     // Single effect to handle ALL content-related settings changes
     useEffect(() => {

@@ -23,6 +23,7 @@ import { ISettingsProvider } from '../../interfaces/ISettingsProvider';
 import { ITagTreeProvider } from '../../interfaces/ITagTreeProvider';
 import { BaseMetadataService } from './BaseMetadataService';
 import type { CleanupValidators } from '../MetadataService';
+import { TagTreeNode } from '../../types/storage';
 
 /**
  * Service for managing tag-specific metadata operations
@@ -159,24 +160,28 @@ export class TagMetadataService extends BaseMetadataService {
      * to remove metadata for tags that no longer exist in the vault.
      *
      * The cleanup process:
-     * 1. Called from StorageContext during initial sync after all files are processed
-     * 2. Unlike folders and files, tags are validated against the TagTreeService
-     *    because tags are dynamically extracted from file content/frontmatter
+     * 1. Called from StorageContext after all tags have been extracted
+     * 2. Uses the tag tree passed in validators to ensure we have complete data
      * 3. Gets all valid tag paths from the tag tree (includes nested tags like "parent/child")
      * 4. Removes metadata (colors, icons, sort overrides) for any tags not in the tree
      *
-     * Note: The validators parameter is provided for consistency with other cleanup methods
-     * but is not used here because tag validation requires the complete tag tree structure
-     * which is maintained by TagTreeService.
-     *
-     * @param _validators - Pre-loaded data (unused for tags - uses TagTreeService instead)
+     * @param validators - Pre-loaded data including the complete tag tree
      * @returns True if any tag metadata was removed
      */
-    async cleanupWithValidators(_validators: CleanupValidators): Promise<boolean> {
-        // Get all valid tags from the tag tree maintained by TagTreeService
-        // This includes all tags found in files, including nested tags
-        const tagTreeProvider = this.getTagTreeProvider();
-        const validTagPaths = tagTreeProvider?.getAllTagPaths() || [];
+    async cleanupWithValidators(validators: CleanupValidators): Promise<boolean> {
+        // Collect all valid tag paths from the passed tag tree
+        const validTagPaths: string[] = [];
+
+        // Extract tag paths from the tag tree in validators
+        for (const rootNode of validators.tagTree.values()) {
+            const collectPaths = (node: TagTreeNode): void => {
+                validTagPaths.push(node.path);
+                for (const child of node.children.values()) {
+                    collectPaths(child);
+                }
+            };
+            collectPaths(rootNode);
+        }
 
         const validTagsLower = new Set(validTagPaths.map(p => p.toLowerCase()));
         const validator = (path: string) => validTagsLower.has(path.toLowerCase());

@@ -228,14 +228,8 @@ export class IndexedDBStorage {
 
         // Log initialization summary
         const totalTime = (performance.now() - startTime).toFixed(2);
-        const itemCount = this.cache.getAllFilesWithPaths().length;
-        // Calculate size using the same method as statistics
-        let totalSize = 0;
-        for (const { path, data } of this.cache.getAllFilesWithPaths()) {
-            totalSize += path.length + JSON.stringify(data).length;
-        }
-        const cacheSizeMB = (totalSize / 1024 / 1024).toFixed(2);
-        console.log(`[IndexedDB Storage] Ready in ${totalTime}ms - ${itemCount} items, ${cacheSizeMB}MB`);
+        const stats = this.getDatabaseStats();
+        console.log(`[IndexedDB] Ready in ${totalTime}ms - ${stats.itemCount} items, ${stats.sizeMB.toFixed(2)}MB`);
     }
 
     private async deleteDatabase(): Promise<void> {
@@ -610,6 +604,22 @@ export class IndexedDBStorage {
             }
         }
         return result;
+    }
+
+    /**
+     * Get current database statistics.
+     * Returns the number of items and total size in MB.
+     *
+     * @returns Object with item count and size in MB
+     */
+    getDatabaseStats(): { itemCount: number; sizeMB: number } {
+        const itemCount = this.cache.getAllFilesWithPaths().length;
+        let totalSize = 0;
+        for (const { path, data } of this.cache.getAllFilesWithPaths()) {
+            totalSize += path.length + JSON.stringify(data).length;
+        }
+        const sizeMB = totalSize / 1024 / 1024;
+        return { itemCount, sizeMB };
     }
 
     /**
