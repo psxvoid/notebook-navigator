@@ -522,6 +522,11 @@
     margin: 0px var(--size-4-2);
     border-radius: var(--radius-m);
     background: transparent;
+    position: relative; /* For absolute positioning of reveal overlay */
+}
+
+/* File inner content - flex container for actual content */
+.nn-file-inner-content {
     display: flex;
     flex-direction: row;
     gap: var(--size-4-1);
@@ -605,36 +610,42 @@
     color: var(--text-normal);
 }
 
-/* File name with reveal icon - converts to flex to place icon beside text */
-.nn-file-name-with-reveal {
-    display: flex;
-    gap: var(--size-4-1);
-}
-
-/* Text wrapper - needed for text truncation to work in flex container */
-.nn-file-name-with-reveal .nn-file-name-text {
-    flex: 1;
-    min-width: 0; /* Required for text-overflow ellipsis in flex child */
-}
-
-/* Reveal folder icon - initially hidden, shows on hover */
-.nn-file-reveal-icon {
-    flex-shrink: 0;
-    width: 18px;
-    height: 18px;
+/* Reveal folder icon overlay - positioned in top-right corner */
+.nn-file-reveal-overlay {
+    position: absolute;
+    top: var(--size-4-2); /* Default: 8px for normal mode */
+    inset-inline-end: var(--size-4-2);
+    width: 24px;
+    height: 24px;
     cursor: pointer;
-    opacity: 0; /* Hidden by default */
+    display: none;
     color: var(--text-muted);
+    background: var(--background-primary); /* Always opaque background */
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-s);
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
 }
 
-/* Stage 1: Icon appears at 70% when hovering anywhere on file row */
-.nn-desktop .nn-file-item:hover .nn-file-reveal-icon {
-    opacity: 0.7;
+/* Slim mode with 1 title row and no tags: center vertically (3px offset) */
+.nn-file-reveal-overlay.nn-slim-mode[data-title-rows='1'][data-has-tags='false'] {
+    top: 3px; /* (20px line height + 10px padding - 24px icon) / 2 = 3px */
 }
 
-/* Stage 2: Icon fully highlights when hovering directly on it */
-.nn-desktop .nn-file-reveal-icon:hover {
-    opacity: 1;
+/* Slim mode with tags or 2 title rows: use default slim padding (5px) */
+.nn-file-reveal-overlay.nn-slim-mode[data-title-rows='2'],
+.nn-file-reveal-overlay.nn-slim-mode[data-has-tags='true'] {
+    top: 5px; /* Match slim mode padding */
+}
+
+/* Icon appears when hovering anywhere on file row */
+.nn-desktop .nn-file-item:hover .nn-file-reveal-overlay {
+    display: flex;
+}
+
+/* Icon fully highlights when hovering directly on it */
+.nn-desktop .nn-file-reveal-overlay:hover {
     color: var(--text-normal);
 }
 
@@ -1034,8 +1045,8 @@
     color: var(--text-muted);
 }
 
-/* Selected file content z-index - ensures content above background */
-.nn-file-item.nn-selected .nn-file-content > * {
+/* Selected file inner content z-index - ensures content above background */
+.nn-file-item.nn-selected .nn-file-inner-content {
     position: relative;
     z-index: 5; /* Above selection background but below separators */
 }

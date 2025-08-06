@@ -383,7 +383,7 @@ export const FileItem = React.memo(function FileItem({
 
     // === Effects ===
 
-    // Set up the reveal icon
+    // Set up the reveal icon when overlay is shown
     useEffect(() => {
         if (revealIconRef.current && isHovered && !isMobile && shouldShowRevealIcon) {
             setIcon(revealIconRef.current, 'folder');
@@ -408,161 +408,158 @@ export const FileItem = React.memo(function FileItem({
             onMouseLeave={() => !isMobile && setIsHovered(false)}
         >
             <div className="nn-file-content">
-                {isSlimMode ? (
-                    // Slim mode: Show file name and tags with minimal styling
-                    <div className="nn-slim-file-text-content">
-                        <div
-                            className="nn-file-name nn-file-name-with-reveal"
-                            style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}
-                        >
-                            <span className="nn-file-name-text">{displayName}</span>
-                            {isHovered && !isMobile && shouldShowRevealIcon && (
-                                <div
-                                    ref={revealIconRef}
-                                    className="nn-file-reveal-icon"
-                                    onClick={handleRevealClick}
-                                    title={strings.contextMenu.file.revealInFolder}
-                                />
-                            )}
-                        </div>
-                        {renderTags()}
-                    </div>
-                ) : (
-                    // Normal mode: Show all enabled elements
-                    <>
-                        <div className="nn-file-text-content">
+                {/* Reveal icon overlay - appears on hover */}
+                {isHovered && !isMobile && shouldShowRevealIcon && (
+                    <div
+                        ref={revealIconRef}
+                        className={`nn-file-reveal-overlay ${isSlimMode ? 'nn-slim-mode' : ''}`}
+                        data-title-rows={appearanceSettings.titleRows}
+                        data-has-tags={settings.showTags && settings.showFileTags && categorizedTags.length > 0 ? 'true' : 'false'}
+                        onClick={handleRevealClick}
+                        title={strings.contextMenu.file.revealInFolder}
+                    />
+                )}
+                <div className="nn-file-inner-content">
+                    {isSlimMode ? (
+                        // Slim mode: Show file name and tags with minimal styling
+                        <div className="nn-slim-file-text-content">
                             <div
-                                className="nn-file-name nn-file-name-with-reveal"
+                                className="nn-file-name"
                                 style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}
                             >
-                                <span className="nn-file-name-text">{displayName}</span>
-                                {isHovered && !isMobile && shouldShowRevealIcon && (
-                                    <div
-                                        ref={revealIconRef}
-                                        className="nn-file-reveal-icon"
-                                        onClick={handleRevealClick}
-                                        title={strings.contextMenu.file.revealInFolder}
-                                    />
-                                )}
+                                {displayName}
                             </div>
+                            {renderTags()}
+                        </div>
+                    ) : (
+                        // Normal mode: Show all enabled elements
+                        <>
+                            <div className="nn-file-text-content">
+                                <div
+                                    className="nn-file-name"
+                                    style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}
+                                >
+                                    {displayName}
+                                </div>
 
-                            {/* Single row mode (preview rows = 1) - show all elements */}
-                            {(isPinned || appearanceSettings.previewRows < 2) && (
-                                <>
-                                    {/* Date + Preview on same line */}
-                                    <div className="nn-file-second-line">
-                                        {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
-                                        {settings.showFilePreview && (
-                                            <div className="nn-file-preview" style={{ '--preview-rows': 1 } as React.CSSProperties}>
-                                                {previewText}
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Tags */}
-                                    {renderTags()}
-
-                                    {/* Parent folder - not shown for pinned items */}
-                                    {!isPinned &&
-                                        settings.showNotesFromSubfolders &&
-                                        settings.showParentFolderNames &&
-                                        parentFolder &&
-                                        file.parent &&
-                                        file.parent.path !== parentFolder && (
-                                            <div className="nn-file-folder">
-                                                <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
-                                                <span>{file.parent.name}</span>
-                                            </div>
-                                        )}
-                                </>
-                            )}
-
-                            {/* Multi-row mode (preview rows >= 2) - different layouts based on preview content */}
-                            {!isPinned && appearanceSettings.previewRows >= 2 && (
-                                <>
-                                    {/* Case 1: Empty preview text - show tags, then date + parent folder */}
-                                    {!previewText && (
-                                        <>
-                                            {/* Tags (show even when no preview text) */}
-                                            {renderTags()}
-                                            {/* Date + Parent folder on same line */}
-                                            <div className="nn-file-second-line">
-                                                {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
-                                                {settings.showNotesFromSubfolders &&
-                                                    settings.showParentFolderNames &&
-                                                    parentFolder &&
-                                                    file.parent &&
-                                                    file.parent.path !== parentFolder && (
-                                                        <div className="nn-file-folder">
-                                                            <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
-                                                            <span>{file.parent.name}</span>
-                                                        </div>
-                                                    )}
-                                            </div>
-                                        </>
-                                    )}
-
-                                    {/* Case 2: Has preview text - show preview, tags, then date + parent folder */}
-                                    {previewText && (
-                                        <>
-                                            {/* Multi-row preview - show preview text spanning multiple rows */}
+                                {/* Single row mode (preview rows = 1) - show all elements */}
+                                {(isPinned || appearanceSettings.previewRows < 2) && (
+                                    <>
+                                        {/* Date + Preview on same line */}
+                                        <div className="nn-file-second-line">
+                                            {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
                                             {settings.showFilePreview && (
-                                                <div
-                                                    className="nn-file-preview"
-                                                    style={{ '--preview-rows': appearanceSettings.previewRows } as React.CSSProperties}
-                                                >
+                                                <div className="nn-file-preview" style={{ '--preview-rows': 1 } as React.CSSProperties}>
                                                     {previewText}
                                                 </div>
                                             )}
+                                        </div>
 
-                                            {/* Tags (only when preview text exists) */}
-                                            {renderTags()}
+                                        {/* Tags */}
+                                        {renderTags()}
 
-                                            {/* Date + Parent folder on same line */}
-                                            <div className="nn-file-second-line">
-                                                {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
-                                                {settings.showNotesFromSubfolders &&
-                                                    settings.showParentFolderNames &&
-                                                    parentFolder &&
-                                                    file.parent &&
-                                                    file.parent.path !== parentFolder && (
-                                                        <div className="nn-file-folder">
-                                                            <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
-                                                            <span>{file.parent.name}</span>
-                                                        </div>
-                                                    )}
-                                            </div>
-                                        </>
-                                    )}
-                                </>
-                            )}
-                        </div>
-                        {shouldShowFeatureImageArea && (
-                            <div className="nn-feature-image">
-                                {featureImageUrl ? (
-                                    <img
-                                        src={featureImageUrl}
-                                        alt={strings.common.featureImageAlt}
-                                        className="nn-feature-image-img"
-                                        draggable={false}
-                                        onDragStart={e => e.preventDefault()}
-                                        onError={e => {
-                                            const img = e.target as HTMLImageElement;
-                                            const featureImageDiv = img.closest('.nn-feature-image');
-                                            if (featureImageDiv) {
-                                                (featureImageDiv as HTMLElement).style.display = 'none';
-                                            }
-                                        }}
-                                    />
-                                ) : (
-                                    <div className="nn-file-extension-badge">
-                                        <span className="nn-file-extension-text">{file.extension}</span>
-                                    </div>
+                                        {/* Parent folder - not shown for pinned items */}
+                                        {!isPinned &&
+                                            settings.showNotesFromSubfolders &&
+                                            settings.showParentFolderNames &&
+                                            parentFolder &&
+                                            file.parent &&
+                                            file.parent.path !== parentFolder && (
+                                                <div className="nn-file-folder">
+                                                    <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
+                                                    <span>{file.parent.name}</span>
+                                                </div>
+                                            )}
+                                    </>
+                                )}
+
+                                {/* Multi-row mode (preview rows >= 2) - different layouts based on preview content */}
+                                {!isPinned && appearanceSettings.previewRows >= 2 && (
+                                    <>
+                                        {/* Case 1: Empty preview text - show tags, then date + parent folder */}
+                                        {!previewText && (
+                                            <>
+                                                {/* Tags (show even when no preview text) */}
+                                                {renderTags()}
+                                                {/* Date + Parent folder on same line */}
+                                                <div className="nn-file-second-line">
+                                                    {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
+                                                    {settings.showNotesFromSubfolders &&
+                                                        settings.showParentFolderNames &&
+                                                        parentFolder &&
+                                                        file.parent &&
+                                                        file.parent.path !== parentFolder && (
+                                                            <div className="nn-file-folder">
+                                                                <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
+                                                                <span>{file.parent.name}</span>
+                                                            </div>
+                                                        )}
+                                                </div>
+                                            </>
+                                        )}
+
+                                        {/* Case 2: Has preview text - show preview, tags, then date + parent folder */}
+                                        {previewText && (
+                                            <>
+                                                {/* Multi-row preview - show preview text spanning multiple rows */}
+                                                {settings.showFilePreview && (
+                                                    <div
+                                                        className="nn-file-preview"
+                                                        style={{ '--preview-rows': appearanceSettings.previewRows } as React.CSSProperties}
+                                                    >
+                                                        {previewText}
+                                                    </div>
+                                                )}
+
+                                                {/* Tags (only when preview text exists) */}
+                                                {renderTags()}
+
+                                                {/* Date + Parent folder on same line */}
+                                                <div className="nn-file-second-line">
+                                                    {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
+                                                    {settings.showNotesFromSubfolders &&
+                                                        settings.showParentFolderNames &&
+                                                        parentFolder &&
+                                                        file.parent &&
+                                                        file.parent.path !== parentFolder && (
+                                                            <div className="nn-file-folder">
+                                                                <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
+                                                                <span>{file.parent.name}</span>
+                                                            </div>
+                                                        )}
+                                                </div>
+                                            </>
+                                        )}
+                                    </>
                                 )}
                             </div>
-                        )}
-                    </>
-                )}
+                            {shouldShowFeatureImageArea && (
+                                <div className="nn-feature-image">
+                                    {featureImageUrl ? (
+                                        <img
+                                            src={featureImageUrl}
+                                            alt={strings.common.featureImageAlt}
+                                            className="nn-feature-image-img"
+                                            draggable={false}
+                                            onDragStart={e => e.preventDefault()}
+                                            onError={e => {
+                                                const img = e.target as HTMLImageElement;
+                                                const featureImageDiv = img.closest('.nn-feature-image');
+                                                if (featureImageDiv) {
+                                                    (featureImageDiv as HTMLElement).style.display = 'none';
+                                                }
+                                            }}
+                                        />
+                                    ) : (
+                                        <div className="nn-file-extension-badge">
+                                            <span className="nn-file-extension-text">{file.extension}</span>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     );
