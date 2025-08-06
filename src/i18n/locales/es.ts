@@ -398,9 +398,17 @@ export const STRINGS_ES = {
                 name: 'Acciones rápidas',
                 desc: 'Mostrar acciones al pasar el cursor sobre los elementos de archivo.'
             },
+            quickActionsOpenInNewTab: {
+                name: 'Abrir en nueva pestaña',
+                desc: 'Acción rápida: Abrir nota en nueva pestaña.'
+            },
+            quickActionsPinNote: {
+                name: 'Fijar nota',
+                desc: 'Acción rápida: Fijar o desfijar nota en la parte superior de la lista.'
+            },
             quickActionsRevealInFolder: {
                 name: 'Revelar en carpeta',
-                desc: 'Mostrar el icono de revelar en carpeta cuando el archivo se muestra fuera de su carpeta principal.'
+                desc: 'Acción rápida: Revelar nota en su carpeta principal.'
             },
             dualPane: {
                 name: 'Diseño de doble panel (solo escritorio)',

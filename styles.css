@@ -610,43 +610,64 @@
     color: var(--text-normal);
 }
 
-/* Reveal folder icon overlay - positioned in top-right corner */
-.nn-file-reveal-overlay {
+/* Quick actions panel - horizontal container for action icons */
+.nn-quick-actions-panel {
     position: absolute;
     top: var(--size-4-2); /* Default: 8px for normal mode */
     inset-inline-end: var(--size-4-2);
-    width: 24px;
     height: 24px;
-    cursor: pointer;
     display: none;
-    color: var(--text-muted);
-    background: var(--background-primary); /* Always opaque background */
+    background: color-mix(in srgb, var(--background-primary) 95%, transparent);
     border: 1px solid var(--background-modifier-border);
     border-radius: var(--radius-s);
+    z-index: 10;
+    flex-direction: row;
+    align-items: center;
+    padding: 0 4px;
+    gap: 0;
+}
+
+/* Individual quick action items */
+.nn-quick-action-item {
+    width: 16px;
+    height: 16px;
+    cursor: pointer;
+    color: var(--text-muted);
+    display: flex;
     align-items: center;
     justify-content: center;
-    z-index: 10;
+    flex-shrink: 0;
+}
+
+/* Icon highlights when hovering directly on it */
+.nn-quick-action-item:hover {
+    color: var(--text-normal);
+}
+
+/* Separator between quick actions */
+.nn-quick-action-separator {
+    width: 1px;
+    height: 14px;
+    background: var(--background-modifier-border);
+    margin: 0 4px;
+    flex-shrink: 0;
 }
 
 /* Slim mode with 1 title row and no tags: center vertically (3px offset) */
-.nn-file-reveal-overlay.nn-slim-mode[data-title-rows='1'][data-has-tags='false'] {
+.nn-quick-actions-panel.nn-slim-mode[data-title-rows='1'][data-has-tags='false'] {
     top: 3px; /* (20px line height + 10px padding - 24px icon) / 2 = 3px */
 }
 
 /* Slim mode with tags or 2 title rows: use default slim padding (5px) */
-.nn-file-reveal-overlay.nn-slim-mode[data-title-rows='2'],
-.nn-file-reveal-overlay.nn-slim-mode[data-has-tags='true'] {
+.nn-quick-actions-panel.nn-slim-mode[data-title-rows='2'],
+.nn-quick-actions-panel.nn-slim-mode[data-has-tags='true'] {
     top: 5px; /* Match slim mode padding */
 }
 
-/* Icon appears when hovering anywhere on file row */
-.nn-desktop .nn-file-item:hover .nn-file-reveal-overlay {
+/* Panel appears when hovering anywhere on file row */
+.nn-desktop .nn-file-item:hover .nn-quick-actions-panel,
+.nn-desktop.nn-single-pane .nn-file-item:hover .nn-quick-actions-panel {
     display: flex;
-}
-
-/* Icon fully highlights when hovering directly on it */
-.nn-desktop .nn-file-reveal-overlay:hover {
-    color: var(--text-normal);
 }
 
 /* Second line container - holds date and preview text */
@@ -1845,14 +1866,14 @@ body.nn-resizing {
 
 /* Desktop single-pane mode styles */
 /* Desktop single-pane - show navigation view (hide files) */
-.nn-desktop-single-pane.show-navigation .nn-list-pane {
+.nn-desktop.nn-single-pane.show-navigation .nn-list-pane {
     position: absolute;
     contain: layout style paint; /* Exclude 'size' to allow virtualizer to measure properly */
     content-visibility: hidden; /* Modern optimization */
 }
 
 /* Desktop single-pane - show files view (hide navigation) */
-.nn-desktop-single-pane.show-files .nn-navigation-pane {
+.nn-desktop.nn-single-pane.show-files .nn-navigation-pane {
     position: absolute;
     contain: layout style paint; /* Exclude 'size' to allow virtualizer to measure properly */
     content-visibility: hidden; /* Modern optimization */

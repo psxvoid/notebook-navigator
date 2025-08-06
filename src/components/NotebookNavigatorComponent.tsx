@@ -411,16 +411,19 @@ export const NotebookNavigatorComponent = React.memo(
             tagOperations
         ]);
 
-        if (isMobile && uiState.singlePane) {
-            // Mobile uses sliding animations with show-list/show-files classes
-            containerClasses.push(uiState.currentSinglePaneView === 'navigation' ? 'show-navigation' : 'show-files');
-        } else if (uiState.singlePane) {
-            // Desktop single-pane mode
-            containerClasses.push('nn-desktop-single-pane');
+        // Add platform class
+        if (isMobile) {
+            containerClasses.push('nn-mobile');
+        } else {
+            containerClasses.push('nn-desktop');
+        }
+
+        // Add layout mode class
+        if (uiState.singlePane) {
+            containerClasses.push('nn-single-pane');
             containerClasses.push(uiState.currentSinglePaneView === 'navigation' ? 'show-navigation' : 'show-files');
         } else {
-            // Desktop dual-pane mode
-            containerClasses.push('nn-desktop');
+            containerClasses.push('nn-dual-pane');
         }
         if (isResizing) {
             containerClasses.push('nn-resizing');

@@ -80,8 +80,10 @@ If you love using Notebook Navigator, please consider
 
 ### Productivity
 
-- **Quick Actions** - Hover over notes to reveal contextual action buttons
-  (currently "Reveal in Folder" with more coming soon)
+- **Quick Actions** - Hover over notes to reveal instant action buttons:
+  - **Open in new tab** - Open the note in a new tab
+  - **Pin note** - Pin or unpin notes at the top of the list
+  - **Reveal in folder** - Navigate to the note's parent folder
 - **Drag & drop** - Move notes between folders with full multi-selection support
 - **Resizable panes** - Adjust the layout to your needs
 - **Smart filtering** - Exclude folders and notes with patterns
@@ -293,8 +295,10 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
     subfolders
 - **Show quick actions:** Enable contextual action buttons that appear on hover
   (desktop only)
-  - **Reveal in folder:** Show a folder icon that reveals the note in its actual
-    folder location (useful when browsing notes in tags or parent folders)
+  - **Open in new tab:** Show icon to quickly open notes in a new tab
+  - **Pin note:** Show icon to pin or unpin notes at the top of the list
+  - **Reveal in folder:** Show icon that reveals the note in its actual folder
+    location (useful when browsing notes in tags or parent folders)
 - **Date format:** Format for displaying dates (uses date-fns format)
 - **Time format:** Format for displaying times (uses date-fns format)
 

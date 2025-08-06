@@ -397,9 +397,17 @@ export const STRINGS_EN = {
                 name: 'Quick actions',
                 desc: 'Show hover actions on file items.'
             },
+            quickActionsOpenInNewTab: {
+                name: 'Open in new tab',
+                desc: 'Quick action: Open note in new tab.'
+            },
+            quickActionsPinNote: {
+                name: 'Pin note',
+                desc: 'Quick action: Pin or unpin note at top of list.'
+            },
             quickActionsRevealInFolder: {
                 name: 'Reveal in folder',
-                desc: 'Show reveal in folder icon when file is displayed outside its parent folder.'
+                desc: 'Quick action: Reveal note in its parent folder.'
             },
             dualPane: {
                 name: 'Dual pane layout (desktop only)',

@@ -398,9 +398,17 @@ export const STRINGS_DE = {
                 name: 'Schnellaktionen',
                 desc: 'Zeige Hover-Aktionen auf Dateielementen.'
             },
+            quickActionsOpenInNewTab: {
+                name: 'In neuem Tab öffnen',
+                desc: 'Schnellaktion: Notiz in neuem Tab öffnen.'
+            },
+            quickActionsPinNote: {
+                name: 'Notiz anheften',
+                desc: 'Schnellaktion: Notiz oben in der Liste anheften oder lösen.'
+            },
             quickActionsRevealInFolder: {
                 name: 'Im Ordner anzeigen',
-                desc: 'Zeige das Symbol "Im Ordner anzeigen", wenn die Datei außerhalb ihres übergeordneten Ordners angezeigt wird.'
+                desc: 'Schnellaktion: Notiz im übergeordneten Ordner anzeigen.'
             },
             dualPane: {
                 name: 'Doppelbereichslayout (nur Desktop)',
