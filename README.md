@@ -95,22 +95,15 @@ If you love using Notebook Navigator, please consider
 ## Architecture & Performance
 
 - **React + TanStack Virtual** - Modern React architecture with virtualized
-  rendering handling 100,000+ notes with buttery-smooth 120Hz scrolling
-- **IndexedDB + RAM Cache** - Dual-layer caching system provides instant access
-  to metadata while maintaining zero memory overhead
-- **Dependency Injection Architecture** - Clean separation of concerns with
-  interface-based design (`ISettingsProvider`, `ITagTreeProvider`) enabling
-  testable, maintainable code
-- **Command Queue Service** - Centralized operation tracking with atomic context
-  management for complex multi-step operations
+  rendering handling 100,000+ notes with smooth, responsive scrolling
+- **IndexedDB + RAM Cache** - Dual-layer caching system with all metadata
+  mirrored in RAM for instant synchronous access
 - **Batch Processing Engine** - Intelligent content generation with parallel
   processing, debounced queuing, and graceful cancellation
-- **Unified Cleanup System** - Single-pass startup optimization aggregates all
-  metadata validation, eliminating redundant file system traversals
-- **Promise Queue Serialization** - All settings updates and file operations are
-  serialized through promise queues, preventing race conditions
+- **Unified Cleanup System** - Validates all metadata (folders, tags, pins) in a
+  single pass during startup for optimal performance
 - **Zero-Tolerance Code Quality** - Strict ESLint configuration with
-  `no-explicit-any` enforced, resulting in 0 errors, 0 warnings across 20,000+
+  `no-explicit-any` enforced, resulting in 0 errors, 0 warnings across 30,000
   lines of TypeScript
 - **Type-Safe Obsidian Integration** - Comprehensive type checking with
   `instanceof` guards throughout, never using unsafe type assertions
