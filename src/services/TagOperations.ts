@@ -75,16 +75,23 @@ export class TagOperations {
      * @returns Array of unique tag strings (without #)
      */
     getTagsFromFiles(files: TFile[]): string[] {
-        const allTags = new Set<string>();
+        // Use a Map to track lowercase tag -> first canonical form encountered
+        const canonicalTags = new Map<string, string>();
         const db = getDBInstance();
 
         for (const file of files) {
             const tags = db.getCachedTags(file.path);
-            tags.forEach(tag => allTags.add(tag));
+            tags.forEach(tag => {
+                const lowerTag = tag.toLowerCase();
+                // Only add if we haven't seen this tag (case-insensitive)
+                if (!canonicalTags.has(lowerTag)) {
+                    canonicalTags.set(lowerTag, tag);
+                }
+            });
         }
 
-        // Sort tags alphabetically
-        return Array.from(allTags).sort();
+        // Return canonical forms sorted alphabetically
+        return Array.from(canonicalTags.values()).sort();
     }
 
     /**
