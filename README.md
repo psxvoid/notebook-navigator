@@ -65,6 +65,7 @@ If you love using Notebook Navigator, please consider
 
 - **Pin notes** - Keep important notes at the top of folders and tags
 - **Auto-reveal** - Automatically show the location of the current note
+- **Clickable path segments** - Click any segment in the header breadcrumb path to quickly navigate to parent folders
 - **Keyboard first** - Full navigation with arrow keys and Tab
 - **Multi-selection** - Select multiple notes with Cmd/Ctrl+Click and
   Shift+Click
