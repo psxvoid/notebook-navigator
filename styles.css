@@ -1843,16 +1843,16 @@ body.nn-resizing {
 
 /* Note: Bottom spacing is handled by a spacer item in the virtualized list */
 
-/* Desktop single-pane mode styles */
-/* Desktop single-pane - show navigation view (hide files) */
-.nn-desktop-single-pane.show-navigation .nn-list-pane {
+/* Single-pane mode styles (both desktop and mobile) */
+/* Single-pane - show navigation view (hide files) */
+.nn-single-pane.show-navigation .nn-list-pane {
     position: absolute;
     contain: layout style paint; /* Exclude 'size' to allow virtualizer to measure properly */
     content-visibility: hidden; /* Modern optimization */
 }
 
-/* Desktop single-pane - show files view (hide navigation) */
-.nn-desktop-single-pane.show-files .nn-navigation-pane {
+/* Single-pane - show files view (hide navigation) */
+.nn-single-pane.show-files .nn-navigation-pane {
     position: absolute;
     contain: layout style paint; /* Exclude 'size' to allow virtualizer to measure properly */
     content-visibility: hidden; /* Modern optimization */
