@@ -67,9 +67,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'List pane header now always shows the current folder or tag path, instead of being replaced by date group headers when scrolling.'
         ],
         fixed: [
-            'Fixed quick actions not appearing in single-pane mode. The hover effects were only working in dual-pane mode due to how the CSS classes were structured - now they work consistently in both modes.',
-            'Fixed folder and tag icons not updating in the list pane header when switching between items.',
-            'Fixed icons not appearing when toggling from single-pane to dual-pane mode.'
+            '**Fixed custom tag colors disappearing on sync to new devices**. Tag metadata cleanup now waits for tags to be fully extracted from files before running, preventing tag colors from being deleted when syncing settings to a device with an empty database.',
+            '**Fixed quick actions not appearing in single-pane mode**. The hover effects were only working in dual-pane mode due to how the CSS classes were structured - now they work consistently in both modes.',
+            'Fixed folder and tag icons not updating in the list pane header when changing folders and tags.'
         ]
     },
     {
