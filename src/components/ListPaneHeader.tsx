@@ -233,11 +233,19 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
     }
 
     useEffect(() => {
-        if (iconRef.current && folderIcon && settings.showIcons) {
+        // Only render icon in dual pane mode (in single pane, we show a chevron button instead)
+        if (iconRef.current && folderIcon && settings.showIcons && !uiState.singlePane) {
             const iconService = getIconService();
             iconService.renderIcon(iconRef.current, folderIcon);
         }
-    }, [folderIcon, settings.showIcons, selectionState.selectedFolder, selectionState.selectedTag, selectionState.selectionType]);
+    }, [
+        folderIcon,
+        settings.showIcons,
+        selectionState.selectedFolder,
+        selectionState.selectedTag,
+        selectionState.selectionType,
+        uiState.singlePane
+    ]);
 
     if (isMobile) {
         const headerTitle = getHeaderTitle(true);
