@@ -400,11 +400,15 @@ export const STRINGS_FR = {
             },
             quickActionsOpenInNewTab: {
                 name: 'Ouvrir dans un nouvel onglet',
-                desc: "Afficher l'icône d'ouverture dans un nouvel onglet au survol."
+                desc: 'Action rapide : Ouvrir la note dans un nouvel onglet.'
+            },
+            quickActionsPinNote: {
+                name: 'Épingler la note',
+                desc: 'Action rapide : Épingler ou désépingler la note en haut de la liste.'
             },
             quickActionsRevealInFolder: {
                 name: 'Révéler dans le dossier',
-                desc: "Afficher l'icône de révélation dans le dossier lorsque le fichier est affiché en dehors de son dossier parent."
+                desc: 'Action rapide : Révéler la note dans son dossier parent.'
             },
             dualPane: {
                 name: 'Disposition à double panneau (ordinateur uniquement)',

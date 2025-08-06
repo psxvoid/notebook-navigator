@@ -400,11 +400,15 @@ export const STRINGS_ZH = {
             },
             quickActionsOpenInNewTab: {
                 name: '在新标签页中打开',
-                desc: '悬停时显示在新标签页中打开图标。'
+                desc: '快速操作：在新标签页中打开笔记。'
+            },
+            quickActionsPinNote: {
+                name: '固定笔记',
+                desc: '快速操作：在列表顶部固定或取消固定笔记。'
             },
             quickActionsRevealInFolder: {
                 name: '在文件夹中显示',
-                desc: '当文件显示在其父文件夹之外时，显示在文件夹中显示图标。'
+                desc: '快速操作：在父文件夹中显示笔记。'
             },
             dualPane: {
                 name: '双窗格布局（仅桌面端）',

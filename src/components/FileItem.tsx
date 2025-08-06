@@ -115,15 +115,17 @@ export const FileItem = React.memo(function FileItem({
     // === Refs ===
     const fileRef = useRef<HTMLDivElement>(null);
     const openInNewTabIconRef = useRef<HTMLDivElement>(null);
+    const pinNoteIconRef = useRef<HTMLDivElement>(null);
     const revealInFolderIconRef = useRef<HTMLDivElement>(null);
 
     // === Derived State & Memoized Values ===
 
     // Check which quick actions should be shown
-    const shouldShowOpenInNewTab = settings.showQuickActions && settings.quickActions.openInNewTab;
+    const shouldShowOpenInNewTab = settings.showQuickActions && settings.quickActionOpenInNewTab;
+    const shouldShowPinNote = settings.showQuickActions && settings.quickActionPinNote;
     const shouldShowRevealIcon =
-        settings.showQuickActions && settings.quickActions.revealInFolder && file.parent && file.parent.path !== parentFolder;
-    const hasQuickActions = shouldShowOpenInNewTab || shouldShowRevealIcon;
+        settings.showQuickActions && settings.quickActionRevealInFolder && file.parent && file.parent.path !== parentFolder;
+    const hasQuickActions = shouldShowOpenInNewTab || shouldShowPinNote || shouldShowRevealIcon;
 
     // Get display name from RAM cache (handles frontmatter title)
     const displayName = useMemo(() => {
@@ -373,26 +375,29 @@ export const FileItem = React.memo(function FileItem({
         });
     }, [isMobile, file, file.stat.ctime, file.stat.mtime, settings, displayName, getFileCreatedTime, getFileModifiedTime, sortOption]);
 
-    // Handle reveal click
-    const handleRevealClick = useCallback(
-        async (e: React.MouseEvent) => {
-            e.stopPropagation();
-            e.preventDefault();
-            await plugin.activateView();
-            await plugin.revealFileInActualFolder(file);
-        },
-        [file, plugin]
-    );
+    // Quick action handlers - these don't need memoization because:
+    // 1. They're only attached to DOM elements that appear on hover
+    // 2. They're not passed as props to child components
+    // 3. They don't cause re-renders when recreated
+    const handleRevealClick = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        await plugin.activateView();
+        await plugin.revealFileInActualFolder(file);
+    };
 
-    // Handle open in new tab click
-    const handleOpenInNewTab = useCallback(
-        (e: React.MouseEvent) => {
-            e.stopPropagation();
-            e.preventDefault();
-            app.workspace.getLeaf('tab').openFile(file);
-        },
-        [app, file]
-    );
+    const handleOpenInNewTab = (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        app.workspace.getLeaf('tab').openFile(file);
+    };
+
+    const handlePinClick = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        const folderPath = parentFolder || file.parent?.path || '';
+        await metadataService.togglePinnedNote(folderPath, file.path);
+    };
 
     // === Effects ===
 
@@ -402,11 +407,14 @@ export const FileItem = React.memo(function FileItem({
             if (openInNewTabIconRef.current && shouldShowOpenInNewTab) {
                 setIcon(openInNewTabIconRef.current, 'file-plus');
             }
+            if (pinNoteIconRef.current && shouldShowPinNote) {
+                setIcon(pinNoteIconRef.current, isPinned ? 'pin-off' : 'pin');
+            }
             if (revealInFolderIconRef.current && shouldShowRevealIcon) {
                 setIcon(revealInFolderIconRef.current, 'folder');
             }
         }
-    }, [isHovered, isMobile, shouldShowOpenInNewTab, shouldShowRevealIcon]);
+    }, [isHovered, isMobile, shouldShowOpenInNewTab, shouldShowPinNote, shouldShowRevealIcon, isPinned]);
 
     // Enable context menu
     useContextMenu(fileRef, { type: ItemType.FILE, item: file });
@@ -441,7 +449,24 @@ export const FileItem = React.memo(function FileItem({
                                 title={strings.contextMenu.file.openInNewTab}
                             />
                         )}
-                        {shouldShowOpenInNewTab && shouldShowRevealIcon && <div className="nn-quick-action-separator" />}
+                        {shouldShowOpenInNewTab && shouldShowPinNote && <div className="nn-quick-action-separator" />}
+                        {shouldShowPinNote && (
+                            <div
+                                ref={pinNoteIconRef}
+                                className="nn-quick-action-item"
+                                onClick={handlePinClick}
+                                title={
+                                    isPinned
+                                        ? file.extension === 'md'
+                                            ? strings.contextMenu.file.unpinNote
+                                            : strings.contextMenu.file.unpinFile
+                                        : file.extension === 'md'
+                                          ? strings.contextMenu.file.pinNote
+                                          : strings.contextMenu.file.pinFile
+                                }
+                            />
+                        )}
+                        {shouldShowPinNote && shouldShowRevealIcon && <div className="nn-quick-action-separator" />}
                         {shouldShowRevealIcon && (
                             <div
                                 ref={revealInFolderIconRef}

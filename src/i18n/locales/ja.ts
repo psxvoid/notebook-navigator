@@ -400,11 +400,15 @@ export const STRINGS_JA = {
             },
             quickActionsOpenInNewTab: {
                 name: '新しいタブで開く',
-                desc: 'ホバー時に新しいタブで開くアイコンを表示します。'
+                desc: 'クイックアクション：ノートを新しいタブで開く。'
+            },
+            quickActionsPinNote: {
+                name: 'ノートをピン留め',
+                desc: 'クイックアクション：ノートをリストの上部にピン留めまたは解除。'
             },
             quickActionsRevealInFolder: {
                 name: 'フォルダで表示',
-                desc: 'ファイルが親フォルダの外に表示されているときに、フォルダで表示アイコンを表示します。'
+                desc: 'クイックアクション：ノートを親フォルダで表示。'
             },
             dualPane: {
                 name: 'デュアルペインレイアウト（デスクトップのみ）',

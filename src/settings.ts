@@ -47,11 +47,6 @@ export type CollapseButtonBehavior =
 /**
  * Quick actions configuration
  */
-export interface QuickActionsConfig {
-    openInNewTab: boolean; // Show open in new tab icon on hover
-    revealInFolder: boolean; // Show reveal in folder icon on hover
-}
-
 /**
  * Plugin settings interface defining all configurable options
  * These settings control the appearance and behavior of the navigator
@@ -92,7 +87,9 @@ export interface NotebookNavigatorSettings {
     showNotesFromSubfolders: boolean;
     showParentFolderNames: boolean;
     showQuickActions: boolean;
-    quickActions: QuickActionsConfig;
+    quickActionOpenInNewTab: boolean;
+    quickActionPinNote: boolean;
+    quickActionRevealInFolder: boolean;
     dateFormat: string;
     timeFormat: string;
     // Notes
@@ -166,10 +163,9 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showNotesFromSubfolders: true,
     showParentFolderNames: true,
     showQuickActions: true,
-    quickActions: {
-        openInNewTab: true,
-        revealInFolder: true
-    },
+    quickActionOpenInNewTab: true,
+    quickActionPinNote: true,
+    quickActionRevealInFolder: true,
     dateFormat: 'MMM d, yyyy',
     timeFormat: 'h:mm a',
     // Notes
@@ -814,8 +810,19 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .setName(strings.settings.items.quickActionsOpenInNewTab.name)
             .setDesc(strings.settings.items.quickActionsOpenInNewTab.desc)
             .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.quickActions.openInNewTab).onChange(async value => {
-                    this.plugin.settings.quickActions.openInNewTab = value;
+                toggle.setValue(this.plugin.settings.quickActionOpenInNewTab).onChange(async value => {
+                    this.plugin.settings.quickActionOpenInNewTab = value;
+                    await this.saveAndRefresh();
+                })
+            );
+
+        // Pin note quick action
+        new Setting(quickActionsEl)
+            .setName(strings.settings.items.quickActionsPinNote.name)
+            .setDesc(strings.settings.items.quickActionsPinNote.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.quickActionPinNote).onChange(async value => {
+                    this.plugin.settings.quickActionPinNote = value;
                     await this.saveAndRefresh();
                 })
             );
@@ -825,8 +832,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .setName(strings.settings.items.quickActionsRevealInFolder.name)
             .setDesc(strings.settings.items.quickActionsRevealInFolder.desc)
             .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.quickActions.revealInFolder).onChange(async value => {
-                    this.plugin.settings.quickActions.revealInFolder = value;
+                toggle.setValue(this.plugin.settings.quickActionRevealInFolder).onChange(async value => {
+                    this.plugin.settings.quickActionRevealInFolder = value;
                     await this.saveAndRefresh();
                 })
             );
