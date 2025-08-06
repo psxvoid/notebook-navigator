@@ -204,7 +204,7 @@ export class TagOperations {
                     const originalLength = fm.tags.length;
                     fm.tags = fm.tags.filter((t: string) => {
                         const cleanTag = t.startsWith('#') ? t.substring(1) : t;
-                        return cleanTag !== tag;
+                        return cleanTag.toLowerCase() !== tag.toLowerCase();
                     });
 
                     if (fm.tags.length < originalLength) {
@@ -218,7 +218,7 @@ export class TagOperations {
                     const tags = fm.tags.split(',').map((t: string) => t.trim());
                     const filteredTags = tags.filter((t: string) => {
                         const cleanTag = t.startsWith('#') ? t.substring(1) : t;
-                        return cleanTag !== tag;
+                        return cleanTag.toLowerCase() !== tag.toLowerCase();
                     });
 
                     if (filteredTags.length < tags.length) {
@@ -353,7 +353,7 @@ export class TagOperations {
         const escapedTag = this.escapeRegExp(tag);
         // Remove the specific tag with optional preceding space
         // Must be followed by whitespace or end of line
-        const regex = new RegExp(`(\\s)?#${escapedTag}(?=\\s|$)`, 'g');
+        const regex = new RegExp(`(\\s)?#${escapedTag}(?=\\s|$)`, 'gi');
         return content.replace(regex, '');
     }
 
