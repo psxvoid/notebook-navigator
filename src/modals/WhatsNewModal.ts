@@ -73,7 +73,18 @@ export class WhatsNewModal extends Modal {
                     });
 
                     items.forEach(item => {
-                        categoryList.createEl('li', { text: item });
+                        const li = categoryList.createEl('li');
+                        // Parse the item text for **bold** markdown syntax
+                        const parts = item.split(/(\*\*[^*]+\*\*)/);
+                        parts.forEach(part => {
+                            if (part.startsWith('**') && part.endsWith('**')) {
+                                // Bold text
+                                li.createEl('strong', { text: part.slice(2, -2) });
+                            } else if (part) {
+                                // Regular text
+                                li.appendText(part);
+                            }
+                        });
                     });
                 }
             });
