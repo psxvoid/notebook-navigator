@@ -394,6 +394,14 @@ export const STRINGS_ES = {
                 name: 'Mostrar nombres de carpetas principales',
                 desc: 'Muestra el nombre de la carpeta principal para las notas de subcarpetas.'
             },
+            showQuickActions: {
+                name: 'Acciones rápidas',
+                desc: 'Mostrar acciones al pasar el cursor sobre los elementos de archivo.'
+            },
+            quickActionsRevealInFolder: {
+                name: 'Revelar en carpeta',
+                desc: 'Mostrar el icono de revelar en carpeta cuando el archivo se muestra fuera de su carpeta principal.'
+            },
             dualPane: {
                 name: 'Diseño de doble panel (solo escritorio)',
                 desc: 'Mostrar panel de navegación y panel de lista lado a lado en escritorio.'

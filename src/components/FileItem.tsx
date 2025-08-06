@@ -118,8 +118,9 @@ export const FileItem = React.memo(function FileItem({
 
     // === Derived State & Memoized Values ===
 
-    // Only show reveal icon when file is not in its actual parent folder
-    const shouldShowRevealIcon = file.parent && file.parent.path !== parentFolder;
+    // Only show reveal icon when file is not in its actual parent folder and quick actions are enabled
+    const shouldShowRevealIcon =
+        settings.showQuickActions && settings.quickActions.revealInFolder && file.parent && file.parent.path !== parentFolder;
 
     // Get display name from RAM cache (handles frontmatter title)
     const displayName = useMemo(() => {
