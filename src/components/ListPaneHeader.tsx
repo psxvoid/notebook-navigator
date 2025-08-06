@@ -222,15 +222,22 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
         return title;
     };
 
-    let headerTitle = '';
+    // Determine the icon to display based on current selection
     let folderIcon = '';
+    if (settings.showIcons) {
+        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+            folderIcon = metadataService.getFolderIcon(selectionState.selectedFolder.path) || 'folder';
+        } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+            folderIcon = metadataService.getTagIcon(selectionState.selectedTag) || 'tags';
+        }
+    }
 
     useEffect(() => {
         if (iconRef.current && folderIcon && settings.showIcons) {
             const iconService = getIconService();
             iconService.renderIcon(iconRef.current, folderIcon);
         }
-    }, [folderIcon, settings.showIcons, uiState.singlePane]);
+    }, [folderIcon, settings.showIcons, selectionState.selectedFolder, selectionState.selectedTag, selectionState.selectionType]);
 
     if (isMobile) {
         const headerTitle = getHeaderTitle(true);
@@ -315,15 +322,7 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
         );
     }
 
-    headerTitle = getHeaderTitle(false);
-
-    if (settings.showIcons) {
-        if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-            folderIcon = metadataService.getFolderIcon(selectionState.selectedFolder.path) || 'folder';
-        } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            folderIcon = metadataService.getTagIcon(selectionState.selectedTag) || 'tags';
-        }
-    }
+    const headerTitle = getHeaderTitle(false);
 
     return (
         <div className="nn-pane-header">
