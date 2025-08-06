@@ -379,13 +379,6 @@ export const FileItem = React.memo(function FileItem({
     // 1. They're only attached to DOM elements that appear on hover
     // 2. They're not passed as props to child components
     // 3. They don't cause re-renders when recreated
-    const handleRevealClick = async (e: React.MouseEvent) => {
-        e.stopPropagation();
-        e.preventDefault();
-        await plugin.activateView();
-        await plugin.revealFileInActualFolder(file);
-    };
-
     const handleOpenInNewTab = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
@@ -397,6 +390,13 @@ export const FileItem = React.memo(function FileItem({
         e.preventDefault();
         const folderPath = parentFolder || file.parent?.path || '';
         await metadataService.togglePinnedNote(folderPath, file.path);
+    };
+
+    const handleRevealClick = async (e: React.MouseEvent) => {
+        e.stopPropagation();
+        e.preventDefault();
+        await plugin.activateView();
+        await plugin.revealFileInActualFolder(file);
     };
 
     // === Effects ===
