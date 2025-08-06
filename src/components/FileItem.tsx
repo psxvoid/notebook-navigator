@@ -114,13 +114,16 @@ export const FileItem = React.memo(function FileItem({
 
     // === Refs ===
     const fileRef = useRef<HTMLDivElement>(null);
-    const revealIconRef = useRef<HTMLDivElement>(null);
+    const openInNewTabIconRef = useRef<HTMLDivElement>(null);
+    const revealInFolderIconRef = useRef<HTMLDivElement>(null);
 
     // === Derived State & Memoized Values ===
 
-    // Only show reveal icon when file is not in its actual parent folder and quick actions are enabled
+    // Check which quick actions should be shown
+    const shouldShowOpenInNewTab = settings.showQuickActions && settings.quickActions.openInNewTab;
     const shouldShowRevealIcon =
         settings.showQuickActions && settings.quickActions.revealInFolder && file.parent && file.parent.path !== parentFolder;
+    const hasQuickActions = shouldShowOpenInNewTab || shouldShowRevealIcon;
 
     // Get display name from RAM cache (handles frontmatter title)
     const displayName = useMemo(() => {
@@ -381,14 +384,29 @@ export const FileItem = React.memo(function FileItem({
         [file, plugin]
     );
 
+    // Handle open in new tab click
+    const handleOpenInNewTab = useCallback(
+        (e: React.MouseEvent) => {
+            e.stopPropagation();
+            e.preventDefault();
+            app.workspace.getLeaf('tab').openFile(file);
+        },
+        [app, file]
+    );
+
     // === Effects ===
 
-    // Set up the reveal icon when overlay is shown
+    // Set up the icons when quick actions panel is shown
     useEffect(() => {
-        if (revealIconRef.current && isHovered && !isMobile && shouldShowRevealIcon) {
-            setIcon(revealIconRef.current, 'folder');
+        if (isHovered && !isMobile) {
+            if (openInNewTabIconRef.current && shouldShowOpenInNewTab) {
+                setIcon(openInNewTabIconRef.current, 'file-plus');
+            }
+            if (revealInFolderIconRef.current && shouldShowRevealIcon) {
+                setIcon(revealInFolderIconRef.current, 'folder');
+            }
         }
-    }, [isHovered, isMobile, shouldShowRevealIcon]);
+    }, [isHovered, isMobile, shouldShowOpenInNewTab, shouldShowRevealIcon]);
 
     // Enable context menu
     useContextMenu(fileRef, { type: ItemType.FILE, item: file });
@@ -408,16 +426,31 @@ export const FileItem = React.memo(function FileItem({
             onMouseLeave={() => !isMobile && setIsHovered(false)}
         >
             <div className="nn-file-content">
-                {/* Reveal icon overlay - appears on hover */}
-                {isHovered && !isMobile && shouldShowRevealIcon && (
+                {/* Quick actions panel - appears on hover */}
+                {isHovered && !isMobile && hasQuickActions && (
                     <div
-                        ref={revealIconRef}
-                        className={`nn-file-reveal-overlay ${isSlimMode ? 'nn-slim-mode' : ''}`}
+                        className={`nn-quick-actions-panel ${isSlimMode ? 'nn-slim-mode' : ''}`}
                         data-title-rows={appearanceSettings.titleRows}
                         data-has-tags={settings.showTags && settings.showFileTags && categorizedTags.length > 0 ? 'true' : 'false'}
-                        onClick={handleRevealClick}
-                        title={strings.contextMenu.file.revealInFolder}
-                    />
+                    >
+                        {shouldShowOpenInNewTab && (
+                            <div
+                                ref={openInNewTabIconRef}
+                                className="nn-quick-action-item"
+                                onClick={handleOpenInNewTab}
+                                title={strings.contextMenu.file.openInNewTab}
+                            />
+                        )}
+                        {shouldShowOpenInNewTab && shouldShowRevealIcon && <div className="nn-quick-action-separator" />}
+                        {shouldShowRevealIcon && (
+                            <div
+                                ref={revealInFolderIconRef}
+                                className="nn-quick-action-item"
+                                onClick={handleRevealClick}
+                                title={strings.contextMenu.file.revealInFolder}
+                            />
+                        )}
+                    </div>
                 )}
                 <div className="nn-file-inner-content">
                     {isSlimMode ? (

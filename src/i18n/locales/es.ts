@@ -398,6 +398,10 @@ export const STRINGS_ES = {
                 name: 'Acciones rápidas',
                 desc: 'Mostrar acciones al pasar el cursor sobre los elementos de archivo.'
             },
+            quickActionsOpenInNewTab: {
+                name: 'Abrir en nueva pestaña',
+                desc: 'Mostrar icono de abrir en nueva pestaña al pasar el cursor.'
+            },
             quickActionsRevealInFolder: {
                 name: 'Revelar en carpeta',
                 desc: 'Mostrar el icono de revelar en carpeta cuando el archivo se muestra fuera de su carpeta principal.'

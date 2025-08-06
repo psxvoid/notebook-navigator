@@ -398,6 +398,10 @@ export const STRINGS_JA = {
                 name: 'クイックアクション',
                 desc: 'ファイルアイテムにホバーアクションを表示します。'
             },
+            quickActionsOpenInNewTab: {
+                name: '新しいタブで開く',
+                desc: 'ホバー時に新しいタブで開くアイコンを表示します。'
+            },
             quickActionsRevealInFolder: {
                 name: 'フォルダで表示',
                 desc: 'ファイルが親フォルダの外に表示されているときに、フォルダで表示アイコンを表示します。'

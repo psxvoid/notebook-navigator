@@ -398,6 +398,10 @@ export const STRINGS_ZH = {
                 name: '快速操作',
                 desc: '在文件项上显示悬停操作。'
             },
+            quickActionsOpenInNewTab: {
+                name: '在新标签页中打开',
+                desc: '悬停时显示在新标签页中打开图标。'
+            },
             quickActionsRevealInFolder: {
                 name: '在文件夹中显示',
                 desc: '当文件显示在其父文件夹之外时，显示在文件夹中显示图标。'

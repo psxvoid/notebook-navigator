@@ -48,8 +48,8 @@ export type CollapseButtonBehavior =
  * Quick actions configuration
  */
 export interface QuickActionsConfig {
+    openInNewTab: boolean; // Show open in new tab icon on hover
     revealInFolder: boolean; // Show reveal in folder icon on hover
-    // Future quick actions can be added here
 }
 
 /**
@@ -167,6 +167,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showParentFolderNames: true,
     showQuickActions: true,
     quickActions: {
+        openInNewTab: true,
         revealInFolder: true
     },
     dateFormat: 'MMM d, yyyy',
@@ -807,6 +808,19 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         // Container for quick actions sub-settings
         const quickActionsEl = containerEl.createDiv('nn-sub-settings');
+
+        // Open in new tab quick action
+        new Setting(quickActionsEl)
+            .setName(strings.settings.items.quickActionsOpenInNewTab.name)
+            .setDesc(strings.settings.items.quickActionsOpenInNewTab.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.quickActions.openInNewTab).onChange(async value => {
+                    this.plugin.settings.quickActions.openInNewTab = value;
+                    await this.saveAndRefresh();
+                })
+            );
+
+        // Reveal in folder quick action
         new Setting(quickActionsEl)
             .setName(strings.settings.items.quickActionsRevealInFolder.name)
             .setDesc(strings.settings.items.quickActionsRevealInFolder.desc)

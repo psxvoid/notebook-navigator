@@ -398,6 +398,10 @@ export const STRINGS_FR = {
                 name: 'Actions rapides',
                 desc: 'Afficher les actions au survol sur les éléments de fichier.'
             },
+            quickActionsOpenInNewTab: {
+                name: 'Ouvrir dans un nouvel onglet',
+                desc: "Afficher l'icône d'ouverture dans un nouvel onglet au survol."
+            },
             quickActionsRevealInFolder: {
                 name: 'Révéler dans le dossier',
                 desc: "Afficher l'icône de révélation dans le dossier lorsque le fichier est affiché en dehors de son dossier parent."

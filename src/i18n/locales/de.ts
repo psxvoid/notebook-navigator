@@ -398,6 +398,10 @@ export const STRINGS_DE = {
                 name: 'Schnellaktionen',
                 desc: 'Zeige Hover-Aktionen auf Dateielementen.'
             },
+            quickActionsOpenInNewTab: {
+                name: 'In neuem Tab öffnen',
+                desc: 'Icon zum Öffnen in neuem Tab beim Hovern anzeigen.'
+            },
             quickActionsRevealInFolder: {
                 name: 'Im Ordner anzeigen',
                 desc: 'Zeige das Symbol "Im Ordner anzeigen", wenn die Datei außerhalb ihres übergeordneten Ordners angezeigt wird.'

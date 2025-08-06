@@ -397,6 +397,10 @@ export const STRINGS_EN = {
                 name: 'Quick actions',
                 desc: 'Show hover actions on file items.'
             },
+            quickActionsOpenInNewTab: {
+                name: 'Open in new tab',
+                desc: 'Show open in new tab icon on hover.'
+            },
             quickActionsRevealInFolder: {
                 name: 'Reveal in folder',
                 desc: 'Show reveal in folder icon when file is displayed outside its parent folder.'
