@@ -22,7 +22,7 @@ import { MetadataService } from '../services/MetadataService';
 import { getDBInstance } from '../storage/fileOperations';
 import { TagTreeNode } from '../types/storage';
 
-interface UseInitialCleanupProps {
+interface UseDeferredMetadataCleanupProps {
     app: App;
     metadataService: MetadataService | null;
     isStorageReady: boolean;
@@ -38,7 +38,7 @@ interface UseInitialCleanupProps {
  * 2. Tracks tag extraction progress
  * 3. Runs cleanup only after all tags are extracted
  */
-export function useInitialCleanup({ app, metadataService, isStorageReady, showTags }: UseInitialCleanupProps) {
+export function useDeferredMetadataCleanup({ app, metadataService, isStorageReady, showTags }: UseDeferredMetadataCleanupProps) {
     const hasPerformedCleanup = useRef(false);
     const filesNeedingTags = useRef(0);
     const filesWithTagsExtracted = useRef(0);
@@ -105,36 +105,40 @@ export function useInitialCleanup({ app, metadataService, isStorageReady, showTa
      */
     const waitForMetadataCache = useCallback(
         (callback: () => void) => {
-            // Check if metadata cache is resolved
-            // Obsidian's metadata cache is ready when it has processed at least some files
-            const checkCache = () => {
-                const files = app.vault.getMarkdownFiles();
-                if (files.length === 0) {
+            // If no files in vault, proceed immediately
+            const files = app.vault.getMarkdownFiles();
+            if (files.length === 0) {
+                callback();
+                return;
+            }
+
+            // Check if metadata cache already has data (plugin reload scenario)
+            const hasExistingCache = files.some(file => app.metadataCache.getFileCache(file) !== null);
+            if (hasExistingCache) {
+                callback();
+                return;
+            }
+
+            // Set up a one-time listener for the 'resolved' event
+            let hasResolved = false;
+
+            // Fallback timeout in case resolved never fires (shouldn't happen but better safe)
+            const timeoutId = window.setTimeout(() => {
+                if (!hasResolved) {
+                    hasResolved = true;
+                    app.metadataCache.offref(eventRef);
                     callback();
-                    return;
                 }
+            }, 5000); // 5 second fallback
 
-                // Check a sample of files to see if metadata is available
-                const sampleSize = Math.min(10, files.length);
-                let hasMetadata = false;
-
-                for (let i = 0; i < sampleSize; i++) {
-                    if (app.metadataCache.getFileCache(files[i])) {
-                        hasMetadata = true;
-                        break;
-                    }
-                }
-
-                if (hasMetadata) {
+            const eventRef = app.metadataCache.on('resolved', () => {
+                if (!hasResolved) {
+                    hasResolved = true;
+                    app.metadataCache.offref(eventRef);
+                    window.clearTimeout(timeoutId);
                     callback();
-                } else {
-                    // Try again in a moment
-                    setTimeout(checkCache, 100);
                 }
-            };
-
-            // Start checking after a brief delay to let Obsidian initialize
-            setTimeout(checkCache, 500);
+            });
         },
         [app]
     );

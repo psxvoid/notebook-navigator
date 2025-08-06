@@ -66,7 +66,7 @@ import { leadingEdgeDebounce } from '../utils/leadingEdgeDebounce';
 import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
-import { useInitialCleanup } from '../hooks/useInitialCleanup';
+import { useDeferredMetadataCleanup } from '../hooks/useDeferredMetadataCleanup';
 
 /**
  * Data structure containing the hierarchical tag trees and untagged file count
@@ -274,7 +274,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     }, [settings.showTags, settings.showUntagged, settings.excludedFolders, settings.favoriteTags, tagTreeService]);
 
     // Hook for handling deferred cleanup after tag extraction
-    const { startTracking, handleTagsExtracted, waitForMetadataCache } = useInitialCleanup({
+    const { startTracking, handleTagsExtracted, waitForMetadataCache } = useDeferredMetadataCleanup({
         app,
         metadataService,
         isStorageReady,
@@ -379,13 +379,6 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                     if (toAdd.length > 0 || toUpdate.length > 0) {
                         await recordFileChanges([...toAdd, ...toUpdate], cachedFiles);
-
-                        // Log database stats only after initial rebuild (when we had files to add)
-                        if (toAdd.length > 0) {
-                            const db = getDBInstance();
-                            const stats = db.getDatabaseStats();
-                            console.log(`[IndexedDB] Rebuild complete - ${stats.itemCount} items, ${stats.sizeMB.toFixed(2)}MB`);
-                        }
                     }
 
                     // Step 3: Build tag tree from the now-synced database
