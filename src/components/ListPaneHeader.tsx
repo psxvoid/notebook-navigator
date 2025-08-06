@@ -17,7 +17,7 @@
  */
 
 import React, { useCallback, useEffect } from 'react';
-import { Menu } from 'obsidian';
+import { Menu, TFolder } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useFileSystemOps, useMetadataService } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
@@ -202,24 +202,117 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
             settings.tagAppearances[selectionState.selectedTag] &&
             Object.keys(settings.tagAppearances[selectionState.selectedTag]).length > 0);
 
-    const getHeaderTitle = (useFolderName = false): string => {
-        let title = strings.common.noSelection;
-
+    // Function to render clickable path segments
+    const renderPathSegments = (): React.ReactNode => {
+        // Handle folders
         if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-            if (selectionState.selectedFolder.path === '/') {
-                title = settings.customVaultName || app.vault.getName();
-            } else {
-                title = useFolderName ? selectionState.selectedFolder.name : selectionState.selectedFolder.path;
+            const folder = selectionState.selectedFolder;
+
+            // Root folder - just show vault name, not clickable
+            if (folder.path === '/') {
+                return settings.customVaultName || app.vault.getName();
             }
-        } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            if (selectionState.selectedTag === UNTAGGED_TAG_ID) {
-                title = strings.common.untagged;
-            } else {
-                title = `#${getTagDisplayPath(selectionState.selectedTag)}`;
+
+            // Split path into segments
+            const segments = folder.path.split('/').filter(s => s);
+
+            // Single segment - no parent to click
+            if (segments.length === 1) {
+                return folder.name;
             }
+
+            // Multiple segments - make all but last clickable
+            return (
+                <>
+                    {segments.map((segment, index) => {
+                        const isLast = index === segments.length - 1;
+
+                        if (isLast) {
+                            return (
+                                <span key={index} className="nn-path-current">
+                                    {segment}
+                                </span>
+                            );
+                        }
+
+                        const pathToSegment = segments.slice(0, index + 1).join('/');
+                        return (
+                            <React.Fragment key={pathToSegment}>
+                                <span
+                                    className="nn-path-segment"
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        const targetFolder = app.vault.getAbstractFileByPath(pathToSegment);
+                                        if (targetFolder instanceof TFolder) {
+                                            selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: targetFolder });
+                                        }
+                                    }}
+                                >
+                                    {segment}
+                                </span>
+                                <span className="nn-path-separator">/</span>
+                            </React.Fragment>
+                        );
+                    })}
+                </>
+            );
         }
 
-        return title;
+        // Handle tags
+        if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+            const tag = selectionState.selectedTag;
+
+            // Special case for untagged
+            if (tag === UNTAGGED_TAG_ID) {
+                return strings.common.untagged;
+            }
+
+            // Get display path for tag
+            const displayPath = getTagDisplayPath(tag);
+            const segments = displayPath.split('/').filter(s => s);
+
+            // Single segment tag - no parent to click
+            if (segments.length === 1) {
+                return `#${displayPath}`;
+            }
+
+            // Multiple segments - make all but last clickable
+            return (
+                <>
+                    <span className="nn-path-prefix">#</span>
+                    {segments.map((segment, index) => {
+                        const isLast = index === segments.length - 1;
+
+                        if (isLast) {
+                            return (
+                                <span key={index} className="nn-path-current">
+                                    {segment}
+                                </span>
+                            );
+                        }
+
+                        const pathToSegment = segments.slice(0, index + 1).join('/');
+                        return (
+                            <React.Fragment key={pathToSegment}>
+                                <span
+                                    className="nn-path-segment"
+                                    onClick={e => {
+                                        e.stopPropagation();
+                                        selectionDispatch({ type: 'SET_SELECTED_TAG', tag: pathToSegment });
+                                    }}
+                                >
+                                    {segment}
+                                </span>
+                                <span className="nn-path-separator">/</span>
+                            </React.Fragment>
+                        );
+                    })}
+                </>
+            );
+        }
+
+        // Fallback for no selection
+        return strings.common.noSelection;
     };
 
     // Determine the icon to display based on current selection
@@ -248,8 +341,6 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
     ]);
 
     if (isMobile) {
-        const headerTitle = getHeaderTitle(true);
-
         return (
             <div className="nn-pane-header" onClick={onHeaderClick}>
                 <div className="nn-header-actions">
@@ -265,15 +356,7 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
                         >
                             <ObsidianIcon name="arrow-left" />
                         </button>
-                        <span
-                            className="nn-mobile-title"
-                            onClick={e => {
-                                e.stopPropagation();
-                                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
-                            }}
-                        >
-                            {headerTitle}
-                        </span>
+                        <span className="nn-mobile-title">{renderPathSegments()}</span>
                     </div>
                     <div className="nn-header-actions">
                         <button
@@ -330,30 +413,26 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
         );
     }
 
-    const headerTitle = getHeaderTitle(false);
-
     return (
         <div className="nn-pane-header">
             <div className="nn-header-actions nn-header-actions--space-between">
-                {headerTitle && (
-                    <span className="nn-pane-header-title">
-                        {uiState.singlePane ? (
-                            <button
-                                className="nn-icon-button nn-icon-button-muted nn-pane-header-icon-button"
-                                onClick={() => {
-                                    uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
-                                    uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
-                                }}
-                                aria-label={strings.paneHeader.showFolders}
-                            >
-                                <ObsidianIcon name="chevron-left" className="nn-pane-header-icon" />
-                            </button>
-                        ) : (
-                            folderIcon && <span ref={iconRef} className="nn-pane-header-icon" />
-                        )}
-                        <span className="nn-pane-header-text">{headerTitle}</span>
-                    </span>
-                )}
+                <span className="nn-pane-header-title">
+                    {uiState.singlePane ? (
+                        <button
+                            className="nn-icon-button nn-icon-button-muted nn-pane-header-icon-button"
+                            onClick={() => {
+                                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
+                                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+                            }}
+                            aria-label={strings.paneHeader.showFolders}
+                        >
+                            <ObsidianIcon name="chevron-left" className="nn-pane-header-icon" />
+                        </button>
+                    ) : (
+                        folderIcon && <span ref={iconRef} className="nn-pane-header-icon" />
+                    )}
+                    <span className="nn-pane-header-text">{renderPathSegments()}</span>
+                </span>
                 <div className="nn-header-actions">
                     <button
                         className={`nn-icon-button ${settings.showNotesFromSubfolders ? 'nn-icon-button-active' : ''}`}

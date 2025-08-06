@@ -210,6 +210,25 @@
     color: var(--text-muted);
 }
 
+/* Clickable path segments in header */
+.nn-path-segment {
+    cursor: pointer;
+}
+
+.nn-path-segment:hover {
+    text-decoration: underline;
+}
+
+/* Path separator between segments */
+.nn-path-separator {
+    margin: 0 2px;
+}
+
+/* Hash prefix for tags */
+.nn-path-prefix {
+    margin-right: 2px;
+}
+
 /* ========================================================================
    Button Styles
    ======================================================================== */
