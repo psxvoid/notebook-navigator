@@ -56,7 +56,7 @@ export class TagOperations {
         let skipped = 0;
 
         for (const file of files) {
-            const alreadyHasTag = await this.fileHasTag(file, tag);
+            const alreadyHasTag = await this.fileHasTagOrAncestor(file, tag);
             if (alreadyHasTag) {
                 skipped++;
                 continue;
@@ -125,20 +125,27 @@ export class TagOperations {
     }
 
     /**
-     * Checks if a file already has a specific tag or an ancestor tag
+     * Checks if a file already has a specific tag or an ancestor tag.
+     * Comparison is case-insensitive (e.g., "TODO" matches "todo").
+     * Also returns true if file has an ancestor tag (e.g., won't add "project/task" if file has "project").
      */
-    private async fileHasTag(file: TFile, tag: string): Promise<boolean> {
+    private async fileHasTagOrAncestor(file: TFile, tag: string): Promise<boolean> {
         const db = getDBInstance();
         const allTags = db.getCachedTags(file.path);
 
+        // Normalize to lowercase for comparison
+        const lowerTag = tag.toLowerCase();
+
         // Check if any existing tag is the same or an ancestor
         return allTags.some((existingTag: string) => {
-            // Exact match
-            if (existingTag === tag) return true;
+            const lowerExistingTag = existingTag.toLowerCase();
+
+            // Exact match (case-insensitive)
+            if (lowerExistingTag === lowerTag) return true;
 
             // Check if we already have an ancestor tag
             // e.g., if we want to add "project/example" but file has "project"
-            return tag.startsWith(existingTag + '/');
+            return lowerTag.startsWith(lowerExistingTag + '/');
         });
     }
 
