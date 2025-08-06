@@ -22,11 +22,11 @@
  * What it does:
  * - Monitors vault changes and syncs with database
  * - Builds and maintains the tag tree structure
- * - Coordinates content generation via ContentService
+ * - Coordinates content generation via ContentProviderRegistry
  * - Provides real-time content updates to UI components
  *
  * Relationships:
- * - Uses: IndexedDBStorage, ContentService, FileOperations, DiffCalculator
+ * - Uses: IndexedDBStorage, ContentProviderRegistry, FileOperations, DiffCalculator
  * - Provides: StorageContext to all child components
  * - Integrates with: Obsidian vault and metadata APIs
  *
@@ -96,6 +96,7 @@ interface StorageContextValue {
     findTagInTree: (tagPath: string) => TagTreeNode | null;
     findTagInFavoriteTree: (tagPath: string) => TagTreeNode | null;
     getAllTagPaths: () => string[];
+    getTagDisplayPath: (path: string) => string;
     getFiles: (paths: string[]) => Map<string, DBFileData>;
     hasPreview: (path: string) => boolean;
     // Storage initialization state
@@ -219,6 +220,12 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             return allPaths;
         };
 
+        const getTagDisplayPath = (path: string): string => {
+            // Try to find the tag in either tree to get its displayPath
+            const tagNode = findTagNode(fileData.favoriteTree, path) || findTagNode(fileData.tagTree, path);
+            return tagNode?.displayPath ?? path;
+        };
+
         return {
             fileData,
             getFileDisplayName,
@@ -234,7 +241,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
             getFavoriteTree,
             findTagInTree,
             findTagInFavoriteTree,
-            getAllTagPaths
+            getAllTagPaths,
+            getTagDisplayPath
         };
     }, [fileData, settings, app, isStorageReady]);
 

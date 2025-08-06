@@ -67,7 +67,7 @@ export interface FileContentChange {
  * - Emits real-time change notifications for UI updates
  *
  * Relationships:
- * - Used by: StorageContext, ContentService, FileOperations, Statistics
+ * - Used by: StorageContext, ContentProviders, FileOperations, Statistics
  * - Core persistent storage layer that all other components depend on
  *
  * Key responsibilities:
@@ -682,7 +682,7 @@ export class IndexedDBStorage {
 
     /**
      * Update modification times for multiple files in batch.
-     * Used by ContentService after successfully generating content.
+     * Used by content providers after successfully generating content.
      * Does NOT emit change notifications as this is an internal update.
      *
      * @param updates - Array of path and mtime pairs to update

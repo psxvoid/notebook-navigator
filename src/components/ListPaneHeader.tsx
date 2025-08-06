@@ -22,6 +22,7 @@ import { useSelectionState, useSelectionDispatch } from '../context/SelectionCon
 import { useServices, useFileSystemOps, useMetadataService } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
+import { useFileCache } from '../context/StorageContext';
 import { strings } from '../i18n';
 import { getIconService } from '../services/icons';
 import type { SortOption } from '../settings';
@@ -48,6 +49,7 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
     const uiDispatch = useUIDispatch();
     const fileSystemOps = useFileSystemOps();
     const metadataService = useMetadataService();
+    const { getTagDisplayPath } = useFileCache();
     const appearanceSettings = useListPaneAppearance();
 
     const handleNewFile = useCallback(async () => {
@@ -211,7 +213,11 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
                 title = useFolderName ? selectionState.selectedFolder.name : selectionState.selectedFolder.path;
             }
         } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            title = selectionState.selectedTag === UNTAGGED_TAG_ID ? strings.common.untagged : `#${selectionState.selectedTag}`;
+            if (selectionState.selectedTag === UNTAGGED_TAG_ID) {
+                title = strings.common.untagged;
+            } else {
+                title = `#${getTagDisplayPath(selectionState.selectedTag)}`;
+            }
         }
 
         if (currentDateGroup) {

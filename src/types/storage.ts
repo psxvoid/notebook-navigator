@@ -27,9 +27,11 @@
 export interface TagTreeNode {
     /** The name of this part of the tag (e.g., "processing" for "inbox/processing") */
     name: string;
-    /** The full path of the tag without # prefix (e.g., "inbox/processing") */
+    /** The full path of the tag without # prefix - ALWAYS LOWERCASE for logic (e.g., "inbox/processing") */
     path: string;
-    /** Map of child tag nodes, keyed by their name */
+    /** The canonical display path with original casing for UI (e.g., "Inbox/Processing") */
+    displayPath: string;
+    /** Map of child tag nodes, keyed by their lowercase name */
     children: Map<string, TagTreeNode>;
     /** Set of file paths that have this exact tag */
     notesWithTag: Set<string>;

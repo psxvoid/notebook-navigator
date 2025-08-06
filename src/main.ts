@@ -561,6 +561,55 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     }
 
     /**
+     * Normalizes tag-related settings to use lowercase keys
+     * Ensures consistency regardless of manual edits or external changes
+     * Preserves values while standardizing keys to lowercase
+     */
+    private normalizeTagSettings() {
+        const normalizeRecord = <T>(record: Record<string, T> | undefined): Record<string, T> => {
+            if (!record) return {};
+
+            const normalized: Record<string, T> = {};
+            for (const [key, value] of Object.entries(record)) {
+                const lowerKey = key.toLowerCase();
+                // If there's a conflict (e.g., both "TODO" and "todo"), last one wins
+                normalized[lowerKey] = value;
+            }
+            return normalized;
+        };
+
+        const normalizeArray = (array: string[] | undefined): string[] => {
+            if (!array) return [];
+            // Use Set to deduplicate in case of "TODO" and "todo" both present
+            return [...new Set(array.map(s => s.toLowerCase()))];
+        };
+
+        if (this.settings.tagColors) {
+            this.settings.tagColors = normalizeRecord(this.settings.tagColors);
+        }
+
+        if (this.settings.tagIcons) {
+            this.settings.tagIcons = normalizeRecord(this.settings.tagIcons);
+        }
+
+        if (this.settings.tagSortOverrides) {
+            this.settings.tagSortOverrides = normalizeRecord(this.settings.tagSortOverrides);
+        }
+
+        if (this.settings.tagAppearances) {
+            this.settings.tagAppearances = normalizeRecord(this.settings.tagAppearances);
+        }
+
+        if (this.settings.favoriteTags) {
+            this.settings.favoriteTags = normalizeArray(this.settings.favoriteTags);
+        }
+
+        if (this.settings.hiddenTags) {
+            this.settings.hiddenTags = normalizeArray(this.settings.hiddenTags);
+        }
+    }
+
+    /**
      * Loads plugin settings from Obsidian's data storage
      * Merges saved settings with default settings to ensure all required fields exist
      * Called during plugin initialization and when external changes are detected
@@ -596,6 +645,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 localStorage.set(STORAGE_KEYS.expandedFoldersKey, expandedFolders);
             }
         }
+
+        this.normalizeTagSettings();
     }
 
     /**

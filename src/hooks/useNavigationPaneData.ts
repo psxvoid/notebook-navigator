@@ -114,6 +114,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
             if (settings.showUntagged && untaggedCount > 0) {
                 const untaggedNode: TagTreeNode = {
                     path: UNTAGGED_TAG_ID,
+                    displayPath: UNTAGGED_TAG_ID,
                     name: strings.tagList.untaggedLabel,
                     children: new Map(),
                     notesWithTag: new Set()

@@ -67,7 +67,6 @@ export function buildTagTreeFromDatabase(
     const tagFavoriteSet = new Set<string>();
     let untaggedCount = 0;
 
-    // Track which case variant we saw first for each lowercased tag
     const caseMap = new Map<string, string>();
 
     // Map to store file associations for each tag
@@ -127,7 +126,8 @@ export function buildTagTreeFromDatabase(
     // First, collect all tags that match favorite patterns
     const matchingTags = new Set<string>();
     for (const tagPath of allTagsSet) {
-        if (matchesAnyPrefix(tagPath, favoritePatterns)) {
+        // Pass lowercase path for matching, but add canonical version to the set
+        if (matchesAnyPrefix(tagPath.toLowerCase(), favoritePatterns)) {
             matchingTags.add(tagPath);
         }
     }
@@ -173,7 +173,8 @@ export function buildTagTreeFromDatabase(
                 if (!node) {
                     node = {
                         name: part,
-                        path: currentPath,
+                        path: lowerCurrentPath,
+                        displayPath: currentPath,
                         children: new Map(),
                         notesWithTag: new Set()
                     };
@@ -255,6 +256,7 @@ export function getTotalNoteCount(node: TagTreeNode): number {
 
 /**
  * Collect all tag paths from a node and its descendants
+ * Returns lowercase paths for logic operations
  */
 export function collectAllTagPaths(node: TagTreeNode, paths: Set<string> = new Set()): Set<string> {
     paths.add(node.path);
@@ -274,8 +276,8 @@ export function findTagNode(tree: Map<string, TagTreeNode>, tagPath: string): Ta
 
     // Helper function to search recursively
     function searchNode(nodes: Map<string, TagTreeNode>): TagTreeNode | null {
-        for (const [key, node] of nodes) {
-            if (key === lowerPath) {
+        for (const node of nodes.values()) {
+            if (node.path === lowerPath) {
                 return node;
             }
             // Search in children
@@ -334,6 +336,7 @@ export function excludeFromTagTree(tree: Map<string, TagTreeNode>, excludePatter
         return {
             name: node.name,
             path: node.path,
+            displayPath: node.displayPath,
             children: filteredChildren,
             notesWithTag: node.notesWithTag
         };

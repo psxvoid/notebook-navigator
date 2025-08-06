@@ -691,6 +691,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .map(tag => tag.trim())
                     .map(tag => tag.replace(/^#/, '')) // Remove leading hashtag
                     .map(tag => tag.replace(/^\/+|\/+$/g, '')) // Trim leading/trailing slashes
+                    .map(tag => tag.toLowerCase())
                     .filter(tag => tag.length > 0);
             }
         );
@@ -710,6 +711,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .map(tag => tag.trim())
                     .map(tag => tag.replace(/^#/, '')) // Remove leading hashtag
                     .map(tag => tag.replace(/^\/+|\/+$/g, '')) // Trim leading/trailing slashes
+                    .map(tag => tag.toLowerCase())
                     .filter(tag => tag.length > 0);
             }
         );

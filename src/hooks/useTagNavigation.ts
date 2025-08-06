@@ -60,11 +60,12 @@ export function useTagNavigation() {
             }
 
             // Determine context based on whether tag exists in favorites
-            const tagInFavorites = findTagInFavoriteTree(tagPath);
+            const lowerPath = tagPath.toLowerCase();
+            const tagInFavorites = findTagInFavoriteTree(lowerPath);
             const context: 'favorites' | 'tags' = tagInFavorites ? 'favorites' : 'tags';
 
             // Navigate to the selected tag with context
-            selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath, context });
+            selectionDispatch({ type: 'SET_SELECTED_TAG', tag: lowerPath, context });
 
             // Switch to files view in single-pane mode
             if (uiState.singlePane) {

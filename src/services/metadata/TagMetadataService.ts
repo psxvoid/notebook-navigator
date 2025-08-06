@@ -42,7 +42,7 @@ export class TagMetadataService extends BaseMetadataService {
      * @param color - CSS color value
      */
     async setTagColor(tagPath: string, color: string): Promise<void> {
-        return this.setEntityColor(ItemType.TAG, tagPath, color);
+        return this.setEntityColor(ItemType.TAG, tagPath.toLowerCase(), color);
     }
 
     /**
@@ -50,7 +50,7 @@ export class TagMetadataService extends BaseMetadataService {
      * @param tagPath - Path of the tag
      */
     async removeTagColor(tagPath: string): Promise<void> {
-        return this.removeEntityColor(ItemType.TAG, tagPath);
+        return this.removeEntityColor(ItemType.TAG, tagPath.toLowerCase());
     }
 
     /**
@@ -80,7 +80,7 @@ export class TagMetadataService extends BaseMetadataService {
      * @param iconId - Lucide icon identifier
      */
     async setTagIcon(tagPath: string, iconId: string): Promise<void> {
-        return this.setEntityIcon(ItemType.TAG, tagPath, iconId);
+        return this.setEntityIcon(ItemType.TAG, tagPath.toLowerCase(), iconId);
     }
 
     /**
@@ -88,7 +88,7 @@ export class TagMetadataService extends BaseMetadataService {
      * @param tagPath - Path of the tag
      */
     async removeTagIcon(tagPath: string): Promise<void> {
-        return this.removeEntityIcon(ItemType.TAG, tagPath);
+        return this.removeEntityIcon(ItemType.TAG, tagPath.toLowerCase());
     }
 
     /**
@@ -106,7 +106,7 @@ export class TagMetadataService extends BaseMetadataService {
      * @param sortOption - Sort option to apply
      */
     async setTagSortOverride(tagPath: string, sortOption: SortOption): Promise<void> {
-        return this.setEntitySortOverride(ItemType.TAG, tagPath, sortOption);
+        return this.setEntitySortOverride(ItemType.TAG, tagPath.toLowerCase(), sortOption);
     }
 
     /**
@@ -114,7 +114,7 @@ export class TagMetadataService extends BaseMetadataService {
      * @param tagPath - Path of the tag
      */
     async removeTagSortOverride(tagPath: string): Promise<void> {
-        return this.removeEntitySortOverride(ItemType.TAG, tagPath);
+        return this.removeEntitySortOverride(ItemType.TAG, tagPath.toLowerCase());
     }
 
     /**
@@ -123,7 +123,7 @@ export class TagMetadataService extends BaseMetadataService {
      * @returns The sort option or undefined
      */
     getTagSortOverride(tagPath: string): SortOption | undefined {
-        return this.getEntitySortOverride(ItemType.TAG, tagPath);
+        return this.getEntitySortOverride(ItemType.TAG, tagPath.toLowerCase());
     }
 
     /**
@@ -134,9 +134,9 @@ export class TagMetadataService extends BaseMetadataService {
         // Get valid tags from TagTreeService
         const tagTreeProvider = this.getTagTreeProvider();
         const validTagPaths = tagTreeProvider?.getAllTagPaths() || [];
-        const validTags = new Set(validTagPaths);
 
-        const validator = (path: string) => validTags.has(path);
+        const validTagsLower = new Set(validTagPaths.map(p => p.toLowerCase()));
+        const validator = (path: string) => validTagsLower.has(path.toLowerCase());
 
         const results = await Promise.all([
             this.cleanupMetadata(this.settingsProvider.settings, 'tagColors', validator),
@@ -173,10 +173,9 @@ export class TagMetadataService extends BaseMetadataService {
         // This includes all tags found in files, including nested tags
         const tagTreeProvider = this.getTagTreeProvider();
         const validTagPaths = tagTreeProvider?.getAllTagPaths() || [];
-        const validTags = new Set(validTagPaths);
 
-        // Create validator function that checks if a tag exists in the tree
-        const validator = (path: string) => validTags.has(path);
+        const validTagsLower = new Set(validTagPaths.map(p => p.toLowerCase()));
+        const validator = (path: string) => validTagsLower.has(path.toLowerCase());
 
         // Clean up all tag metadata types in parallel
         const results = await Promise.all([

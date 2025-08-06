@@ -39,7 +39,7 @@
  * 5. Data loading pattern:
  *    - Initial load: Synchronously fetch all data from RAM cache
  *    - Updates: Subscribe to cache changes and update state when data changes
- *    - Background: ContentService asynchronously generates preview text and finds feature images
+ *    - Background: Content providers asynchronously generate preview text and find feature images
  *
  * 6. Image optimization:
  *    - Feature images use native browser lazy loading

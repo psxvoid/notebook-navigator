@@ -98,7 +98,16 @@ export class TagContentProvider extends BaseContentProvider {
     }
 
     /**
-     * Extract tags from cached metadata
+     * Extract tags from cached metadata.
+     *
+     * Tags are returned with their original casing as found in the vault,
+     * without the # prefix. For example, "#ToDo" becomes "ToDo".
+     *
+     * The tag tree building process will later normalize these to lowercase
+     * for the `path` property while preserving the original casing in `displayPath`.
+     *
+     * @param metadata - Cached metadata from Obsidian's metadata cache
+     * @returns Array of tag strings without # prefix, in original casing
      */
     private extractTagsFromMetadata(metadata: CachedMetadata | null): string[] {
         const rawTags = metadata ? getAllTags(metadata) : [];
