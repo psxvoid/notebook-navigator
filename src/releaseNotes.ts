@@ -56,14 +56,20 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.3.15',
-        date: '2025-08-07',
+        date: '2025-08-06',
         showOnUpdate: true,
         new: [
+            '**Clickable path segments in header**. You can now click on parent folders or tags in the list pane header to quickly navigate up the hierarchy. For example, in "Projects/Web/Frontend", clicking "Projects" or "Web" will take you directly to that folder.',
             'New quick action: **Open in new tab**. Quickly open notes in a new tab without using the context menu.',
             'New quick action: **Pin note**. Pin or unpin notes directly from the file list hover actions.'
         ],
+        improved: [
+            'List pane header now always shows the current folder or tag path, instead of being replaced by date group headers when scrolling.'
+        ],
         fixed: [
-            'Fixed quick actions not appearing in single-pane mode. The hover effects were only working in dual-pane mode due to how the CSS classes were structured - now they work consistently in both modes.'
+            'Fixed quick actions not appearing in single-pane mode. The hover effects were only working in dual-pane mode due to how the CSS classes were structured - now they work consistently in both modes.',
+            'Fixed folder and tag icons not updating in the list pane header when switching between items.',
+            'Fixed icons not appearing when toggling from single-pane to dual-pane mode.'
         ]
     },
     {
