@@ -59,8 +59,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-08-06',
         showOnUpdate: true,
         new: [
-            'New setting: **Quick actions**. When enabled (default on), icons appear on hover in the list pane.',
-            'New quick action: **Reveal in folder**. Click the folder icon next to the file name to quickly navigate to the actual folder of the file (from parent or tag view).'
+            'New setting: **Quick actions**. When enabled (default on), quick action icons appear when hovering notes in the list pane.',
+            'New quick action: **Reveal in folder**. Click the quick action folder icon to quickly navigate to the actual folder of the file (from parent or tag view).'
         ],
         improved: [
             '**Tag system improvement**: Tags are now stored with separate lowercase paths for logic and canonical display paths for UI. This ensures consistent case-insensitive matching while preserving your preferred tag capitalization throughout the interface.'
