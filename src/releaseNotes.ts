@@ -55,6 +55,18 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.3.15',
+        date: '2025-08-07',
+        showOnUpdate: true,
+        new: [
+            'New quick action: **Open in new tab**. Quickly open notes in a new tab without using the context menu.',
+            'New quick action: **Pin note**. Pin or unpin notes directly from the file list hover actions.'
+        ],
+        fixed: [
+            'Fixed quick actions not appearing in single-pane mode. The hover effects were only working in dual-pane mode due to how the CSS classes were structured - now they work consistently in both modes.'
+        ]
+    },
+    {
         version: '1.3.14',
         date: '2025-08-06',
         showOnUpdate: true,
