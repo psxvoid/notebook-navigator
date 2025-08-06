@@ -219,14 +219,9 @@
     text-decoration: underline;
 }
 
-/* Path separator between segments */
-.nn-path-separator {
-    margin: 0 2px;
-}
-
-/* Hash prefix for tags */
-.nn-path-prefix {
-    margin-right: 2px;
+/* On mobile, always show underline for clickable segments */
+.is-mobile .nn-path-segment {
+    text-decoration: underline;
 }
 
 /* ========================================================================
