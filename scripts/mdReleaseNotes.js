@@ -60,10 +60,10 @@ const extractArray = fieldName => {
         while ((itemMatch = itemRegex.exec(match[1])) !== null) {
             // Process escape sequences in the extracted content
             let content = itemMatch[2]
-                .replace(/\\'/g, "'")      // Unescape single quotes
-                .replace(/\\"/g, '"')       // Unescape double quotes
-                .replace(/\\n/g, '\n')      // Convert \n to actual newline
-                .replace(/\\\\/g, '\\');    // Unescape backslashes
+                .replace(/\\'/g, "'") // Unescape single quotes
+                .replace(/\\"/g, '"') // Unescape double quotes
+                .replace(/\\n/g, '\n') // Convert \n to actual newline
+                .replace(/\\\\/g, '\\'); // Unescape backslashes
 
             // Convert multi-line strings to single line for display
             content = content.replace(/\n\s*/g, ' ').trim();
