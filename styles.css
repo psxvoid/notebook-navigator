@@ -605,6 +605,39 @@
     color: var(--text-normal);
 }
 
+/* File name with reveal icon - converts to flex to place icon beside text */
+.nn-file-name-with-reveal {
+    display: flex;
+    gap: var(--size-4-1);
+}
+
+/* Text wrapper - needed for text truncation to work in flex container */
+.nn-file-name-with-reveal .nn-file-name-text {
+    flex: 1;
+    min-width: 0; /* Required for text-overflow ellipsis in flex child */
+}
+
+/* Reveal folder icon - initially hidden, shows on hover */
+.nn-file-reveal-icon {
+    flex-shrink: 0;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
+    opacity: 0; /* Hidden by default */
+    color: var(--text-muted);
+}
+
+/* Stage 1: Icon appears at 70% when hovering anywhere on file row */
+.nn-desktop .nn-file-item:hover .nn-file-reveal-icon {
+    opacity: 0.7;
+}
+
+/* Stage 2: Icon fully highlights when hovering directly on it */
+.nn-desktop .nn-file-reveal-icon:hover {
+    opacity: 1;
+    color: var(--text-normal);
+}
+
 /* Second line container - holds date and preview text */
 .nn-file-second-line {
     display: flex;

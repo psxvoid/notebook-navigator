@@ -47,7 +47,7 @@
  */
 
 import React, { useRef, useMemo, useEffect, useState, useCallback } from 'react';
-import { TFile, setTooltip } from 'obsidian';
+import { TFile, setTooltip, setIcon } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { useMetadataService } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
@@ -98,27 +98,35 @@ export const FileItem = React.memo(function FileItem({
     parentFolder,
     isPinned = false
 }: FileItemProps) {
-    const { app, isMobile } = useServices();
+    // === Hooks (all hooks together at the top) ===
+    const { app, isMobile, plugin } = useServices();
     const settings = useSettingsState();
     const appearanceSettings = useListPaneAppearance();
     const { getFileDisplayName, getDB, getFileCreatedTime, getFileModifiedTime, findTagInFavoriteTree } = useFileCache();
-    const fileRef = useRef<HTMLDivElement>(null);
     const { navigateToTag } = useTagNavigation();
     const metadataService = useMetadataService();
 
-    // Preview text state - loaded from RAM cache
+    // === State ===
+    const [isHovered, setIsHovered] = React.useState(false);
     const [previewText, setPreviewText] = useState<string>('');
-
-    // Tags state - loaded from RAM cache
     const [tags, setTags] = useState<string[]>([]);
-
-    // Feature image URL state - path loaded from RAM cache, converted to resource URL
     const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(null);
+
+    // === Refs ===
+    const fileRef = useRef<HTMLDivElement>(null);
+    const revealIconRef = useRef<HTMLDivElement>(null);
+
+    // === Derived State & Memoized Values ===
+
+    // Only show reveal icon when file is not in its actual parent folder
+    const shouldShowRevealIcon = file.parent && file.parent.path !== parentFolder;
 
     // Get display name from RAM cache (handles frontmatter title)
     const displayName = useMemo(() => {
         return getFileDisplayName(file);
     }, [file, getFileDisplayName]);
+
+    // === Callbacks ===
 
     // Handle tag click
     const handleTagClick = useCallback(
@@ -361,6 +369,26 @@ export const FileItem = React.memo(function FileItem({
         });
     }, [isMobile, file, file.stat.ctime, file.stat.mtime, settings, displayName, getFileCreatedTime, getFileModifiedTime, sortOption]);
 
+    // Handle reveal click
+    const handleRevealClick = useCallback(
+        async (e: React.MouseEvent) => {
+            e.stopPropagation();
+            e.preventDefault();
+            await plugin.activateView();
+            await plugin.revealFileInActualFolder(file);
+        },
+        [file, plugin]
+    );
+
+    // === Effects ===
+
+    // Set up the reveal icon
+    useEffect(() => {
+        if (revealIconRef.current && isHovered && !isMobile && shouldShowRevealIcon) {
+            setIcon(revealIconRef.current, 'folder');
+        }
+    }, [isHovered, isMobile, shouldShowRevealIcon]);
+
     // Enable context menu
     useContextMenu(fileRef, { type: ItemType.FILE, item: file });
 
@@ -375,13 +403,26 @@ export const FileItem = React.memo(function FileItem({
             onClick={onClick}
             draggable={!isMobile}
             role="listitem"
+            onMouseEnter={() => !isMobile && setIsHovered(true)}
+            onMouseLeave={() => !isMobile && setIsHovered(false)}
         >
             <div className="nn-file-content">
                 {isSlimMode ? (
                     // Slim mode: Show file name and tags with minimal styling
                     <div className="nn-slim-file-text-content">
-                        <div className="nn-file-name" style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}>
-                            {displayName}
+                        <div
+                            className="nn-file-name nn-file-name-with-reveal"
+                            style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}
+                        >
+                            <span className="nn-file-name-text">{displayName}</span>
+                            {isHovered && !isMobile && shouldShowRevealIcon && (
+                                <div
+                                    ref={revealIconRef}
+                                    className="nn-file-reveal-icon"
+                                    onClick={handleRevealClick}
+                                    title={strings.contextMenu.file.revealInFolder}
+                                />
+                            )}
                         </div>
                         {renderTags()}
                     </div>
@@ -390,10 +431,18 @@ export const FileItem = React.memo(function FileItem({
                     <>
                         <div className="nn-file-text-content">
                             <div
-                                className="nn-file-name"
+                                className="nn-file-name nn-file-name-with-reveal"
                                 style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}
                             >
-                                {displayName}
+                                <span className="nn-file-name-text">{displayName}</span>
+                                {isHovered && !isMobile && shouldShowRevealIcon && (
+                                    <div
+                                        ref={revealIconRef}
+                                        className="nn-file-reveal-icon"
+                                        onClick={handleRevealClick}
+                                        title={strings.contextMenu.file.revealInFolder}
+                                    />
+                                )}
                             </div>
 
                             {/* Single row mode (preview rows = 1) - show all elements */}
