@@ -16,7 +16,8 @@ folder_name=$(basename "$PWD")
 echo "Choose diff type:"
 echo "1) Uncommitted changes (staged and unstaged)"
 echo "2) Current branch vs main branch"
-read -p "Enter choice (1 or 2): " choice
+echo "3) Current state vs before specific commit"
+read -p "Enter choice (1, 2, or 3): " choice
 
 case $choice in
     1)
@@ -41,6 +42,28 @@ case $choice in
         # Write diff to the file
         echo "Diff between '$current_branch' and 'main' branch:" > "$output_file"
         git diff main..HEAD --patch --minimal >> "$output_file"
+        ;;
+    3)
+        # Ask for commit ID
+        read -p "Enter commit ID (e.g., ef3f29a): " commit_id
+        
+        # Validate commit exists
+        if ! git rev-parse --verify "$commit_id" > /dev/null 2>&1; then
+            echo "Error: Commit '$commit_id' not found."
+            exit 1
+        fi
+        
+        # Set output path in parent folder
+        output_file="../${folder_name}_vs_before_${commit_id}_${timestamp}.txt"
+        
+        # Get the parent commit (the state before the specified commit)
+        parent_commit="${commit_id}^"
+        
+        # Write diff to the file
+        echo "Diff between current state and before commit '$commit_id':" > "$output_file"
+        echo "Comparing HEAD with ${parent_commit}" >> "$output_file"
+        echo "" >> "$output_file"
+        git diff "${parent_commit}..HEAD" --patch --minimal >> "$output_file"
         ;;
     *)
         echo "Invalid choice. Exiting."
