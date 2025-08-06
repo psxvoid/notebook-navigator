@@ -81,8 +81,6 @@ interface UseListPaneScrollResult {
     scrollContainerRef: React.RefObject<HTMLDivElement | null>;
     /** Callback to set the scroll container ref */
     scrollContainerRefCallback: (element: HTMLDivElement | null) => void;
-    /** Currently visible date group for sticky header */
-    currentDateGroup: string | null;
     /** Handler to scroll to top (mobile header tap) */
     handleScrollToTop: () => void;
 }
@@ -109,9 +107,6 @@ export function useListPaneScroll({
     const { isMobile } = useServices();
     const { hasPreview, getDB, isStorageReady } = useFileCache();
 
-    // Track current visible date group for sticky header display
-    const [currentDateGroup, setCurrentDateGroup] = useState<string | null>(null);
-
     // Reference to the scroll container DOM element
     const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -127,13 +122,6 @@ export function useListPaneScroll({
 
     // Check if we're in slim mode
     const isSlimMode = !folderSettings.showDate && !folderSettings.showPreview && !folderSettings.showImage;
-
-    /**
-     * Safe array access helper to prevent out-of-bounds errors
-     */
-    const safeGetItem = <T>(array: T[], index: number): T | undefined => {
-        return index >= 0 && index < array.length ? array[index] : undefined;
-    };
 
     /**
      * Initialize TanStack Virtual virtualizer with dynamic height calculation.
@@ -584,96 +572,10 @@ export function useListPaneScroll({
         }
     }, [selectionState.isRevealOperation, selectedFile, isVisible, selectionDispatch, filePathToIndex]);
 
-    /**
-     * Track the current visible date group for sticky header display.
-     * Updates as user scrolls to show which date group is active.
-     */
-    useEffect(() => {
-        if (!scrollContainerRef.current || !rowVirtualizer || !settings.groupByDate) {
-            setCurrentDateGroup(null);
-            return;
-        }
-
-        const scrollContainer = scrollContainerRef.current;
-
-        // Helper to get item position
-        const getItemBottom = (index: number): number | null => {
-            // First check if we have cached measurements
-            const measurement = rowVirtualizer.measurementsCache?.[index];
-            if (measurement) {
-                return measurement.start + measurement.size;
-            }
-
-            // Check virtual items
-            const virtualItems = rowVirtualizer.getVirtualItems();
-            const virtualItem = virtualItems.find(vi => vi.index === index);
-            if (virtualItem) {
-                return virtualItem.start + virtualItem.size;
-            }
-
-            // Estimate position as fallback
-            let estimatedStart = 0;
-            for (let j = 0; j < index; j++) {
-                estimatedStart += rowVirtualizer.options.estimateSize(j);
-            }
-            return estimatedStart + rowVirtualizer.options.estimateSize(index);
-        };
-
-        const updateCurrentGroup = () => {
-            const scrollTop = scrollContainer.scrollTop;
-
-            // Find the current date group based on headers that have scrolled past
-            let currentGroup: string | null = null;
-
-            // Look through all items to find headers
-            for (let i = 0; i < listItems.length; i++) {
-                const item = safeGetItem(listItems, i);
-                if (!item || item.type !== ListPaneItemType.HEADER) continue;
-
-                const headerText = item.data as string;
-                const headerBottom = getItemBottom(i);
-
-                // Skip headers that haven't been measured yet (position 0 when scrollTop is also 0)
-                // This prevents picking up unmeasured headers on initial render
-                if (headerBottom === 0 && scrollTop === 0) {
-                    continue;
-                }
-
-                if (headerBottom !== null && headerBottom <= scrollTop) {
-                    // This header is completely above the viewport, so it's our current group
-                    currentGroup = headerText;
-                } else {
-                    // This header is still visible or coming up, so we stop here
-                    break;
-                }
-            }
-
-            setCurrentDateGroup(currentGroup);
-        };
-
-        // Initial update
-        updateCurrentGroup();
-
-        // Update on scroll
-        const handleScroll = () => {
-            requestAnimationFrame(updateCurrentGroup);
-        };
-
-        scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-
-        return () => {
-            const container = scrollContainerRef.current;
-            if (container) {
-                container.removeEventListener('scroll', handleScroll);
-            }
-        };
-    }, [rowVirtualizer, listItems, settings.groupByDate]);
-
     return {
         rowVirtualizer,
         scrollContainerRef,
         scrollContainerRefCallback,
-        currentDateGroup,
         handleScrollToTop
     };
 }

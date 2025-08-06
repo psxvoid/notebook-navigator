@@ -35,10 +35,9 @@ import { useListPaneAppearance } from '../hooks/useListPaneAppearance';
 
 interface ListPaneHeaderProps {
     onHeaderClick?: () => void;
-    currentDateGroup?: string | null;
 }
 
-export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHeaderProps) {
+export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
     const iconRef = React.useRef<HTMLSpanElement>(null);
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
@@ -218,10 +217,6 @@ export function ListPaneHeader({ onHeaderClick, currentDateGroup }: ListPaneHead
             } else {
                 title = `#${getTagDisplayPath(selectionState.selectedTag)}`;
             }
-        }
-
-        if (currentDateGroup) {
-            title = currentDateGroup;
         }
 
         return title;
