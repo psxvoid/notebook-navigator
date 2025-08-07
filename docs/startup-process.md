@@ -269,51 +269,63 @@ graph TD
 
 #### 4.1 Metadata Cleanup Process:
 
+**Purpose**: Remove orphaned metadata for folders, tags, and files that no longer exist in the vault. This prevents the settings file from growing indefinitely with obsolete data.
+
 **Timing**:
 
 - With tags enabled: Runs after all tags are extracted
 - With tags disabled: Runs immediately after files are queued
 
-**Architecture**: The cleanup uses shared utility functions from `metadataCleanupUtils.ts`:
+**Architecture**: The cleanup uses "validators" - data structures that contain the current state of the vault (which files, folders, and tags actually exist). The cleanup process compares stored metadata against these validators to identify and remove orphaned entries:
 
 ```typescript
-// Prepare validators with all vault paths (files and folders)
-const validators = prepareCleanupValidators(app, tagTree);
+// Prepare validators with current vault state (files, folders, tags)
+const validators = MetadataService.prepareCleanupValidators(app, tagTree);
 
-// Run unified cleanup
+// Run unified cleanup using validators to identify orphaned metadata
 await metadataService.runUnifiedCleanup(validators);
 ```
 
-**Data Collection** (`prepareCleanupValidators`):
+**Validator Preparation** (`MetadataService.prepareCleanupValidators`):
+
+Validators are data structures containing the current "truth" about what exists in the vault:
 
 ```
-1. Collect vault paths (collectVaultPaths):
+1. Collect vault files:
    - Get all markdown files from vault
-   - Recursively traverse folder tree from root
-   - Add placeholder entries for each folder to preserve empty folders
-   - Returns combined set of file and folder paths
+   - Store as set of all file paths
 
-2. Prepare validators object:
-   - dbFiles: All files from IndexedDB
+2. Collect vault folders:
+   - Recursively traverse folder tree from root
+   - Collect actual folder paths directly from vault structure
+   - Store as set of all folder paths including empty folders
+
+3. Create validators object containing:
+   - dbFiles: All files from IndexedDB (for cross-referencing)
    - tagTree: Combined favorite and regular tag trees (empty Map if tags disabled)
-   - vaultFiles: Set of all vault paths including folders
+   - vaultFiles: Set of all file paths that currently exist
+   - vaultFolders: Set of all folder paths that currently exist
 ```
 
 **Cleanup Operations** (`runUnifiedCleanup`):
 
+Using the validators, the cleanup removes orphaned metadata:
+
 ```
 1. Validate folder metadata (always runs):
-   - Extract folder paths from vault files
+   - Compare stored folder settings against vaultFolders validator
    - Check each folder color/icon/sort/appearance setting
-   - Remove settings for folders that no longer exist
+   - Remove settings for folders not in vaultFolders set
 
 2. Validate pinned notes (always runs):
+   - Compare pinned file paths against vaultFiles validator
    - Check each folder's pinned notes list
-   - Remove references to files that no longer exist
+   - Remove references to files not in vaultFiles set
 
 3. Validate tag metadata (only when tag tree provided):
+   - Compare stored tag settings against tagTree validator
    - Check each tag color/icon/sort/appearance setting
-   - Remove settings for tags that no longer exist
+   - Remove settings for tags not in tagTree
 
 4. Save cleaned settings:
    - Write updated settings back to data.json if any changes were made
