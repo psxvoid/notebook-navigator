@@ -9,33 +9,48 @@ The Notebook Navigator plugin has a multi-phase startup process that handles dat
 ### Cold Boot
 A **cold boot** occurs when:
 - The plugin is installed for the first time
-- The plugin is enabled after being disabled
-- The IndexedDB database doesn't exist or is corrupted
-- The browser/app data has been cleared
+- The IndexedDB database doesn't exist
+- Database schema version has changed (DB_SCHEMA_VERSION)
+- Content version has changed (DB_CONTENT_VERSION)
 
 Characteristics:
 - Full database initialization required
-- Complete vault scan and indexing
-- All content needs to be generated
-- Waits for Obsidian's metadata cache to be ready
-- Slower initial load but ensures complete data integrity
+- All files need content generation
+- Database is either created new or cleared completely
 
 ### Warm Boot
 A **warm boot** occurs when:
 - Obsidian is restarted with the plugin already enabled
-- The plugin is reloaded (during development or updates)
-- The view is reopened after being closed
+- The plugin is enabled after being disabled
+- Database exists with valid schema and content versions
 
 Characteristics:
 - Database already exists with cached data
 - Only changed files need processing
-- Incremental updates via diff calculation
-- Skips metadata cache wait if data exists
-- Much faster startup time
+- Metadata cache is typically ready immediately
+
+### Version System
+
+The plugin uses two version numbers to manage database state:
+
+**DB_SCHEMA_VERSION**: Controls the IndexedDB structure
+- Changes when database schema is modified (new indexes, stores, etc.)
+- Triggers complete database recreation on change
+
+**DB_CONTENT_VERSION**: Controls the data format
+- Changes when content structure or generation logic is modified
+- Triggers data clearing but preserves database structure
+- Examples: changing how previews are generated, tag extraction logic updates
+
+Both versions are stored in localStorage to detect changes between sessions.
+
+Both version changes result in a cold boot to ensure data consistency.
 
 ## Startup Phases
 
 ### Phase 1: Plugin Registration (main.ts)
+**Trigger**: Obsidian calls Plugin.onload() when enabling the plugin
+
 ```
 1. Plugin.onload() called by Obsidian
 2. Load settings from data.json
@@ -43,7 +58,7 @@ Characteristics:
    - LocalStorage (vault-specific storage)
    - MobileLogger (for mobile debugging)
    - IconService (icon providers)
-   - MetadataService (colors, icons, sort overrides)
+   - MetadataService (colors, icons, sort overrides, appearance overrides)
    - TagOperations (tag manipulation)
    - TagTreeService (tag hierarchy)
    - CommandQueueService (operation tracking)
@@ -51,11 +66,14 @@ Characteristics:
 5. Register commands and event handlers
 6. Add ribbon icon
 7. Wait for workspace.onLayoutReady()
+   - When ready, calls activateView() if no navigator exists
 ```
 
 ### Phase 2: View Creation (NotebookNavigatorView.tsx)
+**Trigger**: activateView() creates the view via workspace.getLeaf()
+
 ```
-1. View created when opened (auto or manual)
+1. Obsidian calls onOpen() when view is created
 2. React app mounted with context providers:
    - SettingsProvider (user preferences)
    - ServicesProvider (dependency injection)
@@ -63,37 +81,53 @@ Characteristics:
    - ExpansionProvider (UI state)
    - SelectionProvider (selected items)
    - UIStateProvider (pane focus)
-3. Container element prepared
-4. Mobile detection and class application
+3. Container renders skeleton view while storage initializes:
+   - Shows placeholder panes with saved dimensions
+   - Provides immediate visual feedback
+   - Prevents layout shift when data loads
+4. Mobile detection adds platform-specific class for touch optimizations
 ```
 
-### Phase 3: Storage Initialization (StorageContext.tsx)
+### Phase 3: Database Version Check and Initialization
+**Trigger**: StorageProvider mounts in React component tree (from Phase 2)
 
-#### Cold Boot Path:
 ```
-1. Initialize IndexedDB with app ID
-2. Create database schema if needed
-3. Initialize empty MemoryFileCache
-4. Initialize content provider registry:
+1. StorageContext useEffect runs on mount
+2. Calls IndexedDBStorage.init()
+3. Version check process:
+   - Check stored versions in localStorage
+   - Compare DB_SCHEMA_VERSION and DB_CONTENT_VERSION
+   - Determine boot type:
+     * No stored versions → First install → Cold boot
+     * Schema change → Delete database → Cold boot
+     * Content change → Clear data → Cold boot
+     * Versions match → Warm boot
+4. Store current versions in localStorage
+5. Open/create database based on boot type
+```
+
+#### Cold Boot Path (database empty or cleared):
+```
+1. Create new database or clear existing data
+2. Initialize empty MemoryFileCache
+3. Initialize content provider registry:
    - PreviewContentProvider
    - FeatureImageContentProvider
    - MetadataContentProvider
    - TagContentProvider
+4. Continue to Phase 4 with empty database
 ```
 
-#### Warm Boot Path:
+#### Warm Boot Path (database has existing data):
 ```
-1. Initialize IndexedDB with app ID
-2. Open existing database
-3. Load all existing data into MemoryFileCache
-4. Initialize content provider registry:
-   - PreviewContentProvider
-   - FeatureImageContentProvider
-   - MetadataContentProvider
-   - TagContentProvider
+1. Open existing database
+2. Load all existing data into MemoryFileCache
+3. Initialize content provider registry (same providers as cold boot)
+4. Continue to Phase 4 with cached data
 ```
 
 ### Phase 4: Initial Data Load and Metadata Resolution
+**Trigger**: Database initialization completes (from Phase 3)
 
 This phase handles the initial synchronization between the vault and the database, then ensures metadata is ready for tag extraction:
 
@@ -140,13 +174,12 @@ This phase handles the initial synchronization between the vault and the databas
    - Warm boot: UI renders immediately with cached content
 8. If tags enabled (settings.showTags):
    - Start tracking files needing tags (startTracking)
-   - Check metadata cache (useDeferredMetadataCleanup.waitForMetadataCache)
-9. If metadata cache ready:
-   - Queue files immediately (ContentProviderRegistry.queueFilesForAllProviders)
-10. If metadata cache not ready:
-    - Wait for 'resolved' event from Obsidian
-    - Then queue files
-11. Begin background processing (see Phase 5)
+   - Wait for metadata cache (useDeferredMetadataCleanup.waitForMetadataCache)
+   - Both cold and warm boot wait, but warm boot typically resolves immediately
+9. When metadata cache ready:
+   - Queue files (ContentProviderRegistry.queueFilesForAllProviders)
+   - Tag extraction begins immediately
+10. Begin background processing (see Phase 5)
     - Cold boot: All files need content generation
     - Warm boot: Only changed files and files with null content fields
 ```
@@ -189,10 +222,10 @@ graph TD
         M[Mark Storage Ready]
         M --> N{Tags Enabled?}
         N -->|Yes| O[Start Tracking Files<br/>startTracking]
-        O --> P[Check Metadata Cache<br/>useDeferredMetadataCleanup]
+        O --> P[Wait for Metadata Cache<br/>useDeferredMetadataCleanup]
         P --> Q{Cache Ready?}
-        Q -->|Yes| R[Queue Files Immediately]
-        Q -->|No| S[Wait for 'resolved' Event]
+        Q -->|Yes<br/>Usually warm boot| R[Queue Files Immediately]
+        Q -->|No<br/>Usually cold boot| S[Wait for 'resolved' Event]
         S --> T[Metadata Resolves]
         T --> R
         R --> U[ContentProviderRegistry<br/>queueFilesForAllProviders]
@@ -218,20 +251,20 @@ When all tags are extracted, MetadataService.runUnifiedCleanup performs:
    - Get complete tag tree (with all extracted tags)
    - Get all files from vault
 2. Validate tag metadata:
-   - Check each tag color/icon/sort setting
+   - Check each tag color/icon/sort/appearance setting
    - Remove settings for tags that no longer exist
 3. Validate folder metadata:
-   - Check each folder color/icon/sort setting
+   - Check each folder color/icon/sort/appearance setting
    - Remove settings for folders that no longer exist
-4. Clean favorite tags:
-   - Remove favorites for tags that don't exist
-5. Clean hidden tags:
-   - Remove hidden tags that don't exist
-6. Save cleaned settings:
+4. Validate pinned notes:
+   - Check each folder's pinned notes list
+   - Remove references to files that no longer exist
+5. Save cleaned settings:
    - Write updated settings back to data.json
 ```
 
 ### Phase 5: Background Processing
+**Trigger**: Files queued by ContentProviderRegistry (from Phase 4)
 
 Content is generated asynchronously in the background by the ContentProviderRegistry and individual providers:
 
@@ -247,10 +280,10 @@ Content is generated asynchronously in the background by the ContentProviderRegi
    - Uses requestIdleCallback for background processing
 
 3. **Processing**: Each provider processes files independently
-   - TagContentProvider: Gets tags from app.metadataCache.getFileCache()
+   - TagContentProvider: Extracts tags from app.metadataCache.getFileCache()
    - PreviewContentProvider: Reads file content via app.vault.cachedRead()
-   - FeatureImageContentProvider: Checks frontmatter properties from metadata cache, falls back to metadata.embeds
-   - MetadataContentProvider: Gets custom frontmatter fields from app.metadataCache.getFileCache()
+   - FeatureImageContentProvider: Checks frontmatter properties via app.metadataCache.getFileCache(), falls back to checking embedded images using app.metadataCache.getFirstLinkpathDest()
+   - MetadataContentProvider: Extracts custom frontmatter fields from app.metadataCache.getFileCache()
 
 4. **Database Updates**: Results stored in IndexedDB
    - Each provider returns updates to IndexedDBStorage
