@@ -65,7 +65,8 @@ If you love using Notebook Navigator, please consider
 
 - **Pin notes** - Keep important notes at the top of folders and tags
 - **Auto-reveal** - Automatically show the location of the current note
-- **Clickable path segments** - Click any segment in the header breadcrumb path to quickly navigate to parent folders
+- **Clickable path segments** - Click any segment in the header breadcrumb path
+  to quickly navigate to parent folders
 - **Keyboard first** - Full navigation with arrow keys and Tab
 - **Multi-selection** - Select multiple notes with Cmd/Ctrl+Click and
   Shift+Click
@@ -113,7 +114,11 @@ If you love using Notebook Navigator, please consider
 
 ### Documentation
 
-[**Startup Process**](docs/startup-process.md) - Technical documentation of the plugin initialization sequence, including cold boot vs warm boot flows, metadata cache resolution, deferred cleanup mechanisms, and content generation pipeline. Includes detailed Mermaid diagrams showing the complete data flow from plugin load to UI ready.
+[**Startup Process**](docs/startup-process.md) - Technical documentation of the
+plugin initialization sequence, including cold boot vs warm boot flows, metadata
+cache resolution, deferred cleanup mechanisms, and content generation pipeline.
+Includes detailed Mermaid diagrams showing the complete data flow from plugin
+load to UI ready.
 
 <br>
 
