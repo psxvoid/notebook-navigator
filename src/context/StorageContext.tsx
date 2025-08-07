@@ -67,7 +67,7 @@ import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
 import { useDeferredMetadataCleanup } from '../hooks/useDeferredMetadataCleanup';
-import { prepareCleanupValidators } from '../utils/metadataCleanupUtils';
+import { MetadataService } from '../services/MetadataService';
 
 /**
  * Data structure containing the hierarchical tag trees and untagged file count
@@ -289,7 +289,7 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     const runMetadataCleanupWithoutTags = useCallback(async () => {
         if (!metadataService) return;
 
-        const validators = prepareCleanupValidators(app);
+        const validators = MetadataService.prepareCleanupValidators(app);
 
         await metadataService.runUnifiedCleanup(validators).catch(error => {
             console.error('Failed to run metadata cleanup:', error);

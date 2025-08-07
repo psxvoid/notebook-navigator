@@ -193,34 +193,16 @@ export class FolderMetadataService extends BaseMetadataService {
      *    - dbFiles: All files from IndexedDB cache
      *    - tagTree: Complete tag hierarchy
      *    - vaultFiles: Set of all file paths in the vault
-     * 3. Builds a set of valid folder paths by extracting parent folders from all files
+     *    - vaultFolders: Set of all actual folder paths from the vault
+     * 3. Uses the vaultFolders set directly to validate folder existence
      * 4. Removes metadata for any folders that no longer exist in the vault
      *
-     * @param validators - Pre-loaded data containing vault files, database files, and tag tree
+     * @param validators - Pre-loaded data containing vault files, folders, database files, and tag tree
      * @returns True if any metadata was removed/changed
      */
     async cleanupWithValidators(validators: CleanupValidators): Promise<boolean> {
-        // Build a set of all valid folder paths by examining the vault's file structure
-        const folderPaths = new Set<string>();
-
-        // Extract folder paths from all vault files
-        // For example, if we have "folder1/folder2/file.md", we extract:
-        // - "folder1"
-        // - "folder1/folder2"
-        validators.vaultFiles.forEach(filePath => {
-            // Split path and rebuild parent folders incrementally
-            const parts = filePath.split('/');
-            for (let i = 1; i < parts.length; i++) {
-                const folderPath = parts.slice(0, i).join('/');
-                folderPaths.add(folderPath);
-            }
-        });
-
-        // Always include root folder
-        folderPaths.add('/');
-
-        // Create validator function that checks if a folder path exists
-        const validator = (path: string) => folderPaths.has(path);
+        // Use the actual folder paths directly from the validators
+        const validator = (path: string) => validators.vaultFolders.has(path);
 
         const results = await Promise.all([
             this.cleanupMetadata(this.settingsProvider.settings, 'folderColors', validator),
