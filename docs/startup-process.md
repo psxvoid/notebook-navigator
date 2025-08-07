@@ -229,22 +229,23 @@ graph TD
         S --> T[Metadata Resolves]
         T --> R
         R --> U[ContentProviderRegistry<br/>queueFilesForAllProviders]
-        U --> V[TagContentProvider<br/>Extract Tags]
-        V --> W[Update Database]
-        W --> X[Track Progress]
-        X --> Y{All Tags Extracted?}
-        Y -->|No| V
-        Y -->|Yes| Z[Metadata Cleanup<br/>see 4.1]
+        U --> V[Process Files in Queue]
+        V --> W[TagContentProvider<br/>Extracts Tags]
+        W --> X[Update Database<br/>Track Progress]
+        X --> Y{All Files<br/>Processed?}
+        Y -->|No<br/>More files| V
+        Y -->|Yes<br/>Complete| Z[Run Metadata Cleanup<br/>see 4.1]
+        Z --> Skip[Begin Background Processing<br/>Phase 5]
     end
     
-    N -->|No| Skip[Begin Background Processing<br/>Phase 5]
-    Z --> Skip
+    N -->|No<br/>Tags disabled| Skip2[Queue Files Without Tags]
+    Skip2 --> Skip
 ```
 
-The tracking ensures that metadata cleanup only runs after all tags have been extracted from the vault files.
+**Note**: In the current implementation, metadata cleanup only runs when tags are enabled. When tags are disabled, the cleanup is skipped (which may leave orphaned folder metadata and pinned note references).
 
 #### 4.1 Metadata Cleanup Process:
-When all tags are extracted, MetadataService.runUnifiedCleanup performs:
+When all tags are extracted (tags enabled only), MetadataService.runUnifiedCleanup performs:
 ```
 1. Gather validation data:
    - Get all files from database
