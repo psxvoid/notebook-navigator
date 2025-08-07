@@ -50,8 +50,8 @@ export function flattenFolderTree(
             return;
         }
 
-        // Skip excluded folders
-        if (excludePatterns.length > 0 && shouldExcludeFolder(folder.name, excludePatterns)) {
+        // Skip excluded folders (pass both name and full path for pattern matching)
+        if (excludePatterns.length > 0 && shouldExcludeFolder(folder.name, excludePatterns, folder.path)) {
             return;
         }
 

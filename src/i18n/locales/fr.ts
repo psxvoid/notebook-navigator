@@ -124,6 +124,7 @@ export const STRINGS_FR = {
             removeIcon: "Supprimer l'icône",
             changeColor: 'Changer la couleur',
             removeColor: 'Supprimer la couleur',
+            excludeFolder: 'Exclure le dossier',
             renameFolder: 'Renommer le dossier',
             deleteFolder: 'Supprimer le dossier'
         },
@@ -264,6 +265,10 @@ export const STRINGS_FR = {
             failedToCreateDrawing: 'Échec de la création du dessin',
             noFolderSelected: 'Aucun dossier sélectionné dans Notebook Navigator',
             noFileSelected: 'Aucun fichier sélectionné'
+        },
+        notices: {
+            excludedFolder: 'Dossier exclu : {name}',
+            excludedFolderWithCleanup: 'Dossier exclu : {name} ({count} supprimés)'
         },
         notifications: {
             deletedMultipleFiles: '{count} fichiers supprimés',
@@ -437,8 +442,9 @@ export const STRINGS_FR = {
             },
             excludedFolders: {
                 name: 'Dossiers exclus',
-                desc: 'Liste de dossiers à masquer séparés par des virgules. Supporte les caractères génériques : assets* (commence par), *_temp (finit par).',
-                placeholder: 'templates, assets*, *_temp'
+                desc: 'Liste de dossiers à masquer séparés par des virgules. Modèles de nom : assets* (dossiers commençant par assets), *_temp (finissant par _temp). Modèles de chemin : /archive (archive racine uniquement), /res* (dossiers racine commençant par res), /*/temp (dossiers temp un niveau plus bas), /projects/* (tous les dossiers dans projects).',
+                placeholder: 'templates, assets*, /archive, /res*',
+                info: "Nettoyage automatique : Lors de l'exclusion par clic droit, les modèles redondants sont supprimés (par exemple, si vous excluez /projects et que /projects/app existe déjà dans la liste, il sera supprimé)."
             },
             fileVisibility: {
                 name: 'Afficher les types de fichiers',

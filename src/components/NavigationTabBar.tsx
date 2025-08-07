@@ -27,13 +27,8 @@ import { strings } from '../i18n';
 import { collectAllTagPaths } from '../utils/tagTree';
 import { ObsidianIcon } from './ObsidianIcon';
 
-interface NavigationPaneHeaderProps {
-    onHeaderClick?: () => void;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function NavigationPaneHeader({ onHeaderClick }: NavigationPaneHeaderProps) {
-    const { app, isMobile } = useServices();
+export function NavigationTabBar() {
+    const { app } = useServices();
     const settings = useSettingsState();
     const updateSettings = useSettingsUpdate();
     const expansionState = useExpansionState();
@@ -101,23 +96,22 @@ export function NavigationPaneHeader({ onHeaderClick }: NavigationPaneHeaderProp
             }
 
             if (shouldAffectTags) {
-                const allTagPaths = new Set<string>();
-
-                for (const tagNode of fileData.favoriteTree.values()) {
-                    collectAllTagPaths(tagNode, allTagPaths);
-                }
-                for (const tagNode of fileData.tagTree.values()) {
-                    collectAllTagPaths(tagNode, allTagPaths);
-                }
-
-                expansionDispatch({ type: 'SET_EXPANDED_TAGS', tags: allTagPaths });
+                const allTags = new Set<string>();
+                // Collect all tag paths from both trees
+                fileData.favoriteTree.forEach(node => {
+                    collectAllTagPaths(node).forEach(path => allTags.add(path));
+                });
+                fileData.tagTree.forEach(node => {
+                    collectAllTagPaths(node).forEach(path => allTags.add(path));
+                });
+                expansionDispatch({ type: 'SET_EXPANDED_TAGS', tags: allTags });
             }
         }
     }, [
-        app,
-        expansionDispatch,
-        settings.showRootFolder,
+        app.vault,
         settings.collapseButtonBehavior,
+        settings.showRootFolder,
+        expansionDispatch,
         fileData.favoriteTree,
         fileData.tagTree,
         shouldCollapseItems
@@ -143,54 +137,33 @@ export function NavigationPaneHeader({ onHeaderClick }: NavigationPaneHeaderProp
         });
     }, [updateSettings]);
 
-    if (isMobile) {
-        // On mobile, no header - actions in tab bar
-        return null;
-    }
-
     return (
-        <div className="nn-pane-header">
-            <div className="nn-header-actions nn-header-actions--space-between">
-                <button
-                    className="nn-icon-button"
-                    aria-label={settings.dualPane ? strings.paneHeader.showSinglePane : strings.paneHeader.showDualPane}
-                    onClick={() => {
-                        updateSettings(s => {
-                            s.dualPane = !s.dualPane;
-                        });
-                    }}
-                    tabIndex={-1}
-                >
-                    <ObsidianIcon name={settings.dualPane ? 'panel-left-close' : 'panel-right-open'} />
-                </button>
-                <div className="nn-header-actions">
-                    <button
-                        className="nn-icon-button"
-                        aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
-                        onClick={handleExpandCollapseAll}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'} />
-                    </button>
-                    <button
-                        className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}
-                        aria-label={strings.paneHeader.autoExpandFoldersTags}
-                        onClick={handleToggleAutoExpand}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name="folder-tree" />
-                    </button>
-                    <button
-                        className="nn-icon-button"
-                        aria-label={strings.paneHeader.newFolder}
-                        onClick={handleNewFolder}
-                        disabled={!selectionState.selectedFolder}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name="folder-plus" />
-                    </button>
-                </div>
-            </div>
+        <div className="nn-tab-bar">
+            <button
+                className="nn-tab-bar-button"
+                aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
+                onClick={handleExpandCollapseAll}
+                tabIndex={-1}
+            >
+                <ObsidianIcon name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'} />
+            </button>
+            <button
+                className={`nn-tab-bar-button ${settings.autoExpandFoldersTags ? 'nn-tab-bar-button-active' : ''}`}
+                aria-label={strings.paneHeader.autoExpandFoldersTags}
+                onClick={handleToggleAutoExpand}
+                tabIndex={-1}
+            >
+                <ObsidianIcon name="folder-tree" />
+            </button>
+            <button
+                className="nn-tab-bar-button"
+                aria-label={strings.paneHeader.newFolder}
+                onClick={handleNewFolder}
+                disabled={!selectionState.selectedFolder}
+                tabIndex={-1}
+            >
+                <ObsidianIcon name="folder-plus" />
+            </button>
         </div>
     );
 }

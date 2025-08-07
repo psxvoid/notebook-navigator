@@ -124,6 +124,7 @@ export const STRINGS_JA = {
             removeIcon: 'アイコンを削除',
             changeColor: '色を変更',
             removeColor: '色を削除',
+            excludeFolder: 'フォルダを除外',
             renameFolder: 'フォルダの名前を変更',
             deleteFolder: 'フォルダを削除'
         },
@@ -264,6 +265,10 @@ export const STRINGS_JA = {
             failedToCreateDrawing: '図面の作成に失敗しました',
             noFolderSelected: 'Notebook Navigatorでフォルダが選択されていません',
             noFileSelected: 'ファイルが選択されていません'
+        },
+        notices: {
+            excludedFolder: 'フォルダを除外: {name}',
+            excludedFolderWithCleanup: 'フォルダを除外: {name} ({count}個削除)'
         },
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',
@@ -437,8 +442,9 @@ export const STRINGS_JA = {
             },
             excludedFolders: {
                 name: '除外するフォルダ',
-                desc: '非表示にするフォルダのカンマ区切りリスト。ワイルドカード対応：assets*（で始まる）、*_temp（で終わる）。',
-                placeholder: 'templates, assets*, *_temp'
+                desc: '非表示にするフォルダのカンマ区切りリスト。名前パターン: assets*（assetsで始まるフォルダ）、*_temp（_tempで終わる）。パスパターン: /archive（ルートのアーカイブのみ）、/res*（resで始まるルートフォルダ）、/*/temp（1階層下のtempフォルダ）、/projects/*（projects内のすべてのフォルダ）。',
+                placeholder: 'templates, assets*, /archive, /res*',
+                info: '自動クリーンアップ：右クリックで除外する際、重複するパターンが削除されます（例：/projectsを除外し、/projects/appが既にリストにある場合、削除されます）。'
             },
             fileVisibility: {
                 name: 'ファイルタイプを表示',

@@ -120,8 +120,8 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
                     files.push(child);
                 }
             } else if (settings.showNotesFromSubfolders && child instanceof TFolder) {
-                // Skip excluded folders when collecting files
-                if (excludedFolderPatterns.length === 0 || !shouldExcludeFolder(child.name, excludedFolderPatterns)) {
+                // Skip excluded folders when collecting files - pass full path for path-based patterns
+                if (excludedFolderPatterns.length === 0 || !shouldExcludeFolder(child.name, excludedFolderPatterns, child.path)) {
                     collectFiles(child);
                 }
             }

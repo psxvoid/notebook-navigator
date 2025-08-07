@@ -61,6 +61,7 @@ import { ListPaneItemType } from '../types';
 import { getEffectiveSortOption } from '../utils/sortUtils';
 import { FileItem } from './FileItem';
 import { ListPaneHeader } from './ListPaneHeader';
+import { ListTabBar } from './ListTabBar';
 
 /**
  * Renders the list pane displaying files from the selected folder.
@@ -315,6 +316,7 @@ export const ListPane = React.memo(
                     <div className="nn-list-pane-scroller nn-empty-state">
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoSelection}</div>
                     </div>
+                    {isMobile && <ListTabBar />}
                 </div>
             );
         }
@@ -326,6 +328,7 @@ export const ListPane = React.memo(
                     <div className="nn-list-pane-scroller nn-empty-state">
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoNotes}</div>
                     </div>
+                    {isMobile && <ListTabBar />}
                 </div>
             );
         }
@@ -434,6 +437,7 @@ export const ListPane = React.memo(
                         </div>
                     )}
                 </div>
+                {isMobile && <ListTabBar />}
             </div>
         );
     })

@@ -250,7 +250,7 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
                                 >
                                     {segment}
                                 </span>
-                                <span className="nn-path-separator">/</span>
+                                <span className="nn-path-separator"> / </span>
                             </React.Fragment>
                         );
                     })}
@@ -273,13 +273,13 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
 
             // Single segment tag - no parent to click
             if (segments.length === 1) {
-                return `#${displayPath}`;
+                return `# ${displayPath}`;
             }
 
             // Multiple segments - make all but last clickable
             return (
                 <>
-                    <span className="nn-path-prefix">#</span>
+                    <span className="nn-path-prefix"># </span>
                     {segments.map((segment, index) => {
                         const isLast = index === segments.length - 1;
 
@@ -303,7 +303,7 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
                                 >
                                     {segment}
                                 </span>
-                                <span className="nn-path-separator">/</span>
+                                <span className="nn-path-separator"> / </span>
                             </React.Fragment>
                         );
                     })}
@@ -341,73 +341,22 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
     ]);
 
     if (isMobile) {
+        // On mobile, show simplified header with back button and path - actions moved to tab bar
         return (
-            <div className="nn-pane-header" onClick={onHeaderClick}>
-                <div className="nn-header-actions">
-                    <div className="nn-mobile-back">
-                        <button
-                            className="nn-icon-button"
-                            aria-label={strings.paneHeader.mobileBackToNavigation}
-                            onClick={e => {
-                                e.stopPropagation();
-                                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
-                            }}
-                            tabIndex={-1}
-                        >
-                            <ObsidianIcon name="arrow-left" />
-                        </button>
-                        <span className="nn-mobile-title">{renderPathSegments()}</span>
-                    </div>
-                    <div className="nn-header-actions">
-                        <button
-                            className={`nn-icon-button ${settings.showNotesFromSubfolders ? 'nn-icon-button-active' : ''}`}
-                            aria-label={strings.paneHeader.toggleSubfolders}
-                            onClick={e => {
-                                e.stopPropagation();
-                                handleToggleSubfolders();
-                            }}
-                            disabled={selectionState.selectionType !== ItemType.FOLDER || !selectionState.selectedFolder}
-                            tabIndex={-1}
-                        >
-                            <ObsidianIcon name="layers" />
-                        </button>
-                        <button
-                            className={`nn-icon-button ${isCustomSort ? 'nn-icon-button-active' : ''}`}
-                            aria-label={strings.paneHeader.changeSortOrder}
-                            onClick={e => {
-                                e.stopPropagation();
-                                handleSortMenu(e);
-                            }}
-                            disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
-                            tabIndex={-1}
-                        >
-                            <ObsidianIcon name={getSortIcon()} />
-                        </button>
-                        <button
-                            className={`nn-icon-button ${hasCustomAppearance ? 'nn-icon-button-active' : ''}`}
-                            aria-label={strings.paneHeader.changeAppearance}
-                            onClick={e => {
-                                e.stopPropagation();
-                                handleAppearanceMenu(e);
-                            }}
-                            disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
-                            tabIndex={-1}
-                        >
-                            <ObsidianIcon name="palette" />
-                        </button>
-                        <button
-                            className="nn-icon-button"
-                            aria-label={strings.paneHeader.newNote}
-                            onClick={e => {
-                                e.stopPropagation();
-                                handleNewFile();
-                            }}
-                            disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
-                            tabIndex={-1}
-                        >
-                            <ObsidianIcon name="pen-box" />
-                        </button>
-                    </div>
+            <div className="nn-pane-header nn-pane-header-simple" onClick={onHeaderClick}>
+                <div className="nn-mobile-header">
+                    <button
+                        className="nn-icon-button nn-back-button"
+                        aria-label={strings.paneHeader.mobileBackToNavigation}
+                        onClick={e => {
+                            e.stopPropagation();
+                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
+                        }}
+                        tabIndex={-1}
+                    >
+                        <ObsidianIcon name="arrow-left" />
+                    </button>
+                    <span className="nn-mobile-title">{renderPathSegments()}</span>
                 </div>
             </div>
         );

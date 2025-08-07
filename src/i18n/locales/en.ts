@@ -123,6 +123,7 @@ export const STRINGS_EN = {
             removeIcon: 'Remove icon',
             changeColor: 'Change color',
             removeColor: 'Remove color',
+            excludeFolder: 'Exclude folder',
             renameFolder: 'Rename folder',
             deleteFolder: 'Delete folder'
         },
@@ -263,6 +264,10 @@ export const STRINGS_EN = {
             failedToCreateDrawing: 'Failed to create drawing',
             noFolderSelected: 'No folder is selected in Notebook Navigator',
             noFileSelected: 'No file is selected'
+        },
+        notices: {
+            excludedFolder: 'Excluded folder: {name}',
+            excludedFolderWithCleanup: 'Excluded folder: {name} (removed {count})'
         },
         notifications: {
             deletedMultipleFiles: 'Deleted {count} files',
@@ -445,8 +450,9 @@ export const STRINGS_EN = {
             },
             excludedFolders: {
                 name: 'Excluded folders',
-                desc: 'Comma-separated list of folders to hide. Supports wildcards: assets* (starts with), *_temp (ends with).',
-                placeholder: 'templates, assets*, *_temp'
+                desc: 'Comma-separated list of folders to hide. Name patterns: assets* (folders starting with assets), *_temp (ending with _temp). Path patterns: /archive (root archive only), /res* (root folders starting with res), /*/temp (temp folders one level deep), /projects/* (all folders inside projects).',
+                placeholder: 'templates, assets*, /archive, /res*',
+                info: 'Automatic cleanup: When excluding via right-click, redundant patterns are removed (e.g., if you exclude /projects and /projects/app already exists in the list, it will be removed).'
             },
             showFileDate: {
                 name: 'Show date',

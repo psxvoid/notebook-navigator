@@ -124,6 +124,7 @@ export const STRINGS_ZH = {
             removeIcon: '移除图标',
             changeColor: '更改颜色',
             removeColor: '移除颜色',
+            excludeFolder: '排除文件夹',
             renameFolder: '重命名文件夹',
             deleteFolder: '删除文件夹'
         },
@@ -264,6 +265,10 @@ export const STRINGS_ZH = {
             failedToCreateDrawing: '创建绘图失败',
             noFolderSelected: 'Notebook Navigator 中未选择文件夹',
             noFileSelected: '未选择文件'
+        },
+        notices: {
+            excludedFolder: '已排除文件夹：{name}',
+            excludedFolderWithCleanup: '已排除文件夹：{name}（移除了{count}个）'
         },
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',
@@ -437,8 +442,9 @@ export const STRINGS_ZH = {
             },
             excludedFolders: {
                 name: '排除的文件夹',
-                desc: '逗号分隔的要隐藏的文件夹列表。支持通配符：assets*（以...开头），*_temp（以...结尾）。',
-                placeholder: 'templates, assets*, *_temp'
+                desc: '逗号分隔的要隐藏的文件夹列表。名称模式：assets*（以assets开头的文件夹），*_temp（以_temp结尾）。路径模式：/archive（仅根目录archive），/res*（以res开头的根文件夹），/*/temp（一级目录下的temp文件夹），/projects/*（projects内的所有文件夹）。',
+                placeholder: 'templates, assets*, /archive, /res*',
+                info: '自动清理：通过右键排除时，冗余的模式会被移除（例如，如果您排除/projects且/projects/app已在列表中，它将被移除）。'
             },
             fileVisibility: {
                 name: '显示文件类型',

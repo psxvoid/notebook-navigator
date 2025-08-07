@@ -22,6 +22,7 @@ import { strings } from '../../i18n';
 import { getInternalPlugin, isFolderAncestor } from '../../utils/typeGuards';
 import { getFolderNote } from '../../utils/fileFinder';
 import { ExtendedApp } from '../../types/obsidian-extended';
+import { cleanupExclusionPatterns } from '../../utils/fileFilters';
 
 /**
  * Builds the context menu for a folder
@@ -236,6 +237,43 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     }
 
     menu.addSeparator();
+
+    // Exclude folder (not available for root folder)
+    if (folder.path !== '/') {
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(strings.contextMenu.folder.excludeFolder)
+                .setIcon('eye-off')
+                .onClick(async () => {
+                    const currentExcluded = services.plugin.settings.excludedFolders;
+                    // Ensure path starts with / for path-based exclusion
+                    // Obsidian folder paths don't start with /, so we add it
+                    const folderPath = folder.path.startsWith('/') ? folder.path : '/' + folder.path;
+
+                    // Clean up redundant patterns and add the new one
+                    const originalCount = currentExcluded.length;
+                    const cleanedPatterns = cleanupExclusionPatterns(currentExcluded, folderPath);
+                    // Calculate how many patterns were removed during cleanup
+                    // cleanedPatterns already includes the new pattern, so:
+                    // removedCount = (original + 1 new) - final = patterns that were cleaned up
+                    const removedCount = originalCount + 1 - cleanedPatterns.length;
+
+                    services.plugin.settings.excludedFolders = cleanedPatterns;
+                    await services.plugin.saveSettings();
+                    services.plugin.onSettingsUpdate();
+
+                    // Show informative notice about what happened
+                    if (removedCount > 0) {
+                        new Notice(
+                            strings.fileSystem.notices.excludedFolderWithCleanup
+                                .replace('{name}', folder.name)
+                                .replace('{count}', removedCount.toString())
+                        );
+                    } else {
+                        new Notice(strings.fileSystem.notices.excludedFolder.replace('{name}', folder.name));
+                    }
+                });
+        });
+    }
 
     // Rename folder
     menu.addItem((item: MenuItem) => {

@@ -1,10 +1,14 @@
 ![Notebook Navigator Interface](https://github.com/johansan/notebook-navigator/blob/main/images/banner.png?raw=true)
 
-![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=Downloads&query=%24%5B%22notebook-navigator%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json) ![Obsidian Compatibility](https://img.shields.io/badge/Obsidian-v1.8.0+-483699?logo=obsidian&style=flat-square)
+![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=Downloads&query=%24%5B%22notebook-navigator%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)
+![Obsidian Compatibility](https://img.shields.io/badge/Obsidian-v1.8.0+-483699?logo=obsidian&style=flat-square)
 
-Notebook Navigator is a plugin for [Obsidian](https://obsidian.md) that replaces the default file explorer with a clean, Notes-style interface featuring a dual-pane layout with navigation pane on the left and list pane on the right.
+Notebook Navigator is a plugin for [Obsidian](https://obsidian.md) that replaces
+the default file explorer with a clean, Notes-style interface featuring a
+dual-pane layout with navigation pane on the left and list pane on the right.
 
-If you love using Notebook Navigator, please consider [buying me a coffee](https://buymeacoffee.com/johansan) or
+If you love using Notebook Navigator, please consider
+[buying me a coffee](https://buymeacoffee.com/johansan) or
 [Sponsor on GitHub ❤️](https://github.com/sponsors/johansan).
 
 <a href="https://www.buymeacoffee.com/johansan" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
@@ -19,7 +23,8 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
   (notes) on right (desktop default)
 - **Single-pane layout** - Clean interface switching between navigation and file
   list (mobile, optional on desktop)
-- **Mobile optimized** - Touch gestures and responsive interface
+- **Mobile optimized** - Touch-friendly interface with properly sized buttons
+  and optimized header layouts for better one-handed navigation
 - **Theme support** - Matches your Obsidian theme
 - **Multi-language support** - Available in English, German, Spanish, French,
   Japanese, and Chinese Simplified
@@ -245,8 +250,16 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Show file types:** Choose which file types to display in the navigator.
   Files not supported by Obsidian will open in your system's default application
   - Markdown only, Supported files, or All files
-- **Excluded folders:** Comma-separated list of folders to hide. Supports
-  wildcards: assets* (starts with), *\_temp (ends with)
+- **Excluded folders:** Comma-separated list of folders to hide. Supports three
+  pattern types:
+  - **Name patterns:** `archive` excludes all folders named "archive" anywhere
+    in vault
+  - **Path patterns:** `/archive` excludes only the root archive folder,
+    `/projects/secret` excludes specific path
+  - **Wildcards:** `temp*` (starts with), `*_old` (ends with), `/projects/*`
+    (all subfolders)
+  - Right-click any folder and select "Exclude folder" to quickly add it to this
+    list
 - **Excluded notes:** Comma-separated list of frontmatter properties. Notes
   containing any of these properties will be hidden (e.g., draft, private,
   archived)
