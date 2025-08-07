@@ -1,27 +1,13 @@
 # Notebook Navigator for Obsidian
 
-A plugin for [Obsidian](https://obsidian.md) that replaces the default file
-explorer with a clean, Notes-style interface featuring a dual-pane layout with
-navigation pane on the left (folders and tags) and list pane on the right
-(notes), or an optional single-pane layout.
+![Notebook Navigator Interface](https://github.com/johansan/notebook-navigator/blob/main/images/banner.png?raw=true)
 
-If you love using Notebook Navigator, please consider
-[buying me a coffee](https://buymeacoffee.com/johansan) or
+Notebook Navigator is a plugin for [Obsidian](https://obsidian.md) that replaces the default file explorer with a clean, Notes-style interface featuring a dual-pane layout with navigation pane on the left and list pane on the right.
+
+If you love using Notebook Navigator, please consider [buying me a coffee](https://buymeacoffee.com/johansan) or
 [Sponsor on GitHub ❤️](https://github.com/sponsors/johansan).
 
 <a href="https://www.buymeacoffee.com/johansan" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
-
-<br>
-
-## Screenshots
-
-### Desktop
-
-![Notebook Navigator Interface](https://github.com/johansan/notebook-navigator/blob/main/images/screenshot1.png?raw=true)
-
-### Mobile
-
-<img src="https://github.com/johansan/notebook-navigator/blob/main/images/screenshot2.png?raw=true" alt="Notebook Navigator Interface" width="40%">
 
 <br>
 
