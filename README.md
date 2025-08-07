@@ -76,6 +76,8 @@ If you love using Notebook Navigator, please consider
 - **Feature images** - Display thumbnail images from note frontmatter
 - **Date grouping** - Organize by Today, Yesterday, This Week
 - **Custom sorting** - Use custom sort preferences for each folder and tag
+- **Visual customization** - Folder and tag colors with customizable icons
+  (Lucide icons or emojis)
 - **Folder notes** - Folders with notes are displayed as clickable links
 - **Frontmatter support** - Read note names and timestamps from frontmatter
 
@@ -88,8 +90,6 @@ If you love using Notebook Navigator, please consider
 - **Drag & drop** - Move notes between folders with full multi-selection support
 - **Resizable panes** - Adjust the layout to your needs
 - **Smart filtering** - Exclude folders and notes with patterns
-- **Visual customization** - Folder and tag colors with customizable icons
-  (Lucide icons or emojis)
 - **Custom appearances** - Set unique display styles for each folder and tag,
   like slim mode or 5 preview rows
 
