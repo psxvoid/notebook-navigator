@@ -67,6 +67,7 @@ import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
 import { useDeferredMetadataCleanup } from '../hooks/useDeferredMetadataCleanup';
+import { prepareCleanupValidators } from '../utils/metadataCleanupUtils';
 
 /**
  * Data structure containing the hierarchical tag trees and untagged file count
@@ -282,6 +283,20 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
     });
 
     /**
+     * Run metadata cleanup without tags (for when tags are disabled)
+     * This cleans up folder metadata and pinned notes only
+     */
+    const runMetadataCleanupWithoutTags = useCallback(async () => {
+        if (!metadataService) return;
+
+        const validators = prepareCleanupValidators(app);
+
+        await metadataService.runUnifiedCleanup(validators).catch(error => {
+            console.error('Failed to run metadata cleanup:', error);
+        });
+    }, [app, metadataService]);
+
+    /**
      * Centralized handler for all content-related settings changes
      * Delegates to the ContentProviderRegistry to determine what needs regeneration
      */
@@ -401,8 +416,16 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                                 contentRegistry.current?.queueFilesForAllProviders([...toAdd, ...toUpdate], settings);
                             });
                         } else {
+                            // Run metadata cleanup immediately when tags are disabled
+                            if (!settings.showTags) {
+                                await runMetadataCleanupWithoutTags();
+                            }
                             contentRegistry.current.queueFilesForAllProviders([...toAdd, ...toUpdate], settings);
                         }
+                    } else if (!settings.showTags) {
+                        // Always run cleanup on initial load when tags are disabled
+                        // This ensures orphaned metadata is cleaned even when no files are added
+                        await runMetadataCleanupWithoutTags();
                     }
                 } catch (error) {
                     console.error('Failed during initial load sequence:', error);
@@ -591,7 +614,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         settings,
         metadataService,
         startTracking,
-        waitForMetadataCache
+        waitForMetadataCache,
+        runMetadataCleanupWithoutTags
     ]);
 
     // Single effect to handle ALL content-related settings changes
