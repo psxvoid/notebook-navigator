@@ -269,14 +269,19 @@ graph TD
 
 #### 4.1 Metadata Cleanup Process:
 
-**Purpose**: Remove orphaned metadata for folders, tags, and files that no longer exist in the vault. This prevents the settings file from growing indefinitely with obsolete data.
+**Purpose**: Remove orphaned metadata for folders, tags, and files that no
+longer exist in the vault. This prevents the settings file from growing
+indefinitely with obsolete data.
 
 **Timing**:
 
 - With tags enabled: Runs after all tags are extracted
 - With tags disabled: Runs immediately after files are queued
 
-**Architecture**: The cleanup uses "validators" - data structures that contain the current state of the vault (which files, folders, and tags actually exist). The cleanup process compares stored metadata against these validators to identify and remove orphaned entries:
+**Architecture**: The cleanup uses "validators" - data structures that contain
+the current state of the vault (which files, folders, and tags actually exist).
+The cleanup process compares stored metadata against these validators to
+identify and remove orphaned entries:
 
 ```typescript
 // Prepare validators with current vault state (files, folders, tags)
@@ -288,7 +293,8 @@ await metadataService.runUnifiedCleanup(validators);
 
 **Validator Preparation** (`MetadataService.prepareCleanupValidators`):
 
-Validators are data structures containing the current "truth" about what exists in the vault:
+Validators are data structures containing the current "truth" about what exists
+in the vault:
 
 ```
 1. Collect vault files:
