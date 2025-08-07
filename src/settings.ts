@@ -472,6 +472,15 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         );
         excludedFoldersSetting.controlEl.addClass('nn-setting-wide-input');
 
+        // Create a container for additional info about excluded folders
+        const excludedFoldersInfoContainer = containerEl.createDiv('nn-setting-info-container');
+        const excludedFoldersInfoDiv = excludedFoldersInfoContainer.createEl('div', {
+            cls: 'setting-item-description'
+        });
+        excludedFoldersInfoDiv.createSpan({
+            text: strings.settings.items.excludedFolders.info
+        });
+
         const excludedFilesSetting = this.createDebouncedTextSetting(
             containerEl,
             strings.settings.items.excludedNotes.name,

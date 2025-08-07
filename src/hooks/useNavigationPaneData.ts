@@ -40,7 +40,7 @@ import { TIMEOUTS } from '../types/obsidian-extended';
 import { TagTreeNode } from '../types/storage';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import type { NotebookNavigatorSettings } from '../settings';
-import { parseExcludedFolders, parseExcludedProperties, shouldExcludeFile, matchesFolderPattern } from '../utils/fileFilters';
+import { parseExcludedFolders, parseExcludedProperties, shouldExcludeFile, shouldExcludeFolder } from '../utils/fileFilters';
 import { shouldDisplayFile } from '../utils/fileTypeUtils';
 import { leadingEdgeDebounce } from '../utils/leadingEdgeDebounce';
 import { getTotalNoteCount, excludeFromTagTree } from '../utils/tagTree';
@@ -351,10 +351,8 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                         }
                     }
                 } else if (settings.showNotesFromSubfolders && child instanceof TFolder) {
-                    // Check if this subfolder should be excluded
-                    const isExcluded = excludedFolderPatterns.some(pattern => matchesFolderPattern(child.name, pattern));
-
-                    if (!isExcluded) {
+                    // Check if this subfolder should be excluded - pass full path for path-based patterns
+                    if (!shouldExcludeFolder(child.name, excludedFolderPatterns, child.path)) {
                         count += countFiles(child);
                     }
                 }

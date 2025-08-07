@@ -74,6 +74,7 @@ import { getFolderNote } from '../utils/fileFinder';
 import { findTagNode } from '../utils/tagTree';
 import { FolderItem } from './FolderItem';
 import { NavigationPaneHeader } from './NavigationPaneHeader';
+import { NavigationTabBar } from './NavigationTabBar';
 import { TagTreeItem } from './TagTreeItem';
 import { VirtualFolderComponent } from './VirtualFolderItem';
 
@@ -586,6 +587,7 @@ export const NavigationPane = React.memo(
                         </div>
                     )}
                 </div>
+                {isMobile && <NavigationTabBar />}
             </div>
         );
     })

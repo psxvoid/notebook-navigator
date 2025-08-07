@@ -55,6 +55,16 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.3.17',
+        date: '2025-08-07',
+        showOnUpdate: true,
+        new: [
+            '**Path-based folder exclusion**. You can now exclude specific folder paths (e.g., `/archive` to exclude only the root archive folder, not all folders named "archive"). Supports wildcards like `/projects/*` to exclude all subfolders.',
+            '**Right-click to exclude folders**. Quickly exclude any folder from the navigation by right-clicking and selecting "Exclude folder". The system automatically cleans up redundant patterns when adding parent folders.',
+            '**Improved mobile experience**. The navigation and list pane headers are now optimized for mobile devices with touch-friendly buttons and better spacing.'
+        ]
+    },
+    {
         version: '1.3.16',
         date: '2025-08-07',
         showOnUpdate: false,

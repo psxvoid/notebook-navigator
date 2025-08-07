@@ -82,10 +82,54 @@ export function matchesFolderPattern(folderName: string, pattern: string): boole
 }
 
 /**
- * Checks if a folder should be excluded based on the patterns
+ * Checks if a path matches a pattern with wildcard support
+ * @param path - The path to check (e.g., "folder/subfolder")
+ * @param pattern - The pattern to match against (e.g., "/folder/*" or "/folder/sub*")
+ * @returns true if the path matches the pattern
  */
-export function shouldExcludeFolder(folderName: string, patterns: string[]): boolean {
-    return patterns.some(pattern => matchesFolderPattern(folderName, pattern));
+function matchesPathPattern(path: string, pattern: string): boolean {
+    // Remove leading slash from both for consistent comparison
+    const cleanPath = path.startsWith('/') ? path.slice(1) : path;
+    const cleanPattern = pattern.startsWith('/') ? pattern.slice(1) : pattern;
+
+    // No wildcards - exact match required
+    if (!cleanPattern.includes('*')) {
+        return cleanPath === cleanPattern;
+    }
+
+    // Convert wildcard pattern to regex
+    // First escape all special regex characters except *
+    const regexPattern = cleanPattern
+        .replace(/[.+?^${}()|[\]\\]/g, '\\$&') // Escape special regex chars
+        .replace(/\*/g, '.*'); // Then replace * with .* for wildcard matching
+
+    // Test if path matches the pattern
+    const regex = new RegExp(`^${regexPattern}$`);
+    return regex.test(cleanPath);
+}
+
+/**
+ * Checks if a folder should be excluded based on the patterns
+ * Supports both name-based patterns and path-based patterns (starting with /)
+ * @param folderName - The folder name to check (e.g., "archive")
+ * @param patterns - Array of exclusion patterns (e.g., ["archive", "/root/archive", "temp*"])
+ * @param folderPath - The full folder path for path-based patterns (e.g., "root/archive")
+ * @returns true if the folder should be excluded
+ */
+export function shouldExcludeFolder(folderName: string, patterns: string[], folderPath?: string): boolean {
+    return patterns.some(pattern => {
+        // Path-based pattern (starts with /)
+        if (pattern.startsWith('/')) {
+            // Path-based patterns require the full path to match
+            if (!folderPath) return false;
+
+            // Use wildcard matching for path patterns
+            return matchesPathPattern(folderPath, pattern);
+        }
+
+        // Name-based pattern - matches folder name anywhere in the vault
+        return matchesFolderPattern(folderName, pattern);
+    });
 }
 
 /**
@@ -96,13 +140,60 @@ function isFileInExcludedFolder(file: TFile, excludedFolderPatterns: string[]): 
 
     let currentFolder: TFolder | null = file.parent;
     while (currentFolder) {
-        if (shouldExcludeFolder(currentFolder.name, excludedFolderPatterns)) {
+        // Pass both folder name and path for proper pattern matching
+        if (shouldExcludeFolder(currentFolder.name, excludedFolderPatterns, currentFolder.path)) {
             return true;
         }
         currentFolder = currentFolder.parent;
     }
 
     return false;
+}
+
+/**
+ * Cleans up redundant exclusion patterns when adding a new pattern
+ * Removes existing patterns that would be covered by the new pattern
+ * @param existingPatterns - Current list of exclusion patterns
+ * @param newPattern - The new pattern being added
+ * @returns Cleaned list with the new pattern added and redundant ones removed
+ */
+export function cleanupExclusionPatterns(existingPatterns: string[], newPattern: string): string[] {
+    // If the new pattern is not a path pattern, just add it without cleanup
+    // (name patterns work differently and we don't want to mess with them)
+    if (!newPattern.startsWith('/')) {
+        return [...existingPatterns, newPattern];
+    }
+
+    // Filter out patterns that would be made redundant by the new pattern
+    const cleanedPatterns = existingPatterns.filter(existing => {
+        // Keep name-based patterns (they work differently)
+        if (!existing.startsWith('/')) {
+            return true;
+        }
+
+        // Remove leading slashes for comparison
+        const cleanNew = newPattern.startsWith('/') ? newPattern.slice(1) : newPattern;
+        const cleanExisting = existing.startsWith('/') ? existing.slice(1) : existing;
+
+        // If new pattern has no wildcards, check if existing is a child path
+        if (!cleanNew.includes('*')) {
+            // Check two cases:
+            // 1. Exact match: new="/folder" removes existing="/folder"
+            // 2. Child path: new="/folder" removes existing="/folder/subfolder"
+            const newWithSlash = cleanNew.endsWith('/') ? cleanNew : cleanNew + '/';
+            const isChildPath = cleanExisting.startsWith(newWithSlash) || cleanExisting === cleanNew;
+            return !isChildPath; // Keep pattern if it's NOT a child
+        }
+
+        // If new pattern has wildcards, check if it matches the existing pattern
+        // Example: new="/folder/*" removes existing="/folder/subfolder"
+        return !matchesPathPattern(existing, newPattern);
+    });
+
+    // Add the new pattern
+    cleanedPatterns.push(newPattern);
+
+    return cleanedPatterns;
 }
 
 /**
@@ -116,7 +207,9 @@ export function isPathInExcludedFolder(filePath: string, excludedFolderPatterns:
     // Check each folder in the path (excluding the file name itself)
     for (let i = 0; i < pathParts.length - 1; i++) {
         const folderName = pathParts[i];
-        if (shouldExcludeFolder(folderName, excludedFolderPatterns)) {
+        // Build the folder path up to this point
+        const folderPath = pathParts.slice(0, i + 1).join('/');
+        if (shouldExcludeFolder(folderName, excludedFolderPatterns, folderPath)) {
             return true;
         }
     }

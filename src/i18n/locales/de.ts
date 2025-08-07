@@ -124,6 +124,7 @@ export const STRINGS_DE = {
             removeIcon: 'Symbol entfernen',
             changeColor: 'Farbe ändern',
             removeColor: 'Farbe entfernen',
+            excludeFolder: 'Ordner ausschließen',
             renameFolder: 'Ordner umbenennen',
             deleteFolder: 'Ordner löschen'
         },
@@ -264,6 +265,10 @@ export const STRINGS_DE = {
             failedToCreateDrawing: 'Zeichnung konnte nicht erstellt werden',
             noFolderSelected: 'Kein Ordner im Notebook Navigator ausgewählt',
             noFileSelected: 'Keine Datei ausgewählt'
+        },
+        notices: {
+            excludedFolder: 'Ordner ausgeschlossen: {name}',
+            excludedFolderWithCleanup: 'Ordner ausgeschlossen: {name} ({count} entfernt)'
         },
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',
@@ -437,8 +442,9 @@ export const STRINGS_DE = {
             },
             excludedFolders: {
                 name: 'Ausgeschlossene Ordner',
-                desc: 'Kommagetrennte Liste von auszublendenden Ordnern. Unterstützt Platzhalter: assets* (beginnt mit), *_temp (endet mit).',
-                placeholder: 'vorlagen, assets*, *_temp'
+                desc: 'Kommagetrennte Liste von auszublendenden Ordnern. Namensmuster: assets* (Ordner die mit assets beginnen), *_temp (endet mit _temp). Pfadmuster: /archive (nur Wurzel-Archive), /res* (Wurzelordner die mit res beginnen), /*/temp (temp-Ordner eine Ebene tief), /projects/* (alle Ordner in projects).',
+                placeholder: 'templates, assets*, /archive, /res*',
+                info: 'Automatische Bereinigung: Beim Ausschließen per Rechtsklick werden redundante Muster entfernt (z.B. wenn Sie /projects ausschließen und /projects/app bereits in der Liste existiert, wird es entfernt).'
             },
             fileVisibility: {
                 name: 'Dateitypen anzeigen',
