@@ -1,5 +1,3 @@
-# Notebook Navigator for Obsidian
-
 ![Notebook Navigator Interface](https://github.com/johansan/notebook-navigator/blob/main/images/banner.png?raw=true)
 
 Notebook Navigator is a plugin for [Obsidian](https://obsidian.md) that replaces the default file explorer with a clean, Notes-style interface featuring a dual-pane layout with navigation pane on the left and list pane on the right.
