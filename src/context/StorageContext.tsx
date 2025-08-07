@@ -290,11 +290,22 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         if (!metadataService) return;
 
         const validators = MetadataService.prepareCleanupValidators(app);
-
-        await metadataService.runUnifiedCleanup(validators).catch(error => {
-            console.error('Failed to run metadata cleanup:', error);
-        });
+        await metadataService.runUnifiedCleanup(validators);
     }, [app, metadataService]);
+
+    /**
+     * Run metadata cleanup with tags (for when tags are enabled and extracted)
+     * This cleans up folder, tag, and file metadata
+     */
+    const runMetadataCleanupWithTags = useCallback(async () => {
+        if (!metadataService) return;
+
+        const { favoriteTree, tagTree } = rebuildTagTree();
+        const combinedTree = new Map([...favoriteTree, ...tagTree]);
+        const validators = MetadataService.prepareCleanupValidators(app, combinedTree);
+
+        await metadataService.runUnifiedCleanup(validators);
+    }, [app, metadataService, rebuildTagTree]);
 
     /**
      * Centralized handler for all content-related settings changes
@@ -403,29 +414,38 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
                     // Step 4: Mark storage as ready
                     setIsStorageReady(true);
 
-                    // Step 5: Queue content generation for new/modified files
-                    const contentEnabled =
-                        settings.showTags || settings.showFilePreview || settings.showFeatureImage || settings.useFrontmatterMetadata;
+                    // Step 5: Handle metadata cleanup and content generation
+                    if (settings.showTags) {
+                        // With tags enabled, determine which files need tag extraction
+                        const filesNeedingTags = allFiles.filter(file => {
+                            const fileData = getDBInstance().getFile(file.path);
+                            return fileData && fileData.tags === null;
+                        });
 
-                    if (contentRegistry.current && contentEnabled && (toAdd.length > 0 || toUpdate.length > 0)) {
-                        // For initial load with tags enabled, wait for metadata cache
-                        if (toAdd.length > 0 && settings.showTags) {
-                            startTracking(toAdd.length);
-
+                        if (filesNeedingTags.length > 0) {
+                            // Track and queue files for tag extraction
+                            startTracking(filesNeedingTags.length);
                             waitForMetadataCache(() => {
-                                contentRegistry.current?.queueFilesForAllProviders([...toAdd, ...toUpdate], settings);
+                                if (contentRegistry.current) {
+                                    contentRegistry.current.queueFilesForAllProviders(filesNeedingTags, settings);
+                                }
                             });
                         } else {
-                            // Run metadata cleanup immediately when tags are disabled
-                            if (!settings.showTags) {
-                                await runMetadataCleanupWithoutTags();
-                            }
-                            contentRegistry.current.queueFilesForAllProviders([...toAdd, ...toUpdate], settings);
+                            // No tags to extract, run cleanup immediately
+                            await runMetadataCleanupWithTags();
                         }
-                    } else if (!settings.showTags) {
-                        // Always run cleanup on initial load when tags are disabled
-                        // This ensures orphaned metadata is cleaned even when no files are added
+                    } else {
+                        // Tags disabled - run cleanup immediately
                         await runMetadataCleanupWithoutTags();
+                    }
+
+                    // Step 6: Queue remaining content generation for new/modified files
+                    const contentEnabled = settings.showFilePreview || settings.showFeatureImage || settings.useFrontmatterMetadata;
+
+                    if (contentRegistry.current && contentEnabled && (toAdd.length > 0 || toUpdate.length > 0)) {
+                        // Queue non-tag content generation (preview, images, metadata)
+                        // Tags are already handled above if enabled
+                        contentRegistry.current.queueFilesForAllProviders([...toAdd, ...toUpdate], settings);
                     }
                 } catch (error) {
                     console.error('Failed during initial load sequence:', error);
@@ -615,7 +635,8 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
         metadataService,
         startTracking,
         waitForMetadataCache,
-        runMetadataCleanupWithoutTags
+        runMetadataCleanupWithoutTags,
+        runMetadataCleanupWithTags
     ]);
 
     // Single effect to handle ALL content-related settings changes
