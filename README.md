@@ -112,7 +112,7 @@ If you love using Notebook Navigator, please consider
 - **Type-Safe Obsidian Integration** - Comprehensive type checking with
   `instanceof` guards throughout, never using unsafe type assertions
 
-### Documentation
+### Technical Documentation
 
 - [**Startup Process**](docs/startup-process.md) - Technical documentation of
   the plugin initialization sequence, including cold boot vs warm boot flows,
@@ -129,6 +129,11 @@ If you love using Notebook Navigator, please consider
   overview of the React component hierarchy, virtual scrolling implementation
   with TanStack Virtual, performance optimizations, and data flow from storage
   to UI rendering.
+
+- [**Service Architecture**](docs/service-architecture.md) - Detailed guide to
+  the business logic layer including MetadataService, FileSystemOperations,
+  ContentProviderRegistry, and supporting services. Covers dependency injection
+  patterns and data flow between services.
 
 <br>
 
