@@ -58,9 +58,6 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.3.16',
         date: '2025-08-07',
         showOnUpdate: false,
-        improved: [
-            '**Improved metadata cleanup architecture**. The cleanup system now directly queries the vault folder structure instead of deducing folders from file paths, resulting in cleaner and more maintainable code.'
-        ],
         fixed: [
             '**Fixed metadata cleanup not running when tags are disabled**. The cleanup process now runs correctly regardless of the tags setting, ensuring orphaned folder metadata and invalid pinned notes are always removed on startup.',
             '**Fixed empty folders losing their custom properties on restart**. The metadata cleanup now properly preserves settings for empty folders by directly traversing the vault folder tree.'
