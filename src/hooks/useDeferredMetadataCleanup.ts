@@ -19,7 +19,6 @@
 import { useRef, useEffect, useCallback } from 'react';
 import { App } from 'obsidian';
 import { MetadataService } from '../services/MetadataService';
-import { getDBInstance } from '../storage/fileOperations';
 import { TagTreeNode } from '../types/storage';
 
 interface UseDeferredMetadataCleanupProps {
@@ -74,17 +73,7 @@ export function useDeferredMetadataCleanup({ app, metadataService, isStorageRead
                 // Run cleanup with the complete tag tree
                 if (metadataService) {
                     const combinedTree = new Map([...favoriteTree, ...tagTree]);
-                    const db = getDBInstance();
-
-                    // Get all necessary data for cleanup
-                    const allFiles = db.getAllFiles();
-                    const vaultFiles = new Set(app.vault.getMarkdownFiles().map(f => f.path));
-
-                    const validators = {
-                        dbFiles: allFiles,
-                        tagTree: combinedTree,
-                        vaultFiles
-                    };
+                    const validators = MetadataService.prepareCleanupValidators(app, combinedTree);
 
                     // Run cleanup asynchronously
                     metadataService.runUnifiedCleanup(validators).catch(error => {

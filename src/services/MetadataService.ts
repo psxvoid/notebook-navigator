@@ -16,13 +16,14 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App } from 'obsidian';
+import { App, TFolder } from 'obsidian';
 import { SortOption } from '../settings';
 import { ISettingsProvider } from '../interfaces/ISettingsProvider';
 import { ITagTreeProvider } from '../interfaces/ITagTreeProvider';
 import { FolderMetadataService, TagMetadataService, FileMetadataService } from './metadata';
 import { TagTreeNode } from '../types/storage';
 import { FileData } from '../storage/IndexedDBStorage';
+import { getDBInstance } from '../storage/fileOperations';
 
 /**
  * Validators object containing all data needed for cleanup operations
@@ -31,6 +32,7 @@ export interface CleanupValidators {
     dbFiles: Array<{ path: string; data: FileData }>;
     tagTree: Map<string, TagTreeNode>;
     vaultFiles: Set<string>;
+    vaultFolders: Set<string>; // Actual folder paths from vault
 }
 
 /**
@@ -210,5 +212,37 @@ export class MetadataService {
         hasChanges = folderChanges || fileChanges || tagChanges;
 
         return hasChanges;
+    }
+
+    /**
+     * Prepares validators for metadata cleanup by collecting current vault state
+     * @param app - Obsidian app instance
+     * @param tagTree - Tag tree for tag metadata validation (empty Map if tags disabled)
+     * @returns Validators object for cleanup
+     */
+    static prepareCleanupValidators(app: App, tagTree: Map<string, TagTreeNode> = new Map()): CleanupValidators {
+        const db = getDBInstance();
+
+        // Collect all markdown files
+        const vaultFiles = new Set(app.vault.getMarkdownFiles().map(f => f.path));
+
+        // Recursively collect all folder paths
+        const vaultFolders = new Set<string>();
+        const collectAllFolderPaths = (folder: TFolder) => {
+            vaultFolders.add(folder.path);
+            folder.children.forEach(child => {
+                if (child instanceof TFolder) {
+                    collectAllFolderPaths(child);
+                }
+            });
+        };
+        collectAllFolderPaths(app.vault.getRoot());
+
+        return {
+            dbFiles: db.getAllFiles(),
+            tagTree,
+            vaultFiles,
+            vaultFolders
+        };
     }
 }

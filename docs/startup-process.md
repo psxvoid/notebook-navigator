@@ -2,29 +2,37 @@
 
 ## Overview
 
-The Notebook Navigator plugin has a multi-phase startup process that handles data synchronization and content generation. The startup behavior differs between cold boots (first launch) and warm boots (subsequent launches).
+The Notebook Navigator plugin has a multi-phase startup process that handles
+data synchronization and content generation. The startup behavior differs
+between cold boots (first launch) and warm boots (subsequent launches).
 
 ## Key Concepts
 
 ### Cold Boot
+
 A **cold boot** occurs when:
+
 - The plugin is installed for the first time
 - The IndexedDB database doesn't exist
 - Database schema version has changed (DB_SCHEMA_VERSION)
 - Content version has changed (DB_CONTENT_VERSION)
 
 Characteristics:
+
 - Full database initialization required
 - All files need content generation
 - Database is either created new or cleared completely
 
 ### Warm Boot
+
 A **warm boot** occurs when:
+
 - Obsidian is restarted with the plugin already enabled
 - The plugin is enabled after being disabled
 - Database exists with valid schema and content versions
 
 Characteristics:
+
 - Database already exists with cached data
 - Only changed files need processing
 - Metadata cache is typically ready immediately
@@ -34,10 +42,12 @@ Characteristics:
 The plugin uses two version numbers to manage database state:
 
 **DB_SCHEMA_VERSION**: Controls the IndexedDB structure
+
 - Changes when database schema is modified (new indexes, stores, etc.)
 - Triggers complete database recreation on change
 
 **DB_CONTENT_VERSION**: Controls the data format
+
 - Changes when content structure or generation logic is modified
 - Triggers data clearing but preserves database structure
 - Examples: changing how previews are generated, tag extraction logic updates
@@ -49,6 +59,7 @@ Both version changes result in a cold boot to ensure data consistency.
 ## Startup Phases
 
 ### Phase 1: Plugin Registration (main.ts)
+
 **Trigger**: Obsidian calls Plugin.onload() when enabling the plugin
 
 ```
@@ -70,6 +81,7 @@ Both version changes result in a cold boot to ensure data consistency.
 ```
 
 ### Phase 2: View Creation (NotebookNavigatorView.tsx)
+
 **Trigger**: activateView() creates the view via workspace.getLeaf()
 
 ```
@@ -89,6 +101,7 @@ Both version changes result in a cold boot to ensure data consistency.
 ```
 
 ### Phase 3: Database Version Check and Initialization
+
 **Trigger**: StorageProvider mounts in React component tree (from Phase 2)
 
 ```
@@ -107,6 +120,7 @@ Both version changes result in a cold boot to ensure data consistency.
 ```
 
 #### Cold Boot Path (database empty or cleared):
+
 ```
 1. Create new database or clear existing data
 2. Initialize empty MemoryFileCache
@@ -119,6 +133,7 @@ Both version changes result in a cold boot to ensure data consistency.
 ```
 
 #### Warm Boot Path (database has existing data):
+
 ```
 1. Open existing database
 2. Load all existing data into MemoryFileCache
@@ -127,11 +142,14 @@ Both version changes result in a cold boot to ensure data consistency.
 ```
 
 ### Phase 4: Initial Data Load and Metadata Resolution
+
 **Trigger**: Database initialization completes (from Phase 3)
 
-This phase handles the initial synchronization between the vault and the database, then ensures metadata is ready for tag extraction:
+This phase handles the initial synchronization between the vault and the
+database, then ensures metadata is ready for tag extraction:
 
 #### Shared Initial Steps:
+
 ```
 1. StorageContext: Begin processing (processExistingCache)
    - Cold boot: isInitialLoad=true (synchronous)
@@ -143,6 +161,7 @@ This phase handles the initial synchronization between the vault and the databas
 ```
 
 #### Cold Boot Specific:
+
 ```
 4. Record all files in IndexedDB with basic metadata only
    - Store path and mtime (modification time)
@@ -155,6 +174,7 @@ This phase handles the initial synchronization between the vault and the databas
 ```
 
 #### Warm Boot Specific:
+
 ```
 4. Update IndexedDB based on diff results:
    - Add new files with null content fields (recordFileChanges)
@@ -168,6 +188,7 @@ This phase handles the initial synchronization between the vault and the databas
 ```
 
 #### Shared Final Steps:
+
 ```
 7. Mark storage as ready (setIsStorageReady(true))
    - Cold boot: UI can now render with files visible but no content
@@ -184,40 +205,43 @@ This phase handles the initial synchronization between the vault and the databas
     - Warm boot: Only changed files and files with null content fields
 ```
 
-The metadata cache resolution and tag extraction process is managed by the `useDeferredMetadataCleanup` hook:
+#### Data Flow Diagram
+
+The metadata cache resolution and tag extraction process is managed by the
+`useDeferredMetadataCleanup` hook:
 
 ```mermaid
 graph TD
     Start[From Phase 3:<br/>Database & Providers Ready] --> A
-    
+
     subgraph "Shared Initial Steps"
         A[StorageContext.processExistingCache]
         A --> B[Get Markdown Files<br/>getFilteredMarkdownFiles]
         B --> C[Calculate Diff<br/>diffCalculator]
     end
-    
+
     C --> D{Boot Type}
-    
+
     subgraph "Cold Boot Path"
         E[All Files are New]
         E --> G[Record All Files in DB<br/>with null content fields]
         G --> I[Sync MemoryFileCache<br/>with new entries]
         I --> K[Build Empty Tag Tree]
     end
-    
+
     subgraph "Warm Boot Path"
         F[Find Changes]
         F --> H[Update DB Based on Diff<br/>Add/Skip/Remove]
         H --> J[Sync MemoryFileCache<br/>with changes]
         J --> L[Rebuild Tree if Deletes<br/>else use existing]
     end
-    
+
     D -->|Cold| E
     D -->|Warm| F
-    
+
     K --> M
     L --> M
-    
+
     subgraph "Shared Final Steps"
         M[Mark Storage Ready]
         M --> N{Tags Enabled?}
@@ -235,44 +259,96 @@ graph TD
         X --> Y{All Files<br/>Processed?}
         Y -->|No<br/>More files| V
         Y -->|Yes<br/>Complete| Z[Run Metadata Cleanup<br/>see 4.1]
+        N -->|No<br/>Tags disabled| Skip2[Queue Files Without Tags]
+        Skip2 --> Z
         Z --> Skip[Begin Background Processing<br/>Phase 5]
     end
-    
-    N -->|No<br/>Tags disabled| Skip2[Queue Files Without Tags]
-    Skip2 --> Skip
-```
 
-**Note**: In the current implementation, metadata cleanup only runs when tags are enabled. When tags are disabled, the cleanup is skipped (which may leave orphaned folder metadata and pinned note references).
+    Skip
+```
 
 #### 4.1 Metadata Cleanup Process:
-When all tags are extracted (tags enabled only), MetadataService.runUnifiedCleanup performs:
+
+**Purpose**: Remove orphaned metadata for folders, tags, and files that no
+longer exist in the vault. This prevents the settings file from growing
+indefinitely with obsolete data.
+
+**Timing**:
+
+- With tags enabled: Runs after all tags are extracted
+- With tags disabled: Runs immediately after files are queued
+
+**Architecture**: The cleanup uses "validators" - data structures that contain
+the current state of the vault (which files, folders, and tags actually exist).
+The cleanup process compares stored metadata against these validators to
+identify and remove orphaned entries:
+
+```typescript
+// Prepare validators with current vault state (files, folders, tags)
+const validators = MetadataService.prepareCleanupValidators(app, tagTree);
+
+// Run unified cleanup using validators to identify orphaned metadata
+await metadataService.runUnifiedCleanup(validators);
 ```
-1. Gather validation data:
-   - Get all files from database
-   - Get complete tag tree (with all extracted tags)
-   - Get all files from vault
-2. Validate tag metadata:
-   - Check each tag color/icon/sort/appearance setting
-   - Remove settings for tags that no longer exist
-3. Validate folder metadata:
+
+**Validator Preparation** (`MetadataService.prepareCleanupValidators`):
+
+Validators are data structures containing the current "truth" about what exists
+in the vault:
+
+```
+1. Collect vault files:
+   - Get all markdown files from vault
+   - Store as set of all file paths
+
+2. Collect vault folders:
+   - Recursively traverse folder tree from root
+   - Collect actual folder paths directly from vault structure
+   - Store as set of all folder paths including empty folders
+
+3. Create validators object containing:
+   - dbFiles: All files from IndexedDB (for cross-referencing)
+   - tagTree: Combined favorite and regular tag trees (empty Map if tags disabled)
+   - vaultFiles: Set of all file paths that currently exist
+   - vaultFolders: Set of all folder paths that currently exist
+```
+
+**Cleanup Operations** (`runUnifiedCleanup`):
+
+Using the validators, the cleanup removes orphaned metadata:
+
+```
+1. Validate folder metadata (always runs):
+   - Compare stored folder settings against vaultFolders validator
    - Check each folder color/icon/sort/appearance setting
-   - Remove settings for folders that no longer exist
-4. Validate pinned notes:
+   - Remove settings for folders not in vaultFolders set
+
+2. Validate pinned notes (always runs):
+   - Compare pinned file paths against vaultFiles validator
    - Check each folder's pinned notes list
-   - Remove references to files that no longer exist
-5. Save cleaned settings:
-   - Write updated settings back to data.json
+   - Remove references to files not in vaultFiles set
+
+3. Validate tag metadata (only when tag tree provided):
+   - Compare stored tag settings against tagTree validator
+   - Check each tag color/icon/sort/appearance setting
+   - Remove settings for tags not in tagTree
+
+4. Save cleaned settings:
+   - Write updated settings back to data.json if any changes were made
 ```
 
 ### Phase 5: Background Processing
+
 **Trigger**: Files queued by ContentProviderRegistry (from Phase 4)
 
-Content is generated asynchronously in the background by the ContentProviderRegistry and individual providers:
+Content is generated asynchronously in the background by the
+ContentProviderRegistry and individual providers:
 
 1. **File Detection**: Each provider checks if files need processing
    - TagContentProvider: Checks if tags are null or file modified
    - PreviewContentProvider: Checks if preview is null or file modified
-   - FeatureImageContentProvider: Checks if featureImage is null or file modified
+   - FeatureImageContentProvider: Checks if featureImage is null or file
+     modified
    - MetadataContentProvider: Checks if metadata is null or file modified
 
 2. **Queue Management**: Files are queued based on enabled settings
@@ -283,8 +359,11 @@ Content is generated asynchronously in the background by the ContentProviderRegi
 3. **Processing**: Each provider processes files independently
    - TagContentProvider: Extracts tags from app.metadataCache.getFileCache()
    - PreviewContentProvider: Reads file content via app.vault.cachedRead()
-   - FeatureImageContentProvider: Checks frontmatter properties via app.metadataCache.getFileCache(), falls back to checking embedded images using app.metadataCache.getFirstLinkpathDest()
-   - MetadataContentProvider: Extracts custom frontmatter fields from app.metadataCache.getFileCache()
+   - FeatureImageContentProvider: Checks frontmatter properties via
+     app.metadataCache.getFileCache(), falls back to checking embedded images
+     using app.metadataCache.getFirstLinkpathDest()
+   - MetadataContentProvider: Extracts custom frontmatter fields from
+     app.metadataCache.getFileCache()
 
 4. **Database Updates**: Results stored in IndexedDB
    - Each provider returns updates to IndexedDBStorage
@@ -301,6 +380,7 @@ Content is generated asynchronously in the background by the ContentProviderRegi
 ### RequestIdleCallback Polyfill
 
 For browsers without native support (Safari):
+
 - Provides fallback using setTimeout
 - Ensures non-blocking startup operations
 - Used for background processing and cleanup
@@ -310,15 +390,15 @@ For browsers without native support (Safari):
 The plugin uses two debouncing approaches:
 
 **Leading Edge Debouncing** (custom implementation):
+
 - Used for: Vault events (create, delete, rename)
 - First event triggers immediate processing
 - Subsequent events within timeout are batched
 - Ensures responsive UI while preventing spam
 
 **Obsidian's Built-in Debounce**:
+
 - Used for: Settings changes, window resize, scroll events
 - Example: `debounce(this.handleResize, 200, true)`
 - Leverages Obsidian's optimized debouncer
 - Prevents excessive re-renders and calculations
-
-

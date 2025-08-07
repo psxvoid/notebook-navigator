@@ -169,6 +169,11 @@ export class TagMetadataService extends BaseMetadataService {
      * @returns True if any tag metadata was removed
      */
     async cleanupWithValidators(validators: CleanupValidators): Promise<boolean> {
+        // Only run if tags are enabled (tagTree is provided)
+        if (!validators.tagTree || validators.tagTree.size === 0) {
+            return false;
+        }
+
         // Collect all valid tag paths from the passed tag tree
         const validTagPaths: string[] = [];
 
