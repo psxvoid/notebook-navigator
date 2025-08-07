@@ -110,10 +110,10 @@ If you love using Notebook Navigator, please consider
   lines of TypeScript
 - **Type-Safe Obsidian Integration** - Comprehensive type checking with
   `instanceof` guards throughout, never using unsafe type assertions
-- **Event-Driven State Management** - Real-time sync with Obsidian's vault
-  events using proper cleanup and memory management
-- **Mobile-First Performance** - Touch-optimized event handling with 120Hz
-  animations and efficient gesture recognition
+
+### Documentation
+
+[**Startup Process**](docs/startup-process.md) - Technical documentation of the plugin initialization sequence, including cold boot vs warm boot flows, metadata cache resolution, deferred cleanup mechanisms, and content generation pipeline. Includes detailed Mermaid diagrams showing the complete data flow from plugin load to UI ready.
 
 <br>
 
