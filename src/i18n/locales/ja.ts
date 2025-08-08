@@ -267,8 +267,7 @@ export const STRINGS_JA = {
             noFileSelected: 'ファイルが選択されていません'
         },
         notices: {
-            excludedFolder: 'フォルダを除外: {name}',
-            excludedFolderWithCleanup: 'フォルダを除外: {name} ({count}個削除)'
+            excludedFolder: 'フォルダを除外: {name}'
         },
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',

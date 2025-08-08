@@ -250,27 +250,13 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                     const folderPath = folder.path.startsWith('/') ? folder.path : '/' + folder.path;
 
                     // Clean up redundant patterns and add the new one
-                    const originalCount = currentExcluded.length;
                     const cleanedPatterns = cleanupExclusionPatterns(currentExcluded, folderPath);
-                    // Calculate how many patterns were removed during cleanup
-                    // cleanedPatterns already includes the new pattern, so:
-                    // removedCount = (original + 1 new) - final = patterns that were cleaned up
-                    const removedCount = originalCount + 1 - cleanedPatterns.length;
 
                     services.plugin.settings.excludedFolders = cleanedPatterns;
                     await services.plugin.saveSettings();
                     services.plugin.onSettingsUpdate();
 
-                    // Show informative notice about what happened
-                    if (removedCount > 0) {
-                        new Notice(
-                            strings.fileSystem.notices.excludedFolderWithCleanup
-                                .replace('{name}', folder.name)
-                                .replace('{count}', removedCount.toString())
-                        );
-                    } else {
-                        new Notice(strings.fileSystem.notices.excludedFolder.replace('{name}', folder.name));
-                    }
+                    new Notice(strings.fileSystem.notices.excludedFolder.replace('{name}', folder.name));
                 });
         });
     }

@@ -267,8 +267,7 @@ export const STRINGS_FR = {
             noFileSelected: 'Aucun fichier sélectionné'
         },
         notices: {
-            excludedFolder: 'Dossier exclu : {name}',
-            excludedFolderWithCleanup: 'Dossier exclu : {name} ({count} supprimés)'
+            excludedFolder: 'Dossier exclu : {name}'
         },
         notifications: {
             deletedMultipleFiles: '{count} fichiers supprimés',

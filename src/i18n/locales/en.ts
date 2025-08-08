@@ -266,8 +266,7 @@ export const STRINGS_EN = {
             noFileSelected: 'No file is selected'
         },
         notices: {
-            excludedFolder: 'Excluded folder: {name}',
-            excludedFolderWithCleanup: 'Excluded folder: {name} (removed {count})'
+            excludedFolder: 'Excluded folder: {name}'
         },
         notifications: {
             deletedMultipleFiles: 'Deleted {count} files',
@@ -451,8 +450,7 @@ export const STRINGS_EN = {
             excludedFolders: {
                 name: 'Excluded folders',
                 desc: 'Comma-separated list of folders to hide. Name patterns: assets* (folders starting with assets), *_temp (ending with _temp). Path patterns: /archive (root archive only), /res* (root folders starting with res), /*/temp (temp folders one level deep), /projects/* (all folders inside projects).',
-                placeholder: 'templates, assets*, /archive, /res*',
-                info: 'Automatic cleanup: When excluding via right-click, redundant patterns are removed (e.g., if you exclude /projects and /projects/app already exists in the list, it will be removed).'
+                placeholder: 'templates, assets*, /archive, /res*'
             },
             showFileDate: {
                 name: 'Show date',

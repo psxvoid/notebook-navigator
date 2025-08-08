@@ -267,8 +267,7 @@ export const STRINGS_ES = {
             noFileSelected: 'No hay archivo seleccionado'
         },
         notices: {
-            excludedFolder: 'Carpeta excluida: {name}',
-            excludedFolderWithCleanup: 'Carpeta excluida: {name} (se eliminaron {count})'
+            excludedFolder: 'Carpeta excluida: {name}'
         },
         notifications: {
             deletedMultipleFiles: '{count} archivos eliminados',
@@ -443,8 +442,7 @@ export const STRINGS_ES = {
             excludedFolders: {
                 name: 'Carpetas excluidas',
                 desc: 'Lista de carpetas a ocultar separadas por comas. Patrones de nombre: assets* (carpetas que comienzan con assets), *_temp (terminan con _temp). Patrones de ruta: /archive (solo archivo raíz), /res* (carpetas raíz que comienzan con res), /*/temp (carpetas temp un nivel abajo), /projects/* (todas las carpetas dentro de projects).',
-                placeholder: 'templates, assets*, /archive, /res*',
-                info: 'Limpieza automática: Al excluir mediante clic derecho, se eliminan los patrones redundantes (por ejemplo, si excluye /projects y /projects/app ya existe en la lista, será eliminado).'
+                placeholder: 'templates, assets*, /archive, /res*'
             },
             fileVisibility: {
                 name: 'Mostrar tipos de archivo',

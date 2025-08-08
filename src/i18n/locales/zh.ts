@@ -267,8 +267,7 @@ export const STRINGS_ZH = {
             noFileSelected: '未选择文件'
         },
         notices: {
-            excludedFolder: '已排除文件夹：{name}',
-            excludedFolderWithCleanup: '已排除文件夹：{name}（移除了{count}个）'
+            excludedFolder: '已排除文件夹：{name}'
         },
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',
