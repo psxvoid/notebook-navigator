@@ -87,9 +87,9 @@ export interface NotebookNavigatorSettings {
     showNotesFromSubfolders: boolean;
     showParentFolderNames: boolean;
     showQuickActions: boolean;
-    quickActionOpenInNewTab: boolean;
-    quickActionPinNote: boolean;
     quickActionRevealInFolder: boolean;
+    quickActionPinNote: boolean;
+    quickActionOpenInNewTab: boolean;
     dateFormat: string;
     timeFormat: string;
     // Notes
@@ -163,9 +163,9 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showNotesFromSubfolders: true,
     showParentFolderNames: true,
     showQuickActions: true,
-    quickActionOpenInNewTab: true,
-    quickActionPinNote: true,
     quickActionRevealInFolder: true,
+    quickActionPinNote: true,
+    quickActionOpenInNewTab: true,
     dateFormat: 'MMM d, yyyy',
     timeFormat: 'h:mm a',
     // Notes
@@ -814,13 +814,13 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Container for quick actions sub-settings
         const quickActionsEl = containerEl.createDiv('nn-sub-settings');
 
-        // Open in new tab quick action
+        // Reveal in folder quick action
         new Setting(quickActionsEl)
-            .setName(strings.settings.items.quickActionsOpenInNewTab.name)
-            .setDesc(strings.settings.items.quickActionsOpenInNewTab.desc)
+            .setName(strings.settings.items.quickActionsRevealInFolder.name)
+            .setDesc(strings.settings.items.quickActionsRevealInFolder.desc)
             .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.quickActionOpenInNewTab).onChange(async value => {
-                    this.plugin.settings.quickActionOpenInNewTab = value;
+                toggle.setValue(this.plugin.settings.quickActionRevealInFolder).onChange(async value => {
+                    this.plugin.settings.quickActionRevealInFolder = value;
                     await this.saveAndRefresh();
                 })
             );
@@ -836,13 +836,13 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 })
             );
 
-        // Reveal in folder quick action
+        // Open in new tab quick action
         new Setting(quickActionsEl)
-            .setName(strings.settings.items.quickActionsRevealInFolder.name)
-            .setDesc(strings.settings.items.quickActionsRevealInFolder.desc)
+            .setName(strings.settings.items.quickActionsOpenInNewTab.name)
+            .setDesc(strings.settings.items.quickActionsOpenInNewTab.desc)
             .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.quickActionRevealInFolder).onChange(async value => {
-                    this.plugin.settings.quickActionRevealInFolder = value;
+                toggle.setValue(this.plugin.settings.quickActionOpenInNewTab).onChange(async value => {
+                    this.plugin.settings.quickActionOpenInNewTab = value;
                     await this.saveAndRefresh();
                 })
             );

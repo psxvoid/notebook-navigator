@@ -403,17 +403,17 @@ export const STRINGS_FR = {
                 name: 'Actions rapides',
                 desc: 'Afficher les actions au survol sur les éléments de fichier.'
             },
-            quickActionsOpenInNewTab: {
-                name: 'Ouvrir dans un nouvel onglet',
-                desc: 'Action rapide : Ouvrir la note dans un nouvel onglet.'
+            quickActionsRevealInFolder: {
+                name: 'Révéler dans le dossier',
+                desc: 'Action rapide : Révéler la note dans son dossier parent.'
             },
             quickActionsPinNote: {
                 name: 'Épingler la note',
                 desc: 'Action rapide : Épingler ou désépingler la note en haut de la liste.'
             },
-            quickActionsRevealInFolder: {
-                name: 'Révéler dans le dossier',
-                desc: 'Action rapide : Révéler la note dans son dossier parent.'
+            quickActionsOpenInNewTab: {
+                name: 'Ouvrir dans un nouvel onglet',
+                desc: 'Action rapide : Ouvrir la note dans un nouvel onglet.'
             },
             dualPane: {
                 name: 'Disposition à double panneau (ordinateur uniquement)',

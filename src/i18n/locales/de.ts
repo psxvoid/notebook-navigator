@@ -403,17 +403,17 @@ export const STRINGS_DE = {
                 name: 'Schnellaktionen',
                 desc: 'Zeige Hover-Aktionen auf Dateielementen.'
             },
-            quickActionsOpenInNewTab: {
-                name: 'In neuem Tab öffnen',
-                desc: 'Schnellaktion: Notiz in neuem Tab öffnen.'
+            quickActionsRevealInFolder: {
+                name: 'Im Ordner anzeigen',
+                desc: 'Schnellaktion: Notiz im übergeordneten Ordner anzeigen.'
             },
             quickActionsPinNote: {
                 name: 'Notiz anheften',
                 desc: 'Schnellaktion: Notiz oben in der Liste anheften oder lösen.'
             },
-            quickActionsRevealInFolder: {
-                name: 'Im Ordner anzeigen',
-                desc: 'Schnellaktion: Notiz im übergeordneten Ordner anzeigen.'
+            quickActionsOpenInNewTab: {
+                name: 'In neuem Tab öffnen',
+                desc: 'Schnellaktion: Notiz in neuem Tab öffnen.'
             },
             dualPane: {
                 name: 'Doppelbereichslayout (nur Desktop)',

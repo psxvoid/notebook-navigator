@@ -114,9 +114,9 @@ export const FileItem = React.memo(function FileItem({
 
     // === Refs ===
     const fileRef = useRef<HTMLDivElement>(null);
-    const openInNewTabIconRef = useRef<HTMLDivElement>(null);
-    const pinNoteIconRef = useRef<HTMLDivElement>(null);
     const revealInFolderIconRef = useRef<HTMLDivElement>(null);
+    const pinNoteIconRef = useRef<HTMLDivElement>(null);
+    const openInNewTabIconRef = useRef<HTMLDivElement>(null);
 
     // === Derived State & Memoized Values ===
 
@@ -404,14 +404,14 @@ export const FileItem = React.memo(function FileItem({
     // Set up the icons when quick actions panel is shown
     useEffect(() => {
         if (isHovered && !isMobile) {
-            if (openInNewTabIconRef.current && shouldShowOpenInNewTab) {
-                setIcon(openInNewTabIconRef.current, 'file-plus');
+            if (revealInFolderIconRef.current && shouldShowRevealIcon) {
+                setIcon(revealInFolderIconRef.current, 'folder');
             }
             if (pinNoteIconRef.current && shouldShowPinNote) {
                 setIcon(pinNoteIconRef.current, isPinned ? 'pin-off' : 'pin');
             }
-            if (revealInFolderIconRef.current && shouldShowRevealIcon) {
-                setIcon(revealInFolderIconRef.current, 'folder');
+            if (openInNewTabIconRef.current && shouldShowOpenInNewTab) {
+                setIcon(openInNewTabIconRef.current, 'file-plus');
             }
         }
     }, [isHovered, isMobile, shouldShowOpenInNewTab, shouldShowPinNote, shouldShowRevealIcon, isPinned]);
@@ -441,15 +441,15 @@ export const FileItem = React.memo(function FileItem({
                         data-title-rows={appearanceSettings.titleRows}
                         data-has-tags={settings.showTags && settings.showFileTags && categorizedTags.length > 0 ? 'true' : 'false'}
                     >
-                        {shouldShowOpenInNewTab && (
+                        {shouldShowRevealIcon && (
                             <div
-                                ref={openInNewTabIconRef}
+                                ref={revealInFolderIconRef}
                                 className="nn-quick-action-item"
-                                onClick={handleOpenInNewTab}
-                                title={strings.contextMenu.file.openInNewTab}
+                                onClick={handleRevealClick}
+                                title={strings.contextMenu.file.revealInFolder}
                             />
                         )}
-                        {shouldShowOpenInNewTab && shouldShowPinNote && <div className="nn-quick-action-separator" />}
+                        {shouldShowRevealIcon && shouldShowPinNote && <div className="nn-quick-action-separator" />}
                         {shouldShowPinNote && (
                             <div
                                 ref={pinNoteIconRef}
@@ -466,13 +466,13 @@ export const FileItem = React.memo(function FileItem({
                                 }
                             />
                         )}
-                        {shouldShowPinNote && shouldShowRevealIcon && <div className="nn-quick-action-separator" />}
-                        {shouldShowRevealIcon && (
+                        {shouldShowPinNote && shouldShowOpenInNewTab && <div className="nn-quick-action-separator" />}
+                        {shouldShowOpenInNewTab && (
                             <div
-                                ref={revealInFolderIconRef}
+                                ref={openInNewTabIconRef}
                                 className="nn-quick-action-item"
-                                onClick={handleRevealClick}
-                                title={strings.contextMenu.file.revealInFolder}
+                                onClick={handleOpenInNewTab}
+                                title={strings.contextMenu.file.openInNewTab}
                             />
                         )}
                     </div>
