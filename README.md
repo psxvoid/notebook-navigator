@@ -1,4 +1,4 @@
-![Notebook Navigator Interface](https://github.com/johansan/notebook-navigator/blob/main/images/banner.png?raw=true)
+![Notebook Navigator Banner](https://github.com/johansan/notebook-navigator/blob/main/images/banner.png?raw=true)
 
 ![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=Downloads&query=%24%5B%22notebook-navigator%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)
 ![Obsidian Compatibility](https://img.shields.io/badge/Obsidian-v1.8.0+-483699?logo=obsidian&style=flat-square)
@@ -12,6 +12,8 @@ If you love using Notebook Navigator, please consider
 [Sponsor on GitHub ❤️](https://github.com/sponsors/johansan).
 
 <a href="https://www.buymeacoffee.com/johansan" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
+
+![Notebook Navigator Screenshot](https://github.com/johansan/notebook-navigator/blob/main/images/screenshot1.png?raw=true)
 
 <br>
 
