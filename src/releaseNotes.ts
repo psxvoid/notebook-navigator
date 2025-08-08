@@ -59,9 +59,14 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-08-08',
         showOnUpdate: true,
         changed: [
-            'Changed the order of the quick action buttons, order is now (1) Reveal in folder, (2) Pin note and (3) Open in new tab. The reason is we always want the icon that is not always visible to the left so physical position does not change for the other icons.'
+            'Changed the order of the quick action buttons, order is now (1) Reveal in folder, (2) Pin note and (3) Open in new tab. The reason for the change is that we always want the icon that is not always visible to the left so physical position does not change for the other icons.'
         ],
-        fixed: ['Minor polish to the mobile UX (background color in navigation pane, icon stroke width, tab bar heights).']
+        fixed: [
+            "Added Obsidian's official ESLint plugin to the build process, https://github.com/obsidianmd/eslint-plugin. The build will only run if there are 0 errors and 0 warnings.",
+            'Fixed the minor issues that the official ESLint plugin revealed, the source code now compiles with 0 errors and 0 warnings.',
+            'Upgraded to ESLint v9 with full Obsidian plugin compliance.',
+            'Implemented some minor polish to the mobile UX: Background color in navigation pane is now same as list pane, icon stroke width is now standard, tab bar height is now iOS standard).'
+        ]
     },
     {
         version: '1.3.17',
