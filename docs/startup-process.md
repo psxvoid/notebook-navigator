@@ -97,7 +97,10 @@ Both version changes result in a cold boot to ensure data consistency.
    - Shows placeholder panes with saved dimensions
    - Provides immediate visual feedback
    - Prevents layout shift when data loads
-4. Mobile detection adds platform-specific class for touch optimizations
+4. Mobile detection adds platform-specific class and determines UI layout:
+   - Desktop: NavigationPaneHeader and ListPaneHeader at top of panes
+   - Mobile: NavigationTabBar and ListTabBar at bottom of panes
+   - Touch optimizations and swipe gestures enabled on mobile
 ```
 
 ### Phase 3: Database Version Check and Initialization
