@@ -2199,7 +2199,7 @@ body.nn-resizing {
 .nn-tab-bar-button svg {
     width: 24px;
     height: 24px;
-    stroke-width: 1.75;
+    stroke-width: 1.5;
     stroke: var(--link-color);
 }
 
@@ -2216,7 +2216,7 @@ body.nn-resizing {
 
 .nn-tab-bar-button-active svg {
     stroke: var(--link-color) !important;
-    stroke-width: 1.75;
+    stroke-width: 1.5;
 }
 
 /* Disabled tab bar button */
