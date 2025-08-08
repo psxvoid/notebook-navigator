@@ -260,17 +260,19 @@ export const STRINGS_EN = {
             revealInExplorer: 'Failed to reveal file in system explorer: {error}',
             folderNoteAlreadyExists: 'Folder note already exists',
             failedToDeleteFile: 'Failed to delete {name}: {error}',
+            failedToDeleteMultipleFiles: 'Failed to delete {count} files',
+            versionHistoryNotAvailable: 'Version history service not available',
             drawingAlreadyExists: 'A drawing with this name already exists',
             failedToCreateDrawing: 'Failed to create drawing',
             noFolderSelected: 'No folder is selected in Notebook Navigator',
             noFileSelected: 'No file is selected'
         },
         notices: {
-            excludedFolder: 'Excluded folder: {name}',
-            excludedFolderWithCleanup: 'Excluded folder: {name} (removed {count})'
+            excludedFolder: 'Excluded folder: {name}'
         },
         notifications: {
             deletedMultipleFiles: 'Deleted {count} files',
+            movedMultipleFiles: 'Moved {count} files to {folder}',
             deepLinkCopied: 'Deep link copied to clipboard',
             tagAddedToNote: 'Added tag to 1 note',
             tagAddedToNotes: 'Added tag to {count} notes',
@@ -365,6 +367,10 @@ export const STRINGS_EN = {
 
     // Settings
     settings: {
+        metadataReport: {
+            exportSuccess: 'Failed metadata report exported to: {filename}',
+            exportFailed: 'Failed to export metadata report'
+        },
         sections: {
             navigationPane: 'Navigation pane',
             folders: 'Folders',
@@ -402,17 +408,17 @@ export const STRINGS_EN = {
                 name: 'Quick actions',
                 desc: 'Show hover actions on file items.'
             },
-            quickActionsOpenInNewTab: {
-                name: 'Open in new tab',
-                desc: 'Quick action: Open note in new tab.'
+            quickActionsRevealInFolder: {
+                name: 'Reveal in folder',
+                desc: 'Quick action: Reveal note in its parent folder.'
             },
             quickActionsPinNote: {
                 name: 'Pin note',
                 desc: 'Quick action: Pin or unpin note at top of list.'
             },
-            quickActionsRevealInFolder: {
-                name: 'Reveal in folder',
-                desc: 'Quick action: Reveal note in its parent folder.'
+            quickActionsOpenInNewTab: {
+                name: 'Open in new tab',
+                desc: 'Quick action: Open note in new tab.'
             },
             dualPane: {
                 name: 'Dual pane layout (desktop only)',
@@ -451,8 +457,7 @@ export const STRINGS_EN = {
             excludedFolders: {
                 name: 'Excluded folders',
                 desc: 'Comma-separated list of folders to hide. Name patterns: assets* (folders starting with assets), *_temp (ending with _temp). Path patterns: /archive (root archive only), /res* (root folders starting with res), /*/temp (temp folders one level deep), /projects/* (all folders inside projects).',
-                placeholder: 'templates, assets*, /archive, /res*',
-                info: 'Automatic cleanup: When excluding via right-click, redundant patterns are removed (e.g., if you exclude /projects and /projects/app already exists in the list, it will be removed).'
+                placeholder: 'templates, assets*, /archive, /res*'
             },
             showFileDate: {
                 name: 'Show date',

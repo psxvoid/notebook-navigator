@@ -49,7 +49,7 @@ export interface VirtualItem {
 /**
  * Helper function for safe array access
  */
-export const safeGetItem = <T>(array: T[], index: number): T | undefined => {
+const safeGetItem = <T>(array: T[], index: number): T | undefined => {
     return index >= 0 && index < array.length ? array[index] : undefined;
 };
 
@@ -61,7 +61,7 @@ export type IsSelectableFunction<T> = (item: T) => boolean;
 /**
  * Find next selectable item in the list
  */
-export const findNextSelectableIndex = <T>(
+const findNextSelectableIndex = <T>(
     items: T[],
     currentIndex: number,
     isSelectable: IsSelectableFunction<T>,
@@ -95,7 +95,7 @@ export const findNextSelectableIndex = <T>(
 /**
  * Find previous selectable item in the list
  */
-export const findPreviousSelectableIndex = <T>(
+const findPreviousSelectableIndex = <T>(
     items: T[],
     currentIndex: number,
     isSelectable: IsSelectableFunction<T>,
@@ -119,7 +119,7 @@ export const findPreviousSelectableIndex = <T>(
  * Calculates the number of items that fit in the viewport based on geometry.
  * This is the only reliable way to get a consistent page size.
  */
-export const getVisiblePageSize = (virtualizer: Virtualizer<HTMLDivElement, Element>): number => {
+const getVisiblePageSize = (virtualizer: Virtualizer<HTMLDivElement, Element>): number => {
     const virtualItems = virtualizer.getVirtualItems();
     // If the virtualizer or its scroll element isn't ready, return a sensible default.
     if (virtualItems.length === 0 || !virtualizer.scrollElement) {

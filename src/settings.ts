@@ -87,9 +87,9 @@ export interface NotebookNavigatorSettings {
     showNotesFromSubfolders: boolean;
     showParentFolderNames: boolean;
     showQuickActions: boolean;
-    quickActionOpenInNewTab: boolean;
-    quickActionPinNote: boolean;
     quickActionRevealInFolder: boolean;
+    quickActionPinNote: boolean;
+    quickActionOpenInNewTab: boolean;
     dateFormat: string;
     timeFormat: string;
     // Notes
@@ -163,9 +163,9 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showNotesFromSubfolders: true,
     showParentFolderNames: true,
     showQuickActions: true,
-    quickActionOpenInNewTab: true,
-    quickActionPinNote: true,
     quickActionRevealInFolder: true,
+    quickActionPinNote: true,
+    quickActionOpenInNewTab: true,
     dateFormat: 'MMM d, yyyy',
     timeFormat: 'h:mm a',
     // Notes
@@ -472,15 +472,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         );
         excludedFoldersSetting.controlEl.addClass('nn-setting-wide-input');
 
-        // Create a container for additional info about excluded folders
-        const excludedFoldersInfoContainer = containerEl.createDiv('nn-setting-info-container');
-        const excludedFoldersInfoDiv = excludedFoldersInfoContainer.createEl('div', {
-            cls: 'setting-item-description'
-        });
-        excludedFoldersInfoDiv.createSpan({
-            text: strings.settings.items.excludedFolders.info
-        });
-
         const excludedFilesSetting = this.createDebouncedTextSetting(
             containerEl,
             strings.settings.items.excludedNotes.name,
@@ -685,9 +676,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             );
 
         // Sub-setting for untagged in favorites - only show if showUntagged is enabled
-        const untaggedInFavoritesEl = tagSubSettingsEl.createDiv();
+        const untaggedInFavoritesEl = tagSubSettingsEl.createDiv('notebook-navigator-subsetting');
         untaggedInFavoritesEl.style.display = this.plugin.settings.showUntagged ? 'block' : 'none';
-        untaggedInFavoritesEl.style.marginLeft = '20px';
 
         new Setting(untaggedInFavoritesEl)
             .setName(strings.settings.items.showUntaggedInFavorites.name)
@@ -814,13 +804,13 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Container for quick actions sub-settings
         const quickActionsEl = containerEl.createDiv('nn-sub-settings');
 
-        // Open in new tab quick action
+        // Reveal in folder quick action
         new Setting(quickActionsEl)
-            .setName(strings.settings.items.quickActionsOpenInNewTab.name)
-            .setDesc(strings.settings.items.quickActionsOpenInNewTab.desc)
+            .setName(strings.settings.items.quickActionsRevealInFolder.name)
+            .setDesc(strings.settings.items.quickActionsRevealInFolder.desc)
             .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.quickActionOpenInNewTab).onChange(async value => {
-                    this.plugin.settings.quickActionOpenInNewTab = value;
+                toggle.setValue(this.plugin.settings.quickActionRevealInFolder).onChange(async value => {
+                    this.plugin.settings.quickActionRevealInFolder = value;
                     await this.saveAndRefresh();
                 })
             );
@@ -836,13 +826,13 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 })
             );
 
-        // Reveal in folder quick action
+        // Open in new tab quick action
         new Setting(quickActionsEl)
-            .setName(strings.settings.items.quickActionsRevealInFolder.name)
-            .setDesc(strings.settings.items.quickActionsRevealInFolder.desc)
+            .setName(strings.settings.items.quickActionsOpenInNewTab.name)
+            .setDesc(strings.settings.items.quickActionsOpenInNewTab.desc)
             .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.quickActionRevealInFolder).onChange(async value => {
-                    this.plugin.settings.quickActionRevealInFolder = value;
+                toggle.setValue(this.plugin.settings.quickActionOpenInNewTab).onChange(async value => {
+                    this.plugin.settings.quickActionOpenInNewTab = value;
                     await this.saveAndRefresh();
                 })
             );
@@ -1160,8 +1150,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         // Store reference to stats element
         this.statsTextEl = statsContent.createEl('div', {
-            cls: 'nn-stats-text',
-            text: 'Loading statistics...'
+            cls: 'nn-stats-text'
         });
 
         // Load initial statistics asynchronously
@@ -1232,10 +1221,10 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         try {
             // Create the file in vault root
             await this.app.vault.create(filename, content);
-            new Notice(`Failed metadata report exported to: ${filename}`);
+            new Notice(strings.settings.metadataReport.exportSuccess.replace('{filename}', filename));
         } catch (error) {
             console.error('Failed to export metadata report:', error);
-            new Notice('Failed to export metadata report');
+            new Notice(strings.settings.metadataReport.exportFailed);
         }
     }
 

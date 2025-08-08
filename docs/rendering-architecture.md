@@ -61,17 +61,19 @@ graph TD
 
         subgraph "Panes"
             subgraph "List Pane (Right)"
-                LPH[ListPaneHeader<br/>• Show notes from subfolders<br/>• Sort controls<br/>• Appearance settings<br/>• New note]
+                LPH[ListPaneHeader<br/>• Desktop: Toolbar buttons<br/>• Mobile: Back arrow<br/>• Both: Clickable path]
+                LTB[ListTabBar<br/>• Toolbar buttons<br/>• Mobile only]
                 LP[ListPane<br/>• Virtual scrolling<br/>• File sorting<br/>• Multi-selection]
 
                 subgraph "List Items"
-                    FILE[FileItem<br/>• Preview text<br/>• Tags display<br/>• Feature image<br/>• Metadata]
+                    FILE[FileItem<br/>• Preview text<br/>• Tags display<br/>• Feature image<br/>• Metadata<br/>• Quick actions on hover]
                     DG[DateGroup<br/>• Date headers<br/>• Group separator]
                 end
             end
 
             subgraph "Navigation Pane (Left)"
-                NPH[NavigationPaneHeader<br/>• Collapse button<br/>• Auto expand<br/>• New folder]
+                NPH[NavigationPaneHeader<br/>• Toolbar buttons<br/>• Desktop only]
+                NTB[NavigationTabBar<br/>• Toolbar buttons<br/>• Mobile only]
                 NP[NavigationPane<br/>• Virtual scrolling<br/>• Tree building<br/>• Item rendering]
 
                 subgraph "Navigation Items"
@@ -94,8 +96,10 @@ graph TD
     NC --> SK
     NC --> NNC
     NNC --> NPH
+    NNC --> NTB
     NNC --> NP
     NNC --> LPH
+    NNC --> LTB
     NNC --> LP
     NP --> FI
     NP --> TTI
@@ -113,7 +117,7 @@ graph TD
     class OV obsidian
     class SP,SVC,ST,EP,SEL,UI context
     class NC,NNC,SK container
-    class NPH,NP,LPH,LP pane
+    class NPH,NTB,NP,LPH,LTB,LP pane
     class FI,TTI,VFI,FILE,DG item
 ```
 
@@ -172,6 +176,7 @@ The main container managing the two-pane layout:
 - Drag-and-drop coordination
 - Focus management between panes
 - Command execution (delete, move, create)
+- Platform-specific UI rendering (headers vs tab bars)
 
 **Key Features**:
 
@@ -179,6 +184,27 @@ The main container managing the two-pane layout:
 - Mobile swipe navigation support
 - Keyboard shortcuts for all operations
 - File reveal and auto-scroll
+- Automatic mobile detection for UI adaptation
+
+### NavigationPaneHeader
+
+**Location**: `src/components/NavigationPaneHeader.tsx`
+
+**Desktop only** - The header toolbar for the navigation pane:
+
+- Collapse/expand all folders and tags
+- Toggle auto-expand behavior
+- Create new folder button
+
+### NavigationTabBar
+
+**Location**: `src/components/NavigationTabBar.tsx`
+
+**Mobile only** - The bottom tab bar for the navigation pane:
+
+- Same toolbar buttons as NavigationPaneHeader
+- Positioned at the bottom of the pane
+- Mobile-optimized touch targets
 
 ### NavigationPane
 
@@ -217,6 +243,28 @@ const virtualizer = useVirtualizer({
   overscan: 10
 });
 ```
+
+### ListPaneHeader
+
+**Location**: `src/components/ListPaneHeader.tsx`
+
+The header for the list pane (visible on both desktop and mobile):
+
+- **Desktop**: Toolbar buttons for subfolders, sort, appearance, new note
+- **Mobile**: Back arrow for navigation
+- **Both**: Clickable breadcrumb path showing current folder/tag
+
+### ListTabBar
+
+**Location**: `src/components/ListTabBar.tsx`
+
+**Mobile only** - The bottom tab bar for the list pane:
+
+- Toolbar buttons for common operations
+- Toggle showing notes from subfolders
+- Sort order menu
+- Appearance customization menu
+- Create new note button
 
 ### ListPane
 
@@ -315,6 +363,10 @@ Renders file entries with:
 - Tag pills
 - Date display
 - File type badges
+- Quick action buttons on hover (desktop only):
+  - Reveal in folder
+  - Pin/unpin note
+  - Open in new tab
 
 #### ListPane: DateGroup
 

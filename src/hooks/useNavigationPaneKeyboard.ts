@@ -97,7 +97,8 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
     const selectItemAtIndex = useCallback(
         (item: CombinedNavigationItem) => {
             if (item.type === NavigationPaneItemType.FOLDER) {
-                const folder = item.data as TFolder;
+                if (!(item.data instanceof TFolder)) return;
+                const folder = item.data;
                 selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
 
                 // Auto-expand if enabled and folder has children
@@ -130,7 +131,8 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
     const handleExpandCollapse = useCallback(
         (item: CombinedNavigationItem, expand: boolean) => {
             if (item.type === NavigationPaneItemType.FOLDER) {
-                const folder = item.data as TFolder;
+                if (!(item.data instanceof TFolder)) return;
+                const folder = item.data;
                 const isExpanded = expansionState.expandedFolders.has(folder.path);
                 if (expand && !isExpanded && folder.children.length > 0) {
                     expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
@@ -250,7 +252,8 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
 
                         let shouldSwitchPane = false;
                         if (item.type === NavigationPaneItemType.FOLDER) {
-                            const folder = item.data as TFolder;
+                            if (!(item.data instanceof TFolder)) break;
+                            const folder = item.data;
                             const isExpanded = expansionState.expandedFolders.has(folder.path);
                             const hasChildren = folder.children.some(child => child instanceof TFolder);
 
@@ -299,7 +302,8 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                         if (!item) return;
 
                         if (item.type === NavigationPaneItemType.FOLDER) {
-                            const folder = item.data as TFolder;
+                            if (!(item.data instanceof TFolder)) break;
+                            const folder = item.data;
                             const isExpanded = expansionState.expandedFolders.has(folder.path);
                             if (isExpanded) {
                                 // Collapse the folder

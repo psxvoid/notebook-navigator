@@ -129,7 +129,7 @@ export const NavigationPane = React.memo(
         });
 
         // Use the new scroll hook
-        const { rowVirtualizer, scrollContainerRef, handleScrollToTop, requestScroll } = useNavigationPaneScroll({
+        const { rowVirtualizer, scrollContainerRef, requestScroll } = useNavigationPaneScroll({
             items,
             pathToIndex,
             isVisible
@@ -557,7 +557,7 @@ export const NavigationPane = React.memo(
 
         return (
             <div className="nn-navigation-pane" style={props.style}>
-                <NavigationPaneHeader onHeaderClick={handleScrollToTop} />
+                <NavigationPaneHeader />
                 <div ref={scrollContainerRef} className="nn-navigation-pane-scroller" data-pane="navigation" role="tree" tabIndex={-1}>
                     {items.length > 0 && (
                         <div

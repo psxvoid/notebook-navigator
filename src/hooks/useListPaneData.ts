@@ -204,7 +204,7 @@ export function useListPaneData({ selectionType, selectedFolder, selectedTag, se
         });
 
         return items;
-    }, [files, settings, selectionType, selectedFolder, selectedTag, getFileCreatedTime, getFileModifiedTime]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [files, settings, selectionType, selectedFolder, selectedTag, getFileCreatedTime, getFileModifiedTime]);
 
     /**
      * Create a map from file paths to their index in listItems.

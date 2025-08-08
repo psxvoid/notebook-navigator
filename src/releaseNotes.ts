@@ -55,6 +55,15 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.3.18',
+        date: '2025-08-08',
+        showOnUpdate: true,
+        changed: [
+            'Changed the order of the quick action buttons, order is now (1) Reveal in folder, (2) Pin note and (3) Open in new tab. The reason is we always want the icon that is not always visible to the left so physical position does not change for the other icons.'
+        ],
+        fixed: ['Minor polish to the mobile UX (background color in navigation pane, icon stroke width, tab bar heights).']
+    },
+    {
         version: '1.3.17',
         date: '2025-08-07',
         showOnUpdate: true,

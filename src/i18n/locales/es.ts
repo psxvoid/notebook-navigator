@@ -261,17 +261,19 @@ export const STRINGS_ES = {
             revealInExplorer: 'Error al mostrar el archivo en el explorador del sistema: {error}',
             folderNoteAlreadyExists: 'La nota de carpeta ya existe',
             failedToDeleteFile: 'Error al eliminar {name}: {error}',
+            failedToDeleteMultipleFiles: 'Error al eliminar {count} archivos',
+            versionHistoryNotAvailable: 'Servicio de historial de versiones no disponible',
             drawingAlreadyExists: 'Ya existe un dibujo con este nombre',
             failedToCreateDrawing: 'Error al crear el dibujo',
             noFolderSelected: 'No hay ninguna carpeta seleccionada en Notebook Navigator',
             noFileSelected: 'No hay archivo seleccionado'
         },
         notices: {
-            excludedFolder: 'Carpeta excluida: {name}',
-            excludedFolderWithCleanup: 'Carpeta excluida: {name} (se eliminaron {count})'
+            excludedFolder: 'Carpeta excluida: {name}'
         },
         notifications: {
             deletedMultipleFiles: '{count} archivos eliminados',
+            movedMultipleFiles: '{count} archivos movidos a {folder}',
             deepLinkCopied: 'Enlace profundo copiado al portapapeles',
             tagAddedToNote: 'Etiqueta añadida a 1 nota',
             tagAddedToNotes: 'Etiqueta añadida a {count} notas',
@@ -366,6 +368,10 @@ export const STRINGS_ES = {
 
     // Settings
     settings: {
+        metadataReport: {
+            exportSuccess: 'Informe de metadatos fallidos exportado a: {filename}',
+            exportFailed: 'Error al exportar el informe de metadatos'
+        },
         sections: {
             notes: 'Visualización de notas',
             navigationPane: 'Visualización de carpetas',
@@ -403,17 +409,17 @@ export const STRINGS_ES = {
                 name: 'Acciones rápidas',
                 desc: 'Mostrar acciones al pasar el cursor sobre los elementos de archivo.'
             },
-            quickActionsOpenInNewTab: {
-                name: 'Abrir en nueva pestaña',
-                desc: 'Acción rápida: Abrir nota en nueva pestaña.'
+            quickActionsRevealInFolder: {
+                name: 'Revelar en carpeta',
+                desc: 'Acción rápida: Revelar nota en su carpeta principal.'
             },
             quickActionsPinNote: {
                 name: 'Fijar nota',
                 desc: 'Acción rápida: Fijar o desfijar nota en la parte superior de la lista.'
             },
-            quickActionsRevealInFolder: {
-                name: 'Revelar en carpeta',
-                desc: 'Acción rápida: Revelar nota en su carpeta principal.'
+            quickActionsOpenInNewTab: {
+                name: 'Abrir en nueva pestaña',
+                desc: 'Acción rápida: Abrir nota en nueva pestaña.'
             },
             dualPane: {
                 name: 'Diseño de doble panel (solo escritorio)',
@@ -443,8 +449,7 @@ export const STRINGS_ES = {
             excludedFolders: {
                 name: 'Carpetas excluidas',
                 desc: 'Lista de carpetas a ocultar separadas por comas. Patrones de nombre: assets* (carpetas que comienzan con assets), *_temp (terminan con _temp). Patrones de ruta: /archive (solo archivo raíz), /res* (carpetas raíz que comienzan con res), /*/temp (carpetas temp un nivel abajo), /projects/* (todas las carpetas dentro de projects).',
-                placeholder: 'templates, assets*, /archive, /res*',
-                info: 'Limpieza automática: Al excluir mediante clic derecho, se eliminan los patrones redundantes (por ejemplo, si excluye /projects y /projects/app ya existe en la lista, será eliminado).'
+                placeholder: 'templates, assets*, /archive, /res*'
             },
             fileVisibility: {
                 name: 'Mostrar tipos de archivo',

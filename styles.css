@@ -323,7 +323,6 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding: var(--size-4-1) 0;
-    background-color: var(--background-secondary);
     line-height: 1; /* Reset to 1 - we'll use fixed line-heights on individual elements */
     /* Ensure scroll events work properly with virtualization */
     position: relative;
@@ -512,7 +511,6 @@
     flex: 1;
     overflow-y: auto;
     padding: 0;
-    background-color: var(--background-primary);
 }
 
 /* File item - container for each file in the list */
@@ -1820,6 +1818,7 @@ body.nn-resizing {
 /* Make navigation pane flexible on mobile to handle resize gracefully */
 .notebook-navigator-mobile .nn-navigation-pane {
     flex: 1;
+    background-color: var(--background-primary) !important;
 }
 
 /* Hide resize handle on mobile */
@@ -2160,8 +2159,8 @@ body.nn-resizing {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    height: 56px;
-    min-height: 56px;
+    height: 49px;
+    min-height: 49px;
     background-color: var(--background-primary);
     border-top: 1px solid var(--background-modifier-border);
     flex-shrink: 0;
@@ -2169,8 +2168,8 @@ body.nn-resizing {
     /* Add bottom padding for safe area (home indicator on iPhone X+) */
     padding-bottom: env(safe-area-inset-bottom, 8px);
     /* Adjust height to include safe area padding */
-    height: calc(56px + env(safe-area-inset-bottom, 8px));
-    min-height: calc(56px + env(safe-area-inset-bottom, 8px));
+    height: calc(49px + env(safe-area-inset-bottom, 8px));
+    min-height: calc(49px + env(safe-area-inset-bottom, 8px));
 }
 
 /* Tab bar buttons */
@@ -2199,7 +2198,7 @@ body.nn-resizing {
 .nn-tab-bar-button svg {
     width: 24px;
     height: 24px;
-    stroke-width: 2;
+    stroke-width: 1.5;
     stroke: var(--link-color);
 }
 
@@ -2216,7 +2215,7 @@ body.nn-resizing {
 
 .nn-tab-bar-button-active svg {
     stroke: var(--link-color) !important;
-    stroke-width: 2;
+    stroke-width: 1.5;
 }
 
 /* Disabled tab bar button */
@@ -2496,4 +2495,9 @@ body.nn-resizing {
 /* Export button - stays on the right */
 .nn-metadata-export-button {
     flex-shrink: 0;
+}
+
+/* Settings subsetting indentation */
+.notebook-navigator-subsetting {
+    margin-left: 20px;
 }

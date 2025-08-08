@@ -261,17 +261,19 @@ export const STRINGS_DE = {
             revealInExplorer: 'Datei konnte nicht im Explorer angezeigt werden: {error}',
             folderNoteAlreadyExists: 'Ordnernotiz existiert bereits',
             failedToDeleteFile: 'Löschen von {name} fehlgeschlagen: {error}',
+            failedToDeleteMultipleFiles: 'Löschen von {count} Dateien fehlgeschlagen',
+            versionHistoryNotAvailable: 'Versionsverlauf-Dienst nicht verfügbar',
             drawingAlreadyExists: 'Eine Zeichnung mit diesem Namen existiert bereits',
             failedToCreateDrawing: 'Zeichnung konnte nicht erstellt werden',
             noFolderSelected: 'Kein Ordner im Notebook Navigator ausgewählt',
             noFileSelected: 'Keine Datei ausgewählt'
         },
         notices: {
-            excludedFolder: 'Ordner ausgeschlossen: {name}',
-            excludedFolderWithCleanup: 'Ordner ausgeschlossen: {name} ({count} entfernt)'
+            excludedFolder: 'Ordner ausgeschlossen: {name}'
         },
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',
+            movedMultipleFiles: '{count} Dateien nach {folder} verschoben',
             deepLinkCopied: 'Deep Link in die Zwischenablage kopiert',
             tagAddedToNote: 'Tag zu 1 Notiz hinzugefügt',
             tagAddedToNotes: 'Tag zu {count} Notizen hinzugefügt',
@@ -366,6 +368,10 @@ export const STRINGS_DE = {
 
     // Settings
     settings: {
+        metadataReport: {
+            exportSuccess: 'Fehlgeschlagene Metadaten-Bericht exportiert nach: {filename}',
+            exportFailed: 'Export des Metadaten-Berichts fehlgeschlagen'
+        },
         sections: {
             notes: 'Notizenanzeige',
             navigationPane: 'Ordneranzeige',
@@ -403,17 +409,17 @@ export const STRINGS_DE = {
                 name: 'Schnellaktionen',
                 desc: 'Zeige Hover-Aktionen auf Dateielementen.'
             },
-            quickActionsOpenInNewTab: {
-                name: 'In neuem Tab öffnen',
-                desc: 'Schnellaktion: Notiz in neuem Tab öffnen.'
+            quickActionsRevealInFolder: {
+                name: 'Im Ordner anzeigen',
+                desc: 'Schnellaktion: Notiz im übergeordneten Ordner anzeigen.'
             },
             quickActionsPinNote: {
                 name: 'Notiz anheften',
                 desc: 'Schnellaktion: Notiz oben in der Liste anheften oder lösen.'
             },
-            quickActionsRevealInFolder: {
-                name: 'Im Ordner anzeigen',
-                desc: 'Schnellaktion: Notiz im übergeordneten Ordner anzeigen.'
+            quickActionsOpenInNewTab: {
+                name: 'In neuem Tab öffnen',
+                desc: 'Schnellaktion: Notiz in neuem Tab öffnen.'
             },
             dualPane: {
                 name: 'Doppelbereichslayout (nur Desktop)',
@@ -443,8 +449,7 @@ export const STRINGS_DE = {
             excludedFolders: {
                 name: 'Ausgeschlossene Ordner',
                 desc: 'Kommagetrennte Liste von auszublendenden Ordnern. Namensmuster: assets* (Ordner die mit assets beginnen), *_temp (endet mit _temp). Pfadmuster: /archive (nur Wurzel-Archive), /res* (Wurzelordner die mit res beginnen), /*/temp (temp-Ordner eine Ebene tief), /projects/* (alle Ordner in projects).',
-                placeholder: 'templates, assets*, /archive, /res*',
-                info: 'Automatische Bereinigung: Beim Ausschließen per Rechtsklick werden redundante Muster entfernt (z.B. wenn Sie /projects ausschließen und /projects/app bereits in der Liste existiert, wird es entfernt).'
+                placeholder: 'templates, assets*, /archive, /res*'
             },
             fileVisibility: {
                 name: 'Dateitypen anzeigen',

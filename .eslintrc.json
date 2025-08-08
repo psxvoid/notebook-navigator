@@ -9,10 +9,11 @@
     },
     "project": "./tsconfig.json"
   },
-  "plugins": ["@typescript-eslint", "react", "react-hooks"],
+  "plugins": ["@typescript-eslint", "react", "react-hooks", "obsidianmd"],
   "extends": [
     "eslint:recommended",
     "plugin:@typescript-eslint/recommended",
+    "plugin:obsidianmd/recommended",
     "plugin:react/recommended",
     "plugin:react-hooks/recommended",
     "prettier"

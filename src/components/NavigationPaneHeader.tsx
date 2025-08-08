@@ -27,12 +27,7 @@ import { strings } from '../i18n';
 import { collectAllTagPaths } from '../utils/tagTree';
 import { ObsidianIcon } from './ObsidianIcon';
 
-interface NavigationPaneHeaderProps {
-    onHeaderClick?: () => void;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function NavigationPaneHeader({ onHeaderClick }: NavigationPaneHeaderProps) {
+export function NavigationPaneHeader() {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
     const updateSettings = useSettingsUpdate();

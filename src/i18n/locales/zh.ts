@@ -261,17 +261,19 @@ export const STRINGS_ZH = {
             revealInExplorer: '在系统资源管理器中显示文件失败：{error}',
             folderNoteAlreadyExists: '文件夹笔记已存在',
             failedToDeleteFile: '删除 {name} 失败: {error}',
+            failedToDeleteMultipleFiles: '删除{count}个文件失败',
+            versionHistoryNotAvailable: '版本历史服务不可用',
             drawingAlreadyExists: '同名绘图已存在',
             failedToCreateDrawing: '创建绘图失败',
             noFolderSelected: 'Notebook Navigator 中未选择文件夹',
             noFileSelected: '未选择文件'
         },
         notices: {
-            excludedFolder: '已排除文件夹：{name}',
-            excludedFolderWithCleanup: '已排除文件夹：{name}（移除了{count}个）'
+            excludedFolder: '已排除文件夹：{name}'
         },
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',
+            movedMultipleFiles: '已将{count}个文件移动到{folder}',
             deepLinkCopied: '深层链接已复制到剪贴板',
             tagAddedToNote: '已将标签添加到 1 个笔记',
             tagAddedToNotes: '已将标签添加到 {count} 个笔记',
@@ -366,6 +368,10 @@ export const STRINGS_ZH = {
 
     // Settings
     settings: {
+        metadataReport: {
+            exportSuccess: '失败的元数据报告已导出至：{filename}',
+            exportFailed: '导出元数据报告失败'
+        },
         sections: {
             notes: '笔记显示',
             navigationPane: '文件夹显示',
@@ -403,17 +409,17 @@ export const STRINGS_ZH = {
                 name: '快速操作',
                 desc: '在文件项上显示悬停操作。'
             },
-            quickActionsOpenInNewTab: {
-                name: '在新标签页中打开',
-                desc: '快速操作：在新标签页中打开笔记。'
+            quickActionsRevealInFolder: {
+                name: '在文件夹中显示',
+                desc: '快速操作：在父文件夹中显示笔记。'
             },
             quickActionsPinNote: {
                 name: '固定笔记',
                 desc: '快速操作：在列表顶部固定或取消固定笔记。'
             },
-            quickActionsRevealInFolder: {
-                name: '在文件夹中显示',
-                desc: '快速操作：在父文件夹中显示笔记。'
+            quickActionsOpenInNewTab: {
+                name: '在新标签页中打开',
+                desc: '快速操作：在新标签页中打开笔记。'
             },
             dualPane: {
                 name: '双窗格布局（仅桌面端）',

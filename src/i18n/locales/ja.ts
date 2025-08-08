@@ -261,17 +261,19 @@ export const STRINGS_JA = {
             revealInExplorer: 'システムエクスプローラーでファイルを表示できませんでした：{error}',
             folderNoteAlreadyExists: 'フォルダノートはすでに存在します',
             failedToDeleteFile: '{name}の削除に失敗しました: {error}',
+            failedToDeleteMultipleFiles: '{count}個のファイルの削除に失敗しました',
+            versionHistoryNotAvailable: 'バージョン履歴サービスが利用できません',
             drawingAlreadyExists: 'この名前の図面が既に存在します',
             failedToCreateDrawing: '図面の作成に失敗しました',
             noFolderSelected: 'Notebook Navigatorでフォルダが選択されていません',
             noFileSelected: 'ファイルが選択されていません'
         },
         notices: {
-            excludedFolder: 'フォルダを除外: {name}',
-            excludedFolderWithCleanup: 'フォルダを除外: {name} ({count}個削除)'
+            excludedFolder: 'フォルダを除外: {name}'
         },
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',
+            movedMultipleFiles: '{count}個のファイルを{folder}に移動しました',
             deepLinkCopied: 'ディープリンクをクリップボードにコピーしました',
             tagAddedToNote: '1個のノートにタグを追加しました',
             tagAddedToNotes: '{count}個のノートにタグを追加しました',
@@ -366,6 +368,10 @@ export const STRINGS_JA = {
 
     // Settings
     settings: {
+        metadataReport: {
+            exportSuccess: '失敗したメタデータレポートをエクスポートしました: {filename}',
+            exportFailed: 'メタデータレポートのエクスポートに失敗しました'
+        },
         sections: {
             notes: 'ノート表示',
             navigationPane: 'フォルダ表示',
@@ -403,17 +409,17 @@ export const STRINGS_JA = {
                 name: 'クイックアクション',
                 desc: 'ファイルアイテムにホバーアクションを表示します。'
             },
-            quickActionsOpenInNewTab: {
-                name: '新しいタブで開く',
-                desc: 'クイックアクション：ノートを新しいタブで開く。'
+            quickActionsRevealInFolder: {
+                name: 'フォルダで表示',
+                desc: 'クイックアクション：ノートを親フォルダで表示。'
             },
             quickActionsPinNote: {
                 name: 'ノートをピン留め',
                 desc: 'クイックアクション：ノートをリストの上部にピン留めまたは解除。'
             },
-            quickActionsRevealInFolder: {
-                name: 'フォルダで表示',
-                desc: 'クイックアクション：ノートを親フォルダで表示。'
+            quickActionsOpenInNewTab: {
+                name: '新しいタブで開く',
+                desc: 'クイックアクション：ノートを新しいタブで開く。'
             },
             dualPane: {
                 name: 'デュアルペインレイアウト（デスクトップのみ）',

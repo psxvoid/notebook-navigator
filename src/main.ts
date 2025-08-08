@@ -146,7 +146,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // View & Navigation commands
         this.addCommand({
-            id: 'open-notebook-navigator',
+            id: 'open-view',
             name: strings.commands.open,
             callback: async () => {
                 await this.activateView();
