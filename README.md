@@ -91,12 +91,17 @@ If you love using Notebook Navigator, please consider
 
 ## Code Quality & Compliance
 
-Notebook Navigator maintains the highest standards of code quality through a comprehensive build process that ensures Obsidian plugin compliance:
-
-- **Obsidian ESLint Plugin** - Full compliance with [Obsidian's official ESLint plugin](https://github.com/obsidianmd/eslint-plugin), enforcing best practices for theme compatibility, proper API usage, and security
-- **Zero-Tolerance Build Process** - Build automatically aborts on ANY error or warning, ensuring only clean code is deployed
-- **Zero-Tolerance Code Quality** - Strict ESLint configuration with `no-explicit-any` enforced, resulting in 0 errors, 0 warnings across 30,000 lines of TypeScript
-- **Comprehensive Validation** - TypeScript, ESLint, Knip (dead code detection), and Prettier
+- **Obsidian ESLint Plugin** - Full compliance with
+  [Obsidian's official ESLint plugin](https://github.com/obsidianmd/eslint-plugin),
+  enforcing best practices for theme compatibility, proper API usage, and
+  security
+- **Zero-Tolerance Build Process** - Build automatically aborts on ANY error or
+  warning, ensuring only clean code is deployed
+- **Zero-Tolerance Code Quality** - Strict ESLint configuration with
+  `no-explicit-any` enforced, resulting in 0 errors, 0 warnings across 30,000
+  lines of TypeScript
+- **Comprehensive Validation** - TypeScript, ESLint, Knip (dead code detection),
+  and Prettier
 
 <br>
 
