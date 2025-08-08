@@ -53,7 +53,7 @@ export function parseExcludedFolders(ignoreFolders: string[]): string[] {
  * @param folderName - The folder name to check
  * @param pattern - The pattern to match against (e.g., "assets*", "*_temp", "exact")
  */
-export function matchesFolderPattern(folderName: string, pattern: string): boolean {
+function matchesFolderPattern(folderName: string, pattern: string): boolean {
     // Empty pattern should not match anything
     if (!pattern) {
         return false;
