@@ -323,7 +323,6 @@
     overflow-y: auto;
     overflow-x: hidden;
     padding: var(--size-4-1) 0;
-    background-color: var(--background-secondary);
     line-height: 1; /* Reset to 1 - we'll use fixed line-heights on individual elements */
     /* Ensure scroll events work properly with virtualization */
     position: relative;
@@ -512,7 +511,6 @@
     flex: 1;
     overflow-y: auto;
     padding: 0;
-    background-color: var(--background-primary);
 }
 
 /* File item - container for each file in the list */
@@ -1820,6 +1818,7 @@ body.nn-resizing {
 /* Make navigation pane flexible on mobile to handle resize gracefully */
 .notebook-navigator-mobile .nn-navigation-pane {
     flex: 1;
+    background-color: var(--background-primary) !important;
 }
 
 /* Hide resize handle on mobile */
