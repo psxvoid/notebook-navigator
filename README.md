@@ -13,11 +13,11 @@ If you love using Notebook Navigator, please consider
 
 <a href="https://www.buymeacoffee.com/johansan" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
-![Notebook Navigator Screenshot](https://github.com/johansan/notebook-navigator/blob/main/images/screenshot1.png?raw=true)
-
 <br>
 
 ## Features
+
+![Notebook Navigator Screenshot](https://github.com/johansan/notebook-navigator/blob/main/images/screenshot1.png?raw=true)
 
 ### Core Interface
 
