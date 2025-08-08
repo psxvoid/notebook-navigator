@@ -676,9 +676,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             );
 
         // Sub-setting for untagged in favorites - only show if showUntagged is enabled
-        const untaggedInFavoritesEl = tagSubSettingsEl.createDiv();
+        const untaggedInFavoritesEl = tagSubSettingsEl.createDiv('notebook-navigator-subsetting');
         untaggedInFavoritesEl.style.display = this.plugin.settings.showUntagged ? 'block' : 'none';
-        untaggedInFavoritesEl.style.marginLeft = '20px';
 
         new Setting(untaggedInFavoritesEl)
             .setName(strings.settings.items.showUntaggedInFavorites.name)

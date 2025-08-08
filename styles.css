@@ -2496,3 +2496,8 @@ body.nn-resizing {
 .nn-metadata-export-button {
     flex-shrink: 0;
 }
+
+/* Settings subsetting indentation */
+.notebook-navigator-subsetting {
+    margin-left: 20px;
+}
