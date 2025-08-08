@@ -261,6 +261,8 @@ export const STRINGS_JA = {
             revealInExplorer: 'システムエクスプローラーでファイルを表示できませんでした：{error}',
             folderNoteAlreadyExists: 'フォルダノートはすでに存在します',
             failedToDeleteFile: '{name}の削除に失敗しました: {error}',
+            failedToDeleteMultipleFiles: '{count}個のファイルの削除に失敗しました',
+            versionHistoryNotAvailable: 'バージョン履歴サービスが利用できません',
             drawingAlreadyExists: 'この名前の図面が既に存在します',
             failedToCreateDrawing: '図面の作成に失敗しました',
             noFolderSelected: 'Notebook Navigatorでフォルダが選択されていません',
@@ -271,6 +273,7 @@ export const STRINGS_JA = {
         },
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',
+            movedMultipleFiles: '{count}個のファイルを{folder}に移動しました',
             deepLinkCopied: 'ディープリンクをクリップボードにコピーしました',
             tagAddedToNote: '1個のノートにタグを追加しました',
             tagAddedToNotes: '{count}個のノートにタグを追加しました',
@@ -365,6 +368,10 @@ export const STRINGS_JA = {
 
     // Settings
     settings: {
+        metadataReport: {
+            exportSuccess: '失敗したメタデータレポートをエクスポートしました: {filename}',
+            exportFailed: 'メタデータレポートのエクスポートに失敗しました'
+        },
         sections: {
             notes: 'ノート表示',
             navigationPane: 'フォルダ表示',

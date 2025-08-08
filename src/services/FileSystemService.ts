@@ -516,7 +516,11 @@ export class FileSystemOperations {
 
                 // Show summary notification for multiple files
                 if (files.length > 1 && result.movedCount > 0) {
-                    new Notice(`Moved ${result.movedCount} files to ${targetFolder.name}`);
+                    new Notice(
+                        strings.fileSystem.notifications.movedMultipleFiles
+                            .replace('{count}', result.movedCount.toString())
+                            .replace('{folder}', targetFolder.name)
+                    );
                 }
             },
             strings.modals.folderSuggest.placeholder,
@@ -683,7 +687,7 @@ export class FileSystemOperations {
                         ? strings.fileSystem.errors.failedToDeleteFile
                               .replace('{name}', errors[0].file.name)
                               .replace('{error}', String(errors[0].error))
-                        : `Failed to delete ${errors.length} files`;
+                        : strings.fileSystem.errors.failedToDeleteMultipleFiles.replace('{count}', errors.length.toString());
                 new Notice(errorMsg);
             }
 
@@ -764,7 +768,7 @@ export class FileSystemOperations {
     async openVersionHistory(file: TFile): Promise<void> {
         const commandQueue = this.getCommandQueue();
         if (!commandQueue) {
-            new Notice('Version history service not available');
+            new Notice(strings.fileSystem.errors.versionHistoryNotAvailable);
             return;
         }
 

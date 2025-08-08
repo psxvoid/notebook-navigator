@@ -260,6 +260,8 @@ export const STRINGS_EN = {
             revealInExplorer: 'Failed to reveal file in system explorer: {error}',
             folderNoteAlreadyExists: 'Folder note already exists',
             failedToDeleteFile: 'Failed to delete {name}: {error}',
+            failedToDeleteMultipleFiles: 'Failed to delete {count} files',
+            versionHistoryNotAvailable: 'Version history service not available',
             drawingAlreadyExists: 'A drawing with this name already exists',
             failedToCreateDrawing: 'Failed to create drawing',
             noFolderSelected: 'No folder is selected in Notebook Navigator',
@@ -270,6 +272,7 @@ export const STRINGS_EN = {
         },
         notifications: {
             deletedMultipleFiles: 'Deleted {count} files',
+            movedMultipleFiles: 'Moved {count} files to {folder}',
             deepLinkCopied: 'Deep link copied to clipboard',
             tagAddedToNote: 'Added tag to 1 note',
             tagAddedToNotes: 'Added tag to {count} notes',
@@ -364,6 +367,10 @@ export const STRINGS_EN = {
 
     // Settings
     settings: {
+        metadataReport: {
+            exportSuccess: 'Failed metadata report exported to: {filename}',
+            exportFailed: 'Failed to export metadata report'
+        },
         sections: {
             navigationPane: 'Navigation pane',
             folders: 'Folders',

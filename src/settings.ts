@@ -1151,8 +1151,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
 
         // Store reference to stats element
         this.statsTextEl = statsContent.createEl('div', {
-            cls: 'nn-stats-text',
-            text: 'Loading statistics...'
+            cls: 'nn-stats-text'
         });
 
         // Load initial statistics asynchronously
@@ -1223,10 +1222,10 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         try {
             // Create the file in vault root
             await this.app.vault.create(filename, content);
-            new Notice(`Failed metadata report exported to: ${filename}`);
+            new Notice(strings.settings.metadataReport.exportSuccess.replace('{filename}', filename));
         } catch (error) {
             console.error('Failed to export metadata report:', error);
-            new Notice('Failed to export metadata report');
+            new Notice(strings.settings.metadataReport.exportFailed);
         }
     }
 

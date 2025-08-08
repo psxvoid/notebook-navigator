@@ -261,6 +261,8 @@ export const STRINGS_DE = {
             revealInExplorer: 'Datei konnte nicht im Explorer angezeigt werden: {error}',
             folderNoteAlreadyExists: 'Ordnernotiz existiert bereits',
             failedToDeleteFile: 'Löschen von {name} fehlgeschlagen: {error}',
+            failedToDeleteMultipleFiles: 'Löschen von {count} Dateien fehlgeschlagen',
+            versionHistoryNotAvailable: 'Versionsverlauf-Dienst nicht verfügbar',
             drawingAlreadyExists: 'Eine Zeichnung mit diesem Namen existiert bereits',
             failedToCreateDrawing: 'Zeichnung konnte nicht erstellt werden',
             noFolderSelected: 'Kein Ordner im Notebook Navigator ausgewählt',
@@ -271,6 +273,7 @@ export const STRINGS_DE = {
         },
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',
+            movedMultipleFiles: '{count} Dateien nach {folder} verschoben',
             deepLinkCopied: 'Deep Link in die Zwischenablage kopiert',
             tagAddedToNote: 'Tag zu 1 Notiz hinzugefügt',
             tagAddedToNotes: 'Tag zu {count} Notizen hinzugefügt',
@@ -365,6 +368,10 @@ export const STRINGS_DE = {
 
     // Settings
     settings: {
+        metadataReport: {
+            exportSuccess: 'Fehlgeschlagene Metadaten-Bericht exportiert nach: {filename}',
+            exportFailed: 'Export des Metadaten-Berichts fehlgeschlagen'
+        },
         sections: {
             notes: 'Notizenanzeige',
             navigationPane: 'Ordneranzeige',

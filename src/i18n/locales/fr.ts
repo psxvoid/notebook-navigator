@@ -261,6 +261,8 @@ export const STRINGS_FR = {
             revealInExplorer: "Échec de l'affichage du fichier dans l'explorateur système : {error}",
             folderNoteAlreadyExists: 'La note de dossier existe déjà',
             failedToDeleteFile: 'Échec de la suppression de {name} : {error}',
+            failedToDeleteMultipleFiles: 'Échec de la suppression de {count} fichiers',
+            versionHistoryNotAvailable: "Service d'historique des versions non disponible",
             drawingAlreadyExists: 'Un dessin avec ce nom existe déjà',
             failedToCreateDrawing: 'Échec de la création du dessin',
             noFolderSelected: 'Aucun dossier sélectionné dans Notebook Navigator',
@@ -271,6 +273,7 @@ export const STRINGS_FR = {
         },
         notifications: {
             deletedMultipleFiles: '{count} fichiers supprimés',
+            movedMultipleFiles: '{count} fichiers déplacés vers {folder}',
             deepLinkCopied: 'Lien profond copié dans le presse-papiers',
             tagAddedToNote: 'Étiquette ajoutée à 1 note',
             tagAddedToNotes: 'Étiquette ajoutée à {count} notes',
@@ -365,6 +368,10 @@ export const STRINGS_FR = {
 
     // Settings
     settings: {
+        metadataReport: {
+            exportSuccess: 'Rapport de métadonnées échouées exporté vers : {filename}',
+            exportFailed: "Échec de l'exportation du rapport de métadonnées"
+        },
         sections: {
             notes: 'Affichage des notes',
             navigationPane: 'Affichage des dossiers',

@@ -261,6 +261,8 @@ export const STRINGS_ES = {
             revealInExplorer: 'Error al mostrar el archivo en el explorador del sistema: {error}',
             folderNoteAlreadyExists: 'La nota de carpeta ya existe',
             failedToDeleteFile: 'Error al eliminar {name}: {error}',
+            failedToDeleteMultipleFiles: 'Error al eliminar {count} archivos',
+            versionHistoryNotAvailable: 'Servicio de historial de versiones no disponible',
             drawingAlreadyExists: 'Ya existe un dibujo con este nombre',
             failedToCreateDrawing: 'Error al crear el dibujo',
             noFolderSelected: 'No hay ninguna carpeta seleccionada en Notebook Navigator',
@@ -271,6 +273,7 @@ export const STRINGS_ES = {
         },
         notifications: {
             deletedMultipleFiles: '{count} archivos eliminados',
+            movedMultipleFiles: '{count} archivos movidos a {folder}',
             deepLinkCopied: 'Enlace profundo copiado al portapapeles',
             tagAddedToNote: 'Etiqueta añadida a 1 nota',
             tagAddedToNotes: 'Etiqueta añadida a {count} notas',
@@ -365,6 +368,10 @@ export const STRINGS_ES = {
 
     // Settings
     settings: {
+        metadataReport: {
+            exportSuccess: 'Informe de metadatos fallidos exportado a: {filename}',
+            exportFailed: 'Error al exportar el informe de metadatos'
+        },
         sections: {
             notes: 'Visualización de notas',
             navigationPane: 'Visualización de carpetas',
