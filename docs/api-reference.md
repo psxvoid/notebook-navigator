@@ -25,9 +25,9 @@ built-in API.
   management in our navigator
 - **Custom metadata** - Folder/tag colors, icons, and appearance settings not
   available in Obsidian
-- **Pinned files** - Global pinning system specific to our navigation workflow
-- **Navigator control** - Navigate within our dual-pane view, not Obsidian's
-  file explorer
+- **Pinned files** - Global pinning system for important notes
+- **Navigation** - Navigate to files within our dual-pane view
+- **Selection state** - Query what's currently selected in the navigator
 
 ### What We Don't Provide
 
@@ -127,8 +127,6 @@ const folder = file?.parent;
 const isPinned = nn?.metadata.isPinned(file);
 const folderMeta = nn?.metadata.getFolderMetadata(folder);
 const tagMeta = nn?.metadata.getTagMetadata('#work');
-const isOpen =
-  nn?.app.workspace.getLeavesOfType('notebook-navigator').length > 0;
 ```
 
 ### Templater Examples
@@ -138,7 +136,7 @@ const isOpen =
 // Check if current file is pinned
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 const file = app.workspace.getActiveFile();
-if (file && nn?.isPinned(file)) {
+if (file && nn?.metadata.isPinned(file)) {
   tR += `This file is pinned!`;
 }
 %>
