@@ -405,7 +405,7 @@ export const STRINGS_EN = {
                 desc: 'Display the parent folder name for notes from subfolders.'
             },
             showQuickActions: {
-                name: 'Quick actions (desktop only)',
+                name: 'Show quick actions (desktop only)',
                 desc: 'Show hover actions on file items.'
             },
             quickActionsRevealInFolder: {

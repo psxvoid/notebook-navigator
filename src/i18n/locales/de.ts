@@ -406,7 +406,7 @@ export const STRINGS_DE = {
                 desc: 'Den übergeordneten Ordnernamen für Notizen aus Unterordnern anzeigen.'
             },
             showQuickActions: {
-                name: 'Schnellaktionen (nur Desktop)',
+                name: 'Schnellaktionen anzeigen (nur Desktop)',
                 desc: 'Zeige Hover-Aktionen auf Dateielementen.'
             },
             quickActionsRevealInFolder: {

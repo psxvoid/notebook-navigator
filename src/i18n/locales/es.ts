@@ -406,7 +406,7 @@ export const STRINGS_ES = {
                 desc: 'Muestra el nombre de la carpeta principal para las notas de subcarpetas.'
             },
             showQuickActions: {
-                name: 'Acciones rápidas (solo escritorio)',
+                name: 'Mostrar acciones rápidas (solo escritorio)',
                 desc: 'Mostrar acciones al pasar el cursor sobre los elementos de archivo.'
             },
             quickActionsRevealInFolder: {

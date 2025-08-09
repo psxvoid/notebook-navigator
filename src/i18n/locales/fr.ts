@@ -406,7 +406,7 @@ export const STRINGS_FR = {
                 desc: 'Afficher le nom du dossier parent pour les notes provenant des sous-dossiers.'
             },
             showQuickActions: {
-                name: 'Actions rapides (bureau uniquement)',
+                name: 'Afficher les actions rapides (bureau uniquement)',
                 desc: 'Afficher les actions au survol sur les éléments de fichier.'
             },
             quickActionsRevealInFolder: {

@@ -406,7 +406,7 @@ export const STRINGS_JA = {
                 desc: 'サブフォルダのノートに親フォルダ名を表示します。'
             },
             showQuickActions: {
-                name: 'クイックアクション (デスクトップのみ)',
+                name: 'クイックアクションを表示 (デスクトップのみ)',
                 desc: 'ファイルアイテムにホバーアクションを表示します。'
             },
             quickActionsRevealInFolder: {

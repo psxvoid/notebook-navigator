@@ -406,7 +406,7 @@ export const STRINGS_ZH = {
                 desc: '为子文件夹中的笔记显示父文件夹名称。'
             },
             showQuickActions: {
-                name: '快速操作（仅桌面版）',
+                name: '显示快速操作（仅桌面版）',
                 desc: '在文件项上显示悬停操作。'
             },
             quickActionsRevealInFolder: {
