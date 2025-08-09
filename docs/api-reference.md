@@ -15,9 +15,10 @@ The API follows semantic versioning:
 
 ## API Philosophy
 
-The Notebook Navigator API **only** exposes functionality that is unique to the
-plugin. We do not duplicate any features that can be achieved with Obsidian's
-built-in API.
+When designing the Notebook Navigator API, our goal was to create a focused,
+complementary interface that extends rather than duplicates Obsidian's
+capabilities. The API exposes functionality that is unique to the plugin while
+relying on Obsidian's robust built-in API for standard operations.
 
 ### What We Provide
 
@@ -36,8 +37,8 @@ built-in API.
 - Metadata cache access (use `app.metadataCache`)
 - Workspace management (use `app.workspace`)
 
-This focused approach ensures the API remains lean, maintainable, and truly
-complementary to Obsidian's API.
+This design philosophy keeps the API lean and maintainable while ensuring it
+works seamlessly alongside Obsidian's native capabilities.
 
 ## Working with Obsidian Types
 
