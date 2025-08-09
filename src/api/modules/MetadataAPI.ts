@@ -41,7 +41,6 @@ export class MetadataAPI {
         const path = folder.path;
 
         return {
-            path: path,
             color: settings.folderColors[path],
             icon: settings.folderIcons[path],
             sortOverride: settings.folderSortOverrides[path],
@@ -110,7 +109,6 @@ export class MetadataAPI {
         const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
 
         return {
-            path: normalizedTag,
             color: settings.tagColors[normalizedTag],
             icon: settings.tagIcons[normalizedTag],
             sortOverride: settings.tagSortOverrides[normalizedTag],

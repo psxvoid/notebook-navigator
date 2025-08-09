@@ -57,7 +57,6 @@ export interface CachedFileData {
  * Folder metadata
  */
 export interface FolderMetadata {
-    path: string;
     color?: string;
     icon?: string;
     sortOverride?: SortOption;
@@ -68,7 +67,6 @@ export interface FolderMetadata {
  * Tag metadata
  */
 export interface TagMetadata {
-    path: string;
     color?: string;
     icon?: string;
     sortOverride?: SortOption;

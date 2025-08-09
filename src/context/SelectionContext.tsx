@@ -19,10 +19,11 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode, useCallback } from 'react';
 import { App, TFile, TFolder } from 'obsidian';
 import { NavigationItemType, STORAGE_KEYS } from '../types';
-import { PluginWithAPI } from '../types/plugin';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { useSettingsState } from './SettingsContext';
 import { localStorage } from '../utils/localStorage';
+import type { NotebookNavigatorAPI } from '../api/NotebookNavigatorAPI';
+import type { TagTreeService } from '../services/TagTreeService';
 
 // State interface
 export interface SelectionState {
@@ -461,11 +462,22 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
 interface SelectionProviderProps {
     children: ReactNode;
     app: App; // Obsidian App instance
-    plugin: PluginWithAPI; // Plugin instance for settings and API
+    api: NotebookNavigatorAPI | null; // API for triggering events
+    tagTreeService: TagTreeService | null; // Tag tree service for tag operations
+    onFileRename?: (listenerId: string, callback: (oldPath: string, newPath: string) => void) => void;
+    onFileRenameUnsubscribe?: (listenerId: string) => void;
     isMobile: boolean;
 }
 
-export function SelectionProvider({ children, app, plugin, isMobile }: SelectionProviderProps) {
+export function SelectionProvider({
+    children,
+    app,
+    api,
+    tagTreeService,
+    onFileRename,
+    onFileRenameUnsubscribe,
+    isMobile
+}: SelectionProviderProps) {
     // Get current settings from SettingsContext
     const settings = useSettingsState();
 
@@ -581,8 +593,8 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
                     }
 
                     // Trigger navigation-changed event for folder navigation
-                    if (plugin?.api) {
-                        plugin.api.trigger('navigation-changed', { type: 'folder', path: action.folder.path });
+                    if (api) {
+                        api.trigger('navigation-changed', { type: 'folder', path: action.folder.path });
                     }
                 } else {
                     dispatch({ ...action, autoSelectedFile: null });
@@ -591,7 +603,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             // Handle auto-select logic for tag selection
             else if (action.type === 'SET_SELECTED_TAG' && action.autoSelectedFile === undefined) {
                 if (action.tag) {
-                    const filesForTag = getFilesForTag(action.tag, settings, app, plugin.tagTreeService || null);
+                    const filesForTag = getFilesForTag(action.tag, settings, app, tagTreeService);
 
                     // Desktop with autoSelectFirstFile enabled: ALWAYS select first file
                     if (!isMobile && settings.autoSelectFirstFileOnFocusChange && filesForTag.length > 0) {
@@ -611,8 +623,8 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
                     }
 
                     // Trigger navigation-changed event for tag navigation
-                    if (plugin?.api) {
-                        plugin.api.trigger('navigation-changed', { type: 'tag', path: action.tag });
+                    if (api) {
+                        api.trigger('navigation-changed', { type: 'tag', path: action.tag });
                     }
                 } else {
                     dispatch({ ...action, autoSelectedFile: null });
@@ -628,7 +640,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
                 dispatch(action);
             }
         },
-        [app, settings, isMobile, plugin.tagTreeService, dispatch]
+        [app, settings, isMobile, tagTreeService, api, dispatch]
     );
 
     // Persist selected folder to localStorage with error handling
@@ -693,16 +705,16 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             dispatch({ type: 'UPDATE_FILE_PATH', oldPath, newPath });
         };
 
-        if (plugin.registerFileRenameListener) {
-            plugin.registerFileRenameListener(listenerId, handleFileRename);
+        if (onFileRename) {
+            onFileRename(listenerId, handleFileRename);
         }
 
         return () => {
-            if (plugin.unregisterFileRenameListener) {
-                plugin.unregisterFileRenameListener(listenerId);
+            if (onFileRenameUnsubscribe) {
+                onFileRenameUnsubscribe(listenerId);
             }
         };
-    }, [plugin, dispatch]);
+    }, [onFileRename, onFileRenameUnsubscribe, dispatch]);
 
     return (
         <SelectionContext.Provider value={state}>

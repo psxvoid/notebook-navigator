@@ -83,25 +83,38 @@ import type {
 } from 'notebook-navigator/api';
 const api = app.plugins.plugins['notebook-navigator']
   ?.api as NotebookNavigatorAPI;
+
+// For TypeScript projects, add this declaration to get proper typing:
+declare module 'obsidian' {
+  interface App {
+    plugins: {
+      plugins: {
+        'notebook-navigator'?: {
+          api: NotebookNavigatorAPI;
+        };
+      };
+    };
+  }
+}
 ```
 
-## Quick Access Methods
+## Quick Access Examples
 
-For simple scripts and inline JavaScript (Templater, DataviewJS, etc.), the API
-provides direct methods:
+For simple scripts and inline JavaScript (Templater, DataviewJS, etc.):
 
 ```javascript
 // Get the Notebook Navigator API
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 
-// Quick checks
+// Quick checks using the sub-APIs
 const file = app.workspace.getActiveFile();
 const folder = file?.parent;
 
-const isPinned = nn.isPinned(file);
-const folderColor = nn.getFolderColor(folder);
-const tagColor = nn.getTagColor('#work');
-const isOpen = nn.isNavigatorOpen();
+const isPinned = nn?.metadata.isPinned(file);
+const folderMeta = nn?.metadata.getFolderMetadata(folder);
+const tagMeta = nn?.metadata.getTagMetadata('#work');
+const isOpen =
+  nn?.app.workspace.getLeavesOfType('notebook-navigator').length > 0;
 ```
 
 ### Templater Examples
@@ -441,6 +454,22 @@ if (nn) {
       await nn.file.delete(oldFiles);
       console.log(`Deleted ${oldFiles.length} old files`);
     }
+  }
+}
+```
+
+### Bulk move files
+
+```javascript
+// Move all files from Inbox to Projects folder
+const nn = app.plugins.plugins['notebook-navigator']?.api;
+if (nn) {
+  const inbox = app.vault.getAbstractFileByPath('Inbox');
+  const projects = app.vault.getAbstractFileByPath('Projects');
+
+  if (inbox instanceof TFolder && projects instanceof TFolder) {
+    const files = inbox.children.filter(f => f instanceof TFile);
+    await nn.file.move(files, projects);
   }
 }
 ```

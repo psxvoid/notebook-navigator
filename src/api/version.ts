@@ -38,7 +38,7 @@ export const API_VERSION = {
  * Minimum supported API version
  * APIs older than this will not be supported
  */
-export const MIN_SUPPORTED_VERSION = {
+const MIN_SUPPORTED_VERSION = {
     major: 1,
     minor: 0,
     patch: 0
@@ -146,7 +146,7 @@ export class VersionChecker {
 /**
  * Map of features to their minimum required version
  */
-export const FEATURE_VERSIONS: Record<string, string> = {
+const FEATURE_VERSIONS: Record<string, string> = {
     file: '1.0.0',
     metadata: '1.0.0',
     navigation: '1.0.0',
@@ -163,8 +163,6 @@ export const FEATURE_VERSIONS: Record<string, string> = {
 export interface VersionNegotiation {
     /** The API version being used */
     apiVersion: string;
-    /** The client's requested version */
-    clientVersion: string;
     /** Compatibility level */
     compatibility: CompatibilityLevel;
     /** Available features for this compatibility level */
@@ -190,7 +188,6 @@ export function negotiateVersion(clientVersion: string): VersionNegotiation {
 
     return {
         apiVersion: API_VERSION.toString(),
-        clientVersion,
         compatibility,
         availableFeatures,
         deprecatedFeatures

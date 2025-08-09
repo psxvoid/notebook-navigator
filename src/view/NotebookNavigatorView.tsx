@@ -31,7 +31,6 @@ import { UIStateProvider } from '../context/UIStateContext';
 import { strings } from '../i18n';
 import NotebookNavigatorPlugin from '../main';
 import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
-import type { PluginWithAPI } from '../types/plugin';
 
 /**
  * Custom Obsidian view that hosts the React-based Notebook Navigator interface
@@ -98,9 +97,16 @@ export class NotebookNavigatorView extends ItemView {
             <React.StrictMode>
                 <SettingsProvider plugin={this.plugin}>
                     <ServicesProvider plugin={this.plugin}>
-                        <StorageProvider app={this.plugin.app} plugin={this.plugin as PluginWithAPI}>
+                        <StorageProvider app={this.plugin.app} api={this.plugin.api}>
                             <ExpansionProvider>
-                                <SelectionProvider app={this.plugin.app} plugin={this.plugin as PluginWithAPI} isMobile={isMobile}>
+                                <SelectionProvider
+                                    app={this.plugin.app}
+                                    api={this.plugin.api}
+                                    tagTreeService={this.plugin.tagTreeService}
+                                    onFileRename={this.plugin.registerFileRenameListener.bind(this.plugin)}
+                                    onFileRenameUnsubscribe={this.plugin.unregisterFileRenameListener.bind(this.plugin)}
+                                    isMobile={isMobile}
+                                >
                                     <UIStateProvider isMobile={isMobile}>
                                         <NotebookNavigatorContainer ref={this.componentRef} />
                                     </UIStateProvider>

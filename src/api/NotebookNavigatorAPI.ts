@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, EventRef, Events, TFile, TFolder } from 'obsidian';
+import { App, EventRef, Events } from 'obsidian';
 import type NotebookNavigatorPlugin from '../main';
 import type { NotebookNavigatorEventType, NotebookNavigatorEvents } from './types';
 
@@ -39,7 +39,6 @@ export class NotebookNavigatorAPI {
     private plugin: NotebookNavigatorPlugin;
     public app: App;
     private events: Events;
-    private static readonly apiVersion = API_VERSION;
 
     // Sub-APIs
     public navigation: NavigationAPI;
@@ -138,47 +137,5 @@ export class NotebookNavigatorAPI {
      */
     getApp(): App {
         return this.app;
-    }
-
-    // ===================================================================
-    // Simple getters for common operations (for inline JS/Templater)
-    // ===================================================================
-
-    /**
-     * Check if a file is pinned
-     * @param file - File to check
-     * @returns True if the file is pinned
-     */
-    isPinned(file: TFile): boolean {
-        return this.metadata.isPinned(file);
-    }
-
-    /**
-     * Get folder color
-     * @param folder - Folder to get color for
-     * @returns Hex color string or null
-     */
-    getFolderColor(folder: TFolder): string | null {
-        const metadata = this.metadata.getFolderMetadata(folder);
-        return metadata?.color || null;
-    }
-
-    /**
-     * Get tag color
-     * @param tag - Tag string (e.g., '#work')
-     * @returns Hex color string or null
-     */
-    getTagColor(tag: string): string | null {
-        const metadata = this.metadata.getTagMetadata(tag);
-        return metadata?.color || null;
-    }
-
-    /**
-     * Check if the navigator view is open
-     * @returns True if the navigator view is open
-     */
-    isNavigatorOpen(): boolean {
-        const leaves = this.app.workspace.getLeavesOfType('notebook-navigator');
-        return leaves.length > 0;
     }
 }
