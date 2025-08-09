@@ -23,22 +23,22 @@ The API follows semantic versioning:
 
 ## API Philosophy
 
-When designing the Notebook Navigator API, our goal was to create a focused,
+When designing the Notebook Navigator API, the goal was to create a focused,
 complementary interface that extends rather than duplicates Obsidian's
 capabilities. The API exposes functionality that is unique to the plugin while
 relying on Obsidian's robust built-in API for standard operations.
 
-### What We Provide
+### What's Included
 
 - **Smart file operations** - Delete/move files with automatic selection
-  management in our navigator
+  management in the navigator
 - **Custom metadata** - Folder/tag colors, icons, and appearance settings not
   available in Obsidian
 - **Pinned files** - Global pinning system for important notes
-- **Navigation** - Navigate to files within our dual-pane view
+- **Navigation** - Navigate to files within the dual-pane view
 - **Selection state** - Query what's currently selected in the navigator
 
-### What We Don't Provide
+### What's Not Included
 
 - Basic file operations (use `app.vault.delete()`, `app.vault.rename()`)
 - File content reading/writing (use `app.vault.read()`, `app.vault.modify()`)
@@ -175,18 +175,15 @@ const folder = app.workspace.getActiveFile()?.parent;
 if (folder) await nn.metadata.setFolderColor(folder, '#FF5733');
 ```
 
-## API Structure
-
-The API is organized into four main sub-APIs:
-
-- **File API** - Smart file deletion and movement
-- **Metadata API** - Folder/tag colors, icons, and pinned files
-- **Navigation API** - Navigate to and reveal files in the navigator
-- **Selection API** - Get current navigation selection (folder or tag)
-
 ## File API
 
-Smart file operations with automatic selection management.
+Smart file operations with automatic selection management. The File API provides
+intelligent handling when deleting or moving files:
+
+- Maintains focus in the file list
+- Automatically selects the next appropriate file in the list
+- Honors the confirmation settings configured in Notebook Navigator
+- Handles edge cases like deleting the last file in a folder
 
 ### Methods
 
@@ -222,15 +219,6 @@ if (targetFolder instanceof TFolder) {
   */
 }
 ```
-
-### Why Use File API?
-
-The File API provides smart selection management when deleting or moving files:
-
-- Automatically selects the next appropriate file in the list
-- Maintains focus in the file list for smooth workflow
-- Respects your plugin's confirmation settings
-- Handles edge cases like deleting the last file in a folder
 
 ## Metadata API
 
