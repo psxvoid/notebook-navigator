@@ -3,6 +3,14 @@
 The Notebook Navigator plugin exposes a public API that allows other plugins and
 scripts to interact with its features programmatically.
 
+## Contents
+
+- [File API](#file-api) - Smart file operations with selection management
+- [Metadata API](#metadata-api) - Folder/tag customization and pinned files
+- [Navigation API](#navigation-api) - Navigate to files in the navigator
+- [Selection API](#selection-api) - Query current navigation selection
+- [Events](#events) - Subscribe to navigator events
+
 ## API Version
 
 Current API Version: **1.0.0**
@@ -59,14 +67,14 @@ Obsidian and prevents errors from invalid paths.
 
 ### Core Methods
 
-| Method                        | Description                         |
-| ----------------------------- | ----------------------------------- |
-| `getVersion()`                | Get current API version             |
-| `checkCompatibility(version)` | Check if your version is compatible |
-| `on(event, callback)`         | Subscribe to events                 |
-| `off(ref)`                    | Unsubscribe from events             |
-| `hasFeature(feature)`         | Check if a feature is available     |
-| `getAvailableFeatures()`      | Get list of all available features  |
+| Method                        | Description                         | Since | Deprecated |
+| ----------------------------- | ----------------------------------- | ----- | ---------- |
+| `getVersion()`                | Get current API version             | 1.0.0 |            |
+| `checkCompatibility(version)` | Check if your version is compatible | 1.0.0 |            |
+| `on(event, callback)`         | Subscribe to events                 | 1.0.0 |            |
+| `off(ref)`                    | Unsubscribe from events             | 1.0.0 |            |
+| `hasFeature(feature)`         | Check if a feature is available     | 1.0.0 |            |
+| `getAvailableFeatures()`      | Get list of all available features  | 1.0.0 |            |
 
 ```typescript
 // Get the API instance
@@ -182,10 +190,10 @@ Smart file operations with automatic selection management.
 
 ### Methods
 
-| Method                | Description                                              |
-| --------------------- | -------------------------------------------------------- |
-| `delete(files)`       | Delete one or more files with smart selection management |
-| `move(files, folder)` | Move one or more files to another folder                 |
+| Method                | Description                                              | Since | Deprecated |
+| --------------------- | -------------------------------------------------------- | ----- | ---------- |
+| `delete(files)`       | Delete one or more files with smart selection management | 1.0.0 |            |
+| `move(files, folder)` | Move one or more files to another folder                 | 1.0.0 |            |
 
 ```typescript
 // Delete one or more files with smart selection
@@ -230,20 +238,20 @@ Customize folder and tag appearance, manage pinned notes.
 
 ### Methods
 
-| Method                          | Description                                     |
-| ------------------------------- | ----------------------------------------------- |
-| **Folders**                     |                                                 |
-| `getFolderMetadata(folder)`     | Get folder color, icon, and appearance settings |
-| `setFolderColor(folder, color)` | Set or remove folder color                      |
-| `setFolderIcon(folder, icon)`   | Set or remove folder icon                       |
-| **Tags**                        |                                                 |
-| `getTagMetadata(tag)`           | Get tag color, icon, and appearance settings    |
-| `setTagColor(tag, color)`       | Set or remove tag color                         |
-| `setTagIcon(tag, icon)`         | Set or remove tag icon                          |
-| **Pinned Files**                |                                                 |
-| `getPinnedFiles()`              | Get all pinned files                            |
-| `isPinned(file)`                | Check if a file is pinned                       |
-| `togglePin(file)`               | Toggle pin status                               |
+| Method                          | Description                                     | Since | Deprecated |
+| ------------------------------- | ----------------------------------------------- | ----- | ---------- |
+| **Folders**                     |                                                 |       |            |
+| `getFolderMetadata(folder)`     | Get folder color, icon, and appearance settings | 1.0.0 |            |
+| `setFolderColor(folder, color)` | Set or remove folder color                      | 1.0.0 |            |
+| `setFolderIcon(folder, icon)`   | Set or remove folder icon                       | 1.0.0 |            |
+| **Tags**                        |                                                 |       |            |
+| `getTagMetadata(tag)`           | Get tag color, icon, and appearance settings    | 1.0.0 |            |
+| `setTagColor(tag, color)`       | Set or remove tag color                         | 1.0.0 |            |
+| `setTagIcon(tag, icon)`         | Set or remove tag icon                          | 1.0.0 |            |
+| **Pinned Files**                |                                                 |       |            |
+| `getPinnedFiles()`              | Get all pinned files                            | 1.0.0 |            |
+| `isPinned(file)`                | Check if a file is pinned                       | 1.0.0 |            |
+| `togglePin(file)`               | Toggle pin status                               | 1.0.0 |            |
 
 ### Folder Metadata
 
@@ -310,9 +318,9 @@ Navigate to and reveal files in the navigator.
 
 ### Methods
 
-| Method                 | Description                                       |
-| ---------------------- | ------------------------------------------------- |
-| `navigateToFile(file)` | Navigate to a file and select it in the navigator |
+| Method                 | Description                                       | Since | Deprecated |
+| ---------------------- | ------------------------------------------------- | ----- | ---------- |
+| `navigateToFile(file)` | Navigate to a file and select it in the navigator | 1.0.0 |            |
 
 ```typescript
 // Navigate to a specific file
@@ -330,9 +338,9 @@ Get the current selection state in the navigator.
 
 ### Methods
 
-| Method                     | Description                                             |
-| -------------------------- | ------------------------------------------------------- |
-| `getNavigationSelection()` | Get currently selected folder or tag in navigation pane |
+| Method                     | Description                                             | Since | Deprecated |
+| -------------------------- | ------------------------------------------------------- | ----- | ---------- |
+| `getNavigationSelection()` | Get currently selected folder or tag in navigation pane | 1.0.0 |            |
 
 ```typescript
 // Get the currently selected folder or tag in the navigation pane
@@ -358,10 +366,10 @@ Subscribe to events to react to changes in the navigator.
 
 ### Available Events
 
-| Event                | Payload                                     | Description                         |
-| -------------------- | ------------------------------------------- | ----------------------------------- |
-| `navigation-changed` | `{ type: 'folder' \| 'tag', path: string }` | User navigated to a folder or tag   |
-| `storage-ready`      | `void`                                      | Storage system is ready for queries |
+| Event                | Payload                                     | Description                         | Since | Deprecated |
+| -------------------- | ------------------------------------------- | ----------------------------------- | ----- | ---------- |
+| `navigation-changed` | `{ type: 'folder' \| 'tag', path: string }` | User navigated to a folder or tag   | 1.0.0 |            |
+| `storage-ready`      | `void`                                      | Storage system is ready for queries | 1.0.0 |            |
 
 ```typescript
 // Listen for when storage is ready
