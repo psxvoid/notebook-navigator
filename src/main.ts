@@ -676,8 +676,15 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // Check if it looks like the old format (object with string keys and string[] values)
         const obj = value as Record<string, unknown>;
-        for (const key in obj) {
-            if (typeof key !== 'string') return false;
+        const keys = Object.keys(obj);
+
+        // Empty object is not valid old format
+        if (keys.length === 0) {
+            return false;
+        }
+
+        // Validate that all entries are string arrays
+        for (const key of keys) {
             const val = obj[key];
             if (!Array.isArray(val)) return false;
             // Check if all items in array are strings
