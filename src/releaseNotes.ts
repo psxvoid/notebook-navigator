@@ -55,6 +55,16 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.3.19',
+        date: '2025-08-10',
+        showOnUpdate: true,
+        info: 'First Community Plugin Release! 🎉 Notebook Navigator is now available in the Obsidian Community Plugins directory. A big thanks to everyone who supported the development of this plugin!',
+        new: [
+            '**Public API for developers**. Other plugins can now interact with Notebook Navigator through a comprehensive API that provides smart file operations, metadata management, navigation control, and event subscriptions. Full TypeScript support included.',
+            '**Public API documentation**. Complete documentation for the public API is now available at https://github.com/johansan/notebook-navigator with examples and best practices.'
+        ]
+    },
+    {
         version: '1.3.18',
         date: '2025-08-08',
         showOnUpdate: true,
