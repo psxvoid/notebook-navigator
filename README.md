@@ -118,6 +118,11 @@ If you love using Notebook Navigator, please consider
 
 ### Technical Documentation
 
+- [**API Reference**](docs/api-reference.md) - Complete documentation of the
+  public API exposed by Notebook Navigator. Covers file operations, metadata
+  management, navigation control, and event subscriptions. Essential for plugin
+  developers wanting to integrate with Notebook Navigator's features.
+
 - [**Startup Process**](docs/startup-process.md) - Technical documentation of
   the plugin initialization sequence, including cold boot vs warm boot flows,
   metadata cache resolution, deferred cleanup mechanisms, and content generation
