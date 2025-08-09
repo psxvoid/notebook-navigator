@@ -405,12 +405,12 @@ export const STRINGS_EN = {
                 desc: 'Display the parent folder name for notes from subfolders.'
             },
             showQuickActions: {
-                name: 'Quick actions',
+                name: 'Quick actions (desktop only)',
                 desc: 'Show hover actions on file items.'
             },
             quickActionsRevealInFolder: {
                 name: 'Reveal in folder',
-                desc: 'Quick action: Reveal note in its parent folder.'
+                desc: "Quick action: Reveal note in its parent folder. Only visible when viewing notes from subfolders or tags (not shown in the note's actual folder)."
             },
             quickActionsPinNote: {
                 name: 'Pin note',

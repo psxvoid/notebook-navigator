@@ -406,12 +406,12 @@ export const STRINGS_ES = {
                 desc: 'Muestra el nombre de la carpeta principal para las notas de subcarpetas.'
             },
             showQuickActions: {
-                name: 'Acciones rápidas',
+                name: 'Acciones rápidas (solo escritorio)',
                 desc: 'Mostrar acciones al pasar el cursor sobre los elementos de archivo.'
             },
             quickActionsRevealInFolder: {
                 name: 'Revelar en carpeta',
-                desc: 'Acción rápida: Revelar nota en su carpeta principal.'
+                desc: 'Acción rápida: Revelar nota en su carpeta principal. Solo visible al ver notas de subcarpetas o etiquetas (no se muestra en la carpeta real de la nota).'
             },
             quickActionsPinNote: {
                 name: 'Fijar nota',

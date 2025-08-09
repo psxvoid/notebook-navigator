@@ -77,7 +77,8 @@ If you love using Notebook Navigator, please consider
 
 ### Productivity
 
-- **Quick Actions** - Hover over notes to reveal instant action buttons:
+- **Quick Actions (desktop only)** - Hover over notes to reveal instant action
+  buttons:
   - **Open in new tab** - Open the note in a new tab
   - **Pin note** - Pin or unpin notes at the top of the list
   - **Reveal in folder** - Navigate to the note's parent folder
@@ -89,13 +90,20 @@ If you love using Notebook Navigator, please consider
 
 ### Developer API
 
-- **Public API for plugin integration** - Comprehensive API allowing other plugins to interact with Notebook Navigator
-- **Smart file operations** - Delete and move files with automatic selection management
-- **Metadata control** - Programmatically set folder/tag colors, icons, and manage pinned notes
-- **Navigation integration** - Navigate to files and query current selections from external plugins
-- **Event subscriptions** - Subscribe to Notebook Navigator events for reactive integrations
-- **Full TypeScript support** - Complete type definitions for seamless development
-- **[Complete API documentation](docs/api-reference.md)** - Detailed reference with examples and best practices
+- **Public API for plugin integration** - Comprehensive API allowing other
+  plugins to interact with Notebook Navigator
+- **Smart file operations** - Delete and move files with automatic selection
+  management
+- **Metadata control** - Programmatically set folder/tag colors, icons, and
+  manage pinned notes
+- **Navigation integration** - Navigate to files and query current selections
+  from external plugins
+- **Event subscriptions** - Subscribe to Notebook Navigator events for reactive
+  integrations
+- **Full TypeScript support** - Complete type definitions for seamless
+  development
+- **[Complete API documentation](docs/api-reference.md)** - Detailed reference
+  with examples and best practices
 
 <br>
 

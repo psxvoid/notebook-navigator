@@ -406,12 +406,12 @@ export const STRINGS_ZH = {
                 desc: '为子文件夹中的笔记显示父文件夹名称。'
             },
             showQuickActions: {
-                name: '快速操作',
+                name: '快速操作（仅桌面版）',
                 desc: '在文件项上显示悬停操作。'
             },
             quickActionsRevealInFolder: {
                 name: '在文件夹中显示',
-                desc: '快速操作：在父文件夹中显示笔记。'
+                desc: '快速操作：在父文件夹中显示笔记。仅在从子文件夹或标签查看笔记时显示（在笔记的实际文件夹中不显示）。'
             },
             quickActionsPinNote: {
                 name: '固定笔记',

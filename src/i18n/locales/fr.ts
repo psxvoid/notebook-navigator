@@ -406,12 +406,12 @@ export const STRINGS_FR = {
                 desc: 'Afficher le nom du dossier parent pour les notes provenant des sous-dossiers.'
             },
             showQuickActions: {
-                name: 'Actions rapides',
+                name: 'Actions rapides (bureau uniquement)',
                 desc: 'Afficher les actions au survol sur les éléments de fichier.'
             },
             quickActionsRevealInFolder: {
                 name: 'Révéler dans le dossier',
-                desc: 'Action rapide : Révéler la note dans son dossier parent.'
+                desc: "Action rapide : Révéler la note dans son dossier parent. Visible uniquement lors de l'affichage de notes depuis des sous-dossiers ou des tags (non affiché dans le dossier réel de la note)."
             },
             quickActionsPinNote: {
                 name: 'Épingler la note',

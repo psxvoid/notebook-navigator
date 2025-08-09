@@ -406,12 +406,12 @@ export const STRINGS_JA = {
                 desc: 'サブフォルダのノートに親フォルダ名を表示します。'
             },
             showQuickActions: {
-                name: 'クイックアクション',
+                name: 'クイックアクション (デスクトップのみ)',
                 desc: 'ファイルアイテムにホバーアクションを表示します。'
             },
             quickActionsRevealInFolder: {
                 name: 'フォルダで表示',
-                desc: 'クイックアクション：ノートを親フォルダで表示。'
+                desc: 'クイックアクション：ノートを親フォルダで表示。サブフォルダまたはタグからノートを表示している場合のみ表示されます（ノートの実際のフォルダでは表示されません）。'
             },
             quickActionsPinNote: {
                 name: 'ノートをピン留め',

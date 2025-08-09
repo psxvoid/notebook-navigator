@@ -406,12 +406,12 @@ export const STRINGS_DE = {
                 desc: 'Den übergeordneten Ordnernamen für Notizen aus Unterordnern anzeigen.'
             },
             showQuickActions: {
-                name: 'Schnellaktionen',
+                name: 'Schnellaktionen (nur Desktop)',
                 desc: 'Zeige Hover-Aktionen auf Dateielementen.'
             },
             quickActionsRevealInFolder: {
                 name: 'Im Ordner anzeigen',
-                desc: 'Schnellaktion: Notiz im übergeordneten Ordner anzeigen.'
+                desc: 'Schnellaktion: Notiz im übergeordneten Ordner anzeigen. Nur sichtbar bei Notizen aus Unterordnern oder Tags (nicht im eigentlichen Ordner der Notiz).'
             },
             quickActionsPinNote: {
                 name: 'Notiz anheften',
