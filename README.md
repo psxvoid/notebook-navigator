@@ -99,7 +99,7 @@ If you love using Notebook Navigator, please consider
   from external plugins
 - **Event subscriptions** - Subscribe to Notebook Navigator events for reactive
   integrations
-- **Full TypeScript support** - Complete type definitions for seamless
+- **Full TypeScript support** - Complete type definitions for reliable
   development
 - **[Complete API documentation](docs/api-reference.md)** - Detailed reference
   with examples and best practices
