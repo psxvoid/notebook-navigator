@@ -24,7 +24,16 @@ const version = nn?.getVersion(); // Returns "1.0.0"
 
 // Check compatibility with your plugin
 const compatibility = nn?.checkCompatibility('1.0.0');
-// Returns: { apiVersion, clientVersion, compatibility, availableFeatures, ... }
+/* Returns VersionNegotiation object:
+{
+  apiVersion: string,           // Current API version (e.g., "1.0.0")
+  clientVersion: string,         // Your requested version
+  compatibility: CompatibilityLevel, // 'full' | 'partial' | 'limited' | 'incompatible'
+  availableFeatures: string[],  // List of available feature names
+  deprecatedFeatures: string[], // Features you're using that are deprecated
+  migrationSuggestions: string[] // Helpful migration tips
+}
+*/
 
 // Get a compatibility-wrapped API (for older plugins)
 const compatibleAPI = nn?.getCompatibleAPI('0.9.0');
@@ -70,7 +79,16 @@ const result = await nn.fileSystem.moveFiles(
   ['notes/file1.md', 'notes/file2.md'],
   '/Archive'
 );
-// Returns: { movedCount, skippedCount, errors }
+/* Returns:
+{
+  movedCount: number,    // Number of files successfully moved
+  skippedCount: number,  // Number of files skipped (already exist)
+  errors: Array<{        // Array of errors if any
+    path: string,
+    error: string
+  }>
+}
+*/
 ```
 
 ### Why Use FileSystem API?
@@ -91,7 +109,16 @@ Customize folder and tag appearance, manage pinned notes.
 ```typescript
 // Get folder metadata
 const metadata = nn.metadata.getFolderMetadata('/Projects');
-// Returns: { path, color?, icon?, sortOverride?, appearance?, pinnedNotes? }
+/* Returns FolderMetadata object:
+{
+  path: string,            // Folder path
+  color?: string,          // Hex color or CSS color
+  icon?: string,           // Icon identifier (e.g., 'lucide:folder')
+  sortOverride?: SortOption, // Custom sort order for this folder
+  appearance?: FolderAppearance, // Display settings
+  pinnedNotes?: string[]   // Deprecated - use global pinned notes
+}
+*/
 
 // Set folder color
 await nn.metadata.setFolderColor('/Projects', '#FF5733');
@@ -123,6 +150,16 @@ await nn.metadata.togglePin('notes/important.md');
 ```typescript
 // Get tag metadata
 const metadata = nn.metadata.getTagMetadata('#work');
+/* Returns TagMetadata object (or null if no metadata):
+{
+  path: string,            // Tag path
+  color?: string,          // Hex color or CSS color
+  icon?: string,           // Icon identifier
+  sortOverride?: SortOption, // Custom sort order for this tag
+  appearance?: TagAppearance, // Display settings
+  isFavorite?: boolean     // Whether tag is marked as favorite
+}
+*/
 
 // Set tag color
 await nn.metadata.setTagColor('#work', '#00FF00');
@@ -159,7 +196,13 @@ nn.selection.clearSelection();
 
 // Get current selection
 const selection = nn.selection.getSelection();
-// Returns: { folder: string | null, tag: string | null, files: string[] }
+/* Returns SelectionState object:
+{
+  folder: string | null,   // Currently selected folder path
+  tag: string | null,      // Currently selected tag
+  files: string[]          // Array of selected file paths
+}
+*/
 
 // Select multiple files
 nn.selection.selectFiles(['file1.md', 'file2.md']);
@@ -178,6 +221,20 @@ Access cached file data and query files.
 ```typescript
 // Get cached data for a file
 const fileData = await nn.storage.getFileData('notes/example.md');
+/* Returns CachedFileData object (or null if not cached):
+{
+  path: string,           // File path
+  mtime: number,          // Modified time timestamp
+  tags: string[] | null,  // Array of tags or null
+  preview: string | null, // Preview text or null
+  featureImage: string | null, // Feature image path or null
+  metadata: {             // File metadata
+    name?: string,
+    created?: number,
+    modified?: number
+  } | null
+}
+*/
 
 // Check if storage is ready
 const isReady = nn.storage.isStorageReady();
@@ -191,6 +248,7 @@ const files = await nn.storage.queryFiles({
   includeSubfolders: true,
   limit: 100
 });
+// Returns: CachedFileData[] - Array of matching files
 ```
 
 ## Tag API
@@ -200,9 +258,20 @@ Query and manage the tag system.
 ```typescript
 // Add tag to files
 const result = await nn.tags.addTagToFiles('#review', ['file1.md', 'file2.md']);
+/* Returns BatchOperationResult:
+{
+  success: number,        // Number of successful operations
+  failed: number,         // Number of failed operations
+  errors: Array<{         // Details of any errors
+    path: string,
+    error: string
+  }>
+}
+*/
 
 // Find a specific tag node
 const tagNode = nn.tags.findTagNode('#project/active');
+// Returns: TagTreeNode object or null if not found
 
 // Get all tag paths
 const allTags = nn.tags.getAllTagPaths();
@@ -212,15 +281,18 @@ const favorites = nn.tags.getFavoriteTags();
 
 // Get files with a specific tag
 const files = await nn.tags.getFilesWithTag('#project');
+// Returns: TFile[] - Array of Obsidian file objects
 
 // Get the complete tag tree
 const tagTree = nn.tags.getTagTree();
+// Returns: TagTreeNode - Root node of the tag hierarchy
 
 // Get count of untagged files
 const untaggedCount = nn.tags.getUntaggedCount();
 
 // Remove tag from files
 const result = await nn.tags.removeTagFromFiles('#draft', ['file1.md']);
+// Returns: BatchOperationResult (same structure as addTagToFiles)
 
 // Toggle favorite status for a tag
 await nn.tags.toggleFavoriteTag('#important');
@@ -236,7 +308,15 @@ nn.view.close();
 
 // Get current view state
 const state = nn.view.getViewState();
-// Returns: { isOpen, isActive, paneWidth, dualPane, focusedPane }
+/* Returns ViewState object (or null if view not open):
+{
+  isOpen: boolean,         // Whether the navigator view is open
+  isActive: boolean,       // Whether the view is currently active/focused
+  paneWidth: number,       // Width of navigation pane in pixels
+  dualPane: boolean,       // Whether dual-pane mode is enabled
+  focusedPane: 'navigation' | 'list' // Which pane has focus
+}
+*/
 
 // Check if view is open
 const isOpen = nn.view.isOpen();
@@ -442,7 +522,18 @@ try {
 
 ## Version Compatibility
 
-The API includes built-in version checking and compatibility layers:
+The API includes built-in version checking and compatibility layers.
+
+### Compatibility Levels
+
+- **`full`** - Your version matches exactly, all features work as expected
+- **`partial`** - Your version is newer than the API, some features may not
+  exist yet
+- **`limited`** - Your version is older but still supported, with compatibility
+  adapters
+- **`incompatible`** - Your version is too old or too new to work properly
+
+### Usage Examples
 
 ```typescript
 // Check if a feature is available
