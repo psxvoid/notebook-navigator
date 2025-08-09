@@ -112,16 +112,7 @@ export function useListPaneData({ selectionType, selectedFolder, selectedTag, se
     const listItems = useMemo(() => {
         const items: ListPaneItem[] = [];
 
-        // Get the appropriate pinned paths based on selection type
-        let pinnedPaths: Set<string>;
-
-        if (selectionType === ItemType.FOLDER && selectedFolder) {
-            pinnedPaths = collectPinnedPaths(settings.pinnedNotes, selectedFolder, settings.showNotesFromSubfolders);
-        } else if (selectionType === ItemType.TAG) {
-            pinnedPaths = collectPinnedPaths(settings.pinnedNotes);
-        } else {
-            pinnedPaths = new Set<string>();
-        }
+        const pinnedPaths = collectPinnedPaths(settings.pinnedNotes);
 
         // Separate pinned and unpinned files
         const pinnedFiles = files.filter(f => pinnedPaths.has(f.path));

@@ -69,30 +69,23 @@ export function getFolderNote(folder: TFolder, settings: NotebookNavigatorSettin
 /**
  * Collects all pinned note paths from settings
  */
-export function collectPinnedPaths(pinnedNotes: Record<string, string[]>, folder?: TFolder, includeSubfolders = false): Set<string> {
+export function collectPinnedPaths(
+    pinnedNotes: string[] | Record<string, string[]>,
+    _folder?: TFolder,
+    _includeSubfolders = false
+): Set<string> {
     const allPinnedPaths = new Set<string>();
 
-    if (folder) {
-        // Collect from specific folder and optionally its subfolders
-        const collectFromFolder = (f: TFolder): void => {
-            const paths = pinnedNotes[f.path] || [];
-            paths.forEach(p => allPinnedPaths.add(p));
+    if (Array.isArray(pinnedNotes)) {
+        pinnedNotes.forEach(path => allPinnedPaths.add(path));
+        return allPinnedPaths;
+    }
 
-            if (includeSubfolders) {
-                for (const child of f.children) {
-                    if (child instanceof TFolder) {
-                        collectFromFolder(child);
-                    }
-                }
-            }
-        };
-
-        collectFromFolder(folder);
-    } else {
-        // Collect from all folders
+    // Handle old format for migration compatibility
+    if (typeof pinnedNotes === 'object') {
         for (const folderPath in pinnedNotes) {
             const pinnedInFolder = pinnedNotes[folderPath];
-            if (pinnedInFolder && pinnedInFolder.length > 0) {
+            if (Array.isArray(pinnedInFolder)) {
                 pinnedInFolder.forEach(path => allPinnedPaths.add(path));
             }
         }
@@ -246,7 +239,7 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
         (file: TFile) => file.stat.mtime
     );
 
-    // Handle pinned notes - for tag view, collect ALL pinned notes from all folders
+    // Handle pinned notes
     const pinnedPaths = collectPinnedPaths(settings.pinnedNotes);
     // Separate pinned and unpinned files
     if (pinnedPaths.size === 0) {

@@ -110,7 +110,7 @@ export interface NotebookNavigatorSettings {
     // Advanced
     confirmBeforeDelete: boolean;
     // Internal
-    pinnedNotes: Record<string, string[]>;
+    pinnedNotes: string[];
     folderIcons: Record<string, string>;
     folderColors: Record<string, string>;
     folderSortOverrides: Record<string, SortOption>;
@@ -186,7 +186,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Advanced
     confirmBeforeDelete: true,
     // Internal
-    pinnedNotes: {},
+    pinnedNotes: [],
     folderIcons: {},
     folderColors: {},
     folderSortOverrides: {},

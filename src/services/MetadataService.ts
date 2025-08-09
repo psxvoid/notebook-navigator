@@ -143,16 +143,16 @@ export class MetadataService {
 
     // ========== File/Pinned Notes Methods (delegated to FileMetadataService) ==========
 
-    async togglePinnedNote(folderPath: string, filePath: string): Promise<void> {
-        return this.fileService.togglePinnedNote(folderPath, filePath);
+    async togglePin(filePath: string): Promise<void> {
+        return this.fileService.togglePinnedNote(filePath);
     }
 
-    isPinned(folderPath: string, filePath: string): boolean {
-        return this.fileService.isPinned(folderPath, filePath);
+    isFilePinned(filePath: string): boolean {
+        return this.fileService.isPinned(filePath);
     }
 
-    getPinnedNotes(folderPath: string): string[] {
-        return this.fileService.getPinnedNotes(folderPath);
+    getPinnedNotes(): string[] {
+        return this.fileService.getPinnedNotes();
     }
 
     async handleFileDelete(filePath: string): Promise<void> {

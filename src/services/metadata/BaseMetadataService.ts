@@ -31,7 +31,6 @@ type MetadataFields = {
     folderColors: Record<string, string>;
     folderSortOverrides: Record<string, SortOption>;
     folderAppearances: Record<string, FolderAppearance>;
-    pinnedNotes: Record<string, string[]>;
     tagColors: Record<string, string>;
     tagIcons: Record<string, string>;
     tagSortOverrides: Record<string, SortOption>;

@@ -24,10 +24,12 @@ import { MetadataService } from './services/MetadataService';
 import { TagOperations } from './services/TagOperations';
 import { TagTreeService } from './services/TagTreeService';
 import { CommandQueueService } from './services/CommandQueueService';
+import { FileSystemOperations } from './services/FileSystemService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage } from './utils/localStorage';
 import { initializeMobileLogger } from './utils/mobileLogger';
+import { NotebookNavigatorAPI } from './api/NotebookNavigatorAPI';
 
 /**
  * Polyfill for requestIdleCallback
@@ -87,6 +89,8 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     tagOperations: TagOperations | null = null;
     tagTreeService: TagTreeService | null = null;
     commandQueue: CommandQueueService | null = null;
+    fileSystemOps: FileSystemOperations | null = null;
+    api: NotebookNavigatorAPI | null = null;
     // A map of callbacks to notify open React views of changes
     private settingsUpdateListeners = new Map<string, () => void>();
     // A map of callbacks to notify open React views of file renames
@@ -139,6 +143,16 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // Initialize command queue service
         this.commandQueue = new CommandQueueService(this.app);
+
+        // Initialize file system operations service
+        this.fileSystemOps = new FileSystemOperations(
+            this.app,
+            () => this.tagTreeService,
+            () => this.commandQueue
+        );
+
+        // Initialize public API
+        this.api = new NotebookNavigatorAPI(this, this.app);
 
         this.registerView(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, leaf => {
             return new NotebookNavigatorView(leaf, this);
@@ -647,6 +661,41 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         }
 
         this.normalizeTagSettings();
+
+        // Migrate pinnedNotes from Record<string, string[]> to string[] if needed
+        this.migratePinnedNotes();
+    }
+
+    /**
+     * Migrates pinnedNotes from old format (Record<string, string[]>) to new format (string[])
+     */
+    private migratePinnedNotes() {
+        // Check if pinnedNotes is in the old format (object with folder paths as keys)
+        if (this.settings.pinnedNotes && typeof this.settings.pinnedNotes === 'object' && !Array.isArray(this.settings.pinnedNotes)) {
+            console.log('Migrating pinnedNotes to new format');
+
+            const oldPinnedNotes = this.settings.pinnedNotes as unknown as Record<string, string[]>;
+            const allPinnedPaths = new Set<string>();
+
+            // Collect all unique pinned file paths from all folders
+            for (const folderPath in oldPinnedNotes) {
+                const pinnedInFolder = oldPinnedNotes[folderPath];
+                if (Array.isArray(pinnedInFolder)) {
+                    pinnedInFolder.forEach(filePath => allPinnedPaths.add(filePath));
+                }
+            }
+
+            // Convert to array
+            this.settings.pinnedNotes = Array.from(allPinnedPaths);
+
+            console.log(`Migrated ${this.settings.pinnedNotes.length} pinned notes`);
+
+            // Save the migrated settings
+            this.saveData(this.settings);
+        } else if (!this.settings.pinnedNotes) {
+            // Ensure pinnedNotes is initialized as an array
+            this.settings.pinnedNotes = [];
+        }
     }
 
     /**

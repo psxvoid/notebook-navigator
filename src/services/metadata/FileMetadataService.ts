@@ -25,51 +25,41 @@ import type { CleanupValidators } from '../MetadataService';
  */
 export class FileMetadataService extends BaseMetadataService {
     /**
-     * Toggles the pinned state of a note in a folder
-     * @param folderPath - Path of the containing folder
+     * Toggles the pinned state of a note
      * @param filePath - Path of the file to pin/unpin
      */
-    async togglePinnedNote(folderPath: string, filePath: string): Promise<void> {
+    async togglePinnedNote(filePath: string): Promise<void> {
         await this.saveAndUpdate(settings => {
             if (!settings.pinnedNotes) {
-                settings.pinnedNotes = {};
+                settings.pinnedNotes = [];
             }
 
-            const currentPinned = settings.pinnedNotes[folderPath] || [];
-            const isPinned = currentPinned.includes(filePath);
+            const isPinned = settings.pinnedNotes.includes(filePath);
 
             if (isPinned) {
-                // Unpin
-                settings.pinnedNotes[folderPath] = currentPinned.filter((p: string) => p !== filePath);
-                // Remove empty entries
-                if (settings.pinnedNotes[folderPath].length === 0) {
-                    delete settings.pinnedNotes[folderPath];
-                }
+                settings.pinnedNotes = settings.pinnedNotes.filter((p: string) => p !== filePath);
             } else {
-                // Pin
-                settings.pinnedNotes[folderPath] = [...currentPinned, filePath];
+                settings.pinnedNotes = [...settings.pinnedNotes, filePath];
             }
         });
     }
 
     /**
-     * Checks if a note is pinned in a folder
-     * @param folderPath - Path of the containing folder
+     * Checks if a note is pinned
      * @param filePath - Path of the file to check
      * @returns True if the note is pinned
      */
-    isPinned(folderPath: string, filePath: string): boolean {
-        const pinnedNotes = this.settingsProvider.settings.pinnedNotes?.[folderPath] || [];
+    isPinned(filePath: string): boolean {
+        const pinnedNotes = this.settingsProvider.settings.pinnedNotes || [];
         return pinnedNotes.includes(filePath);
     }
 
     /**
-     * Gets all pinned notes for a folder
-     * @param folderPath - Path of the folder
+     * Gets all pinned notes
      * @returns Array of pinned file paths
      */
-    getPinnedNotes(folderPath: string): string[] {
-        return this.settingsProvider.settings.pinnedNotes?.[folderPath] || [];
+    getPinnedNotes(): string[] {
+        return this.settingsProvider.settings.pinnedNotes || [];
     }
 
     /**
@@ -78,141 +68,64 @@ export class FileMetadataService extends BaseMetadataService {
      */
     async handleFileDelete(filePath: string): Promise<void> {
         await this.saveAndUpdate(settings => {
-            // Remove file from pinned notes in all folders
-            if (settings.pinnedNotes) {
-                for (const folderPath in settings.pinnedNotes) {
-                    const pinnedFiles = settings.pinnedNotes[folderPath];
-                    const index = pinnedFiles.indexOf(filePath);
-                    if (index > -1) {
-                        pinnedFiles.splice(index, 1);
-
-                        // Remove the folder entry if no more pinned files
-                        if (pinnedFiles.length === 0) {
-                            delete settings.pinnedNotes[folderPath];
-                        }
-                    }
-                }
+            if (settings.pinnedNotes && settings.pinnedNotes.includes(filePath)) {
+                settings.pinnedNotes = settings.pinnedNotes.filter((p: string) => p !== filePath);
             }
         });
     }
 
     /**
      * Handles file rename by updating pinned notes
-     * @param oldPath - Previous file path
+     * @param oldPath - Original file path
      * @param newPath - New file path
      */
     async handleFileRename(oldPath: string, newPath: string): Promise<void> {
         await this.saveAndUpdate(settings => {
             if (settings.pinnedNotes) {
-                for (const folderPath in settings.pinnedNotes) {
-                    const pinnedFiles = settings.pinnedNotes[folderPath];
-                    const index = pinnedFiles.indexOf(oldPath);
-                    if (index > -1) {
-                        pinnedFiles[index] = newPath;
-                    }
+                const index = settings.pinnedNotes.indexOf(oldPath);
+                if (index > -1) {
+                    settings.pinnedNotes[index] = newPath;
                 }
             }
         });
     }
 
     /**
-     * Clean up pinned notes for non-existent files
-     * @returns True if any changes were made
-     */
-    async cleanupPinnedNotes(): Promise<boolean> {
-        let hasChanges = false;
-
-        await this.saveAndUpdate(settings => {
-            if (settings.pinnedNotes) {
-                for (const folderPath in settings.pinnedNotes) {
-                    const filePaths = settings.pinnedNotes[folderPath];
-                    if (!Array.isArray(filePaths)) {
-                        // Remove invalid entry
-                        delete settings.pinnedNotes[folderPath];
-                        hasChanges = true;
-                        continue;
-                    }
-
-                    const validFiles = filePaths.filter((filePath: string) => {
-                        const file = this.app.vault.getFileByPath(filePath);
-                        return file !== null;
-                    });
-
-                    if (validFiles.length !== filePaths.length) {
-                        settings.pinnedNotes[folderPath] = validFiles;
-                        hasChanges = true;
-                    }
-
-                    // Remove empty entries
-                    if (validFiles.length === 0) {
-                        delete settings.pinnedNotes[folderPath];
-                        hasChanges = true;
-                    }
-                }
-            }
-        });
-
-        return hasChanges;
-    }
-
-    /**
-     * Clean up pinned notes using pre-loaded validators.
-     *
-     * This method is called during plugin startup as part of a unified cleanup process
-     * to remove references to deleted files from the pinned notes list.
-     *
-     * The cleanup process:
-     * 1. Called from StorageContext during initial sync after all files are processed
-     * 2. Uses validators.vaultFiles which contains all current file paths in the vault
-     * 3. Iterates through each folder's pinned notes list
-     * 4. Removes any pinned files that no longer exist in the vault
-     * 5. Removes empty pinned note entries for folders with no remaining pins
-     *
-     * Structure of pinnedNotes:
-     * {
-     *   "folder/path": ["file1.md", "file2.md"],
-     *   "another/folder": ["note.md"]
-     * }
-     *
-     * @param validators - Pre-loaded data containing vault files, database files, and tag tree
-     * @returns True if any pinned notes were removed
+     * Clean up pinned notes using pre-loaded validators
+     * @param validators - Pre-loaded data containing vault files
+     * @returns True if any metadata was removed/changed
      */
     async cleanupWithValidators(validators: CleanupValidators): Promise<boolean> {
         let hasChanges = false;
 
         await this.saveAndUpdate(settings => {
-            if (settings.pinnedNotes) {
-                // Check each folder's pinned notes
-                for (const folderPath in settings.pinnedNotes) {
-                    const filePaths = settings.pinnedNotes[folderPath];
+            if (settings.pinnedNotes && Array.isArray(settings.pinnedNotes)) {
+                const validFiles = settings.pinnedNotes.filter((filePath: string) => validators.vaultFiles.has(filePath));
 
-                    // Validate data structure (should be an array)
-                    if (!Array.isArray(filePaths)) {
-                        // Remove corrupted entry
-                        delete settings.pinnedNotes[folderPath];
-                        hasChanges = true;
-                        continue;
-                    }
-
-                    // Filter out files that no longer exist in the vault
-                    const validFiles = filePaths.filter((filePath: string) => {
-                        return validators.vaultFiles.has(filePath);
-                    });
-
-                    // Update if any files were removed
-                    if (validFiles.length !== filePaths.length) {
-                        settings.pinnedNotes[folderPath] = validFiles;
-
-                        // Remove the folder entry entirely if no pinned files remain
-                        if (validFiles.length === 0) {
-                            delete settings.pinnedNotes[folderPath];
-                        }
-                        hasChanges = true;
-                    }
+                if (validFiles.length !== settings.pinnedNotes.length) {
+                    settings.pinnedNotes = validFiles;
+                    hasChanges = true;
                 }
+            } else if (!settings.pinnedNotes) {
+                settings.pinnedNotes = [];
+                hasChanges = true;
             }
         });
 
         return hasChanges;
+    }
+
+    /**
+     * Clean up pinned notes for files that don't exist
+     * @returns True if any changes were made
+     */
+    async cleanupPinnedNotes(): Promise<boolean> {
+        const vaultFiles = new Set(this.app.vault.getMarkdownFiles().map(f => f.path));
+        return this.cleanupWithValidators({
+            vaultFiles,
+            vaultFolders: new Set(),
+            dbFiles: [],
+            tagTree: new Map()
+        });
     }
 }

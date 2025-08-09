@@ -388,8 +388,7 @@ export const FileItem = React.memo(function FileItem({
     const handlePinClick = async (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        const folderPath = parentFolder || file.parent?.path || '';
-        await metadataService.togglePinnedNote(folderPath, file.path);
+        await metadataService.togglePin(file.path);
     };
 
     const handleRevealClick = async (e: React.MouseEvent) => {

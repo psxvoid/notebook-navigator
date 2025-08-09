@@ -435,8 +435,7 @@ function addMultipleFilesOpenOptions(
  * Add pin option for a single file
  */
 function addSingleFilePinOption(menu: Menu, file: TFile, metadataService: MetadataService): void {
-    const folderPath = file.parent?.path || '';
-    const isPinned = metadataService.isPinned(folderPath, file.path);
+    const isPinned = metadataService.isFilePinned(file.path);
 
     menu.addItem((item: MenuItem) => {
         item.setTitle(
@@ -452,7 +451,7 @@ function addSingleFilePinOption(menu: Menu, file: TFile, metadataService: Metada
             .onClick(async () => {
                 if (!file.parent) return;
 
-                await metadataService.togglePinnedNote(folderPath, file.path);
+                await metadataService.togglePin(file.path);
             });
     });
 }
@@ -473,8 +472,7 @@ function addMultipleFilesPinOption(
         .filter((f): f is TFile => f instanceof TFile);
 
     const anyUnpinned = selectedFiles.some(f => {
-        const folderPath = f.parent?.path || '';
-        return !metadataService.isPinned(folderPath, f.path);
+        return !metadataService.isFilePinned(f.path);
     });
 
     // Check if all files are markdown
@@ -493,17 +491,14 @@ function addMultipleFilesPinOption(
             .setIcon('pin')
             .onClick(async () => {
                 for (const selectedFile of selectedFiles) {
-                    if (!selectedFile.parent) continue;
-                    const folderPath = selectedFile.parent.path;
-
                     if (anyUnpinned) {
                         // Pin all unpinned files
-                        if (!metadataService.isPinned(folderPath, selectedFile.path)) {
-                            await metadataService.togglePinnedNote(folderPath, selectedFile.path);
+                        if (!metadataService.isFilePinned(selectedFile.path)) {
+                            await metadataService.togglePin(selectedFile.path);
                         }
                     } else {
                         // Unpin all files
-                        await metadataService.togglePinnedNote(folderPath, selectedFile.path);
+                        await metadataService.togglePin(selectedFile.path);
                     }
                 }
             });

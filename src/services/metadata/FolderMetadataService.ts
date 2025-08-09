@@ -134,12 +134,6 @@ export class FolderMetadataService extends BaseMetadataService {
             this.updateNestedPaths(settings.folderIcons, oldPath, newPath);
             this.updateNestedPaths(settings.folderSortOverrides, oldPath, newPath);
             this.updateNestedPaths(settings.folderAppearances, oldPath, newPath);
-
-            // Handle pinned notes separately (different structure)
-            if (settings.pinnedNotes?.[oldPath]) {
-                settings.pinnedNotes[newPath] = settings.pinnedNotes[oldPath];
-                delete settings.pinnedNotes[oldPath];
-            }
         });
     }
 
@@ -153,9 +147,6 @@ export class FolderMetadataService extends BaseMetadataService {
             this.deleteNestedPaths(settings.folderIcons, folderPath);
             this.deleteNestedPaths(settings.folderSortOverrides, folderPath);
             this.deleteNestedPaths(settings.folderAppearances, folderPath);
-
-            // Delete pinned notes
-            delete settings.pinnedNotes?.[folderPath];
         });
     }
 
