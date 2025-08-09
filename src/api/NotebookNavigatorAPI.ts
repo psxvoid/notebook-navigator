@@ -29,6 +29,11 @@ import { StorageAPI } from './modules/StorageAPI';
 import { ViewAPI } from './modules/ViewAPI';
 import { FileSystemAPI } from './modules/FileSystemAPI';
 
+// Import versioning and compatibility
+import { API_VERSION, negotiateVersion, VersionNegotiation, CompatibilityLevel } from './version';
+import { CompatibilityAdapter, FeatureDetector } from './compatibility';
+import { APIError, APIErrorCode } from './errors';
+
 /**
  * Public API for the Notebook Navigator plugin
  * Allows other plugins to interact with notebook navigation features
@@ -37,6 +42,7 @@ export class NotebookNavigatorAPI {
     private plugin: NotebookNavigatorPlugin;
     public app: App;
     private events: Events;
+    private static readonly apiVersion = API_VERSION;
 
     // Sub-APIs
     public navigation: NavigationAPI;
@@ -60,6 +66,52 @@ export class NotebookNavigatorAPI {
         this.storage = new StorageAPI(this);
         this.view = new ViewAPI(this);
         this.fileSystem = new FileSystemAPI(this);
+    }
+
+    /**
+     * Get the current API version
+     */
+    getVersion(): string {
+        return API_VERSION.toString();
+    }
+
+    /**
+     * Check compatibility with a client version
+     */
+    checkCompatibility(clientVersion: string): VersionNegotiation {
+        return negotiateVersion(clientVersion);
+    }
+
+    /**
+     * Create a compatibility-wrapped API for a specific client version
+     */
+    getCompatibleAPI(clientVersion: string): NotebookNavigatorAPI {
+        const negotiation = this.checkCompatibility(clientVersion);
+
+        if (negotiation.compatibility === CompatibilityLevel.INCOMPATIBLE) {
+            throw new APIError(
+                APIErrorCode.INCOMPATIBLE_VERSION,
+                `API version ${clientVersion} is incompatible with plugin API ${API_VERSION.toString()}`,
+                { negotiation }
+            );
+        }
+
+        const adapter = new CompatibilityAdapter(this, clientVersion);
+        return adapter.wrapAPI();
+    }
+
+    /**
+     * Get available features for the current API
+     */
+    getAvailableFeatures(): string[] {
+        return FeatureDetector.getAvailableFeatures(this);
+    }
+
+    /**
+     * Check if a specific feature is available
+     */
+    hasFeature(feature: string): boolean {
+        return FeatureDetector.hasFeature(this, feature);
     }
 
     /**

@@ -3,11 +3,31 @@
 The Notebook Navigator plugin exposes a public API that allows other plugins and
 scripts to interact with its features programmatically.
 
+## API Version
+
+Current API Version: **1.0.0**
+
+The API follows semantic versioning:
+
+- **MAJOR**: Breaking changes
+- **MINOR**: New features (backwards compatible)
+- **PATCH**: Bug fixes (backwards compatible)
+
 ## Accessing the API
 
 ```typescript
 // Get the API instance
 const nn = app.plugins.plugins['notebook-navigator']?.api;
+
+// Check API version
+const version = nn?.getVersion(); // Returns "1.0.0"
+
+// Check compatibility with your plugin
+const compatibility = nn?.checkCompatibility('1.0.0');
+// Returns: { apiVersion, clientVersion, compatibility, availableFeatures, ... }
+
+// Get a compatibility-wrapped API (for older plugins)
+const compatibleAPI = nn?.getCompatibleAPI('0.9.0');
 
 // TypeScript users can import types
 import type {
@@ -381,11 +401,70 @@ if (nn) {
 The API provides comprehensive TypeScript type definitions. Import these types
 from `notebook-navigator/api` for type-safe development:
 
+- `APIError` - Standardized error type with error codes
+- `APIErrorCode` - Enumeration of all possible error codes
 - `BatchOperationResult` - Result of batch operations
 - `CachedFileData` - Cached file metadata and content
+- `CompatibilityLevel` - API compatibility levels (full, partial, limited,
+  incompatible)
 - `FileQueryOptions` - Options for querying files
 - `FolderMetadata` - Folder customization data
 - `NavigationResult` - Result of navigation operations
 - `SelectionState` - Current selection state
 - `TagMetadata` - Tag customization data
+- `VersionNegotiation` - Result of version compatibility check
 - `ViewState` - Current view state
+
+## Error Handling
+
+The API uses standardized error codes for consistent error handling:
+
+```typescript
+import { APIError, APIErrorCode } from 'notebook-navigator/api';
+
+try {
+  await nn.fileSystem.deleteFile('non-existent.md');
+} catch (error) {
+  if (error instanceof APIError) {
+    switch (error.code) {
+      case APIErrorCode.FILE_NOT_FOUND:
+        console.log('File not found');
+        break;
+      case APIErrorCode.PERMISSION_DENIED:
+        console.log('Permission denied');
+        break;
+      default:
+        console.log('Unknown error:', error.message);
+    }
+  }
+}
+```
+
+## Version Compatibility
+
+The API includes built-in version checking and compatibility layers:
+
+```typescript
+// Check if a feature is available
+if (nn.hasFeature('fileSystem.deleteFiles')) {
+  // Feature is available
+  await nn.fileSystem.deleteFiles(['file1.md', 'file2.md']);
+}
+
+// Get all available features
+const features = nn.getAvailableFeatures();
+console.log('Available features:', features);
+
+// For plugin developers - ensure compatibility
+const negotiation = nn.checkCompatibility('1.0.0');
+if (negotiation.compatibility === 'incompatible') {
+  console.error('This plugin requires Notebook Navigator API v1.0.0 or higher');
+  return;
+}
+
+// Show any deprecation warnings
+if (negotiation.deprecatedFeatures.length > 0) {
+  console.warn('Using deprecated features:', negotiation.deprecatedFeatures);
+  console.log('Migration suggestions:', negotiation.migrationSuggestions);
+}
+```

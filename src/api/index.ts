@@ -41,6 +41,7 @@ export { MetadataAPI } from './modules/MetadataAPI';
 export { TagAPI } from './modules/TagAPI';
 export { StorageAPI } from './modules/StorageAPI';
 export { ViewAPI } from './modules/ViewAPI';
+export { FileSystemAPI } from './modules/FileSystemAPI';
 
 // Type exports
 export type {
@@ -55,3 +56,9 @@ export type {
     BatchOperationResult,
     ViewState
 } from './types';
+
+// Version management exports
+export { API_VERSION, CompatibilityLevel, type VersionNegotiation } from './version';
+
+// Error handling exports
+export { APIError, APIErrorCode } from './errors';

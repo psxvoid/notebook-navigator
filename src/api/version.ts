@@ -1,0 +1,222 @@
+/*
+ * Notebook Navigator - Plugin for Obsidian
+ * Copyright (c) 2025 Johan Sanneblad
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <https://www.gnu.org/licenses/>.
+ */
+
+/**
+ * API Version Management
+ *
+ * Semantic versioning for the API:
+ * - MAJOR: Breaking changes
+ * - MINOR: New features (backwards compatible)
+ * - PATCH: Bug fixes (backwards compatible)
+ */
+
+export const API_VERSION = {
+    major: 1,
+    minor: 0,
+    patch: 0,
+    toString(): string {
+        return `${this.major}.${this.minor}.${this.patch}`;
+    }
+};
+
+/**
+ * Minimum supported API version
+ * APIs older than this will not be supported
+ */
+export const MIN_SUPPORTED_VERSION = {
+    major: 1,
+    minor: 0,
+    patch: 0
+};
+
+/**
+ * API compatibility levels
+ */
+export enum CompatibilityLevel {
+    /** Full compatibility */
+    FULL = 'full',
+    /** Partial compatibility with some features unavailable */
+    PARTIAL = 'partial',
+    /** Limited compatibility, deprecated features in use */
+    LIMITED = 'limited',
+    /** Incompatible version */
+    INCOMPATIBLE = 'incompatible'
+}
+
+/**
+ * Version compatibility checker
+ */
+export class VersionChecker {
+    /**
+     * Check if a version is compatible with the current API
+     */
+    static checkCompatibility(version: string | { major: number; minor: number; patch: number }): CompatibilityLevel {
+        const v = typeof version === 'string' ? this.parseVersion(version) : version;
+
+        if (!v) {
+            return CompatibilityLevel.INCOMPATIBLE;
+        }
+
+        // Same major version = full compatibility
+        if (v.major === API_VERSION.major) {
+            if (v.minor === API_VERSION.minor) {
+                return CompatibilityLevel.FULL;
+            }
+            // Older minor version = still compatible
+            if (v.minor < API_VERSION.minor) {
+                return CompatibilityLevel.FULL;
+            }
+            // Newer minor version = partial (some features may not exist)
+            return CompatibilityLevel.PARTIAL;
+        }
+
+        // Check if version is too old
+        if (v.major < MIN_SUPPORTED_VERSION.major) {
+            return CompatibilityLevel.INCOMPATIBLE;
+        }
+
+        // Different major version but still supported = limited
+        if (v.major < API_VERSION.major && v.major >= MIN_SUPPORTED_VERSION.major) {
+            return CompatibilityLevel.LIMITED;
+        }
+
+        // Newer major version = incompatible
+        return CompatibilityLevel.INCOMPATIBLE;
+    }
+
+    /**
+     * Parse a version string
+     */
+    static parseVersion(version: string): { major: number; minor: number; patch: number } | null {
+        const match = version.match(/^(\d+)\.(\d+)\.(\d+)$/);
+        if (!match) {
+            return null;
+        }
+
+        return {
+            major: parseInt(match[1], 10),
+            minor: parseInt(match[2], 10),
+            patch: parseInt(match[3], 10)
+        };
+    }
+
+    /**
+     * Check if a feature is available in a given version
+     */
+    static isFeatureAvailable(feature: string, version: string): boolean {
+        const features = FEATURE_VERSIONS[feature];
+        if (!features) {
+            return false;
+        }
+
+        const v = this.parseVersion(version);
+        if (!v) {
+            return false;
+        }
+
+        const required = this.parseVersion(features);
+        if (!required) {
+            return false;
+        }
+
+        // Feature is available if version is >= required version
+        if (v.major > required.major) return true;
+        if (v.major < required.major) return false;
+        if (v.minor > required.minor) return true;
+        if (v.minor < required.minor) return false;
+        return v.patch >= required.patch;
+    }
+}
+
+/**
+ * Map of features to their minimum required version
+ */
+export const FEATURE_VERSIONS: Record<string, string> = {
+    fileSystem: '1.0.0',
+    metadata: '1.0.0',
+    navigation: '1.0.0',
+    selection: '1.0.0',
+    storage: '1.0.0',
+    tags: '1.0.0',
+    view: '1.0.0',
+    events: '1.0.0'
+    // Future features would be added here with their introduction version
+    // 'ai-integration': '1.1.0',
+    // 'bulk-operations': '1.2.0',
+    // 'custom-providers': '2.0.0',
+};
+
+/**
+ * API version negotiation result
+ */
+export interface VersionNegotiation {
+    /** The API version being used */
+    apiVersion: string;
+    /** The client's requested version */
+    clientVersion: string;
+    /** Compatibility level */
+    compatibility: CompatibilityLevel;
+    /** Available features for this compatibility level */
+    availableFeatures: string[];
+    /** Deprecated features being used */
+    deprecatedFeatures: string[];
+    /** Migration suggestions */
+    migrationSuggestions: string[];
+}
+
+/**
+ * Negotiate API version with a client
+ */
+export function negotiateVersion(clientVersion: string): VersionNegotiation {
+    const compatibility = VersionChecker.checkCompatibility(clientVersion);
+    const availableFeatures: string[] = [];
+    const deprecatedFeatures: string[] = [];
+    const migrationSuggestions: string[] = [];
+
+    // Determine available features
+    for (const [feature] of Object.entries(FEATURE_VERSIONS)) {
+        if (VersionChecker.isFeatureAvailable(feature, clientVersion)) {
+            availableFeatures.push(feature);
+        }
+    }
+
+    // Add migration suggestions based on compatibility
+    if (compatibility === CompatibilityLevel.LIMITED) {
+        migrationSuggestions.push(`Consider upgrading to API version ${API_VERSION.toString()} for full compatibility`);
+    } else if (compatibility === CompatibilityLevel.INCOMPATIBLE) {
+        const cv = VersionChecker.parseVersion(clientVersion);
+        if (cv && cv.major < MIN_SUPPORTED_VERSION.major) {
+            migrationSuggestions.push(
+                `Your API version is no longer supported. Minimum version: ${MIN_SUPPORTED_VERSION.major}.${MIN_SUPPORTED_VERSION.minor}.${MIN_SUPPORTED_VERSION.patch}`
+            );
+        } else {
+            migrationSuggestions.push(
+                `Your API version is newer than the current plugin supports. Plugin API version: ${API_VERSION.toString()}`
+            );
+        }
+    }
+
+    return {
+        apiVersion: API_VERSION.toString(),
+        clientVersion,
+        compatibility,
+        availableFeatures,
+        deprecatedFeatures,
+        migrationSuggestions
+    };
+}
