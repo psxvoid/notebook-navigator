@@ -19,7 +19,6 @@
 import { TFile, TFolder } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
 import type { FolderMetadata, TagMetadata } from '../types';
-import type { SortOption } from '../../settings';
 
 /**
  * Metadata API - Manage folder and tag appearance, icons, colors, and pinned files
@@ -43,7 +42,6 @@ export class MetadataAPI {
         return {
             color: settings.folderColors[path],
             icon: settings.folderIcons[path],
-            sortOverride: settings.folderSortOverrides[path],
             appearance: settings.folderAppearances[path]
         };
     }
@@ -78,21 +76,6 @@ export class MetadataAPI {
         await plugin.saveSettings();
     }
 
-    /**
-     * Set folder sort override
-     * @param folder - Folder to set sort override for
-     * @param sortOption - Sort option or null to use default
-     */
-    async setFolderSortOverride(folder: TFolder, sortOption: SortOption | null): Promise<void> {
-        const plugin = this.api.getPlugin();
-        if (sortOption) {
-            plugin.settings.folderSortOverrides[folder.path] = sortOption;
-        } else {
-            delete plugin.settings.folderSortOverrides[folder.path];
-        }
-        await plugin.saveSettings();
-    }
-
     // ===================================================================
     // Tag Metadata
     // ===================================================================
@@ -111,7 +94,6 @@ export class MetadataAPI {
         return {
             color: settings.tagColors[normalizedTag],
             icon: settings.tagIcons[normalizedTag],
-            sortOverride: settings.tagSortOverrides[normalizedTag],
             appearance: settings.tagAppearances[normalizedTag],
             isFavorite: settings.favoriteTags?.includes(normalizedTag)
         };
@@ -189,25 +171,5 @@ export class MetadataAPI {
         }
 
         await plugin.metadataService.togglePin(file.path);
-    }
-
-    /**
-     * Pin a file
-     * @param file - File to pin
-     */
-    async pinFile(file: TFile): Promise<void> {
-        if (!this.isPinned(file)) {
-            await this.togglePin(file);
-        }
-    }
-
-    /**
-     * Unpin a file
-     * @param file - File to unpin
-     */
-    async unpinFile(file: TFile): Promise<void> {
-        if (this.isPinned(file)) {
-            await this.togglePin(file);
-        }
     }
 }

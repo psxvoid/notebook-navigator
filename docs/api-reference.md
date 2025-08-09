@@ -56,6 +56,17 @@ Obsidian and prevents errors from invalid paths.
 
 ## Accessing the API
 
+### Core Methods
+
+| Method                        | Description                         |
+| ----------------------------- | ----------------------------------- |
+| `getVersion()`                | Get current API version             |
+| `checkCompatibility(version)` | Check if your version is compatible |
+| `on(event, callback)`         | Subscribe to events                 |
+| `off(ref)`                    | Unsubscribe from events             |
+| `hasFeature(feature)`         | Check if a feature is available     |
+| `getAvailableFeatures()`      | Get list of all available features  |
+
 ```typescript
 // Get the API instance
 const nn = app.plugins.plugins['notebook-navigator']?.api;
@@ -68,23 +79,26 @@ const compatibility = nn?.checkCompatibility('1.0.0');
 /* Returns VersionNegotiation object:
 {
   apiVersion: string,           // Current API version (e.g., "1.0.0")
-  clientVersion: string,         // Your requested version
   compatibility: CompatibilityLevel, // 'full' | 'partial' | 'limited' | 'incompatible'
   availableFeatures: string[],  // List of available feature names
   deprecatedFeatures: string[]  // Features you're using that are deprecated
 }
 */
 
-// TypeScript users can import types
+// TypeScript users can import types for better code completion and type safety
+// Add these imports at the top of your .ts file:
 import type {
   NotebookNavigatorAPI,
   FolderMetadata,
   TagMetadata
 } from 'notebook-navigator/api';
+
+// Then cast the API to get proper typing:
 const api = app.plugins.plugins['notebook-navigator']
   ?.api as NotebookNavigatorAPI;
 
-// For TypeScript projects, add this declaration to get proper typing:
+// Optional: Add this module declaration to a .d.ts file in your project
+// to get typing everywhere without needing to cast:
 declare module 'obsidian' {
   interface App {
     plugins: {
@@ -160,12 +174,19 @@ The API is organized into four main sub-APIs:
 
 - **File API** - Smart file deletion and movement
 - **Metadata API** - Folder/tag colors, icons, and pinned files
-- **Navigation API** - Navigate to files, folders, and tags
-- **Selection API** - Get current selection state
+- **Navigation API** - Navigate to and reveal files in the navigator
+- **Selection API** - Get current navigation selection (folder or tag)
 
 ## File API
 
 Smart file operations with automatic selection management.
+
+### Methods
+
+| Method                | Description                                              |
+| --------------------- | -------------------------------------------------------- |
+| `delete(files)`       | Delete one or more files with smart selection management |
+| `move(files, folder)` | Move one or more files to another folder                 |
 
 ```typescript
 // Delete one or more files with smart selection
@@ -208,6 +229,23 @@ The File API provides smart selection management when deleting or moving files:
 
 Customize folder and tag appearance, manage pinned notes.
 
+### Methods
+
+| Method                          | Description                                     |
+| ------------------------------- | ----------------------------------------------- |
+| **Folders**                     |                                                 |
+| `getFolderMetadata(folder)`     | Get folder color, icon, and appearance settings |
+| `setFolderColor(folder, color)` | Set or remove folder color                      |
+| `setFolderIcon(folder, icon)`   | Set or remove folder icon                       |
+| **Tags**                        |                                                 |
+| `getTagMetadata(tag)`           | Get tag color, icon, and appearance settings    |
+| `setTagColor(tag, color)`       | Set or remove tag color                         |
+| `setTagIcon(tag, icon)`         | Set or remove tag icon                          |
+| **Pinned Files**                |                                                 |
+| `getPinnedFiles()`              | Get all pinned files                            |
+| `isPinned(file)`                | Check if a file is pinned                       |
+| `togglePin(file)`               | Toggle pin status                               |
+
 ### Folder Metadata
 
 ```typescript
@@ -217,10 +255,8 @@ if (folder instanceof TFolder) {
   const metadata = nn.metadata.getFolderMetadata(folder);
   /* Returns FolderMetadata object:
   {
-    path: string,            // Folder path
     color?: string,          // Hex color or CSS color
     icon?: string,           // Icon identifier (e.g., 'lucide:folder')
-    sortOverride?: SortOption, // Custom sort order for this folder
     appearance?: FolderAppearance // Display settings
   }
   */
@@ -231,9 +267,6 @@ if (folder instanceof TFolder) {
   // Set folder icon (lucide icon or emoji)
   await nn.metadata.setFolderIcon(folder, 'lucide:folder-open');
   await nn.metadata.setFolderIcon(folder, 'emoji:📁');
-
-  // Set custom sort order for a folder
-  await nn.metadata.setFolderSortOverride(folder, 'name-asc');
 }
 ```
 
@@ -249,12 +282,6 @@ const isPinned = nn.metadata.isPinned(file);
 
 // Toggle pin status for a file
 await nn.metadata.togglePin(file);
-
-// Pin a file (only if not already pinned)
-await nn.metadata.pinFile(file);
-
-// Unpin a file (only if pinned)
-await nn.metadata.unpinFile(file);
 ```
 
 ### Tag Metadata
@@ -264,10 +291,8 @@ await nn.metadata.unpinFile(file);
 const metadata = nn.metadata.getTagMetadata('#work');
 /* Returns TagMetadata object (or null if no metadata):
 {
-  path: string,            // Tag path
   color?: string,          // Hex color or CSS color
   icon?: string,           // Icon identifier
-  sortOverride?: SortOption, // Custom sort order for this tag
   appearance?: TagAppearance, // Display settings
   isFavorite?: boolean     // Whether tag is marked as favorite
 }
@@ -282,29 +307,33 @@ await nn.metadata.setTagIcon('#work', 'lucide:tag');
 
 ## Navigation API
 
-Navigate programmatically to folders, tags, and files.
+Navigate to and reveal files in the navigator.
+
+### Methods
+
+| Method                 | Description                                       |
+| ---------------------- | ------------------------------------------------- |
+| `navigateToFile(file)` | Navigate to a file and select it in the navigator |
 
 ```typescript
-// Navigate to a file
+// Navigate to a specific file
 const file = app.vault.getFileByPath('notes/example.md');
 if (file) await nn.navigation.navigateToFile(file);
 
-// Navigate to a folder
-const folder = app.vault.getAbstractFileByPath('/path/to/folder');
-if (folder instanceof TFolder) {
-  await nn.navigation.navigateToFolder(folder);
-}
-
-// Navigate to a tag
-await nn.navigation.navigateToTag('#project/active');
-
-// Reveal the currently active file
-await nn.navigation.revealActiveFile();
+// Reveal the active file (just use navigateToFile)
+const activeFile = app.workspace.getActiveFile();
+if (activeFile) await nn.navigation.navigateToFile(activeFile);
 ```
 
 ## Selection API
 
 Get the current selection state in the navigator.
+
+### Methods
+
+| Method                     | Description                                             |
+| -------------------------- | ------------------------------------------------------- |
+| `getNavigationSelection()` | Get currently selected folder or tag in navigation pane |
 
 ```typescript
 // Get the currently selected folder or tag in the navigation pane
@@ -322,20 +351,18 @@ if (navSelection.folder) {
 } else if (navSelection.tag) {
   console.log('Selected tag:', navSelection.tag);
 }
-
-// Get the currently selected files in the file list
-const selectedFiles = nn.selection.getSelectedFiles();
-// Returns: TFile[] - Array of selected files
-
-// Example: Process selected files
-for (const file of selectedFiles) {
-  console.log('Selected file:', file.path);
-}
 ```
 
 ## Events
 
 Subscribe to events to react to changes in the navigator.
+
+### Available Events
+
+| Event                | Payload                                     | Description                         |
+| -------------------- | ------------------------------------------- | ----------------------------------- |
+| `navigation-changed` | `{ type: 'folder' \| 'tag', path: string }` | User navigated to a folder or tag   |
+| `storage-ready`      | `void`                                      | Storage system is ready for queries |
 
 ```typescript
 // Listen for when storage is ready
@@ -379,14 +406,14 @@ nn.off(ref);
 
 ## Examples
 
-### Navigate to folder of active file
+### Reveal active file in navigator
 
 ```typescript
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 if (nn) {
   const activeFile = app.workspace.getActiveFile();
-  if (activeFile?.parent) {
-    await nn.navigation.navigateToFolder(activeFile.parent);
+  if (activeFile) {
+    await nn.navigation.navigateToFile(activeFile);
   }
 }
 ```
@@ -424,7 +451,9 @@ if (nn) {
 
   // Pin them all
   for (const file of taggedFiles) {
-    await nn.metadata.pinFile(file);
+    if (!nn.metadata.isPinned(file)) {
+      await nn.metadata.togglePin(file);
+    }
   }
 
   console.log(
@@ -498,7 +527,6 @@ from `notebook-navigator/api` for type-safe development:
 - `FolderMetadata` - Folder customization data
 - `NavigationResult` - Result of navigation operations
 - `SelectionState` - Current selection state
-- `SortOption` - Sort options for folders/tags
 - `TagAppearance` - Tag display settings (same as FolderAppearance)
 - `TagMetadata` - Tag customization data
 - `VersionNegotiation` - Result of version compatibility check

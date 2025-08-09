@@ -16,57 +16,16 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, TFolder } from 'obsidian';
+import { TFile } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
 import type { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
 import type { NavigationResult } from '../types';
 
 /**
- * Navigation API - Navigate to files, folders, and tags
+ * Navigation API - Navigate to files in the navigator
  */
 export class NavigationAPI {
     constructor(private api: NotebookNavigatorAPI) {}
-
-    /**
-     * Navigate to a specific folder
-     * @param folder - Folder to navigate to
-     */
-    async navigateToFolder(folder: TFolder): Promise<NavigationResult> {
-        try {
-            const view = await this.ensureViewOpen();
-            if (!view) {
-                return { success: false, error: 'Could not open navigator view' };
-            }
-
-            // Navigate to the first file in the folder
-            const files = folder.children.filter(child => child instanceof TFile) as TFile[];
-            if (files.length > 0) {
-                await view.navigateToFile(files[0]);
-            }
-            return { success: true, path: folder.path };
-        } catch (error) {
-            return { success: false, error: String(error) };
-        }
-    }
-
-    /**
-     * Navigate to a specific tag
-     * @param tag - Tag string (e.g., '#work' or '#project/active')
-     */
-    async navigateToTag(tag: string): Promise<NavigationResult> {
-        try {
-            const view = await this.ensureViewOpen();
-            if (!view) {
-                return { success: false, error: 'Could not open navigator view' };
-            }
-
-            // Use the tag navigation modal for now
-            await view.navigateToTagWithModal();
-            return { success: true, path: tag };
-        } catch (error) {
-            return { success: false, error: String(error) };
-        }
-    }
 
     /**
      * Navigate to a specific file and select it
@@ -81,28 +40,6 @@ export class NavigationAPI {
 
             await view.navigateToFile(file);
             return { success: true, path: file.path };
-        } catch (error) {
-            return { success: false, error: String(error) };
-        }
-    }
-
-    /**
-     * Reveal the currently active file in the navigator
-     */
-    async revealActiveFile(): Promise<NavigationResult> {
-        try {
-            const activeFile = this.api.app.workspace.getActiveFile();
-            if (!activeFile) {
-                return { success: false, error: 'No active file' };
-            }
-
-            const view = await this.ensureViewOpen();
-            if (!view) {
-                return { success: false, error: 'Could not open navigator view' };
-            }
-
-            await view.navigateToFile(activeFile);
-            return { success: true, path: activeFile.path };
         } catch (error) {
             return { success: false, error: String(error) };
         }

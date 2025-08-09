@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { SortOption } from '../settings';
 import { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
 
 /**
@@ -59,7 +58,6 @@ export interface CachedFileData {
 export interface FolderMetadata {
     color?: string;
     icon?: string;
-    sortOverride?: SortOption;
     appearance?: FolderAppearance;
 }
 
@@ -69,7 +67,6 @@ export interface FolderMetadata {
 export interface TagMetadata {
     color?: string;
     icon?: string;
-    sortOverride?: SortOption;
     appearance?: TagAppearance;
     isFavorite?: boolean;
 }

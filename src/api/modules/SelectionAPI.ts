@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, TFolder } from 'obsidian';
+import { TFolder } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
 import { STORAGE_KEYS } from '../../types';
 import { localStorage } from '../../utils/localStorage';
@@ -56,35 +56,5 @@ export class SelectionAPI {
         }
 
         return { folder: null, tag: null };
-    }
-
-    /**
-     * Get the currently selected files in the file list
-     * @returns Array of selected TFile objects
-     */
-    getSelectedFiles(): TFile[] {
-        // For selected files, we need to check if the view is open
-        // because file selection is not persisted (only the single selectedFile is)
-        const leaves = this.api.app.workspace.getLeavesOfType('notebook-navigator');
-        if (leaves.length === 0) {
-            // If view is not open, return the last selected file if available
-            const filePath = localStorage.get<string>(STORAGE_KEYS.selectedFileKey);
-            if (filePath) {
-                const file = this.api.app.vault.getFileByPath(filePath);
-                return file ? [file] : [];
-            }
-            return [];
-        }
-
-        // If view is open, try to get the selection from the React component
-        // For now, we can only return the single selected file from localStorage
-        // TODO: In the future, we could expose the full selection context through the view
-        const filePath = localStorage.get<string>(STORAGE_KEYS.selectedFileKey);
-        if (filePath) {
-            const file = this.api.app.vault.getFileByPath(filePath);
-            return file ? [file] : [];
-        }
-
-        return [];
     }
 }
