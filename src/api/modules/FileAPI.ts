@@ -64,14 +64,24 @@ export class FileAPI {
             selectedTag: undefined
         };
 
-        const emptyDispatch: SelectionDispatch = () => {};
+        // Create a dispatch that properly handles selection cleanup
+        // Since we're operating via API, we don't need to update UI selection
+        // but we should still handle the cleanup action properly
+        const apiDispatch: SelectionDispatch = action => {
+            // Log the action for debugging if needed
+            if (action.type === 'CLEANUP_DELETED_FILE') {
+                // The file system service will handle the actual deletion
+                // This dispatch is mainly for UI updates which we skip in API mode
+                return;
+            }
+        };
 
         await plugin.fileSystemOps.deleteFilesWithSmartSelection(
             filePathSet,
             fileArray,
             plugin.settings,
             emptyContext,
-            emptyDispatch,
+            apiDispatch,
             confirmBeforeDelete
         );
     }

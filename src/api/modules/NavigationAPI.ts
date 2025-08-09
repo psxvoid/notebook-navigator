@@ -18,7 +18,7 @@
 
 import { TFile } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
-import type { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
+import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
 import type { NavigationResult } from '../types';
 
 /**
@@ -55,12 +55,15 @@ export class NavigationAPI {
         if (leaves.length === 0) {
             await plugin.activateView();
             const newLeaves = this.api.app.workspace.getLeavesOfType('notebook-navigator');
-            if (newLeaves.length > 0) {
-                return newLeaves[0].view as NotebookNavigatorView;
+            if (newLeaves.length > 0 && newLeaves[0].view instanceof NotebookNavigatorView) {
+                return newLeaves[0].view;
             }
             return null;
         }
 
-        return leaves[0].view as NotebookNavigatorView;
+        if (leaves[0].view instanceof NotebookNavigatorView) {
+            return leaves[0].view;
+        }
+        return null;
     }
 }

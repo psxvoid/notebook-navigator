@@ -145,7 +145,7 @@ export class MetadataAPI {
         const plugin = this.api.getPlugin();
         const pinnedPaths = plugin.settings.pinnedNotes || [];
 
-        return pinnedPaths.map(path => this.api.app.vault.getFileByPath(path)).filter((file): file is TFile => file !== null);
+        return pinnedPaths.map(path => this.api.app.vault.getFileByPath(path)).filter((file): file is TFile => file instanceof TFile);
     }
 
     /**

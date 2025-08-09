@@ -467,11 +467,11 @@ if (nn) {
   const archiveFolder = app.vault.getAbstractFileByPath('/Archive');
   if (archiveFolder instanceof TFolder) {
     const oldFiles = archiveFolder.children
-      .filter(f => f instanceof TFile)
+      .filter((f): f is TFile => f instanceof TFile)
       .filter(f => {
         // Files older than 30 days
         return f.stat.mtime < Date.now() - 30 * 24 * 60 * 60 * 1000;
-      }) as TFile[];
+      });
 
     if (oldFiles.length > 0) {
       // Delete with smart selection management

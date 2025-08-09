@@ -667,14 +667,34 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     }
 
     /**
+     * Type guard to check if value is old pinned notes format
+     */
+    private isOldPinnedNotesFormat(value: unknown): value is Record<string, string[]> {
+        if (!value || typeof value !== 'object' || Array.isArray(value)) {
+            return false;
+        }
+
+        // Check if it looks like the old format (object with string keys and string[] values)
+        const obj = value as Record<string, unknown>;
+        for (const key in obj) {
+            if (typeof key !== 'string') return false;
+            const val = obj[key];
+            if (!Array.isArray(val)) return false;
+            // Check if all items in array are strings
+            if (!val.every(item => typeof item === 'string')) return false;
+        }
+        return true;
+    }
+
+    /**
      * Migrates pinnedNotes from old format (Record<string, string[]>) to new format (string[])
      */
     private migratePinnedNotes() {
         // Check if pinnedNotes is in the old format (object with folder paths as keys)
-        if (this.settings.pinnedNotes && typeof this.settings.pinnedNotes === 'object' && !Array.isArray(this.settings.pinnedNotes)) {
+        if (this.isOldPinnedNotesFormat(this.settings.pinnedNotes)) {
             console.log('Migrating pinnedNotes to new format');
 
-            const oldPinnedNotes = this.settings.pinnedNotes as unknown as Record<string, string[]>;
+            const oldPinnedNotes = this.settings.pinnedNotes;
             const allPinnedPaths = new Set<string>();
 
             // Collect all unique pinned file paths from all folders
