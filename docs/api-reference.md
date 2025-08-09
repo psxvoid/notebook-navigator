@@ -56,8 +56,8 @@ provides direct methods:
 // Get the Notebook Navigator API
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 
-// Get currently selected file (returns TFile)
-const file = nn.getSelectedFile();
+// Get file at cursor position (returns TFile)
+const file = nn.getFileAtCursor();
 console.log(file?.basename);
 
 // Get all selected files
@@ -69,15 +69,9 @@ const folder = nn.getSelectedFolder();
 // Get selected tag
 const tag = nn.getSelectedTag(); // Returns "#work" etc
 
-// Get current context folder
-const currentFolder = nn.getCurrentFolder();
-
-// Get all files visible in current view
-const visibleFiles = nn.getFilesInCurrentView();
-
-// Quick checks
-const isPinned = nn.isPinned('notes/important.md');
-const folderColor = nn.getFolderColor('/Projects');
+// Quick checks (accepts TFile/TFolder objects or strings)
+const isPinned = nn.isPinned(file); // Can pass TFile or string
+const folderColor = nn.getFolderColor(folder); // Can pass TFolder or string
 const tagColor = nn.getTagColor('#work');
 const isOpen = nn.isNavigatorOpen();
 ```
@@ -86,11 +80,11 @@ const isOpen = nn.isNavigatorOpen();
 
 ```javascript
 <%*
-// Get selected file in Notebook Navigator
+// Get file at cursor in Notebook Navigator
 const nn = app.plugins.plugins['notebook-navigator']?.api;
-const selectedFile = nn?.getSelectedFile();
-if (selectedFile) {
-  tR += `Selected: [[${selectedFile.basename}]]`;
+const file = nn?.getFileAtCursor();
+if (file) {
+  tR += `File at cursor: [[${file.basename}]]`;
 }
 %>
 ```
@@ -98,23 +92,25 @@ if (selectedFile) {
 ### DataviewJS Examples
 
 ```javascript
-// List all files in currently selected folder
+// List properties of selected files
 const nn = app.plugins.plugins['notebook-navigator']?.api;
-const files = nn?.getFilesInCurrentView() || [];
-dv.list(files.map(f => f.path));
+const files = nn?.getSelectedFiles() || [];
+for (const file of files) {
+  dv.paragraph(`- ${file.basename} (${file.stat.size} bytes)`);
+}
 ```
 
 ### Console Quick Scripts
 
 ```javascript
-// Pin the currently selected file
+// Pin the file at cursor
 const nn = app.plugins.plugins['notebook-navigator']?.api;
-const file = nn?.getSelectedFile();
-if (file) await nn.metadata.togglePin(file.path);
+const file = nn?.getFileAtCursor();
+if (file) await nn.metadata.togglePin(file);
 
 // Set color for selected folder
 const folder = nn?.getSelectedFolder();
-if (folder) await nn.metadata.setFolderColor(folder.path, '#FF5733');
+if (folder) await nn.metadata.setFolderColor(folder, '#FF5733');
 ```
 
 ## API Structure

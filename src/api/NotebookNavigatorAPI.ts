@@ -19,7 +19,6 @@
 import { App, EventRef, Events, TFile, TFolder } from 'obsidian';
 import type NotebookNavigatorPlugin from '../main';
 import type { NotebookNavigatorEventType, NotebookNavigatorEvents } from './types';
-import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 
 // Import all sub-APIs
 import { NavigationAPI } from './modules/NavigationAPI';
@@ -155,10 +154,10 @@ export class NotebookNavigatorAPI {
     // ===================================================================
 
     /**
-     * Get the currently selected file
-     * @returns The currently selected TFile or null
+     * Get the file at cursor position (focused file in the list)
+     * @returns The currently focused TFile or null
      */
-    getSelectedFile(): TFile | null {
+    getFileAtCursor(): TFile | null {
         const selection = this.selection.getSelection();
         if (selection.files.length > 0) {
             return this.app.vault.getFileByPath(selection.files[0]);
@@ -200,69 +199,23 @@ export class NotebookNavigatorAPI {
     }
 
     /**
-     * Get the current folder (from either folder or tag selection)
-     * @returns The current TFolder context or null
-     */
-    getCurrentFolder(): TFolder | null {
-        const selection = this.selection.getSelection();
-
-        // If a folder is selected, return it
-        if (selection.folder) {
-            const folder = this.app.vault.getAbstractFileByPath(selection.folder);
-            if (folder instanceof TFolder) {
-                return folder;
-            }
-        }
-
-        // If files are selected, return parent of first file
-        if (selection.files.length > 0) {
-            const file = this.app.vault.getFileByPath(selection.files[0]);
-            if (file?.parent) {
-                return file.parent;
-            }
-        }
-
-        return null;
-    }
-
-    /**
-     * Get all files visible in the current view (folder or tag)
-     * @returns Array of TFile objects currently visible
-     */
-    getFilesInCurrentView(): TFile[] {
-        const selection = this.selection.getSelection();
-        const plugin = this.plugin;
-
-        if (selection.folder) {
-            // Get files from selected folder
-            const folder = this.app.vault.getAbstractFileByPath(selection.folder);
-            if (folder instanceof TFolder) {
-                return getFilesForFolder(folder, plugin.settings, this.app);
-            }
-        } else if (selection.tag && plugin.tagTreeService) {
-            // Get files from selected tag
-            return getFilesForTag(selection.tag, plugin.settings, this.app, plugin.tagTreeService);
-        }
-
-        return [];
-    }
-
-    /**
      * Check if a file is pinned
-     * @param filePath - Path to the file
+     * @param file - TFile object or path string
      * @returns True if the file is pinned
      */
-    isPinned(filePath: string): boolean {
-        return this.metadata.isPinned(filePath);
+    isPinned(file: TFile | string): boolean {
+        const path = typeof file === 'string' ? file : file.path;
+        return this.metadata.isPinned(path);
     }
 
     /**
      * Get folder color
-     * @param folderPath - Path to the folder
+     * @param folder - TFolder object or path string
      * @returns Hex color string or null
      */
-    getFolderColor(folderPath: string): string | null {
-        const metadata = this.metadata.getFolderMetadata(folderPath);
+    getFolderColor(folder: TFolder | string): string | null {
+        const path = typeof folder === 'string' ? folder : folder.path;
+        const metadata = this.metadata.getFolderMetadata(path);
         return metadata?.color || null;
     }
 
