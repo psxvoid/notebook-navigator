@@ -16,9 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, EventRef, Events } from 'obsidian';
+import { App, EventRef, Events, TFile, TFolder } from 'obsidian';
 import type NotebookNavigatorPlugin from '../main';
 import type { NotebookNavigatorEventType, NotebookNavigatorEvents } from './types';
+import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 
 // Import all sub-APIs
 import { NavigationAPI } from './modules/NavigationAPI';
@@ -147,5 +148,139 @@ export class NotebookNavigatorAPI {
      */
     getApp(): App {
         return this.app;
+    }
+
+    // ===================================================================
+    // Simple getters for common operations (for inline JS/Templater)
+    // ===================================================================
+
+    /**
+     * Get the currently selected file
+     * @returns The currently selected TFile or null
+     */
+    getSelectedFile(): TFile | null {
+        const selection = this.selection.getSelection();
+        if (selection.files.length > 0) {
+            return this.app.vault.getFileByPath(selection.files[0]);
+        }
+        return null;
+    }
+
+    /**
+     * Get all currently selected files
+     * @returns Array of selected TFile objects
+     */
+    getSelectedFiles(): TFile[] {
+        const selection = this.selection.getSelection();
+        return selection.files.map(path => this.app.vault.getFileByPath(path)).filter((file): file is TFile => file !== null);
+    }
+
+    /**
+     * Get the currently selected folder
+     * @returns The currently selected TFolder or null
+     */
+    getSelectedFolder(): TFolder | null {
+        const selection = this.selection.getSelection();
+        if (selection.folder) {
+            const folder = this.app.vault.getAbstractFileByPath(selection.folder);
+            if (folder instanceof TFolder) {
+                return folder;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Get the currently selected tag
+     * @returns The currently selected tag string or null
+     */
+    getSelectedTag(): string | null {
+        const selection = this.selection.getSelection();
+        return selection.tag;
+    }
+
+    /**
+     * Get the current folder (from either folder or tag selection)
+     * @returns The current TFolder context or null
+     */
+    getCurrentFolder(): TFolder | null {
+        const selection = this.selection.getSelection();
+
+        // If a folder is selected, return it
+        if (selection.folder) {
+            const folder = this.app.vault.getAbstractFileByPath(selection.folder);
+            if (folder instanceof TFolder) {
+                return folder;
+            }
+        }
+
+        // If files are selected, return parent of first file
+        if (selection.files.length > 0) {
+            const file = this.app.vault.getFileByPath(selection.files[0]);
+            if (file?.parent) {
+                return file.parent;
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Get all files visible in the current view (folder or tag)
+     * @returns Array of TFile objects currently visible
+     */
+    getFilesInCurrentView(): TFile[] {
+        const selection = this.selection.getSelection();
+        const plugin = this.plugin;
+
+        if (selection.folder) {
+            // Get files from selected folder
+            const folder = this.app.vault.getAbstractFileByPath(selection.folder);
+            if (folder instanceof TFolder) {
+                return getFilesForFolder(folder, plugin.settings, this.app);
+            }
+        } else if (selection.tag && plugin.tagTreeService) {
+            // Get files from selected tag
+            return getFilesForTag(selection.tag, plugin.settings, this.app, plugin.tagTreeService);
+        }
+
+        return [];
+    }
+
+    /**
+     * Check if a file is pinned
+     * @param filePath - Path to the file
+     * @returns True if the file is pinned
+     */
+    isPinned(filePath: string): boolean {
+        return this.metadata.isPinned(filePath);
+    }
+
+    /**
+     * Get folder color
+     * @param folderPath - Path to the folder
+     * @returns Hex color string or null
+     */
+    getFolderColor(folderPath: string): string | null {
+        const metadata = this.metadata.getFolderMetadata(folderPath);
+        return metadata?.color || null;
+    }
+
+    /**
+     * Get tag color
+     * @param tagPath - Tag path (e.g., '#work')
+     * @returns Hex color string or null
+     */
+    getTagColor(tagPath: string): string | null {
+        const metadata = this.metadata.getTagMetadata(tagPath);
+        return metadata?.color || null;
+    }
+
+    /**
+     * Quick check if the navigator view is open
+     * @returns True if the navigator view is open
+     */
+    isNavigatorOpen(): boolean {
+        return this.view.isOpen();
     }
 }

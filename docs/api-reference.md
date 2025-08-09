@@ -47,6 +47,76 @@ const api = app.plugins.plugins['notebook-navigator']
   ?.api as NotebookNavigatorAPI;
 ```
 
+## Quick Access Methods
+
+For simple scripts and inline JavaScript (Templater, DataviewJS, etc.), the API
+provides direct methods:
+
+```javascript
+// Get the Notebook Navigator API
+const nn = app.plugins.plugins['notebook-navigator']?.api;
+
+// Get currently selected file (returns TFile)
+const file = nn.getSelectedFile();
+console.log(file?.basename);
+
+// Get all selected files
+const files = nn.getSelectedFiles();
+
+// Get selected folder (returns TFolder)
+const folder = nn.getSelectedFolder();
+
+// Get selected tag
+const tag = nn.getSelectedTag(); // Returns "#work" etc
+
+// Get current context folder
+const currentFolder = nn.getCurrentFolder();
+
+// Get all files visible in current view
+const visibleFiles = nn.getFilesInCurrentView();
+
+// Quick checks
+const isPinned = nn.isPinned('notes/important.md');
+const folderColor = nn.getFolderColor('/Projects');
+const tagColor = nn.getTagColor('#work');
+const isOpen = nn.isNavigatorOpen();
+```
+
+### Templater Examples
+
+```javascript
+<%*
+// Get selected file in Notebook Navigator
+const nn = app.plugins.plugins['notebook-navigator']?.api;
+const selectedFile = nn?.getSelectedFile();
+if (selectedFile) {
+  tR += `Selected: [[${selectedFile.basename}]]`;
+}
+%>
+```
+
+### DataviewJS Examples
+
+```javascript
+// List all files in currently selected folder
+const nn = app.plugins.plugins['notebook-navigator']?.api;
+const files = nn?.getFilesInCurrentView() || [];
+dv.list(files.map(f => f.path));
+```
+
+### Console Quick Scripts
+
+```javascript
+// Pin the currently selected file
+const nn = app.plugins.plugins['notebook-navigator']?.api;
+const file = nn?.getSelectedFile();
+if (file) await nn.metadata.togglePin(file.path);
+
+// Set color for selected folder
+const folder = nn?.getSelectedFolder();
+if (folder) await nn.metadata.setFolderColor(folder.path, '#FF5733');
+```
+
 ## API Structure
 
 The API is organized into several sub-APIs for different functionality:
