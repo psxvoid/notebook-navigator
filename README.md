@@ -87,6 +87,16 @@ If you love using Notebook Navigator, please consider
 - **Custom appearances** - Set unique display styles for each folder and tag,
   like slim mode or 5 preview rows
 
+### Developer API
+
+- **Public API for plugin integration** - Comprehensive API allowing other plugins to interact with Notebook Navigator
+- **Smart file operations** - Delete and move files with automatic selection management
+- **Metadata control** - Programmatically set folder/tag colors, icons, and manage pinned notes
+- **Navigation integration** - Navigate to files and query current selections from external plugins
+- **Event subscriptions** - Subscribe to Notebook Navigator events for reactive integrations
+- **Full TypeScript support** - Complete type definitions for seamless development
+- **[Complete API documentation](docs/api-reference.md)** - Detailed reference with examples and best practices
+
 <br>
 
 ## Code Quality & Compliance
