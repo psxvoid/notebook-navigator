@@ -62,7 +62,6 @@ export interface FolderMetadata {
     icon?: string;
     sortOverride?: SortOption;
     appearance?: FolderAppearance;
-    pinnedNotes?: string[];
 }
 
 /**
@@ -80,26 +79,14 @@ export interface TagMetadata {
 /**
  * Event types
  */
-export type NotebookNavigatorEventType =
-    | 'selection-changed'
-    | 'navigation-changed'
-    | 'storage-ready'
-    | 'tags-updated'
-    | 'metadata-changed'
-    | 'file-cached'
-    | 'settings-changed';
+export type NotebookNavigatorEventType = 'navigation-changed' | 'storage-ready';
 
 /**
  * Event payloads
  */
 export interface NotebookNavigatorEvents {
-    'selection-changed': SelectionState;
     'navigation-changed': { type: 'folder' | 'tag'; path: string };
     'storage-ready': void;
-    'tags-updated': { added: string[]; removed: string[]; modified: string[] };
-    'metadata-changed': { type: 'folder' | 'tag' | 'file'; path: string };
-    'file-cached': { path: string; data: CachedFileData };
-    'settings-changed': void;
 }
 
 /**

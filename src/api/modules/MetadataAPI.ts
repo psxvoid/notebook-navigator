@@ -16,154 +16,200 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { TFile, TFolder } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
 import type { FolderMetadata, TagMetadata } from '../types';
 import type { SortOption } from '../../settings';
 
 /**
- * Metadata API - Manage folder and tag metadata
+ * Metadata API - Manage folder and tag appearance, icons, colors, and pinned files
  */
 export class MetadataAPI {
     constructor(private api: NotebookNavigatorAPI) {}
 
+    // ===================================================================
+    // Folder Metadata
+    // ===================================================================
+
     /**
      * Get folder metadata
+     * @param folder - Folder to get metadata for
      */
-    getFolderMetadata(folderPath: string): FolderMetadata {
+    getFolderMetadata(folder: TFolder): FolderMetadata {
         const plugin = this.api.getPlugin();
         const settings = plugin.settings;
+        const path = folder.path;
 
         return {
-            path: folderPath,
-            color: settings.folderColors[folderPath],
-            icon: settings.folderIcons[folderPath],
-            sortOverride: settings.folderSortOverrides[folderPath],
-            appearance: settings.folderAppearances[folderPath],
-            pinnedNotes: settings.pinnedNotes
+            path: path,
+            color: settings.folderColors[path],
+            icon: settings.folderIcons[path],
+            sortOverride: settings.folderSortOverrides[path],
+            appearance: settings.folderAppearances[path]
         };
     }
 
     /**
      * Set folder color
+     * @param folder - Folder to set color for
+     * @param color - Hex color string or null to remove
      */
-    async setFolderColor(folderPath: string, color: string | null): Promise<void> {
+    async setFolderColor(folder: TFolder, color: string | null): Promise<void> {
         const plugin = this.api.getPlugin();
-        if (!plugin.metadataService) return;
-
-        if (color === null) {
-            await plugin.metadataService.removeFolderColor(folderPath);
+        if (color) {
+            plugin.settings.folderColors[folder.path] = color;
         } else {
-            await plugin.metadataService.setFolderColor(folderPath, color);
+            delete plugin.settings.folderColors[folder.path];
         }
-        this.api.trigger('metadata-changed', { type: 'folder', path: folderPath });
+        await plugin.saveSettings();
     }
 
     /**
      * Set folder icon
+     * @param folder - Folder to set icon for
+     * @param icon - Icon identifier (e.g., 'lucide:folder', 'emoji:📁') or null to remove
      */
-    async setFolderIcon(folderPath: string, iconId: string | null): Promise<void> {
+    async setFolderIcon(folder: TFolder, icon: string | null): Promise<void> {
         const plugin = this.api.getPlugin();
-        if (!plugin.metadataService) return;
-
-        if (iconId === null) {
-            await plugin.metadataService.removeFolderIcon(folderPath);
+        if (icon) {
+            plugin.settings.folderIcons[folder.path] = icon;
         } else {
-            await plugin.metadataService.setFolderIcon(folderPath, iconId);
+            delete plugin.settings.folderIcons[folder.path];
         }
-        this.api.trigger('metadata-changed', { type: 'folder', path: folderPath });
+        await plugin.saveSettings();
     }
 
     /**
      * Set folder sort override
+     * @param folder - Folder to set sort override for
+     * @param sortOption - Sort option or null to use default
      */
-    async setFolderSortOverride(folderPath: string, sortOption: SortOption | null): Promise<void> {
+    async setFolderSortOverride(folder: TFolder, sortOption: SortOption | null): Promise<void> {
         const plugin = this.api.getPlugin();
-        if (!plugin.metadataService) return;
-
-        if (sortOption === null) {
-            await plugin.metadataService.removeFolderSortOverride(folderPath);
+        if (sortOption) {
+            plugin.settings.folderSortOverrides[folder.path] = sortOption;
         } else {
-            await plugin.metadataService.setFolderSortOverride(folderPath, sortOption);
+            delete plugin.settings.folderSortOverrides[folder.path];
         }
-        this.api.trigger('metadata-changed', { type: 'folder', path: folderPath });
+        await plugin.saveSettings();
     }
+
+    // ===================================================================
+    // Tag Metadata
+    // ===================================================================
 
     /**
      * Get tag metadata
+     * @param tag - Tag string (e.g., '#work')
      */
-    getTagMetadata(tagPath: string): TagMetadata {
+    getTagMetadata(tag: string): TagMetadata | null {
         const plugin = this.api.getPlugin();
         const settings = plugin.settings;
 
+        // Ensure tag starts with #
+        const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
+
         return {
-            path: tagPath,
-            color: settings.tagColors[tagPath],
-            icon: settings.tagIcons[tagPath],
-            sortOverride: settings.tagSortOverrides[tagPath],
-            appearance: settings.tagAppearances[tagPath],
-            isFavorite: settings.favoriteTags.includes(tagPath)
+            path: normalizedTag,
+            color: settings.tagColors[normalizedTag],
+            icon: settings.tagIcons[normalizedTag],
+            sortOverride: settings.tagSortOverrides[normalizedTag],
+            appearance: settings.tagAppearances[normalizedTag],
+            isFavorite: settings.favoriteTags?.includes(normalizedTag)
         };
     }
 
     /**
      * Set tag color
+     * @param tag - Tag string (e.g., '#work')
+     * @param color - Hex color string or null to remove
      */
-    async setTagColor(tagPath: string, color: string | null): Promise<void> {
+    async setTagColor(tag: string, color: string | null): Promise<void> {
         const plugin = this.api.getPlugin();
-        if (!plugin.metadataService) return;
+        const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
 
-        if (color === null) {
-            await plugin.metadataService.removeTagColor(tagPath);
+        if (color) {
+            plugin.settings.tagColors[normalizedTag] = color;
         } else {
-            await plugin.metadataService.setTagColor(tagPath, color);
+            delete plugin.settings.tagColors[normalizedTag];
         }
-        this.api.trigger('metadata-changed', { type: 'tag', path: tagPath });
+        await plugin.saveSettings();
     }
 
     /**
      * Set tag icon
+     * @param tag - Tag string (e.g., '#work')
+     * @param icon - Icon identifier or null to remove
      */
-    async setTagIcon(tagPath: string, iconId: string | null): Promise<void> {
+    async setTagIcon(tag: string, icon: string | null): Promise<void> {
         const plugin = this.api.getPlugin();
-        if (!plugin.metadataService) return;
+        const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
 
-        if (iconId === null) {
-            await plugin.metadataService.removeTagIcon(tagPath);
+        if (icon) {
+            plugin.settings.tagIcons[normalizedTag] = icon;
         } else {
-            await plugin.metadataService.setTagIcon(tagPath, iconId);
+            delete plugin.settings.tagIcons[normalizedTag];
         }
-        this.api.trigger('metadata-changed', { type: 'tag', path: tagPath });
+        await plugin.saveSettings();
     }
 
-    /**
-     * Toggle pin status for a file
-     * Pinned files appear at the top of lists in both folder and tag views
-     */
-    async togglePin(filePath: string): Promise<void> {
-        const plugin = this.api.getPlugin();
-        if (!plugin.metadataService) return;
+    // ===================================================================
+    // Pinned Files
+    // ===================================================================
 
-        await plugin.metadataService.togglePin(filePath);
-        this.api.trigger('metadata-changed', { type: 'file', path: filePath });
+    /**
+     * Get all pinned files
+     * @returns Array of TFile objects that are pinned
+     */
+    getPinnedFiles(): TFile[] {
+        const plugin = this.api.getPlugin();
+        const pinnedPaths = plugin.settings.pinnedNotes || [];
+
+        return pinnedPaths.map(path => this.api.app.vault.getFileByPath(path)).filter((file): file is TFile => file !== null);
     }
 
     /**
      * Check if a file is pinned
+     * @param file - File to check
      */
-    isPinned(filePath: string): boolean {
+    isPinned(file: TFile): boolean {
         const plugin = this.api.getPlugin();
-        if (!plugin.metadataService) return false;
-
-        return plugin.metadataService.isFilePinned(filePath);
+        const pinnedPaths = plugin.settings.pinnedNotes || [];
+        return pinnedPaths.includes(file.path);
     }
 
     /**
-     * Get all pinned file paths
+     * Toggle pin status for a file
+     * @param file - File to pin/unpin
      */
-    getPinnedFiles(): string[] {
+    async togglePin(file: TFile): Promise<void> {
         const plugin = this.api.getPlugin();
-        if (!plugin.metadataService) return [];
 
-        return plugin.metadataService.getPinnedNotes();
+        // Ensure metadataService exists
+        if (!plugin.metadataService) {
+            throw new Error('Metadata service not available');
+        }
+
+        await plugin.metadataService.togglePin(file.path);
+    }
+
+    /**
+     * Pin a file
+     * @param file - File to pin
+     */
+    async pinFile(file: TFile): Promise<void> {
+        if (!this.isPinned(file)) {
+            await this.togglePin(file);
+        }
+    }
+
+    /**
+     * Unpin a file
+     * @param file - File to unpin
+     */
+    async unpinFile(file: TFile): Promise<void> {
+        if (this.isPinned(file)) {
+            await this.togglePin(file);
+        }
     }
 }

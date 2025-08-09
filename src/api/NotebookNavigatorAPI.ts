@@ -20,14 +20,11 @@ import { App, EventRef, Events, TFile, TFolder } from 'obsidian';
 import type NotebookNavigatorPlugin from '../main';
 import type { NotebookNavigatorEventType, NotebookNavigatorEvents } from './types';
 
-// Import all sub-APIs
+// Import sub-APIs
 import { NavigationAPI } from './modules/NavigationAPI';
-import { SelectionAPI } from './modules/SelectionAPI';
 import { MetadataAPI } from './modules/MetadataAPI';
-import { TagAPI } from './modules/TagAPI';
-import { StorageAPI } from './modules/StorageAPI';
-import { ViewAPI } from './modules/ViewAPI';
-import { FileSystemAPI } from './modules/FileSystemAPI';
+import { FileAPI } from './modules/FileAPI';
+import { SelectionAPI } from './modules/SelectionAPI';
 
 // Import versioning and compatibility
 import { API_VERSION, negotiateVersion, VersionNegotiation, CompatibilityLevel } from './version';
@@ -46,12 +43,9 @@ export class NotebookNavigatorAPI {
 
     // Sub-APIs
     public navigation: NavigationAPI;
-    public selection: SelectionAPI;
     public metadata: MetadataAPI;
-    public tags: TagAPI;
-    public storage: StorageAPI;
-    public view: ViewAPI;
-    public fileSystem: FileSystemAPI;
+    public file: FileAPI;
+    public selection: SelectionAPI;
 
     constructor(plugin: NotebookNavigatorPlugin, app: App) {
         this.plugin = plugin;
@@ -60,12 +54,9 @@ export class NotebookNavigatorAPI {
 
         // Initialize sub-APIs
         this.navigation = new NavigationAPI(this);
-        this.selection = new SelectionAPI(this);
         this.metadata = new MetadataAPI(this);
-        this.tags = new TagAPI(this);
-        this.storage = new StorageAPI(this);
-        this.view = new ViewAPI(this);
-        this.fileSystem = new FileSystemAPI(this);
+        this.file = new FileAPI(this);
+        this.selection = new SelectionAPI(this);
     }
 
     /**
@@ -154,86 +145,40 @@ export class NotebookNavigatorAPI {
     // ===================================================================
 
     /**
-     * Get the file at cursor position (focused file in the list)
-     * @returns The currently focused TFile or null
-     */
-    getFileAtCursor(): TFile | null {
-        const selection = this.selection.getSelection();
-        if (selection.files.length > 0) {
-            return this.app.vault.getFileByPath(selection.files[0]);
-        }
-        return null;
-    }
-
-    /**
-     * Get all currently selected files
-     * @returns Array of selected TFile objects
-     */
-    getSelectedFiles(): TFile[] {
-        const selection = this.selection.getSelection();
-        return selection.files.map(path => this.app.vault.getFileByPath(path)).filter((file): file is TFile => file !== null);
-    }
-
-    /**
-     * Get the currently selected folder
-     * @returns The currently selected TFolder or null
-     */
-    getSelectedFolder(): TFolder | null {
-        const selection = this.selection.getSelection();
-        if (selection.folder) {
-            const folder = this.app.vault.getAbstractFileByPath(selection.folder);
-            if (folder instanceof TFolder) {
-                return folder;
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Get the currently selected tag
-     * @returns The currently selected tag string or null
-     */
-    getSelectedTag(): string | null {
-        const selection = this.selection.getSelection();
-        return selection.tag;
-    }
-
-    /**
      * Check if a file is pinned
-     * @param file - TFile object or path string
+     * @param file - File to check
      * @returns True if the file is pinned
      */
-    isPinned(file: TFile | string): boolean {
-        const path = typeof file === 'string' ? file : file.path;
-        return this.metadata.isPinned(path);
+    isPinned(file: TFile): boolean {
+        return this.metadata.isPinned(file);
     }
 
     /**
      * Get folder color
-     * @param folder - TFolder object or path string
+     * @param folder - Folder to get color for
      * @returns Hex color string or null
      */
-    getFolderColor(folder: TFolder | string): string | null {
-        const path = typeof folder === 'string' ? folder : folder.path;
-        const metadata = this.metadata.getFolderMetadata(path);
+    getFolderColor(folder: TFolder): string | null {
+        const metadata = this.metadata.getFolderMetadata(folder);
         return metadata?.color || null;
     }
 
     /**
      * Get tag color
-     * @param tagPath - Tag path (e.g., '#work')
+     * @param tag - Tag string (e.g., '#work')
      * @returns Hex color string or null
      */
-    getTagColor(tagPath: string): string | null {
-        const metadata = this.metadata.getTagMetadata(tagPath);
+    getTagColor(tag: string): string | null {
+        const metadata = this.metadata.getTagMetadata(tag);
         return metadata?.color || null;
     }
 
     /**
-     * Quick check if the navigator view is open
+     * Check if the navigator view is open
      * @returns True if the navigator view is open
      */
     isNavigatorOpen(): boolean {
-        return this.view.isOpen();
+        const leaves = this.app.workspace.getLeavesOfType('notebook-navigator');
+        return leaves.length > 0;
     }
 }

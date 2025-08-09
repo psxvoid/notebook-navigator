@@ -13,6 +13,47 @@ The API follows semantic versioning:
 - **MINOR**: New features (backwards compatible)
 - **PATCH**: Bug fixes (backwards compatible)
 
+## API Philosophy
+
+The Notebook Navigator API **only** exposes functionality that is unique to the
+plugin. We do not duplicate any features that can be achieved with Obsidian's
+built-in API.
+
+### What We Provide
+
+- **Smart file operations** - Delete/move files with automatic selection
+  management in our navigator
+- **Custom metadata** - Folder/tag colors, icons, and appearance settings not
+  available in Obsidian
+- **Pinned files** - Global pinning system specific to our navigation workflow
+- **Navigator control** - Navigate within our dual-pane view, not Obsidian's
+  file explorer
+
+### What We Don't Provide
+
+- Basic file operations (use `app.vault.delete()`, `app.vault.rename()`)
+- File content reading/writing (use `app.vault.read()`, `app.vault.modify()`)
+- Metadata cache access (use `app.metadataCache`)
+- Workspace management (use `app.workspace`)
+
+This focused approach ensures the API remains lean, maintainable, and truly
+complementary to Obsidian's API.
+
+## Working with Obsidian Types
+
+The Notebook Navigator API uses Obsidian's native `TFile` and `TFolder` objects
+throughout, just like Obsidian's own API. This ensures consistency and type
+safety when working with files and folders.
+
+- **TFile** - Represents a file in your vault (obtained via
+  `app.vault.getFileByPath()` or `app.workspace.getActiveFile()`)
+- **TFolder** - Represents a folder in your vault (obtained via
+  `app.vault.getAbstractFileByPath()` and checking `instanceof TFolder`)
+
+All methods that work with files or folders accept these Obsidian objects
+directly, not string paths. This design choice makes the API feel native to
+Obsidian and prevents errors from invalid paths.
+
 ## Accessing the API
 
 ```typescript
@@ -30,18 +71,15 @@ const compatibility = nn?.checkCompatibility('1.0.0');
   clientVersion: string,         // Your requested version
   compatibility: CompatibilityLevel, // 'full' | 'partial' | 'limited' | 'incompatible'
   availableFeatures: string[],  // List of available feature names
-  deprecatedFeatures: string[], // Features you're using that are deprecated
-  migrationSuggestions: string[] // Helpful migration tips
+  deprecatedFeatures: string[]  // Features you're using that are deprecated
 }
 */
-
-// Get a compatibility-wrapped API (for older plugins)
-const compatibleAPI = nn?.getCompatibleAPI('0.9.0');
 
 // TypeScript users can import types
 import type {
   NotebookNavigatorAPI,
-  SelectionState
+  FolderMetadata,
+  TagMetadata
 } from 'notebook-navigator/api';
 const api = app.plugins.plugins['notebook-navigator']
   ?.api as NotebookNavigatorAPI;
@@ -56,22 +94,12 @@ provides direct methods:
 // Get the Notebook Navigator API
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 
-// Get file at cursor position (returns TFile)
-const file = nn.getFileAtCursor();
-console.log(file?.basename);
+// Quick checks
+const file = app.workspace.getActiveFile();
+const folder = file?.parent;
 
-// Get all selected files
-const files = nn.getSelectedFiles();
-
-// Get selected folder (returns TFolder)
-const folder = nn.getSelectedFolder();
-
-// Get selected tag
-const tag = nn.getSelectedTag(); // Returns "#work" etc
-
-// Quick checks (accepts TFile/TFolder objects or strings)
-const isPinned = nn.isPinned(file); // Can pass TFile or string
-const folderColor = nn.getFolderColor(folder); // Can pass TFolder or string
+const isPinned = nn.isPinned(file);
+const folderColor = nn.getFolderColor(folder);
 const tagColor = nn.getTagColor('#work');
 const isOpen = nn.isNavigatorOpen();
 ```
@@ -80,11 +108,11 @@ const isOpen = nn.isNavigatorOpen();
 
 ```javascript
 <%*
-// Get file at cursor in Notebook Navigator
+// Check if current file is pinned
 const nn = app.plugins.plugins['notebook-navigator']?.api;
-const file = nn?.getFileAtCursor();
-if (file) {
-  tR += `File at cursor: [[${file.basename}]]`;
+const file = app.workspace.getActiveFile();
+if (file && nn?.isPinned(file)) {
+  tR += `This file is pinned!`;
 }
 %>
 ```
@@ -92,74 +120,71 @@ if (file) {
 ### DataviewJS Examples
 
 ```javascript
-// List properties of selected files
+// List all pinned files
 const nn = app.plugins.plugins['notebook-navigator']?.api;
-const files = nn?.getSelectedFiles() || [];
-for (const file of files) {
-  dv.paragraph(`- ${file.basename} (${file.stat.size} bytes)`);
+const pinnedFiles = nn?.metadata.getPinnedFiles() || [];
+for (const file of pinnedFiles) {
+  dv.paragraph(`- [[${file.basename}]]`);
 }
 ```
 
 ### Console Quick Scripts
 
 ```javascript
-// Pin the file at cursor
+// Pin the active file
 const nn = app.plugins.plugins['notebook-navigator']?.api;
-const file = nn?.getFileAtCursor();
+const file = app.workspace.getActiveFile();
 if (file) await nn.metadata.togglePin(file);
 
-// Set color for selected folder
-const folder = nn?.getSelectedFolder();
+// Set color for current folder
+const folder = app.workspace.getActiveFile()?.parent;
 if (folder) await nn.metadata.setFolderColor(folder, '#FF5733');
 ```
 
 ## API Structure
 
-The API is organized into several sub-APIs for different functionality:
+The API is organized into four main sub-APIs:
 
-- **FileSystem API** - Smart file deletion and management
-- **Metadata API** - Customize folder/tag appearance and pinning
-- **Navigation API** - Control view navigation
-- **Selection API** - Manage selected items
-- **Storage API** - Access cached file data
-- **Tag API** - Query and manage tags
-- **View API** - Control the navigator view
+- **File API** - Smart file deletion and movement
+- **Metadata API** - Folder/tag colors, icons, and pinned files
+- **Navigation API** - Navigate to files, folders, and tags
+- **Selection API** - Get current selection state
 
-## FileSystem API
+## File API
 
-Smart file deletion and management with automatic selection handling.
+Smart file operations with automatic selection management.
 
 ```typescript
-// Delete a file with smart selection
-// Automatically selects the next file in the list after deletion
-// Uses the plugin's confirmation setting
-await nn.fileSystem.deleteFile('notes/old.md');
-
-// Delete multiple files with smart selection
+// Delete one or more files with smart selection
 // Automatically manages selection after deletion
-await nn.fileSystem.deleteFiles(['file1.md', 'file2.md']);
+const file = app.vault.getFileByPath('notes/old.md');
+if (file) await nn.file.delete(file);
 
-// Move files to another folder
-// Automatically manages selection after deletion
-const result = await nn.fileSystem.moveFiles(
-  ['notes/file1.md', 'notes/file2.md'],
-  '/Archive'
-);
-/* Returns:
-{
-  movedCount: number,    // Number of files successfully moved
-  skippedCount: number,  // Number of files skipped (already exist)
-  errors: Array<{        // Array of errors if any
-    path: string,
-    error: string
-  }>
+// Delete multiple files
+const files = [file1, file2]; // TFile objects
+await nn.file.delete(files);
+
+// Move one or more files to another folder
+// Automatically manages selection after move
+const targetFolder = app.vault.getAbstractFileByPath('/Archive');
+if (targetFolder instanceof TFolder) {
+  const result = await nn.file.move(files, targetFolder);
+  /* Returns:
+  {
+    movedCount: number,    // Number of files successfully moved
+    skippedCount: number,  // Number of files skipped (already exist)
+    errors: Array<{        // Array of errors if any
+      file: TFile,
+      error: string
+    }>
+  }
+  */
 }
-*/
 ```
 
-### Why Use FileSystem API?
+### Why Use File API?
 
-The FileSystem API provides smart selection management when deleting files:
+The File API provides smart selection management when deleting or moving files:
 
 - Automatically selects the next appropriate file in the list
 - Maintains focus in the file list for smooth workflow
@@ -174,41 +199,49 @@ Customize folder and tag appearance, manage pinned notes.
 
 ```typescript
 // Get folder metadata
-const metadata = nn.metadata.getFolderMetadata('/Projects');
-/* Returns FolderMetadata object:
-{
-  path: string,            // Folder path
-  color?: string,          // Hex color or CSS color
-  icon?: string,           // Icon identifier (e.g., 'lucide:folder')
-  sortOverride?: SortOption, // Custom sort order for this folder
-  appearance?: FolderAppearance, // Display settings
-  pinnedNotes?: string[]   // Deprecated - use global pinned notes
+const folder = app.vault.getAbstractFileByPath('/Projects');
+if (folder instanceof TFolder) {
+  const metadata = nn.metadata.getFolderMetadata(folder);
+  /* Returns FolderMetadata object:
+  {
+    path: string,            // Folder path
+    color?: string,          // Hex color or CSS color
+    icon?: string,           // Icon identifier (e.g., 'lucide:folder')
+    sortOverride?: SortOption, // Custom sort order for this folder
+    appearance?: FolderAppearance // Display settings
+  }
+  */
+
+  // Set folder color
+  await nn.metadata.setFolderColor(folder, '#FF5733');
+
+  // Set folder icon (lucide icon or emoji)
+  await nn.metadata.setFolderIcon(folder, 'lucide:folder-open');
+  await nn.metadata.setFolderIcon(folder, 'emoji:📁');
+
+  // Set custom sort order for a folder
+  await nn.metadata.setFolderSortOverride(folder, 'name-asc');
 }
-*/
-
-// Set folder color
-await nn.metadata.setFolderColor('/Projects', '#FF5733');
-
-// Set folder icon (lucide icon or emoji)
-await nn.metadata.setFolderIcon('/Projects', 'lucide:folder-open');
-await nn.metadata.setFolderIcon('/Projects', 'emoji:📁');
-
-// Set custom sort order for a folder
-await nn.metadata.setFolderSortOverride('/Projects', 'name-asc');
 ```
 
 ### Pinned Notes
 
 ```typescript
-// Get all pinned files
+// Get all pinned files (returns TFile[])
 const pinnedFiles = nn.metadata.getPinnedFiles();
-// Returns: string[] - array of file paths
 
 // Check if a file is pinned
-const isPinned = nn.metadata.isPinned('notes/important.md');
+const file = app.workspace.getActiveFile();
+const isPinned = nn.metadata.isPinned(file);
 
-// Toggle pin status for a file (pinned files appear at top of lists)
-await nn.metadata.togglePin('notes/important.md');
+// Toggle pin status for a file
+await nn.metadata.togglePin(file);
+
+// Pin a file (only if not already pinned)
+await nn.metadata.pinFile(file);
+
+// Unpin a file (only if pinned)
+await nn.metadata.unpinFile(file);
 ```
 
 ### Tag Metadata
@@ -240,10 +273,14 @@ Navigate programmatically to folders, tags, and files.
 
 ```typescript
 // Navigate to a file
-await nn.navigation.navigateToFile('notes/example.md');
+const file = app.vault.getFileByPath('notes/example.md');
+if (file) await nn.navigation.navigateToFile(file);
 
 // Navigate to a folder
-await nn.navigation.navigateToFolder('/path/to/folder');
+const folder = app.vault.getAbstractFileByPath('/path/to/folder');
+if (folder instanceof TFolder) {
+  await nn.navigation.navigateToFolder(folder);
+}
 
 // Navigate to a tag
 await nn.navigation.navigateToTag('#project/active');
@@ -254,147 +291,33 @@ await nn.navigation.revealActiveFile();
 
 ## Selection API
 
-Get and set the current selection state.
+Get the current selection state in the navigator.
 
 ```typescript
-// Clear selection
-nn.selection.clearSelection();
-
-// Get current selection
-const selection = nn.selection.getSelection();
-/* Returns SelectionState object:
+// Get the currently selected folder or tag in the navigation pane
+const navSelection = nn.selection.getNavigationSelection();
+/* Returns:
 {
-  folder: string | null,   // Currently selected folder path
-  tag: string | null,      // Currently selected tag
-  files: string[]          // Array of selected file paths
+  folder: TFolder | null,  // Currently selected folder (if folder is selected)
+  tag: string | null       // Currently selected tag (if tag is selected)
 }
 */
 
-// Select multiple files
-nn.selection.selectFiles(['file1.md', 'file2.md']);
-
-// Select a folder
-nn.selection.selectFolder('/Projects');
-
-// Select a tag
-nn.selection.selectTag('#work');
-```
-
-## Storage API
-
-Access cached file data and query files.
-
-```typescript
-// Get cached data for a file
-const fileData = await nn.storage.getFileData('notes/example.md');
-/* Returns CachedFileData object (or null if not cached):
-{
-  path: string,           // File path
-  mtime: number,          // Modified time timestamp
-  tags: string[] | null,  // Array of tags or null
-  preview: string | null, // Preview text or null
-  featureImage: string | null, // Feature image path or null
-  metadata: {             // File metadata
-    name?: string,
-    created?: number,
-    modified?: number
-  } | null
+// Check what's selected
+if (navSelection.folder) {
+  console.log('Selected folder:', navSelection.folder.path);
+} else if (navSelection.tag) {
+  console.log('Selected tag:', navSelection.tag);
 }
-*/
 
-// Check if storage is ready
-const isReady = nn.storage.isStorageReady();
+// Get the currently selected files in the file list
+const selectedFiles = nn.selection.getSelectedFiles();
+// Returns: TFile[] - Array of selected files
 
-// Query files with criteria
-const files = await nn.storage.queryFiles({
-  folder: '/Projects',
-  tag: '#active',
-  hasPreview: true,
-  hasFeatureImage: false,
-  includeSubfolders: true,
-  limit: 100
-});
-// Returns: CachedFileData[] - Array of matching files
-```
-
-## Tag API
-
-Query and manage the tag system.
-
-```typescript
-// Add tag to files
-const result = await nn.tags.addTagToFiles('#review', ['file1.md', 'file2.md']);
-/* Returns BatchOperationResult:
-{
-  success: number,        // Number of successful operations
-  failed: number,         // Number of failed operations
-  errors: Array<{         // Details of any errors
-    path: string,
-    error: string
-  }>
+// Example: Process selected files
+for (const file of selectedFiles) {
+  console.log('Selected file:', file.path);
 }
-*/
-
-// Find a specific tag node
-const tagNode = nn.tags.findTagNode('#project/active');
-// Returns: TagTreeNode object or null if not found
-
-// Get all tag paths
-const allTags = nn.tags.getAllTagPaths();
-
-// Get favorite tags
-const favorites = nn.tags.getFavoriteTags();
-
-// Get files with a specific tag
-const files = await nn.tags.getFilesWithTag('#project');
-// Returns: TFile[] - Array of Obsidian file objects
-
-// Get the complete tag tree
-const tagTree = nn.tags.getTagTree();
-// Returns: TagTreeNode - Root node of the tag hierarchy
-
-// Get count of untagged files
-const untaggedCount = nn.tags.getUntaggedCount();
-
-// Remove tag from files
-const result = await nn.tags.removeTagFromFiles('#draft', ['file1.md']);
-// Returns: BatchOperationResult (same structure as addTagToFiles)
-
-// Toggle favorite status for a tag
-await nn.tags.toggleFavoriteTag('#important');
-```
-
-## View API
-
-Control the navigator view itself.
-
-```typescript
-// Close the navigator view
-nn.view.close();
-
-// Get current view state
-const state = nn.view.getViewState();
-/* Returns ViewState object (or null if view not open):
-{
-  isOpen: boolean,         // Whether the navigator view is open
-  isActive: boolean,       // Whether the view is currently active/focused
-  paneWidth: number,       // Width of navigation pane in pixels
-  dualPane: boolean,       // Whether dual-pane mode is enabled
-  focusedPane: 'navigation' | 'list' // Which pane has focus
-}
-*/
-
-// Check if view is open
-const isOpen = nn.view.isOpen();
-
-// Open the navigator view
-await nn.view.open();
-
-// Set pane width
-nn.view.setPaneWidth(400);
-
-// Toggle single pane mode
-await nn.view.toggleSinglePaneMode();
 ```
 
 ## Events
@@ -402,21 +325,25 @@ await nn.view.toggleSinglePaneMode();
 Subscribe to events to react to changes in the navigator.
 
 ```typescript
-// Subscribe to events
-const ref = nn.on('selection-changed', selection => {
-  console.log('New selection:', selection);
+// Listen for when storage is ready
+nn.on('storage-ready', () => {
+  console.log('Storage system is ready');
+  // Now safe to query metadata, pinned files, etc.
+  const pinnedFiles = nn.metadata.getPinnedFiles();
 });
 
-nn.on('navigation-changed', ({ type, path }) => {
-  console.log(`Navigated to ${type}: ${path}`);
-});
+// Subscribe to navigation events
+const ref = nn.on('navigation-changed', ({ type, path }) => {
+  console.log(`User navigated to ${type}: ${path}`);
 
-nn.on('metadata-changed', ({ type, path }) => {
-  console.log(`Metadata changed for ${type}: ${path}`);
-});
-
-nn.on('tags-updated', ({ added, removed, modified }) => {
-  console.log('Tags updated:', { added, removed, modified });
+  // React to navigation changes
+  if (type === 'folder') {
+    // User selected a folder in the navigation pane
+    console.log('Folder selected:', path);
+  } else if (type === 'tag') {
+    // User selected a tag in the navigation pane
+    console.log('Tag selected:', path);
+  }
 });
 
 // Unsubscribe from events
@@ -425,13 +352,17 @@ nn.off(ref);
 
 ### Available Events
 
-- `file-cached` - File data was cached
-- `metadata-changed` - Folder/tag/file metadata changed
-- `navigation-changed` - Navigation occurred
-- `selection-changed` - Selection state changed
-- `settings-changed` - Plugin settings changed
-- `storage-ready` - Storage system is ready
-- `tags-updated` - Tag tree was updated
+- `storage-ready` - Fired when the plugin's storage system is fully initialized
+  - Payload: `void`
+  - **Important**: Wait for this event before querying metadata, pinned files,
+    or other cached data
+  - The storage system builds an IndexedDB cache of all vault files on startup
+
+- `navigation-changed` - Fired when the user navigates to a folder or tag in the
+  UI
+  - Payload: `{ type: 'folder' | 'tag', path: string }`
+  - Triggered by user clicks in the navigation pane, NOT by API calls
+  - Use this to react to user navigation actions
 
 ## Examples
 
@@ -442,7 +373,7 @@ const nn = app.plugins.plugins['notebook-navigator']?.api;
 if (nn) {
   const activeFile = app.workspace.getActiveFile();
   if (activeFile?.parent) {
-    await nn.navigation.navigateToFolder(activeFile.parent.path);
+    await nn.navigation.navigateToFolder(activeFile.parent);
   }
 }
 ```
@@ -458,25 +389,12 @@ if (nn) {
     { path: '/Archive', color: '#5733FF' }
   ];
 
-  for (const folder of folders) {
-    await nn.metadata.setFolderColor(folder.path, folder.color);
+  for (const { path, color } of folders) {
+    const folder = app.vault.getAbstractFileByPath(path);
+    if (folder instanceof TFolder) {
+      await nn.metadata.setFolderColor(folder, color);
+    }
   }
-}
-```
-
-### Find files with multiple tags
-
-```typescript
-const nn = app.plugins.plugins['notebook-navigator']?.api;
-if (nn) {
-  const tag1Files = await nn.tags.getFilesWithTag('#project');
-  const tag2Files = await nn.tags.getFilesWithTag('#active');
-
-  // Find intersection
-  const tag2Paths = new Set(tag2Files.map(f => f.path));
-  const filesWithBothTags = tag1Files.filter(f => tag2Paths.has(f.path));
-
-  console.log('Files with both tags:', filesWithBothTags);
 }
 ```
 
@@ -485,19 +403,21 @@ if (nn) {
 ```typescript
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 if (nn) {
-  // Pin files based on criteria
-  const files = await nn.storage.queryFiles({
-    tag: '#important',
-    limit: 10
+  // Get all files with #important tag
+  const taggedFiles = app.vault.getMarkdownFiles().filter(file => {
+    const cache = app.metadataCache.getFileCache(file);
+    return cache?.tags?.some(t => t.tag === '#important');
   });
 
-  for (const file of files) {
-    if (!nn.metadata.isPinned(file.path)) {
-      await nn.metadata.togglePin(file.path);
-    }
+  // Pin them all
+  for (const file of taggedFiles) {
+    await nn.metadata.pinFile(file);
   }
 
-  console.log('Pinned files:', nn.metadata.getPinnedFiles());
+  console.log(
+    'Pinned files:',
+    nn.metadata.getPinnedFiles().map(f => f.basename)
+  );
 }
 ```
 
@@ -506,38 +426,21 @@ if (nn) {
 ```typescript
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 if (nn) {
-  // Find old archived files
-  const oldFiles = await nn.storage.queryFiles({
-    folder: '/Archive',
-    limit: 100
-  });
+  // Find old files in Archive folder
+  const archiveFolder = app.vault.getAbstractFileByPath('/Archive');
+  if (archiveFolder instanceof TFolder) {
+    const oldFiles = archiveFolder.children
+      .filter(f => f instanceof TFile)
+      .filter(f => {
+        // Files older than 30 days
+        return f.stat.mtime < Date.now() - 30 * 24 * 60 * 60 * 1000;
+      }) as TFile[];
 
-  // Filter files older than 30 days
-  const toDelete = oldFiles
-    .filter(f => f.mtime < Date.now() - 30 * 24 * 60 * 60 * 1000)
-    .map(f => f.path);
-
-  if (toDelete.length > 0) {
-    // Delete with smart selection management
-    await nn.fileSystem.deleteFiles(toDelete);
-    console.log(`Deleted ${toDelete.length} old files`);
-  }
-
-  // Move completed tasks to archive
-  const completedTasks = await nn.storage.queryFiles({
-    tag: '#completed',
-    folder: '/Tasks'
-  });
-
-  if (completedTasks.length > 0) {
-    const result = await nn.fileSystem.moveFiles(
-      completedTasks.map(f => f.path),
-      '/Archive/CompletedTasks'
-    );
-
-    console.log(
-      `Moved ${result.movedCount} tasks, skipped ${result.skippedCount}`
-    );
+    if (oldFiles.length > 0) {
+      // Delete with smart selection management
+      await nn.file.delete(oldFiles);
+      console.log(`Deleted ${oldFiles.length} old files`);
+    }
   }
 }
 ```
@@ -549,14 +452,25 @@ from `notebook-navigator/api` for type-safe development:
 
 - `APIError` - Standardized error type with error codes
 - `APIErrorCode` - Enumeration of all possible error codes
-- `BatchOperationResult` - Result of batch operations
 - `CachedFileData` - Cached file metadata and content
 - `CompatibilityLevel` - API compatibility levels (full, partial, limited,
   incompatible)
 - `FileQueryOptions` - Options for querying files
+- `FolderAppearance` - Folder display settings
+  ```typescript
+  interface FolderAppearance {
+    titleRows?: number; // Number of title rows to display
+    previewRows?: number; // Number of preview rows
+    showDate?: boolean; // Show file dates
+    showPreview?: boolean; // Show file preview text
+    showImage?: boolean; // Show feature images
+  }
+  ```
 - `FolderMetadata` - Folder customization data
 - `NavigationResult` - Result of navigation operations
 - `SelectionState` - Current selection state
+- `SortOption` - Sort options for folders/tags
+- `TagAppearance` - Tag display settings (same as FolderAppearance)
 - `TagMetadata` - Tag customization data
 - `VersionNegotiation` - Result of version compatibility check
 - `ViewState` - Current view state
@@ -569,7 +483,8 @@ The API uses standardized error codes for consistent error handling:
 import { APIError, APIErrorCode } from 'notebook-navigator/api';
 
 try {
-  await nn.fileSystem.deleteFile('non-existent.md');
+  const file = app.vault.getFileByPath('non-existent.md');
+  if (file) await nn.file.delete(file);
 } catch (error) {
   if (error instanceof APIError) {
     switch (error.code) {
@@ -603,9 +518,9 @@ The API includes built-in version checking and compatibility layers.
 
 ```typescript
 // Check if a feature is available
-if (nn.hasFeature('fileSystem.deleteFiles')) {
+if (nn.hasFeature('file.delete')) {
   // Feature is available
-  await nn.fileSystem.deleteFiles(['file1.md', 'file2.md']);
+  await nn.file.delete(files);
 }
 
 // Get all available features
@@ -622,6 +537,5 @@ if (negotiation.compatibility === 'incompatible') {
 // Show any deprecation warnings
 if (negotiation.deprecatedFeatures.length > 0) {
   console.warn('Using deprecated features:', negotiation.deprecatedFeatures);
-  console.log('Migration suggestions:', negotiation.migrationSuggestions);
 }
 ```

@@ -16,73 +16,75 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { TFile, TFolder } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
-import type { SelectionState } from '../types';
+import { STORAGE_KEYS } from '../../types';
 import { localStorage } from '../../utils/localStorage';
 
 /**
- * Selection API - Get and set selected items
+ * Selection API - Get current selection state in the navigator
  */
 export class SelectionAPI {
     constructor(private api: NotebookNavigatorAPI) {}
 
     /**
-     * Get current selection state
+     * Get the currently selected folder or tag in the navigation pane
+     * @returns Object with either folder or tag selected (only one can be selected at a time)
      */
-    getSelection(): SelectionState {
-        const plugin = this.api.getPlugin();
-        return {
-            folder: localStorage.get(plugin.keys.selectedFolderKey),
-            tag: localStorage.get(plugin.keys.selectedTagKey),
-            files: localStorage.get<string[]>(plugin.keys.selectedFileKey) || []
-        };
+    getNavigationSelection(): { folder: TFolder | null; tag: string | null } {
+        // Read from localStorage since the selection is persisted there
+        const folderPath = localStorage.get<string>(STORAGE_KEYS.selectedFolderKey);
+        const tagName = localStorage.get<string>(STORAGE_KEYS.selectedTagKey);
+
+        // If a tag is selected, it takes precedence
+        if (tagName) {
+            return {
+                folder: null,
+                tag: tagName
+            };
+        }
+
+        // Otherwise check for a folder
+        if (folderPath) {
+            const folder = this.api.app.vault.getAbstractFileByPath(folderPath);
+            if (folder instanceof TFolder) {
+                return {
+                    folder: folder,
+                    tag: null
+                };
+            }
+        }
+
+        return { folder: null, tag: null };
     }
 
     /**
-     * Select a folder
+     * Get the currently selected files in the file list
+     * @returns Array of selected TFile objects
      */
-    selectFolder(folderPath: string): void {
-        const plugin = this.api.getPlugin();
-        localStorage.set(plugin.keys.selectedFolderKey, folderPath);
-        localStorage.set(plugin.keys.selectedTagKey, null);
+    getSelectedFiles(): TFile[] {
+        // For selected files, we need to check if the view is open
+        // because file selection is not persisted (only the single selectedFile is)
+        const leaves = this.api.app.workspace.getLeavesOfType('notebook-navigator');
+        if (leaves.length === 0) {
+            // If view is not open, return the last selected file if available
+            const filePath = localStorage.get<string>(STORAGE_KEYS.selectedFileKey);
+            if (filePath) {
+                const file = this.api.app.vault.getFileByPath(filePath);
+                return file ? [file] : [];
+            }
+            return [];
+        }
 
-        const selection = this.getSelection();
-        this.api.trigger('selection-changed', selection);
-    }
+        // If view is open, try to get the selection from the React component
+        // For now, we can only return the single selected file from localStorage
+        // TODO: In the future, we could expose the full selection context through the view
+        const filePath = localStorage.get<string>(STORAGE_KEYS.selectedFileKey);
+        if (filePath) {
+            const file = this.api.app.vault.getFileByPath(filePath);
+            return file ? [file] : [];
+        }
 
-    /**
-     * Select a tag
-     */
-    selectTag(tagPath: string): void {
-        const plugin = this.api.getPlugin();
-        localStorage.set(plugin.keys.selectedTagKey, tagPath);
-        localStorage.set(plugin.keys.selectedFolderKey, null);
-
-        const selection = this.getSelection();
-        this.api.trigger('selection-changed', selection);
-    }
-
-    /**
-     * Select files
-     */
-    selectFiles(filePaths: string[]): void {
-        const plugin = this.api.getPlugin();
-        localStorage.set(plugin.keys.selectedFileKey, filePaths);
-
-        const selection = this.getSelection();
-        this.api.trigger('selection-changed', selection);
-    }
-
-    /**
-     * Clear all selections
-     */
-    clearSelection(): void {
-        const plugin = this.api.getPlugin();
-        localStorage.set(plugin.keys.selectedFolderKey, null);
-        localStorage.set(plugin.keys.selectedTagKey, null);
-        localStorage.set(plugin.keys.selectedFileKey, []);
-
-        const selection = this.getSelection();
-        this.api.trigger('selection-changed', selection);
+        return [];
     }
 }

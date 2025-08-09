@@ -53,7 +53,7 @@ export class FeatureDetector {
         const features: string[] = [];
 
         // Check main API modules
-        const modules = ['fileSystem', 'metadata', 'navigation', 'selection', 'storage', 'tags', 'view'];
+        const modules = ['file', 'metadata', 'navigation', 'selection'];
 
         for (const module of modules) {
             if (this.hasFeature(api, module)) {
@@ -174,11 +174,10 @@ export class CompatibilityAdapter {
      * Get compatibility mapping for old property names
      */
     private getCompatibilityMapping(oldProp: string): string | null {
-        // This would contain real mappings in production
-        // Example mappings:
         const mappings: Record<string, string> = {
-            // 'oldMethodName': 'newMethodName',
-            // 'getSelection': 'selection.getSelection',
+            // Map old plural method names to new singular ones
+            deleteFiles: 'delete',
+            moveFiles: 'move'
         };
 
         return mappings[oldProp] || null;

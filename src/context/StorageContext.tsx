@@ -67,6 +67,7 @@ import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
 import { useDeferredMetadataCleanup } from '../hooks/useDeferredMetadataCleanup';
+import { PluginWithAPI } from '../types/plugin';
 import { MetadataService } from '../services/MetadataService';
 
 /**
@@ -109,10 +110,11 @@ const StorageContext = createContext<StorageContextValue | null>(null);
 
 interface StorageProviderProps {
     app: App;
+    plugin: PluginWithAPI;
     children: ReactNode;
 }
 
-export function StorageProvider({ app, children }: StorageProviderProps) {
+export function StorageProvider({ app, plugin, children }: StorageProviderProps) {
     const settings = useSettingsState();
     const { metadataService, tagTreeService } = useServices();
     const [fileData, setFileData] = useState<FileData>({ favoriteTree: new Map(), tagTree: new Map(), untagged: 0 });
@@ -413,6 +415,12 @@ export function StorageProvider({ app, children }: StorageProviderProps) {
 
                     // Step 4: Mark storage as ready
                     setIsStorageReady(true);
+
+                    // Trigger storage-ready event on the API
+                    // This lets other plugins know they can now query metadata
+                    if (plugin?.api) {
+                        plugin.api.trigger('storage-ready', undefined);
+                    }
 
                     // Step 5: Handle metadata cleanup and content generation
                     if (settings.showTags) {

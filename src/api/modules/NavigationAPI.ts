@@ -22,33 +22,28 @@ import type { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
 import type { NavigationResult } from '../types';
 
 /**
- * Navigation API - Control the navigator view
+ * Navigation API - Navigate to files, folders, and tags
  */
 export class NavigationAPI {
     constructor(private api: NotebookNavigatorAPI) {}
 
     /**
      * Navigate to a specific folder
+     * @param folder - Folder to navigate to
      */
-    async navigateToFolder(folderPath: string): Promise<NavigationResult> {
+    async navigateToFolder(folder: TFolder): Promise<NavigationResult> {
         try {
-            const folder = this.api.app.vault.getAbstractFileByPath(folderPath);
-            if (!folder || !(folder instanceof TFolder)) {
-                return { success: false, error: 'Folder not found' };
-            }
-
             const view = await this.ensureViewOpen();
             if (!view) {
                 return { success: false, error: 'Could not open navigator view' };
             }
 
-            // For now, navigate to the first file in the folder
+            // Navigate to the first file in the folder
             const files = folder.children.filter(child => child instanceof TFile) as TFile[];
             if (files.length > 0) {
                 await view.navigateToFile(files[0]);
             }
-            this.api.trigger('navigation-changed', { type: 'folder', path: folderPath });
-            return { success: true, path: folderPath };
+            return { success: true, path: folder.path };
         } catch (error) {
             return { success: false, error: String(error) };
         }
@@ -56,8 +51,9 @@ export class NavigationAPI {
 
     /**
      * Navigate to a specific tag
+     * @param tag - Tag string (e.g., '#work' or '#project/active')
      */
-    async navigateToTag(tagPath: string): Promise<NavigationResult> {
+    async navigateToTag(tag: string): Promise<NavigationResult> {
         try {
             const view = await this.ensureViewOpen();
             if (!view) {
@@ -66,8 +62,7 @@ export class NavigationAPI {
 
             // Use the tag navigation modal for now
             await view.navigateToTagWithModal();
-            this.api.trigger('navigation-changed', { type: 'tag', path: tagPath });
-            return { success: true, path: tagPath };
+            return { success: true, path: tag };
         } catch (error) {
             return { success: false, error: String(error) };
         }
@@ -75,21 +70,17 @@ export class NavigationAPI {
 
     /**
      * Navigate to a specific file and select it
+     * @param file - File to navigate to
      */
-    async navigateToFile(filePath: string): Promise<NavigationResult> {
+    async navigateToFile(file: TFile): Promise<NavigationResult> {
         try {
-            const file = this.api.app.vault.getAbstractFileByPath(filePath);
-            if (!file || !(file instanceof TFile)) {
-                return { success: false, error: 'File not found' };
-            }
-
             const view = await this.ensureViewOpen();
             if (!view) {
                 return { success: false, error: 'Could not open navigator view' };
             }
 
             await view.navigateToFile(file);
-            return { success: true, path: filePath };
+            return { success: true, path: file.path };
         } catch (error) {
             return { success: false, error: String(error) };
         }
@@ -105,21 +96,32 @@ export class NavigationAPI {
                 return { success: false, error: 'No active file' };
             }
 
-            return await this.navigateToFile(activeFile.path);
+            const view = await this.ensureViewOpen();
+            if (!view) {
+                return { success: false, error: 'Could not open navigator view' };
+            }
+
+            await view.navigateToFile(activeFile);
+            return { success: true, path: activeFile.path };
         } catch (error) {
             return { success: false, error: String(error) };
         }
     }
 
-    private async ensureViewOpen() {
+    /**
+     * Ensure the navigator view is open
+     */
+    private async ensureViewOpen(): Promise<NotebookNavigatorView | null> {
         const plugin = this.api.getPlugin();
         const leaves = this.api.app.workspace.getLeavesOfType('notebook-navigator');
 
         if (leaves.length === 0) {
             await plugin.activateView();
-            // Get the newly created view
             const newLeaves = this.api.app.workspace.getLeavesOfType('notebook-navigator');
-            return newLeaves[0]?.view as NotebookNavigatorView;
+            if (newLeaves.length > 0) {
+                return newLeaves[0].view as NotebookNavigatorView;
+            }
+            return null;
         }
 
         return leaves[0].view as NotebookNavigatorView;

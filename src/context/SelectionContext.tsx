@@ -19,7 +19,7 @@
 import React, { createContext, useContext, useReducer, useEffect, ReactNode, useCallback } from 'react';
 import { App, TFile, TFolder } from 'obsidian';
 import { NavigationItemType, STORAGE_KEYS } from '../types';
-import { NotebookNavigatorPlugin } from '../types/plugin';
+import { PluginWithAPI } from '../types/plugin';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { useSettingsState } from './SettingsContext';
 import { localStorage } from '../utils/localStorage';
@@ -461,7 +461,7 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
 interface SelectionProviderProps {
     children: ReactNode;
     app: App; // Obsidian App instance
-    plugin: NotebookNavigatorPlugin; // Plugin instance for settings
+    plugin: PluginWithAPI; // Plugin instance for settings and API
     isMobile: boolean;
 }
 
@@ -579,6 +579,11 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
                             dispatch({ ...action, autoSelectedFile: null });
                         }
                     }
+
+                    // Trigger navigation-changed event for folder navigation
+                    if (plugin?.api) {
+                        plugin.api.trigger('navigation-changed', { type: 'folder', path: action.folder.path });
+                    }
                 } else {
                     dispatch({ ...action, autoSelectedFile: null });
                 }
@@ -586,7 +591,7 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             // Handle auto-select logic for tag selection
             else if (action.type === 'SET_SELECTED_TAG' && action.autoSelectedFile === undefined) {
                 if (action.tag) {
-                    const filesForTag = getFilesForTag(action.tag, settings, app, plugin.tagTreeService);
+                    const filesForTag = getFilesForTag(action.tag, settings, app, plugin.tagTreeService || null);
 
                     // Desktop with autoSelectFirstFile enabled: ALWAYS select first file
                     if (!isMobile && settings.autoSelectFirstFileOnFocusChange && filesForTag.length > 0) {
@@ -603,6 +608,11 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
                             // No auto-selection
                             dispatch({ ...action, autoSelectedFile: null });
                         }
+                    }
+
+                    // Trigger navigation-changed event for tag navigation
+                    if (plugin?.api) {
+                        plugin.api.trigger('navigation-changed', { type: 'tag', path: action.tag });
                     }
                 } else {
                     dispatch({ ...action, autoSelectedFile: null });
@@ -683,10 +693,14 @@ export function SelectionProvider({ children, app, plugin, isMobile }: Selection
             dispatch({ type: 'UPDATE_FILE_PATH', oldPath, newPath });
         };
 
-        plugin.registerFileRenameListener(listenerId, handleFileRename);
+        if (plugin.registerFileRenameListener) {
+            plugin.registerFileRenameListener(listenerId, handleFileRename);
+        }
 
         return () => {
-            plugin.unregisterFileRenameListener(listenerId);
+            if (plugin.unregisterFileRenameListener) {
+                plugin.unregisterFileRenameListener(listenerId);
+            }
         };
     }, [plugin, dispatch]);
 

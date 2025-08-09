@@ -147,13 +147,9 @@ export class VersionChecker {
  * Map of features to their minimum required version
  */
 export const FEATURE_VERSIONS: Record<string, string> = {
-    fileSystem: '1.0.0',
+    file: '1.0.0',
     metadata: '1.0.0',
     navigation: '1.0.0',
-    selection: '1.0.0',
-    storage: '1.0.0',
-    tags: '1.0.0',
-    view: '1.0.0',
     events: '1.0.0'
     // Future features would be added here with their introduction version
     // 'ai-integration': '1.1.0',
@@ -175,8 +171,6 @@ export interface VersionNegotiation {
     availableFeatures: string[];
     /** Deprecated features being used */
     deprecatedFeatures: string[];
-    /** Migration suggestions */
-    migrationSuggestions: string[];
 }
 
 /**
@@ -186,7 +180,6 @@ export function negotiateVersion(clientVersion: string): VersionNegotiation {
     const compatibility = VersionChecker.checkCompatibility(clientVersion);
     const availableFeatures: string[] = [];
     const deprecatedFeatures: string[] = [];
-    const migrationSuggestions: string[] = [];
 
     // Determine available features
     for (const [feature] of Object.entries(FEATURE_VERSIONS)) {
@@ -195,28 +188,11 @@ export function negotiateVersion(clientVersion: string): VersionNegotiation {
         }
     }
 
-    // Add migration suggestions based on compatibility
-    if (compatibility === CompatibilityLevel.LIMITED) {
-        migrationSuggestions.push(`Consider upgrading to API version ${API_VERSION.toString()} for full compatibility`);
-    } else if (compatibility === CompatibilityLevel.INCOMPATIBLE) {
-        const cv = VersionChecker.parseVersion(clientVersion);
-        if (cv && cv.major < MIN_SUPPORTED_VERSION.major) {
-            migrationSuggestions.push(
-                `Your API version is no longer supported. Minimum version: ${MIN_SUPPORTED_VERSION.major}.${MIN_SUPPORTED_VERSION.minor}.${MIN_SUPPORTED_VERSION.patch}`
-            );
-        } else {
-            migrationSuggestions.push(
-                `Your API version is newer than the current plugin supports. Plugin API version: ${API_VERSION.toString()}`
-            );
-        }
-    }
-
     return {
         apiVersion: API_VERSION.toString(),
         clientVersion,
         compatibility,
         availableFeatures,
-        deprecatedFeatures,
-        migrationSuggestions
+        deprecatedFeatures
     };
 }

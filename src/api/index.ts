@@ -36,12 +36,9 @@ export { NotebookNavigatorAPI } from './NotebookNavigatorAPI';
 
 // Sub-API classes (for advanced usage)
 export { NavigationAPI } from './modules/NavigationAPI';
-export { SelectionAPI } from './modules/SelectionAPI';
 export { MetadataAPI } from './modules/MetadataAPI';
-export { TagAPI } from './modules/TagAPI';
-export { StorageAPI } from './modules/StorageAPI';
-export { ViewAPI } from './modules/ViewAPI';
-export { FileSystemAPI } from './modules/FileSystemAPI';
+export { FileAPI } from './modules/FileAPI';
+export { SelectionAPI } from './modules/SelectionAPI';
 
 // Type exports
 export type {
@@ -62,3 +59,6 @@ export { API_VERSION, CompatibilityLevel, type VersionNegotiation } from './vers
 
 // Error handling exports
 export { APIError, APIErrorCode } from './errors';
+
+// Re-export appearance types that are documented in the API
+export type { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
