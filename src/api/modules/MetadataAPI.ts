@@ -141,6 +141,12 @@ export class MetadataAPI {
         // Save settings if anything changed
         if (changed) {
             await plugin.saveSettings();
+
+            // Trigger event with the new metadata state
+            const metadata = this.getFolderMeta(folder);
+            if (metadata) {
+                this.api.trigger('folder-metadata-changed', { folder, metadata });
+            }
         }
     }
 
@@ -212,6 +218,12 @@ export class MetadataAPI {
         // Save settings if anything changed
         if (changed) {
             await plugin.saveSettings();
+
+            // Trigger event with the new metadata state
+            const metadata = this.getTagMeta(tag);
+            if (metadata) {
+                this.api.trigger('tag-metadata-changed', { tag: normalizedTag, metadata });
+            }
         }
     }
 

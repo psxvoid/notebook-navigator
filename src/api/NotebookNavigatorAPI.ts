@@ -71,6 +71,17 @@ export class NotebookNavigatorAPI {
     }
 
     /**
+     * Subscribe to an event only once - automatically unsubscribes after first trigger
+     */
+    once<T extends NotebookNavigatorEventType>(event: T, callback: (data: NotebookNavigatorEvents[T]) => void): EventRef {
+        const ref = this.events.on(event, (data: NotebookNavigatorEvents[T]) => {
+            this.events.offref(ref);
+            callback(data);
+        });
+        return ref;
+    }
+
+    /**
      * Unsubscribe from events
      */
     off(ref: EventRef): void {

@@ -324,24 +324,23 @@
                     this.assertEqual(initialMeta, null, 'Should return null when no metadata is set');
 
                     // Set color
-                    await this.api.metadata.setFolderColor(testFolder, '#ff0000');
+                    await this.api.metadata.setFolderMeta(testFolder, { color: '#ff0000' });
                     const afterColor = this.api.metadata.getFolderMeta(testFolder);
                     this.assertExists(afterColor, 'Should return metadata after setting color');
                     this.assertEqual(afterColor.color, '#ff0000', 'Color should be set');
 
                     // Set icon - test both lucide and emoji formats
-                    await this.api.metadata.setFolderIcon(testFolder, 'lucide:folder-open');
+                    await this.api.metadata.setFolderMeta(testFolder, { icon: 'lucide:folder-open' });
                     const afterIcon = this.api.metadata.getFolderMeta(testFolder);
                     this.assertEqual(afterIcon.icon, 'lucide:folder-open', 'Icon should be set');
 
                     // Test emoji icon format
-                    await this.api.metadata.setFolderIcon(testFolder, 'emoji:📁');
+                    await this.api.metadata.setFolderMeta(testFolder, { icon: 'emoji:📁' });
                     const afterEmoji = this.api.metadata.getFolderMeta(testFolder);
                     this.assertEqual(afterEmoji.icon, 'emoji:📁', 'Emoji icon should be set');
 
-                    // Clear metadata using dedicated methods
-                    await this.api.metadata.clearFolderColor(testFolder);
-                    await this.api.metadata.clearFolderIcon(testFolder);
+                    // Clear metadata by passing null
+                    await this.api.metadata.setFolderMeta(testFolder, { color: null, icon: null });
                     const cleared = this.api.metadata.getFolderMeta(testFolder);
                     this.assertEqual(cleared, null, 'Should return null when all metadata is cleared');
                 },
@@ -354,24 +353,23 @@
                     this.assertEqual(initialMeta, null, 'Should return null when no metadata is set');
 
                     // Set color
-                    await this.api.metadata.setTagColor(testTag, '#00ff00');
+                    await this.api.metadata.setTagMeta(testTag, { color: '#00ff00' });
                     const afterColor = this.api.metadata.getTagMeta(testTag);
                     this.assertExists(afterColor, 'Should return metadata after setting color');
                     this.assertEqual(afterColor.color, '#00ff00', 'Tag color should be set');
 
                     // Set icon - test both lucide and emoji formats
-                    await this.api.metadata.setTagIcon(testTag, 'lucide:tag');
+                    await this.api.metadata.setTagMeta(testTag, { icon: 'lucide:tag' });
                     const afterIcon = this.api.metadata.getTagMeta(testTag);
                     this.assertEqual(afterIcon.icon, 'lucide:tag', 'Tag icon should be set');
 
                     // Test emoji icon format
-                    await this.api.metadata.setTagIcon(testTag, 'emoji:🏷️');
+                    await this.api.metadata.setTagMeta(testTag, { icon: 'emoji:🏷️' });
                     const afterEmoji = this.api.metadata.getTagMeta(testTag);
                     this.assertEqual(afterEmoji.icon, 'emoji:🏷️', 'Emoji icon should be set');
 
-                    // Clear using dedicated methods
-                    await this.api.metadata.clearTagColor(testTag);
-                    await this.api.metadata.clearTagIcon(testTag);
+                    // Clear metadata by passing null
+                    await this.api.metadata.setTagMeta(testTag, { color: null, icon: null });
                     const cleared = this.api.metadata.getTagMeta(testTag);
                     this.assertEqual(cleared, null, 'Should return null when all metadata is cleared');
                 },
@@ -587,10 +585,10 @@
                     this.api.off(eventRef);
                 },
 
-                'Should handle folder-selected event': async function () {
+                'Should handle nav-item-changed event': async function () {
                     let eventData = null;
 
-                    const eventRef = this.api.on('folder-selected', data => {
+                    const eventRef = this.api.on('nav-item-changed', data => {
                         eventData = data;
                     });
 
@@ -598,29 +596,20 @@
 
                     // If an event was captured, verify structure
                     if (eventData) {
-                        this.assertExists(eventData.folder, 'Should have folder');
-                        this.assertTrue(typeof eventData.folder === 'object', 'Folder should be TFolder object');
-                        this.assertExists(eventData.folder.path, 'Folder should have path');
-                    }
+                        this.assertExists(eventData.item, 'Should have item');
 
-                    // Clean up
-                    this.api.off(eventRef);
-                },
-
-                'Should handle tag-selected event': async function () {
-                    let eventData = null;
-
-                    const eventRef = this.api.on('tag-selected', data => {
-                        eventData = data;
-                    });
-
-                    this.assertExists(eventRef, 'Event subscription should return a reference');
-
-                    // If an event was captured, verify structure
-                    if (eventData) {
-                        this.assertExists(eventData.tag, 'Should have tag');
-                        this.assertTrue(typeof eventData.tag === 'string', 'Tag should be string');
-                        this.assertTrue(eventData.tag.startsWith('#'), 'Tag should start with #');
+                        // Check the discriminated union
+                        if (eventData.item.folder) {
+                            this.assertTrue(typeof eventData.item.folder === 'object', 'Folder should be TFolder object');
+                            this.assertExists(eventData.item.folder.path, 'Folder should have path');
+                            this.assertEqual(eventData.item.tag, null, 'Tag should be null when folder is selected');
+                        } else if (eventData.item.tag) {
+                            this.assertTrue(typeof eventData.item.tag === 'string', 'Tag should be string');
+                            this.assertEqual(eventData.item.folder, null, 'Folder should be null when tag is selected');
+                        } else {
+                            this.assertEqual(eventData.item.folder, null, 'Folder should be null when nothing selected');
+                            this.assertEqual(eventData.item.tag, null, 'Tag should be null when nothing selected');
+                        }
                     }
 
                     // Clean up
@@ -662,7 +651,8 @@
                     // If an event was captured, verify structure
                     if (eventData) {
                         this.assertExists(eventData.folder, 'Should have folder');
-                        this.assertTrue(['color', 'icon'].includes(eventData.property), 'Should have valid property');
+                        this.assertExists(eventData.metadata, 'Should have metadata');
+                        this.assertTrue(typeof eventData.metadata === 'object', 'Metadata should be an object');
                     }
 
                     // Clean up
@@ -681,7 +671,8 @@
                     // If an event was captured, verify structure
                     if (eventData) {
                         this.assertExists(eventData.tag, 'Should have tag');
-                        this.assertTrue(['color', 'icon'].includes(eventData.property), 'Should have valid property');
+                        this.assertExists(eventData.metadata, 'Should have metadata');
+                        this.assertTrue(typeof eventData.metadata === 'object', 'Metadata should be an object');
                     }
 
                     // Clean up
@@ -701,12 +692,41 @@
                     this.api.off(eventRef);
                 },
 
+                'Should handle once() for one-time event subscription': async function () {
+                    // Test that once() only fires once
+                    let callCount = 0;
+
+                    // Subscribe with once
+                    const ref = this.api.once('storage-ready', () => {
+                        callCount++;
+                    });
+
+                    this.assertExists(ref, 'once() should return an event reference');
+
+                    // Note: We can't easily trigger events in this test environment,
+                    // but we can verify the method exists and returns a reference
+                    // In a real scenario, the callback would only fire once
+
+                    // Try to unsubscribe (should be safe even if already auto-unsubscribed)
+                    this.api.off(ref);
+
+                    // Test once() with different event types
+                    const onceRef1 = this.api.once('nav-item-changed', ({ item }) => {});
+                    const onceRef2 = this.api.once('file-selection-changed', ({ files, focused }) => {});
+
+                    this.assertExists(onceRef1, 'once() should work with nav-item-changed');
+                    this.assertExists(onceRef2, 'once() should work with file-selection-changed');
+
+                    // Clean up
+                    this.api.off(onceRef1);
+                    this.api.off(onceRef2);
+                },
+
                 'Event API should support all documented event types': async function () {
                     // Test that all event types can be subscribed to
                     const eventTypes = [
                         'storage-ready',
-                        'folder-selected',
-                        'tag-selected',
+                        'nav-item-changed',
                         'file-selection-changed',
                         'pinned-files-changed',
                         'folder-metadata-changed',
@@ -715,19 +735,27 @@
 
                     const refs = [];
 
-                    // Subscribe to all event types
+                    // Subscribe to all event types with on()
                     for (const eventType of eventTypes) {
                         const ref = this.api.on(eventType, () => {});
                         this.assertExists(ref, `Should be able to subscribe to ${eventType}`);
                         refs.push(ref);
                     }
 
+                    // Also test with once()
+                    const onceRefs = [];
+                    for (const eventType of eventTypes) {
+                        const ref = this.api.once(eventType, () => {});
+                        this.assertExists(ref, `Should be able to subscribe once to ${eventType}`);
+                        onceRefs.push(ref);
+                    }
+
                     // Clean up all subscriptions
-                    for (const ref of refs) {
+                    for (const ref of [...refs, ...onceRefs]) {
                         this.api.off(ref);
                     }
 
-                    this.assertTrue(true, 'All event types are supported');
+                    this.assertTrue(true, 'All event types are supported with both on() and once()');
                 }
             };
         }

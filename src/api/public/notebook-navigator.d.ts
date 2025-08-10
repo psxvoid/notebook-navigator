@@ -11,7 +11,7 @@
  *
  * const nn = app.plugins.plugins['notebook-navigator']?.api as NotebookNavigatorAPI;
  * if (nn) {
- *   await nn.file.delete([file]);
+ *   await nn.file.deleteFiles([file]);
  * }
  * ```
  */
@@ -106,13 +106,13 @@ export interface NotebookNavigatorEvents {
     /** Fired when folder metadata changes */
     'folder-metadata-changed': {
         folder: TFolder;
-        property: 'color' | 'icon';
+        metadata: FolderMetadata;
     };
 
     /** Fired when tag metadata changes */
     'tag-metadata-changed': {
         tag: string;
-        property: 'color' | 'icon';
+        metadata: TagMetadata;
     };
 }
 
@@ -176,6 +176,8 @@ export interface NotebookNavigatorAPI {
     // Event subscription
     /** Subscribe to navigator events with type safety */
     on<T extends NotebookNavigatorEventType>(event: T, callback: (data: NotebookNavigatorEvents[T]) => void): EventRef;
+    /** Subscribe to an event only once - automatically unsubscribes after first trigger */
+    once<T extends NotebookNavigatorEventType>(event: T, callback: (data: NotebookNavigatorEvents[T]) => void): EventRef;
     /** Unsubscribe from an event */
     off(ref: EventRef): void;
 }

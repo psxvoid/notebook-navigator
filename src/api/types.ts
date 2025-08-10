@@ -112,13 +112,13 @@ export interface NotebookNavigatorEvents {
     /** Fired when folder metadata changes */
     'folder-metadata-changed': {
         folder: TFolder;
-        property: 'color' | 'icon';
+        metadata: FolderMetadata;
     };
 
     /** Fired when tag metadata changes */
     'tag-metadata-changed': {
         tag: string;
-        property: 'color' | 'icon';
+        metadata: TagMetadata;
     };
 }
 

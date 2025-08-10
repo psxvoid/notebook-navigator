@@ -23,7 +23,7 @@ if (!nn) {
 }
 
 // Use the API
-await nn.file.delete([file]);
+await nn.file.deleteFiles([file]);
 ```
 
 ## API Overview
@@ -187,18 +187,19 @@ Subscribe to navigator events to react to user actions.
 | `nav-item-changed`        | `{ item: NavItem }`                                   | Navigation selection changed |
 | `file-selection-changed`  | `{ files: readonly TFile[], focused: TFile \| null }` | File selection changed       |
 | `pinned-files-changed`    | `{ files: readonly TFile[] }`                         | Pinned files changed         |
-| `folder-metadata-changed` | `{ folder: TFolder, property: 'color' \| 'icon' }`    | Folder metadata changed      |
-| `tag-metadata-changed`    | `{ tag: string, property: 'color' \| 'icon' }`        | Tag metadata changed         |
+| `folder-metadata-changed` | `{ folder: TFolder, metadata: FolderMetadata }`       | Folder metadata changed      |
+| `tag-metadata-changed`    | `{ tag: string, metadata: TagMetadata }`              | Tag metadata changed         |
 
 ```typescript
 // Subscribe to events with full type safety
 
-// storage-ready has void payload, so callback has no parameters
-const storageRef = nn.on('storage-ready', () => {
+// Use 'once' for one-time events (auto-unsubscribes)
+nn.once('storage-ready', () => {
   console.log('Storage is ready - safe to call read APIs');
+  // No need to unsubscribe, it's handled automatically
 });
 
-// nav-item-changed provides the complete navigation state
+// Use 'on' for persistent listeners
 const navRef = nn.on('nav-item-changed', ({ item }) => {
   if (item.folder) {
     console.log('Folder selected:', item.folder.path);
@@ -214,19 +215,19 @@ const selectionRef = nn.on('file-selection-changed', ({ files, focused }) => {
   console.log(`${files.length} files selected`);
 });
 
-// Unsubscribe
-nn.off(storageRef);
+// Unsubscribe from persistent listeners
 nn.off(navRef);
 nn.off(selectionRef);
 ```
 
 ## Core API Methods
 
-| Method                                                                                                     | Description              | Returns    |
-| ---------------------------------------------------------------------------------------------------------- | ------------------------ | ---------- |
-| `getVersion()`                                                                                             | Get API version          | `string`   |
-| `on<T extends NotebookNavigatorEventType>(event: T, callback: (data: NotebookNavigatorEvents[T]) => void)` | Subscribe to typed event | `EventRef` |
-| `off(ref)`                                                                                                 | Unsubscribe from event   | `void`     |
+| Method                                                                                                       | Description                                      | Returns    |
+| ------------------------------------------------------------------------------------------------------------ | ------------------------------------------------ | ---------- |
+| `getVersion()`                                                                                               | Get API version                                  | `string`   |
+| `on<T extends NotebookNavigatorEventType>(event: T, callback: (data: NotebookNavigatorEvents[T]) => void)`   | Subscribe to typed event                         | `EventRef` |
+| `once<T extends NotebookNavigatorEventType>(event: T, callback: (data: NotebookNavigatorEvents[T]) => void)` | Subscribe once (auto-unsubscribes after trigger) | `EventRef` |
+| `off(ref)`                                                                                                   | Unsubscribe from event                           | `void`     |
 
 ## TypeScript Support
 
@@ -253,12 +254,12 @@ const nn = app.plugins.plugins['notebook-navigator']
   ?.api as NotebookNavigatorAPI;
 if (nn) {
   // Full type safety and autocomplete
-  await nn.metadata.setFolderColor(folder, '#FF5733');
+  await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
 
   // Icon strings are type-checked at compile time
   const icon: IconString = 'lucide:folder'; // ✅ Valid
   // const bad: IconString = 'invalid:icon'; // ❌ TypeScript error
-  await nn.metadata.setFolderIcon(folder, icon);
+  await nn.metadata.setFolderMeta(folder, { icon });
 
   // Events have full type inference
   nn.on('file-selection-changed', ({ files, focused }) => {
@@ -273,7 +274,7 @@ if (nn) {
 // Works fine without types in JavaScript/TypeScript
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 if (nn) {
-  await nn.metadata.setFolderColor(folder, '#FF5733');
+  await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
 }
 ```
 
