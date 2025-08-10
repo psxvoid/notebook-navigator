@@ -39,20 +39,20 @@ The API provides four main namespaces:
 
 Smart file operations that maintain proper selection in the navigator.
 
-| Method                | Description                                                | Returns               |
-| --------------------- | ---------------------------------------------------------- | --------------------- |
-| `delete(files)`       | Move files to Obsidian trash (respects app trash settings) | `Promise<void>`       |
-| `move(files, folder)` | Move files to folder                                       | `Promise<MoveResult>` |
+| Method                     | Description                                                | Returns               |
+| -------------------------- | ---------------------------------------------------------- | --------------------- |
+| `deleteFiles(files)`       | Move files to Obsidian trash (respects app trash settings) | `Promise<void>`       |
+| `moveFiles(files, folder)` | Move files to folder                                       | `Promise<MoveResult>` |
 
 ```typescript
 // Delete files (throws on failure)
 const file = app.vault.getFileByPath('notes/old.md');
-await nn.file.delete([file]);
+await nn.file.deleteFiles([file]);
 
 // Move files (throws on failure, returns counts on success)
 const targetFolder = app.vault.getAbstractFileByPath('Archive');
 if (targetFolder instanceof TFolder) {
-  const result = await nn.file.move([file1, file2], targetFolder);
+  const result = await nn.file.moveFiles([file1, file2], targetFolder);
   // result: { movedCount: 2, skippedCount: 0 }
   // Files with name collisions are skipped without overwrite; see skippedCount
 }
@@ -378,7 +378,7 @@ if (archiveFolder instanceof TFolder) {
     .filter(f => f.stat.mtime < Date.now() - 30 * 24 * 60 * 60 * 1000);
 
   if (oldFiles.length > 0) {
-    await nn.file.delete(oldFiles);
+    await nn.file.deleteFiles(oldFiles);
   }
 }
 
@@ -388,7 +388,7 @@ const projects = app.vault.getAbstractFileByPath('Projects');
 if (inbox instanceof TFolder && projects instanceof TFolder) {
   const files = inbox.children.filter(f => f instanceof TFile);
   try {
-    const result = await nn.file.move(files, projects);
+    const result = await nn.file.moveFiles(files, projects);
     console.log(
       `Moved ${result.movedCount} files, skipped ${result.skippedCount}`
     );

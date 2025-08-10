@@ -127,9 +127,9 @@ export interface NotebookNavigatorAPI {
     /** File operations with smart selection management */
     file: {
         /** Delete files (moves to trash) */
-        delete(files: TFile[]): Promise<void>;
+        deleteFiles(files: TFile[]): Promise<void>;
         /** Move files to a target folder */
-        move(files: TFile[], folder: TFolder): Promise<MoveResult>;
+        moveFiles(files: TFile[], folder: TFolder): Promise<MoveResult>;
     };
 
     /** Metadata operations for folders, tags, and pinned files */

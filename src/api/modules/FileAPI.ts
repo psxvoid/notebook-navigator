@@ -62,7 +62,7 @@ export class FileAPI {
      * Uses the plugin's confirmation setting
      * @param files - Array of files to delete
      */
-    async delete(files: TFile[]): Promise<void> {
+    async deleteFiles(files: TFile[]): Promise<void> {
         const plugin = this.api.getPlugin();
 
         if (files.length === 0) {
@@ -133,7 +133,7 @@ export class FileAPI {
      * @returns Result with moved count and skipped count
      * @throws Error if the move operation fails
      */
-    async move(files: TFile[], targetFolder: TFolder): Promise<MoveResult> {
+    async moveFiles(files: TFile[], targetFolder: TFolder): Promise<MoveResult> {
         const plugin = this.api.getPlugin();
 
         if (!plugin.fileSystemOps) {
