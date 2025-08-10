@@ -131,11 +131,21 @@ if (file && !nn.metadata.isPinned(file)) {
 | -------------- | ----------------------------------- | --------------- |
 | `reveal(file)` | Reveal and select file in navigator | `Promise<void>` |
 
+### Reveal Behavior
+
+When calling `reveal(file)`:
+- **Switches to the file's parent folder** in the navigation pane
+- **Expands parent folders** as needed to make the folder visible
+- **Selects and focuses the file** in the file list
+- **Switches to file list view** if in single-pane mode
+- **If the file doesn't exist or has no parent folder**, the method returns silently without error
+
 ```typescript
 // Navigate to active file
 const activeFile = app.workspace.getActiveFile();
 if (activeFile) {
   await nn.navigation.reveal(activeFile);
+  // File is now selected in its parent folder
 }
 ```
 
@@ -143,10 +153,10 @@ if (activeFile) {
 
 Query the current selection state in the navigator.
 
-| Method         | Description                  | Returns                                            |
-| -------------- | ---------------------------- | -------------------------------------------------- |
-| `getNavItem()` | Get selected folder or tag   | `NavItem` |
-| `getCurrent()` | Get complete selection state | `SelectionState`                                   |
+| Method         | Description                  | Returns          |
+| -------------- | ---------------------------- | ---------------- |
+| `getNavItem()` | Get selected folder or tag   | `NavItem`        |
+| `getCurrent()` | Get complete selection state | `SelectionState` |
 
 ```typescript
 // Check what's selected
@@ -155,6 +165,8 @@ if (navItem.folder) {
   console.log('Folder selected:', navItem.folder.path);
 } else if (navItem.tag) {
   console.log('Tag selected:', navItem.tag);
+} else {
+  console.log('Nothing selected in navigation pane');
 }
 
 // Get selected files

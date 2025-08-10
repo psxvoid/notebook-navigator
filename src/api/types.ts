@@ -133,11 +133,12 @@ export interface NotebookNavigatorEvents {
 
 /**
  * Currently selected navigation item (folder or tag)
+ * Both folder and tag can be null if nothing is selected
  */
 export interface NavItem {
-    /** The selected folder (null if a tag is selected) */
+    /** The selected folder (null if a tag is selected or nothing is selected) */
     folder: TFolder | null;
-    /** The selected tag (null if a folder is selected) */
+    /** The selected tag (null if a folder is selected or nothing is selected) */
     tag: string | null;
 }
 
