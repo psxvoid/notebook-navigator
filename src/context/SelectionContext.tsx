@@ -525,9 +525,33 @@ export function SelectionProvider({
             console.error('Failed to load selected file from localStorage:', error);
         }
 
+        // Load saved multi-selection with error handling
+        let savedFilePaths: string[] = [];
+        try {
+            savedFilePaths = localStorage.get<string[]>(STORAGE_KEYS.selectedFilesKey) || [];
+        } catch (error) {
+            console.error('Failed to load selected files from localStorage:', error);
+        }
+
         let selectedFile: TFile | null = null;
         const selectedFiles = new Set<string>();
-        if (savedFilePath) {
+
+        // Load multi-selection if available
+        if (savedFilePaths.length > 0) {
+            for (const path of savedFilePaths) {
+                const file = vault.getAbstractFileByPath(path);
+                if (file instanceof TFile) {
+                    selectedFiles.add(file.path);
+                    // Set the first valid file as the primary file if we don't have one
+                    if (!selectedFile) {
+                        selectedFile = file;
+                    }
+                }
+            }
+        }
+
+        // Fall back to single file if no multi-selection
+        if (selectedFiles.size === 0 && savedFilePath) {
             const file = vault.getAbstractFileByPath(savedFilePath);
             if (file instanceof TFile) {
                 selectedFile = file;
@@ -592,10 +616,7 @@ export function SelectionProvider({
                         }
                     }
 
-                    // Trigger navigation-changed event for folder navigation
-                    if (api) {
-                        api.trigger('navigation-changed', { type: 'folder', path: action.folder.path });
-                    }
+                    // Navigation event will be triggered by the useEffect watching selectedFolder
                 } else {
                     dispatch({ ...action, autoSelectedFile: null });
                 }
@@ -622,10 +643,7 @@ export function SelectionProvider({
                         }
                     }
 
-                    // Trigger navigation-changed event for tag navigation
-                    if (api) {
-                        api.trigger('navigation-changed', { type: 'tag', path: action.tag });
-                    }
+                    // Navigation event will be triggered by the useEffect watching selectedTag
                 } else {
                     dispatch({ ...action, autoSelectedFile: null });
                 }
@@ -640,7 +658,7 @@ export function SelectionProvider({
                 dispatch(action);
             }
         },
-        [app, settings, isMobile, tagTreeService, api, dispatch]
+        [app, settings, isMobile, tagTreeService, dispatch]
     );
 
     // Persist selected folder to localStorage with error handling
@@ -696,6 +714,32 @@ export function SelectionProvider({
             console.error('Failed to save selected file to localStorage:', error);
         }
     }, [state.selectedFile, state.selectedFiles, app]);
+
+    // Persist multi-selection to localStorage and notify plugin
+    useEffect(() => {
+        try {
+            // Save all selected files
+            if (state.selectedFiles.size > 0) {
+                localStorage.set(STORAGE_KEYS.selectedFilesKey, Array.from(state.selectedFiles));
+            } else {
+                localStorage.remove(STORAGE_KEYS.selectedFilesKey);
+            }
+
+            // Notify the API about file selection changes
+            if (api && api.selection) {
+                api.selection.updateFileState(state.selectedFiles, state.selectedFile);
+            }
+        } catch (error) {
+            console.error('Failed to save selected files to localStorage:', error);
+        }
+    }, [state.selectedFiles, state.selectedFile, api]);
+
+    // Notify API about navigation selection changes
+    useEffect(() => {
+        if (api && api.selection) {
+            api.selection.updateNavigationState(state.selectedFolder, state.selectedTag);
+        }
+    }, [state.selectedFolder, state.selectedTag, api]);
 
     // Register file rename listener
     useEffect(() => {

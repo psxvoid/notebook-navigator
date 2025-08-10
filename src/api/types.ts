@@ -19,100 +19,89 @@
 import { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
 
 /**
- * Navigation result types
+ * Notebook Navigator Public API Types
+ *
+ * These types are exposed to external plugins through the API.
+ * The API consistently uses Obsidian's native types (TFile, TFolder)
+ * rather than string paths for better type safety and integration.
  */
-export interface NavigationResult {
-    success: boolean;
-    path?: string;
-    error?: string;
-}
+
+// ============================================================================
+// METADATA TYPES
+// ============================================================================
 
 /**
- * Selection state
- */
-export interface SelectionState {
-    folder: string | null;
-    tag: string | null;
-    files: string[];
-}
-
-/**
- * File metadata from cache
- */
-export interface CachedFileData {
-    path: string;
-    mtime: number;
-    tags: string[] | null;
-    preview: string | null;
-    featureImage: string | null;
-    metadata: {
-        name?: string;
-        created?: number;
-        modified?: number;
-    } | null;
-}
-
-/**
- * Folder metadata
+ * Metadata for customizing folder appearance in the navigator
  */
 export interface FolderMetadata {
+    /** Hex color code or CSS color name */
     color?: string;
+    /** Icon identifier (e.g., 'lucide:folder' or 'emoji:📁') */
     icon?: string;
+    /** Display settings for files in this folder */
     appearance?: FolderAppearance;
 }
 
 /**
- * Tag metadata
+ * Metadata for customizing tag appearance in the navigator
  */
 export interface TagMetadata {
+    /** Hex color code or CSS color name */
     color?: string;
+    /** Icon identifier (e.g., 'lucide:tag' or 'emoji:🏷️') */
     icon?: string;
+    /** Display settings for files with this tag */
     appearance?: TagAppearance;
+    /** Whether this tag is marked as a favorite */
     isFavorite?: boolean;
 }
 
-/**
- * Event types
- */
-export type NotebookNavigatorEventType = 'navigation-changed' | 'storage-ready';
+// ============================================================================
+// OPERATION RESULTS
+// ============================================================================
 
 /**
- * Event payloads
+ * Result of a navigation operation
+ */
+export interface NavigationResult {
+    /** Whether the navigation was successful */
+    success: boolean;
+    /** Path of the navigated item (if successful) */
+    path?: string;
+    /** Error message (if failed) */
+    error?: string;
+}
+
+// ============================================================================
+// EVENTS
+// ============================================================================
+
+/**
+ * All available event types that can be subscribed to
+ */
+export type NotebookNavigatorEventType =
+    | 'navigation-changed' // User navigated to a different folder or tag
+    | 'storage-ready' // Storage system is initialized and ready
+    | 'file-selection-changed'; // File selection changed in the list pane
+
+/**
+ * Event payload definitions for each event type
  */
 export interface NotebookNavigatorEvents {
-    'navigation-changed': { type: 'folder' | 'tag'; path: string };
+    /** Fired when user navigates to a different folder or tag */
+    'navigation-changed': {
+        type: 'folder' | 'tag';
+        path: string;
+    };
+
+    /** Fired when the storage system is ready for queries */
     'storage-ready': void;
-}
 
-/**
- * Query options for finding files
- */
-export interface FileQueryOptions {
-    folder?: string;
-    tag?: string;
-    tags?: string[];
-    hasPreview?: boolean;
-    hasFeatureImage?: boolean;
-    includeSubfolders?: boolean;
-    limit?: number;
-}
-
-/**
- * Batch operation results
- */
-export interface BatchOperationResult {
-    success: number;
-    failed: number;
-    errors: Array<{ path: string; error: string }>;
-}
-
-/**
- * View state
- */
-export interface ViewState {
-    isOpen: boolean;
-    isActive: boolean;
-    paneWidth: number;
-    dualPane: boolean;
-    focusedPane: 'navigation' | 'list';
+    /** Fired when file selection changes in the list pane */
+    'file-selection-changed': {
+        /** Array of selected file paths */
+        files: string[];
+        /** Number of selected files */
+        count: number;
+    };
 }

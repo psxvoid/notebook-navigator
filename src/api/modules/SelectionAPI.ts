@@ -16,45 +16,154 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFolder } from 'obsidian';
+import { TFolder, TFile } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
 import { STORAGE_KEYS } from '../../types';
 import { localStorage } from '../../utils/localStorage';
 
 /**
- * Selection API - Get current selection state in the navigator
+ * Selection API - Manage and query selection state in the navigator
  */
 export class SelectionAPI {
-    constructor(private api: NotebookNavigatorAPI) {}
+    /**
+     * Internal state for tracking all selections
+     */
+    private selectionState = {
+        // File selection state
+        files: new Set<string>(),
+        primaryFile: null as TFile | null,
+        // Navigation selection state
+        navigationFolder: null as TFolder | null,
+        navigationTag: null as string | null
+    };
+
+    constructor(private api: NotebookNavigatorAPI) {
+        // Initialize navigation state from localStorage
+        this.initializeNavigationState();
+    }
+
+    /**
+     * Initialize navigation state from localStorage on startup
+     */
+    private initializeNavigationState(): void {
+        try {
+            const folderPath = localStorage.get<string>(STORAGE_KEYS.selectedFolderKey);
+            const tagName = localStorage.get<string>(STORAGE_KEYS.selectedTagKey);
+
+            if (tagName) {
+                this.selectionState.navigationTag = tagName;
+                this.selectionState.navigationFolder = null;
+            } else if (folderPath) {
+                const folder = this.api.app.vault.getAbstractFileByPath(folderPath);
+                if (folder instanceof TFolder) {
+                    this.selectionState.navigationFolder = folder;
+                    this.selectionState.navigationTag = null;
+                }
+            }
+        } catch (error) {
+            console.error('Failed to initialize navigation state from localStorage:', error);
+        }
+    }
 
     /**
      * Get the currently selected folder or tag in the navigation pane
      * @returns Object with either folder or tag selected (only one can be selected at a time)
      */
     getNavigationSelection(): { folder: TFolder | null; tag: string | null } {
-        // Read from localStorage since the selection is persisted there
-        const folderPath = localStorage.get<string>(STORAGE_KEYS.selectedFolderKey);
-        const tagName = localStorage.get<string>(STORAGE_KEYS.selectedTagKey);
+        return {
+            folder: this.selectionState.navigationFolder,
+            tag: this.selectionState.navigationTag
+        };
+    }
 
-        // If a tag is selected, it takes precedence
-        if (tagName) {
-            return {
-                folder: null,
-                tag: tagName
-            };
+    /**
+     * Update the navigation selection state
+     * Called by React components when navigation changes
+     * @internal
+     */
+    updateNavigationState(folder: TFolder | null, tag: string | null): void {
+        this.selectionState.navigationFolder = folder;
+        this.selectionState.navigationTag = tag;
+
+        // Trigger navigation-changed event
+        if (folder) {
+            this.api.trigger('navigation-changed', {
+                type: 'folder',
+                path: folder.path
+            });
+        } else if (tag) {
+            this.api.trigger('navigation-changed', {
+                type: 'tag',
+                path: tag
+            });
         }
+    }
 
-        // Otherwise check for a folder
-        if (folderPath) {
-            const folder = this.api.app.vault.getAbstractFileByPath(folderPath);
-            if (folder instanceof TFolder) {
-                return {
-                    folder: folder,
-                    tag: null
-                };
+    /**
+     * Update the file selection state
+     * Called by React components when file selection changes
+     * @internal
+     */
+    updateFileState(selectedFiles: Set<string>, primaryFile: TFile | null): void {
+        const oldCount = this.selectionState.files.size;
+        this.selectionState.files = new Set(selectedFiles);
+        this.selectionState.primaryFile = primaryFile;
+
+        // Trigger event if selection has changed
+        if (oldCount !== selectedFiles.size || oldCount === 0) {
+            this.api.trigger('file-selection-changed', {
+                files: Array.from(selectedFiles),
+                count: selectedFiles.size
+            });
+        }
+    }
+
+    /**
+     * Get all currently selected files
+     * @returns Array of selected TFile objects (empty array if none selected)
+     */
+    getSelectedFiles(): TFile[] {
+        const files: TFile[] = [];
+
+        for (const path of this.selectionState.files) {
+            const file = this.api.app.vault.getAbstractFileByPath(path);
+            if (file instanceof TFile) {
+                files.push(file);
             }
         }
 
-        return { folder: null, tag: null };
+        return files;
+    }
+
+    /**
+     * Get all currently selected file paths
+     * @returns Array of file paths (empty array if none selected)
+     */
+    getSelectedFilePaths(): string[] {
+        return Array.from(this.selectionState.files);
+    }
+
+    /**
+     * Check if multiple files are selected
+     * @returns true if more than one file is selected
+     */
+    hasMultipleSelection(): boolean {
+        return this.selectionState.files.size > 1;
+    }
+
+    /**
+     * Get the count of selected files
+     * @returns Number of selected files
+     */
+    getSelectionCount(): number {
+        return this.selectionState.files.size;
+    }
+
+    /**
+     * Get the primary selected file (cursor position in multi-selection)
+     * @returns The primary selected file or null if none selected
+     */
+    getPrimarySelectedFile(): TFile | null {
+        return this.selectionState.primaryFile;
     }
 }

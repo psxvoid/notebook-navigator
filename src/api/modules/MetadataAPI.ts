@@ -19,12 +19,74 @@
 import { TFile, TFolder } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
 import type { FolderMetadata, TagMetadata } from '../types';
+import type { NotebookNavigatorSettings, SortOption } from '../../settings';
+import type { FolderAppearance, TagAppearance } from '../../hooks/useListPaneAppearance';
 
 /**
  * Metadata API - Manage folder and tag appearance, icons, colors, and pinned files
  */
 export class MetadataAPI {
-    constructor(private api: NotebookNavigatorAPI) {}
+    /**
+     * Internal state cache for metadata
+     */
+    private metadataState = {
+        // Folder metadata
+        folderColors: {} as Record<string, string>,
+        folderIcons: {} as Record<string, string>,
+        folderAppearances: {} as Record<string, FolderAppearance>,
+        folderSortOverrides: {} as Record<string, SortOption>,
+
+        // Tag metadata
+        tagColors: {} as Record<string, string>,
+        tagIcons: {} as Record<string, string>,
+        tagAppearances: {} as Record<string, TagAppearance>,
+        tagSortOverrides: {} as Record<string, SortOption>,
+        favoriteTags: [] as string[],
+        hiddenTags: [] as string[],
+
+        // Pinned files
+        pinnedNotes: [] as string[]
+    };
+
+    constructor(private api: NotebookNavigatorAPI) {
+        this.initializeFromSettings();
+    }
+
+    /**
+     * Initialize internal cache from plugin settings
+     */
+    private initializeFromSettings(): void {
+        const plugin = this.api.getPlugin();
+        if (plugin && plugin.settings) {
+            this.updateFromSettings(plugin.settings);
+        }
+    }
+
+    /**
+     * Update internal cache when settings change
+     * Called by the plugin when settings are modified
+     * @internal
+     */
+    updateFromSettings(settings: NotebookNavigatorSettings): void {
+        this.metadataState = {
+            // Copy folder metadata
+            folderColors: { ...settings.folderColors },
+            folderIcons: { ...settings.folderIcons },
+            folderAppearances: { ...settings.folderAppearances },
+            folderSortOverrides: { ...settings.folderSortOverrides },
+
+            // Copy tag metadata
+            tagColors: { ...settings.tagColors },
+            tagIcons: { ...settings.tagIcons },
+            tagAppearances: { ...settings.tagAppearances },
+            tagSortOverrides: { ...settings.tagSortOverrides },
+            favoriteTags: [...(settings.favoriteTags || [])],
+            hiddenTags: [...(settings.hiddenTags || [])],
+
+            // Copy pinned files
+            pinnedNotes: [...(settings.pinnedNotes || [])]
+        };
+    }
 
     // ===================================================================
     // Folder Metadata
@@ -35,14 +97,11 @@ export class MetadataAPI {
      * @param folder - Folder to get metadata for
      */
     getFolderMetadata(folder: TFolder): FolderMetadata {
-        const plugin = this.api.getPlugin();
-        const settings = plugin.settings;
         const path = folder.path;
-
         return {
-            color: settings.folderColors[path],
-            icon: settings.folderIcons[path],
-            appearance: settings.folderAppearances[path]
+            color: this.metadataState.folderColors[path],
+            icon: this.metadataState.folderIcons[path],
+            appearance: this.metadataState.folderAppearances[path]
         };
     }
 
@@ -52,13 +111,25 @@ export class MetadataAPI {
      * @param color - Hex color string or null to remove
      */
     async setFolderColor(folder: TFolder, color: string | null): Promise<void> {
-        const plugin = this.api.getPlugin();
+        const path = folder.path;
+
+        // Update internal cache
         if (color) {
-            plugin.settings.folderColors[folder.path] = color;
+            this.metadataState.folderColors[path] = color;
         } else {
-            delete plugin.settings.folderColors[folder.path];
+            delete this.metadataState.folderColors[path];
         }
-        await plugin.saveSettings();
+
+        // Update plugin settings
+        const plugin = this.api.getPlugin();
+        if (plugin) {
+            if (color) {
+                plugin.settings.folderColors[path] = color;
+            } else {
+                delete plugin.settings.folderColors[path];
+            }
+            await plugin.saveSettings();
+        }
     }
 
     /**
@@ -67,13 +138,25 @@ export class MetadataAPI {
      * @param icon - Icon identifier (e.g., 'lucide:folder', 'emoji:📁') or null to remove
      */
     async setFolderIcon(folder: TFolder, icon: string | null): Promise<void> {
-        const plugin = this.api.getPlugin();
+        const path = folder.path;
+
+        // Update internal cache
         if (icon) {
-            plugin.settings.folderIcons[folder.path] = icon;
+            this.metadataState.folderIcons[path] = icon;
         } else {
-            delete plugin.settings.folderIcons[folder.path];
+            delete this.metadataState.folderIcons[path];
         }
-        await plugin.saveSettings();
+
+        // Update plugin settings
+        const plugin = this.api.getPlugin();
+        if (plugin) {
+            if (icon) {
+                plugin.settings.folderIcons[path] = icon;
+            } else {
+                delete plugin.settings.folderIcons[path];
+            }
+            await plugin.saveSettings();
+        }
     }
 
     // ===================================================================
@@ -85,17 +168,14 @@ export class MetadataAPI {
      * @param tag - Tag string (e.g., '#work')
      */
     getTagMetadata(tag: string): TagMetadata | null {
-        const plugin = this.api.getPlugin();
-        const settings = plugin.settings;
-
         // Ensure tag starts with #
         const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
 
         return {
-            color: settings.tagColors[normalizedTag],
-            icon: settings.tagIcons[normalizedTag],
-            appearance: settings.tagAppearances[normalizedTag],
-            isFavorite: settings.favoriteTags?.includes(normalizedTag)
+            color: this.metadataState.tagColors[normalizedTag],
+            icon: this.metadataState.tagIcons[normalizedTag],
+            appearance: this.metadataState.tagAppearances[normalizedTag],
+            isFavorite: this.metadataState.favoriteTags.includes(normalizedTag)
         };
     }
 
@@ -105,15 +185,25 @@ export class MetadataAPI {
      * @param color - Hex color string or null to remove
      */
     async setTagColor(tag: string, color: string | null): Promise<void> {
-        const plugin = this.api.getPlugin();
         const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
 
+        // Update internal cache
         if (color) {
-            plugin.settings.tagColors[normalizedTag] = color;
+            this.metadataState.tagColors[normalizedTag] = color;
         } else {
-            delete plugin.settings.tagColors[normalizedTag];
+            delete this.metadataState.tagColors[normalizedTag];
         }
-        await plugin.saveSettings();
+
+        // Update plugin settings
+        const plugin = this.api.getPlugin();
+        if (plugin) {
+            if (color) {
+                plugin.settings.tagColors[normalizedTag] = color;
+            } else {
+                delete plugin.settings.tagColors[normalizedTag];
+            }
+            await plugin.saveSettings();
+        }
     }
 
     /**
@@ -122,15 +212,25 @@ export class MetadataAPI {
      * @param icon - Icon identifier or null to remove
      */
     async setTagIcon(tag: string, icon: string | null): Promise<void> {
-        const plugin = this.api.getPlugin();
         const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
 
+        // Update internal cache
         if (icon) {
-            plugin.settings.tagIcons[normalizedTag] = icon;
+            this.metadataState.tagIcons[normalizedTag] = icon;
         } else {
-            delete plugin.settings.tagIcons[normalizedTag];
+            delete this.metadataState.tagIcons[normalizedTag];
         }
-        await plugin.saveSettings();
+
+        // Update plugin settings
+        const plugin = this.api.getPlugin();
+        if (plugin) {
+            if (icon) {
+                plugin.settings.tagIcons[normalizedTag] = icon;
+            } else {
+                delete plugin.settings.tagIcons[normalizedTag];
+            }
+            await plugin.saveSettings();
+        }
     }
 
     // ===================================================================
@@ -142,10 +242,9 @@ export class MetadataAPI {
      * @returns Array of TFile objects that are pinned
      */
     getPinnedFiles(): TFile[] {
-        const plugin = this.api.getPlugin();
-        const pinnedPaths = plugin.settings.pinnedNotes || [];
-
-        return pinnedPaths.map(path => this.api.app.vault.getFileByPath(path)).filter((file): file is TFile => file instanceof TFile);
+        return this.metadataState.pinnedNotes
+            .map(path => this.api.app.vault.getFileByPath(path))
+            .filter((file): file is TFile => file instanceof TFile);
     }
 
     /**
@@ -153,9 +252,7 @@ export class MetadataAPI {
      * @param file - File to check
      */
     isPinned(file: TFile): boolean {
-        const plugin = this.api.getPlugin();
-        const pinnedPaths = plugin.settings.pinnedNotes || [];
-        return pinnedPaths.includes(file.path);
+        return this.metadataState.pinnedNotes.includes(file.path);
     }
 
     /**

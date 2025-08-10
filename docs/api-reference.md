@@ -8,7 +8,7 @@ scripts to interact with its features programmatically.
 - [File API](#file-api) - Smart file operations with selection management
 - [Metadata API](#metadata-api) - Folder/tag customization and pinned files
 - [Navigation API](#navigation-api) - Navigate to files in the navigator
-- [Selection API](#selection-api) - Query current navigation selection
+- [Selection API](#selection-api) - Query current navigation and file selection
 - [Events](#events) - Subscribe to navigator events
 
 ## API Version
@@ -322,13 +322,21 @@ if (activeFile) await nn.navigation.navigateToFile(activeFile);
 
 ## Selection API
 
-Get the current selection state in the navigator.
+Get the current selection state in the navigator, including both navigation pane
+(folder/tag) and file list selections.
 
 ### Methods
 
 | Method                     | Description                                             | Since | Deprecated |
 | -------------------------- | ------------------------------------------------------- | ----- | ---------- |
+| **Navigation Selection**   |                                                         |       |            |
 | `getNavigationSelection()` | Get currently selected folder or tag in navigation pane | 1.0.0 |            |
+| **File Selection**         |                                                         |       |            |
+| `getSelectedFiles()`       | Get all currently selected files as TFile array         | 1.0.0 |            |
+| `getSelectedFilePaths()`   | Get all selected file paths as string array             | 1.0.0 |            |
+| `hasMultipleSelection()`   | Check if multiple files are selected                    | 1.0.0 |            |
+| `getSelectionCount()`      | Get the count of selected files                         | 1.0.0 |            |
+| `getPrimarySelectedFile()` | Get the primary selected file (cursor position)         | 1.0.0 |            |
 
 ```typescript
 // Get the currently selected folder or tag in the navigation pane
@@ -346,6 +354,28 @@ if (navSelection.folder) {
 } else if (navSelection.tag) {
   console.log('Selected tag:', navSelection.tag);
 }
+
+// Get all currently selected files (returns TFile[])
+const selectedFiles = nn.selection.getSelectedFiles();
+console.log(`${selectedFiles.length} files selected`);
+
+// Get just the file paths (returns string[])
+const selectedPaths = nn.selection.getSelectedFilePaths();
+
+// Check if multiple files are selected
+if (nn.selection.hasMultipleSelection()) {
+  console.log('Multiple files selected');
+}
+
+// Get the count of selected files
+const count = nn.selection.getSelectionCount();
+
+// Get the primary selected file (cursor position in multi-selection)
+// This is the file that has keyboard focus
+const primaryFile = nn.selection.getPrimarySelectedFile();
+if (primaryFile) {
+  console.log('Cursor is on:', primaryFile.basename);
+}
 ```
 
 ## Events
@@ -354,10 +384,11 @@ Subscribe to events to react to changes in the navigator.
 
 ### Available Events
 
-| Event                | Payload                                     | Description                         | Since | Deprecated |
-| -------------------- | ------------------------------------------- | ----------------------------------- | ----- | ---------- |
-| `navigation-changed` | `{ type: 'folder' \| 'tag', path: string }` | User navigated to a folder or tag   | 1.0.0 |            |
-| `storage-ready`      | `void`                                      | Storage system is ready for queries | 1.0.0 |            |
+| Event                    | Payload                                     | Description                         | Since | Deprecated |
+| ------------------------ | ------------------------------------------- | ----------------------------------- | ----- | ---------- |
+| `navigation-changed`     | `{ type: 'folder' \| 'tag', path: string }` | User navigated to a folder or tag   | 1.0.0 |            |
+| `storage-ready`          | `void`                                      | Storage system is ready for queries | 1.0.0 |            |
+| `file-selection-changed` | `{ files: string[], count: number }`        | File selection changed              | 1.0.0 |            |
 
 ```typescript
 // Listen for when storage is ready
@@ -383,6 +414,15 @@ const ref = nn.on('navigation-changed', ({ type, path }) => {
 
 // Unsubscribe from events
 nn.off(ref);
+
+// Listen for file selection changes
+nn.on('file-selection-changed', ({ files, count }) => {
+  console.log(`Selection changed: ${count} files selected`);
+  if (count > 1) {
+    console.log('Multiple selection active');
+  }
+  console.log('Selected files:', files);
+});
 ```
 
 ### Available Events
@@ -398,6 +438,13 @@ nn.off(ref);
   - Payload: `{ type: 'folder' | 'tag', path: string }`
   - Triggered by user clicks in the navigation pane, NOT by API calls
   - Use this to react to user navigation actions
+
+- `file-selection-changed` - Fired when the file selection changes
+  - Payload: `{ files: string[], count: number }`
+  - `files`: Array of file paths that are currently selected
+  - `count`: Number of selected files
+  - Triggered by user clicks, keyboard navigation, or multi-selection actions
+  - Multi-selection state is persisted across plugin restarts
 
 ## Examples
 
@@ -496,6 +543,41 @@ if (nn) {
     await nn.file.move(files, projects);
   }
 }
+```
+
+### Work with selected files
+
+```javascript
+// Process all currently selected files
+const nn = app.plugins.plugins['notebook-navigator']?.api;
+if (nn) {
+  const selectedFiles = nn.selection.getSelectedFiles();
+
+  // Add a tag to all selected files
+  for (const file of selectedFiles) {
+    await app.fileManager.processFrontMatter(file, fm => {
+      if (!fm.tags) fm.tags = [];
+      if (!fm.tags.includes('processed')) {
+        fm.tags.push('processed');
+      }
+    });
+  }
+
+  console.log(`Processed ${selectedFiles.length} files`);
+}
+
+// React to selection changes
+nn.on('file-selection-changed', async ({ files, count }) => {
+  if (count > 0) {
+    // Update a status bar item or perform other actions
+    console.log(`User selected ${count} file(s)`);
+
+    // Get the actual TFile objects if needed
+    const fileObjects = files
+      .map(path => app.vault.getFileByPath(path))
+      .filter(f => f !== null);
+  }
+});
 ```
 
 ## Type Definitions

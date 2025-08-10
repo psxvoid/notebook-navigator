@@ -743,6 +743,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     public onSettingsUpdate() {
         if (this.isUnloading) return;
 
+        // Update API metadata cache with new settings
+        if (this.api && this.api.metadata) {
+            this.api.metadata.updateFromSettings(this.settings);
+        }
+
         // Create a copy of listeners to avoid issues if a callback modifies the map
         const listeners = Array.from(this.settingsUpdateListeners.values());
         listeners.forEach(callback => {
