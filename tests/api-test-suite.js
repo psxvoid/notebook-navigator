@@ -372,7 +372,7 @@
                     this.assertTrue(isPinned, 'File should be pinned after pin()');
 
                     // Get all pinned files
-                    const pinnedFiles = this.api.metadata.getPinnedFiles();
+                    const pinnedFiles = this.api.metadata.getPinned();
                     this.assertTrue(Array.isArray(pinnedFiles), 'Should return array of pinned files');
                     const pinnedPaths = pinnedFiles.map(f => f.path);
                     this.assertTrue(pinnedPaths.includes(testFile.path), 'Pinned files should include our test file');

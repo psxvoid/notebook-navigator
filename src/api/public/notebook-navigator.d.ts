@@ -65,7 +65,7 @@ export interface NotebookNavigatorAPI {
         clearTagIcon(tag: string): Promise<void>;
 
         // Pins
-        getPinnedFiles(): TFile[];
+        getPinned(): TFile[];
         isPinned(file: TFile): boolean;
         pin(file: TFile): Promise<void>;
         unpin(file: TFile): Promise<void>;

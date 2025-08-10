@@ -118,13 +118,13 @@ Tag parameters accept strings with or without the leading `#` (both `'work'` and
 
 ### Pinned Files
 
-| Method             | Description             | Returns         |
-| ------------------ | ----------------------- | --------------- |
-| `getPinnedFiles()` | Get all pinned files    | `TFile[]`       |
-| `isPinned(file)`   | Check if file is pinned | `boolean`       |
-| `pin(file)`        | Pin a file              | `Promise<void>` |
-| `unpin(file)`      | Unpin a file            | `Promise<void>` |
-| `togglePin(file)`  | Toggle pin status       | `Promise<void>` |
+| Method            | Description             | Returns         |
+| ----------------- | ----------------------- | --------------- |
+| `getPinned()`     | Get all pinned files    | `TFile[]`       |
+| `isPinned(file)`  | Check if file is pinned | `boolean`       |
+| `pin(file)`       | Pin a file              | `Promise<void>` |
+| `unpin(file)`     | Unpin a file            | `Promise<void>` |
+| `togglePin(file)` | Toggle pin status       | `Promise<void>` |
 
 ```typescript
 // Set folder appearance - colors accept any CSS format
@@ -273,7 +273,7 @@ export interface NotebookNavigatorAPI {
     clearTagIcon(tag: string): Promise<void>;
 
     // Pins
-    getPinnedFiles(): TFile[];
+    getPinned(): TFile[];
     isPinned(file: TFile): boolean;
     pin(file: TFile): Promise<void>;
     unpin(file: TFile): Promise<void>;
@@ -312,6 +312,10 @@ if (nn) {
       await nn.metadata.pin(file);
     }
   }
+
+  // Check all pinned files
+  const pinnedFiles = nn.metadata.getPinned();
+  console.log(`${pinnedFiles.length} files are pinned`);
 }
 ```
 

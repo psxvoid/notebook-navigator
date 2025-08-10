@@ -279,7 +279,7 @@ export class MetadataAPI {
      * List all pinned files
      * @returns Array of TFile objects that are pinned
      */
-    getPinnedFiles(): TFile[] {
+    getPinned(): TFile[] {
         return this.metadataState.pinnedNotes
             .map(path => this.api.app.vault.getFileByPath(path))
             .filter((file): file is TFile => file instanceof TFile);
