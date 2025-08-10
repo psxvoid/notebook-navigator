@@ -29,7 +29,6 @@ import { SelectionAPI } from './modules/SelectionAPI';
 // Import versioning and compatibility
 import { API_VERSION, negotiateVersion, VersionNegotiation, CompatibilityLevel } from './version';
 import { FeatureDetector } from './compatibility';
-import { APIError, APIErrorCode } from './errors';
 
 /**
  * Public API for the Notebook Navigator plugin
@@ -79,11 +78,7 @@ export class NotebookNavigatorAPI {
         const negotiation = this.negotiateVersion(clientVersion);
 
         if (negotiation.compatibility === CompatibilityLevel.INCOMPATIBLE) {
-            throw new APIError(
-                APIErrorCode.INCOMPATIBLE_VERSION,
-                `API version ${clientVersion} is incompatible with plugin API ${API_VERSION.toString()}`,
-                { negotiation }
-            );
+            throw new Error(`API version ${clientVersion} is incompatible with plugin API ${API_VERSION.toString()}`);
         }
 
         return this;

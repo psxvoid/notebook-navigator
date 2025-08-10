@@ -113,51 +113,50 @@ Obsidian and prevents errors from invalid paths.
 
 ### Core Methods
 
-| Method                      | Description                     | Since | Deprecated |
-| --------------------------- | ------------------------------- | ----- | ---------- |
-| `getVersion()`              | Get current API version         | 1.0.0 |            |
-| `negotiateVersion(version)` | Negotiate version compatibility | 1.0.0 |            |
-| `on(event, callback)`       | Subscribe to events             | 1.0.0 |            |
-| `off(ref)`                  | Unsubscribe from events         | 1.0.0 |            |
-| `hasFeature(feature)`       | Check if a feature is available | 1.0.0 |            |
-| `listFeatures()`            | List all available features     | 1.0.0 |            |
+| Method                      | Description                     |
+| --------------------------- | ------------------------------- |
+| `getVersion()`              | Get current API version         |
+| `negotiateVersion(version)` | Negotiate version compatibility |
+| `on(event, callback)`       | Subscribe to events             |
+| `off(ref)`                  | Unsubscribe from events         |
+| `hasFeature(feature)`       | Check if a feature is available |
+| `listFeatures()`            | List all available features     |
 
 ### Available Features
 
 Use `hasFeature()` and `listFeatures()` to check which features are available.
-All features listed below were introduced in version 1.0.0.
 
-| Feature Key                           | Description                       | Since |
-| ------------------------------------- | --------------------------------- | ----- |
-| `file.delete`                         | Delete files with smart selection | 1.0.0 |
-| `file.moveTo`                         | Move files to another folder      | 1.0.0 |
-| `metadata.setFolderColor`             | Set folder color                  | 1.0.0 |
-| `metadata.clearFolderColor`           | Clear folder color                | 1.0.0 |
-| `metadata.setFolderIcon`              | Set folder icon                   | 1.0.0 |
-| `metadata.clearFolderIcon`            | Clear folder icon                 | 1.0.0 |
-| `metadata.clearFolderAppearance`      | Clear folder appearance settings  | 1.0.0 |
-| `metadata.setTagColor`                | Set tag color                     | 1.0.0 |
-| `metadata.clearTagColor`              | Clear tag color                   | 1.0.0 |
-| `metadata.setTagIcon`                 | Set tag icon                      | 1.0.0 |
-| `metadata.clearTagIcon`               | Clear tag icon                    | 1.0.0 |
-| `metadata.clearTagAppearance`         | Clear tag appearance settings     | 1.0.0 |
-| `metadata.pin`                        | Pin a file                        | 1.0.0 |
-| `metadata.unpin`                      | Unpin a file                      | 1.0.0 |
-| `metadata.togglePin`                  | Toggle pin status                 | 1.0.0 |
-| `metadata.listPinnedFiles`            | List all pinned files             | 1.0.0 |
-| `navigation.navigateToFile`           | Navigate to a file                | 1.0.0 |
-| `selection.listSelectedFiles`         | List selected files               | 1.0.0 |
-| `selection.listSelectedPaths`         | List selected file paths          | 1.0.0 |
-| `selection.getSelectionState`         | Get complete selection state      | 1.0.0 |
-| `selection.getFocusedFile`            | Get focused file                  | 1.0.0 |
-| `selection.getSelectedNavigationItem` | Get selected folder or tag        | 1.0.0 |
-| `events.storage-ready`                | Storage ready event               | 1.0.0 |
-| `events.folder-selected`              | Folder selected event             | 1.0.0 |
-| `events.tag-selected`                 | Tag selected event                | 1.0.0 |
-| `events.file-selection-changed`       | File selection change event       | 1.0.0 |
-| `events.pinned-files-changed`         | Pinned files change event         | 1.0.0 |
-| `events.folder-metadata-changed`      | Folder metadata change event      | 1.0.0 |
-| `events.tag-metadata-changed`         | Tag metadata change event         | 1.0.0 |
+| Feature Key                           | Description                       |
+| ------------------------------------- | --------------------------------- |
+| `file.delete`                         | Delete files with smart selection |
+| `file.moveTo`                         | Move files to another folder      |
+| `metadata.setFolderColor`             | Set folder color                  |
+| `metadata.clearFolderColor`           | Clear folder color                |
+| `metadata.setFolderIcon`              | Set folder icon                   |
+| `metadata.clearFolderIcon`            | Clear folder icon                 |
+| `metadata.clearFolderAppearance`      | Clear folder appearance settings  |
+| `metadata.setTagColor`                | Set tag color                     |
+| `metadata.clearTagColor`              | Clear tag color                   |
+| `metadata.setTagIcon`                 | Set tag icon                      |
+| `metadata.clearTagIcon`               | Clear tag icon                    |
+| `metadata.clearTagAppearance`         | Clear tag appearance settings     |
+| `metadata.pin`                        | Pin a file                        |
+| `metadata.unpin`                      | Unpin a file                      |
+| `metadata.togglePin`                  | Toggle pin status                 |
+| `metadata.listPinnedFiles`            | List all pinned files             |
+| `navigation.navigateToFile`           | Navigate to a file                |
+| `selection.listSelectedFiles`         | List selected files               |
+| `selection.listSelectedPaths`         | List selected file paths          |
+| `selection.getSelectionState`         | Get complete selection state      |
+| `selection.getFocusedFile`            | Get focused file                  |
+| `selection.getSelectedNavigationItem` | Get selected folder or tag        |
+| `events.storage-ready`                | Storage ready event               |
+| `events.folder-selected`              | Folder selected event             |
+| `events.tag-selected`                 | Tag selected event                |
+| `events.file-selection-changed`       | File selection change event       |
+| `events.pinned-files-changed`         | Pinned files change event         |
+| `events.folder-metadata-changed`      | Folder metadata change event      |
+| `events.tag-metadata-changed`         | Tag metadata change event         |
 
 ```typescript
 // Get the API instance

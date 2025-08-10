@@ -36,28 +36,6 @@ import { TFile, TFolder, EventRef } from 'obsidian';
 export type TagRef = `#${string}`;
 
 // ============================================================================
-// APPEARANCE TYPES (moved from internal hooks)
-// ============================================================================
-
-/**
- * Display settings for files in a folder
- */
-export interface FolderAppearance {
-    showPreview?: boolean;
-    showImage?: boolean;
-    layoutStyle?: 'list' | 'grid' | 'card';
-}
-
-/**
- * Display settings for files with a tag
- */
-export interface TagAppearance {
-    showPreview?: boolean;
-    showImage?: boolean;
-    layoutStyle?: 'list' | 'grid' | 'card';
-}
-
-// ============================================================================
 // METADATA TYPES
 // ============================================================================
 
@@ -69,8 +47,6 @@ export interface FolderMetadata {
     color?: string;
     /** Icon identifier (e.g., 'lucide:folder' or 'emoji:📁') */
     icon?: string;
-    /** Display settings for files in this folder */
-    appearance?: FolderAppearance;
 }
 
 /**
@@ -81,8 +57,6 @@ export interface TagMetadata {
     color?: string;
     /** Icon identifier (e.g., 'lucide:tag' or 'emoji:🏷️') */
     icon?: string;
-    /** Display settings for files with this tag */
-    appearance?: TagAppearance;
     /** Whether this tag is marked as a favorite */
     isFavorite?: boolean;
 }
@@ -90,24 +64,6 @@ export interface TagMetadata {
 // ============================================================================
 // OPERATION RESULTS
 // ============================================================================
-
-/**
- * Result of a navigation operation
- */
-export type NavigationResult = { success: true; target: TFile | TFolder | TagRef } | { success: false; error: string };
-
-/**
- * Result of a file delete operation
- */
-export interface DeleteResult {
-    /** Number of files successfully deleted */
-    deletedCount: number;
-    /** Array of errors if any */
-    errors: Array<{
-        file: TFile;
-        error: string;
-    }>;
-}
 
 /**
  * Result of a file move operation
@@ -184,7 +140,6 @@ export interface NotebookNavigatorEvents {
  */
 export interface SelectionState {
     files: TFile[];
-    paths: string[];
     focused: TFile | null;
 }
 

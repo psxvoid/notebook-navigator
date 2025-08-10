@@ -304,23 +304,27 @@
 
                 'Should navigate to a file': async function () {
                     const testFile = await this.createTestFile('test-navigation.md', '# Test Navigation');
-                    const result = await this.api.navigation.navigateToFile(testFile);
 
-                    this.assertExists(result, 'Navigation result is null');
-                    if (result.success) {
-                        this.assertEqual(result.target, testFile, 'Target should be the navigated file');
-                    } else {
+                    try {
+                        await this.api.navigation.navigateToFile(testFile);
+                        // If successful, navigation completed
+                        this.assertTrue(true, 'Navigation completed successfully');
+                    } catch (error) {
                         // View might not be open, which is okay
-                        this.assertTrue(result.error.includes('view') || result.error.length > 0, 'Should have error message');
+                        this.assertTrue(error.message.includes('view'), 'Error should mention view not being open');
                     }
                 },
 
                 'Should handle navigation to non-existent file gracefully': async function () {
                     const fakeFile = { path: 'fake-file-that-does-not-exist.md' };
-                    const result = await this.api.navigation.navigateToFile(fakeFile);
 
-                    this.assertExists(result, 'Should return a result even for invalid file');
-                    this.assertFalse(result.success, 'Should not succeed for non-existent file');
+                    try {
+                        await this.api.navigation.navigateToFile(fakeFile);
+                        // Should throw an error for non-existent file
+                        this.assertTrue(false, 'Should have thrown an error for non-existent file');
+                    } catch (error) {
+                        this.assertTrue(true, 'Correctly threw error for non-existent file');
+                    }
                 }
             };
         }
@@ -334,13 +338,14 @@
                 'Should get and set folder metadata': async function () {
                     const testFolder = await this.createTestFolder('test-metadata-folder');
 
-                    // Get initial metadata
+                    // Get initial metadata (should be null when nothing is set)
                     const initialMeta = this.api.metadata.getFolderMetadata(testFolder);
-                    this.assertExists(initialMeta, 'Should return metadata object');
+                    this.assertEqual(initialMeta, null, 'Should return null when no metadata is set');
 
                     // Set color
                     await this.api.metadata.setFolderColor(testFolder, '#ff0000');
                     const afterColor = this.api.metadata.getFolderMetadata(testFolder);
+                    this.assertExists(afterColor, 'Should return metadata after setting color');
                     this.assertEqual(afterColor.color, '#ff0000', 'Color should be set');
 
                     // Set icon
@@ -352,20 +357,20 @@
                     await this.api.metadata.clearFolderColor(testFolder);
                     await this.api.metadata.clearFolderIcon(testFolder);
                     const cleared = this.api.metadata.getFolderMetadata(testFolder);
-                    this.assertFalse(cleared.color, 'Color should be cleared');
-                    this.assertFalse(cleared.icon, 'Icon should be cleared');
+                    this.assertEqual(cleared, null, 'Should return null when all metadata is cleared');
                 },
 
                 'Should manage tag metadata': async function () {
                     const testTag = '#test-tag';
 
-                    // Get initial metadata
+                    // Get initial metadata (should be null when nothing is set)
                     const initialMeta = this.api.metadata.getTagMetadata(testTag);
-                    this.assertExists(initialMeta, 'Should return tag metadata object');
+                    this.assertEqual(initialMeta, null, 'Should return null when no metadata is set');
 
                     // Set color
                     await this.api.metadata.setTagColor(testTag, '#00ff00');
                     const afterColor = this.api.metadata.getTagMetadata(testTag);
+                    this.assertExists(afterColor, 'Should return metadata after setting color');
                     this.assertEqual(afterColor.color, '#00ff00', 'Tag color should be set');
 
                     // Set icon
@@ -377,30 +382,7 @@
                     await this.api.metadata.clearTagColor(testTag);
                     await this.api.metadata.clearTagIcon(testTag);
                     const cleared = this.api.metadata.getTagMetadata(testTag);
-                    this.assertFalse(cleared.color, 'Tag color should be cleared');
-                    this.assertFalse(cleared.icon, 'Tag icon should be cleared');
-                },
-
-                'Should clear folder appearance': async function () {
-                    const testFolder = await this.createTestFolder('test-appearance-folder');
-
-                    // Set some appearance settings first
-                    await this.api.metadata.setFolderColor(testFolder, '#ff0000');
-                    await this.api.metadata.setFolderIcon(testFolder, 'lucide:folder');
-
-                    // Clear appearance
-                    await this.api.metadata.clearFolderAppearance(testFolder);
-                    const meta = this.api.metadata.getFolderMetadata(testFolder);
-                    this.assertFalse(meta.appearance, 'Folder appearance should be cleared');
-                },
-
-                'Should clear tag appearance': async function () {
-                    const testTag = '#test-appearance-tag';
-
-                    // Clear appearance
-                    await this.api.metadata.clearTagAppearance(testTag);
-                    const meta = this.api.metadata.getTagMetadata(testTag);
-                    this.assertFalse(meta.appearance, 'Tag appearance should be cleared');
+                    this.assertEqual(cleared, null, 'Should return null when all metadata is cleared');
                 },
 
                 'Should manage pinned files': async function () {
@@ -453,13 +435,8 @@
                 'Should delete a single file': async function () {
                     const testFile = await this.createTestFile('test-delete.md', '# Delete Test');
 
-                    // Delete the file
-                    const result = await this.api.file.delete(testFile);
-
-                    // Check the result
-                    this.assertExists(result, 'Delete should return a result');
-                    this.assertEqual(result.deletedCount, 1, 'Should have deleted 1 file');
-                    this.assertEqual(result.errors.length, 0, 'Should have no errors');
+                    // Delete the file (returns void now)
+                    await this.api.file.delete(testFile);
 
                     // Verify file is deleted (wait a bit for async operation)
                     await new Promise(resolve => setTimeout(resolve, 100));
@@ -473,13 +450,8 @@
                         files.push(await this.createTestFile(`test-multi-delete-${i}.md`, `# Delete ${i}`));
                     }
 
-                    // Delete all files at once
-                    const result = await this.api.file.delete(files);
-
-                    // Check the result
-                    this.assertExists(result, 'Delete should return a result');
-                    this.assertEqual(result.deletedCount, 3, 'Should have deleted 3 files');
-                    this.assertEqual(result.errors.length, 0, 'Should have no errors');
+                    // Delete all files at once (returns void now)
+                    await this.api.file.delete(files);
 
                     // Verify all files are deleted
                     await new Promise(resolve => setTimeout(resolve, 100));
@@ -576,29 +548,6 @@
                     // Test getting selected files
                     const selectedFiles = this.api.selection.listSelectedFiles();
                     this.assertTrue(Array.isArray(selectedFiles), 'listSelectedFiles should return an array');
-
-                    // Test getting selected paths
-                    const selectedPaths = this.api.selection.listSelectedPaths();
-                    this.assertTrue(Array.isArray(selectedPaths), 'listSelectedPaths should return an array');
-
-                    // Verify consistency between files and paths
-                    this.assertEqual(selectedFiles.length, selectedPaths.length, 'Files and paths arrays should have same length');
-                },
-
-                'Should track selection count and multiple selection': async function () {
-                    const count = this.api.selection.getSelectionCount();
-                    this.assertTrue(typeof count === 'number', 'getSelectionCount should return a number');
-                    this.assertTrue(count >= 0, 'Selection count should be non-negative');
-
-                    const hasMultiple = this.api.selection.hasMultipleSelection();
-                    this.assertTrue(typeof hasMultiple === 'boolean', 'hasMultipleSelection should return a boolean');
-
-                    // Verify consistency
-                    if (count > 1) {
-                        this.assertTrue(hasMultiple, 'hasMultipleSelection should be true when count > 1');
-                    } else {
-                        this.assertFalse(hasMultiple, 'hasMultipleSelection should be false when count <= 1');
-                    }
                 },
 
                 'Should get focused file': async function () {
@@ -610,9 +559,9 @@
                         this.assertTrue(typeof focusedFile.path === 'string', 'File path should be a string');
                         this.assertExists(focusedFile.name, 'Focused file should have a name');
 
-                        // If there's a focused file, selection count should be at least 1
-                        const count = this.api.selection.getSelectionCount();
-                        this.assertTrue(count >= 1, 'Should have at least 1 selected file when focused file exists');
+                        // If there's a focused file, there should be selected files
+                        const selectedFiles = this.api.selection.listSelectedFiles();
+                        this.assertTrue(selectedFiles.length >= 1, 'Should have at least 1 selected file when focused file exists');
                     }
                 },
 
@@ -621,19 +570,13 @@
 
                     this.assertExists(state, 'getSelectionState should return an object');
                     this.assertTrue(Array.isArray(state.files), 'State should have files array');
-                    this.assertTrue(Array.isArray(state.paths), 'State should have paths array');
                     this.assertTrue(state.focused === null || typeof state.focused === 'object', 'State should have focused property');
-
-                    // Verify consistency
-                    this.assertEqual(state.files.length, state.paths.length, 'Files and paths should have same length');
 
                     // Compare with individual methods
                     const files = this.api.selection.listSelectedFiles();
-                    const paths = this.api.selection.listSelectedPaths();
                     const focused = this.api.selection.getFocusedFile();
 
                     this.assertEqual(state.files.length, files.length, 'State files should match listSelectedFiles');
-                    this.assertEqual(state.paths.length, paths.length, 'State paths should match listSelectedPaths');
                     this.assertEqual(state.focused, focused, 'State focused should match getFocusedFile');
                 },
 

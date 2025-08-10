@@ -138,30 +138,6 @@ export class SelectionAPI {
     }
 
     /**
-     * List all currently selected file paths
-     * @returns Array of file paths (empty array if none selected)
-     */
-    listSelectedPaths(): string[] {
-        return Array.from(this.selectionState.files);
-    }
-
-    /**
-     * Check if multiple files are selected
-     * @returns true if more than one file is selected
-     */
-    hasMultipleSelection(): boolean {
-        return this.selectionState.files.size > 1;
-    }
-
-    /**
-     * Get the count of selected files
-     * @returns Number of selected files
-     */
-    getSelectionCount(): number {
-        return this.selectionState.files.size;
-    }
-
-    /**
      * Get the focused file (cursor position in multi-selection)
      * @returns The focused file or null if none selected
      */
@@ -176,7 +152,6 @@ export class SelectionAPI {
     getSelectionState(): SelectionState {
         return {
             files: this.listSelectedFiles(),
-            paths: this.listSelectedPaths(),
             focused: this.selectionState.primaryFile
         };
     }

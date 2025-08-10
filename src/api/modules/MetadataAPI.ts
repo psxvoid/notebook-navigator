@@ -20,7 +20,6 @@ import { TFile, TFolder } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
 import type { FolderMetadata, TagMetadata } from '../types';
 import type { NotebookNavigatorSettings, SortOption } from '../../settings';
-import type { FolderAppearance, TagAppearance } from '../../hooks/useListPaneAppearance';
 
 /**
  * Metadata API - Manage folder and tag appearance, icons, colors, and pinned files
@@ -33,13 +32,11 @@ export class MetadataAPI {
         // Folder metadata
         folderColors: {} as Record<string, string>,
         folderIcons: {} as Record<string, string>,
-        folderAppearances: {} as Record<string, FolderAppearance>,
         folderSortOverrides: {} as Record<string, SortOption>,
 
         // Tag metadata
         tagColors: {} as Record<string, string>,
         tagIcons: {} as Record<string, string>,
-        tagAppearances: {} as Record<string, TagAppearance>,
         tagSortOverrides: {} as Record<string, SortOption>,
         favoriteTags: [] as string[],
         hiddenTags: [] as string[],
@@ -72,13 +69,11 @@ export class MetadataAPI {
             // Copy folder metadata
             folderColors: { ...settings.folderColors },
             folderIcons: { ...settings.folderIcons },
-            folderAppearances: { ...settings.folderAppearances },
             folderSortOverrides: { ...settings.folderSortOverrides },
 
             // Copy tag metadata
             tagColors: { ...settings.tagColors },
             tagIcons: { ...settings.tagIcons },
-            tagAppearances: { ...settings.tagAppearances },
             tagSortOverrides: { ...settings.tagSortOverrides },
             favoriteTags: [...(settings.favoriteTags || [])],
             hiddenTags: [...(settings.hiddenTags || [])],
@@ -96,12 +91,18 @@ export class MetadataAPI {
      * Get folder metadata
      * @param folder - Folder to get metadata for
      */
-    getFolderMetadata(folder: TFolder): FolderMetadata {
+    getFolderMetadata(folder: TFolder): FolderMetadata | null {
         const path = folder.path;
+        const color = this.metadataState.folderColors[path];
+        const icon = this.metadataState.folderIcons[path];
+
+        if (!color && !icon) {
+            return null;
+        }
+
         return {
-            color: this.metadataState.folderColors[path],
-            icon: this.metadataState.folderIcons[path],
-            appearance: this.metadataState.folderAppearances[path]
+            color,
+            icon
         };
     }
 
@@ -179,24 +180,6 @@ export class MetadataAPI {
         }
     }
 
-    /**
-     * Clear all appearance settings for a folder
-     * @param folder - Folder to clear appearance from
-     */
-    async clearFolderAppearance(folder: TFolder): Promise<void> {
-        const path = folder.path;
-
-        // Update internal cache
-        delete this.metadataState.folderAppearances[path];
-
-        // Update plugin settings
-        const plugin = this.api.getPlugin();
-        if (plugin) {
-            delete plugin.settings.folderAppearances[path];
-            await plugin.saveSettings();
-        }
-    }
-
     // ===================================================================
     // Tag Metadata
     // ===================================================================
@@ -209,11 +192,18 @@ export class MetadataAPI {
         // Ensure tag starts with #
         const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
 
+        const color = this.metadataState.tagColors[normalizedTag];
+        const icon = this.metadataState.tagIcons[normalizedTag];
+        const isFavorite = this.metadataState.favoriteTags.includes(normalizedTag);
+
+        if (!color && !icon && !isFavorite) {
+            return null;
+        }
+
         return {
-            color: this.metadataState.tagColors[normalizedTag],
-            icon: this.metadataState.tagIcons[normalizedTag],
-            appearance: this.metadataState.tagAppearances[normalizedTag],
-            isFavorite: this.metadataState.favoriteTags.includes(normalizedTag)
+            color,
+            icon,
+            isFavorite
         };
     }
 
@@ -287,24 +277,6 @@ export class MetadataAPI {
         const plugin = this.api.getPlugin();
         if (plugin) {
             delete plugin.settings.tagIcons[normalizedTag];
-            await plugin.saveSettings();
-        }
-    }
-
-    /**
-     * Clear all appearance settings for a tag
-     * @param tag - Tag string (e.g., '#work')
-     */
-    async clearTagAppearance(tag: string): Promise<void> {
-        const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
-
-        // Update internal cache
-        delete this.metadataState.tagAppearances[normalizedTag];
-
-        // Update plugin settings
-        const plugin = this.api.getPlugin();
-        if (plugin) {
-            delete plugin.settings.tagAppearances[normalizedTag];
             await plugin.saveSettings();
         }
     }

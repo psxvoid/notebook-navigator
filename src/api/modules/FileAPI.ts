@@ -19,7 +19,7 @@
 import { TFile, TFolder } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
 import type { SelectionDispatch } from '../../context/SelectionContext';
-import type { DeleteResult, MoveResult } from '../types';
+import type { MoveResult } from '../types';
 import { ItemType } from '../../types';
 
 /**
@@ -61,17 +61,13 @@ export class FileAPI {
      * Automatically selects the next appropriate file after deletion
      * Uses the plugin's confirmation setting
      * @param files - File or array of files to delete
-     * @returns Result with deleted count, skipped files, and errors
      */
-    async delete(files: TFile | TFile[]): Promise<DeleteResult> {
+    async delete(files: TFile | TFile[]): Promise<void> {
         const plugin = this.api.getPlugin();
         const fileArray = Array.isArray(files) ? files : [files];
 
         if (fileArray.length === 0) {
-            return {
-                deletedCount: 0,
-                errors: []
-            };
+            return;
         }
 
         if (!plugin.fileSystemOps) {
@@ -85,20 +81,9 @@ export class FileAPI {
         if (fileArray.length === 1) {
             try {
                 await plugin.fileSystemOps.deleteFile(fileArray[0], confirmBeforeDelete, undefined, undefined);
-                return {
-                    deletedCount: 1,
-                    errors: []
-                };
+                return;
             } catch (error) {
-                return {
-                    deletedCount: 0,
-                    errors: [
-                        {
-                            file: fileArray[0],
-                            error: error instanceof Error ? error.message : String(error)
-                        }
-                    ]
-                };
+                throw new Error(error instanceof Error ? error.message : String(error));
             }
         }
 
@@ -135,19 +120,10 @@ export class FileAPI {
             );
 
             // All files deleted successfully
-            return {
-                deletedCount: fileArray.length,
-                errors: []
-            };
+            return;
         } catch (error) {
             // Some or all files failed to delete
-            return {
-                deletedCount: 0,
-                errors: fileArray.map(file => ({
-                    file,
-                    error: error instanceof Error ? error.message : String(error)
-                }))
-            };
+            throw new Error(error instanceof Error ? error.message : String(error));
         }
     }
 

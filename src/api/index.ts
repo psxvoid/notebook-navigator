@@ -29,21 +29,14 @@ export { NotebookNavigatorAPI } from './NotebookNavigatorAPI';
 // Core types
 export type {
     TagRef,
-    FolderAppearance,
-    TagAppearance,
     FolderMetadata,
     TagMetadata,
-    NavigationResult,
-    DeleteResult,
     MoveResult,
     SelectionState,
     NotebookNavigatorEventType,
     NotebookNavigatorEvents,
     EventBus
 } from './types';
-
-// Error handling
-export { APIError, APIErrorCode } from './errors';
 
 // Version management
 export { API_VERSION, CompatibilityLevel } from './version';

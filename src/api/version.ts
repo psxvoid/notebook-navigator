@@ -61,7 +61,7 @@ export enum CompatibilityLevel {
 /**
  * Version compatibility checker
  */
-export class VersionChecker {
+class VersionChecker {
     /**
      * Check if a version is compatible with the current API
      */
@@ -144,7 +144,7 @@ export class VersionChecker {
 }
 
 /**
- * Map of features to their minimum required version
+ * Map of features - all features are available in v1.0.0
  */
 const FEATURE_VERSIONS: Record<string, string> = {
     // File operations
@@ -170,7 +170,6 @@ const FEATURE_VERSIONS: Record<string, string> = {
 
     // Selection operations
     'selection.listSelectedFiles': '1.0.0',
-    'selection.listSelectedPaths': '1.0.0',
     'selection.getSelectionState': '1.0.0',
     'selection.getFocusedFile': '1.0.0',
     'selection.getSelectedNavigationItem': '1.0.0',

@@ -19,7 +19,6 @@
 import { TFile } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
 import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
-import type { NavigationResult } from '../types';
 
 /**
  * Navigation API - Navigate to files in the navigator
@@ -31,18 +30,13 @@ export class NavigationAPI {
      * Navigate to a specific file and select it
      * @param file - File to navigate to
      */
-    async navigateToFile(file: TFile): Promise<NavigationResult> {
-        try {
-            const view = await this.ensureViewOpen();
-            if (!view) {
-                return { success: false, error: 'Could not open navigator view' };
-            }
-
-            await view.navigateToFile(file);
-            return { success: true, target: file };
-        } catch (error) {
-            return { success: false, error: String(error) };
+    async navigateToFile(file: TFile): Promise<void> {
+        const view = await this.ensureViewOpen();
+        if (!view) {
+            throw new Error('Could not open navigator view');
         }
+
+        await view.navigateToFile(file);
     }
 
     /**
