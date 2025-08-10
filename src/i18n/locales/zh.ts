@@ -656,7 +656,7 @@ export const STRINGS_ZH = {
                 createdDates: '个创建日期',
                 modifiedDates: '个修改日期',
                 checkTimestampFormat: '请检查您的时间戳格式。',
-                exportFailed: '导出失败'
+                exportFailed: '导出错误'
             }
         }
     },

@@ -655,7 +655,7 @@ export const STRINGS_EN = {
                 createdDates: 'created dates',
                 modifiedDates: 'modified dates',
                 checkTimestampFormat: 'Check your timestamp format.',
-                exportFailed: 'Export failed'
+                exportFailed: 'Export errors'
             }
         }
     },
