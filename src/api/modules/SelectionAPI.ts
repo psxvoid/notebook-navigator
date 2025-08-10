@@ -18,7 +18,7 @@
 
 import { TFolder, TFile } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
-import type { SelectionState } from '../types';
+import type { SelectionState, TagRef } from '../types';
 import { STORAGE_KEYS } from '../../types';
 import { localStorage } from '../../utils/localStorage';
 
@@ -86,16 +86,14 @@ export class SelectionAPI {
         this.selectionState.navigationFolder = folder;
         this.selectionState.navigationTag = tag;
 
-        // Trigger navigation-changed event
+        // Trigger appropriate navigation event
         if (folder) {
-            this.api.trigger('navigation-changed', {
-                type: 'folder',
-                path: folder.path
+            this.api.trigger('folder-selected', {
+                folder
             });
         } else if (tag) {
-            this.api.trigger('navigation-changed', {
-                type: 'tag',
-                path: tag
+            this.api.trigger('tag-selected', {
+                tag: tag as TagRef
             });
         }
     }
@@ -117,7 +115,6 @@ export class SelectionAPI {
 
             this.api.trigger('file-selection-changed', {
                 files: fileObjects,
-                paths: Array.from(selectedFiles),
                 focused: primaryFile
             });
         }

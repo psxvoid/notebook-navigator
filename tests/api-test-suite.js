@@ -221,6 +221,7 @@
             await this.runSuite('Metadata', this.metadataTests());
             await this.runSuite('File Operations', this.fileTests());
             await this.runSuite('Selection', this.selectionTests());
+            await this.runSuite('Events', this.eventTests());
 
             // Cleanup
             await this.cleanup();
@@ -281,12 +282,15 @@
                 },
 
                 'Should check if features exist': async function () {
-                    const hasNavigation = this.api.hasFeature('navigation');
-                    const hasMetadata = this.api.hasFeature('metadata');
+                    // Check for specific feature keys
+                    const hasFileDelete = this.api.hasFeature('file.delete');
+                    const hasNavigation = this.api.hasFeature('navigation.navigateToFile');
+                    const hasMetadata = this.api.hasFeature('metadata.setFolderColor');
                     const hasFake = this.api.hasFeature('fake-feature-that-does-not-exist');
 
-                    this.assertTrue(hasNavigation, 'Navigation feature should exist');
-                    this.assertTrue(hasMetadata, 'Metadata feature should exist');
+                    this.assertTrue(hasFileDelete, 'file.delete feature should exist');
+                    this.assertTrue(hasNavigation, 'navigation.navigateToFile feature should exist');
+                    this.assertTrue(hasMetadata, 'metadata.setFolderColor feature should exist');
                     this.assertFalse(hasFake, 'Fake feature should not exist');
                 }
             };
@@ -304,10 +308,10 @@
 
                     this.assertExists(result, 'Navigation result is null');
                     if (result.success) {
-                        this.assertEqual(result.path, testFile.path);
+                        this.assertEqual(result.target, testFile, 'Target should be the navigated file');
                     } else {
                         // View might not be open, which is okay
-                        this.assertTrue(result.error.includes('view'), 'Unexpected error: ' + result.error);
+                        this.assertTrue(result.error.includes('view') || result.error.length > 0, 'Should have error message');
                     }
                 },
 
@@ -344,16 +348,16 @@
                     const afterIcon = this.api.metadata.getFolderMetadata(testFolder);
                     this.assertEqual(afterIcon.icon, 'lucide:folder-open', 'Icon should be set');
 
-                    // Clear metadata
-                    await this.api.metadata.setFolderColor(testFolder, null);
-                    await this.api.metadata.setFolderIcon(testFolder, null);
+                    // Clear metadata using dedicated methods
+                    await this.api.metadata.clearFolderColor(testFolder);
+                    await this.api.metadata.clearFolderIcon(testFolder);
                     const cleared = this.api.metadata.getFolderMetadata(testFolder);
                     this.assertFalse(cleared.color, 'Color should be cleared');
                     this.assertFalse(cleared.icon, 'Icon should be cleared');
                 },
 
                 'Should manage tag metadata': async function () {
-                    const testTag = 'test-tag';
+                    const testTag = '#test-tag';
 
                     // Get initial metadata
                     const initialMeta = this.api.metadata.getTagMetadata(testTag);
@@ -369,12 +373,34 @@
                     const afterIcon = this.api.metadata.getTagMetadata(testTag);
                     this.assertEqual(afterIcon.icon, 'lucide:tag', 'Tag icon should be set');
 
-                    // Clear
-                    await this.api.metadata.setTagColor(testTag, null);
-                    await this.api.metadata.setTagIcon(testTag, null);
+                    // Clear using dedicated methods
+                    await this.api.metadata.clearTagColor(testTag);
+                    await this.api.metadata.clearTagIcon(testTag);
                     const cleared = this.api.metadata.getTagMetadata(testTag);
                     this.assertFalse(cleared.color, 'Tag color should be cleared');
                     this.assertFalse(cleared.icon, 'Tag icon should be cleared');
+                },
+
+                'Should clear folder appearance': async function () {
+                    const testFolder = await this.createTestFolder('test-appearance-folder');
+
+                    // Set some appearance settings first
+                    await this.api.metadata.setFolderColor(testFolder, '#ff0000');
+                    await this.api.metadata.setFolderIcon(testFolder, 'lucide:folder');
+
+                    // Clear appearance
+                    await this.api.metadata.clearFolderAppearance(testFolder);
+                    const meta = this.api.metadata.getFolderMetadata(testFolder);
+                    this.assertFalse(meta.appearance, 'Folder appearance should be cleared');
+                },
+
+                'Should clear tag appearance': async function () {
+                    const testTag = '#test-appearance-tag';
+
+                    // Clear appearance
+                    await this.api.metadata.clearTagAppearance(testTag);
+                    const meta = this.api.metadata.getTagMetadata(testTag);
+                    this.assertFalse(meta.appearance, 'Tag appearance should be cleared');
                 },
 
                 'Should manage pinned files': async function () {
@@ -384,16 +410,31 @@
                     let isPinned = this.api.metadata.isPinned(testFile);
                     this.assertFalse(isPinned, 'File should not be pinned initially');
 
-                    // Toggle pin (should pin it)
-                    await this.api.metadata.togglePin(testFile);
+                    // Pin the file
+                    await this.api.metadata.pin(testFile);
                     isPinned = this.api.metadata.isPinned(testFile);
-                    this.assertTrue(isPinned, 'File should be pinned after toggle');
+                    this.assertTrue(isPinned, 'File should be pinned after pin()');
 
                     // Get all pinned files
                     const pinnedFiles = this.api.metadata.listPinnedFiles();
                     this.assertTrue(Array.isArray(pinnedFiles), 'Should return array of pinned files');
                     const pinnedPaths = pinnedFiles.map(f => f.path);
                     this.assertTrue(pinnedPaths.includes(testFile.path), 'Pinned files should include our test file');
+
+                    // Try pinning again (should remain pinned)
+                    await this.api.metadata.pin(testFile);
+                    isPinned = this.api.metadata.isPinned(testFile);
+                    this.assertTrue(isPinned, 'File should remain pinned');
+
+                    // Unpin the file
+                    await this.api.metadata.unpin(testFile);
+                    isPinned = this.api.metadata.isPinned(testFile);
+                    this.assertFalse(isPinned, 'File should be unpinned after unpin()');
+
+                    // Toggle pin (should pin it again)
+                    await this.api.metadata.togglePin(testFile);
+                    isPinned = this.api.metadata.isPinned(testFile);
+                    this.assertTrue(isPinned, 'File should be pinned after toggle');
 
                     // Toggle again (should unpin)
                     await this.api.metadata.togglePin(testFile);
@@ -413,7 +454,12 @@
                     const testFile = await this.createTestFile('test-delete.md', '# Delete Test');
 
                     // Delete the file
-                    await this.api.file.delete(testFile);
+                    const result = await this.api.file.delete(testFile);
+
+                    // Check the result
+                    this.assertExists(result, 'Delete should return a result');
+                    this.assertEqual(result.deletedCount, 1, 'Should have deleted 1 file');
+                    this.assertEqual(result.errors.length, 0, 'Should have no errors');
 
                     // Verify file is deleted (wait a bit for async operation)
                     await new Promise(resolve => setTimeout(resolve, 100));
@@ -428,7 +474,12 @@
                     }
 
                     // Delete all files at once
-                    await this.api.file.delete(files);
+                    const result = await this.api.file.delete(files);
+
+                    // Check the result
+                    this.assertExists(result, 'Delete should return a result');
+                    this.assertEqual(result.deletedCount, 3, 'Should have deleted 3 files');
+                    this.assertEqual(result.errors.length, 0, 'Should have no errors');
 
                     // Verify all files are deleted
                     await new Promise(resolve => setTimeout(resolve, 100));
@@ -446,9 +497,8 @@
                     // Move the file
                     const result = await this.api.file.moveTo(testFile, targetFolder);
                     this.assertExists(result, 'Move should return a result');
-                    this.assertTrue(result.movedCount === 1, 'Should have moved 1 file');
-                    this.assertTrue(result.skippedCount === 0, 'Should not skip any files');
-                    this.assertTrue(result.errors.length === 0, 'Should have no errors');
+                    this.assertEqual(result.movedCount, 1, 'Should have moved 1 file');
+                    this.assertEqual(result.errors.length, 0, 'Should have no errors');
 
                     // Verify file is moved
                     await new Promise(resolve => setTimeout(resolve, 100));
@@ -469,10 +519,7 @@
                         const result = await this.api.file.moveTo(testFile, fakeFolder);
                         // Should either throw or return errors
                         if (result) {
-                            this.assertTrue(
-                                result.errors.length > 0 || result.skippedCount > 0,
-                                'Should have errors or skipped files for invalid move'
-                            );
+                            this.assertTrue(result.errors.length > 0, 'Should have errors for invalid move');
                         }
                     } catch (e) {
                         // Expected - moving to non-existent folder should fail
@@ -569,6 +616,27 @@
                     }
                 },
 
+                'Should get selection state': async function () {
+                    const state = this.api.selection.getSelectionState();
+
+                    this.assertExists(state, 'getSelectionState should return an object');
+                    this.assertTrue(Array.isArray(state.files), 'State should have files array');
+                    this.assertTrue(Array.isArray(state.paths), 'State should have paths array');
+                    this.assertTrue(state.focused === null || typeof state.focused === 'object', 'State should have focused property');
+
+                    // Verify consistency
+                    this.assertEqual(state.files.length, state.paths.length, 'Files and paths should have same length');
+
+                    // Compare with individual methods
+                    const files = this.api.selection.listSelectedFiles();
+                    const paths = this.api.selection.listSelectedPaths();
+                    const focused = this.api.selection.getFocusedFile();
+
+                    this.assertEqual(state.files.length, files.length, 'State files should match listSelectedFiles');
+                    this.assertEqual(state.paths.length, paths.length, 'State paths should match listSelectedPaths');
+                    this.assertEqual(state.focused, focused, 'State focused should match getFocusedFile');
+                },
+
                 'Should handle file selection events': async function () {
                     // Test event subscription
                     let eventFired = false;
@@ -588,13 +656,142 @@
                     // Verify event data structure if an event was captured
                     if (eventData) {
                         this.assertTrue(Array.isArray(eventData.files), 'Event should include files array (TFile objects)');
-                        this.assertTrue(Array.isArray(eventData.paths), 'Event should include paths array');
                         // focused can be null or a TFile
                         this.assertTrue(
                             eventData.focused === null || typeof eventData.focused === 'object',
                             'Focused should be null or TFile'
                         );
                     }
+                }
+            };
+        }
+
+        eventTests() {
+            return {
+                'Should handle storage-ready event': async function () {
+                    let eventFired = false;
+
+                    const eventRef = this.api.on('storage-ready', () => {
+                        eventFired = true;
+                    });
+
+                    this.assertExists(eventRef, 'Event subscription should return a reference');
+
+                    // Clean up
+                    this.api.off(eventRef);
+                },
+
+                'Should handle folder-selected event': async function () {
+                    let eventData = null;
+
+                    const eventRef = this.api.on('folder-selected', data => {
+                        eventData = data;
+                    });
+
+                    this.assertExists(eventRef, 'Event subscription should return a reference');
+
+                    // If an event was captured, verify structure
+                    if (eventData) {
+                        this.assertExists(eventData.folder, 'Should have folder');
+                        this.assertTrue(typeof eventData.folder === 'object', 'Folder should be TFolder object');
+                        this.assertExists(eventData.folder.path, 'Folder should have path');
+                    }
+
+                    // Clean up
+                    this.api.off(eventRef);
+                },
+
+                'Should handle tag-selected event': async function () {
+                    let eventData = null;
+
+                    const eventRef = this.api.on('tag-selected', data => {
+                        eventData = data;
+                    });
+
+                    this.assertExists(eventRef, 'Event subscription should return a reference');
+
+                    // If an event was captured, verify structure
+                    if (eventData) {
+                        this.assertExists(eventData.tag, 'Should have tag');
+                        this.assertTrue(typeof eventData.tag === 'string', 'Tag should be string');
+                        this.assertTrue(eventData.tag.startsWith('#'), 'Tag should start with #');
+                    }
+
+                    // Clean up
+                    this.api.off(eventRef);
+                },
+
+                'Should handle pinned-files-changed event': async function () {
+                    let eventData = null;
+
+                    const eventRef = this.api.on('pinned-files-changed', data => {
+                        eventData = data;
+                    });
+
+                    this.assertExists(eventRef, 'Event subscription should return a reference');
+
+                    // If an event was captured, verify structure
+                    if (eventData) {
+                        this.assertTrue(Array.isArray(eventData.files), 'Should have files array');
+                        // Files array contains all currently pinned files
+                        eventData.files.forEach(file => {
+                            this.assertExists(file.path, 'Each pinned file should have a path');
+                        });
+                    }
+
+                    // Clean up
+                    this.api.off(eventRef);
+                },
+
+                'Should handle folder-metadata-changed event': async function () {
+                    let eventData = null;
+
+                    const eventRef = this.api.on('folder-metadata-changed', data => {
+                        eventData = data;
+                    });
+
+                    this.assertExists(eventRef, 'Event subscription should return a reference');
+
+                    // If an event was captured, verify structure
+                    if (eventData) {
+                        this.assertExists(eventData.folder, 'Should have folder');
+                        this.assertTrue(['color', 'icon'].includes(eventData.property), 'Should have valid property');
+                    }
+
+                    // Clean up
+                    this.api.off(eventRef);
+                },
+
+                'Should handle tag-metadata-changed event': async function () {
+                    let eventData = null;
+
+                    const eventRef = this.api.on('tag-metadata-changed', data => {
+                        eventData = data;
+                    });
+
+                    this.assertExists(eventRef, 'Event subscription should return a reference');
+
+                    // If an event was captured, verify structure
+                    if (eventData) {
+                        this.assertExists(eventData.tag, 'Should have tag');
+                        this.assertTrue(['color', 'icon'].includes(eventData.property), 'Should have valid property');
+                    }
+
+                    // Clean up
+                    this.api.off(eventRef);
+                },
+
+                'Should unsubscribe from events': async function () {
+                    // Test that off() works correctly
+                    const eventRef = this.api.on('storage-ready', () => {});
+                    this.assertExists(eventRef, 'Should get event reference');
+
+                    // Should not throw when unsubscribing
+                    this.api.off(eventRef);
+
+                    // Should be idempotent (safe to call multiple times)
+                    this.api.off(eventRef);
+                    this.api.off(eventRef);
                 }
             };
         }

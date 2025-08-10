@@ -135,38 +135,43 @@ export type NotebookNavigatorEventType = keyof NotebookNavigatorEvents;
  * Event payload definitions for each event type
  */
 export interface NotebookNavigatorEvents {
-    /** Fired when user navigates to a different folder or tag */
-    'navigation-changed': {
-        type: 'folder' | 'tag';
-        path: string | TagRef;
-        folder?: TFolder;
-        tag?: TagRef;
-    };
-
     /** Fired when the storage system is ready for queries */
     'storage-ready': void;
+
+    /** Fired when a folder is selected in navigation pane */
+    'folder-selected': {
+        folder: TFolder;
+    };
+
+    /** Fired when a tag is selected in navigation pane */
+    'tag-selected': {
+        tag: TagRef;
+    };
 
     /** Fired when file selection changes in the list pane */
     'file-selection-changed': {
         /** Array of selected TFile objects */
         files: TFile[];
-        /** Array of selected file paths */
-        paths: string[];
         /** The focused file (cursor position) */
         focused: TFile | null;
     };
 
     /** Fired when pinned files change */
     'pinned-files-changed': {
+        /** All currently pinned files */
         files: TFile[];
-        action: 'pin' | 'unpin' | 'toggle';
     };
 
-    /** Fired when metadata changes for folders or tags */
-    'metadata-changed': {
-        scope: 'folder' | 'tag';
-        key: 'color' | 'icon' | 'appearance';
-        target: TFolder | TagRef;
+    /** Fired when folder metadata changes */
+    'folder-metadata-changed': {
+        folder: TFolder;
+        property: 'color' | 'icon';
+    };
+
+    /** Fired when tag metadata changes */
+    'tag-metadata-changed': {
+        tag: TagRef;
+        property: 'color' | 'icon';
     };
 }
 

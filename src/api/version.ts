@@ -176,11 +176,13 @@ const FEATURE_VERSIONS: Record<string, string> = {
     'selection.getSelectedNavigationItem': '1.0.0',
 
     // Events
-    'events.navigation-changed': '1.0.0',
     'events.storage-ready': '1.0.0',
+    'events.folder-selected': '1.0.0',
+    'events.tag-selected': '1.0.0',
     'events.file-selection-changed': '1.0.0',
     'events.pinned-files-changed': '1.0.0',
-    'events.metadata-changed': '1.0.0'
+    'events.folder-metadata-changed': '1.0.0',
+    'events.tag-metadata-changed': '1.0.0'
 };
 
 /**

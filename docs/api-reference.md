@@ -52,7 +52,7 @@ The API follows semantic versioning:
 
 ### Event Conventions
 
-- **Event IDs** - Kebab-case (e.g., `storage-ready`, `navigation-changed`,
+- **Event IDs** - Kebab-case (e.g., `storage-ready`, `folder-selected`,
   `file-selection-changed`, `pinned-files-changed`)
 - **Event payload keys** - camelCase (e.g., `files`, `paths`, `focused`)
 
@@ -151,11 +151,13 @@ All features listed below were introduced in version 1.0.0.
 | `selection.getSelectionState`         | Get complete selection state      | 1.0.0 |
 | `selection.getFocusedFile`            | Get focused file                  | 1.0.0 |
 | `selection.getSelectedNavigationItem` | Get selected folder or tag        | 1.0.0 |
-| `events.navigation-changed`           | Navigation change event           | 1.0.0 |
 | `events.storage-ready`                | Storage ready event               | 1.0.0 |
+| `events.folder-selected`              | Folder selected event             | 1.0.0 |
+| `events.tag-selected`                 | Tag selected event                | 1.0.0 |
 | `events.file-selection-changed`       | File selection change event       | 1.0.0 |
 | `events.pinned-files-changed`         | Pinned files change event         | 1.0.0 |
-| `events.metadata-changed`             | Metadata change event             | 1.0.0 |
+| `events.folder-metadata-changed`      | Folder metadata change event      | 1.0.0 |
+| `events.tag-metadata-changed`         | Tag metadata change event         | 1.0.0 |
 
 ```typescript
 // Get the API instance
@@ -470,13 +472,15 @@ Subscribe to events to react to changes in the navigator.
 
 ### Available Events
 
-| Event                    | Payload                                                                               | Description                         | Since | Deprecated |
-| ------------------------ | ------------------------------------------------------------------------------------- | ----------------------------------- | ----- | ---------- |
-| `navigation-changed`     | `{ type: 'folder' \| 'tag', path: string \| TagRef, folder?: TFolder, tag?: TagRef }` | User navigated to a folder or tag   | 1.0.0 |            |
-| `storage-ready`          | `void`                                                                                | Storage system is ready for queries | 1.0.0 |            |
-| `file-selection-changed` | `{ files: TFile[], paths: string[], focused: TFile \| null }`                         | File selection changed              | 1.0.0 |            |
-| `pinned-files-changed`   | `{ files: TFile[], action: 'pin' \| 'unpin' \| 'toggle' }`                            | Pinned files changed                | 1.0.0 |            |
-| `metadata-changed`       | `{ scope: 'folder' \| 'tag', key: string, target: TFolder \| TagRef }`                | Metadata changed for folder or tag  | 1.0.0 |            |
+| Event                     | Payload                                            | Description                         | Since | Deprecated |
+| ------------------------- | -------------------------------------------------- | ----------------------------------- | ----- | ---------- |
+| `storage-ready`           | `void`                                             | Storage system is ready for queries | 1.0.0 |            |
+| `folder-selected`         | `{ folder: TFolder }`                              | User selected a folder              | 1.0.0 |            |
+| `tag-selected`            | `{ tag: TagRef }`                                  | User selected a tag                 | 1.0.0 |            |
+| `file-selection-changed`  | `{ files: TFile[], focused: TFile \| null }`       | File selection changed              | 1.0.0 |            |
+| `pinned-files-changed`    | `{ files: TFile[] }`                               | Pinned files changed                | 1.0.0 |            |
+| `folder-metadata-changed` | `{ folder: TFolder, property: 'color' \| 'icon' }` | Folder metadata changed             | 1.0.0 |            |
+| `tag-metadata-changed`    | `{ tag: TagRef, property: 'color' \| 'icon' }`     | Tag metadata changed                | 1.0.0 |            |
 
 ```typescript
 // Listen for when storage is ready
@@ -486,18 +490,14 @@ nn.on('storage-ready', () => {
   const pinnedFiles = nn.metadata.listPinnedFiles();
 });
 
-// Subscribe to navigation events (returns EventRef from Obsidian)
-const ref = nn.on('navigation-changed', ({ type, path }) => {
-  console.log(`User navigated to ${type}: ${path}`);
+// Subscribe to folder selection events
+const folderRef = nn.on('folder-selected', ({ folder }) => {
+  console.log('Folder selected:', folder.path);
+});
 
-  // React to navigation changes
-  if (type === 'folder') {
-    // User selected a folder in the navigation pane
-    console.log('Folder selected:', path);
-  } else if (type === 'tag') {
-    // User selected a tag in the navigation pane
-    console.log('Tag selected:', path);
-  }
+// Subscribe to tag selection events
+const tagRef = nn.on('tag-selected', ({ tag }) => {
+  console.log('Tag selected:', tag);
 });
 
 // Unsubscribe from events (idempotent - safe to call multiple times)
@@ -505,14 +505,28 @@ nn.off(ref);
 nn.off(ref); // Safe to call again
 
 // Listen for file selection changes
-nn.on('file-selection-changed', ({ files, paths, focused }) => {
+nn.on('file-selection-changed', ({ files, focused }) => {
   console.log(`Selection changed: ${files.length} files selected`);
   if (focused) console.log('Focused:', focused.basename);
   console.log(
     'Selected files:',
     files.map(f => f.path)
   );
-  console.log('Selected paths:', paths);
+});
+
+// Listen for pinned files changes
+nn.on('pinned-files-changed', ({ files }) => {
+  console.log(`${files.length} files are pinned`);
+  files.forEach(file => console.log('  -', file.path));
+});
+
+// Listen for metadata changes
+nn.on('folder-metadata-changed', ({ folder, property }) => {
+  console.log(`Folder ${folder.path} ${property} changed`);
+});
+
+nn.on('tag-metadata-changed', ({ tag, property }) => {
+  console.log(`Tag ${tag} ${property} changed`);
 });
 ```
 
@@ -524,35 +538,40 @@ nn.on('file-selection-changed', ({ files, paths, focused }) => {
     or other cached data
   - The storage system builds an IndexedDB cache of all vault files on startup
 
-- `navigation-changed` - Fired when the user navigates to a folder or tag in the
-  UI
-  - Payload:
-    `{ type: 'folder' | 'tag', path: string | TagRef, folder?: TFolder, tag?: TagRef }`
-  - Includes the actual folder or tag object for convenience
+- `folder-selected` - Fired when the user selects a folder in the navigation
+  pane
+  - Payload: `{ folder: TFolder }`
+  - Provides the TFolder object (use folder.path to get the path)
   - Triggered by user clicks in the navigation pane, NOT by API calls
-  - Use this to react to user navigation actions
+
+- `tag-selected` - Fired when the user selects a tag in the navigation pane
+  - Payload: `{ tag: TagRef }` where TagRef is `#${string}` type
+  - Triggered by user clicks in the navigation pane, NOT by API calls
 
 - `file-selection-changed` - Fired when the file selection changes
-  - Payload: `{ files: TFile[], paths: string[], focused: TFile | null }`
+  - Payload: `{ files: TFile[], focused: TFile | null }`
   - `files`: Array of TFile objects that are currently selected
-  - `paths`: Array of file paths that are currently selected
   - `focused`: The focused file (cursor position) or null if no focus
   - Triggered by user clicks, keyboard navigation, or multi-selection actions
   - Multi-selection state is persisted across plugin restarts
 
 - `pinned-files-changed` - Fired when pinned files change
-  - Payload: `{ files: TFile[], action: 'pin' | 'unpin' | 'toggle' }`
-  - `files`: Array of TFile objects that were changed
-  - `action`: The action that was performed
-  - Triggered when files are pinned or unpinned through the API
+  - Payload: `{ files: TFile[] }`
+  - `files`: Array of all currently pinned TFile objects
+  - Triggered when any file is pinned or unpinned
+  - Use this to track the current state of pinned files
 
-- `metadata-changed` - Fired when metadata changes for folders or tags
-  - Payload:
-    `{ scope: 'folder' | 'tag', key: string, target: TFolder | TagRef }`
-  - `scope`: Whether the change was for a folder or tag
-  - `key`: The metadata key that changed (e.g., 'color', 'icon', 'appearance')
-  - `target`: The folder or tag that was changed
-  - Triggered when metadata is modified through the API
+- `folder-metadata-changed` - Fired when folder metadata changes
+  - Payload: `{ folder: TFolder, property: 'color' | 'icon' }`
+  - `folder`: The TFolder object that was changed
+  - `property`: Which metadata property changed
+  - Triggered when folder color or icon is modified
+
+- `tag-metadata-changed` - Fired when tag metadata changes
+  - Payload: `{ tag: TagRef, property: 'color' | 'icon' }`
+  - `tag`: The tag reference (e.g., '#work')
+  - `property`: Which metadata property changed
+  - Triggered when tag color or icon is modified
 
 ## Examples
 

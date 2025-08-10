@@ -33,3 +33,6 @@ scripts/build-local.sh
 
 # Web site
 web/
+
+# Obsidian
+.obsidian
