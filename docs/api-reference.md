@@ -26,41 +26,6 @@ if (!nn) {
 await nn.file.delete([file]);
 ```
 
-### TypeScript Support
-
-Since Obsidian plugins don't export types like npm packages, you have two
-options:
-
-**Option 1: Download the type definitions** (Recommended)
-
-Download the TypeScript definitions file:
-
-- [📄 notebook-navigator.d.ts](https://github.com/johansanneblad/notebook-navigator/blob/main/src/api/public/notebook-navigator.d.ts)
-
-Save it to your plugin project and import:
-
-```typescript
-// In your plugin code
-import type {
-  NotebookNavigatorAPI,
-  NotebookNavigatorEvents,
-  NavItem,
-  IconString
-} from './notebook-navigator';
-
-const nn = app.plugins.plugins['notebook-navigator']
-  ?.api as NotebookNavigatorAPI;
-```
-
-**Option 2: Use without types**
-
-```javascript
-// Works fine without types in JavaScript/TypeScript
-const nn = app.plugins.plugins['notebook-navigator']?.api;
-if (nn) {
-  await nn.metadata.setFolderColor(folder, '#FF5733');
-}
-```
 
 ## API Overview
 
@@ -77,7 +42,7 @@ Smart file operations that maintain proper selection in the navigator.
 
 | Method                | Description          | Returns               |
 | --------------------- | -------------------- | --------------------- |
-| `delete(files)`       | Delete files         | `Promise<void>`       |
+| `delete(files)`       | Move files to Obsidian trash (respects app trash settings) | `Promise<void>`       |
 | `move(files, folder)` | Move files to folder | `Promise<MoveResult>` |
 
 ```typescript
@@ -90,13 +55,22 @@ const targetFolder = app.vault.getAbstractFileByPath('Archive');
 if (targetFolder instanceof TFolder) {
   const result = await nn.file.move([file1, file2], targetFolder);
   // result: { movedCount: 2, skippedCount: 0 }
-  // skippedCount > 0 means files already existed at destination
+  // Files with name collisions are skipped without overwrite; see skippedCount
 }
 ```
 
 ## Metadata API
 
 Customize folder and tag appearance, manage pinned files.
+
+### Runtime Behavior
+
+- **Icon format**: While TypeScript provides compile-time checking via `IconString` type, the API currently accepts any string at runtime. Invalid formats are saved but may not render correctly.
+- **Color values**: Any string is accepted and saved. Invalid CSS colors will not render correctly but won't throw errors.
+- **Tag normalization**: The `getTagMeta()` and tag setter methods automatically normalize tags:
+  - Both `'work'` and `'#work'` are accepted and treated as `'#work'`
+  - Tags are case-insensitive: `'#Work'` and `'#work'` refer to the same tag
+  - The plugin preserves the canonical case (first encountered form) for display but all comparisons use lowercase
 
 ### Folder Metadata
 
@@ -203,6 +177,12 @@ Subscribe to navigator events to react to user actions.
 
 ```typescript
 // Subscribe to events with full type safety
+
+// storage-ready has void payload, so callback has no parameters
+const storageRef = nn.on('storage-ready', () => {
+  console.log('Storage is ready - safe to call read APIs');
+});
+
 const folderRef = nn.on('folder-selected', ({ folder }) => {
   // TypeScript knows 'folder' is TFolder
   console.log('Folder selected:', folder.path);
@@ -214,6 +194,7 @@ const selectionRef = nn.on('file-selection-changed', ({ files, focused }) => {
 });
 
 // Unsubscribe
+nn.off(storageRef);
 nn.off(folderRef);
 nn.off(selectionRef);
 ```
@@ -223,49 +204,26 @@ nn.off(selectionRef);
 | Method                | Description            | Returns    |
 | --------------------- | ---------------------- | ---------- |
 | `getVersion()`        | Get API version        | `string`   |
-| `on<T>(event: T, callback)` | Subscribe to typed event     | `EventRef` |
+| `on<T extends NotebookNavigatorEventType>(event: T, callback: (data: NotebookNavigatorEvents[T]) => void)` | Subscribe to typed event     | `EventRef` |
 | `off(ref)`            | Unsubscribe from event | `void`     |
 
 ## TypeScript Support
 
-### Type Safety Features
+Since Obsidian plugins don't export types like npm packages, you have two options:
 
-The API provides strong type safety with:
+### Option 1: With Type Definitions (Recommended)
 
-- **Template literal types** for icons - `IconString` type ensures only valid icon formats
-- **Generic event subscriptions** - Full type inference for event payloads
-- **Readonly arrays** - Prevents accidental mutation of returned data
-- **Exported utility types** - `NavItem`, `IconString`, etc. for reuse in your code
-
-### Complete Type Definitions
-
-Download the TypeScript definitions file for full type safety and IntelliSense
-support:
+Download the TypeScript definitions file for full type safety and IntelliSense:
 
 **[📄 notebook-navigator.d.ts](https://github.com/johansanneblad/notebook-navigator/blob/main/src/api/public/notebook-navigator.d.ts)**
 
-This file contains:
-
-- Complete API interface (`NotebookNavigatorAPI`)
-- All type definitions:
-  - `IconString` - Type-safe icon format (`lucide:${string}` | `emoji:${string}`)
-  - `NavItem` - Navigation selection state
-  - `FolderMetadata`, `TagMetadata` - Metadata with typed icons
-  - `MoveResult`, `SelectionState` - Operation results
-- Typed event system:
-  - `NotebookNavigatorEvents` - All event payloads
-  - `NotebookNavigatorEventType` - Event name union type
-- Full JSDoc comments for every method
-- Readonly arrays to prevent accidental mutations
-
-### Using the Types
-
-Save the `.d.ts` file to your plugin project and import it:
+Save it to your plugin project and import:
 
 ```typescript
 import type {
   NotebookNavigatorAPI,
   NotebookNavigatorEvents,
+  NavItem,
   IconString
 } from './notebook-navigator';
 
@@ -286,6 +244,30 @@ if (nn) {
   });
 }
 ```
+
+### Option 2: Without Type Definitions
+
+```javascript
+// Works fine without types in JavaScript/TypeScript
+const nn = app.plugins.plugins['notebook-navigator']?.api;
+if (nn) {
+  await nn.metadata.setFolderColor(folder, '#FF5733');
+}
+```
+
+### Type Safety Features
+
+The type definitions provide:
+
+- **Template literal types** for icons - `IconString` ensures only valid icon formats at compile time
+- **Generic event subscriptions** - Full type inference for event payloads
+- **Readonly arrays** - Prevents accidental mutation of returned data at compile time
+- **Exported utility types** - `NavItem`, `IconString`, etc. for reuse in your code
+- **Complete API interface** - `NotebookNavigatorAPI` with all methods and properties
+- **Typed event system** - `NotebookNavigatorEvents` maps event names to payloads
+- **Full JSDoc comments** - Documentation for every method and type
+
+**Note**: These type checks are compile-time only. At runtime, the API is permissive and accepts any values (see Runtime Behavior sections for each API).
 
 ## Examples
 

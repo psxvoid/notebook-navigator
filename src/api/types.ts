@@ -44,7 +44,7 @@ export type IconString = `lucide:${string}` | `emoji:${string}`;
  * Metadata for customizing folder appearance in the navigator
  */
 export interface FolderMetadata {
-    /** Hex color code or CSS color name */
+    /** CSS color value (hex, rgb, hsl, named colors) */
     color?: string;
     /** Icon identifier (e.g., 'lucide:folder' or 'emoji:📁') */
     icon?: IconString;
@@ -54,7 +54,7 @@ export interface FolderMetadata {
  * Metadata for customizing tag appearance in the navigator
  */
 export interface TagMetadata {
-    /** Hex color code or CSS color name */
+    /** CSS color value (hex, rgb, hsl, named colors) */
     color?: string;
     /** Icon identifier (e.g., 'lucide:tag' or 'emoji:🏷️') */
     icon?: IconString;
@@ -147,6 +147,6 @@ export interface NavItem {
 export interface SelectionState {
     /** Array of currently selected files */
     files: readonly TFile[];
-    /** The file that has keyboard focus */
+    /** The file that has keyboard focus (can be null) */
     focused: TFile | null;
 }
