@@ -99,75 +99,47 @@ export class MetadataAPI {
     }
 
     /**
-     * Set folder color
-     * @param folder - Folder to set color for
-     * @param color - Hex color string
+     * Set folder metadata (color and/or icon)
+     * @param folder - Folder to set metadata for
+     * @param meta - Partial metadata object with properties to update
      */
-    async setFolderColor(folder: TFolder, color: string): Promise<void> {
+    async setFolderMeta(folder: TFolder, meta: Partial<FolderMetadata>): Promise<void> {
         const path = folder.path;
-
-        // Update internal cache
-        this.metadataState.folderColors[path] = color;
-
-        // Update plugin settings
         const plugin = this.api.getPlugin();
-        if (plugin) {
-            plugin.settings.folderColors[path] = color;
-            await plugin.saveSettings();
+        if (!plugin) return;
+
+        let changed = false;
+
+        // Update color if provided
+        if (meta.color !== undefined) {
+            if (meta.color === null) {
+                // Clear color
+                delete this.metadataState.folderColors[path];
+                delete plugin.settings.folderColors[path];
+            } else {
+                // Set color
+                this.metadataState.folderColors[path] = meta.color;
+                plugin.settings.folderColors[path] = meta.color;
+            }
+            changed = true;
         }
-    }
 
-    /**
-     * Clear folder color
-     * @param folder - Folder to clear color from
-     */
-    async clearFolderColor(folder: TFolder): Promise<void> {
-        const path = folder.path;
-
-        // Update internal cache
-        delete this.metadataState.folderColors[path];
-
-        // Update plugin settings
-        const plugin = this.api.getPlugin();
-        if (plugin) {
-            delete plugin.settings.folderColors[path];
-            await plugin.saveSettings();
+        // Update icon if provided
+        if (meta.icon !== undefined) {
+            if (meta.icon === null) {
+                // Clear icon
+                delete this.metadataState.folderIcons[path];
+                delete plugin.settings.folderIcons[path];
+            } else {
+                // Set icon
+                this.metadataState.folderIcons[path] = meta.icon;
+                plugin.settings.folderIcons[path] = meta.icon;
+            }
+            changed = true;
         }
-    }
 
-    /**
-     * Set folder icon
-     * @param folder - Folder to set icon for
-     * @param icon - Icon identifier (e.g., 'lucide:folder', 'emoji:📁')
-     */
-    async setFolderIcon(folder: TFolder, icon: IconString): Promise<void> {
-        const path = folder.path;
-
-        // Update internal cache
-        this.metadataState.folderIcons[path] = icon;
-
-        // Update plugin settings
-        const plugin = this.api.getPlugin();
-        if (plugin) {
-            plugin.settings.folderIcons[path] = icon;
-            await plugin.saveSettings();
-        }
-    }
-
-    /**
-     * Clear folder icon
-     * @param folder - Folder to clear icon from
-     */
-    async clearFolderIcon(folder: TFolder): Promise<void> {
-        const path = folder.path;
-
-        // Update internal cache
-        delete this.metadataState.folderIcons[path];
-
-        // Update plugin settings
-        const plugin = this.api.getPlugin();
-        if (plugin) {
-            delete plugin.settings.folderIcons[path];
+        // Save settings if anything changed
+        if (changed) {
             await plugin.saveSettings();
         }
     }
@@ -198,75 +170,47 @@ export class MetadataAPI {
     }
 
     /**
-     * Set tag color
+     * Set tag metadata (color and/or icon)
      * @param tag - Tag string (e.g., '#work')
-     * @param color - Hex color string
+     * @param meta - Partial metadata object with properties to update
      */
-    async setTagColor(tag: string, color: string): Promise<void> {
+    async setTagMeta(tag: string, meta: Partial<TagMetadata>): Promise<void> {
         const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
-
-        // Update internal cache
-        this.metadataState.tagColors[normalizedTag] = color;
-
-        // Update plugin settings
         const plugin = this.api.getPlugin();
-        if (plugin) {
-            plugin.settings.tagColors[normalizedTag] = color;
-            await plugin.saveSettings();
+        if (!plugin) return;
+
+        let changed = false;
+
+        // Update color if provided
+        if (meta.color !== undefined) {
+            if (meta.color === null) {
+                // Clear color
+                delete this.metadataState.tagColors[normalizedTag];
+                delete plugin.settings.tagColors[normalizedTag];
+            } else {
+                // Set color
+                this.metadataState.tagColors[normalizedTag] = meta.color;
+                plugin.settings.tagColors[normalizedTag] = meta.color;
+            }
+            changed = true;
         }
-    }
 
-    /**
-     * Clear tag color
-     * @param tag - Tag string (e.g., '#work')
-     */
-    async clearTagColor(tag: string): Promise<void> {
-        const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
-
-        // Update internal cache
-        delete this.metadataState.tagColors[normalizedTag];
-
-        // Update plugin settings
-        const plugin = this.api.getPlugin();
-        if (plugin) {
-            delete plugin.settings.tagColors[normalizedTag];
-            await plugin.saveSettings();
+        // Update icon if provided
+        if (meta.icon !== undefined) {
+            if (meta.icon === null) {
+                // Clear icon
+                delete this.metadataState.tagIcons[normalizedTag];
+                delete plugin.settings.tagIcons[normalizedTag];
+            } else {
+                // Set icon
+                this.metadataState.tagIcons[normalizedTag] = meta.icon;
+                plugin.settings.tagIcons[normalizedTag] = meta.icon;
+            }
+            changed = true;
         }
-    }
 
-    /**
-     * Set tag icon
-     * @param tag - Tag string (e.g., '#work')
-     * @param icon - Icon identifier
-     */
-    async setTagIcon(tag: string, icon: IconString): Promise<void> {
-        const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
-
-        // Update internal cache
-        this.metadataState.tagIcons[normalizedTag] = icon;
-
-        // Update plugin settings
-        const plugin = this.api.getPlugin();
-        if (plugin) {
-            plugin.settings.tagIcons[normalizedTag] = icon;
-            await plugin.saveSettings();
-        }
-    }
-
-    /**
-     * Clear tag icon
-     * @param tag - Tag string (e.g., '#work')
-     */
-    async clearTagIcon(tag: string): Promise<void> {
-        const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
-
-        // Update internal cache
-        delete this.metadataState.tagIcons[normalizedTag];
-
-        // Update plugin settings
-        const plugin = this.api.getPlugin();
-        if (plugin) {
-            delete plugin.settings.tagIcons[normalizedTag];
+        // Save settings if anything changed
+        if (changed) {
             await plugin.saveSettings();
         }
     }

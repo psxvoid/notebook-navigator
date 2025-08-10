@@ -58,14 +58,9 @@ export interface MoveResult {
 
 /**
  * Currently selected navigation item (folder or tag)
- * Both folder and tag can be null if nothing is selected
+ * Discriminated union ensures only one can be selected at a time
  */
-export interface NavItem {
-    /** The selected folder (null if a tag is selected or nothing is selected) */
-    folder: TFolder | null;
-    /** The selected tag (null if a folder is selected or nothing is selected) */
-    tag: string | null;
-}
+export type NavItem = { folder: TFolder; tag: null } | { folder: null; tag: string } | { folder: null; tag: null };
 
 /**
  * Current file selection state in the navigator
@@ -89,14 +84,9 @@ export interface NotebookNavigatorEvents {
     /** Fired when the storage system is ready for queries */
     'storage-ready': void;
 
-    /** Fired when a folder is selected in navigation pane */
-    'folder-selected': {
-        folder: TFolder;
-    };
-
-    /** Fired when a tag is selected in navigation pane */
-    'tag-selected': {
-        tag: string;
+    /** Fired when the navigation selection changes (folder, tag, or nothing) */
+    'nav-item-changed': {
+        item: NavItem;
     };
 
     /** Fired when file selection changes in the list pane */
@@ -147,26 +137,14 @@ export interface NotebookNavigatorAPI {
         // Folder metadata
         /** Get all metadata for a folder */
         getFolderMeta(folder: TFolder): FolderMetadata | null;
-        /** Set folder color (any CSS color format) */
-        setFolderColor(folder: TFolder, color: string): Promise<void>;
-        /** Remove folder color */
-        clearFolderColor(folder: TFolder): Promise<void>;
-        /** Set folder icon ('lucide:name' or 'emoji:📁') */
-        setFolderIcon(folder: TFolder, icon: IconString): Promise<void>;
-        /** Remove folder icon */
-        clearFolderIcon(folder: TFolder): Promise<void>;
+        /** Set folder metadata (color and/or icon). Pass null to clear a property */
+        setFolderMeta(folder: TFolder, meta: Partial<FolderMetadata>): Promise<void>;
 
         // Tag metadata
         /** Get all metadata for a tag */
         getTagMeta(tag: string): TagMetadata | null;
-        /** Set tag color (any CSS color format) */
-        setTagColor(tag: string, color: string): Promise<void>;
-        /** Remove tag color */
-        clearTagColor(tag: string): Promise<void>;
-        /** Set tag icon ('lucide:name' or 'emoji:🏷️') */
-        setTagIcon(tag: string, icon: IconString): Promise<void>;
-        /** Remove tag icon */
-        clearTagIcon(tag: string): Promise<void>;
+        /** Set tag metadata (color and/or icon). Pass null to clear a property */
+        setTagMeta(tag: string, meta: Partial<TagMetadata>): Promise<void>;
 
         // Pinned files
         /** Get all pinned files */

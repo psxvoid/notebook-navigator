@@ -90,14 +90,9 @@ export interface NotebookNavigatorEvents {
     /** Fired when the storage system is ready for queries */
     'storage-ready': void;
 
-    /** Fired when a folder is selected in navigation pane */
-    'folder-selected': {
-        folder: TFolder;
-    };
-
-    /** Fired when a tag is selected in navigation pane */
-    'tag-selected': {
-        tag: string;
+    /** Fired when the navigation selection changes (folder, tag, or nothing) */
+    'nav-item-changed': {
+        item: NavItem;
     };
 
     /** Fired when file selection changes in the list pane */
@@ -133,14 +128,9 @@ export interface NotebookNavigatorEvents {
 
 /**
  * Currently selected navigation item (folder or tag)
- * Both folder and tag can be null if nothing is selected
+ * Discriminated union ensures only one can be selected at a time
  */
-export interface NavItem {
-    /** The selected folder (null if a tag is selected or nothing is selected) */
-    folder: TFolder | null;
-    /** The selected tag (null if a folder is selected or nothing is selected) */
-    tag: string | null;
-}
+export type NavItem = { folder: TFolder; tag: null } | { folder: null; tag: string } | { folder: null; tag: null };
 
 /**
  * Current file selection state

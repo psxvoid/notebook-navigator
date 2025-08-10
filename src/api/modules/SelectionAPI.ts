@@ -71,10 +71,22 @@ export class SelectionAPI {
      * @returns Object with either folder or tag selected (only one can be selected at a time)
      */
     getNavItem(): NavItem {
-        return {
-            folder: this.selectionState.navigationFolder,
-            tag: this.selectionState.navigationTag
-        };
+        if (this.selectionState.navigationFolder) {
+            return {
+                folder: this.selectionState.navigationFolder,
+                tag: null
+            };
+        } else if (this.selectionState.navigationTag) {
+            return {
+                folder: null,
+                tag: this.selectionState.navigationTag
+            };
+        } else {
+            return {
+                folder: null,
+                tag: null
+            };
+        }
     }
 
     /**
@@ -86,16 +98,18 @@ export class SelectionAPI {
         this.selectionState.navigationFolder = folder;
         this.selectionState.navigationTag = tag;
 
-        // Trigger appropriate navigation event
+        // Build the NavItem with proper discriminated union
+        let item: NavItem;
         if (folder) {
-            this.api.trigger('folder-selected', {
-                folder
-            });
+            item = { folder, tag: null };
         } else if (tag) {
-            this.api.trigger('tag-selected', {
-                tag
-            });
+            item = { folder: null, tag };
+        } else {
+            item = { folder: null, tag: null };
         }
+
+        // Trigger the consolidated navigation event
+        this.api.trigger('nav-item-changed', { item });
     }
 
     /**

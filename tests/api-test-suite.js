@@ -333,7 +333,7 @@
                     await this.api.metadata.setFolderIcon(testFolder, 'lucide:folder-open');
                     const afterIcon = this.api.metadata.getFolderMeta(testFolder);
                     this.assertEqual(afterIcon.icon, 'lucide:folder-open', 'Icon should be set');
-                    
+
                     // Test emoji icon format
                     await this.api.metadata.setFolderIcon(testFolder, 'emoji:📁');
                     const afterEmoji = this.api.metadata.getFolderMeta(testFolder);
@@ -363,7 +363,7 @@
                     await this.api.metadata.setTagIcon(testTag, 'lucide:tag');
                     const afterIcon = this.api.metadata.getTagMeta(testTag);
                     this.assertEqual(afterIcon.icon, 'lucide:tag', 'Tag icon should be set');
-                    
+
                     // Test emoji icon format
                     await this.api.metadata.setTagIcon(testTag, 'emoji:🏷️');
                     const afterEmoji = this.api.metadata.getTagMeta(testTag);
@@ -714,7 +714,7 @@
                     ];
 
                     const refs = [];
-                    
+
                     // Subscribe to all event types
                     for (const eventType of eventTypes) {
                         const ref = this.api.on(eventType, () => {});
@@ -726,7 +726,7 @@
                     for (const ref of refs) {
                         this.api.off(ref);
                     }
-                    
+
                     this.assertTrue(true, 'All event types are supported');
                 }
             };
