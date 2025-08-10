@@ -19,6 +19,7 @@
 import { TFile, TFolder } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
 import type { SelectionDispatch } from '../../context/SelectionContext';
+import type { DeleteResult, MoveResult } from '../types';
 import { ItemType } from '../../types';
 
 /**
@@ -60,13 +61,17 @@ export class FileAPI {
      * Automatically selects the next appropriate file after deletion
      * Uses the plugin's confirmation setting
      * @param files - File or array of files to delete
+     * @returns Result with deleted count, skipped files, and errors
      */
-    async delete(files: TFile | TFile[]): Promise<void> {
+    async delete(files: TFile | TFile[]): Promise<DeleteResult> {
         const plugin = this.api.getPlugin();
         const fileArray = Array.isArray(files) ? files : [files];
 
         if (fileArray.length === 0) {
-            return;
+            return {
+                deletedCount: 0,
+                errors: []
+            };
         }
 
         if (!plugin.fileSystemOps) {
@@ -78,8 +83,23 @@ export class FileAPI {
 
         // For single file deletion
         if (fileArray.length === 1) {
-            await plugin.fileSystemOps.deleteFile(fileArray[0], confirmBeforeDelete, undefined, undefined);
-            return;
+            try {
+                await plugin.fileSystemOps.deleteFile(fileArray[0], confirmBeforeDelete, undefined, undefined);
+                return {
+                    deletedCount: 1,
+                    errors: []
+                };
+            } catch (error) {
+                return {
+                    deletedCount: 0,
+                    errors: [
+                        {
+                            file: fileArray[0],
+                            error: error instanceof Error ? error.message : String(error)
+                        }
+                    ]
+                };
+            }
         }
 
         // For multiple files
@@ -104,14 +124,31 @@ export class FileAPI {
             }
         };
 
-        await plugin.fileSystemOps.deleteFilesWithSmartSelection(
-            filePathSet,
-            fileArray,
-            plugin.settings,
-            emptyContext,
-            apiDispatch,
-            confirmBeforeDelete
-        );
+        try {
+            await plugin.fileSystemOps.deleteFilesWithSmartSelection(
+                filePathSet,
+                fileArray,
+                plugin.settings,
+                emptyContext,
+                apiDispatch,
+                confirmBeforeDelete
+            );
+
+            // All files deleted successfully
+            return {
+                deletedCount: fileArray.length,
+                errors: []
+            };
+        } catch (error) {
+            // Some or all files failed to delete
+            return {
+                deletedCount: 0,
+                errors: fileArray.map(file => ({
+                    file,
+                    error: error instanceof Error ? error.message : String(error)
+                }))
+            };
+        }
     }
 
     /**
@@ -120,15 +157,7 @@ export class FileAPI {
      * @param targetFolder - Target folder to move files into
      * @returns Result with moved count, skipped files, and errors
      */
-    async moveTo(
-        files: TFile | TFile[],
-        targetFolder: TFolder
-    ): Promise<{
-        movedCount: number;
-        skippedCount: number;
-        skipped: TFile[];
-        errors: Array<{ file: TFile; error: string }>;
-    }> {
+    async moveTo(files: TFile | TFile[], targetFolder: TFolder): Promise<MoveResult> {
         const plugin = this.api.getPlugin();
         const fileArray = Array.isArray(files) ? files : [files];
 
@@ -136,25 +165,30 @@ export class FileAPI {
             throw new Error('File operations not available');
         }
 
+        // Get the from folder (assumes all files are from the same folder)
+        const fromFolder = fileArray.length > 0 && fileArray[0].parent ? fileArray[0].parent : null;
+
         const result = await plugin.fileSystemOps.moveFilesToFolder({
             files: fileArray,
             targetFolder,
             showNotifications: true
         });
 
-        // Emit files-moved event
-        this.api.trigger('files-moved', {
-            files: fileArray.filter(f => {
-                // Only include successfully moved files
-                return !result.errors.some((e: { file: TFile }) => e.file === f);
-            }),
-            to: targetFolder
-        });
+        // Emit files-moved event if we have a valid from folder
+        if (fromFolder) {
+            this.api.trigger('files-moved', {
+                files: fileArray.filter(f => {
+                    // Only include successfully moved files
+                    return !result.errors.some((e: { file: TFile }) => e.file === f);
+                }),
+                to: targetFolder,
+                from: fromFolder,
+                skipped: [] // TODO: Track skipped files in FileSystemService
+            });
+        }
 
         return {
             movedCount: result.movedCount,
-            skippedCount: result.skippedCount,
-            skipped: [], // TODO: Track skipped files in FileSystemService
             errors: result.errors.map((e: { file: TFile; error: Error }) => ({
                 file: e.file,
                 error: e.error.message

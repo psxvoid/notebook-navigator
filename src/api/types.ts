@@ -16,8 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, TFolder } from 'obsidian';
-import { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
+import { TFile, TFolder, EventRef } from 'obsidian';
 
 /**
  * Notebook Navigator Public API Types
@@ -26,6 +25,37 @@ import { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance'
  * The API consistently uses Obsidian's native types (TFile, TFolder)
  * rather than string paths for better type safety and integration.
  */
+
+// ============================================================================
+// CORE TYPES
+// ============================================================================
+
+/**
+ * Type-safe tag reference
+ */
+export type TagRef = `#${string}`;
+
+// ============================================================================
+// APPEARANCE TYPES (moved from internal hooks)
+// ============================================================================
+
+/**
+ * Display settings for files in a folder
+ */
+export interface FolderAppearance {
+    showPreview?: boolean;
+    showImage?: boolean;
+    layoutStyle?: 'list' | 'grid' | 'card';
+}
+
+/**
+ * Display settings for files with a tag
+ */
+export interface TagAppearance {
+    showPreview?: boolean;
+    showImage?: boolean;
+    layoutStyle?: 'list' | 'grid' | 'card';
+}
 
 // ============================================================================
 // METADATA TYPES
@@ -64,13 +94,32 @@ export interface TagMetadata {
 /**
  * Result of a navigation operation
  */
-export interface NavigationResult {
-    /** Whether the navigation was successful */
-    success: boolean;
-    /** Path of the navigated item (if successful) */
-    path?: string;
-    /** Error message (if failed) */
-    error?: string;
+export type NavigationResult = { success: true; target: TFile | TFolder | TagRef } | { success: false; error: string };
+
+/**
+ * Result of a file delete operation
+ */
+export interface DeleteResult {
+    /** Number of files successfully deleted */
+    deletedCount: number;
+    /** Array of errors if any */
+    errors: Array<{
+        file: TFile;
+        error: string;
+    }>;
+}
+
+/**
+ * Result of a file move operation
+ */
+export interface MoveResult {
+    /** Number of files successfully moved */
+    movedCount: number;
+    /** Array of errors if any */
+    errors: Array<{
+        file: TFile;
+        error: string;
+    }>;
 }
 
 // ============================================================================
@@ -80,11 +129,7 @@ export interface NavigationResult {
 /**
  * All available event types that can be subscribed to
  */
-export type NotebookNavigatorEventType =
-    | 'navigation-changed' // User navigated to a different folder or tag
-    | 'storage-ready' // Storage system is initialized and ready
-    | 'file-selection-changed' // File selection changed in the list pane
-    | 'files-moved'; // Files were moved to a different folder
+export type NotebookNavigatorEventType = keyof NotebookNavigatorEvents;
 
 /**
  * Event payload definitions for each event type
@@ -93,7 +138,9 @@ export interface NotebookNavigatorEvents {
     /** Fired when user navigates to a different folder or tag */
     'navigation-changed': {
         type: 'folder' | 'tag';
-        path: string;
+        path: string | TagRef;
+        folder?: TFolder;
+        tag?: TagRef;
     };
 
     /** Fired when the storage system is ready for queries */
@@ -105,15 +152,53 @@ export interface NotebookNavigatorEvents {
         files: TFile[];
         /** Array of selected file paths */
         paths: string[];
-        /** Number of selected files */
-        count: number;
-        /** The focused file (cursor position) if any */
-        focused?: TFile;
+        /** The focused file (cursor position) */
+        focused: TFile | null;
     };
 
     /** Fired when files are moved to a different folder */
     'files-moved': {
         files: TFile[];
         to: TFolder;
+        from: TFolder;
+        skipped?: TFile[];
     };
+
+    /** Fired when pinned files change */
+    'pinned-files-changed': {
+        files: TFile[];
+        action: 'pin' | 'unpin' | 'toggle';
+    };
+
+    /** Fired when metadata changes for folders or tags */
+    'metadata-changed': {
+        scope: 'folder' | 'tag';
+        key: 'color' | 'icon' | 'appearance';
+        target: TFolder | TagRef;
+    };
+}
+
+// ============================================================================
+// SELECTION STATE
+// ============================================================================
+
+/**
+ * Current file selection state
+ */
+export interface SelectionState {
+    files: TFile[];
+    paths: string[];
+    focused: TFile | null;
+}
+
+// ============================================================================
+// EVENT BUS
+// ============================================================================
+
+/**
+ * Type-safe event subscription interface
+ */
+export interface EventBus {
+    on<K extends NotebookNavigatorEventType>(type: K, cb: (payload: NotebookNavigatorEvents[K]) => void): EventRef;
+    off(ref: EventRef): void;
 }

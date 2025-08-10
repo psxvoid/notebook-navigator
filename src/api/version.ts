@@ -147,14 +147,41 @@ export class VersionChecker {
  * Map of features to their minimum required version
  */
 const FEATURE_VERSIONS: Record<string, string> = {
-    file: '1.0.0',
-    metadata: '1.0.0',
-    navigation: '1.0.0',
-    events: '1.0.0'
-    // Future features would be added here with their introduction version
-    // 'ai-integration': '1.1.0',
-    // 'bulk-operations': '1.2.0',
-    // 'custom-providers': '2.0.0',
+    // File operations
+    'file.delete': '1.0.0',
+    'file.moveTo': '1.0.0',
+
+    // Metadata operations
+    'metadata.setFolderColor': '1.0.0',
+    'metadata.clearFolderColor': '1.0.0',
+    'metadata.setFolderIcon': '1.0.0',
+    'metadata.clearFolderIcon': '1.0.0',
+    'metadata.setTagColor': '1.0.0',
+    'metadata.clearTagColor': '1.0.0',
+    'metadata.setTagIcon': '1.0.0',
+    'metadata.clearTagIcon': '1.0.0',
+    'metadata.pin': '1.0.0',
+    'metadata.unpin': '1.0.0',
+    'metadata.togglePin': '1.0.0',
+    'metadata.listPinnedFiles': '1.0.0',
+
+    // Navigation operations
+    'navigation.navigateToFile': '1.0.0',
+
+    // Selection operations
+    'selection.listSelectedFiles': '1.0.0',
+    'selection.listSelectedPaths': '1.0.0',
+    'selection.getSelectionState': '1.0.0',
+    'selection.getFocusedFile': '1.0.0',
+    'selection.getSelectedNavigationItem': '1.0.0',
+
+    // Events
+    'events.navigation-changed': '1.0.0',
+    'events.storage-ready': '1.0.0',
+    'events.file-selection-changed': '1.0.0',
+    'events.files-moved': '1.0.0',
+    'events.pinned-files-changed': '1.0.0',
+    'events.metadata-changed': '1.0.0'
 };
 
 /**

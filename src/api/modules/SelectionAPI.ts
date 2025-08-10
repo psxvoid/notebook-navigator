@@ -18,6 +18,7 @@
 
 import { TFolder, TFile } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
+import type { SelectionState } from '../types';
 import { STORAGE_KEYS } from '../../types';
 import { localStorage } from '../../utils/localStorage';
 
@@ -117,8 +118,7 @@ export class SelectionAPI {
             this.api.trigger('file-selection-changed', {
                 files: fileObjects,
                 paths: Array.from(selectedFiles),
-                count: selectedFiles.size,
-                focused: primaryFile || undefined
+                focused: primaryFile
             });
         }
     }
@@ -170,5 +170,17 @@ export class SelectionAPI {
      */
     getFocusedFile(): TFile | null {
         return this.selectionState.primaryFile;
+    }
+
+    /**
+     * Get the current selection state
+     * @returns Current selection state with files, paths, and focused file
+     */
+    getSelectionState(): SelectionState {
+        return {
+            files: this.listSelectedFiles(),
+            paths: this.listSelectedPaths(),
+            focused: this.selectionState.primaryFile
+        };
     }
 }

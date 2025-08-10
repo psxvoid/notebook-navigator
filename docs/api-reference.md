@@ -54,8 +54,7 @@ The API follows semantic versioning:
 
 - **Event IDs** - Kebab-case (e.g., `storage-ready`, `navigation-changed`,
   `file-selection-changed`, `files-moved`)
-- **Event payload keys** - camelCase (e.g., `files`, `paths`, `count`,
-  `focused`)
+- **Event payload keys** - camelCase (e.g., `files`, `paths`, `focused`)
 
 ### Type Conventions
 
@@ -65,7 +64,8 @@ The API follows semantic versioning:
   `path`
 - **Dual provision** - Provide both objects and paths when useful (e.g.,
   selection events include both `files: TFile[]` and `paths: string[]`)
-- **Optional fields** - Use `?` for optional fields (e.g., `focused?: TFile`)
+- **Nullable fields** - Use `| null` for nullable fields (e.g.,
+  `focused: TFile | null`)
 
 ## API Philosophy
 
@@ -121,6 +121,42 @@ Obsidian and prevents errors from invalid paths.
 | `off(ref)`                  | Unsubscribe from events         | 1.0.0 |            |
 | `hasFeature(feature)`       | Check if a feature is available | 1.0.0 |            |
 | `listFeatures()`            | List all available features     | 1.0.0 |            |
+
+### Available Features
+
+Use `hasFeature()` and `listFeatures()` to check which features are available.
+All features listed below were introduced in version 1.0.0.
+
+| Feature Key                           | Description                       | Since |
+| ------------------------------------- | --------------------------------- | ----- |
+| `file.delete`                         | Delete files with smart selection | 1.0.0 |
+| `file.moveTo`                         | Move files to another folder      | 1.0.0 |
+| `metadata.setFolderColor`             | Set folder color                  | 1.0.0 |
+| `metadata.clearFolderColor`           | Clear folder color                | 1.0.0 |
+| `metadata.setFolderIcon`              | Set folder icon                   | 1.0.0 |
+| `metadata.clearFolderIcon`            | Clear folder icon                 | 1.0.0 |
+| `metadata.clearFolderAppearance`      | Clear folder appearance settings  | 1.0.0 |
+| `metadata.setTagColor`                | Set tag color                     | 1.0.0 |
+| `metadata.clearTagColor`              | Clear tag color                   | 1.0.0 |
+| `metadata.setTagIcon`                 | Set tag icon                      | 1.0.0 |
+| `metadata.clearTagIcon`               | Clear tag icon                    | 1.0.0 |
+| `metadata.clearTagAppearance`         | Clear tag appearance settings     | 1.0.0 |
+| `metadata.pin`                        | Pin a file                        | 1.0.0 |
+| `metadata.unpin`                      | Unpin a file                      | 1.0.0 |
+| `metadata.togglePin`                  | Toggle pin status                 | 1.0.0 |
+| `metadata.listPinnedFiles`            | List all pinned files             | 1.0.0 |
+| `navigation.navigateToFile`           | Navigate to a file                | 1.0.0 |
+| `selection.listSelectedFiles`         | List selected files               | 1.0.0 |
+| `selection.listSelectedPaths`         | List selected file paths          | 1.0.0 |
+| `selection.getSelectionState`         | Get complete selection state      | 1.0.0 |
+| `selection.getFocusedFile`            | Get focused file                  | 1.0.0 |
+| `selection.getSelectedNavigationItem` | Get selected folder or tag        | 1.0.0 |
+| `events.navigation-changed`           | Navigation change event           | 1.0.0 |
+| `events.storage-ready`                | Storage ready event               | 1.0.0 |
+| `events.file-selection-changed`       | File selection change event       | 1.0.0 |
+| `events.files-moved`                  | Files moved event                 | 1.0.0 |
+| `events.pinned-files-changed`         | Pinned files change event         | 1.0.0 |
+| `events.metadata-changed`             | Metadata change event             | 1.0.0 |
 
 ```typescript
 // Get the API instance
@@ -202,7 +238,7 @@ if (file && nn?.metadata.isPinned(file)) {
 ```javascript
 // List all pinned files
 const nn = app.plugins.plugins['notebook-navigator']?.api;
-const pinnedFiles = nn?.metadata.getPinnedFiles() || [];
+const pinnedFiles = nn?.metadata.listPinnedFiles() || [];
 for (const file of pinnedFiles) {
   dv.paragraph(`- [[${file.basename}]]`);
 }
@@ -250,13 +286,12 @@ await nn.file.delete(files);
 
 // Move one or more files to another folder
 // Automatically manages selection after move
-const targetFolder = app.vault.getAbstractFileByPath('/Archive');
+const targetFolder = app.vault.getAbstractFileByPath('Archive');
 if (targetFolder instanceof TFolder) {
   const result = await nn.file.moveTo(files, targetFolder);
-  /* Returns:
+  /* Returns MoveResult:
   {
     movedCount: number,    // Number of files successfully moved
-    skippedCount: number,  // Number of files skipped (already exist)
     errors: Array<{        // Array of errors if any
       file: TFile,
       error: string
@@ -297,7 +332,7 @@ Customize folder and tag appearance, manage pinned notes.
 
 ```typescript
 // Get folder metadata
-const folder = app.vault.getAbstractFileByPath('/Projects');
+const folder = app.vault.getAbstractFileByPath('Projects');
 if (folder instanceof TFolder) {
   const metadata = nn.metadata.getFolderMetadata(folder);
   /* Returns FolderMetadata object:
@@ -358,12 +393,12 @@ Navigate to and reveal files in the navigator.
 
 ### Methods
 
-| Method                 | Description                                       | Since | Deprecated |
-| ---------------------- | ------------------------------------------------- | ----- | ---------- |
-| `navigateToFile(file)` | Navigate to a file and select it in the navigator | 1.0.0 |            |
+| Method                 | Description                                                         | Since | Deprecated |
+| ---------------------- | ------------------------------------------------------------------- | ----- | ---------- |
+| `navigateToFile(file)` | Reveal and select a file in the navigator (does not open in editor) | 1.0.0 |            |
 
 ```typescript
-// Navigate to a specific file
+// Reveal and select a file in the navigator (does not open it in the editor)
 const file = app.vault.getFileByPath('notes/example.md');
 if (file) await nn.navigation.navigateToFile(file);
 
@@ -396,7 +431,7 @@ const navSelection = nn.selection.getSelectedNavigationItem();
 /* Returns:
 {
   folder: TFolder | null,  // Currently selected folder (if folder is selected)
-  tag: string | null       // Currently selected tag (if tag is selected)
+  tag: TagRef | null       // Currently selected tag (if tag is selected)
 }
 */
 
@@ -425,8 +460,8 @@ const count = nn.selection.getSelectionCount();
 // Get the primary selected file (cursor position in multi-selection)
 // This is the file that has keyboard focus
 const focusedFile = nn.selection.getFocusedFile();
-if (primaryFile) {
-  console.log('Cursor is on:', primaryFile.basename);
+if (focusedFile) {
+  console.log('Cursor is on:', focusedFile.basename);
 }
 ```
 
@@ -436,11 +471,12 @@ Subscribe to events to react to changes in the navigator.
 
 ### Available Events
 
-| Event                    | Payload                                     | Description                         | Since | Deprecated |
-| ------------------------ | ------------------------------------------- | ----------------------------------- | ----- | ---------- |
-| `navigation-changed`     | `{ type: 'folder' \| 'tag', path: string }` | User navigated to a folder or tag   | 1.0.0 |            |
-| `storage-ready`          | `void`                                      | Storage system is ready for queries | 1.0.0 |            |
-| `file-selection-changed` | `{ files: string[], count: number }`        | File selection changed              | 1.0.0 |            |
+| Event                    | Payload                                                                               | Description                         | Since | Deprecated |
+| ------------------------ | ------------------------------------------------------------------------------------- | ----------------------------------- | ----- | ---------- |
+| `navigation-changed`     | `{ type: 'folder' \| 'tag', path: string \| TagRef, folder?: TFolder, tag?: TagRef }` | User navigated to a folder or tag   | 1.0.0 |            |
+| `storage-ready`          | `void`                                                                                | Storage system is ready for queries | 1.0.0 |            |
+| `file-selection-changed` | `{ files: TFile[], paths: string[], focused: TFile \| null }`                         | File selection changed              | 1.0.0 |            |
+| `files-moved`            | `{ files: TFile[], to: TFolder, from: TFolder, skipped?: TFile[] }`                   | Files were moved to another folder  | 1.0.0 |            |
 
 ```typescript
 // Listen for when storage is ready
@@ -450,7 +486,7 @@ nn.on('storage-ready', () => {
   const pinnedFiles = nn.metadata.listPinnedFiles();
 });
 
-// Subscribe to navigation events
+// Subscribe to navigation events (returns EventRef from Obsidian)
 const ref = nn.on('navigation-changed', ({ type, path }) => {
   console.log(`User navigated to ${type}: ${path}`);
 
@@ -464,20 +500,23 @@ const ref = nn.on('navigation-changed', ({ type, path }) => {
   }
 });
 
-// Unsubscribe from events
+// Unsubscribe from events (idempotent - safe to call multiple times)
 nn.off(ref);
+nn.off(ref); // Safe to call again
 
 // Listen for file selection changes
-nn.on('file-selection-changed', ({ files, count }) => {
-  console.log(`Selection changed: ${count} files selected`);
-  if (count > 1) {
-    console.log('Multiple selection active');
-  }
-  console.log('Selected files:', files);
+nn.on('file-selection-changed', ({ files, paths, focused }) => {
+  console.log(`Selection changed: ${files.length} files selected`);
+  if (focused) console.log('Focused:', focused.basename);
+  console.log(
+    'Selected files:',
+    files.map(f => f.path)
+  );
+  console.log('Selected paths:', paths);
 });
 ```
 
-### Available Events
+### Event Details
 
 - `storage-ready` - Fired when the plugin's storage system is fully initialized
   - Payload: `void`
@@ -487,16 +526,27 @@ nn.on('file-selection-changed', ({ files, count }) => {
 
 - `navigation-changed` - Fired when the user navigates to a folder or tag in the
   UI
-  - Payload: `{ type: 'folder' | 'tag', path: string }`
+  - Payload:
+    `{ type: 'folder' | 'tag', path: string | TagRef, folder?: TFolder, tag?: TagRef }`
+  - Includes the actual folder or tag object for convenience
   - Triggered by user clicks in the navigation pane, NOT by API calls
   - Use this to react to user navigation actions
 
 - `file-selection-changed` - Fired when the file selection changes
-  - Payload: `{ files: string[], count: number }`
-  - `files`: Array of file paths that are currently selected
-  - `count`: Number of selected files
+  - Payload: `{ files: TFile[], paths: string[], focused: TFile | null }`
+  - `files`: Array of TFile objects that are currently selected
+  - `paths`: Array of file paths that are currently selected
+  - `focused`: The focused file (cursor position) or null if no focus
   - Triggered by user clicks, keyboard navigation, or multi-selection actions
   - Multi-selection state is persisted across plugin restarts
+
+- `files-moved` - Fired when files are moved to a different folder
+  - Payload: `{ files: TFile[], to: TFolder, from: TFolder, skipped?: TFile[] }`
+  - `files`: Array of TFile objects that were successfully moved
+  - `to`: The destination folder
+  - `from`: The source folder (assumes all files from same folder)
+  - `skipped`: Optional array of files that were skipped (already existed)
+  - Only triggered for moves initiated through the API
 
 ## Examples
 
@@ -518,9 +568,9 @@ if (nn) {
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 if (nn) {
   const folders = [
-    { path: '/Work', color: '#FF5733' },
-    { path: '/Personal', color: '#33FF57' },
-    { path: '/Archive', color: '#5733FF' }
+    { path: 'Work', color: '#FF5733' },
+    { path: 'Personal', color: '#33FF57' },
+    { path: 'Archive', color: '#5733FF' }
   ];
 
   for (const { path, color } of folders) {
@@ -552,7 +602,7 @@ if (nn) {
 
   console.log(
     'Pinned files:',
-    nn.metadata.getPinnedFiles().map(f => f.basename)
+    nn.metadata.listPinnedFiles().map(f => f.basename)
   );
 }
 ```
@@ -563,7 +613,7 @@ if (nn) {
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 if (nn) {
   // Find old files in Archive folder
-  const archiveFolder = app.vault.getAbstractFileByPath('/Archive');
+  const archiveFolder = app.vault.getAbstractFileByPath('Archive');
   if (archiveFolder instanceof TFolder) {
     const oldFiles = archiveFolder.children
       .filter((f): f is TFile => f instanceof TFile)
@@ -619,15 +669,13 @@ if (nn) {
 }
 
 // React to selection changes
-nn.on('file-selection-changed', async ({ files, count }) => {
-  if (count > 0) {
+nn.on('file-selection-changed', async ({ files, paths, focused }) => {
+  if (files.length > 0) {
     // Update a status bar item or perform other actions
-    console.log(`User selected ${count} file(s)`);
-
-    // Get the actual TFile objects if needed
-    const fileObjects = files
-      .map(path => app.vault.getFileByPath(path))
-      .filter(f => f !== null);
+    console.log(`User selected ${files.length} file(s)`);
+    if (focused) {
+      console.log(`Focused file: ${focused.basename}`);
+    }
   }
 });
 ```
@@ -643,20 +691,29 @@ from `notebook-navigator/api` for type-safe development:
 - `CompatibilityLevel` - API compatibility levels (full, partial, limited,
   incompatible)
 - `FileQueryOptions` - Options for querying files
+- `TagRef` - Type-safe tag reference
+  ```typescript
+  type TagRef = `#${string}`;
+  ```
 - `FolderAppearance` - Folder display settings
   ```typescript
   interface FolderAppearance {
-    titleRows?: number; // Number of title rows to display
-    previewRows?: number; // Number of preview rows
-    showDate?: boolean; // Show file dates
-    showPreview?: boolean; // Show file preview text
-    showImage?: boolean; // Show feature images
+    showPreview?: boolean;
+    showImage?: boolean;
+    layoutStyle?: 'list' | 'grid' | 'card';
   }
   ```
 - `FolderMetadata` - Folder customization data
 - `NavigationResult` - Result of navigation operations
 - `SelectionState` - Current selection state
-- `TagAppearance` - Tag display settings (same as FolderAppearance)
+- `TagAppearance` - Tag display settings
+  ```typescript
+  interface TagAppearance {
+    showPreview?: boolean;
+    showImage?: boolean;
+    layoutStyle?: 'list' | 'grid' | 'card';
+  }
+  ```
 - `TagMetadata` - Tag customization data
 - `VersionNegotiation` - Result of version compatibility check
 - `ViewState` - Current view state

@@ -179,6 +179,24 @@ export class MetadataAPI {
         }
     }
 
+    /**
+     * Clear all appearance settings for a folder
+     * @param folder - Folder to clear appearance from
+     */
+    async clearFolderAppearance(folder: TFolder): Promise<void> {
+        const path = folder.path;
+
+        // Update internal cache
+        delete this.metadataState.folderAppearances[path];
+
+        // Update plugin settings
+        const plugin = this.api.getPlugin();
+        if (plugin) {
+            delete plugin.settings.folderAppearances[path];
+            await plugin.saveSettings();
+        }
+    }
+
     // ===================================================================
     // Tag Metadata
     // ===================================================================
@@ -269,6 +287,24 @@ export class MetadataAPI {
         const plugin = this.api.getPlugin();
         if (plugin) {
             delete plugin.settings.tagIcons[normalizedTag];
+            await plugin.saveSettings();
+        }
+    }
+
+    /**
+     * Clear all appearance settings for a tag
+     * @param tag - Tag string (e.g., '#work')
+     */
+    async clearTagAppearance(tag: string): Promise<void> {
+        const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
+
+        // Update internal cache
+        delete this.metadataState.tagAppearances[normalizedTag];
+
+        // Update plugin settings
+        const plugin = this.api.getPlugin();
+        if (plugin) {
+            delete plugin.settings.tagAppearances[normalizedTag];
             await plugin.saveSettings();
         }
     }

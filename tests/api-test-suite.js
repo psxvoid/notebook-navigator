@@ -589,8 +589,11 @@
                     if (eventData) {
                         this.assertTrue(Array.isArray(eventData.files), 'Event should include files array (TFile objects)');
                         this.assertTrue(Array.isArray(eventData.paths), 'Event should include paths array');
-                        this.assertTrue(typeof eventData.count === 'number', 'Event should include count');
-                        // focused is optional
+                        // focused can be null or a TFile
+                        this.assertTrue(
+                            eventData.focused === null || typeof eventData.focused === 'object',
+                            'Focused should be null or TFile'
+                        );
                     }
                 }
             };

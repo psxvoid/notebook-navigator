@@ -39,7 +39,7 @@ export class NavigationAPI {
             }
 
             await view.navigateToFile(file);
-            return { success: true, path: file.path };
+            return { success: true, target: file };
         } catch (error) {
             return { success: false, error: String(error) };
         }
