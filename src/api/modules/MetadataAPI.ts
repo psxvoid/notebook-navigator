@@ -18,7 +18,7 @@
 
 import { TFile, TFolder } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
-import type { FolderMetadata, TagMetadata } from '../types';
+import type { FolderMetadata, TagMetadata, IconString } from '../types';
 import type { NotebookNavigatorSettings } from '../../settings';
 
 /**
@@ -94,7 +94,7 @@ export class MetadataAPI {
 
         return {
             color,
-            icon
+            icon: icon as IconString | undefined
         };
     }
 
@@ -140,7 +140,7 @@ export class MetadataAPI {
      * @param folder - Folder to set icon for
      * @param icon - Icon identifier (e.g., 'lucide:folder', 'emoji:📁')
      */
-    async setFolderIcon(folder: TFolder, icon: string): Promise<void> {
+    async setFolderIcon(folder: TFolder, icon: IconString): Promise<void> {
         const path = folder.path;
 
         // Update internal cache
@@ -193,7 +193,7 @@ export class MetadataAPI {
 
         return {
             color,
-            icon
+            icon: icon as IconString | undefined
         };
     }
 
@@ -239,7 +239,7 @@ export class MetadataAPI {
      * @param tag - Tag string (e.g., '#work')
      * @param icon - Icon identifier
      */
-    async setTagIcon(tag: string, icon: string): Promise<void> {
+    async setTagIcon(tag: string, icon: IconString): Promise<void> {
         const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
 
         // Update internal cache
@@ -279,7 +279,7 @@ export class MetadataAPI {
      * List all pinned files
      * @returns Array of TFile objects that are pinned
      */
-    getPinned(): TFile[] {
+    getPinned(): readonly TFile[] {
         return this.metadataState.pinnedNotes
             .map(path => this.api.app.vault.getFileByPath(path))
             .filter((file): file is TFile => file instanceof TFile);

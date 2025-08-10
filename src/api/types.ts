@@ -27,6 +27,16 @@ import { TFile, TFolder } from 'obsidian';
  */
 
 // ============================================================================
+// COMMON TYPES
+// ============================================================================
+
+/**
+ * Icon string format for type-safe icon specifications
+ * Must be either 'lucide:<icon-name>' or 'emoji:<emoji>'
+ */
+export type IconString = `lucide:${string}` | `emoji:${string}`;
+
+// ============================================================================
 // METADATA TYPES
 // ============================================================================
 
@@ -37,7 +47,7 @@ export interface FolderMetadata {
     /** Hex color code or CSS color name */
     color?: string;
     /** Icon identifier (e.g., 'lucide:folder' or 'emoji:📁') */
-    icon?: string;
+    icon?: IconString;
 }
 
 /**
@@ -47,7 +57,7 @@ export interface TagMetadata {
     /** Hex color code or CSS color name */
     color?: string;
     /** Icon identifier (e.g., 'lucide:tag' or 'emoji:🏷️') */
-    icon?: string;
+    icon?: IconString;
 }
 
 // ============================================================================
@@ -93,7 +103,7 @@ export interface NotebookNavigatorEvents {
     /** Fired when file selection changes in the list pane */
     'file-selection-changed': {
         /** Array of selected TFile objects */
-        files: TFile[];
+        files: readonly TFile[];
         /** The focused file (cursor position) */
         focused: TFile | null;
     };
@@ -101,7 +111,7 @@ export interface NotebookNavigatorEvents {
     /** Fired when pinned files change */
     'pinned-files-changed': {
         /** All currently pinned files */
-        files: TFile[];
+        files: readonly TFile[];
     };
 
     /** Fired when folder metadata changes */
@@ -122,9 +132,21 @@ export interface NotebookNavigatorEvents {
 // ============================================================================
 
 /**
+ * Currently selected navigation item (folder or tag)
+ */
+export interface NavItem {
+    /** The selected folder (null if a tag is selected) */
+    folder: TFolder | null;
+    /** The selected tag (null if a folder is selected) */
+    tag: string | null;
+}
+
+/**
  * Current file selection state
  */
 export interface SelectionState {
-    files: TFile[];
+    /** Array of currently selected files */
+    files: readonly TFile[];
+    /** The file that has keyboard focus */
     focused: TFile | null;
 }

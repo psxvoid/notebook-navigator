@@ -21,13 +21,19 @@ import { TFile, TFolder, EventRef } from 'obsidian';
 // Core types
 
 /**
+ * Icon string format for type-safe icon specifications
+ * Must be either 'lucide:<icon-name>' or 'emoji:<emoji>'
+ */
+export type IconString = `lucide:${string}` | `emoji:${string}`;
+
+/**
  * Metadata associated with a folder
  */
 export interface FolderMetadata {
     /** CSS color value (hex, rgb, hsl, named colors) */
     color?: string;
     /** Icon identifier in format 'lucide:<name>' or 'emoji:<unicode>' */
-    icon?: string;
+    icon?: IconString;
 }
 
 /**
@@ -37,7 +43,7 @@ export interface TagMetadata {
     /** CSS color value (hex, rgb, hsl, named colors) */
     color?: string;
     /** Icon identifier in format 'lucide:<name>' or 'emoji:<unicode>' */
-    icon?: string;
+    icon?: IconString;
 }
 
 /**
@@ -51,13 +57,72 @@ export interface MoveResult {
 }
 
 /**
+ * Currently selected navigation item (folder or tag)
+ */
+export interface NavItem {
+    /** The selected folder (null if a tag is selected) */
+    folder: TFolder | null;
+    /** The selected tag (null if a folder is selected) */
+    tag: string | null;
+}
+
+/**
  * Current file selection state in the navigator
  */
 export interface SelectionState {
     /** Array of currently selected files */
-    files: TFile[];
+    files: readonly TFile[];
     /** The file that has keyboard focus (can be null) */
     focused: TFile | null;
+}
+
+/**
+ * All available event types that can be subscribed to
+ */
+export type NotebookNavigatorEventType = keyof NotebookNavigatorEvents;
+
+/**
+ * Event payload definitions for each event type
+ */
+export interface NotebookNavigatorEvents {
+    /** Fired when the storage system is ready for queries */
+    'storage-ready': void;
+
+    /** Fired when a folder is selected in navigation pane */
+    'folder-selected': {
+        folder: TFolder;
+    };
+
+    /** Fired when a tag is selected in navigation pane */
+    'tag-selected': {
+        tag: string;
+    };
+
+    /** Fired when file selection changes in the list pane */
+    'file-selection-changed': {
+        /** Array of selected TFile objects */
+        files: readonly TFile[];
+        /** The focused file (cursor position) */
+        focused: TFile | null;
+    };
+
+    /** Fired when pinned files change */
+    'pinned-files-changed': {
+        /** All currently pinned files */
+        files: readonly TFile[];
+    };
+
+    /** Fired when folder metadata changes */
+    'folder-metadata-changed': {
+        folder: TFolder;
+        property: 'color' | 'icon';
+    };
+
+    /** Fired when tag metadata changes */
+    'tag-metadata-changed': {
+        tag: string;
+        property: 'color' | 'icon';
+    };
 }
 
 /**
@@ -86,7 +151,7 @@ export interface NotebookNavigatorAPI {
         /** Remove folder color */
         clearFolderColor(folder: TFolder): Promise<void>;
         /** Set folder icon ('lucide:name' or 'emoji:📁') */
-        setFolderIcon(folder: TFolder, icon: string): Promise<void>;
+        setFolderIcon(folder: TFolder, icon: IconString): Promise<void>;
         /** Remove folder icon */
         clearFolderIcon(folder: TFolder): Promise<void>;
 
@@ -98,13 +163,13 @@ export interface NotebookNavigatorAPI {
         /** Remove tag color */
         clearTagColor(tag: string): Promise<void>;
         /** Set tag icon ('lucide:name' or 'emoji:🏷️') */
-        setTagIcon(tag: string, icon: string): Promise<void>;
+        setTagIcon(tag: string, icon: IconString): Promise<void>;
         /** Remove tag icon */
         clearTagIcon(tag: string): Promise<void>;
 
         // Pinned files
         /** Get all pinned files */
-        getPinned(): TFile[];
+        getPinned(): readonly TFile[];
         /** Check if a file is pinned */
         isPinned(file: TFile): boolean;
         /** Pin a file to the top of file lists */
@@ -124,14 +189,14 @@ export interface NotebookNavigatorAPI {
     /** Query current selection state */
     selection: {
         /** Get the currently selected folder or tag in navigation pane */
-        getNavItem(): { folder: TFolder | null; tag: string | null };
+        getNavItem(): NavItem;
         /** Get current file selection state */
         getCurrent(): SelectionState;
     };
 
     // Event subscription
-    /** Subscribe to navigator events */
-    on(event: string, callback: (data: unknown) => void): EventRef;
+    /** Subscribe to navigator events with type safety */
+    on<T extends NotebookNavigatorEventType>(event: T, callback: (data: NotebookNavigatorEvents[T]) => void): EventRef;
     /** Unsubscribe from an event */
     off(ref: EventRef): void;
 }

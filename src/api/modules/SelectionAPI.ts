@@ -18,7 +18,7 @@
 
 import { TFolder, TFile } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
-import type { SelectionState } from '../types';
+import type { SelectionState, NavItem } from '../types';
 import { STORAGE_KEYS } from '../../types';
 import { localStorage } from '../../utils/localStorage';
 
@@ -70,7 +70,7 @@ export class SelectionAPI {
      * Get the currently selected navigation item (folder or tag)
      * @returns Object with either folder or tag selected (only one can be selected at a time)
      */
-    getNavItem(): { folder: TFolder | null; tag: string | null } {
+    getNavItem(): NavItem {
         return {
             folder: this.selectionState.navigationFolder,
             tag: this.selectionState.navigationTag

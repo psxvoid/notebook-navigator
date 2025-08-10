@@ -41,7 +41,12 @@ Save it to your plugin project and import:
 
 ```typescript
 // In your plugin code
-import type { NotebookNavigatorAPI } from './notebook-navigator';
+import type {
+  NotebookNavigatorAPI,
+  NotebookNavigatorEvents,
+  NavItem,
+  IconString
+} from './notebook-navigator';
 
 const nn = app.plugins.plugins['notebook-navigator']
   ?.api as NotebookNavigatorAPI;
@@ -100,7 +105,7 @@ Customize folder and tag appearance, manage pinned files.
 | `getFolderMeta(folder)`         | Get folder metadata | `FolderMetadata \| null` |
 | `setFolderColor(folder, color)` | Set folder color    | `Promise<void>`          |
 | `clearFolderColor(folder)`      | Clear folder color  | `Promise<void>`          |
-| `setFolderIcon(folder, icon)`   | Set folder icon     | `Promise<void>`          |
+| `setFolderIcon(folder, icon: IconString)`   | Set folder icon     | `Promise<void>`          |
 | `clearFolderIcon(folder)`       | Clear folder icon   | `Promise<void>`          |
 
 ### Tag Metadata
@@ -113,14 +118,14 @@ Tag parameters accept strings with or without the leading `#` (both `'work'` and
 | `getTagMeta(tag)`         | Get tag metadata | `TagMetadata \| null` |
 | `setTagColor(tag, color)` | Set tag color    | `Promise<void>`       |
 | `clearTagColor(tag)`      | Clear tag color  | `Promise<void>`       |
-| `setTagIcon(tag, icon)`   | Set tag icon     | `Promise<void>`       |
+| `setTagIcon(tag, icon: IconString)`   | Set tag icon     | `Promise<void>`       |
 | `clearTagIcon(tag)`       | Clear tag icon   | `Promise<void>`       |
 
 ### Pinned Files
 
 | Method            | Description             | Returns         |
 | ----------------- | ----------------------- | --------------- |
-| `getPinned()`     | Get all pinned files    | `TFile[]`       |
+| `getPinned()`     | Get all pinned files    | `readonly TFile[]`       |
 | `isPinned(file)`  | Check if file is pinned | `boolean`       |
 | `pin(file)`       | Pin a file              | `Promise<void>` |
 | `unpin(file)`     | Unpin a file            | `Promise<void>` |
@@ -132,7 +137,11 @@ const folder = app.vault.getAbstractFileByPath('Projects');
 if (folder instanceof TFolder) {
   await nn.metadata.setFolderColor(folder, '#FF5733'); // Hex
   // Also works: 'red', 'rgb(255, 87, 51)', 'hsl(9, 100%, 60%)'
-  await nn.metadata.setFolderIcon(folder, 'lucide:folder-open');
+  
+  // Icons are type-safe with IconString
+  await nn.metadata.setFolderIcon(folder, 'lucide:folder-open'); // ✅ Valid
+  await nn.metadata.setFolderIcon(folder, 'emoji:📁'); // ✅ Valid
+  // await nn.metadata.setFolderIcon(folder, 'invalid'); // ❌ TypeScript error!
 }
 
 // Manage pins
@@ -162,7 +171,7 @@ Query the current selection state in the navigator.
 
 | Method         | Description                  | Returns                                            |
 | -------------- | ---------------------------- | -------------------------------------------------- |
-| `getNavItem()` | Get selected folder or tag   | `{ folder: TFolder \| null, tag: string \| null }` |
+| `getNavItem()` | Get selected folder or tag   | `NavItem` |
 | `getCurrent()` | Get complete selection state | `SelectionState`                                   |
 
 ```typescript
@@ -187,18 +196,20 @@ Subscribe to navigator events to react to user actions.
 | `storage-ready`           | `void`                                             | Storage system is ready |
 | `folder-selected`         | `{ folder: TFolder }`                              | Folder selected         |
 | `tag-selected`            | `{ tag: string }`                                  | Tag selected            |
-| `file-selection-changed`  | `{ files: TFile[], focused: TFile \| null }`       | Selection changed       |
-| `pinned-files-changed`    | `{ files: TFile[] }`                               | Pinned files changed    |
+| `file-selection-changed`  | `{ files: readonly TFile[], focused: TFile \| null }`       | Selection changed       |
+| `pinned-files-changed`    | `{ files: readonly TFile[] }`                               | Pinned files changed    |
 | `folder-metadata-changed` | `{ folder: TFolder, property: 'color' \| 'icon' }` | Folder metadata changed |
 | `tag-metadata-changed`    | `{ tag: string, property: 'color' \| 'icon' }`     | Tag metadata changed    |
 
 ```typescript
-// Subscribe to events
+// Subscribe to events with full type safety
 const folderRef = nn.on('folder-selected', ({ folder }) => {
+  // TypeScript knows 'folder' is TFolder
   console.log('Folder selected:', folder.path);
 });
 
 const selectionRef = nn.on('file-selection-changed', ({ files, focused }) => {
+  // TypeScript knows 'files' is readonly TFile[] and 'focused' is TFile | null
   console.log(`${files.length} files selected`);
 });
 
@@ -212,10 +223,19 @@ nn.off(selectionRef);
 | Method                | Description            | Returns    |
 | --------------------- | ---------------------- | ---------- |
 | `getVersion()`        | Get API version        | `string`   |
-| `on(event, callback)` | Subscribe to event     | `EventRef` |
+| `on<T>(event: T, callback)` | Subscribe to typed event     | `EventRef` |
 | `off(ref)`            | Unsubscribe from event | `void`     |
 
 ## TypeScript Support
+
+### Type Safety Features
+
+The API provides strong type safety with:
+
+- **Template literal types** for icons - `IconString` type ensures only valid icon formats
+- **Generic event subscriptions** - Full type inference for event payloads
+- **Readonly arrays** - Prevents accidental mutation of returned data
+- **Exported utility types** - `NavItem`, `IconString`, etc. for reuse in your code
 
 ### Complete Type Definitions
 
@@ -227,23 +247,43 @@ support:
 This file contains:
 
 - Complete API interface (`NotebookNavigatorAPI`)
-- All type definitions (`FolderMetadata`, `TagMetadata`, `MoveResult`,
-  `SelectionState`)
+- All type definitions:
+  - `IconString` - Type-safe icon format (`lucide:${string}` | `emoji:${string}`)
+  - `NavItem` - Navigation selection state
+  - `FolderMetadata`, `TagMetadata` - Metadata with typed icons
+  - `MoveResult`, `SelectionState` - Operation results
+- Typed event system:
+  - `NotebookNavigatorEvents` - All event payloads
+  - `NotebookNavigatorEventType` - Event name union type
 - Full JSDoc comments for every method
-- Event payload types
+- Readonly arrays to prevent accidental mutations
 
 ### Using the Types
 
 Save the `.d.ts` file to your plugin project and import it:
 
 ```typescript
-import type { NotebookNavigatorAPI } from './notebook-navigator';
+import type {
+  NotebookNavigatorAPI,
+  NotebookNavigatorEvents,
+  IconString
+} from './notebook-navigator';
 
 const nn = app.plugins.plugins['notebook-navigator']
   ?.api as NotebookNavigatorAPI;
 if (nn) {
   // Full type safety and autocomplete
   await nn.metadata.setFolderColor(folder, '#FF5733');
+  
+  // Icon strings are type-checked at compile time
+  const icon: IconString = 'lucide:folder'; // ✅ Valid
+  // const bad: IconString = 'invalid:icon'; // ❌ TypeScript error
+  await nn.metadata.setFolderIcon(folder, icon);
+  
+  // Events have full type inference
+  nn.on('file-selection-changed', ({ files, focused }) => {
+    // TypeScript knows: files is readonly TFile[], focused is TFile | null
+  });
 }
 ```
 
@@ -350,5 +390,7 @@ if (inbox instanceof TFolder && projects instanceof TFolder) {
   persist to settings
 - **CSS colors** - Colors accept any valid CSS format (hex, rgb, hsl, named
   colors)
-- **Icon format** - Icons use `lucide:<name>` or `emoji:<unicode>` format
+- **Icon format** - Icons use `IconString` type (`lucide:<name>` or `emoji:<unicode>`), validated at compile time
+- **Type-safe events** - Generic `on()` method provides full type inference for event payloads
+- **Immutable returns** - Arrays returned from API are `readonly` to prevent mutations
 - **Error handling** - Methods throw standard `Error` on failure
