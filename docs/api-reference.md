@@ -70,10 +70,10 @@ The API provides four main namespaces:
 
 Smart file operations that maintain proper selection in the navigator.
 
-| Method                  | Description                        | Returns               |
-| ----------------------- | ---------------------------------- | --------------------- |
-| `delete(files)`         | Delete files (all or none)         | `Promise<void>`       |
-| `moveTo(files, folder)` | Move files to folder (all or none) | `Promise<MoveResult>` |
+| Method                | Description          | Returns               |
+| --------------------- | -------------------- | --------------------- |
+| `delete(files)`       | Delete files         | `Promise<void>`       |
+| `move(files, folder)` | Move files to folder | `Promise<MoveResult>` |
 
 ```typescript
 // Delete files (throws on failure)
@@ -83,7 +83,7 @@ await nn.file.delete([file]);
 // Move files (throws on failure, returns counts on success)
 const targetFolder = app.vault.getAbstractFileByPath('Archive');
 if (targetFolder instanceof TFolder) {
-  const result = await nn.file.moveTo([file1, file2], targetFolder);
+  const result = await nn.file.move([file1, file2], targetFolder);
   // result: { movedCount: 2, skippedCount: 0 }
   // skippedCount > 0 means files already existed at destination
 }
@@ -97,7 +97,7 @@ Customize folder and tag appearance, manage pinned files.
 
 | Method                          | Description         | Returns                  |
 | ------------------------------- | ------------------- | ------------------------ |
-| `getFolderMetadata(folder)`     | Get folder metadata | `FolderMetadata \| null` |
+| `getFolderMeta(folder)`         | Get folder metadata | `FolderMetadata \| null` |
 | `setFolderColor(folder, color)` | Set folder color    | `Promise<void>`          |
 | `clearFolderColor(folder)`      | Clear folder color  | `Promise<void>`          |
 | `setFolderIcon(folder, icon)`   | Set folder icon     | `Promise<void>`          |
@@ -110,7 +110,7 @@ Tag parameters accept strings with or without the leading `#` (both `'work'` and
 
 | Method                    | Description      | Returns               |
 | ------------------------- | ---------------- | --------------------- |
-| `getTagMetadata(tag)`     | Get tag metadata | `TagMetadata \| null` |
+| `getTagMeta(tag)`         | Get tag metadata | `TagMetadata \| null` |
 | `setTagColor(tag, color)` | Set tag color    | `Promise<void>`       |
 | `clearTagColor(tag)`      | Clear tag color  | `Promise<void>`       |
 | `setTagIcon(tag, icon)`   | Set tag icon     | `Promise<void>`       |
@@ -118,13 +118,13 @@ Tag parameters accept strings with or without the leading `#` (both `'work'` and
 
 ### Pinned Files
 
-| Method              | Description             | Returns         |
-| ------------------- | ----------------------- | --------------- |
-| `listPinnedFiles()` | Get all pinned files    | `TFile[]`       |
-| `isPinned(file)`    | Check if file is pinned | `boolean`       |
-| `pin(file)`         | Pin a file              | `Promise<void>` |
-| `unpin(file)`       | Unpin a file            | `Promise<void>` |
-| `togglePin(file)`   | Toggle pin status       | `Promise<void>` |
+| Method             | Description             | Returns         |
+| ------------------ | ----------------------- | --------------- |
+| `getPinnedFiles()` | Get all pinned files    | `TFile[]`       |
+| `isPinned(file)`   | Check if file is pinned | `boolean`       |
+| `pin(file)`        | Pin a file              | `Promise<void>` |
+| `unpin(file)`      | Unpin a file            | `Promise<void>` |
+| `togglePin(file)`  | Toggle pin status       | `Promise<void>` |
 
 ```typescript
 // Set folder appearance
@@ -143,15 +143,15 @@ if (file && !nn.metadata.isPinned(file)) {
 
 ## Navigation API
 
-| Method                 | Description                         | Returns         |
-| ---------------------- | ----------------------------------- | --------------- |
-| `navigateToFile(file)` | Reveal and select file in navigator | `Promise<void>` |
+| Method         | Description                         | Returns         |
+| -------------- | ----------------------------------- | --------------- |
+| `reveal(file)` | Reveal and select file in navigator | `Promise<void>` |
 
 ```typescript
 // Navigate to active file
 const activeFile = app.workspace.getActiveFile();
 if (activeFile) {
-  await nn.navigation.navigateToFile(activeFile);
+  await nn.navigation.reveal(activeFile);
 }
 ```
 
@@ -159,14 +159,14 @@ if (activeFile) {
 
 Query the current selection state in the navigator.
 
-| Method                        | Description                  | Returns                                            |
-| ----------------------------- | ---------------------------- | -------------------------------------------------- |
-| `getSelectedNavigationItem()` | Get selected folder or tag   | `{ folder: TFolder \| null, tag: string \| null }` |
-| `getSelectionState()`         | Get complete selection state | `SelectionState`                                   |
+| Method         | Description                  | Returns                                            |
+| -------------- | ---------------------------- | -------------------------------------------------- |
+| `getNavItem()` | Get selected folder or tag   | `{ folder: TFolder \| null, tag: string \| null }` |
+| `getCurrent()` | Get complete selection state | `SelectionState`                                   |
 
 ```typescript
 // Check what's selected
-const navItem = nn.selection.getSelectedNavigationItem();
+const navItem = nn.selection.getNavItem();
 if (navItem.folder) {
   console.log('Folder selected:', navItem.folder.path);
 } else if (navItem.tag) {
@@ -174,7 +174,7 @@ if (navItem.folder) {
 }
 
 // Get selected files
-const { files, focused } = nn.selection.getSelectionState();
+const { files, focused } = nn.selection.getCurrent();
 ```
 
 ## Events
@@ -253,26 +253,26 @@ export interface NotebookNavigatorAPI {
 
   file: {
     delete(files: TFile[]): Promise<void>;
-    moveTo(files: TFile[], folder: TFolder): Promise<MoveResult>;
+    move(files: TFile[], folder: TFolder): Promise<MoveResult>;
   };
 
   metadata: {
     // Folders
-    getFolderMetadata(folder: TFolder): FolderMetadata | null;
+    getFolderMeta(folder: TFolder): FolderMetadata | null;
     setFolderColor(folder: TFolder, color: string): Promise<void>;
     clearFolderColor(folder: TFolder): Promise<void>;
     setFolderIcon(folder: TFolder, icon: string): Promise<void>;
     clearFolderIcon(folder: TFolder): Promise<void>;
 
     // Tags
-    getTagMetadata(tag: string): TagMetadata | null;
+    getTagMeta(tag: string): TagMetadata | null;
     setTagColor(tag: string, color: string): Promise<void>;
     clearTagColor(tag: string): Promise<void>;
     setTagIcon(tag: string, icon: string): Promise<void>;
     clearTagIcon(tag: string): Promise<void>;
 
     // Pins
-    listPinnedFiles(): TFile[];
+    getPinnedFiles(): TFile[];
     isPinned(file: TFile): boolean;
     pin(file: TFile): Promise<void>;
     unpin(file: TFile): Promise<void>;
@@ -280,12 +280,12 @@ export interface NotebookNavigatorAPI {
   };
 
   navigation: {
-    navigateToFile(file: TFile): Promise<void>;
+    reveal(file: TFile): Promise<void>;
   };
 
   selection: {
-    getSelectedNavigationItem(): { folder: TFolder | null; tag: string | null };
-    getSelectionState(): SelectionState;
+    getNavItem(): { folder: TFolder | null; tag: string | null };
+    getCurrent(): SelectionState;
   };
 
   // Events
@@ -338,7 +338,7 @@ if (nn) {
 ```typescript
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 if (nn) {
-  const { files: selectedFiles } = nn.selection.getSelectionState();
+  const { files: selectedFiles } = nn.selection.getCurrent();
 
   for (const file of selectedFiles) {
     await app.fileManager.processFrontMatter(file, fm => {
@@ -372,7 +372,7 @@ const projects = app.vault.getAbstractFileByPath('Projects');
 if (inbox instanceof TFolder && projects instanceof TFolder) {
   const files = inbox.children.filter(f => f instanceof TFile);
   try {
-    const result = await nn.file.moveTo(files, projects);
+    const result = await nn.file.move(files, projects);
     console.log(
       `Moved ${result.movedCount} files, skipped ${result.skippedCount}`
     );

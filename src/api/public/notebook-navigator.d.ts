@@ -46,26 +46,26 @@ export interface NotebookNavigatorAPI {
 
     file: {
         delete(files: TFile[]): Promise<void>;
-        moveTo(files: TFile[], folder: TFolder): Promise<MoveResult>;
+        move(files: TFile[], folder: TFolder): Promise<MoveResult>;
     };
 
     metadata: {
         // Folders
-        getFolderMetadata(folder: TFolder): FolderMetadata | null;
+        getFolderMeta(folder: TFolder): FolderMetadata | null;
         setFolderColor(folder: TFolder, color: string): Promise<void>;
         clearFolderColor(folder: TFolder): Promise<void>;
         setFolderIcon(folder: TFolder, icon: string): Promise<void>;
         clearFolderIcon(folder: TFolder): Promise<void>;
 
         // Tags
-        getTagMetadata(tag: string): TagMetadata | null;
+        getTagMeta(tag: string): TagMetadata | null;
         setTagColor(tag: string, color: string): Promise<void>;
         clearTagColor(tag: string): Promise<void>;
         setTagIcon(tag: string, icon: string): Promise<void>;
         clearTagIcon(tag: string): Promise<void>;
 
         // Pins
-        listPinnedFiles(): TFile[];
+        getPinnedFiles(): TFile[];
         isPinned(file: TFile): boolean;
         pin(file: TFile): Promise<void>;
         unpin(file: TFile): Promise<void>;
@@ -73,12 +73,12 @@ export interface NotebookNavigatorAPI {
     };
 
     navigation: {
-        navigateToFile(file: TFile): Promise<void>;
+        reveal(file: TFile): Promise<void>;
     };
 
     selection: {
-        getSelectedNavigationItem(): { folder: TFolder | null; tag: string | null };
-        getSelectionState(): SelectionState;
+        getNavItem(): { folder: TFolder | null; tag: string | null };
+        getCurrent(): SelectionState;
     };
 
     // Events

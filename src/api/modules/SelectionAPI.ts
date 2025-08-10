@@ -70,7 +70,7 @@ export class SelectionAPI {
      * Get the currently selected navigation item (folder or tag)
      * @returns Object with either folder or tag selected (only one can be selected at a time)
      */
-    getSelectedNavigationItem(): { folder: TFolder | null; tag: string | null } {
+    getNavItem(): { folder: TFolder | null; tag: string | null } {
         return {
             folder: this.selectionState.navigationFolder,
             tag: this.selectionState.navigationTag
@@ -130,7 +130,7 @@ export class SelectionAPI {
      * Get the current selection state
      * @returns Current selection state with files and focused file
      */
-    getSelectionState(): SelectionState {
+    getCurrent(): SelectionState {
         const files: TFile[] = [];
 
         for (const path of this.selectionState.files) {

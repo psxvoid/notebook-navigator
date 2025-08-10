@@ -83,7 +83,7 @@ export class MetadataAPI {
      * Get folder metadata
      * @param folder - Folder to get metadata for
      */
-    getFolderMetadata(folder: TFolder): FolderMetadata | null {
+    getFolderMeta(folder: TFolder): FolderMetadata | null {
         const path = folder.path;
         const color = this.metadataState.folderColors[path];
         const icon = this.metadataState.folderIcons[path];
@@ -180,7 +180,7 @@ export class MetadataAPI {
      * Get tag metadata
      * @param tag - Tag string (e.g., '#work')
      */
-    getTagMetadata(tag: string): TagMetadata | null {
+    getTagMeta(tag: string): TagMetadata | null {
         // Ensure tag starts with #
         const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
 
@@ -279,7 +279,7 @@ export class MetadataAPI {
      * List all pinned files
      * @returns Array of TFile objects that are pinned
      */
-    listPinnedFiles(): TFile[] {
+    getPinnedFiles(): TFile[] {
         return this.metadataState.pinnedNotes
             .map(path => this.api.app.vault.getFileByPath(path))
             .filter((file): file is TFile => file instanceof TFile);

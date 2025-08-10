@@ -280,7 +280,7 @@
                     const testFile = await this.createTestFile('test-navigation.md', '# Test Navigation');
 
                     try {
-                        await this.api.navigation.navigateToFile(testFile);
+                        await this.api.navigation.reveal(testFile);
                         // If successful, navigation completed
                         this.assertTrue(true, 'Navigation completed successfully');
                     } catch (error) {
@@ -293,7 +293,7 @@
                     const fakeFile = { path: 'fake-file-that-does-not-exist.md' };
 
                     try {
-                        await this.api.navigation.navigateToFile(fakeFile);
+                        await this.api.navigation.reveal(fakeFile);
                         // Should throw an error for non-existent file
                         this.assertTrue(false, 'Should have thrown an error for non-existent file');
                     } catch (error) {
@@ -313,24 +313,24 @@
                     const testFolder = await this.createTestFolder('test-metadata-folder');
 
                     // Get initial metadata (should be null when nothing is set)
-                    const initialMeta = this.api.metadata.getFolderMetadata(testFolder);
+                    const initialMeta = this.api.metadata.getFolderMeta(testFolder);
                     this.assertEqual(initialMeta, null, 'Should return null when no metadata is set');
 
                     // Set color
                     await this.api.metadata.setFolderColor(testFolder, '#ff0000');
-                    const afterColor = this.api.metadata.getFolderMetadata(testFolder);
+                    const afterColor = this.api.metadata.getFolderMeta(testFolder);
                     this.assertExists(afterColor, 'Should return metadata after setting color');
                     this.assertEqual(afterColor.color, '#ff0000', 'Color should be set');
 
                     // Set icon
                     await this.api.metadata.setFolderIcon(testFolder, 'lucide:folder-open');
-                    const afterIcon = this.api.metadata.getFolderMetadata(testFolder);
+                    const afterIcon = this.api.metadata.getFolderMeta(testFolder);
                     this.assertEqual(afterIcon.icon, 'lucide:folder-open', 'Icon should be set');
 
                     // Clear metadata using dedicated methods
                     await this.api.metadata.clearFolderColor(testFolder);
                     await this.api.metadata.clearFolderIcon(testFolder);
-                    const cleared = this.api.metadata.getFolderMetadata(testFolder);
+                    const cleared = this.api.metadata.getFolderMeta(testFolder);
                     this.assertEqual(cleared, null, 'Should return null when all metadata is cleared');
                 },
 
@@ -338,24 +338,24 @@
                     const testTag = '#test-tag';
 
                     // Get initial metadata (should be null when nothing is set)
-                    const initialMeta = this.api.metadata.getTagMetadata(testTag);
+                    const initialMeta = this.api.metadata.getTagMeta(testTag);
                     this.assertEqual(initialMeta, null, 'Should return null when no metadata is set');
 
                     // Set color
                     await this.api.metadata.setTagColor(testTag, '#00ff00');
-                    const afterColor = this.api.metadata.getTagMetadata(testTag);
+                    const afterColor = this.api.metadata.getTagMeta(testTag);
                     this.assertExists(afterColor, 'Should return metadata after setting color');
                     this.assertEqual(afterColor.color, '#00ff00', 'Tag color should be set');
 
                     // Set icon
                     await this.api.metadata.setTagIcon(testTag, 'lucide:tag');
-                    const afterIcon = this.api.metadata.getTagMetadata(testTag);
+                    const afterIcon = this.api.metadata.getTagMeta(testTag);
                     this.assertEqual(afterIcon.icon, 'lucide:tag', 'Tag icon should be set');
 
                     // Clear using dedicated methods
                     await this.api.metadata.clearTagColor(testTag);
                     await this.api.metadata.clearTagIcon(testTag);
-                    const cleared = this.api.metadata.getTagMetadata(testTag);
+                    const cleared = this.api.metadata.getTagMeta(testTag);
                     this.assertEqual(cleared, null, 'Should return null when all metadata is cleared');
                 },
 
@@ -372,7 +372,7 @@
                     this.assertTrue(isPinned, 'File should be pinned after pin()');
 
                     // Get all pinned files
-                    const pinnedFiles = this.api.metadata.listPinnedFiles();
+                    const pinnedFiles = this.api.metadata.getPinnedFiles();
                     this.assertTrue(Array.isArray(pinnedFiles), 'Should return array of pinned files');
                     const pinnedPaths = pinnedFiles.map(f => f.path);
                     this.assertTrue(pinnedPaths.includes(testFile.path), 'Pinned files should include our test file');
@@ -441,7 +441,7 @@
                     const testFile = await this.createTestFile('test-move-source/test-file.md', '# Move Test');
 
                     // Move the file
-                    const result = await this.api.file.moveTo([testFile], targetFolder);
+                    const result = await this.api.file.move([testFile], targetFolder);
                     this.assertExists(result, 'Move should return a result');
                     this.assertEqual(result.movedCount, 1, 'Should have moved 1 file');
                     this.assertEqual(result.skippedCount, 0, 'Should have no skipped files');
@@ -462,7 +462,7 @@
                     const fakeFolder = { path: 'non-existent-folder', name: 'fake' };
 
                     try {
-                        await this.api.file.moveTo([testFile], fakeFolder);
+                        await this.api.file.move([testFile], fakeFolder);
                         // Should throw for invalid move
                         this.assertTrue(false, 'Move to non-existent folder should throw');
                     } catch (e) {
@@ -480,7 +480,7 @@
                 },
 
                 'Should get selected navigation item': async function () {
-                    const selection = this.api.selection.getSelectedNavigationItem();
+                    const selection = this.api.selection.getNavItem();
                     this.assertExists(selection, 'Should return selection object');
                     this.assertExists(selection.folder !== undefined, 'Should have folder property');
                     this.assertExists(selection.tag !== undefined, 'Should have tag property');
@@ -504,7 +504,7 @@
 
                 'Should handle no selection gracefully': async function () {
                     // This test verifies the API handles the case when nothing is selected
-                    const selection = this.api.selection.getSelectedNavigationItem();
+                    const selection = this.api.selection.getNavItem();
                     this.assertExists(selection, 'Should always return a selection object');
 
                     // Both can be null when nothing is selected
@@ -518,7 +518,7 @@
 
                 'Should get file selection state': async function () {
                     // Test getting selection state
-                    const state = this.api.selection.getSelectionState();
+                    const state = this.api.selection.getCurrent();
                     this.assertExists(state, 'getSelectionState should return an object');
                     this.assertTrue(Array.isArray(state.files), 'State should have files array');
                     this.assertTrue(state.focused === null || typeof state.focused === 'object', 'State should have focused property');

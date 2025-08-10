@@ -133,7 +133,7 @@ export class FileAPI {
      * @returns Result with moved count and skipped count
      * @throws Error if the move operation fails
      */
-    async moveTo(files: TFile[], targetFolder: TFolder): Promise<MoveResult> {
+    async move(files: TFile[], targetFolder: TFolder): Promise<MoveResult> {
         const plugin = this.api.getPlugin();
 
         if (!plugin.fileSystemOps) {

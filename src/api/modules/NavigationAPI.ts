@@ -30,7 +30,7 @@ export class NavigationAPI {
      * Navigate to a specific file and select it
      * @param file - File to navigate to
      */
-    async navigateToFile(file: TFile): Promise<void> {
+    async reveal(file: TFile): Promise<void> {
         const view = await this.ensureViewOpen();
         if (!view) {
             throw new Error('Could not open navigator view');
