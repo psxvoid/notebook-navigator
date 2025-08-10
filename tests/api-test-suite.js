@@ -267,15 +267,15 @@
                     this.assertTrue(version.match(/^\d+\.\d+\.\d+$/), `Invalid version format: ${version}`);
                 },
 
-                'Should check compatibility correctly': async function () {
-                    const result = this.api.checkCompatibility('1.0.0');
+                'Should negotiate version correctly': async function () {
+                    const result = this.api.negotiateVersion('1.0.0');
                     this.assertExists(result, 'Compatibility check returned null');
                     this.assertExists(result.compatibility, 'Compatibility level not defined');
                     this.assertTrue(['full', 'partial', 'limited', 'incompatible'].includes(result.compatibility));
                 },
 
                 'Should list available features': async function () {
-                    const features = this.api.getAvailableFeatures();
+                    const features = this.api.listFeatures();
                     this.assertTrue(Array.isArray(features), 'Features should be an array');
                     this.assertTrue(features.length > 0, 'Should have at least one feature');
                 },
@@ -390,7 +390,7 @@
                     this.assertTrue(isPinned, 'File should be pinned after toggle');
 
                     // Get all pinned files
-                    const pinnedFiles = this.api.metadata.getPinnedFiles();
+                    const pinnedFiles = this.api.metadata.listPinnedFiles();
                     this.assertTrue(Array.isArray(pinnedFiles), 'Should return array of pinned files');
                     const pinnedPaths = pinnedFiles.map(f => f.path);
                     this.assertTrue(pinnedPaths.includes(testFile.path), 'Pinned files should include our test file');
@@ -444,7 +444,7 @@
                     const testFile = await this.createTestFile('test-move-source/test-file.md', '# Move Test');
 
                     // Move the file
-                    const result = await this.api.file.move(testFile, targetFolder);
+                    const result = await this.api.file.moveTo(testFile, targetFolder);
                     this.assertExists(result, 'Move should return a result');
                     this.assertTrue(result.movedCount === 1, 'Should have moved 1 file');
                     this.assertTrue(result.skippedCount === 0, 'Should not skip any files');
@@ -466,7 +466,7 @@
                     const fakeFolder = { path: 'non-existent-folder', name: 'fake' };
 
                     try {
-                        const result = await this.api.file.move(testFile, fakeFolder);
+                        const result = await this.api.file.moveTo(testFile, fakeFolder);
                         // Should either throw or return errors
                         if (result) {
                             this.assertTrue(
@@ -488,8 +488,8 @@
                     this.assertExists(this.api.selection, 'Selection API not found');
                 },
 
-                'Should get navigation selection': async function () {
-                    const selection = this.api.selection.getNavigationSelection();
+                'Should get selected navigation item': async function () {
+                    const selection = this.api.selection.getSelectedNavigationItem();
                     this.assertExists(selection, 'Should return selection object');
                     this.assertExists(selection.folder !== undefined, 'Should have folder property');
                     this.assertExists(selection.tag !== undefined, 'Should have tag property');
@@ -513,7 +513,7 @@
 
                 'Should handle no selection gracefully': async function () {
                     // This test verifies the API handles the case when nothing is selected
-                    const selection = this.api.selection.getNavigationSelection();
+                    const selection = this.api.selection.getSelectedNavigationItem();
                     this.assertExists(selection, 'Should always return a selection object');
 
                     // Both can be null when nothing is selected
@@ -522,6 +522,75 @@
                     } else {
                         // Something is selected, which is also valid
                         this.assertTrue(true, 'API returns current selection');
+                    }
+                },
+
+                'Should get file selection state': async function () {
+                    // Test getting selected files
+                    const selectedFiles = this.api.selection.listSelectedFiles();
+                    this.assertTrue(Array.isArray(selectedFiles), 'listSelectedFiles should return an array');
+
+                    // Test getting selected paths
+                    const selectedPaths = this.api.selection.listSelectedPaths();
+                    this.assertTrue(Array.isArray(selectedPaths), 'listSelectedPaths should return an array');
+
+                    // Verify consistency between files and paths
+                    this.assertEqual(selectedFiles.length, selectedPaths.length, 'Files and paths arrays should have same length');
+                },
+
+                'Should track selection count and multiple selection': async function () {
+                    const count = this.api.selection.getSelectionCount();
+                    this.assertTrue(typeof count === 'number', 'getSelectionCount should return a number');
+                    this.assertTrue(count >= 0, 'Selection count should be non-negative');
+
+                    const hasMultiple = this.api.selection.hasMultipleSelection();
+                    this.assertTrue(typeof hasMultiple === 'boolean', 'hasMultipleSelection should return a boolean');
+
+                    // Verify consistency
+                    if (count > 1) {
+                        this.assertTrue(hasMultiple, 'hasMultipleSelection should be true when count > 1');
+                    } else {
+                        this.assertFalse(hasMultiple, 'hasMultipleSelection should be false when count <= 1');
+                    }
+                },
+
+                'Should get focused file': async function () {
+                    const focusedFile = this.api.selection.getFocusedFile();
+
+                    // Focused file can be null (no selection) or a TFile object
+                    if (focusedFile !== null) {
+                        this.assertExists(focusedFile.path, 'Focused file should have a path');
+                        this.assertTrue(typeof focusedFile.path === 'string', 'File path should be a string');
+                        this.assertExists(focusedFile.name, 'Focused file should have a name');
+
+                        // If there's a focused file, selection count should be at least 1
+                        const count = this.api.selection.getSelectionCount();
+                        this.assertTrue(count >= 1, 'Should have at least 1 selected file when focused file exists');
+                    }
+                },
+
+                'Should handle file selection events': async function () {
+                    // Test event subscription
+                    let eventFired = false;
+                    let eventData = null;
+
+                    const eventRef = this.api.on('file-selection-changed', data => {
+                        eventFired = true;
+                        eventData = data;
+                    });
+
+                    // The event should have been set up
+                    this.assertExists(eventRef, 'Event subscription should return a reference');
+
+                    // Clean up event listener
+                    this.api.off(eventRef);
+
+                    // Verify event data structure if an event was captured
+                    if (eventData) {
+                        this.assertTrue(Array.isArray(eventData.files), 'Event should include files array (TFile objects)');
+                        this.assertTrue(Array.isArray(eventData.paths), 'Event should include paths array');
+                        this.assertTrue(typeof eventData.count === 'number', 'Event should include count');
+                        // focused is optional
                     }
                 }
             };

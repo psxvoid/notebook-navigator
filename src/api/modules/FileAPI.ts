@@ -118,14 +118,15 @@ export class FileAPI {
      * Move one or more files to a target folder
      * @param files - File or array of files to move
      * @param targetFolder - Target folder to move files into
-     * @returns Result with moved count, skipped count, and errors
+     * @returns Result with moved count, skipped files, and errors
      */
-    async move(
+    async moveTo(
         files: TFile | TFile[],
         targetFolder: TFolder
     ): Promise<{
         movedCount: number;
         skippedCount: number;
+        skipped: TFile[];
         errors: Array<{ file: TFile; error: string }>;
     }> {
         const plugin = this.api.getPlugin();
@@ -141,9 +142,19 @@ export class FileAPI {
             showNotifications: true
         });
 
+        // Emit files-moved event
+        this.api.trigger('files-moved', {
+            files: fileArray.filter(f => {
+                // Only include successfully moved files
+                return !result.errors.some((e: { file: TFile }) => e.file === f);
+            }),
+            to: targetFolder
+        });
+
         return {
             movedCount: result.movedCount,
             skippedCount: result.skippedCount,
+            skipped: [], // TODO: Track skipped files in FileSystemService
             errors: result.errors.map((e: { file: TFile; error: Error }) => ({
                 file: e.file,
                 error: e.error.message

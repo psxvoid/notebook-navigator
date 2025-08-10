@@ -16,6 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
+import { TFile, TFolder } from 'obsidian';
 import { FolderAppearance, TagAppearance } from '../hooks/useListPaneAppearance';
 
 /**
@@ -82,7 +83,8 @@ export interface NavigationResult {
 export type NotebookNavigatorEventType =
     | 'navigation-changed' // User navigated to a different folder or tag
     | 'storage-ready' // Storage system is initialized and ready
-    | 'file-selection-changed'; // File selection changed in the list pane
+    | 'file-selection-changed' // File selection changed in the list pane
+    | 'files-moved'; // Files were moved to a different folder
 
 /**
  * Event payload definitions for each event type
@@ -99,9 +101,19 @@ export interface NotebookNavigatorEvents {
 
     /** Fired when file selection changes in the list pane */
     'file-selection-changed': {
+        /** Array of selected TFile objects */
+        files: TFile[];
         /** Array of selected file paths */
-        files: string[];
+        paths: string[];
         /** Number of selected files */
         count: number;
+        /** The focused file (cursor position) if any */
+        focused?: TFile;
+    };
+
+    /** Fired when files are moved to a different folder */
+    'files-moved': {
+        files: TFile[];
+        to: TFolder;
     };
 }

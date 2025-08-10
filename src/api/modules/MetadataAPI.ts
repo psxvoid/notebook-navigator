@@ -108,26 +108,36 @@ export class MetadataAPI {
     /**
      * Set folder color
      * @param folder - Folder to set color for
-     * @param color - Hex color string or null to remove
+     * @param color - Hex color string
      */
-    async setFolderColor(folder: TFolder, color: string | null): Promise<void> {
+    async setFolderColor(folder: TFolder, color: string): Promise<void> {
         const path = folder.path;
 
         // Update internal cache
-        if (color) {
-            this.metadataState.folderColors[path] = color;
-        } else {
-            delete this.metadataState.folderColors[path];
-        }
+        this.metadataState.folderColors[path] = color;
 
         // Update plugin settings
         const plugin = this.api.getPlugin();
         if (plugin) {
-            if (color) {
-                plugin.settings.folderColors[path] = color;
-            } else {
-                delete plugin.settings.folderColors[path];
-            }
+            plugin.settings.folderColors[path] = color;
+            await plugin.saveSettings();
+        }
+    }
+
+    /**
+     * Clear folder color
+     * @param folder - Folder to clear color from
+     */
+    async clearFolderColor(folder: TFolder): Promise<void> {
+        const path = folder.path;
+
+        // Update internal cache
+        delete this.metadataState.folderColors[path];
+
+        // Update plugin settings
+        const plugin = this.api.getPlugin();
+        if (plugin) {
+            delete plugin.settings.folderColors[path];
             await plugin.saveSettings();
         }
     }
@@ -135,26 +145,36 @@ export class MetadataAPI {
     /**
      * Set folder icon
      * @param folder - Folder to set icon for
-     * @param icon - Icon identifier (e.g., 'lucide:folder', 'emoji:📁') or null to remove
+     * @param icon - Icon identifier (e.g., 'lucide:folder', 'emoji:📁')
      */
-    async setFolderIcon(folder: TFolder, icon: string | null): Promise<void> {
+    async setFolderIcon(folder: TFolder, icon: string): Promise<void> {
         const path = folder.path;
 
         // Update internal cache
-        if (icon) {
-            this.metadataState.folderIcons[path] = icon;
-        } else {
-            delete this.metadataState.folderIcons[path];
-        }
+        this.metadataState.folderIcons[path] = icon;
 
         // Update plugin settings
         const plugin = this.api.getPlugin();
         if (plugin) {
-            if (icon) {
-                plugin.settings.folderIcons[path] = icon;
-            } else {
-                delete plugin.settings.folderIcons[path];
-            }
+            plugin.settings.folderIcons[path] = icon;
+            await plugin.saveSettings();
+        }
+    }
+
+    /**
+     * Clear folder icon
+     * @param folder - Folder to clear icon from
+     */
+    async clearFolderIcon(folder: TFolder): Promise<void> {
+        const path = folder.path;
+
+        // Update internal cache
+        delete this.metadataState.folderIcons[path];
+
+        // Update plugin settings
+        const plugin = this.api.getPlugin();
+        if (plugin) {
+            delete plugin.settings.folderIcons[path];
             await plugin.saveSettings();
         }
     }
@@ -182,26 +202,36 @@ export class MetadataAPI {
     /**
      * Set tag color
      * @param tag - Tag string (e.g., '#work')
-     * @param color - Hex color string or null to remove
+     * @param color - Hex color string
      */
-    async setTagColor(tag: string, color: string | null): Promise<void> {
+    async setTagColor(tag: string, color: string): Promise<void> {
         const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
 
         // Update internal cache
-        if (color) {
-            this.metadataState.tagColors[normalizedTag] = color;
-        } else {
-            delete this.metadataState.tagColors[normalizedTag];
-        }
+        this.metadataState.tagColors[normalizedTag] = color;
 
         // Update plugin settings
         const plugin = this.api.getPlugin();
         if (plugin) {
-            if (color) {
-                plugin.settings.tagColors[normalizedTag] = color;
-            } else {
-                delete plugin.settings.tagColors[normalizedTag];
-            }
+            plugin.settings.tagColors[normalizedTag] = color;
+            await plugin.saveSettings();
+        }
+    }
+
+    /**
+     * Clear tag color
+     * @param tag - Tag string (e.g., '#work')
+     */
+    async clearTagColor(tag: string): Promise<void> {
+        const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
+
+        // Update internal cache
+        delete this.metadataState.tagColors[normalizedTag];
+
+        // Update plugin settings
+        const plugin = this.api.getPlugin();
+        if (plugin) {
+            delete plugin.settings.tagColors[normalizedTag];
             await plugin.saveSettings();
         }
     }
@@ -209,26 +239,36 @@ export class MetadataAPI {
     /**
      * Set tag icon
      * @param tag - Tag string (e.g., '#work')
-     * @param icon - Icon identifier or null to remove
+     * @param icon - Icon identifier
      */
-    async setTagIcon(tag: string, icon: string | null): Promise<void> {
+    async setTagIcon(tag: string, icon: string): Promise<void> {
         const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
 
         // Update internal cache
-        if (icon) {
-            this.metadataState.tagIcons[normalizedTag] = icon;
-        } else {
-            delete this.metadataState.tagIcons[normalizedTag];
-        }
+        this.metadataState.tagIcons[normalizedTag] = icon;
 
         // Update plugin settings
         const plugin = this.api.getPlugin();
         if (plugin) {
-            if (icon) {
-                plugin.settings.tagIcons[normalizedTag] = icon;
-            } else {
-                delete plugin.settings.tagIcons[normalizedTag];
-            }
+            plugin.settings.tagIcons[normalizedTag] = icon;
+            await plugin.saveSettings();
+        }
+    }
+
+    /**
+     * Clear tag icon
+     * @param tag - Tag string (e.g., '#work')
+     */
+    async clearTagIcon(tag: string): Promise<void> {
+        const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
+
+        // Update internal cache
+        delete this.metadataState.tagIcons[normalizedTag];
+
+        // Update plugin settings
+        const plugin = this.api.getPlugin();
+        if (plugin) {
+            delete plugin.settings.tagIcons[normalizedTag];
             await plugin.saveSettings();
         }
     }
@@ -238,10 +278,10 @@ export class MetadataAPI {
     // ===================================================================
 
     /**
-     * Get all pinned files
+     * List all pinned files
      * @returns Array of TFile objects that are pinned
      */
-    getPinnedFiles(): TFile[] {
+    listPinnedFiles(): TFile[] {
         return this.metadataState.pinnedNotes
             .map(path => this.api.app.vault.getFileByPath(path))
             .filter((file): file is TFile => file instanceof TFile);
@@ -253,6 +293,42 @@ export class MetadataAPI {
      */
     isPinned(file: TFile): boolean {
         return this.metadataState.pinnedNotes.includes(file.path);
+    }
+
+    /**
+     * Pin a file
+     * @param file - File to pin
+     */
+    async pin(file: TFile): Promise<void> {
+        const plugin = this.api.getPlugin();
+
+        // Ensure metadataService exists
+        if (!plugin.metadataService) {
+            throw new Error('Metadata service not available');
+        }
+
+        // Only pin if not already pinned
+        if (!this.isPinned(file)) {
+            await plugin.metadataService.togglePin(file.path);
+        }
+    }
+
+    /**
+     * Unpin a file
+     * @param file - File to unpin
+     */
+    async unpin(file: TFile): Promise<void> {
+        const plugin = this.api.getPlugin();
+
+        // Ensure metadataService exists
+        if (!plugin.metadataService) {
+            throw new Error('Metadata service not available');
+        }
+
+        // Only unpin if currently pinned
+        if (this.isPinned(file)) {
+            await plugin.metadataService.togglePin(file.path);
+        }
     }
 
     /**

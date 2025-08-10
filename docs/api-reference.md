@@ -21,6 +21,52 @@ The API follows semantic versioning:
 - **MINOR**: New features (backwards compatible)
 - **PATCH**: Bug fixes (backwards compatible)
 
+## API Naming Conventions
+
+### Method Prefixes
+
+- **`get*`** - Returns a single value or object (e.g., `getVersion()`,
+  `getFocusedFile()`)
+- **`list*`** - Returns an array (e.g., `listFeatures()`, `listSelectedFiles()`,
+  `listPinnedFiles()`)
+- **`set*`** - Sets a value (e.g., `setFolderColor()`, `setTagIcon()`)
+- **`clear*`** - Removes/clears a value (e.g., `clearFolderColor()`,
+  `clearTagIcon()`)
+- **`is*`/`has*`** - Returns a boolean (e.g., `isPinned()`, `hasFeature()`,
+  `hasMultipleSelection()`)
+- **`toggle*`** - Toggles state, primarily for UI interactions (e.g.,
+  `togglePin()`)
+- **Action verbs** - Direct actions (e.g., `pin()`, `unpin()`, `delete()`,
+  `moveTo()`, `navigateToFile()`)
+
+### API Namespaces
+
+- **`core`** - Main API methods (`negotiateVersion()`, `listFeatures()`, `on()`,
+  `off()`)
+- **`file`** - File operations (`delete()`, `moveTo()`)
+- **`metadata`** - Folder/tag/pin management (`setFolderColor()`,
+  `clearTagIcon()`, `pin()`)
+- **`navigation`** - View navigation (`navigateToFile()`)
+- **`selection`** - Selection state (`listSelectedFiles()`, `getFocusedFile()`,
+  `getSelectedNavigationItem()`)
+
+### Event Conventions
+
+- **Event IDs** - Kebab-case (e.g., `storage-ready`, `navigation-changed`,
+  `file-selection-changed`, `files-moved`)
+- **Event payload keys** - camelCase (e.g., `files`, `paths`, `count`,
+  `focused`)
+
+### Type Conventions
+
+- **Prefer Obsidian types** - Use `TFile[]` and `TFolder` over `string[]` paths
+  when possible
+- **Path fields** - When paths are needed, explicitly name the field `paths` or
+  `path`
+- **Dual provision** - Provide both objects and paths when useful (e.g.,
+  selection events include both `files: TFile[]` and `paths: string[]`)
+- **Optional fields** - Use `?` for optional fields (e.g., `focused?: TFile`)
+
 ## API Philosophy
 
 When designing the Notebook Navigator API, the goal was to create a focused,
@@ -67,14 +113,14 @@ Obsidian and prevents errors from invalid paths.
 
 ### Core Methods
 
-| Method                        | Description                         | Since | Deprecated |
-| ----------------------------- | ----------------------------------- | ----- | ---------- |
-| `getVersion()`                | Get current API version             | 1.0.0 |            |
-| `checkCompatibility(version)` | Check if your version is compatible | 1.0.0 |            |
-| `on(event, callback)`         | Subscribe to events                 | 1.0.0 |            |
-| `off(ref)`                    | Unsubscribe from events             | 1.0.0 |            |
-| `hasFeature(feature)`         | Check if a feature is available     | 1.0.0 |            |
-| `getAvailableFeatures()`      | Get list of all available features  | 1.0.0 |            |
+| Method                      | Description                     | Since | Deprecated |
+| --------------------------- | ------------------------------- | ----- | ---------- |
+| `getVersion()`              | Get current API version         | 1.0.0 |            |
+| `negotiateVersion(version)` | Negotiate version compatibility | 1.0.0 |            |
+| `on(event, callback)`       | Subscribe to events             | 1.0.0 |            |
+| `off(ref)`                  | Unsubscribe from events         | 1.0.0 |            |
+| `hasFeature(feature)`       | Check if a feature is available | 1.0.0 |            |
+| `listFeatures()`            | List all available features     | 1.0.0 |            |
 
 ```typescript
 // Get the API instance
@@ -84,7 +130,7 @@ const nn = app.plugins.plugins['notebook-navigator']?.api;
 const version = nn?.getVersion(); // Returns "1.0.0"
 
 // Check compatibility with your plugin
-const compatibility = nn?.checkCompatibility('1.0.0');
+const compatibility = nn?.negotiateVersion('1.0.0');
 /* Returns VersionNegotiation object:
 {
   apiVersion: string,           // Current API version (e.g., "1.0.0")
@@ -187,10 +233,10 @@ intelligent handling when deleting or moving files:
 
 ### Methods
 
-| Method                | Description                                              | Since | Deprecated |
-| --------------------- | -------------------------------------------------------- | ----- | ---------- |
-| `delete(files)`       | Delete one or more files with smart selection management | 1.0.0 |            |
-| `move(files, folder)` | Move one or more files to another folder                 | 1.0.0 |            |
+| Method                  | Description                                              | Since | Deprecated |
+| ----------------------- | -------------------------------------------------------- | ----- | ---------- |
+| `delete(files)`         | Delete one or more files with smart selection management | 1.0.0 |            |
+| `moveTo(files, folder)` | Move one or more files to another folder                 | 1.0.0 |            |
 
 ```typescript
 // Delete one or more files with smart selection
@@ -206,7 +252,7 @@ await nn.file.delete(files);
 // Automatically manages selection after move
 const targetFolder = app.vault.getAbstractFileByPath('/Archive');
 if (targetFolder instanceof TFolder) {
-  const result = await nn.file.move(files, targetFolder);
+  const result = await nn.file.moveTo(files, targetFolder);
   /* Returns:
   {
     movedCount: number,    // Number of files successfully moved
@@ -230,16 +276,22 @@ Customize folder and tag appearance, manage pinned notes.
 | ------------------------------- | ----------------------------------------------- | ----- | ---------- |
 | **Folders**                     |                                                 |       |            |
 | `getFolderMetadata(folder)`     | Get folder color, icon, and appearance settings | 1.0.0 |            |
-| `setFolderColor(folder, color)` | Set or remove folder color                      | 1.0.0 |            |
-| `setFolderIcon(folder, icon)`   | Set or remove folder icon                       | 1.0.0 |            |
+| `setFolderColor(folder, color)` | Set folder color                                | 1.0.0 |            |
+| `clearFolderColor(folder)`      | Clear folder color                              | 1.0.0 |            |
+| `setFolderIcon(folder, icon)`   | Set folder icon                                 | 1.0.0 |            |
+| `clearFolderIcon(folder)`       | Clear folder icon                               | 1.0.0 |            |
 | **Tags**                        |                                                 |       |            |
 | `getTagMetadata(tag)`           | Get tag color, icon, and appearance settings    | 1.0.0 |            |
-| `setTagColor(tag, color)`       | Set or remove tag color                         | 1.0.0 |            |
-| `setTagIcon(tag, icon)`         | Set or remove tag icon                          | 1.0.0 |            |
+| `setTagColor(tag, color)`       | Set tag color                                   | 1.0.0 |            |
+| `clearTagColor(tag)`            | Clear tag color                                 | 1.0.0 |            |
+| `setTagIcon(tag, icon)`         | Set tag icon                                    | 1.0.0 |            |
+| `clearTagIcon(tag)`             | Clear tag icon                                  | 1.0.0 |            |
 | **Pinned Files**                |                                                 |       |            |
-| `getPinnedFiles()`              | Get all pinned files                            | 1.0.0 |            |
+| `listPinnedFiles()`             | List all pinned files                           | 1.0.0 |            |
 | `isPinned(file)`                | Check if a file is pinned                       | 1.0.0 |            |
-| `togglePin(file)`               | Toggle pin status                               | 1.0.0 |            |
+| `pin(file)`                     | Pin a file                                      | 1.0.0 |            |
+| `unpin(file)`                   | Unpin a file                                    | 1.0.0 |            |
+| `togglePin(file)`               | Toggle pin status (for UI)                      | 1.0.0 |            |
 
 ### Folder Metadata
 
@@ -269,7 +321,7 @@ if (folder instanceof TFolder) {
 
 ```typescript
 // Get all pinned files (returns TFile[])
-const pinnedFiles = nn.metadata.getPinnedFiles();
+const pinnedFiles = nn.metadata.listPinnedFiles();
 
 // Check if a file is pinned
 const file = app.workspace.getActiveFile();
@@ -327,20 +379,20 @@ Get the current selection state in the navigator, including both navigation pane
 
 ### Methods
 
-| Method                     | Description                                             | Since | Deprecated |
-| -------------------------- | ------------------------------------------------------- | ----- | ---------- |
-| **Navigation Selection**   |                                                         |       |            |
-| `getNavigationSelection()` | Get currently selected folder or tag in navigation pane | 1.0.0 |            |
-| **File Selection**         |                                                         |       |            |
-| `getSelectedFiles()`       | Get all currently selected files as TFile array         | 1.0.0 |            |
-| `getSelectedPaths()`       | Get all selected file paths as string array             | 1.0.0 |            |
-| `hasMultipleSelection()`   | Check if multiple files are selected                    | 1.0.0 |            |
-| `getSelectionCount()`      | Get the count of selected files                         | 1.0.0 |            |
-| `getFocusedFile()`         | Get the focused file (cursor position)                  | 1.0.0 |            |
+| Method                        | Description                                             | Since | Deprecated |
+| ----------------------------- | ------------------------------------------------------- | ----- | ---------- |
+| **Navigation Selection**      |                                                         |       |            |
+| `getSelectedNavigationItem()` | Get currently selected folder or tag in navigation pane | 1.0.0 |            |
+| **File Selection**            |                                                         |       |            |
+| `listSelectedFiles()`         | List all currently selected files as TFile array        | 1.0.0 |            |
+| `listSelectedPaths()`         | List all selected file paths as string array            | 1.0.0 |            |
+| `hasMultipleSelection()`      | Check if multiple files are selected                    | 1.0.0 |            |
+| `getSelectionCount()`         | Get the count of selected files                         | 1.0.0 |            |
+| `getFocusedFile()`            | Get the focused file (cursor position)                  | 1.0.0 |            |
 
 ```typescript
 // Get the currently selected folder or tag in the navigation pane
-const navSelection = nn.selection.getNavigationSelection();
+const navSelection = nn.selection.getSelectedNavigationItem();
 /* Returns:
 {
   folder: TFolder | null,  // Currently selected folder (if folder is selected)
@@ -356,11 +408,11 @@ if (navSelection.folder) {
 }
 
 // Get all currently selected files (returns TFile[])
-const selectedFiles = nn.selection.getSelectedFiles();
+const selectedFiles = nn.selection.listSelectedFiles();
 console.log(`${selectedFiles.length} files selected`);
 
 // Get just the file paths (returns string[])
-const selectedPaths = nn.selection.getSelectedPaths();
+const selectedPaths = nn.selection.listSelectedPaths();
 
 // Check if multiple files are selected
 if (nn.selection.hasMultipleSelection()) {
@@ -395,7 +447,7 @@ Subscribe to events to react to changes in the navigator.
 nn.on('storage-ready', () => {
   console.log('Storage system is ready');
   // Now safe to query metadata, pinned files, etc.
-  const pinnedFiles = nn.metadata.getPinnedFiles();
+  const pinnedFiles = nn.metadata.listPinnedFiles();
 });
 
 // Subscribe to navigation events
@@ -540,7 +592,7 @@ if (nn) {
 
   if (inbox instanceof TFolder && projects instanceof TFolder) {
     const files = inbox.children.filter(f => f instanceof TFile);
-    await nn.file.move(files, projects);
+    await nn.file.moveTo(files, projects);
   }
 }
 ```
@@ -551,7 +603,7 @@ if (nn) {
 // Process all currently selected files
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 if (nn) {
-  const selectedFiles = nn.selection.getSelectedFiles();
+  const selectedFiles = nn.selection.listSelectedFiles();
 
   // Add a tag to all selected files
   for (const file of selectedFiles) {
@@ -658,11 +710,11 @@ if (nn.hasFeature('file.delete')) {
 }
 
 // Get all available features
-const features = nn.getAvailableFeatures();
+const features = nn.listFeatures();
 console.log('Available features:', features);
 
 // For plugin developers - ensure compatibility
-const negotiation = nn.checkCompatibility('1.0.0');
+const negotiation = nn.negotiateVersion('1.0.0');
 if (negotiation.compatibility === 'incompatible') {
   console.error('This plugin requires Notebook Navigator API v1.0.0 or higher');
   return;

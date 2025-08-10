@@ -66,10 +66,10 @@ export class SelectionAPI {
     }
 
     /**
-     * Get the currently selected folder or tag in the navigation pane
+     * Get the currently selected navigation item (folder or tag)
      * @returns Object with either folder or tag selected (only one can be selected at a time)
      */
-    getNavigationSelection(): { folder: TFolder | null; tag: string | null } {
+    getSelectedNavigationItem(): { folder: TFolder | null; tag: string | null } {
         return {
             folder: this.selectionState.navigationFolder,
             tag: this.selectionState.navigationTag
@@ -111,18 +111,23 @@ export class SelectionAPI {
 
         // Trigger event if selection has changed
         if (oldCount !== selectedFiles.size || oldCount === 0) {
+            // Get TFile objects for the event
+            const fileObjects = this.listSelectedFiles();
+
             this.api.trigger('file-selection-changed', {
-                files: Array.from(selectedFiles),
-                count: selectedFiles.size
+                files: fileObjects,
+                paths: Array.from(selectedFiles),
+                count: selectedFiles.size,
+                focused: primaryFile || undefined
             });
         }
     }
 
     /**
-     * Get all currently selected files
+     * List all currently selected files
      * @returns Array of selected TFile objects (empty array if none selected)
      */
-    getSelectedFiles(): TFile[] {
+    listSelectedFiles(): TFile[] {
         const files: TFile[] = [];
 
         for (const path of this.selectionState.files) {
@@ -136,10 +141,10 @@ export class SelectionAPI {
     }
 
     /**
-     * Get all currently selected file paths
+     * List all currently selected file paths
      * @returns Array of file paths (empty array if none selected)
      */
-    getSelectedPaths(): string[] {
+    listSelectedPaths(): string[] {
         return Array.from(this.selectionState.files);
     }
 

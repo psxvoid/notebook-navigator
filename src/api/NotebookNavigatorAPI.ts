@@ -66,9 +66,9 @@ export class NotebookNavigatorAPI {
     }
 
     /**
-     * Check compatibility with a client version
+     * Negotiate version compatibility with a client
      */
-    checkCompatibility(clientVersion: string): VersionNegotiation {
+    negotiateVersion(clientVersion: string): VersionNegotiation {
         return negotiateVersion(clientVersion);
     }
 
@@ -76,7 +76,7 @@ export class NotebookNavigatorAPI {
      * Create a compatibility-wrapped API for a specific client version
      */
     getCompatibleAPI(clientVersion: string): NotebookNavigatorAPI {
-        const negotiation = this.checkCompatibility(clientVersion);
+        const negotiation = this.negotiateVersion(clientVersion);
 
         if (negotiation.compatibility === CompatibilityLevel.INCOMPATIBLE) {
             throw new APIError(
@@ -91,9 +91,9 @@ export class NotebookNavigatorAPI {
     }
 
     /**
-     * Get available features for the current API
+     * List available features for the current API
      */
-    getAvailableFeatures(): string[] {
+    listFeatures(): string[] {
         return FeatureDetector.getAvailableFeatures(this);
     }
 
