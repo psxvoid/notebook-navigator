@@ -156,14 +156,6 @@ export interface NotebookNavigatorEvents {
         focused: TFile | null;
     };
 
-    /** Fired when files are moved to a different folder */
-    'files-moved': {
-        files: TFile[];
-        to: TFolder;
-        from: TFolder;
-        skipped?: TFile[];
-    };
-
     /** Fired when pinned files change */
     'pinned-files-changed': {
         files: TFile[];

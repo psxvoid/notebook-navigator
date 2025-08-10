@@ -179,7 +179,6 @@ const FEATURE_VERSIONS: Record<string, string> = {
     'events.navigation-changed': '1.0.0',
     'events.storage-ready': '1.0.0',
     'events.file-selection-changed': '1.0.0',
-    'events.files-moved': '1.0.0',
     'events.pinned-files-changed': '1.0.0',
     'events.metadata-changed': '1.0.0'
 };

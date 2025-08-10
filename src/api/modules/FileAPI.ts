@@ -165,27 +165,11 @@ export class FileAPI {
             throw new Error('File operations not available');
         }
 
-        // Get the from folder (assumes all files are from the same folder)
-        const fromFolder = fileArray.length > 0 && fileArray[0].parent ? fileArray[0].parent : null;
-
         const result = await plugin.fileSystemOps.moveFilesToFolder({
             files: fileArray,
             targetFolder,
             showNotifications: true
         });
-
-        // Emit files-moved event if we have a valid from folder
-        if (fromFolder) {
-            this.api.trigger('files-moved', {
-                files: fileArray.filter(f => {
-                    // Only include successfully moved files
-                    return !result.errors.some((e: { file: TFile }) => e.file === f);
-                }),
-                to: targetFolder,
-                from: fromFolder,
-                skipped: [] // TODO: Track skipped files in FileSystemService
-            });
-        }
 
         return {
             movedCount: result.movedCount,

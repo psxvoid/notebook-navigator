@@ -53,7 +53,7 @@ The API follows semantic versioning:
 ### Event Conventions
 
 - **Event IDs** - Kebab-case (e.g., `storage-ready`, `navigation-changed`,
-  `file-selection-changed`, `files-moved`)
+  `file-selection-changed`, `pinned-files-changed`)
 - **Event payload keys** - camelCase (e.g., `files`, `paths`, `focused`)
 
 ### Type Conventions
@@ -154,7 +154,6 @@ All features listed below were introduced in version 1.0.0.
 | `events.navigation-changed`           | Navigation change event           | 1.0.0 |
 | `events.storage-ready`                | Storage ready event               | 1.0.0 |
 | `events.file-selection-changed`       | File selection change event       | 1.0.0 |
-| `events.files-moved`                  | Files moved event                 | 1.0.0 |
 | `events.pinned-files-changed`         | Pinned files change event         | 1.0.0 |
 | `events.metadata-changed`             | Metadata change event             | 1.0.0 |
 
@@ -476,7 +475,8 @@ Subscribe to events to react to changes in the navigator.
 | `navigation-changed`     | `{ type: 'folder' \| 'tag', path: string \| TagRef, folder?: TFolder, tag?: TagRef }` | User navigated to a folder or tag   | 1.0.0 |            |
 | `storage-ready`          | `void`                                                                                | Storage system is ready for queries | 1.0.0 |            |
 | `file-selection-changed` | `{ files: TFile[], paths: string[], focused: TFile \| null }`                         | File selection changed              | 1.0.0 |            |
-| `files-moved`            | `{ files: TFile[], to: TFolder, from: TFolder, skipped?: TFile[] }`                   | Files were moved to another folder  | 1.0.0 |            |
+| `pinned-files-changed`   | `{ files: TFile[], action: 'pin' \| 'unpin' \| 'toggle' }`                            | Pinned files changed                | 1.0.0 |            |
+| `metadata-changed`       | `{ scope: 'folder' \| 'tag', key: string, target: TFolder \| TagRef }`                | Metadata changed for folder or tag  | 1.0.0 |            |
 
 ```typescript
 // Listen for when storage is ready
@@ -540,13 +540,19 @@ nn.on('file-selection-changed', ({ files, paths, focused }) => {
   - Triggered by user clicks, keyboard navigation, or multi-selection actions
   - Multi-selection state is persisted across plugin restarts
 
-- `files-moved` - Fired when files are moved to a different folder
-  - Payload: `{ files: TFile[], to: TFolder, from: TFolder, skipped?: TFile[] }`
-  - `files`: Array of TFile objects that were successfully moved
-  - `to`: The destination folder
-  - `from`: The source folder (assumes all files from same folder)
-  - `skipped`: Optional array of files that were skipped (already existed)
-  - Only triggered for moves initiated through the API
+- `pinned-files-changed` - Fired when pinned files change
+  - Payload: `{ files: TFile[], action: 'pin' | 'unpin' | 'toggle' }`
+  - `files`: Array of TFile objects that were changed
+  - `action`: The action that was performed
+  - Triggered when files are pinned or unpinned through the API
+
+- `metadata-changed` - Fired when metadata changes for folders or tags
+  - Payload:
+    `{ scope: 'folder' | 'tag', key: string, target: TFolder | TagRef }`
+  - `scope`: Whether the change was for a folder or tag
+  - `key`: The metadata key that changed (e.g., 'color', 'icon', 'appearance')
+  - `target`: The folder or tag that was changed
+  - Triggered when metadata is modified through the API
 
 ## Examples
 
