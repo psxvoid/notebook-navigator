@@ -26,9 +26,8 @@ import { MetadataAPI } from './modules/MetadataAPI';
 import { FileAPI } from './modules/FileAPI';
 import { SelectionAPI } from './modules/SelectionAPI';
 
-// Import versioning and compatibility
-import { API_VERSION, negotiateVersion, VersionNegotiation, CompatibilityLevel } from './version';
-import { FeatureDetector } from './compatibility';
+// Import versioning
+import { API_VERSION } from './version';
 
 /**
  * Public API for the Notebook Navigator plugin
@@ -62,40 +61,6 @@ export class NotebookNavigatorAPI {
      */
     getVersion(): string {
         return API_VERSION.toString();
-    }
-
-    /**
-     * Negotiate version compatibility with a client
-     */
-    negotiateVersion(clientVersion: string): VersionNegotiation {
-        return negotiateVersion(clientVersion);
-    }
-
-    /**
-     * Create a compatibility-wrapped API for a specific client version
-     */
-    getCompatibleAPI(clientVersion: string): NotebookNavigatorAPI {
-        const negotiation = this.negotiateVersion(clientVersion);
-
-        if (negotiation.compatibility === CompatibilityLevel.INCOMPATIBLE) {
-            throw new Error(`API version ${clientVersion} is incompatible with plugin API ${API_VERSION.toString()}`);
-        }
-
-        return this;
-    }
-
-    /**
-     * List available features for the current API
-     */
-    listFeatures(): string[] {
-        return FeatureDetector.getAvailableFeatures(this);
-    }
-
-    /**
-     * Check if a specific feature is available
-     */
-    hasFeature(feature: string): boolean {
-        return FeatureDetector.hasFeature(this, feature);
     }
 
     /**

@@ -216,7 +216,7 @@
             this.log(`API Version: ${api.getVersion()}`, 'info');
 
             // Run test suites
-            await this.runSuite('Version & Compatibility', this.versionTests());
+            await this.runSuite('Core API', this.coreTests());
             await this.runSuite('Navigation', this.navigationTests());
             await this.runSuite('Metadata', this.metadataTests());
             await this.runSuite('File Operations', this.fileTests());
@@ -260,38 +260,12 @@
         }
 
         // Test Suites
-        versionTests() {
+        coreTests() {
             return {
                 'API version should be defined': async function () {
                     const version = this.api.getVersion();
                     this.assertExists(version, 'API version is not defined');
                     this.assertTrue(version.match(/^\d+\.\d+\.\d+$/), `Invalid version format: ${version}`);
-                },
-
-                'Should negotiate version correctly': async function () {
-                    const result = this.api.negotiateVersion('1.0.0');
-                    this.assertExists(result, 'Compatibility check returned null');
-                    this.assertExists(result.compatibility, 'Compatibility level not defined');
-                    this.assertTrue(['full', 'partial', 'limited', 'incompatible'].includes(result.compatibility));
-                },
-
-                'Should list available features': async function () {
-                    const features = this.api.listFeatures();
-                    this.assertTrue(Array.isArray(features), 'Features should be an array');
-                    this.assertTrue(features.length > 0, 'Should have at least one feature');
-                },
-
-                'Should check if features exist': async function () {
-                    // Check for specific feature keys
-                    const hasFileDelete = this.api.hasFeature('file.delete');
-                    const hasNavigation = this.api.hasFeature('navigation.navigateToFile');
-                    const hasMetadata = this.api.hasFeature('metadata.setFolderColor');
-                    const hasFake = this.api.hasFeature('fake-feature-that-does-not-exist');
-
-                    this.assertTrue(hasFileDelete, 'file.delete feature should exist');
-                    this.assertTrue(hasNavigation, 'navigation.navigateToFile feature should exist');
-                    this.assertTrue(hasMetadata, 'metadata.setFolderColor feature should exist');
-                    this.assertFalse(hasFake, 'Fake feature should not exist');
                 }
             };
         }
