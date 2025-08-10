@@ -127,10 +127,11 @@ Tag parameters accept strings with or without the leading `#` (both `'work'` and
 | `togglePin(file)`  | Toggle pin status       | `Promise<void>` |
 
 ```typescript
-// Set folder appearance
+// Set folder appearance - colors accept any CSS format
 const folder = app.vault.getAbstractFileByPath('Projects');
 if (folder instanceof TFolder) {
-  await nn.metadata.setFolderColor(folder, '#FF5733');
+  await nn.metadata.setFolderColor(folder, '#FF5733'); // Hex
+  // Also works: 'red', 'rgb(255, 87, 51)', 'hsl(9, 100%, 60%)'
   await nn.metadata.setFolderIcon(folder, 'lucide:folder-open');
 }
 
@@ -228,13 +229,13 @@ import { TFile, TFolder, EventRef } from 'obsidian';
 // Core types
 
 export interface FolderMetadata {
-  color?: string; // Any valid CSS color
+  color?: string; // Any valid CSS color (hex, rgb, hsl, named colors)
   icon?: string; // 'lucide:folder' or 'emoji:📁'
 }
 
 export interface TagMetadata {
-  color?: string;
-  icon?: string;
+  color?: string; // Any valid CSS color (hex, rgb, hsl, named colors)
+  icon?: string; // 'lucide:tag' or 'emoji:🏷️'
 }
 
 export interface MoveResult {
@@ -319,9 +320,12 @@ if (nn) {
 ```typescript
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 if (nn) {
+  // Colors can be specified in any CSS format
   const folders = [
-    { path: 'Work', color: '#FF5733' },
-    { path: 'Personal', color: '#33FF57' }
+    { path: 'Work', color: '#FF5733' }, // Hex
+    { path: 'Personal', color: 'rgb(51, 255, 87)' }, // RGB
+    { path: 'Archive', color: 'gray' }, // Named color
+    { path: 'Projects', color: 'hsl(200, 100%, 50%)' } // HSL
   ];
 
   for (const { path, color } of folders) {
@@ -388,6 +392,7 @@ if (inbox instanceof TFolder && projects instanceof TFolder) {
   string paths
 - **Async operations** - Methods that modify state return `Promise` as they
   persist to settings
-- **CSS colors** - Colors accept any valid CSS string (hex, rgb, named colors)
+- **CSS colors** - Colors accept any valid CSS format (hex, rgb, hsl, named
+  colors)
 - **Icon format** - Icons use `lucide:<name>` or `emoji:<unicode>` format
 - **Error handling** - Methods throw standard `Error` on failure

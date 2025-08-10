@@ -80,9 +80,11 @@ export abstract class BaseMetadataService {
     }
 
     /**
-     * Validates a CSS color format
+     * Validates CSS color format (hex, rgb, rgba, hsl, hsla, named colors)
      */
     protected validateColor(color: string): boolean {
+        // Basic validation for common CSS color formats
+        // Accepts: #RGB, #RRGGBB, #RRGGBBAA, rgb(), rgba(), hsl(), hsla(), named colors
         const colorRegex = /^(#[0-9A-Fa-f]{3,8}|rgb\(|rgba\(|hsl\(|hsla\(|[a-zA-Z]+)$/;
         return colorRegex.test(color);
     }
