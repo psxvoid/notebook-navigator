@@ -25,7 +25,35 @@ import { ItemType } from '../../types';
  * File API - Smart file operations with automatic selection management
  */
 export class FileAPI {
-    constructor(private api: NotebookNavigatorAPI) {}
+    /**
+     * Internal state cache for settings
+     */
+    private fileState = {
+        confirmBeforeDelete: true
+    };
+
+    constructor(private api: NotebookNavigatorAPI) {
+        this.initializeFromSettings();
+    }
+
+    /**
+     * Initialize internal cache from plugin settings
+     */
+    private initializeFromSettings(): void {
+        const plugin = this.api.getPlugin();
+        if (plugin && plugin.settings) {
+            this.updateFromSettings(plugin.settings);
+        }
+    }
+
+    /**
+     * Update internal cache when settings change
+     * Called by the plugin when settings are modified
+     * @internal
+     */
+    updateFromSettings(settings: { confirmBeforeDelete: boolean }): void {
+        this.fileState.confirmBeforeDelete = settings.confirmBeforeDelete;
+    }
 
     /**
      * Delete one or more files with smart selection management
@@ -45,8 +73,8 @@ export class FileAPI {
             throw new Error('File operations not available');
         }
 
-        // Use plugin's confirmBeforeDelete setting
-        const confirmBeforeDelete = plugin.settings.confirmBeforeDelete;
+        // Use cached confirmBeforeDelete setting
+        const confirmBeforeDelete = this.fileState.confirmBeforeDelete;
 
         // For single file deletion
         if (fileArray.length === 1) {

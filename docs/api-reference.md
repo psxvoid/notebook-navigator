@@ -333,10 +333,10 @@ Get the current selection state in the navigator, including both navigation pane
 | `getNavigationSelection()` | Get currently selected folder or tag in navigation pane | 1.0.0 |            |
 | **File Selection**         |                                                         |       |            |
 | `getSelectedFiles()`       | Get all currently selected files as TFile array         | 1.0.0 |            |
-| `getSelectedFilePaths()`   | Get all selected file paths as string array             | 1.0.0 |            |
+| `getSelectedPaths()`       | Get all selected file paths as string array             | 1.0.0 |            |
 | `hasMultipleSelection()`   | Check if multiple files are selected                    | 1.0.0 |            |
 | `getSelectionCount()`      | Get the count of selected files                         | 1.0.0 |            |
-| `getPrimarySelectedFile()` | Get the primary selected file (cursor position)         | 1.0.0 |            |
+| `getFocusedFile()`         | Get the focused file (cursor position)                  | 1.0.0 |            |
 
 ```typescript
 // Get the currently selected folder or tag in the navigation pane
@@ -360,7 +360,7 @@ const selectedFiles = nn.selection.getSelectedFiles();
 console.log(`${selectedFiles.length} files selected`);
 
 // Get just the file paths (returns string[])
-const selectedPaths = nn.selection.getSelectedFilePaths();
+const selectedPaths = nn.selection.getSelectedPaths();
 
 // Check if multiple files are selected
 if (nn.selection.hasMultipleSelection()) {
@@ -372,7 +372,7 @@ const count = nn.selection.getSelectionCount();
 
 // Get the primary selected file (cursor position in multi-selection)
 // This is the file that has keyboard focus
-const primaryFile = nn.selection.getPrimarySelectedFile();
+const focusedFile = nn.selection.getFocusedFile();
 if (primaryFile) {
   console.log('Cursor is on:', primaryFile.basename);
 }

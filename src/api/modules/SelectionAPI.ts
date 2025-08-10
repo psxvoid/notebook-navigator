@@ -139,7 +139,7 @@ export class SelectionAPI {
      * Get all currently selected file paths
      * @returns Array of file paths (empty array if none selected)
      */
-    getSelectedFilePaths(): string[] {
+    getSelectedPaths(): string[] {
         return Array.from(this.selectionState.files);
     }
 
@@ -160,10 +160,10 @@ export class SelectionAPI {
     }
 
     /**
-     * Get the primary selected file (cursor position in multi-selection)
-     * @returns The primary selected file or null if none selected
+     * Get the focused file (cursor position in multi-selection)
+     * @returns The focused file or null if none selected
      */
-    getPrimarySelectedFile(): TFile | null {
+    getFocusedFile(): TFile | null {
         return this.selectionState.primaryFile;
     }
 }
