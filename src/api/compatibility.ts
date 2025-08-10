@@ -24,7 +24,6 @@
  */
 
 import type { NotebookNavigatorAPI } from './NotebookNavigatorAPI';
-import { VersionChecker, CompatibilityLevel } from './version';
 
 /**
  * Feature detection for API capabilities
@@ -56,35 +55,5 @@ export class FeatureDetector {
     static getAvailableFeatures(api: NotebookNavigatorAPI): string[] {
         const features = ['navigation', 'metadata', 'file', 'selection', 'events'];
         return features.filter(feature => this.hasFeature(api, feature));
-    }
-}
-
-/**
- * Compatibility adapter for different API versions
- */
-export class CompatibilityAdapter {
-    private compatibilityLevel: CompatibilityLevel;
-
-    constructor(
-        private api: NotebookNavigatorAPI,
-        clientVersion: string
-    ) {
-        this.compatibilityLevel = VersionChecker.checkCompatibility(clientVersion);
-    }
-
-    /**
-     * Get compatibility level
-     */
-    getCompatibilityLevel(): CompatibilityLevel {
-        return this.compatibilityLevel;
-    }
-
-    /**
-     * Wrap the API with compatibility layer
-     */
-    wrapAPI(): NotebookNavigatorAPI {
-        // For now, just return the API directly
-        // In the future, this could return a proxy that handles version differences
-        return this.api;
     }
 }

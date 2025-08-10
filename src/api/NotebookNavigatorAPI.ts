@@ -28,7 +28,7 @@ import { SelectionAPI } from './modules/SelectionAPI';
 
 // Import versioning and compatibility
 import { API_VERSION, negotiateVersion, VersionNegotiation, CompatibilityLevel } from './version';
-import { CompatibilityAdapter, FeatureDetector } from './compatibility';
+import { FeatureDetector } from './compatibility';
 import { APIError, APIErrorCode } from './errors';
 
 /**
@@ -86,8 +86,7 @@ export class NotebookNavigatorAPI {
             );
         }
 
-        const adapter = new CompatibilityAdapter(this, clientVersion);
-        return adapter.wrapAPI();
+        return this;
     }
 
     /**
