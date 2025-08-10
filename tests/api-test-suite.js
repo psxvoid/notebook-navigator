@@ -1,8 +1,15 @@
 /**
  * Notebook Navigator API Test Suite
+ * Version: 1.1.0 - Updated for typed API improvements
  *
  * A comprehensive test suite for the Notebook Navigator API.
  * Paste this entire script into the Obsidian developer console to run tests.
+ *
+ * Tests include:
+ * - Icon format validation (lucide:* and emoji:*)
+ * - NavItem type for navigation selection
+ * - Event API with all supported event types
+ * - Readonly array returns (getPinned, event payloads)
  *
  * ⚠️ WARNING: This test suite will create and delete files in your vault!
  *
@@ -322,10 +329,15 @@
                     this.assertExists(afterColor, 'Should return metadata after setting color');
                     this.assertEqual(afterColor.color, '#ff0000', 'Color should be set');
 
-                    // Set icon
+                    // Set icon - test both lucide and emoji formats
                     await this.api.metadata.setFolderIcon(testFolder, 'lucide:folder-open');
                     const afterIcon = this.api.metadata.getFolderMeta(testFolder);
                     this.assertEqual(afterIcon.icon, 'lucide:folder-open', 'Icon should be set');
+                    
+                    // Test emoji icon format
+                    await this.api.metadata.setFolderIcon(testFolder, 'emoji:📁');
+                    const afterEmoji = this.api.metadata.getFolderMeta(testFolder);
+                    this.assertEqual(afterEmoji.icon, 'emoji:📁', 'Emoji icon should be set');
 
                     // Clear metadata using dedicated methods
                     await this.api.metadata.clearFolderColor(testFolder);
@@ -347,10 +359,15 @@
                     this.assertExists(afterColor, 'Should return metadata after setting color');
                     this.assertEqual(afterColor.color, '#00ff00', 'Tag color should be set');
 
-                    // Set icon
+                    // Set icon - test both lucide and emoji formats
                     await this.api.metadata.setTagIcon(testTag, 'lucide:tag');
                     const afterIcon = this.api.metadata.getTagMeta(testTag);
                     this.assertEqual(afterIcon.icon, 'lucide:tag', 'Tag icon should be set');
+                    
+                    // Test emoji icon format
+                    await this.api.metadata.setTagIcon(testTag, 'emoji:🏷️');
+                    const afterEmoji = this.api.metadata.getTagMeta(testTag);
+                    this.assertEqual(afterEmoji.icon, 'emoji:🏷️', 'Emoji icon should be set');
 
                     // Clear using dedicated methods
                     await this.api.metadata.clearTagColor(testTag);
@@ -371,9 +388,10 @@
                     isPinned = this.api.metadata.isPinned(testFile);
                     this.assertTrue(isPinned, 'File should be pinned after pin()');
 
-                    // Get all pinned files
+                    // Get all pinned files (returns readonly TFile[])
                     const pinnedFiles = this.api.metadata.getPinned();
-                    this.assertTrue(Array.isArray(pinnedFiles), 'Should return array of pinned files');
+                    this.assertTrue(Array.isArray(pinnedFiles), 'Should return array of pinned files (readonly TFile[])');
+                    // Note: We don't test the readonly aspect, just that it's an array
                     const pinnedPaths = pinnedFiles.map(f => f.path);
                     this.assertTrue(pinnedPaths.includes(testFile.path), 'Pinned files should include our test file');
 
@@ -480,35 +498,35 @@
                 },
 
                 'Should get selected navigation item': async function () {
-                    const selection = this.api.selection.getNavItem();
-                    this.assertExists(selection, 'Should return selection object');
-                    this.assertExists(selection.folder !== undefined, 'Should have folder property');
-                    this.assertExists(selection.tag !== undefined, 'Should have tag property');
+                    const navItem = this.api.selection.getNavItem();
+                    this.assertExists(navItem, 'Should return NavItem object');
+                    this.assertExists(navItem.folder !== undefined, 'NavItem should have folder property');
+                    this.assertExists(navItem.tag !== undefined, 'NavItem should have tag property');
 
                     // Either folder or tag can be selected, but not both
-                    if (selection.folder && selection.tag) {
+                    if (navItem.folder && navItem.tag) {
                         this.assertTrue(false, 'Both folder and tag should not be selected simultaneously');
                     }
 
                     // If a folder is selected, it should be a valid TFolder
-                    if (selection.folder) {
-                        this.assertExists(selection.folder.path, 'Selected folder should have a path');
-                        this.assertTrue(typeof selection.folder.path === 'string', 'Folder path should be a string');
+                    if (navItem.folder) {
+                        this.assertExists(navItem.folder.path, 'Selected folder should have a path');
+                        this.assertTrue(typeof navItem.folder.path === 'string', 'Folder path should be a string');
                     }
 
                     // If a tag is selected, it should be a string
-                    if (selection.tag) {
-                        this.assertTrue(typeof selection.tag === 'string', 'Tag should be a string');
+                    if (navItem.tag) {
+                        this.assertTrue(typeof navItem.tag === 'string', 'Tag should be a string');
                     }
                 },
 
                 'Should handle no selection gracefully': async function () {
                     // This test verifies the API handles the case when nothing is selected
-                    const selection = this.api.selection.getNavItem();
-                    this.assertExists(selection, 'Should always return a selection object');
+                    const navItem = this.api.selection.getNavItem();
+                    this.assertExists(navItem, 'Should always return a NavItem object');
 
                     // Both can be null when nothing is selected
-                    if (!selection.folder && !selection.tag) {
+                    if (!navItem.folder && !navItem.tag) {
                         this.assertTrue(true, 'API correctly handles no selection');
                     } else {
                         // Something is selected, which is also valid
@@ -542,7 +560,8 @@
 
                     // Verify event data structure if an event was captured
                     if (eventData) {
-                        this.assertTrue(Array.isArray(eventData.files), 'Event should include files array (TFile objects)');
+                        this.assertTrue(Array.isArray(eventData.files), 'Event should include files array (readonly TFile[])');
+                        // Note: We don't test the readonly aspect, just that it's an array
                         // focused can be null or a TFile
                         this.assertTrue(
                             eventData.focused === null || typeof eventData.focused === 'object',
@@ -619,7 +638,8 @@
 
                     // If an event was captured, verify structure
                     if (eventData) {
-                        this.assertTrue(Array.isArray(eventData.files), 'Should have files array');
+                        this.assertTrue(Array.isArray(eventData.files), 'Should have files array (readonly TFile[])');
+                        // Note: We don't test the readonly aspect, just that it's an array
                         // Files array contains all currently pinned files
                         eventData.files.forEach(file => {
                             this.assertExists(file.path, 'Each pinned file should have a path');
@@ -679,6 +699,35 @@
                     // Should be idempotent (safe to call multiple times)
                     this.api.off(eventRef);
                     this.api.off(eventRef);
+                },
+
+                'Event API should support all documented event types': async function () {
+                    // Test that all event types can be subscribed to
+                    const eventTypes = [
+                        'storage-ready',
+                        'folder-selected',
+                        'tag-selected',
+                        'file-selection-changed',
+                        'pinned-files-changed',
+                        'folder-metadata-changed',
+                        'tag-metadata-changed'
+                    ];
+
+                    const refs = [];
+                    
+                    // Subscribe to all event types
+                    for (const eventType of eventTypes) {
+                        const ref = this.api.on(eventType, () => {});
+                        this.assertExists(ref, `Should be able to subscribe to ${eventType}`);
+                        refs.push(ref);
+                    }
+
+                    // Clean up all subscriptions
+                    for (const ref of refs) {
+                        this.api.off(ref);
+                    }
+                    
+                    this.assertTrue(true, 'All event types are supported');
                 }
             };
         }
