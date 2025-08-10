@@ -470,7 +470,7 @@
                     const result = await this.api.file.moveTo([testFile], targetFolder);
                     this.assertExists(result, 'Move should return a result');
                     this.assertEqual(result.movedCount, 1, 'Should have moved 1 file');
-                    this.assertEqual(result.errors.length, 0, 'Should have no errors');
+                    this.assertEqual(result.skippedCount, 0, 'Should have no skipped files');
 
                     // Verify file is moved
                     await new Promise(resolve => setTimeout(resolve, 100));
@@ -488,14 +488,12 @@
                     const fakeFolder = { path: 'non-existent-folder', name: 'fake' };
 
                     try {
-                        const result = await this.api.file.moveTo([testFile], fakeFolder);
-                        // Should either throw or return errors
-                        if (result) {
-                            this.assertTrue(result.errors.length > 0, 'Should have errors for invalid move');
-                        }
+                        await this.api.file.moveTo([testFile], fakeFolder);
+                        // Should throw for invalid move
+                        this.assertTrue(false, 'Move to non-existent folder should throw');
                     } catch (e) {
                         // Expected - moving to non-existent folder should fail
-                        this.assertTrue(true, 'Move to non-existent folder should fail');
+                        this.assertTrue(true, 'Move to non-existent folder correctly threw error');
                     }
                 }
             };

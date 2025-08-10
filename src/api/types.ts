@@ -27,10 +27,6 @@ import { TFile, TFolder } from 'obsidian';
  */
 
 // ============================================================================
-// CORE TYPES
-// ============================================================================
-
-// ============================================================================
 // METADATA TYPES
 // ============================================================================
 
@@ -64,11 +60,8 @@ export interface TagMetadata {
 export interface MoveResult {
     /** Number of files successfully moved */
     movedCount: number;
-    /** Array of errors if any */
-    errors: Array<{
-        file: TFile;
-        error: string;
-    }>;
+    /** Number of files skipped (already exist at destination) */
+    skippedCount: number;
 }
 
 // ============================================================================

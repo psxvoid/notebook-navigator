@@ -32,10 +32,7 @@ export interface TagMetadata {
 
 export interface MoveResult {
     movedCount: number;
-    errors: Array<{
-        file: TFile;
-        error: string;
-    }>;
+    skippedCount: number;
 }
 
 export interface SelectionState {

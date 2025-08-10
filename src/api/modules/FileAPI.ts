@@ -130,7 +130,8 @@ export class FileAPI {
      * Move files to a target folder
      * @param files - Array of files to move
      * @param targetFolder - Target folder to move files into
-     * @returns Result with moved count, skipped files, and errors
+     * @returns Result with moved count and skipped count
+     * @throws Error if the move operation fails
      */
     async moveTo(files: TFile[], targetFolder: TFolder): Promise<MoveResult> {
         const plugin = this.api.getPlugin();
@@ -147,10 +148,7 @@ export class FileAPI {
 
         return {
             movedCount: result.movedCount,
-            errors: result.errors.map((e: { file: TFile; error: Error }) => ({
-                file: e.file,
-                error: e.error.message
-            }))
+            skippedCount: result.skippedCount
         };
     }
 }

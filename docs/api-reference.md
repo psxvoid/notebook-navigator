@@ -70,21 +70,22 @@ The API provides four main namespaces:
 
 Smart file operations that maintain proper selection in the navigator.
 
-| Method                  | Description                       | Returns               |
-| ----------------------- | --------------------------------- | --------------------- |
-| `delete(files)`         | Delete files with smart selection | `Promise<void>`       |
-| `moveTo(files, folder)` | Move files to another folder      | `Promise<MoveResult>` |
+| Method                  | Description                        | Returns               |
+| ----------------------- | ---------------------------------- | --------------------- |
+| `delete(files)`         | Delete files (all or none)         | `Promise<void>`       |
+| `moveTo(files, folder)` | Move files to folder (all or none) | `Promise<MoveResult>` |
 
 ```typescript
-// Delete files
+// Delete files (throws on failure)
 const file = app.vault.getFileByPath('notes/old.md');
 await nn.file.delete([file]);
 
-// Move files
+// Move files (throws on failure, returns counts on success)
 const targetFolder = app.vault.getAbstractFileByPath('Archive');
 if (targetFolder instanceof TFolder) {
   const result = await nn.file.moveTo([file1, file2], targetFolder);
-  // result: { movedCount: number, errors: Array<{file, error}> }
+  // result: { movedCount: 2, skippedCount: 0 }
+  // skippedCount > 0 means files already existed at destination
 }
 ```
 
@@ -103,6 +104,9 @@ Customize folder and tag appearance, manage pinned files.
 | `clearFolderIcon(folder)`       | Clear folder icon   | `Promise<void>`          |
 
 ### Tag Metadata
+
+Tag parameters accept strings with or without the leading `#` (both `'work'` and
+`'#work'` are valid).
 
 | Method                    | Description      | Returns               |
 | ------------------------- | ---------------- | --------------------- |
@@ -235,7 +239,7 @@ export interface TagMetadata {
 
 export interface MoveResult {
   movedCount: number;
-  errors: Array<{ file: TFile; error: string }>;
+  skippedCount: number; // Files that already exist at destination
 }
 
 export interface SelectionState {
@@ -367,7 +371,14 @@ const inbox = app.vault.getAbstractFileByPath('Inbox');
 const projects = app.vault.getAbstractFileByPath('Projects');
 if (inbox instanceof TFolder && projects instanceof TFolder) {
   const files = inbox.children.filter(f => f instanceof TFile);
-  await nn.file.moveTo(files, projects);
+  try {
+    const result = await nn.file.moveTo(files, projects);
+    console.log(
+      `Moved ${result.movedCount} files, skipped ${result.skippedCount}`
+    );
+  } catch (error) {
+    console.error('Move failed:', error.message);
+  }
 }
 ```
 
@@ -377,8 +388,6 @@ if (inbox instanceof TFolder && projects instanceof TFolder) {
   string paths
 - **Async operations** - Methods that modify state return `Promise` as they
   persist to settings
-- **Smart selection** - File operations automatically manage selection in the
-  navigator
 - **CSS colors** - Colors accept any valid CSS string (hex, rgb, named colors)
 - **Icon format** - Icons use `lucide:<name>` or `emoji:<unicode>` format
 - **Error handling** - Methods throw standard `Error` on failure
