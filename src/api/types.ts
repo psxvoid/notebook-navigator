@@ -57,8 +57,6 @@ export interface TagMetadata {
     color?: string;
     /** Icon identifier (e.g., 'lucide:tag' or 'emoji:🏷️') */
     icon?: string;
-    /** Whether this tag is marked as a favorite */
-    isFavorite?: boolean;
 }
 
 // ============================================================================

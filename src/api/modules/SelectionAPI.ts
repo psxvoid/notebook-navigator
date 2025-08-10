@@ -111,7 +111,13 @@ export class SelectionAPI {
         // Trigger event if selection has changed
         if (oldCount !== selectedFiles.size || oldCount === 0) {
             // Get TFile objects for the event
-            const fileObjects = this.listSelectedFiles();
+            const fileObjects: TFile[] = [];
+            for (const path of selectedFiles) {
+                const file = this.api.app.vault.getAbstractFileByPath(path);
+                if (file instanceof TFile) {
+                    fileObjects.push(file);
+                }
+            }
 
             this.api.trigger('file-selection-changed', {
                 files: fileObjects,
@@ -121,10 +127,10 @@ export class SelectionAPI {
     }
 
     /**
-     * List all currently selected files
-     * @returns Array of selected TFile objects (empty array if none selected)
+     * Get the current selection state
+     * @returns Current selection state with files and focused file
      */
-    listSelectedFiles(): TFile[] {
+    getSelectionState(): SelectionState {
         const files: TFile[] = [];
 
         for (const path of this.selectionState.files) {
@@ -134,24 +140,8 @@ export class SelectionAPI {
             }
         }
 
-        return files;
-    }
-
-    /**
-     * Get the focused file (cursor position in multi-selection)
-     * @returns The focused file or null if none selected
-     */
-    getFocusedFile(): TFile | null {
-        return this.selectionState.primaryFile;
-    }
-
-    /**
-     * Get the current selection state
-     * @returns Current selection state with files, paths, and focused file
-     */
-    getSelectionState(): SelectionState {
         return {
-            files: this.listSelectedFiles(),
+            files,
             focused: this.selectionState.primaryFile
         };
     }

@@ -19,7 +19,7 @@
 import { TFile, TFolder } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
 import type { FolderMetadata, TagMetadata } from '../types';
-import type { NotebookNavigatorSettings, SortOption } from '../../settings';
+import type { NotebookNavigatorSettings } from '../../settings';
 
 /**
  * Metadata API - Manage folder and tag appearance, icons, colors, and pinned files
@@ -32,14 +32,10 @@ export class MetadataAPI {
         // Folder metadata
         folderColors: {} as Record<string, string>,
         folderIcons: {} as Record<string, string>,
-        folderSortOverrides: {} as Record<string, SortOption>,
 
         // Tag metadata
         tagColors: {} as Record<string, string>,
         tagIcons: {} as Record<string, string>,
-        tagSortOverrides: {} as Record<string, SortOption>,
-        favoriteTags: [] as string[],
-        hiddenTags: [] as string[],
 
         // Pinned files
         pinnedNotes: [] as string[]
@@ -69,14 +65,10 @@ export class MetadataAPI {
             // Copy folder metadata
             folderColors: { ...settings.folderColors },
             folderIcons: { ...settings.folderIcons },
-            folderSortOverrides: { ...settings.folderSortOverrides },
 
             // Copy tag metadata
             tagColors: { ...settings.tagColors },
             tagIcons: { ...settings.tagIcons },
-            tagSortOverrides: { ...settings.tagSortOverrides },
-            favoriteTags: [...(settings.favoriteTags || [])],
-            hiddenTags: [...(settings.hiddenTags || [])],
 
             // Copy pinned files
             pinnedNotes: [...(settings.pinnedNotes || [])]
@@ -194,16 +186,14 @@ export class MetadataAPI {
 
         const color = this.metadataState.tagColors[normalizedTag];
         const icon = this.metadataState.tagIcons[normalizedTag];
-        const isFavorite = this.metadataState.favoriteTags.includes(normalizedTag);
 
-        if (!color && !icon && !isFavorite) {
+        if (!color && !icon) {
             return null;
         }
 
         return {
             color,
-            icon,
-            isFavorite
+            icon
         };
     }
 

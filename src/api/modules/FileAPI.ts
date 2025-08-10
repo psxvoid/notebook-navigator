@@ -57,16 +57,15 @@ export class FileAPI {
     }
 
     /**
-     * Delete one or more files with smart selection management
+     * Delete files with smart selection management
      * Automatically selects the next appropriate file after deletion
      * Uses the plugin's confirmation setting
-     * @param files - File or array of files to delete
+     * @param files - Array of files to delete
      */
-    async delete(files: TFile | TFile[]): Promise<void> {
+    async delete(files: TFile[]): Promise<void> {
         const plugin = this.api.getPlugin();
-        const fileArray = Array.isArray(files) ? files : [files];
 
-        if (fileArray.length === 0) {
+        if (files.length === 0) {
             return;
         }
 
@@ -78,9 +77,9 @@ export class FileAPI {
         const confirmBeforeDelete = this.fileState.confirmBeforeDelete;
 
         // For single file deletion
-        if (fileArray.length === 1) {
+        if (files.length === 1) {
             try {
-                await plugin.fileSystemOps.deleteFile(fileArray[0], confirmBeforeDelete, undefined, undefined);
+                await plugin.fileSystemOps.deleteFile(files[0], confirmBeforeDelete, undefined, undefined);
                 return;
             } catch (error) {
                 throw new Error(error instanceof Error ? error.message : String(error));
@@ -88,7 +87,7 @@ export class FileAPI {
         }
 
         // For multiple files
-        const filePathSet = new Set(fileArray.map(f => f.path));
+        const filePathSet = new Set(files.map(f => f.path));
 
         // Create minimal context for smart selection
         const emptyContext = {
@@ -112,7 +111,7 @@ export class FileAPI {
         try {
             await plugin.fileSystemOps.deleteFilesWithSmartSelection(
                 filePathSet,
-                fileArray,
+                files,
                 plugin.settings,
                 emptyContext,
                 apiDispatch,
@@ -128,21 +127,20 @@ export class FileAPI {
     }
 
     /**
-     * Move one or more files to a target folder
-     * @param files - File or array of files to move
+     * Move files to a target folder
+     * @param files - Array of files to move
      * @param targetFolder - Target folder to move files into
      * @returns Result with moved count, skipped files, and errors
      */
-    async moveTo(files: TFile | TFile[], targetFolder: TFolder): Promise<MoveResult> {
+    async moveTo(files: TFile[], targetFolder: TFolder): Promise<MoveResult> {
         const plugin = this.api.getPlugin();
-        const fileArray = Array.isArray(files) ? files : [files];
 
         if (!plugin.fileSystemOps) {
             throw new Error('File operations not available');
         }
 
         const result = await plugin.fileSystemOps.moveFilesToFolder({
-            files: fileArray,
+            files: files,
             targetFolder,
             showNotifications: true
         });

@@ -436,7 +436,7 @@
                     const testFile = await this.createTestFile('test-delete.md', '# Delete Test');
 
                     // Delete the file (returns void now)
-                    await this.api.file.delete(testFile);
+                    await this.api.file.delete([testFile]);
 
                     // Verify file is deleted (wait a bit for async operation)
                     await new Promise(resolve => setTimeout(resolve, 100));
@@ -467,7 +467,7 @@
                     const testFile = await this.createTestFile('test-move-source/test-file.md', '# Move Test');
 
                     // Move the file
-                    const result = await this.api.file.moveTo(testFile, targetFolder);
+                    const result = await this.api.file.moveTo([testFile], targetFolder);
                     this.assertExists(result, 'Move should return a result');
                     this.assertEqual(result.movedCount, 1, 'Should have moved 1 file');
                     this.assertEqual(result.errors.length, 0, 'Should have no errors');
@@ -488,7 +488,7 @@
                     const fakeFolder = { path: 'non-existent-folder', name: 'fake' };
 
                     try {
-                        const result = await this.api.file.moveTo(testFile, fakeFolder);
+                        const result = await this.api.file.moveTo([testFile], fakeFolder);
                         // Should either throw or return errors
                         if (result) {
                             this.assertTrue(result.errors.length > 0, 'Should have errors for invalid move');
@@ -545,39 +545,11 @@
                 },
 
                 'Should get file selection state': async function () {
-                    // Test getting selected files
-                    const selectedFiles = this.api.selection.listSelectedFiles();
-                    this.assertTrue(Array.isArray(selectedFiles), 'listSelectedFiles should return an array');
-                },
-
-                'Should get focused file': async function () {
-                    const focusedFile = this.api.selection.getFocusedFile();
-
-                    // Focused file can be null (no selection) or a TFile object
-                    if (focusedFile !== null) {
-                        this.assertExists(focusedFile.path, 'Focused file should have a path');
-                        this.assertTrue(typeof focusedFile.path === 'string', 'File path should be a string');
-                        this.assertExists(focusedFile.name, 'Focused file should have a name');
-
-                        // If there's a focused file, there should be selected files
-                        const selectedFiles = this.api.selection.listSelectedFiles();
-                        this.assertTrue(selectedFiles.length >= 1, 'Should have at least 1 selected file when focused file exists');
-                    }
-                },
-
-                'Should get selection state': async function () {
+                    // Test getting selection state
                     const state = this.api.selection.getSelectionState();
-
                     this.assertExists(state, 'getSelectionState should return an object');
                     this.assertTrue(Array.isArray(state.files), 'State should have files array');
                     this.assertTrue(state.focused === null || typeof state.focused === 'object', 'State should have focused property');
-
-                    // Compare with individual methods
-                    const files = this.api.selection.listSelectedFiles();
-                    const focused = this.api.selection.getFocusedFile();
-
-                    this.assertEqual(state.files.length, files.length, 'State files should match listSelectedFiles');
-                    this.assertEqual(state.focused, focused, 'State focused should match getFocusedFile');
                 },
 
                 'Should handle file selection events': async function () {

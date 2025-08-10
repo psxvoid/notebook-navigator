@@ -7,8 +7,13 @@ scripts to interact with its features programmatically.
 
 ## Quick Start
 
-```typescript
-// Get the API
+### Accessing the API
+
+The Notebook Navigator API is available at runtime through the Obsidian app
+object:
+
+```javascript
+// Get the API instance
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 
 // Check if available
@@ -17,10 +22,39 @@ if (!nn) {
   return;
 }
 
-// TypeScript users: import types for better code completion
-import type { NotebookNavigatorAPI } from 'notebook-navigator/api';
-const api = app.plugins.plugins['notebook-navigator']
+// Use the API
+await nn.file.delete([file]);
+```
+
+### TypeScript Support
+
+Since Obsidian plugins don't export types like npm packages, you have two
+options:
+
+**Option 1: Download the type definitions** (Recommended)
+
+Download the TypeScript definitions file:
+
+- [📄 notebook-navigator.d.ts](https://github.com/johansanneblad/notebook-navigator/blob/main/src/api/public/notebook-navigator.d.ts)
+
+Save it to your plugin project and import:
+
+```typescript
+// In your plugin code
+import type { NotebookNavigatorAPI } from './notebook-navigator';
+
+const nn = app.plugins.plugins['notebook-navigator']
   ?.api as NotebookNavigatorAPI;
+```
+
+**Option 2: Use without types**
+
+```javascript
+// Works fine without types in JavaScript/TypeScript
+const nn = app.plugins.plugins['notebook-navigator']?.api;
+if (nn) {
+  await nn.metadata.setFolderColor(folder, '#FF5733');
+}
 ```
 
 ## API Overview
@@ -44,7 +78,7 @@ Smart file operations that maintain proper selection in the navigator.
 ```typescript
 // Delete files
 const file = app.vault.getFileByPath('notes/old.md');
-await nn.file.delete(file);
+await nn.file.delete([file]);
 
 // Move files
 const targetFolder = app.vault.getAbstractFileByPath('Archive');
@@ -173,49 +207,92 @@ nn.off(selectionRef);
 
 ## Core API Methods
 
-| Method                      | Description                 | Returns              |
-| --------------------------- | --------------------------- | -------------------- |
-| `getVersion()`              | Get API version             | `string`             |
-| `negotiateVersion(version)` | Check version compatibility | `VersionNegotiation` |
-| `hasFeature(feature)`       | Check if feature exists     | `boolean`            |
-| `listFeatures()`            | List all features           | `string[]`           |
-| `on(event, callback)`       | Subscribe to event          | `EventRef`           |
-| `off(ref)`                  | Unsubscribe from event      | `void`               |
+| Method                | Description            | Returns    |
+| --------------------- | ---------------------- | ---------- |
+| `getVersion()`        | Get API version        | `string`   |
+| `on(event, callback)` | Subscribe to event     | `EventRef` |
+| `off(ref)`            | Unsubscribe from event | `void`     |
 
 ## Types
 
-```typescript
-// Core types
-type TagRef = `#${string}`;
+Download the complete type definitions:
 
-interface FolderMetadata {
+- [📄 notebook-navigator.d.ts](https://github.com/johansanneblad/notebook-navigator/blob/main/src/api/public/notebook-navigator.d.ts)
+
+For reference, here's the complete API interface:
+
+```typescript
+import { TFile, TFolder, EventRef } from 'obsidian';
+
+// Core types
+export type TagRef = `#${string}`;
+
+export interface FolderMetadata {
   color?: string; // Any valid CSS color
   icon?: string; // 'lucide:folder' or 'emoji:📁'
 }
 
-interface TagMetadata {
+export interface TagMetadata {
   color?: string;
   icon?: string;
-  isFavorite?: boolean;
 }
 
-interface MoveResult {
+export interface MoveResult {
   movedCount: number;
   errors: Array<{ file: TFile; error: string }>;
 }
 
-interface SelectionState {
+export interface SelectionState {
   files: TFile[];
   focused: TFile | null;
 }
 
-type CompatibilityLevel = 'full' | 'partial' | 'limited' | 'incompatible';
+// Complete API interface
+export interface NotebookNavigatorAPI {
+  getVersion(): string;
 
-interface VersionNegotiation {
-  apiVersion: string;
-  compatibility: CompatibilityLevel;
-  availableFeatures: string[];
-  deprecatedFeatures: string[];
+  file: {
+    delete(files: TFile[]): Promise<void>;
+    moveTo(files: TFile[], folder: TFolder): Promise<MoveResult>;
+  };
+
+  metadata: {
+    // Folders
+    getFolderMetadata(folder: TFolder): FolderMetadata | null;
+    setFolderColor(folder: TFolder, color: string): Promise<void>;
+    clearFolderColor(folder: TFolder): Promise<void>;
+    setFolderIcon(folder: TFolder, icon: string): Promise<void>;
+    clearFolderIcon(folder: TFolder): Promise<void>;
+
+    // Tags
+    getTagMetadata(tag: TagRef | string): TagMetadata | null;
+    setTagColor(tag: TagRef | string, color: string): Promise<void>;
+    clearTagColor(tag: TagRef | string): Promise<void>;
+    setTagIcon(tag: TagRef | string, icon: string): Promise<void>;
+    clearTagIcon(tag: TagRef | string): Promise<void>;
+
+    // Pins
+    listPinnedFiles(): TFile[];
+    isPinned(file: TFile): boolean;
+    pin(file: TFile): Promise<void>;
+    unpin(file: TFile): Promise<void>;
+    togglePin(file: TFile): Promise<void>;
+  };
+
+  navigation: {
+    navigateToFile(file: TFile): Promise<void>;
+  };
+
+  selection: {
+    getSelectedNavigationItem(): { folder: TFolder | null; tag: TagRef | null };
+    listSelectedFiles(): TFile[];
+    getFocusedFile(): TFile | null;
+    getSelectionState(): SelectionState;
+  };
+
+  // Events
+  on(event: string, callback: Function): EventRef;
+  off(ref: EventRef): void;
 }
 ```
 
@@ -263,7 +340,7 @@ if (nn) {
 ```typescript
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 if (nn) {
-  const selectedFiles = nn.selection.listSelectedFiles();
+  const { files: selectedFiles } = nn.selection.getSelectionState();
 
   for (const file of selectedFiles) {
     await app.fileManager.processFrontMatter(file, fm => {
@@ -311,25 +388,3 @@ if (inbox instanceof TFolder && projects instanceof TFolder) {
 - **CSS colors** - Colors accept any valid CSS string (hex, rgb, named colors)
 - **Icon format** - Icons use `lucide:<name>` or `emoji:<unicode>` format
 - **Error handling** - Methods throw standard `Error` on failure
-
-## Version Compatibility
-
-The API uses semantic versioning (MAJOR.MINOR.PATCH):
-
-- **MAJOR** - Breaking changes
-- **MINOR** - New features (backwards compatible)
-- **PATCH** - Bug fixes
-
-```typescript
-// Check compatibility
-const negotiation = nn.negotiateVersion('1.0.0');
-if (negotiation.compatibility === 'incompatible') {
-  console.error('API version incompatible');
-  return;
-}
-
-// Check for specific features
-if (nn.hasFeature('file.delete')) {
-  // Feature is available
-}
-```
