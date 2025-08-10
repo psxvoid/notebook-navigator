@@ -215,83 +215,35 @@ nn.off(selectionRef);
 | `on(event, callback)` | Subscribe to event     | `EventRef` |
 | `off(ref)`            | Unsubscribe from event | `void`     |
 
-## Types
+## TypeScript Support
 
-Download the complete type definitions:
+### Complete Type Definitions
 
-- [📄 notebook-navigator.d.ts](https://github.com/johansanneblad/notebook-navigator/blob/main/src/api/public/notebook-navigator.d.ts)
+Download the TypeScript definitions file for full type safety and IntelliSense
+support:
 
-For reference, here's the complete API interface:
+**[📄 notebook-navigator.d.ts](https://github.com/johansanneblad/notebook-navigator/blob/main/src/api/public/notebook-navigator.d.ts)**
+
+This file contains:
+
+- Complete API interface (`NotebookNavigatorAPI`)
+- All type definitions (`FolderMetadata`, `TagMetadata`, `MoveResult`,
+  `SelectionState`)
+- Full JSDoc comments for every method
+- Event payload types
+
+### Using the Types
+
+Save the `.d.ts` file to your plugin project and import it:
 
 ```typescript
-import { TFile, TFolder, EventRef } from 'obsidian';
+import type { NotebookNavigatorAPI } from './notebook-navigator';
 
-// Core types
-
-export interface FolderMetadata {
-  color?: string; // Any valid CSS color (hex, rgb, hsl, named colors)
-  icon?: string; // 'lucide:folder' or 'emoji:📁'
-}
-
-export interface TagMetadata {
-  color?: string; // Any valid CSS color (hex, rgb, hsl, named colors)
-  icon?: string; // 'lucide:tag' or 'emoji:🏷️'
-}
-
-export interface MoveResult {
-  movedCount: number;
-  skippedCount: number; // Files that already exist at destination
-}
-
-export interface SelectionState {
-  files: TFile[];
-  focused: TFile | null;
-}
-
-// Complete API interface
-export interface NotebookNavigatorAPI {
-  getVersion(): string;
-
-  file: {
-    delete(files: TFile[]): Promise<void>;
-    move(files: TFile[], folder: TFolder): Promise<MoveResult>;
-  };
-
-  metadata: {
-    // Folders
-    getFolderMeta(folder: TFolder): FolderMetadata | null;
-    setFolderColor(folder: TFolder, color: string): Promise<void>;
-    clearFolderColor(folder: TFolder): Promise<void>;
-    setFolderIcon(folder: TFolder, icon: string): Promise<void>;
-    clearFolderIcon(folder: TFolder): Promise<void>;
-
-    // Tags
-    getTagMeta(tag: string): TagMetadata | null;
-    setTagColor(tag: string, color: string): Promise<void>;
-    clearTagColor(tag: string): Promise<void>;
-    setTagIcon(tag: string, icon: string): Promise<void>;
-    clearTagIcon(tag: string): Promise<void>;
-
-    // Pins
-    getPinned(): TFile[];
-    isPinned(file: TFile): boolean;
-    pin(file: TFile): Promise<void>;
-    unpin(file: TFile): Promise<void>;
-    togglePin(file: TFile): Promise<void>;
-  };
-
-  navigation: {
-    reveal(file: TFile): Promise<void>;
-  };
-
-  selection: {
-    getNavItem(): { folder: TFolder | null; tag: string | null };
-    getCurrent(): SelectionState;
-  };
-
-  // Events
-  on(event: string, callback: (data: unknown) => void): EventRef;
-  off(ref: EventRef): void;
+const nn = app.plugins.plugins['notebook-navigator']
+  ?.api as NotebookNavigatorAPI;
+if (nn) {
+  // Full type safety and autocomplete
+  await nn.metadata.setFolderColor(folder, '#FF5733');
 }
 ```
 
