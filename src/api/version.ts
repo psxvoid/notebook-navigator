@@ -169,9 +169,7 @@ const FEATURE_VERSIONS: Record<string, string> = {
     'navigation.navigateToFile': '1.0.0',
 
     // Selection operations
-    'selection.listSelectedFiles': '1.0.0',
     'selection.getSelectionState': '1.0.0',
-    'selection.getFocusedFile': '1.0.0',
     'selection.getSelectedNavigationItem': '1.0.0',
 
     // Events

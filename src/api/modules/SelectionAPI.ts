@@ -18,7 +18,7 @@
 
 import { TFolder, TFile } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
-import type { SelectionState, TagRef } from '../types';
+import type { SelectionState } from '../types';
 import { STORAGE_KEYS } from '../../types';
 import { localStorage } from '../../utils/localStorage';
 
@@ -93,7 +93,7 @@ export class SelectionAPI {
             });
         } else if (tag) {
             this.api.trigger('tag-selected', {
-                tag: tag as TagRef
+                tag
             });
         }
     }

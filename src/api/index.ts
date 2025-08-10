@@ -27,16 +27,7 @@
 export { NotebookNavigatorAPI } from './NotebookNavigatorAPI';
 
 // Core types
-export type {
-    TagRef,
-    FolderMetadata,
-    TagMetadata,
-    MoveResult,
-    SelectionState,
-    NotebookNavigatorEventType,
-    NotebookNavigatorEvents,
-    EventBus
-} from './types';
+export type { FolderMetadata, TagMetadata, MoveResult, SelectionState, NotebookNavigatorEventType, NotebookNavigatorEvents } from './types';
 
 // Version management
 export { API_VERSION, CompatibilityLevel } from './version';

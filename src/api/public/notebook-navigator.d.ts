@@ -19,7 +19,6 @@
 import { TFile, TFolder, EventRef } from 'obsidian';
 
 // Core types
-export type TagRef = `#${string}`;
 
 export interface FolderMetadata {
     color?: string; // Any valid CSS color
@@ -62,11 +61,11 @@ export interface NotebookNavigatorAPI {
         clearFolderIcon(folder: TFolder): Promise<void>;
 
         // Tags
-        getTagMetadata(tag: TagRef | string): TagMetadata | null;
-        setTagColor(tag: TagRef | string, color: string): Promise<void>;
-        clearTagColor(tag: TagRef | string): Promise<void>;
-        setTagIcon(tag: TagRef | string, icon: string): Promise<void>;
-        clearTagIcon(tag: TagRef | string): Promise<void>;
+        getTagMetadata(tag: string): TagMetadata | null;
+        setTagColor(tag: string, color: string): Promise<void>;
+        clearTagColor(tag: string): Promise<void>;
+        setTagIcon(tag: string, icon: string): Promise<void>;
+        clearTagIcon(tag: string): Promise<void>;
 
         // Pins
         listPinnedFiles(): TFile[];
@@ -81,11 +80,11 @@ export interface NotebookNavigatorAPI {
     };
 
     selection: {
-        getSelectedNavigationItem(): { folder: TFolder | null; tag: TagRef | null };
+        getSelectedNavigationItem(): { folder: TFolder | null; tag: string | null };
         getSelectionState(): SelectionState;
     };
 
     // Events
-    on<T = unknown>(event: string, callback: (data: T) => void): EventRef;
+    on(event: string, callback: (data: unknown) => void): EventRef;
     off(ref: EventRef): void;
 }

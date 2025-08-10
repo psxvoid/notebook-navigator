@@ -157,9 +157,7 @@ Query the current selection state in the navigator.
 
 | Method                        | Description                  | Returns                                            |
 | ----------------------------- | ---------------------------- | -------------------------------------------------- |
-| `getSelectedNavigationItem()` | Get selected folder or tag   | `{ folder: TFolder \| null, tag: TagRef \| null }` |
-| `listSelectedFiles()`         | Get selected files           | `TFile[]`                                          |
-| `getFocusedFile()`            | Get focused file             | `TFile \| null`                                    |
+| `getSelectedNavigationItem()` | Get selected folder or tag   | `{ folder: TFolder \| null, tag: string \| null }` |
 | `getSelectionState()`         | Get complete selection state | `SelectionState`                                   |
 
 ```typescript
@@ -172,8 +170,7 @@ if (navItem.folder) {
 }
 
 // Get selected files
-const selectedFiles = nn.selection.listSelectedFiles();
-const focusedFile = nn.selection.getFocusedFile();
+const { files, focused } = nn.selection.getSelectionState();
 ```
 
 ## Events
@@ -184,11 +181,11 @@ Subscribe to navigator events to react to user actions.
 | ------------------------- | -------------------------------------------------- | ----------------------- |
 | `storage-ready`           | `void`                                             | Storage system is ready |
 | `folder-selected`         | `{ folder: TFolder }`                              | Folder selected         |
-| `tag-selected`            | `{ tag: TagRef }`                                  | Tag selected            |
+| `tag-selected`            | `{ tag: string }`                                  | Tag selected            |
 | `file-selection-changed`  | `{ files: TFile[], focused: TFile \| null }`       | Selection changed       |
 | `pinned-files-changed`    | `{ files: TFile[] }`                               | Pinned files changed    |
 | `folder-metadata-changed` | `{ folder: TFolder, property: 'color' \| 'icon' }` | Folder metadata changed |
-| `tag-metadata-changed`    | `{ tag: TagRef, property: 'color' \| 'icon' }`     | Tag metadata changed    |
+| `tag-metadata-changed`    | `{ tag: string, property: 'color' \| 'icon' }`     | Tag metadata changed    |
 
 ```typescript
 // Subscribe to events
@@ -225,7 +222,6 @@ For reference, here's the complete API interface:
 import { TFile, TFolder, EventRef } from 'obsidian';
 
 // Core types
-export type TagRef = `#${string}`;
 
 export interface FolderMetadata {
   color?: string; // Any valid CSS color
@@ -265,11 +261,11 @@ export interface NotebookNavigatorAPI {
     clearFolderIcon(folder: TFolder): Promise<void>;
 
     // Tags
-    getTagMetadata(tag: TagRef | string): TagMetadata | null;
-    setTagColor(tag: TagRef | string, color: string): Promise<void>;
-    clearTagColor(tag: TagRef | string): Promise<void>;
-    setTagIcon(tag: TagRef | string, icon: string): Promise<void>;
-    clearTagIcon(tag: TagRef | string): Promise<void>;
+    getTagMetadata(tag: string): TagMetadata | null;
+    setTagColor(tag: string, color: string): Promise<void>;
+    clearTagColor(tag: string): Promise<void>;
+    setTagIcon(tag: string, icon: string): Promise<void>;
+    clearTagIcon(tag: string): Promise<void>;
 
     // Pins
     listPinnedFiles(): TFile[];
@@ -284,14 +280,12 @@ export interface NotebookNavigatorAPI {
   };
 
   selection: {
-    getSelectedNavigationItem(): { folder: TFolder | null; tag: TagRef | null };
-    listSelectedFiles(): TFile[];
-    getFocusedFile(): TFile | null;
+    getSelectedNavigationItem(): { folder: TFolder | null; tag: string | null };
     getSelectionState(): SelectionState;
   };
 
   // Events
-  on(event: string, callback: Function): EventRef;
+  on(event: string, callback: (data: unknown) => void): EventRef;
   off(ref: EventRef): void;
 }
 ```

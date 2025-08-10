@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFile, TFolder, EventRef } from 'obsidian';
+import { TFile, TFolder } from 'obsidian';
 
 /**
  * Notebook Navigator Public API Types
@@ -29,11 +29,6 @@ import { TFile, TFolder, EventRef } from 'obsidian';
 // ============================================================================
 // CORE TYPES
 // ============================================================================
-
-/**
- * Type-safe tag reference
- */
-export type TagRef = `#${string}`;
 
 // ============================================================================
 // METADATA TYPES
@@ -99,7 +94,7 @@ export interface NotebookNavigatorEvents {
 
     /** Fired when a tag is selected in navigation pane */
     'tag-selected': {
-        tag: TagRef;
+        tag: string;
     };
 
     /** Fired when file selection changes in the list pane */
@@ -124,7 +119,7 @@ export interface NotebookNavigatorEvents {
 
     /** Fired when tag metadata changes */
     'tag-metadata-changed': {
-        tag: TagRef;
+        tag: string;
         property: 'color' | 'icon';
     };
 }
@@ -139,16 +134,4 @@ export interface NotebookNavigatorEvents {
 export interface SelectionState {
     files: TFile[];
     focused: TFile | null;
-}
-
-// ============================================================================
-// EVENT BUS
-// ============================================================================
-
-/**
- * Type-safe event subscription interface
- */
-export interface EventBus {
-    on<K extends NotebookNavigatorEventType>(type: K, cb: (payload: NotebookNavigatorEvents[K]) => void): EventRef;
-    off(ref: EventRef): void;
 }

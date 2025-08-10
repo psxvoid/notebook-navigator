@@ -101,7 +101,7 @@ export class NotebookNavigatorAPI {
     /**
      * Subscribe to Notebook Navigator events
      */
-    on<T extends NotebookNavigatorEventType>(event: T, callback: (data: NotebookNavigatorEvents[T]) => void): EventRef {
+    on(event: string, callback: (data: unknown) => void): EventRef {
         return this.events.on(event, callback);
     }
 
