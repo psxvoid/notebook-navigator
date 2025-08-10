@@ -54,16 +54,13 @@ The API follows semantic versioning:
 
 - **Event IDs** - Kebab-case (e.g., `storage-ready`, `folder-selected`,
   `file-selection-changed`, `pinned-files-changed`)
-- **Event payload keys** - camelCase (e.g., `files`, `paths`, `focused`)
+- **Event payload keys** - camelCase (e.g., `files`, `focused`)
 
 ### Type Conventions
 
 - **Prefer Obsidian types** - Use `TFile[]` and `TFolder` over `string[]` paths
   when possible
-- **Path fields** - When paths are needed, explicitly name the field `paths` or
-  `path`
-- **Dual provision** - Provide both objects and paths when useful (e.g.,
-  selection events include both `files: TFile[]` and `paths: string[]`)
+- **Path fields** - When paths are needed, use `file.path` from TFile objects
 - **Nullable fields** - Use `| null` for nullable fields (e.g.,
   `focused: TFile | null`)
 
@@ -134,19 +131,16 @@ Use `hasFeature()` and `listFeatures()` to check which features are available.
 | `metadata.clearFolderColor`           | Clear folder color                |
 | `metadata.setFolderIcon`              | Set folder icon                   |
 | `metadata.clearFolderIcon`            | Clear folder icon                 |
-| `metadata.clearFolderAppearance`      | Clear folder appearance settings  |
 | `metadata.setTagColor`                | Set tag color                     |
 | `metadata.clearTagColor`              | Clear tag color                   |
 | `metadata.setTagIcon`                 | Set tag icon                      |
 | `metadata.clearTagIcon`               | Clear tag icon                    |
-| `metadata.clearTagAppearance`         | Clear tag appearance settings     |
 | `metadata.pin`                        | Pin a file                        |
 | `metadata.unpin`                      | Unpin a file                      |
 | `metadata.togglePin`                  | Toggle pin status                 |
 | `metadata.listPinnedFiles`            | List all pinned files             |
 | `navigation.navigateToFile`           | Navigate to a file                |
 | `selection.listSelectedFiles`         | List selected files               |
-| `selection.listSelectedPaths`         | List selected file paths          |
 | `selection.getSelectionState`         | Get complete selection state      |
 | `selection.getFocusedFile`            | Get focused file                  |
 | `selection.getSelectedNavigationItem` | Get selected folder or tag        |
@@ -269,10 +263,10 @@ intelligent handling when deleting or moving files:
 
 ### Methods
 
-| Method                  | Description                                              | Since | Deprecated |
-| ----------------------- | -------------------------------------------------------- | ----- | ---------- |
-| `delete(files)`         | Delete one or more files with smart selection management | 1.0.0 |            |
-| `moveTo(files, folder)` | Move one or more files to another folder                 | 1.0.0 |            |
+| Method                  | Description                                              | Returns               |
+| ----------------------- | -------------------------------------------------------- | --------------------- |
+| `delete(files)`         | Delete one or more files with smart selection management | `Promise<void>`       |
+| `moveTo(files, folder)` | Move one or more files to another folder                 | `Promise<MoveResult>` |
 
 ```typescript
 // Delete one or more files with smart selection
@@ -307,26 +301,26 @@ Customize folder and tag appearance, manage pinned notes.
 
 ### Methods
 
-| Method                          | Description                                     | Since | Deprecated |
-| ------------------------------- | ----------------------------------------------- | ----- | ---------- |
-| **Folders**                     |                                                 |       |            |
-| `getFolderMetadata(folder)`     | Get folder color, icon, and appearance settings | 1.0.0 |            |
-| `setFolderColor(folder, color)` | Set folder color                                | 1.0.0 |            |
-| `clearFolderColor(folder)`      | Clear folder color                              | 1.0.0 |            |
-| `setFolderIcon(folder, icon)`   | Set folder icon                                 | 1.0.0 |            |
-| `clearFolderIcon(folder)`       | Clear folder icon                               | 1.0.0 |            |
-| **Tags**                        |                                                 |       |            |
-| `getTagMetadata(tag)`           | Get tag color, icon, and appearance settings    | 1.0.0 |            |
-| `setTagColor(tag, color)`       | Set tag color                                   | 1.0.0 |            |
-| `clearTagColor(tag)`            | Clear tag color                                 | 1.0.0 |            |
-| `setTagIcon(tag, icon)`         | Set tag icon                                    | 1.0.0 |            |
-| `clearTagIcon(tag)`             | Clear tag icon                                  | 1.0.0 |            |
-| **Pinned Files**                |                                                 |       |            |
-| `listPinnedFiles()`             | List all pinned files                           | 1.0.0 |            |
-| `isPinned(file)`                | Check if a file is pinned                       | 1.0.0 |            |
-| `pin(file)`                     | Pin a file                                      | 1.0.0 |            |
-| `unpin(file)`                   | Unpin a file                                    | 1.0.0 |            |
-| `togglePin(file)`               | Toggle pin status (for UI)                      | 1.0.0 |            |
+| Method                          | Description                              | Returns                  |
+| ------------------------------- | ---------------------------------------- | ------------------------ |
+| **Folders**                     |                                          |                          |
+| `getFolderMetadata(folder)`     | Get folder color and icon                | `FolderMetadata \| null` |
+| `setFolderColor(folder, color)` | Set folder color                         | `Promise<void>`          |
+| `clearFolderColor(folder)`      | Clear folder color                       | `Promise<void>`          |
+| `setFolderIcon(folder, icon)`   | Set folder icon                          | `Promise<void>`          |
+| `clearFolderIcon(folder)`       | Clear folder icon                        | `Promise<void>`          |
+| **Tags**                        |                                          |                          |
+| `getTagMetadata(tag)`           | Get tag color, icon, and favorite status | `TagMetadata \| null`    |
+| `setTagColor(tag, color)`       | Set tag color                            | `Promise<void>`          |
+| `clearTagColor(tag)`            | Clear tag color                          | `Promise<void>`          |
+| `setTagIcon(tag, icon)`         | Set tag icon                             | `Promise<void>`          |
+| `clearTagIcon(tag)`             | Clear tag icon                           | `Promise<void>`          |
+| **Pinned Files**                |                                          |                          |
+| `listPinnedFiles()`             | List all pinned files                    | `TFile[]`                |
+| `isPinned(file)`                | Check if a file is pinned                | `boolean`                |
+| `pin(file)`                     | Pin a file                               | `Promise<void>`          |
+| `unpin(file)`                   | Unpin a file                             | `Promise<void>`          |
+| `togglePin(file)`               | Toggle pin status                        | `Promise<void>`          |
 
 ### Folder Metadata
 
@@ -335,11 +329,10 @@ Customize folder and tag appearance, manage pinned notes.
 const folder = app.vault.getAbstractFileByPath('Projects');
 if (folder instanceof TFolder) {
   const metadata = nn.metadata.getFolderMetadata(folder);
-  /* Returns FolderMetadata object:
+  /* Returns FolderMetadata object or null:
   {
-    color?: string,          // Hex color or CSS color
-    icon?: string,           // Icon identifier (e.g., 'lucide:folder')
-    appearance?: FolderAppearance // Display settings
+    color?: string,          // CSS color string
+    icon?: string            // Icon identifier (e.g., 'lucide:folder' or 'emoji:📁')
   }
   */
 
@@ -371,11 +364,10 @@ await nn.metadata.togglePin(file);
 ```typescript
 // Get tag metadata
 const metadata = nn.metadata.getTagMetadata('#work');
-/* Returns TagMetadata object (or null if no metadata):
+/* Returns TagMetadata object or null:
 {
-  color?: string,          // Hex color or CSS color
-  icon?: string,           // Icon identifier
-  appearance?: TagAppearance, // Display settings
+  color?: string,          // CSS color string
+  icon?: string,           // Icon identifier (e.g., 'lucide:tag' or 'emoji:🏷️')
   isFavorite?: boolean     // Whether tag is marked as favorite
 }
 */
@@ -393,9 +385,9 @@ Navigate to and reveal files in the navigator.
 
 ### Methods
 
-| Method                 | Description                                                         | Since | Deprecated |
-| ---------------------- | ------------------------------------------------------------------- | ----- | ---------- |
-| `navigateToFile(file)` | Reveal and select a file in the navigator (does not open in editor) | 1.0.0 |            |
+| Method                 | Description                                                         | Returns         |
+| ---------------------- | ------------------------------------------------------------------- | --------------- |
+| `navigateToFile(file)` | Reveal and select a file in the navigator (does not open in editor) | `Promise<void>` |
 
 ```typescript
 // Reveal and select a file in the navigator (does not open it in the editor)
@@ -414,16 +406,14 @@ Get the current selection state in the navigator, including both navigation pane
 
 ### Methods
 
-| Method                        | Description                                             | Since | Deprecated |
-| ----------------------------- | ------------------------------------------------------- | ----- | ---------- |
-| **Navigation Selection**      |                                                         |       |            |
-| `getSelectedNavigationItem()` | Get currently selected folder or tag in navigation pane | 1.0.0 |            |
-| **File Selection**            |                                                         |       |            |
-| `listSelectedFiles()`         | List all currently selected files as TFile array        | 1.0.0 |            |
-| `listSelectedPaths()`         | List all selected file paths as string array            | 1.0.0 |            |
-| `hasMultipleSelection()`      | Check if multiple files are selected                    | 1.0.0 |            |
-| `getSelectionCount()`         | Get the count of selected files                         | 1.0.0 |            |
-| `getFocusedFile()`            | Get the focused file (cursor position)                  | 1.0.0 |            |
+| Method                        | Description                                             | Returns                                            |
+| ----------------------------- | ------------------------------------------------------- | -------------------------------------------------- |
+| **Navigation Selection**      |                                                         |                                                    |
+| `getSelectedNavigationItem()` | Get currently selected folder or tag in navigation pane | `{ folder: TFolder \| null, tag: TagRef \| null }` |
+| **File Selection**            |                                                         |                                                    |
+| `listSelectedFiles()`         | List all currently selected files                       | `TFile[]`                                          |
+| `getFocusedFile()`            | Get the focused file (cursor position)                  | `TFile \| null`                                    |
+| `getSelectionState()`         | Get complete selection state                            | `SelectionState`                                   |
 
 ```typescript
 // Get the currently selected folder or tag in the navigation pane
@@ -446,20 +436,18 @@ if (navSelection.folder) {
 const selectedFiles = nn.selection.listSelectedFiles();
 console.log(`${selectedFiles.length} files selected`);
 
-// Get just the file paths (returns string[])
-const selectedPaths = nn.selection.listSelectedPaths();
-
 // Check if multiple files are selected
-if (nn.selection.hasMultipleSelection()) {
+if (selectedFiles.length > 1) {
   console.log('Multiple files selected');
 }
-
-// Get the count of selected files
-const count = nn.selection.getSelectionCount();
 
 // Get the primary selected file (cursor position in multi-selection)
 // This is the file that has keyboard focus
 const focusedFile = nn.selection.getFocusedFile();
+
+// Get complete selection state
+const state = nn.selection.getSelectionState();
+// Returns: { files: TFile[], focused: TFile | null }
 if (focusedFile) {
   console.log('Cursor is on:', focusedFile.basename);
 }
@@ -471,15 +459,15 @@ Subscribe to events to react to changes in the navigator.
 
 ### Available Events
 
-| Event                     | Payload                                            | Description                         | Since | Deprecated |
-| ------------------------- | -------------------------------------------------- | ----------------------------------- | ----- | ---------- |
-| `storage-ready`           | `void`                                             | Storage system is ready for queries | 1.0.0 |            |
-| `folder-selected`         | `{ folder: TFolder }`                              | User selected a folder              | 1.0.0 |            |
-| `tag-selected`            | `{ tag: TagRef }`                                  | User selected a tag                 | 1.0.0 |            |
-| `file-selection-changed`  | `{ files: TFile[], focused: TFile \| null }`       | File selection changed              | 1.0.0 |            |
-| `pinned-files-changed`    | `{ files: TFile[] }`                               | Pinned files changed                | 1.0.0 |            |
-| `folder-metadata-changed` | `{ folder: TFolder, property: 'color' \| 'icon' }` | Folder metadata changed             | 1.0.0 |            |
-| `tag-metadata-changed`    | `{ tag: TagRef, property: 'color' \| 'icon' }`     | Tag metadata changed                | 1.0.0 |            |
+| Event                     | Payload                                            | Description                         |
+| ------------------------- | -------------------------------------------------- | ----------------------------------- |
+| `storage-ready`           | `void`                                             | Storage system is ready for queries |
+| `folder-selected`         | `{ folder: TFolder }`                              | User selected a folder              |
+| `tag-selected`            | `{ tag: TagRef }`                                  | User selected a tag                 |
+| `file-selection-changed`  | `{ files: TFile[], focused: TFile \| null }`       | File selection changed              |
+| `pinned-files-changed`    | `{ files: TFile[] }`                               | Pinned files changed                |
+| `folder-metadata-changed` | `{ folder: TFolder, property: 'color' \| 'icon' }` | Folder metadata changed             |
+| `tag-metadata-changed`    | `{ tag: TagRef, property: 'color' \| 'icon' }`     | Tag metadata changed                |
 
 ```typescript
 // Listen for when storage is ready
@@ -500,8 +488,9 @@ const tagRef = nn.on('tag-selected', ({ tag }) => {
 });
 
 // Unsubscribe from events (idempotent - safe to call multiple times)
-nn.off(ref);
-nn.off(ref); // Safe to call again
+nn.off(folderRef);
+nn.off(tagRef);
+nn.off(folderRef); // Safe to call again
 
 // Listen for file selection changes
 nn.on('file-selection-changed', ({ files, focused }) => {
@@ -693,7 +682,7 @@ if (nn) {
 }
 
 // React to selection changes
-nn.on('file-selection-changed', async ({ files, paths, focused }) => {
+nn.on('file-selection-changed', async ({ files, focused }) => {
   if (files.length > 0) {
     // Update a status bar item or perform other actions
     console.log(`User selected ${files.length} file(s)`);
@@ -706,65 +695,65 @@ nn.on('file-selection-changed', async ({ files, paths, focused }) => {
 
 ## Type Definitions
 
-The API provides comprehensive TypeScript type definitions. Import these types
-from `notebook-navigator/api` for type-safe development:
+The API provides TypeScript type definitions. Import these types from
+`notebook-navigator/api` for type-safe development:
 
-- `APIError` - Standardized error type with error codes
-- `APIErrorCode` - Enumeration of all possible error codes
-- `CachedFileData` - Cached file metadata and content
-- `CompatibilityLevel` - API compatibility levels (full, partial, limited,
-  incompatible)
-- `FileQueryOptions` - Options for querying files
-- `TagRef` - Type-safe tag reference
-  ```typescript
-  type TagRef = `#${string}`;
-  ```
-- `FolderAppearance` - Folder display settings
-  ```typescript
-  interface FolderAppearance {
-    showPreview?: boolean;
-    showImage?: boolean;
-    layoutStyle?: 'list' | 'grid' | 'card';
-  }
-  ```
-- `FolderMetadata` - Folder customization data
-- `NavigationResult` - Result of navigation operations
-- `SelectionState` - Current selection state
-- `TagAppearance` - Tag display settings
-  ```typescript
-  interface TagAppearance {
-    showPreview?: boolean;
-    showImage?: boolean;
-    layoutStyle?: 'list' | 'grid' | 'card';
-  }
-  ```
-- `TagMetadata` - Tag customization data
-- `VersionNegotiation` - Result of version compatibility check
-- `ViewState` - Current view state
+### Core Types
 
-## Error Handling
+- `TagRef` - Type-safe tag reference: `type TagRef = '#${string}'`
+- `FolderMetadata` - Folder color and icon: `{ color?: string, icon?: string }`
+- `TagMetadata` - Tag color, icon, and favorite:
+  `{ color?: string, icon?: string, isFavorite?: boolean }`
+- `MoveResult` - File move operation result:
+  `{ movedCount: number, errors: Array<{ file: TFile, error: string }> }`
+- `SelectionState` - Current selection:
+  `{ files: TFile[], focused: TFile | null }`
+- `CompatibilityLevel` - Version compatibility:
+  `'full' | 'partial' | 'limited' | 'incompatible'`
+- `VersionNegotiation` - Version check result with available features
 
-The API uses standardized error codes for consistent error handling:
+## Behavioral Clarifications
+
+### Promise Returns
+
+All mutating methods return `Promise<void>` or `Promise<Result>` and should be
+awaited:
+
+- `navigation.navigateToFile(file)` - `Promise<void>`
+- `file.delete(files)` - `Promise<void>`
+- `file.moveTo(files, folder)` - `Promise<MoveResult>`
+- All metadata setters/clearers - `Promise<void>`
+
+### Event Timing
+
+All events fire **after** the internal state has been persisted. Event
+subscribers observe the final, committed state.
+
+### Color Format
+
+Colors accept any valid CSS color string:
+
+- Hex: `#FF5733`, `#F57`
+- RGB: `rgb(255, 87, 51)`
+- Named: `red`, `dodgerblue`
+
+### Icon Format
+
+Icons use a prefix scheme:
+
+- Lucide icons: `lucide:<icon-name>` (e.g., `lucide:folder`, `lucide:tag`)
+- Emoji: `emoji:<unicode>` (e.g., `emoji:📁`, `emoji:🏷️`)
+
+### Error Handling
+
+Methods throw standard JavaScript `Error` on failure:
 
 ```typescript
-import { APIError, APIErrorCode } from 'notebook-navigator/api';
-
 try {
   const file = app.vault.getFileByPath('non-existent.md');
   if (file) await nn.file.delete(file);
 } catch (error) {
-  if (error instanceof APIError) {
-    switch (error.code) {
-      case APIErrorCode.FILE_NOT_FOUND:
-        console.log('File not found');
-        break;
-      case APIErrorCode.PERMISSION_DENIED:
-        console.log('Permission denied');
-        break;
-      default:
-        console.log('Unknown error:', error.message);
-    }
-  }
+  console.error('Error deleting file:', error.message);
 }
 ```
 
