@@ -73,6 +73,29 @@ export interface SelectionState {
 }
 
 /**
+ * Context where a note can be pinned
+ * - 'folder': Pin appears when viewing folders
+ * - 'tag': Pin appears when viewing tags
+ * - 'all': Pin appears in both folder and tag views
+ */
+export type PinContext = 'folder' | 'tag' | 'all';
+
+/**
+ * Pinned file with context information
+ */
+export interface PinnedFile {
+    /** The pinned file */
+    file: TFile;
+    /** Which context the file is pinned in */
+    context: {
+        /** Whether pinned in folder context */
+        folder: boolean;
+        /** Whether pinned in tag context */
+        tag: boolean;
+    };
+}
+
+/**
  * All available event types that can be subscribed to
  */
 export type NotebookNavigatorEventType = keyof NotebookNavigatorEvents;
@@ -99,8 +122,8 @@ export interface NotebookNavigatorEvents {
 
     /** Fired when pinned files change */
     'pinned-files-changed': {
-        /** All currently pinned files */
-        files: readonly TFile[];
+        /** All currently pinned files with their context information */
+        files: readonly PinnedFile[];
     };
 
     /** Fired when folder metadata changes */
@@ -147,16 +170,14 @@ export interface NotebookNavigatorAPI {
         setTagMeta(tag: string, meta: Partial<TagMetadata>): Promise<void>;
 
         // Pinned files
-        /** Get all pinned files */
-        getPinned(): readonly TFile[];
-        /** Check if a file is pinned */
-        isPinned(file: TFile): boolean;
-        /** Pin a file to the top of file lists */
-        pin(file: TFile): Promise<void>;
-        /** Unpin a file */
-        unpin(file: TFile): Promise<void>;
-        /** Toggle pin status of a file */
-        togglePin(file: TFile): Promise<void>;
+        /** Get all pinned files with their context information */
+        getPinned(): readonly PinnedFile[];
+        /** Check if a file is pinned (no context = any, 'all' = both) */
+        isPinned(file: TFile, context?: PinContext): boolean;
+        /** Pin a file (defaults to 'all' - both contexts) */
+        pin(file: TFile, context?: PinContext): Promise<void>;
+        /** Unpin a file (defaults to 'all' - both contexts) */
+        unpin(file: TFile, context?: PinContext): Promise<void>;
     };
 
     /** Navigation operations */

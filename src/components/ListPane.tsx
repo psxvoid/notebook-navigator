@@ -425,6 +425,7 @@ export const ListPane = React.memo(
                                                 hasSelectedAbove={hasSelectedAbove}
                                                 hasSelectedBelow={hasSelectedBelow}
                                                 onClick={handleFileItemClick(item.data, item.fileIndex)}
+                                                selectionType={selectionType}
                                                 dateGroup={dateGroup}
                                                 sortOption={effectiveSortOption}
                                                 parentFolder={item.parentFolder}

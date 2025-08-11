@@ -95,19 +95,38 @@ Tag parameters accept strings with or without the leading `#` (both `'work'` and
 
 ### Pinned Files
 
-| Method            | Description             | Returns            |
-| ----------------- | ----------------------- | ------------------ |
-| `getPinned()`     | Get all pinned files    | `readonly TFile[]` |
-| `isPinned(file)`  | Check if file is pinned | `boolean`          |
-| `pin(file)`       | Pin a file              | `Promise<void>`    |
-| `unpin(file)`     | Unpin a file            | `Promise<void>`    |
-| `togglePin(file)` | Toggle pin status       | `Promise<void>`    |
+Notes can be pinned in different contexts - they appear at the top of the file
+list when viewing folders or tags.
+
+#### Pin Methods
+
+| Method                     | Description                                         | Returns                 |
+| -------------------------- | --------------------------------------------------- | ----------------------- |
+| `pin(file, context?)`      | Pin a file (defaults to 'all' - both contexts)      | `Promise<void>`         |
+| `unpin(file, context?)`    | Unpin a file (defaults to 'all' - both contexts)    | `Promise<void>`         |
+| `isPinned(file, context?)` | Check if pinned (no context = any, 'all' = both)    | `boolean`               |
+| `getPinned()`              | Get all pinned files with their context information | `readonly PinnedFile[]` |
+
+#### Understanding Pin Contexts
+
+Pinned notes behave differently depending on the current view:
+
+- **Folder Context**: When viewing folders in the navigator, only notes pinned
+  in the 'folder' context appear at the top
+- **Tag Context**: When viewing tags, only notes pinned in the 'tag' context
+  appear at the top
+- **Both Contexts**: A note can be pinned in both contexts and will appear at
+  the top in both views
+- **Default Behavior**: Pin/unpin operations default to 'all' (both contexts)
+
+This allows users to have different sets of pinned notes for different
+workflows - for example, pinning project-related notes when browsing folders,
+and reference notes when browsing by tags.
 
 ```typescript
-// Set folder appearance with a single call
+// Set folder appearance
 const folder = app.vault.getAbstractFileByPath('Projects');
 if (folder instanceof TFolder) {
-  // Set multiple properties at once
   await nn.metadata.setFolderMeta(folder, {
     color: '#FF5733', // Hex, or 'red', 'rgb(255, 87, 51)', 'hsl(9, 100%, 60%)'
     icon: 'lucide:folder-open' // Type-safe with IconString
@@ -120,11 +139,26 @@ if (folder instanceof TFolder) {
   await nn.metadata.setFolderMeta(folder, { icon: null });
 }
 
-// Manage pins
+// Pin a file
 const file = app.workspace.getActiveFile();
-if (file && !nn.metadata.isPinned(file)) {
-  await nn.metadata.pin(file);
+if (file) {
+  await nn.metadata.pin(file); // Pins in both folder and tag contexts by default
+
+  // Or pin in specific context
+  await nn.metadata.pin(file, 'folder');
 }
+
+// Check if pinned
+if (nn.metadata.isPinned(file, 'folder')) {
+  console.log('Pinned in folder context');
+}
+
+// Get all pinned files with context info
+const pinned = nn.metadata.getPinned();
+// Returns: [{ file: TFile, context: { folder: true, tag: false } }, ...]
+
+// Filter as needed
+const folderPinned = pinned.filter(p => p.context.folder);
 ```
 
 ## Navigation API
@@ -186,11 +220,22 @@ Subscribe to navigator events to react to user actions.
 | `storage-ready`           | `void`                                                | Storage system is ready      |
 | `nav-item-changed`        | `{ item: NavItem }`                                   | Navigation selection changed |
 | `file-selection-changed`  | `{ files: readonly TFile[], focused: TFile \| null }` | File selection changed       |
-| `pinned-files-changed`    | `{ files: readonly TFile[] }`                         | Pinned files changed         |
+| `pinned-files-changed`    | `{ files: readonly PinnedFile[] }`                    | Pinned files changed         |
 | `folder-metadata-changed` | `{ folder: TFolder, metadata: FolderMetadata }`       | Folder metadata changed      |
 | `tag-metadata-changed`    | `{ tag: string, metadata: TagMetadata }`              | Tag metadata changed         |
 
 ```typescript
+// Subscribe to pin changes
+nn.on('pinned-files-changed', ({ files }) => {
+  console.log(`Total pinned files: ${files.length}`);
+  // Each file includes context information
+  files.forEach(pf => {
+    console.log(
+      `${pf.file.name} - folder: ${pf.context.folder}, tag: ${pf.context.tag}`
+    );
+  });
+});
+
 // Subscribe to events with full type safety
 
 // Use 'once' for one-time events (auto-unsubscribes)
@@ -312,11 +357,11 @@ if (nn) {
 
   for (const file of taggedFiles) {
     if (!nn.metadata.isPinned(file)) {
-      await nn.metadata.pin(file);
+      await nn.metadata.pin(file); // pins in both contexts by default
     }
   }
 
-  // Check all pinned files
+  // Get all pinned files with context info
   const pinnedFiles = nn.metadata.getPinned();
   console.log(`${pinnedFiles.length} files are pinned`);
 }

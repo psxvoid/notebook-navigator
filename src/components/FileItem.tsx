@@ -73,6 +73,7 @@ interface FileItemProps {
     sortOption?: SortOption;
     parentFolder?: string | null;
     isPinned?: boolean;
+    selectionType?: ItemType | null;
 }
 
 /**
@@ -96,7 +97,8 @@ export const FileItem = React.memo(function FileItem({
     dateGroup,
     sortOption,
     parentFolder,
-    isPinned = false
+    isPinned = false,
+    selectionType
 }: FileItemProps) {
     // === Hooks (all hooks together at the top) ===
     const { app, isMobile, plugin } = useServices();
@@ -388,7 +390,8 @@ export const FileItem = React.memo(function FileItem({
     const handlePinClick = async (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        await metadataService.togglePin(file.path);
+        const context = selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER;
+        await metadataService.togglePin(file.path, context);
     };
 
     const handleRevealClick = async (e: React.MouseEvent) => {

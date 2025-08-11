@@ -9,7 +9,8 @@
  * - Icon format validation (lucide:* and emoji:*)
  * - NavItem type for navigation selection
  * - Event API with all supported event types
- * - Readonly array returns (getPinned, event payloads)
+ * - Context-aware pinning with PinContext type
+ * - Readonly array returns (getPinned returns PinnedFile[], event payloads)
  *
  * ⚠️ WARNING: This test suite will create and delete files in your vault!
  *
@@ -381,37 +382,43 @@
                     let isPinned = this.api.metadata.isPinned(testFile);
                     this.assertFalse(isPinned, 'File should not be pinned initially');
 
-                    // Pin the file
+                    // Pin the file (defaults to 'all' - both contexts)
                     await this.api.metadata.pin(testFile);
                     isPinned = this.api.metadata.isPinned(testFile);
                     this.assertTrue(isPinned, 'File should be pinned after pin()');
 
-                    // Get all pinned files (returns readonly TFile[])
+                    // Check specific contexts
+                    this.assertTrue(this.api.metadata.isPinned(testFile, 'folder'), 'Should be pinned in folder context');
+                    this.assertTrue(this.api.metadata.isPinned(testFile, 'tag'), 'Should be pinned in tag context');
+                    this.assertTrue(this.api.metadata.isPinned(testFile, 'all'), 'Should be pinned in all contexts');
+
+                    // Get all pinned files (returns readonly PinnedFile[])
                     const pinnedFiles = this.api.metadata.getPinned();
-                    this.assertTrue(Array.isArray(pinnedFiles), 'Should return array of pinned files (readonly TFile[])');
-                    // Note: We don't test the readonly aspect, just that it's an array
-                    const pinnedPaths = pinnedFiles.map(f => f.path);
+                    this.assertTrue(Array.isArray(pinnedFiles), 'Should return array of pinned files (readonly PinnedFile[])');
+                    const pinnedPaths = pinnedFiles.map(pf => pf.file.path);
                     this.assertTrue(pinnedPaths.includes(testFile.path), 'Pinned files should include our test file');
 
-                    // Try pinning again (should remain pinned)
-                    await this.api.metadata.pin(testFile);
-                    isPinned = this.api.metadata.isPinned(testFile);
-                    this.assertTrue(isPinned, 'File should remain pinned');
+                    // Check context info in returned data
+                    const ourPinnedFile = pinnedFiles.find(pf => pf.file.path === testFile.path);
+                    this.assertTrue(ourPinnedFile.context.folder, 'Should have folder context');
+                    this.assertTrue(ourPinnedFile.context.tag, 'Should have tag context');
 
-                    // Unpin the file
+                    // Unpin from specific context
+                    await this.api.metadata.unpin(testFile, 'folder');
+                    this.assertFalse(this.api.metadata.isPinned(testFile, 'folder'), 'Should not be pinned in folder context');
+                    this.assertTrue(this.api.metadata.isPinned(testFile, 'tag'), 'Should still be pinned in tag context');
+                    this.assertTrue(this.api.metadata.isPinned(testFile), 'Should still be pinned (in at least one context)');
+
+                    // Pin in folder context again
+                    await this.api.metadata.pin(testFile, 'folder');
+                    this.assertTrue(this.api.metadata.isPinned(testFile, 'folder'), 'Should be pinned in folder context again');
+
+                    // Unpin completely (from all contexts)
                     await this.api.metadata.unpin(testFile);
                     isPinned = this.api.metadata.isPinned(testFile);
                     this.assertFalse(isPinned, 'File should be unpinned after unpin()');
-
-                    // Toggle pin (should pin it again)
-                    await this.api.metadata.togglePin(testFile);
-                    isPinned = this.api.metadata.isPinned(testFile);
-                    this.assertTrue(isPinned, 'File should be pinned after toggle');
-
-                    // Toggle again (should unpin)
-                    await this.api.metadata.togglePin(testFile);
-                    isPinned = this.api.metadata.isPinned(testFile);
-                    this.assertFalse(isPinned, 'File should be unpinned after second toggle');
+                    this.assertFalse(this.api.metadata.isPinned(testFile, 'folder'), 'Should not be pinned in folder context');
+                    this.assertFalse(this.api.metadata.isPinned(testFile, 'tag'), 'Should not be pinned in tag context');
                 }
             };
         }

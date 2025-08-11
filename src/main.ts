@@ -30,6 +30,7 @@ import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage } from './utils/localStorage';
 import { initializeMobileLogger } from './utils/mobileLogger';
 import { NotebookNavigatorAPI } from './api/NotebookNavigatorAPI';
+import { PinnedNote, ItemType } from './types';
 
 /**
  * Polyfill for requestIdleCallback
@@ -438,7 +439,10 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 if (file instanceof TFolder && this.metadataService) {
                     await this.metadataService.handleFolderRename(oldPath, file.path);
                     // The metadata service saves settings which triggers reactive updates
-                } else if (file instanceof TFile) {
+                } else if (file instanceof TFile && this.metadataService) {
+                    // Update pinned files metadata
+                    await this.metadataService.handleFileRename(oldPath, file.path);
+
                     // Check if file moved to a different folder
                     const getParentPath = (path: string): string => {
                         const lastSlash = path.lastIndexOf('/');
@@ -694,26 +698,36 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     }
 
     /**
-     * Migrates pinnedNotes from old format (Record<string, string[]>) to new format (string[])
+     * Migrates pinnedNotes from old format (Record<string, string[]>) to new format (PinnedNote[])
      */
     private migratePinnedNotes() {
         // Check if pinnedNotes is in the old format (object with folder paths as keys)
         if (this.isOldPinnedNotesFormat(this.settings.pinnedNotes)) {
             console.log('Migrating pinnedNotes to new format');
 
-            const oldPinnedNotes = this.settings.pinnedNotes;
-            const allPinnedPaths = new Set<string>();
+            const oldPinnedNotes = this.settings.pinnedNotes as Record<string, string[]>;
+            const pinnedNotesMap = new Map<string, PinnedNote>();
 
             // Collect all unique pinned file paths from all folders
             for (const folderPath in oldPinnedNotes) {
                 const pinnedInFolder = oldPinnedNotes[folderPath];
                 if (Array.isArray(pinnedInFolder)) {
-                    pinnedInFolder.forEach(filePath => allPinnedPaths.add(filePath));
+                    pinnedInFolder.forEach((filePath: string) => {
+                        // Create new PinnedNote with both contexts enabled
+                        // since we don't know original context
+                        pinnedNotesMap.set(filePath, {
+                            path: filePath,
+                            context: {
+                                [ItemType.FOLDER]: true,
+                                [ItemType.TAG]: true
+                            }
+                        });
+                    });
                 }
             }
 
             // Convert to array
-            this.settings.pinnedNotes = Array.from(allPinnedPaths);
+            this.settings.pinnedNotes = Array.from(pinnedNotesMap.values());
 
             console.log(`Migrated ${this.settings.pinnedNotes.length} pinned notes`);
 

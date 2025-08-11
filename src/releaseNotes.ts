@@ -62,6 +62,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
         new: [
             '**Public API for developers**. Other plugins can now interact with Notebook Navigator through a comprehensive API that provides smart file operations, metadata management, navigation control, and event subscriptions. Full TypeScript support included.',
             '**Public API documentation**. Complete documentation for the public API is now available at https://github.com/johansan/notebook-navigator with examples and best practices.'
+        ],
+        changed: [
+            '**Pinned notes are now context-aware**. Files can be pinned separately in folder view and tag view, allowing different pinned files for each context.'
         ]
     },
     {

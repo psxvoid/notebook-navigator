@@ -61,6 +61,33 @@ export interface TagMetadata {
 }
 
 // ============================================================================
+// PIN CONTEXT TYPES
+// ============================================================================
+
+/**
+ * Context where a note can be pinned
+ * - 'folder': Pin appears when viewing folders
+ * - 'tag': Pin appears when viewing tags
+ * - 'all': Pin appears in both folder and tag views
+ */
+export type PinContext = 'folder' | 'tag' | 'all';
+
+/**
+ * Pinned file with context information
+ */
+export interface PinnedFile {
+    /** The pinned file */
+    file: TFile;
+    /** Which context the file is pinned in */
+    context: {
+        /** Whether pinned in folder context */
+        folder: boolean;
+        /** Whether pinned in tag context */
+        tag: boolean;
+    };
+}
+
+// ============================================================================
 // OPERATION RESULTS
 // ============================================================================
 
@@ -105,8 +132,8 @@ export interface NotebookNavigatorEvents {
 
     /** Fired when pinned files change */
     'pinned-files-changed': {
-        /** All currently pinned files */
-        files: readonly TFile[];
+        /** All currently pinned files with their context information */
+        files: readonly PinnedFile[];
     };
 
     /** Fired when folder metadata changes */

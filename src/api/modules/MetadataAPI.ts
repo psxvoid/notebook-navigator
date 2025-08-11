@@ -18,8 +18,9 @@
 
 import { TFile, TFolder } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
-import type { FolderMetadata, TagMetadata, IconString } from '../types';
+import type { FolderMetadata, TagMetadata, IconString, PinContext, PinnedFile } from '../types';
 import type { NotebookNavigatorSettings } from '../../settings';
+import { ItemType, PinnedNote } from '../../types';
 
 /**
  * Metadata API - Manage folder and tag appearance, icons, colors, and pinned files
@@ -38,7 +39,7 @@ export class MetadataAPI {
         tagIcons: {} as Record<string, string>,
 
         // Pinned files
-        pinnedNotes: [] as string[]
+        pinnedNotes: [] as PinnedNote[]
     };
 
     constructor(private api: NotebookNavigatorAPI) {
@@ -232,28 +233,43 @@ export class MetadataAPI {
     // ===================================================================
 
     /**
-     * List all pinned files
-     * @returns Array of TFile objects that are pinned
+     * Helper to convert API context to internal ItemType constants
      */
-    getPinned(): readonly TFile[] {
-        return this.metadataState.pinnedNotes
-            .map(path => this.api.app.vault.getFileByPath(path))
-            .filter((file): file is TFile => file instanceof TFile);
+    private toInternalContext(context: PinContext): typeof ItemType.FOLDER | typeof ItemType.TAG {
+        return context === 'tag' ? ItemType.TAG : ItemType.FOLDER;
     }
 
     /**
      * Check if a file is pinned
      * @param file - File to check
+     * @param context - Context to check (if not specified, returns true if pinned in any context)
      */
-    isPinned(file: TFile): boolean {
-        return this.metadataState.pinnedNotes.includes(file.path);
+    isPinned(file: TFile, context?: PinContext): boolean {
+        const pinnedNote = this.metadataState.pinnedNotes.find(p => p.path === file.path);
+
+        if (!pinnedNote) {
+            return false;
+        }
+
+        if (!context) {
+            // No context - check if pinned in any context
+            return pinnedNote.context[ItemType.FOLDER] || pinnedNote.context[ItemType.TAG] || false;
+        } else if (context === 'all') {
+            // Check if pinned in both contexts
+            return (pinnedNote.context[ItemType.FOLDER] || false) && (pinnedNote.context[ItemType.TAG] || false);
+        } else {
+            // Check specific context
+            const internalContext = this.toInternalContext(context);
+            return pinnedNote.context[internalContext] || false;
+        }
     }
 
     /**
      * Pin a file
      * @param file - File to pin
+     * @param context - Context to pin in (defaults to 'all')
      */
-    async pin(file: TFile): Promise<void> {
+    async pin(file: TFile, context: PinContext = 'all'): Promise<void> {
         const plugin = this.api.getPlugin();
 
         // Ensure metadataService exists
@@ -261,17 +277,47 @@ export class MetadataAPI {
             throw new Error('Metadata service not available');
         }
 
-        // Only pin if not already pinned
-        if (!this.isPinned(file)) {
-            await plugin.metadataService.togglePin(file.path);
+        let changed = false;
+
+        // Find or create pinned note entry
+        let pinnedNote = this.metadataState.pinnedNotes.find(p => p.path === file.path);
+        if (!pinnedNote) {
+            pinnedNote = {
+                path: file.path,
+                context: {
+                    [ItemType.FOLDER]: false,
+                    [ItemType.TAG]: false
+                }
+            };
+            this.metadataState.pinnedNotes.push(pinnedNote);
+        }
+
+        if (context === 'all') {
+            // Pin in both contexts
+            pinnedNote.context[ItemType.FOLDER] = true;
+            pinnedNote.context[ItemType.TAG] = true;
+            changed = true;
+        } else {
+            // Pin in specific context
+            const internalContext = this.toInternalContext(context);
+            pinnedNote.context[internalContext] = true;
+            changed = true;
+        }
+
+        // Save settings if anything changed
+        if (changed) {
+            // Update plugin settings to match cache
+            plugin.settings.pinnedNotes = [...this.metadataState.pinnedNotes];
+            await plugin.saveSettings();
         }
     }
 
     /**
      * Unpin a file
      * @param file - File to unpin
+     * @param context - Context to unpin from (defaults to 'all')
      */
-    async unpin(file: TFile): Promise<void> {
+    async unpin(file: TFile, context: PinContext = 'all'): Promise<void> {
         const plugin = this.api.getPlugin();
 
         // Ensure metadataService exists
@@ -279,24 +325,65 @@ export class MetadataAPI {
             throw new Error('Metadata service not available');
         }
 
-        // Only unpin if currently pinned
-        if (this.isPinned(file)) {
-            await plugin.metadataService.togglePin(file.path);
+        // Find pinned note entry
+        const pinnedNote = this.metadataState.pinnedNotes.find(p => p.path === file.path);
+        if (!pinnedNote) {
+            return;
+        }
+
+        let changed = false;
+
+        if (context === 'all') {
+            // Unpin from both contexts
+            pinnedNote.context[ItemType.FOLDER] = false;
+            pinnedNote.context[ItemType.TAG] = false;
+            changed = true;
+        } else {
+            // Unpin from specific context
+            const internalContext = this.toInternalContext(context);
+            pinnedNote.context[internalContext] = false;
+            changed = true;
+        }
+
+        // Remove from list if unpinned from all contexts
+        if (!pinnedNote.context[ItemType.FOLDER] && !pinnedNote.context[ItemType.TAG]) {
+            const index = this.metadataState.pinnedNotes.indexOf(pinnedNote);
+            if (index >= 0) {
+                this.metadataState.pinnedNotes.splice(index, 1);
+                changed = true;
+            }
+        }
+
+        // Save settings if anything changed
+        if (changed) {
+            // Update plugin settings to match cache
+            plugin.settings.pinnedNotes = [...this.metadataState.pinnedNotes];
+            await plugin.saveSettings();
         }
     }
 
     /**
-     * Toggle pin status for a file
-     * @param file - File to pin/unpin
+     * Get all pinned files with their context information
+     * @returns Array of PinnedFile objects
      */
-    async togglePin(file: TFile): Promise<void> {
+    getPinned(): readonly PinnedFile[] {
         const plugin = this.api.getPlugin();
+        const { app } = plugin;
+        const result: PinnedFile[] = [];
 
-        // Ensure metadataService exists
-        if (!plugin.metadataService) {
-            throw new Error('Metadata service not available');
+        for (const pinnedNote of this.metadataState.pinnedNotes) {
+            const file = app.vault.getFileByPath(pinnedNote.path);
+            if (file) {
+                result.push({
+                    file,
+                    context: {
+                        folder: pinnedNote.context[ItemType.FOLDER] || false,
+                        tag: pinnedNote.context[ItemType.TAG] || false
+                    }
+                });
+            }
         }
 
-        await plugin.metadataService.togglePin(file.path);
+        return result;
     }
 }

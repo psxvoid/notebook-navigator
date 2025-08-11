@@ -112,7 +112,11 @@ export function useListPaneData({ selectionType, selectedFolder, selectedTag, se
     const listItems = useMemo(() => {
         const items: ListPaneItem[] = [];
 
-        const pinnedPaths = collectPinnedPaths(settings.pinnedNotes);
+        // Determine context filter based on selection type
+        // selectionType can be FOLDER, TAG, FILE, or null - we only use FOLDER and TAG for pinned context
+        const contextFilter =
+            selectionType === ItemType.TAG ? ItemType.TAG : selectionType === ItemType.FOLDER ? ItemType.FOLDER : undefined;
+        const pinnedPaths = collectPinnedPaths(settings.pinnedNotes, contextFilter);
 
         // Separate pinned and unpinned files
         const pinnedFiles = files.filter(f => pinnedPaths.has(f.path));

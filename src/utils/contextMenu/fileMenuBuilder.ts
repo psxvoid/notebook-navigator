@@ -21,7 +21,7 @@ import { FileMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
 import { getInternalPlugin } from '../../utils/typeGuards';
 import { getFilesForFolder, getFilesForTag } from '../../utils/fileFinder';
-import { ItemType } from '../../types';
+import { ItemType, PinContext } from '../../types';
 import { MetadataService } from '../../services/MetadataService';
 import { FileSystemOperations } from '../../services/FileSystemService';
 import { SelectionState, SelectionAction } from '../../context/SelectionContext';
@@ -78,10 +78,11 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     menu.addSeparator();
 
     // Pin/Unpin note(s)
+    const pinContext: PinContext = selectionState.selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER;
     if (!shouldShowMultiOptions) {
-        addSingleFilePinOption(menu, file, metadataService);
+        addSingleFilePinOption(menu, file, metadataService, pinContext);
     } else {
-        addMultipleFilesPinOption(menu, selectedCount, selectionState, app, metadataService);
+        addMultipleFilesPinOption(menu, selectedCount, selectionState, app, metadataService, pinContext);
     }
 
     // Duplicate note(s)
@@ -434,8 +435,8 @@ function addMultipleFilesOpenOptions(
 /**
  * Add pin option for a single file
  */
-function addSingleFilePinOption(menu: Menu, file: TFile, metadataService: MetadataService): void {
-    const isPinned = metadataService.isFilePinned(file.path);
+function addSingleFilePinOption(menu: Menu, file: TFile, metadataService: MetadataService, context: PinContext): void {
+    const isPinned = metadataService.isFilePinned(file.path, context);
 
     menu.addItem((item: MenuItem) => {
         item.setTitle(
@@ -451,7 +452,7 @@ function addSingleFilePinOption(menu: Menu, file: TFile, metadataService: Metada
             .onClick(async () => {
                 if (!file.parent) return;
 
-                await metadataService.togglePin(file.path);
+                await metadataService.togglePin(file.path, context);
             });
     });
 }
@@ -464,7 +465,8 @@ function addMultipleFilesPinOption(
     selectedCount: number,
     selectionState: SelectionState,
     app: App,
-    metadataService: MetadataService
+    metadataService: MetadataService,
+    context: PinContext
 ): void {
     // Check if any selected files are unpinned
     const selectedFiles = Array.from(selectionState.selectedFiles)
@@ -472,7 +474,7 @@ function addMultipleFilesPinOption(
         .filter((f): f is TFile => f instanceof TFile);
 
     const anyUnpinned = selectedFiles.some(f => {
-        return !metadataService.isFilePinned(f.path);
+        return !metadataService.isFilePinned(f.path, context);
     });
 
     // Check if all files are markdown
@@ -493,12 +495,12 @@ function addMultipleFilesPinOption(
                 for (const selectedFile of selectedFiles) {
                     if (anyUnpinned) {
                         // Pin all unpinned files
-                        if (!metadataService.isFilePinned(selectedFile.path)) {
-                            await metadataService.togglePin(selectedFile.path);
+                        if (!metadataService.isFilePinned(selectedFile.path, context)) {
+                            await metadataService.togglePin(selectedFile.path, context);
                         }
                     } else {
                         // Unpin all files
-                        await metadataService.togglePin(selectedFile.path);
+                        await metadataService.togglePin(selectedFile.path, context);
                     }
                 }
             });
