@@ -355,8 +355,8 @@ The type definitions provide:
 - **Generic event subscriptions** - Full type inference for event payloads
 - **Readonly arrays** - Prevents accidental mutation of returned data at compile
   time
-- **Exported utility types** - `NavItem`, `IconString`, etc. for reuse in your
-  code
+- **Exported utility types** - `NavItem`, `IconString`, `PinContext`,
+  `PinnedFile`, etc. for reuse in your code
 - **Complete API interface** - `NotebookNavigatorAPI` with all methods and
   properties
 - **Typed event system** - `NotebookNavigatorEvents` maps event names to
