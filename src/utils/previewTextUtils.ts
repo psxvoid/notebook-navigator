@@ -110,6 +110,26 @@ const REGEX_STRIP_MARKDOWN_WITH_HEADINGS = REGEX_STRIP_MARKDOWN;
 
 export class PreviewTextUtils {
     /**
+     * Checks if a file is an Excalidraw drawing
+     * @param fileName The name of the file
+     * @param frontmatter Optional frontmatter object to check
+     * @returns True if the file is an Excalidraw drawing
+     */
+    static isExcalidrawFile(fileName: string, frontmatter?: FrontMatterCache): boolean {
+        // Check filename pattern
+        if (fileName.endsWith('.excalidraw.md')) {
+            return true;
+        }
+
+        // Check frontmatter for excalidraw-plugin property
+        if (frontmatter && frontmatter['excalidraw-plugin']) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
      * Strips markdown syntax from text to create clean preview text
      * @param text The text to strip markdown from
      * @param skipHeadings Whether to also remove headings

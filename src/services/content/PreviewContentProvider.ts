@@ -64,6 +64,12 @@ export class PreviewContentProvider extends BaseContentProvider {
             return false;
         }
 
+        // Skip Excalidraw files
+        const metadata = this.app.metadataCache.getFileCache(file);
+        if (PreviewTextUtils.isExcalidrawFile(file.name, metadata?.frontmatter)) {
+            return false;
+        }
+
         const fileModified = fileData !== null && fileData.mtime !== file.stat.mtime;
         return !fileData || fileData.preview === null || fileModified;
     }
@@ -84,8 +90,17 @@ export class PreviewContentProvider extends BaseContentProvider {
         }
 
         try {
-            const content = await this.app.vault.cachedRead(job.file);
             const metadata = this.app.metadataCache.getFileCache(job.file);
+
+            // Skip Excalidraw files - return empty preview
+            if (PreviewTextUtils.isExcalidrawFile(job.file.name, metadata?.frontmatter)) {
+                return {
+                    path: job.file.path,
+                    preview: ''
+                };
+            }
+
+            const content = await this.app.vault.cachedRead(job.file);
             const previewText = PreviewTextUtils.extractPreviewText(content, settings, metadata?.frontmatter);
 
             // Only return update if preview changed
