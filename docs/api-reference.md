@@ -78,20 +78,42 @@ Customize folder and tag appearance, manage pinned files.
 
 ### Folder Metadata
 
-| Method                        | Description                                       | Returns                  |
-| ----------------------------- | ------------------------------------------------- | ------------------------ |
-| `getFolderMeta(folder)`       | Get all folder metadata                           | `FolderMetadata \| null` |
-| `setFolderMeta(folder, meta)` | Set folder metadata (partial update, null clears) | `Promise<void>`          |
+| Method                        | Description                          | Returns                  |
+| ----------------------------- | ------------------------------------ | ------------------------ |
+| `getFolderMeta(folder)`       | Get all folder metadata              | `FolderMetadata \| null` |
+| `setFolderMeta(folder, meta)` | Set folder metadata (partial update) | `Promise<void>`          |
+
+#### Property Update Behavior
+
+When using `setFolderMeta`, the update behavior follows this pattern:
+
+- **`color: 'red'`** - Sets the color to red
+- **`color: null`** - Clears the color (removes the property)
+- **`color: undefined`** or property not present - Leaves the color unchanged
+
+This applies to all metadata properties (color, icon, etc.). Only properties
+explicitly included in the update object are modified.
 
 ### Tag Metadata
 
 Tag parameters accept strings with or without the leading `#` (both `'work'` and
 `'#work'` are valid).
 
-| Method                  | Description                                    | Returns               |
-| ----------------------- | ---------------------------------------------- | --------------------- |
-| `getTagMeta(tag)`       | Get all tag metadata                           | `TagMetadata \| null` |
-| `setTagMeta(tag, meta)` | Set tag metadata (partial update, null clears) | `Promise<void>`       |
+| Method                  | Description                       | Returns               |
+| ----------------------- | --------------------------------- | --------------------- |
+| `getTagMeta(tag)`       | Get all tag metadata              | `TagMetadata \| null` |
+| `setTagMeta(tag, meta)` | Set tag metadata (partial update) | `Promise<void>`       |
+
+#### Property Update Behavior
+
+When using `setTagMeta`, the update behavior follows this pattern:
+
+- **`color: 'blue'`** - Sets the color to blue
+- **`color: null`** - Clears the color (removes the property)
+- **`color: undefined`** or property not present - Leaves the color unchanged
+
+This applies to all metadata properties (color, icon, etc.). Only properties
+explicitly included in the update object are modified.
 
 ### Pinned Files
 
@@ -132,7 +154,7 @@ if (folder instanceof TFolder) {
     icon: 'lucide:folder-open' // Type-safe with IconString
   });
 
-  // Update only specific properties
+  // Update only specific properties (other properties unchanged)
   await nn.metadata.setFolderMeta(folder, { color: 'blue' });
 
   // Clear properties by passing null
@@ -240,6 +262,7 @@ nn.on('pinned-files-changed', ({ files }) => {
 
 // Use 'once' for one-time events (auto-unsubscribes)
 nn.once('storage-ready', () => {
+  // Wait for storage to be ready before querying metadata or pinned files
   console.log('Storage is ready - safe to call read APIs');
   // No need to unsubscribe, it's handled automatically
 });
