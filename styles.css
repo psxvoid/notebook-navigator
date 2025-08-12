@@ -450,24 +450,6 @@
     flex-shrink: 0;
 }
 
-/* Folder children container - enables smooth expand/collapse animation */
-.nn-folder-children {
-    display: grid;
-    grid-template-rows: 0fr;
-    min-height: 0;
-}
-
-/* Expanded folder children - shows nested content */
-.nn-folder-children.nn-expanded {
-    grid-template-rows: 1fr;
-}
-
-/* Folder children inner wrapper - required for grid animation */
-.nn-folder-children-inner {
-    overflow: hidden;
-    min-height: 0;
-}
-
 /* ========================================================================
    Tag List Styles
    ======================================================================== */
