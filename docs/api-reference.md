@@ -71,16 +71,18 @@ Customize folder and tag appearance, manage pinned files.
   - The plugin preserves the canonical case (first encountered form) for display
     but all comparisons use lowercase
 
-### Folder Metadata
+### Folder and Tag Metadata
 
 | Method                        | Description                          | Returns                  |
 | ----------------------------- | ------------------------------------ | ------------------------ |
 | `getFolderMeta(folder)`       | Get all folder metadata              | `FolderMetadata \| null` |
 | `setFolderMeta(folder, meta)` | Set folder metadata (partial update) | `Promise<void>`          |
+| `getTagMeta(tag)`             | Get all tag metadata                 | `TagMetadata \| null`    |
+| `setTagMeta(tag, meta)`       | Set tag metadata (partial update)    | `Promise<void>`          |
 
 #### Property Update Behavior
 
-When using `setFolderMeta`, the update behavior follows this pattern:
+When using `setFolderMeta` or `setTagMeta`, partial updates follow this pattern:
 
 - **`color: 'red'`** - Sets the color to red
 - **`color: null`** - Clears the color (removes the property)
@@ -89,26 +91,8 @@ When using `setFolderMeta`, the update behavior follows this pattern:
 This applies to all metadata properties (color, icon, etc.). Only properties
 explicitly included in the update object are modified.
 
-### Tag Metadata
-
-Tag parameters accept strings with or without the leading `#` (both `'work'` and
-`'#work'` are valid).
-
-| Method                  | Description                       | Returns               |
-| ----------------------- | --------------------------------- | --------------------- |
-| `getTagMeta(tag)`       | Get all tag metadata              | `TagMetadata \| null` |
-| `setTagMeta(tag, meta)` | Set tag metadata (partial update) | `Promise<void>`       |
-
-#### Property Update Behavior
-
-When using `setTagMeta`, the update behavior follows this pattern:
-
-- **`color: 'blue'`** - Sets the color to blue
-- **`color: null`** - Clears the color (removes the property)
-- **`color: undefined`** or property not present - Leaves the color unchanged
-
-This applies to all metadata properties (color, icon, etc.). Only properties
-explicitly included in the update object are modified.
+**Note:** Tag parameters accept strings with or without the leading `#` (both
+`'work'` and `'#work'` are valid).
 
 ### Pinned Files
 
