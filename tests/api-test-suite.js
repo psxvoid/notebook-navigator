@@ -1,6 +1,6 @@
 /**
  * Notebook Navigator API Test Suite
- * Version: 1.1.0 - Updated for typed API improvements
+ * Version: 1.2.0 - Updated with complete API coverage
  *
  * A comprehensive test suite for the Notebook Navigator API.
  * Paste this entire script into the Obsidian developer console to run tests.
@@ -269,6 +269,12 @@
                     const version = this.api.getVersion();
                     this.assertExists(version, 'API version is not defined');
                     this.assertTrue(version.match(/^\d+\.\d+\.\d+$/), `Invalid version format: ${version}`);
+                },
+
+                'Should have isStorageReady method': async function () {
+                    this.assertExists(this.api.isStorageReady, 'isStorageReady method not found');
+                    const isReady = this.api.isStorageReady();
+                    this.assertTrue(typeof isReady === 'boolean', 'isStorageReady should return a boolean');
                 }
             };
         }
@@ -368,6 +374,65 @@
                     await this.api.metadata.setTagMeta(testTag, { color: null, icon: null });
                     const cleared = this.api.metadata.getTagMeta(testTag);
                     this.assertEqual(cleared, null, 'Should return null when all metadata is cleared');
+                },
+
+                'Should handle tag normalization': async function () {
+                    // Test that tags work with and without # prefix
+                    const tagWithHash = '#normalize-test';
+                    const tagWithoutHash = 'normalize-test';
+
+                    // Set metadata using tag without #
+                    await this.api.metadata.setTagMeta(tagWithoutHash, { color: '#123456' });
+
+                    // Get metadata using tag with # - should return the same data
+                    const metaWithHash = this.api.metadata.getTagMeta(tagWithHash);
+                    this.assertExists(metaWithHash, 'Should find metadata when querying with #');
+                    this.assertEqual(metaWithHash.color, '#123456', 'Should return same color regardless of # prefix');
+
+                    // Get metadata using tag without # - should also work
+                    const metaWithoutHash = this.api.metadata.getTagMeta(tagWithoutHash);
+                    this.assertExists(metaWithoutHash, 'Should find metadata when querying without #');
+                    this.assertEqual(metaWithoutHash.color, '#123456', 'Should return same color regardless of # prefix');
+
+                    // Clean up
+                    await this.api.metadata.setTagMeta(tagWithHash, { color: null });
+                },
+
+                'Should handle partial metadata updates': async function () {
+                    const testFolder = await this.createTestFolder('test-partial-update-folder');
+
+                    // Set both color and icon
+                    await this.api.metadata.setFolderMeta(testFolder, {
+                        color: '#ff0000',
+                        icon: 'lucide:folder'
+                    });
+
+                    let meta = this.api.metadata.getFolderMeta(testFolder);
+                    this.assertEqual(meta.color, '#ff0000', 'Color should be set');
+                    this.assertEqual(meta.icon, 'lucide:folder', 'Icon should be set');
+
+                    // Update only color (icon should be preserved)
+                    await this.api.metadata.setFolderMeta(testFolder, { color: '#00ff00' });
+                    meta = this.api.metadata.getFolderMeta(testFolder);
+                    this.assertEqual(meta.color, '#00ff00', 'Color should be updated');
+                    this.assertEqual(meta.icon, 'lucide:folder', 'Icon should be preserved when not specified');
+
+                    // Update only icon (color should be preserved)
+                    await this.api.metadata.setFolderMeta(testFolder, { icon: 'emoji:📂' });
+                    meta = this.api.metadata.getFolderMeta(testFolder);
+                    this.assertEqual(meta.color, '#00ff00', 'Color should be preserved when not specified');
+                    this.assertEqual(meta.icon, 'emoji:📂', 'Icon should be updated');
+
+                    // Clear only color (icon should remain)
+                    await this.api.metadata.setFolderMeta(testFolder, { color: null });
+                    meta = this.api.metadata.getFolderMeta(testFolder);
+                    this.assertEqual(meta.color, undefined, 'Color should be cleared');
+                    this.assertEqual(meta.icon, 'emoji:📂', 'Icon should still be present');
+
+                    // Clear icon as well
+                    await this.api.metadata.setFolderMeta(testFolder, { icon: null });
+                    meta = this.api.metadata.getFolderMeta(testFolder);
+                    this.assertEqual(meta, null, 'Should return null when all metadata is cleared');
                 },
 
                 'Should manage pinned files': async function () {
@@ -568,10 +633,10 @@
                     this.api.off(eventRef);
                 },
 
-                'Should handle folder-metadata-changed event': async function () {
+                'Should handle folder-changed event': async function () {
                     let eventData = null;
 
-                    const eventRef = this.api.on('folder-metadata-changed', data => {
+                    const eventRef = this.api.on('folder-changed', data => {
                         eventData = data;
                     });
 
@@ -588,10 +653,10 @@
                     this.api.off(eventRef);
                 },
 
-                'Should handle tag-metadata-changed event': async function () {
+                'Should handle tag-changed event': async function () {
                     let eventData = null;
 
-                    const eventRef = this.api.on('tag-metadata-changed', data => {
+                    const eventRef = this.api.on('tag-changed', data => {
                         eventData = data;
                     });
 
