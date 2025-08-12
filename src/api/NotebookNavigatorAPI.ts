@@ -75,6 +75,9 @@ export class NotebookNavigatorAPI {
      */
     setStorageReady(ready: boolean): void {
         this.storageReady = ready;
+        if (ready) {
+            this.trigger('storage-ready');
+        }
     }
 
     /**
@@ -105,7 +108,12 @@ export class NotebookNavigatorAPI {
     /**
      * Trigger an event (internal use)
      */
-    trigger<T extends NotebookNavigatorEventType>(event: T, data: NotebookNavigatorEvents[T]): void {
+    trigger<T extends NotebookNavigatorEventType>(
+        event: T,
+        ...args: NotebookNavigatorEvents[T] extends void ? [] : [data: NotebookNavigatorEvents[T]]
+    ): void {
+        // For void events, don't pass any data; for others, pass the data
+        const data = args.length > 0 ? args[0] : undefined;
         this.events.trigger(event, data);
     }
 

@@ -416,11 +416,10 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     // Step 4: Mark storage as ready
                     setIsStorageReady(true);
 
-                    // Trigger storage-ready event on the API
-                    // This lets other plugins know they can now query metadata
+                    // Notify API that storage is ready
+                    // The API will trigger the storage-ready event internally
                     if (api) {
                         api.setStorageReady(true);
-                        api.trigger('storage-ready', undefined);
                     }
 
                     // Step 5: Handle metadata cleanup and content generation
