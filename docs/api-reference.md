@@ -262,8 +262,6 @@ nn.on('pinned-files-changed', ({ files }) => {
   });
 });
 
-// Subscribe to events with full type safety
-
 // Use 'once' for one-time events (auto-unsubscribes)
 nn.once('storage-ready', () => {
   // Wait for storage to be ready before querying metadata or pinned files
@@ -329,8 +327,8 @@ if (nn) {
   await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
 
   // Icon strings are type-checked at compile time
-  const icon: IconString = 'lucide:folder'; // ✅ Valid
-  // const bad: IconString = 'invalid:icon'; // ❌ TypeScript error
+  const icon: IconString = 'lucide:folder'; // Valid
+  // const bad: IconString = 'invalid:icon'; // TypeScript error
   await nn.metadata.setFolderMeta(folder, { icon });
 
   // Events have full type inference
