@@ -111,13 +111,13 @@ export const TagTreeItem = React.memo(
 
         // Memoize className to avoid string concatenation on every render
         const className = useMemo(() => {
-            const classes = ['nn-folder-item'];
+            const classes = ['nn-navitem'];
             if (isSelected) classes.push('nn-selected');
             return classes.join(' ');
         }, [isSelected]);
 
         const tagNameClassName = useMemo(() => {
-            const classes = ['nn-folder-name'];
+            const classes = ['nn-navitem-name'];
             if (tagColor) classes.push('nn-has-custom-color');
             return classes.join(' ');
         }, [tagColor]);
@@ -188,22 +188,22 @@ export const TagTreeItem = React.memo(
                 aria-expanded={hasChildren ? isExpanded : undefined}
                 aria-level={level + 1}
             >
-                <div className="nn-folder-content" onClick={onClick} onDoubleClick={handleDoubleClick}>
+                <div className="nn-navitem-content" onClick={onClick} onDoubleClick={handleDoubleClick}>
                     <div
                         ref={chevronRef}
-                        className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}
+                        className={`nn-navitem-chevron ${hasChildren ? 'nn-navitem-chevron--has-children' : 'nn-navitem-chevron--no-children'}`}
                         onClick={handleChevronClick}
                         onDoubleClick={handleChevronDoubleClick}
                         tabIndex={-1}
                     />
                     {settings.showIcons && (
-                        <span className="nn-folder-icon" ref={iconRef} style={tagColor ? { color: tagColor } : undefined} />
+                        <span className="nn-navitem-icon" ref={iconRef} style={tagColor ? { color: tagColor } : undefined} />
                     )}
                     <span className={tagNameClassName} style={tagColor ? { color: tagColor } : undefined}>
                         {tagNode.name}
                     </span>
-                    <span className="nn-folder-spacer" />
-                    {showFileCount && fileCount > 0 && <span className="nn-folder-count">{fileCount}</span>}
+                    <span className="nn-navitem-spacer" />
+                    {showFileCount && fileCount > 0 && <span className="nn-navitem-count">{fileCount}</span>}
                 </div>
             </div>
         );

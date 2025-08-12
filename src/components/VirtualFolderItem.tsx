@@ -118,24 +118,24 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
     return (
         <div
             ref={folderRef}
-            className="nn-folder-item"
+            className="nn-navitem"
             data-path={virtualFolder.id}
             style={{ paddingInlineStart: `${level * 20}px` }}
             role="treeitem"
             aria-expanded={hasChildren ? isExpanded : undefined}
             aria-level={level + 1}
         >
-            <div className="nn-folder-content" onClick={onToggle} onDoubleClick={handleDoubleClick}>
+            <div className="nn-navitem-content" onClick={onToggle} onDoubleClick={handleDoubleClick}>
                 <div
-                    className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}
+                    className={`nn-navitem-chevron ${hasChildren ? 'nn-navitem-chevron--has-children' : 'nn-navitem-chevron--no-children'}`}
                     ref={chevronRef}
                     onClick={handleChevronClick}
                     onDoubleClick={handleChevronDoubleClick}
                     tabIndex={-1}
                 />
-                {settings.showIcons && virtualFolder.icon && <span className="nn-folder-icon" ref={iconRef} />}
-                <span className="nn-folder-name">{virtualFolder.name}</span>
-                <span className="nn-folder-spacer" />
+                {settings.showIcons && virtualFolder.icon && <span className="nn-navitem-icon" ref={iconRef} />}
+                <span className="nn-navitem-name">{virtualFolder.name}</span>
+                <span className="nn-navitem-spacer" />
             </div>
         </div>
     );

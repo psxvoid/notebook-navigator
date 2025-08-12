@@ -334,8 +334,8 @@
 
 /* Note: Navigation pane scroller styles are defined above in the Navigation Pane Scroller section */
 
-/* Folder item - container for each folder in the tree */
-.nn-folder-item {
+/* Navigation item - container for each folder/tag in the tree */
+.nn-navitem {
     -webkit-user-select: none;
     user-select: none;
     background: transparent;
@@ -349,7 +349,7 @@
 }
 
 /* Folder content - contains folder UI elements */
-.nn-folder-content {
+.nn-navitem-content {
     display: flex;
     align-items: center;
     padding: var(--nn-nav-padding-vertical) var(--size-4-2);
@@ -364,14 +364,14 @@
 }
 
 /* Folder hover state - desktop only */
-.nn-desktop .nn-folder-item:hover {
+.nn-desktop .nn-navitem:hover {
     background-color: var(--background-modifier-hover);
     border-radius: var(--radius-s);
 }
 
 /* Folder chevron/arrow - expand/collapse indicator */
-.nn-folder-arrow,
-.nn-folder-chevron {
+.nn-navitem-arrow,
+.nn-navitem-chevron {
     width: var(--nn-nav-icon-size);
     height: var(--nn-nav-icon-size);
     margin-inline-end: var(--size-4-1);
@@ -383,18 +383,18 @@
 }
 
 /* Chevron states for folders without children */
-.nn-folder-chevron--no-children {
+.nn-navitem-chevron--no-children {
     visibility: hidden;
     cursor: default;
 }
 
 /* Chevron states for folders with children */
-.nn-folder-chevron--has-children {
+.nn-navitem-chevron--has-children {
     visibility: visible;
 }
 
 /* Folder icon - displays folder open/closed or custom icons */
-.nn-folder-icon {
+.nn-navitem-icon {
     width: var(--nn-nav-icon-size);
     height: var(--nn-nav-icon-size);
     margin-inline-end: var(--size-4-2);
@@ -405,11 +405,11 @@
 }
 
 /* Smooth icon color transitions */
-.nn-folder-icon svg {
+.nn-navitem-icon svg {
 }
 
 /* Folder name text - truncates with ellipsis on overflow */
-.nn-folder-name {
+.nn-navitem-name {
     font-size: var(--nn-nav-font-size);
     font-weight: 400;
     white-space: nowrap;
@@ -421,29 +421,29 @@
 }
 
 /* Custom colored folder names - bold to indicate custom color */
-.nn-folder-name.nn-has-custom-color {
+.nn-navitem-name.nn-has-custom-color {
     font-weight: 600;
 }
 
 /* Folder with folder note - underlined and bold */
-.nn-folder-name.nn-has-folder-note {
+.nn-navitem-name.nn-has-folder-note {
     text-decoration: underline;
     font-weight: 600;
 }
 
 /* Folder with folder note - show pointer cursor on hover */
-.nn-folder-name.nn-has-folder-note:hover {
+.nn-navitem-name.nn-has-folder-note:hover {
     cursor: pointer;
 }
 
 /* Spacer element to push count to the end */
-.nn-folder-spacer {
+.nn-navitem-spacer {
     flex: 1;
     min-width: var(--size-4-2); /* Minimum space between name and count */
 }
 
 /* Folder file count - shows number of files in folder */
-.nn-folder-count {
+.nn-navitem-count {
     font-size: 11px;
     color: var(--text-muted);
     margin-inline-end: var(--size-4-1);
@@ -1019,16 +1019,16 @@
 }
 
 /* Selected folder - transparent background for pseudo-element approach */
-.nn-folder-item.nn-selected {
+.nn-navitem.nn-selected {
     position: relative;
 }
 
-.nn-folder-item.nn-selected > .nn-folder-content {
+.nn-navitem.nn-selected > .nn-navitem-content {
     background: transparent;
 }
 
 /* Selected folder background - uses pseudo-element for better control */
-.nn-folder-item.nn-selected::before {
+.nn-navitem.nn-selected::before {
     content: '';
     position: absolute;
     top: 0;
@@ -1041,23 +1041,23 @@
 }
 
 /* Selected folder content z-index - ensures text appears above background */
-.nn-folder-item.nn-selected > .nn-folder-content > * {
+.nn-navitem.nn-selected > .nn-navitem-content > * {
     position: relative;
     z-index: 1;
 }
 
 /* Keep consistent text color for selected folders */
-.nn-folder-item.nn-selected .nn-folder-name {
+.nn-navitem.nn-selected .nn-navitem-name {
     color: var(--text-normal);
 }
 
 /* Selected folder icon - maintains muted color */
-.nn-folder-item.nn-selected .nn-folder-icon {
+.nn-navitem.nn-selected .nn-navitem-icon {
     color: var(--text-muted);
 }
 
 /* Selected folder count - maintains muted color */
-.nn-folder-item.nn-selected .nn-folder-count {
+.nn-navitem.nn-selected .nn-navitem-count {
     color: var(--text-muted);
 }
 
@@ -1089,7 +1089,7 @@
    ======================================================================== */
 
 /* Focused folder - no outline for cleaner Apple Notes style */
-.nn-folder-item.nn-focused > .nn-folder-content {
+.nn-navitem.nn-focused > .nn-navitem-content {
     /* No outline for cleaner look */
 }
 
@@ -1102,9 +1102,9 @@
    1. Navigator unfocused (all selections dimmed)
    2. Navigator focused but inactive pane (cross-pane dimming) */
 .nn-split-container[data-navigator-focused='false'] .nn-file-item.nn-selected .nn-file-content::before,
-.nn-split-container[data-navigator-focused='false'] .nn-folder-item.nn-selected::before,
+.nn-split-container[data-navigator-focused='false'] .nn-navitem.nn-selected::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-file-item.nn-selected .nn-file-content::before,
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-folder-item.nn-selected::before {
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-navitem.nn-selected::before {
     background-color: var(--background-modifier-hover);
 }
 
@@ -1138,7 +1138,7 @@ body.nn-resizing {
 }
 
 /* Drag over state - highlights valid drop targets */
-.nn-folder-item.nn-drag-over {
+.nn-navitem.nn-drag-over {
     background-color: var(--text-selection);
     border-radius: var(--radius-s);
 }
@@ -1241,12 +1241,12 @@ body.nn-resizing {
    ======================================================================== */
 
 /* Context menu active folder - prepares for outline */
-.nn-folder-item.nn-context-menu-active {
+.nn-navitem.nn-context-menu-active {
     position: relative;
 }
 
 /* Context menu outline for folders - shows which item menu affects */
-.nn-folder-item.nn-context-menu-active:not(.nn-selected)::after {
+.nn-navitem.nn-context-menu-active:not(.nn-selected)::after {
     content: '';
     position: absolute;
     top: 0;
@@ -1260,7 +1260,7 @@ body.nn-resizing {
 }
 
 /* Dark mode context menu outline for folders */
-.theme-dark .nn-folder-item.nn-context-menu-active:not(.nn-selected)::after {
+.theme-dark .nn-navitem.nn-context-menu-active:not(.nn-selected)::after {
     border-color: var(--text-selection);
     opacity: 0.5;
 }
@@ -1924,12 +1924,12 @@ body.nn-resizing {
 }
 
 /* Touch-friendly tap targets on mobile */
-.notebook-navigator-mobile .nn-folder-item {
+.notebook-navigator-mobile .nn-navitem {
     height: var(--nn-nav-item-height-mobile); /* Fixed height instead of min-height */
 }
 
 /* Larger touch targets for chevrons on mobile */
-.notebook-navigator-mobile .nn-folder-chevron {
+.notebook-navigator-mobile .nn-navitem-chevron {
     width: 32px;
     height: 32px;
     display: flex;
@@ -2090,8 +2090,8 @@ body.nn-resizing {
    ======================================================================== */
 
 /* Smooth color transitions for folder items */
-.nn-folder-icon svg,
-.nn-folder-name {
+.nn-navitem-icon svg,
+.nn-navitem-name {
 }
 
 /* ========================================================================
@@ -2099,23 +2099,23 @@ body.nn-resizing {
    ======================================================================== */
 
 /* Increase folder text size on mobile for better readability */
-.notebook-navigator-mobile .nn-folder-name {
+.notebook-navigator-mobile .nn-navitem-name {
     font-size: var(--nn-mobile-header-font-size);
 }
 
 /* Increase folder icon size on mobile */
-.notebook-navigator-mobile .nn-folder-icon {
+.notebook-navigator-mobile .nn-navitem-icon {
     width: 20px;
     height: 20px;
 }
 
 /* Increase folder count size on mobile to match folder text */
-.notebook-navigator-mobile .nn-folder-count {
+.notebook-navigator-mobile .nn-navitem-count {
     font-size: 13px;
 }
 
 /* Mobile emoji icon size to match regular mobile icons */
-.notebook-navigator-mobile .nn-folder-icon.nn-emoji-icon,
+.notebook-navigator-mobile .nn-navitem-icon.nn-emoji-icon,
 .notebook-navigator-mobile .nn-tag-icon.nn-emoji-icon {
     font-size: 20px;
     width: 20px;
@@ -2124,7 +2124,7 @@ body.nn-resizing {
 }
 
 /* Mobile folder content padding adjustment for proper selection height */
-.notebook-navigator-mobile .nn-folder-content {
+.notebook-navigator-mobile .nn-navitem-content {
     padding: 8px var(--size-4-2);
     padding-inline-start: var(--size-4-1);
     height: 100%;
@@ -2301,7 +2301,7 @@ body.nn-resizing {
 }
 
 /* Ensure emojis in navigation items display properly */
-.nn-folder-icon.nn-emoji-icon,
+.nn-navitem-icon.nn-emoji-icon,
 .nn-tag-icon.nn-emoji-icon {
     font-size: 16px;
     width: 16px;

@@ -149,13 +149,13 @@ export const FolderItem = React.memo(function FolderItem({
 
     // Memoize className to avoid string concatenation on every render
     const className = useMemo(() => {
-        const classes = ['nn-folder-item'];
+        const classes = ['nn-navitem'];
         if (isSelected) classes.push('nn-selected');
         return classes.join(' ');
     }, [isSelected]);
 
     const folderNameClassName = useMemo(() => {
-        const classes = ['nn-folder-name'];
+        const classes = ['nn-navitem-name'];
         if (hasFolderNote) classes.push('nn-has-folder-note');
         if (customColor) classes.push('nn-has-custom-color');
         return classes.join(' ');
@@ -277,22 +277,22 @@ export const FolderItem = React.memo(function FolderItem({
             aria-expanded={hasChildren ? isExpanded : undefined}
             aria-level={level + 1}
         >
-            <div className="nn-folder-content">
+            <div className="nn-navitem-content">
                 <div
-                    className={`nn-folder-chevron ${hasChildren ? 'nn-folder-chevron--has-children' : 'nn-folder-chevron--no-children'}`}
+                    className={`nn-navitem-chevron ${hasChildren ? 'nn-navitem-chevron--has-children' : 'nn-navitem-chevron--no-children'}`}
                     ref={chevronRef}
                     onClick={handleChevronClick}
                     onDoubleClick={handleChevronDoubleClick}
                     tabIndex={-1}
                 />
                 {settings.showIcons && (
-                    <span className="nn-folder-icon" ref={iconRef} style={customColor ? { color: customColor } : undefined}></span>
+                    <span className="nn-navitem-icon" ref={iconRef} style={customColor ? { color: customColor } : undefined}></span>
                 )}
                 <span className={folderNameClassName} style={customColor ? { color: customColor } : undefined} onClick={handleNameClick}>
                     {folder.path === '/' ? settings.customVaultName || app.vault.getName() : folder.name}
                 </span>
-                <span className="nn-folder-spacer" />
-                {settings.showNoteCount && fileCount > 0 && <span className="nn-folder-count">{fileCount}</span>}
+                <span className="nn-navitem-spacer" />
+                {settings.showNoteCount && fileCount > 0 && <span className="nn-navitem-count">{fileCount}</span>}
             </div>
         </div>
     );
