@@ -222,6 +222,55 @@ export class MetadataAPI {
     }
 
     // ===================================================================
+    // Generic Metadata Helper
+    // ===================================================================
+
+    /**
+     * Generic helper to update metadata in settings
+     * @internal
+     */
+    private async updateMetadata(
+        key: string,
+        meta: Partial<FolderMetadata | TagMetadata>,
+        colorStore: Record<string, string>,
+        iconStore: Record<string, string>
+    ): Promise<void> {
+        const plugin = this.api.getPlugin();
+        if (!plugin) return;
+
+        let changed = false;
+
+        // Update color if provided
+        if (meta.color !== undefined) {
+            if (meta.color === null) {
+                // Clear color
+                delete colorStore[key];
+            } else {
+                // Set color
+                colorStore[key] = meta.color;
+            }
+            changed = true;
+        }
+
+        // Update icon if provided
+        if (meta.icon !== undefined) {
+            if (meta.icon === null) {
+                // Clear icon
+                delete iconStore[key];
+            } else {
+                // Set icon
+                iconStore[key] = meta.icon;
+            }
+            changed = true;
+        }
+
+        // Save settings if anything changed
+        if (changed) {
+            await plugin.saveSettings();
+        }
+    }
+
+    // ===================================================================
     // Folder Metadata
     // ===================================================================
 
@@ -250,41 +299,10 @@ export class MetadataAPI {
      * @param meta - Partial metadata object with properties to update
      */
     async setFolderMeta(folder: TFolder, meta: Partial<FolderMetadata>): Promise<void> {
-        const path = folder.path;
         const plugin = this.api.getPlugin();
         if (!plugin) return;
 
-        let changed = false;
-
-        // Update color if provided
-        if (meta.color !== undefined) {
-            if (meta.color === null) {
-                // Clear color
-                delete plugin.settings.folderColors[path];
-            } else {
-                // Set color
-                plugin.settings.folderColors[path] = meta.color;
-            }
-            changed = true;
-        }
-
-        // Update icon if provided
-        if (meta.icon !== undefined) {
-            if (meta.icon === null) {
-                // Clear icon
-                delete plugin.settings.folderIcons[path];
-            } else {
-                // Set icon
-                plugin.settings.folderIcons[path] = meta.icon;
-            }
-            changed = true;
-        }
-
-        // Save settings if anything changed
-        // The cache will be updated via the settings update callback
-        if (changed) {
-            await plugin.saveSettings();
-        }
+        await this.updateMetadata(folder.path, meta, plugin.settings.folderColors, plugin.settings.folderIcons);
     }
 
     // ===================================================================
@@ -318,41 +336,11 @@ export class MetadataAPI {
      * @param meta - Partial metadata object with properties to update
      */
     async setTagMeta(tag: string, meta: Partial<TagMetadata>): Promise<void> {
-        const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
         const plugin = this.api.getPlugin();
         if (!plugin) return;
 
-        let changed = false;
-
-        // Update color if provided
-        if (meta.color !== undefined) {
-            if (meta.color === null) {
-                // Clear color
-                delete plugin.settings.tagColors[normalizedTag];
-            } else {
-                // Set color
-                plugin.settings.tagColors[normalizedTag] = meta.color;
-            }
-            changed = true;
-        }
-
-        // Update icon if provided
-        if (meta.icon !== undefined) {
-            if (meta.icon === null) {
-                // Clear icon
-                delete plugin.settings.tagIcons[normalizedTag];
-            } else {
-                // Set icon
-                plugin.settings.tagIcons[normalizedTag] = meta.icon;
-            }
-            changed = true;
-        }
-
-        // Save settings if anything changed
-        // The cache will be updated via the settings update callback
-        if (changed) {
-            await plugin.saveSettings();
-        }
+        const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
+        await this.updateMetadata(normalizedTag, meta, plugin.settings.tagColors, plugin.settings.tagIcons);
     }
 
     // ===================================================================
