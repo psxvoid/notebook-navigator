@@ -300,6 +300,7 @@ import type {
 } from './notebook-navigator';
 
 const nn = app.plugins.plugins['notebook-navigator']?.api as NotebookNavigatorAPI;
+
 if (nn) {
   // Wait for storage if needed, then proceed
   if (!nn.isStorageReady()) {
