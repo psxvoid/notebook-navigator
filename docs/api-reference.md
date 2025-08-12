@@ -25,9 +25,7 @@ if (!nn) {
 // Use the API
 const folder = app.vault.getAbstractFileByPath('Projects');
 if (folder instanceof TFolder) {
-  await nn.metadata.setFolderMeta(folder, {
-    icon: 'lucide:folder-star'
-  });
+  await nn.metadata.setFolderMeta(folder, { icon: 'lucide:folder-star' });
 }
 ```
 
