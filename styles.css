@@ -131,8 +131,9 @@
 /* Pane headers - consistent header styling for both panes */
 .nn-pane-header {
     --nn-header-bg: var(--background-primary);
+    --nn-header-border-color: var(--background-modifier-border);
     padding: var(--size-4-2) var(--size-4-2);
-    border-bottom: 1px solid var(--background-modifier-border);
+    border-bottom: 1px solid var(--nn-header-border-color);
     display: flex;
     justify-content: flex-end;
     align-items: center;
@@ -1854,7 +1855,7 @@ body.nn-resizing {
 /* Mobile header - adjust for back button */
 .notebook-navigator-mobile .nn-pane-header {
     flex-shrink: 0;
-    border-bottom: 1px solid var(--background-modifier-border);
+    border-bottom: 1px solid var(--nn-header-border-color);
     min-height: 48px;
     display: flex;
     align-items: center;

@@ -4,83 +4,284 @@ This guide helps theme developers add support for Notebook Navigator's unique
 CSS structure. Notebook Navigator replaces Obsidian's default file explorer with
 a custom dual-pane interface that uses different CSS classes and DOM structure.
 
-## Testing Your Theme
+## Quick Start: Rainbow Theme Demo
 
-Users can test theme colors by pasting this into a CSS snippet:
+### Installation Instructions
+
+1. Open Obsidian Settings (`Cmd/Ctrl + ,`)
+2. Navigate to **Appearance** tab
+3. Scroll down to **CSS snippets** section
+4. Click **Open snippets folder** button
+5. Create a new file called `notebook-navigator-theme.css`
+6. Paste the demo CSS below
+7. Return to Obsidian Settings > Appearance
+8. Click the **Reload snippets** button
+9. Toggle on your new snippet
+
+### Complete Theme Demo
+
+Copy this colorful theme to see all customization options:
 
 ```css
-/* Rainbow theme test for Notebook Navigator */
+/* ================================================
+   Notebook Navigator Rainbow Theme Demo
+   This demonstrates ALL customizable properties
+   ================================================ */
 
-/* Pane backgrounds */
+/* LAYOUT BACKGROUNDS
+   ================================================ */
+
+/* Navigation pane background */
 .nn-navigation-pane-scroller {
-  background: #e6e9ff; /* Same as navitem */
+  background: #e6e9ff;
 }
 
+/* File list pane background */
 .nn-list-pane-scroller {
-  background: #e8fcfb; /* Same as file */
+  background: #e8fcfb;
 }
 
 /* Pane headers */
 .nn-navigation-pane .nn-pane-header {
-  --nn-header-bg: #e6e9ff; /* Same as navigation scroller */
+  --nn-header-bg: #e6e9ff; /* Match navigation pane */
 }
 
 .nn-list-pane .nn-pane-header {
-  --nn-header-bg: #e8fcfb; /* Same as list scroller */
+  --nn-header-bg: #e8fcfb; /* Match file list pane */
+}
+
+/* Header border/separator line */
+.nn-pane-header {
+  --nn-header-border-color: #a78bfa; /* Light purple */
 }
 
 /* Date group headers (Today, Yesterday, etc.) */
 .nn-date-group-header {
-  background: #e8fcfb; /* Same as list pane */
+  background: #e8fcfb;
+  color: #64748b;
+}
+
+/* List pane header breadcrumb path */
+.nn-pane-header-text {
+  color: #475569 !important;
+}
+
+/* Pane header icons (folder icon, back button) */
+.nn-pane-header-icon {
+  color: #8b5cf6 !important;
+}
+
+.nn-pane-header-icon svg {
+  stroke: #8b5cf6 !important;
+}
+
+/* Header action buttons (all buttons in both pane headers) */
+.nn-icon-button {
+  color: #6366f1 !important;
+}
+
+.nn-icon-button svg {
+  stroke: #6366f1 !important;
+}
+
+.nn-icon-button:hover {
+  background-color: #fef3c7 !important;
+}
+
+.nn-icon-button-active {
+  background-color: #ddd6fe !important;
+  color: #7c3aed !important;
+}
+
+.nn-icon-button-active svg {
+  stroke: #7c3aed !important;
 }
 
 /* Resize handle between panes */
 .nn-resize-handle {
-  --nn-resize-bg: #e8fcfb; /* Same as list scroller */
+  --nn-resize-bg: #e8fcfb;
   --nn-resize-hover-bg: #a8edea;
   --nn-resize-hover-opacity: 1;
+  --nn-resize-active-opacity: 0.8;
 }
 
 /* Separator lines between files */
 .nn-virtual-file-item {
-  --nn-separator-color: #c8e6c9; /* Light green */
+  --nn-separator-color: #c8e6c9;
   --nn-separator-height: 2px;
 }
 
-/* Item backgrounds */
+/* NAVIGATION ITEMS (Folders & Tags)
+   ================================================ */
+
+/* Base navigation item styling */
 .nn-navitem {
   background: #e6e9ff;
+
+  /* Selection rectangles */
   --nn-selection-bg: #667eea;
   --nn-selection-bg-inactive: #f093fb;
   --nn-selection-radius: 12px;
+
+  /* Hover rectangles */
   --nn-hover-bg: #fee140;
   --nn-hover-radius: 8px;
 }
 
+/* Folder-specific colors */
+.nn-navitem.nn-folder {
+  --nn-selection-bg: #667eea; /* Purple */
+}
+
+.nn-navitem.nn-folder .nn-navitem-name {
+  color: #4a5568; /* Folder text color */
+}
+
+.nn-navitem.nn-folder .nn-navitem-icon {
+  color: #667eea; /* Folder icon color */
+}
+
+/* Tag-specific colors */
+.nn-navitem.nn-tag {
+  --nn-selection-bg: #f093fb; /* Pink */
+}
+
+.nn-navitem.nn-tag .nn-navitem-name {
+  color: #553c9a; /* Tag text color */
+}
+
+.nn-navitem.nn-tag .nn-navitem-icon {
+  color: #f093fb; /* Tag icon color */
+}
+
+/* Virtual folders (Favorites, Tags containers) */
+.nn-navitem.nn-virtual .nn-navitem-name {
+  color: #64748b;
+  font-style: italic;
+}
+
+/* Chevron arrows */
+.nn-navitem-chevron {
+  color: #94a3b8;
+}
+
+.nn-navitem-chevron:hover {
+  color: #475569;
+}
+
+/* File count badges */
+.nn-navitem-count {
+  background: #f093fb;
+  color: white;
+  padding: 0 6px;
+  border-radius: 10px;
+}
+
+/* FILE LIST ITEMS
+   ================================================ */
+
+/* Base file item styling */
 .nn-file {
   background: #e8fcfb;
+
+  /* Selection rectangles */
   --nn-selection-bg: #a8edea;
   --nn-selection-bg-inactive: #ffecd2;
   --nn-selection-radius: 16px;
 }
 
-/* Bonus: Different colors for folders vs tags */
-.nn-navitem.nn-folder {
-  --nn-selection-bg: #667eea; /* Purple */
+/* File name text - need !important to override defaults */
+.nn-file-name {
+  color: #1e293b !important;
+  font-weight: 500;
 }
 
-.nn-navitem.nn-tag {
-  --nn-selection-bg: #f093fb; /* Pink */
+/* File preview text */
+.nn-file-preview {
+  color: #64748b !important;
+}
+
+/* File date text */
+.nn-file-date {
+  color: #94a3b8 !important;
+}
+
+/* Parent folder text (when showing notes from subfolders) */
+.nn-file-folder {
+  color: #a78bfa !important;
+}
+
+/* Tag badges in file list */
+.nn-file-tags .nn-tag {
+  background: #f093fb;
+  color: white;
+  padding: 2px 8px;
+  border-radius: 12px;
+}
+
+/* Pinned files */
+.nn-file.nn-pinned {
+  background: #fff4e6;
+}
+
+.nn-file.nn-pinned .nn-file-name {
+  color: #92400e;
+}
+
+/* DEPTH-BASED STYLING (Optional)
+   ================================================ */
+
+/* Root level folders - bold and darker */
+.nn-navitem.nn-folder[data-level='0'] .nn-navitem-name {
+  font-weight: 600;
+  color: #2563eb;
+}
+
+/* Nested folders - progressively lighter */
+.nn-navitem.nn-folder[data-level='1'] .nn-navitem-name {
+  color: #3b82f6;
+}
+
+.nn-navitem.nn-folder[data-level='2'] .nn-navitem-name {
+  color: #60a5fa;
+}
+
+/* Deep nesting - lighter */
+.nn-navitem.nn-folder[data-level='3'] .nn-navitem-name,
+.nn-navitem.nn-folder[data-level='4'] .nn-navitem-name {
+  color: #93c5fd;
 }
 ```
 
-## Table of Contents
+## CSS Custom Properties Reference
 
-- [Key Differences from Default Explorer](#key-differences-from-default-explorer)
-- [CSS Class Reference](#css-class-reference)
-- [DOM Structure](#dom-structure)
-- [Common Theming Patterns](#common-theming-patterns)
-- [Testing Your Theme](#testing-your-theme-1)
+Notebook Navigator exposes these CSS custom properties for easy theming:
+
+### Selection & Hover Effects
+
+| Property                     | Element       | Default                            | Description                                 |
+| ---------------------------- | ------------- | ---------------------------------- | ------------------------------------------- |
+| `--nn-selection-bg`          | `.nn-navitem` | `var(--text-selection)`            | Background color when selected              |
+| `--nn-selection-bg-inactive` | `.nn-navitem` | `var(--background-modifier-hover)` | Background when selected but pane unfocused |
+| `--nn-selection-radius`      | `.nn-navitem` | `var(--radius-s)`                  | Border radius of selection rectangle        |
+| `--nn-hover-bg`              | `.nn-navitem` | `var(--background-modifier-hover)` | Background color on hover                   |
+| `--nn-hover-radius`          | `.nn-navitem` | `var(--radius-s)`                  | Border radius of hover rectangle            |
+| `--nn-selection-bg`          | `.nn-file`    | `var(--text-selection)`            | File selection background                   |
+| `--nn-selection-bg-inactive` | `.nn-file`    | `var(--background-modifier-hover)` | File selection when unfocused               |
+| `--nn-selection-radius`      | `.nn-file`    | `var(--radius-m)`                  | File selection border radius                |
+
+### Layout Components
+
+| Property                     | Element                 | Default                             | Description                   |
+| ---------------------------- | ----------------------- | ----------------------------------- | ----------------------------- |
+| `--nn-header-bg`             | `.nn-pane-header`       | `var(--background-primary)`         | Pane header background        |
+| `--nn-header-border-color`   | `.nn-pane-header`       | `var(--background-modifier-border)` | Header bottom border color    |
+| `--nn-resize-bg`             | `.nn-resize-handle`     | `transparent`                       | Resize handle background      |
+| `--nn-resize-hover-bg`       | `.nn-resize-handle`     | `var(--interactive-accent)`         | Resize handle hover color     |
+| `--nn-resize-hover-opacity`  | `.nn-resize-handle`     | `0.5`                               | Resize handle hover opacity   |
+| `--nn-resize-active-opacity` | `.nn-resize-handle`     | `0.8`                               | Resize handle drag opacity    |
+| `--nn-separator-color`       | `.nn-virtual-file-item` | `var(--background-modifier-border)` | File separator line color     |
+| `--nn-separator-height`      | `.nn-virtual-file-item` | `1px`                               | File separator line thickness |
 
 ## Key Differences from Default Explorer
 
@@ -169,7 +370,7 @@ graph TD
 ### Navigation Item Structure
 
 ```html
-<div class="nn-navitem" data-path="/folder/path">
+<div class="nn-navitem" data-path="/folder/path" data-level="0">
   <div class="nn-navitem-content">
     <div class="nn-navitem-chevron nn-navitem-chevron--has-children"></div>
     <span class="nn-navitem-icon">
@@ -202,99 +403,85 @@ graph TD
 </div>
 ```
 
-## Common Theming Patterns
+## Basic Theme Styling
 
-### Selecting Navigation Items
-
-```css
-/* All navigation items (folders and tags) */
-.nn-navitem {
-  /* your styles */
-}
-
-/* Only folders - clean and simple! */
-.nn-navitem.nn-folder {
-  /* folder-specific styles */
-}
-
-/* Only tags - clean and simple! */
-.nn-navitem.nn-tag {
-  /* tag-specific styles */
-}
-
-/* Virtual folders (Favorites, Tags containers) */
-.nn-navitem.nn-virtual {
-  /* virtual folder styles */
-}
-
-/* Alternative: Still works with data attributes if needed */
-.nn-navitem[data-drag-type='folder'] {
-  /* folders */
-}
-.nn-navitem[data-tag-path] {
-  /* tags */
-}
-
-/* Selected items */
-.nn-navitem.nn-selected {
-  background-color: var(--interactive-accent);
-}
-
-/* Hover state */
-.nn-navitem:hover {
-  background-color: var(--background-modifier-hover);
-}
-```
-
-### Styling File Items
+### Text and Icon Colors
 
 ```css
-/* All file items */
-.nn-file {
-  /* your styles */
+/* Folder colors */
+.nn-navitem.nn-folder .nn-navitem-name {
+  color: #4a9eff;
 }
 
-/* Selected files */
-.nn-file.nn-selected {
-  background-color: var(--interactive-accent);
+.nn-navitem.nn-folder .nn-navitem-icon {
+  color: #4a9eff;
 }
 
-/* Pinned files */
-.nn-file.nn-pinned {
-  /* pinned file styles */
+/* Tag colors */
+.nn-navitem.nn-tag .nn-navitem-name {
+  color: #59d89e;
 }
 
-/* File previews */
+.nn-navitem.nn-tag .nn-navitem-icon {
+  color: #59d89e;
+}
+
+/* File list colors - need !important to override defaults */
+.nn-file-name {
+  color: var(--text-normal) !important;
+}
+
 .nn-file-preview {
-  color: var(--text-muted);
+  color: var(--text-muted) !important;
+}
+
+.nn-file-date {
+  color: var(--text-faint) !important;
+}
+
+.nn-file-folder {
+  color: var(--text-muted) !important;
+}
+
+/* List pane header breadcrumb */
+.nn-pane-header-text {
+  color: var(--text-muted) !important;
+}
+
+/* Pane header icons and buttons */
+.nn-pane-header-icon,
+.nn-icon-button {
+  color: var(--text-muted) !important;
+}
+
+.nn-pane-header-icon svg,
+.nn-icon-button svg {
+  stroke: var(--text-muted) !important;
+}
+
+.nn-icon-button:hover {
+  background-color: var(--background-modifier-hover) !important;
+}
+
+.nn-icon-button-active {
+  background-color: var(--background-modifier-hover) !important;
+  color: var(--text-normal) !important;
 }
 ```
 
-## Styling Folders and Tags
-
-### Customizing Selection and Hover Rectangles
-
-Notebook Navigator exposes CSS custom properties to control selection and hover
-appearances:
+### Custom Properties Usage
 
 ```css
-/* Override selection rectangle for navigation items */
+/* Customize selection rectangles */
 .nn-navitem {
-  --nn-selection-bg: linear-gradient(90deg, #667eea, #764ba2);
-  --nn-selection-bg-inactive: rgba(102, 126, 234, 0.2); /* When unfocused */
+  --nn-selection-bg: #667eea;
+  --nn-selection-bg-inactive: rgba(102, 126, 234, 0.2);
   --nn-selection-radius: 12px;
   --nn-hover-bg: rgba(102, 126, 234, 0.1);
   --nn-hover-radius: 8px;
 }
 
-/* Override selection rectangle for file items */
-.nn-file {
-  --nn-selection-bg: linear-gradient(135deg, #667eea, #764ba2);
-  --nn-selection-bg-inactive: rgba(118, 75, 162, 0.2); /* When unfocused */
-  --nn-selection-radius: 16px;
-}
-
-/* Different selection colors for folders vs tags */
+/* Different colors for folders vs tags */
 .nn-navitem.nn-folder {
   --nn-selection-bg: var(--color-blue);
 }
@@ -302,37 +489,9 @@ appearances:
 .nn-navitem.nn-tag {
   --nn-selection-bg: var(--color-green);
 }
-
-/* Add borders or shadows to selection rectangles */
-.nn-navitem.nn-selected::before {
-  border: 2px solid var(--color-accent);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
 ```
 
-### Basic Theme Styling
-
-To style folders and tags in your theme:
-
-```css
-/* Give all folders a blue color */
-.nn-navitem.nn-folder .nn-navitem-name,
-.nn-navitem.nn-folder .nn-navitem-icon {
-  color: #4a9eff;
-}
-
-/* Give all tags a green color */
-.nn-navitem.nn-tag .nn-navitem-name,
-.nn-navitem.nn-tag .nn-navitem-icon {
-  color: #59d89e;
-}
-
-/* Style virtual folders (Favorites, Tags containers) */
-.nn-navitem.nn-virtual .nn-navitem-name {
-  color: #9e9e9e;
-  font-style: italic;
-}
-```
+## Advanced Techniques
 
 ### User Custom Colors Override
 
@@ -346,9 +505,7 @@ your theme colors. When they do:
 **This means:** Write your theme CSS normally. User preferences will
 automatically take priority when set.
 
-### Advanced: Different Styles for Custom vs. Theme Colors
-
-If you want folders with custom colors to look different from themed folders:
+### Different Styles for Custom vs. Theme Colors
 
 ```css
 /* Default theme style for folders */
@@ -369,7 +526,7 @@ If you want folders with custom colors to look different from themed folders:
 }
 ```
 
-### Example: Depth-Based Styling
+### Depth-Based Styling
 
 Notebook Navigator adds a `data-level` attribute to each item indicating its
 nesting depth (0 = root, 1 = first level, etc.):
@@ -391,25 +548,10 @@ nesting depth (0 = root, 1 = first level, etc.):
   color: #60a5fa;
 }
 
-/* Deep nesting (3+ levels) - very light, smaller */
+/* Deep nesting (3+ levels) - very light */
 .nn-navitem.nn-folder[data-level='3'] .nn-navitem-name,
 .nn-navitem.nn-folder[data-level='4'] .nn-navitem-name {
   color: #93c5fd;
-  font-size: 0.95em;
-}
-
-/* Apply same pattern to tags */
-.nn-navitem.nn-tag[data-level='0'] .nn-navitem-name {
-  font-weight: 500;
-}
-
-.nn-navitem.nn-tag[data-level='1'] .nn-navitem-name {
-  opacity: 0.9;
-}
-
-.nn-navitem.nn-tag[data-level='2'] .nn-navitem-name {
-  opacity: 0.8;
-  font-size: 0.95em;
 }
 ```
 
