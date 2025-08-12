@@ -552,9 +552,9 @@
                     let eventFired = false;
                     let eventData = null;
 
-                    const eventRef = this.api.on('file-selection-changed', data => {
+                    const eventRef = this.api.on('selection-changed', ({ state }) => {
                         eventFired = true;
-                        eventData = data;
+                        eventData = state;
                     });
 
                     // The event should have been set up
@@ -719,10 +719,10 @@
 
                     // Test once() with different event types
                     const onceRef1 = this.api.once('nav-item-changed', ({ item }) => {});
-                    const onceRef2 = this.api.once('file-selection-changed', ({ files, focused }) => {});
+                    const onceRef2 = this.api.once('selection-changed', ({ state }) => {});
 
                     this.assertExists(onceRef1, 'once() should work with nav-item-changed');
-                    this.assertExists(onceRef2, 'once() should work with file-selection-changed');
+                    this.assertExists(onceRef2, 'once() should work with selection-changed');
 
                     // Clean up
                     this.api.off(onceRef1);
@@ -734,10 +734,10 @@
                     const eventTypes = [
                         'storage-ready',
                         'nav-item-changed',
-                        'file-selection-changed',
+                        'selection-changed',
                         'pinned-files-changed',
-                        'folder-metadata-changed',
-                        'tag-metadata-changed'
+                        'folder-changed',
+                        'tag-changed'
                     ];
 
                     const refs = [];

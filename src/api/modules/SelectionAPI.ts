@@ -133,9 +133,11 @@ export class SelectionAPI {
                 }
             }
 
-            this.api.trigger('file-selection-changed', {
-                files: fileObjects,
-                focused: primaryFile
+            this.api.trigger('selection-changed', {
+                state: {
+                    files: fileObjects,
+                    focused: primaryFile
+                }
             });
         }
     }

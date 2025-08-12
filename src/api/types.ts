@@ -122,12 +122,9 @@ export interface NotebookNavigatorEvents {
         item: NavItem;
     };
 
-    /** Fired when file selection changes in the list pane */
-    'file-selection-changed': {
-        /** Array of selected TFile objects */
-        files: readonly TFile[];
-        /** The focused file (cursor position) */
-        focused: TFile | null;
+    /** Fired when selection changes in the list pane */
+    'selection-changed': {
+        state: SelectionState;
     };
 
     /** Fired when pinned files change */
@@ -137,13 +134,13 @@ export interface NotebookNavigatorEvents {
     };
 
     /** Fired when folder metadata changes */
-    'folder-metadata-changed': {
+    'folder-changed': {
         folder: TFolder;
         metadata: FolderMetadata;
     };
 
     /** Fired when tag metadata changes */
-    'tag-metadata-changed': {
+    'tag-changed': {
         tag: string;
         metadata: TagMetadata;
     };

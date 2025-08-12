@@ -23,7 +23,12 @@ if (!nn) {
 }
 
 // Use the API
-await nn.file.delete([file]);
+const folder = app.vault.getAbstractFileByPath('Projects');
+if (folder instanceof TFolder) {
+  await nn.metadata.setFolderMeta(folder, {
+    icon: 'lucide:folder-star'
+  });
+}
 ```
 
 ## API Overview
@@ -197,8 +202,7 @@ When calling `reveal(file)`:
 - **Expands parent folders** as needed to make the folder visible
 - **Selects and focuses the file** in the file list
 - **Switches to file list view** if in single-pane mode
-- **If the file doesn't exist or has no parent folder**, the method returns
-  silently without error
+- **If the file doesn't exist**, the method returns silently without error
 
 ```typescript
 // Navigate to active file
@@ -237,14 +241,14 @@ const { files, focused } = nn.selection.getCurrent();
 
 Subscribe to navigator events to react to user actions.
 
-| Event                     | Payload                                               | Description                  |
-| ------------------------- | ----------------------------------------------------- | ---------------------------- |
-| `storage-ready`           | `void`                                                | Storage system is ready      |
-| `nav-item-changed`        | `{ item: NavItem }`                                   | Navigation selection changed |
-| `file-selection-changed`  | `{ files: readonly TFile[], focused: TFile \| null }` | File selection changed       |
-| `pinned-files-changed`    | `{ files: readonly PinnedFile[] }`                    | Pinned files changed         |
-| `folder-metadata-changed` | `{ folder: TFolder, metadata: FolderMetadata }`       | Folder metadata changed      |
-| `tag-metadata-changed`    | `{ tag: string, metadata: TagMetadata }`              | Tag metadata changed         |
+| Event                  | Payload                                         | Description                  |
+| ---------------------- | ----------------------------------------------- | ---------------------------- |
+| `storage-ready`        | `void`                                          | Storage system is ready      |
+| `nav-item-changed`     | `{ item: NavItem }`                             | Navigation selection changed |
+| `selection-changed`    | `{ state: SelectionState }`                     | Selection changed            |
+| `pinned-files-changed` | `{ files: readonly PinnedFile[] }`              | Pinned files changed         |
+| `folder-changed`       | `{ folder: TFolder, metadata: FolderMetadata }` | Folder metadata changed      |
+| `tag-changed`          | `{ tag: string, metadata: TagMetadata }`        | Tag metadata changed         |
 
 ```typescript
 // Subscribe to pin changes
@@ -278,9 +282,9 @@ const navRef = nn.on('nav-item-changed', ({ item }) => {
   }
 });
 
-const selectionRef = nn.on('file-selection-changed', ({ files, focused }) => {
-  // TypeScript knows 'files' is readonly TFile[] and 'focused' is TFile | null
-  console.log(`${files.length} files selected`);
+const selectionRef = nn.on('selection-changed', ({ state }) => {
+  // TypeScript knows 'state' is SelectionState with files and focused properties
+  console.log(`${state.files.length} files selected`);
 });
 
 // Unsubscribe from persistent listeners
@@ -330,8 +334,8 @@ if (nn) {
   await nn.metadata.setFolderMeta(folder, { icon });
 
   // Events have full type inference
-  nn.on('file-selection-changed', ({ files, focused }) => {
-    // TypeScript knows: files is readonly TFile[], focused is TFile | null
+  nn.on('selection-changed', ({ state }) => {
+    // TypeScript knows: state is SelectionState with files and focused properties
   });
 }
 ```

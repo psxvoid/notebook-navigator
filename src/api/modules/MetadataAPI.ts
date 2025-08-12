@@ -146,7 +146,7 @@ export class MetadataAPI {
             // Trigger event with the new metadata state
             const metadata = this.getFolderMeta(folder);
             if (metadata) {
-                this.api.trigger('folder-metadata-changed', { folder, metadata });
+                this.api.trigger('folder-changed', { folder, metadata });
             }
         }
     }
@@ -223,7 +223,7 @@ export class MetadataAPI {
             // Trigger event with the new metadata state
             const metadata = this.getTagMeta(tag);
             if (metadata) {
-                this.api.trigger('tag-metadata-changed', { tag: normalizedTag, metadata });
+                this.api.trigger('tag-changed', { tag: normalizedTag, metadata });
             }
         }
     }
