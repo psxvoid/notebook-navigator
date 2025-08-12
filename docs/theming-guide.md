@@ -4,14 +4,77 @@ This guide helps theme developers add support for Notebook Navigator's unique
 CSS structure. Notebook Navigator replaces Obsidian's default file explorer with
 a custom dual-pane interface that uses different CSS classes and DOM structure.
 
+## Testing Your Theme
+
+Users can test theme colors by pasting this into a CSS snippet:
+
+```css
+/* Rainbow theme test for Notebook Navigator */
+
+/* Pane backgrounds */
+.nn-navigation-pane-scroller {
+  background: #e6e9ff; /* Same as navitem */
+}
+
+.nn-list-pane-scroller {
+  background: #e8fcfb; /* Same as file */
+}
+
+/* Pane headers */
+.nn-navigation-pane .nn-pane-header {
+  --nn-header-bg: #e6e9ff; /* Same as navigation scroller */
+}
+
+.nn-list-pane .nn-pane-header {
+  --nn-header-bg: #e8fcfb; /* Same as list scroller */
+}
+
+/* Date group headers (Today, Yesterday, etc.) */
+.nn-date-group-header {
+  background: #e8fcfb; /* Same as list pane */
+}
+
+/* Resize handle between panes */
+.nn-resize-handle {
+  --nn-resize-bg: #e8fcfb; /* Same as list scroller */
+  --nn-resize-hover-bg: #a8edea;
+  --nn-resize-hover-opacity: 1;
+}
+
+/* Item backgrounds */
+.nn-navitem {
+  background: #e6e9ff;
+  --nn-selection-bg: #667eea;
+  --nn-selection-bg-inactive: #f093fb;
+  --nn-selection-radius: 12px;
+  --nn-hover-bg: #fee140;
+  --nn-hover-radius: 8px;
+}
+
+.nn-file {
+  background: #e8fcfb;
+  --nn-selection-bg: #a8edea;
+  --nn-selection-bg-inactive: #ffecd2;
+  --nn-selection-radius: 16px;
+}
+
+/* Bonus: Different colors for folders vs tags */
+.nn-navitem.nn-folder {
+  --nn-selection-bg: #667eea; /* Purple */
+}
+
+.nn-navitem.nn-tag {
+  --nn-selection-bg: #f093fb; /* Pink */
+}
+```
+
 ## Table of Contents
 
 - [Key Differences from Default Explorer](#key-differences-from-default-explorer)
 - [CSS Class Reference](#css-class-reference)
 - [DOM Structure](#dom-structure)
 - [Common Theming Patterns](#common-theming-patterns)
-- [Rainbow Folders Implementation](#rainbow-folders-implementation)
-- [Testing Your Theme](#testing-your-theme)
+- [Testing Your Theme](#testing-your-theme-1)
 
 ## Key Differences from Default Explorer
 
@@ -203,6 +266,44 @@ graph TD
 
 ## Styling Folders and Tags
 
+### Customizing Selection and Hover Rectangles
+
+Notebook Navigator exposes CSS custom properties to control selection and hover
+appearances:
+
+```css
+/* Override selection rectangle for navigation items */
+.nn-navitem {
+  --nn-selection-bg: linear-gradient(90deg, #667eea, #764ba2);
+  --nn-selection-bg-inactive: rgba(102, 126, 234, 0.2); /* When unfocused */
+  --nn-selection-radius: 12px;
+  --nn-hover-bg: rgba(102, 126, 234, 0.1);
+  --nn-hover-radius: 8px;
+}
+
+/* Override selection rectangle for file items */
+.nn-file {
+  --nn-selection-bg: linear-gradient(135deg, #667eea, #764ba2);
+  --nn-selection-bg-inactive: rgba(118, 75, 162, 0.2); /* When unfocused */
+  --nn-selection-radius: 16px;
+}
+
+/* Different selection colors for folders vs tags */
+.nn-navitem.nn-folder {
+  --nn-selection-bg: var(--color-blue);
+}
+
+.nn-navitem.nn-tag {
+  --nn-selection-bg: var(--color-green);
+}
+
+/* Add borders or shadows to selection rectangles */
+.nn-navitem.nn-selected::before {
+  border: 2px solid var(--color-accent);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+```
+
 ### Basic Theme Styling
 
 To style folders and tags in your theme:
@@ -303,77 +404,6 @@ nesting depth (0 = root, 1 = first level, etc.):
 .nn-navitem.nn-tag[data-level='2'] .nn-navitem-name {
   opacity: 0.8;
   font-size: 0.95em;
-}
-```
-
-## Testing Your Theme
-
-### Visual Testing
-
-Add this CSS snippet to quickly verify your theme is working:
-
-```css
-/* Test backgrounds that match the exact selection rectangle shape */
-
-/* Light red background for navigation items */
-.nn-navitem::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  inset-inline-start: 0;
-  inset-inline-end: 0;
-  bottom: 0;
-  background-color: rgba(255, 0, 0, 0.1);
-  border-radius: var(--radius-s);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Light blue background for file items */
-.nn-file .nn-file-content::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  inset-inline-start: 0;
-  inset-inline-end: 0;
-  bottom: 0;
-  background-color: rgba(0, 100, 255, 0.1);
-  border-radius: var(--radius-m);
-  pointer-events: none;
-  z-index: 0;
-}
-
-/* Darker colors on hover */
-.nn-navitem:hover::before {
-  background-color: rgba(255, 0, 0, 0.2);
-}
-
-.nn-file:hover .nn-file-content::before {
-  background-color: rgba(0, 100, 255, 0.2);
-}
-```
-
-### Verify States
-
-- Select a folder/tag and check `.nn-selected` styling
-- Hover over items and check hover states
-- Pin a file and check `.nn-pinned` styling
-- Set custom colors via context menu and verify they're preserved
-
-### 4. Test Both Layouts
-
-Notebook Navigator supports both dual-pane (desktop) and single-pane (mobile)
-layouts:
-
-```css
-/* Dual-pane specific */
-.nn-split-container:not(.nn-single-pane) .nn-navitem {
-  /* desktop styles */
-}
-
-/* Single-pane specific */
-.nn-single-pane .nn-navitem {
-  /* mobile styles */
 }
 ```
 

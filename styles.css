@@ -101,8 +101,12 @@
 
 /* Resize handle - allows users to drag and resize the navigation pane */
 .nn-resize-handle {
+    --nn-resize-bg: transparent;
+    --nn-resize-hover-bg: var(--interactive-accent);
+    --nn-resize-hover-opacity: 0.5;
+    --nn-resize-active-opacity: 0.8;
     width: 5px;
-    background-color: transparent;
+    background-color: var(--nn-resize-bg);
     cursor: col-resize;
     position: relative;
     flex-shrink: 0;
@@ -110,14 +114,14 @@
 
 /* Resize handle hover state - provides visual feedback */
 .nn-resize-handle:hover {
-    background-color: var(--interactive-accent);
-    opacity: 0.5;
+    background-color: var(--nn-resize-hover-bg);
+    opacity: var(--nn-resize-hover-opacity);
 }
 
 /* Resize handle active state - stronger feedback during drag */
 .nn-resize-handle:active {
-    background-color: var(--interactive-accent);
-    opacity: 0.8;
+    background-color: var(--nn-resize-hover-bg);
+    opacity: var(--nn-resize-active-opacity);
 }
 
 /* ========================================================================
@@ -126,12 +130,13 @@
 
 /* Pane headers - consistent header styling for both panes */
 .nn-pane-header {
+    --nn-header-bg: var(--background-primary);
     padding: var(--size-4-2) var(--size-4-2);
     border-bottom: 1px solid var(--background-modifier-border);
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    background-color: var(--background-primary);
+    background-color: var(--nn-header-bg);
     min-height: 32px;
     height: 32px;
 }
@@ -146,7 +151,7 @@
 
 /* Navigation pane header - matches folder tree background for visual consistency */
 .nn-navigation-pane .nn-pane-header {
-    background-color: var(--background-secondary);
+    --nn-header-bg: var(--background-secondary);
 }
 
 /* Remove left padding from file pane header when navigation pane is visible */
@@ -348,6 +353,17 @@
     box-sizing: border-box;
 }
 
+/* CSS Custom Properties for navigation items - themes can override these */
+.nn-navitem {
+    /* Selection rectangle styling */
+    --nn-selection-bg: var(--text-selection);
+    --nn-selection-bg-inactive: var(--background-modifier-hover);
+    --nn-selection-radius: var(--radius-s);
+    /* Hover state styling */
+    --nn-hover-bg: var(--background-modifier-hover);
+    --nn-hover-radius: var(--radius-s);
+}
+
 /* Folder content - contains folder UI elements */
 .nn-navitem-content {
     display: flex;
@@ -365,8 +381,8 @@
 
 /* Folder hover state - desktop only */
 .nn-desktop .nn-navitem:hover {
-    background-color: var(--background-modifier-hover);
-    border-radius: var(--radius-s);
+    background-color: var(--nn-hover-bg);
+    border-radius: var(--nn-hover-radius);
 }
 
 /* Folder chevron/arrow - expand/collapse indicator */
@@ -499,6 +515,10 @@
     -webkit-user-select: none;
     user-select: none;
     position: relative;
+    /* CSS Custom Properties for file items - themes can override these */
+    --nn-selection-bg: var(--text-selection);
+    --nn-selection-bg-inactive: var(--background-modifier-hover);
+    --nn-selection-radius: var(--radius-m);
 }
 
 /* Remove shadows for clean Apple Notes aesthetic */
@@ -998,8 +1018,8 @@
     inset-inline-start: 0;
     inset-inline-end: 0;
     bottom: 0; /* Extend all the way down */
-    background-color: var(--text-selection);
-    border-radius: var(--radius-m);
+    background-color: var(--nn-selection-bg);
+    border-radius: var(--nn-selection-radius);
     z-index: 0; /* Below separator lines */
 }
 
@@ -1031,8 +1051,8 @@
     inset-inline-start: 0;
     inset-inline-end: 0;
     bottom: 0;
-    background-color: var(--text-selection);
-    border-radius: var(--radius-s);
+    background-color: var(--nn-selection-bg);
+    border-radius: var(--nn-selection-radius);
     z-index: 0;
 }
 
@@ -1101,7 +1121,7 @@
 .nn-split-container[data-navigator-focused='false'] .nn-navitem.nn-selected::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-file.nn-selected .nn-file-content::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-navitem.nn-selected::before {
-    background-color: var(--background-modifier-hover);
+    background-color: var(--nn-selection-bg-inactive);
 }
 
 /* ========================================================================
@@ -1249,15 +1269,15 @@ body.nn-resizing {
     inset-inline-start: 0px;
     inset-inline-end: 0px;
     bottom: 0;
-    border: 2px solid var(--text-selection);
-    border-radius: var(--radius-s);
+    border: 2px solid var(--nn-selection-bg);
+    border-radius: var(--nn-selection-radius);
     pointer-events: none;
     z-index: 10;
 }
 
 /* Dark mode context menu outline for folders */
 .theme-dark .nn-navitem.nn-context-menu-active:not(.nn-selected)::after {
-    border-color: var(--text-selection);
+    border-color: var(--nn-selection-bg);
     opacity: 0.5;
 }
 
@@ -1274,8 +1294,8 @@ body.nn-resizing {
     inset-inline-start: 0px;
     inset-inline-end: 0px;
     bottom: 1px; /* Account for separator line */
-    border: 2px solid var(--text-selection);
-    border-radius: var(--radius-m);
+    border: 2px solid var(--nn-selection-bg);
+    border-radius: var(--nn-selection-radius);
     pointer-events: none;
     z-index: 10;
 }
@@ -1291,7 +1311,7 @@ body.nn-resizing {
 
 /* Dark mode context menu outline for files */
 .theme-dark .nn-file.nn-context-menu-active:not(.nn-selected) .nn-file-content::after {
-    border-color: var(--text-selection);
+    border-color: var(--nn-selection-bg);
     opacity: 0.5;
 }
 
