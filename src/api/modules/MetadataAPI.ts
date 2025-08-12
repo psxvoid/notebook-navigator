@@ -398,11 +398,7 @@ export class MetadataAPI {
      */
     async pin(file: TFile, context: PinContext = 'all'): Promise<void> {
         const plugin = this.api.getPlugin();
-
-        // Ensure metadataService exists
-        if (!plugin.metadataService) {
-            throw new Error('Metadata service not available');
-        }
+        if (!plugin || !plugin.metadataService) return;
 
         // Find or create pinned note entry in settings
         let pinnedNote = plugin.settings.pinnedNotes.find(p => p.path === file.path);
@@ -449,11 +445,7 @@ export class MetadataAPI {
      */
     async unpin(file: TFile, context: PinContext = 'all'): Promise<void> {
         const plugin = this.api.getPlugin();
-
-        // Ensure metadataService exists
-        if (!plugin.metadataService) {
-            throw new Error('Metadata service not available');
-        }
+        if (!plugin || !plugin.metadataService) return;
 
         // Find pinned note entry in settings
         const pinnedNote = plugin.settings.pinnedNotes.find(p => p.path === file.path);

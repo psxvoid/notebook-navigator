@@ -34,7 +34,7 @@ if (nn) {
   const folder = tp.config.target_file.parent;
   const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'];
   const dayColor = colors[new Date().getDay()];
-  
+
   await nn.metadata.setFolderMeta(folder, { color: dayColor });
 }
 %>
@@ -317,7 +317,7 @@ if (nn) {
   if (!nn.isStorageReady()) {
     await new Promise<void>(resolve => nn.once('storage-ready', resolve));
   }
-  
+
   // Storage is ready, safe to use metadata APIs
   await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
 
@@ -343,7 +343,7 @@ if (nn) {
   if (!nn.isStorageReady()) {
     await new Promise(resolve => nn.once('storage-ready', resolve));
   }
-  
+
   // Storage is ready, safe to use metadata APIs
   await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
 }
