@@ -404,10 +404,6 @@
     align-items: center;
 }
 
-/* Smooth icon color transitions */
-.nn-navitem-icon svg {
-}
-
 /* Folder name text - truncates with ellipsis on overflow */
 .nn-navitem-name {
     font-size: var(--nn-nav-font-size);
@@ -2088,11 +2084,6 @@ body.nn-resizing {
 /* ========================================================================
    Folder Color Styles
    ======================================================================== */
-
-/* Smooth color transitions for folder items */
-.nn-navitem-icon svg,
-.nn-navitem-name {
-}
 
 /* ========================================================================
    Mobile-specific Folder Text Size
