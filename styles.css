@@ -546,14 +546,19 @@
 }
 
 /* Virtual list file separator */
+.nn-virtual-file-item {
+    --nn-separator-color: var(--background-modifier-border);
+    --nn-separator-height: 1px;
+}
+
 .nn-virtual-file-item:not(.nn-last-file)::after {
     content: '';
     position: absolute;
     bottom: 0;
     inset-inline-start: var(--size-4-5);
     inset-inline-end: var(--size-4-5);
-    height: 1px;
-    background-color: var(--background-modifier-border);
+    height: var(--nn-separator-height);
+    background-color: var(--nn-separator-color);
     z-index: 100; /* Very high to ensure it's always on top */
     pointer-events: none; /* Ensure it doesn't interfere with clicks */
 }

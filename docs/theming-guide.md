@@ -41,6 +41,12 @@ Users can test theme colors by pasting this into a CSS snippet:
   --nn-resize-hover-opacity: 1;
 }
 
+/* Separator lines between files */
+.nn-virtual-file-item {
+  --nn-separator-color: #c8e6c9; /* Light green */
+  --nn-separator-height: 2px;
+}
+
 /* Item backgrounds */
 .nn-navitem {
   background: #e6e9ff;
