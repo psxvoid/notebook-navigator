@@ -10,23 +10,34 @@ scripts to interact with its features programmatically.
 ### Accessing the API
 
 The Notebook Navigator API is available at runtime through the Obsidian app
-object:
+object. Here's a practical example using Templater:
 
 ```javascript
-// Get the API instance
+<%* // Templater script to pin the current file in Notebook Navigator
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 
-// Check if available
-if (!nn) {
-  console.error('Notebook Navigator plugin is not installed or enabled');
-  return;
+if (nn) {
+  // Pin the current file in both folder and tag contexts
+  const file = tp.config.target_file;
+  await nn.metadata.pin(file);
+  new Notice('File pinned in Notebook Navigator');
 }
+%>
+```
 
-// Use the API
-const folder = app.vault.getAbstractFileByPath('Projects');
-if (folder instanceof TFolder) {
-  await nn.metadata.setFolderMeta(folder, { icon: 'lucide:folder-star' });
+Or set a folder color based on the current date:
+
+```javascript
+<%* // Set folder color based on day of week
+const nn = app.plugins.plugins['notebook-navigator']?.api;
+if (nn) {
+  const folder = tp.config.target_file.parent;
+  const colors = ['#ff6b6b', '#4ecdc4', '#45b7d1', '#96ceb4', '#feca57', '#ff9ff3', '#54a0ff'];
+  const dayColor = colors[new Date().getDay()];
+  
+  await nn.metadata.setFolderMeta(folder, { color: dayColor });
 }
+%>
 ```
 
 ## API Overview
@@ -299,8 +310,8 @@ import type {
   IconString
 } from './notebook-navigator';
 
-const nn = app.plugins.plugins['notebook-navigator']?.api as NotebookNavigatorAPI;
-
+const nn = app.plugins.plugins['notebook-navigator']
+  ?.api as NotebookNavigatorAPI;
 if (nn) {
   // Wait for storage if needed, then proceed
   if (!nn.isStorageReady()) {
