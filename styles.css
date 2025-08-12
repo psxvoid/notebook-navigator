@@ -491,8 +491,8 @@
     padding: 0;
 }
 
-/* File item - container for each file in the list */
-.nn-file-item {
+/* File - container for each file in the list */
+.nn-file {
     background: transparent;
     border-radius: 0;
     padding: 0;
@@ -502,8 +502,8 @@
 }
 
 /* Remove shadows for clean Apple Notes aesthetic */
-.nn-file-item,
-.nn-desktop .nn-file-item:hover {
+.nn-file,
+.nn-desktop .nn-file:hover {
     box-shadow: none;
 }
 
@@ -539,12 +539,12 @@
 }
 
 /* Hide separator when current item is selected but doesn't have selected below */
-.nn-virtual-file-item:has(.nn-file-item.nn-selected:not(.nn-has-selected-below))::after {
+.nn-virtual-file-item:has(.nn-file.nn-selected:not(.nn-has-selected-below))::after {
     display: none;
 }
 
 /* Hide separator of previous item when current is selected but doesn't have selected above */
-.nn-virtual-file-item:has(+ .nn-virtual-file-item .nn-file-item.nn-selected:not(.nn-has-selected-above))::after {
+.nn-virtual-file-item:has(+ .nn-virtual-file-item .nn-file.nn-selected:not(.nn-has-selected-above))::after {
     display: none;
 }
 
@@ -656,8 +656,8 @@
 }
 
 /* Panel appears when hovering anywhere on file row */
-.nn-desktop .nn-file-item:hover .nn-quick-actions-panel,
-.nn-desktop.nn-single-pane .nn-file-item:hover .nn-quick-actions-panel {
+.nn-desktop .nn-file:hover .nn-quick-actions-panel,
+.nn-desktop.nn-single-pane .nn-file:hover .nn-quick-actions-panel {
     display: flex;
 }
 
@@ -828,7 +828,7 @@
 }
 
 /* Selected file tag styles */
-.nn-file-item.nn-selected .nn-file-tag {
+.nn-file.nn-selected .nn-file-tag {
     opacity: 0.85;
 }
 
@@ -837,12 +837,12 @@
    ======================================================================== */
 
 /* Slim file item - more compact list appearance */
-.nn-file-item.nn-slim .nn-file-content {
+.nn-file.nn-slim .nn-file-content {
     padding: var(--nn-file-padding-vertical-slim) var(--size-4-3); /* Reduced vertical padding */
 }
 
 /* Slim file name - no bold, smaller font like folder items */
-.nn-file-item.nn-slim .nn-file-name {
+.nn-file.nn-slim .nn-file-name {
     font-size: var(--nn-file-small-size);
     font-weight: 400;
     margin-bottom: 0;
@@ -850,12 +850,12 @@
 }
 
 /* Selected slim file - maintain selection styles */
-.nn-file-item.nn-slim.nn-selected .nn-file-name {
+.nn-file.nn-slim.nn-selected .nn-file-name {
     color: var(--text-normal);
 }
 
 /* Dark mode slim file name */
-.theme-dark .nn-file-item.nn-slim .nn-file-name {
+.theme-dark .nn-file.nn-slim .nn-file-name {
     color: var(--text-normal);
 }
 
@@ -884,7 +884,7 @@
 }
 
 /* Selected file image - slightly transparent when selected */
-.nn-file-item.nn-selected .nn-feature-image {
+.nn-file.nn-selected .nn-feature-image {
     opacity: 0.9;
 }
 
@@ -991,7 +991,7 @@
    ======================================================================== */
 
 /* Selected file background pseudo-element - better control over styling */
-.nn-file-item.nn-selected .nn-file-content::before {
+.nn-file.nn-selected .nn-file-content::before {
     content: '';
     position: absolute;
     top: 0;
@@ -1004,12 +1004,12 @@
 }
 
 /* Adjust rounded corners for multiselection */
-.nn-file-item.nn-selected.nn-has-selected-above .nn-file-content::before {
+.nn-file.nn-selected.nn-has-selected-above .nn-file-content::before {
     border-top-left-radius: 0;
     border-top-right-radius: 0;
 }
 
-.nn-file-item.nn-selected.nn-has-selected-below .nn-file-content::before {
+.nn-file.nn-selected.nn-has-selected-below .nn-file-content::before {
     border-bottom-left-radius: 0;
     border-bottom-right-radius: 0;
 }
@@ -1058,25 +1058,25 @@
 }
 
 /* Selected file inner content z-index - ensures content above background */
-.nn-file-item.nn-selected .nn-file-inner-content {
+.nn-file.nn-selected .nn-file-inner-content {
     position: relative;
     z-index: 5; /* Above selection background but below separators */
 }
 
 /* Selected file text colors - maintains readability */
-.nn-file-item.nn-selected .nn-file-name {
+.nn-file.nn-selected .nn-file-name {
     color: var(--text-normal);
 }
 
-.nn-file-item.nn-selected .nn-file-date {
+.nn-file.nn-selected .nn-file-date {
     color: var(--text-normal);
 }
 
-.nn-file-item.nn-selected .nn-file-preview {
+.nn-file.nn-selected .nn-file-preview {
     color: var(--text-muted);
 }
 
-.nn-file-item.nn-selected .nn-file-folder {
+.nn-file.nn-selected .nn-file-folder {
     color: var(--text-muted);
 }
 
@@ -1090,16 +1090,16 @@
 }
 
 /* Focused file - no outline for cleaner appearance */
-.nn-file-item.nn-focused {
+.nn-file.nn-focused {
     /* No outline for cleaner Notes style */
 }
 
 /* Dimmed selections - apply to all these cases:
    1. Navigator unfocused (all selections dimmed)
    2. Navigator focused but inactive pane (cross-pane dimming) */
-.nn-split-container[data-navigator-focused='false'] .nn-file-item.nn-selected .nn-file-content::before,
+.nn-split-container[data-navigator-focused='false'] .nn-file.nn-selected .nn-file-content::before,
 .nn-split-container[data-navigator-focused='false'] .nn-navitem.nn-selected::before,
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-file-item.nn-selected .nn-file-content::before,
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-file.nn-selected .nn-file-content::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-navitem.nn-selected::before {
     background-color: var(--background-modifier-hover);
 }
@@ -1109,12 +1109,12 @@
    ======================================================================== */
 
 /* File hover states - maintains transparency - desktop only */
-.nn-desktop .nn-file-item:hover .nn-file-content {
+.nn-desktop .nn-file:hover .nn-file-content {
     background-color: transparent;
 }
 
-.nn-desktop .nn-file-item.nn-selected:hover .nn-file-content,
-.theme-dark .nn-desktop .nn-file-item.nn-selected:hover .nn-file-content {
+.nn-desktop .nn-file.nn-selected:hover .nn-file-content,
+.theme-dark .nn-desktop .nn-file.nn-selected:hover .nn-file-content {
     background-color: transparent;
 }
 
@@ -1262,12 +1262,12 @@ body.nn-resizing {
 }
 
 /* Context menu active file - prepares for outline */
-.nn-file-item.nn-context-menu-active .nn-file-content {
+.nn-file.nn-context-menu-active .nn-file-content {
     position: relative;
 }
 
 /* Context menu outline for files - shows which item menu affects */
-.nn-file-item.nn-context-menu-active:not(.nn-selected) .nn-file-content::after {
+.nn-file.nn-context-menu-active:not(.nn-selected) .nn-file-content::after {
     content: '';
     position: absolute;
     top: 0;
@@ -1290,7 +1290,7 @@ body.nn-resizing {
 }
 
 /* Dark mode context menu outline for files */
-.theme-dark .nn-file-item.nn-context-menu-active:not(.nn-selected) .nn-file-content::after {
+.theme-dark .nn-file.nn-context-menu-active:not(.nn-selected) .nn-file-content::after {
     border-color: var(--text-selection);
     opacity: 0.5;
 }
@@ -2217,7 +2217,7 @@ body.nn-resizing {
 }
 
 /* Mobile slim file items - larger touch targets */
-.notebook-navigator-mobile .nn-file-item.nn-slim .nn-file-content {
+.notebook-navigator-mobile .nn-file.nn-slim .nn-file-content {
     padding: var(--nn-file-padding-vertical-slim-mobile) var(--size-4-3);
 }
 

@@ -160,6 +160,21 @@ If you love using Notebook Navigator, please consider
   ContentProviderRegistry, and supporting services. Covers dependency injection
   patterns and data flow between services.
 
+### Theme Compatibility
+
+- [**Theming Guide**](docs/theming-guide.md) - Comprehensive guide for theme
+  developers to add Notebook Navigator support. Covers CSS class structure, DOM
+  hierarchy, and common theming patterns like rainbow folders.
+
+**Note for Theme Developers**: Notebook Navigator uses a custom dual-pane
+interface with different CSS classes than Obsidian's default file explorer:
+
+- Navigation items use `.nn-navitem` (not `.nav-folder`)
+- Files are in a separate pane with `.nn-file`
+- Virtual scrolling means a flat DOM structure
+
+See the [Theming Guide](docs/theming-guide.md) for implementation details.
+
 <br>
 
 ## How to Use

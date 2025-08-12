@@ -118,8 +118,9 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
     return (
         <div
             ref={folderRef}
-            className="nn-navitem"
+            className="nn-navitem nn-virtual"
             data-path={virtualFolder.id}
+            data-level={level}
             style={{ paddingInlineStart: `${level * 20}px` }}
             role="treeitem"
             aria-expanded={hasChildren ? isExpanded : undefined}

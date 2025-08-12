@@ -249,7 +249,7 @@ export const FileItem = React.memo(function FileItem({
 
     // Memoize className to avoid string concatenation on every render
     const className = useMemo(() => {
-        const classes = ['nn-file-item'];
+        const classes = ['nn-file'];
         if (isSelected) classes.push('nn-selected');
         if (isSlimMode) classes.push('nn-slim');
         if (isSelected && hasSelectedAbove) classes.push('nn-has-selected-above');

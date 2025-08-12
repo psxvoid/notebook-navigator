@@ -149,7 +149,7 @@ export const FolderItem = React.memo(function FolderItem({
 
     // Memoize className to avoid string concatenation on every render
     const className = useMemo(() => {
-        const classes = ['nn-navitem'];
+        const classes = ['nn-navitem', 'nn-folder'];
         if (isSelected) classes.push('nn-selected');
         return classes.join(' ');
     }, [isSelected]);
@@ -270,6 +270,7 @@ export const FolderItem = React.memo(function FolderItem({
             data-drop-zone="folder"
             data-drop-path={folder.path}
             data-clickable="folder"
+            data-level={level}
             onClick={onClick}
             onDoubleClick={handleDoubleClick}
             style={{ paddingInlineStart: `${level * 20}px` }}

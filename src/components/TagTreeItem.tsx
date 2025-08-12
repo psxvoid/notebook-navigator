@@ -111,7 +111,7 @@ export const TagTreeItem = React.memo(
 
         // Memoize className to avoid string concatenation on every render
         const className = useMemo(() => {
-            const classes = ['nn-navitem'];
+            const classes = ['nn-navitem', 'nn-tag'];
             if (isSelected) classes.push('nn-selected');
             return classes.join(' ');
         }, [isSelected]);
@@ -183,6 +183,7 @@ export const TagTreeItem = React.memo(
                 data-drop-zone="tag"
                 data-drop-path={tagNode.displayPath}
                 data-tag-context={context}
+                data-level={level}
                 style={{ paddingInlineStart: `${level * 20}px` }}
                 role="treeitem"
                 aria-expanded={hasChildren ? isExpanded : undefined}
