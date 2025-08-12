@@ -433,7 +433,7 @@
                     const testFile = await this.createTestFile('test-delete.md', '# Delete Test');
 
                     // Delete the file (returns void now)
-                    await this.api.file.deleteFiles([testFile]);
+                    await this.api.file.delete([testFile]);
 
                     // Verify file is deleted (wait a bit for async operation)
                     await new Promise(resolve => setTimeout(resolve, 100));
@@ -448,7 +448,7 @@
                     }
 
                     // Delete all files at once (returns void now)
-                    await this.api.file.deleteFiles(files);
+                    await this.api.file.delete(files);
 
                     // Verify all files are deleted
                     await new Promise(resolve => setTimeout(resolve, 100));
@@ -464,7 +464,7 @@
                     const testFile = await this.createTestFile('test-move-source/test-file.md', '# Move Test');
 
                     // Move the file
-                    const result = await this.api.file.moveFiles([testFile], targetFolder);
+                    const result = await this.api.file.move([testFile], targetFolder);
                     this.assertExists(result, 'Move should return a result');
                     this.assertEqual(result.movedCount, 1, 'Should have moved 1 file');
                     this.assertEqual(result.skippedCount, 0, 'Should have no skipped files');
@@ -485,7 +485,7 @@
                     const fakeFolder = { path: 'non-existent-folder', name: 'fake' };
 
                     try {
-                        await this.api.file.moveFiles([testFile], fakeFolder);
+                        await this.api.file.move([testFile], fakeFolder);
                         // Should throw for invalid move
                         this.assertTrue(false, 'Move to non-existent folder should throw');
                     } catch (e) {

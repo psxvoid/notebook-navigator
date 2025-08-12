@@ -11,7 +11,7 @@
  *
  * const nn = app.plugins.plugins['notebook-navigator']?.api as NotebookNavigatorAPI;
  * if (nn) {
- *   await nn.file.deleteFiles([file]);
+ *   await nn.file.delete([file]);
  * }
  * ```
  */
@@ -150,9 +150,9 @@ export interface NotebookNavigatorAPI {
     /** File operations with smart selection management */
     file: {
         /** Delete files (moves to trash) */
-        deleteFiles(files: TFile[]): Promise<void>;
+        delete(files: TFile[]): Promise<void>;
         /** Move files to a target folder */
-        moveFiles(files: TFile[], folder: TFolder): Promise<MoveResult>;
+        move(files: TFile[], folder: TFolder): Promise<MoveResult>;
     };
 
     /** Metadata operations for folders, tags, and pinned files */
