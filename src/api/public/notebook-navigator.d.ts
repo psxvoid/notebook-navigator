@@ -52,16 +52,6 @@ export interface TagMetadata {
 }
 
 /**
- * Result of a file move operation
- */
-export interface MoveResult {
-    /** Number of files successfully moved */
-    movedCount: number;
-    /** Number of files skipped (already exist at destination) */
-    skippedCount: number;
-}
-
-/**
  * Currently selected navigation item (folder or tag)
  * Discriminated union ensures only one can be selected at a time
  */
@@ -151,14 +141,6 @@ export interface NotebookNavigatorAPI {
 
     /** Check if storage system is ready for metadata operations */
     isStorageReady(): boolean;
-
-    /** File operations with smart selection management */
-    file: {
-        /** Delete files (moves to trash) */
-        delete(files: TFile[]): Promise<void>;
-        /** Move files to a target folder */
-        move(files: TFile[], folder: TFolder): Promise<MoveResult>;
-    };
 
     /** Metadata operations for folders, tags, and pinned files */
     metadata: {

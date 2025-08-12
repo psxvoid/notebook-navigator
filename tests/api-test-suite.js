@@ -18,12 +18,8 @@
  * - Creates temporary test files at the ROOT of your vault with names like:
  *   - test-navigation.md
  *   - test-pinned.md
- *   - test-delete.md
- *   - test-batch-0.md, test-batch-1.md, etc.
  * - Creates temporary test folders at the ROOT of your vault:
  *   - test-metadata-folder/
- *   - test-move-source/
- *   - test-move-target/
  *
  * CLEANUP:
  * - All test files and folders are automatically deleted after tests complete
@@ -227,7 +223,6 @@
             await this.runSuite('Core API', this.coreTests());
             await this.runSuite('Navigation', this.navigationTests());
             await this.runSuite('Metadata', this.metadataTests());
-            await this.runSuite('File Operations', this.fileTests());
             await this.runSuite('Selection', this.selectionTests());
             await this.runSuite('Events', this.eventTests());
 
@@ -419,79 +414,6 @@
                     this.assertFalse(isPinned, 'File should be unpinned after unpin()');
                     this.assertFalse(this.api.metadata.isPinned(testFile, 'folder'), 'Should not be pinned in folder context');
                     this.assertFalse(this.api.metadata.isPinned(testFile, 'tag'), 'Should not be pinned in tag context');
-                }
-            };
-        }
-
-        fileTests() {
-            return {
-                'File API should exist': async function () {
-                    this.assertExists(this.api.file, 'File API not found');
-                },
-
-                'Should delete a single file': async function () {
-                    const testFile = await this.createTestFile('test-delete.md', '# Delete Test');
-
-                    // Delete the file (returns void now)
-                    await this.api.file.delete([testFile]);
-
-                    // Verify file is deleted (wait a bit for async operation)
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    const exists = app.vault.getAbstractFileByPath(testFile.path);
-                    this.assertFalse(exists, 'File should be deleted');
-                },
-
-                'Should delete multiple files': async function () {
-                    const files = [];
-                    for (let i = 0; i < 3; i++) {
-                        files.push(await this.createTestFile(`test-multi-delete-${i}.md`, `# Delete ${i}`));
-                    }
-
-                    // Delete all files at once (returns void now)
-                    await this.api.file.delete(files);
-
-                    // Verify all files are deleted
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    for (const file of files) {
-                        const exists = app.vault.getAbstractFileByPath(file.path);
-                        this.assertFalse(exists, `File ${file.path} should be deleted`);
-                    }
-                },
-
-                'Should move files to target folder': async function () {
-                    const sourceFolder = await this.createTestFolder('test-move-source');
-                    const targetFolder = await this.createTestFolder('test-move-target');
-                    const testFile = await this.createTestFile('test-move-source/test-file.md', '# Move Test');
-
-                    // Move the file
-                    const result = await this.api.file.move([testFile], targetFolder);
-                    this.assertExists(result, 'Move should return a result');
-                    this.assertEqual(result.movedCount, 1, 'Should have moved 1 file');
-                    this.assertEqual(result.skippedCount, 0, 'Should have no skipped files');
-
-                    // Verify file is moved
-                    await new Promise(resolve => setTimeout(resolve, 100));
-                    const movedFile = app.vault.getAbstractFileByPath('test-move-target/test-file.md');
-                    this.assertExists(movedFile, 'File should exist at new location');
-
-                    const oldFile = app.vault.getAbstractFileByPath('test-move-source/test-file.md');
-                    this.assertFalse(oldFile, 'File should not exist at old location');
-                },
-
-                'Should handle move errors gracefully': async function () {
-                    const testFile = await this.createTestFile('test-move-error.md', '# Error Test');
-
-                    // Try to move to a non-existent folder (create a fake folder object)
-                    const fakeFolder = { path: 'non-existent-folder', name: 'fake' };
-
-                    try {
-                        await this.api.file.move([testFile], fakeFolder);
-                        // Should throw for invalid move
-                        this.assertTrue(false, 'Move to non-existent folder should throw');
-                    } catch (e) {
-                        // Expected - moving to non-existent folder should fail
-                        this.assertTrue(true, 'Move to non-existent folder correctly threw error');
-                    }
                 }
             };
         }

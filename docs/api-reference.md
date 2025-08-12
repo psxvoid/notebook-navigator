@@ -33,9 +33,8 @@ if (folder instanceof TFolder) {
 
 ## API Overview
 
-The API provides four main namespaces:
+The API provides three main namespaces:
 
-- **`file`** - Smart file operations with selection management
 - **`metadata`** - Folder/tag colors, icons, and pinned files
 - **`navigation`** - Navigate to files in the navigator
 - **`selection`** - Query current selection state
@@ -44,29 +43,6 @@ Core methods:
 
 - **`getVersion()`** - Get the API version string
 - **`isStorageReady()`** - Check if storage is ready for metadata operations
-
-## File API
-
-Smart file operations that maintain proper selection in the navigator.
-
-| Method                | Description                                                | Returns               |
-| --------------------- | ---------------------------------------------------------- | --------------------- |
-| `delete(files)`       | Move files to Obsidian trash (respects app trash settings) | `Promise<void>`       |
-| `move(files, folder)` | Move files to folder                                       | `Promise<MoveResult>` |
-
-```typescript
-// Delete files (throws on failure)
-const file = app.vault.getFileByPath('notes/old.md');
-await nn.file.delete([file]);
-
-// Move files (throws on failure, returns counts on success)
-const targetFolder = app.vault.getAbstractFileByPath('Archive');
-if (targetFolder instanceof TFolder) {
-  const result = await nn.file.move([file1, file2], targetFolder);
-  // result: { movedCount: 2, skippedCount: 0 }
-  // Files with name collisions are skipped without overwrite; see skippedCount
-}
-```
 
 ## Metadata API
 
@@ -456,37 +432,6 @@ if (nn) {
         fm.tags.push('processed');
       }
     });
-  }
-}
-```
-
-### Bulk operations
-
-```typescript
-// Delete old files
-const archiveFolder = app.vault.getAbstractFileByPath('Archive');
-if (archiveFolder instanceof TFolder) {
-  const oldFiles = archiveFolder.children
-    .filter((f): f is TFile => f instanceof TFile)
-    .filter(f => f.stat.mtime < Date.now() - 30 * 24 * 60 * 60 * 1000);
-
-  if (oldFiles.length > 0) {
-    await nn.file.deleteFiles(oldFiles);
-  }
-}
-
-// Move files between folders
-const inbox = app.vault.getAbstractFileByPath('Inbox');
-const projects = app.vault.getAbstractFileByPath('Projects');
-if (inbox instanceof TFolder && projects instanceof TFolder) {
-  const files = inbox.children.filter(f => f instanceof TFile);
-  try {
-    const result = await nn.file.moveFiles(files, projects);
-    console.log(
-      `Moved ${result.movedCount} files, skipped ${result.skippedCount}`
-    );
-  } catch (error) {
-    console.error('Move failed:', error.message);
   }
 }
 ```

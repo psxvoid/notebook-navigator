@@ -42,6 +42,25 @@ export class MetadataAPI {
         pinnedNotes: [] as PinnedNote[]
     };
 
+    /**
+     * Previous state for change detection
+     */
+    private previousState: {
+        folderColors: Record<string, string>;
+        folderIcons: Record<string, string>;
+        tagColors: Record<string, string>;
+        tagIcons: Record<string, string>;
+        pinnedNotes: PinnedNote[];
+        initialized: boolean;
+    } = {
+        folderColors: {},
+        folderIcons: {},
+        tagColors: {},
+        tagIcons: {},
+        pinnedNotes: [],
+        initialized: false
+    };
+
     constructor(private api: NotebookNavigatorAPI) {
         this.initializeFromSettings();
     }
@@ -57,22 +76,148 @@ export class MetadataAPI {
     }
 
     /**
-     * Update internal cache when settings change
+     * Deep compare two objects to find changed keys
+     * @internal
+     */
+    private findChangedKeys(oldObj: Record<string, string>, newObj: Record<string, string>): Set<string> {
+        const changed = new Set<string>();
+
+        // Check for added or modified
+        for (const [key, value] of Object.entries(newObj)) {
+            if (oldObj[key] !== value) {
+                changed.add(key);
+            }
+        }
+
+        // Check for deleted
+        for (const key of Object.keys(oldObj)) {
+            if (!(key in newObj)) {
+                changed.add(key);
+            }
+        }
+
+        return changed;
+    }
+
+    /**
+     * Deep compare pinned notes arrays
+     * @internal
+     */
+    private pinnedNotesChanged(oldNotes: PinnedNote[], newNotes: PinnedNote[]): boolean {
+        if (oldNotes.length !== newNotes.length) return true;
+
+        // Create a map of old notes for efficient lookup
+        const oldMap = new Map<string, PinnedNote['context']>();
+        for (const note of oldNotes) {
+            oldMap.set(note.path, note.context);
+        }
+
+        // Check each new note against the old ones
+        for (const newNote of newNotes) {
+            const oldContext = oldMap.get(newNote.path);
+            if (!oldContext) return true; // New note added
+
+            // Compare contexts
+            const oldFolder = oldContext[ItemType.FOLDER] ?? false;
+            const newFolder = newNote.context[ItemType.FOLDER] ?? false;
+            const oldTag = oldContext[ItemType.TAG] ?? false;
+            const newTag = newNote.context[ItemType.TAG] ?? false;
+
+            if (oldFolder !== newFolder || oldTag !== newTag) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Update internal cache when settings change and trigger events
      * Called by the plugin when settings are modified
      * @internal
      */
     updateFromSettings(settings: NotebookNavigatorSettings): void {
+        const current = {
+            folderColors: settings.folderColors || {},
+            folderIcons: settings.folderIcons || {},
+            tagColors: settings.tagColors || {},
+            tagIcons: settings.tagIcons || {},
+            pinnedNotes: settings.pinnedNotes || []
+        };
+
+        // Update the cache first
         this.metadataState = {
-            // Copy folder metadata
-            folderColors: { ...settings.folderColors },
-            folderIcons: { ...settings.folderIcons },
+            folderColors: { ...current.folderColors },
+            folderIcons: { ...current.folderIcons },
+            tagColors: { ...current.tagColors },
+            tagIcons: { ...current.tagIcons },
+            pinnedNotes: [...current.pinnedNotes]
+        };
 
-            // Copy tag metadata
-            tagColors: { ...settings.tagColors },
-            tagIcons: { ...settings.tagIcons },
+        // Skip comparison on first run (just initialize state)
+        if (!this.previousState.initialized) {
+            this.previousState = {
+                folderColors: { ...current.folderColors },
+                folderIcons: { ...current.folderIcons },
+                tagColors: { ...current.tagColors },
+                tagIcons: { ...current.tagIcons },
+                pinnedNotes: current.pinnedNotes.map(n => ({
+                    path: n.path,
+                    context: { ...n.context }
+                })),
+                initialized: true
+            };
+            return;
+        }
 
-            // Copy pinned files
-            pinnedNotes: [...(settings.pinnedNotes || [])]
+        // Find changed folders
+        const changedFolderColors = this.findChangedKeys(this.previousState.folderColors, current.folderColors);
+        const changedFolderIcons = this.findChangedKeys(this.previousState.folderIcons, current.folderIcons);
+        const changedFolders = new Set([...changedFolderColors, ...changedFolderIcons]);
+
+        // Fire events for changed folders
+        for (const folderPath of changedFolders) {
+            const folder = this.api.getApp().vault.getAbstractFileByPath(folderPath);
+            if (folder instanceof TFolder) {
+                const metadata = this.getFolderMeta(folder);
+                this.api.trigger('folder-changed', {
+                    folder,
+                    metadata: metadata || { color: undefined, icon: undefined }
+                });
+            }
+        }
+
+        // Find changed tags
+        const changedTagColors = this.findChangedKeys(this.previousState.tagColors, current.tagColors);
+        const changedTagIcons = this.findChangedKeys(this.previousState.tagIcons, current.tagIcons);
+        const changedTags = new Set([...changedTagColors, ...changedTagIcons]);
+
+        // Fire events for changed tags
+        for (const tag of changedTags) {
+            const metadata = this.getTagMeta(tag);
+            this.api.trigger('tag-changed', {
+                tag,
+                metadata: metadata || { color: undefined, icon: undefined }
+            });
+        }
+
+        // Check pinned notes
+        if (this.pinnedNotesChanged(this.previousState.pinnedNotes, current.pinnedNotes)) {
+            const pinnedFiles = this.getPinned();
+            this.api.trigger('pinned-files-changed', { files: pinnedFiles });
+        }
+
+        // Update previous state for next comparison
+        this.previousState = {
+            folderColors: { ...current.folderColors },
+            folderIcons: { ...current.folderIcons },
+            tagColors: { ...current.tagColors },
+            tagIcons: { ...current.tagIcons },
+            pinnedNotes: current.pinnedNotes.map(n => ({
+                path: n.path,
+                context: { ...n.context }
+            })),
+            initialized: true
         };
     }
 
@@ -115,11 +260,9 @@ export class MetadataAPI {
         if (meta.color !== undefined) {
             if (meta.color === null) {
                 // Clear color
-                delete this.metadataState.folderColors[path];
                 delete plugin.settings.folderColors[path];
             } else {
                 // Set color
-                this.metadataState.folderColors[path] = meta.color;
                 plugin.settings.folderColors[path] = meta.color;
             }
             changed = true;
@@ -129,17 +272,16 @@ export class MetadataAPI {
         if (meta.icon !== undefined) {
             if (meta.icon === null) {
                 // Clear icon
-                delete this.metadataState.folderIcons[path];
                 delete plugin.settings.folderIcons[path];
             } else {
                 // Set icon
-                this.metadataState.folderIcons[path] = meta.icon;
                 plugin.settings.folderIcons[path] = meta.icon;
             }
             changed = true;
         }
 
         // Save settings if anything changed
+        // The cache will be updated via the settings update callback
         if (changed) {
             await plugin.saveSettings();
         }
@@ -186,11 +328,9 @@ export class MetadataAPI {
         if (meta.color !== undefined) {
             if (meta.color === null) {
                 // Clear color
-                delete this.metadataState.tagColors[normalizedTag];
                 delete plugin.settings.tagColors[normalizedTag];
             } else {
                 // Set color
-                this.metadataState.tagColors[normalizedTag] = meta.color;
                 plugin.settings.tagColors[normalizedTag] = meta.color;
             }
             changed = true;
@@ -200,17 +340,16 @@ export class MetadataAPI {
         if (meta.icon !== undefined) {
             if (meta.icon === null) {
                 // Clear icon
-                delete this.metadataState.tagIcons[normalizedTag];
                 delete plugin.settings.tagIcons[normalizedTag];
             } else {
                 // Set icon
-                this.metadataState.tagIcons[normalizedTag] = meta.icon;
                 plugin.settings.tagIcons[normalizedTag] = meta.icon;
             }
             changed = true;
         }
 
         // Save settings if anything changed
+        // The cache will be updated via the settings update callback
         if (changed) {
             await plugin.saveSettings();
         }
@@ -265,10 +404,8 @@ export class MetadataAPI {
             throw new Error('Metadata service not available');
         }
 
-        let changed = false;
-
-        // Find or create pinned note entry
-        let pinnedNote = this.metadataState.pinnedNotes.find(p => p.path === file.path);
+        // Find or create pinned note entry in settings
+        let pinnedNote = plugin.settings.pinnedNotes.find(p => p.path === file.path);
         if (!pinnedNote) {
             pinnedNote = {
                 path: file.path,
@@ -277,25 +414,30 @@ export class MetadataAPI {
                     [ItemType.TAG]: false
                 }
             };
-            this.metadataState.pinnedNotes.push(pinnedNote);
+            plugin.settings.pinnedNotes.push(pinnedNote);
         }
+
+        let changed = false;
 
         if (context === 'all') {
             // Pin in both contexts
-            pinnedNote.context[ItemType.FOLDER] = true;
-            pinnedNote.context[ItemType.TAG] = true;
-            changed = true;
+            if (!pinnedNote.context[ItemType.FOLDER] || !pinnedNote.context[ItemType.TAG]) {
+                pinnedNote.context[ItemType.FOLDER] = true;
+                pinnedNote.context[ItemType.TAG] = true;
+                changed = true;
+            }
         } else {
             // Pin in specific context
             const internalContext = this.toInternalContext(context);
-            pinnedNote.context[internalContext] = true;
-            changed = true;
+            if (!pinnedNote.context[internalContext]) {
+                pinnedNote.context[internalContext] = true;
+                changed = true;
+            }
         }
 
         // Save settings if anything changed
+        // The cache will be updated via the settings update callback
         if (changed) {
-            // Update plugin settings to match cache
-            plugin.settings.pinnedNotes = [...this.metadataState.pinnedNotes];
             await plugin.saveSettings();
         }
     }
@@ -313,8 +455,8 @@ export class MetadataAPI {
             throw new Error('Metadata service not available');
         }
 
-        // Find pinned note entry
-        const pinnedNote = this.metadataState.pinnedNotes.find(p => p.path === file.path);
+        // Find pinned note entry in settings
+        const pinnedNote = plugin.settings.pinnedNotes.find(p => p.path === file.path);
         if (!pinnedNote) {
             return;
         }
@@ -323,29 +465,31 @@ export class MetadataAPI {
 
         if (context === 'all') {
             // Unpin from both contexts
-            pinnedNote.context[ItemType.FOLDER] = false;
-            pinnedNote.context[ItemType.TAG] = false;
-            changed = true;
+            if (pinnedNote.context[ItemType.FOLDER] || pinnedNote.context[ItemType.TAG]) {
+                pinnedNote.context[ItemType.FOLDER] = false;
+                pinnedNote.context[ItemType.TAG] = false;
+                changed = true;
+            }
         } else {
             // Unpin from specific context
             const internalContext = this.toInternalContext(context);
-            pinnedNote.context[internalContext] = false;
-            changed = true;
-        }
-
-        // Remove from list if unpinned from all contexts
-        if (!pinnedNote.context[ItemType.FOLDER] && !pinnedNote.context[ItemType.TAG]) {
-            const index = this.metadataState.pinnedNotes.indexOf(pinnedNote);
-            if (index >= 0) {
-                this.metadataState.pinnedNotes.splice(index, 1);
+            if (pinnedNote.context[internalContext]) {
+                pinnedNote.context[internalContext] = false;
                 changed = true;
             }
         }
 
+        // Remove from list if unpinned from all contexts
+        if (changed && !pinnedNote.context[ItemType.FOLDER] && !pinnedNote.context[ItemType.TAG]) {
+            const index = plugin.settings.pinnedNotes.indexOf(pinnedNote);
+            if (index >= 0) {
+                plugin.settings.pinnedNotes.splice(index, 1);
+            }
+        }
+
         // Save settings if anything changed
+        // The cache will be updated via the settings update callback
         if (changed) {
-            // Update plugin settings to match cache
-            plugin.settings.pinnedNotes = [...this.metadataState.pinnedNotes];
             await plugin.saveSettings();
         }
     }

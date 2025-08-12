@@ -762,12 +762,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             if (this.api.metadata) {
                 this.api.metadata.updateFromSettings(this.settings);
             }
-            if (this.api.file) {
-                this.api.file.updateFromSettings(this.settings);
-            }
-
-            // Check for changes and trigger events
-            this.api.checkAndTriggerEvents(this.settings);
         }
 
         // Create a copy of listeners to avoid issues if a callback modifies the map

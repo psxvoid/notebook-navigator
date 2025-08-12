@@ -16,15 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, EventRef, Events, TFolder } from 'obsidian';
+import { App, EventRef, Events } from 'obsidian';
 import type NotebookNavigatorPlugin from '../main';
 import type { NotebookNavigatorEventType, NotebookNavigatorEvents } from './types';
-import type { NotebookNavigatorSettings } from '../settings';
 
 // Import sub-APIs
 import { NavigationAPI } from './modules/NavigationAPI';
 import { MetadataAPI } from './modules/MetadataAPI';
-import { FileAPI } from './modules/FileAPI';
 import { SelectionAPI } from './modules/SelectionAPI';
 
 // Import versioning
@@ -43,7 +41,6 @@ export class NotebookNavigatorAPI {
     // Sub-APIs
     public navigation: NavigationAPI;
     public metadata: MetadataAPI;
-    public file: FileAPI;
     public selection: SelectionAPI;
 
     constructor(plugin: NotebookNavigatorPlugin, app: App) {
@@ -54,7 +51,6 @@ export class NotebookNavigatorAPI {
         // Initialize sub-APIs
         this.navigation = new NavigationAPI(this);
         this.metadata = new MetadataAPI(this);
-        this.file = new FileAPI(this);
         this.selection = new SelectionAPI(this);
     }
 
@@ -79,40 +75,6 @@ export class NotebookNavigatorAPI {
      */
     setStorageReady(ready: boolean): void {
         this.storageReady = ready;
-    }
-
-    /**
-     * Trigger events for metadata changes
-     * Called from main.ts onSettingsUpdate() after settings are saved
-     * @internal
-     */
-    checkAndTriggerEvents(settings: NotebookNavigatorSettings): void {
-        // Fire events for all folders with metadata
-        const folderPaths = new Set([...Object.keys(settings.folderColors || {}), ...Object.keys(settings.folderIcons || {})]);
-
-        for (const folderPath of folderPaths) {
-            const folder = this.app.vault.getAbstractFileByPath(folderPath);
-            if (folder instanceof TFolder) {
-                const metadata = this.metadata.getFolderMeta(folder);
-                if (metadata) {
-                    this.trigger('folder-changed', { folder, metadata });
-                }
-            }
-        }
-
-        // Fire events for all tags with metadata
-        const tags = new Set([...Object.keys(settings.tagColors || {}), ...Object.keys(settings.tagIcons || {})]);
-
-        for (const tag of tags) {
-            const metadata = this.metadata.getTagMeta(tag);
-            if (metadata) {
-                this.trigger('tag-changed', { tag, metadata });
-            }
-        }
-
-        // Fire pinned-files-changed event
-        const pinnedFiles = this.metadata.getPinned();
-        this.trigger('pinned-files-changed', { files: pinnedFiles });
     }
 
     /**

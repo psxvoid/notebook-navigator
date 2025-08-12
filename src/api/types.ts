@@ -88,20 +88,6 @@ export interface PinnedFile {
 }
 
 // ============================================================================
-// OPERATION RESULTS
-// ============================================================================
-
-/**
- * Result of a file move operation
- */
-export interface MoveResult {
-    /** Number of files successfully moved */
-    movedCount: number;
-    /** Number of files skipped (already exist at destination) */
-    skippedCount: number;
-}
-
-// ============================================================================
 // EVENTS
 // ============================================================================
 
