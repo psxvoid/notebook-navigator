@@ -5,6 +5,19 @@ scripts to interact with its features programmatically.
 
 **Current Version:** 1.0.0
 
+## Table of Contents
+
+- [Quick Start](#quick-start)
+- [API Overview](#api-overview)
+- [Metadata API](#metadata-api)
+  - [Folder and Tag Metadata](#folder-and-tag-metadata)
+  - [Pinned Files](#pinned-files)
+- [Navigation API](#navigation-api)
+- [Selection API](#selection-api)
+- [Events](#events)
+- [Core API Methods](#core-api-methods)
+- [TypeScript Support](#typescript-support)
+
 ## Quick Start
 
 ### Accessing the API
@@ -352,19 +365,3 @@ The type definitions provide:
 
 **Note**: These type checks are compile-time only. At runtime, the API is
 permissive and accepts any values (see Runtime Behavior sections for each API).
-
-## API Design Notes
-
-- **Uses Obsidian types** - All methods use `TFile` and `TFolder` objects, not
-  string paths
-- **Async operations** - Methods that modify state return `Promise` as they
-  persist to settings
-- **CSS colors** - Colors accept any valid CSS format (hex, rgb, hsl, named
-  colors)
-- **Icon format** - Icons use `IconString` type (`lucide:<name>` or
-  `emoji:<unicode>`), validated at compile time
-- **Type-safe events** - Generic `on()` method provides full type inference for
-  event payloads
-- **Immutable returns** - Arrays returned from API are `readonly` to prevent
-  mutations
-- **Error handling** - Methods throw standard `Error` on failure
