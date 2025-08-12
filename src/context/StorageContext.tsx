@@ -419,6 +419,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                     // Trigger storage-ready event on the API
                     // This lets other plugins know they can now query metadata
                     if (api) {
+                        api.setStorageReady(true);
                         api.trigger('storage-ready', undefined);
                     }
 

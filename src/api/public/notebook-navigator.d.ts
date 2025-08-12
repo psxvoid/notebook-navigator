@@ -149,6 +149,9 @@ export interface NotebookNavigatorAPI {
     /** Get the API version string */
     getVersion(): string;
 
+    /** Check if storage system is ready for metadata operations */
+    isStorageReady(): boolean;
+
     /** File operations with smart selection management */
     file: {
         /** Delete files (moves to trash) */

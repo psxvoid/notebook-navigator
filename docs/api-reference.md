@@ -40,6 +40,11 @@ The API provides four main namespaces:
 - **`navigation`** - Navigate to files in the navigator
 - **`selection`** - Query current selection state
 
+Core methods:
+
+- **`getVersion()`** - Get the API version string
+- **`isStorageReady()`** - Check if storage is ready for metadata operations
+
 ## File API
 
 Smart file operations that maintain proper selection in the navigator.
@@ -323,15 +328,23 @@ import type {
 const nn = app.plugins.plugins['notebook-navigator']
   ?.api as NotebookNavigatorAPI;
 if (nn) {
-  // Full type safety and autocomplete
-  await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
+  // Check if storage is already ready
+  if (nn.isStorageReady()) {
+    // Storage is ready, proceed immediately
+    await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
 
-  // Icon strings are type-checked at compile time
-  const icon: IconString = 'lucide:folder'; // Valid
-  // const bad: IconString = 'invalid:icon'; // TypeScript error
-  await nn.metadata.setFolderMeta(folder, { icon });
+    // Icon strings are type-checked at compile time
+    const icon: IconString = 'lucide:folder'; // Valid
+    // const bad: IconString = 'invalid:icon'; // TypeScript error
+    await nn.metadata.setFolderMeta(folder, { icon });
+  } else {
+    // Wait for storage to be ready
+    nn.once('storage-ready', async () => {
+      await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
+    });
+  }
 
-  // Events have full type inference
+  // Events have full type inference (no storage-ready needed for subscribing)
   nn.on('selection-changed', ({ state }) => {
     // TypeScript knows: state is SelectionState with files and focused properties
   });
@@ -344,7 +357,16 @@ if (nn) {
 // Works fine without types in JavaScript/TypeScript
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 if (nn) {
-  await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
+  // Check if storage is already ready
+  if (nn.isStorageReady()) {
+    // Storage is ready, proceed immediately
+    await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
+  } else {
+    // Wait for storage to be ready
+    nn.once('storage-ready', async () => {
+      await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
+    });
+  }
 }
 ```
 
