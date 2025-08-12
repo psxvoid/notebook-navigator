@@ -77,8 +77,8 @@ Customize folder and tag appearance, manage pinned files.
   formats are saved but may not render correctly.
 - **Color values**: Any string is accepted and saved. Invalid CSS colors will
   not render correctly but won't throw errors.
-- **Tag normalization**: The `getTagMeta()` and tag setter methods automatically
-  normalize tags:
+- **Tag normalization**: The `getTagMeta()` and `setTagMeta()` methods
+  automatically normalize tags:
   - Both `'work'` and `'#work'` are accepted and treated as `'#work'`
   - Tags are case-insensitive: `'#Work'` and `'#work'` refer to the same tag
   - The plugin preserves the canonical case (first encountered form) for display
@@ -103,9 +103,6 @@ When using `setFolderMeta` or `setTagMeta`, partial updates follow this pattern:
 
 This applies to all metadata properties (color, icon, etc.). Only properties
 explicitly included in the update object are modified.
-
-**Note:** Tag parameters accept strings with or without the leading `#` (both
-`'work'` and `'#work'` are valid).
 
 ### Pinned Files
 
