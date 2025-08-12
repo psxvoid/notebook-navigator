@@ -89,20 +89,18 @@ If you love using Notebook Navigator, please consider
 
 ### Developer API
 
-- **Public API for plugin integration** - Comprehensive API allowing other
-  plugins to interact with Notebook Navigator
-- **Smart file operations** - Delete and move files with automatic selection
-  management
-- **Metadata control** - Programmatically set folder/tag colors, icons, and
-  manage pinned notes
-- **Navigation integration** - Navigate to files and query current selections
+- **Public API for JavaScript/TypeScript** - Comprehensive API for other plugins
+  and scripts to interact with Notebook Navigator
+- **Metadata control** - Set folder/tag colors, icons, and manage pinned notes
+  programmatically
+- **Navigation & selection** - Navigate to files and query current selections
   from external plugins
 - **Event subscriptions** - Subscribe to Notebook Navigator events for reactive
   integrations
-- **Full TypeScript support** - Complete type definitions for reliable
+- **Full type definitions** - Complete TypeScript support for type-safe
   development
 - **[Complete API documentation](docs/api-reference.md)** - Detailed reference
-  with examples and best practices
+  with examples
 
 <br>
 
@@ -136,9 +134,10 @@ If you love using Notebook Navigator, please consider
 ### Technical Documentation
 
 - [**API Reference**](docs/api-reference.md) - Complete documentation of the
-  public API exposed by Notebook Navigator. Covers file operations, metadata
-  management, navigation control, and event subscriptions. Essential for plugin
-  developers wanting to integrate with Notebook Navigator's features.
+  public API exposed by Notebook Navigator. Covers metadata management,
+  navigation control, and event subscriptions. For JavaScript/TypeScript
+  developers and scripters wanting to integrate with Notebook Navigator's
+  features.
 
 - [**Startup Process**](docs/startup-process.md) - Technical documentation of
   the plugin initialization sequence, including cold boot vs warm boot flows,
