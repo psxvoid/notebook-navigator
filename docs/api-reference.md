@@ -304,23 +304,20 @@ import type {
 const nn = app.plugins.plugins['notebook-navigator']
   ?.api as NotebookNavigatorAPI;
 if (nn) {
-  // Check if storage is already ready
-  if (nn.isStorageReady()) {
-    // Storage is ready, proceed immediately
-    await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
-
-    // Icon strings are type-checked at compile time
-    const icon: IconString = 'lucide:folder'; // Valid
-    // const bad: IconString = 'invalid:icon'; // TypeScript error
-    await nn.metadata.setFolderMeta(folder, { icon });
-  } else {
-    // Wait for storage to be ready
-    nn.once('storage-ready', async () => {
-      await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
-    });
+  // Wait for storage if needed, then proceed
+  if (!nn.isStorageReady()) {
+    await new Promise<void>(resolve => nn.once('storage-ready', resolve));
   }
+  
+  // Storage is ready, safe to use metadata APIs
+  await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
 
-  // Events have full type inference (no storage-ready needed for subscribing)
+  // Icon strings are type-checked at compile time
+  const icon: IconString = 'lucide:folder'; // Valid
+  // const bad: IconString = 'invalid:icon'; // TypeScript error
+  await nn.metadata.setFolderMeta(folder, { icon });
+
+  // Events have full type inference
   nn.on('selection-changed', ({ state }) => {
     // TypeScript knows: state is SelectionState with files and focused properties
   });
@@ -333,16 +330,13 @@ if (nn) {
 // Works fine without types in JavaScript/TypeScript
 const nn = app.plugins.plugins['notebook-navigator']?.api;
 if (nn) {
-  // Check if storage is already ready
-  if (nn.isStorageReady()) {
-    // Storage is ready, proceed immediately
-    await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
-  } else {
-    // Wait for storage to be ready
-    nn.once('storage-ready', async () => {
-      await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
-    });
+  // Wait for storage if needed, then proceed
+  if (!nn.isStorageReady()) {
+    await new Promise(resolve => nn.once('storage-ready', resolve));
   }
+  
+  // Storage is ready, safe to use metadata APIs
+  await nn.metadata.setFolderMeta(folder, { color: '#FF5733' });
 }
 ```
 
@@ -356,7 +350,7 @@ The type definitions provide:
 - **Readonly arrays** - Prevents accidental mutation of returned data at compile
   time
 - **Exported utility types** - `NavItem`, `IconString`, `PinContext`,
-  `PinnedFile`, etc. for reuse in your code
+  `PinnedFile`, etc.
 - **Complete API interface** - `NotebookNavigatorAPI` with all methods and
   properties
 - **Typed event system** - `NotebookNavigatorEvents` maps event names to
@@ -365,76 +359,6 @@ The type definitions provide:
 
 **Note**: These type checks are compile-time only. At runtime, the API is
 permissive and accepts any values (see Runtime Behavior sections for each API).
-
-## Examples
-
-### Pin files with specific tag
-
-```typescript
-const nn = app.plugins.plugins['notebook-navigator']?.api;
-if (nn) {
-  const taggedFiles = app.vault.getMarkdownFiles().filter(file => {
-    const cache = app.metadataCache.getFileCache(file);
-    return cache?.tags?.some(t => t.tag === '#important');
-  });
-
-  for (const file of taggedFiles) {
-    if (!nn.metadata.isPinned(file)) {
-      await nn.metadata.pin(file); // pins in both contexts by default
-    }
-  }
-
-  // Get all pinned files with context info
-  const pinnedFiles = nn.metadata.getPinned();
-  console.log(`${pinnedFiles.length} files are pinned`);
-}
-```
-
-### Apply theme colors to folders
-
-```typescript
-const nn = app.plugins.plugins['notebook-navigator']?.api;
-if (nn) {
-  // Set colors and icons for multiple folders
-  const folders = [
-    { path: 'Work', meta: { color: '#FF5733', icon: 'lucide:briefcase' } },
-    {
-      path: 'Personal',
-      meta: { color: 'rgb(51, 255, 87)', icon: 'lucide:home' }
-    },
-    { path: 'Archive', meta: { color: 'gray', icon: 'lucide:archive' } },
-    {
-      path: 'Projects',
-      meta: { color: 'hsl(200, 100%, 50%)', icon: 'lucide:folder-git-2' }
-    }
-  ];
-
-  for (const { path, meta } of folders) {
-    const folder = app.vault.getAbstractFileByPath(path);
-    if (folder instanceof TFolder) {
-      await nn.metadata.setFolderMeta(folder, meta);
-    }
-  }
-}
-```
-
-### Process selected files
-
-```typescript
-const nn = app.plugins.plugins['notebook-navigator']?.api;
-if (nn) {
-  const { files: selectedFiles } = nn.selection.getCurrent();
-
-  for (const file of selectedFiles) {
-    await app.fileManager.processFrontMatter(file, fm => {
-      if (!fm.tags) fm.tags = [];
-      if (!fm.tags.includes('processed')) {
-        fm.tags.push('processed');
-      }
-    });
-  }
-}
-```
 
 ## API Design Notes
 
