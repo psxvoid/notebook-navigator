@@ -328,7 +328,7 @@
     flex: 1;
     overflow-y: auto;
     overflow-x: hidden;
-    padding: var(--size-4-1) 0;
+    padding: 0;
     line-height: 1; /* Reset to 1 - we'll use fixed line-heights on individual elements */
     /* Ensure scroll events work properly with virtualization */
     position: relative;
