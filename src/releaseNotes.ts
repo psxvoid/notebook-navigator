@@ -56,12 +56,12 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.4.0',
-        date: '2025-08-10',
+        date: '2025-08-13',
         showOnUpdate: true,
         info: 'First Community Plugin Release! 🎉 Notebook Navigator is now available in the Obsidian Community Plugins directory. A big thanks to everyone who supported the development of this plugin!',
         new: [
-            '**Public API for developers**. Other plugins can now interact with Notebook Navigator through a comprehensive API that provides smart file operations, metadata management, navigation control, and event subscriptions. Full TypeScript support included.',
-            '**Public API documentation**. Complete documentation for the public API is now available at https://github.com/johansan/notebook-navigator with examples and best practices.'
+            '**Public API**. Other plugins and Javascript developers can now interact with Notebook Navigator through a comprehensive API that provides smart file operations, metadata management, navigation control, and event subscriptions. Full TypeScript support included.',
+            '**Theming support**. Notebook Navigator now exposes custom CSS properties and provides detailed documentation for theme developers. Themes can now fully customize colors, selection styles, hover effects, and all UI elements including mobile-specific components.'
         ],
         changed: [
             '**Pinned notes are now context-aware**. Files can be pinned separately in folder view and tag view, allowing different pinned files for each context.'

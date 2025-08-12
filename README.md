@@ -87,6 +87,21 @@ If you love using Notebook Navigator, please consider
 - **Custom appearances** - Set unique display styles for each folder and tag,
   like slim mode or 5 preview rows
 
+### Advanced Theming Support
+
+- **CSS custom properties** - Comprehensive set of CSS variables for complete
+  theme customization
+- **Semantic class structure** - Clean `.nn-navitem` classes work for both
+  folders and tags
+- **Selection & hover effects** - Fully customizable selection rectangles, hover
+  states, and focus indicators
+- **Mobile-optimized theming** - Separate styling for mobile breadcrumbs and tab
+  bar buttons
+- **Depth-based styling** - Built-in `data-level` attributes for easy
+  hierarchical theming
+- **[Complete theming guide](docs/theming-guide.md)** - Step-by-step
+  documentation with examples
+
 ### Developer API
 
 - **Public API for JavaScript/TypeScript** - Comprehensive API for other plugins
@@ -139,6 +154,11 @@ If you love using Notebook Navigator, please consider
   developers and scripters wanting to integrate with Notebook Navigator's
   features.
 
+- [**Theming Guide**](docs/theming-guide.md) - Comprehensive guide for theme
+  developers to add Notebook Navigator support. Includes CSS class reference,
+  custom properties documentation, and complete theme examples for both light
+  and dark modes.
+
 - [**Startup Process**](docs/startup-process.md) - Technical documentation of
   the plugin initialization sequence, including cold boot vs warm boot flows,
   metadata cache resolution, deferred cleanup mechanisms, and content generation
@@ -159,21 +179,6 @@ If you love using Notebook Navigator, please consider
   the business logic layer including MetadataService, FileSystemOperations,
   ContentProviderRegistry, and supporting services. Covers dependency injection
   patterns and data flow between services.
-
-### Theme Compatibility
-
-- [**Theming Guide**](docs/theming-guide.md) - Comprehensive guide for theme
-  developers to add Notebook Navigator support. Covers CSS class structure, DOM
-  hierarchy, and common theming patterns like rainbow folders.
-
-**Note for Theme Developers**: Notebook Navigator uses a custom dual-pane
-interface with different CSS classes than Obsidian's default file explorer:
-
-- Navigation items use `.nn-navitem` (not `.nav-folder`)
-- Files are in a separate pane with `.nn-file`
-- Virtual scrolling means a flat DOM structure
-
-See the [Theming Guide](docs/theming-guide.md) for implementation details.
 
 <br>
 
