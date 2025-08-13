@@ -149,7 +149,9 @@ If you love using Notebook Navigator, please consider
 - **Unified Cleanup System** - Validates all metadata (folders, tags, pins) in a
   single pass during startup for optimal performance
 
-### Technical Documentation
+<br>
+
+## Documentation
 
 - [**API Reference**](docs/api-reference.md) - Complete documentation of the
   public API exposed by Notebook Navigator. Covers metadata management,

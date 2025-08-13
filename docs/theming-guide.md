@@ -69,10 +69,12 @@ touch this code!
 
 ### List pane (files)
 
-| Variable                    | Default                     | Description            |
-| --------------------------- | --------------------------- | ---------------------- |
-| `--nn-theme-list-pane-bg`   | `var(--background-primary)` | List pane background   |
-| `--nn-theme-list-header-bg` | `var(--background-primary)` | List header background |
+| Variable                            | Default                             | Description             |
+| ----------------------------------- | ----------------------------------- | ----------------------- |
+| `--nn-theme-list-pane-bg`           | `var(--background-primary)`         | List pane background    |
+| `--nn-theme-list-header-bg`         | `var(--background-primary)`         | List header background  |
+| `--nn-theme-list-separator-color`   | `var(--background-modifier-border)` | File divider line color |
+| `--nn-theme-list-date-header-color` | `var(--text-muted)`                 | Date group header color |
 
 #### Resize handle
 
@@ -90,13 +92,6 @@ touch this code!
 | `--nn-theme-file-folder-path-color`     | `var(--text-muted)`                | Parent folder path color      |
 | `--nn-theme-file-selection-bg`          | `var(--text-selection)`            | Selected file background      |
 | `--nn-theme-file-selection-inactive-bg` | `var(--background-modifier-hover)` | Selected file (inactive pane) |
-
-#### Separators & groups
-
-| Variable                            | Default                             | Description             |
-| ----------------------------------- | ----------------------------------- | ----------------------- |
-| `--nn-theme-file-separator-color`   | `var(--background-modifier-border)` | File divider line color |
-| `--nn-theme-file-date-header-color` | `var(--text-muted)`                 | Date group header color |
 
 ### Headers
 
@@ -170,6 +165,8 @@ body {
   /* Pane background */
   --nn-theme-list-pane-bg: #e8fcfb; /* Light cyan file list pane */
   --nn-theme-list-header-bg: #e8fcfb; /* List header background */
+  --nn-theme-list-separator-color: #c8e6c9; /* File divider lines */
+  --nn-theme-list-date-header-color: #64748b; /* Date group headers */
 
   /* Resize handle */
   --nn-theme-resize-handle-hover-bg: #a8edea; /* Cyan on hover */
@@ -181,10 +178,6 @@ body {
   --nn-theme-file-folder-path-color: #a78bfa;
   --nn-theme-file-selection-bg: #a8edea;
   --nn-theme-file-selection-inactive-bg: #ffecd2;
-
-  /* Separators & groups */
-  --nn-theme-file-separator-color: #c8e6c9;
-  --nn-theme-file-date-header-color: #64748b;
 
   /* ========================================
      HEADERS

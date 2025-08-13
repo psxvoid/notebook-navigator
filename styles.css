@@ -47,11 +47,12 @@ body {
     --nn-theme-nav-pane-bg: var(--background-secondary);
     --nn-theme-list-pane-bg: var(--background-primary);
     --nn-theme-resize-handle-hover-bg: var(--interactive-accent);
-    --nn-theme-file-separator-color: var(--background-modifier-border);
 
     /* -- Headers -- */
     --nn-theme-nav-header-bg: var(--background-secondary);
     --nn-theme-list-header-bg: var(--background-primary);
+    --nn-theme-list-separator-color: var(--background-modifier-border);
+    --nn-theme-list-date-header-color: var(--text-muted);
     --nn-theme-header-border-color: var(--background-modifier-border);
     --nn-theme-header-breadcrumb-color: var(--text-muted);
     --nn-theme-header-icon-color: var(--text-muted);
@@ -85,7 +86,6 @@ body {
     --nn-theme-file-preview-color: var(--text-muted);
     --nn-theme-file-date-color: var(--text-faint);
     --nn-theme-file-folder-path-color: var(--text-muted);
-    --nn-theme-file-date-header-color: var(--text-muted);
     --nn-theme-file-selection-bg: var(--text-selection);
     --nn-theme-file-selection-inactive-bg: var(--background-modifier-hover);
 
@@ -636,7 +636,7 @@ body {
     inset-inline-start: var(--size-4-5);
     inset-inline-end: var(--size-4-5);
     height: var(--nn-separator-height);
-    background-color: var(--nn-theme-file-separator-color);
+    background-color: var(--nn-theme-list-separator-color);
     z-index: 100; /* Very high to ensure it's always on top */
     pointer-events: none; /* Ensure it doesn't interfere with clicks */
 }
@@ -1003,7 +1003,7 @@ body {
     padding: var(--nn-date-header-padding-top) var(--size-4-3) var(--nn-date-header-padding-bottom) var(--size-4-3);
     font-size: var(--nn-file-small-size);
     font-weight: 600;
-    color: var(--nn-theme-file-date-header-color);
+    color: var(--nn-theme-list-date-header-color);
     background-color: transparent !important;
     white-space: nowrap;
     overflow: hidden;
@@ -2716,6 +2716,22 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
+        id: nn-theme-list-separator-color
+        title: List separator color
+        description: Color of the divider lines between files in the list.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-list-date-header-color
+        title: List date header color
+        description: Color for the date headings (e.g., 'Today', 'Yesterday').
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
         id: nn-theme-resize-handle-heading
         title: Resize handle
         description: The vertical handle used to resize the panes.
@@ -2779,28 +2795,6 @@ settings:
         id: nn-theme-file-selection-inactive-bg
         title: Selection background (inactive)
         description: Background when a file is selected but the pane is not focused.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-file-list-other-heading
-        title: Separators & groups
-        type: heading
-        level: 2
-        collapsed: false
-    -
-        id: nn-theme-file-separator-color
-        title: File separator color
-        description: Color of the divider lines between files in the list.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-file-date-header-color
-        title: Date group header color
-        description: Color for the date headings (e.g., 'Today', 'Yesterday').
         type: variable-themed-color
         format: hex
         default-light: '#'
