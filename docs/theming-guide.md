@@ -19,29 +19,24 @@
 
 ## Introduction
 
-This guide is for two groups:
+This guide helps you add Notebook Navigator support to your Obsidian theme.
+Simply define these CSS variables in your theme to customize how Notebook
+Navigator looks.
 
-**Theme developers:** If you're creating a theme for the Obsidian community, you
-can add Notebook Navigator support by customizing these CSS variables.
-
-**Regular users:** Just want to tweak a few colors? Install the Style Settings
-plugin and you can change any of these variables through a nice UI - no coding
-required!
+**Note for users:** If you just want to change colors, install the Style
+Settings plugin - no coding needed!
 
 ## CSS Variables Reference
 
-Every variable starts with `--nn-theme-`.
-
-**Theme developers:** Set these at the `body` level in your theme CSS.
-
-**Regular users:** You can change these through Style Settings - no need to
-touch this code!
+All variables start with `--nn-theme-` and should be defined at the `body`
+level.
 
 ### Navigation pane
 
-| Variable            | Default                       | Description                |
-| ------------------- | ----------------------------- | -------------------------- |
-| `--nn-theme-nav-bg` | `var(--background-secondary)` | Navigation pane background |
+| Variable                   | Default                       | Description                  |
+| -------------------------- | ----------------------------- | ---------------------------- |
+| `--nn-theme-nav-bg`        | `var(--background-secondary)` | Navigation pane background   |
+| `--nn-theme-nav-header-bg` | `var(--background-secondary)` | Navigation header background |
 
 #### Folder & tag items
 
@@ -59,26 +54,21 @@ touch this code!
 
 #### Tree depth colors
 
-| Variable                  | Default              | Description      |
-| ------------------------- | -------------------- | ---------------- |
-| `--nn-theme-tree-0-color` | `var(--text-normal)` | Root level color |
-| `--nn-theme-tree-1-color` | `var(--text-normal)` | Level 1 color    |
-| `--nn-theme-tree-2-color` | `var(--text-normal)` | Level 2 color    |
-| `--nn-theme-tree-3-color` | `var(--text-normal)` | Level 3+ color   |
+| Variable                        | Default              | Description      |
+| ------------------------------- | -------------------- | ---------------- |
+| `--nn-theme-tree-level-0-color` | `var(--text-normal)` | Root level color |
+| `--nn-theme-tree-level-1-color` | `var(--text-normal)` | Level 1 color    |
+| `--nn-theme-tree-level-2-color` | `var(--text-normal)` | Level 2 color    |
+| `--nn-theme-tree-level-3-color` | `var(--text-normal)` | Level 3+ color   |
 
 ### List pane (files)
 
-| Variable                            | Default                             | Description             |
-| ----------------------------------- | ----------------------------------- | ----------------------- |
-| `--nn-theme-list-bg`                | `var(--background-primary)`         | List pane background    |
-| `--nn-theme-list-separator-color`   | `var(--background-modifier-border)` | File divider line color |
-| `--nn-theme-list-date-header-color` | `var(--text-muted)`                 | Date group header color |
-
-#### Resize handle
-
-| Variable                            | Default                     | Description                    |
-| ----------------------------------- | --------------------------- | ------------------------------ |
-| `--nn-theme-resize-handle-hover-bg` | `var(--interactive-accent)` | Resize handle hover background |
+| Variable                             | Default                             | Description             |
+| ------------------------------------ | ----------------------------------- | ----------------------- |
+| `--nn-theme-list-bg`                 | `var(--background-primary)`         | List pane background    |
+| `--nn-theme-list-header-bg`          | `var(--background-primary)`         | List header background  |
+| `--nn-theme-list-separator-color`    | `var(--background-modifier-border)` | File divider line color |
+| `--nn-theme-list-group-header-color` | `var(--text-muted)`                 | Group header color      |
 
 #### File items
 
@@ -91,15 +81,19 @@ touch this code!
 | `--nn-theme-file-selection-bg`          | `var(--text-selection)`            | Selected file background      |
 | `--nn-theme-file-selection-inactive-bg` | `var(--background-modifier-hover)` | Selected file (inactive pane) |
 
+#### Resize handle
+
+| Variable                            | Default                     | Description                    |
+| ----------------------------------- | --------------------------- | ------------------------------ |
+| `--nn-theme-resize-handle-hover-bg` | `var(--interactive-accent)` | Resize handle hover background |
+
 ### Headers
 
-| Variable                             | Default                             | Description                  |
-| ------------------------------------ | ----------------------------------- | ---------------------------- |
-| `--nn-theme-header-nav-bg`           | `var(--background-secondary)`       | Navigation header background |
-| `--nn-theme-header-list-bg`          | `var(--background-primary)`         | List header background       |
-| `--nn-theme-header-border-color`     | `var(--background-modifier-border)` | Header border color          |
-| `--nn-theme-header-breadcrumb-color` | `var(--text-muted)`                 | Header title color           |
-| `--nn-theme-header-icon-color`       | `var(--text-muted)`                 | Header icon color            |
+| Variable                             | Default                             | Description         |
+| ------------------------------------ | ----------------------------------- | ------------------- |
+| `--nn-theme-header-border-color`     | `var(--background-modifier-border)` | Header border color |
+| `--nn-theme-header-breadcrumb-color` | `var(--text-muted)`                 | Header title color  |
+| `--nn-theme-header-icon-color`       | `var(--text-muted)`                 | Header icon color   |
 
 #### Header buttons
 
@@ -121,10 +115,7 @@ touch this code!
 
 ## Complete Theme Example
 
-**For theme developers:** Here's a complete example to add to your theme CSS.
-
-**For regular users:** You can create a CSS snippet with this code if you want
-more control than Style Settings provides:
+Here's a complete example showing all variables with custom colors:
 
 ```css
 /* ========================================
@@ -139,6 +130,7 @@ body {
 
   /* Pane background */
   --nn-theme-nav-bg: #e6e9ff; /* Light purple navigation pane */
+  --nn-theme-nav-header-bg: #e6e9ff; /* Navigation header background */
 
   /* Folder & tag items */
   --nn-theme-navitem-text-color: #4a5568;
@@ -152,10 +144,10 @@ body {
   --nn-theme-navitem-selection-inactive-bg: #f093fb;
 
   /* Tree depth colors */
-  --nn-theme-tree-0-color: #2563eb;
-  --nn-theme-tree-1-color: #3b82f6;
-  --nn-theme-tree-2-color: #60a5fa;
-  --nn-theme-tree-3-color: #93c5fd;
+  --nn-theme-tree-level-0-color: #2563eb;
+  --nn-theme-tree-level-1-color: #3b82f6;
+  --nn-theme-tree-level-2-color: #60a5fa;
+  --nn-theme-tree-level-3-color: #93c5fd;
 
   /* ========================================
      LIST PANE (Files)
@@ -163,11 +155,9 @@ body {
 
   /* Pane background */
   --nn-theme-list-bg: #e8fcfb; /* Light cyan file list pane */
+  --nn-theme-list-header-bg: #e8fcfb; /* List header background */
   --nn-theme-list-separator-color: #c8e6c9; /* File divider lines */
-  --nn-theme-list-date-header-color: #64748b; /* Date group headers */
-
-  /* Resize handle */
-  --nn-theme-resize-handle-hover-bg: #a8edea; /* Cyan on hover */
+  --nn-theme-list-group-header-color: #64748b; /* Group headers (dates, pinned) */
 
   /* File items */
   --nn-theme-file-name-color: #1e293b;
@@ -177,13 +167,12 @@ body {
   --nn-theme-file-selection-bg: #a8edea;
   --nn-theme-file-selection-inactive-bg: #ffecd2;
 
+  /* Resize handle */
+  --nn-theme-resize-handle-hover-bg: #a8edea; /* Cyan on hover */
+
   /* ========================================
      HEADERS
      ======================================== */
-
-  /* Header backgrounds */
-  --nn-theme-header-nav-bg: #e6e9ff; /* Navigation header background */
-  --nn-theme-header-list-bg: #e8fcfb; /* List header background */
 
   /* Header colors */
   --nn-theme-header-border-color: #a78bfa;
@@ -211,9 +200,8 @@ body {
 
 ### Supporting Light and Dark Modes
 
-Want your theme to work in both light and dark modes? You'll need to define your
-styles twice - once for each mode. Obsidian adds `.theme-light` and
-`.theme-dark` classes to the body element.
+To support both light and dark modes, define your variables under `.theme-light`
+and `.theme-dark` classes:
 
 #### Example: Mode-Aware Theme
 
@@ -251,15 +239,9 @@ styles twice - once for each mode. Obsidian adds `.theme-light` and
 
 ### User Custom Colors Override
 
-When someone right-clicks a folder or tag and picks "Change color", here's what
-happens:
-
-1. Their color gets applied as an inline style (e.g., `style="color: #ff0000;"`)
-2. The element gets a `nn-has-custom-color` class
-3. The inline style automatically overrides your theme
-
-**What this means for you:** Just write your CSS normally - user preferences
-will automatically win when they set custom colors.
+When users set custom colors (right-click → "Change color"), their choices
+automatically override your theme through inline styles. The element also gets a
+`nn-has-custom-color` class you can target.
 
 ### Different Styles for Custom vs Theme Colors
 
@@ -284,17 +266,16 @@ will automatically win when they set custom colors.
 
 ### Depth-Based Styling
 
-You can style folders differently based on how deep they are. Notebook Navigator
-gives you CSS variables for each depth level and adds a `data-level` attribute
-to each item:
+Style items based on their depth using the tree color variables or `data-level`
+attributes:
 
 ```css
 /* Using CSS variables for depth colors */
 body {
-  --nn-theme-tree-0-color: #2563eb; /* Root - dark blue */
-  --nn-theme-tree-1-color: #3b82f6; /* Level 1 - medium blue */
-  --nn-theme-tree-2-color: #60a5fa; /* Level 2 - light blue */
-  --nn-theme-tree-3-color: #93c5fd; /* Level 3+ - very light blue */
+  --nn-theme-tree-level-0-color: #2563eb; /* Root - dark blue */
+  --nn-theme-tree-level-1-color: #3b82f6; /* Level 1 - medium blue */
+  --nn-theme-tree-level-2-color: #60a5fa; /* Level 2 - light blue */
+  --nn-theme-tree-level-3-color: #93c5fd; /* Level 3+ - very light blue */
 }
 
 /* Or override directly with attribute selectors for more control */
@@ -313,23 +294,8 @@ body {
 }
 ```
 
-## For Regular Users (Style Settings)
+## Style Settings Support
 
-Want to customize Notebook Navigator's colors without writing CSS? Here's how:
-
-1. Install the
-   [Style Settings plugin](https://github.com/mgmeyers/obsidian-style-settings)
-   from Community Plugins
-2. Go to Settings → Style Settings
-3. Look for "Notebook Navigator"
-4. Change any colors you want through the UI
-
-No coding needed - just pick your colors and you're done!
-
-## For Theme Developers
-
-If you're publishing a theme to the Obsidian community:
-
-- Define these CSS variables in your theme to style Notebook Navigator
-- Your values become the defaults
-- Users can still override them through Style Settings if they want to
+Notebook Navigator fully supports the Style Settings plugin. When users install
+Style Settings, they can customize all these variables through a UI. Your theme
+values become the defaults that users can override.

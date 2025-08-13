@@ -45,15 +45,15 @@ body {
 
     /* -- Navigation Pane -- */
     --nn-theme-nav-bg: var(--background-secondary);
+    --nn-theme-nav-header-bg: var(--background-secondary);
 
     /* -- List Pane -- */
     --nn-theme-list-bg: var(--background-primary);
+    --nn-theme-list-header-bg: var(--background-primary);
     --nn-theme-list-separator-color: var(--background-modifier-border);
-    --nn-theme-list-date-header-color: var(--text-muted);
+    --nn-theme-list-group-header-color: var(--text-muted);
 
     /* -- Headers -- */
-    --nn-theme-header-nav-bg: var(--background-secondary);
-    --nn-theme-header-list-bg: var(--background-primary);
     --nn-theme-header-border-color: var(--background-modifier-border);
     --nn-theme-header-breadcrumb-color: var(--text-muted);
     --nn-theme-header-icon-color: var(--text-muted);
@@ -77,10 +77,10 @@ body {
     --nn-theme-navitem-selection-inactive-bg: var(--background-modifier-hover);
 
     /* -- Tree Depth Colors -- */
-    --nn-theme-tree-0-color: var(--text-normal);
-    --nn-theme-tree-1-color: var(--text-normal);
-    --nn-theme-tree-2-color: var(--text-normal);
-    --nn-theme-tree-3-color: var(--text-normal);
+    --nn-theme-tree-level-0-color: var(--text-normal);
+    --nn-theme-tree-level-1-color: var(--text-normal);
+    --nn-theme-tree-level-2-color: var(--text-normal);
+    --nn-theme-tree-level-3-color: var(--text-normal);
 
     /* -- File Items -- */
     --nn-theme-file-name-color: var(--text-normal);
@@ -90,13 +90,13 @@ body {
     --nn-theme-file-selection-bg: var(--text-selection);
     --nn-theme-file-selection-inactive-bg: var(--background-modifier-hover);
 
+    /* -- Resize Handle -- */
+    --nn-theme-resize-handle-hover-bg: var(--interactive-accent);
+
     /* -- Mobile Tab Bar -- */
     --nn-theme-mobile-tab-icon-color: var(--text-muted);
     --nn-theme-mobile-tab-active-bg: var(--background-modifier-hover);
     --nn-theme-mobile-tab-active-icon-color: var(--text-normal);
-
-    /* -- Resize Handle -- */
-    --nn-theme-resize-handle-hover-bg: var(--interactive-accent);
 
     /* -- Navigation Selection -- */
     --nn-selection-radius: var(--radius-s);
@@ -213,12 +213,12 @@ body {
 
 /* Navigation pane header - matches folder tree background for visual consistency */
 .nn-navigation-pane .nn-pane-header {
-    background-color: var(--nn-theme-header-nav-bg);
+    background-color: var(--nn-theme-nav-header-bg);
 }
 
 /* File list pane header */
 .nn-list-pane .nn-pane-header {
-    background-color: var(--nn-theme-header-list-bg);
+    background-color: var(--nn-theme-list-header-bg);
     padding-left: 0;
 }
 
@@ -1000,7 +1000,7 @@ body {
     padding: var(--nn-date-header-padding-top) var(--size-4-3) var(--nn-date-header-padding-bottom) var(--size-4-3);
     font-size: var(--nn-file-small-size);
     font-weight: 600;
-    color: var(--nn-theme-list-date-header-color);
+    color: var(--nn-theme-list-group-header-color);
     background-color: transparent !important;
     white-space: nowrap;
     overflow: hidden;
@@ -2569,6 +2569,14 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
+        id: nn-theme-nav-header-bg
+        title: Navigation header background
+        description: Background color for the navigation pane's header.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
         id: nn-nav-pane-items-heading
         title: Folder & tag items
         type: heading
@@ -2654,28 +2662,28 @@ settings:
         level: 3
         collapsed: false
     -
-        id: nn-theme-tree-0-color
+        id: nn-theme-tree-level-0-color
         title: Level 0 folder color
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-tree-1-color
+        id: nn-theme-tree-level-1-color
         title: Level 1 folder color
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-tree-2-color
+        id: nn-theme-tree-level-2-color
         title: Level 2 folder color
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-tree-3-color
+        id: nn-theme-tree-level-3-color
         title: Level 3+ folder color
         type: variable-themed-color
         format: hex
@@ -2697,6 +2705,14 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
+        id: nn-theme-list-header-bg
+        title: List header background
+        description: Background color for the file list pane's header.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
         id: nn-theme-list-separator-color
         title: List separator color
         description: Color of the divider lines between files in the list.
@@ -2705,24 +2721,9 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-list-date-header-color
-        title: List date header color
-        description: Color for the date headings (e.g., 'Today', 'Yesterday').
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-resize-handle-heading
-        title: Resize handle
-        description: The vertical handle used to resize the panes.
-        type: heading
-        level: 2
-        collapsed: false
-    -
-        id: nn-theme-resize-handle-hover-bg
-        title: Handle hover background
-        description: The background color when hovering over the resize handle.
+        id: nn-theme-list-group-header-color
+        title: List group header color
+        description: Color for group headers like date sections ('Today', 'Yesterday') and 'Pinned'.
         type: variable-themed-color
         format: hex
         default-light: '#'
@@ -2781,28 +2782,27 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
+        id: nn-theme-resize-handle-heading
+        title: Resize handle
+        description: The vertical handle used to resize the panes.
+        type: heading
+        level: 2
+        collapsed: false
+    -
+        id: nn-theme-resize-handle-hover-bg
+        title: Handle hover background
+        description: The background color when hovering over the resize handle.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
         id: nn-header-heading
         title: Headers
         description: Customize the appearance of pane headers.
         type: heading
         level: 1
         collapsed: true
-    -
-        id: nn-theme-header-nav-bg
-        title: Navigation header background
-        description: Background color for the navigation pane's header.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-header-list-bg
-        title: List header background
-        description: Background color for the file list pane's header.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-header-border-color
         title: Header border color
