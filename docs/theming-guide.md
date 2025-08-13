@@ -182,58 +182,61 @@ graph TD
 Use this complete example as a starting point for your theme:
 
 ```css
-/* LAYOUT BACKGROUNDS */
+/* ========================================
+   NAVIGATION PANE
+   ======================================== */
+
+/* Navigation pane background */
 .nn-navigation-pane-scroller {
   background: #e6e9ff;
 }
 
-.nn-list-pane-scroller {
-  background: #e8fcfb;
-}
-
-/* Pane headers */
+/* Navigation pane header */
 .nn-navigation-pane .nn-pane-header {
   --nn-header-bg: #e6e9ff;
 }
 
+/* ========================================
+   LIST PANE
+   ======================================== */
+
+/* List pane background */
+.nn-list-pane-scroller {
+  background: #e8fcfb;
+}
+
+/* List pane header */
 .nn-list-pane .nn-pane-header {
   --nn-header-bg: #e8fcfb;
 }
 
+/* Date group headers */
+.nn-date-group-header {
+  color: #64748b;
+}
+
+/* File separator lines */
+.nn-virtual-file-item {
+  --nn-separator-color: #c8e6c9;
+  --nn-separator-height: 2px;
+}
+
+/* ========================================
+   PANE HEADERS (SHARED)
+   ======================================== */
+
+/* Header border */
 .nn-pane-header {
   --nn-header-border-color: #a78bfa;
 }
 
-/* Date group headers */
-.nn-date-group-header {
-  background: #e8fcfb;
-  color: #64748b;
-}
-
-/* List pane header breadcrumb */
-.nn-pane-header-text {
-  color: #475569 !important;
-}
-
-/* Mobile breadcrumb */
+/* Breadcrumb text */
+.nn-pane-header-text,
 .nn-mobile-title {
   color: #475569 !important;
 }
 
-/* Mobile tab bar buttons */
-.nn-tab-bar-button svg {
-  stroke: #6366f1 !important;
-}
-
-.nn-tab-bar-button-active {
-  background-color: #ddd6fe !important;
-}
-
-.nn-tab-bar-button-active svg {
-  stroke: #7c3aed !important;
-}
-
-/* Pane header icons and buttons */
+/* Header icons */
 .nn-pane-header-icon {
   color: #8b5cf6 !important;
 }
@@ -242,6 +245,7 @@ Use this complete example as a starting point for your theme:
   stroke: #8b5cf6 !important;
 }
 
+/* Action buttons */
 .nn-icon-button {
   color: #6366f1 !important;
 }
@@ -263,7 +267,26 @@ Use this complete example as a starting point for your theme:
   stroke: #7c3aed !important;
 }
 
-/* Resize handle */
+/* ========================================
+   MOBILE TAB BAR
+   ======================================== */
+
+.nn-tab-bar-button svg {
+  stroke: #6366f1 !important;
+}
+
+.nn-tab-bar-button-active {
+  background-color: #ddd6fe !important;
+}
+
+.nn-tab-bar-button-active svg {
+  stroke: #7c3aed !important;
+}
+
+/* ========================================
+   RESIZE HANDLE
+   ======================================== */
+
 .nn-resize-handle {
   --nn-resize-bg: #e8fcfb;
   --nn-resize-hover-bg: #a8edea;
@@ -271,15 +294,12 @@ Use this complete example as a starting point for your theme:
   --nn-resize-active-opacity: 0.8;
 }
 
-/* File separators */
-.nn-virtual-file-item {
-  --nn-separator-color: #c8e6c9;
-  --nn-separator-height: 2px;
-}
+/* ========================================
+   NAVIGATION ITEMS (Folders & Tags)
+   ======================================== */
 
-/* NAVIGATION ITEMS (All folders, tags, and section headers use the same styles) */
+/* Selection and hover states */
 .nn-navitem {
-  background: #e6e9ff;
   --nn-selection-bg: #667eea;
   --nn-selection-bg-inactive: #f093fb;
   --nn-selection-radius: 12px;
@@ -287,18 +307,33 @@ Use this complete example as a starting point for your theme:
   --nn-hover-radius: 8px;
 }
 
-/* Navigation item text (applies to folders, tags, and section headers) */
+/* Item text and icons */
 .nn-navitem-name {
   color: #4a5568;
 }
 
-/* Navigation item icons */
 .nn-navitem-icon {
   color: #667eea;
 }
 
-/* OPTIONAL: Different styles for specific item types */
-/* Only add these if you want folders vs tags to look different */
+/* Chevrons */
+.nn-navitem-chevron {
+  color: #94a3b8;
+}
+
+.nn-navitem-chevron:hover {
+  color: #475569;
+}
+
+/* File count badges */
+.nn-navitem-count {
+  background: #f093fb;
+  color: white;
+  padding: 0 6px;
+  border-radius: 10px;
+}
+
+/* OPTIONAL: Different colors for folders vs tags */
 /*
 .nn-navitem.nn-folder .nn-navitem-icon {
   color: #667eea;
@@ -309,30 +344,18 @@ Use this complete example as a starting point for your theme:
 }
 */
 
-/* Chevrons and counts */
-.nn-navitem-chevron {
-  color: #94a3b8;
-}
+/* ========================================
+   FILE LIST ITEMS
+   ======================================== */
 
-.nn-navitem-chevron:hover {
-  color: #475569;
-}
-
-.nn-navitem-count {
-  background: #f093fb;
-  color: white;
-  padding: 0 6px;
-  border-radius: 10px;
-}
-
-/* FILE LIST ITEMS */
+/* Selection states */
 .nn-file {
-  background: #e8fcfb;
   --nn-selection-bg: #a8edea;
   --nn-selection-bg-inactive: #ffecd2;
   --nn-selection-radius: 16px;
 }
 
+/* File text elements */
 .nn-file-name {
   color: #1e293b !important;
   font-weight: 500;
@@ -350,24 +373,10 @@ Use this complete example as a starting point for your theme:
   color: #a78bfa !important;
 }
 
-/* Tag badges in files */
-.nn-file-tags .nn-tag {
-  background: #f093fb;
-  color: white;
-  padding: 2px 8px;
-  border-radius: 12px;
-}
+/* ========================================
+   DEPTH-BASED STYLING (Optional)
+   ======================================== */
 
-/* Pinned files */
-.nn-file.nn-pinned {
-  background: #fff4e6;
-}
-
-.nn-file.nn-pinned .nn-file-name {
-  color: #92400e;
-}
-
-/* DEPTH-BASED STYLING (Optional) */
 .nn-navitem.nn-folder[data-level='0'] .nn-navitem-name {
   font-weight: 600;
   color: #2563eb;

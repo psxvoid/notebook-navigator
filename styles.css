@@ -947,7 +947,7 @@
     font-size: var(--nn-file-small-size);
     font-weight: 600;
     color: var(--text-muted);
-    background-color: var(--background-primary);
+    background-color: transparent !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
