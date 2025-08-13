@@ -94,6 +94,10 @@
     --nn-theme-mobile-tab-icon-color: var(--text-muted);
     --nn-theme-mobile-tab-active-bg: var(--background-modifier-hover);
     --nn-theme-mobile-tab-active-icon-color: var(--text-normal);
+
+    /* -- Drag & Drop Badge -- */
+    --nn-theme-drag-badge-bg: #dc3545;
+    --nn-theme-drag-badge-color: white;
 }
 
 /* ========================================================================
@@ -449,7 +453,7 @@
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: var(--text-muted);
+    color: var(--nn-theme-nav-item-chevron-color);
 }
 
 /* Chevron states for folders without children */
@@ -474,7 +478,7 @@
     height: var(--nn-nav-icon-size);
     margin-inline-end: var(--size-4-2);
     flex-shrink: 0;
-    color: var(--text-muted);
+    color: var(--nn-theme-nav-item-icon-color);
     display: flex;
     align-items: center;
 }
@@ -487,7 +491,7 @@
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: var(--nn-nav-line-height);
-    color: var(--text-normal);
+    color: var(--nn-theme-nav-item-text-color);
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
 
@@ -682,11 +686,6 @@
     height: calc(var(--nn-file-line-height) * var(--filename-rows, 1));
 }
 
-/* Dark mode file name - consistent color */
-.theme-dark .nn-file-name {
-    color: var(--text-normal);
-}
-
 /* Quick actions panel - horizontal container for action icons */
 .nn-quick-actions-panel {
     position: absolute;
@@ -768,11 +767,6 @@
     line-height: var(--nn-file-second-line-height);
 }
 
-/* Dark mode file date */
-.theme-dark .nn-file-date {
-    color: var(--text-normal);
-}
-
 /* File preview text - secondary line showing file content */
 .nn-file-preview {
     font-size: var(--nn-file-small-size);
@@ -815,11 +809,6 @@
     gap: var(--size-4-1);
     overflow: hidden;
     line-height: var(--nn-file-second-line-height); /* Use second line height for consistent spacing */
-}
-
-/* Dark mode folder indicator */
-.theme-dark .nn-file-folder {
-    color: var(--text-muted);
 }
 
 /* Folder indicator text */
@@ -937,11 +926,6 @@
 
 /* Selected slim file - maintain selection styles */
 .nn-file.nn-slim.nn-selected .nn-file-name {
-    color: var(--text-normal);
-}
-
-/* Dark mode slim file name */
-.theme-dark .nn-file.nn-slim .nn-file-name {
     color: var(--text-normal);
 }
 
@@ -1284,8 +1268,8 @@ body.nn-resizing {
     position: absolute;
     bottom: 8px;
     right: 8px;
-    background-color: #dc3545;
-    color: white;
+    background-color: var(--nn-theme-drag-badge-bg);
+    color: var(--nn-theme-drag-badge-color);
     font-weight: bold;
     font-size: 14px;
     min-width: 24px;
@@ -2843,6 +2827,25 @@ settings:
         id: nn-theme-mobile-tab-active-icon-color
         title: Tab bar active icon color
         description: Icon color for the active/selected tab.
+        type: variable-themed-color
+        format: hex
+    -
+        id: nn-drag-drop-heading
+        title: Drag & Drop
+        description: Customize the drag and drop badge appearance.
+        type: heading
+        level: 1
+        collapsed: true
+    -
+        id: nn-theme-drag-badge-bg
+        title: Drag badge background
+        description: Background color for the item count badge shown while dragging.
+        type: variable-themed-color
+        format: hex
+    -
+        id: nn-theme-drag-badge-color
+        title: Drag badge text color
+        description: Text color for the drag count badge.
         type: variable-themed-color
         format: hex
 
