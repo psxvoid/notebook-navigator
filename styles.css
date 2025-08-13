@@ -1,12 +1,25 @@
 /* ========================================================================
-   Notebook Navigator - Notes Style
+   Base Layout & Container Styles
    ======================================================================== */
 
-/* ========================================================================
-   Fixed Height Variables for Pixel-Perfect Rendering
-   ======================================================================== */
+/* Resets Obsidian's default view-content padding for cleaner integration */
+.view-content.notebook-navigator {
+    padding: 0;
+    border: none;
+}
 
-:root {
+/* Main container - establishes the plugin's layout foundation */
+.notebook-navigator {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-primary);
+    font-family: var(--font-interface);
+
+    /* ========================================================================
+       Fixed Height Variables for Pixel-Perfect Rendering
+       ======================================================================== */
+
     /* File item heights - fixed pixel values to prevent fractional rendering */
     --nn-file-line-height: 20px; /* Height of single line of text */
     --nn-file-padding-vertical: 8px; /* var(--size-4-2) typically equals 8px */
@@ -102,25 +115,6 @@
 
     /* -- Empty State -- */
     --nn-theme-empty-state-color: var(--text-muted);
-}
-
-/* ========================================================================
-   Base Layout & Container Styles
-   ======================================================================== */
-
-/* Resets Obsidian's default view-content padding for cleaner integration */
-.view-content.notebook-navigator {
-    padding: 0;
-    border: none;
-}
-
-/* Main container - establishes the plugin's layout foundation */
-.notebook-navigator {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--background-primary);
-    font-family: var(--font-interface);
 }
 
 /* Removes focus outline on main container for cleaner appearance */
