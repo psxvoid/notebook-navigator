@@ -2575,9 +2575,9 @@ name: Notebook Navigator
 id: notebook-navigator-style-settings
 settings:
     -
-        id: nn-global-heading
-        title: Global Appearance
-        description: Customize the main backgrounds and elements shared between panes.
+        id: nn-nav-pane-heading
+        title: Navigation pane (folders & tags)
+        description: Customize the background, items, and interactions within the navigation pane.
         type: heading
         level: 1
         collapsed: true
@@ -2590,130 +2590,16 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-list-pane-bg
-        title: File list pane background
-        description: Background color of the file list pane.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-resize-handle-heading
-        title: Resize Handle
-        description: The vertical handle used to resize the panes.
-        type: heading
-        level: 2
-        collapsed: false
-    -
-        id: nn-theme-resize-handle-bg
-        title: Handle background
-        description: The default background color of the resize handle.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-resize-handle-hover-bg
-        title: Handle hover background
-        description: The background color when hovering over the resize handle.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-nav-pane-heading
-        title: Navigation Pane (Folders & Tags)
-        description: Customize the header, items, and interactions within the navigation pane.
-        type: heading
-        level: 1
-        collapsed: true
-    -
-        id: nn-nav-pane-header-heading
-        title: Header
-        type: heading
-        level: 2
-        collapsed: false
-    -
         id: nn-theme-header-nav-bg
-        title: Header background
+        title: Navigation header background
         description: Background color for the navigation pane's header.
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-header-border-color # This variable might be shared with the File List header
-        title: Header border color
-        description: Color of the bottom border for the header.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-header-breadcrumb-color
-        title: Header title color
-        description: Text color for the folder path/title in the header.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-header-icon-color
-        title: Header icon color
-        description: Color for icons within the pane header (e.g., folder icon).
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-nav-pane-actions-heading
-        title: Header Action Buttons
-        type: heading
-        level: 3
-        collapsed: false
-    -
-        id: nn-theme-action-button-color
-        title: Action button color
-        description: Color for the icons inside header action buttons.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-action-button-hover-bg
-        title: Action button hover background
-        description: Background color when hovering over an action button.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-action-button-active-bg
-        title: Action button active background
-        description: Background for a toggled/active action button.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-action-button-active-color
-        title: Action button active color
-        description: Icon color for a toggled/active action button.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-action-button-disabled-color
-        title: Action button disabled color
-        description: Icon color for disabled action buttons.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
         id: nn-nav-pane-items-heading
-        title: Folder & Tag Items
+        title: Folder & tag items
         type: heading
         level: 2
         collapsed: false
@@ -2791,63 +2677,88 @@ settings:
         default-dark: '#'
     -
         id: nn-folder-depth-heading
-        title: Folder Colors by Depth
+        title: Folder colors by depth
         description: Optionally set different colors for folder names based on how deeply they are nested.
         type: heading
         level: 3
         collapsed: false
     -
         id: nn-theme-folder-level-0-color
-        title: Level 0 Folder Color
+        title: Level 0 folder color
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
         id: nn-theme-folder-level-1-color
-        title: Level 1 Folder Color
+        title: Level 1 folder color
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
         id: nn-theme-folder-level-2-color
-        title: Level 2 Folder Color
+        title: Level 2 folder color
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
         id: nn-theme-folder-level-3-color
-        title: Level 3+ Folder Color
+        title: Level 3+ folder color
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
         id: nn-file-list-heading
-        title: File List Pane
-        description: Customize the header, items, and separators within the file list pane.
+        title: List pane (files)
+        description: Customize the background, items, and separators within the file list pane.
         type: heading
         level: 1
         collapsed: true
     -
-        id: nn-file-list-header-heading
-        title: Header
-        type: heading
-        level: 2
-        collapsed: false
+        id: nn-theme-list-pane-bg
+        title: List pane background
+        description: Background color of the file list pane.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
     -
         id: nn-theme-header-list-bg
-        title: Header background
+        title: List header background
         description: Background color for the file list pane's header.
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
+        id: nn-theme-resize-handle-heading
+        title: Resize handle
+        description: The vertical handle used to resize the panes.
+        type: heading
+        level: 2
+        collapsed: false
+    -
+        id: nn-theme-resize-handle-bg
+        title: Handle background
+        description: The default background color of the resize handle.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-resize-handle-hover-bg
+        title: Handle hover background
+        description: The background color when hovering over the resize handle.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
         id: nn-file-list-items-heading
-        title: File Items
+        title: File items
         type: heading
         level: 2
         collapsed: false
@@ -2908,7 +2819,7 @@ settings:
         default-dark: '#'
     -
         id: nn-file-list-other-heading
-        title: Separators & Groups
+        title: Separators & groups
         type: heading
         level: 2
         collapsed: false
@@ -2929,15 +2840,92 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
+        id: nn-header-heading
+        title: Headers
+        description: Customize the appearance of pane headers.
+        type: heading
+        level: 1
+        collapsed: true
+    -
+        id: nn-theme-header-border-color
+        title: Header border color
+        description: Color of the bottom border for headers.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-header-breadcrumb-color
+        title: Header title color
+        description: Text color for the folder path/title in headers.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-header-icon-color
+        title: Header icon color
+        description: Color for icons within pane headers.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-header-actions-heading
+        title: Header action buttons
+        type: heading
+        level: 2
+        collapsed: false
+    -
+        id: nn-theme-action-button-color
+        title: Action button color
+        description: Color for the icons inside header action buttons.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-action-button-hover-bg
+        title: Action button hover background
+        description: Background color when hovering over an action button.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-action-button-active-bg
+        title: Action button active background
+        description: Background for a toggled/active action button.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-action-button-active-color
+        title: Action button active color
+        description: Icon color for a toggled/active action button.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-action-button-disabled-color
+        title: Action button disabled color
+        description: Icon color for disabled action buttons.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
         id: nn-interaction-heading
-        title: Interaction & Feedback
+        title: Interaction & feedback
         description: Customize transient UI elements like drag/drop and empty state messages.
         type: heading
         level: 1
         collapsed: true
     -
         id: nn-drag-drop-heading
-        title: Drag & Drop
+        title: Drag & drop
         type: heading
         level: 2
         collapsed: false
@@ -2959,7 +2947,7 @@ settings:
         default-dark: '#'
     -
         id: nn-empty-state-heading
-        title: Empty State
+        title: Empty state
         type: heading
         level: 2
         collapsed: false
@@ -2973,7 +2961,7 @@ settings:
         default-dark: '#'
     -
         id: nn-mobile-heading
-        title: Mobile Styles
+        title: Mobile styles
         description: Customize elements specific to the mobile interface.
         type: heading
         level: 1
