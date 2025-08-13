@@ -497,6 +497,9 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
             // Check for version updates
             await this.checkForVersionUpdate();
+
+            // Trigger Style Settings plugin to parse our settings
+            this.app.workspace.trigger('parse-style-settings');
         });
     }
 
