@@ -65,15 +65,15 @@ body {
     --nn-theme-action-button-disabled-color: var(--text-muted);
 
     /* -- Navigation Items (Folders & Tags) -- */
-    --nn-theme-nav-item-text-color: var(--text-normal);
-    --nn-theme-nav-item-icon-color: var(--text-muted);
-    --nn-theme-nav-item-chevron-color: var(--text-muted);
-    --nn-theme-nav-item-chevron-hover-color: var(--text-normal);
-    --nn-theme-nav-item-count-color: var(--text-muted);
-    --nn-theme-nav-item-count-bg: transparent;
-    --nn-theme-nav-item-hover-bg: var(--background-modifier-hover);
-    --nn-theme-nav-item-selection-bg: var(--text-selection);
-    --nn-theme-nav-item-selection-inactive-bg: var(--background-modifier-hover);
+    --nn-theme-navitem-text-color: var(--text-normal);
+    --nn-theme-navitem-icon-color: var(--text-muted);
+    --nn-theme-navitem-chevron-color: var(--text-muted);
+    --nn-theme-navitem-chevron-hover-color: var(--text-normal);
+    --nn-theme-navitem-count-color: var(--text-muted);
+    --nn-theme-navitem-count-bg: transparent;
+    --nn-theme-navitem-hover-bg: var(--background-modifier-hover);
+    --nn-theme-navitem-selection-bg: var(--text-selection);
+    --nn-theme-navitem-selection-inactive-bg: var(--background-modifier-hover);
 
     /* -- Depth-Based Folder Colors (Optional) -- */
     --nn-theme-folder-level-0-color: var(--text-normal);
@@ -426,12 +426,12 @@ body {
 /* CSS Custom Properties for navigation items - themes can override these */
 .nn-navitem {
     /* Selection rectangle styling */
-    --nn-selection-bg: var(--nn-theme-nav-item-selection-bg);
-    --nn-selection-bg-inactive: var(--nn-theme-nav-item-selection-inactive-bg);
+    --nn-selection-bg: var(--nn-theme-navitem-selection-bg);
+    --nn-selection-bg-inactive: var(--nn-theme-navitem-selection-inactive-bg);
     --nn-selection-radius: var(--radius-s);
 
     /* Hover state styling */
-    --nn-hover-bg: var(--nn-theme-nav-item-hover-bg);
+    --nn-hover-bg: var(--nn-theme-navitem-hover-bg);
     --nn-hover-radius: var(--radius-s);
 }
 
@@ -466,7 +466,7 @@ body {
     align-items: center;
     justify-content: center;
     flex-shrink: 0;
-    color: var(--nn-theme-nav-item-chevron-color);
+    color: var(--nn-theme-navitem-chevron-color);
 }
 
 /* Chevron states for folders without children */
@@ -482,7 +482,7 @@ body {
 
 /* Chevron hover state - desktop only */
 .nn-desktop .nn-navitem-chevron:hover {
-    color: var(--nn-theme-nav-item-chevron-hover-color);
+    color: var(--nn-theme-navitem-chevron-hover-color);
 }
 
 /* Folder icon - displays folder open/closed or custom icons */
@@ -491,7 +491,7 @@ body {
     height: var(--nn-nav-icon-size);
     margin-inline-end: var(--size-4-2);
     flex-shrink: 0;
-    color: var(--nn-theme-nav-item-icon-color);
+    color: var(--nn-theme-navitem-icon-color);
     display: flex;
     align-items: center;
 }
@@ -504,7 +504,7 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: var(--nn-nav-line-height);
-    color: var(--nn-theme-nav-item-text-color);
+    color: var(--nn-theme-navitem-text-color);
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
 
@@ -533,8 +533,8 @@ body {
 /* Folder file count - shows number of files in folder */
 .nn-navitem-count {
     font-size: 11px;
-    color: var(--nn-theme-nav-item-count-color);
-    background-color: var(--nn-theme-nav-item-count-bg);
+    color: var(--nn-theme-navitem-count-color);
+    background-color: var(--nn-theme-navitem-count-bg);
     margin-inline-end: var(--size-4-1);
     flex-shrink: 0;
 }

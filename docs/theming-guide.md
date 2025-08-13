@@ -46,17 +46,17 @@ touch this code!
 
 #### Folder & tag items
 
-| Variable                                    | Default                            | Description                   |
-| ------------------------------------------- | ---------------------------------- | ----------------------------- |
-| `--nn-theme-nav-item-text-color`            | `var(--text-normal)`               | Folder/tag name color         |
-| `--nn-theme-nav-item-icon-color`            | `var(--text-muted)`                | Folder/tag icon color         |
-| `--nn-theme-nav-item-chevron-color`         | `var(--text-muted)`                | Expand/collapse arrow color   |
-| `--nn-theme-nav-item-chevron-hover-color`   | `var(--text-normal)`               | Chevron hover color           |
-| `--nn-theme-nav-item-count-color`           | `var(--text-muted)`                | File count text color         |
-| `--nn-theme-nav-item-count-bg`              | `transparent`                      | File count background         |
-| `--nn-theme-nav-item-hover-bg`              | `var(--background-modifier-hover)` | Item hover background         |
-| `--nn-theme-nav-item-selection-bg`          | `var(--text-selection)`            | Selected item background      |
-| `--nn-theme-nav-item-selection-inactive-bg` | `var(--background-modifier-hover)` | Selected item (inactive pane) |
+| Variable                                   | Default                            | Description                   |
+| ------------------------------------------ | ---------------------------------- | ----------------------------- |
+| `--nn-theme-navitem-text-color`            | `var(--text-normal)`               | Folder/tag name color         |
+| `--nn-theme-navitem-icon-color`            | `var(--text-muted)`                | Folder/tag icon color         |
+| `--nn-theme-navitem-chevron-color`         | `var(--text-muted)`                | Expand/collapse arrow color   |
+| `--nn-theme-navitem-chevron-hover-color`   | `var(--text-normal)`               | Chevron hover color           |
+| `--nn-theme-navitem-count-color`           | `var(--text-muted)`                | File count text color         |
+| `--nn-theme-navitem-count-bg`              | `transparent`                      | File count background         |
+| `--nn-theme-navitem-hover-bg`              | `var(--background-modifier-hover)` | Item hover background         |
+| `--nn-theme-navitem-selection-bg`          | `var(--text-selection)`            | Selected item background      |
+| `--nn-theme-navitem-selection-inactive-bg` | `var(--background-modifier-hover)` | Selected item (inactive pane) |
 
 #### Folder depth colors
 
@@ -142,15 +142,15 @@ body {
   --nn-theme-nav-header-bg: #e6e9ff; /* Navigation header background */
 
   /* Folder & tag items */
-  --nn-theme-nav-item-text-color: #4a5568;
-  --nn-theme-nav-item-icon-color: #667eea;
-  --nn-theme-nav-item-chevron-color: #94a3b8;
-  --nn-theme-nav-item-chevron-hover-color: #475569;
-  --nn-theme-nav-item-count-color: white;
-  --nn-theme-nav-item-count-bg: #f093fb;
-  --nn-theme-nav-item-hover-bg: #fee140;
-  --nn-theme-nav-item-selection-bg: #667eea;
-  --nn-theme-nav-item-selection-inactive-bg: #f093fb;
+  --nn-theme-navitem-text-color: #4a5568;
+  --nn-theme-navitem-icon-color: #667eea;
+  --nn-theme-navitem-chevron-color: #94a3b8;
+  --nn-theme-navitem-chevron-hover-color: #475569;
+  --nn-theme-navitem-count-color: white;
+  --nn-theme-navitem-count-bg: #f093fb;
+  --nn-theme-navitem-hover-bg: #fee140;
+  --nn-theme-navitem-selection-bg: #667eea;
+  --nn-theme-navitem-selection-inactive-bg: #f093fb;
 
   /* Folder depth colors */
   --nn-theme-folder-level-0-color: #2563eb;
@@ -220,9 +220,9 @@ styles twice - once for each mode. Obsidian adds `.theme-light` and
 .theme-light {
   /* Navigation pane */
   --nn-theme-nav-pane-bg: #ffeeff; /* Light pink */
-  --nn-theme-nav-item-selection-bg: #ffccff; /* Pastel purple */
-  --nn-theme-nav-item-text-color: #ff66cc; /* Pink text */
-  --nn-theme-nav-item-hover-bg: #ffddff; /* Very light pink */
+  --nn-theme-navitem-selection-bg: #ffccff; /* Pastel purple */
+  --nn-theme-navitem-text-color: #ff66cc; /* Pink text */
+  --nn-theme-navitem-hover-bg: #ffddff; /* Very light pink */
 
   /* File list */
   --nn-theme-list-pane-bg: #fff0ff; /* Very light purple */
@@ -235,9 +235,9 @@ styles twice - once for each mode. Obsidian adds `.theme-light` and
 .theme-dark {
   /* Navigation pane */
   --nn-theme-nav-pane-bg: #330033; /* Dark purple */
-  --nn-theme-nav-item-selection-bg: #663366; /* Muted purple */
-  --nn-theme-nav-item-text-color: #ffaaff; /* Light pink text */
-  --nn-theme-nav-item-hover-bg: #442244; /* Dark purple hover */
+  --nn-theme-navitem-selection-bg: #663366; /* Muted purple */
+  --nn-theme-navitem-text-color: #ffaaff; /* Light pink text */
+  --nn-theme-navitem-hover-bg: #442244; /* Dark purple hover */
 
   /* File list */
   --nn-theme-list-pane-bg: #2a002a; /* Very dark purple */
