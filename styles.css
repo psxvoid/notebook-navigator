@@ -146,6 +146,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background-color: var(--nn-theme-nav-pane-bg);
 
     /* Performance optimization for virtualized content */
     contain: layout style;
@@ -158,6 +159,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+    background-color: var(--nn-theme-list-pane-bg);
 
     /* Performance optimization for virtualized content */
     contain: layout style;
@@ -1863,7 +1865,7 @@ body.nn-resizing {
 /* Make navigation pane flexible on mobile to handle resize gracefully */
 .notebook-navigator-mobile .nn-navigation-pane {
     flex: 1;
-    background-color: var(--background-primary) !important;
+    background-color: var(--nn-theme-nav-pane-bg) !important;
 }
 
 /* Hide resize handle on mobile */
