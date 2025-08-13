@@ -89,6 +89,9 @@ If you love using Notebook Navigator, please consider
 
 ### Advanced Theming Support
 
+- **Style Settings integration** - Full support for the Style Settings plugin,
+  allowing users to customize all theme variables through a friendly UI without
+  writing any CSS
 - **CSS custom properties** - Comprehensive set of CSS variables for complete
   theme customization
 - **Semantic class structure** - Clean `.nn-navitem` classes work for both
