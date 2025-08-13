@@ -85,7 +85,7 @@ body {
     /* -- File Items -- */
     --nn-theme-file-name-color: var(--text-normal);
     --nn-theme-file-preview-color: var(--text-muted);
-    --nn-theme-file-date-color: var(--text-faint);
+    --nn-theme-file-date-color: var(--text-normal);
     --nn-theme-file-parent-color: var(--text-muted);
     --nn-theme-file-tag-bg: var(--background-modifier-border);
     --nn-theme-file-tag-color: var(--text-muted);
@@ -1141,23 +1141,6 @@ body {
 .nn-file.nn-selected .nn-file-inner-content {
     position: relative;
     z-index: 5; /* Above selection background but below separators */
-}
-
-/* Selected file text colors - maintains readability */
-.nn-file.nn-selected .nn-file-name {
-    color: var(--text-normal);
-}
-
-.nn-file.nn-selected .nn-file-date {
-    color: var(--text-normal);
-}
-
-.nn-file.nn-selected .nn-file-preview {
-    color: var(--text-muted);
-}
-
-.nn-file.nn-selected .nn-file-folder {
-    color: var(--text-muted);
 }
 
 /* ========================================================================

@@ -82,7 +82,7 @@ level.
 | --------------------------------------- | ----------------------------------- | ----------------------------- |
 | `--nn-theme-file-name-color`            | `var(--text-normal)`                | File name color               |
 | `--nn-theme-file-preview-color`         | `var(--text-muted)`                 | Preview text color            |
-| `--nn-theme-file-date-color`            | `var(--text-faint)`                 | Modified date color           |
+| `--nn-theme-file-date-color`            | `var(--text-normal)`                | Modified date color           |
 | `--nn-theme-file-parent-color`          | `var(--text-muted)`                 | Parent folder path color      |
 | `--nn-theme-file-tag-bg`                | `var(--background-modifier-border)` | Tag pill background           |
 | `--nn-theme-file-tag-color`             | `var(--text-muted)`                 | Tag pill text color           |
