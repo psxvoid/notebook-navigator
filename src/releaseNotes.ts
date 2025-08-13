@@ -60,12 +60,12 @@ const RELEASE_NOTES: ReleaseNote[] = [
         showOnUpdate: true,
         info: 'First Community Plugin Release! 🎉 Notebook Navigator is now available in the Obsidian Community Plugins directory. A big thanks to everyone who supported the development of this plugin!',
         new: [
-            '**Public API**. Other plugins and Javascript developers can now interact with Notebook Navigator through a comprehensive API that provides smart file operations, metadata management, navigation control, and event subscriptions. Full TypeScript support included.',
-            '**Theming support**. Notebook Navigator now exposes custom CSS properties and provides detailed documentation for theme developers. Themes can now fully customize colors, selection styles, hover effects, and all UI elements including mobile-specific components.',
-            '**Style Settings support**. Full integration with the Style Settings plugin making it super easy to make Notebook Navigator look just the way you want it!'
+            '**Public API**. Other plugins and Javascript developers can now interact with Notebook Navigator through a comprehensive API that provides metadata management, navigation control, and event subscriptions. Full TypeScript support included!',
+            '**Theming support**. Notebook Navigator now exposes custom CSS properties and provides detailed documentation for theme developers. Theme developers can fully customize colors, selection styles, hover effects, and all UI elements including mobile-specific components.',
+            '**Style Settings support**. Full integration with the Style Settings plugin makes it super easy to get Notebook Navigator to look just the way you want it!'
         ],
         changed: [
-            '**Pinned notes are now context-aware**. Files can be pinned separately in folder view and tag view, allowing different pinned files for each context.'
+            '**Pinned notes are now context-aware**. Files are now pinned separately in folder view and tag view, allowing different pinned files for each context.'
         ]
     },
     {
