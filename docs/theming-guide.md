@@ -39,10 +39,9 @@ touch this code!
 
 ### Navigation pane
 
-| Variable                   | Default                       | Description                  |
-| -------------------------- | ----------------------------- | ---------------------------- |
-| `--nn-theme-nav-pane-bg`   | `var(--background-secondary)` | Navigation pane background   |
-| `--nn-theme-nav-header-bg` | `var(--background-secondary)` | Navigation header background |
+| Variable            | Default                       | Description                |
+| ------------------- | ----------------------------- | -------------------------- |
+| `--nn-theme-nav-bg` | `var(--background-secondary)` | Navigation pane background |
 
 #### Folder & tag items
 
@@ -58,21 +57,20 @@ touch this code!
 | `--nn-theme-navitem-selection-bg`          | `var(--text-selection)`            | Selected item background      |
 | `--nn-theme-navitem-selection-inactive-bg` | `var(--background-modifier-hover)` | Selected item (inactive pane) |
 
-#### Folder depth colors
+#### Tree depth colors
 
-| Variable                          | Default              | Description             |
-| --------------------------------- | -------------------- | ----------------------- |
-| `--nn-theme-folder-level-0-color` | `var(--text-normal)` | Root level folder color |
-| `--nn-theme-folder-level-1-color` | `var(--text-normal)` | Level 1 folder color    |
-| `--nn-theme-folder-level-2-color` | `var(--text-normal)` | Level 2 folder color    |
-| `--nn-theme-folder-level-3-color` | `var(--text-normal)` | Level 3+ folder color   |
+| Variable                  | Default              | Description      |
+| ------------------------- | -------------------- | ---------------- |
+| `--nn-theme-tree-0-color` | `var(--text-normal)` | Root level color |
+| `--nn-theme-tree-1-color` | `var(--text-normal)` | Level 1 color    |
+| `--nn-theme-tree-2-color` | `var(--text-normal)` | Level 2 color    |
+| `--nn-theme-tree-3-color` | `var(--text-normal)` | Level 3+ color   |
 
 ### List pane (files)
 
 | Variable                            | Default                             | Description             |
 | ----------------------------------- | ----------------------------------- | ----------------------- |
-| `--nn-theme-list-pane-bg`           | `var(--background-primary)`         | List pane background    |
-| `--nn-theme-list-header-bg`         | `var(--background-primary)`         | List header background  |
+| `--nn-theme-list-bg`                | `var(--background-primary)`         | List pane background    |
 | `--nn-theme-list-separator-color`   | `var(--background-modifier-border)` | File divider line color |
 | `--nn-theme-list-date-header-color` | `var(--text-muted)`                 | Date group header color |
 
@@ -95,21 +93,23 @@ touch this code!
 
 ### Headers
 
-| Variable                             | Default                             | Description         |
-| ------------------------------------ | ----------------------------------- | ------------------- |
-| `--nn-theme-header-border-color`     | `var(--background-modifier-border)` | Header border color |
-| `--nn-theme-header-breadcrumb-color` | `var(--text-muted)`                 | Header title color  |
-| `--nn-theme-header-icon-color`       | `var(--text-muted)`                 | Header icon color   |
+| Variable                             | Default                             | Description                  |
+| ------------------------------------ | ----------------------------------- | ---------------------------- |
+| `--nn-theme-header-nav-bg`           | `var(--background-secondary)`       | Navigation header background |
+| `--nn-theme-header-list-bg`          | `var(--background-primary)`         | List header background       |
+| `--nn-theme-header-border-color`     | `var(--background-modifier-border)` | Header border color          |
+| `--nn-theme-header-breadcrumb-color` | `var(--text-muted)`                 | Header title color           |
+| `--nn-theme-header-icon-color`       | `var(--text-muted)`                 | Header icon color            |
 
-#### Header action buttons
+#### Header buttons
 
 | Variable                                  | Default                            | Description                    |
 | ----------------------------------------- | ---------------------------------- | ------------------------------ |
-| `--nn-theme-action-button-color`          | `var(--text-muted)`                | Action button icon color       |
-| `--nn-theme-action-button-hover-bg`       | `var(--background-modifier-hover)` | Action button hover background |
-| `--nn-theme-action-button-active-bg`      | `var(--background-modifier-hover)` | Active button background       |
-| `--nn-theme-action-button-active-color`   | `var(--text-normal)`               | Active button icon color       |
-| `--nn-theme-action-button-disabled-color` | `var(--text-muted)`                | Disabled button icon color     |
+| `--nn-theme-header-button-color`          | `var(--text-muted)`                | Action button icon color       |
+| `--nn-theme-header-button-hover-bg`       | `var(--background-modifier-hover)` | Action button hover background |
+| `--nn-theme-header-button-active-bg`      | `var(--background-modifier-hover)` | Active button background       |
+| `--nn-theme-header-button-active-color`   | `var(--text-normal)`               | Active button icon color       |
+| `--nn-theme-header-button-disabled-color` | `var(--text-muted)`                | Disabled button icon color     |
 
 ### Mobile styles
 
@@ -138,8 +138,7 @@ body {
      ======================================== */
 
   /* Pane background */
-  --nn-theme-nav-pane-bg: #e6e9ff; /* Light purple navigation pane */
-  --nn-theme-nav-header-bg: #e6e9ff; /* Navigation header background */
+  --nn-theme-nav-bg: #e6e9ff; /* Light purple navigation pane */
 
   /* Folder & tag items */
   --nn-theme-navitem-text-color: #4a5568;
@@ -152,19 +151,18 @@ body {
   --nn-theme-navitem-selection-bg: #667eea;
   --nn-theme-navitem-selection-inactive-bg: #f093fb;
 
-  /* Folder depth colors */
-  --nn-theme-folder-level-0-color: #2563eb;
-  --nn-theme-folder-level-1-color: #3b82f6;
-  --nn-theme-folder-level-2-color: #60a5fa;
-  --nn-theme-folder-level-3-color: #93c5fd;
+  /* Tree depth colors */
+  --nn-theme-tree-0-color: #2563eb;
+  --nn-theme-tree-1-color: #3b82f6;
+  --nn-theme-tree-2-color: #60a5fa;
+  --nn-theme-tree-3-color: #93c5fd;
 
   /* ========================================
      LIST PANE (Files)
      ======================================== */
 
   /* Pane background */
-  --nn-theme-list-pane-bg: #e8fcfb; /* Light cyan file list pane */
-  --nn-theme-list-header-bg: #e8fcfb; /* List header background */
+  --nn-theme-list-bg: #e8fcfb; /* Light cyan file list pane */
   --nn-theme-list-separator-color: #c8e6c9; /* File divider lines */
   --nn-theme-list-date-header-color: #64748b; /* Date group headers */
 
@@ -183,17 +181,21 @@ body {
      HEADERS
      ======================================== */
 
+  /* Header backgrounds */
+  --nn-theme-header-nav-bg: #e6e9ff; /* Navigation header background */
+  --nn-theme-header-list-bg: #e8fcfb; /* List header background */
+
   /* Header colors */
   --nn-theme-header-border-color: #a78bfa;
   --nn-theme-header-breadcrumb-color: #475569;
   --nn-theme-header-icon-color: #8b5cf6;
 
-  /* Action buttons */
-  --nn-theme-action-button-color: #6366f1;
-  --nn-theme-action-button-hover-bg: #fef3c7;
-  --nn-theme-action-button-active-bg: #ddd6fe;
-  --nn-theme-action-button-active-color: #7c3aed;
-  --nn-theme-action-button-disabled-color: #94a3b8;
+  /* Header buttons */
+  --nn-theme-header-button-color: #6366f1;
+  --nn-theme-header-button-hover-bg: #fef3c7;
+  --nn-theme-header-button-active-bg: #ddd6fe;
+  --nn-theme-header-button-active-color: #7c3aed;
+  --nn-theme-header-button-disabled-color: #94a3b8;
 
   /* ========================================
      MOBILE STYLES
@@ -219,13 +221,13 @@ styles twice - once for each mode. Obsidian adds `.theme-light` and
 /* Light mode - pastel colors */
 .theme-light {
   /* Navigation pane */
-  --nn-theme-nav-pane-bg: #ffeeff; /* Light pink */
+  --nn-theme-nav-bg: #ffeeff; /* Light pink */
   --nn-theme-navitem-selection-bg: #ffccff; /* Pastel purple */
   --nn-theme-navitem-text-color: #ff66cc; /* Pink text */
   --nn-theme-navitem-hover-bg: #ffddff; /* Very light pink */
 
   /* File list */
-  --nn-theme-list-pane-bg: #fff0ff; /* Very light purple */
+  --nn-theme-list-bg: #fff0ff; /* Very light purple */
   --nn-theme-file-name-color: #cc33ff; /* Purple text */
   --nn-theme-file-selection-bg: #ffccff; /* Pastel purple */
   --nn-theme-file-preview-color: #ff99cc; /* Light pink */
@@ -234,13 +236,13 @@ styles twice - once for each mode. Obsidian adds `.theme-light` and
 /* Dark mode - pastel colors on dark */
 .theme-dark {
   /* Navigation pane */
-  --nn-theme-nav-pane-bg: #330033; /* Dark purple */
+  --nn-theme-nav-bg: #330033; /* Dark purple */
   --nn-theme-navitem-selection-bg: #663366; /* Muted purple */
   --nn-theme-navitem-text-color: #ffaaff; /* Light pink text */
   --nn-theme-navitem-hover-bg: #442244; /* Dark purple hover */
 
   /* File list */
-  --nn-theme-list-pane-bg: #2a002a; /* Very dark purple */
+  --nn-theme-list-bg: #2a002a; /* Very dark purple */
   --nn-theme-file-name-color: #ff99ff; /* Light purple text */
   --nn-theme-file-selection-bg: #663366; /* Muted purple */
   --nn-theme-file-preview-color: #cc99cc; /* Muted pink */
@@ -289,10 +291,10 @@ to each item:
 ```css
 /* Using CSS variables for depth colors */
 body {
-  --nn-theme-folder-level-0-color: #2563eb; /* Root - dark blue */
-  --nn-theme-folder-level-1-color: #3b82f6; /* Level 1 - medium blue */
-  --nn-theme-folder-level-2-color: #60a5fa; /* Level 2 - light blue */
-  --nn-theme-folder-level-3-color: #93c5fd; /* Level 3+ - very light blue */
+  --nn-theme-tree-0-color: #2563eb; /* Root - dark blue */
+  --nn-theme-tree-1-color: #3b82f6; /* Level 1 - medium blue */
+  --nn-theme-tree-2-color: #60a5fa; /* Level 2 - light blue */
+  --nn-theme-tree-3-color: #93c5fd; /* Level 3+ - very light blue */
 }
 
 /* Or override directly with attribute selectors for more control */

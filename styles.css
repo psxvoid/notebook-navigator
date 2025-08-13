@@ -43,26 +43,27 @@ body {
        Notebook Navigator Theme Variables
        ======================================================================== */
 
-    /* -- Panes & Global -- */
-    --nn-theme-nav-pane-bg: var(--background-secondary);
-    --nn-theme-list-pane-bg: var(--background-primary);
-    --nn-theme-resize-handle-hover-bg: var(--interactive-accent);
+    /* -- Navigation Pane -- */
+    --nn-theme-nav-bg: var(--background-secondary);
 
-    /* -- Headers -- */
-    --nn-theme-nav-header-bg: var(--background-secondary);
-    --nn-theme-list-header-bg: var(--background-primary);
+    /* -- List Pane -- */
+    --nn-theme-list-bg: var(--background-primary);
     --nn-theme-list-separator-color: var(--background-modifier-border);
     --nn-theme-list-date-header-color: var(--text-muted);
+
+    /* -- Headers -- */
+    --nn-theme-header-nav-bg: var(--background-secondary);
+    --nn-theme-header-list-bg: var(--background-primary);
     --nn-theme-header-border-color: var(--background-modifier-border);
     --nn-theme-header-breadcrumb-color: var(--text-muted);
     --nn-theme-header-icon-color: var(--text-muted);
 
-    /* -- Action Buttons (Header) -- */
-    --nn-theme-action-button-color: var(--text-muted);
-    --nn-theme-action-button-hover-bg: var(--background-modifier-hover);
-    --nn-theme-action-button-active-bg: var(--background-modifier-hover);
-    --nn-theme-action-button-active-color: var(--text-normal);
-    --nn-theme-action-button-disabled-color: var(--text-muted);
+    /* -- Header Buttons -- */
+    --nn-theme-header-button-color: var(--text-muted);
+    --nn-theme-header-button-hover-bg: var(--background-modifier-hover);
+    --nn-theme-header-button-active-bg: var(--background-modifier-hover);
+    --nn-theme-header-button-active-color: var(--text-normal);
+    --nn-theme-header-button-disabled-color: var(--text-muted);
 
     /* -- Navigation Items (Folders & Tags) -- */
     --nn-theme-navitem-text-color: var(--text-normal);
@@ -75,13 +76,13 @@ body {
     --nn-theme-navitem-selection-bg: var(--text-selection);
     --nn-theme-navitem-selection-inactive-bg: var(--background-modifier-hover);
 
-    /* -- Depth-Based Folder Colors (Optional) -- */
-    --nn-theme-folder-level-0-color: var(--text-normal);
-    --nn-theme-folder-level-1-color: var(--text-normal);
-    --nn-theme-folder-level-2-color: var(--text-normal);
-    --nn-theme-folder-level-3-color: var(--text-normal);
+    /* -- Tree Depth Colors -- */
+    --nn-theme-tree-0-color: var(--text-normal);
+    --nn-theme-tree-1-color: var(--text-normal);
+    --nn-theme-tree-2-color: var(--text-normal);
+    --nn-theme-tree-3-color: var(--text-normal);
 
-    /* -- File List Items -- */
+    /* -- File Items -- */
     --nn-theme-file-name-color: var(--text-normal);
     --nn-theme-file-preview-color: var(--text-muted);
     --nn-theme-file-date-color: var(--text-faint);
@@ -95,8 +96,7 @@ body {
     --nn-theme-mobile-tab-active-icon-color: var(--text-normal);
 
     /* -- Resize Handle -- */
-    --nn-resize-hover-opacity: 0.5;
-    --nn-resize-active-opacity: 0.8;
+    --nn-theme-resize-handle-hover-bg: var(--interactive-accent);
 
     /* -- Navigation Selection -- */
     --nn-selection-radius: var(--radius-s);
@@ -148,7 +148,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background-color: var(--nn-theme-nav-pane-bg);
+    background-color: var(--nn-theme-nav-bg);
 
     /* Performance optimization for virtualized content */
     contain: layout style;
@@ -161,7 +161,7 @@ body {
     display: flex;
     flex-direction: column;
     overflow: hidden;
-    background-color: var(--nn-theme-list-pane-bg);
+    background-color: var(--nn-theme-list-bg);
 
     /* Performance optimization for virtualized content */
     contain: layout style;
@@ -169,11 +169,8 @@ body {
 
 /* Resize handle - allows users to drag and resize the navigation pane */
 .nn-resize-handle {
-    --nn-resize-hover-opacity: 0.5;
-    --nn-resize-active-opacity: 0.8;
-
     width: 5px;
-    background-color: var(--nn-theme-list-pane-bg);
+    background-color: var(--nn-theme-list-bg);
     cursor: col-resize;
     position: relative;
     flex-shrink: 0;
@@ -182,13 +179,13 @@ body {
 /* Resize handle hover state - provides visual feedback */
 .nn-resize-handle:hover {
     background-color: var(--nn-theme-resize-handle-hover-bg);
-    opacity: var(--nn-resize-hover-opacity);
+    opacity: 0.5;
 }
 
 /* Resize handle active state - stronger feedback during drag */
 .nn-resize-handle:active {
     background-color: var(--nn-theme-resize-handle-hover-bg);
-    opacity: var(--nn-resize-active-opacity);
+    opacity: 0.8;
 }
 
 /* ========================================================================
@@ -216,12 +213,12 @@ body {
 
 /* Navigation pane header - matches folder tree background for visual consistency */
 .nn-navigation-pane .nn-pane-header {
-    background-color: var(--nn-theme-nav-header-bg);
+    background-color: var(--nn-theme-header-nav-bg);
 }
 
 /* File list pane header */
 .nn-list-pane .nn-pane-header {
-    background-color: var(--nn-theme-list-header-bg);
+    background-color: var(--nn-theme-header-list-bg);
     padding-left: 0;
 }
 
@@ -309,7 +306,7 @@ body {
     border: none !important;
     border-radius: var(--radius-s);
     padding: var(--size-2-2) var(--size-4-1);
-    color: var(--nn-theme-action-button-color);
+    color: var(--nn-theme-header-button-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -336,7 +333,7 @@ body {
 
 /* Icon button hover state - subtle background on hover - desktop only */
 .nn-desktop .nn-icon-button:hover {
-    background-color: var(--nn-theme-action-button-hover-bg) !important;
+    background-color: var(--nn-theme-header-button-hover-bg) !important;
 }
 
 /* Icon button active state - feedback on click */
@@ -346,13 +343,13 @@ body {
 
 /* Icon button active state - for toggle buttons that are "ON" */
 .nn-icon-button-active {
-    background-color: var(--nn-theme-action-button-active-bg) !important;
-    color: var(--nn-theme-action-button-active-color) !important;
+    background-color: var(--nn-theme-header-button-active-bg) !important;
+    color: var(--nn-theme-header-button-active-color) !important;
 }
 
 /* Active button icon color */
 .nn-icon-button-active svg {
-    stroke: var(--nn-theme-action-button-active-color) !important;
+    stroke: var(--nn-theme-header-button-active-color) !important;
 }
 
 /* Icon button disabled state - visual indicator for unavailable actions */
@@ -364,19 +361,19 @@ body {
 /* Disabled hover state - no hover effect when disabled */
 .nn-desktop .nn-icon-button:disabled:hover {
     background-color: transparent;
-    color: var(--nn-theme-action-button-disabled-color);
+    color: var(--nn-theme-header-button-disabled-color);
 }
 
 /* Disabled icon color - maintains muted appearance */
 .nn-desktop .nn-icon-button:disabled:hover svg {
-    stroke: var(--nn-theme-action-button-disabled-color);
+    stroke: var(--nn-theme-header-button-disabled-color);
 }
 
 /* Icon styling - consistent size and appearance for all button icons */
 .nn-icon-button svg {
     width: var(--icon-size);
     height: var(--icon-size);
-    stroke: var(--nn-theme-action-button-color);
+    stroke: var(--nn-theme-header-button-color);
     stroke-width: 2;
     fill: none;
 }
@@ -397,7 +394,7 @@ body {
     overflow-x: hidden;
     padding: 0;
     line-height: 1; /* Reset to 1 - we'll use fixed line-heights on individual elements */
-    background: var(--nn-theme-nav-pane-bg);
+    background: var(--nn-theme-nav-bg);
 
     /* Ensure scroll events work properly with virtualization */
     position: relative;
@@ -582,7 +579,7 @@ body {
     flex: 1;
     overflow-y: auto;
     padding: 0;
-    background: var(--nn-theme-list-pane-bg);
+    background: var(--nn-theme-list-bg);
 }
 
 /* File - container for each file in the list */
@@ -1037,12 +1034,12 @@ body {
 
 /* Skeleton view - minimal loading state */
 .nn-skeleton-navigation-pane {
-    background-color: var(--nn-theme-nav-pane-bg);
+    background-color: var(--nn-theme-nav-bg);
     height: 100%;
 }
 
 .nn-skeleton-list-pane {
-    background-color: var(--nn-theme-list-pane-bg);
+    background-color: var(--nn-theme-list-bg);
     width: 100%;
     height: 100%;
     flex: 1;
@@ -1847,7 +1844,7 @@ body.nn-resizing {
 /* Make navigation pane flexible on mobile to handle resize gracefully */
 .notebook-navigator-mobile .nn-navigation-pane {
     flex: 1;
-    background-color: var(--nn-theme-nav-pane-bg) !important;
+    background-color: var(--nn-theme-nav-bg) !important;
 }
 
 /* Hide resize handle on mobile */
@@ -2564,17 +2561,9 @@ settings:
         level: 1
         collapsed: true
     -
-        id: nn-theme-nav-pane-bg
+        id: nn-theme-nav-bg
         title: Navigation pane background
         description: Background color of the folder/tag navigation pane.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-nav-header-bg
-        title: Navigation header background
-        description: Background color for the navigation pane's header.
         type: variable-themed-color
         format: hex
         default-light: '#'
@@ -2586,7 +2575,7 @@ settings:
         level: 2
         collapsed: false
     -
-        id: nn-theme-nav-item-text-color
+        id: nn-theme-navitem-text-color
         title: Text color
         description: Main text color for folder and tag names.
         type: variable-themed-color
@@ -2594,7 +2583,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-nav-item-icon-color
+        id: nn-theme-navitem-icon-color
         title: Icon color
         description: Default color for folder and tag icons.
         type: variable-themed-color
@@ -2602,7 +2591,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-nav-item-chevron-color
+        id: nn-theme-navitem-chevron-color
         title: Chevron color
         description: Color for the expand/collapse arrows.
         type: variable-themed-color
@@ -2610,7 +2599,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-nav-item-chevron-hover-color
+        id: nn-theme-navitem-chevron-hover-color
         title: Chevron hover color
         description: Color for the expand/collapse arrows on hover.
         type: variable-themed-color
@@ -2618,7 +2607,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-nav-item-count-color
+        id: nn-theme-navitem-count-color
         title: File count text color
         description: Text color for the file count badge.
         type: variable-themed-color
@@ -2626,7 +2615,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-nav-item-count-bg
+        id: nn-theme-navitem-count-bg
         title: File count background
         description: Background color for the file count badge.
         type: variable-themed-color
@@ -2634,7 +2623,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-nav-item-hover-bg
+        id: nn-theme-navitem-hover-bg
         title: Hover background
         description: Background color when hovering over a folder or tag.
         type: variable-themed-color
@@ -2642,7 +2631,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-nav-item-selection-bg
+        id: nn-theme-navitem-selection-bg
         title: Selection background
         description: Background color when a folder or tag is selected.
         type: variable-themed-color
@@ -2650,7 +2639,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-nav-item-selection-inactive-bg
+        id: nn-theme-navitem-selection-inactive-bg
         title: Selection background (inactive)
         description: Background when selected but the pane is not focused.
         type: variable-themed-color
@@ -2658,35 +2647,35 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-folder-depth-heading
-        title: Folder colors by depth
-        description: Optionally set different colors for folder names based on how deeply they are nested.
+        id: nn-tree-depth-heading
+        title: Tree depth colors
+        description: Optionally set different colors for folders and tags based on their nesting level.
         type: heading
         level: 3
         collapsed: false
     -
-        id: nn-theme-folder-level-0-color
+        id: nn-theme-tree-0-color
         title: Level 0 folder color
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-folder-level-1-color
+        id: nn-theme-tree-1-color
         title: Level 1 folder color
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-folder-level-2-color
+        id: nn-theme-tree-2-color
         title: Level 2 folder color
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-folder-level-3-color
+        id: nn-theme-tree-3-color
         title: Level 3+ folder color
         type: variable-themed-color
         format: hex
@@ -2700,17 +2689,9 @@ settings:
         level: 1
         collapsed: true
     -
-        id: nn-theme-list-pane-bg
+        id: nn-theme-list-bg
         title: List pane background
         description: Background color of the file list pane.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-list-header-bg
-        title: List header background
-        description: Background color for the file list pane's header.
         type: variable-themed-color
         format: hex
         default-light: '#'
@@ -2807,6 +2788,22 @@ settings:
         level: 1
         collapsed: true
     -
+        id: nn-theme-header-nav-bg
+        title: Navigation header background
+        description: Background color for the navigation pane's header.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-header-list-bg
+        title: List header background
+        description: Background color for the file list pane's header.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
         id: nn-theme-header-border-color
         title: Header border color
         description: Color of the bottom border for headers.
@@ -2837,7 +2834,7 @@ settings:
         level: 2
         collapsed: false
     -
-        id: nn-theme-action-button-color
+        id: nn-theme-header-button-color
         title: Action button color
         description: Color for the icons inside header action buttons.
         type: variable-themed-color
@@ -2845,7 +2842,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-action-button-hover-bg
+        id: nn-theme-header-button-hover-bg
         title: Action button hover background
         description: Background color when hovering over an action button.
         type: variable-themed-color
@@ -2853,7 +2850,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-action-button-active-bg
+        id: nn-theme-header-button-active-bg
         title: Action button active background
         description: Background for a toggled/active action button.
         type: variable-themed-color
@@ -2861,7 +2858,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-action-button-active-color
+        id: nn-theme-header-button-active-color
         title: Action button active color
         description: Icon color for a toggled/active action button.
         type: variable-themed-color
@@ -2869,7 +2866,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-action-button-disabled-color
+        id: nn-theme-header-button-disabled-color
         title: Action button disabled color
         description: Icon color for disabled action buttons.
         type: variable-themed-color
