@@ -62,6 +62,7 @@
     --nn-theme-action-button-hover-bg: var(--background-modifier-hover);
     --nn-theme-action-button-active-bg: var(--background-modifier-hover);
     --nn-theme-action-button-active-color: var(--text-normal);
+    --nn-theme-action-button-disabled-color: var(--text-muted);
 
     /* -- Navigation Items (Folders & Tags) -- */
     --nn-theme-nav-item-text-color: var(--text-normal);
@@ -98,6 +99,9 @@
     /* -- Drag & Drop Badge -- */
     --nn-theme-drag-badge-bg: #dc3545;
     --nn-theme-drag-badge-color: white;
+
+    /* -- Empty State -- */
+    --nn-theme-empty-state-color: var(--text-muted);
 }
 
 /* ========================================================================
@@ -247,7 +251,7 @@
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    color: var(--text-muted);
+    color: var(--nn-theme-header-icon-color);
 }
 
 /* Ensure pane header icon SVG matches icon button size */
@@ -353,19 +357,19 @@
 /* Disabled hover state - no hover effect when disabled */
 .nn-desktop .nn-icon-button:disabled:hover {
     background-color: transparent;
-    color: var(--text-muted);
+    color: var(--nn-theme-action-button-disabled-color);
 }
 
 /* Disabled icon color - maintains muted appearance */
 .nn-desktop .nn-icon-button:disabled:hover svg {
-    stroke: var(--text-muted);
+    stroke: var(--nn-theme-action-button-disabled-color);
 }
 
 /* Icon styling - consistent size and appearance for all button icons */
 .nn-icon-button svg {
     width: var(--icon-size);
     height: var(--icon-size);
-    stroke: var(--text-muted);
+    stroke: var(--nn-theme-action-button-color);
     stroke-width: 2;
     fill: none;
 }
@@ -1047,7 +1051,7 @@
     height: 100%;
     padding: var(--size-4-10) var(--size-4-5);
     text-align: center;
-    color: var(--text-muted);
+    color: var(--nn-theme-empty-state-color);
     font-size: 14px;
 }
 
@@ -2640,6 +2644,12 @@ settings:
         type: variable-themed-color
         format: hex
     -
+        id: nn-theme-action-button-disabled-color
+        title: Action button disabled color
+        description: Icon color for disabled action buttons.
+        type: variable-themed-color
+        format: hex
+    -
         id: nn-nav-items-heading
         title: Navigation Items (Folders & Tags)
         description: Customize the appearance of folders and tags in the navigation pane.
@@ -2825,6 +2835,19 @@ settings:
         id: nn-theme-drag-badge-color
         title: Drag badge text color
         description: Text color for the drag count badge.
+        type: variable-themed-color
+        format: hex
+    -
+        id: nn-empty-state-heading
+        title: Empty State
+        description: Customize the empty state message appearance.
+        type: heading
+        level: 1
+        collapsed: true
+    -
+        id: nn-theme-empty-state-color
+        title: Empty state text color
+        description: Text color for the "No files" message when a folder is empty.
         type: variable-themed-color
         format: hex
 
