@@ -87,6 +87,8 @@ body {
     --nn-theme-file-preview-color: var(--text-muted);
     --nn-theme-file-date-color: var(--text-faint);
     --nn-theme-file-parent-color: var(--text-muted);
+    --nn-theme-file-tag-bg: var(--background-modifier-border);
+    --nn-theme-file-tag-color: var(--text-muted);
     --nn-theme-file-selection-bg: var(--text-selection);
     --nn-theme-file-selection-inactive-bg: var(--background-modifier-hover);
 
@@ -532,8 +534,18 @@ body {
     font-size: 11px;
     color: var(--nn-theme-navitem-count-color);
     background-color: var(--nn-theme-navitem-count-bg);
-    margin-inline-end: var(--size-4-1);
     flex-shrink: 0;
+
+    /* Pill style when background is set */
+    border-radius: 8px;
+    padding: 0 6px;
+    height: 16px;
+    line-height: 16px;
+    min-width: 20px;
+    text-align: center;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 
 /* ========================================================================
@@ -858,16 +870,13 @@ body {
     align-items: center;
     height: 20px;
     padding: 0 var(--size-4-2);
-    background-color: var(--background-modifier-border);
-    color: var(--text-muted);
+    background-color: var(--nn-theme-file-tag-bg);
+    color: var(--nn-theme-file-tag-color);
     border-radius: 10px;
     font-size: 12px;
     font-weight: 400;
     white-space: nowrap;
     flex-shrink: 0;
-    transition:
-        background-color 0.15s ease,
-        color 0.15s ease;
 }
 
 /* When tag has custom color, always use white text */
@@ -875,10 +884,9 @@ body {
     color: white;
 }
 
-/* Tag pill hover effect */
+/* Tag pill hover effect - darken/lighten all tags on hover */
 .nn-file-tag:hover {
-    background-color: var(--background-modifier-hover);
-    color: var(--text-normal);
+    filter: brightness(0.9);
 }
 
 /* Custom colored tag hover - slightly darken/lighten the background */
@@ -894,13 +902,12 @@ body {
 
 /* Dark mode tag styles */
 .theme-dark .nn-file-tag {
-    background-color: var(--background-modifier-border);
-    color: var(--text-muted);
+    background-color: var(--nn-theme-file-tag-bg);
+    color: var(--nn-theme-file-tag-color);
 }
 
 .theme-dark .nn-file-tag:hover {
-    background-color: var(--background-modifier-hover);
-    color: var(--text-normal);
+    filter: brightness(1.05); /* Lighten in dark mode */
 }
 
 /* Override dark mode for custom colored tags - ensure white text */
@@ -1120,21 +1127,6 @@ body {
 .nn-navitem.nn-selected > .nn-navitem-content > * {
     position: relative;
     z-index: 1;
-}
-
-/* Keep consistent text color for selected folders */
-.nn-navitem.nn-selected .nn-navitem-name {
-    color: var(--text-normal);
-}
-
-/* Selected folder icon - maintains muted color */
-.nn-navitem.nn-selected .nn-navitem-icon {
-    color: var(--text-muted);
-}
-
-/* Selected folder count - maintains muted color */
-.nn-navitem.nn-selected .nn-navitem-count {
-    color: var(--text-muted);
 }
 
 /* Selected file inner content z-index - ensures content above background */
@@ -2761,6 +2753,22 @@ settings:
         id: nn-theme-file-parent-color
         title: File parent folder color
         description: Color for the parent folder path shown when viewing files from subfolders.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-file-tag-bg
+        title: File tag background
+        description: Background color for tag pills shown in file items.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-file-tag-color
+        title: File tag text color
+        description: Text color for tag pills shown in file items.
         type: variable-themed-color
         format: hex
         default-light: '#'

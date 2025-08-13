@@ -12,10 +12,8 @@
 - [Advanced Techniques](#advanced-techniques)
   - [Supporting Light and Dark Modes](#supporting-light-and-dark-modes)
   - [User Custom Colors Override](#user-custom-colors-override)
-  - [Different Styles for Custom vs Theme Colors](#different-styles-for-custom-vs-theme-colors)
   - [Depth-Based Styling](#depth-based-styling)
-- [For Regular Users (Style Settings)](#for-regular-users-style-settings)
-- [For Theme Developers](#for-theme-developers)
+- [Style Settings Support](#style-settings-support)
 
 ## Introduction
 
@@ -72,14 +70,16 @@ level.
 
 #### File items
 
-| Variable                                | Default                            | Description                   |
-| --------------------------------------- | ---------------------------------- | ----------------------------- |
-| `--nn-theme-file-name-color`            | `var(--text-normal)`               | File name color               |
-| `--nn-theme-file-preview-color`         | `var(--text-muted)`                | Preview text color            |
-| `--nn-theme-file-date-color`            | `var(--text-faint)`                | Modified date color           |
-| `--nn-theme-file-parent-color`          | `var(--text-muted)`                | Parent folder path color      |
-| `--nn-theme-file-selection-bg`          | `var(--text-selection)`            | Selected file background      |
-| `--nn-theme-file-selection-inactive-bg` | `var(--background-modifier-hover)` | Selected file (inactive pane) |
+| Variable                                | Default                             | Description                   |
+| --------------------------------------- | ----------------------------------- | ----------------------------- |
+| `--nn-theme-file-name-color`            | `var(--text-normal)`                | File name color               |
+| `--nn-theme-file-preview-color`         | `var(--text-muted)`                 | Preview text color            |
+| `--nn-theme-file-date-color`            | `var(--text-faint)`                 | Modified date color           |
+| `--nn-theme-file-parent-color`          | `var(--text-muted)`                 | Parent folder path color      |
+| `--nn-theme-file-tag-bg`                | `var(--background-modifier-border)` | Tag pill background           |
+| `--nn-theme-file-tag-color`             | `var(--text-muted)`                 | Tag pill text color           |
+| `--nn-theme-file-selection-bg`          | `var(--text-selection)`             | Selected file background      |
+| `--nn-theme-file-selection-inactive-bg` | `var(--background-modifier-hover)`  | Selected file (inactive pane) |
 
 #### Resize handle
 
@@ -134,7 +134,7 @@ body {
 
   /* Folder & tag items */
   --nn-theme-navitem-text-color: #4a5568;
-  --nn-theme-navitem-icon-color: #667eea;
+  --nn-theme-navitem-icon-color: #818cf8; /* Brighter purple icon */
   --nn-theme-navitem-chevron-color: #94a3b8;
   --nn-theme-navitem-chevron-hover-color: #475569;
   --nn-theme-navitem-count-color: white;
@@ -164,6 +164,8 @@ body {
   --nn-theme-file-preview-color: #64748b;
   --nn-theme-file-date-color: #94a3b8;
   --nn-theme-file-parent-color: #a78bfa;
+  --nn-theme-file-tag-bg: #e0e7ff; /* Light purple tag pills */
+  --nn-theme-file-tag-color: #4c1d95; /* Dark purple tag text */
   --nn-theme-file-selection-bg: #a8edea;
   --nn-theme-file-selection-inactive-bg: #ffecd2;
 
@@ -240,34 +242,11 @@ and `.theme-dark` classes:
 ### User Custom Colors Override
 
 When users set custom colors (right-click → "Change color"), their choices
-automatically override your theme through inline styles. The element also gets a
-`nn-has-custom-color` class you can target.
-
-### Different Styles for Custom vs Theme Colors
-
-```css
-/* Default theme style for folders */
-.nn-navitem.nn-folder .nn-navitem-name {
-  color: #4a9eff;
-  font-weight: 500;
-}
-
-/* When user has NOT set a custom color - add an underline */
-.nn-navitem.nn-folder .nn-navitem-name:not(.nn-has-custom-color) {
-  text-decoration: underline;
-  text-underline-offset: 2px;
-}
-
-/* When user HAS set a custom color - make it italic */
-.nn-navitem.nn-folder .nn-navitem-name.nn-has-custom-color {
-  font-style: italic;
-}
-```
+automatically override your theme through inline styles.
 
 ### Depth-Based Styling
 
-Style items based on their depth using the tree color variables or `data-level`
-attributes:
+Style items based on their depth using the tree color variables:
 
 ```css
 /* Using CSS variables for depth colors */
@@ -276,21 +255,6 @@ body {
   --nn-theme-tree-level-1-color: #3b82f6; /* Level 1 - medium blue */
   --nn-theme-tree-level-2-color: #60a5fa; /* Level 2 - light blue */
   --nn-theme-tree-level-3-color: #93c5fd; /* Level 3+ - very light blue */
-}
-
-/* Or override directly with attribute selectors for more control */
-.nn-navitem.nn-folder[data-level='0'] .nn-navitem-name {
-  font-weight: 700; /* Make root folders bold */
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.nn-navitem.nn-folder[data-level='1'] .nn-navitem-name {
-  font-weight: 600;
-}
-
-.nn-navitem.nn-folder[data-level='2'] .nn-navitem-name {
-  font-style: italic;
 }
 ```
 
