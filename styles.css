@@ -85,7 +85,7 @@ body {
     --nn-theme-file-name-color: var(--text-normal);
     --nn-theme-file-preview-color: var(--text-muted);
     --nn-theme-file-date-color: var(--text-faint);
-    --nn-theme-file-folder-path-color: var(--text-muted);
+    --nn-theme-file-parent-color: var(--text-muted);
     --nn-theme-file-selection-bg: var(--text-selection);
     --nn-theme-file-selection-inactive-bg: var(--background-modifier-hover);
 
@@ -815,7 +815,7 @@ body {
 /* Folder indicator - shows parent folder for files from subfolders */
 .nn-file-folder {
     font-size: var(--nn-file-small-size);
-    color: var(--nn-theme-file-folder-path-color);
+    color: var(--nn-theme-file-parent-color);
     display: flex;
     align-items: center;
     gap: var(--size-4-1);
@@ -2776,9 +2776,9 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-file-folder-path-color
-        title: File folder path color
-        description: Color for the parent folder path shown in search results.
+        id: nn-theme-file-parent-color
+        title: File parent folder color
+        description: Color for the parent folder path shown when viewing files from subfolders.
         type: variable-themed-color
         format: hex
         default-light: '#'

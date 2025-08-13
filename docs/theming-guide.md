@@ -89,7 +89,7 @@ touch this code!
 | `--nn-theme-file-name-color`            | `var(--text-normal)`               | File name color               |
 | `--nn-theme-file-preview-color`         | `var(--text-muted)`                | Preview text color            |
 | `--nn-theme-file-date-color`            | `var(--text-faint)`                | Modified date color           |
-| `--nn-theme-file-folder-path-color`     | `var(--text-muted)`                | Parent folder path color      |
+| `--nn-theme-file-parent-color`          | `var(--text-muted)`                | Parent folder path color      |
 | `--nn-theme-file-selection-bg`          | `var(--text-selection)`            | Selected file background      |
 | `--nn-theme-file-selection-inactive-bg` | `var(--background-modifier-hover)` | Selected file (inactive pane) |
 
@@ -175,7 +175,7 @@ body {
   --nn-theme-file-name-color: #1e293b;
   --nn-theme-file-preview-color: #64748b;
   --nn-theme-file-date-color: #94a3b8;
-  --nn-theme-file-folder-path-color: #a78bfa;
+  --nn-theme-file-parent-color: #a78bfa;
   --nn-theme-file-selection-bg: #a8edea;
   --nn-theme-file-selection-inactive-bg: #ffecd2;
 
