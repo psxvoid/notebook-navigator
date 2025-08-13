@@ -520,6 +520,53 @@ body {
     font-weight: 600;
 }
 
+/* Tree depth-based colors */
+.nn-folder[data-level='0'] .nn-navitem-name:not(.nn-has-custom-color) {
+    color: var(--nn-theme-tree-level-0-color);
+}
+
+.nn-folder[data-level='1'] .nn-navitem-name:not(.nn-has-custom-color) {
+    color: var(--nn-theme-tree-level-1-color);
+}
+
+.nn-folder[data-level='2'] .nn-navitem-name:not(.nn-has-custom-color) {
+    color: var(--nn-theme-tree-level-2-color);
+}
+
+/* Level 3 and deeper all use level 3 color */
+.nn-folder[data-level='3'] .nn-navitem-name:not(.nn-has-custom-color),
+.nn-folder[data-level='4'] .nn-navitem-name:not(.nn-has-custom-color),
+.nn-folder[data-level='5'] .nn-navitem-name:not(.nn-has-custom-color),
+.nn-folder[data-level='6'] .nn-navitem-name:not(.nn-has-custom-color),
+.nn-folder[data-level='7'] .nn-navitem-name:not(.nn-has-custom-color),
+.nn-folder[data-level='8'] .nn-navitem-name:not(.nn-has-custom-color),
+.nn-folder[data-level='9'] .nn-navitem-name:not(.nn-has-custom-color) {
+    color: var(--nn-theme-tree-level-3-color);
+}
+
+/* Apply same depth colors to folder icons (when no custom color is set via inline style) */
+.nn-folder[data-level='0'] .nn-navitem-icon:not([style*='color']) {
+    color: var(--nn-theme-tree-level-0-color);
+}
+
+.nn-folder[data-level='1'] .nn-navitem-icon:not([style*='color']) {
+    color: var(--nn-theme-tree-level-1-color);
+}
+
+.nn-folder[data-level='2'] .nn-navitem-icon:not([style*='color']) {
+    color: var(--nn-theme-tree-level-2-color);
+}
+
+.nn-folder[data-level='3'] .nn-navitem-icon:not([style*='color']),
+.nn-folder[data-level='4'] .nn-navitem-icon:not([style*='color']),
+.nn-folder[data-level='5'] .nn-navitem-icon:not([style*='color']),
+.nn-folder[data-level='6'] .nn-navitem-icon:not([style*='color']),
+.nn-folder[data-level='7'] .nn-navitem-icon:not([style*='color']),
+.nn-folder[data-level='8'] .nn-navitem-icon:not([style*='color']),
+.nn-folder[data-level='9'] .nn-navitem-icon:not([style*='color']) {
+    color: var(--nn-theme-tree-level-3-color);
+}
+
 /* Folder with folder note - underlined and bold */
 .nn-navitem-name.nn-has-folder-note {
     text-decoration: underline;
