@@ -135,7 +135,6 @@
 .nn-navigation-pane {
     flex: 0 0 auto; /* Don't grow or shrink, use explicit width */
     min-width: 150px;
-    background-color: var(--background-secondary);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -147,7 +146,6 @@
 .nn-list-pane {
     flex: 1;
     min-width: 150px;
-    background-color: var(--background-primary);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -186,14 +184,11 @@
 
 /* Pane headers - consistent header styling for both panes */
 .nn-pane-header {
-    --nn-header-bg: var(--background-primary);
-    --nn-header-border-color: var(--background-modifier-border);
     padding: var(--size-4-2) var(--size-4-2);
-    border-bottom: 1px solid var(--nn-header-border-color);
+    border-bottom: 1px solid var(--nn-theme-header-border-color);
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    background-color: var(--nn-header-bg);
     min-height: 32px;
     height: 32px;
 }
@@ -208,11 +203,12 @@
 
 /* Navigation pane header - matches folder tree background for visual consistency */
 .nn-navigation-pane .nn-pane-header {
-    --nn-header-bg: var(--background-secondary);
+    background-color: var(--nn-theme-header-nav-bg);
 }
 
-/* Remove left padding from file pane header when navigation pane is visible */
+/* File list pane header */
 .nn-list-pane .nn-pane-header {
+    background-color: var(--nn-theme-header-list-bg);
     padding-left: 0;
 }
 
@@ -335,13 +331,13 @@
 
 /* Icon button active state - for toggle buttons that are "ON" */
 .nn-icon-button-active {
-    background-color: var(--background-modifier-hover) !important;
-    color: var(--text-normal) !important;
+    background-color: var(--nn-theme-action-button-active-bg) !important;
+    color: var(--nn-theme-action-button-active-color) !important;
 }
 
 /* Active button icon color */
 .nn-icon-button-active svg {
-    stroke: var(--text-normal) !important;
+    stroke: var(--nn-theme-action-button-active-color) !important;
 }
 
 /* Icon button disabled state - visual indicator for unavailable actions */
@@ -467,6 +463,11 @@
     visibility: visible;
 }
 
+/* Chevron hover state - desktop only */
+.nn-desktop .nn-navitem-chevron:hover {
+    color: var(--nn-theme-nav-item-chevron-hover-color);
+}
+
 /* Folder icon - displays folder open/closed or custom icons */
 .nn-navitem-icon {
     width: var(--nn-nav-icon-size);
@@ -515,7 +516,8 @@
 /* Folder file count - shows number of files in folder */
 .nn-navitem-count {
     font-size: 11px;
-    color: var(--text-muted);
+    color: var(--nn-theme-nav-item-count-color);
+    background-color: var(--nn-theme-nav-item-count-bg);
     margin-inline-end: var(--size-4-1);
     flex-shrink: 0;
 }
@@ -663,8 +665,8 @@
 /* File name - primary text with ellipsis overflow */
 .nn-file-name {
     font-size: var(--nn-file-name-size);
-    font-weight: 600;
-    color: var(--text-normal);
+    font-weight: var(--nn-theme-file-name-weight);
+    color: var(--nn-theme-file-name-color);
     overflow: hidden;
     text-overflow: ellipsis;
     margin-bottom: 0;
@@ -755,7 +757,7 @@
 /* File date - modification date display */
 .nn-file-date {
     font-size: var(--nn-file-small-size);
-    color: var(--text-normal);
+    color: var(--nn-theme-file-date-color);
     flex-shrink: 1; /* Allow date to shrink when space is limited */
     white-space: nowrap;
     margin-inline-end: var(--size-4-2);
@@ -774,7 +776,7 @@
 /* File preview text - secondary line showing file content */
 .nn-file-preview {
     font-size: var(--nn-file-small-size);
-    color: var(--text-muted);
+    color: var(--nn-theme-file-preview-color);
     line-height: var(--nn-file-preview-line-height);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -807,7 +809,7 @@
 /* Folder indicator - shows parent folder for files from subfolders */
 .nn-file-folder {
     font-size: var(--nn-file-small-size);
-    color: var(--text-muted);
+    color: var(--nn-theme-file-folder-path-color);
     display: flex;
     align-items: center;
     gap: var(--size-4-1);
@@ -1004,7 +1006,7 @@
     padding: var(--nn-date-header-padding-top) var(--size-4-3) var(--nn-date-header-padding-bottom) var(--size-4-3);
     font-size: var(--nn-file-small-size);
     font-weight: 600;
-    color: var(--text-muted);
+    color: var(--nn-theme-file-date-header-color);
     background-color: transparent !important;
     white-space: nowrap;
     overflow: hidden;
@@ -1913,7 +1915,7 @@ body.nn-resizing {
 /* Mobile header - adjust for back button */
 .notebook-navigator-mobile .nn-pane-header {
     flex-shrink: 0;
-    border-bottom: 1px solid var(--nn-header-border-color);
+    border-bottom: 1px solid var(--nn-theme-header-border-color);
     min-height: 48px;
     display: flex;
     align-items: center;
@@ -2242,7 +2244,7 @@ body.nn-resizing {
     background-color: transparent !important;
     border: none;
     border-radius: var(--radius-m);
-    color: var(--link-color);
+    color: var(--nn-theme-mobile-tab-icon-color);
     transition:
         background-color 0.15s ease,
         color 0.15s ease;
@@ -2256,7 +2258,7 @@ body.nn-resizing {
     width: 24px;
     height: 24px;
     stroke-width: 1.5;
-    stroke: var(--link-color);
+    stroke: var(--nn-theme-mobile-tab-icon-color);
 }
 
 /* Tab bar button tap feedback */
@@ -2266,12 +2268,12 @@ body.nn-resizing {
 
 /* Active tab bar button state - toggled on */
 .nn-tab-bar-button-active {
-    color: var(--link-color) !important;
-    background-color: var(--background-modifier-hover) !important;
+    color: var(--nn-theme-mobile-tab-active-icon-color) !important;
+    background-color: var(--nn-theme-mobile-tab-active-bg) !important;
 }
 
 .nn-tab-bar-button-active svg {
-    stroke: var(--link-color) !important;
+    stroke: var(--nn-theme-mobile-tab-active-icon-color) !important;
     stroke-width: 1.5;
 }
 
@@ -2583,16 +2585,12 @@ settings:
         description: Background color of the file list pane.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-file-separator-color
         title: File separator color
         description: Color of the divider lines between files in the list.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-resize-handle-heading
         title: Resize Handle
@@ -2605,16 +2603,12 @@ settings:
         description: The default background color of the resize handle.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-resize-handle-hover-bg
         title: Resize handle hover background
         description: The background color when hovering over the resize handle.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-header-heading
         title: Pane Headers
@@ -2628,40 +2622,30 @@ settings:
         description: Background color for the navigation pane's header.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-header-list-bg
         title: File list header background
         description: Background color for the file list pane's header.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-header-border-color
         title: Header border color
         description: Color of the bottom border for both pane headers.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-header-breadcrumb-color
         title: Header breadcrumb/title color
         description: Text color for the folder path/title in the header.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-header-icon-color
         title: Header icon color
         description: Color for icons within the pane headers (e.g., folder icon).
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-action-button-heading
         title: Header Action Buttons
@@ -2674,32 +2658,24 @@ settings:
         description: Color for the icons inside header action buttons.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-action-button-hover-bg
         title: Action button hover background
         description: Background color when hovering over an action button.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-action-button-active-bg
         title: Action button active background
         description: Background for a toggled/active action button.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-action-button-active-color
         title: Action button active color
         description: Icon color for a toggled/active action button.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-nav-items-heading
         title: Navigation Items (Folders & Tags)
@@ -2713,72 +2689,54 @@ settings:
         description: Main text color for folder and tag names.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-nav-item-icon-color
         title: Icon color
         description: Default color for folder and tag icons.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-nav-item-chevron-color
         title: Chevron color
         description: Color for the expand/collapse arrows.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-nav-item-chevron-hover-color
         title: Chevron hover color
         description: Color for the expand/collapse arrows on hover.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-nav-item-count-color
         title: File count text color
         description: Text color for the file count badge.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-nav-item-count-bg
         title: File count background
         description: Background color for the file count badge.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-nav-item-hover-bg
         title: Hover background
         description: Background color when hovering over a folder or tag.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-nav-item-selection-bg
         title: Selection background
         description: Background color when a folder or tag is selected.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-nav-item-selection-inactive-bg
         title: Selection background (inactive)
         description: Background when selected but the pane is not focused.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-folder-depth-heading
         title: Folder Colors by Depth
@@ -2791,29 +2749,21 @@ settings:
         title: Level 0 Folder Color
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-folder-level-1-color
         title: Level 1 Folder Color
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-folder-level-2-color
         title: Level 2 Folder Color
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-folder-level-3-color
         title: Level 3+ Folder Color
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-file-items-heading
         title: File List Items
@@ -2826,8 +2776,6 @@ settings:
         title: File name color
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-file-name-weight
         title: File name font weight
@@ -2842,48 +2790,36 @@ settings:
         description: Color for the secondary line of text (content preview).
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-file-date-color
         title: File date color
         description: Color for the file's modification date.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-file-folder-path-color
         title: File folder path color
         description: Color for the parent folder path shown in search results.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-file-date-header-color
         title: Date group header color
         description: Color for the date headings (e.g., 'Today', 'Yesterday').
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-file-selection-bg
         title: Selection background
         description: Background color when a file is selected.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-file-selection-inactive-bg
         title: Selection background (inactive)
         description: Background when a file is selected but the pane is not focused.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-mobile-heading
         title: Mobile Styles
@@ -2897,23 +2833,17 @@ settings:
         description: Color for the icons in the bottom tab bar.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-mobile-tab-active-bg
         title: Tab bar active background
         description: Background for the active/selected tab.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-mobile-tab-active-icon-color
         title: Tab bar active icon color
         description: Icon color for the active/selected tab.
         type: variable-themed-color
         format: hex
-        default-light: '#'
-        default-dark: '#'
 
 */
