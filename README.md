@@ -89,9 +89,9 @@ If you love using Notebook Navigator, please consider
 
 ### Advanced Theming Support
 
-- **Style Settings integration** - Full support for the Style Settings plugin,
-  allowing users to customize all theme variables through a friendly UI without
-  writing any CSS
+- **Style Settings integration** - Full support for the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin,
+  allowing customization of all theme variables through a friendly UI without
+  writing CSS
 - **CSS variables** - Comprehensive set of `--nn-theme-*` variables for complete
   customization of colors, backgrounds, and visual elements
 - **Light/dark mode support** - Separate theming for light and dark modes with
@@ -100,10 +100,7 @@ If you love using Notebook Navigator, please consider
   folder depth level
 - **Mobile-optimized theming** - Separate styling for mobile breadcrumbs and tab
   bar buttons
-- **User color overrides** - Theme developers' styles work seamlessly with user
-  custom folder/tag colors
-- **[Complete theming guide](docs/theming-guide.md)** - Step-by-step
-  documentation with examples for both theme developers and regular users
+- **[Complete theming guide](docs/theming-guide.md)** - Detailed documentation with examples
 
 ### Developer API
 
@@ -160,7 +157,7 @@ If you love using Notebook Navigator, please consider
   features.
 
 - [**Theming Guide**](docs/theming-guide.md) - Comprehensive guide for theme
-  developers to add Notebook Navigator support. Includes CSS class reference,
+  developers to add support for Notebook Navigator. Includes CSS class reference,
   custom properties documentation, and complete theme examples for both light
   and dark modes.
 
