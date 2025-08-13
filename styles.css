@@ -46,13 +46,12 @@ body {
     /* -- Panes & Global -- */
     --nn-theme-nav-pane-bg: var(--background-secondary);
     --nn-theme-list-pane-bg: var(--background-primary);
-    --nn-theme-resize-handle-bg: transparent;
     --nn-theme-resize-handle-hover-bg: var(--interactive-accent);
     --nn-theme-file-separator-color: var(--background-modifier-border);
 
     /* -- Headers -- */
-    --nn-theme-header-nav-bg: var(--background-secondary);
-    --nn-theme-header-list-bg: var(--background-primary);
+    --nn-theme-nav-header-bg: var(--background-secondary);
+    --nn-theme-list-header-bg: var(--background-primary);
     --nn-theme-header-border-color: var(--background-modifier-border);
     --nn-theme-header-breadcrumb-color: var(--text-muted);
     --nn-theme-header-icon-color: var(--text-muted);
@@ -83,7 +82,6 @@ body {
 
     /* -- File List Items -- */
     --nn-theme-file-name-color: var(--text-normal);
-    --nn-theme-file-name-weight: 600;
     --nn-theme-file-preview-color: var(--text-muted);
     --nn-theme-file-date-color: var(--text-faint);
     --nn-theme-file-folder-path-color: var(--text-muted);
@@ -96,28 +94,15 @@ body {
     --nn-theme-mobile-tab-active-bg: var(--background-modifier-hover);
     --nn-theme-mobile-tab-active-icon-color: var(--text-normal);
 
-    /* -- Drag & Drop Badge -- */
-    --nn-theme-drag-badge-bg: #dc3545;
-    --nn-theme-drag-badge-color: white;
-
-    /* -- Empty State -- */
-    --nn-theme-empty-state-color: var(--text-muted);
-
     /* -- Resize Handle -- */
-    --nn-resize-bg: var(--nn-theme-resize-handle-bg);
-    --nn-resize-hover-bg: var(--nn-theme-resize-handle-hover-bg);
     --nn-resize-hover-opacity: 0.5;
     --nn-resize-active-opacity: 0.8;
 
     /* -- Navigation Selection -- */
-    --nn-selection-bg: var(--nn-theme-nav-item-selection-bg);
-    --nn-selection-bg-inactive: var(--nn-theme-nav-item-selection-inactive-bg);
     --nn-selection-radius: var(--radius-s);
-    --nn-hover-bg: var(--nn-theme-nav-item-hover-bg);
     --nn-hover-radius: var(--radius-s);
 
     /* -- File Separator -- */
-    --nn-separator-color: var(--nn-theme-file-separator-color);
     --nn-separator-height: 1px;
 }
 
@@ -184,13 +169,11 @@ body {
 
 /* Resize handle - allows users to drag and resize the navigation pane */
 .nn-resize-handle {
-    --nn-resize-bg: var(--nn-theme-resize-handle-bg);
-    --nn-resize-hover-bg: var(--nn-theme-resize-handle-hover-bg);
     --nn-resize-hover-opacity: 0.5;
     --nn-resize-active-opacity: 0.8;
 
     width: 5px;
-    background-color: var(--nn-resize-bg);
+    background-color: var(--nn-theme-list-pane-bg);
     cursor: col-resize;
     position: relative;
     flex-shrink: 0;
@@ -198,13 +181,13 @@ body {
 
 /* Resize handle hover state - provides visual feedback */
 .nn-resize-handle:hover {
-    background-color: var(--nn-resize-hover-bg);
+    background-color: var(--nn-theme-resize-handle-hover-bg);
     opacity: var(--nn-resize-hover-opacity);
 }
 
 /* Resize handle active state - stronger feedback during drag */
 .nn-resize-handle:active {
-    background-color: var(--nn-resize-hover-bg);
+    background-color: var(--nn-theme-resize-handle-hover-bg);
     opacity: var(--nn-resize-active-opacity);
 }
 
@@ -233,12 +216,12 @@ body {
 
 /* Navigation pane header - matches folder tree background for visual consistency */
 .nn-navigation-pane .nn-pane-header {
-    background-color: var(--nn-theme-header-nav-bg);
+    background-color: var(--nn-theme-nav-header-bg);
 }
 
 /* File list pane header */
 .nn-list-pane .nn-pane-header {
-    background-color: var(--nn-theme-header-list-bg);
+    background-color: var(--nn-theme-list-header-bg);
     padding-left: 0;
 }
 
@@ -643,7 +626,6 @@ body {
 
 /* Virtual list file separator */
 .nn-virtual-file-item {
-    --nn-separator-color: var(--nn-theme-file-separator-color);
     --nn-separator-height: 1px;
 }
 
@@ -654,7 +636,7 @@ body {
     inset-inline-start: var(--size-4-5);
     inset-inline-end: var(--size-4-5);
     height: var(--nn-separator-height);
-    background-color: var(--nn-separator-color);
+    background-color: var(--nn-theme-file-separator-color);
     z-index: 100; /* Very high to ensure it's always on top */
     pointer-events: none; /* Ensure it doesn't interfere with clicks */
 }
@@ -700,7 +682,7 @@ body {
 /* File name - primary text with ellipsis overflow */
 .nn-file-name {
     font-size: var(--nn-file-name-size);
-    font-weight: var(--nn-theme-file-name-weight);
+    font-weight: 600;
     color: var(--nn-theme-file-name-color);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1078,7 +1060,7 @@ body {
     height: 100%;
     padding: var(--size-4-10) var(--size-4-5);
     text-align: center;
-    color: var(--nn-theme-empty-state-color);
+    color: var(--text-muted);
     font-size: 14px;
 }
 
@@ -1291,8 +1273,8 @@ body.nn-resizing {
     position: absolute;
     bottom: 8px;
     inset-inline-end: 8px;
-    background-color: var(--nn-theme-drag-badge-bg);
-    color: var(--nn-theme-drag-badge-color);
+    background-color: #dc3545;
+    color: white;
     font-weight: bold;
     font-size: 14px;
     min-width: 24px;
@@ -2590,7 +2572,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-header-nav-bg
+        id: nn-theme-nav-header-bg
         title: Navigation header background
         description: Background color for the navigation pane's header.
         type: variable-themed-color
@@ -2726,7 +2708,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-header-list-bg
+        id: nn-theme-list-header-bg
         title: List header background
         description: Background color for the file list pane's header.
         type: variable-themed-color
@@ -2740,14 +2722,6 @@ settings:
         type: heading
         level: 2
         collapsed: false
-    -
-        id: nn-theme-resize-handle-bg
-        title: Handle background
-        description: The default background color of the resize handle.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-resize-handle-hover-bg
         title: Handle hover background
@@ -2769,14 +2743,6 @@ settings:
         format: hex
         default-light: '#'
         default-dark: '#'
-    -
-        id: nn-theme-file-name-weight
-        title: File name font weight
-        type: variable-number
-        default: 600
-        min: 100
-        max: 900
-        step: 100
     -
         id: nn-theme-file-preview-color
         title: File preview text color
@@ -2912,49 +2878,6 @@ settings:
         id: nn-theme-action-button-disabled-color
         title: Action button disabled color
         description: Icon color for disabled action buttons.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-interaction-heading
-        title: Interaction & feedback
-        description: Customize transient UI elements like drag/drop and empty state messages.
-        type: heading
-        level: 1
-        collapsed: true
-    -
-        id: nn-drag-drop-heading
-        title: Drag & drop
-        type: heading
-        level: 2
-        collapsed: false
-    -
-        id: nn-theme-drag-badge-bg
-        title: Drag badge background
-        description: Background color for the item count badge shown while dragging.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-drag-badge-color
-        title: Drag badge text color
-        description: Text color for the drag count badge.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-empty-state-heading
-        title: Empty state
-        type: heading
-        level: 2
-        collapsed: false
-    -
-        id: nn-theme-empty-state-color
-        title: Empty state text color
-        description: Text color for the "No files" message when a folder is empty.
         type: variable-themed-color
         format: hex
         default-light: '#'
