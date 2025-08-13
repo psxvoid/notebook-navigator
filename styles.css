@@ -325,7 +325,7 @@
 }
 
 /* iPad-specific adjustment for icon buttons in headers */
-@media (width >= 768px) {
+@media (min-width: 768px) {
     .notebook-navigator-mobile .nn-header-actions button.nn-icon-button {
         /* Maintain same dimensions as desktop for consistency */
         padding: 1px 7px;
@@ -411,7 +411,7 @@
 
 /* Navigation item - container for each folder/tag in the tree */
 .nn-navitem {
-    user-select: none;
+    -webkit-user-select: none;
     user-select: none;
     background: transparent;
     display: flex;
@@ -590,7 +590,7 @@
     background: transparent;
     border-radius: 0;
     padding: 0;
-    user-select: none;
+    -webkit-user-select: none;
     user-select: none;
     position: relative;
 
@@ -609,7 +609,7 @@
 /* File content wrapper - contains all file information */
 .nn-file-content {
     padding: var(--nn-file-padding-vertical) var(--size-4-3);
-    margin: 0 var(--size-4-2);
+    margin: 0px var(--size-4-2);
     border-radius: var(--radius-m);
     background: transparent;
     position: relative; /* For absolute positioning of reveal overlay */
@@ -692,8 +692,8 @@
     -webkit-line-clamp: var(--filename-rows, 1);
     -webkit-box-orient: vertical;
     line-height: var(--nn-file-line-height);
-    overflow-wrap: break-word;
-    overflow-wrap: break-word;
+    word-break: break-word;
+    word-break: break-word;
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 
     /* Fixed height: always take up configured number of lines */
@@ -792,8 +792,8 @@
     display: -webkit-box;
     -webkit-line-clamp: var(--preview-rows, 1);
     -webkit-box-orient: vertical;
-    overflow-wrap: break-word;
-    overflow-wrap: break-word;
+    word-break: break-word;
+    word-break: break-word;
     flex: 1;
 }
 
@@ -1026,7 +1026,7 @@
 .nn-virtual-item {
     /* Force pixel snapping for crisp rendering */
     transform-style: preserve-3d;
-    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
 }
 
@@ -1081,8 +1081,8 @@
     content: '';
     position: absolute;
     top: 0;
-    inset-inline-start: 0;
-    inset-inline-end: 0;
+    inset-inline-start: 0px;
+    inset-inline-end: 0px;
     bottom: 0; /* Extend all the way down */
     background-color: var(--nn-selection-bg);
     border-radius: var(--nn-selection-radius);
@@ -1114,8 +1114,8 @@
     content: '';
     position: absolute;
     top: 0;
-    inset-inline-start: 0;
-    inset-inline-end: 0;
+    inset-inline-start: 0px;
+    inset-inline-end: 0px;
     bottom: 0;
     background-color: var(--nn-selection-bg);
     border-radius: var(--nn-selection-radius);
@@ -1215,7 +1215,7 @@
 
 /* Resizing state - prevents text selection during pane resize */
 body.nn-resizing {
-    user-select: none;
+    -webkit-user-select: none;
     user-select: none;
 }
 
@@ -1258,7 +1258,7 @@ body.nn-resizing {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Style the Lucide icon inside drag icon badge */
@@ -1297,7 +1297,7 @@ body.nn-resizing {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* File list spacer - adds spacing at the bottom of file lists */
@@ -1334,8 +1334,8 @@ body.nn-resizing {
     content: '';
     position: absolute;
     top: 0;
-    inset-inline-start: 0;
-    inset-inline-end: 0;
+    inset-inline-start: 0px;
+    inset-inline-end: 0px;
     bottom: 0;
     border: 2px solid var(--nn-selection-bg);
     border-radius: var(--nn-selection-radius);
@@ -1353,8 +1353,8 @@ body.nn-resizing {
     content: '';
     position: absolute;
     top: 0;
-    inset-inline-start: 0;
-    inset-inline-end: 0;
+    inset-inline-start: 0px;
+    inset-inline-end: 0px;
     bottom: 1px; /* Account for separator line */
     border: 2px solid var(--nn-selection-bg);
     border-radius: var(--nn-selection-radius);
@@ -1518,7 +1518,7 @@ body.nn-resizing {
 }
 
 /* Mobile adjustments */
-@media (width <= 768px) {
+@media (max-width: 768px) {
     .modal.nn-whats-new-modal {
         width: calc(100vw - 40px);
         max-width: calc(100vw - 40px);
@@ -1654,7 +1654,7 @@ body.nn-resizing {
     font-size: 11px;
     color: var(--text-muted);
     text-align: center;
-    overflow-wrap: break-word;
+    word-break: break-word;
     line-height: 1.2;
     max-width: 100%;
 }
@@ -1790,7 +1790,6 @@ body.nn-resizing {
 
 /* Support buttons - minimal, clean styling */
 .nn-support-button {
-    /* Uses default button styles */
 }
 
 /* Support button hover - subtle opacity change */
@@ -2069,8 +2068,8 @@ body.nn-resizing {
     height: 48px;
     border-radius: 50%;
     box-shadow:
-        0 2px 4px rgb(0 0 0 / 10%),
-        inset 0 0 0 1px rgb(0 0 0 / 10%);
+        0 2px 4px rgba(0, 0, 0, 0.1),
+        inset 0 0 0 1px rgba(0, 0, 0, 0.1);
 }
 
 /* Apply background colors based on data attribute 
@@ -2168,8 +2167,8 @@ body.nn-resizing {
 /* Dark theme adjustments for color picker */
 .theme-dark .nn-color-preview {
     box-shadow:
-        0 2px 4px rgb(0 0 0 / 30%),
-        inset 0 0 0 1px rgb(255 255 255 / 10%);
+        0 2px 4px rgba(0, 0, 0, 0.3),
+        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
 }
 
 /* ========================================================================
@@ -2383,7 +2382,7 @@ body.nn-resizing {
 
     /* Prevent text selection of emoji icons */
     user-select: none;
-    user-select: none;
+    -webkit-user-select: none;
 }
 
 /* Ensure emojis in navigation items display properly */
