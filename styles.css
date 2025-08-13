@@ -693,7 +693,6 @@
     -webkit-box-orient: vertical;
     line-height: var(--nn-file-line-height);
     word-break: break-word;
-    word-break: break-word;
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 
     /* Fixed height: always take up configured number of lines */
@@ -792,7 +791,6 @@
     display: -webkit-box;
     -webkit-line-clamp: var(--preview-rows, 1);
     -webkit-box-orient: vertical;
-    word-break: break-word;
     word-break: break-word;
     flex: 1;
 }
@@ -1169,16 +1167,6 @@
 /* ========================================================================
    Focus States
    ======================================================================== */
-
-/* Focused folder - no outline for cleaner Apple Notes style */
-.nn-navitem.nn-focused > .nn-navitem-content {
-    /* No outline for cleaner look */
-}
-
-/* Focused file - no outline for cleaner appearance */
-.nn-file.nn-focused {
-    /* No outline for cleaner Notes style */
-}
 
 /* Dimmed selections - apply to all these cases:
    1. Navigator unfocused (all selections dimmed)
@@ -1788,10 +1776,6 @@ body.nn-resizing {
    Sponsor Button Styles
    ======================================================================== */
 
-/* Support buttons - minimal, clean styling */
-.nn-support-button {
-}
-
 /* Support button hover - subtle opacity change */
 .nn-support-button:hover {
     opacity: 0.8;
@@ -1892,7 +1876,6 @@ body.nn-resizing {
 
 /* Add touch-action to prevent browser gestures interfering */
 .notebook-navigator-mobile .nn-split-container {
-    touch-action: pan-y;
     touch-action: pan-y;
 }
 
