@@ -1325,12 +1325,6 @@ body.nn-resizing {
     z-index: 10;
 }
 
-/* Dark mode context menu outline for folders */
-.theme-dark .nn-navitem.nn-context-menu-active:not(.nn-selected)::after {
-    border-color: var(--nn-selection-bg);
-    opacity: 0.5;
-}
-
 /* Context menu active file - prepares for outline */
 .nn-file.nn-context-menu-active .nn-file-content {
     position: relative;
@@ -1348,21 +1342,6 @@ body.nn-resizing {
     border-radius: var(--nn-selection-radius);
     pointer-events: none;
     z-index: 10;
-}
-
-/* ========================================================================
-   Folder Suggestion Modal Styles
-   ======================================================================== */
-
-/* Folder item in suggestion modal */
-.nn-folder-suggest-item {
-    color: var(--text-normal);
-}
-
-/* Dark mode context menu outline for files */
-.theme-dark .nn-file.nn-context-menu-active:not(.nn-selected) .nn-file-content::after {
-    border-color: var(--nn-selection-bg);
-    opacity: 0.5;
 }
 
 /* ========================================================================
