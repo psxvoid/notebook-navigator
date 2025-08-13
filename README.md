@@ -92,18 +92,18 @@ If you love using Notebook Navigator, please consider
 - **Style Settings integration** - Full support for the Style Settings plugin,
   allowing users to customize all theme variables through a friendly UI without
   writing any CSS
-- **CSS custom properties** - Comprehensive set of CSS variables for complete
-  theme customization
-- **Semantic class structure** - Clean `.nn-navitem` classes work for both
-  folders and tags
-- **Selection & hover effects** - Fully customizable selection rectangles, hover
-  states, and focus indicators
+- **CSS variables** - Comprehensive set of `--nn-theme-*` variables for complete
+  customization of colors, backgrounds, and visual elements
+- **Light/dark mode support** - Separate theming for light and dark modes with
+  automatic switching
+- **Depth-based folder colors** - Built-in support for different colors at each
+  folder depth level
 - **Mobile-optimized theming** - Separate styling for mobile breadcrumbs and tab
   bar buttons
-- **Depth-based styling** - Built-in `data-level` attributes for easy
-  hierarchical theming
+- **User color overrides** - Theme developers' styles work seamlessly with user
+  custom folder/tag colors
 - **[Complete theming guide](docs/theming-guide.md)** - Step-by-step
-  documentation with examples
+  documentation with examples for both theme developers and regular users
 
 ### Developer API
 
