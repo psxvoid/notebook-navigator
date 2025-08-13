@@ -6,33 +6,99 @@ a custom dual-pane interface that uses different CSS classes and DOM structure.
 
 ## CSS Custom Properties Reference
 
-Notebook Navigator exposes these CSS custom properties for easy theming:
+All Notebook Navigator CSS variables are defined at the `body` level and can be customized through the Style Settings plugin or CSS snippets.
 
-### Selection & Hover Effects
+### Global Appearance
 
-| Property                     | Element       | Default                            | Description                                 |
-| ---------------------------- | ------------- | ---------------------------------- | ------------------------------------------- |
-| `--nn-selection-bg`          | `.nn-navitem` | `var(--text-selection)`            | Background color when selected              |
-| `--nn-selection-bg-inactive` | `.nn-navitem` | `var(--background-modifier-hover)` | Background when selected but pane unfocused |
-| `--nn-selection-radius`      | `.nn-navitem` | `var(--radius-s)`                  | Border radius of selection rectangle        |
-| `--nn-hover-bg`              | `.nn-navitem` | `var(--background-modifier-hover)` | Background color on hover                   |
-| `--nn-hover-radius`          | `.nn-navitem` | `var(--radius-s)`                  | Border radius of hover rectangle            |
-| `--nn-selection-bg`          | `.nn-file`    | `var(--text-selection)`            | File selection background                   |
-| `--nn-selection-bg-inactive` | `.nn-file`    | `var(--background-modifier-hover)` | File selection when unfocused               |
-| `--nn-selection-radius`      | `.nn-file`    | `var(--radius-m)`                  | File selection border radius                |
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `--nn-theme-nav-pane-bg` | `var(--background-secondary)` | Navigation pane background |
+| `--nn-theme-list-pane-bg` | `var(--background-primary)` | File list pane background |
+| `--nn-theme-resize-handle-bg` | `transparent` | Resize handle background |
+| `--nn-theme-resize-handle-hover-bg` | `var(--interactive-accent)` | Resize handle hover background |
 
-### Layout Components
+### Navigation Pane Header
 
-| Property                     | Element                 | Default                             | Description                   |
-| ---------------------------- | ----------------------- | ----------------------------------- | ----------------------------- |
-| `--nn-header-bg`             | `.nn-pane-header`       | `var(--background-primary)`         | Pane header background        |
-| `--nn-header-border-color`   | `.nn-pane-header`       | `var(--background-modifier-border)` | Header bottom border color    |
-| `--nn-resize-bg`             | `.nn-resize-handle`     | `transparent`                       | Resize handle background      |
-| `--nn-resize-hover-bg`       | `.nn-resize-handle`     | `var(--interactive-accent)`         | Resize handle hover color     |
-| `--nn-resize-hover-opacity`  | `.nn-resize-handle`     | `0.5`                               | Resize handle hover opacity   |
-| `--nn-resize-active-opacity` | `.nn-resize-handle`     | `0.8`                               | Resize handle drag opacity    |
-| `--nn-separator-color`       | `.nn-virtual-file-item` | `var(--background-modifier-border)` | File separator line color     |
-| `--nn-separator-height`      | `.nn-virtual-file-item` | `1px`                               | File separator line thickness |
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `--nn-theme-header-nav-bg` | `var(--background-secondary)` | Navigation header background |
+| `--nn-theme-header-border-color` | `var(--background-modifier-border)` | Header border color |
+| `--nn-theme-header-breadcrumb-color` | `var(--text-muted)` | Header title/breadcrumb color |
+| `--nn-theme-header-icon-color` | `var(--text-muted)` | Header icon color |
+
+### Header Action Buttons
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `--nn-theme-action-button-color` | `var(--text-muted)` | Action button icon color |
+| `--nn-theme-action-button-hover-bg` | `var(--background-modifier-hover)` | Action button hover background |
+| `--nn-theme-action-button-active-bg` | `var(--background-modifier-hover)` | Active/toggled button background |
+| `--nn-theme-action-button-active-color` | `var(--text-normal)` | Active/toggled button icon color |
+| `--nn-theme-action-button-disabled-color` | `var(--text-muted)` | Disabled button icon color |
+
+### Navigation Items (Folders & Tags)
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `--nn-theme-nav-item-text-color` | `var(--text-normal)` | Folder/tag name color |
+| `--nn-theme-nav-item-icon-color` | `var(--text-muted)` | Folder/tag icon color |
+| `--nn-theme-nav-item-chevron-color` | `var(--text-muted)` | Expand/collapse arrow color |
+| `--nn-theme-nav-item-chevron-hover-color` | `var(--text-normal)` | Chevron hover color |
+| `--nn-theme-nav-item-count-color` | `var(--text-muted)` | File count badge text |
+| `--nn-theme-nav-item-count-bg` | `transparent` | File count badge background |
+| `--nn-theme-nav-item-hover-bg` | `var(--background-modifier-hover)` | Item hover background |
+| `--nn-theme-nav-item-selection-bg` | `var(--text-selection)` | Selected item background |
+| `--nn-theme-nav-item-selection-inactive-bg` | `var(--background-modifier-hover)` | Selected item (unfocused pane) |
+
+### Folder Depth Colors
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `--nn-theme-folder-level-0-color` | `var(--text-normal)` | Root level folder color |
+| `--nn-theme-folder-level-1-color` | `var(--text-normal)` | Level 1 folder color |
+| `--nn-theme-folder-level-2-color` | `var(--text-normal)` | Level 2 folder color |
+| `--nn-theme-folder-level-3-color` | `var(--text-normal)` | Level 3+ folder color |
+
+### File List Header
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `--nn-theme-header-list-bg` | `var(--background-primary)` | File list header background |
+
+### File List Items
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `--nn-theme-file-name-color` | `var(--text-normal)` | File name color |
+| `--nn-theme-file-name-weight` | `600` | File name font weight |
+| `--nn-theme-file-preview-color` | `var(--text-muted)` | Preview text color |
+| `--nn-theme-file-date-color` | `var(--text-faint)` | Modified date color |
+| `--nn-theme-file-folder-path-color` | `var(--text-muted)` | Parent folder path color |
+| `--nn-theme-file-selection-bg` | `var(--text-selection)` | Selected file background |
+| `--nn-theme-file-selection-inactive-bg` | `var(--background-modifier-hover)` | Selected file (unfocused pane) |
+
+### File List Separators & Groups
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `--nn-theme-file-separator-color` | `var(--background-modifier-border)` | File divider line color |
+| `--nn-theme-file-date-header-color` | `var(--text-muted)` | Date group header color |
+
+### Interaction & Feedback
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `--nn-theme-drag-badge-bg` | `#dc3545` | Drag count badge background |
+| `--nn-theme-drag-badge-color` | `white` | Drag count badge text |
+| `--nn-theme-empty-state-color` | `var(--text-muted)` | "No files" message color |
+
+### Mobile Styles
+
+| Property | Default | Description |
+| -------- | ------- | ----------- |
+| `--nn-theme-mobile-tab-icon-color` | `var(--text-muted)` | Tab bar icon color |
+| `--nn-theme-mobile-tab-active-bg` | `var(--background-modifier-hover)` | Active tab background |
+| `--nn-theme-mobile-tab-active-icon-color` | `var(--text-normal)` | Active tab icon color |
 
 ## Key Differences from Default Explorer
 
@@ -163,6 +229,32 @@ graph TD
 </div>
 ```
 
+## Style Settings Plugin Integration
+
+Notebook Navigator fully supports the [Style Settings plugin](https://github.com/mgmeyers/obsidian-style-settings), allowing users to customize all theme variables through a user-friendly interface without writing CSS.
+
+### Using Style Settings
+
+1. Install the Style Settings plugin from Obsidian's Community Plugins
+2. Enable Style Settings in your vault
+3. Go to Settings → Style Settings
+4. Look for "Notebook Navigator" section
+5. Customize any of the available variables through the UI
+
+All the CSS variables listed in this guide are available through Style Settings with organized sections:
+- **Global Appearance** - Pane backgrounds and resize handle
+- **Navigation Pane** - Headers, folders, tags, and action buttons
+- **File List Pane** - Headers, file items, and separators  
+- **Interaction & Feedback** - Drag/drop and empty states
+- **Mobile Styles** - Tab bar customization
+
+### Theme Developer Note
+
+When creating themes for Notebook Navigator:
+- Define your custom values for the `--nn-theme-*` variables at the `body` level
+- Users can then further customize your theme through Style Settings
+- Your theme values become the new defaults that users can override
+
 ## Quick Start
 
 ### Installation Instructions
@@ -179,220 +271,124 @@ graph TD
 
 ### Complete Theme Example
 
-Use this complete example as a starting point for your theme:
+Use this complete example as a starting point for your theme. All customization is done through CSS variables defined at the `body` level:
 
 ```css
 /* ========================================
-   NAVIGATION PANE
+   NOTEBOOK NAVIGATOR THEME CUSTOMIZATION
+   All variables are defined at body level
    ======================================== */
 
-/* Navigation pane background */
-.nn-navigation-pane-scroller {
-  background: #e6e9ff;
-}
+body {
+  /* ========================================
+     GLOBAL APPEARANCE
+     ======================================== */
+  
+  /* Pane backgrounds */
+  --nn-theme-nav-pane-bg: #e6e9ff;        /* Light purple navigation pane */
+  --nn-theme-list-pane-bg: #e8fcfb;       /* Light cyan file list pane */
+  
+  /* Resize handle */
+  --nn-theme-resize-handle-bg: #e8fcfb;   /* Match list pane background */
+  --nn-theme-resize-handle-hover-bg: #a8edea;  /* Cyan on hover */
 
-/* Navigation pane header */
-.nn-navigation-pane .nn-pane-header {
-  --nn-header-bg: #e6e9ff;
+  /* ========================================
+     NAVIGATION PANE (Folders & Tags)
+     ======================================== */
+  
+  /* Header */
+  --nn-theme-header-nav-bg: #e6e9ff;
+  --nn-theme-header-border-color: #a78bfa;
+  --nn-theme-header-breadcrumb-color: #475569;
+  --nn-theme-header-icon-color: #8b5cf6;
+  
+  /* Action buttons */
+  --nn-theme-action-button-color: #6366f1;
+  --nn-theme-action-button-hover-bg: #fef3c7;
+  --nn-theme-action-button-active-bg: #ddd6fe;
+  --nn-theme-action-button-active-color: #7c3aed;
+  --nn-theme-action-button-disabled-color: #94a3b8;
+  
+  /* Folder & tag items */
+  --nn-theme-nav-item-text-color: #4a5568;
+  --nn-theme-nav-item-icon-color: #667eea;
+  --nn-theme-nav-item-chevron-color: #94a3b8;
+  --nn-theme-nav-item-chevron-hover-color: #475569;
+  --nn-theme-nav-item-count-color: white;
+  --nn-theme-nav-item-count-bg: #f093fb;
+  --nn-theme-nav-item-hover-bg: #fee140;
+  --nn-theme-nav-item-selection-bg: #667eea;
+  --nn-theme-nav-item-selection-inactive-bg: #f093fb;
+  
+  /* Folder depth colors */
+  --nn-theme-folder-level-0-color: #2563eb;
+  --nn-theme-folder-level-1-color: #3b82f6;
+  --nn-theme-folder-level-2-color: #60a5fa;
+  --nn-theme-folder-level-3-color: #93c5fd;
+
+  /* ========================================
+     FILE LIST PANE
+     ======================================== */
+  
+  /* Header */
+  --nn-theme-header-list-bg: #e8fcfb;
+  
+  /* File items */
+  --nn-theme-file-name-color: #1e293b;
+  --nn-theme-file-name-weight: 600;
+  --nn-theme-file-preview-color: #64748b;
+  --nn-theme-file-date-color: #94a3b8;
+  --nn-theme-file-folder-path-color: #a78bfa;
+  --nn-theme-file-selection-bg: #a8edea;
+  --nn-theme-file-selection-inactive-bg: #ffecd2;
+  
+  /* Separators & groups */
+  --nn-theme-file-separator-color: #c8e6c9;
+  --nn-theme-file-date-header-color: #64748b;
+
+  /* ========================================
+     INTERACTION & FEEDBACK
+     ======================================== */
+  
+  /* Drag & drop */
+  --nn-theme-drag-badge-bg: #dc3545;
+  --nn-theme-drag-badge-color: white;
+  
+  /* Empty state */
+  --nn-theme-empty-state-color: #94a3b8;
+
+  /* ========================================
+     MOBILE STYLES
+     ======================================== */
+  
+  --nn-theme-mobile-tab-icon-color: #6366f1;
+  --nn-theme-mobile-tab-active-bg: #ddd6fe;
+  --nn-theme-mobile-tab-active-icon-color: #7c3aed;
 }
 
 /* ========================================
-   LIST PANE
+   ADDITIONAL STYLING (Optional)
+   Beyond the variables, you can add custom styles
    ======================================== */
 
-/* List pane background */
-.nn-list-pane-scroller {
-  background: #e8fcfb;
-}
-
-/* List pane header */
-.nn-list-pane .nn-pane-header {
-  --nn-header-bg: #e8fcfb;
-}
-
-/* Date group headers */
-.nn-date-group-header {
-  color: #64748b;
-}
-
-/* File separator lines */
-.nn-virtual-file-item {
-  --nn-separator-color: #c8e6c9;
-  --nn-separator-height: 2px;
-}
-
-/* ========================================
-   PANE HEADERS (SHARED)
-   ======================================== */
-
-/* Header border */
-.nn-pane-header {
-  --nn-header-border-color: #a78bfa;
-}
-
-/* Breadcrumb text */
-.nn-pane-header-text,
-.nn-mobile-title {
-  color: #475569 !important;
-}
-
-/* Header icons */
-.nn-pane-header-icon {
-  color: #8b5cf6 !important;
-}
-
-.nn-pane-header-icon svg {
-  stroke: #8b5cf6 !important;
-}
-
-/* Action buttons */
-.nn-icon-button {
-  color: #6366f1 !important;
-}
-
-.nn-icon-button svg {
-  stroke: #6366f1 !important;
-}
-
-.nn-icon-button:hover {
-  background-color: #fef3c7 !important;
-}
-
-.nn-icon-button-active {
-  background-color: #ddd6fe !important;
-  color: #7c3aed !important;
-}
-
-.nn-icon-button-active svg {
-  stroke: #7c3aed !important;
-}
-
-/* ========================================
-   MOBILE TAB BAR
-   ======================================== */
-
-.nn-tab-bar-button svg {
-  stroke: #6366f1 !important;
-}
-
-.nn-tab-bar-button-active {
-  background-color: #ddd6fe !important;
-}
-
-.nn-tab-bar-button-active svg {
-  stroke: #7c3aed !important;
-}
-
-/* ========================================
-   RESIZE HANDLE
-   ======================================== */
-
-.nn-resize-handle {
-  --nn-resize-bg: #e8fcfb;
-  --nn-resize-hover-bg: #a8edea;
-  --nn-resize-hover-opacity: 1;
-  --nn-resize-active-opacity: 0.8;
-}
-
-/* ========================================
-   NAVIGATION ITEMS (Folders & Tags)
-   ======================================== */
-
-/* Selection and hover states */
-.nn-navitem {
-  --nn-selection-bg: #667eea;
-  --nn-selection-bg-inactive: #f093fb;
-  --nn-selection-radius: 12px;
-  --nn-hover-bg: #fee140;
-  --nn-hover-radius: 8px;
-}
-
-/* Item text and icons */
-.nn-navitem-name {
-  color: #4a5568;
-}
-
-.nn-navitem-icon {
-  color: #667eea;
-}
-
-/* Chevrons */
-.nn-navitem-chevron {
-  color: #94a3b8;
-}
-
-.nn-navitem-chevron:hover {
-  color: #475569;
-}
-
-/* File count badges */
+/* Example: Add padding to file count badges */
 .nn-navitem-count {
-  background: #f093fb;
-  color: white;
   padding: 0 6px;
   border-radius: 10px;
 }
 
-/* OPTIONAL: Different colors for folders vs tags */
-/*
+/* Example: Different folder depth font weights */
+.nn-navitem.nn-folder[data-level='0'] .nn-navitem-name {
+  font-weight: 600;
+}
+
+/* Example: Style folder icons differently from tag icons */
 .nn-navitem.nn-folder .nn-navitem-icon {
-  color: #667eea;
+  opacity: 0.9;
 }
 
 .nn-navitem.nn-tag .nn-navitem-icon {
-  color: #f093fb;
-}
-*/
-
-/* ========================================
-   FILE LIST ITEMS
-   ======================================== */
-
-/* Selection states */
-.nn-file {
-  --nn-selection-bg: #a8edea;
-  --nn-selection-bg-inactive: #ffecd2;
-  --nn-selection-radius: 16px;
-}
-
-/* File text elements */
-.nn-file-name {
-  color: #1e293b !important;
-  font-weight: 500;
-}
-
-.nn-file-preview {
-  color: #64748b !important;
-}
-
-.nn-file-date {
-  color: #94a3b8 !important;
-}
-
-.nn-file-folder {
-  color: #a78bfa !important;
-}
-
-/* ========================================
-   DEPTH-BASED STYLING (Optional)
-   ======================================== */
-
-.nn-navitem.nn-folder[data-level='0'] .nn-navitem-name {
-  font-weight: 600;
-  color: #2563eb;
-}
-
-.nn-navitem.nn-folder[data-level='1'] .nn-navitem-name {
-  color: #3b82f6;
-}
-
-.nn-navitem.nn-folder[data-level='2'] .nn-navitem-name {
-  color: #60a5fa;
-}
-
-.nn-navitem.nn-folder[data-level='3'] .nn-navitem-name,
-.nn-navitem.nn-folder[data-level='4'] .nn-navitem-name {
-  color: #93c5fd;
+  opacity: 0.7;
 }
 ```
 
@@ -408,31 +404,33 @@ the body element.
 
 ```css
 /* Light mode - pastel colors */
-.theme-light .nn-navitem {
-  background: #ffeeff; /* Light pink */
-  --nn-selection-bg: #ffccff; /* Pastel purple */
-}
-
-.theme-light .nn-navitem-name {
-  color: #ff66cc; /* Pink text */
-}
-
-.theme-light .nn-file-name {
-  color: #cc33ff !important; /* Purple text */
+.theme-light {
+  /* Navigation pane */
+  --nn-theme-nav-pane-bg: #ffeeff; /* Light pink */
+  --nn-theme-nav-item-selection-bg: #ffccff; /* Pastel purple */
+  --nn-theme-nav-item-text-color: #ff66cc; /* Pink text */
+  --nn-theme-nav-item-hover-bg: #ffddff; /* Very light pink */
+  
+  /* File list */
+  --nn-theme-list-pane-bg: #fff0ff; /* Very light purple */
+  --nn-theme-file-name-color: #cc33ff; /* Purple text */
+  --nn-theme-file-selection-bg: #ffccff; /* Pastel purple */
+  --nn-theme-file-preview-color: #ff99cc; /* Light pink */
 }
 
 /* Dark mode - pastel colors on dark */
-.theme-dark .nn-navitem {
-  background: #330033; /* Dark purple */
-  --nn-selection-bg: #663366; /* Muted purple */
-}
-
-.theme-dark .nn-navitem-name {
-  color: #ffaaff; /* Light pink text */
-}
-
-.theme-dark .nn-file-name {
-  color: #ff99ff !important; /* Light purple text */
+.theme-dark {
+  /* Navigation pane */
+  --nn-theme-nav-pane-bg: #330033; /* Dark purple */
+  --nn-theme-nav-item-selection-bg: #663366; /* Muted purple */
+  --nn-theme-nav-item-text-color: #ffaaff; /* Light pink text */
+  --nn-theme-nav-item-hover-bg: #442244; /* Dark purple hover */
+  
+  /* File list */
+  --nn-theme-list-pane-bg: #2a002a; /* Very dark purple */
+  --nn-theme-file-name-color: #ff99ff; /* Light purple text */
+  --nn-theme-file-selection-bg: #663366; /* Muted purple */
+  --nn-theme-file-preview-color: #cc99cc; /* Muted pink */
 }
 ```
 
@@ -471,30 +469,30 @@ automatically take priority when set.
 
 ### Depth-Based Styling
 
-Notebook Navigator adds a `data-level` attribute to each item indicating its
-nesting depth (0 = root, 1 = first level, etc.):
+Notebook Navigator provides CSS variables for folder depth colors and adds a `data-level` attribute to each item:
 
 ```css
-/* Root level folders - darker blue, bold */
+/* Using CSS variables for depth colors */
+body {
+  --nn-theme-folder-level-0-color: #2563eb;  /* Root - dark blue */
+  --nn-theme-folder-level-1-color: #3b82f6;  /* Level 1 - medium blue */
+  --nn-theme-folder-level-2-color: #60a5fa;  /* Level 2 - light blue */
+  --nn-theme-folder-level-3-color: #93c5fd;  /* Level 3+ - very light blue */
+}
+
+/* Or override directly with attribute selectors for more control */
 .nn-navitem.nn-folder[data-level='0'] .nn-navitem-name {
-  color: #2563eb;
+  font-weight: 700;  /* Make root folders bold */
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.nn-navitem.nn-folder[data-level='1'] .nn-navitem-name {
   font-weight: 600;
 }
 
-/* First level nested - medium blue */
-.nn-navitem.nn-folder[data-level='1'] .nn-navitem-name {
-  color: #3b82f6;
-}
-
-/* Second level nested - lighter blue */
 .nn-navitem.nn-folder[data-level='2'] .nn-navitem-name {
-  color: #60a5fa;
-}
-
-/* Deep nesting (3+ levels) - very light */
-.nn-navitem.nn-folder[data-level='3'] .nn-navitem-name,
-.nn-navitem.nn-folder[data-level='4'] .nn-navitem-name {
-  color: #93c5fd;
+  font-style: italic;
 }
 ```
 

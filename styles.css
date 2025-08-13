@@ -1,21 +1,8 @@
 /* ========================================================================
-   Base Layout & Container Styles
+   CSS Variables - Defined at body level for Style Settings compatibility
    ======================================================================== */
 
-/* Resets Obsidian's default view-content padding for cleaner integration */
-.view-content.notebook-navigator {
-    padding: 0;
-    border: none;
-}
-
-/* Main container - establishes the plugin's layout foundation */
-.notebook-navigator {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background-color: var(--background-primary);
-    font-family: var(--font-interface);
-
+body {
     /* ========================================================================
        Fixed Height Variables for Pixel-Perfect Rendering
        ======================================================================== */
@@ -115,6 +102,42 @@
 
     /* -- Empty State -- */
     --nn-theme-empty-state-color: var(--text-muted);
+
+    /* -- Resize Handle -- */
+    --nn-resize-bg: var(--nn-theme-resize-handle-bg);
+    --nn-resize-hover-bg: var(--nn-theme-resize-handle-hover-bg);
+    --nn-resize-hover-opacity: 0.5;
+    --nn-resize-active-opacity: 0.8;
+
+    /* -- Navigation Selection -- */
+    --nn-selection-bg: var(--nn-theme-nav-item-selection-bg);
+    --nn-selection-bg-inactive: var(--nn-theme-nav-item-selection-inactive-bg);
+    --nn-selection-radius: var(--radius-s);
+    --nn-hover-bg: var(--nn-theme-nav-item-hover-bg);
+    --nn-hover-radius: var(--radius-s);
+
+    /* -- File Separator -- */
+    --nn-separator-color: var(--nn-theme-file-separator-color);
+    --nn-separator-height: 1px;
+}
+
+/* ========================================================================
+   Base Layout & Container Styles
+   ======================================================================== */
+
+/* Resets Obsidian's default view-content padding for cleaner integration */
+.view-content.notebook-navigator {
+    padding: 0;
+    border: none;
+}
+
+/* Main container - establishes the plugin's layout foundation */
+.notebook-navigator {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    background-color: var(--background-primary);
+    font-family: var(--font-interface);
 }
 
 /* Removes focus outline on main container for cleaner appearance */
@@ -2552,12 +2575,12 @@ name: Notebook Navigator
 id: notebook-navigator-style-settings
 settings:
     -
-        id: nn-theme-pane-heading
-        title: Panes & Global Styles
-        description: Customize the main backgrounds and shared elements.
+        id: nn-global-heading
+        title: Global Appearance
+        description: Customize the main backgrounds and elements shared between panes.
         type: heading
         level: 1
-        collapsed: false
+        collapsed: true
     -
         id: nn-theme-nav-pane-bg
         title: Navigation pane background
@@ -2575,22 +2598,15 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-file-separator-color
-        title: File separator color
-        description: Color of the divider lines between files in the list.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
         id: nn-theme-resize-handle-heading
         title: Resize Handle
+        description: The vertical handle used to resize the panes.
         type: heading
         level: 2
-        collapsed: true
+        collapsed: false
     -
         id: nn-theme-resize-handle-bg
-        title: Resize handle background
+        title: Handle background
         description: The default background color of the resize handle.
         type: variable-themed-color
         format: hex
@@ -2598,46 +2614,44 @@ settings:
         default-dark: '#'
     -
         id: nn-theme-resize-handle-hover-bg
-        title: Resize handle hover background
+        title: Handle hover background
         description: The background color when hovering over the resize handle.
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-header-heading
-        title: Pane Headers
-        description: Customize the headers above the navigation and file panes.
+        id: nn-nav-pane-heading
+        title: Navigation Pane (Folders & Tags)
+        description: Customize the header, items, and interactions within the navigation pane.
         type: heading
         level: 1
         collapsed: true
     -
+        id: nn-nav-pane-header-heading
+        title: Header
+        type: heading
+        level: 2
+        collapsed: false
+    -
         id: nn-theme-header-nav-bg
-        title: Navigation header background
+        title: Header background
         description: Background color for the navigation pane's header.
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-header-list-bg
-        title: File list header background
-        description: Background color for the file list pane's header.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-header-border-color
+        id: nn-theme-header-border-color # This variable might be shared with the File List header
         title: Header border color
-        description: Color of the bottom border for both pane headers.
+        description: Color of the bottom border for the header.
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
         id: nn-theme-header-breadcrumb-color
-        title: Header breadcrumb/title color
+        title: Header title color
         description: Text color for the folder path/title in the header.
         type: variable-themed-color
         format: hex
@@ -2646,17 +2660,17 @@ settings:
     -
         id: nn-theme-header-icon-color
         title: Header icon color
-        description: Color for icons within the pane headers (e.g., folder icon).
+        description: Color for icons within the pane header (e.g., folder icon).
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-action-button-heading
+        id: nn-nav-pane-actions-heading
         title: Header Action Buttons
         type: heading
-        level: 2
-        collapsed: true
+        level: 3
+        collapsed: false
     -
         id: nn-theme-action-button-color
         title: Action button color
@@ -2698,12 +2712,11 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-nav-items-heading
-        title: Navigation Items (Folders & Tags)
-        description: Customize the appearance of folders and tags in the navigation pane.
+        id: nn-nav-pane-items-heading
+        title: Folder & Tag Items
         type: heading
-        level: 1
-        collapsed: true
+        level: 2
+        collapsed: false
     -
         id: nn-theme-nav-item-text-color
         title: Text color
@@ -2781,8 +2794,8 @@ settings:
         title: Folder Colors by Depth
         description: Optionally set different colors for folder names based on how deeply they are nested.
         type: heading
-        level: 2
-        collapsed: true
+        level: 3
+        collapsed: false
     -
         id: nn-theme-folder-level-0-color
         title: Level 0 Folder Color
@@ -2812,12 +2825,32 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-file-items-heading
-        title: File List Items
-        description: Customize the appearance of individual files in the list.
+        id: nn-file-list-heading
+        title: File List Pane
+        description: Customize the header, items, and separators within the file list pane.
         type: heading
         level: 1
         collapsed: true
+    -
+        id: nn-file-list-header-heading
+        title: Header
+        type: heading
+        level: 2
+        collapsed: false
+    -
+        id: nn-theme-header-list-bg
+        title: Header background
+        description: Background color for the file list pane's header.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-file-list-items-heading
+        title: File Items
+        type: heading
+        level: 2
+        collapsed: false
     -
         id: nn-theme-file-name-color
         title: File name color
@@ -2858,14 +2891,6 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-file-date-header-color
-        title: Date group header color
-        description: Color for the date headings (e.g., 'Today', 'Yesterday').
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
         id: nn-theme-file-selection-bg
         title: Selection background
         description: Background color when a file is selected.
@@ -2877,6 +2902,71 @@ settings:
         id: nn-theme-file-selection-inactive-bg
         title: Selection background (inactive)
         description: Background when a file is selected but the pane is not focused.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-file-list-other-heading
+        title: Separators & Groups
+        type: heading
+        level: 2
+        collapsed: false
+    -
+        id: nn-theme-file-separator-color
+        title: File separator color
+        description: Color of the divider lines between files in the list.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-file-date-header-color
+        title: Date group header color
+        description: Color for the date headings (e.g., 'Today', 'Yesterday').
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-interaction-heading
+        title: Interaction & Feedback
+        description: Customize transient UI elements like drag/drop and empty state messages.
+        type: heading
+        level: 1
+        collapsed: true
+    -
+        id: nn-drag-drop-heading
+        title: Drag & Drop
+        type: heading
+        level: 2
+        collapsed: false
+    -
+        id: nn-theme-drag-badge-bg
+        title: Drag badge background
+        description: Background color for the item count badge shown while dragging.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-drag-badge-color
+        title: Drag badge text color
+        description: Text color for the drag count badge.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-empty-state-heading
+        title: Empty State
+        type: heading
+        level: 2
+        collapsed: false
+    -
+        id: nn-theme-empty-state-color
+        title: Empty state text color
+        description: Text color for the "No files" message when a folder is empty.
         type: variable-themed-color
         format: hex
         default-light: '#'
@@ -2908,44 +2998,6 @@ settings:
         id: nn-theme-mobile-tab-active-icon-color
         title: Tab bar active icon color
         description: Icon color for the active/selected tab.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-drag-drop-heading
-        title: Drag & Drop
-        description: Customize the drag and drop badge appearance.
-        type: heading
-        level: 1
-        collapsed: true
-    -
-        id: nn-theme-drag-badge-bg
-        title: Drag badge background
-        description: Background color for the item count badge shown while dragging.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-drag-badge-color
-        title: Drag badge text color
-        description: Text color for the drag count badge.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-empty-state-heading
-        title: Empty State
-        description: Customize the empty state message appearance.
-        type: heading
-        level: 1
-        collapsed: true
-    -
-        id: nn-theme-empty-state-color
-        title: Empty state text color
-        description: Text color for the "No files" message when a folder is empty.
         type: variable-themed-color
         format: hex
         default-light: '#'
