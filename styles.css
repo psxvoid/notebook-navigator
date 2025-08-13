@@ -146,6 +146,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+
     /* Performance optimization for virtualized content */
     contain: layout style;
 }
@@ -157,6 +158,7 @@
     display: flex;
     flex-direction: column;
     overflow: hidden;
+
     /* Performance optimization for virtualized content */
     contain: layout style;
 }
@@ -167,6 +169,7 @@
     --nn-resize-hover-bg: var(--nn-theme-resize-handle-hover-bg);
     --nn-resize-hover-opacity: 0.5;
     --nn-resize-active-opacity: 0.8;
+
     width: 5px;
     background-color: var(--nn-resize-bg);
     cursor: col-resize;
@@ -232,8 +235,10 @@
     font-size: var(--nn-nav-font-size); /* Use nav font size (13px) to match folder items */
     font-weight: 600;
     color: var(--nn-theme-header-breadcrumb-color);
+
     /* Match date header padding */
     padding-left: var(--size-4-3);
+
     /* Text overflow with ellipsis like file names */
     overflow: hidden;
     text-overflow: ellipsis;
@@ -318,7 +323,7 @@
 }
 
 /* iPad-specific adjustment for icon buttons in headers */
-@media (min-width: 768px) {
+@media (width >= 768px) {
     .notebook-navigator-mobile .nn-header-actions button.nn-icon-button {
         /* Maintain same dimensions as desktop for consistency */
         padding: 1px 7px;
@@ -391,6 +396,7 @@
     padding: 0;
     line-height: 1; /* Reset to 1 - we'll use fixed line-heights on individual elements */
     background: var(--nn-theme-nav-pane-bg);
+
     /* Ensure scroll events work properly with virtualization */
     position: relative;
 }
@@ -403,7 +409,7 @@
 
 /* Navigation item - container for each folder/tag in the tree */
 .nn-navitem {
-    -webkit-user-select: none;
+    user-select: none;
     user-select: none;
     background: transparent;
     display: flex;
@@ -421,6 +427,7 @@
     --nn-selection-bg: var(--nn-theme-nav-item-selection-bg);
     --nn-selection-bg-inactive: var(--nn-theme-nav-item-selection-inactive-bg);
     --nn-selection-radius: var(--radius-s);
+
     /* Hover state styling */
     --nn-hover-bg: var(--nn-theme-nav-item-hover-bg);
     --nn-hover-radius: var(--radius-s);
@@ -581,9 +588,10 @@
     background: transparent;
     border-radius: 0;
     padding: 0;
-    -webkit-user-select: none;
+    user-select: none;
     user-select: none;
     position: relative;
+
     /* CSS Custom Properties for file items - themes can override these */
     --nn-selection-bg: var(--nn-theme-file-selection-bg);
     --nn-selection-bg-inactive: var(--nn-theme-file-selection-inactive-bg);
@@ -599,7 +607,7 @@
 /* File content wrapper - contains all file information */
 .nn-file-content {
     padding: var(--nn-file-padding-vertical) var(--size-4-3);
-    margin: 0px var(--size-4-2);
+    margin: 0 var(--size-4-2);
     border-radius: var(--radius-m);
     background: transparent;
     position: relative; /* For absolute positioning of reveal overlay */
@@ -682,9 +690,10 @@
     -webkit-line-clamp: var(--filename-rows, 1);
     -webkit-box-orient: vertical;
     line-height: var(--nn-file-line-height);
-    word-break: break-word;
+    overflow-wrap: break-word;
     overflow-wrap: break-word;
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
+
     /* Fixed height: always take up configured number of lines */
     min-height: calc(var(--nn-file-line-height) * var(--filename-rows, 1));
     height: calc(var(--nn-file-line-height) * var(--filename-rows, 1));
@@ -781,7 +790,7 @@
     display: -webkit-box;
     -webkit-line-clamp: var(--preview-rows, 1);
     -webkit-box-orient: vertical;
-    word-break: break-word;
+    overflow-wrap: break-word;
     overflow-wrap: break-word;
     flex: 1;
 }
@@ -835,6 +844,7 @@
 /* ========================================================================
    Tag Display Styles
    ======================================================================== */
+
 /* Tag container */
 .nn-file-tags {
     display: flex;
@@ -1014,7 +1024,7 @@
 .nn-virtual-item {
     /* Force pixel snapping for crisp rendering */
     transform-style: preserve-3d;
-    -webkit-backface-visibility: hidden;
+    backface-visibility: hidden;
     backface-visibility: hidden;
 }
 
@@ -1203,7 +1213,7 @@
 
 /* Resizing state - prevents text selection during pane resize */
 body.nn-resizing {
-    -webkit-user-select: none;
+    user-select: none;
     user-select: none;
 }
 
@@ -1232,6 +1242,7 @@ body.nn-resizing {
     width: 48px;
     height: 48px;
 }
+
 /* Single file drag icon - positioned like count badge */
 .nn-drag-icon-badge {
     position: absolute;
@@ -1245,8 +1256,9 @@ body.nn-resizing {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
 }
+
 /* Style the Lucide icon inside drag icon badge */
 .nn-drag-icon-badge svg {
     width: 20px;
@@ -1283,7 +1295,7 @@ body.nn-resizing {
     display: flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 2px 4px rgb(0 0 0 / 10%);
 }
 
 /* File list spacer - adds spacing at the bottom of file lists */
@@ -1320,8 +1332,8 @@ body.nn-resizing {
     content: '';
     position: absolute;
     top: 0;
-    inset-inline-start: 0px;
-    inset-inline-end: 0px;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     bottom: 0;
     border: 2px solid var(--nn-selection-bg);
     border-radius: var(--nn-selection-radius);
@@ -1339,8 +1351,8 @@ body.nn-resizing {
     content: '';
     position: absolute;
     top: 0;
-    inset-inline-start: 0px;
-    inset-inline-end: 0px;
+    inset-inline-start: 0;
+    inset-inline-end: 0;
     bottom: 1px; /* Account for separator line */
     border: 2px solid var(--nn-selection-bg);
     border-radius: var(--nn-selection-radius);
@@ -1504,7 +1516,7 @@ body.nn-resizing {
 }
 
 /* Mobile adjustments */
-@media (max-width: 768px) {
+@media (width <= 768px) {
     .modal.nn-whats-new-modal {
         width: calc(100vw - 40px);
         max-width: calc(100vw - 40px);
@@ -1640,7 +1652,7 @@ body.nn-resizing {
     font-size: 11px;
     color: var(--text-muted);
     text-align: center;
-    word-break: break-word;
+    overflow-wrap: break-word;
     line-height: 1.2;
     max-width: 100%;
 }
@@ -1693,6 +1705,7 @@ body.nn-resizing {
 .nn-navigation-pane-scroller > div:first-child,
 .nn-list-pane-scroller > div:first-child {
     position: relative;
+
     /* Remove overflow: hidden to allow scroll events to propagate properly */
 }
 
@@ -1775,6 +1788,7 @@ body.nn-resizing {
 
 /* Support buttons - minimal, clean styling */
 .nn-support-button {
+    /* Uses default button styles */
 }
 
 /* Support button hover - subtle opacity change */
@@ -1861,6 +1875,7 @@ body.nn-resizing {
 .notebook-navigator-mobile .nn-split-container.show-navigation .nn-navigation-pane {
     transform: translateX(0%);
 }
+
 .notebook-navigator-mobile .nn-split-container.show-navigation .nn-list-pane {
     transform: translateX(100%);
 }
@@ -1869,13 +1884,14 @@ body.nn-resizing {
 .notebook-navigator-mobile .nn-split-container.show-files .nn-navigation-pane {
     transform: translateX(-100%);
 }
+
 .notebook-navigator-mobile .nn-split-container.show-files .nn-list-pane {
     transform: translateX(0%);
 }
 
 /* Add touch-action to prevent browser gestures interfering */
 .notebook-navigator-mobile .nn-split-container {
-    -webkit-touch-action: pan-y;
+    touch-action: pan-y;
     touch-action: pan-y;
 }
 
@@ -1948,6 +1964,7 @@ body.nn-resizing {
 /* Note: Bottom spacing is handled by a spacer item in the virtualized list */
 
 /* Desktop single-pane mode styles */
+
 /* Desktop single-pane - show navigation view (hide files) */
 .nn-desktop.nn-single-pane.show-navigation .nn-list-pane {
     position: absolute;
@@ -2050,8 +2067,8 @@ body.nn-resizing {
     height: 48px;
     border-radius: 50%;
     box-shadow:
-        0 2px 4px rgba(0, 0, 0, 0.1),
-        inset 0 0 0 1px rgba(0, 0, 0, 0.1);
+        0 2px 4px rgb(0 0 0 / 10%),
+        inset 0 0 0 1px rgb(0 0 0 / 10%);
 }
 
 /* Apply background colors based on data attribute 
@@ -2061,60 +2078,79 @@ body.nn-resizing {
 .nn-color-preview[data-color-value='#ef4444'] {
     background-color: #ef4444;
 }
+
 .nn-color-preview[data-color-value='#f97316'] {
     background-color: #f97316;
 }
+
 .nn-color-preview[data-color-value='#f59e0b'] {
     background-color: #f59e0b;
 }
+
 .nn-color-preview[data-color-value='#eab308'] {
     background-color: #eab308;
 }
+
 .nn-color-preview[data-color-value='#84cc16'] {
     background-color: #84cc16;
 }
+
 .nn-color-preview[data-color-value='#22c55e'] {
     background-color: #22c55e;
 }
+
 .nn-color-preview[data-color-value='#10b981'] {
     background-color: #10b981;
 }
+
 .nn-color-preview[data-color-value='#14b8a6'] {
     background-color: #14b8a6;
 }
+
 .nn-color-preview[data-color-value='#06b6d4'] {
     background-color: #06b6d4;
 }
+
 .nn-color-preview[data-color-value='#0ea5e9'] {
     background-color: #0ea5e9;
 }
+
 .nn-color-preview[data-color-value='#3b82f6'] {
     background-color: #3b82f6;
 }
+
 .nn-color-preview[data-color-value='#6366f1'] {
     background-color: #6366f1;
 }
+
 .nn-color-preview[data-color-value='#8b5cf6'] {
     background-color: #8b5cf6;
 }
+
 .nn-color-preview[data-color-value='#a855f7'] {
     background-color: #a855f7;
 }
+
 .nn-color-preview[data-color-value='#d946ef'] {
     background-color: #d946ef;
 }
+
 .nn-color-preview[data-color-value='#ec4899'] {
     background-color: #ec4899;
 }
+
 .nn-color-preview[data-color-value='#f43f5e'] {
     background-color: #f43f5e;
 }
+
 .nn-color-preview[data-color-value='#6b7280'] {
     background-color: #6b7280;
 }
+
 .nn-color-preview[data-color-value='#64748b'] {
     background-color: #64748b;
 }
+
 .nn-color-preview[data-color-value='#78716c'] {
     background-color: #78716c;
 }
@@ -2130,8 +2166,8 @@ body.nn-resizing {
 /* Dark theme adjustments for color picker */
 .theme-dark .nn-color-preview {
     box-shadow:
-        0 2px 4px rgba(0, 0, 0, 0.3),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+        0 2px 4px rgb(0 0 0 / 30%),
+        inset 0 0 0 1px rgb(255 255 255 / 10%);
 }
 
 /* ========================================================================
@@ -2185,14 +2221,14 @@ body.nn-resizing {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    height: 49px;
-    min-height: 49px;
     background-color: var(--background-primary);
     border-top: 1px solid var(--background-modifier-border);
     flex-shrink: 0;
     padding: 0 var(--size-4-2);
+
     /* Add bottom padding for safe area (home indicator on iPhone X+) */
     padding-bottom: env(safe-area-inset-bottom, 8px);
+
     /* Adjust height to include safe area padding */
     height: calc(49px + env(safe-area-inset-bottom, 8px));
     min-height: calc(49px + env(safe-area-inset-bottom, 8px));
@@ -2282,6 +2318,7 @@ body.nn-resizing {
 .mod-rtl .notebook-navigator-mobile .nn-split-container.show-navigation .nn-navigation-pane {
     transform: translateX(0%);
 }
+
 .mod-rtl .notebook-navigator-mobile .nn-split-container.show-navigation .nn-list-pane {
     transform: translateX(-100%);
 }
@@ -2289,6 +2326,7 @@ body.nn-resizing {
 .mod-rtl .notebook-navigator-mobile .nn-split-container.show-files .nn-navigation-pane {
     transform: translateX(100%);
 }
+
 .mod-rtl .notebook-navigator-mobile .nn-split-container.show-files .nn-list-pane {
     transform: translateX(0%);
 }
@@ -2302,6 +2340,7 @@ body.nn-resizing {
 }
 
 /* Fix icon mirroring - Obsidian auto-mirrors icons, but we may need to prevent it for some icons */
+
 /* Currently, all our icons (chevrons, folders, etc.) should be mirrored in RTL, so no overrides needed */
 
 /* Sidebar toggle button in file pane header */
@@ -2339,9 +2378,10 @@ body.nn-resizing {
     justify-content: center;
     flex-shrink: 0;
     text-align: center;
+
     /* Prevent text selection of emoji icons */
     user-select: none;
-    -webkit-user-select: none;
+    user-select: none;
 }
 
 /* Ensure emojis in navigation items display properly */
