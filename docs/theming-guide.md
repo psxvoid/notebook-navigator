@@ -141,88 +141,88 @@ body {
      ======================================== */
 
   /* Pane background */
-  --nn-theme-nav-bg: #e6e9ff; /* Light purple navigation pane */
-  --nn-theme-nav-header-bg: #d4d9ff; /* Slightly darker header */
+  --nn-theme-nav-bg: #f8f5ff; /* Soft lavender background */
+  --nn-theme-nav-header-bg: #ede9fe; /* Deeper lavender for header */
 
   /* Folder & tag items */
-  --nn-theme-navitem-text-color: #4a5568;
-  --nn-theme-navitem-icon-color: #818cf8; /* Brighter purple icon */
-  --nn-theme-navitem-chevron-color: #94a3b8;
-  --nn-theme-navitem-chevron-hover-color: #475569;
-  --nn-theme-navitem-count-color: white;
-  --nn-theme-navitem-count-bg: #f093fb;
-  --nn-theme-navitem-hover-bg: #fee140;
-  --nn-theme-navitem-selection-bg: #667eea;
-  --nn-theme-navitem-selection-inactive-bg: #f093fb;
+  --nn-theme-navitem-text-color: #4c1d95; /* Deep purple text */
+  --nn-theme-navitem-icon-color: #a78bfa; /* Vibrant purple icons */
+  --nn-theme-navitem-chevron-color: #c4b5fd; /* Light purple chevrons */
+  --nn-theme-navitem-chevron-hover-color: #7c3aed; /* Bright purple on hover */
+  --nn-theme-navitem-count-color: #ffffff; /* White count text */
+  --nn-theme-navitem-count-bg: #ec4899; /* Hot pink badge */
+  --nn-theme-navitem-hover-bg: #fdf2f8; /* Soft pink hover */
+  --nn-theme-navitem-selection-bg: #c084fc; /* Bright purple selection */
+  --nn-theme-navitem-selection-inactive-bg: #e9d5ff; /* Muted purple inactive */
 
-  /* Tree depth colors */
-  --nn-theme-tree-level-0-color: #2563eb;
-  --nn-theme-tree-level-1-color: #3b82f6;
-  --nn-theme-tree-level-2-color: #60a5fa;
-  --nn-theme-tree-level-3-color: #93c5fd;
+  /* Tree depth colors - Beautiful gradient */
+  --nn-theme-tree-level-0-color: #6366f1; /* Indigo */
+  --nn-theme-tree-level-1-color: #8b5cf6; /* Purple */
+  --nn-theme-tree-level-2-color: #a855f7; /* Bright purple */
+  --nn-theme-tree-level-3-color: #d946ef; /* Magenta */
 
   /* ========================================
      RESIZE HANDLE
      ======================================== */
 
-  --nn-theme-resize-handle-bg: #7c3aed; /* Dark purple handle */
-  --nn-theme-resize-handle-hover-bg: #a8edea; /* Cyan on hover */
+  --nn-theme-resize-handle-bg: #e0e7ff; /* Soft indigo */
+  --nn-theme-resize-handle-hover-bg: #818cf8; /* Bright indigo on hover */
 
   /* ========================================
      LIST PANE (Files)
      ======================================== */
 
   /* Pane background */
-  --nn-theme-list-bg: #e8fcfb; /* Light cyan file list pane */
-  --nn-theme-list-header-bg: #d0f5f3; /* Slightly darker header */
-  --nn-theme-list-separator-color: #c8e6c9; /* File divider lines */
-  --nn-theme-list-group-header-color: #64748b; /* Group headers (dates, pinned) */
+  --nn-theme-list-bg: #fefcff; /* Near white with purple tint */
+  --nn-theme-list-header-bg: #faf5ff; /* Light purple header */
+  --nn-theme-list-separator-color: #e9d5ff; /* Soft purple dividers */
+  --nn-theme-list-group-header-color: #9333ea; /* Rich purple headers */
 
   /* File items */
-  --nn-theme-file-name-color: #1e293b;
-  --nn-theme-file-preview-color: #64748b;
-  --nn-theme-file-date-color: #94a3b8;
-  --nn-theme-file-parent-color: #a78bfa;
-  --nn-theme-file-tag-bg: #e0e7ff; /* Light purple tag pills */
-  --nn-theme-file-tag-color: #4c1d95; /* Dark purple tag text */
-  --nn-theme-file-selection-bg: #a8edea;
-  --nn-theme-file-selection-inactive-bg: #ffecd2;
+  --nn-theme-file-name-color: #1e1b4b; /* Deep indigo text */
+  --nn-theme-file-preview-color: #6b7280; /* Neutral gray preview */
+  --nn-theme-file-date-color: #9ca3af; /* Light gray date */
+  --nn-theme-file-parent-color: #c084fc; /* Purple folder path */
+  --nn-theme-file-tag-bg: #fce7f3; /* Pink tag background */
+  --nn-theme-file-tag-color: #a21caf; /* Deep pink tag text */
+  --nn-theme-file-selection-bg: #c7d2fe; /* Indigo selection */
+  --nn-theme-file-selection-inactive-bg: #f3e8ff; /* Light purple inactive */
 
   /* Quick actions */
   --nn-theme-quick-actions-bg: rgba(
     255,
-    255,
-    255,
-    0.95
-  ); /* Semi-transparent white */
-  --nn-theme-quick-actions-border: #c8e6c9; /* Green border */
-  --nn-theme-quick-actions-icon-color: #6366f1; /* Indigo icons */
-  --nn-theme-quick-actions-icon-hover-color: #4c1d95; /* Dark purple on hover */
-  --nn-theme-quick-actions-separator-color: #e0e7ff; /* Light purple separator */
+    251,
+    254,
+    0.92
+  ); /* Semi-transparent pink-white */
+  --nn-theme-quick-actions-border: #f9a8d4; /* Pink border */
+  --nn-theme-quick-actions-icon-color: #8b5cf6; /* Purple icons */
+  --nn-theme-quick-actions-icon-hover-color: #ec4899; /* Hot pink on hover */
+  --nn-theme-quick-actions-separator-color: #fbcfe8; /* Light pink separator */
 
   /* ========================================
      HEADERS
      ======================================== */
 
   /* Header colors */
-  --nn-theme-header-border-color: #a78bfa;
-  --nn-theme-header-breadcrumb-color: #475569;
-  --nn-theme-header-icon-color: #8b5cf6;
+  --nn-theme-header-border-color: #d8b4fe; /* Soft purple border */
+  --nn-theme-header-breadcrumb-color: #581c87; /* Deep purple breadcrumb */
+  --nn-theme-header-icon-color: #a855f7; /* Bright purple icons */
 
   /* Header buttons */
-  --nn-theme-header-button-color: #6366f1;
-  --nn-theme-header-button-hover-bg: #fef3c7;
-  --nn-theme-header-button-active-bg: #ddd6fe;
-  --nn-theme-header-button-active-color: #7c3aed;
-  --nn-theme-header-button-disabled-color: #94a3b8;
+  --nn-theme-header-button-color: #9333ea; /* Purple button icons */
+  --nn-theme-header-button-hover-bg: #fae8ff; /* Light purple hover */
+  --nn-theme-header-button-active-bg: #f3e8ff; /* Active purple background */
+  --nn-theme-header-button-active-color: #6b21a8; /* Deep purple active */
+  --nn-theme-header-button-disabled-color: #d4d4d8; /* Gray disabled */
 
   /* ========================================
      MOBILE STYLES
      ======================================== */
 
-  --nn-theme-mobile-tab-icon-color: #6366f1;
-  --nn-theme-mobile-tab-active-bg: #ddd6fe;
-  --nn-theme-mobile-tab-active-icon-color: #7c3aed;
+  --nn-theme-mobile-tab-icon-color: #a78bfa; /* Purple tab icons */
+  --nn-theme-mobile-tab-active-bg: #ede9fe; /* Lavender active tab */
+  --nn-theme-mobile-tab-active-icon-color: #7c3aed; /* Bright purple active icon */
 }
 ```
 
