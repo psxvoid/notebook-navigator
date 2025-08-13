@@ -5,6 +5,7 @@
 - [Introduction](#introduction)
 - [CSS Variables Reference](#css-variables-reference)
   - [Navigation pane](#navigation-pane)
+  - [Resize handle](#resize-handle)
   - [List pane (files)](#list-pane-files)
   - [Headers](#headers)
   - [Mobile styles](#mobile-styles)
@@ -59,6 +60,13 @@ level.
 | `--nn-theme-tree-level-2-color` | `var(--text-normal)` | Level 2 color    |
 | `--nn-theme-tree-level-3-color` | `var(--text-normal)` | Level 3+ color   |
 
+### Resize handle
+
+| Variable                            | Default                     | Description                    |
+| ----------------------------------- | --------------------------- | ------------------------------ |
+| `--nn-theme-resize-handle-bg`       | `var(--background-primary)` | Resize handle background       |
+| `--nn-theme-resize-handle-hover-bg` | `var(--interactive-accent)` | Resize handle hover background |
+
 ### List pane (files)
 
 | Variable                             | Default                             | Description             |
@@ -81,11 +89,15 @@ level.
 | `--nn-theme-file-selection-bg`          | `var(--text-selection)`             | Selected file background      |
 | `--nn-theme-file-selection-inactive-bg` | `var(--background-modifier-hover)`  | Selected file (inactive pane) |
 
-#### Resize handle
+#### Quick actions
 
-| Variable                            | Default                     | Description                    |
-| ----------------------------------- | --------------------------- | ------------------------------ |
-| `--nn-theme-resize-handle-hover-bg` | `var(--interactive-accent)` | Resize handle hover background |
+| Variable                                    | Default                                                          | Description                         |
+| ------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------- |
+| `--nn-theme-quick-actions-bg`               | `color-mix(in srgb, var(--background-primary) 95%, transparent)` | Panel background (semi-transparent) |
+| `--nn-theme-quick-actions-border`           | `var(--background-modifier-border)`                              | Panel border color                  |
+| `--nn-theme-quick-actions-icon-color`       | `var(--text-muted)`                                              | Icon color                          |
+| `--nn-theme-quick-actions-icon-hover-color` | `var(--text-normal)`                                             | Icon hover color                    |
+| `--nn-theme-quick-actions-separator-color`  | `var(--background-modifier-border)`                              | Separator line color                |
 
 ### Headers
 
@@ -130,7 +142,7 @@ body {
 
   /* Pane background */
   --nn-theme-nav-bg: #e6e9ff; /* Light purple navigation pane */
-  --nn-theme-nav-header-bg: #e6e9ff; /* Navigation header background */
+  --nn-theme-nav-header-bg: #d4d9ff; /* Slightly darker header */
 
   /* Folder & tag items */
   --nn-theme-navitem-text-color: #4a5568;
@@ -150,12 +162,19 @@ body {
   --nn-theme-tree-level-3-color: #93c5fd;
 
   /* ========================================
+     RESIZE HANDLE
+     ======================================== */
+
+  --nn-theme-resize-handle-bg: #7c3aed; /* Dark purple handle */
+  --nn-theme-resize-handle-hover-bg: #a8edea; /* Cyan on hover */
+
+  /* ========================================
      LIST PANE (Files)
      ======================================== */
 
   /* Pane background */
   --nn-theme-list-bg: #e8fcfb; /* Light cyan file list pane */
-  --nn-theme-list-header-bg: #e8fcfb; /* List header background */
+  --nn-theme-list-header-bg: #d0f5f3; /* Slightly darker header */
   --nn-theme-list-separator-color: #c8e6c9; /* File divider lines */
   --nn-theme-list-group-header-color: #64748b; /* Group headers (dates, pinned) */
 
@@ -169,8 +188,17 @@ body {
   --nn-theme-file-selection-bg: #a8edea;
   --nn-theme-file-selection-inactive-bg: #ffecd2;
 
-  /* Resize handle */
-  --nn-theme-resize-handle-hover-bg: #a8edea; /* Cyan on hover */
+  /* Quick actions */
+  --nn-theme-quick-actions-bg: rgba(
+    255,
+    255,
+    255,
+    0.95
+  ); /* Semi-transparent white */
+  --nn-theme-quick-actions-border: #c8e6c9; /* Green border */
+  --nn-theme-quick-actions-icon-color: #6366f1; /* Indigo icons */
+  --nn-theme-quick-actions-icon-hover-color: #4c1d95; /* Dark purple on hover */
+  --nn-theme-quick-actions-separator-color: #e0e7ff; /* Light purple separator */
 
   /* ========================================
      HEADERS

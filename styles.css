@@ -92,7 +92,15 @@ body {
     --nn-theme-file-selection-bg: var(--text-selection);
     --nn-theme-file-selection-inactive-bg: var(--background-modifier-hover);
 
+    /* -- Quick Actions -- */
+    --nn-theme-quick-actions-bg: color-mix(in srgb, var(--background-primary) 95%, transparent);
+    --nn-theme-quick-actions-border: var(--background-modifier-border);
+    --nn-theme-quick-actions-icon-color: var(--text-muted);
+    --nn-theme-quick-actions-icon-hover-color: var(--text-normal);
+    --nn-theme-quick-actions-separator-color: var(--background-modifier-border);
+
     /* -- Resize Handle -- */
+    --nn-theme-resize-handle-bg: var(--background-primary);
     --nn-theme-resize-handle-hover-bg: var(--interactive-accent);
 
     /* -- Mobile Tab Bar -- */
@@ -172,7 +180,7 @@ body {
 /* Resize handle - allows users to drag and resize the navigation pane */
 .nn-resize-handle {
     width: 5px;
-    background-color: var(--nn-theme-list-bg);
+    background-color: var(--nn-theme-resize-handle-bg);
     cursor: col-resize;
     position: relative;
     flex-shrink: 0;
@@ -715,8 +723,8 @@ body {
     inset-inline-end: var(--size-4-2);
     height: 24px;
     display: none;
-    background: color-mix(in srgb, var(--background-primary) 95%, transparent);
-    border: 1px solid var(--background-modifier-border);
+    background: var(--nn-theme-quick-actions-bg);
+    border: 1px solid var(--nn-theme-quick-actions-border);
     border-radius: var(--radius-s);
     z-index: 10;
     flex-direction: row;
@@ -730,7 +738,7 @@ body {
     width: 16px;
     height: 16px;
     cursor: pointer;
-    color: var(--text-muted);
+    color: var(--nn-theme-quick-actions-icon-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -739,14 +747,14 @@ body {
 
 /* Icon highlights when hovering directly on it */
 .nn-quick-action-item:hover {
-    color: var(--text-normal);
+    color: var(--nn-theme-quick-actions-icon-hover-color);
 }
 
 /* Separator between quick actions */
 .nn-quick-action-separator {
     width: 1px;
     height: 14px;
-    background: var(--background-modifier-border);
+    background: var(--nn-theme-quick-actions-separator-color);
     margin: 0 4px;
     flex-shrink: 0;
 }
@@ -2682,6 +2690,29 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
+        id: nn-theme-resize-handle-heading
+        title: Resize handle
+        description: The vertical handle used to resize the panes.
+        type: heading
+        level: 1
+        collapsed: true
+    -
+        id: nn-theme-resize-handle-bg
+        title: Handle background
+        description: The background color of the resize handle.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-resize-handle-hover-bg
+        title: Handle hover background
+        description: The background color when hovering over the resize handle.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
         id: nn-file-list-heading
         title: List pane (files)
         description: Customize the background, items, and separators within the file list pane.
@@ -2790,16 +2821,49 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-resize-handle-heading
-        title: Resize handle
-        description: The vertical handle used to resize the panes.
+        id: nn-theme-quick-actions-heading
+        title: Quick actions
+        description: The hover toolbar that appears over files.
         type: heading
         level: 2
         collapsed: false
     -
-        id: nn-theme-resize-handle-hover-bg
-        title: Handle hover background
-        description: The background color when hovering over the resize handle.
+        id: nn-theme-quick-actions-bg
+        title: Panel background
+        description: Background color of the quick actions panel (supports transparency).
+        type: variable-themed-color
+        opacity: true
+        format: rgb
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-quick-actions-border
+        title: Panel border color
+        description: Border color of the quick actions panel.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-quick-actions-icon-color
+        title: Icon color
+        description: Color of the quick action icons.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-quick-actions-icon-hover-color
+        title: Icon hover color
+        description: Color of the quick action icons when hovered.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-quick-actions-separator-color
+        title: Separator color
+        description: Color of the separators between quick action icons.
         type: variable-themed-color
         format: hex
         default-light: '#'
