@@ -57,27 +57,26 @@ Notebook Navigator exposes these CSS custom properties for easy theming:
 
 ### Navigation Pane Classes
 
-| Class                          | Description                       | Obsidian Equivalent              |
-| ------------------------------ | --------------------------------- | -------------------------------- |
-| `.nn-navigation-pane`          | Navigation pane container         | `.nav-folder-container`          |
-| `.nn-navigation-pane-scroller` | Scrollable area                   | `.nav-folder-children`           |
-| `.nn-navitem`                  | Base class for all nav items      | `.nav-folder`                    |
-| `.nn-navitem.nn-folder`        | Folder items specifically         | `.nav-folder`                    |
-| `.nn-navitem.nn-tag`           | Tag items specifically            | _(no equivalent)_                |
-| `.nn-navitem.nn-virtual`       | Virtual folders (Favorites, Tags) | _(no equivalent)_                |
-| `.nn-navitem-content`          | Clickable content area            | `.nav-folder-title`              |
-| `.nn-navitem-chevron`          | Expand/collapse arrow             | `.nav-folder-collapse-indicator` |
-| `.nn-navitem-icon`             | Folder/tag icon                   | _(no equivalent)_                |
-| `.nn-navitem-name`             | Item text                         | `.nav-folder-title-content`      |
-| `.nn-navitem-count`            | File count badge                  | _(no equivalent)_                |
-| `.nn-pane-header-text`         | Breadcrumb path in list header    | _(no equivalent)_                |
-| `.nn-pane-header-icon`         | Icon in pane header               | _(no equivalent)_                |
-| `.nn-icon-button`              | Action buttons in headers         | _(no equivalent)_                |
-| `.nn-icon-button-active`       | Active state for toggle buttons   | _(no equivalent)_                |
-| `.nn-mobile-title`             | Mobile breadcrumb path            | _(no equivalent)_                |
-| `.nn-tab-bar-button`           | Mobile tab bar buttons            | _(no equivalent)_                |
-| `.nn-tab-bar-button-active`    | Active mobile tab button          | _(no equivalent)_                |
-| `.nn-navitem.nn-selected`      | Selected item                     | `.nav-folder.is-selected`        |
+| Class                          | Description                     | Obsidian Equivalent              |
+| ------------------------------ | ------------------------------- | -------------------------------- |
+| `.nn-navigation-pane`          | Navigation pane container       | `.nav-folder-container`          |
+| `.nn-navigation-pane-scroller` | Scrollable area                 | `.nav-folder-children`           |
+| `.nn-navitem`                  | Base class for all nav items    | `.nav-folder`                    |
+| `.nn-navitem.nn-folder`        | Folder items specifically       | `.nav-folder`                    |
+| `.nn-navitem.nn-tag`           | Tag items specifically          | _(no equivalent)_                |
+| `.nn-navitem-content`          | Clickable content area          | `.nav-folder-title`              |
+| `.nn-navitem-chevron`          | Expand/collapse arrow           | `.nav-folder-collapse-indicator` |
+| `.nn-navitem-icon`             | Folder/tag icon                 | _(no equivalent)_                |
+| `.nn-navitem-name`             | Item text                       | `.nav-folder-title-content`      |
+| `.nn-navitem-count`            | File count badge                | _(no equivalent)_                |
+| `.nn-pane-header-text`         | Breadcrumb path in list header  | _(no equivalent)_                |
+| `.nn-pane-header-icon`         | Icon in pane header             | _(no equivalent)_                |
+| `.nn-icon-button`              | Action buttons in headers       | _(no equivalent)_                |
+| `.nn-icon-button-active`       | Active state for toggle buttons | _(no equivalent)_                |
+| `.nn-mobile-title`             | Mobile breadcrumb path          | _(no equivalent)_                |
+| `.nn-tab-bar-button`           | Mobile tab bar buttons          | _(no equivalent)_                |
+| `.nn-tab-bar-button-active`    | Active mobile tab button        | _(no equivalent)_                |
+| `.nn-navitem.nn-selected`      | Selected item                   | `.nav-folder.is-selected`        |
 
 ### File List Pane Classes
 
@@ -278,7 +277,7 @@ Use this complete example as a starting point for your theme:
   --nn-separator-height: 2px;
 }
 
-/* NAVIGATION ITEMS (Folders & Tags) */
+/* NAVIGATION ITEMS (All folders, tags, and section headers use the same styles) */
 .nn-navitem {
   background: #e6e9ff;
   --nn-selection-bg: #667eea;
@@ -288,37 +287,27 @@ Use this complete example as a starting point for your theme:
   --nn-hover-radius: 8px;
 }
 
-/* Folder-specific */
-.nn-navitem.nn-folder {
-  --nn-selection-bg: #667eea;
-}
-
-.nn-navitem.nn-folder .nn-navitem-name {
+/* Navigation item text (applies to folders, tags, and section headers) */
+.nn-navitem-name {
   color: #4a5568;
 }
 
-.nn-navitem.nn-folder .nn-navitem-icon {
+/* Navigation item icons */
+.nn-navitem-icon {
   color: #667eea;
 }
 
-/* Tag-specific */
-.nn-navitem.nn-tag {
-  --nn-selection-bg: #f093fb;
-}
-
-.nn-navitem.nn-tag .nn-navitem-name {
-  color: #553c9a;
+/* OPTIONAL: Different styles for specific item types */
+/* Only add these if you want folders vs tags to look different */
+/*
+.nn-navitem.nn-folder .nn-navitem-icon {
+  color: #667eea;
 }
 
 .nn-navitem.nn-tag .nn-navitem-icon {
   color: #f093fb;
 }
-
-/* Virtual folders */
-.nn-navitem.nn-virtual .nn-navitem-name {
-  color: #64748b;
-  font-style: italic;
-}
+*/
 
 /* Chevrons and counts */
 .nn-navitem-chevron {

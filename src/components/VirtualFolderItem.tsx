@@ -118,7 +118,7 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
     return (
         <div
             ref={folderRef}
-            className="nn-navitem nn-virtual"
+            className="nn-navitem"
             data-path={virtualFolder.id}
             data-level={level}
             style={{ paddingInlineStart: `${level * 20}px` }}
