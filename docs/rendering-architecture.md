@@ -63,7 +63,7 @@ graph TD
             subgraph "List Pane (Right)"
                 LPH[ListPaneHeader<br/>• Desktop: Toolbar buttons<br/>• Mobile: Back arrow<br/>• Both: Clickable path]
                 LTB[ListTabBar<br/>• Toolbar buttons<br/>• Mobile only]
-                LP[ListPane<br/>• Virtual scrolling<br/>• File sorting<br/>• Multi-selection<br/>• Resize handle (dual-pane)]
+                LP[ListPane<br/>• Virtual scrolling<br/>• File sorting<br/>• Multi-selection<br/>• Resize handle for dual-pane]
 
                 subgraph "List Items"
                     FILE[FileItem<br/>• Preview text<br/>• Tags display<br/>• Feature image<br/>• Metadata<br/>• Quick actions on hover]
