@@ -418,6 +418,17 @@ body.native-scrollbars:not(.styled-scrollbars) {
 }
 
 /* ========================================================================
+   Pane Spacers
+   ======================================================================== */
+
+/* Top spacer between header and scroller - provides visual breathing room */
+.nn-pane-top-spacer {
+    height: 8px;
+    flex-shrink: 0;
+    background: inherit; /* Inherit background from parent pane */
+}
+
+/* ========================================================================
    Navigation Pane Scroller
    ======================================================================== */
 

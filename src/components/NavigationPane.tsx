@@ -558,6 +558,7 @@ export const NavigationPane = React.memo(
         return (
             <div className="nn-navigation-pane" style={props.style}>
                 <NavigationPaneHeader />
+                <div className="nn-pane-top-spacer" />
                 <div ref={scrollContainerRef} className="nn-navigation-pane-scroller" data-pane="navigation" role="tree" tabIndex={-1}>
                     {items.length > 0 && (
                         <div

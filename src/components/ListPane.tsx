@@ -321,6 +321,7 @@ export const ListPane = React.memo(
                 <div className="nn-list-pane">
                     {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
                     <ListPaneHeader onHeaderClick={handleScrollToTop} />
+                    <div className="nn-pane-top-spacer" />
                     <div className="nn-list-pane-scroller nn-empty-state">
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoSelection}</div>
                     </div>
@@ -334,6 +335,7 @@ export const ListPane = React.memo(
                 <div className="nn-list-pane">
                     {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
                     <ListPaneHeader onHeaderClick={handleScrollToTop} />
+                    <div className="nn-pane-top-spacer" />
                     <div className="nn-list-pane-scroller nn-empty-state">
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoNotes}</div>
                     </div>
@@ -346,6 +348,7 @@ export const ListPane = React.memo(
             <div className="nn-list-pane">
                 {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
                 <ListPaneHeader onHeaderClick={handleScrollToTop} />
+                <div className="nn-pane-top-spacer" />
                 <div
                     ref={scrollContainerRefCallback}
                     className={`nn-list-pane-scroller ${isSlimMode ? 'nn-slim-mode' : ''}`}
