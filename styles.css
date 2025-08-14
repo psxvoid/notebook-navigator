@@ -2694,7 +2694,7 @@ settings:
     -
         id: nn-navitem-text-styling-heading
         title: Text styling
-        description: Font weight and text decoration for navigation items. Values: 100-900 (400 = regular, 600 = bold). Priority: folder notes > custom colors > default.
+        description: Font weight and text decoration for navigation items. Values 100-900 (400 = regular, 600 = bold). Priority - folder notes > custom colors > default.
         type: heading
         level: 2
         collapsed: false
