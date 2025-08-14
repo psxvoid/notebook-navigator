@@ -2693,14 +2693,14 @@ settings:
     -
         id: nn-navitem-text-styling-heading
         title: Text styling
-        description: Control font weight and text decoration for navigation items. Font weights use values from 100-900 where 400 = regular and 600 = bold.
+        description: Control font weight and text decoration for folder and tag names in the navigation pane. Font weights use values from 100-900 where 400 = regular and 600 = bold. Priority - folder note style overrides custom color style, which overrides the default style.
         type: heading
         level: 2
         collapsed: false
     -
         id: nn-theme-navitem-name-font-weight
-        title: Navigation item font weight
-        description: Default font weight for all folders and tags.
+        title: Default folder/tag weight
+        description: Base font weight for all folder and tag names in the navigation pane.
         type: variable-number-slider
         default: 400
         min: 100
@@ -2708,8 +2708,8 @@ settings:
         step: 100
     -
         id: nn-theme-navitem-custom-color-name-font-weight
-        title: Custom color item font weight
-        description: Font weight for folders/tags with custom colors.
+        title: Custom color folder/tag weight
+        description: Font weight for folder and tag names that have custom colors set. Overrides the default weight.
         type: variable-number-slider
         default: 600
         min: 100
@@ -2717,8 +2717,8 @@ settings:
         step: 100
     -
         id: nn-theme-navitem-folder-note-name-font-weight
-        title: Folder note font weight
-        description: Font weight for folders with folder notes.
+        title: Folder note weight
+        description: Font weight for folder names that have associated folder notes. Overrides both default and custom color weights.
         type: variable-number-slider
         default: 600
         min: 100
@@ -2726,8 +2726,8 @@ settings:
         step: 100
     -
         id: nn-theme-navitem-folder-note-name-decoration
-        title: Folder note text decoration
-        description: Text decoration for folders with folder notes.
+        title: Folder note decoration
+        description: Text decoration style for folder names that have associated folder notes.
         type: variable-select
         default: underline
         options:

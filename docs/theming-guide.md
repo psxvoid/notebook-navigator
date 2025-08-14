@@ -53,12 +53,16 @@ level.
 
 #### Text styling
 
-| Variable                                           | Default     | Description                                                     |
-| -------------------------------------------------- | ----------- | --------------------------------------------------------------- |
-| `--nn-theme-navitem-name-font-weight`              | `400`       | Default font weight (400 = regular, 600 = bold)                 |
-| `--nn-theme-navitem-custom-color-name-font-weight` | `600`       | Custom color item font weight                                   |
-| `--nn-theme-navitem-folder-note-name-font-weight`  | `600`       | Folder note font weight                                         |
-| `--nn-theme-navitem-folder-note-name-decoration`   | `underline` | Folder note text decoration (none, underline, underline dotted) |
+These variables control the font weight and decoration of folder/tag names.
+Priority order: folder note styles override custom color styles, which override
+the default style.
+
+| Variable                                           | Default     | Description                                                              |
+| -------------------------------------------------- | ----------- | ------------------------------------------------------------------------ |
+| `--nn-theme-navitem-name-font-weight`              | `400`       | Default font weight for all folder/tag names (400 = regular, 600 = bold) |
+| `--nn-theme-navitem-custom-color-name-font-weight` | `600`       | Font weight for items with custom colors (overrides default)             |
+| `--nn-theme-navitem-folder-note-name-font-weight`  | `600`       | Font weight for folders with notes (overrides all others)                |
+| `--nn-theme-navitem-folder-note-name-decoration`   | `underline` | Text decoration for folder notes (none, underline, underline dotted)     |
 
 #### Tree depth colors
 
