@@ -51,7 +51,7 @@ body {
     --nn-theme-list-bg: var(--background-primary);
     --nn-theme-list-header-bg: var(--background-primary);
     --nn-theme-list-separator-color: var(--background-modifier-border);
-    --nn-theme-list-group-header-color: var(--text-muted);
+    --nn-theme-list-group-header-text-color: var(--text-muted);
 
     /* -- Headers -- */
     --nn-theme-header-border-color: var(--background-modifier-border);
@@ -59,11 +59,11 @@ body {
     --nn-theme-header-icon-color: var(--text-muted);
 
     /* -- Header Buttons -- */
-    --nn-theme-header-button-color: var(--text-muted);
+    --nn-theme-header-button-icon-color: var(--text-muted);
     --nn-theme-header-button-hover-bg: var(--background-modifier-hover);
     --nn-theme-header-button-active-bg: var(--background-modifier-hover);
-    --nn-theme-header-button-active-color: var(--text-normal);
-    --nn-theme-header-button-disabled-color: var(--text-muted);
+    --nn-theme-header-button-active-icon-color: var(--text-normal);
+    --nn-theme-header-button-disabled-icon-color: var(--text-muted);
 
     /* -- Navigation Items (Folders & Tags) -- */
     --nn-theme-navitem-name-color: var(--text-normal);
@@ -322,7 +322,7 @@ body {
     border: none !important;
     border-radius: var(--radius-s);
     padding: var(--size-2-2) var(--size-4-1);
-    color: var(--nn-theme-header-button-color);
+    color: var(--nn-theme-header-button-icon-color);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -360,12 +360,12 @@ body {
 /* Icon button active state - for toggle buttons that are "ON" */
 .nn-icon-button-active {
     background-color: var(--nn-theme-header-button-active-bg) !important;
-    color: var(--nn-theme-header-button-active-color) !important;
+    color: var(--nn-theme-header-button-active-icon-color) !important;
 }
 
 /* Active button icon color */
 .nn-icon-button-active svg {
-    stroke: var(--nn-theme-header-button-active-color) !important;
+    stroke: var(--nn-theme-header-button-active-icon-color) !important;
 }
 
 /* Icon button disabled state - visual indicator for unavailable actions */
@@ -377,19 +377,19 @@ body {
 /* Disabled hover state - no hover effect when disabled */
 .nn-desktop .nn-icon-button:disabled:hover {
     background-color: transparent;
-    color: var(--nn-theme-header-button-disabled-color);
+    color: var(--nn-theme-header-button-disabled-icon-color);
 }
 
 /* Disabled icon color - maintains muted appearance */
 .nn-desktop .nn-icon-button:disabled:hover svg {
-    stroke: var(--nn-theme-header-button-disabled-color);
+    stroke: var(--nn-theme-header-button-disabled-icon-color);
 }
 
 /* Icon styling - consistent size and appearance for all button icons */
 .nn-icon-button svg {
     width: var(--icon-size);
     height: var(--icon-size);
-    stroke: var(--nn-theme-header-button-color);
+    stroke: var(--nn-theme-header-button-icon-color);
     stroke-width: 2;
     fill: none;
 }
@@ -1068,7 +1068,7 @@ body {
     padding: var(--nn-date-header-padding-top) var(--size-4-3) var(--nn-date-header-padding-bottom) var(--size-4-3);
     font-size: var(--nn-file-small-size);
     font-weight: 600;
-    color: var(--nn-theme-list-group-header-color);
+    color: var(--nn-theme-list-group-header-text-color);
     background-color: transparent !important;
     white-space: nowrap;
     overflow: hidden;
@@ -2619,9 +2619,17 @@ settings:
         level: 2
         collapsed: false
     -
-        id: nn-theme-navitem-name-color
-        title: Text color
-        description: Main text color for folder and tag names.
+        id: nn-theme-navitem-chevron-color
+        title: Chevron color
+        description: Color for the expand/collapse arrows.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-navitem-chevron-hover-color
+        title: Chevron hover color
+        description: Color for the expand/collapse arrows on hover.
         type: variable-themed-color
         format: hex
         default-light: '#'
@@ -2635,17 +2643,9 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-navitem-chevron-color
-        title: Chevron color
-        description: Color for the expand/collapse arrows.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-navitem-chevron-hover-color
-        title: Chevron hover color
-        description: Color for the expand/collapse arrows on hover.
+        id: nn-theme-navitem-name-color
+        title: Text color
+        description: Main text color for folder and tag names.
         type: variable-themed-color
         format: hex
         default-light: '#'
@@ -2830,9 +2830,9 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-list-group-header-color
-        title: List group header color
-        description: Color for group headers like date sections ('Today', 'Yesterday') and 'Pinned'.
+        id: nn-theme-list-group-header-text-color
+        title: List group header text color
+        description: Text color for group headers like date sections ('Today', 'Yesterday') and 'Pinned'.
         type: variable-themed-color
         format: hex
         default-light: '#'
@@ -2851,14 +2851,6 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-file-preview-color
-        title: File preview text color
-        description: Color for the secondary line of text (content preview).
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
         id: nn-theme-file-date-color
         title: File date color
         description: Color for the file's modification date.
@@ -2867,9 +2859,9 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-file-parent-color
-        title: File parent folder color
-        description: Color for the parent folder path shown when viewing files from subfolders.
+        id: nn-theme-file-preview-color
+        title: File preview text color
+        description: Color for the secondary line of text (content preview).
         type: variable-themed-color
         format: hex
         default-light: '#'
@@ -2886,6 +2878,14 @@ settings:
         id: nn-theme-file-tag-color
         title: File tag text color
         description: Text color for tag pills shown in file items.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-file-parent-color
+        title: File parent folder color
+        description: Color for the parent folder path shown when viewing files from subfolders.
         type: variable-themed-color
         format: hex
         default-light: '#'
@@ -2992,9 +2992,9 @@ settings:
         level: 2
         collapsed: false
     -
-        id: nn-theme-header-button-color
-        title: Action button color
-        description: Color for the icons inside header action buttons.
+        id: nn-theme-header-button-icon-color
+        title: Action button icon color
+        description: Icon color for header action buttons.
         type: variable-themed-color
         format: hex
         default-light: '#'
@@ -3016,16 +3016,16 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-header-button-active-color
-        title: Action button active color
-        description: Icon color for a toggled/active action button.
+        id: nn-theme-header-button-active-icon-color
+        title: Action button active icon color
+        description: Icon color for toggled/active action buttons.
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-header-button-disabled-color
-        title: Action button disabled color
+        id: nn-theme-header-button-disabled-icon-color
+        title: Action button disabled icon color
         description: Icon color for disabled action buttons.
         type: variable-themed-color
         format: hex

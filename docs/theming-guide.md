@@ -41,10 +41,10 @@ level.
 
 | Variable                                  | Default                            | Description                   |
 | ----------------------------------------- | ---------------------------------- | ----------------------------- |
-| `--nn-theme-navitem-name-color`           | `var(--text-normal)`               | Folder/tag name color         |
-| `--nn-theme-navitem-icon-color`           | `var(--text-muted)`                | Folder/tag icon color         |
 | `--nn-theme-navitem-chevron-color`        | `var(--text-muted)`                | Expand/collapse arrow color   |
 | `--nn-theme-navitem-chevron-hover-color`  | `var(--text-normal)`               | Chevron hover color           |
+| `--nn-theme-navitem-icon-color`           | `var(--text-muted)`                | Folder/tag icon color         |
+| `--nn-theme-navitem-name-color`           | `var(--text-normal)`               | Folder/tag name color         |
 | `--nn-theme-navitem-count-color`          | `var(--text-muted)`                | File count text color         |
 | `--nn-theme-navitem-count-bg`             | `transparent`                      | File count background         |
 | `--nn-theme-navitem-hover-bg`             | `var(--background-modifier-hover)` | Item hover background         |
@@ -82,23 +82,23 @@ the default style.
 
 ### List pane (files)
 
-| Variable                             | Default                             | Description             |
-| ------------------------------------ | ----------------------------------- | ----------------------- |
-| `--nn-theme-list-bg`                 | `var(--background-primary)`         | List pane background    |
-| `--nn-theme-list-header-bg`          | `var(--background-primary)`         | List header background  |
-| `--nn-theme-list-separator-color`    | `var(--background-modifier-border)` | File divider line color |
-| `--nn-theme-list-group-header-color` | `var(--text-muted)`                 | Group header color      |
+| Variable                                  | Default                             | Description             |
+| ----------------------------------------- | ----------------------------------- | ----------------------- |
+| `--nn-theme-list-bg`                      | `var(--background-primary)`         | List pane background    |
+| `--nn-theme-list-header-bg`               | `var(--background-primary)`         | List header background  |
+| `--nn-theme-list-separator-color`         | `var(--background-modifier-border)` | File divider line color |
+| `--nn-theme-list-group-header-text-color` | `var(--text-muted)`                 | Group header text color |
 
 #### File items
 
 | Variable                               | Default                             | Description                   |
 | -------------------------------------- | ----------------------------------- | ----------------------------- |
 | `--nn-theme-file-name-color`           | `var(--text-normal)`                | File name color               |
-| `--nn-theme-file-preview-color`        | `var(--text-muted)`                 | Preview text color            |
 | `--nn-theme-file-date-color`           | `var(--text-normal)`                | Modified date color           |
-| `--nn-theme-file-parent-color`         | `var(--text-muted)`                 | Parent folder path color      |
+| `--nn-theme-file-preview-color`        | `var(--text-muted)`                 | Preview text color            |
 | `--nn-theme-file-tag-bg`               | `var(--background-modifier-border)` | Tag pill background           |
 | `--nn-theme-file-tag-color`            | `var(--text-muted)`                 | Tag pill text color           |
+| `--nn-theme-file-parent-color`         | `var(--text-muted)`                 | Parent folder path color      |
 | `--nn-theme-file-selected-bg`          | `var(--text-selection)`             | Selected file background      |
 | `--nn-theme-file-selected-inactive-bg` | `var(--background-modifier-hover)`  | Selected file (inactive pane) |
 
@@ -122,13 +122,13 @@ the default style.
 
 #### Header buttons
 
-| Variable                                  | Default                            | Description                    |
-| ----------------------------------------- | ---------------------------------- | ------------------------------ |
-| `--nn-theme-header-button-color`          | `var(--text-muted)`                | Action button icon color       |
-| `--nn-theme-header-button-hover-bg`       | `var(--background-modifier-hover)` | Action button hover background |
-| `--nn-theme-header-button-active-bg`      | `var(--background-modifier-hover)` | Active button background       |
-| `--nn-theme-header-button-active-color`   | `var(--text-normal)`               | Active button icon color       |
-| `--nn-theme-header-button-disabled-color` | `var(--text-muted)`                | Disabled button icon color     |
+| Variable                                       | Default                            | Description                    |
+| ---------------------------------------------- | ---------------------------------- | ------------------------------ |
+| `--nn-theme-header-button-icon-color`          | `var(--text-muted)`                | Action button icon color       |
+| `--nn-theme-header-button-hover-bg`            | `var(--background-modifier-hover)` | Action button hover background |
+| `--nn-theme-header-button-active-bg`           | `var(--background-modifier-hover)` | Active button background       |
+| `--nn-theme-header-button-active-icon-color`   | `var(--text-normal)`               | Active button icon color       |
+| `--nn-theme-header-button-disabled-icon-color` | `var(--text-muted)`                | Disabled button icon color     |
 
 ### Mobile styles
 
@@ -158,10 +158,10 @@ body {
   --nn-theme-nav-header-bg: #ede9fe; /* Deeper lavender for header */
 
   /* Folder & tag items */
-  --nn-theme-navitem-name-color: #4c1d95; /* Deep purple text */
-  --nn-theme-navitem-icon-color: #a78bfa; /* Vibrant purple icons */
   --nn-theme-navitem-chevron-color: #c4b5fd; /* Light purple chevrons */
   --nn-theme-navitem-chevron-hover-color: #7c3aed; /* Bright purple on hover */
+  --nn-theme-navitem-icon-color: #a78bfa; /* Vibrant purple icons */
+  --nn-theme-navitem-name-color: #4c1d95; /* Deep purple text */
   --nn-theme-navitem-count-color: #ffffff; /* White count text */
   --nn-theme-navitem-count-bg: #ec4899; /* Hot pink badge */
   --nn-theme-navitem-hover-bg: #fdf2f8; /* Soft pink hover */
@@ -195,15 +195,15 @@ body {
   --nn-theme-list-bg: #fefcff; /* Near white with purple tint */
   --nn-theme-list-header-bg: #faf5ff; /* Light purple header */
   --nn-theme-list-separator-color: #e9d5ff; /* Soft purple dividers */
-  --nn-theme-list-group-header-color: #9333ea; /* Rich purple headers */
+  --nn-theme-list-group-header-text-color: #9333ea; /* Rich purple headers */
 
   /* File items */
   --nn-theme-file-name-color: #1e1b4b; /* Deep indigo text */
-  --nn-theme-file-preview-color: #6b7280; /* Neutral gray preview */
   --nn-theme-file-date-color: #9ca3af; /* Light gray date */
-  --nn-theme-file-parent-color: #c084fc; /* Purple folder path */
+  --nn-theme-file-preview-color: #6b7280; /* Neutral gray preview */
   --nn-theme-file-tag-bg: #fce7f3; /* Pink tag background */
   --nn-theme-file-tag-color: #a21caf; /* Deep pink tag text */
+  --nn-theme-file-parent-color: #c084fc; /* Purple folder path */
   --nn-theme-file-selected-bg: #c7d2fe; /* Indigo selection */
   --nn-theme-file-selected-inactive-bg: #f3e8ff; /* Light purple inactive */
 
@@ -229,11 +229,11 @@ body {
   --nn-theme-header-icon-color: #a855f7; /* Bright purple icons */
 
   /* Header buttons */
-  --nn-theme-header-button-color: #9333ea; /* Purple button icons */
+  --nn-theme-header-button-icon-color: #9333ea; /* Purple button icons */
   --nn-theme-header-button-hover-bg: #fae8ff; /* Light purple hover */
   --nn-theme-header-button-active-bg: #f3e8ff; /* Active purple background */
-  --nn-theme-header-button-active-color: #6b21a8; /* Deep purple active */
-  --nn-theme-header-button-disabled-color: #d4d4d8; /* Gray disabled */
+  --nn-theme-header-button-active-icon-color: #6b21a8; /* Deep purple active */
+  --nn-theme-header-button-disabled-icon-color: #d4d4d8; /* Gray disabled */
 
   /* ========================================
      MOBILE STYLES
