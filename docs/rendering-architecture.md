@@ -63,7 +63,7 @@ graph TD
             subgraph "List Pane (Right)"
                 LPH[ListPaneHeader<br/>• Desktop: Toolbar buttons<br/>• Mobile: Back arrow<br/>• Both: Clickable path]
                 LTB[ListTabBar<br/>• Toolbar buttons<br/>• Mobile only]
-                LP[ListPane<br/>• Virtual scrolling<br/>• File sorting<br/>• Multi-selection]
+                LP[ListPane<br/>• Virtual scrolling<br/>• File sorting<br/>• Multi-selection<br/>• Resize handle (dual-pane)]
 
                 subgraph "List Items"
                     FILE[FileItem<br/>• Preview text<br/>• Tags display<br/>• Feature image<br/>• Metadata<br/>• Quick actions on hover]
@@ -185,6 +185,7 @@ The main container managing the two-pane layout:
 - Keyboard shortcuts for all operations
 - File reveal and auto-scroll
 - Automatic mobile detection for UI adaptation
+- Passes resize handle props to ListPane in dual-pane mode
 
 ### NavigationPaneHeader
 
@@ -279,6 +280,7 @@ The right pane showing files:
 - Group files by date
 - Handle pinned notes
 - Multi-selection support
+- Contains resize handle for pane resizing (dual-pane mode only)
 
 **Dynamic Height Calculation**:
 
