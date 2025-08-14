@@ -110,8 +110,7 @@ If you love using Notebook Navigator, please consider
   automatic switching
 - **Depth-based folder colors** - Built-in support for different colors at each
   folder depth level
-- **Mobile-optimized theming** - Separate styling for mobile breadcrumbs and tab
-  bar buttons
+- **Mobile-optimized theming** - Separate styling for mobile tab bar buttons
 - **[Complete theming guide](docs/theming-guide.md)** - Detailed documentation
   with examples
 
