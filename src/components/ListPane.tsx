@@ -85,6 +85,13 @@ interface ListPaneProps {
      * other Obsidian views.
      */
     rootContainerRef: React.RefObject<HTMLDivElement | null>;
+    /**
+     * Optional resize handle props for dual-pane mode.
+     * When provided, renders a resize handle overlay on the left edge of the list pane.
+     */
+    resizeHandleProps?: {
+        onMouseDown: (e: React.MouseEvent) => void;
+    };
 }
 
 export const ListPane = React.memo(
@@ -312,6 +319,7 @@ export const ListPane = React.memo(
         if (!selectedFolder && !selectedTag) {
             return (
                 <div className="nn-list-pane">
+                    {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
                     <ListPaneHeader onHeaderClick={handleScrollToTop} />
                     <div className="nn-list-pane-scroller nn-empty-state">
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoSelection}</div>
@@ -324,6 +332,7 @@ export const ListPane = React.memo(
         if (files.length === 0) {
             return (
                 <div className="nn-list-pane">
+                    {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
                     <ListPaneHeader onHeaderClick={handleScrollToTop} />
                     <div className="nn-list-pane-scroller nn-empty-state">
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoNotes}</div>
@@ -335,6 +344,7 @@ export const ListPane = React.memo(
 
         return (
             <div className="nn-list-pane">
+                {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
                 <ListPaneHeader onHeaderClick={handleScrollToTop} />
                 <div
                     ref={scrollContainerRefCallback}

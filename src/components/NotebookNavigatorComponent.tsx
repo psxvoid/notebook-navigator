@@ -455,8 +455,11 @@ export const NotebookNavigatorComponent = React.memo(
                     style={{ width: uiState.singlePane ? '100%' : `${paneWidth}px` }}
                     rootContainerRef={containerRef}
                 />
-                {!uiState.singlePane && <div className="nn-resize-handle" {...resizeHandleProps} />}
-                <ListPane ref={listPaneRef} rootContainerRef={containerRef} />
+                <ListPane
+                    ref={listPaneRef}
+                    rootContainerRef={containerRef}
+                    resizeHandleProps={!uiState.singlePane ? resizeHandleProps : undefined}
+                />
             </div>
         );
     })

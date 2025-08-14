@@ -77,7 +77,6 @@ the default style.
 
 | Variable                            | Default                     | Description                    |
 | ----------------------------------- | --------------------------- | ------------------------------ |
-| `--nn-theme-resize-handle-bg`       | `var(--background-primary)` | Resize handle background       |
 | `--nn-theme-resize-handle-hover-bg` | `var(--interactive-accent)` | Resize handle hover background |
 
 ### List pane (files)
@@ -184,7 +183,6 @@ body {
      RESIZE HANDLE
      ======================================== */
 
-  --nn-theme-resize-handle-bg: #e0e7ff; /* Soft indigo */
   --nn-theme-resize-handle-hover-bg: #818cf8; /* Bright indigo on hover */
 
   /* ========================================

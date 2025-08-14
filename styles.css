@@ -106,7 +106,6 @@ body {
     --nn-theme-quick-actions-separator-color: var(--background-modifier-border);
 
     /* -- Resize Handle -- */
-    --nn-theme-resize-handle-bg: var(--background-primary);
     --nn-theme-resize-handle-hover-bg: var(--interactive-accent);
 
     /* -- Mobile Tab Bar -- */
@@ -178,18 +177,22 @@ body {
     flex-direction: column;
     overflow: hidden;
     background-color: var(--nn-theme-list-bg);
+    position: relative; /* Enable absolute positioning for resize handle */
 
     /* Performance optimization for virtualized content */
     contain: layout style;
 }
 
-/* Resize handle - allows users to drag and resize the navigation pane */
+/* Resize handle - overlay on the left edge of list pane */
 .nn-resize-handle {
     width: 3px;
-    background-color: var(--nn-theme-resize-handle-bg);
+    background-color: transparent;
     cursor: col-resize;
-    position: relative;
-    flex-shrink: 0;
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    z-index: 10;
 }
 
 /* Resize handle hover state - provides visual feedback */
@@ -223,6 +226,11 @@ body {
 /* Navigation pane header - matches folder tree background for visual consistency */
 .nn-navigation-pane .nn-pane-header {
     background-color: var(--nn-theme-nav-header-bg);
+}
+
+/* Add right border to nav header only in dual pane mode */
+.nn-desktop:not(.nn-single-pane) .nn-navigation-pane .nn-pane-header {
+    border-right: 1px solid var(--nn-theme-header-border-color);
 }
 
 /* File list pane header */
@@ -2779,14 +2787,6 @@ settings:
         type: heading
         level: 1
         collapsed: true
-    -
-        id: nn-theme-resize-handle-bg
-        title: Handle background
-        description: Background color of the resize handle.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-resize-handle-hover-bg
         title: Handle hover background
