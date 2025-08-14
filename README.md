@@ -15,6 +15,17 @@ If you love using Notebook Navigator, please consider
 
 <br>
 
+## Getting Started
+
+1. **Install Obsidian** - Download and install from
+   [obsidian.md](https://obsidian.md/)
+2. **Enable community plugins** - Go to Settings → Community plugins → Turn on
+   community plugins
+3. **Install Notebook Navigator** - Click "Browse" → Search for "Notebook
+   Navigator" → Install
+
+<br>
+
 ## Features
 
 ![Notebook Navigator Screenshot](https://github.com/johansan/notebook-navigator/blob/main/images/screenshot1.png?raw=true)
