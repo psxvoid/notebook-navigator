@@ -8,7 +8,7 @@ body {
        ======================================================================== */
 
     /* Default padding for styled scrollbars */
-    --nn-scroller-padding: 8px;
+    --nn-scroller-padding: 10px;
 
     /* ========================================================================
        Fixed Height Variables for Pixel-Perfect Rendering
@@ -174,16 +174,6 @@ body {
 
     /* Performance optimization for virtualized content */
     contain: layout style;
-}
-
-/* Native scrollbar override - wider padding for OS scrollbars */
-body.native-scrollbars:not(.styled-scrollbars) {
-    --nn-scroller-padding: 20px;
-}
-
-/* Mobile with native scrollbars - minimal padding since they're thin overlays */
-.notebook-navigator-mobile.native-scrollbars:not(.styled-scrollbars) {
-    --nn-scroller-padding: 8px;
 }
 
 /* Right pane - contains the file list */
@@ -423,7 +413,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
 
 /* Top spacer between header and scroller - provides visual breathing room */
 .nn-pane-top-spacer {
-    height: 8px;
+    height: 10px;
     flex-shrink: 0;
     background: inherit; /* Inherit background from parent pane */
 }
