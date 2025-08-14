@@ -50,13 +50,13 @@ body {
     /* -- List Pane -- */
     --nn-theme-list-bg: var(--background-primary);
     --nn-theme-list-header-bg: var(--background-primary);
+    --nn-theme-list-header-icon-color: var(--text-muted);
+    --nn-theme-list-header-breadcrumb-color: var(--text-muted);
     --nn-theme-list-separator-color: var(--background-modifier-border);
     --nn-theme-list-group-header-text-color: var(--text-muted);
 
     /* -- Headers -- */
     --nn-theme-header-border-color: var(--background-modifier-border);
-    --nn-theme-header-breadcrumb-color: var(--text-muted);
-    --nn-theme-header-icon-color: var(--text-muted);
 
     /* -- Header Buttons -- */
     --nn-theme-header-button-icon-color: var(--text-muted);
@@ -228,8 +228,8 @@ body {
     background-color: var(--nn-theme-nav-header-bg);
 }
 
-/* Add right border to nav header only in dual pane mode */
-.nn-desktop:not(.nn-single-pane) .nn-navigation-pane .nn-pane-header {
+/* Add right border to nav header in dual pane mode */
+:not(.nn-single-pane) .nn-navigation-pane .nn-pane-header {
     border-right: 1px solid var(--nn-theme-header-border-color);
 }
 
@@ -250,7 +250,7 @@ body {
 .nn-pane-header-title {
     font-size: var(--nn-nav-font-size); /* Use nav font size (13px) to match folder items */
     font-weight: 600;
-    color: var(--nn-theme-header-breadcrumb-color);
+    color: var(--nn-theme-list-header-breadcrumb-color);
 
     /* Match date header padding */
     padding-left: var(--size-4-3);
@@ -272,7 +272,7 @@ body {
     flex-shrink: 0;
     display: flex;
     align-items: center;
-    color: var(--nn-theme-header-icon-color);
+    color: var(--nn-theme-list-header-icon-color);
 }
 
 /* Ensure pane header icon SVG matches icon button size */
@@ -295,7 +295,7 @@ body {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-    color: var(--nn-theme-header-breadcrumb-color);
+    color: var(--nn-theme-list-header-breadcrumb-color);
 }
 
 /* Clickable path segments in header */
@@ -2819,6 +2819,22 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
+        id: nn-theme-list-header-icon-color
+        title: List header icon color
+        description: Icon color in the list pane header.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-list-header-breadcrumb-color
+        title: List header breadcrumb color
+        description: Text color for breadcrumb path in the list header.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
         id: nn-theme-list-separator-color
         title: List separator color
         description: Divider line color between files.
@@ -2959,22 +2975,6 @@ settings:
         type: heading
         level: 1
         collapsed: true
-    -
-        id: nn-theme-header-icon-color
-        title: Header icon color
-        description: Icon color in pane headers.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-header-breadcrumb-color
-        title: Header breadcrumb color
-        description: Text color for breadcrumb path in headers.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-header-border-color
         title: Header border color
