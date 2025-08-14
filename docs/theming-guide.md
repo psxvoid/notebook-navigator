@@ -81,14 +81,14 @@ the default style.
 
 ### List pane (files)
 
-| Variable                                  | Default                             | Description                                       |
-| ----------------------------------------- | ----------------------------------- | ------------------------------------------------- |
-| `--nn-theme-list-bg`                      | `var(--background-primary)`         | Background color of the list pane                 |
-| `--nn-theme-list-header-bg`               | `var(--background-primary)`         | Background color of the list pane header          |
-| `--nn-theme-list-header-icon-color`       | `var(--text-muted)`                 | Icon color in the list pane header                |
-| `--nn-theme-list-header-breadcrumb-color` | `var(--text-muted)`                 | Text color for breadcrumb path in the list header |
-| `--nn-theme-list-separator-color`         | `var(--background-modifier-border)` | Divider line color between files                  |
-| `--nn-theme-list-group-header-text-color` | `var(--text-muted)`                 | Text color for date groups and pinned section     |
+| Variable                                  | Default                             | Description                                               |
+| ----------------------------------------- | ----------------------------------- | --------------------------------------------------------- |
+| `--nn-theme-list-bg`                      | `var(--background-primary)`         | Background color of the list pane                         |
+| `--nn-theme-list-header-bg`               | `var(--background-primary)`         | Background color of the list pane header                  |
+| `--nn-theme-list-header-icon-color`       | `var(--text-muted)`                 | Folder/tag icon color shown to the left of the breadcrumb |
+| `--nn-theme-list-header-breadcrumb-color` | `var(--text-muted)`                 | Text color for the breadcrumb path in the list header     |
+| `--nn-theme-list-separator-color`         | `var(--background-modifier-border)` | Divider line color between files                          |
+| `--nn-theme-list-group-header-text-color` | `var(--text-muted)`                 | Text color for date groups and pinned section             |
 
 #### File items
 
@@ -192,8 +192,8 @@ body {
   /* Pane background */
   --nn-theme-list-bg: #fefcff; /* Near white with purple tint */
   --nn-theme-list-header-bg: #faf5ff; /* Light purple header */
-  --nn-theme-list-header-icon-color: #a855f7; /* Bright purple icons */
-  --nn-theme-list-header-breadcrumb-color: #581c87; /* Deep purple breadcrumb */
+  --nn-theme-list-header-icon-color: #a855f7; /* Folder/tag icon in header */
+  --nn-theme-list-header-breadcrumb-color: #581c87; /* Breadcrumb path text */
   --nn-theme-list-separator-color: #e9d5ff; /* Soft purple dividers */
   --nn-theme-list-group-header-text-color: #9333ea; /* Rich purple headers */
 

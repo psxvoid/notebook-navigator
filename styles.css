@@ -2821,7 +2821,7 @@ settings:
     -
         id: nn-theme-list-header-icon-color
         title: List header icon color
-        description: Icon color in the list pane header.
+        description: Folder/tag icon color shown to the left of the breadcrumb.
         type: variable-themed-color
         format: hex
         default-light: '#'
@@ -2829,7 +2829,7 @@ settings:
     -
         id: nn-theme-list-header-breadcrumb-color
         title: List header breadcrumb color
-        description: Text color for breadcrumb path in the list header.
+        description: Text color for the breadcrumb path in the list header.
         type: variable-themed-color
         format: hex
         default-light: '#'
