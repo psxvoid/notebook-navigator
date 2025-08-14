@@ -27,7 +27,6 @@ runTests({ cleanup: false }); // Keep test files for debugging
 - **Version & Compatibility** - API version and feature detection
 - **Navigation** - File navigation functionality
 - **Metadata** - Folder/tag colors, icons, and pinned files
-- **File Operations** - Delete and move operations
 - **Selection** - Current selection state
 
 ### Safety
