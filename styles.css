@@ -66,15 +66,21 @@ body {
     --nn-theme-header-button-disabled-color: var(--text-muted);
 
     /* -- Navigation Items (Folders & Tags) -- */
-    --nn-theme-navitem-text-color: var(--text-normal);
+    --nn-theme-navitem-name-color: var(--text-normal);
     --nn-theme-navitem-icon-color: var(--text-muted);
     --nn-theme-navitem-chevron-color: var(--text-muted);
     --nn-theme-navitem-chevron-hover-color: var(--text-normal);
     --nn-theme-navitem-count-color: var(--text-muted);
     --nn-theme-navitem-count-bg: transparent;
     --nn-theme-navitem-hover-bg: var(--background-modifier-hover);
-    --nn-theme-navitem-selection-bg: var(--text-selection);
-    --nn-theme-navitem-selection-inactive-bg: var(--background-modifier-hover);
+    --nn-theme-navitem-selected-bg: var(--text-selection);
+    --nn-theme-navitem-selected-inactive-bg: var(--background-modifier-hover);
+
+    /* -- Navigation Item Text Styling -- */
+    --nn-theme-navitem-name-font-weight: 400;
+    --nn-theme-navitem-custom-color-name-font-weight: 600;
+    --nn-theme-navitem-folder-note-name-font-weight: 600;
+    --nn-theme-navitem-folder-note-name-decoration: underline;
 
     /* -- Tree Depth Colors -- */
     --nn-theme-tree-level-0-color: var(--text-normal);
@@ -89,8 +95,8 @@ body {
     --nn-theme-file-parent-color: var(--text-muted);
     --nn-theme-file-tag-bg: var(--background-modifier-border);
     --nn-theme-file-tag-color: var(--text-muted);
-    --nn-theme-file-selection-bg: var(--text-selection);
-    --nn-theme-file-selection-inactive-bg: var(--background-modifier-hover);
+    --nn-theme-file-selected-bg: var(--text-selection);
+    --nn-theme-file-selected-inactive-bg: var(--background-modifier-hover);
 
     /* -- Quick Actions -- */
     --nn-theme-quick-actions-bg: color-mix(in srgb, var(--background-primary) 95%, transparent);
@@ -433,8 +439,8 @@ body {
 /* CSS Custom Properties for navigation items - themes can override these */
 .nn-navitem {
     /* Selection rectangle styling */
-    --nn-selection-bg: var(--nn-theme-navitem-selection-bg);
-    --nn-selection-bg-inactive: var(--nn-theme-navitem-selection-inactive-bg);
+    --nn-selection-bg: var(--nn-theme-navitem-selected-bg);
+    --nn-selection-bg-inactive: var(--nn-theme-navitem-selected-inactive-bg);
     --nn-selection-radius: var(--radius-s);
 
     /* Hover state styling */
@@ -506,18 +512,18 @@ body {
 /* Folder name text - truncates with ellipsis on overflow */
 .nn-navitem-name {
     font-size: var(--nn-nav-font-size);
-    font-weight: 400;
+    font-weight: var(--nn-theme-navitem-name-font-weight) !important;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: var(--nn-nav-line-height);
-    color: var(--nn-theme-navitem-text-color);
+    color: var(--nn-theme-navitem-name-color);
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 }
 
-/* Custom colored folder names - bold to indicate custom color */
+/* Custom colored folder names */
 .nn-navitem-name.nn-has-custom-color {
-    font-weight: 600;
+    font-weight: var(--nn-theme-navitem-custom-color-name-font-weight) !important;
 }
 
 /* Tree depth-based colors */
@@ -567,10 +573,10 @@ body {
     color: var(--nn-theme-tree-level-3-color);
 }
 
-/* Folder with folder note - underlined and bold */
+/* Folder with folder note */
 .nn-navitem-name.nn-has-folder-note {
-    text-decoration: underline;
-    font-weight: 600;
+    font-weight: var(--nn-theme-navitem-folder-note-name-font-weight) !important;
+    text-decoration: var(--nn-theme-navitem-folder-note-name-decoration) !important;
 }
 
 /* Folder with folder note - show pointer cursor on hover */
@@ -659,8 +665,8 @@ body {
     position: relative;
 
     /* CSS Custom Properties for file items - themes can override these */
-    --nn-selection-bg: var(--nn-theme-file-selection-bg);
-    --nn-selection-bg-inactive: var(--nn-theme-file-selection-inactive-bg);
+    --nn-selection-bg: var(--nn-theme-file-selected-bg);
+    --nn-selection-bg-inactive: var(--nn-theme-file-selected-inactive-bg);
     --nn-selection-radius: var(--radius-m);
 }
 
@@ -2613,7 +2619,7 @@ settings:
         level: 2
         collapsed: false
     -
-        id: nn-theme-navitem-text-color
+        id: nn-theme-navitem-name-color
         title: Text color
         description: Main text color for folder and tag names.
         type: variable-themed-color
@@ -2669,7 +2675,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-navitem-selection-bg
+        id: nn-theme-navitem-selected-bg
         title: Selection background
         description: Background color when a folder or tag is selected.
         type: variable-themed-color
@@ -2677,13 +2683,63 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-navitem-selection-inactive-bg
+        id: nn-theme-navitem-selected-inactive-bg
         title: Selection background (inactive)
         description: Background when selected but the pane is not focused.
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
+    -
+        id: nn-navitem-text-styling-heading
+        title: Text styling
+        description: Control font weight and text decoration for navigation items. Font weights use values from 100-900 where 400 = regular and 600 = bold.
+        type: heading
+        level: 2
+        collapsed: false
+    -
+        id: nn-theme-navitem-name-font-weight
+        title: Navigation item font weight
+        description: Default font weight for all folders and tags.
+        type: variable-number-slider
+        default: 400
+        min: 100
+        max: 900
+        step: 100
+    -
+        id: nn-theme-navitem-custom-color-name-font-weight
+        title: Custom color item font weight
+        description: Font weight for folders/tags with custom colors.
+        type: variable-number-slider
+        default: 600
+        min: 100
+        max: 900
+        step: 100
+    -
+        id: nn-theme-navitem-folder-note-name-font-weight
+        title: Folder note font weight
+        description: Font weight for folders with folder notes.
+        type: variable-number-slider
+        default: 600
+        min: 100
+        max: 900
+        step: 100
+    -
+        id: nn-theme-navitem-folder-note-name-decoration
+        title: Folder note text decoration
+        description: Text decoration for folders with folder notes.
+        type: variable-select
+        default: underline
+        options:
+          -
+            label: None
+            value: none
+          -
+            label: Underline
+            value: underline
+          -
+            label: Dotted underline
+            value: underline dotted
     -
         id: nn-tree-depth-heading
         title: Tree depth colors
@@ -2835,7 +2891,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-file-selection-bg
+        id: nn-theme-file-selected-bg
         title: Selection background
         description: Background color when a file is selected.
         type: variable-themed-color
@@ -2843,7 +2899,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-file-selection-inactive-bg
+        id: nn-theme-file-selected-inactive-bg
         title: Selection background (inactive)
         description: Background when a file is selected but the pane is not focused.
         type: variable-themed-color

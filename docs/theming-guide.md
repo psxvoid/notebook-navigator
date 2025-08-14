@@ -39,17 +39,26 @@ level.
 
 #### Folder & tag items
 
-| Variable                                   | Default                            | Description                   |
-| ------------------------------------------ | ---------------------------------- | ----------------------------- |
-| `--nn-theme-navitem-text-color`            | `var(--text-normal)`               | Folder/tag name color         |
-| `--nn-theme-navitem-icon-color`            | `var(--text-muted)`                | Folder/tag icon color         |
-| `--nn-theme-navitem-chevron-color`         | `var(--text-muted)`                | Expand/collapse arrow color   |
-| `--nn-theme-navitem-chevron-hover-color`   | `var(--text-normal)`               | Chevron hover color           |
-| `--nn-theme-navitem-count-color`           | `var(--text-muted)`                | File count text color         |
-| `--nn-theme-navitem-count-bg`              | `transparent`                      | File count background         |
-| `--nn-theme-navitem-hover-bg`              | `var(--background-modifier-hover)` | Item hover background         |
-| `--nn-theme-navitem-selection-bg`          | `var(--text-selection)`            | Selected item background      |
-| `--nn-theme-navitem-selection-inactive-bg` | `var(--background-modifier-hover)` | Selected item (inactive pane) |
+| Variable                                  | Default                            | Description                   |
+| ----------------------------------------- | ---------------------------------- | ----------------------------- |
+| `--nn-theme-navitem-name-color`           | `var(--text-normal)`               | Folder/tag name color         |
+| `--nn-theme-navitem-icon-color`           | `var(--text-muted)`                | Folder/tag icon color         |
+| `--nn-theme-navitem-chevron-color`        | `var(--text-muted)`                | Expand/collapse arrow color   |
+| `--nn-theme-navitem-chevron-hover-color`  | `var(--text-normal)`               | Chevron hover color           |
+| `--nn-theme-navitem-count-color`          | `var(--text-muted)`                | File count text color         |
+| `--nn-theme-navitem-count-bg`             | `transparent`                      | File count background         |
+| `--nn-theme-navitem-hover-bg`             | `var(--background-modifier-hover)` | Item hover background         |
+| `--nn-theme-navitem-selected-bg`          | `var(--text-selection)`            | Selected item background      |
+| `--nn-theme-navitem-selected-inactive-bg` | `var(--background-modifier-hover)` | Selected item (inactive pane) |
+
+#### Text styling
+
+| Variable                                           | Default     | Description                                                     |
+| -------------------------------------------------- | ----------- | --------------------------------------------------------------- |
+| `--nn-theme-navitem-name-font-weight`              | `400`       | Default font weight (400 = regular, 600 = bold)                 |
+| `--nn-theme-navitem-custom-color-name-font-weight` | `600`       | Custom color item font weight                                   |
+| `--nn-theme-navitem-folder-note-name-font-weight`  | `600`       | Folder note font weight                                         |
+| `--nn-theme-navitem-folder-note-name-decoration`   | `underline` | Folder note text decoration (none, underline, underline dotted) |
 
 #### Tree depth colors
 
@@ -78,16 +87,16 @@ level.
 
 #### File items
 
-| Variable                                | Default                             | Description                   |
-| --------------------------------------- | ----------------------------------- | ----------------------------- |
-| `--nn-theme-file-name-color`            | `var(--text-normal)`                | File name color               |
-| `--nn-theme-file-preview-color`         | `var(--text-muted)`                 | Preview text color            |
-| `--nn-theme-file-date-color`            | `var(--text-normal)`                | Modified date color           |
-| `--nn-theme-file-parent-color`          | `var(--text-muted)`                 | Parent folder path color      |
-| `--nn-theme-file-tag-bg`                | `var(--background-modifier-border)` | Tag pill background           |
-| `--nn-theme-file-tag-color`             | `var(--text-muted)`                 | Tag pill text color           |
-| `--nn-theme-file-selection-bg`          | `var(--text-selection)`             | Selected file background      |
-| `--nn-theme-file-selection-inactive-bg` | `var(--background-modifier-hover)`  | Selected file (inactive pane) |
+| Variable                               | Default                             | Description                   |
+| -------------------------------------- | ----------------------------------- | ----------------------------- |
+| `--nn-theme-file-name-color`           | `var(--text-normal)`                | File name color               |
+| `--nn-theme-file-preview-color`        | `var(--text-muted)`                 | Preview text color            |
+| `--nn-theme-file-date-color`           | `var(--text-normal)`                | Modified date color           |
+| `--nn-theme-file-parent-color`         | `var(--text-muted)`                 | Parent folder path color      |
+| `--nn-theme-file-tag-bg`               | `var(--background-modifier-border)` | Tag pill background           |
+| `--nn-theme-file-tag-color`            | `var(--text-muted)`                 | Tag pill text color           |
+| `--nn-theme-file-selected-bg`          | `var(--text-selection)`             | Selected file background      |
+| `--nn-theme-file-selected-inactive-bg` | `var(--background-modifier-hover)`  | Selected file (inactive pane) |
 
 #### Quick actions
 
@@ -145,15 +154,21 @@ body {
   --nn-theme-nav-header-bg: #ede9fe; /* Deeper lavender for header */
 
   /* Folder & tag items */
-  --nn-theme-navitem-text-color: #4c1d95; /* Deep purple text */
+  --nn-theme-navitem-name-color: #4c1d95; /* Deep purple text */
   --nn-theme-navitem-icon-color: #a78bfa; /* Vibrant purple icons */
   --nn-theme-navitem-chevron-color: #c4b5fd; /* Light purple chevrons */
   --nn-theme-navitem-chevron-hover-color: #7c3aed; /* Bright purple on hover */
   --nn-theme-navitem-count-color: #ffffff; /* White count text */
   --nn-theme-navitem-count-bg: #ec4899; /* Hot pink badge */
   --nn-theme-navitem-hover-bg: #fdf2f8; /* Soft pink hover */
-  --nn-theme-navitem-selection-bg: #c084fc; /* Bright purple selection */
-  --nn-theme-navitem-selection-inactive-bg: #e9d5ff; /* Muted purple inactive */
+  --nn-theme-navitem-selected-bg: #c084fc; /* Bright purple selection */
+  --nn-theme-navitem-selected-inactive-bg: #e9d5ff; /* Muted purple inactive */
+
+  /* Text styling */
+  --nn-theme-navitem-name-font-weight: 400; /* Regular weight */
+  --nn-theme-navitem-custom-color-name-font-weight: 600; /* Bold for custom colors */
+  --nn-theme-navitem-folder-note-name-font-weight: 600; /* Bold for folder notes */
+  --nn-theme-navitem-folder-note-name-decoration: underline; /* Underline folder notes */
 
   /* Tree depth colors - Beautiful gradient */
   --nn-theme-tree-level-0-color: #6366f1; /* Indigo */
@@ -185,8 +200,8 @@ body {
   --nn-theme-file-parent-color: #c084fc; /* Purple folder path */
   --nn-theme-file-tag-bg: #fce7f3; /* Pink tag background */
   --nn-theme-file-tag-color: #a21caf; /* Deep pink tag text */
-  --nn-theme-file-selection-bg: #c7d2fe; /* Indigo selection */
-  --nn-theme-file-selection-inactive-bg: #f3e8ff; /* Light purple inactive */
+  --nn-theme-file-selected-bg: #c7d2fe; /* Indigo selection */
+  --nn-theme-file-selected-inactive-bg: #f3e8ff; /* Light purple inactive */
 
   /* Quick actions */
   --nn-theme-quick-actions-bg: rgba(
@@ -240,14 +255,14 @@ and `.theme-dark` classes:
 .theme-light {
   /* Navigation pane */
   --nn-theme-nav-bg: #ffeeff; /* Light pink */
-  --nn-theme-navitem-selection-bg: #ffccff; /* Pastel purple */
-  --nn-theme-navitem-text-color: #ff66cc; /* Pink text */
+  --nn-theme-navitem-selected-bg: #ffccff; /* Pastel purple */
+  --nn-theme-navitem-name-color: #ff66cc; /* Pink text */
   --nn-theme-navitem-hover-bg: #ffddff; /* Very light pink */
 
   /* File list */
   --nn-theme-list-bg: #fff0ff; /* Very light purple */
   --nn-theme-file-name-color: #cc33ff; /* Purple text */
-  --nn-theme-file-selection-bg: #ffccff; /* Pastel purple */
+  --nn-theme-file-selected-bg: #ffccff; /* Pastel purple */
   --nn-theme-file-preview-color: #ff99cc; /* Light pink */
 }
 
@@ -255,14 +270,14 @@ and `.theme-dark` classes:
 .theme-dark {
   /* Navigation pane */
   --nn-theme-nav-bg: #330033; /* Dark purple */
-  --nn-theme-navitem-selection-bg: #663366; /* Muted purple */
-  --nn-theme-navitem-text-color: #ffaaff; /* Light pink text */
+  --nn-theme-navitem-selected-bg: #663366; /* Muted purple */
+  --nn-theme-navitem-name-color: #ffaaff; /* Light pink text */
   --nn-theme-navitem-hover-bg: #442244; /* Dark purple hover */
 
   /* File list */
   --nn-theme-list-bg: #2a002a; /* Very dark purple */
   --nn-theme-file-name-color: #ff99ff; /* Light purple text */
-  --nn-theme-file-selection-bg: #663366; /* Muted purple */
+  --nn-theme-file-selected-bg: #663366; /* Muted purple */
   --nn-theme-file-preview-color: #cc99cc; /* Muted pink */
 }
 ```
