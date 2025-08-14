@@ -1720,6 +1720,12 @@ body.nn-resizing {
     background-color: var(--background-modifier-border-hover);
 }
 
+/* Scrollbar thumb active - darkest when dragging */
+.nn-navigation-pane-scroller::-webkit-scrollbar-thumb:active,
+.nn-list-pane-scroller::-webkit-scrollbar-thumb:active {
+    background-color: var(--background-modifier-border-focus);
+}
+
 /* ========================================================================
    Virtual List Styles
    ======================================================================== */
