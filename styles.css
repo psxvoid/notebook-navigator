@@ -185,7 +185,7 @@ body {
 
 /* Resize handle - allows users to drag and resize the navigation pane */
 .nn-resize-handle {
-    width: 5px;
+    width: 3px;
     background-color: var(--nn-theme-resize-handle-bg);
     cursor: col-resize;
     position: relative;
@@ -195,13 +195,6 @@ body {
 /* Resize handle hover state - provides visual feedback */
 .nn-resize-handle:hover {
     background-color: var(--nn-theme-resize-handle-hover-bg);
-    opacity: 0.5;
-}
-
-/* Resize handle active state - stronger feedback during drag */
-.nn-resize-handle:active {
-    background-color: var(--nn-theme-resize-handle-hover-bg);
-    opacity: 0.8;
 }
 
 /* ========================================================================
