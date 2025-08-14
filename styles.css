@@ -1729,57 +1729,67 @@ body.nn-resizing {
    Scrollbar Styles
    ======================================================================== */
 
-/* Custom scrollbar width 
-   Note: Obsidian doesn't provide CSS variables for scrollbar dimensions yet,
-   so we use a hardcoded value that matches the default Obsidian scrollbar width */
-body.styled-scrollbars .nn-navigation-pane-scroller::-webkit-scrollbar,
-body.styled-scrollbars .nn-list-pane-scroller::-webkit-scrollbar,
-body:not(.native-scrollbars) .nn-navigation-pane-scroller::-webkit-scrollbar,
-body:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar {
-    width: 8px;
+/* Custom scrollbar styling using -webkit-scrollbar pseudo-elements
+   
+   Platform-based rules:
+   - Windows/Linux: Always use styled scrollbars (8px width)
+   - macOS: Respect Obsidian's native/styled preference
+   - Mobile: Always native (webkit-scrollbar CSS is ignored anyway)
+   
+   Note: Obsidian adds platform classes: mod-windows, mod-linux, mod-macos
+   We force styled scrollbars on Windows/Linux regardless of settings */
+
+/* Windows and Linux: Always use styled scrollbars */
+body.mod-windows .nn-navigation-pane-scroller::-webkit-scrollbar,
+body.mod-windows .nn-list-pane-scroller::-webkit-scrollbar,
+body.mod-linux .nn-navigation-pane-scroller::-webkit-scrollbar,
+body.mod-linux .nn-list-pane-scroller::-webkit-scrollbar,
+/* macOS: Use styled scrollbars only when Obsidian setting is off */
+body.mod-macos:not(.native-scrollbars) .nn-navigation-pane-scroller::-webkit-scrollbar,
+body.mod-macos:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar {
+    width: 11px;
 }
 
 /* Scrollbar track - transparent background */
-body.styled-scrollbars .nn-navigation-pane-scroller::-webkit-scrollbar-track,
-body.styled-scrollbars .nn-list-pane-scroller::-webkit-scrollbar-track,
-body:not(.native-scrollbars) .nn-navigation-pane-scroller::-webkit-scrollbar-track,
-body:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar-track {
+body.mod-windows .nn-navigation-pane-scroller::-webkit-scrollbar-track,
+body.mod-windows .nn-list-pane-scroller::-webkit-scrollbar-track,
+body.mod-linux .nn-navigation-pane-scroller::-webkit-scrollbar-track,
+body.mod-linux .nn-list-pane-scroller::-webkit-scrollbar-track,
+body.mod-macos:not(.native-scrollbars) .nn-navigation-pane-scroller::-webkit-scrollbar-track,
+body.mod-macos:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar-track {
     background: transparent;
 }
 
 /* Scrollbar thumb - visible scroll indicator */
-body.styled-scrollbars .nn-navigation-pane-scroller::-webkit-scrollbar-thumb,
-body.styled-scrollbars .nn-list-pane-scroller::-webkit-scrollbar-thumb,
-body:not(.native-scrollbars) .nn-navigation-pane-scroller::-webkit-scrollbar-thumb,
-body:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar-thumb {
+body.mod-windows .nn-navigation-pane-scroller::-webkit-scrollbar-thumb,
+body.mod-windows .nn-list-pane-scroller::-webkit-scrollbar-thumb,
+body.mod-linux .nn-navigation-pane-scroller::-webkit-scrollbar-thumb,
+body.mod-linux .nn-list-pane-scroller::-webkit-scrollbar-thumb,
+body.mod-macos:not(.native-scrollbars) .nn-navigation-pane-scroller::-webkit-scrollbar-thumb,
+body.mod-macos:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar-thumb {
     background-color: var(--background-modifier-border);
     border-radius: var(--radius-s);
+    min-height: 45px;
 }
 
 /* Scrollbar thumb hover - darker on hover */
-body.styled-scrollbars .nn-navigation-pane-scroller::-webkit-scrollbar-thumb:hover,
-body.styled-scrollbars .nn-list-pane-scroller::-webkit-scrollbar-thumb:hover,
-body:not(.native-scrollbars) .nn-navigation-pane-scroller::-webkit-scrollbar-thumb:hover,
-body:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar-thumb:hover {
+body.mod-windows .nn-navigation-pane-scroller::-webkit-scrollbar-thumb:hover,
+body.mod-windows .nn-list-pane-scroller::-webkit-scrollbar-thumb:hover,
+body.mod-linux .nn-navigation-pane-scroller::-webkit-scrollbar-thumb:hover,
+body.mod-linux .nn-list-pane-scroller::-webkit-scrollbar-thumb:hover,
+body.mod-macos:not(.native-scrollbars) .nn-navigation-pane-scroller::-webkit-scrollbar-thumb:hover,
+body.mod-macos:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar-thumb:hover {
     background-color: var(--background-modifier-border-hover);
 }
 
 /* Scrollbar thumb active - darkest when dragging */
-body.styled-scrollbars .nn-navigation-pane-scroller::-webkit-scrollbar-thumb:active,
-body.styled-scrollbars .nn-list-pane-scroller::-webkit-scrollbar-thumb:active,
-body:not(.native-scrollbars) .nn-navigation-pane-scroller::-webkit-scrollbar-thumb:active,
-body:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar-thumb:active {
+body.mod-windows .nn-navigation-pane-scroller::-webkit-scrollbar-thumb:active,
+body.mod-windows .nn-list-pane-scroller::-webkit-scrollbar-thumb:active,
+body.mod-linux .nn-navigation-pane-scroller::-webkit-scrollbar-thumb:active,
+body.mod-linux .nn-list-pane-scroller::-webkit-scrollbar-thumb:active,
+body.mod-macos:not(.native-scrollbars) .nn-navigation-pane-scroller::-webkit-scrollbar-thumb:active,
+body.mod-macos:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar-thumb:active {
     background-color: var(--background-modifier-border-focus);
-}
-
-/* ========================================================================
-   Native Scrollbar Support
-   ======================================================================== */
-
-/* Native scrollbars - let OS handle scrollbar appearance */
-body.native-scrollbars:not(.styled-scrollbars) .nn-navigation-pane-scroller,
-body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
-    scrollbar-width: auto; /* Standard property for Firefox */
 }
 
 /* ========================================================================
