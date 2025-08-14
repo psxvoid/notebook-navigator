@@ -39,17 +39,17 @@ level.
 
 #### Folder & tag items
 
-| Variable                                  | Default                            | Description                   |
-| ----------------------------------------- | ---------------------------------- | ----------------------------- |
-| `--nn-theme-navitem-chevron-color`        | `var(--text-muted)`                | Expand/collapse arrow color   |
-| `--nn-theme-navitem-chevron-hover-color`  | `var(--text-normal)`               | Chevron hover color           |
-| `--nn-theme-navitem-icon-color`           | `var(--text-muted)`                | Folder/tag icon color         |
-| `--nn-theme-navitem-name-color`           | `var(--text-normal)`               | Folder/tag name color         |
-| `--nn-theme-navitem-count-color`          | `var(--text-muted)`                | File count text color         |
-| `--nn-theme-navitem-count-bg`             | `transparent`                      | File count background         |
-| `--nn-theme-navitem-hover-bg`             | `var(--background-modifier-hover)` | Item hover background         |
-| `--nn-theme-navitem-selected-bg`          | `var(--text-selection)`            | Selected item background      |
-| `--nn-theme-navitem-selected-inactive-bg` | `var(--background-modifier-hover)` | Selected item (inactive pane) |
+| Variable                                  | Default                            | Description                                    |
+| ----------------------------------------- | ---------------------------------- | ---------------------------------------------- |
+| `--nn-theme-navitem-chevron-color`        | `var(--text-muted)`                | Color for expand/collapse arrows               |
+| `--nn-theme-navitem-chevron-hover-color`  | `var(--text-normal)`               | Color for expand/collapse arrows when hovered  |
+| `--nn-theme-navitem-icon-color`           | `var(--text-muted)`                | Icon color for folders and tags                |
+| `--nn-theme-navitem-name-color`           | `var(--text-normal)`               | Text color for folder and tag names            |
+| `--nn-theme-navitem-count-color`          | `var(--text-muted)`                | Text color for file count badges               |
+| `--nn-theme-navitem-count-bg`             | `transparent`                      | Background color for file count badges         |
+| `--nn-theme-navitem-hover-bg`             | `var(--background-modifier-hover)` | Item hover background color                    |
+| `--nn-theme-navitem-selected-bg`          | `var(--text-selection)`            | Selected item background color                 |
+| `--nn-theme-navitem-selected-inactive-bg` | `var(--background-modifier-hover)` | Selected item background when pane is inactive |
 
 #### Text styling
 
@@ -66,12 +66,12 @@ the default style.
 
 #### Tree depth colors
 
-| Variable                        | Default              | Description      |
-| ------------------------------- | -------------------- | ---------------- |
-| `--nn-theme-tree-level-0-color` | `var(--text-normal)` | Root level color |
-| `--nn-theme-tree-level-1-color` | `var(--text-normal)` | Level 1 color    |
-| `--nn-theme-tree-level-2-color` | `var(--text-normal)` | Level 2 color    |
-| `--nn-theme-tree-level-3-color` | `var(--text-normal)` | Level 3+ color   |
+| Variable                        | Default              | Description                                |
+| ------------------------------- | -------------------- | ------------------------------------------ |
+| `--nn-theme-tree-level-0-color` | `var(--text-normal)` | Text and icon color for root level folders |
+| `--nn-theme-tree-level-1-color` | `var(--text-normal)` | Text and icon color for level 1 folders    |
+| `--nn-theme-tree-level-2-color` | `var(--text-normal)` | Text and icon color for level 2 folders    |
+| `--nn-theme-tree-level-3-color` | `var(--text-normal)` | Text and icon color for level 3+ folders   |
 
 ### Resize handle
 
@@ -82,61 +82,61 @@ the default style.
 
 ### List pane (files)
 
-| Variable                                  | Default                             | Description             |
-| ----------------------------------------- | ----------------------------------- | ----------------------- |
-| `--nn-theme-list-bg`                      | `var(--background-primary)`         | List pane background    |
-| `--nn-theme-list-header-bg`               | `var(--background-primary)`         | List header background  |
-| `--nn-theme-list-separator-color`         | `var(--background-modifier-border)` | File divider line color |
-| `--nn-theme-list-group-header-text-color` | `var(--text-muted)`                 | Group header text color |
+| Variable                                  | Default                             | Description                                   |
+| ----------------------------------------- | ----------------------------------- | --------------------------------------------- |
+| `--nn-theme-list-bg`                      | `var(--background-primary)`         | Background color of the list pane             |
+| `--nn-theme-list-header-bg`               | `var(--background-primary)`         | Background color of the list pane header      |
+| `--nn-theme-list-separator-color`         | `var(--background-modifier-border)` | Divider line color between files              |
+| `--nn-theme-list-group-header-text-color` | `var(--text-muted)`                 | Text color for date groups and pinned section |
 
 #### File items
 
-| Variable                               | Default                             | Description                   |
-| -------------------------------------- | ----------------------------------- | ----------------------------- |
-| `--nn-theme-file-name-color`           | `var(--text-normal)`                | File name color               |
-| `--nn-theme-file-date-color`           | `var(--text-normal)`                | Modified date color           |
-| `--nn-theme-file-preview-color`        | `var(--text-muted)`                 | Preview text color            |
-| `--nn-theme-file-tag-bg`               | `var(--background-modifier-border)` | Tag pill background           |
-| `--nn-theme-file-tag-color`            | `var(--text-muted)`                 | Tag pill text color           |
-| `--nn-theme-file-parent-color`         | `var(--text-muted)`                 | Parent folder path color      |
-| `--nn-theme-file-selected-bg`          | `var(--text-selection)`             | Selected file background      |
-| `--nn-theme-file-selected-inactive-bg` | `var(--background-modifier-hover)`  | Selected file (inactive pane) |
+| Variable                               | Default                             | Description                                                 |
+| -------------------------------------- | ----------------------------------- | ----------------------------------------------------------- |
+| `--nn-theme-file-name-color`           | `var(--text-normal)`                | Text color for file names                                   |
+| `--nn-theme-file-date-color`           | `var(--text-normal)`                | Text color for modification dates                           |
+| `--nn-theme-file-preview-color`        | `var(--text-muted)`                 | Text color for content preview                              |
+| `--nn-theme-file-tag-bg`               | `var(--background-modifier-border)` | Background color for tag pills                              |
+| `--nn-theme-file-tag-color`            | `var(--text-muted)`                 | Text color for tag pills                                    |
+| `--nn-theme-file-parent-color`         | `var(--text-muted)`                 | Text color for parent folder path (when showing subfolders) |
+| `--nn-theme-file-selected-bg`          | `var(--text-selection)`             | Selected file background color                              |
+| `--nn-theme-file-selected-inactive-bg` | `var(--background-modifier-hover)`  | Selected file background when pane is inactive              |
 
 #### Quick actions
 
-| Variable                                    | Default                                                          | Description                         |
-| ------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------- |
-| `--nn-theme-quick-actions-bg`               | `color-mix(in srgb, var(--background-primary) 95%, transparent)` | Panel background (semi-transparent) |
-| `--nn-theme-quick-actions-border`           | `var(--background-modifier-border)`                              | Panel border color                  |
-| `--nn-theme-quick-actions-icon-color`       | `var(--text-muted)`                                              | Icon color                          |
-| `--nn-theme-quick-actions-icon-hover-color` | `var(--text-normal)`                                             | Icon hover color                    |
-| `--nn-theme-quick-actions-separator-color`  | `var(--background-modifier-border)`                              | Separator line color                |
+| Variable                                    | Default                                                          | Description                                                       |
+| ------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------- |
+| `--nn-theme-quick-actions-bg`               | `color-mix(in srgb, var(--background-primary) 95%, transparent)` | Background color of quick actions toolbar (supports transparency) |
+| `--nn-theme-quick-actions-border`           | `var(--background-modifier-border)`                              | Border color of quick actions toolbar                             |
+| `--nn-theme-quick-actions-icon-color`       | `var(--text-muted)`                                              | Icon color for quick action buttons                               |
+| `--nn-theme-quick-actions-icon-hover-color` | `var(--text-normal)`                                             | Icon color when hovering quick action buttons                     |
+| `--nn-theme-quick-actions-separator-color`  | `var(--background-modifier-border)`                              | Divider color between quick action buttons                        |
 
 ### Headers
 
-| Variable                             | Default                             | Description         |
-| ------------------------------------ | ----------------------------------- | ------------------- |
-| `--nn-theme-header-border-color`     | `var(--background-modifier-border)` | Header border color |
-| `--nn-theme-header-breadcrumb-color` | `var(--text-muted)`                 | Header title color  |
-| `--nn-theme-header-icon-color`       | `var(--text-muted)`                 | Header icon color   |
+| Variable                             | Default                             | Description                               |
+| ------------------------------------ | ----------------------------------- | ----------------------------------------- |
+| `--nn-theme-header-icon-color`       | `var(--text-muted)`                 | Icon color in pane headers                |
+| `--nn-theme-header-breadcrumb-color` | `var(--text-muted)`                 | Text color for breadcrumb path in headers |
+| `--nn-theme-header-border-color`     | `var(--background-modifier-border)` | Bottom border color of pane headers       |
 
 #### Header buttons
 
-| Variable                                       | Default                            | Description                    |
-| ---------------------------------------------- | ---------------------------------- | ------------------------------ |
-| `--nn-theme-header-button-icon-color`          | `var(--text-muted)`                | Action button icon color       |
-| `--nn-theme-header-button-hover-bg`            | `var(--background-modifier-hover)` | Action button hover background |
-| `--nn-theme-header-button-active-bg`           | `var(--background-modifier-hover)` | Active button background       |
-| `--nn-theme-header-button-active-icon-color`   | `var(--text-normal)`               | Active button icon color       |
-| `--nn-theme-header-button-disabled-icon-color` | `var(--text-muted)`                | Disabled button icon color     |
+| Variable                                       | Default                            | Description                                        |
+| ---------------------------------------------- | ---------------------------------- | -------------------------------------------------- |
+| `--nn-theme-header-button-icon-color`          | `var(--text-muted)`                | Default icon color for header buttons              |
+| `--nn-theme-header-button-hover-bg`            | `var(--background-modifier-hover)` | Background color when hovering header buttons      |
+| `--nn-theme-header-button-active-bg`           | `var(--background-modifier-hover)` | Background color for active/toggled header buttons |
+| `--nn-theme-header-button-active-icon-color`   | `var(--text-normal)`               | Icon color for active/toggled header buttons       |
+| `--nn-theme-header-button-disabled-icon-color` | `var(--text-muted)`                | Icon color for disabled header buttons             |
 
 ### Mobile styles
 
-| Variable                                  | Default                            | Description           |
-| ----------------------------------------- | ---------------------------------- | --------------------- |
-| `--nn-theme-mobile-tab-icon-color`        | `var(--text-muted)`                | Tab bar icon color    |
-| `--nn-theme-mobile-tab-active-bg`         | `var(--background-modifier-hover)` | Active tab background |
-| `--nn-theme-mobile-tab-active-icon-color` | `var(--text-normal)`               | Active tab icon color |
+| Variable                                  | Default                            | Description                     |
+| ----------------------------------------- | ---------------------------------- | ------------------------------- |
+| `--nn-theme-mobile-tab-icon-color`        | `var(--text-muted)`                | Icon color in mobile tab bar    |
+| `--nn-theme-mobile-tab-active-bg`         | `var(--background-modifier-hover)` | Background color for active tab |
+| `--nn-theme-mobile-tab-active-icon-color` | `var(--text-normal)`               | Icon color for active tab       |
 
 ## Complete Theme Example
 
@@ -158,8 +158,8 @@ body {
   --nn-theme-nav-header-bg: #ede9fe; /* Deeper lavender for header */
 
   /* Folder & tag items */
-  --nn-theme-navitem-chevron-color: #c4b5fd; /* Light purple chevrons */
-  --nn-theme-navitem-chevron-hover-color: #7c3aed; /* Bright purple on hover */
+  --nn-theme-navitem-chevron-color: #c4b5fd; /* Light purple arrows */
+  --nn-theme-navitem-chevron-hover-color: #7c3aed; /* Bright purple arrows on hover */
   --nn-theme-navitem-icon-color: #a78bfa; /* Vibrant purple icons */
   --nn-theme-navitem-name-color: #4c1d95; /* Deep purple text */
   --nn-theme-navitem-count-color: #ffffff; /* White count text */
@@ -224,9 +224,9 @@ body {
      ======================================== */
 
   /* Header colors */
-  --nn-theme-header-border-color: #d8b4fe; /* Soft purple border */
-  --nn-theme-header-breadcrumb-color: #581c87; /* Deep purple breadcrumb */
   --nn-theme-header-icon-color: #a855f7; /* Bright purple icons */
+  --nn-theme-header-breadcrumb-color: #581c87; /* Deep purple breadcrumb */
+  --nn-theme-header-border-color: #d8b4fe; /* Soft purple border */
 
   /* Header buttons */
   --nn-theme-header-button-icon-color: #9333ea; /* Purple button icons */
