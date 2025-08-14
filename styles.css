@@ -16,7 +16,7 @@ body {
 
     /* File item heights - fixed pixel values to prevent fractional rendering */
     --nn-file-line-height: 20px; /* Height of single line of text */
-    --nn-file-padding-vertical: 8px; /* var(--size-4-2) typically equals 8px */
+    --nn-file-padding-vertical: 8px; /* 8px */
     --nn-file-padding-vertical-slim: 5px; /* Reduced padding for slim mode */
     --nn-file-padding-vertical-slim-mobile: 8px; /* Mobile slim mode padding for touch targets */
     --nn-file-second-line-height: 19px; /* Height for date/preview line - tighter spacing */
@@ -181,6 +181,11 @@ body.native-scrollbars:not(.styled-scrollbars) {
     --nn-scroller-padding: 20px;
 }
 
+/* Mobile with native scrollbars - minimal padding since they're thin overlays */
+.notebook-navigator-mobile.native-scrollbars:not(.styled-scrollbars) {
+    --nn-scroller-padding: 8px;
+}
+
 /* Right pane - contains the file list */
 .nn-list-pane {
     flex: 1;
@@ -218,7 +223,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
 
 /* Pane headers - consistent header styling for both panes */
 .nn-pane-header {
-    padding: var(--size-4-2) var(--size-4-2);
+    padding: 8px 8px;
     border-bottom: 1px solid var(--nn-theme-header-border-color);
     display: flex;
     justify-content: flex-end;
@@ -265,7 +270,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
     color: var(--nn-theme-list-header-breadcrumb-color);
 
     /* Match date header padding */
-    padding-left: var(--size-4-3);
+    padding-left: 12px;
 
     /* Text overflow with ellipsis like file names */
     overflow: hidden;
@@ -280,7 +285,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
 .nn-pane-header-icon {
     width: var(--icon-size);
     height: var(--icon-size);
-    margin-inline-end: var(--size-4-2);
+    margin-inline-end: 8px;
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -334,7 +339,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
     background-color: transparent !important;
     border: none !important;
     border-radius: var(--radius-s);
-    padding: var(--size-2-2) var(--size-4-1);
+    padding: 4px 4px;
     color: var(--nn-theme-header-button-icon-color);
     display: flex;
     align-items: center;
@@ -465,7 +470,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
 .nn-navitem-content {
     display: flex;
     align-items: center;
-    padding: var(--nn-nav-padding-vertical) var(--size-4-2);
+    padding: var(--nn-nav-padding-vertical) 8px;
     border-radius: var(--radius-s);
     margin: 0;
     background: transparent;
@@ -504,7 +509,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
 .nn-navitem-chevron {
     width: var(--nn-nav-icon-size);
     height: var(--nn-nav-icon-size);
-    margin-inline-end: var(--size-4-1);
+    margin-inline-end: 4px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -532,7 +537,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
 .nn-navitem-icon {
     width: var(--nn-nav-icon-size);
     height: var(--nn-nav-icon-size);
-    margin-inline-end: var(--size-4-2);
+    margin-inline-end: 8px;
     flex-shrink: 0;
     color: var(--nn-theme-navitem-icon-color);
     display: flex;
@@ -617,7 +622,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
 /* Spacer element to push count to the end */
 .nn-navitem-spacer {
     flex: 1;
-    min-width: var(--size-4-2); /* Minimum space between name and count */
+    min-width: 8px; /* Minimum space between name and count */
 }
 
 /* Folder file count - shows number of files in folder */
@@ -646,13 +651,13 @@ body.native-scrollbars:not(.styled-scrollbars) {
 
 /* Section header for Tags */
 .nn-section-header {
-    padding: var(--size-4-3) var(--size-4-2) var(--size-4-1) var(--size-4-3);
+    padding: 12px 8px 4px 12px;
     font-size: 11px;
     font-weight: 600;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-top: var(--size-4-2);
+    margin-top: 8px;
     border-top: 1px solid var(--background-modifier-border);
 }
 
@@ -709,7 +714,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
 
 /* File content wrapper - contains all file information */
 .nn-file-content {
-    padding: var(--nn-file-padding-vertical) var(--size-4-3);
+    padding: var(--nn-file-padding-vertical) 12px;
     margin: 0;
     border-radius: var(--radius-m);
     background: transparent;
@@ -720,7 +725,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
 .nn-file-inner-content {
     display: flex;
     flex-direction: row;
-    gap: var(--size-4-1);
+    gap: 4px;
     align-items: center;
     position: relative;
 }
@@ -734,8 +739,8 @@ body.native-scrollbars:not(.styled-scrollbars) {
     content: '';
     position: absolute;
     bottom: 0;
-    inset-inline-start: var(--size-4-5);
-    inset-inline-end: var(--size-4-5);
+    inset-inline-start: 20px;
+    inset-inline-end: 20px;
     height: var(--nn-separator-height);
     background-color: var(--nn-theme-list-separator-color);
     z-index: 100; /* Very high to ensure it's always on top */
@@ -803,8 +808,8 @@ body.native-scrollbars:not(.styled-scrollbars) {
 /* Quick actions panel - horizontal container for action icons */
 .nn-quick-actions-panel {
     position: absolute;
-    top: var(--size-4-2); /* Default: 8px for normal mode */
-    inset-inline-end: var(--size-4-2);
+    top: 8px; /* Default: 8px for normal mode */
+    inset-inline-end: 8px;
     height: 24px;
     display: none;
     background: var(--nn-theme-quick-actions-bg);
@@ -864,7 +869,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
 .nn-file-second-line {
     display: flex;
     align-items: center; /* Center align for better icon/text alignment */
-    gap: var(--size-4-1);
+    gap: 4px;
 }
 
 /* File date - modification date display */
@@ -873,7 +878,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
     color: var(--nn-theme-file-date-color);
     flex-shrink: 1; /* Allow date to shrink when space is limited */
     white-space: nowrap;
-    margin-inline-end: var(--size-4-2);
+    margin-inline-end: 8px;
     overflow: hidden;
     text-overflow: ellipsis;
     min-width: 0; /* Allow shrinking below content size */
@@ -919,7 +924,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
     color: var(--nn-theme-file-parent-color);
     display: flex;
     align-items: center;
-    gap: var(--size-4-1);
+    gap: 4px;
     overflow: hidden;
     line-height: var(--nn-file-second-line-height); /* Use second line height for consistent spacing */
 }
@@ -949,8 +954,8 @@ body.native-scrollbars:not(.styled-scrollbars) {
 .nn-file-tags {
     display: flex;
     flex-wrap: nowrap;
-    gap: var(--size-2-2);
-    margin-top: var(--size-2-2);
+    gap: 4px;
+    margin-top: 4px;
     overflow: hidden;
     height: 22px; /* Fixed height for single row */
     position: relative;
@@ -961,7 +966,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
     display: inline-flex;
     align-items: center;
     height: 20px;
-    padding: 0 var(--size-4-2);
+    padding: 0 8px;
     background-color: var(--nn-theme-file-tag-bg);
     color: var(--nn-theme-file-tag-color);
     border-radius: 10px;
@@ -1022,7 +1027,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
 
 /* Slim file item - more compact list appearance */
 .nn-file.nn-slim .nn-file-content {
-    padding: var(--nn-file-padding-vertical-slim) var(--size-4-3); /* Reduced vertical padding */
+    padding: var(--nn-file-padding-vertical-slim) 12px; /* Reduced vertical padding */
 }
 
 /* Slim file name - no bold, smaller font like folder items */
@@ -1096,7 +1101,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
 .nn-date-group-header {
     height: var(--nn-date-header-height-subsequent);
     box-sizing: border-box;
-    padding: var(--nn-date-header-padding-top) var(--size-4-3) var(--nn-date-header-padding-bottom) var(--size-4-3);
+    padding: var(--nn-date-header-padding-top) 12px var(--nn-date-header-padding-bottom) 12px;
     font-size: var(--nn-file-small-size);
     font-weight: 600;
     color: var(--nn-theme-list-group-header-text-color);
@@ -1111,7 +1116,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
 /* First date header - no top margin or extra padding for first group */
 .nn-date-group-header.nn-first-header {
     height: var(--nn-date-header-height);
-    padding: 0 var(--size-4-3);
+    padding: 0 12px;
     align-items: center;
 }
 
@@ -1154,7 +1159,7 @@ body.native-scrollbars:not(.styled-scrollbars) {
     align-items: center;
     justify-content: center;
     height: 100%;
-    padding: var(--size-4-10) var(--size-4-5);
+    padding: 40px 20px;
     text-align: center;
     color: var(--text-muted);
     font-size: 14px;
@@ -1420,13 +1425,13 @@ body.nn-resizing {
 /* Modal input field - used in rename/create dialogs */
 .nn-input {
     width: 100%;
-    padding: var(--size-4-2) var(--size-4-3);
+    padding: 8px 12px;
     border: 1px solid var(--background-modifier-border);
     border-radius: var(--radius-s);
     background-color: var(--background-primary);
     color: var(--text-normal);
     font-size: 14px;
-    margin: var(--size-4-4) 0;
+    margin: 16px 0;
 }
 
 /* Modal input focus state */
@@ -1439,8 +1444,8 @@ body.nn-resizing {
 .nn-button-container {
     display: flex;
     justify-content: flex-end;
-    gap: var(--size-4-2);
-    margin-top: var(--size-4-4);
+    gap: 8px;
+    margin-top: 16px;
 }
 
 /* ========================================================================
@@ -1455,12 +1460,12 @@ body.nn-resizing {
 
 /* What's new content layout */
 .nn-whats-new-modal .modal-content {
-    padding: var(--size-4-4);
+    padding: 16px;
 }
 
 /* What's new header */
 .nn-whats-new-header {
-    margin-bottom: var(--size-4-4);
+    margin-bottom: 16px;
 }
 
 /* What's new scrollable container */
@@ -1468,14 +1473,14 @@ body.nn-resizing {
     max-height: 400px;
     overflow-y: auto;
     margin-bottom: 0;
-    padding-right: var(--size-4-2);
-    padding-bottom: var(--size-4-4);
+    padding-right: 8px;
+    padding-bottom: 16px;
 }
 
 /* Version container */
 .nn-whats-new-version {
-    margin-bottom: var(--size-4-4);
-    padding-bottom: var(--size-4-4);
+    margin-bottom: 16px;
+    padding-bottom: 16px;
     border-bottom: 1px solid var(--background-modifier-border);
 }
 
@@ -1490,24 +1495,24 @@ body.nn-resizing {
     font-size: 14px;
     font-weight: 600;
     color: var(--text-normal);
-    margin: 0 0 var(--size-4-1) 0;
+    margin: 0 0 4px 0;
 }
 
 /* Feature list */
 .nn-whats-new-features {
-    margin-left: var(--size-4-4);
+    margin-left: 16px;
 }
 
 /* Category headers */
 .nn-whats-new-category {
     font-weight: bold;
-    margin-top: var(--size-4-2);
-    margin-bottom: var(--size-4-1);
+    margin-top: 8px;
+    margin-bottom: 4px;
 }
 
 /* Info text */
 .nn-whats-new-info {
-    margin-bottom: var(--size-4-3);
+    margin-bottom: 12px;
     color: var(--text-normal);
     line-height: 1.5;
 }
@@ -1516,7 +1521,7 @@ body.nn-resizing {
 .nn-whats-new-divider {
     border-top: 1px solid var(--background-modifier-border);
     margin-top: 0;
-    margin-bottom: var(--size-4-4);
+    margin-bottom: 16px;
 }
 
 /* Version date */
@@ -1524,19 +1529,19 @@ body.nn-resizing {
     color: var(--text-muted);
     font-size: 12px;
     display: block;
-    margin-bottom: var(--size-4-2);
+    margin-bottom: 8px;
 }
 
 /* Feature list */
 .nn-whats-new-version ul {
     list-style: disc;
     margin: 0;
-    padding-left: var(--size-4-4);
+    padding-left: 16px;
 }
 
 /* Feature list item */
 .nn-whats-new-version li {
-    margin-bottom: var(--size-4-1);
+    margin-bottom: 4px;
     color: var(--text-normal);
     font-size: 14px;
     line-height: 1.5;
@@ -1552,14 +1557,14 @@ body.nn-resizing {
 .nn-whats-new-support-text {
     color: var(--text-muted);
     font-size: 14px;
-    margin-bottom: var(--size-4-3);
+    margin-bottom: 12px;
 }
 
 /* Button container */
 .nn-whats-new-buttons {
     display: flex;
-    gap: var(--size-4-2);
-    margin-top: var(--size-4-3);
+    gap: 8px;
+    margin-top: 12px;
     justify-content: center;
 }
 
@@ -1577,12 +1582,12 @@ body.nn-resizing {
     }
 
     .nn-whats-new-modal .modal-content {
-        padding: var(--size-4-3);
+        padding: 12px;
     }
 
     .nn-whats-new-scroll {
         max-height: 300px;
-        padding-right: var(--size-4-1);
+        padding-right: 4px;
     }
 }
 
@@ -1616,14 +1621,14 @@ body.nn-resizing {
 
 /* Icon search container with bottom border */
 .nn-icon-search-container {
-    padding: var(--size-4-3);
+    padding: 12px;
     border-bottom: 1px solid var(--background-modifier-border);
 }
 
 /* Icon search input field */
 .nn-icon-search-input {
     width: 100%;
-    padding: var(--size-4-2) var(--size-4-3);
+    padding: 8px 12px;
     font-size: 14px;
     background: var(--background-primary);
     border: 1px solid var(--background-modifier-border);
@@ -1641,7 +1646,7 @@ body.nn-resizing {
     height: 280px;
     min-height: 280px;
     overflow-y: auto;
-    padding: var(--size-4-2);
+    padding: 8px;
     flex: 0 0 auto;
 }
 
@@ -1652,14 +1657,14 @@ body.nn-resizing {
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
-    margin-bottom: var(--size-4-3);
+    margin-bottom: 12px;
 }
 
 /* Icon grid layout - 5 columns */
 .nn-icon-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: var(--size-4-1);
+    gap: 4px;
 }
 
 /* Individual icon item */
@@ -1667,7 +1672,7 @@ body.nn-resizing {
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: var(--size-4-2) var(--size-4-2);
+    padding: 8px 8px;
     border-radius: var(--radius-s);
 }
 
@@ -1715,7 +1720,7 @@ body.nn-resizing {
 .nn-icon-more-message {
     text-align: center;
     color: var(--text-muted);
-    padding: var(--size-4-6);
+    padding: 24px;
     font-size: 14px;
 }
 
@@ -1822,7 +1827,7 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
 
 /* Settings page indentation for sub-settings */
 .nn-sub-settings {
-    margin-inline-start: var(--size-4-5);
+    margin-inline-start: 20px;
 }
 
 /* Settings section header spacing */
@@ -1842,7 +1847,7 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
 
 /* Informational text in settings */
 .nn-setting-info {
-    margin-top: var(--size-2-2);
+    margin-top: 4px;
     font-size: var(--font-ui-smaller);
     color: var(--text-normal);
     font-weight: var(--font-semibold);
@@ -1851,8 +1856,8 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
 
 /* Container for additional info below settings */
 .nn-setting-info-container {
-    margin-top: var(--size-4-2);
-    margin-bottom: var(--size-4-2);
+    margin-top: 8px;
+    margin-bottom: 8px;
 }
 
 /* Wider text inputs for settings that benefit from more space */
@@ -1975,7 +1980,7 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
     min-height: 48px;
     display: flex;
     align-items: center;
-    padding: 0 var(--size-4-3);
+    padding: 0 12px;
 }
 
 /* Simplified mobile headers */
@@ -2089,12 +2094,12 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
 
 /* Color picker content layout */
 .nn-color-picker-modal .modal-content {
-    padding: var(--size-4-5);
+    padding: 20px;
 }
 
 /* Color picker header */
 .nn-color-picker-header {
-    margin-bottom: var(--size-4-4);
+    margin-bottom: 16px;
     width: 100%;
     text-align: center;
 }
@@ -2110,7 +2115,7 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
 .nn-color-grid {
     display: grid;
     grid-template-columns: repeat(5, 1fr);
-    gap: var(--size-4-3);
+    gap: 12px;
 }
 
 /* Individual color item */
@@ -2118,8 +2123,8 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--size-4-1);
-    padding: var(--size-4-2);
+    gap: 4px;
+    padding: 8px;
     border-radius: var(--radius-m);
 }
 
@@ -2278,8 +2283,8 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
 
 /* Mobile folder content padding adjustment for proper selection height */
 .notebook-navigator-mobile .nn-navitem-content {
-    padding: 8px var(--size-4-2);
-    padding-inline-start: var(--size-4-1);
+    padding: 8px 8px;
+    padding-inline-start: 4px;
     height: 100%;
     display: flex;
     align-items: center;
@@ -2297,7 +2302,7 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
     background-color: var(--background-primary);
     border-top: 1px solid var(--background-modifier-border);
     flex-shrink: 0;
-    padding: 0 var(--size-4-2);
+    padding: 0 8px;
 
     /* Add bottom padding for safe area (home indicator on iPhone X+) */
     padding-bottom: env(safe-area-inset-bottom, 8px);
@@ -2380,7 +2385,7 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
 
 /* Mobile slim file items - larger touch targets */
 .notebook-navigator-mobile .nn-file.nn-slim .nn-file-content {
-    padding: var(--nn-file-padding-vertical-slim-mobile) var(--size-4-3);
+    padding: var(--nn-file-padding-vertical-slim-mobile) 12px;
 }
 
 /* ========================================================================
@@ -2491,14 +2496,14 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
 
 .nn-icon-provider-tabs {
     display: flex;
-    gap: var(--size-2-2);
-    margin-bottom: var(--size-4-2);
+    gap: 4px;
+    margin-bottom: 8px;
     border-bottom: 1px solid var(--background-modifier-border);
-    padding-bottom: var(--size-2-1);
+    padding-bottom: 2px;
 }
 
 .nn-icon-provider-tab {
-    padding: var(--size-2-2) var(--size-4-3);
+    padding: 4px 12px;
     border-radius: var(--radius-s);
     color: var(--text-muted);
 }
@@ -2523,8 +2528,8 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
     font-size: var(--font-ui-small);
     font-weight: 600;
     color: var(--text-muted);
-    margin-top: var(--size-4-3);
-    margin-bottom: var(--size-2-2);
+    margin-top: 12px;
+    margin-bottom: 4px;
     text-transform: capitalize;
 }
 
@@ -2534,19 +2539,19 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
 
 /* Custom emoji input section */
 .nn-custom-emoji-section {
-    margin-bottom: var(--size-4-4);
+    margin-bottom: 16px;
 }
 
 .nn-custom-emoji-input-container {
     display: flex;
-    gap: var(--size-4-2);
-    margin: var(--size-4-2) 0;
+    gap: 8px;
+    margin: 8px 0;
     align-items: center;
 }
 
 .nn-custom-emoji-input {
     flex: 1;
-    padding: var(--size-4-2) var(--size-4-3);
+    padding: 8px 12px;
     border: 1px solid var(--background-modifier-border);
     border-radius: var(--radius-s);
     background: var(--background-primary);
@@ -2562,7 +2567,7 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
 
 .nn-custom-emoji-actions {
     display: flex;
-    gap: var(--size-4-2);
+    gap: 8px;
     align-items: center;
 }
 
@@ -2585,7 +2590,7 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
 }
 
 .nn-custom-emoji-button {
-    padding: var(--size-4-2) var(--size-4-3);
+    padding: 8px 12px;
     background: var(--interactive-accent);
     color: var(--text-on-accent);
     border: none;
@@ -2605,7 +2610,7 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
 .nn-custom-emoji-divider {
     height: 1px;
     background: var(--background-modifier-border);
-    margin: var(--size-4-4) 0 var(--size-4-3) 0;
+    margin: 16px 0 12px 0;
 }
 
 /* ========================================================================
@@ -2617,7 +2622,7 @@ body.native-scrollbars:not(.styled-scrollbars) .nn-list-pane-scroller {
     display: flex;
     justify-content: space-between;
     align-items: center;
-    gap: var(--size-4-4);
+    gap: 16px;
 }
 
 /* Text container - takes up available space */
