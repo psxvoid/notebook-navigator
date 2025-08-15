@@ -87,7 +87,7 @@ the default style.
 | Variable                                      | Default                             | Description                                                 |
 | --------------------------------------------- | ----------------------------------- | ----------------------------------------------------------- |
 | `--nn-theme-file-name-color`                  | `var(--text-normal)`                | Text color for file names                                   |
-| `--nn-theme-file-date-color`                  | `var(--text-normal)`                | Text color for modification dates                           |
+| `--nn-theme-file-date-color`                  | `var(--text-normal)`                | Text color for creation or modification dates               |
 | `--nn-theme-file-preview-color`               | `var(--text-muted)`                 | Text color for content preview                              |
 | `--nn-theme-file-tag-bg`                      | `var(--background-modifier-border)` | Background color for tag pills                              |
 | `--nn-theme-file-tag-text-color`              | `var(--text-muted)`                 | Text color for tag pills                                    |
@@ -108,9 +108,9 @@ the default style.
 
 ### Headers
 
-| Variable                         | Default                             | Description                         |
-| -------------------------------- | ----------------------------------- | ----------------------------------- |
-| `--nn-theme-header-border-color` | `var(--background-modifier-border)` | Bottom border color of pane headers |
+| Variable                         | Default                             | Description                  |
+| -------------------------------- | ----------------------------------- | ---------------------------- |
+| `--nn-theme-header-border-color` | `var(--background-modifier-border)` | Border color of pane headers |
 
 #### Header buttons
 
