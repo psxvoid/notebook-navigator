@@ -470,18 +470,6 @@ body {
     box-sizing: border-box;
 }
 
-/* CSS Custom Properties for navigation items - themes can override these */
-.nn-navitem {
-    /* Selection rectangle styling */
-    --nn-selection-bg: var(--nn-theme-navitem-selected-bg);
-    --nn-selection-bg-inactive: var(--nn-theme-navitem-selected-inactive-bg);
-    --nn-selection-radius: var(--radius-s);
-
-    /* Hover state styling */
-    --nn-hover-bg: var(--nn-theme-navitem-hover-bg);
-    --nn-hover-radius: var(--radius-s);
-}
-
 /* Folder content - contains folder UI elements */
 .nn-navitem-content {
     display: flex;
@@ -508,8 +496,8 @@ body {
     bottom: 0;
     inset-inline-start: 0;
     inset-inline-end: 0;
-    background-color: var(--nn-hover-bg);
-    border-radius: var(--nn-hover-radius);
+    background-color: var(--nn-theme-navitem-hover-bg);
+    border-radius: var(--radius-s);
     z-index: 0;
     pointer-events: none;
 }
@@ -1093,8 +1081,8 @@ body {
     inset-inline-start: 0;
     inset-inline-end: 0;
     bottom: 0; /* Extend all the way down */
-    background-color: var(--nn-selection-bg);
-    border-radius: var(--nn-selection-radius);
+    background-color: var(--nn-theme-navitem-selected-bg);
+    border-radius: var(--radius-s);
     z-index: 0; /* Below separator lines */
 }
 
@@ -1126,8 +1114,8 @@ body {
     inset-inline-start: 0;
     inset-inline-end: 0;
     bottom: 0;
-    background-color: var(--nn-selection-bg);
-    border-radius: var(--nn-selection-radius);
+    background-color: var(--nn-theme-navitem-selected-bg);
+    border-radius: var(--radius-s);
     z-index: 0;
 }
 
@@ -1154,7 +1142,7 @@ body {
 .nn-split-container[data-navigator-focused='false'] .nn-navitem.nn-selected::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-file.nn-selected .nn-file-content::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-navitem.nn-selected::before {
-    background-color: var(--nn-selection-bg-inactive);
+    background-color: var(--nn-theme-navitem-selected-inactive-bg);
 }
 
 /* ========================================================================
@@ -1299,8 +1287,8 @@ body.nn-resizing {
     inset-inline-start: 0;
     inset-inline-end: 0;
     bottom: 0;
-    border: 2px solid var(--nn-selection-bg);
-    border-radius: var(--nn-selection-radius);
+    border: 2px solid var(--nn-theme-navitem-selected-bg);
+    border-radius: var(--radius-s);
     pointer-events: none;
     z-index: 10;
 }
@@ -1318,8 +1306,8 @@ body.nn-resizing {
     inset-inline-start: 0;
     inset-inline-end: 0;
     bottom: 1px; /* Account for separator line */
-    border: 2px solid var(--nn-selection-bg);
-    border-radius: var(--nn-selection-radius);
+    border: 2px solid var(--nn-theme-navitem-selected-bg);
+    border-radius: var(--radius-s);
     pointer-events: none;
     z-index: 10;
 }
