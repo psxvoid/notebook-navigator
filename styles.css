@@ -89,12 +89,6 @@ body {
     --nn-theme-navitem-folder-note-name-font-weight: 600;
     --nn-theme-navitem-folder-note-name-decoration: underline;
 
-    /* -- Tree Depth Colors -- */
-    --nn-theme-tree-level-0-color: var(--text-normal);
-    --nn-theme-tree-level-1-color: var(--text-normal);
-    --nn-theme-tree-level-2-color: var(--text-normal);
-    --nn-theme-tree-level-3-color: var(--text-normal);
-
     /* -- File Items -- */
     --nn-theme-file-name-color: var(--text-normal);
     --nn-theme-file-preview-color: var(--text-muted);
@@ -560,53 +554,6 @@ body {
 /* Custom colored folder names */
 .nn-navitem-name.nn-has-custom-color {
     font-weight: var(--nn-theme-navitem-custom-color-name-font-weight) !important;
-}
-
-/* Tree depth-based colors */
-.nn-folder[data-level='0'] .nn-navitem-name:not(.nn-has-custom-color) {
-    color: var(--nn-theme-tree-level-0-color);
-}
-
-.nn-folder[data-level='1'] .nn-navitem-name:not(.nn-has-custom-color) {
-    color: var(--nn-theme-tree-level-1-color);
-}
-
-.nn-folder[data-level='2'] .nn-navitem-name:not(.nn-has-custom-color) {
-    color: var(--nn-theme-tree-level-2-color);
-}
-
-/* Level 3 and deeper all use level 3 color */
-.nn-folder[data-level='3'] .nn-navitem-name:not(.nn-has-custom-color),
-.nn-folder[data-level='4'] .nn-navitem-name:not(.nn-has-custom-color),
-.nn-folder[data-level='5'] .nn-navitem-name:not(.nn-has-custom-color),
-.nn-folder[data-level='6'] .nn-navitem-name:not(.nn-has-custom-color),
-.nn-folder[data-level='7'] .nn-navitem-name:not(.nn-has-custom-color),
-.nn-folder[data-level='8'] .nn-navitem-name:not(.nn-has-custom-color),
-.nn-folder[data-level='9'] .nn-navitem-name:not(.nn-has-custom-color) {
-    color: var(--nn-theme-tree-level-3-color);
-}
-
-/* Apply same depth colors to folder icons (when no custom color is set via inline style) */
-.nn-folder[data-level='0'] .nn-navitem-icon:not([style*='color']) {
-    color: var(--nn-theme-tree-level-0-color);
-}
-
-.nn-folder[data-level='1'] .nn-navitem-icon:not([style*='color']) {
-    color: var(--nn-theme-tree-level-1-color);
-}
-
-.nn-folder[data-level='2'] .nn-navitem-icon:not([style*='color']) {
-    color: var(--nn-theme-tree-level-2-color);
-}
-
-.nn-folder[data-level='3'] .nn-navitem-icon:not([style*='color']),
-.nn-folder[data-level='4'] .nn-navitem-icon:not([style*='color']),
-.nn-folder[data-level='5'] .nn-navitem-icon:not([style*='color']),
-.nn-folder[data-level='6'] .nn-navitem-icon:not([style*='color']),
-.nn-folder[data-level='7'] .nn-navitem-icon:not([style*='color']),
-.nn-folder[data-level='8'] .nn-navitem-icon:not([style*='color']),
-.nn-folder[data-level='9'] .nn-navitem-icon:not([style*='color']) {
-    color: var(--nn-theme-tree-level-3-color);
 }
 
 /* Folder with folder note */
@@ -2813,45 +2760,6 @@ settings:
           -
             label: Dotted underline
             value: underline dotted
-    -
-        id: nn-tree-depth-heading
-        title: Tree depth colors
-        description: Colors for folders and tags based on nesting depth.
-        type: heading
-        level: 3
-        collapsed: false
-    -
-        id: nn-theme-tree-level-0-color
-        title: Level 0 folder color
-        description: Text and icon color for root level folders.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-tree-level-1-color
-        title: Level 1 folder color
-        description: Text and icon color for level 1 folders.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-tree-level-2-color
-        title: Level 2 folder color
-        description: Text and icon color for level 2 folders.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-        id: nn-theme-tree-level-3-color
-        title: Level 3+ folder color
-        description: Text and icon color for level 3 and deeper folders.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
     -
         id: nn-theme-resize-handle-heading
         title: Resize handle

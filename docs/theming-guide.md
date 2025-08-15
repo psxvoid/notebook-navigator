@@ -64,15 +64,6 @@ the default style.
 | `--nn-theme-navitem-folder-note-name-font-weight`  | `600`       | Font weight for folders with notes (overrides all others)                |
 | `--nn-theme-navitem-folder-note-name-decoration`   | `underline` | Text decoration for folder notes (none, underline, underline dotted)     |
 
-#### Tree depth colors
-
-| Variable                        | Default              | Description                                |
-| ------------------------------- | -------------------- | ------------------------------------------ |
-| `--nn-theme-tree-level-0-color` | `var(--text-normal)` | Text and icon color for root level folders |
-| `--nn-theme-tree-level-1-color` | `var(--text-normal)` | Text and icon color for level 1 folders    |
-| `--nn-theme-tree-level-2-color` | `var(--text-normal)` | Text and icon color for level 2 folders    |
-| `--nn-theme-tree-level-3-color` | `var(--text-normal)` | Text and icon color for level 3+ folders   |
-
 ### Resize handle
 
 | Variable                            | Default                     | Description                    |
@@ -172,12 +163,6 @@ body {
   --nn-theme-navitem-custom-color-name-font-weight: 600; /* Bold for custom colors */
   --nn-theme-navitem-folder-note-name-font-weight: 600; /* Bold for folder notes */
   --nn-theme-navitem-folder-note-name-decoration: underline; /* Underline folder notes */
-
-  /* Tree depth colors - Beautiful gradient */
-  --nn-theme-tree-level-0-color: #6366f1; /* Indigo */
-  --nn-theme-tree-level-1-color: #8b5cf6; /* Purple */
-  --nn-theme-tree-level-2-color: #a855f7; /* Bright purple */
-  --nn-theme-tree-level-3-color: #d946ef; /* Magenta */
 
   /* ========================================
      RESIZE HANDLE
@@ -288,20 +273,6 @@ and `.theme-dark` classes:
 
 When users set custom colors (right-click → "Change color"), their choices
 automatically override your theme through inline styles.
-
-### Depth-Based Styling
-
-Style items based on their depth using the tree color variables:
-
-```css
-/* Using CSS variables for depth colors */
-body {
-  --nn-theme-tree-level-0-color: #2563eb; /* Root - dark blue */
-  --nn-theme-tree-level-1-color: #3b82f6; /* Level 1 - medium blue */
-  --nn-theme-tree-level-2-color: #60a5fa; /* Level 2 - light blue */
-  --nn-theme-tree-level-3-color: #93c5fd; /* Level 3+ - very light blue */
-}
-```
 
 ## Style Settings Support
 
