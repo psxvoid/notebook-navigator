@@ -426,7 +426,6 @@ body {
     overflow-x: hidden;
     padding: 0 var(--nn-scroller-padding);
     line-height: 1; /* Reset to 1 - we'll use fixed line-heights on individual elements */
-    background: var(--nn-theme-nav-bg);
     border-right: 1px solid var(--nn-theme-divider-border-color);
 
     /* Ensure scroll events work properly with virtualization */
@@ -640,7 +639,6 @@ body {
     flex: 1;
     overflow-y: auto;
     padding: 0 var(--nn-scroller-padding);
-    background: var(--nn-theme-list-bg);
 }
 
 /* File - container for each file in the list */
