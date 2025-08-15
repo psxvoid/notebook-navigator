@@ -107,8 +107,8 @@ body {
     --nn-theme-quick-actions-icon-hover-color: var(--text-normal);
     --nn-theme-quick-actions-separator-color: var(--background-modifier-border);
 
-    /* -- Resize Handle -- */
-    --nn-theme-resize-handle-hover-bg: var(--interactive-accent);
+    /* -- Pane Divider -- */
+    --nn-theme-divider-resize-handle-hover-bg: var(--interactive-accent);
 
     /* -- Mobile Tab Bar -- */
     --nn-theme-mobile-tab-icon-color: var(--text-muted);
@@ -185,7 +185,7 @@ body {
     contain: layout style;
 }
 
-/* Resize handle - overlay on the left edge of list pane */
+/* Pane divider resize handle - overlay on the left edge of list pane */
 .nn-resize-handle {
     width: 3px;
     background-color: transparent;
@@ -197,9 +197,9 @@ body {
     z-index: 10;
 }
 
-/* Resize handle hover state - provides visual feedback */
+/* Pane divider resize handle hover state - provides visual feedback */
 .nn-resize-handle:hover {
-    background-color: var(--nn-theme-resize-handle-hover-bg);
+    background-color: var(--nn-theme-divider-resize-handle-hover-bg);
 }
 
 /* ========================================================================
@@ -2748,16 +2748,16 @@ settings:
             label: Dotted underline
             value: underline dotted
     -
-        id: nn-theme-resize-handle-heading
-        title: Resize handle
-        description: Vertical handle for resizing panes.
+        id: nn-theme-pane-divider-heading
+        title: Pane divider
+        description: Vertical divider between navigation and file list panes.
         type: heading
         level: 1
         collapsed: true
     -
-        id: nn-theme-resize-handle-hover-bg
-        title: Handle hover background
-        description: Background color when hovering the resize handle.
+        id: nn-theme-divider-resize-handle-hover-bg
+        title: Resize handle hover background
+        description: Background color when hovering the pane divider to resize.
         type: variable-themed-color
         format: hex
         default-light: '#'

@@ -5,7 +5,7 @@
 - [Introduction](#introduction)
 - [CSS Variables Reference](#css-variables-reference)
   - [Navigation pane](#navigation-pane)
-  - [Resize handle](#resize-handle)
+  - [Pane divider](#pane-divider)
   - [List pane (files)](#list-pane-files)
   - [Headers](#headers)
   - [Mobile styles](#mobile-styles)
@@ -64,11 +64,11 @@ the default style.
 | `--nn-theme-navitem-folder-note-name-font-weight`  | `600`       | Font weight for folders with notes (overrides all others)                |
 | `--nn-theme-navitem-folder-note-name-decoration`   | `underline` | Text decoration for folder notes (none, underline, underline dotted)     |
 
-### Resize handle
+### Pane divider
 
-| Variable                            | Default                     | Description                    |
-| ----------------------------------- | --------------------------- | ------------------------------ |
-| `--nn-theme-resize-handle-hover-bg` | `var(--interactive-accent)` | Resize handle hover background |
+| Variable                                    | Default                     | Description                                               |
+| ------------------------------------------- | --------------------------- | --------------------------------------------------------- |
+| `--nn-theme-divider-resize-handle-hover-bg` | `var(--interactive-accent)` | Background color when hovering the pane divider to resize |
 
 ### List pane (files)
 
@@ -166,10 +166,10 @@ body {
   --nn-theme-navitem-folder-note-name-decoration: underline; /* Underline folder notes */
 
   /* ========================================
-     RESIZE HANDLE
+     PANE DIVIDER
      ======================================== */
 
-  --nn-theme-resize-handle-hover-bg: #818cf8; /* Bright indigo on hover */
+  --nn-theme-divider-resize-handle-hover-bg: #818cf8; /* Bright indigo on hover */
 
   /* ========================================
      LIST PANE (Files)
