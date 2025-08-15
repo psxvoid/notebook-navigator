@@ -26,6 +26,9 @@ import { ISO_DATE_FORMAT } from './utils/dateUtils';
 import { FolderAppearance, TagAppearance } from './hooks/useListPaneAppearance';
 import { PinnedNote } from './types';
 
+// Current settings schema version
+const SETTINGS_VERSION = 1;
+
 /**
  * Available sort options for file listing
  */
@@ -122,6 +125,7 @@ export interface NotebookNavigatorSettings {
     tagAppearances: Record<string, TagAppearance>;
     recentlyUsedIcons: string[];
     lastShownVersion: string;
+    settingsVersion: number;
 }
 
 /**
@@ -197,7 +201,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     tagSortOverrides: {},
     tagAppearances: {},
     recentlyUsedIcons: [],
-    lastShownVersion: ''
+    lastShownVersion: '',
+    settingsVersion: SETTINGS_VERSION
 };
 
 /**

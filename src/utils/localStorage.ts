@@ -18,6 +18,9 @@
 
 import { App } from 'obsidian';
 
+// Current localStorage schema version
+export const LOCALSTORAGE_VERSION = 1;
+
 /**
  * Type-safe localStorage wrapper with JSON serialization
  * Uses Obsidian's vault-specific localStorage methods to ensure data isolation between vaults

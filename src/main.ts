@@ -27,7 +27,7 @@ import { CommandQueueService } from './services/CommandQueueService';
 import { FileSystemOperations } from './services/FileSystemService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
-import { localStorage } from './utils/localStorage';
+import { localStorage, LOCALSTORAGE_VERSION } from './utils/localStorage';
 import { initializeMobileLogger } from './utils/mobileLogger';
 import { NotebookNavigatorAPI } from './api/NotebookNavigatorAPI';
 import { PinnedNote, ItemType } from './types';
@@ -125,6 +125,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // Initialize localStorage with app instance for vault-specific storage
         localStorage.init(this.app);
+
+        // Set localStorage version if not present
+        if (!localStorage.get(STORAGE_KEYS.localStorageVersionKey)) {
+            localStorage.set(STORAGE_KEYS.localStorageVersionKey, LOCALSTORAGE_VERSION);
+        }
 
         // Initialize mobile logger
         initializeMobileLogger(this.app);
