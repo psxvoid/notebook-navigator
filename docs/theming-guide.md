@@ -32,10 +32,10 @@ level.
 
 ### Navigation pane
 
-| Variable                   | Default                       | Description                  |
-| -------------------------- | ----------------------------- | ---------------------------- |
-| `--nn-theme-nav-bg`        | `var(--background-secondary)` | Navigation pane background   |
-| `--nn-theme-nav-header-bg` | `var(--background-secondary)` | Navigation header background |
+| Variable                   | Default                       | Description                                                  |
+| -------------------------- | ----------------------------- | ------------------------------------------------------------ |
+| `--nn-theme-nav-bg`        | `var(--background-secondary)` | Navigation pane background (desktop only, see mobile styles) |
+| `--nn-theme-nav-header-bg` | `var(--background-secondary)` | Navigation header background                                 |
 
 #### Folder & tag items
 
@@ -124,11 +124,12 @@ the default style.
 
 ### Mobile styles
 
-| Variable                                  | Default                            | Description                     |
-| ----------------------------------------- | ---------------------------------- | ------------------------------- |
-| `--nn-theme-mobile-tab-icon-color`        | `var(--text-muted)`                | Icon color in mobile tab bar    |
-| `--nn-theme-mobile-tab-active-bg`         | `var(--background-modifier-hover)` | Background color for active tab |
-| `--nn-theme-mobile-tab-active-icon-color` | `var(--text-normal)`               | Icon color for active tab       |
+| Variable                                  | Default                            | Description                                                                  |
+| ----------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------- |
+| `--nn-theme-mobile-nav-bg`                | `var(--background-primary)`        | Background color of navigation pane on mobile (by default, both panes match) |
+| `--nn-theme-mobile-tab-icon-color`        | `var(--text-muted)`                | Icon color in mobile tab bar                                                 |
+| `--nn-theme-mobile-tab-active-bg`         | `var(--background-modifier-hover)` | Background color for active tab                                              |
+| `--nn-theme-mobile-tab-active-icon-color` | `var(--text-normal)`               | Icon color for active tab                                                    |
 
 ## Complete Theme Example
 
@@ -226,6 +227,7 @@ body {
      MOBILE STYLES
      ======================================== */
 
+  --nn-theme-mobile-nav-bg: #faf5ff; /* Light purple navigation on mobile */
   --nn-theme-mobile-tab-icon-color: #a78bfa; /* Purple tab icons */
   --nn-theme-mobile-tab-active-bg: #ede9fe; /* Lavender active tab */
   --nn-theme-mobile-tab-active-icon-color: #7c3aed; /* Bright purple active icon */

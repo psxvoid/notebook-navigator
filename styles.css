@@ -112,6 +112,7 @@ body {
     --nn-theme-divider-resize-handle-hover-bg: var(--interactive-accent);
 
     /* -- Mobile Tab Bar -- */
+    --nn-theme-mobile-nav-bg: var(--background-primary);
     --nn-theme-mobile-tab-icon-color: var(--text-muted);
     --nn-theme-mobile-tab-active-bg: var(--background-modifier-hover);
     --nn-theme-mobile-tab-active-icon-color: var(--text-normal);
@@ -1889,7 +1890,7 @@ body.mod-macos:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar
 /* Make navigation pane flexible on mobile to handle resize gracefully */
 .notebook-navigator-mobile .nn-navigation-pane {
     flex: 1;
-    background-color: var(--nn-theme-nav-bg) !important;
+    background-color: var(--nn-theme-mobile-nav-bg) !important;
 }
 
 /* Hide resize handle on mobile */
@@ -2613,7 +2614,7 @@ settings:
     -
         id: nn-theme-nav-bg
         title: Navigation pane background
-        description: Background color of the navigation pane.
+        description: Background color of the navigation pane. See Mobile navigation background for mobile.
         type: variable-themed-color
         format: hex
         default-light: '#'
@@ -3026,6 +3027,14 @@ settings:
         type: heading
         level: 1
         collapsed: true
+    -
+        id: nn-theme-mobile-nav-bg
+        title: Mobile navigation background
+        description: Background color of the navigation pane on mobile.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
     -
         id: nn-theme-mobile-tab-icon-color
         title: Tab bar icon color
