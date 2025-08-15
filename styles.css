@@ -444,6 +444,7 @@ body {
     padding: 0 var(--nn-scroller-padding);
     line-height: 1; /* Reset to 1 - we'll use fixed line-heights on individual elements */
     border-right: 1px solid var(--nn-theme-divider-border-color);
+    background-color: var(--nn-theme-nav-bg); /* Opaque background for GPU scroll layer optimization */
 
     /* Ensure scroll events work properly with virtualization */
     position: relative;
@@ -622,6 +623,7 @@ body {
     flex: 1;
     overflow-y: auto;
     padding: 0 var(--nn-scroller-padding);
+    background-color: var(--nn-theme-list-bg); /* Opaque background for GPU scroll layer optimization */
 }
 
 /* File - container for each file in the list */
@@ -1953,9 +1955,10 @@ body.mod-macos:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar
     -webkit-overflow-scrolling: touch;
 }
 
-/* Hide navigation pane border on mobile */
+/* Hide navigation pane border on mobile and use mobile background */
 .notebook-navigator-mobile .nn-navigation-pane-scroller {
     border-right: none;
+    background-color: var(--nn-theme-mobile-nav-bg); /* Opaque background on scroller for GPU scroll layer (see .nn-navigation-pane-scroller) */
 }
 
 /* Note: Bottom spacing is handled by a spacer item in the virtualized list */
@@ -2300,6 +2303,11 @@ body.mod-macos:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar
 .notebook-navigator-mobile .nn-list-pane-scroller {
     flex: 1;
     min-height: 0; /* Important for proper scrolling */
+}
+
+/* Mobile list pane scroller - use mobile background */
+.notebook-navigator-mobile .nn-list-pane-scroller {
+    background-color: var(--nn-theme-mobile-nav-bg); /* Opaque background on scroller for GPU scroll layer (see .nn-list-pane-scroller) */
 }
 
 /* Mobile slim file items - larger touch targets */
