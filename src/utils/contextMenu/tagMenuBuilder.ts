@@ -91,7 +91,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
     // Change icon
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.tag.changeIcon)
-            .setIcon('palette')
+            .setIcon('image')
             .onClick(async () => {
                 const { IconPickerModal } = await import('../../modals/IconPickerModal');
                 const { ItemType } = await import('../../types');

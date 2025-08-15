@@ -190,7 +190,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         // Change icon
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.folder.changeIcon)
-                .setIcon('palette')
+                .setIcon('image')
                 .onClick(async () => {
                     const { IconPickerModal } = await import('../../modals/IconPickerModal');
                     const modal = new IconPickerModal(app, metadataService, folder.path);
