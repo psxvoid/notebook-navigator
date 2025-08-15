@@ -105,8 +105,9 @@ If you love using Notebook Navigator, please consider
   [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin,
   allowing customization of all theme variables through a friendly UI without
   writing CSS
-- **CSS variables** - Comprehensive set of `--nn-theme-*` variables for complete
-  customization of colors, backgrounds, and visual elements
+- **50+ CSS variables** - Comprehensive set of `--nn-theme-*` variables for
+  complete customization of colors, backgrounds, and visual elements across all
+  UI components
 - **Light/dark mode support** - Separate theming for light and dark modes with
   automatic switching
 - **[Complete theming guide](docs/theming-guide.md)** - Detailed documentation
