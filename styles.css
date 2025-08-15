@@ -1123,27 +1123,6 @@ body {
     z-index: 1;
 }
 
-/* Selected folder - chevron color */
-.nn-navitem.nn-selected .nn-navitem-chevron {
-    color: var(--nn-theme-navitem-selected-chevron-color);
-}
-
-/* Selected folder - icon color */
-.nn-navitem.nn-selected .nn-navitem-icon {
-    color: var(--nn-theme-navitem-selected-icon-color);
-}
-
-/* Selected folder - name color */
-.nn-navitem.nn-selected .nn-navitem-name {
-    color: var(--nn-theme-navitem-selected-name-color);
-}
-
-/* Selected folder - count styling */
-.nn-navitem.nn-selected .nn-navitem-count {
-    color: var(--nn-theme-navitem-selected-count-color);
-    background-color: var(--nn-theme-navitem-selected-count-bg);
-}
-
 /* Selected file inner content z-index - ensures content above background */
 .nn-file.nn-selected .nn-file-inner-content {
     position: relative;
@@ -1162,6 +1141,24 @@ body {
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-file.nn-selected .nn-file-content::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-navitem.nn-selected::before {
     background-color: var(--nn-theme-navitem-selected-inactive-bg);
+}
+
+/* Active navigation item selection styles - only when navigation pane is focused */
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-navitem.nn-selected .nn-navitem-chevron {
+    color: var(--nn-theme-navitem-selected-chevron-color);
+}
+
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-navitem.nn-selected .nn-navitem-icon {
+    color: var(--nn-theme-navitem-selected-icon-color);
+}
+
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-navitem.nn-selected .nn-navitem-name {
+    color: var(--nn-theme-navitem-selected-name-color);
+}
+
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-navitem.nn-selected .nn-navitem-count {
+    color: var(--nn-theme-navitem-selected-count-color);
+    background-color: var(--nn-theme-navitem-selected-count-bg);
 }
 
 /* ========================================================================
