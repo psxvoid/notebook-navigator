@@ -80,10 +80,10 @@ body {
     --nn-theme-navitem-hover-bg: var(--background-modifier-hover);
     --nn-theme-navitem-selected-bg: var(--text-selection);
     --nn-theme-navitem-selected-inactive-bg: var(--background-modifier-hover);
-    --nn-theme-navitem-selected-chevron-color: var(--text-accent);
-    --nn-theme-navitem-selected-icon-color: var(--text-accent);
-    --nn-theme-navitem-selected-name-color: var(--text-accent);
-    --nn-theme-navitem-selected-count-color: var(--text-accent);
+    --nn-theme-navitem-selected-chevron-color: var(--text-muted);
+    --nn-theme-navitem-selected-icon-color: var(--text-muted);
+    --nn-theme-navitem-selected-name-color: var(--text-normal);
+    --nn-theme-navitem-selected-count-color: var(--text-muted);
     --nn-theme-navitem-selected-count-bg: transparent;
 
     /* -- Navigation Item Text Styling -- */

@@ -49,10 +49,10 @@ level.
 | `--nn-theme-navitem-hover-bg`               | `var(--background-modifier-hover)` | Item hover background color                       |
 | `--nn-theme-navitem-selected-bg`            | `var(--text-selection)`            | Selected item background color                    |
 | `--nn-theme-navitem-selected-inactive-bg`   | `var(--background-modifier-hover)` | Selected item background when pane is inactive    |
-| `--nn-theme-navitem-selected-chevron-color` | `var(--text-accent)`               | Expand/collapse arrow color when item is selected |
-| `--nn-theme-navitem-selected-icon-color`    | `var(--text-accent)`               | Icon color when item is selected                  |
-| `--nn-theme-navitem-selected-name-color`    | `var(--text-accent)`               | Folder/tag name color when selected               |
-| `--nn-theme-navitem-selected-count-color`   | `var(--text-accent)`               | File count text color when item is selected       |
+| `--nn-theme-navitem-selected-chevron-color` | `var(--text-muted)`                | Expand/collapse arrow color when item is selected |
+| `--nn-theme-navitem-selected-icon-color`    | `var(--text-muted)`                | Icon color when item is selected                  |
+| `--nn-theme-navitem-selected-name-color`    | `var(--text-normal)`               | Folder/tag name color when selected               |
+| `--nn-theme-navitem-selected-count-color`   | `var(--text-muted)`                | File count text color when item is selected       |
 | `--nn-theme-navitem-selected-count-bg`      | `transparent`                      | File count background color when selected         |
 
 #### Text styling
