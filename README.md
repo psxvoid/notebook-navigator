@@ -1,7 +1,8 @@
 ![Notebook Navigator Banner](https://github.com/johansan/notebook-navigator/blob/main/images/banner.png?raw=true)
 
 ![Obsidian Downloads](https://img.shields.io/badge/dynamic/json?logo=obsidian&color=%23483699&label=Downloads&query=%24%5B%22notebook-navigator%22%5D.downloads&url=https%3A%2F%2Fraw.githubusercontent.com%2Fobsidianmd%2Fobsidian-releases%2Fmaster%2Fcommunity-plugin-stats.json)
-![Obsidian Compatibility](https://img.shields.io/badge/Obsidian-v1.8.0+-483699?logo=obsidian&style=flat-square) [![Discord](https://img.shields.io/discord/1405458145974943846?color=7289da&label=Discord&logo=discord&logoColor=white)](https://discord.gg/6eeSUvzEJr)
+![Obsidian Compatibility](https://img.shields.io/badge/Obsidian-v1.8.0+-483699?logo=obsidian&style=flat-square)
+[![Discord](https://img.shields.io/discord/1405458145974943846?color=7289da&label=Discord&logo=discord&logoColor=white)](https://discord.gg/6eeSUvzEJr)
 
 Notebook Navigator is a plugin for [Obsidian](https://obsidian.md) that replaces
 the default file explorer with a clean, Notes-style interface featuring a
@@ -108,9 +109,6 @@ If you love using Notebook Navigator, please consider
   customization of colors, backgrounds, and visual elements
 - **Light/dark mode support** - Separate theming for light and dark modes with
   automatic switching
-- **Depth-based folder colors** - Built-in support for different colors at each
-  folder depth level
-- **Mobile-optimized theming** - Separate styling for mobile tab bar buttons
 - **[Complete theming guide](docs/theming-guide.md)** - Detailed documentation
   with examples
 
@@ -179,8 +177,8 @@ If you love using Notebook Navigator, please consider
   pipeline. Includes detailed Mermaid diagrams showing the complete data flow
   from plugin load to UI ready.
 
-- [**Storage Architecture**](docs/storage-architecture.md) - Comprehensive guide
-  to the four storage containers (IndexedDB, Local Storage, Memory Cache,
+- [**Storage Architecture**](docs/storage-architecture.md) - Complete guide to
+  the four storage containers (IndexedDB, Local Storage, Memory Cache,
   Settings), their purposes, data flow patterns, and when to use each storage
   type for different kinds of data.
 
@@ -583,7 +581,9 @@ This is perfect for:
 
 ## Questions or Issues?
 
-**[Join our Discord](https://discord.gg/6eeSUvzEJr)** for support and discussions, or open an issue on the [GitHub repository](https://github.com/johansan/notebook-navigator).
+**[Join our Discord](https://discord.gg/6eeSUvzEJr)** for support and
+discussions, or open an issue on the
+[GitHub repository](https://github.com/johansan/notebook-navigator).
 
 <br>
 
