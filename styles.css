@@ -946,23 +946,9 @@ body {
     cursor: pointer;
 }
 
-/* Dark mode tag styles */
-.theme-dark .nn-file-tag {
-    background-color: var(--nn-theme-file-tag-bg);
-    color: var(--nn-theme-file-tag-text-color);
-}
-
+/* Dark mode tag hover - lighten instead of darken */
 .theme-dark .nn-file-tag:hover {
-    filter: brightness(1.05); /* Lighten in dark mode */
-}
-
-/* Override dark mode for custom colored tags - use custom text color */
-.theme-dark .nn-file-tag[style*='background-color'] {
-    color: var(--nn-theme-file-tag-custom-color-text-color);
-}
-
-.theme-dark .nn-file-tag[style*='background-color']:hover {
-    color: var(--nn-theme-file-tag-custom-color-text-color);
+    filter: brightness(1.05);
 }
 
 /* Selected file tag styles */
