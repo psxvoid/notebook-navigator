@@ -83,8 +83,8 @@ body {
     --nn-theme-navitem-selected-chevron-color: var(--text-accent);
     --nn-theme-navitem-selected-icon-color: var(--text-accent);
     --nn-theme-navitem-selected-name-color: var(--text-accent);
-    --nn-theme-navitem-selected-count-color: var(--text-on-accent);
-    --nn-theme-navitem-selected-count-bg: var(--interactive-accent);
+    --nn-theme-navitem-selected-count-color: var(--text-accent);
+    --nn-theme-navitem-selected-count-bg: transparent;
 
     /* -- Navigation Item Text Styling -- */
     --nn-theme-navitem-name-font-weight: 400;

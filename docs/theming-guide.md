@@ -52,8 +52,8 @@ level.
 | `--nn-theme-navitem-selected-chevron-color` | `var(--text-accent)`               | Expand/collapse arrow color when item is selected |
 | `--nn-theme-navitem-selected-icon-color`    | `var(--text-accent)`               | Icon color when item is selected                  |
 | `--nn-theme-navitem-selected-name-color`    | `var(--text-accent)`               | Folder/tag name color when selected               |
-| `--nn-theme-navitem-selected-count-color`   | `var(--text-on-accent)`            | File count text color when item is selected       |
-| `--nn-theme-navitem-selected-count-bg`      | `var(--interactive-accent)`        | File count background color when selected         |
+| `--nn-theme-navitem-selected-count-color`   | `var(--text-accent)`               | File count text color when item is selected       |
+| `--nn-theme-navitem-selected-count-bg`      | `transparent`                      | File count background color when selected         |
 
 #### Text styling
 
