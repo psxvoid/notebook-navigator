@@ -75,12 +75,16 @@ body {
     --nn-theme-navitem-name-color: var(--text-normal);
     --nn-theme-navitem-icon-color: var(--text-muted);
     --nn-theme-navitem-chevron-color: var(--text-muted);
-    --nn-theme-navitem-chevron-hover-color: var(--text-normal);
     --nn-theme-navitem-count-color: var(--text-muted);
     --nn-theme-navitem-count-bg: transparent;
     --nn-theme-navitem-hover-bg: var(--background-modifier-hover);
     --nn-theme-navitem-selected-bg: var(--text-selection);
     --nn-theme-navitem-selected-inactive-bg: var(--background-modifier-hover);
+    --nn-theme-navitem-selected-chevron-color: var(--text-accent);
+    --nn-theme-navitem-selected-icon-color: var(--text-accent);
+    --nn-theme-navitem-selected-name-color: var(--text-accent);
+    --nn-theme-navitem-selected-count-color: var(--text-on-accent);
+    --nn-theme-navitem-selected-count-bg: var(--interactive-accent);
 
     /* -- Navigation Item Text Styling -- */
     --nn-theme-navitem-name-font-weight: 400;
@@ -508,8 +512,7 @@ body {
     z-index: 1;
 }
 
-/* Folder chevron/arrow - expand/collapse indicator */
-.nn-navitem-arrow,
+/* Folder chevron - expand/collapse indicator */
 .nn-navitem-chevron {
     width: var(--nn-nav-icon-size);
     height: var(--nn-nav-icon-size);
@@ -530,11 +533,6 @@ body {
 /* Chevron states for folders with children */
 .nn-navitem-chevron--has-children {
     visibility: visible;
-}
-
-/* Chevron hover state - desktop only */
-.nn-desktop .nn-navitem-chevron:hover {
-    color: var(--nn-theme-navitem-chevron-hover-color);
 }
 
 /* Folder icon - displays folder open/closed or custom icons */
@@ -1123,6 +1121,27 @@ body {
 .nn-navitem.nn-selected > .nn-navitem-content > * {
     position: relative;
     z-index: 1;
+}
+
+/* Selected folder - chevron color */
+.nn-navitem.nn-selected .nn-navitem-chevron {
+    color: var(--nn-theme-navitem-selected-chevron-color);
+}
+
+/* Selected folder - icon color */
+.nn-navitem.nn-selected .nn-navitem-icon {
+    color: var(--nn-theme-navitem-selected-icon-color);
+}
+
+/* Selected folder - name color */
+.nn-navitem.nn-selected .nn-navitem-name {
+    color: var(--nn-theme-navitem-selected-name-color);
+}
+
+/* Selected folder - count styling */
+.nn-navitem.nn-selected .nn-navitem-count {
+    color: var(--nn-theme-navitem-selected-count-color);
+    background-color: var(--nn-theme-navitem-selected-count-bg);
 }
 
 /* Selected file inner content z-index - ensures content above background */
@@ -2530,14 +2549,6 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-navitem-chevron-hover-color
-        title: Expand/collapse arrow hover color
-        description: Color for expand/collapse arrows when hovered.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
         id: nn-theme-navitem-icon-color
         title: Icon color
         description: Icon color for folders and tags.
@@ -2589,6 +2600,46 @@ settings:
         id: nn-theme-navitem-selected-inactive-bg
         title: Selection background (inactive)
         description: Selected item background color when pane is inactive.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-navitem-selected-chevron-color
+        title: Selected chevron color
+        description: Expand/collapse arrow color when item is selected.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-navitem-selected-icon-color
+        title: Selected icon color
+        description: Icon color when item is selected.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-navitem-selected-name-color
+        title: Selected name color
+        description: Folder/tag name color when selected.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-navitem-selected-count-color
+        title: Selected count text color
+        description: File count text color when item is selected.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-navitem-selected-count-bg
+        title: Selected count background
+        description: File count background color when selected.
         type: variable-themed-color
         format: hex
         default-light: '#'

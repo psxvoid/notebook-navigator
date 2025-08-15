@@ -39,17 +39,21 @@ level.
 
 #### Folder & tag items
 
-| Variable                                  | Default                            | Description                                    |
-| ----------------------------------------- | ---------------------------------- | ---------------------------------------------- |
-| `--nn-theme-navitem-chevron-color`        | `var(--text-muted)`                | Color for expand/collapse arrows               |
-| `--nn-theme-navitem-chevron-hover-color`  | `var(--text-normal)`               | Color for expand/collapse arrows when hovered  |
-| `--nn-theme-navitem-icon-color`           | `var(--text-muted)`                | Icon color for folders and tags                |
-| `--nn-theme-navitem-name-color`           | `var(--text-normal)`               | Text color for folder and tag names            |
-| `--nn-theme-navitem-count-color`          | `var(--text-muted)`                | Text color for file count badges               |
-| `--nn-theme-navitem-count-bg`             | `transparent`                      | Background color for file count badges         |
-| `--nn-theme-navitem-hover-bg`             | `var(--background-modifier-hover)` | Item hover background color                    |
-| `--nn-theme-navitem-selected-bg`          | `var(--text-selection)`            | Selected item background color                 |
-| `--nn-theme-navitem-selected-inactive-bg` | `var(--background-modifier-hover)` | Selected item background when pane is inactive |
+| Variable                                    | Default                            | Description                                       |
+| ------------------------------------------- | ---------------------------------- | ------------------------------------------------- |
+| `--nn-theme-navitem-chevron-color`          | `var(--text-muted)`                | Color for expand/collapse arrows                  |
+| `--nn-theme-navitem-icon-color`             | `var(--text-muted)`                | Icon color for folders and tags                   |
+| `--nn-theme-navitem-name-color`             | `var(--text-normal)`               | Text color for folder and tag names               |
+| `--nn-theme-navitem-count-color`            | `var(--text-muted)`                | Text color for file count badges                  |
+| `--nn-theme-navitem-count-bg`               | `transparent`                      | Background color for file count badges            |
+| `--nn-theme-navitem-hover-bg`               | `var(--background-modifier-hover)` | Item hover background color                       |
+| `--nn-theme-navitem-selected-bg`            | `var(--text-selection)`            | Selected item background color                    |
+| `--nn-theme-navitem-selected-inactive-bg`   | `var(--background-modifier-hover)` | Selected item background when pane is inactive    |
+| `--nn-theme-navitem-selected-chevron-color` | `var(--text-accent)`               | Expand/collapse arrow color when item is selected |
+| `--nn-theme-navitem-selected-icon-color`    | `var(--text-accent)`               | Icon color when item is selected                  |
+| `--nn-theme-navitem-selected-name-color`    | `var(--text-accent)`               | Folder/tag name color when selected               |
+| `--nn-theme-navitem-selected-count-color`   | `var(--text-on-accent)`            | File count text color when item is selected       |
+| `--nn-theme-navitem-selected-count-bg`      | `var(--interactive-accent)`        | File count background color when selected         |
 
 #### Text styling
 
@@ -152,7 +156,6 @@ body {
 
   /* Folder & tag items */
   --nn-theme-navitem-chevron-color: #c4b5fd; /* Light purple arrows */
-  --nn-theme-navitem-chevron-hover-color: #7c3aed; /* Bright purple arrows on hover */
   --nn-theme-navitem-icon-color: #a78bfa; /* Vibrant purple icons */
   --nn-theme-navitem-name-color: #4c1d95; /* Deep purple text */
   --nn-theme-navitem-count-color: #ffffff; /* White count text */
@@ -160,6 +163,13 @@ body {
   --nn-theme-navitem-hover-bg: #fdf2f8; /* Soft pink hover */
   --nn-theme-navitem-selected-bg: #c084fc; /* Bright purple selection */
   --nn-theme-navitem-selected-inactive-bg: #e9d5ff; /* Muted purple inactive */
+
+  /* Selected item styling */
+  --nn-theme-navitem-selected-chevron-color: #ffffff; /* White chevron when selected */
+  --nn-theme-navitem-selected-icon-color: #ffffff; /* White icon when selected */
+  --nn-theme-navitem-selected-name-color: #ffffff; /* White text when selected */
+  --nn-theme-navitem-selected-count-color: #c084fc; /* Purple count text when selected */
+  --nn-theme-navitem-selected-count-bg: #ffffff; /* White count background when selected */
 
   /* Text styling */
   --nn-theme-navitem-name-font-weight: 400; /* Regular weight */
@@ -251,6 +261,11 @@ and `.theme-dark` classes:
   --nn-theme-navitem-selected-bg: #ffccff; /* Pastel purple */
   --nn-theme-navitem-name-color: #ff66cc; /* Pink text */
   --nn-theme-navitem-hover-bg: #ffddff; /* Very light pink */
+  --nn-theme-navitem-selected-chevron-color: #990099; /* Deep purple chevron when selected */
+  --nn-theme-navitem-selected-icon-color: #990099; /* Deep purple icon when selected */
+  --nn-theme-navitem-selected-name-color: #990099; /* Deep purple text when selected */
+  --nn-theme-navitem-selected-count-color: #ffffff; /* White count text when selected */
+  --nn-theme-navitem-selected-count-bg: #ff66cc; /* Pink count background when selected */
 
   /* File list */
   --nn-theme-list-bg: #fff0ff; /* Very light purple */
@@ -267,6 +282,11 @@ and `.theme-dark` classes:
   --nn-theme-navitem-selected-bg: #663366; /* Muted purple */
   --nn-theme-navitem-name-color: #ffaaff; /* Light pink text */
   --nn-theme-navitem-hover-bg: #442244; /* Dark purple hover */
+  --nn-theme-navitem-selected-chevron-color: #ffccff; /* Light purple chevron when selected */
+  --nn-theme-navitem-selected-icon-color: #ffccff; /* Light purple icon when selected */
+  --nn-theme-navitem-selected-name-color: #ffccff; /* Light purple text when selected */
+  --nn-theme-navitem-selected-count-color: #330033; /* Dark purple count text when selected */
+  --nn-theme-navitem-selected-count-bg: #ffaaff; /* Light pink count background when selected */
 
   /* File list */
   --nn-theme-list-bg: #2a002a; /* Very dark purple */
