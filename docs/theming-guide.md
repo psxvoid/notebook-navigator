@@ -66,9 +66,10 @@ the default style.
 
 ### Pane divider
 
-| Variable                                    | Default                     | Description                                               |
-| ------------------------------------------- | --------------------------- | --------------------------------------------------------- |
-| `--nn-theme-divider-resize-handle-hover-bg` | `var(--interactive-accent)` | Background color when hovering the pane divider to resize |
+| Variable                                    | Default                             | Description                                               |
+| ------------------------------------------- | ----------------------------------- | --------------------------------------------------------- |
+| `--nn-theme-divider-border-color`           | `var(--background-modifier-border)` | Color of the vertical border between panes                |
+| `--nn-theme-divider-resize-handle-hover-bg` | `var(--interactive-accent)`         | Background color when hovering the pane divider to resize |
 
 ### List pane (files)
 
@@ -169,6 +170,7 @@ body {
      PANE DIVIDER
      ======================================== */
 
+  --nn-theme-divider-border-color: #d8b4fe; /* Soft purple border */
   --nn-theme-divider-resize-handle-hover-bg: #818cf8; /* Bright indigo on hover */
 
   /* ========================================

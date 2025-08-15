@@ -108,6 +108,7 @@ body {
     --nn-theme-quick-actions-separator-color: var(--background-modifier-border);
 
     /* -- Pane Divider -- */
+    --nn-theme-divider-border-color: var(--background-modifier-border);
     --nn-theme-divider-resize-handle-hover-bg: var(--interactive-accent);
 
     /* -- Mobile Tab Bar -- */
@@ -425,6 +426,7 @@ body {
     padding: 0 var(--nn-scroller-padding);
     line-height: 1; /* Reset to 1 - we'll use fixed line-heights on individual elements */
     background: var(--nn-theme-nav-bg);
+    border-right: 1px solid var(--nn-theme-divider-border-color);
 
     /* Ensure scroll events work properly with virtualization */
     position: relative;
@@ -1984,6 +1986,11 @@ body.mod-macos:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar
     -webkit-overflow-scrolling: touch;
 }
 
+/* Hide navigation pane border on mobile */
+.notebook-navigator-mobile .nn-navigation-pane-scroller {
+    border-right: none;
+}
+
 /* Note: Bottom spacing is handled by a spacer item in the virtualized list */
 
 /* Desktop single-pane mode styles */
@@ -2754,6 +2761,14 @@ settings:
         type: heading
         level: 1
         collapsed: true
+    -
+        id: nn-theme-divider-border-color
+        title: Divider border color
+        description: Color of the vertical border between panes.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
     -
         id: nn-theme-divider-resize-handle-hover-bg
         title: Resize handle hover background
