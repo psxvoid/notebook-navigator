@@ -40,7 +40,6 @@ body {
 
     /* Mobile navigation heights */
     --nn-nav-item-height-mobile: 40px; /* Total height for mobile */
-    --nn-nav-padding-vertical-mobile: 11px; /* (40px - 18px) / 2 = 11px */
 
     /* Navigation font sizes - fixed for pixel-perfect rendering */
     --nn-nav-font-size: 13px; /* Fixed 13px */
@@ -615,40 +614,6 @@ body {
 }
 
 /* ========================================================================
-   Tag List Styles
-   ======================================================================== */
-
-/* Section header for Tags */
-.nn-section-header {
-    padding: 12px 8px 4px 12px;
-    font-size: 11px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    margin-top: 8px;
-    border-top: 1px solid var(--background-modifier-border);
-}
-
-/* Tag children container - for nested tags */
-.nn-tag-children {
-    display: grid;
-    grid-template-rows: 0fr;
-    min-height: 0;
-}
-
-/* Expanded tag children - shows nested tags */
-.nn-tag-children.nn-expanded {
-    grid-template-rows: 1fr;
-}
-
-/* Tag children inner wrapper - required for grid animation */
-.nn-tag-children-inner {
-    overflow: hidden;
-    min-height: 0;
-}
-
-/* ========================================================================
    File List Styles
    ======================================================================== */
 
@@ -874,13 +839,6 @@ body {
 /* Preview on same line as date - match date line-height for alignment */
 .nn-file-second-line .nn-file-preview {
     line-height: var(--nn-file-second-line-height);
-}
-
-/* Date below preview - when preview has 2+ lines */
-.nn-file-date-below {
-    margin-inline-end: 0;
-    max-width: none;
-    line-height: var(--nn-file-second-line-height); /* Consistent line height */
 }
 
 /* Folder indicator - shows parent folder for files from subfolders */
@@ -2496,82 +2454,6 @@ body.mod-macos:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar
 
 .nn-icon-section-header:first-child {
     margin-top: 0;
-}
-
-/* Custom emoji input section */
-.nn-custom-emoji-section {
-    margin-bottom: 16px;
-}
-
-.nn-custom-emoji-input-container {
-    display: flex;
-    gap: 8px;
-    margin: 8px 0;
-    align-items: center;
-}
-
-.nn-custom-emoji-input {
-    flex: 1;
-    padding: 8px 12px;
-    border: 1px solid var(--background-modifier-border);
-    border-radius: var(--radius-s);
-    background: var(--background-primary);
-    color: var(--text-normal);
-    font-size: var(--font-ui-medium);
-}
-
-.nn-custom-emoji-input:focus {
-    outline: none;
-    border-color: var(--interactive-accent);
-    box-shadow: 0 0 0 2px var(--interactive-accent-hover);
-}
-
-.nn-custom-emoji-actions {
-    display: flex;
-    gap: 8px;
-    align-items: center;
-}
-
-.nn-custom-emoji-preview {
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 1px solid var(--background-modifier-border);
-    border-radius: var(--radius-s);
-    background: var(--background-secondary);
-    font-size: 24px;
-    font-family: 'Apple Color Emoji', 'Segoe UI Emoji', 'Noto Color Emoji', sans-serif;
-}
-
-.nn-custom-emoji-preview.nn-has-emoji {
-    border-color: var(--interactive-accent);
-    background: var(--background-modifier-hover);
-}
-
-.nn-custom-emoji-button {
-    padding: 8px 12px;
-    background: var(--interactive-accent);
-    color: var(--text-on-accent);
-    border: none;
-    border-radius: var(--radius-s);
-    font-size: var(--font-ui-small);
-}
-
-.nn-custom-emoji-button:hover:not(:disabled) {
-    opacity: 0.8;
-}
-
-.nn-custom-emoji-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-.nn-custom-emoji-divider {
-    height: 1px;
-    background: var(--background-modifier-border);
-    margin: 16px 0 12px 0;
 }
 
 /* ========================================================================
