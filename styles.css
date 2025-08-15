@@ -1958,7 +1958,9 @@ body.mod-macos:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar
 /* Hide navigation pane border on mobile and use mobile background */
 .notebook-navigator-mobile .nn-navigation-pane-scroller {
     border-right: none;
-    background-color: var(--nn-theme-mobile-nav-bg); /* Opaque background on scroller for GPU scroll layer (see .nn-navigation-pane-scroller) */
+    background-color: var(
+        --nn-theme-mobile-nav-bg
+    ); /* Opaque background on scroller for GPU scroll layer (see .nn-navigation-pane-scroller) */
 }
 
 /* Note: Bottom spacing is handled by a spacer item in the virtualized list */
@@ -2748,7 +2750,7 @@ settings:
     -
         id: nn-theme-file-date-color
         title: File date color
-        description: Text color for modification dates.
+        description: Text color for creation or modification dates.
         type: variable-themed-color
         format: hex
         default-light: '#'
@@ -2867,7 +2869,7 @@ settings:
     -
         id: nn-theme-header-border-color
         title: Header border color
-        description: Bottom border color of pane headers.
+        description: Border color of pane headers.
         type: variable-themed-color
         format: hex
         default-light: '#'
