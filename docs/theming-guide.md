@@ -83,16 +83,17 @@ the default style.
 
 #### File items
 
-| Variable                               | Default                             | Description                                                 |
-| -------------------------------------- | ----------------------------------- | ----------------------------------------------------------- |
-| `--nn-theme-file-name-color`           | `var(--text-normal)`                | Text color for file names                                   |
-| `--nn-theme-file-date-color`           | `var(--text-normal)`                | Text color for modification dates                           |
-| `--nn-theme-file-preview-color`        | `var(--text-muted)`                 | Text color for content preview                              |
-| `--nn-theme-file-tag-bg`               | `var(--background-modifier-border)` | Background color for tag pills                              |
-| `--nn-theme-file-tag-color`            | `var(--text-muted)`                 | Text color for tag pills                                    |
-| `--nn-theme-file-parent-color`         | `var(--text-muted)`                 | Text color for parent folder path (when showing subfolders) |
-| `--nn-theme-file-selected-bg`          | `var(--text-selection)`             | Selected file background color                              |
-| `--nn-theme-file-selected-inactive-bg` | `var(--background-modifier-hover)`  | Selected file background when pane is inactive              |
+| Variable                                      | Default                             | Description                                                 |
+| --------------------------------------------- | ----------------------------------- | ----------------------------------------------------------- |
+| `--nn-theme-file-name-color`                  | `var(--text-normal)`                | Text color for file names                                   |
+| `--nn-theme-file-date-color`                  | `var(--text-normal)`                | Text color for modification dates                           |
+| `--nn-theme-file-preview-color`               | `var(--text-muted)`                 | Text color for content preview                              |
+| `--nn-theme-file-tag-bg`                      | `var(--background-modifier-border)` | Background color for tag pills                              |
+| `--nn-theme-file-tag-text-color`              | `var(--text-muted)`                 | Text color for tag pills                                    |
+| `--nn-theme-file-tag-custom-color-text-color` | `white`                             | Text color for tags with custom colors                      |
+| `--nn-theme-file-parent-color`                | `var(--text-muted)`                 | Text color for parent folder path (when showing subfolders) |
+| `--nn-theme-file-selected-bg`                 | `var(--text-selection)`             | Selected file background color                              |
+| `--nn-theme-file-selected-inactive-bg`        | `var(--background-modifier-hover)`  | Selected file background when pane is inactive              |
 
 #### Quick actions
 
@@ -187,7 +188,8 @@ body {
   --nn-theme-file-date-color: #9ca3af; /* Light gray date */
   --nn-theme-file-preview-color: #6b7280; /* Neutral gray preview */
   --nn-theme-file-tag-bg: #fce7f3; /* Pink tag background */
-  --nn-theme-file-tag-color: #a21caf; /* Deep pink tag text */
+  --nn-theme-file-tag-text-color: #a21caf; /* Deep pink tag text */
+  --nn-theme-file-tag-custom-color-text-color: #ffffff; /* White text for custom colored tags */
   --nn-theme-file-parent-color: #c084fc; /* Purple folder path */
   --nn-theme-file-selected-bg: #c7d2fe; /* Indigo selection */
   --nn-theme-file-selected-inactive-bg: #f3e8ff; /* Light purple inactive */
@@ -251,6 +253,7 @@ and `.theme-dark` classes:
   --nn-theme-file-name-color: #cc33ff; /* Purple text */
   --nn-theme-file-selected-bg: #ffccff; /* Pastel purple */
   --nn-theme-file-preview-color: #ff99cc; /* Light pink */
+  --nn-theme-file-tag-custom-color-text-color: #000000; /* Black text for custom tags in light mode */
 }
 
 /* Dark mode - pastel colors on dark */
@@ -266,6 +269,7 @@ and `.theme-dark` classes:
   --nn-theme-file-name-color: #ff99ff; /* Light purple text */
   --nn-theme-file-selected-bg: #663366; /* Muted purple */
   --nn-theme-file-preview-color: #cc99cc; /* Muted pink */
+  --nn-theme-file-tag-custom-color-text-color: #ffffff; /* White text for custom tags in dark mode */
 }
 ```
 

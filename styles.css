@@ -95,7 +95,8 @@ body {
     --nn-theme-file-date-color: var(--text-normal);
     --nn-theme-file-parent-color: var(--text-muted);
     --nn-theme-file-tag-bg: var(--background-modifier-border);
-    --nn-theme-file-tag-color: var(--text-muted);
+    --nn-theme-file-tag-text-color: var(--text-muted);
+    --nn-theme-file-tag-custom-color-text-color: white;
     --nn-theme-file-selected-bg: var(--text-selection);
     --nn-theme-file-selected-inactive-bg: var(--background-modifier-hover);
 
@@ -916,7 +917,7 @@ body {
     height: 20px;
     padding: 0 8px;
     background-color: var(--nn-theme-file-tag-bg);
-    color: var(--nn-theme-file-tag-color);
+    color: var(--nn-theme-file-tag-text-color);
     border-radius: 10px;
     font-size: 12px;
     font-weight: 400;
@@ -924,9 +925,9 @@ body {
     flex-shrink: 0;
 }
 
-/* When tag has custom color, always use white text */
+/* When tag has custom color, use custom color text variable */
 .nn-file-tag[style*='background-color'] {
-    color: white;
+    color: var(--nn-theme-file-tag-custom-color-text-color);
 }
 
 /* Tag pill hover effect - darken/lighten all tags on hover */
@@ -937,7 +938,7 @@ body {
 /* Custom colored tag hover - slightly darken/lighten the background */
 .nn-file-tag[style*='background-color']:hover {
     filter: brightness(0.9);
-    color: white;
+    color: var(--nn-theme-file-tag-custom-color-text-color);
 }
 
 /* Clickable tag styling */
@@ -948,20 +949,20 @@ body {
 /* Dark mode tag styles */
 .theme-dark .nn-file-tag {
     background-color: var(--nn-theme-file-tag-bg);
-    color: var(--nn-theme-file-tag-color);
+    color: var(--nn-theme-file-tag-text-color);
 }
 
 .theme-dark .nn-file-tag:hover {
     filter: brightness(1.05); /* Lighten in dark mode */
 }
 
-/* Override dark mode for custom colored tags - ensure white text */
+/* Override dark mode for custom colored tags - use custom text color */
 .theme-dark .nn-file-tag[style*='background-color'] {
-    color: white;
+    color: var(--nn-theme-file-tag-custom-color-text-color);
 }
 
 .theme-dark .nn-file-tag[style*='background-color']:hover {
-    color: white;
+    color: var(--nn-theme-file-tag-custom-color-text-color);
 }
 
 /* Selected file tag styles */
@@ -2869,9 +2870,17 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-file-tag-color
+        id: nn-theme-file-tag-text-color
         title: File tag text color
         description: Text color for tag pills.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-file-tag-custom-color-text-color
+        title: Custom tag text color
+        description: Text color for tags with custom colors.
         type: variable-themed-color
         format: hex
         default-light: '#'
