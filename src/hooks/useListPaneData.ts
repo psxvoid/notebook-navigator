@@ -112,6 +112,13 @@ export function useListPaneData({ selectionType, selectedFolder, selectedTag, se
     const listItems = useMemo(() => {
         const items: ListPaneItem[] = [];
 
+        // Add top spacer at the beginning
+        items.push({
+            type: ListPaneItemType.TOP_SPACER,
+            data: '',
+            key: 'top-spacer'
+        });
+
         // Determine context filter based on selection type
         // selectionType can be FOLDER, TAG, FILE, or null - we only use FOLDER and TAG for pinned context
         const contextFilter =
@@ -193,7 +200,7 @@ export function useListPaneData({ selectionType, selectedFolder, selectedTag, se
 
         // Add spacer at the end so jumping to last position works properly with the virtualizer\n        // Without this, scrolling to the last item may not position it correctly
         items.push({
-            type: ListPaneItemType.SPACER,
+            type: ListPaneItemType.BOTTOM_SPACER,
             data: '',
             key: 'bottom-spacer'
         });

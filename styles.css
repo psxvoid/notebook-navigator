@@ -408,11 +408,29 @@ body {
    Pane Spacers
    ======================================================================== */
 
-/* Top spacer between header and scroller - provides visual breathing room */
-.nn-pane-top-spacer {
+/* Navigation pane spacers - provide visual breathing room in the list */
+.nn-nav-top-spacer {
     height: 10px;
     flex-shrink: 0;
-    background: inherit; /* Inherit background from parent pane */
+}
+
+.nn-nav-bottom-spacer {
+    height: 20px;
+    flex-shrink: 0;
+}
+
+.nn-nav-list-spacer {
+    height: 10px;
+    flex-shrink: 0;
+}
+
+/* List pane spacers - match navigation pane for consistency */
+.nn-list-top-spacer {
+    height: 10px;
+}
+
+.nn-list-bottom-spacer {
+    height: 20px;
 }
 
 /* ========================================================================
@@ -681,9 +699,6 @@ body {
 }
 
 /* Virtual list file separator */
-.nn-virtual-file-item {
-    --nn-separator-height: 1px;
-}
 
 .nn-virtual-file-item:not(.nn-last-file)::after {
     content: '';
@@ -1290,11 +1305,6 @@ body.nn-resizing {
     align-items: center;
     justify-content: center;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-/* File list spacer - adds spacing at the bottom of file lists */
-.nn-list-pane-scroller-spacer {
-    height: 20px;
 }
 
 /* Header actions layout variations 

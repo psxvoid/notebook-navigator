@@ -75,5 +75,6 @@ export type CombinedNavigationItem =
     | VirtualFolderItem
     | TagTreeItem
     | UntaggedItem
-    | { type: typeof NavigationPaneItemType.SPACER; key: string }
+    | { type: typeof NavigationPaneItemType.TOP_SPACER; key: string }
+    | { type: typeof NavigationPaneItemType.BOTTOM_SPACER; key: string }
     | { type: typeof NavigationPaneItemType.LIST_SPACER; key: string };

@@ -257,6 +257,12 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
     const items = useMemo(() => {
         const allItems: CombinedNavigationItem[] = [];
 
+        // Add top spacer at the beginning
+        allItems.push({
+            type: NavigationPaneItemType.TOP_SPACER,
+            key: 'top-spacer'
+        });
+
         if (settings.showTags && settings.showTagsAboveFolders) {
             // Tags first, then folders
             allItems.push(...tagItems);
@@ -281,7 +287,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
 
         // Add spacer at the end for better visibility
         allItems.push({
-            type: NavigationPaneItemType.SPACER,
+            type: NavigationPaneItemType.BOTTOM_SPACER,
             key: 'bottom-spacer'
         });
 

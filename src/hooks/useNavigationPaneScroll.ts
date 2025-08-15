@@ -100,8 +100,10 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
             const heights = isMobile ? NAVITEM_HEIGHTS.mobile : NAVITEM_HEIGHTS.desktop;
 
             switch (item.type) {
-                case NavigationPaneItemType.SPACER:
-                    return heights.spacer;
+                case NavigationPaneItemType.TOP_SPACER:
+                    return heights.topSpacer;
+                case NavigationPaneItemType.BOTTOM_SPACER:
+                    return heights.bottomSpacer;
                 case NavigationPaneItemType.LIST_SPACER:
                     return heights.listSpacer;
                 case NavigationPaneItemType.FOLDER:

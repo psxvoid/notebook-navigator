@@ -321,7 +321,6 @@ export const ListPane = React.memo(
                 <div className="nn-list-pane">
                     {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
                     <ListPaneHeader onHeaderClick={handleScrollToTop} />
-                    <div className="nn-pane-top-spacer" />
                     <div className="nn-list-pane-scroller nn-empty-state">
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoSelection}</div>
                     </div>
@@ -335,7 +334,6 @@ export const ListPane = React.memo(
                 <div className="nn-list-pane">
                     {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
                     <ListPaneHeader onHeaderClick={handleScrollToTop} />
-                    <div className="nn-pane-top-spacer" />
                     <div className="nn-list-pane-scroller nn-empty-state">
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoNotes}</div>
                     </div>
@@ -348,7 +346,6 @@ export const ListPane = React.memo(
             <div className="nn-list-pane">
                 {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
                 <ListPaneHeader onHeaderClick={handleScrollToTop} />
-                <div className="nn-pane-top-spacer" />
                 <div
                     ref={scrollContainerRefCallback}
                     className={`nn-list-pane-scroller ${isSlimMode ? 'nn-slim-mode' : ''}`}
@@ -385,7 +382,9 @@ export const ListPane = React.memo(
                                     item.type === ListPaneItemType.FILE &&
                                     (virtualItem.index === listItems.length - 1 ||
                                         (nextItem &&
-                                            (nextItem.type === ListPaneItemType.HEADER || nextItem.type === ListPaneItemType.SPACER)));
+                                            (nextItem.type === ListPaneItemType.HEADER ||
+                                                nextItem.type === ListPaneItemType.TOP_SPACER ||
+                                                nextItem.type === ListPaneItemType.BOTTOM_SPACER)));
 
                                 // Check if adjacent items are selected (for styling purposes)
                                 const prevItem = safeGetItem(listItems, virtualItem.index - 1);
@@ -401,7 +400,8 @@ export const ListPane = React.memo(
                                     multiSelection.isFileSelected(nextItem.data);
 
                                 // Check if this is the first header (same logic as in estimateSize)
-                                const isFirstHeader = item.type === ListPaneItemType.HEADER && virtualItem.index === 0;
+                                // Index 1 because TOP_SPACER is at index 0
+                                const isFirstHeader = item.type === ListPaneItemType.HEADER && virtualItem.index === 1;
 
                                 // Find current date group for file items
                                 let dateGroup: string | null = null;
@@ -429,8 +429,10 @@ export const ListPane = React.memo(
                                             <div className={`nn-date-group-header ${isFirstHeader ? 'nn-first-header' : ''}`}>
                                                 {typeof item.data === 'string' ? item.data : ''}
                                             </div>
-                                        ) : item.type === ListPaneItemType.SPACER ? (
-                                            <div className="nn-list-pane-spacer" />
+                                        ) : item.type === ListPaneItemType.TOP_SPACER ? (
+                                            <div className="nn-list-top-spacer" />
+                                        ) : item.type === ListPaneItemType.BOTTOM_SPACER ? (
+                                            <div className="nn-list-bottom-spacer" />
                                         ) : item.type === ListPaneItemType.FILE && item.data instanceof TFile ? (
                                             <FileItem
                                                 file={item.data}

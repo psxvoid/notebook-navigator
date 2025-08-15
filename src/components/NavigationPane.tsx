@@ -68,7 +68,7 @@ import { useNavigationPaneKeyboard } from '../hooks/useNavigationPaneKeyboard';
 import { useNavigationPaneData } from '../hooks/useNavigationPaneData';
 import { useNavigationPaneScroll } from '../hooks/useNavigationPaneScroll';
 import type { CombinedNavigationItem } from '../types/virtualization';
-import { NavigationPaneItemType, ItemType, VirtualFolder, NAVITEM_HEIGHTS } from '../types';
+import { NavigationPaneItemType, ItemType, VirtualFolder } from '../types';
 import { TagTreeNode } from '../types/storage';
 import { getFolderNote } from '../utils/fileFinder';
 import { findTagNode } from '../utils/tagTree';
@@ -420,21 +420,16 @@ export const NavigationPane = React.memo(
                         );
                     }
 
-                    case NavigationPaneItemType.SPACER: {
-                        const heights = isMobile ? NAVITEM_HEIGHTS.mobile : NAVITEM_HEIGHTS.desktop;
-                        return (
-                            <div className="nn-nav-spacer" style={{ height: `${heights.spacer}px`, minHeight: `${heights.spacer}px` }} />
-                        ); // Bottom spacer
+                    case NavigationPaneItemType.TOP_SPACER: {
+                        return <div className="nn-nav-top-spacer" />;
+                    }
+
+                    case NavigationPaneItemType.BOTTOM_SPACER: {
+                        return <div className="nn-nav-bottom-spacer" />;
                     }
 
                     case NavigationPaneItemType.LIST_SPACER: {
-                        const heights = isMobile ? NAVITEM_HEIGHTS.mobile : NAVITEM_HEIGHTS.desktop;
-                        return (
-                            <div
-                                className="nn-nav-list-spacer"
-                                style={{ height: `${heights.listSpacer}px`, minHeight: `${heights.listSpacer}px` }}
-                            />
-                        ); // Inter-list spacer
+                        return <div className="nn-nav-list-spacer" />;
                     }
 
                     default:
@@ -459,7 +454,6 @@ export const NavigationPane = React.memo(
                 getAllDescendantTags,
                 expansionDispatch,
                 settings,
-                isMobile,
                 tagCounts,
                 folderCounts,
                 metadataService
@@ -558,7 +552,6 @@ export const NavigationPane = React.memo(
         return (
             <div className="nn-navigation-pane" style={props.style}>
                 <NavigationPaneHeader />
-                <div className="nn-pane-top-spacer" />
                 <div ref={scrollContainerRef} className="nn-navigation-pane-scroller" data-pane="navigation" role="tree" tabIndex={-1}>
                     {items.length > 0 && (
                         <div

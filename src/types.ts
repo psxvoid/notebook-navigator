@@ -58,7 +58,8 @@ export const ItemType = {
 export const ListPaneItemType = {
     HEADER: 'header',
     FILE: 'file',
-    SPACER: 'spacer'
+    TOP_SPACER: 'top-spacer',
+    BOTTOM_SPACER: 'bottom-spacer'
 } as const;
 
 /**
@@ -92,7 +93,8 @@ export const NavigationPaneItemType = {
     VIRTUAL_FOLDER: 'virtual-folder',
     TAG: 'tag',
     UNTAGGED: 'untagged',
-    SPACER: 'spacer',
+    TOP_SPACER: 'top-spacer',
+    BOTTOM_SPACER: 'bottom-spacer',
     LIST_SPACER: 'list-spacer'
 } as const;
 
@@ -110,14 +112,16 @@ export const NAVITEM_HEIGHTS = {
         folder: 28, // Fixed height: 5px padding + 18px line-height + 5px padding
         tag: 28, // Matches folder height
         header: 35, // Tag section header
-        spacer: 20, // Bottom spacer - matches FileList
+        bottomSpacer: 20, // Bottom spacer - matches FileList
+        topSpacer: 10, // Top spacer height
         listSpacer: 10 // Spacer between lists (folders/tags)
     },
     mobile: {
         folder: 40, // Fixed height: 11px padding + 18px line-height + 11px padding
         tag: 40, // Matches folder height
         header: 38, // Slightly larger for mobile font sizes
-        spacer: 20, // Bottom spacer - matches FileList
+        bottomSpacer: 20, // Bottom spacer - matches FileList
+        topSpacer: 10, // Top spacer height
         listSpacer: 10 // Spacer between lists (folders/tags)
     }
 };
@@ -150,7 +154,8 @@ export const LISTPANE_MEASUREMENTS = {
 
         // Constraints
         minTouchTargetHeight: 32, // Minimum height for touch targets
-        spacer: 20 // Bottom spacer height
+        bottomSpacer: 20, // Bottom spacer height
+        topSpacer: 10 // Top spacer height
     }
 };
 

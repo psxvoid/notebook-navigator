@@ -142,15 +142,19 @@ export function useListPaneScroll({
 
             if (item.type === ListPaneItemType.HEADER) {
                 // Date group headers have fixed heights from CSS
-                const isFirstHeader = index === 0;
+                // Index 1 because TOP_SPACER is at index 0
+                const isFirstHeader = index === 1;
                 if (isFirstHeader) {
                     return heights.firstHeader;
                 }
                 return heights.subsequentHeader;
             }
 
-            if (item.type === ListPaneItemType.SPACER) {
-                return heights.spacer;
+            if (item.type === ListPaneItemType.TOP_SPACER) {
+                return heights.topSpacer;
+            }
+            if (item.type === ListPaneItemType.BOTTOM_SPACER) {
+                return heights.bottomSpacer;
             }
 
             // For file items - calculate height including all components
