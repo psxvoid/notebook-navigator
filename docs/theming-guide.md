@@ -40,13 +40,13 @@ All variables start with `--nn-theme-` and should be defined at the `body` level
 | ------------------------------------------- | ---------------------------------- | ------------------------------------------------- |
 | `--nn-theme-navitem-hover-bg`               | `var(--background-modifier-hover)` | Item hover background color                       |
 | `--nn-theme-navitem-selected-bg`            | `var(--text-selection)`            | Selected item background color                    |
-| `--nn-theme-navitem-border-radius`          | `4px`                              | Corner radius for folder and tag items            |
+| `--nn-theme-navitem-border-radius`          | `4px`                              | Corner radius for folder and tag items (0-14px)   |
 | `--nn-theme-navitem-chevron-color`          | `var(--text-muted)`                | Color for expand/collapse arrows                  |
 | `--nn-theme-navitem-icon-color`             | `var(--text-muted)`                | Icon color for folders and tags                   |
 | `--nn-theme-navitem-name-color`             | `var(--text-normal)`               | Text color for folder and tag names               |
 | `--nn-theme-navitem-count-color`            | `var(--text-muted)`                | Text color for file count badges                  |
 | `--nn-theme-navitem-count-bg`               | `transparent`                      | Background color for file count badges            |
-| `--nn-theme-navitem-count-border-radius`    | `8px`                              | Corner radius for file count badges               |
+| `--nn-theme-navitem-count-border-radius`    | `8px`                              | Corner radius for file count badges (0-8px)       |
 | `--nn-theme-navitem-selected-inactive-bg`   | `var(--background-modifier-hover)` | Selected item background when pane is inactive    |
 | `--nn-theme-navitem-selected-chevron-color` | `var(--text-muted)`                | Expand/collapse arrow color when item is selected |
 | `--nn-theme-navitem-selected-icon-color`    | `var(--text-muted)`                | Icon color when item is selected                  |
@@ -88,15 +88,15 @@ custom color styles, which override the default style.
 
 | Variable                                      | Default                             | Description                                                 |
 | --------------------------------------------- | ----------------------------------- | ----------------------------------------------------------- |
-| `--nn-theme-file-border-radius`               | `8px`                               | Corner radius for file items                                |
+| `--nn-theme-file-border-radius`               | `8px`                               | Corner radius for file items (0-16px)                       |
 | `--nn-theme-file-name-color`                  | `var(--text-normal)`                | Text color for file names                                   |
-| `--nn-theme-file-feature-border-radius`       | `4px`                               | Corner radius for feature images                            |
+| `--nn-theme-file-feature-border-radius`       | `4px`                               | Corner radius for feature images (0-20px)                   |
 | `--nn-theme-file-preview-color`               | `var(--text-muted)`                 | Text color for content preview                              |
 | `--nn-theme-file-date-color`                  | `var(--text-normal)`                | Text color for creation or modification dates               |
 | `--nn-theme-file-parent-color`                | `var(--text-muted)`                 | Text color for parent folder path (when showing subfolders) |
 | `--nn-theme-file-tag-text-color`              | `var(--text-muted)`                 | Text color for tag pills                                    |
 | `--nn-theme-file-tag-bg`                      | `var(--background-modifier-border)` | Background color for tag pills                              |
-| `--nn-theme-file-tag-border-radius`           | `10px`                              | Corner radius for tag pills                                 |
+| `--nn-theme-file-tag-border-radius`           | `10px`                              | Corner radius for tag pills (0-10px)                        |
 | `--nn-theme-file-tag-custom-color-text-color` | `white`                             | Text color for tags with custom colors                      |
 | `--nn-theme-file-selected-bg`                 | `var(--text-selection)`             | Selected file background color                              |
 | `--nn-theme-file-selected-inactive-bg`        | `var(--background-modifier-hover)`  | Selected file background when pane is inactive              |
@@ -107,7 +107,7 @@ custom color styles, which override the default style.
 | ------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------- |
 | `--nn-theme-quick-actions-bg`               | `color-mix(in srgb, var(--background-primary) 95%, transparent)` | Background color of quick actions toolbar (supports transparency) |
 | `--nn-theme-quick-actions-border`           | `var(--background-modifier-border)`                              | Border color of quick actions toolbar                             |
-| `--nn-theme-quick-actions-border-radius`    | `4px`                                                            | Corner radius for quick actions panel (min: 0px, max: 12px)       |
+| `--nn-theme-quick-actions-border-radius`    | `4px`                                                            | Corner radius for quick actions panel (0-12px)                    |
 | `--nn-theme-quick-actions-icon-color`       | `var(--text-muted)`                                              | Icon color for quick action buttons                               |
 | `--nn-theme-quick-actions-icon-hover-color` | `var(--text-normal)`                                             | Icon color when hovering quick action buttons                     |
 | `--nn-theme-quick-actions-separator-color`  | `var(--background-modifier-border)`                              | Divider color between quick action buttons                        |

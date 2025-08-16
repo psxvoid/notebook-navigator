@@ -481,7 +481,7 @@ body {
     display: flex;
     align-items: center;
     padding: var(--nn-nav-padding-vertical) 8px;
-    border-radius: var(--nn-theme-navitem-border-radius);
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
     margin: 0;
     background: transparent;
     position: relative;
@@ -503,7 +503,7 @@ body {
     inset-inline-start: 0;
     inset-inline-end: 0;
     background-color: var(--nn-theme-navitem-hover-bg);
-    border-radius: var(--nn-theme-navitem-border-radius);
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
     z-index: 0;
     pointer-events: none;
 }
@@ -588,10 +588,11 @@ body {
     color: var(--nn-theme-navitem-count-color);
     background-color: var(--nn-theme-navitem-count-bg);
     flex-shrink: 0;
-    margin-inline-end: -4px; /* Pull count 4px from the edge */
+    /* Dynamic margin that increases with navitem border radius for better visual balance */
+    margin-inline-end: calc(-4px + max(0px, calc(min(14px, var(--nn-theme-navitem-border-radius)) - 4px) * 0.3));
 
     /* Pill style when background is set */
-    border-radius: var(--nn-theme-navitem-count-border-radius);
+    border-radius: min(8px, var(--nn-theme-navitem-count-border-radius));
     padding: 0 6px;
     height: 16px;
     line-height: 16px;
@@ -635,7 +636,7 @@ body {
 .nn-file-content {
     padding: var(--nn-file-padding-vertical) 12px;
     margin: 0;
-    border-radius: var(--nn-theme-file-border-radius);
+    border-radius: min(16px, var(--nn-theme-file-border-radius));
     background: transparent;
     position: relative; /* For absolute positioning of reveal overlay */
 }
@@ -879,7 +880,7 @@ body {
     padding: 0 8px;
     background-color: var(--nn-theme-file-tag-bg);
     color: var(--nn-theme-file-tag-text-color);
-    border-radius: var(--nn-theme-file-tag-border-radius);
+    border-radius: min(10px, var(--nn-theme-file-tag-border-radius));
     font-size: 12px;
     font-weight: 400;
     white-space: nowrap;
@@ -948,7 +949,7 @@ body {
     width: 42px;
     height: 42px;
     flex-shrink: 0;
-    border-radius: var(--nn-theme-file-feature-border-radius);
+    border-radius: min(20px, var(--nn-theme-file-feature-border-radius));
     overflow: hidden;
     background-color: var(--background-secondary-alt);
     position: relative;
@@ -1079,7 +1080,7 @@ body {
     inset-inline-end: 0;
     bottom: 0; /* Extend all the way down */
     background-color: var(--nn-theme-navitem-selected-bg);
-    border-radius: var(--nn-theme-file-border-radius);
+    border-radius: min(16px, var(--nn-theme-file-border-radius));
     z-index: 0; /* Below separator lines */
 }
 
@@ -1112,7 +1113,7 @@ body {
     inset-inline-end: 0;
     bottom: 0;
     background-color: var(--nn-theme-navitem-selected-bg);
-    border-radius: var(--nn-theme-navitem-border-radius);
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
     z-index: 0;
 }
 
@@ -1192,19 +1193,19 @@ body.nn-resizing {
 /* Drag over state - highlights valid drop targets */
 .nn-navitem.nn-drag-over {
     background-color: var(--text-selection);
-    border-radius: var(--nn-theme-navitem-border-radius);
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
 }
 
 /* Special visual feedback for tag drop zones */
 [data-drop-zone='tag'].nn-drag-over {
     background-color: var(--background-modifier-success);
-    border-radius: var(--nn-theme-navitem-border-radius);
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
 }
 
 /* Different style for untagged drop zone */
 [data-drop-zone='tag'][data-tag='__untagged__'].nn-drag-over {
     background-color: var(--background-modifier-error-hover);
-    border-radius: var(--nn-theme-navitem-border-radius);
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
 }
 
 /* Drag image container - positions the custom drag image off-screen */
@@ -1303,7 +1304,7 @@ body.nn-resizing {
     inset-inline-end: 0;
     bottom: 0;
     border: 2px solid var(--nn-theme-navitem-selected-bg);
-    border-radius: var(--nn-theme-navitem-border-radius);
+    border-radius: min(14px, var(--nn-theme-navitem-border-radius));
     pointer-events: none;
     z-index: 10;
 }
@@ -1322,7 +1323,7 @@ body.nn-resizing {
     inset-inline-end: 0;
     bottom: 1px; /* Account for separator line */
     border: 2px solid var(--nn-theme-navitem-selected-bg);
-    border-radius: var(--nn-theme-file-border-radius);
+    border-radius: min(16px, var(--nn-theme-file-border-radius));
     pointer-events: none;
     z-index: 10;
 }
@@ -2580,9 +2581,12 @@ settings:
         id: nn-theme-navitem-count-border-radius
         title: File count border radius
         description: Corner radius for file count badges.
-        type: variable-number
+        type: variable-number-slider
         default: 8
         format: px
+        min: 0
+        max: 8
+        step: 1
     -
         id: nn-theme-navitem-hover-bg
         title: Hover background
@@ -2603,9 +2607,12 @@ settings:
         id: nn-theme-navitem-border-radius
         title: Item border radius
         description: Corner radius for folder and tag items.
-        type: variable-number
+        type: variable-number-slider
         default: 4
         format: px
+        min: 0
+        max: 14
+        step: 1
     -
         id: nn-theme-navitem-selected-inactive-bg
         title: Selection background (inactive)
@@ -2792,9 +2799,12 @@ settings:
         id: nn-theme-file-border-radius
         title: File item border radius
         description: Corner radius for file items.
-        type: variable-number
+        type: variable-number-slider
         default: 8
         format: px
+        min: 0
+        max: 16
+        step: 1
     -
         id: nn-theme-file-name-color
         title: File name color
@@ -2823,9 +2833,12 @@ settings:
         id: nn-theme-file-feature-border-radius
         title: Feature image border radius
         description: Corner radius for feature images.
-        type: variable-number
+        type: variable-number-slider
         default: 4
         format: px
+        min: 0
+        max: 20
+        step: 1
     -
         id: nn-theme-file-tag-bg
         title: File tag background
@@ -2838,9 +2851,12 @@ settings:
         id: nn-theme-file-tag-border-radius
         title: Tag pill border radius
         description: Corner radius for tag pills.
-        type: variable-number
+        type: variable-number-slider
         default: 10
         format: px
+        min: 0
+        max: 10
+        step: 1
     -
         id: nn-theme-file-tag-text-color
         title: File tag text color
