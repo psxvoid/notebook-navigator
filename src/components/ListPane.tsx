@@ -435,6 +435,7 @@ export const ListPane = React.memo(
                                             <div className="nn-list-bottom-spacer" />
                                         ) : item.type === ListPaneItemType.FILE && item.data instanceof TFile ? (
                                             <FileItem
+                                                key={item.key} // Ensures each file gets a fresh component instance, preventing stale data from previous files
                                                 file={item.data}
                                                 isSelected={isSelected}
                                                 hasSelectedAbove={hasSelectedAbove}

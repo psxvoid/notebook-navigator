@@ -49,6 +49,7 @@
 import React, { useRef, useMemo, useEffect, useState, useCallback } from 'react';
 import { TFile, setTooltip, setIcon } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
+import type { FileContentChange } from '../storage/IndexedDBStorage';
 import { useMetadataService } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useFileCache } from '../context/StorageContext';
@@ -108,11 +109,49 @@ export const FileItem = React.memo(function FileItem({
     const { navigateToTag } = useTagNavigation();
     const metadataService = useMetadataService();
 
+    // === Helper functions ===
+    // Load all file metadata from cache
+    const loadFileData = () => {
+        const db = getDB();
+
+        const preview = appearanceSettings.showPreview && file.extension === 'md' ? db.getCachedPreviewText(file.path) : '';
+
+        const tagList = db.getCachedTags(file.path);
+
+        let imageUrl: string | null = null;
+        if (appearanceSettings.showImage) {
+            if (isImageFile(file)) {
+                try {
+                    imageUrl = app.vault.getResourcePath(file);
+                } catch {
+                    imageUrl = null;
+                }
+            } else {
+                const imagePath = db.getCachedFeatureImageUrl(file.path);
+                if (imagePath) {
+                    const imageFile = app.vault.getFileByPath(imagePath);
+                    if (imageFile) {
+                        try {
+                            imageUrl = app.vault.getResourcePath(imageFile);
+                        } catch {
+                            imageUrl = null;
+                        }
+                    }
+                }
+            }
+        }
+
+        return { preview, tagList, imageUrl };
+    };
+
     // === State ===
     const [isHovered, setIsHovered] = React.useState(false);
-    const [previewText, setPreviewText] = useState<string>('');
-    const [tags, setTags] = useState<string[]>([]);
-    const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(null);
+
+    // Initialize state with cache data
+    const initialData = loadFileData();
+    const [previewText, setPreviewText] = useState<string>(initialData.preview);
+    const [tags, setTags] = useState<string[]>(initialData.tagList);
+    const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(initialData.imageUrl);
 
     // === Refs ===
     const fileRef = useRef<HTMLDivElement>(null);
@@ -257,54 +296,17 @@ export const FileItem = React.memo(function FileItem({
         return classes.join(' ');
     }, [isSelected, isSlimMode, hasSelectedAbove, hasSelectedBelow]);
 
-    // Single subscription for all content changes
+    // Handle file changes and subscribe to content updates
     useEffect(() => {
-        const db = getDB(); // Get MemoryFileCache instance
+        // Load current file data
+        const { preview, tagList, imageUrl } = loadFileData();
+        setPreviewText(preview);
+        setTags(tagList);
+        setFeatureImageUrl(imageUrl);
 
-        // Initial load of all data from RAM cache
-        if (appearanceSettings.showPreview && file.extension === 'md') {
-            setPreviewText(db.getCachedPreviewText(file.path));
-        } else {
-            setPreviewText('');
-        }
-
-        if (appearanceSettings.showImage) {
-            if (isImageFile(file)) {
-                try {
-                    const resourcePath = app.vault.getResourcePath(file);
-                    setFeatureImageUrl(resourcePath);
-                } catch {
-                    setFeatureImageUrl(null);
-                }
-            } else {
-                const imagePath = db.getCachedFeatureImageUrl(file.path); // Get path from RAM cache
-
-                // If we have a path, convert it to a URL
-                if (imagePath) {
-                    const imageFile = app.vault.getFileByPath(imagePath);
-                    if (imageFile) {
-                        try {
-                            const resourceUrl = app.vault.getResourcePath(imageFile);
-                            setFeatureImageUrl(resourceUrl);
-                        } catch {
-                            setFeatureImageUrl(null);
-                        }
-                    } else {
-                        setFeatureImageUrl(null);
-                    }
-                } else {
-                    setFeatureImageUrl(null);
-                }
-            }
-        } else {
-            setFeatureImageUrl(null);
-        }
-
-        const initialTags = db.getCachedTags(file.path); // Get tags from RAM cache
-        setTags(initialTags);
-
-        // Subscribe to RAM cache changes for this specific file
-        const unsubscribe = db.onFileContentChange(file.path, changes => {
+        // Subscribe to content changes
+        const db = getDB();
+        const unsubscribe = db.onFileContentChange(file.path, (changes: FileContentChange['changes']) => {
             if (changes.preview !== undefined && appearanceSettings.showPreview && file.extension === 'md') {
                 setPreviewText(changes.preview || '');
             }
@@ -600,6 +602,7 @@ export const FileItem = React.memo(function FileItem({
                                             src={featureImageUrl}
                                             alt={strings.common.featureImageAlt}
                                             className="nn-feature-image-img"
+                                            loading="eager" // Load images immediately when switching folders
                                             draggable={false}
                                             onDragStart={e => e.preventDefault()}
                                             onError={e => {
