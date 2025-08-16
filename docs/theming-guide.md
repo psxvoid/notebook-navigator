@@ -43,13 +43,13 @@ level.
 | ------------------------------------------- | ---------------------------------- | ------------------------------------------------- |
 | `--nn-theme-navitem-hover-bg`               | `var(--background-modifier-hover)` | Item hover background color                       |
 | `--nn-theme-navitem-selected-bg`            | `var(--text-selection)`            | Selected item background color                    |
-| `--nn-theme-navitem-border-radius`          | `6px`                              | Corner radius for folder and tag items            |
+| `--nn-theme-navitem-border-radius`          | `4px`                              | Corner radius for folder and tag items            |
 | `--nn-theme-navitem-chevron-color`          | `var(--text-muted)`                | Color for expand/collapse arrows                  |
 | `--nn-theme-navitem-icon-color`             | `var(--text-muted)`                | Icon color for folders and tags                   |
 | `--nn-theme-navitem-name-color`             | `var(--text-normal)`               | Text color for folder and tag names               |
 | `--nn-theme-navitem-count-color`            | `var(--text-muted)`                | Text color for file count badges                  |
 | `--nn-theme-navitem-count-bg`               | `transparent`                      | Background color for file count badges            |
-| `--nn-theme-navitem-count-border-radius`    | `6px`                              | Corner radius for file count badges               |
+| `--nn-theme-navitem-count-border-radius`    | `8px`                              | Corner radius for file count badges               |
 | `--nn-theme-navitem-selected-inactive-bg`   | `var(--background-modifier-hover)` | Selected item background when pane is inactive    |
 | `--nn-theme-navitem-selected-chevron-color` | `var(--text-muted)`                | Expand/collapse arrow color when item is selected |
 | `--nn-theme-navitem-selected-icon-color`    | `var(--text-muted)`                | Icon color when item is selected                  |
@@ -94,7 +94,7 @@ the default style.
 | --------------------------------------------- | ----------------------------------- | ----------------------------------------------------------- |
 | `--nn-theme-file-border-radius`               | `8px`                               | Corner radius for file items                                |
 | `--nn-theme-file-name-color`                  | `var(--text-normal)`                | Text color for file names                                   |
-| `--nn-theme-file-feature-border-radius`       | `8px`                               | Corner radius for feature images                            |
+| `--nn-theme-file-feature-border-radius`       | `4px`                               | Corner radius for feature images                            |
 | `--nn-theme-file-preview-color`               | `var(--text-muted)`                 | Text color for content preview                              |
 | `--nn-theme-file-date-color`                  | `var(--text-normal)`                | Text color for creation or modification dates               |
 | `--nn-theme-file-parent-color`                | `var(--text-muted)`                 | Text color for parent folder path (when showing subfolders) |
@@ -111,7 +111,7 @@ the default style.
 | ------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------- |
 | `--nn-theme-quick-actions-bg`               | `color-mix(in srgb, var(--background-primary) 95%, transparent)` | Background color of quick actions toolbar (supports transparency) |
 | `--nn-theme-quick-actions-border`           | `var(--background-modifier-border)`                              | Border color of quick actions toolbar                             |
-| `--nn-theme-quick-actions-border-radius`    | `8px`                                                            | Corner radius for quick actions panel                             |
+| `--nn-theme-quick-actions-border-radius`    | `4px`                                                            | Corner radius for quick actions panel                             |
 | `--nn-theme-quick-actions-icon-color`       | `var(--text-muted)`                                              | Icon color for quick action buttons                               |
 | `--nn-theme-quick-actions-icon-hover-color` | `var(--text-normal)`                                             | Icon color when hovering quick action buttons                     |
 | `--nn-theme-quick-actions-separator-color`  | `var(--background-modifier-border)`                              | Divider color between quick action buttons                        |
@@ -163,13 +163,13 @@ body {
   /* Folder & tag items */
   --nn-theme-navitem-hover-bg: #fdf2f8; /* Soft pink hover */
   --nn-theme-navitem-selected-bg: #c084fc; /* Bright purple selection */
-  --nn-theme-navitem-border-radius: 8px; /* Rounded corners */
+  --nn-theme-navitem-border-radius: 4px; /* Rounded corners */
   --nn-theme-navitem-chevron-color: #c4b5fd; /* Light purple arrows */
   --nn-theme-navitem-icon-color: #a78bfa; /* Vibrant purple icons */
   --nn-theme-navitem-name-color: #4c1d95; /* Deep purple text */
   --nn-theme-navitem-count-color: #ffffff; /* White count text */
   --nn-theme-navitem-count-bg: #ec4899; /* Hot pink badge */
-  --nn-theme-navitem-count-border-radius: 12px; /* Pill-shaped count badges */
+  --nn-theme-navitem-count-border-radius: 8px; /* Pill-shaped count badges */
   --nn-theme-navitem-selected-inactive-bg: #e9d5ff; /* Muted purple inactive */
 
   /* Selected item styling */
@@ -207,7 +207,7 @@ body {
   /* File items */
   --nn-theme-file-border-radius: 10px; /* Rounded file items */
   --nn-theme-file-name-color: #1e1b4b; /* Deep indigo text */
-  --nn-theme-file-feature-border-radius: 6px; /* Slightly rounded images */
+  --nn-theme-file-feature-border-radius: 4px; /* Slightly rounded images */
   --nn-theme-file-preview-color: #6b7280; /* Neutral gray preview */
   --nn-theme-file-date-color: #9ca3af; /* Light gray date */
   --nn-theme-file-parent-color: #c084fc; /* Purple folder path */
@@ -226,7 +226,7 @@ body {
     0.92
   ); /* Semi-transparent pink-white */
   --nn-theme-quick-actions-border: #f9a8d4; /* Pink border */
-  --nn-theme-quick-actions-border-radius: 12px; /* Rounded toolbar */
+  --nn-theme-quick-actions-border-radius: 4px; /* Rounded toolbar */
   --nn-theme-quick-actions-icon-color: #8b5cf6; /* Purple icons */
   --nn-theme-quick-actions-icon-hover-color: #ec4899; /* Hot pink on hover */
   --nn-theme-quick-actions-separator-color: #fbcfe8; /* Light pink separator */

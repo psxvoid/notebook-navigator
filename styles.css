@@ -74,13 +74,13 @@ body {
     /* -- Navigation Items (Folders & Tags) -- */
     --nn-theme-navitem-hover-bg: var(--background-modifier-hover);
     --nn-theme-navitem-selected-bg: var(--text-selection);
-    --nn-theme-navitem-border-radius: 6px;
+    --nn-theme-navitem-border-radius: 4px;
     --nn-theme-navitem-chevron-color: var(--text-muted);
     --nn-theme-navitem-icon-color: var(--text-muted);
     --nn-theme-navitem-name-color: var(--text-normal);
     --nn-theme-navitem-count-color: var(--text-muted);
     --nn-theme-navitem-count-bg: transparent;
-    --nn-theme-navitem-count-border-radius: 6px;
+    --nn-theme-navitem-count-border-radius: 8px;
     --nn-theme-navitem-selected-inactive-bg: var(--background-modifier-hover);
     --nn-theme-navitem-selected-chevron-color: var(--text-muted);
     --nn-theme-navitem-selected-icon-color: var(--text-muted);
@@ -97,7 +97,7 @@ body {
     /* -- File Items -- */
     --nn-theme-file-border-radius: 8px;
     --nn-theme-file-name-color: var(--text-normal);
-    --nn-theme-file-feature-border-radius: 8px;
+    --nn-theme-file-feature-border-radius: 4px;
     --nn-theme-file-preview-color: var(--text-muted);
     --nn-theme-file-date-color: var(--text-normal);
     --nn-theme-file-parent-color: var(--text-muted);
@@ -111,7 +111,7 @@ body {
     /* -- Quick Actions -- */
     --nn-theme-quick-actions-bg: color-mix(in srgb, var(--background-primary) 95%, transparent);
     --nn-theme-quick-actions-border: var(--background-modifier-border);
-    --nn-theme-quick-actions-border-radius: 8px;
+    --nn-theme-quick-actions-border-radius: 4px;
     --nn-theme-quick-actions-icon-color: var(--text-muted);
     --nn-theme-quick-actions-icon-hover-color: var(--text-normal);
     --nn-theme-quick-actions-separator-color: var(--background-modifier-border);
@@ -2580,7 +2580,7 @@ settings:
         title: File count border radius
         description: Corner radius for file count badges.
         type: variable-number
-        default: 6
+        default: 8
         format: px
     -
         id: nn-theme-navitem-hover-bg
@@ -2603,7 +2603,7 @@ settings:
         title: Item border radius
         description: Corner radius for folder and tag items.
         type: variable-number
-        default: 6
+        default: 4
         format: px
     -
         id: nn-theme-navitem-selected-inactive-bg
@@ -2823,7 +2823,7 @@ settings:
         title: Feature image border radius
         description: Corner radius for feature images.
         type: variable-number
-        default: 8
+        default: 4
         format: px
     -
         id: nn-theme-file-tag-bg
@@ -2909,7 +2909,7 @@ settings:
         title: Toolbar border radius
         description: Corner radius for quick actions panel.
         type: variable-number
-        default: 8
+        default: 4
         format: px
     -
         id: nn-theme-quick-actions-icon-color
