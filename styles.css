@@ -730,11 +730,12 @@ body {
     display: none;
     background: var(--nn-theme-quick-actions-bg);
     border: 1px solid var(--nn-theme-quick-actions-border);
-    border-radius: var(--nn-theme-quick-actions-border-radius);
+    border-radius: min(12px, var(--nn-theme-quick-actions-border-radius));
     z-index: 10;
     flex-direction: row;
     align-items: center;
-    padding: 0 4px;
+    /* Dynamic padding that scales with border radius for better visual balance (clamped to max 6px at 12px radius) */
+    padding: 0 max(4px, calc(min(12px, var(--nn-theme-quick-actions-border-radius)) * 0.5));
     gap: 0;
 }
 
@@ -2908,9 +2909,12 @@ settings:
         id: nn-theme-quick-actions-border-radius
         title: Toolbar border radius
         description: Corner radius for quick actions panel.
-        type: variable-number
+        type: variable-number-slider
         default: 4
         format: px
+        min: 0
+        max: 12
+        step: 1
     -
         id: nn-theme-quick-actions-icon-color
         title: Icon color

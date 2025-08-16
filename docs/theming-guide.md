@@ -107,7 +107,7 @@ custom color styles, which override the default style.
 | ------------------------------------------- | ---------------------------------------------------------------- | ----------------------------------------------------------------- |
 | `--nn-theme-quick-actions-bg`               | `color-mix(in srgb, var(--background-primary) 95%, transparent)` | Background color of quick actions toolbar (supports transparency) |
 | `--nn-theme-quick-actions-border`           | `var(--background-modifier-border)`                              | Border color of quick actions toolbar                             |
-| `--nn-theme-quick-actions-border-radius`    | `4px`                                                            | Corner radius for quick actions panel                             |
+| `--nn-theme-quick-actions-border-radius`    | `4px`                                                            | Corner radius for quick actions panel (min: 0px, max: 12px)       |
 | `--nn-theme-quick-actions-icon-color`       | `var(--text-muted)`                                              | Icon color for quick action buttons                               |
 | `--nn-theme-quick-actions-icon-hover-color` | `var(--text-normal)`                                             | Icon color when hovering quick action buttons                     |
 | `--nn-theme-quick-actions-separator-color`  | `var(--background-modifier-border)`                              | Divider color between quick action buttons                        |
@@ -217,7 +217,7 @@ body {
   /* Quick actions */
   --nn-theme-quick-actions-bg: rgba(253, 250, 246, 0.92); /* Semi-transparent warm off-white */
   --nn-theme-quick-actions-border: #e6d1d0; /* Dusty rose border */
-  --nn-theme-quick-actions-border-radius: 12px; /* Increased rounded toolbar */
+  --nn-theme-quick-actions-border-radius: 12px; /* Maximum rounded toolbar (max: 12px) */
   --nn-theme-quick-actions-icon-color: #3b827e; /* Deep teal icons */
   --nn-theme-quick-actions-icon-hover-color: #b56543; /* Muted terracotta on hover */
   --nn-theme-quick-actions-separator-color: #f0f3f1; /* Soft sage separator */
