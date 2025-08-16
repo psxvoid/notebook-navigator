@@ -18,17 +18,14 @@
 
 ## Introduction
 
-This guide helps you add Notebook Navigator support to your Obsidian theme.
-Simply define these CSS variables in your theme to customize how Notebook
-Navigator looks.
+This guide helps you add Notebook Navigator support to your Obsidian theme. Simply define these CSS variables in your
+theme to customize how Notebook Navigator looks.
 
-**Note for users:** If you just want to change colors, install the Style
-Settings plugin - no coding needed!
+**Note for users:** If you just want to change colors, install the Style Settings plugin - no coding needed!
 
 ## CSS Variables Reference
 
-All variables start with `--nn-theme-` and should be defined at the `body`
-level.
+All variables start with `--nn-theme-` and should be defined at the `body` level.
 
 ### Navigation pane
 
@@ -59,9 +56,8 @@ level.
 
 #### Text styling
 
-These variables control the font weight and decoration of folder/tag names.
-Priority order: folder note styles override custom color styles, which override
-the default style.
+These variables control the font weight and decoration of folder/tag names. Priority order: folder note styles override
+custom color styles, which override the default style.
 
 | Variable                                           | Default     | Description                                                              |
 | -------------------------------------------------- | ----------- | ------------------------------------------------------------------------ |
@@ -157,26 +153,26 @@ body {
      ======================================== */
 
   /* Pane background */
-  --nn-theme-nav-bg: #f8f5ff; /* Soft lavender background */
-  --nn-theme-nav-header-bg: #ede9fe; /* Deeper lavender for header */
+  --nn-theme-nav-bg: #fdfaf6; /* Warm off-white background */
+  --nn-theme-nav-header-bg: #f0f3f1; /* Soft sage for header */
 
   /* Folder & tag items */
-  --nn-theme-navitem-hover-bg: #fdf2f8; /* Soft pink hover */
-  --nn-theme-navitem-selected-bg: #c084fc; /* Bright purple selection */
-  --nn-theme-navitem-border-radius: 4px; /* Rounded corners */
-  --nn-theme-navitem-chevron-color: #c4b5fd; /* Light purple arrows */
-  --nn-theme-navitem-icon-color: #a78bfa; /* Vibrant purple icons */
-  --nn-theme-navitem-name-color: #4c1d95; /* Deep purple text */
+  --nn-theme-navitem-hover-bg: #f4e8e7; /* Light dusty rose hover */
+  --nn-theme-navitem-selected-bg: #e6d1d0; /* Dusty rose selection */
+  --nn-theme-navitem-border-radius: 8px; /* Increased rounded corners */
+  --nn-theme-navitem-chevron-color: #929d99; /* Muted gray-green arrows */
+  --nn-theme-navitem-icon-color: #3b827e; /* Deep teal icons */
+  --nn-theme-navitem-name-color: #4a5451; /* Dark slate text */
   --nn-theme-navitem-count-color: #ffffff; /* White count text */
-  --nn-theme-navitem-count-bg: #ec4899; /* Hot pink badge */
+  --nn-theme-navitem-count-bg: #4fb2ad; /* Brighter teal badge */
   --nn-theme-navitem-count-border-radius: 8px; /* Pill-shaped count badges */
-  --nn-theme-navitem-selected-inactive-bg: #e9d5ff; /* Muted purple inactive */
+  --nn-theme-navitem-selected-inactive-bg: #e9e9e9; /* Muted gray inactive */
 
   /* Selected item styling */
-  --nn-theme-navitem-selected-chevron-color: #ffffff; /* White chevron when selected */
-  --nn-theme-navitem-selected-icon-color: #ffffff; /* White icon when selected */
-  --nn-theme-navitem-selected-name-color: #ffffff; /* White text when selected */
-  --nn-theme-navitem-selected-count-color: #c084fc; /* Purple count text when selected */
+  --nn-theme-navitem-selected-chevron-color: #3f3534; /* Dark brown chevron on selection */
+  --nn-theme-navitem-selected-icon-color: #3f3534; /* Dark brown icon on selection */
+  --nn-theme-navitem-selected-name-color: #3f3534; /* Dark brown text on selection */
+  --nn-theme-navitem-selected-count-color: #e6d1d0; /* Dusty rose count text when selected */
   --nn-theme-navitem-selected-count-bg: #ffffff; /* White count background when selected */
 
   /* Text styling */
@@ -189,70 +185,65 @@ body {
      PANE DIVIDER
      ======================================== */
 
-  --nn-theme-divider-border-color: #d8b4fe; /* Soft purple border */
-  --nn-theme-divider-resize-handle-hover-bg: #818cf8; /* Bright indigo on hover */
+  --nn-theme-divider-border-color: #dcd8d3; /* Soft beige border */
+  --nn-theme-divider-resize-handle-hover-bg: #b4d4e1; /* Powder blue on hover */
 
   /* ========================================
      LIST PANE (Files)
      ======================================== */
 
   /* Pane background */
-  --nn-theme-list-bg: #fefcff; /* Near white with purple tint */
-  --nn-theme-list-header-bg: #faf5ff; /* Light purple header */
-  --nn-theme-list-header-icon-color: #a855f7; /* Folder/tag icon in header */
-  --nn-theme-list-header-breadcrumb-color: #581c87; /* Breadcrumb path text */
-  --nn-theme-list-separator-color: #e9d5ff; /* Soft purple dividers */
-  --nn-theme-list-group-header-text-color: #9333ea; /* Rich purple headers */
+  --nn-theme-list-bg: #ffffff; /* Clean white for file list */
+  --nn-theme-list-header-bg: #f0f3f1; /* Soft sage header */
+  --nn-theme-list-header-icon-color: #3b827e; /* Folder/tag icon in header */
+  --nn-theme-list-header-breadcrumb-color: #4a5451; /* Breadcrumb path text */
+  --nn-theme-list-separator-color: #e9e9e9; /* Light gray dividers */
+  --nn-theme-list-group-header-text-color: #3b827e; /* Deep teal headers */
 
   /* File items */
   --nn-theme-file-border-radius: 10px; /* Rounded file items */
-  --nn-theme-file-name-color: #1e1b4b; /* Deep indigo text */
+  --nn-theme-file-name-color: #3e4845; /* Deep slate-gray text */
   --nn-theme-file-feature-border-radius: 4px; /* Slightly rounded images */
   --nn-theme-file-preview-color: #6b7280; /* Neutral gray preview */
-  --nn-theme-file-date-color: #9ca3af; /* Light gray date */
-  --nn-theme-file-parent-color: #c084fc; /* Purple folder path */
-  --nn-theme-file-tag-text-color: #a21caf; /* Deep pink tag text */
-  --nn-theme-file-tag-bg: #fce7f3; /* Pink tag background */
+  --nn-theme-file-date-color: #7d8583; /* Muted gray-green date */
+  --nn-theme-file-parent-color: #3b827e; /* Deep teal folder path */
+  --nn-theme-file-tag-text-color: #b56543; /* Muted terracotta tag text */
+  --nn-theme-file-tag-bg: #f9e6dc; /* Light apricot tag background */
   --nn-theme-file-tag-border-radius: 16px; /* Very rounded tag pills */
   --nn-theme-file-tag-custom-color-text-color: #ffffff; /* White text for custom colored tags */
-  --nn-theme-file-selected-bg: #c7d2fe; /* Indigo selection */
-  --nn-theme-file-selected-inactive-bg: #f3e8ff; /* Light purple inactive */
+  --nn-theme-file-selected-bg: #e6d1d0; /* Dusty rose selection */
+  --nn-theme-file-selected-inactive-bg: #e9e9e9; /* Light gray inactive */
 
   /* Quick actions */
-  --nn-theme-quick-actions-bg: rgba(
-    255,
-    251,
-    254,
-    0.92
-  ); /* Semi-transparent pink-white */
-  --nn-theme-quick-actions-border: #f9a8d4; /* Pink border */
-  --nn-theme-quick-actions-border-radius: 4px; /* Rounded toolbar */
-  --nn-theme-quick-actions-icon-color: #8b5cf6; /* Purple icons */
-  --nn-theme-quick-actions-icon-hover-color: #ec4899; /* Hot pink on hover */
-  --nn-theme-quick-actions-separator-color: #fbcfe8; /* Light pink separator */
+  --nn-theme-quick-actions-bg: rgba(253, 250, 246, 0.92); /* Semi-transparent warm off-white */
+  --nn-theme-quick-actions-border: #e6d1d0; /* Dusty rose border */
+  --nn-theme-quick-actions-border-radius: 12px; /* Increased rounded toolbar */
+  --nn-theme-quick-actions-icon-color: #3b827e; /* Deep teal icons */
+  --nn-theme-quick-actions-icon-hover-color: #b56543; /* Muted terracotta on hover */
+  --nn-theme-quick-actions-separator-color: #f0f3f1; /* Soft sage separator */
 
   /* ========================================
      HEADERS
      ======================================== */
 
   /* Header colors */
-  --nn-theme-header-border-color: #d8b4fe; /* Soft purple border */
+  --nn-theme-header-border-color: #dcd8d3; /* Soft beige border */
 
   /* Header buttons */
-  --nn-theme-header-button-icon-color: #9333ea; /* Purple button icons */
-  --nn-theme-header-button-hover-bg: #fae8ff; /* Light purple hover */
-  --nn-theme-header-button-active-bg: #f3e8ff; /* Active purple background */
-  --nn-theme-header-button-active-icon-color: #6b21a8; /* Deep purple active */
+  --nn-theme-header-button-icon-color: #7d8583; /* Muted gray-green icons */
+  --nn-theme-header-button-hover-bg: #f0f3f1; /* Soft sage hover */
+  --nn-theme-header-button-active-bg: #e9e9e9; /* Light gray active background */
+  --nn-theme-header-button-active-icon-color: #3e4845; /* Deep slate-gray active */
   --nn-theme-header-button-disabled-icon-color: #d4d4d8; /* Gray disabled */
 
   /* ========================================
      MOBILE STYLES
      ======================================== */
 
-  --nn-theme-mobile-nav-bg: #faf5ff; /* Light purple navigation on mobile */
-  --nn-theme-mobile-tab-icon-color: #a78bfa; /* Purple tab icons */
-  --nn-theme-mobile-tab-active-bg: #ede9fe; /* Lavender active tab */
-  --nn-theme-mobile-tab-active-icon-color: #7c3aed; /* Bright purple active icon */
+  --nn-theme-mobile-nav-bg: #f0f3f1; /* Soft sage navigation on mobile */
+  --nn-theme-mobile-tab-icon-color: #7d8583; /* Muted gray-green tab icons */
+  --nn-theme-mobile-tab-active-bg: #e6d1d0; /* Dusty rose active tab */
+  --nn-theme-mobile-tab-active-icon-color: #3f3534; /* Dark brown active icon */
 }
 ```
 
@@ -260,8 +251,7 @@ body {
 
 ### Supporting Light and Dark Modes
 
-To support both light and dark modes, define your variables under `.theme-light`
-and `.theme-dark` classes:
+To support both light and dark modes, define your variables under `.theme-light` and `.theme-dark` classes:
 
 #### Example: Mode-Aware Theme
 
@@ -311,11 +301,10 @@ and `.theme-dark` classes:
 
 ### User Custom Colors Override
 
-When users set custom colors (right-click → "Change color"), their choices
-automatically override your theme through inline styles.
+When users set custom colors (right-click → "Change color"), their choices automatically override your theme through
+inline styles.
 
 ## Style Settings Support
 
-Notebook Navigator fully supports the Style Settings plugin. When users install
-Style Settings, they can customize all these variables through a UI. Your theme
-values become the defaults that users can override.
+Notebook Navigator fully supports the Style Settings plugin. When users install Style Settings, they can customize all
+these variables through a UI. Your theme values become the defaults that users can override.

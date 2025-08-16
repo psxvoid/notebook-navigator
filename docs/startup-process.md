@@ -2,9 +2,8 @@
 
 ## Overview
 
-The Notebook Navigator plugin has a multi-phase startup process that handles
-data synchronization and content generation. The startup behavior differs
-between cold boots (first launch) and warm boots (subsequent launches).
+The Notebook Navigator plugin has a multi-phase startup process that handles data synchronization and content
+generation. The startup behavior differs between cold boots (first launch) and warm boots (subsequent launches).
 
 ## Key Concepts
 
@@ -148,8 +147,8 @@ Both version changes result in a cold boot to ensure data consistency.
 
 **Trigger**: Database initialization completes (from Phase 3)
 
-This phase handles the initial synchronization between the vault and the
-database, then ensures metadata is ready for tag extraction:
+This phase handles the initial synchronization between the vault and the database, then ensures metadata is ready for
+tag extraction:
 
 #### Shared Initial Steps:
 
@@ -210,8 +209,7 @@ database, then ensures metadata is ready for tag extraction:
 
 #### Data Flow Diagram
 
-The metadata cache resolution and tag extraction process is managed by the
-`useDeferredMetadataCleanup` hook:
+The metadata cache resolution and tag extraction process is managed by the `useDeferredMetadataCleanup` hook:
 
 ```mermaid
 graph TD
@@ -272,18 +270,16 @@ graph TD
 
 #### 4.1 Metadata Cleanup Process:
 
-**Purpose**: Remove orphaned metadata for folders, tags, and files that no
-longer exist in the vault. This prevents the settings file from growing
-indefinitely with obsolete data.
+**Purpose**: Remove orphaned metadata for folders, tags, and files that no longer exist in the vault. This prevents the
+settings file from growing indefinitely with obsolete data.
 
 **Timing**:
 
 - With tags enabled: Runs after all tags are extracted
 - With tags disabled: Runs immediately after files are queued
 
-**Architecture**: The cleanup uses "validators" - data structures that contain
-the current state of the vault (which files, folders, and tags actually exist).
-The cleanup process compares stored metadata against these validators to
+**Architecture**: The cleanup uses "validators" - data structures that contain the current state of the vault (which
+files, folders, and tags actually exist). The cleanup process compares stored metadata against these validators to
 identify and remove orphaned entries:
 
 ```typescript
@@ -296,8 +292,7 @@ await metadataService.runUnifiedCleanup(validators);
 
 **Validator Preparation** (`MetadataService.prepareCleanupValidators`):
 
-Validators are data structures containing the current "truth" about what exists
-in the vault:
+Validators are data structures containing the current "truth" about what exists in the vault:
 
 ```
 1. Collect vault files:
@@ -344,14 +339,12 @@ Using the validators, the cleanup removes orphaned metadata:
 
 **Trigger**: Files queued by ContentProviderRegistry (from Phase 4)
 
-Content is generated asynchronously in the background by the
-ContentProviderRegistry and individual providers:
+Content is generated asynchronously in the background by the ContentProviderRegistry and individual providers:
 
 1. **File Detection**: Each provider checks if files need processing
    - TagContentProvider: Checks if tags are null or file modified
    - PreviewContentProvider: Checks if preview is null or file modified
-   - FeatureImageContentProvider: Checks if featureImage is null or file
-     modified
+   - FeatureImageContentProvider: Checks if featureImage is null or file modified
    - MetadataContentProvider: Checks if metadata is null or file modified
 
 2. **Queue Management**: Files are queued based on enabled settings
@@ -362,11 +355,9 @@ ContentProviderRegistry and individual providers:
 3. **Processing**: Each provider processes files independently
    - TagContentProvider: Extracts tags from app.metadataCache.getFileCache()
    - PreviewContentProvider: Reads file content via app.vault.cachedRead()
-   - FeatureImageContentProvider: Checks frontmatter properties via
-     app.metadataCache.getFileCache(), falls back to checking embedded images
-     using app.metadataCache.getFirstLinkpathDest()
-   - MetadataContentProvider: Extracts custom frontmatter fields from
-     app.metadataCache.getFileCache()
+   - FeatureImageContentProvider: Checks frontmatter properties via app.metadataCache.getFileCache(), falls back to
+     checking embedded images using app.metadataCache.getFirstLinkpathDest()
+   - MetadataContentProvider: Extracts custom frontmatter fields from app.metadataCache.getFileCache()
 
 4. **Database Updates**: Results stored in IndexedDB
    - Each provider returns updates to IndexedDBStorage

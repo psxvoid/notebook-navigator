@@ -1,7 +1,6 @@
 # Scripts
 
-Utility scripts for building, releasing, and maintaining the Notebook Navigator
-plugin.
+Utility scripts for building, releasing, and maintaining the Notebook Navigator plugin.
 
 ## build.sh
 
@@ -45,8 +44,7 @@ node scripts/release.js patch --dry-run    # Preview changes
 
 **Features:**
 
-- Increments version numbers in `manifest.json`, `package.json`, and
-  `versions.json`
+- Increments version numbers in `manifest.json`, `package.json`, and `versions.json`
 - Validates git repository state (clean, on main branch, synced with remote)
 - Runs build verification before release
 - Creates git commit and tag
@@ -78,8 +76,7 @@ Generates git diff snapshots for code review and backup purposes.
 
 1. **Uncommitted changes** - Shows staged and unstaged changes
 2. **Current branch vs main** - Shows all changes from main branch
-3. **Current state vs before specific commit** - Shows changes since a specific
-   commit
+3. **Current state vs before specific commit** - Shows changes since a specific commit
 
 **Output:**
 

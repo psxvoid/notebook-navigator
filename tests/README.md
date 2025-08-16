@@ -4,8 +4,7 @@ This directory contains test scripts for the Notebook Navigator plugin.
 
 ## API Test Suite
 
-The `api-test-suite.js` file contains a comprehensive test suite for the
-Notebook Navigator API.
+The `api-test-suite.js` file contains a comprehensive test suite for the Notebook Navigator API.
 
 ### Usage
 
@@ -31,5 +30,5 @@ runTests({ cleanup: false }); // Keep test files for debugging
 
 ### Safety
 
-The test suite only creates temporary files with "test-" prefix at the root of
-your vault and automatically cleans them up after completion.
+The test suite only creates temporary files with "test-" prefix at the root of your vault and automatically cleans them
+up after completion.

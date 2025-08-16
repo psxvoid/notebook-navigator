@@ -2,11 +2,9 @@
 
 ## Overview
 
-The service layer provides the business logic that sits between the storage
-layer and the UI components. Services encapsulate complex operations, manage
-state transitions, and coordinate between different parts of the system. All
-services are accessed through dependency injection via the ServicesContext,
-ensuring loose coupling and testability.
+The service layer provides the business logic that sits between the storage layer and the UI components. Services
+encapsulate complex operations, manage state transitions, and coordinate between different parts of the system. All
+services are accessed through dependency injection via the ServicesContext, ensuring loose coupling and testability.
 
 ## Service Hierarchy
 
@@ -60,8 +58,8 @@ graph TB
 
 ### MetadataService
 
-Central service for managing all metadata operations. Delegates to specialized
-sub-services for better organization and separation of concerns.
+Central service for managing all metadata operations. Delegates to specialized sub-services for better organization and
+separation of concerns.
 
 **Location:** `src/services/MetadataService.ts`
 
@@ -114,8 +112,7 @@ performUnifiedCleanup(validators: CleanupValidators): Promise<CleanupResult>
 
 ### FileSystemOperations
 
-Handles all file system operations with user interaction through modals and
-confirmations.
+Handles all file system operations with user interaction through modals and confirmations.
 
 **Location:** `src/services/FileSystemService.ts`
 
@@ -142,8 +139,7 @@ deleteFolderNote(folder: TFolder): Promise<void>
 
 ### ContentProviderRegistry
 
-Manages the registration and coordination of content providers for background
-content generation.
+Manages the registration and coordination of content providers for background content generation.
 
 **Location:** `src/services/content/ContentProviderRegistry.ts`
 
@@ -162,15 +158,13 @@ content generation.
   - Handles unicode and length limits
   - Supports configurable preview length
 
-- **FeatureImageContentProvider**
-  (`src/services/content/FeatureImageContentProvider.ts`)
+- **FeatureImageContentProvider** (`src/services/content/FeatureImageContentProvider.ts`)
   - Extracts feature images from frontmatter properties
   - Falls back to first embedded image in content
   - Supports multiple image property names
   - Validates image file existence
 
-- **MetadataContentProvider**
-  (`src/services/content/MetadataContentProvider.ts`)
+- **MetadataContentProvider** (`src/services/content/MetadataContentProvider.ts`)
   - Extracts custom frontmatter fields
   - Handles name field overrides
   - Processes created/modified timestamp fields
@@ -346,19 +340,14 @@ interface IContentProvider {
 
 ## Service Initialization
 
-Services are instantiated during plugin startup (see startup-process.md Phase
-1):
+Services are instantiated during plugin startup (see startup-process.md Phase 1):
 
 **In Plugin.onload()** - Core services initialized immediately:
 
 ```typescript
 // Initialize core services
 this.fileSystemOps = new FileSystemOperations(this.app, this.settings);
-this.metadataService = new MetadataService(
-  this.app,
-  this,
-  () => this.tagTreeService
-);
+this.metadataService = new MetadataService(this.app, this, () => this.tagTreeService);
 this.tagOperations = new TagOperations(this.app);
 this.tagTreeService = new TagTreeService();
 this.commandQueue = new CommandQueueService(this.app);
@@ -395,8 +384,7 @@ registry.registerProvider(new TagContentProvider(app));
 
 ### Content Generation Flow
 
-Background content generation follows this process (see startup-process.md Phase
-5):
+Background content generation follows this process (see startup-process.md Phase 5):
 
 1. **File Detection**: Each provider checks if files need processing
    - Null content fields indicate initial generation needed

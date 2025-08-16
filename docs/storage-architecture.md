@@ -2,18 +2,16 @@
 
 ## Overview
 
-The Notebook Navigator plugin uses four distinct storage containers, each
-serving a specific purpose in the plugin's data management strategy. These
-containers work together to provide fast performance, data persistence, and
-cross-device synchronization while maintaining clear separation of concerns.
+The Notebook Navigator plugin uses four distinct storage containers, each serving a specific purpose in the plugin's
+data management strategy. These containers work together to provide fast performance, data persistence, and cross-device
+synchronization while maintaining clear separation of concerns.
 
 ## Storage Containers
 
 ### 1. IndexedDB (Persistent Local Storage)
 
-**Purpose**: Stores all file metadata and generated content locally on the
-device. This is the primary database for caching vault information to enable
-fast searches and filtering without repeatedly reading files from disk.
+**Purpose**: Stores all file metadata and generated content locally on the device. This is the primary database for
+caching vault information to enable fast searches and filtering without repeatedly reading files from disk.
 
 **Location**: Browser's IndexedDB storage (device-specific)
 
@@ -54,9 +52,8 @@ interface FileData {
 
 ### 2. Local Storage (Persistent Local Storage)
 
-**Purpose**: Stores UI state and preferences that should persist across sessions
-but remain local to each device. This allows users to have different UI layouts
-on desktop vs mobile, for example.
+**Purpose**: Stores UI state and preferences that should persist across sessions but remain local to each device. This
+allows users to have different UI layouts on desktop vs mobile, for example.
 
 **Location**: Browser's localStorage (device-specific, vault-specific)
 
@@ -95,9 +92,9 @@ const STORAGE_KEYS = {
 
 ### 3. Memory Cache (Temporary Storage)
 
-**Purpose**: Provides synchronous access to all file data during rendering. This
-in-memory mirror of IndexedDB eliminates async operations in React components,
-preventing layout shifts and enabling smooth scrolling in virtualized lists.
+**Purpose**: Provides synchronous access to all file data during rendering. This in-memory mirror of IndexedDB
+eliminates async operations in React components, preventing layout shifts and enabling smooth scrolling in virtualized
+lists.
 
 **Location**: JavaScript heap memory (RAM)
 
@@ -128,9 +125,8 @@ class MemoryFileCache {
 
 ### 4. Settings (Synchronized Storage)
 
-**Purpose**: Stores user preferences and configuration that should be consistent
-across all devices. When using Obsidian Sync, these settings are automatically
-synchronized.
+**Purpose**: Stores user preferences and configuration that should be consistent across all devices. When using Obsidian
+Sync, these settings are automatically synchronized.
 
 **Location**: `.obsidian/plugins/notebook-navigator/data.json`
 
@@ -256,8 +252,7 @@ interface NotebookNavigatorSettings {
 
 - **Batch Operations**: Group multiple updates in single transaction
 - **Async Processing**: Use requestIdleCallback for background updates
-- **Version Management**: Increment versions carefully to avoid unnecessary
-  cache clears
+- **Version Management**: Increment versions carefully to avoid unnecessary cache clears
 
 ### Local Storage
 

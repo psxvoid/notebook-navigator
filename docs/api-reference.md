@@ -1,7 +1,7 @@
 # Notebook Navigator API Reference
 
-The Notebook Navigator plugin exposes a public API that allows other plugins and
-scripts to interact with its features programmatically.
+The Notebook Navigator plugin exposes a public API that allows other plugins and scripts to interact with its features
+programmatically.
 
 **Current Version:** 1.0.0
 
@@ -22,8 +22,8 @@ scripts to interact with its features programmatically.
 
 ### Accessing the API
 
-The Notebook Navigator API is available at runtime through the Obsidian app
-object. Here's a practical example using Templater:
+The Notebook Navigator API is available at runtime through the Obsidian app object. Here's a practical example using
+Templater:
 
 ```javascript
 <%* // Templater script to pin the current file in Notebook Navigator
@@ -72,17 +72,14 @@ Customize folder and tag appearance, manage pinned files.
 
 ### Runtime Behavior
 
-- **Icon format**: While TypeScript provides compile-time checking via
-  `IconString` type, the API currently accepts any string at runtime. Invalid
-  formats are saved but may not render correctly.
-- **Color values**: Any string is accepted and saved. Invalid CSS colors will
-  not render correctly but won't throw errors.
-- **Tag normalization**: The `getTagMeta()` and `setTagMeta()` methods
-  automatically normalize tags:
+- **Icon format**: While TypeScript provides compile-time checking via `IconString` type, the API currently accepts any
+  string at runtime. Invalid formats are saved but may not render correctly.
+- **Color values**: Any string is accepted and saved. Invalid CSS colors will not render correctly but won't throw
+  errors.
+- **Tag normalization**: The `getTagMeta()` and `setTagMeta()` methods automatically normalize tags:
   - Both `'work'` and `'#work'` are accepted and treated as `'#work'`
   - Tags are case-insensitive: `'#Work'` and `'#work'` refer to the same tag
-  - The plugin preserves the canonical case (first encountered form) for display
-    but all comparisons use lowercase
+  - The plugin preserves the canonical case (first encountered form) for display but all comparisons use lowercase
 
 ### Folder and Tag Metadata
 
@@ -101,13 +98,12 @@ When using `setFolderMeta` or `setTagMeta`, partial updates follow this pattern:
 - **`color: null`** - Clears the color (removes the property)
 - **`color: undefined`** or property not present - Leaves the color unchanged
 
-This applies to all metadata properties (color, icon, etc.). Only properties
-explicitly included in the update object are modified.
+This applies to all metadata properties (color, icon, etc.). Only properties explicitly included in the update object
+are modified.
 
 ### Pinned Files
 
-Notes can be pinned in different contexts - they appear at the top of the file
-list when viewing folders or tags.
+Notes can be pinned in different contexts - they appear at the top of the file list when viewing folders or tags.
 
 #### Pin Methods
 
@@ -122,17 +118,13 @@ list when viewing folders or tags.
 
 Pinned notes behave differently depending on the current view:
 
-- **Folder Context**: When viewing folders in the navigator, only notes pinned
-  in the 'folder' context appear at the top
-- **Tag Context**: When viewing tags, only notes pinned in the 'tag' context
-  appear at the top
-- **Both Contexts**: A note can be pinned in both contexts and will appear at
-  the top in both views
+- **Folder Context**: When viewing folders in the navigator, only notes pinned in the 'folder' context appear at the top
+- **Tag Context**: When viewing tags, only notes pinned in the 'tag' context appear at the top
+- **Both Contexts**: A note can be pinned in both contexts and will appear at the top in both views
 - **Default Behavior**: Pin/unpin operations default to 'all' (both contexts)
 
-This allows users to have different sets of pinned notes for different
-workflows - for example, pinning project-related notes when browsing folders,
-and reference notes when browsing by tags.
+This allows users to have different sets of pinned notes for different workflows - for example, pinning project-related
+notes when browsing folders, and reference notes when browsing by tags.
 
 ```typescript
 // Set folder appearance
@@ -240,9 +232,7 @@ nn.on('pinned-files-changed', ({ files }) => {
   console.log(`Total pinned files: ${files.length}`);
   // Each file includes context information
   files.forEach(pf => {
-    console.log(
-      `${pf.file.name} - folder: ${pf.context.folder}, tag: ${pf.context.tag}`
-    );
+    console.log(`${pf.file.name} - folder: ${pf.context.folder}, tag: ${pf.context.tag}`);
   });
 });
 
@@ -285,8 +275,7 @@ nn.off(selectionRef);
 
 ## TypeScript Support
 
-Since Obsidian plugins don't export types like npm packages, you have two
-options:
+Since Obsidian plugins don't export types like npm packages, you have two options:
 
 ### Option 1: With Type Definitions (Recommended)
 
@@ -297,15 +286,9 @@ Download the TypeScript definitions file for full type safety and IntelliSense:
 Save it to your plugin project and import:
 
 ```typescript
-import type {
-  NotebookNavigatorAPI,
-  NotebookNavigatorEvents,
-  NavItem,
-  IconString
-} from './notebook-navigator';
+import type { NotebookNavigatorAPI, NotebookNavigatorEvents, NavItem, IconString } from './notebook-navigator';
 
-const nn = app.plugins.plugins['notebook-navigator']
-  ?.api as NotebookNavigatorAPI;
+const nn = app.plugins.plugins['notebook-navigator']?.api as NotebookNavigatorAPI;
 if (nn) {
   // Wait for storage if needed, then proceed
   if (!nn.isStorageReady()) {
@@ -347,18 +330,13 @@ if (nn) {
 
 The type definitions provide:
 
-- **Template literal types** for icons - `IconString` ensures only valid icon
-  formats at compile time
+- **Template literal types** for icons - `IconString` ensures only valid icon formats at compile time
 - **Generic event subscriptions** - Full type inference for event payloads
-- **Readonly arrays** - Prevents accidental mutation of returned data at compile
-  time
-- **Exported utility types** - `NavItem`, `IconString`, `PinContext`,
-  `PinnedFile`, etc.
-- **Complete API interface** - `NotebookNavigatorAPI` with all methods and
-  properties
-- **Typed event system** - `NotebookNavigatorEvents` maps event names to
-  payloads
+- **Readonly arrays** - Prevents accidental mutation of returned data at compile time
+- **Exported utility types** - `NavItem`, `IconString`, `PinContext`, `PinnedFile`, etc.
+- **Complete API interface** - `NotebookNavigatorAPI` with all methods and properties
+- **Typed event system** - `NotebookNavigatorEvents` maps event names to payloads
 - **Full JSDoc comments** - Documentation for every method and type
 
-**Note**: These type checks are compile-time only. At runtime, the API is
-permissive and accepts any values (see Runtime Behavior sections for each API).
+**Note**: These type checks are compile-time only. At runtime, the API is permissive and accepts any values (see Runtime
+Behavior sections for each API).

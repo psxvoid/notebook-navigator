@@ -2,27 +2,25 @@
 
 ## Overview
 
-The Notebook Navigator plugin uses React components with virtual scrolling to
-handle large vaults. The architecture uses virtualization, memoization, and
-synchronous data access patterns for performance.
+The Notebook Navigator plugin uses React components with virtual scrolling to handle large vaults. The architecture uses
+virtualization, memoization, and synchronous data access patterns for performance.
 
 ## Core Principles
 
 ### 1. Virtual Scrolling
 
-Both navigation and file list panes use **TanStack Virtual** to render only
-visible items, enabling smooth performance with thousands of files and folders.
+Both navigation and file list panes use **TanStack Virtual** to render only visible items, enabling smooth performance
+with thousands of files and folders.
 
 ### 2. Synchronous Data Access
 
-All data needed for rendering is available synchronously from the **Memory
-Cache**, eliminating layout shifts and enabling accurate height calculations for
-virtual scrolling.
+All data needed for rendering is available synchronously from the **Memory Cache**, eliminating layout shifts and
+enabling accurate height calculations for virtual scrolling.
 
 ### 3. Component Memoization
 
-Every component uses **React.memo** to prevent unnecessary re-renders. Props are
-carefully designed to be stable references.
+Every component uses **React.memo** to prevent unnecessary re-renders. Props are carefully designed to be stable
+references.
 
 ### 4. Context-Based State Management
 

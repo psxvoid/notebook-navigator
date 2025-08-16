@@ -1,7 +1,7 @@
 # Public API Type Definitions
 
-This folder contains TypeScript type definitions for external plugin developers
-who want to integrate with the Notebook Navigator API.
+This folder contains TypeScript type definitions for external plugin developers who want to integrate with the Notebook
+Navigator API.
 
 ## Files
 
@@ -18,8 +18,7 @@ Complete TypeScript type definitions for the Notebook Navigator API.
    ```
 3. Use with the API:
    ```typescript
-   const nn = app.plugins.plugins['notebook-navigator']
-     ?.api as NotebookNavigatorAPI;
+   const nn = app.plugins.plugins['notebook-navigator']?.api as NotebookNavigatorAPI;
    ```
 
 **For Maintainers:**
