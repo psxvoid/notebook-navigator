@@ -25,13 +25,24 @@ interface SkeletonViewProps {
 
 export const SkeletonView = React.memo(function SkeletonView({ paneWidth, singlePane }: SkeletonViewProps) {
     if (singlePane) {
-        return <div className="nn-skeleton-list-pane" />;
+        return (
+            <div className="nn-skeleton-list-pane">
+                <div className="nn-skeleton-list-header" />
+                <div className="nn-skeleton-content" />
+            </div>
+        );
     }
 
     return (
         <>
-            <div className="nn-skeleton-navigation-pane" style={{ width: `${paneWidth}px` }} />
-            <div className="nn-skeleton-list-pane" />
+            <div className="nn-skeleton-navigation-pane" style={{ width: `${paneWidth}px` }}>
+                <div className="nn-skeleton-nav-header" />
+                <div className="nn-skeleton-content" />
+            </div>
+            <div className="nn-skeleton-list-pane">
+                <div className="nn-skeleton-list-header" />
+                <div className="nn-skeleton-content" />
+            </div>
         </>
     );
 });

@@ -1037,6 +1037,8 @@ body {
 .nn-skeleton-navigation-pane {
     background-color: var(--nn-theme-nav-bg);
     height: 100%;
+    display: flex;
+    flex-direction: column;
 }
 
 .nn-skeleton-list-pane {
@@ -1044,6 +1046,38 @@ body {
     width: 100%;
     height: 100%;
     flex: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.nn-skeleton-nav-header {
+    height: 32px;
+    background-color: var(--nn-theme-nav-header-bg);
+    border-bottom: 1px solid var(--nn-theme-header-border-color);
+    flex-shrink: 0;
+}
+
+/* Add right border to nav header in dual pane mode */
+:not(.nn-single-pane) .nn-skeleton-nav-header {
+    border-right: 1px solid var(--nn-theme-header-border-color);
+}
+
+.nn-skeleton-list-header {
+    height: 32px;
+    background-color: var(--nn-theme-list-header-bg);
+    border-bottom: 1px solid var(--nn-theme-header-border-color);
+    flex-shrink: 0;
+}
+
+.nn-skeleton-content {
+    flex: 1;
+    overflow: hidden;
+    background-color: inherit;
+}
+
+/* Add right border only to nav content area in dual pane mode */
+:not(.nn-single-pane) .nn-skeleton-navigation-pane .nn-skeleton-content {
+    border-right: 1px solid var(--nn-theme-divider-border-color);
 }
 
 /* ========================================================================
