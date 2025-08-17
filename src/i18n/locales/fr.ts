@@ -523,7 +523,7 @@ export const STRINGS_FR = {
             featureImageProperties: {
                 name: "Propriétés d'image",
                 desc: 'Liste de propriétés de métadonnées séparées par des virgules pour les images miniatures. La première propriété avec une image sera utilisée.',
-                tip: 'Utilisez le plugin "Featured Image" pour définir automatiquement des images. Pour de meilleures performances, utilisez des miniatures de 42px ou 84px pour les écrans Retina.',
+                tip: 'Utilisez le plugin "Featured Image" pour définir automatiquement des images. Pour de meilleures performances et qualité, utilisez des miniatures de 128px.',
                 placeholder: 'featureResized, feature',
                 embedFallback:
                     "Si aucune image n'est trouvée dans les propriétés ci-dessus, la première image intégrée dans le document sera utilisée (nécessite Obsidian 1.9.4+)"

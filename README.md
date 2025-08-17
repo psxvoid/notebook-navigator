@@ -362,20 +362,23 @@ display thumbnail previews in your list pane:
 
 #### Optimizing thumbnail performance
 
-For best performance with Notebook Navigator's 42px thumbnails, configure these Featured Image plugin settings:
+For best performance and crisp display on retina and mobile screens, configure these Featured Image plugin settings to
+create 128px thumbnails:
 
 - **Create resized thumbnail:** `true`
 - **Resized thumbnail frontmatter property:** `featureResized`
-- **Max resized width:** `42` (or `84` for retina displays)
-- **Max resized height:** `42` (or `84` for retina displays)
+- **Max resized width:** `128`
+- **Max resized height:** `128`
 - **Fill resized dimensions:** `true`
 
 Then in Notebook Navigator settings:
 
 - **Image properties:** `featureResized, feature`
 
-This configuration first checks for optimized 42px thumbnails (featureResized), then falls back to the full-size feature
-image if no thumbnail exists. The optimized thumbnails load quickly and display perfectly in the list pane.
+This configuration first checks for optimized 128px thumbnails (featureResized), then falls back to the full-size
+feature image if no thumbnail exists. The 128px size provides 2x resolution for retina displays while keeping file sizes
+small. Thumbnails dynamically scale from 42-64px in the list pane based on content height, and the 128px source ensures
+they remain crisp on all displays.
 
 ### Using folder notes
 
