@@ -4,11 +4,17 @@
 
 body {
     /* ========================================================================
-       Scrollbar Padding Variables
+       Padding Variables for Items and Containers
        ======================================================================== */
 
-    /* Default padding for styled scrollbars */
-    --nn-scroller-padding: 10px;
+    /* Container/Scroller padding */
+    --nn-scroller-padding: 10px; /* Horizontal padding for scroll containers */
+
+    /* Navigation item padding */
+    --nn-nav-item-padding-horizontal: 8px; /* Horizontal padding for navigation items */
+
+    /* File item padding */
+    --nn-file-item-padding-horizontal: 12px; /* Horizontal padding for file items and date headers */
 
     /* ========================================================================
        Fixed Height Variables for Pixel-Perfect Rendering
@@ -19,8 +25,11 @@ body {
     --nn-file-padding-vertical: 8px; /* 8px */
     --nn-file-padding-vertical-slim: 5px; /* Reduced padding for slim mode */
     --nn-file-padding-vertical-slim-mobile: 8px; /* Mobile slim mode padding for touch targets */
+    --nn-file-padding-total: calc(var(--nn-file-padding-vertical) * 2); /* Total vertical padding (top + bottom) */
     --nn-file-second-line-height: 19px; /* Height for date/preview line - tighter spacing */
     --nn-file-preview-line-height: 18px; /* Height for multi-line preview only */
+    --nn-feature-image-min-size: 42px; /* Minimum size for feature images */
+    --nn-feature-image-max-size: 64px; /* Maximum size for feature images */
 
     /* Font sizes - fixed pixel values to prevent scaling with Obsidian font size */
     --nn-file-name-size: 14px; /* Fixed 14px */
@@ -482,7 +491,7 @@ body {
 .nn-navitem-content {
     display: flex;
     align-items: center;
-    padding: var(--nn-nav-padding-vertical) 8px;
+    padding: var(--nn-nav-padding-vertical) var(--nn-nav-item-padding-horizontal);
     border-radius: min(14px, var(--nn-theme-navitem-border-radius));
     margin: 0;
     background: transparent;
@@ -636,7 +645,7 @@ body {
 
 /* File content wrapper - contains all file information */
 .nn-file-content {
-    padding: var(--nn-file-padding-vertical) 12px;
+    padding: var(--nn-file-padding-vertical) var(--nn-file-item-padding-horizontal);
     margin: 0;
     border-radius: min(16px, var(--nn-theme-file-border-radius));
     background: transparent;
@@ -689,7 +698,7 @@ body {
     flex-direction: column;
     gap: 0;
     order: 1; /* Ensure it appears on the left */
-    min-height: 42px; /* Minimum height to match minimum image size */
+    min-height: var(--nn-feature-image-min-size); /* Minimum height to match minimum image size */
     justify-content: flex-start; /* Top-align content */
     /* No align-self - let it stretch naturally */
 }
@@ -927,7 +936,7 @@ body {
 
 /* Slim file item - more compact list appearance */
 .nn-file.nn-slim .nn-file-content {
-    padding: var(--nn-file-padding-vertical-slim) 12px; /* Reduced vertical padding */
+    padding: var(--nn-file-padding-vertical-slim) var(--nn-file-item-padding-horizontal); /* Reduced vertical padding */
 }
 
 /* Slim file name - no bold, smaller font like folder items */
@@ -950,8 +959,8 @@ body {
 /* Feature image container - right-aligned image thumbnail */
 .nn-feature-image {
     /* Default size */
-    width: 42px;
-    height: 42px;
+    width: var(--nn-feature-image-min-size);
+    height: var(--nn-feature-image-min-size);
     flex-shrink: 0;
     border-radius: min(20px, var(--nn-theme-file-feature-border-radius));
     overflow: hidden;
@@ -962,8 +971,12 @@ body {
 
 /* Dynamic sizing based on calculated item height */
 .nn-virtual-file-item .nn-feature-image {
-    /* Size based on item height minus padding (16px) */
-    --image-size: clamp(42px, calc(var(--item-height) - 16px), 64px);
+    /* Size based on item height minus total padding */
+    --image-size: clamp(
+        var(--nn-feature-image-min-size),
+        calc(var(--item-height) - var(--nn-file-padding-total)),
+        var(--nn-feature-image-max-size)
+    );
     width: var(--image-size);
     height: var(--image-size);
 }
@@ -1010,7 +1023,8 @@ body {
 .nn-date-group-header {
     height: var(--nn-date-header-height-subsequent);
     box-sizing: border-box;
-    padding: var(--nn-date-header-padding-top) 12px var(--nn-date-header-padding-bottom) 12px;
+    padding: var(--nn-date-header-padding-top) var(--nn-file-item-padding-horizontal) var(--nn-date-header-padding-bottom)
+        var(--nn-file-item-padding-horizontal);
     font-size: var(--nn-file-small-size);
     font-weight: 600;
     color: var(--nn-theme-list-group-header-text-color);
@@ -1025,7 +1039,7 @@ body {
 /* First date header - no top margin or extra padding for first group */
 .nn-date-group-header.nn-first-header {
     height: var(--nn-date-header-height);
-    padding: 0 12px;
+    padding: 0 var(--nn-file-item-padding-horizontal);
     align-items: center;
 }
 
@@ -1946,7 +1960,7 @@ body.mod-macos:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar
     min-height: 48px;
     display: flex;
     align-items: center;
-    padding: 0 12px;
+    padding: 0 var(--nn-file-item-padding-horizontal);
 }
 
 /* Simplified mobile headers */
@@ -2364,7 +2378,7 @@ body.mod-macos:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar
 
 /* Mobile slim file items - larger touch targets */
 .notebook-navigator-mobile .nn-file.nn-slim .nn-file-content {
-    padding: var(--nn-file-padding-vertical-slim-mobile) 12px;
+    padding: var(--nn-file-padding-vertical-slim-mobile) var(--nn-file-item-padding-horizontal);
 }
 
 /* ========================================================================
