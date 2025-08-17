@@ -211,8 +211,6 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         }
     }
 
-    menu.addSeparator();
-
     // Change color
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.folder.changeColor)

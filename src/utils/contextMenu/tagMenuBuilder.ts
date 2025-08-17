@@ -112,8 +112,6 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
         });
     }
 
-    menu.addSeparator();
-
     // Change color
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.tag.changeColor)
