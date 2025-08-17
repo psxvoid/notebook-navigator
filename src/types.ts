@@ -237,7 +237,7 @@ export const NAVIGATION_PANE_DIMENSIONS = {
  * The file pane uses flex: 1 so it doesn't have a defaultWidth or maxWidth
  */
 export const FILE_PANE_DIMENSIONS = {
-    minWidth: 150
+    minWidth: 250
 };
 
 /**

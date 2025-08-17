@@ -55,6 +55,14 @@ body {
     --nn-nav-icon-size: 16px; /* Fixed icon size */
 
     /* ========================================================================
+       Pane Width Constraints
+       ======================================================================== */
+
+    /* Minimum widths for panes */
+    --nn-navigation-pane-min-width: 150px; /* Minimum width for navigation pane */
+    --nn-list-pane-min-width: 250px; /* Minimum width for list pane */
+
+    /* ========================================================================
        Notebook Navigator Theme Variables
        ======================================================================== */
 
@@ -177,7 +185,7 @@ body {
 /* Navigation pane - contains the folder tree navigation */
 .nn-navigation-pane {
     flex: 0 0 auto; /* Don't grow or shrink, use explicit width */
-    min-width: 150px;
+    min-width: var(--nn-navigation-pane-min-width);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -190,7 +198,7 @@ body {
 /* Right pane - contains the file list */
 .nn-list-pane {
     flex: 1;
-    min-width: 150px;
+    min-width: var(--nn-list-pane-min-width);
     display: flex;
     flex-direction: column;
     overflow: hidden;
