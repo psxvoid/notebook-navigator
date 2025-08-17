@@ -23,6 +23,7 @@ import { useServices, useFileSystemOps, useMetadataService } from '../context/Se
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { useFileCache } from '../context/StorageContext';
+import { useExpansionState } from '../context/ExpansionContext';
 import { strings } from '../i18n';
 import { getIconService } from '../services/icons';
 import type { SortOption } from '../settings';
@@ -50,6 +51,7 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
     const metadataService = useMetadataService();
     const { getTagDisplayPath } = useFileCache();
     const appearanceSettings = useListPaneAppearance();
+    const expansionState = useExpansionState();
 
     const handleNewFile = useCallback(async () => {
         if (!selectionState.selectedFolder) return;
@@ -273,13 +275,12 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
 
             // Single segment tag - no parent to click
             if (segments.length === 1) {
-                return `# ${displayPath}`;
+                return displayPath;
             }
 
             // Multiple segments - make all but last clickable
             return (
                 <>
-                    <span className="nn-path-prefix"># </span>
                     {segments.map((segment, index) => {
                         const isLast = index === segments.length - 1;
 
@@ -319,7 +320,15 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
     let folderIcon = '';
     if (settings.showIcons) {
         if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-            folderIcon = metadataService.getFolderIcon(selectionState.selectedFolder.path) || 'folder';
+            const customIcon = metadataService.getFolderIcon(selectionState.selectedFolder.path);
+            if (customIcon) {
+                folderIcon = customIcon;
+            } else {
+                // Use open/closed folder icon based on expansion state and children
+                const hasChildren = selectionState.selectedFolder.children.length > 0;
+                const isExpanded = expansionState.expandedFolders.has(selectionState.selectedFolder.path);
+                folderIcon = hasChildren && isExpanded ? 'folder-open' : 'folder-closed';
+            }
         } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
             folderIcon = metadataService.getTagIcon(selectionState.selectedTag) || 'tags';
         }
@@ -337,7 +346,8 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
         selectionState.selectedFolder,
         selectionState.selectedTag,
         selectionState.selectionType,
-        uiState.singlePane
+        uiState.singlePane,
+        expansionState.expandedFolders
     ]);
 
     if (isMobile) {
