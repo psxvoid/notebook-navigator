@@ -13,7 +13,6 @@
 - [Advanced Techniques](#advanced-techniques)
   - [Supporting Light and Dark Modes](#supporting-light-and-dark-modes)
   - [User Custom Colors Override](#user-custom-colors-override)
-  - [Depth-Based Styling](#depth-based-styling)
 - [Style Settings Support](#style-settings-support)
 
 ## Introduction

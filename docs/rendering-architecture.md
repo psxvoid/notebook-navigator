@@ -10,9 +10,6 @@
 - [Performance Optimizations](#performance-optimizations)
 - [Data Flow](#data-flow)
 - [Scroll Management System](#scroll-management-system)
-  - [Pending Scroll Architecture](#pending-scroll-architecture)
-  - [ListPane Scroll Management](#listpane-scroll-management)
-  - [NavigationPane Scroll Management](#navigationpane-scroll-management)
 
 ## Overview
 
