@@ -58,6 +58,7 @@ import { strings } from '../i18n';
 import { getIconService } from '../services/icons';
 import { isSupportedFileExtension, ItemType } from '../types';
 import { getFolderNote } from '../utils/fileFinder';
+import { hasVisibleSubfolders } from '../utils/fileFilters';
 
 interface FolderItemProps {
     folder: TFolder;
@@ -71,6 +72,7 @@ interface FolderItemProps {
     icon?: string;
     color?: string;
     fileCount?: number;
+    excludedFolders: string[];
 }
 
 /**
@@ -98,7 +100,8 @@ export const FolderItem = React.memo(function FolderItem({
     onToggleAllSiblings,
     icon,
     color,
-    fileCount: precomputedFileCount
+    fileCount: precomputedFileCount,
+    excludedFolders
 }: FolderItemProps) {
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
@@ -134,8 +137,8 @@ export const FolderItem = React.memo(function FolderItem({
     // NavigationPane pre-computes all folder counts for performance
     const fileCount = precomputedFileCount ?? 0;
 
-    // Check if folder has children - not memoized because Obsidian mutates the children array
-    const hasChildren = folder.children && folder.children.some(child => child instanceof TFolder);
+    // Check if folder has visible children - not memoized because Obsidian mutates the children array
+    const hasChildren = hasVisibleSubfolders(folder, excludedFolders);
 
     // Use color from props (passed from NavigationPane)
     const customColor = color;

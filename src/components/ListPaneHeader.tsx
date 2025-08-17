@@ -29,6 +29,7 @@ import { getIconService } from '../services/icons';
 import type { SortOption } from '../settings';
 import { UNTAGGED_TAG_ID, ItemType } from '../types';
 import { getFilesForFolder } from '../utils/fileFinder';
+import { hasVisibleSubfolders, parseExcludedFolders } from '../utils/fileFilters';
 import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } from '../utils/sortUtils';
 import { ObsidianIcon } from './ObsidianIcon';
 import { showListPaneAppearanceMenu } from './ListPaneAppearanceMenu';
@@ -324,8 +325,9 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
             if (customIcon) {
                 folderIcon = customIcon;
             } else {
-                // Use open/closed folder icon based on expansion state and children
-                const hasChildren = selectionState.selectedFolder.children.length > 0;
+                // Use open/closed folder icon based on expansion state and visible children
+                const excludedFolders = parseExcludedFolders(settings.excludedFolders);
+                const hasChildren = hasVisibleSubfolders(selectionState.selectedFolder, excludedFolders);
                 const isExpanded = expansionState.expandedFolders.has(selectionState.selectedFolder.path);
                 folderIcon = hasChildren && isExpanded ? 'folder-open' : 'folder-closed';
             }

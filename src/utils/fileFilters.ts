@@ -218,6 +218,36 @@ export function isPathInExcludedFolder(filePath: string, excludedFolderPatterns:
 }
 
 /**
+ * Checks if a folder has any visible (non-excluded) subfolders.
+ * This is used to determine whether to show expand/collapse chevrons
+ * and whether to use the open/closed folder icon.
+ *
+ * @param folder - The folder to check
+ * @param excludePatterns - Array of exclusion patterns
+ * @returns True if the folder has at least one visible subfolder
+ */
+export function hasVisibleSubfolders(folder: TFolder, excludePatterns: string[]): boolean {
+    if (!folder.children || folder.children.length === 0) {
+        return false;
+    }
+
+    // Check if any child folder is NOT excluded
+    return folder.children.some(child => {
+        if (!(child instanceof TFolder)) {
+            return false;
+        }
+
+        // If no exclusion patterns, all folders are visible
+        if (excludePatterns.length === 0) {
+            return true;
+        }
+
+        // Check if this subfolder should be excluded
+        return !shouldExcludeFolder(child.name, excludePatterns, child.path);
+    });
+}
+
+/**
  * Gets filtered markdown files from the vault, excluding files based on:
  * - Excluded folder patterns
  * - Excluded frontmatter properties
