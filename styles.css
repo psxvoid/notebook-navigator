@@ -284,8 +284,8 @@ body {
 
 /* Icon in pane header */
 .nn-pane-header-icon {
-    width: var(--icon-size);
-    height: var(--icon-size);
+    width: var(--nn-nav-icon-size); /* Use same 16px as nav items */
+    height: var(--nn-nav-icon-size);
     margin-inline-end: 8px;
     flex-shrink: 0;
     display: flex;
@@ -293,16 +293,10 @@ body {
     color: var(--nn-theme-list-header-icon-color);
 }
 
-/* Ensure pane header icon SVG matches icon button size */
-.nn-pane-header-icon svg {
-    width: var(--icon-size);
-    height: var(--icon-size);
-}
-
 /* Emoji icon in pane header */
 .nn-pane-header-icon.nn-emoji-icon {
-    font-size: var(--icon-size);
-    line-height: var(--icon-size);
+    font-size: var(--nn-nav-icon-size);
+    line-height: var(--nn-nav-icon-size);
     text-align: center;
     justify-content: center;
 }
