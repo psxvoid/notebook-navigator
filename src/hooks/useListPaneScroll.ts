@@ -113,7 +113,10 @@ export function useListPaneScroll({
     // Track list state changes and pending scroll operations
     const prevListKeyRef = useRef<string>(''); // Previous folder/tag context to detect navigation
     const prevShowSubfoldersRef = useRef<boolean>(settings.showNotesFromSubfolders); // Previous subfolder setting to detect toggles
-    const pendingScrollRef = useRef<{ type: 'file' | 'top'; filePath?: string } | null>(null); // Deferred scroll operations for async list updates
+
+    // Scroll reason types to determine alignment behavior
+    type ScrollReason = 'folder-navigation' | 'visibility-change' | 'reveal' | 'subfolder-toggle';
+    const pendingScrollRef = useRef<{ type: 'file' | 'top'; filePath?: string; reason?: ScrollReason } | null>(null); // Deferred scroll operations for async list updates
     const [pendingScrollVersion, setPendingScrollVersion] = useState(0); // Version counter to trigger scroll effect execution
 
     // Track list items order to detect when items are reordered (for virtualizer reset)
@@ -327,9 +330,10 @@ export function useListPaneScroll({
         if (pending.type === 'file' && pending.filePath) {
             const index = getSelectionIndex(pending.filePath);
             if (index >= 0) {
-                // Use 'auto' alignment on mobile and desktop
+                // Use 'center' alignment on mobile for folder navigation, 'auto' otherwise
+                const alignment = isMobile && pending.reason === 'folder-navigation' ? 'center' : 'auto';
                 rowVirtualizer.scrollToIndex(index, {
-                    align: 'auto',
+                    align: alignment,
                     behavior: 'auto'
                 });
 
@@ -353,7 +357,7 @@ export function useListPaneScroll({
         if (shouldClearPending) {
             pendingScrollRef.current = null;
         }
-    }, [rowVirtualizer, filePathToIndex, isVisible, pendingScrollVersion, getSelectionIndex]);
+    }, [rowVirtualizer, filePathToIndex, isVisible, pendingScrollVersion, getSelectionIndex, isMobile]);
 
     /**
      * Subscribe to database content changes and re-measure virtualizer when needed.
@@ -405,7 +409,7 @@ export function useListPaneScroll({
             // If we have a selected file, set a pending scroll
             // This works regardless of whether auto-reveal has run yet
             if (selectedFile && rowVirtualizer) {
-                pendingScrollRef.current = { type: 'file', filePath: selectedFile.path };
+                pendingScrollRef.current = { type: 'file', filePath: selectedFile.path, reason: 'visibility-change' };
                 setPendingScrollVersion(v => v + 1);
             }
         };
@@ -468,11 +472,11 @@ export function useListPaneScroll({
 
         // Set a pending scroll that will be executed after list updates
         if (selectedFile) {
-            pendingScrollRef.current = { type: 'file', filePath: selectedFile.path };
+            pendingScrollRef.current = { type: 'file', filePath: selectedFile.path, reason: 'subfolder-toggle' };
             setPendingScrollVersion(v => v + 1);
         } else if (!settings.showNotesFromSubfolders) {
             // When disabling subfolders and no file selected, scroll to top
-            pendingScrollRef.current = { type: 'top' };
+            pendingScrollRef.current = { type: 'top', reason: 'subfolder-toggle' };
             setPendingScrollVersion(v => v + 1);
         }
     }, [isVisible, rowVirtualizer, selectedFile, settings.showNotesFromSubfolders]);
@@ -522,7 +526,9 @@ export function useListPaneScroll({
                 selectionDispatch({ type: 'SET_FOLDER_NAVIGATION', isFolderNavigation: false });
             }
 
-            pendingScrollRef.current = selectedFile ? { type: 'file', filePath: selectedFile.path } : { type: 'top' };
+            pendingScrollRef.current = selectedFile
+                ? { type: 'file', filePath: selectedFile.path, reason: 'folder-navigation' }
+                : { type: 'top', reason: 'folder-navigation' };
             setPendingScrollVersion(v => v + 1);
             return;
         }
@@ -538,7 +544,9 @@ export function useListPaneScroll({
             // Clear the folder navigation flag
             selectionDispatch({ type: 'SET_FOLDER_NAVIGATION', isFolderNavigation: false });
 
-            pendingScrollRef.current = selectedFile ? { type: 'file', filePath: selectedFile.path } : { type: 'top' };
+            pendingScrollRef.current = selectedFile
+                ? { type: 'file', filePath: selectedFile.path, reason: 'folder-navigation' }
+                : { type: 'top', reason: 'folder-navigation' };
             setPendingScrollVersion(v => v + 1);
         } else {
             // For other cases (initial load), use pending scroll for consistency
@@ -549,7 +557,9 @@ export function useListPaneScroll({
                 prevListKeyRef.current = currentListKey;
             }
 
-            pendingScrollRef.current = selectedFile ? { type: 'file', filePath: selectedFile.path } : { type: 'top' };
+            pendingScrollRef.current = selectedFile
+                ? { type: 'file', filePath: selectedFile.path, reason: 'folder-navigation' }
+                : { type: 'top', reason: 'folder-navigation' };
             setPendingScrollVersion(v => v + 1);
         }
     }, [
@@ -571,7 +581,7 @@ export function useListPaneScroll({
         if (selectionState.isRevealOperation && selectedFile && isVisible) {
             // Always use pending scroll for reveal operations
             // This ensures proper timing and measurement before scrolling
-            pendingScrollRef.current = { type: 'file', filePath: selectedFile.path };
+            pendingScrollRef.current = { type: 'file', filePath: selectedFile.path, reason: 'reveal' };
             setPendingScrollVersion(v => v + 1);
         }
     }, [selectionState.isRevealOperation, selectedFile, isVisible, selectionDispatch, filePathToIndex]);
