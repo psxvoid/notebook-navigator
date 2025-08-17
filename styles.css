@@ -333,6 +333,7 @@ body {
     border-radius: var(--radius-s);
     padding: 4px 4px;
     color: var(--nn-theme-header-button-icon-color);
+    opacity: 0.85;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -360,6 +361,7 @@ body {
 /* Icon button hover state - subtle background on hover - desktop only */
 .nn-desktop .nn-icon-button:hover {
     background-color: var(--nn-theme-header-button-hover-bg) !important;
+    opacity: 1;
 }
 
 /* Icon button active state - feedback on click */
@@ -397,8 +399,8 @@ body {
 
 /* Icon styling - consistent size and appearance for all button icons */
 .nn-icon-button svg {
-    width: var(--icon-size);
-    height: var(--icon-size);
+    width: 16px;
+    height: 16px;
     stroke: var(--nn-theme-header-button-icon-color);
     stroke-width: 2;
     fill: none;
