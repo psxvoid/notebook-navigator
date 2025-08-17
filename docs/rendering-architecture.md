@@ -554,3 +554,124 @@ sequenceDiagram
     V->>CTX: File removed event
     CTX->>UI: Update file list
 ```
+
+## Scroll Management System
+
+The plugin uses a pending scroll system to handle scrolling scenarios with proper timing and behavior. This system
+ensures navigation and visibility of items across different user interactions.
+
+### Pending Scroll Architecture
+
+Both NavigationPane and ListPane use a "pending scroll" pattern to handle deferred scrolling operations. This is
+necessary because:
+
+1. **Async Data Loading**: Items may not be immediately available in the virtualizer
+2. **Component Lifecycle**: Scrolling may be needed when a pane isn't visible yet
+3. **State Synchronization**: Multiple state changes may trigger scrolls that need coordination
+4. **Platform Differences**: Mobile and desktop require different scroll behaviors
+
+### ListPane Scroll Management
+
+The ListPane (`useListPaneScroll.ts`) handles the most complex scrolling scenarios with a reason-based system:
+
+#### Scroll Reason Types
+
+```typescript
+type ScrollReason = 'folder-navigation' | 'visibility-change' | 'reveal' | 'subfolder-toggle';
+
+type PendingScroll = {
+  type: 'file' | 'top';
+  filePath?: string;
+  reason?: ScrollReason;
+};
+```
+
+#### ListPane Scroll Scenarios
+
+1. **Header Tap to Top** (Mobile only)
+   - **Trigger**: User taps the ListPaneHeader on mobile
+   - **Behavior**: Smooth scroll to top of list
+   - **Implementation**: `handleScrollToTop` callback passed to ListPaneHeader
+   - **Code**: `handleScrollToTop` function uses `scrollTo({ top: 0, behavior: 'smooth' })`
+
+2. **Folder/Tag Navigation** (`reason: 'folder-navigation'`)
+   - **Trigger**: User clicks a folder/tag in NavigationPane
+   - **Detection**: `selectionState.isFolderNavigation === true`
+   - **Behavior**:
+     - Mobile: Centers the selected file (`align: 'center'`)
+     - Desktop: Auto-positions (`align: 'auto'`)
+   - **Code Location**: Search for `SCROLL_FOLDER_NAVIGATION` in useListPaneScroll.ts
+
+3. **Mobile Drawer Visibility** (`reason: 'visibility-change'`)
+   - **Trigger**: Mobile drawer becomes visible (onResize event)
+   - **Detection**: `notebook-navigator-visible` custom event
+   - **Behavior**: Auto-positions to show selected file naturally
+   - **Code Location**: Search for `SCROLL_MOBILE_VISIBILITY` in useListPaneScroll.ts
+   - **Purpose**: Ensures file is visible when returning from editor
+
+4. **Reveal Operations** (`reason: 'reveal'`)
+   - **Trigger**: Auto-reveal when opening files, "Reveal active file" command
+   - **Detection**: `selectionState.isRevealOperation === true`
+   - **Behavior**: Auto-positions to show file with minimal movement
+   - **Code Location**: Search for `SCROLL_REVEAL_OPERATION` in useListPaneScroll.ts
+
+5. **Subfolder Toggle** (`reason: 'subfolder-toggle'`)
+   - **Trigger**: Toggling "Show notes from subfolders" setting
+   - **Detection**: `prevShowSubfoldersRef.current !== settings.showNotesFromSubfolders`
+   - **Behavior**: Maintains position on selected file or scrolls to top
+   - **Code Location**: Search for `SCROLL_SUBFOLDER_TOGGLE` in useListPaneScroll.ts
+
+#### Scroll Alignment Logic
+
+```typescript
+// Search for SCROLL_EXECUTE in useListPaneScroll.ts
+const alignment = isMobile && pending.reason === 'folder-navigation' ? 'center' : 'auto';
+rowVirtualizer.scrollToIndex(index, {
+  align: alignment,
+  behavior: 'auto'
+});
+```
+
+This ensures:
+
+- **Mobile folder navigation**: Centers for better visual presentation
+- **All other scenarios**: Uses auto for minimal scrolling
+- **Desktop**: Always uses auto to preserve expected behavior
+
+### NavigationPane Scroll Management
+
+The NavigationPane (`useNavigationPaneScroll.ts`) uses a simpler system:
+
+#### NavigationPane Scroll Scenarios
+
+1. **Selection Changes**
+   - **Trigger**: Folder/tag selection changes
+   - **Detection**: `selectedPath` changes
+   - **Behavior**: Auto-scrolls to show selected item (`align: 'auto'`)
+   - **Code Location**: Search for `NAV_SCROLL_SELECTION` in useNavigationPaneScroll.ts
+   - **Special handling**: Only scrolls on actual selection changes, not tree rebuilds
+
+2. **Pending Scroll Requests**
+   - **Trigger**: External request via `requestScroll(path)`
+   - **Detection**: `pendingScrollRef.current` has a value
+   - **Behavior**: Centers the requested item (`align: 'center'`)
+   - **Code Location**: Search for `NAV_SCROLL_PENDING` in useNavigationPaneScroll.ts
+   - **Used by**: Reveal operations to ensure parent folders/tags are visible
+
+3. **Mobile Drawer Visibility**
+   - **Trigger**: Mobile drawer becomes visible
+   - **Detection**: `notebook-navigator-visible` event
+   - **Behavior**: Auto-scrolls to selected item (`align: 'auto'`)
+   - **Code Location**: Search for `NAV_SCROLL_MOBILE_VISIBILITY` in useNavigationPaneScroll.ts
+
+4. **Startup Tag Scrolling**
+   - **Trigger**: Tags load after folders on startup
+   - **Detection**: Tag selection with newly available tag data
+   - **Behavior**: Auto-scrolls to selected tag (`align: 'auto'`)
+   - **Code Location**: Search for `NAV_SCROLL_STARTUP_TAG` in useNavigationPaneScroll.ts
+
+#### Key Differences from ListPane
+
+- **No reason tracking**: Simpler scenarios don't require differentiation
+- **Center for pending scrolls**: External requests use center alignment
+- **Auto for selections**: Normal selection changes use auto alignment

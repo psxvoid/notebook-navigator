@@ -318,6 +318,7 @@ export function useListPaneScroll({
      * Process pending scroll operations.
      * Handles deferred scrolling for single-pane mode and ensures proper timing
      * after list updates or visibility changes.
+     * SCROLL_EXECUTE: Executes pending scrolls with reason-based alignment
      */
     useEffect(() => {
         if (!rowVirtualizer || !pendingScrollRef.current || !isVisible) {
@@ -401,6 +402,7 @@ export function useListPaneScroll({
     /**
      * Listen for mobile drawer visibility events.
      * Ensures selected file is visible when drawer opens.
+     * SCROLL_MOBILE_VISIBILITY: Sets pending scroll with 'visibility-change' reason
      */
     useEffect(() => {
         if (!isMobile) return;
@@ -455,6 +457,7 @@ export function useListPaneScroll({
     /**
      * Handle scrolling when subfolder visibility setting changes.
      * Maintains scroll position on the selected file or scrolls to top.
+     * SCROLL_SUBFOLDER_TOGGLE: Sets pending scroll with 'subfolder-toggle' reason
      */
     useEffect(() => {
         if (!rowVirtualizer || !isVisible) {
@@ -485,6 +488,7 @@ export function useListPaneScroll({
      * Handle scrolling when navigating between folders/tags.
      * Supports both visible and hidden panes (for single-pane mode).
      * Manages folder navigation flags and list context changes.
+     * SCROLL_FOLDER_NAVIGATION: Sets pending scroll with 'folder-navigation' reason
      */
     useEffect(() => {
         if (!rowVirtualizer) {
@@ -576,6 +580,7 @@ export function useListPaneScroll({
     /**
      * Handle reveal operations (e.g., reveal active file command).
      * Uses pending scroll for proper timing and measurement.
+     * SCROLL_REVEAL_OPERATION: Sets pending scroll with 'reveal' reason
      */
     useEffect(() => {
         if (selectionState.isRevealOperation && selectedFile && isVisible) {

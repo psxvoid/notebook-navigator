@@ -155,6 +155,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
      * 1. Selection actually changes (not just tree structure changes)
      * 2. Pane becomes visible or gains focus
      * 3. During reveal operations (handled separately)
+     * NAV_SCROLL_SELECTION: Auto-scrolls to selected folder/tag
      */
     useEffect(() => {
         if (!selectedPath || !rowVirtualizer || !isVisible) return;
@@ -187,6 +188,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
     /**
      * Special handling for startup tag scrolling
      * Tags load after folders, so we need a separate effect to catch when they become available
+     * NAV_SCROLL_STARTUP_TAG: Scrolls to selected tag after tags load
      */
     useEffect(() => {
         if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag && rowVirtualizer && isVisible) {
@@ -212,6 +214,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
 
     /**
      * Process pending scrolls when pathToIndex is ready
+     * NAV_SCROLL_PENDING: Centers requested items from external components
      */
     useEffect(() => {
         if (!rowVirtualizer || !pendingScrollRef.current || !isVisible) {
@@ -230,6 +233,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
 
     /**
      * Listen for mobile drawer visibility events
+     * NAV_SCROLL_MOBILE_VISIBILITY: Auto-scrolls when drawer becomes visible
      */
     useEffect(() => {
         if (!isMobile) return;
