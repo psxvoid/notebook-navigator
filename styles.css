@@ -273,11 +273,8 @@ body {
     /* Match date header padding */
     padding-left: 12px;
 
-    /* Text overflow with ellipsis like file names */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
     flex: 1; /* Take remaining space */
+    min-width: 0; /* Allow shrinking below content size */
     display: flex;
     align-items: center;
 }
@@ -291,6 +288,7 @@ body {
     display: flex;
     align-items: center;
     color: var(--nn-theme-list-header-icon-color);
+    overflow: visible; /* Allow emoji to render without clipping */
 }
 
 /* Emoji icon in pane header */
@@ -308,6 +306,8 @@ body {
     text-overflow: ellipsis;
     white-space: nowrap;
     color: var(--nn-theme-list-header-breadcrumb-color);
+    flex: 1; /* Take remaining space and allow text overflow to work */
+    min-width: 0; /* Allow flex item to shrink below content size */
 }
 
 /* Clickable path segments in header */
