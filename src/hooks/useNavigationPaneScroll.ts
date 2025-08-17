@@ -33,7 +33,7 @@ import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { useServices } from '../context/ServicesContext';
 import { useSelectionState } from '../context/SelectionContext';
 import { useUIState } from '../context/UIStateContext';
-import { NavigationPaneItemType, ItemType, NAVITEM_HEIGHTS, OVERSCAN } from '../types';
+import { NavigationPaneItemType, ItemType, NAVPANE_MEASUREMENTS, OVERSCAN } from '../types';
 import type { CombinedNavigationItem } from '../types/virtualization';
 
 /**
@@ -97,7 +97,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
         getScrollElement: () => scrollContainerRef.current,
         estimateSize: index => {
             const item = items[index];
-            const heights = isMobile ? NAVITEM_HEIGHTS.mobile : NAVITEM_HEIGHTS.desktop;
+            const heights = isMobile ? NAVPANE_MEASUREMENTS.mobile : NAVPANE_MEASUREMENTS.desktop;
 
             switch (item.type) {
                 case NavigationPaneItemType.TOP_SPACER:

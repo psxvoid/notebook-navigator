@@ -104,25 +104,25 @@ export const NavigationPaneItemType = {
 export type NavigationPaneItemType = (typeof NavigationPaneItemType)[keyof typeof NavigationPaneItemType];
 
 /**
- * Navigation pane item height constants for accurate virtualization
+ * Navigation pane measurements for accurate virtualization
  * Used by NavigationPane component
  */
-export const NAVITEM_HEIGHTS = {
+export const NAVPANE_MEASUREMENTS = {
     desktop: {
-        folder: 28, // Fixed height: 5px padding + 18px line-height + 5px padding
-        tag: 28, // Matches folder height
-        header: 35, // Tag section header
-        bottomSpacer: 20, // Bottom spacer - matches FileList
-        topSpacer: 10, // Top spacer height
-        listSpacer: 10 // Spacer between lists (folders/tags)
+        folder: 28, // var(--nn-nav-item-height)
+        tag: 28, // var(--nn-nav-item-height)
+        header: 35, // Tag section header height
+        bottomSpacer: 20,
+        topSpacer: 10,
+        listSpacer: 10
     },
     mobile: {
-        folder: 40, // Fixed height: 11px padding + 18px line-height + 11px padding
-        tag: 40, // Matches folder height
+        folder: 40, // var(--nn-nav-item-height-mobile)
+        tag: 40, // var(--nn-nav-item-height-mobile)
         header: 38, // Slightly larger for mobile font sizes
-        bottomSpacer: 20, // Bottom spacer - matches FileList
-        topSpacer: 10, // Top spacer height
-        listSpacer: 10 // Spacer between lists (folders/tags)
+        bottomSpacer: 20,
+        topSpacer: 10,
+        listSpacer: 10
     }
 };
 
@@ -133,30 +133,27 @@ export const NAVITEM_HEIGHTS = {
 export const OVERSCAN = 10;
 
 /**
- * List pane item height constants and measurements
- * Used by ListPane component for virtualization
+ * List pane measurements for accurate virtualization
+ * Used by ListPane component for calculating item heights
  */
 export const LISTPANE_MEASUREMENTS = {
-    heights: {
-        // Date group headers
-        firstHeader: 35, // var(--nn-date-header-height)
-        subsequentHeader: 50, // var(--nn-date-header-height-subsequent)
+    // Date group headers
+    firstHeader: 35, // var(--nn-date-header-height)
+    subsequentHeader: 50, // var(--nn-date-header-height-subsequent)
 
-        // File item components
-        basePadding: 16, // var(--nn-file-padding-vertical) * 2
-        slimPadding: 10, // Reduced padding for slim mode (5px * 2)
-        slimPaddingMobile: 16, // Mobile slim mode padding (8px * 2)
-        titleLineHeight: 20, // var(--nn-file-line-height) - for file name/title
-        metadataLineHeight: 19, // var(--nn-file-second-line-height) - for metadata (date, parent folder, single preview line)
-        multiLineLineHeight: 18, // var(--nn-file-preview-line-height) - for multi-line preview text
-        tagRowHeight: 26, // Height of tag row (22px container + 4px margin-top)
-        featureImageHeight: 42, // Feature image height (width and height are 42px)
+    // File item components
+    basePadding: 16, // var(--nn-file-padding-total) = var(--nn-file-padding-vertical) * 2
+    slimPadding: 10, // var(--nn-file-padding-vertical-slim) * 2
+    slimPaddingMobile: 16, // var(--nn-file-padding-vertical-slim-mobile) * 2
+    titleLineHeight: 20, // var(--nn-file-title-line-height)
+    singleTextLineHeight: 19, // var(--nn-file-single-text-line-height)
+    multilineTextLineHeight: 18, // var(--nn-file-multiline-text-line-height)
+    tagRowHeight: 26, // Height of tag row (22px container + 4px margin-top)
+    featureImageHeight: 42, // var(--nn-feature-image-min-size)
 
-        // Constraints
-        minTouchTargetHeight: 32, // Minimum height for touch targets
-        bottomSpacer: 20, // Bottom spacer height
-        topSpacer: 10 // Top spacer height
-    }
+    // Spacers
+    bottomSpacer: 20,
+    topSpacer: 10
 };
 
 /**

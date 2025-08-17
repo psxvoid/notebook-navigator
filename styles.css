@@ -21,13 +21,13 @@ body {
        ======================================================================== */
 
     /* File item heights - fixed pixel values to prevent fractional rendering */
-    --nn-file-line-height: 20px; /* Height of single line of text */
+    --nn-file-title-line-height: 20px; /* Height of file title text */
     --nn-file-padding-vertical: 8px; /* 8px */
     --nn-file-padding-vertical-slim: 5px; /* Reduced padding for slim mode */
     --nn-file-padding-vertical-slim-mobile: 8px; /* Mobile slim mode padding for touch targets */
     --nn-file-padding-total: calc(var(--nn-file-padding-vertical) * 2); /* Total vertical padding (top + bottom) */
-    --nn-file-second-line-height: 19px; /* Height for date/preview line - tighter spacing */
-    --nn-file-preview-line-height: 18px; /* Height for multi-line preview only */
+    --nn-file-single-text-line-height: 19px; /* Height for single-line text (metadata, date, or single preview) */
+    --nn-file-multiline-text-line-height: 18px; /* Height for multi-line preview text */
     --nn-feature-image-min-size: 42px; /* Minimum size for feature images */
     --nn-feature-image-max-size: 64px; /* Maximum size for feature images */
 
@@ -725,13 +725,13 @@ body {
     display: -webkit-box;
     -webkit-line-clamp: var(--filename-rows, 1);
     -webkit-box-orient: vertical;
-    line-height: var(--nn-file-line-height);
+    line-height: var(--nn-file-title-line-height);
     word-break: break-word;
     unicode-bidi: plaintext; /* Proper bidirectional text handling */
 
     /* Fixed height: always take up configured number of lines */
-    min-height: calc(var(--nn-file-line-height) * var(--filename-rows, 1));
-    height: calc(var(--nn-file-line-height) * var(--filename-rows, 1));
+    min-height: calc(var(--nn-file-title-line-height) * var(--filename-rows, 1));
+    height: calc(var(--nn-file-title-line-height) * var(--filename-rows, 1));
 }
 
 /* Quick actions panel - horizontal container for action icons */
@@ -813,14 +813,14 @@ body {
     text-overflow: ellipsis;
     min-width: 0; /* Allow shrinking below content size */
     max-width: 150px; /* Reasonable max width for dates */
-    line-height: var(--nn-file-second-line-height);
+    line-height: var(--nn-file-single-text-line-height);
 }
 
 /* File preview text - secondary line showing file content */
 .nn-file-preview {
     font-size: var(--nn-file-small-size);
     color: var(--nn-theme-file-preview-color);
-    line-height: var(--nn-file-preview-line-height);
+    line-height: var(--nn-file-multiline-text-line-height);
     overflow: hidden;
     text-overflow: ellipsis;
     display: -webkit-box;
@@ -832,13 +832,13 @@ body {
 
 /* Multi-line preview - always take up configured number of lines */
 .nn-file-preview:not(.nn-file-second-line .nn-file-preview) {
-    min-height: calc(var(--nn-file-preview-line-height) * var(--preview-rows, 1));
-    height: calc(var(--nn-file-preview-line-height) * var(--preview-rows, 1));
+    min-height: calc(var(--nn-file-multiline-text-line-height) * var(--preview-rows, 1));
+    height: calc(var(--nn-file-multiline-text-line-height) * var(--preview-rows, 1));
 }
 
 /* Preview on same line as date - match date line-height for alignment */
 .nn-file-second-line .nn-file-preview {
-    line-height: var(--nn-file-second-line-height);
+    line-height: var(--nn-file-single-text-line-height);
 }
 
 /* Folder indicator - shows parent folder for files from subfolders */
@@ -849,7 +849,7 @@ body {
     align-items: center;
     gap: 4px;
     overflow: hidden;
-    line-height: var(--nn-file-second-line-height); /* Use second line height for consistent spacing */
+    line-height: var(--nn-file-single-text-line-height); /* Use second line height for consistent spacing */
 }
 
 /* Folder indicator text */
@@ -944,7 +944,7 @@ body {
     font-size: var(--nn-file-small-size);
     font-weight: 400;
     margin-bottom: 0;
-    line-height: var(--nn-file-line-height);
+    line-height: var(--nn-file-title-line-height);
 }
 
 /* Selected slim file - maintain selection styles */

@@ -141,7 +141,7 @@ export function useListPaneScroll({
         },
         estimateSize: index => {
             const item = listItems[index];
-            const { heights } = LISTPANE_MEASUREMENTS;
+            const heights = LISTPANE_MEASUREMENTS;
 
             if (item.type === ListPaneItemType.HEADER) {
                 // Date group headers have fixed heights from CSS
@@ -193,7 +193,7 @@ export function useListPaneScroll({
                 if (item.isPinned || folderSettings.previewRows < 2) {
                     // Date and preview share one line
                     if (folderSettings.showPreview || folderSettings.showDate) {
-                        textContentHeight += heights.metadataLineHeight;
+                        textContentHeight += heights.singleTextLineHeight;
                     }
 
                     // Parent folder gets its own line (not shown for pinned items)
@@ -201,7 +201,7 @@ export function useListPaneScroll({
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         if (isInSubfolder) {
-                            textContentHeight += heights.metadataLineHeight;
+                            textContentHeight += heights.singleTextLineHeight;
                         }
                     }
                 } else {
@@ -213,12 +213,12 @@ export function useListPaneScroll({
                         const showParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
 
                         if (folderSettings.showDate || showParentFolder) {
-                            textContentHeight += heights.metadataLineHeight;
+                            textContentHeight += heights.singleTextLineHeight;
                         }
                     } else {
                         // Has preview text: show multi-line preview, then date + parent folder
                         if (folderSettings.showPreview) {
-                            textContentHeight += heights.multiLineLineHeight * effectivePreviewRows;
+                            textContentHeight += heights.multilineTextLineHeight * effectivePreviewRows;
                         }
                         // Only add metadata line if date is shown OR parent folder is shown
                         const file = item.data instanceof TFile ? item.data : null;
@@ -226,7 +226,7 @@ export function useListPaneScroll({
                         const showParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
 
                         if (folderSettings.showDate || showParentFolder) {
-                            textContentHeight += heights.metadataLineHeight;
+                            textContentHeight += heights.singleTextLineHeight;
                         }
                     }
                 }
