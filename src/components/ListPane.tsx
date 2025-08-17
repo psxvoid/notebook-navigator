@@ -420,9 +420,12 @@ export const ListPane = React.memo(
                                     <div
                                         key={virtualItem.key}
                                         className={`nn-virtual-item ${item.type === ListPaneItemType.FILE ? 'nn-virtual-file-item' : ''} ${isLastFile ? 'nn-last-file' : ''}`}
-                                        style={{
-                                            transform: `translateY(${virtualItem.start}px)`
-                                        }}
+                                        style={
+                                            {
+                                                transform: `translateY(${virtualItem.start}px)`,
+                                                '--item-height': `${virtualItem.size}px`
+                                            } as React.CSSProperties
+                                        }
                                         data-index={virtualItem.index}
                                     >
                                         {item.type === ListPaneItemType.HEADER ? (

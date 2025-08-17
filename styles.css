@@ -648,7 +648,7 @@ body {
     display: flex;
     flex-direction: row;
     gap: 4px;
-    align-items: center;
+    align-items: center; /* Center items vertically */
     position: relative;
 }
 
@@ -689,8 +689,9 @@ body {
     flex-direction: column;
     gap: 0;
     order: 1; /* Ensure it appears on the left */
-    min-height: 42px; /* Match feature image height for consistent item heights */
+    min-height: 42px; /* Minimum height to match minimum image size */
     justify-content: flex-start; /* Top-align content */
+    /* No align-self - let it stretch naturally */
 }
 
 /* Slim mode file text content - same as above but without min-height */
@@ -948,6 +949,7 @@ body {
 
 /* Feature image container - right-aligned image thumbnail */
 .nn-feature-image {
+    /* Default size */
     width: 42px;
     height: 42px;
     flex-shrink: 0;
@@ -956,6 +958,14 @@ body {
     background-color: var(--background-secondary-alt);
     position: relative;
     order: 2; /* Ensure it appears on the right */
+}
+
+/* Dynamic sizing based on calculated item height */
+.nn-virtual-file-item .nn-feature-image {
+    /* Size based on item height minus padding (16px) */
+    --image-size: clamp(42px, calc(var(--item-height) - 16px), 64px);
+    width: var(--image-size);
+    height: var(--image-size);
 }
 
 /* Feature image element - covers container with proper aspect ratio */
