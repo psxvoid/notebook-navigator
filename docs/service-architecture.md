@@ -1,5 +1,16 @@
 # Notebook Navigator Service Architecture
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Service Hierarchy](#service-hierarchy)
+- [Core Services](#core-services)
+- [Supporting Services](#supporting-services)
+- [Dependency Injection](#dependency-injection)
+- [Service Initialization](#service-initialization)
+- [Data Flow](#data-flow)
+- [Service Patterns](#service-patterns)
+
 ## Overview
 
 The service layer provides the business logic that sits between the storage layer and the UI components. Services

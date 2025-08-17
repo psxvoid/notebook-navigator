@@ -1,5 +1,22 @@
 # Notebook Navigator Storage Architecture
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Storage Containers](#storage-containers)
+  - [IndexedDB](#1-indexeddb-persistent-local-storage)
+  - [Local Storage](#2-local-storage-persistent-local-storage)
+  - [Memory Cache](#3-memory-cache-temporary-storage)
+  - [Settings](#4-settings-synchronized-storage)
+- [Data Flow Patterns](#data-flow-patterns)
+  - [Initial Load](#initial-load-cold-boot)
+  - [File Change](#file-change-during-session)
+  - [Settings Change](#settings-change)
+  - [UI State Change](#ui-state-change)
+- [Storage Selection Guidelines](#storage-selection-guidelines)
+- [Performance Considerations](#performance-considerations)
+- [Migration Strategies](#migration-strategies)
+
 ## Overview
 
 The Notebook Navigator plugin uses four distinct storage containers, each serving a specific purpose in the plugin's

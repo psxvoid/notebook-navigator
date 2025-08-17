@@ -1,5 +1,22 @@
 # Notebook Navigator Startup Process
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Key Concepts](#key-concepts)
+  - [Cold Boot](#cold-boot)
+  - [Warm Boot](#warm-boot)
+  - [Version System](#version-system)
+- [Startup Phases](#startup-phases)
+  - [Phase 1: Plugin Registration](#phase-1-plugin-registration-maints)
+  - [Phase 2: View Creation](#phase-2-view-creation-notebooknavigatorviewtsx)
+  - [Phase 3: Database Version Check](#phase-3-database-version-check-and-initialization)
+  - [Phase 4: Initial Data Load](#phase-4-initial-data-load-and-metadata-resolution)
+  - [Phase 5: Background Processing](#phase-5-background-processing)
+- [Critical Timing Mechanisms](#critical-timing-mechanisms)
+  - [RequestIdleCallback Polyfill](#requestidlecallback-polyfill)
+  - [Debouncing Strategies](#debouncing-strategies)
+
 ## Overview
 
 The Notebook Navigator plugin has a multi-phase startup process that handles data synchronization and content

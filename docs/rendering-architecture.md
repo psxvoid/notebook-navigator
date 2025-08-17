@@ -1,5 +1,19 @@
 # Notebook Navigator Rendering Architecture
 
+## Table of Contents
+
+- [Overview](#overview)
+- [Core Principles](#core-principles)
+- [Component Hierarchy](#component-hierarchy)
+- [Component Responsibilities](#component-responsibilities)
+- [Virtualization Strategy](#virtualization-strategy)
+- [Performance Optimizations](#performance-optimizations)
+- [Data Flow](#data-flow)
+- [Scroll Management System](#scroll-management-system)
+  - [Pending Scroll Architecture](#pending-scroll-architecture)
+  - [ListPane Scroll Management](#listpane-scroll-management)
+  - [NavigationPane Scroll Management](#navigationpane-scroll-management)
+
 ## Overview
 
 The Notebook Navigator plugin uses React components with virtual scrolling to handle large vaults. The architecture uses
@@ -412,13 +426,6 @@ const virtualizer = useVirtualizer({
   measureElement: el => el.getBoundingClientRect().height
 });
 ```
-
-### Virtualization Benefits
-
-1. **Memory Efficiency**: Only visible DOM nodes exist
-2. **Smooth Scrolling**: Consistent 60fps even with 10k+ items
-3. **Fast Updates**: Only visible items re-render on data changes
-4. **Precise Scrolling**: Accurate scroll-to-item positioning
 
 ## Performance Optimizations
 
