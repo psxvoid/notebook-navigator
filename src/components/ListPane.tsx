@@ -416,10 +416,26 @@ export const ListPane = React.memo(
                                     }
                                 }
 
+                                // Compute separator visibility (class-based, not relational selectors)
+                                // - Hide the current row's separator when this row is the last in a contiguous
+                                //   selected block (selected && !hasSelectedBelow)
+                                // - Also hide the current row's separator when the next row starts a selected block
+                                //   (!selected && next is selected) to remove the line just before a selection.
+                                const hideSeparator =
+                                    item.type === ListPaneItemType.FILE &&
+                                    ((isSelected && !hasSelectedBelow) ||
+                                        (!isSelected &&
+                                            nextItem?.type === ListPaneItemType.FILE &&
+                                            nextItem.data instanceof TFile &&
+                                            multiSelection.isFileSelected(nextItem.data)));
+
                                 return (
                                     <div
                                         key={virtualItem.key}
-                                        className={`nn-virtual-item ${item.type === ListPaneItemType.FILE ? 'nn-virtual-file-item' : ''} ${isLastFile ? 'nn-last-file' : ''}`}
+                                        // Apply a lightweight class to control separator visibility
+                                        className={`nn-virtual-item ${
+                                            item.type === ListPaneItemType.FILE ? 'nn-virtual-file-item' : ''
+                                        } ${isLastFile ? 'nn-last-file' : ''} ${hideSeparator ? 'nn-hide-separator' : ''}`}
                                         style={
                                             {
                                                 transform: `translateY(${virtualItem.start}px)`,

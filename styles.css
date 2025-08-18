@@ -489,6 +489,7 @@ body {
     min-width: 0; /* Allow folder items to shrink below min-content width */
     height: var(--nn-nav-item-height); /* Fixed height for virtualizer accuracy */
     box-sizing: border-box;
+    contain: paint; /* Isolate per-item painting */
 }
 
 /* Folder content - contains folder UI elements */
@@ -639,6 +640,7 @@ body {
     position: relative;
 
     /* CSS Custom Properties for file items - themes can override these */
+    contain: paint; /* Isolate per-item painting */
 }
 
 /* Remove shadows */
@@ -680,12 +682,8 @@ body {
 }
 
 /* Hide separator when current item is selected but doesn't have selected below */
-.nn-virtual-file-item:has(.nn-file.nn-selected:not(.nn-has-selected-below))::after {
-    display: none;
-}
-
-/* Hide separator of previous item when current is selected but doesn't have selected above */
-.nn-virtual-file-item:has(+ .nn-virtual-file-item .nn-file.nn-selected:not(.nn-has-selected-above))::after {
+/* Hide separator when flagged by renderer (class-based, replaces expensive :has()) */
+.nn-virtual-file-item.nn-hide-separator::after {
     display: none;
 }
 
@@ -1803,6 +1801,7 @@ body.mod-macos:not(.native-scrollbars) .nn-list-pane-scroller::-webkit-scrollbar
 /* Virtual file item wrapper - position relative for separator positioning */
 .nn-virtual-file-item {
     position: relative;
+    contain: paint; /* Isolate per-item painting */
 }
 
 /* ========================================================================
