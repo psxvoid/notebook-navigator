@@ -686,8 +686,9 @@ body {
     pointer-events: none; /* Ensure it doesn't interfere with clicks */
 }
 
-/* Hide separator when flagged by renderer */
-.nn-virtual-file-item.nn-hide-separator::after {
+/* Hide separator when flagged by renderer (selection) or context menu */
+.nn-virtual-file-item.nn-hide-separator-selection::after,
+.nn-virtual-file-item.nn-hide-separator-context-menu::after {
     display: none;
 }
 
@@ -1387,7 +1388,7 @@ body.nn-resizing {
     top: 0;
     inset-inline-start: 0;
     inset-inline-end: 0;
-    bottom: 1px; /* Account for separator line */
+    bottom: 0; /* Extend to bottom edge to cover separator space */
     border: 2px solid var(--nn-theme-navitem-selected-bg);
     border-radius: min(16px, var(--nn-theme-file-border-radius));
     pointer-events: none;

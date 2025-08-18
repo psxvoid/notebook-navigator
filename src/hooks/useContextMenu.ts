@@ -85,12 +85,12 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 const virtualItem = elementRef.current.closest('.nn-virtual-file-item') as HTMLElement;
                 if (virtualItem) {
                     // Hide separator below this item
-                    virtualItem.classList.add('nn-hide-separator');
+                    virtualItem.classList.add('nn-hide-separator-context-menu');
 
                     // Find and hide separator of previous item (shows above this item)
                     const prevVirtualItem = virtualItem.previousElementSibling as HTMLElement;
                     if (prevVirtualItem && prevVirtualItem.classList.contains('nn-virtual-file-item')) {
-                        prevVirtualItem.classList.add('nn-hide-separator');
+                        prevVirtualItem.classList.add('nn-hide-separator-context-menu');
                     }
                 }
             }
@@ -173,11 +173,12 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                         const virtualItem = elementRef.current.closest('.nn-virtual-file-item') as HTMLElement;
                         if (virtualItem) {
                             // Remove separator hiding from this item
-                            virtualItem.classList.remove('nn-hide-separator');
+                            virtualItem.classList.remove('nn-hide-separator-context-menu');
 
                             // Remove separator hiding from previous item
                             const prevVirtualItem = virtualItem.previousElementSibling as HTMLElement;
-                                prevVirtualItem.classList.remove('nn-hide-separator');
+                            if (prevVirtualItem && prevVirtualItem.classList.contains('nn-virtual-file-item')) {
+                                prevVirtualItem.classList.remove('nn-hide-separator-context-menu');
                             }
                         }
                     }

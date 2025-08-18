@@ -435,7 +435,7 @@ export const ListPane = React.memo(
                                         // Apply a lightweight class to control separator visibility
                                         className={`nn-virtual-item ${
                                             item.type === ListPaneItemType.FILE ? 'nn-virtual-file-item' : ''
-                                        } ${isLastFile ? 'nn-last-file' : ''} ${hideSeparator ? 'nn-hide-separator' : ''}`}
+                                        } ${isLastFile ? 'nn-last-file' : ''} ${hideSeparator ? 'nn-hide-separator-selection' : ''}`}
                                         style={
                                             {
                                                 transform: `translateY(${virtualItem.start}px)`,
