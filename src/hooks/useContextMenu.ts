@@ -76,15 +76,8 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
 
             const menu = new Menu();
 
-            // Add context menu active class to show outline
+            // Add context menu active class to show outline immediately
             elementRef.current.classList.add('nn-context-menu-active');
-
-            // Remove the class when menu is hidden
-            menu.onHide(() => {
-                if (elementRef.current) {
-                    elementRef.current.classList.remove('nn-context-menu-active');
-                }
-            });
 
             // Prepare common parameters for all builders
             const services: MenuServices = {
@@ -148,7 +141,18 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
                 });
             }
 
+            // Show menu at mouse event first, then attach hide handler.
+            // This avoids a race where switching from an existing menu could
+            // trigger a premature hide on the newly created menu and remove
+            // the outline before the menu is actually shown.
             menu.showAtMouseEvent(e);
+
+            // Remove the class when THIS menu is hidden
+            menu.onHide(() => {
+                if (elementRef.current) {
+                    elementRef.current.classList.remove('nn-context-menu-active');
+                }
+            });
         },
         [
             config,
@@ -180,9 +184,12 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
         element.addEventListener('contextmenu', handleContextMenu);
 
         return () => {
+            // Remove listener on cleanup, but do not forcibly remove the
+            // outline class here. Cleanup can run on re-render, which would
+            // otherwise clear the outline before the menu appears when
+            // switching targets. The class is reliably cleared via menu.onHide
+            // when the context menu actually closes.
             element.removeEventListener('contextmenu', handleContextMenu);
-            // Clean up any lingering context menu active class
-            element.classList.remove('nn-context-menu-active');
         };
     }, [elementRef, handleContextMenu, config]);
 }

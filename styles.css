@@ -681,8 +681,7 @@ body {
     pointer-events: none; /* Ensure it doesn't interfere with clicks */
 }
 
-/* Hide separator when current item is selected but doesn't have selected below */
-/* Hide separator when flagged by renderer (class-based, replaces expensive :has()) */
+/* Hide separator when flagged by renderer */
 .nn-virtual-file-item.nn-hide-separator::after {
     display: none;
 }
