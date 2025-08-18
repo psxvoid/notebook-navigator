@@ -79,6 +79,22 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             // Add context menu active class to show outline immediately
             elementRef.current.classList.add('nn-context-menu-active');
 
+            // Handle separator hiding for file items in list pane
+            if (isFileType(config.type)) {
+                // Find the virtual item wrapper that contains this file item
+                const virtualItem = elementRef.current.closest('.nn-virtual-file-item') as HTMLElement;
+                if (virtualItem) {
+                    // Hide separator below this item
+                    virtualItem.classList.add('nn-hide-separator');
+
+                    // Find and hide separator of previous item (shows above this item)
+                    const prevVirtualItem = virtualItem.previousElementSibling as HTMLElement;
+                    if (prevVirtualItem && prevVirtualItem.classList.contains('nn-virtual-file-item')) {
+                        prevVirtualItem.classList.add('nn-hide-separator');
+                    }
+                }
+            }
+
             // Prepare common parameters for all builders
             const services: MenuServices = {
                 app,
@@ -151,6 +167,20 @@ export function useContextMenu(elementRef: React.RefObject<HTMLElement | null>, 
             menu.onHide(() => {
                 if (elementRef.current) {
                     elementRef.current.classList.remove('nn-context-menu-active');
+
+                    // Remove separator hiding for file items
+                    if (isFileType(config.type)) {
+                        const virtualItem = elementRef.current.closest('.nn-virtual-file-item') as HTMLElement;
+                        if (virtualItem) {
+                            // Remove separator hiding from this item
+                            virtualItem.classList.remove('nn-hide-separator');
+
+                            // Remove separator hiding from previous item
+                            const prevVirtualItem = virtualItem.previousElementSibling as HTMLElement;
+                                prevVirtualItem.classList.remove('nn-hide-separator');
+                            }
+                        }
+                    }
                 }
             });
         },
