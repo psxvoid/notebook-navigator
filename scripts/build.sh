@@ -109,8 +109,8 @@ else
     fi
 fi
 
-# Only run the build if no errors (warnings are OK)
-if [ $BUILD_ERRORS -eq 0 ]; then
+# Only run the build if there are zero errors AND zero warnings
+if [ $BUILD_ERRORS -eq 0 ] && [ $BUILD_WARNINGS -eq 0 ]; then
     # Run the standard npm build
     echo -e "\nBuilding notebook-navigator..."
     npm run build
@@ -128,20 +128,19 @@ if [ $BUILD_ERRORS -eq 0 ]; then
         # Summary
         echo -e "\n=== Build Summary ==="
         echo "✅ Build successful"
-        if [ $BUILD_WARNINGS -gt 0 ]; then
-            echo "⚠️  $BUILD_WARNINGS warning(s) found"
-        else
-            echo "✅ No warnings"
-        fi
+        echo "✅ No warnings"
     else
         echo "❌ Build failed"
         exit 1
     fi
 else
     echo -e "\n=== Build Summary ==="
-    echo "❌ Build aborted due to $BUILD_ERRORS error(s)"
-    if [ $BUILD_WARNINGS -gt 0 ]; then
-        echo "⚠️  Also found $BUILD_WARNINGS warning(s)"
+    if [ $BUILD_ERRORS -gt 0 ] && [ $BUILD_WARNINGS -gt 0 ]; then
+        echo "❌ Build aborted due to $BUILD_ERRORS error(s) and $BUILD_WARNINGS warning(s)"
+    elif [ $BUILD_ERRORS -gt 0 ]; then
+        echo "❌ Build aborted due to $BUILD_ERRORS error(s)"
+    else
+        echo "❌ Build aborted due to $BUILD_WARNINGS warning(s)"
     fi
     exit 1
 fi
