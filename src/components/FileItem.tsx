@@ -42,7 +42,7 @@
  *    - Background: Content providers asynchronously generate preview text and find feature images
  *
  * 6. Image optimization:
- *    - Feature images use native browser lazy loading
+ *    - Feature images use default browser loading behavior
  *    - Resource paths are cached to avoid repeated vault.getResourcePath calls
  */
 
@@ -605,7 +605,6 @@ export const FileItem = React.memo(function FileItem({
                                             src={featureImageUrl}
                                             alt={strings.common.featureImageAlt}
                                             className="nn-feature-image-img"
-                                            loading="eager" // Load images immediately when switching folders
                                             draggable={false}
                                             onDragStart={e => e.preventDefault()}
                                             onError={e => {
