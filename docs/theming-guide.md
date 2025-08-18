@@ -89,7 +89,7 @@ custom color styles, which override the default style.
 | --------------------------------------------- | ----------------------------------- | ----------------------------------------------------------- |
 | `--nn-theme-file-border-radius`               | `8px`                               | Corner radius for file items (0-16px)                       |
 | `--nn-theme-file-name-color`                  | `var(--text-normal)`                | Text color for file names                                   |
-| `--nn-theme-file-feature-border-radius`       | `4px`                               | Corner radius for feature images (0-20px)                   |
+| `--nn-theme-file-feature-border-radius`       | `4px`                               | Corner radius for feature images (0-32px)                   |
 | `--nn-theme-file-preview-color`               | `var(--text-muted)`                 | Text color for content preview                              |
 | `--nn-theme-file-date-color`                  | `var(--text-normal)`                | Text color for creation or modification dates               |
 | `--nn-theme-file-parent-color`                | `var(--text-muted)`                 | Text color for parent folder path (when showing subfolders) |

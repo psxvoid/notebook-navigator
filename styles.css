@@ -966,7 +966,7 @@ body {
     width: var(--nn-feature-image-min-size);
     height: var(--nn-feature-image-min-size);
     flex-shrink: 0;
-    border-radius: min(20px, var(--nn-theme-file-feature-border-radius));
+    border-radius: min(32px, var(--nn-theme-file-feature-border-radius));
     overflow: hidden;
     background-color: var(--background-secondary-alt);
     position: relative;
@@ -2901,7 +2901,7 @@ settings:
         default: 4
         format: px
         min: 0
-        max: 20
+        max: 32
         step: 1
     -
         id: nn-theme-file-tag-bg
