@@ -226,6 +226,11 @@ body {
     background-color: var(--nn-theme-divider-resize-handle-hover-bg);
 }
 
+/* Pane divider resize handle active state - maintains visibility during resize */
+.nn-split-container.nn-resizing .nn-resize-handle {
+    background-color: var(--nn-theme-divider-resize-handle-hover-bg);
+}
+
 /* ========================================================================
    Header Styles
    ======================================================================== */
