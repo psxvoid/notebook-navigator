@@ -277,6 +277,9 @@ export const FileItem = React.memo(function FileItem({
         getFileModifiedTime
     ]);
 
+    // Cleaner logic: when optimization is OFF, always use full height
+    const useFullFileItemHeight = !settings.optimizeNoteHeight;
+
     // Detect slim mode when all display options are disabled
     const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
 
@@ -505,7 +508,7 @@ export const FileItem = React.memo(function FileItem({
                                 </div>
 
                                 {/* Single row mode (preview rows = 1) - show all elements */}
-                                {(isPinned || appearanceSettings.previewRows < 2) && (
+                                {((!useFullFileItemHeight && isPinned) || appearanceSettings.previewRows < 2) && (
                                     <>
                                         {/* Date + Preview on same line */}
                                         <div className="nn-file-second-line">
@@ -520,8 +523,8 @@ export const FileItem = React.memo(function FileItem({
                                         {/* Tags */}
                                         {renderTags()}
 
-                                        {/* Parent folder - not shown for pinned items */}
-                                        {!isPinned &&
+                                        {/* Parent folder - not shown for pinned items when optimization is enabled */}
+                                        {(useFullFileItemHeight || !isPinned) &&
                                             settings.showNotesFromSubfolders &&
                                             settings.showParentFolderNames &&
                                             parentFolder &&
@@ -536,10 +539,10 @@ export const FileItem = React.memo(function FileItem({
                                 )}
 
                                 {/* Multi-row mode (preview rows >= 2) - different layouts based on preview content */}
-                                {!isPinned && appearanceSettings.previewRows >= 2 && (
+                                {(useFullFileItemHeight || !isPinned) && appearanceSettings.previewRows >= 2 && (
                                     <>
                                         {/* Case 1: Empty preview text - show tags, then date + parent folder */}
-                                        {!previewText && (
+                                        {!useFullFileItemHeight && !previewText && (
                                             <>
                                                 {/* Tags (show even when no preview text) */}
                                                 {renderTags()}
@@ -561,7 +564,7 @@ export const FileItem = React.memo(function FileItem({
                                         )}
 
                                         {/* Case 2: Has preview text - show preview, tags, then date + parent folder */}
-                                        {previewText && (
+                                        {(useFullFileItemHeight || previewText) && (
                                             <>
                                                 {/* Multi-row preview - show preview text spanning multiple rows */}
                                                 {settings.showFilePreview && (

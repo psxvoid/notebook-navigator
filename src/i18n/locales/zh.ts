@@ -397,6 +397,10 @@ export const STRINGS_ZH = {
                 name: '按日期分组笔记',
                 desc: '按日期排序时，在日期标题下分组笔记。'
             },
+            optimizeNoteHeight: {
+                name: '优化笔记高度',
+                desc: '减少固定笔记和无预览文本笔记的高度。'
+            },
             showNotesFromSubfolders: {
                 name: '显示子文件夹中的笔记',
                 desc: '在当前文件夹视图中显示所有子文件夹中的笔记。'

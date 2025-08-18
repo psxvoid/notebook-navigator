@@ -302,6 +302,7 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Sort notes by:** Choose how notes are sorted in the note list
   - Date edited (newest/oldest first), Date created (newest/oldest first), or Title (A/Z first)
 - **Group notes by date:** When sorted by date, group notes under date headers
+- **Optimize note height:** Reduce height for pinned notes and notes without preview text
 - **Show notes from subfolders:** Display all notes from subfolders in the current folder view
   - **Show parent folder names:** Display the parent folder name for notes from subfolders
 - **Show quick actions (desktop only):** Enable contextual action buttons that appear on hover

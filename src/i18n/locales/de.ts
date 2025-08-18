@@ -397,6 +397,10 @@ export const STRINGS_DE = {
                 name: 'Notizen nach Datum gruppieren',
                 desc: 'Bei Sortierung nach Datum werden Notizen unter Datumsüberschriften gruppiert.'
             },
+            optimizeNoteHeight: {
+                name: 'Notizenhöhe optimieren',
+                desc: 'Höhe für angeheftete Notizen und Notizen ohne Vorschautext reduzieren.'
+            },
             showNotesFromSubfolders: {
                 name: 'Notizen aus Unterordnern anzeigen',
                 desc: 'Alle Notizen aus Unterordnern in der aktuellen Ordneransicht anzeigen.'

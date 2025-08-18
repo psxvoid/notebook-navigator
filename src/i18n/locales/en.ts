@@ -396,6 +396,10 @@ export const STRINGS_EN = {
                 name: 'Group notes by date',
                 desc: 'When sorted by date, group notes under date headers.'
             },
+            optimizeNoteHeight: {
+                name: 'Optimize note height',
+                desc: 'Reduce height for pinned notes and notes without preview text.'
+            },
             showNotesFromSubfolders: {
                 name: 'Show notes from subfolders',
                 desc: 'Display all notes from subfolders in the current folder view.'

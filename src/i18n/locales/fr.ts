@@ -397,6 +397,10 @@ export const STRINGS_FR = {
                 name: 'Grouper les notes par date',
                 desc: 'Lorsque triées par date, grouper les notes sous des en-têtes de date.'
             },
+            optimizeNoteHeight: {
+                name: 'Optimiser la hauteur des notes',
+                desc: "Réduire la hauteur pour les notes épinglées et les notes sans texte d'aperçu."
+            },
             showNotesFromSubfolders: {
                 name: 'Afficher les notes des sous-dossiers',
                 desc: 'Afficher toutes les notes des sous-dossiers dans la vue du dossier actuel.'

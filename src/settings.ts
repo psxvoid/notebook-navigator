@@ -88,6 +88,7 @@ export interface NotebookNavigatorSettings {
     // List pane
     defaultFolderSort: SortOption;
     groupByDate: boolean;
+    optimizeNoteHeight: boolean;
     showNotesFromSubfolders: boolean;
     showParentFolderNames: boolean;
     showQuickActions: boolean;
@@ -165,6 +166,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // List pane
     defaultFolderSort: 'modified-desc',
     groupByDate: true,
+    optimizeNoteHeight: true,
     showNotesFromSubfolders: true,
     showParentFolderNames: true,
     showQuickActions: true,
@@ -762,6 +764,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.groupByDate).onChange(async value => {
                     this.plugin.settings.groupByDate = value;
+                    await this.saveAndRefresh();
+                })
+            );
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.optimizeNoteHeight.name)
+            .setDesc(strings.settings.items.optimizeNoteHeight.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.optimizeNoteHeight).onChange(async value => {
+                    this.plugin.settings.optimizeNoteHeight = value;
                     await this.saveAndRefresh();
                 })
             );

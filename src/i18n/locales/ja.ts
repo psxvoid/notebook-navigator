@@ -397,6 +397,10 @@ export const STRINGS_JA = {
                 name: '日付でノートをグループ化',
                 desc: '日付でソートする際、日付ヘッダーの下にノートをグループ化します。'
             },
+            optimizeNoteHeight: {
+                name: 'ノートの高さを最適化',
+                desc: 'ピン留めされたノートとプレビューテキストのないノートの高さを削減。'
+            },
             showNotesFromSubfolders: {
                 name: 'サブフォルダのノートを表示',
                 desc: '現在のフォルダビューにすべてのサブフォルダのノートを表示します。'

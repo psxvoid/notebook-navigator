@@ -112,10 +112,10 @@ export function useListPaneScroll({
 
     // Track list state changes and pending scroll operations
     const prevListKeyRef = useRef<string>(''); // Previous folder/tag context to detect navigation
-    const prevShowSubfoldersRef = useRef<boolean>(settings.showNotesFromSubfolders); // Previous subfolder setting to detect toggles
+    const prevConfigKeyRef = useRef<string>(''); // Track config changes for scroll preservation
 
     // Scroll reason types to determine alignment behavior
-    type ScrollReason = 'folder-navigation' | 'visibility-change' | 'reveal' | 'subfolder-toggle';
+    type ScrollReason = 'folder-navigation' | 'visibility-change' | 'reveal' | 'list-config-change';
     const pendingScrollRef = useRef<{ type: 'file' | 'top'; filePath?: string; reason?: ScrollReason } | null>(null); // Deferred scroll operations for async list updates
     const [pendingScrollVersion, setPendingScrollVersion] = useState(0); // Version counter to trigger scroll effect execution
 
@@ -174,9 +174,10 @@ export function useListPaneScroll({
                 hasPreviewText = hasPreview(item.data.path);
             }
 
-            // Calculate effective preview rows based on actual content
-            // For pinned items, limit to 1 row max
-            const effectivePreviewRows = item.isPinned ? 1 : hasPreviewText ? folderSettings.previewRows : 1;
+            // Note: Preview rows are calculated differently based on context
+
+            // Cleaner logic: when optimization is OFF, always use full height
+            const useFullFileItemHeight = !settings.optimizeNoteHeight;
 
             // Start with base padding
             let textContentHeight = 0;
@@ -189,25 +190,25 @@ export function useListPaneScroll({
                 textContentHeight += heights.titleLineHeight * (folderSettings.titleRows || 1); // File name
 
                 // Single row mode - show date+preview, tags, and parent folder
-                // Pinned items are always treated as single row mode
-                if (item.isPinned || folderSettings.previewRows < 2) {
+                // Pinned items are treated as single row mode when optimization is enabled (unless using full height)
+                if ((!useFullFileItemHeight && item.isPinned) || folderSettings.previewRows < 2) {
                     // Date and preview share one line
                     if (folderSettings.showPreview || folderSettings.showDate) {
                         textContentHeight += heights.singleTextLineHeight;
                     }
 
-                    // Parent folder gets its own line (not shown for pinned items)
-                    if (!item.isPinned && settings.showParentFolderNames && settings.showNotesFromSubfolders) {
+                    // Parent folder gets its own line (not shown for pinned items when optimization is enabled)
+                    if ((useFullFileItemHeight || !item.isPinned) && settings.showParentFolderNames && settings.showNotesFromSubfolders) {
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         if (isInSubfolder) {
                             textContentHeight += heights.singleTextLineHeight;
                         }
                     }
-                } else {
-                    // Multi-row mode - different layouts based on preview content
-                    if (!hasPreviewText) {
-                        // Empty preview: show date + parent folder on same line
+                } else if ((useFullFileItemHeight || !item.isPinned) && folderSettings.previewRows >= 2) {
+                    // Multi-row mode - only when not (optimization enabled AND pinned) AND preview rows >= 2
+                    if (!useFullFileItemHeight && !hasPreviewText) {
+                        // Optimization enabled and empty preview: compact layout
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         const showParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
@@ -215,10 +216,19 @@ export function useListPaneScroll({
                         if (folderSettings.showDate || showParentFolder) {
                             textContentHeight += heights.singleTextLineHeight;
                         }
-                    } else {
-                        // Has preview text: show multi-line preview, then date + parent folder
+                    } else if (useFullFileItemHeight || hasPreviewText) {
+                        // Has preview text OR using full height: show full layout
                         if (folderSettings.showPreview) {
-                            textContentHeight += heights.multilineTextLineHeight * effectivePreviewRows;
+                            // When using full height, always reserve full preview rows even if empty
+                            // When optimizing, only show preview if there's text
+                            const previewRows = useFullFileItemHeight
+                                ? folderSettings.previewRows
+                                : hasPreviewText
+                                  ? folderSettings.previewRows
+                                  : 0;
+                            if (previewRows > 0) {
+                                textContentHeight += heights.multilineTextLineHeight * previewRows;
+                            }
                         }
                         // Only add metadata line if date is shown OR parent folder is shown
                         const file = item.data instanceof TFile ? item.data : null;
@@ -436,11 +446,8 @@ export function useListPaneScroll({
         settings.previewRows,
         settings.showParentFolderNames,
         settings.showFileTags,
-        folderSettings.showDate,
-        folderSettings.showPreview,
-        folderSettings.showImage,
-        folderSettings.titleRows,
-        folderSettings.previewRows,
+        settings.optimizeNoteHeight,
+        folderSettings,
         rowVirtualizer
     ]);
 
@@ -455,34 +462,48 @@ export function useListPaneScroll({
     }, [isStorageReady, rowVirtualizer]);
 
     /**
-     * Handle scrolling when subfolder visibility setting changes.
-     * Maintains scroll position on the selected file or scrolls to top.
-     * SCROLL_SUBFOLDER_TOGGLE: Sets pending scroll with 'subfolder-toggle' reason
+     * Handle scrolling when list configuration changes (subfolder toggle, appearance, or sort).
+     * Maintains scroll position on the selected file.
+     * Effect includes all dependencies but only scrolls when config actually changes.
      */
     useEffect(() => {
         if (!rowVirtualizer || !isVisible) {
             return;
         }
 
-        const showSubfoldersChanged = prevShowSubfoldersRef.current !== settings.showNotesFromSubfolders;
+        // Build a key from just the config values that should trigger scroll preservation
+        const configKey = `${settings.showNotesFromSubfolders}-${settings.optimizeNoteHeight}-${JSON.stringify(folderSettings)}-${currentListItemsKey}`;
 
-        if (!showSubfoldersChanged) {
-            return;
+        // Check if config actually changed
+        if (prevConfigKeyRef.current === configKey) {
+            return; // No config change, don't scroll
         }
 
-        // Update the ref to mark this change as processed
-        prevShowSubfoldersRef.current = settings.showNotesFromSubfolders;
+        // Detect subfolder toggle for special handling
+        const wasShowingSubfolders = prevConfigKeyRef.current && prevConfigKeyRef.current.startsWith('true');
+        const nowShowingSubfolders = settings.showNotesFromSubfolders;
 
-        // Set a pending scroll that will be executed after list updates
+        // Update the ref
+        prevConfigKeyRef.current = configKey;
+
+        // Set a pending scroll to maintain position on selected file when config changes
         if (selectedFile) {
-            pendingScrollRef.current = { type: 'file', filePath: selectedFile.path, reason: 'subfolder-toggle' };
+            pendingScrollRef.current = { type: 'file', filePath: selectedFile.path, reason: 'list-config-change' };
             setPendingScrollVersion(v => v + 1);
-        } else if (!settings.showNotesFromSubfolders) {
-            // When disabling subfolders and no file selected, scroll to top
-            pendingScrollRef.current = { type: 'top', reason: 'subfolder-toggle' };
+        } else if (wasShowingSubfolders && !nowShowingSubfolders) {
+            // Special case: When disabling subfolders and no file selected, scroll to top
+            pendingScrollRef.current = { type: 'top', reason: 'list-config-change' };
             setPendingScrollVersion(v => v + 1);
         }
-    }, [isVisible, rowVirtualizer, selectedFile, settings.showNotesFromSubfolders]);
+    }, [
+        isVisible,
+        rowVirtualizer,
+        selectedFile,
+        settings.showNotesFromSubfolders,
+        settings.optimizeNoteHeight,
+        folderSettings,
+        currentListItemsKey
+    ]);
 
     /**
      * Handle scrolling when navigating between folders/tags.

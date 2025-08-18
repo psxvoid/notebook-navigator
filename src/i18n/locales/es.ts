@@ -397,6 +397,10 @@ export const STRINGS_ES = {
                 name: 'Agrupar notas por fecha',
                 desc: 'Cuando se ordena por fecha, agrupa las notas bajo encabezados de fecha.'
             },
+            optimizeNoteHeight: {
+                name: 'Optimizar altura de notas',
+                desc: 'Reducir altura para notas ancladas y notas sin texto de vista previa.'
+            },
             showNotesFromSubfolders: {
                 name: 'Mostrar notas de subcarpetas',
                 desc: 'Muestra todas las notas de las subcarpetas en la vista de carpeta actual.'

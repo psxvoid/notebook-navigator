@@ -56,19 +56,20 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.4.0',
-        date: '2025-08-18',
+        date: '2025-08-19',
         showOnUpdate: true,
         info: 'First Community Plugin Release! 🎉 Notebook Navigator is now available in the Obsidian Community Plugins directory. A big thanks to everyone who supported the development of this plugin!',
         new: [
             '**Public API**. Other plugins and Javascript developers can now interact with Notebook Navigator through a comprehensive API that provides metadata management, navigation control, and event subscriptions. Full TypeScript support included!',
             '**Theming support**. Notebook Navigator now exposes custom CSS properties and provides detailed documentation for theme developers. Theme developers can fully customize colors, selection styles, hover effects, and all UI elements including mobile-specific components.',
-            '**Style Settings support**. Full integration with the Style Settings plugin makes it super easy to get Notebook Navigator to look just the way you want it!'
+            '**Style Settings support**. Full integration with the Style Settings plugin makes it super easy to get Notebook Navigator to look just the way you want it!',
+            '**New setting: Optimize note height**. You can now toggle off the automatic height reduction of pinned notes and notes without preview text (default on).'
         ],
         changed: [
             '**Pinned notes are now context-aware**. Files are now pinned separately in folder view and tag view, allowing different pinned files for each context.'
         ],
         fixed: [
-            'Lots of polish to the user experience. Featured images now scale from 42px to 64px depending on item size, we now use native scroll bars on macOS and mobile, and the overall interface layout was improved.'
+            'Lots of polish to the user experience. Featured images scale in size depending on item height, we use native scroll bars on macOS and mobile, and the interface was improved in over a dozen places.'
         ]
     },
     {
