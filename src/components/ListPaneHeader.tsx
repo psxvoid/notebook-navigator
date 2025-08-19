@@ -358,7 +358,17 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
     // Auto-scroll to end when selection changes
     React.useEffect(() => {
         if (isMobile && scrollContainerRef.current) {
-            scrollContainerRef.current.scrollLeft = scrollContainerRef.current.scrollWidth;
+            // Use setTimeout to ensure the DOM has updated with new content
+            const timeoutId = window.setTimeout(() => {
+                if (scrollContainerRef.current) {
+                    // Use scrollTo with behavior: 'instant' for immediate scroll
+                    scrollContainerRef.current.scrollTo({
+                        left: scrollContainerRef.current.scrollWidth,
+                        behavior: 'instant'
+                    });
+                }
+            }, 0);
+            return () => window.clearTimeout(timeoutId);
         }
     }, [selectionState.selectedFolder, selectionState.selectedTag, isMobile]);
 

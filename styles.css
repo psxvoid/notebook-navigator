@@ -1989,8 +1989,7 @@ body.nn-resizing {
     font-size: var(--nn-mobile-header-font-size);
     color: var(--text-normal);
     white-space: nowrap;
-    padding-left: 8px; /* Padding to create nice snap position */
-    padding-right: 16px; /* Some padding on the right edge */
+    padding-left: 12px; /* Standard padding for snap position */
 }
 
 /* Ensure scrollers fill available space on mobile */
