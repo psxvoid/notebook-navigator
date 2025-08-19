@@ -352,6 +352,23 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
         expansionState.expandedFolders
     ]);
 
+    const scrollContainerRef = React.useRef<HTMLDivElement>(null);
+    const [showFade, setShowFade] = React.useState(false);
+
+    // Auto-scroll to end when selection changes
+    React.useEffect(() => {
+        if (isMobile && scrollContainerRef.current) {
+            scrollContainerRef.current.scrollLeft = scrollContainerRef.current.scrollWidth;
+        }
+    }, [selectionState.selectedFolder, selectionState.selectedTag, isMobile]);
+
+    // Check scroll position to show/hide fade
+    const handleScroll = React.useCallback(() => {
+        if (scrollContainerRef.current) {
+            setShowFade(scrollContainerRef.current.scrollLeft > 0);
+        }
+    }, []);
+
     if (isMobile) {
         // On mobile, show simplified header with back button and path - actions moved to tab bar
         return (
@@ -368,7 +385,10 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
                     >
                         <ObsidianIcon name="arrow-left" />
                     </button>
-                    <span className="nn-mobile-title">{renderPathSegments()}</span>
+                    {showFade && <div className="nn-breadcrumb-fade" />}
+                    <div ref={scrollContainerRef} className="nn-breadcrumb-scroll" onScroll={handleScroll}>
+                        <span className="nn-mobile-title">{renderPathSegments()}</span>
+                    </div>
                 </div>
             </div>
         );

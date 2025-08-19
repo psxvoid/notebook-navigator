@@ -1944,6 +1944,33 @@ body.nn-resizing {
     height: 100%;
 }
 
+/* Scrollable breadcrumb container */
+.notebook-navigator-mobile .nn-breadcrumb-scroll {
+    flex: 1;
+    overflow-x: auto;
+    overflow-y: hidden;
+    scroll-behavior: smooth;
+    -webkit-overflow-scrolling: touch;
+    margin-left: 44px; /* Start right after the arrow button */
+    margin-right: 44px; /* Match left margin for symmetric layout */
+}
+
+.notebook-navigator-mobile .nn-breadcrumb-scroll::-webkit-scrollbar {
+    display: none;
+}
+
+/* Fade overlay positioned just right of back arrow */
+.notebook-navigator-mobile .nn-breadcrumb-fade {
+    position: absolute;
+    left: 44px; /* Position just right of the back arrow */
+    top: 0;
+    bottom: 0;
+    width: 24px;
+    background: linear-gradient(to right, var(--background-primary) 0%, transparent 100%);
+    pointer-events: none;
+    z-index: 1;
+}
+
 /* Mobile back button */
 .notebook-navigator-mobile .nn-back-button {
     position: absolute;
@@ -1961,12 +1988,9 @@ body.nn-resizing {
     font-weight: 500;
     font-size: var(--nn-mobile-header-font-size);
     color: var(--text-normal);
-    width: 100%;
-    text-align: center;
-    padding: 0 50px; /* Prevent overlap with back button */
-    overflow: hidden;
-    text-overflow: ellipsis;
     white-space: nowrap;
+    padding-left: 8px; /* Padding to create nice snap position */
+    padding-right: 16px; /* Some padding on the right edge */
 }
 
 /* Ensure scrollers fill available space on mobile */
