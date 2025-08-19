@@ -274,6 +274,7 @@ export const STRINGS_JA = {
         notifications: {
             deletedMultipleFiles: '{count}個のファイルを削除しました',
             movedMultipleFiles: '{count}個のファイルを{folder}に移動しました',
+            folderMoved: 'フォルダ「{name}」を移動しました',
             deepLinkCopied: 'ディープリンクをクリップボードにコピーしました',
             tagAddedToNote: '1個のノートにタグを追加しました',
             tagAddedToNotes: '{count}個のノートにタグを追加しました',
@@ -302,7 +303,9 @@ export const STRINGS_JA = {
             itemAlreadyExists: 'この場所に "{name}" という名前のアイテムがすでに存在します。',
             failedToMove: '移動に失敗しました：{error}',
             failedToAddTag: 'タグ "{tag}" の追加に失敗しました',
-            failedToClearTags: 'タグのクリアに失敗しました'
+            failedToClearTags: 'タグのクリアに失敗しました',
+            failedToMoveFolder: 'フォルダ「{name}」の移動に失敗しました',
+            foldersCannotHaveTags: 'フォルダにタグを付けることはできません'
         },
         notifications: {
             filesAlreadyExist: '{count}個のファイルが移動先に既に存在します',

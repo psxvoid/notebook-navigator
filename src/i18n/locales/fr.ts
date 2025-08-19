@@ -274,6 +274,7 @@ export const STRINGS_FR = {
         notifications: {
             deletedMultipleFiles: '{count} fichiers supprimés',
             movedMultipleFiles: '{count} fichiers déplacés vers {folder}',
+            folderMoved: 'Dossier "{name}" déplacé',
             deepLinkCopied: 'Lien profond copié dans le presse-papiers',
             tagAddedToNote: 'Étiquette ajoutée à 1 note',
             tagAddedToNotes: 'Étiquette ajoutée à {count} notes',
@@ -302,7 +303,9 @@ export const STRINGS_FR = {
             itemAlreadyExists: 'Un élément nommé "{name}" existe déjà à cet emplacement.',
             failedToMove: 'Échec du déplacement : {error}',
             failedToAddTag: 'Échec de l\'ajout de l\'étiquette "{tag}"',
-            failedToClearTags: 'Échec de la suppression des étiquettes'
+            failedToClearTags: 'Échec de la suppression des étiquettes',
+            failedToMoveFolder: 'Échec du déplacement du dossier "{name}"',
+            foldersCannotHaveTags: 'Les dossiers ne peuvent pas avoir de tags'
         },
         notifications: {
             filesAlreadyExist: '{count} fichiers existent déjà dans la destination',

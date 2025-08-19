@@ -261,6 +261,10 @@ export const FolderItem = React.memo(function FolderItem({
     // Enable context menu
     useContextMenu(folderRef, { type: ItemType.FOLDER, item: folder });
 
+    // Don't allow dragging the root vault folder
+    const isRootFolder = folder.path === '/';
+    const isDraggable = !isMobile && !isRootFolder;
+
     return (
         <div
             ref={folderRef}
@@ -268,8 +272,8 @@ export const FolderItem = React.memo(function FolderItem({
             data-path={folder.path}
             data-drag-path={folder.path}
             data-drag-type="folder"
-            data-draggable={!isMobile ? 'true' : undefined}
-            draggable={!isMobile}
+            data-draggable={isDraggable ? 'true' : undefined}
+            draggable={isDraggable}
             data-drop-zone="folder"
             data-drop-path={folder.path}
             data-clickable="folder"

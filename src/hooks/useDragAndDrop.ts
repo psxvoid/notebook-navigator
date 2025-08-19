@@ -18,7 +18,7 @@
 
 // src/hooks/useDragAndDrop.ts
 import { useCallback, useEffect, useRef } from 'react';
-import { TFile, TFolder, Notice, setIcon } from 'obsidian';
+import { TFile, TFolder, Notice, setIcon, normalizePath } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useFileSystemOps, useTagOperations } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
@@ -123,6 +123,118 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     }, [updateDragGhostPosition]);
 
     /**
+     * Hides the browser's default drag preview by setting an empty element
+     */
+    const hideBrowserDragPreview = (e: DragEvent) => {
+        const emptyDiv = document.createElement('div');
+        emptyDiv.className = 'nn-drag-empty-placeholder';
+        document.body.appendChild(emptyDiv);
+        e.dataTransfer?.setDragImage(emptyDiv, 0, 0);
+        setTimeout(() => emptyDiv.remove(), 0);
+    };
+
+    /**
+     * Creates and positions a custom drag ghost element
+     */
+    const createDragGhost = useCallback(
+        (e: DragEvent, type: string | null, path: string, itemCount?: number) => {
+            const dragGhost = document.createElement('div');
+            dragGhost.className = 'nn-drag-ghost';
+
+            // Set initial position
+            dragGhost.style.left = `${e.clientX + 10}px`;
+            dragGhost.style.top = `${e.clientY + 10}px`;
+
+            if (itemCount && itemCount > 1) {
+                // Multiple items - show count badge
+                const dragInfo = document.createElement('div');
+                dragInfo.className = 'nn-drag-ghost-badge';
+                dragInfo.textContent = `${itemCount}`;
+                dragGhost.appendChild(dragInfo);
+            } else {
+                // Single item - show icon
+                const dragIcon = document.createElement('div');
+                dragIcon.className = 'nn-drag-ghost-icon';
+
+                if (type === ItemType.FILE) {
+                    // Try to use featured image for files
+                    const featureImagePath = db.getCachedFeatureImageUrl(path);
+                    let imageLoaded = false;
+
+                    if (featureImagePath) {
+                        const imageFile = app.vault.getFileByPath(featureImagePath);
+                        if (imageFile) {
+                            try {
+                                const featureImageUrl = app.vault.getResourcePath(imageFile);
+                                dragIcon.className = 'nn-drag-ghost-icon nn-drag-ghost-featured-image';
+                                const img = document.createElement('img');
+                                img.src = featureImageUrl;
+                                dragIcon.appendChild(img);
+                                imageLoaded = true;
+                            } catch {
+                                // Image load failed, will use fallback
+                            }
+                        }
+                    }
+
+                    if (!imageLoaded) {
+                        setIcon(dragIcon, 'file');
+                    }
+                } else if (type === ItemType.FOLDER) {
+                    setIcon(dragIcon, 'folder');
+                }
+
+                dragGhost.appendChild(dragIcon);
+            }
+
+            document.body.appendChild(dragGhost);
+            dragGhostElement.current = dragGhost;
+
+            // Start tracking mouse position
+            document.addEventListener('mousemove', updateDragGhostPosition, { passive: true });
+            document.addEventListener('dragover', updateDragGhostPosition);
+        },
+        [app, db, updateDragGhostPosition]
+    );
+
+    /**
+     * Converts an array of file paths to TFile objects
+     */
+    const getFilesFromPaths = useCallback(
+        (paths: string[]): TFile[] => {
+            const files: TFile[] = [];
+            for (const path of paths) {
+                const file = app.vault.getFileByPath(path);
+                if (file) {
+                    files.push(file);
+                }
+            }
+            return files;
+        },
+        [app]
+    );
+
+    /**
+     * Moves files to a folder with selection context
+     */
+    const moveFilesWithContext = useCallback(
+        async (files: TFile[], targetFolder: TFolder) => {
+            const currentFiles = getCurrentFileList();
+            await fileSystemOps.moveFilesToFolder({
+                files,
+                targetFolder,
+                selectionContext: {
+                    selectedFile: selectionState.selectedFile,
+                    dispatch,
+                    allFiles: currentFiles
+                },
+                showNotifications: true
+            });
+        },
+        [fileSystemOps, getCurrentFileList, selectionState.selectedFile, dispatch]
+    );
+
+    /**
      * Handles the drag start event.
      * Extracts drag data from data attributes and sets drag effect.
      * Also generates markdown links for dragging into editor panes.
@@ -137,142 +249,57 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
             const path = getPathFromDataAttribute(draggable, 'data-drag-path');
             const type = draggable.getAttribute('data-drag-type');
-            if (path && e.dataTransfer) {
-                // Check if dragging a selected file with multiple selections
-                if (type === ItemType.FILE && selectionState.selectedFiles.has(path) && selectionState.selectedFiles.size > 1) {
-                    // Store all selected file paths
-                    const selectedPaths = Array.from(selectionState.selectedFiles);
-                    e.dataTransfer.setData('obsidian/files', JSON.stringify(selectedPaths));
-                    e.dataTransfer.effectAllowed = 'copyMove';
+            if (!path || !e.dataTransfer) return;
 
-                    // Generate markdown links for all selected files
-                    const markdownLinks: string[] = [];
-                    selectedPaths.forEach(selectedPath => {
-                        const file = app.vault.getFileByPath(selectedPath);
-                        if (file) {
-                            // Generate markdown link respecting user's wikilink setting
-                            const link = app.fileManager.generateMarkdownLink(file, '');
-                            markdownLinks.push(link);
-                        }
-                    });
+            // Check if dragging a selected file with multiple selections
+            if (type === ItemType.FILE && selectionState.selectedFiles.has(path) && selectionState.selectedFiles.size > 1) {
+                // Multiple file selection
+                const selectedPaths = Array.from(selectionState.selectedFiles);
+                e.dataTransfer.setData('obsidian/files', JSON.stringify(selectedPaths));
+                e.dataTransfer.effectAllowed = 'copyMove';
 
-                    // Set markdown links for dragging into editor
-                    if (markdownLinks.length > 0) {
-                        e.dataTransfer.setData('text/plain', markdownLinks.join('\n'));
+                // Generate markdown links for all selected files
+                const markdownLinks: string[] = [];
+                selectedPaths.forEach(selectedPath => {
+                    const file = app.vault.getFileByPath(selectedPath);
+                    if (file) {
+                        const link = app.fileManager.generateMarkdownLink(file, '');
+                        markdownLinks.push(link);
                     }
+                });
 
-                    // Add dragging class to all selected files
-                    selectedPaths.forEach(selectedPath => {
-                        const el = containerRef.current?.querySelector(`[data-drag-path="${selectedPath}"]`);
-                        el?.classList.add('nn-dragging');
-                    });
+                if (markdownLinks.length > 0) {
+                    e.dataTransfer.setData('text/plain', markdownLinks.join('\n'));
+                }
 
-                    // Hide browser's default drag preview with empty element
-                    const emptyDiv = document.createElement('div');
-                    emptyDiv.className = 'nn-drag-empty-placeholder';
-                    document.body.appendChild(emptyDiv);
-                    e.dataTransfer.setDragImage(emptyDiv, 0, 0);
-                    // Clean up the empty div immediately
-                    setTimeout(() => emptyDiv.remove(), 0);
+                // Add dragging class to all selected files
+                selectedPaths.forEach(selectedPath => {
+                    const el = containerRef.current?.querySelector(`[data-drag-path="${selectedPath}"]`);
+                    el?.classList.add('nn-dragging');
+                });
 
-                    // Create custom drag ghost that follows cursor
-                    const dragGhost = document.createElement('div');
-                    dragGhost.className = 'nn-drag-ghost';
+                hideBrowserDragPreview(e);
+                createDragGhost(e, type, path, selectedPaths.length);
+            } else {
+                // Single item drag
+                e.dataTransfer.setData('obsidian/file', path);
+                e.dataTransfer.effectAllowed = 'copyMove';
 
-                    // Set initial position at cursor
-                    dragGhost.style.left = `${e.clientX + 10}px`;
-                    dragGhost.style.top = `${e.clientY + 10}px`;
-
-                    // Multiple items - show count badge
-                    const dragInfo = document.createElement('div');
-                    dragInfo.className = 'nn-drag-ghost-badge';
-                    dragInfo.textContent = `${selectedPaths.length}`;
-                    dragGhost.appendChild(dragInfo);
-
-                    document.body.appendChild(dragGhost);
-                    dragGhostElement.current = dragGhost;
-
-                    // Start tracking mouse position
-                    document.addEventListener('mousemove', updateDragGhostPosition, { passive: true });
-                    // Also listen to drag events for position updates
-                    document.addEventListener('dragover', updateDragGhostPosition);
-                } else {
-                    // Single item drag
-                    e.dataTransfer.setData('obsidian/file', path);
-                    e.dataTransfer.effectAllowed = 'copyMove';
-
-                    // Generate markdown link for single file
-                    if (type === ItemType.FILE) {
-                        const file = app.vault.getFileByPath(path);
-                        if (file) {
-                            const link = app.fileManager.generateMarkdownLink(file, '');
-                            e.dataTransfer.setData('text/plain', link);
-                        }
-                    }
-
-                    draggable.classList.add('nn-dragging');
-
-                    // Hide browser's default drag preview with empty element
-                    const emptyDiv = document.createElement('div');
-                    emptyDiv.className = 'nn-drag-empty-placeholder';
-                    document.body.appendChild(emptyDiv);
-                    e.dataTransfer.setDragImage(emptyDiv, 0, 0);
-                    // Clean up the empty div immediately
-                    setTimeout(() => emptyDiv.remove(), 0);
-
-                    // Only show custom drag ghost for files, not folders
-                    if (type === ItemType.FILE) {
-                        // Create custom drag ghost that follows cursor
-                        const dragGhost = document.createElement('div');
-                        dragGhost.className = 'nn-drag-ghost';
-
-                        // Create drag icon element
-                        const dragIcon = document.createElement('div');
-                        dragIcon.className = 'nn-drag-ghost-icon';
-
-                        // Try to use featured image if available
-                        const featureImagePath = db.getCachedFeatureImageUrl(path);
-                        let imageLoaded = false;
-
-                        if (featureImagePath) {
-                            const imageFile = app.vault.getFileByPath(featureImagePath);
-                            if (imageFile) {
-                                try {
-                                    const featureImageUrl = app.vault.getResourcePath(imageFile);
-                                    dragIcon.className = 'nn-drag-ghost-icon nn-drag-ghost-featured-image';
-                                    const img = document.createElement('img');
-                                    img.src = featureImageUrl;
-                                    dragIcon.appendChild(img);
-                                    imageLoaded = true;
-                                } catch {
-                                    // Image load failed, will use fallback
-                                }
-                            }
-                        }
-
-                        // Use file icon as fallback if no image loaded
-                        if (!imageLoaded) {
-                            setIcon(dragIcon, 'file');
-                        }
-
-                        dragGhost.appendChild(dragIcon);
-
-                        // Set initial position at cursor
-                        dragGhost.style.left = `${e.clientX + 10}px`;
-                        dragGhost.style.top = `${e.clientY + 10}px`;
-
-                        document.body.appendChild(dragGhost);
-                        dragGhostElement.current = dragGhost;
-
-                        // Start tracking mouse position
-                        document.addEventListener('mousemove', updateDragGhostPosition);
-                        // Also listen to drag events for position updates
-                        document.addEventListener('dragover', updateDragGhostPosition);
+                // Generate markdown link for single file
+                if (type === ItemType.FILE) {
+                    const file = app.vault.getFileByPath(path);
+                    if (file) {
+                        const link = app.fileManager.generateMarkdownLink(file, '');
+                        e.dataTransfer.setData('text/plain', link);
                     }
                 }
+
+                draggable.classList.add('nn-dragging');
+                hideBrowserDragPreview(e);
+                createDragGhost(e, type, path);
             }
         },
-        [selectionState, containerRef, app, db, updateDragGhostPosition]
+        [selectionState, containerRef, app, createDragGhost]
     );
 
     /**
@@ -316,33 +343,30 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
      */
     const handleTagDrop = useCallback(
         async (e: DragEvent, targetTag: string) => {
-            // Get all files being dragged
-            const files: TFile[] = [];
+            let files: TFile[] = [];
 
-            // Check if dragging multiple files
+            // Check if dragging multiple files (never folders)
             const multipleFilesData = e.dataTransfer?.getData('obsidian/files');
             if (multipleFilesData) {
                 try {
                     const selectedPaths = JSON.parse(multipleFilesData);
                     if (Array.isArray(selectedPaths)) {
-                        for (const path of selectedPaths) {
-                            const file = app.vault.getFileByPath(path);
-                            if (file) {
-                                files.push(file);
-                            }
-                        }
+                        files = getFilesFromPaths(selectedPaths);
                     }
                 } catch (error) {
                     console.error('Error parsing multiple files data:', error);
-                    return; // Early return on parse error
+                    return;
                 }
             } else {
-                // Check if dragging single file
+                // Check if dragging single item (could be file or folder)
                 const singleFileData = e.dataTransfer?.getData('obsidian/file');
                 if (singleFileData) {
-                    const file = app.vault.getFileByPath(singleFileData);
-                    if (file) {
-                        files.push(file);
+                    const item = app.vault.getAbstractFileByPath(singleFileData);
+                    if (item instanceof TFolder) {
+                        new Notice(strings.dragDrop.errors.foldersCannotHaveTags);
+                        return;
+                    } else if (item instanceof TFile) {
+                        files = [item];
                     }
                 }
             }
@@ -390,7 +414,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 }
             }
         },
-        [app, tagOperations]
+        [app, tagOperations, getFilesFromPaths]
     );
 
     /**
@@ -423,58 +447,61 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 return;
             }
 
-            // Handle folder drops (existing logic)
+            // Handle folder drops
             const targetFolder = app.vault.getAbstractFileByPath(targetPath);
             if (!(targetFolder instanceof TFolder)) return;
 
-            // Collect files to move
-            const filesToMove: TFile[] = [];
-
-            // Check if dragging multiple files
+            // Check if dragging multiple files (never folders - folders are always single)
             const multipleFilesData = e.dataTransfer?.getData('obsidian/files');
             if (multipleFilesData) {
+                // Multiple items = always files, never folders
                 try {
                     const selectedPaths = JSON.parse(multipleFilesData);
                     if (Array.isArray(selectedPaths)) {
-                        // Convert paths to TFile objects
-                        for (const path of selectedPaths) {
-                            const file = app.vault.getFileByPath(path);
-                            if (file) {
-                                filesToMove.push(file);
-                            }
+                        const filesToMove = getFilesFromPaths(selectedPaths);
+                        if (filesToMove.length > 0) {
+                            await moveFilesWithContext(filesToMove, targetFolder);
                         }
                     }
                 } catch (error) {
                     console.error('Error parsing multiple files data:', error);
-                    return; // Early return on parse error
+                    return;
                 }
             } else {
-                // Check if dragging single file
-                const singleFileData = e.dataTransfer?.getData('obsidian/file');
-                if (!singleFileData) return;
+                // Single item - could be file or folder
+                const singleItemData = e.dataTransfer?.getData('obsidian/file');
+                if (!singleItemData) return;
 
-                const sourceItem = app.vault.getFileByPath(singleFileData);
+                const sourceItem = app.vault.getAbstractFileByPath(singleItemData);
                 if (!sourceItem) return;
 
-                filesToMove.push(sourceItem);
-            }
+                if (sourceItem instanceof TFile) {
+                    await moveFilesWithContext([sourceItem], targetFolder);
+                } else if (sourceItem instanceof TFolder) {
+                    // Don't allow moving a folder into itself or its descendants
+                    if (targetFolder.path === sourceItem.path || targetFolder.path.startsWith(sourceItem.path + '/')) {
+                        new Notice(strings.dragDrop.errors.cannotMoveIntoSelf);
+                        return;
+                    }
 
-            // Process all files at once
-            if (filesToMove.length > 0) {
-                const currentFiles = getCurrentFileList();
-                await fileSystemOps.moveFilesToFolder({
-                    files: filesToMove,
-                    targetFolder,
-                    selectionContext: {
-                        selectedFile: selectionState.selectedFile,
-                        dispatch,
-                        allFiles: currentFiles
-                    },
-                    showNotifications: true
-                });
+                    // Check if folder is already in the target location (same parent)
+                    if (sourceItem.parent?.path === targetFolder.path) {
+                        // Folder is already in this location, no need to move
+                        return;
+                    }
+
+                    try {
+                        const newPath = normalizePath(`${targetFolder.path}/${sourceItem.name}`);
+                        await app.fileManager.renameFile(sourceItem, newPath);
+                        new Notice(strings.fileSystem.notifications.folderMoved.replace('{name}', sourceItem.name));
+                    } catch (error) {
+                        console.error('Error moving folder:', error);
+                        new Notice(strings.dragDrop.errors.failedToMoveFolder.replace('{name}', sourceItem.name));
+                    }
+                }
             }
         },
-        [app, fileSystemOps, selectionState, getCurrentFileList, dispatch, handleTagDrop]
+        [app, handleTagDrop, moveFilesWithContext, getFilesFromPaths]
     );
 
     /**
@@ -523,7 +550,6 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 dragOverElement.current = null;
             }
 
-            // Clean up drag ghost
             cleanupDragGhost();
         },
         [selectionState, containerRef, cleanupDragGhost]

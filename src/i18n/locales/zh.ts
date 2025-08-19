@@ -274,6 +274,7 @@ export const STRINGS_ZH = {
         notifications: {
             deletedMultipleFiles: '已删除 {count} 个文件',
             movedMultipleFiles: '已将{count}个文件移动到{folder}',
+            folderMoved: '已移动文件夹"{name}"',
             deepLinkCopied: '深层链接已复制到剪贴板',
             tagAddedToNote: '已将标签添加到 1 个笔记',
             tagAddedToNotes: '已将标签添加到 {count} 个笔记',
@@ -302,7 +303,9 @@ export const STRINGS_ZH = {
             itemAlreadyExists: '此位置已存在名为 "{name}" 的项目。',
             failedToMove: '移动失败：{error}',
             failedToAddTag: '添加标签 "{tag}" 失败',
-            failedToClearTags: '清除标签失败'
+            failedToClearTags: '清除标签失败',
+            failedToMoveFolder: '移动文件夹"{name}"失败',
+            foldersCannotHaveTags: '文件夹不能有标签'
         },
         notifications: {
             filesAlreadyExist: '{count} 个文件在目标位置已存在',

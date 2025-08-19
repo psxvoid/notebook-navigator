@@ -273,6 +273,7 @@ export const STRINGS_EN = {
         notifications: {
             deletedMultipleFiles: 'Deleted {count} files',
             movedMultipleFiles: 'Moved {count} files to {folder}',
+            folderMoved: 'Moved folder "{name}"',
             deepLinkCopied: 'Deep link copied to clipboard',
             tagAddedToNote: 'Added tag to 1 note',
             tagAddedToNotes: 'Added tag to {count} notes',
@@ -301,7 +302,9 @@ export const STRINGS_EN = {
             itemAlreadyExists: 'An item named "{name}" already exists in this location.',
             failedToMove: 'Failed to move: {error}',
             failedToAddTag: 'Failed to add tag "{tag}"',
-            failedToClearTags: 'Failed to clear tags'
+            failedToClearTags: 'Failed to clear tags',
+            failedToMoveFolder: 'Failed to move folder "{name}"',
+            foldersCannotHaveTags: 'Folders cannot have tags'
         },
         notifications: {
             filesAlreadyExist: '{count} files already exist in destination',

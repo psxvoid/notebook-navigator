@@ -274,6 +274,7 @@ export const STRINGS_ES = {
         notifications: {
             deletedMultipleFiles: '{count} archivos eliminados',
             movedMultipleFiles: '{count} archivos movidos a {folder}',
+            folderMoved: 'Carpeta "{name}" movida',
             deepLinkCopied: 'Enlace profundo copiado al portapapeles',
             tagAddedToNote: 'Etiqueta añadida a 1 nota',
             tagAddedToNotes: 'Etiqueta añadida a {count} notas',
@@ -302,7 +303,9 @@ export const STRINGS_ES = {
             itemAlreadyExists: 'Ya existe un elemento llamado "{name}" en esta ubicación.',
             failedToMove: 'Error al mover: {error}',
             failedToAddTag: 'Error al agregar la etiqueta "{tag}"',
-            failedToClearTags: 'Error al eliminar las etiquetas'
+            failedToClearTags: 'Error al eliminar las etiquetas',
+            failedToMoveFolder: 'Error al mover la carpeta "{name}"',
+            foldersCannotHaveTags: 'Las carpetas no pueden tener etiquetas'
         },
         notifications: {
             filesAlreadyExist: '{count} archivos ya existen en el destino',

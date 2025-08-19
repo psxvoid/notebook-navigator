@@ -274,6 +274,7 @@ export const STRINGS_DE = {
         notifications: {
             deletedMultipleFiles: '{count} Dateien gelöscht',
             movedMultipleFiles: '{count} Dateien nach {folder} verschoben',
+            folderMoved: 'Ordner "{name}" verschoben',
             deepLinkCopied: 'Deep Link in die Zwischenablage kopiert',
             tagAddedToNote: 'Tag zu 1 Notiz hinzugefügt',
             tagAddedToNotes: 'Tag zu {count} Notizen hinzugefügt',
@@ -302,7 +303,9 @@ export const STRINGS_DE = {
             itemAlreadyExists: 'Ein Element mit dem Namen "{name}" existiert bereits an diesem Ort.',
             failedToMove: 'Verschieben fehlgeschlagen: {error}',
             failedToAddTag: 'Hinzufügen des Tags "{tag}" fehlgeschlagen',
-            failedToClearTags: 'Entfernen der Tags fehlgeschlagen'
+            failedToClearTags: 'Entfernen der Tags fehlgeschlagen',
+            failedToMoveFolder: 'Ordner "{name}" konnte nicht verschoben werden',
+            foldersCannotHaveTags: 'Ordner können keine Tags haben'
         },
         notifications: {
             filesAlreadyExist: '{count} Dateien existieren bereits am Zielort',
