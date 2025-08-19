@@ -1291,6 +1291,7 @@ body.nn-resizing {
     pointer-events: none;
     z-index: 999999;
     opacity: 0.9;
+    will-change: transform;
 }
 
 /* Badge shown on drag ghost for multiple files */

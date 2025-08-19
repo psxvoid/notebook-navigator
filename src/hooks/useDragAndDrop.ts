@@ -82,6 +82,13 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const dragGhostElement = useRef<HTMLElement | null>(null);
 
     /**
+     * Type guard to check if an element is an HTMLElement
+     */
+    const isHTMLElement = (element: EventTarget | null): element is HTMLElement => {
+        return element instanceof HTMLElement;
+    };
+
+    /**
      * Helper function to get current file list based on selection
      */
     const getCurrentFileList = useCallback((): TFile[] => {
@@ -104,6 +111,18 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     }, []);
 
     /**
+     * Cleans up the drag ghost element and removes event listeners
+     */
+    const cleanupDragGhost = useCallback(() => {
+        if (dragGhostElement.current) {
+            document.removeEventListener('mousemove', updateDragGhostPosition, { passive: true } as EventListenerOptions);
+            document.removeEventListener('dragover', updateDragGhostPosition);
+            dragGhostElement.current.remove();
+            dragGhostElement.current = null;
+        }
+    }, [updateDragGhostPosition]);
+
+    /**
      * Handles the drag start event.
      * Extracts drag data from data attributes and sets drag effect.
      * Also generates markdown links for dragging into editor panes.
@@ -112,11 +131,11 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
      */
     const handleDragStart = useCallback(
         (e: DragEvent) => {
-            const target = e.target as HTMLElement;
-            const draggable = target.closest('[data-draggable="true"]');
-            if (!draggable) return;
+            if (!isHTMLElement(e.target)) return;
+            const draggable = e.target.closest('[data-draggable="true"]');
+            if (!draggable || !(draggable instanceof HTMLElement)) return;
 
-            const path = getPathFromDataAttribute(draggable as HTMLElement, 'data-drag-path');
+            const path = getPathFromDataAttribute(draggable, 'data-drag-path');
             const type = draggable.getAttribute('data-drag-type');
             if (path && e.dataTransfer) {
                 // Check if dragging a selected file with multiple selections
@@ -174,7 +193,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     dragGhostElement.current = dragGhost;
 
                     // Start tracking mouse position
-                    document.addEventListener('mousemove', updateDragGhostPosition);
+                    document.addEventListener('mousemove', updateDragGhostPosition, { passive: true });
                     // Also listen to drag events for position updates
                     document.addEventListener('dragover', updateDragGhostPosition);
                 } else {
@@ -264,8 +283,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
      */
     const handleDragOver = useCallback((e: DragEvent) => {
         e.preventDefault();
-        const target = e.target as HTMLElement;
-        const dropZone = target.closest<HTMLElement>('[data-drop-zone="folder"],[data-drop-zone="tag"]');
+        if (!isHTMLElement(e.target)) return;
+        const dropZone = e.target.closest<HTMLElement>('[data-drop-zone="folder"],[data-drop-zone="tag"]');
 
         if (dragOverElement.current && dragOverElement.current !== dropZone) {
             dragOverElement.current.classList.remove('nn-drag-over');
@@ -505,14 +524,9 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             }
 
             // Clean up drag ghost
-            if (dragGhostElement.current) {
-                document.removeEventListener('mousemove', updateDragGhostPosition);
-                document.removeEventListener('dragover', updateDragGhostPosition);
-                dragGhostElement.current.remove();
-                dragGhostElement.current = null;
-            }
+            cleanupDragGhost();
         },
-        [selectionState, containerRef, updateDragGhostPosition]
+        [selectionState, containerRef, cleanupDragGhost]
     );
 
     useEffect(() => {
@@ -522,10 +536,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         // Global handler for escape key to clean up ghost on cancel
         const handleEscape = (e: KeyboardEvent) => {
             if (e.key === 'Escape' && dragGhostElement.current) {
-                document.removeEventListener('mousemove', updateDragGhostPosition);
-                document.removeEventListener('dragover', updateDragGhostPosition);
-                dragGhostElement.current.remove();
-                dragGhostElement.current = null;
+                cleanupDragGhost();
             }
         };
 
@@ -545,12 +556,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             document.removeEventListener('keydown', handleEscape);
 
             // Clean up any lingering ghost on unmount
-            if (dragGhostElement.current) {
-                document.removeEventListener('mousemove', updateDragGhostPosition);
-                document.removeEventListener('dragover', updateDragGhostPosition);
-                dragGhostElement.current.remove();
-                dragGhostElement.current = null;
-            }
+            cleanupDragGhost();
         };
-    }, [containerRef, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd, isMobile, updateDragGhostPosition]);
+    }, [containerRef, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd, isMobile, cleanupDragGhost]);
 }
