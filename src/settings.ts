@@ -185,7 +185,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     showFileDate: true,
     showFileTags: true,
     showFilePreview: true,
-    skipHeadingsInPreview: false,
+    skipHeadingsInPreview: true,
     previewProperties: [],
     previewRows: 2,
     showFeatureImage: true,
