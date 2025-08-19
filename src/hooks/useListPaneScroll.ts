@@ -176,8 +176,16 @@ export function useListPaneScroll({
 
             // Note: Preview rows are calculated differently based on context
 
-            // Cleaner logic: when optimization is OFF, always use full height
-            const useFullFileItemHeight = !settings.optimizeNoteHeight;
+            // Height optimization settings
+            const heightOptimizationEnabled = settings.optimizeNoteHeight;
+            const heightOptimizationDisabled = !settings.optimizeNoteHeight;
+
+            // Layout decision variables (matching FileItem.tsx logic)
+            const pinnedItemShouldUseCompactLayout = item.isPinned && heightOptimizationEnabled; // Pinned items get compact treatment only when optimizing
+            const shouldUseSingleLineForDateAndPreview = pinnedItemShouldUseCompactLayout || folderSettings.previewRows < 2;
+            const shouldUseMultiLinePreviewLayout = !pinnedItemShouldUseCompactLayout && folderSettings.previewRows >= 2;
+            const shouldCollapseEmptyPreviewSpace = heightOptimizationEnabled && !hasPreviewText; // Optimization: compact layout for empty preview
+            const shouldAlwaysReservePreviewSpace = heightOptimizationDisabled || hasPreviewText; // Show full layout when not optimizing OR has content
 
             // Start with base padding
             let textContentHeight = 0;
@@ -191,23 +199,23 @@ export function useListPaneScroll({
 
                 // Single row mode - show date+preview, tags, and parent folder
                 // Pinned items are treated as single row mode when optimization is enabled (unless using full height)
-                if ((!useFullFileItemHeight && item.isPinned) || folderSettings.previewRows < 2) {
+                if (shouldUseSingleLineForDateAndPreview) {
                     // Date and preview share one line
                     if (folderSettings.showPreview || folderSettings.showDate) {
                         textContentHeight += heights.singleTextLineHeight;
                     }
 
                     // Parent folder gets its own line (not shown for pinned items when optimization is enabled)
-                    if ((useFullFileItemHeight || !item.isPinned) && settings.showParentFolderNames && settings.showNotesFromSubfolders) {
+                    if (!pinnedItemShouldUseCompactLayout && settings.showParentFolderNames && settings.showNotesFromSubfolders) {
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         if (isInSubfolder) {
                             textContentHeight += heights.singleTextLineHeight;
                         }
                     }
-                } else if ((useFullFileItemHeight || !item.isPinned) && folderSettings.previewRows >= 2) {
+                } else if (shouldUseMultiLinePreviewLayout) {
                     // Multi-row mode - only when not (optimization enabled AND pinned) AND preview rows >= 2
-                    if (!useFullFileItemHeight && !hasPreviewText) {
+                    if (shouldCollapseEmptyPreviewSpace) {
                         // Optimization enabled and empty preview: compact layout
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
@@ -216,12 +224,12 @@ export function useListPaneScroll({
                         if (folderSettings.showDate || showParentFolder) {
                             textContentHeight += heights.singleTextLineHeight;
                         }
-                    } else if (useFullFileItemHeight || hasPreviewText) {
+                    } else if (shouldAlwaysReservePreviewSpace) {
                         // Has preview text OR using full height: show full layout
                         if (folderSettings.showPreview) {
                             // When using full height, always reserve full preview rows even if empty
                             // When optimizing, only show preview if there's text
-                            const previewRows = useFullFileItemHeight
+                            const previewRows = heightOptimizationDisabled
                                 ? folderSettings.previewRows
                                 : hasPreviewText
                                   ? folderSettings.previewRows

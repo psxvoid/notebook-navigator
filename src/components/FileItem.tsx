@@ -277,8 +277,16 @@ export const FileItem = React.memo(function FileItem({
         getFileModifiedTime
     ]);
 
-    // Cleaner logic: when optimization is OFF, always use full height
-    const useFullFileItemHeight = !settings.optimizeNoteHeight;
+    // Height optimization settings
+    const heightOptimizationEnabled = settings.optimizeNoteHeight;
+    const heightOptimizationDisabled = !settings.optimizeNoteHeight;
+
+    // Layout decision variables
+    const pinnedItemShouldUseCompactLayout = isPinned && heightOptimizationEnabled; // Pinned items get compact treatment only when optimizing
+    const shouldUseSingleLineForDateAndPreview = pinnedItemShouldUseCompactLayout || appearanceSettings.previewRows < 2;
+    const shouldUseMultiLinePreviewLayout = !pinnedItemShouldUseCompactLayout && appearanceSettings.previewRows >= 2;
+    const shouldCollapseEmptyPreviewSpace = heightOptimizationEnabled && !previewText; // Optimization: compact layout for empty preview
+    const shouldAlwaysReservePreviewSpace = heightOptimizationDisabled || previewText; // Show full layout when not optimizing OR has content
 
     // Detect slim mode when all display options are disabled
     const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
@@ -508,7 +516,7 @@ export const FileItem = React.memo(function FileItem({
                                 </div>
 
                                 {/* Single row mode (preview rows = 1) - show all elements */}
-                                {((!useFullFileItemHeight && isPinned) || appearanceSettings.previewRows < 2) && (
+                                {shouldUseSingleLineForDateAndPreview && (
                                     <>
                                         {/* Date + Preview on same line */}
                                         <div className="nn-file-second-line">
@@ -524,7 +532,7 @@ export const FileItem = React.memo(function FileItem({
                                         {renderTags()}
 
                                         {/* Parent folder - not shown for pinned items when optimization is enabled */}
-                                        {(useFullFileItemHeight || !isPinned) &&
+                                        {!pinnedItemShouldUseCompactLayout &&
                                             settings.showNotesFromSubfolders &&
                                             settings.showParentFolderNames &&
                                             parentFolder &&
@@ -539,10 +547,10 @@ export const FileItem = React.memo(function FileItem({
                                 )}
 
                                 {/* Multi-row mode (preview rows >= 2) - different layouts based on preview content */}
-                                {(useFullFileItemHeight || !isPinned) && appearanceSettings.previewRows >= 2 && (
+                                {shouldUseMultiLinePreviewLayout && (
                                     <>
                                         {/* Case 1: Empty preview text - show tags, then date + parent folder */}
-                                        {!useFullFileItemHeight && !previewText && (
+                                        {shouldCollapseEmptyPreviewSpace && (
                                             <>
                                                 {/* Tags (show even when no preview text) */}
                                                 {renderTags()}
@@ -564,7 +572,7 @@ export const FileItem = React.memo(function FileItem({
                                         )}
 
                                         {/* Case 2: Has preview text - show preview, tags, then date + parent folder */}
-                                        {(useFullFileItemHeight || previewText) && (
+                                        {shouldAlwaysReservePreviewSpace && (
                                             <>
                                                 {/* Multi-row preview - show preview text spanning multiple rows */}
                                                 {settings.showFilePreview && (
