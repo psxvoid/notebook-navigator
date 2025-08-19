@@ -121,10 +121,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      * Ensures proper initialization order for all plugin components
      */
     async onload() {
-        await this.loadSettings();
-
         // Initialize localStorage with app instance for vault-specific storage
+        // Must be done before loadSettings() which may call clearAllLocalStorage()
         localStorage.init(this.app);
+
+        await this.loadSettings();
 
         // Set localStorage version if not present
         if (!localStorage.get(STORAGE_KEYS.localStorageVersionKey)) {
