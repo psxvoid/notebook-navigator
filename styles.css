@@ -1275,67 +1275,83 @@ body.nn-resizing {
     border-radius: min(14px, var(--nn-theme-navitem-border-radius));
 }
 
-/* Drag image container - positions the custom drag image off-screen */
-.nn-drag-image-container {
+/* Empty placeholder to hide browser's default drag preview */
+.nn-drag-empty-placeholder {
     position: absolute;
+    width: 1px;
+    height: 1px;
     left: -9999px;
-    width: 48px;
-    height: 48px;
+    top: -9999px;
+    opacity: 0;
 }
 
-/* Single file drag icon - positioned like count badge */
-.nn-drag-icon-badge {
-    position: absolute;
-    bottom: 8px;
-    inset-inline-end: 8px;
-    width: 32px;
-    height: 32px;
-    background-color: var(--background-primary);
-    border: 2px solid var(--background-modifier-border);
-    border-radius: 16px;
-    display: flex;
+/* Drag ghost element - follows the cursor during drag */
+.nn-drag-ghost {
+    position: fixed;
+    pointer-events: none;
+    z-index: 999999;
+    opacity: 0.9;
+}
+
+/* Badge shown on drag ghost for multiple files */
+.nn-drag-ghost-badge {
+    background-color: var(--text-normal); /* Black in light mode, light gray in dark mode */
+    color: var(--background-primary); /* White in light mode, dark in dark mode - inverted */
+    padding: 4px 8px;
+    border-radius: 8px;
+    font-size: 12px;
+    font-weight: 600;
+    display: inline-flex;
     align-items: center;
     justify-content: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    min-width: 24px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
-/* Style the Lucide icon inside drag icon badge */
-.nn-drag-icon-badge svg {
+/* Force white text */
+.theme-light .nn-drag-ghost-badge {
+    background-color: #000000;
+    color: #ffffff;
+}
+
+.theme-dark .nn-drag-ghost-badge {
+    background-color: var(--background-modifier-border); /* Gray in dark mode */
+    color: #ffffff;
+}
+
+/* Icon shown on drag ghost for single file */
+.nn-drag-ghost-icon {
+    background-color: var(--background-primary);
+    border: 2px solid var(--background-modifier-border);
+    border-radius: 8px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+/* Style the Lucide icon inside drag ghost */
+.nn-drag-ghost-icon svg {
     width: 20px;
     height: 20px;
     color: var(--text-muted);
 }
 
-/* Featured image in drag badge */
-.nn-drag-icon-badge.nn-drag-featured-image {
+/* Featured image in drag ghost */
+.nn-drag-ghost-icon.nn-drag-ghost-featured-image {
     padding: 0;
     overflow: hidden;
+    width: 42px;
+    height: 42px;
 }
 
-.nn-drag-icon-badge.nn-drag-featured-image img {
+.nn-drag-ghost-icon.nn-drag-ghost-featured-image img {
     width: 100%;
     height: 100%;
     object-fit: cover;
     object-position: center;
-}
-
-/* Drag count badge - shows number of items being dragged */
-.nn-drag-count-badge {
-    position: absolute;
-    bottom: 8px;
-    inset-inline-end: 8px;
-    background-color: #dc3545;
-    color: white;
-    font-weight: bold;
-    font-size: 14px;
-    min-width: 24px;
-    height: 24px;
-    padding: 0 8px;
-    border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 /* Header actions layout variations 

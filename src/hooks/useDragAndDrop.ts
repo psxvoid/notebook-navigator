@@ -79,6 +79,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
     const settings = useSettingsState();
     const db = getDBInstance();
     const dragOverElement = useRef<HTMLElement | null>(null);
+    const dragGhostElement = useRef<HTMLElement | null>(null);
 
     /**
      * Helper function to get current file list based on selection
@@ -91,6 +92,16 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
         }
         return [];
     }, [selectionState, settings, app, tagTreeService]);
+
+    /**
+     * Updates the position of the drag ghost element to follow the mouse cursor
+     */
+    const updateDragGhostPosition = useCallback((e: MouseEvent | DragEvent) => {
+        if (dragGhostElement.current) {
+            dragGhostElement.current.style.left = `${e.clientX + 10}px`;
+            dragGhostElement.current.style.top = `${e.clientY + 10}px`;
+        }
+    }, []);
 
     /**
      * Handles the drag start event.
@@ -137,20 +148,35 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         el?.classList.add('nn-dragging');
                     });
 
-                    // Always show custom drag image for consistency
-                    const dragContainer = document.createElement('div');
-                    dragContainer.className = 'nn-drag-image-container';
+                    // Hide browser's default drag preview with empty element
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'nn-drag-empty-placeholder';
+                    document.body.appendChild(emptyDiv);
+                    e.dataTransfer.setDragImage(emptyDiv, 0, 0);
+                    // Clean up the empty div immediately
+                    setTimeout(() => emptyDiv.remove(), 0);
 
-                    // Multiple items - always show count badge
+                    // Create custom drag ghost that follows cursor
+                    const dragGhost = document.createElement('div');
+                    dragGhost.className = 'nn-drag-ghost';
+
+                    // Set initial position at cursor
+                    dragGhost.style.left = `${e.clientX + 10}px`;
+                    dragGhost.style.top = `${e.clientY + 10}px`;
+
+                    // Multiple items - show count badge
                     const dragInfo = document.createElement('div');
-                    dragInfo.className = 'nn-drag-count-badge';
+                    dragInfo.className = 'nn-drag-ghost-badge';
                     dragInfo.textContent = `${selectedPaths.length}`;
-                    dragContainer.appendChild(dragInfo);
+                    dragGhost.appendChild(dragInfo);
 
-                    document.body.appendChild(dragContainer);
-                    // Use negative offset to position icon bottom-right of cursor
-                    e.dataTransfer.setDragImage(dragContainer, -10, -10);
-                    window.setTimeout(() => document.body.removeChild(dragContainer), TIMEOUTS.YIELD_TO_EVENT_LOOP);
+                    document.body.appendChild(dragGhost);
+                    dragGhostElement.current = dragGhost;
+
+                    // Start tracking mouse position
+                    document.addEventListener('mousemove', updateDragGhostPosition);
+                    // Also listen to drag events for position updates
+                    document.addEventListener('dragover', updateDragGhostPosition);
                 } else {
                     // Single item drag
                     e.dataTransfer.setData('obsidian/file', path);
@@ -167,14 +193,23 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
                     draggable.classList.add('nn-dragging');
 
-                    // Only show custom drag image for files, not folders
+                    // Hide browser's default drag preview with empty element
+                    const emptyDiv = document.createElement('div');
+                    emptyDiv.className = 'nn-drag-empty-placeholder';
+                    document.body.appendChild(emptyDiv);
+                    e.dataTransfer.setDragImage(emptyDiv, 0, 0);
+                    // Clean up the empty div immediately
+                    setTimeout(() => emptyDiv.remove(), 0);
+
+                    // Only show custom drag ghost for files, not folders
                     if (type === ItemType.FILE) {
-                        const dragContainer = document.createElement('div');
-                        dragContainer.className = 'nn-drag-image-container';
+                        // Create custom drag ghost that follows cursor
+                        const dragGhost = document.createElement('div');
+                        dragGhost.className = 'nn-drag-ghost';
 
                         // Create drag icon element
                         const dragIcon = document.createElement('div');
-                        dragIcon.className = 'nn-drag-icon-badge';
+                        dragIcon.className = 'nn-drag-ghost-icon';
 
                         // Try to use featured image if available
                         const featureImagePath = db.getCachedFeatureImageUrl(path);
@@ -185,7 +220,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                             if (imageFile) {
                                 try {
                                     const featureImageUrl = app.vault.getResourcePath(imageFile);
-                                    dragIcon.className = 'nn-drag-icon-badge nn-drag-featured-image';
+                                    dragIcon.className = 'nn-drag-ghost-icon nn-drag-ghost-featured-image';
                                     const img = document.createElement('img');
                                     img.src = featureImageUrl;
                                     dragIcon.appendChild(img);
@@ -201,17 +236,24 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                             setIcon(dragIcon, 'file');
                         }
 
-                        dragContainer.appendChild(dragIcon);
+                        dragGhost.appendChild(dragIcon);
 
-                        document.body.appendChild(dragContainer);
-                        // Use negative offset to position icon bottom-right of cursor
-                        e.dataTransfer.setDragImage(dragContainer, -5, -5);
-                        window.setTimeout(() => document.body.removeChild(dragContainer), TIMEOUTS.YIELD_TO_EVENT_LOOP);
+                        // Set initial position at cursor
+                        dragGhost.style.left = `${e.clientX + 10}px`;
+                        dragGhost.style.top = `${e.clientY + 10}px`;
+
+                        document.body.appendChild(dragGhost);
+                        dragGhostElement.current = dragGhost;
+
+                        // Start tracking mouse position
+                        document.addEventListener('mousemove', updateDragGhostPosition);
+                        // Also listen to drag events for position updates
+                        document.addEventListener('dragover', updateDragGhostPosition);
                     }
                 }
             }
         },
-        [selectionState, containerRef, app, db]
+        [selectionState, containerRef, app, db, updateDragGhostPosition]
     );
 
     /**
@@ -437,7 +479,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
     /**
      * Handles the drag end event.
-     * Cleans up drag-related CSS classes.
+     * Cleans up drag-related CSS classes and removes the drag ghost.
      *
      * @param e - The drag event
      */
@@ -461,19 +503,38 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 dragOverElement.current.classList.remove('nn-drag-over');
                 dragOverElement.current = null;
             }
+
+            // Clean up drag ghost
+            if (dragGhostElement.current) {
+                document.removeEventListener('mousemove', updateDragGhostPosition);
+                document.removeEventListener('dragover', updateDragGhostPosition);
+                dragGhostElement.current.remove();
+                dragGhostElement.current = null;
+            }
         },
-        [selectionState, containerRef]
+        [selectionState, containerRef, updateDragGhostPosition]
     );
 
     useEffect(() => {
         const container = containerRef.current;
         if (!container || isMobile) return;
 
+        // Global handler for escape key to clean up ghost on cancel
+        const handleEscape = (e: KeyboardEvent) => {
+            if (e.key === 'Escape' && dragGhostElement.current) {
+                document.removeEventListener('mousemove', updateDragGhostPosition);
+                document.removeEventListener('dragover', updateDragGhostPosition);
+                dragGhostElement.current.remove();
+                dragGhostElement.current = null;
+            }
+        };
+
         container.addEventListener('dragstart', handleDragStart);
         container.addEventListener('dragover', handleDragOver);
         container.addEventListener('dragleave', handleDragLeave);
         container.addEventListener('drop', handleDrop);
         container.addEventListener('dragend', handleDragEnd);
+        document.addEventListener('keydown', handleEscape);
 
         return () => {
             container.removeEventListener('dragstart', handleDragStart);
@@ -481,6 +542,15 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             container.removeEventListener('dragleave', handleDragLeave);
             container.removeEventListener('drop', handleDrop);
             container.removeEventListener('dragend', handleDragEnd);
+            document.removeEventListener('keydown', handleEscape);
+
+            // Clean up any lingering ghost on unmount
+            if (dragGhostElement.current) {
+                document.removeEventListener('mousemove', updateDragGhostPosition);
+                document.removeEventListener('dragover', updateDragGhostPosition);
+                dragGhostElement.current.remove();
+                dragGhostElement.current = null;
+            }
         };
-    }, [containerRef, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd, isMobile]);
+    }, [containerRef, handleDragStart, handleDragOver, handleDragLeave, handleDrop, handleDragEnd, isMobile, updateDragGhostPosition]);
 }
