@@ -1981,6 +1981,12 @@ body.nn-resizing {
     min-height: 44px;
     padding: 10px;
     z-index: 1;
+    opacity: 1 !important;
+}
+
+/* Increase stroke width for back button arrow and apply link color */
+.notebook-navigator-mobile .nn-back-button svg {
+    stroke: var(--link-color) !important;
 }
 
 /* Mobile header title */
