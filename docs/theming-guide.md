@@ -129,12 +129,13 @@ custom color styles, which override the default style.
 
 ### Mobile styles
 
-| Variable                                  | Default                            | Description                                                                  |
-| ----------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------- |
-| `--nn-theme-mobile-nav-bg`                | `var(--background-primary)`        | Background color of navigation pane on mobile (by default, both panes match) |
-| `--nn-theme-mobile-tab-icon-color`        | `var(--text-muted)`                | Icon color in mobile tab bar                                                 |
-| `--nn-theme-mobile-tab-active-bg`         | `var(--background-modifier-hover)` | Background color for active tab                                              |
-| `--nn-theme-mobile-tab-active-icon-color` | `var(--text-normal)`               | Icon color for active tab                                                    |
+| Variable                                             | Default                            | Description                                                                  |
+| ---------------------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------- |
+| `--nn-theme-mobile-nav-bg`                           | `var(--background-primary)`        | Background color of navigation pane on mobile (by default, both panes match) |
+| `--nn-theme-mobile-toolbar-bg`                       | `var(--background-primary)`        | Background color of the mobile toolbar                                       |
+| `--nn-theme-mobile-toolbar-button-icon-color`        | `var(--link-color)`                | Icon color for toolbar buttons                                               |
+| `--nn-theme-mobile-toolbar-button-active-bg`         | `var(--background-modifier-hover)` | Background color for active toolbar button                                   |
+| `--nn-theme-mobile-toolbar-button-active-icon-color` | `var(--link-color)`                | Icon color for active toolbar button                                         |
 
 ## Complete Theme Example
 
@@ -240,9 +241,10 @@ body {
      ======================================== */
 
   --nn-theme-mobile-nav-bg: #f0f3f1; /* Soft sage navigation on mobile */
-  --nn-theme-mobile-tab-icon-color: #7d8583; /* Muted gray-green tab icons */
-  --nn-theme-mobile-tab-active-bg: #e6d1d0; /* Dusty rose active tab */
-  --nn-theme-mobile-tab-active-icon-color: #3f3534; /* Dark brown active icon */
+  --nn-theme-mobile-toolbar-bg: #f0f3f1; /* Soft sage toolbar background */
+  --nn-theme-mobile-toolbar-button-icon-color: #7d8583; /* Muted gray-green toolbar icons */
+  --nn-theme-mobile-toolbar-button-active-bg: #e6d1d0; /* Dusty rose active button */
+  --nn-theme-mobile-toolbar-button-active-icon-color: #3f3534; /* Dark brown active icon */
 }
 ```
 

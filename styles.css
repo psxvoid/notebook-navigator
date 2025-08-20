@@ -137,11 +137,12 @@ body {
     --nn-theme-divider-border-color: var(--background-modifier-border);
     --nn-theme-divider-resize-handle-hover-bg: var(--interactive-accent);
 
-    /* -- Mobile Tab Bar -- */
+    /* -- Mobile Toolbar -- */
     --nn-theme-mobile-nav-bg: var(--background-primary);
-    --nn-theme-mobile-tab-icon-color: var(--text-muted);
-    --nn-theme-mobile-tab-active-bg: var(--background-modifier-hover);
-    --nn-theme-mobile-tab-active-icon-color: var(--text-normal);
+    --nn-theme-mobile-toolbar-bg: var(--background-primary);
+    --nn-theme-mobile-toolbar-button-icon-color: var(--link-color);
+    --nn-theme-mobile-toolbar-button-active-bg: var(--background-modifier-hover);
+    --nn-theme-mobile-toolbar-button-active-icon-color: var(--link-color);
 
     /* -- File Separator -- */
     --nn-separator-height: 1px;
@@ -2269,12 +2270,12 @@ body.nn-resizing {
    Mobile Tab Bars - iOS-style bottom navigation
    ======================================================================== */
 
-/* Tab bar container */
-.nn-tab-bar {
+/* Mobile toolbar container */
+.nn-mobile-toolbar {
     display: flex;
     justify-content: space-around;
     align-items: center;
-    background-color: var(--background-primary);
+    background-color: var(--nn-theme-mobile-toolbar-bg);
     border-top: 1px solid var(--background-modifier-border);
     flex-shrink: 0;
     padding: 0 8px;
@@ -2287,8 +2288,8 @@ body.nn-resizing {
     min-height: calc(49px + env(safe-area-inset-bottom, 8px));
 }
 
-/* Tab bar buttons */
-.nn-tab-bar-button {
+/* Mobile toolbar buttons */
+.nn-mobile-toolbar-button {
     display: flex;
     align-items: center;
     justify-content: center;
@@ -2300,7 +2301,7 @@ body.nn-resizing {
     background-color: transparent !important;
     border: none;
     border-radius: var(--radius-m);
-    color: var(--nn-theme-mobile-tab-icon-color);
+    color: var(--nn-theme-mobile-toolbar-button-icon-color);
     transition:
         background-color 0.15s ease,
         color 0.15s ease;
@@ -2309,32 +2310,32 @@ body.nn-resizing {
     box-shadow: none !important;
 }
 
-/* Tab bar button icons */
-.nn-tab-bar-button svg {
+/* Mobile toolbar button icons */
+.nn-mobile-toolbar-button svg {
     width: 24px;
     height: 24px;
     stroke-width: 1.5;
-    stroke: var(--nn-theme-mobile-tab-icon-color);
+    stroke: var(--nn-theme-mobile-toolbar-button-icon-color);
 }
 
-/* Tab bar button tap feedback */
-.nn-tab-bar-button:active {
+/* Mobile toolbar button tap feedback */
+.nn-mobile-toolbar-button:active {
     opacity: 0.7;
 }
 
-/* Active tab bar button state - toggled on */
-.nn-tab-bar-button-active {
-    color: var(--nn-theme-mobile-tab-active-icon-color) !important;
-    background-color: var(--nn-theme-mobile-tab-active-bg) !important;
+/* Active mobile toolbar button state - toggled on */
+.nn-mobile-toolbar-button-active {
+    color: var(--nn-theme-mobile-toolbar-button-active-icon-color) !important;
+    background-color: var(--nn-theme-mobile-toolbar-button-active-bg) !important;
 }
 
-.nn-tab-bar-button-active svg {
-    stroke: var(--nn-theme-mobile-tab-active-icon-color) !important;
+.nn-mobile-toolbar-button-active svg {
+    stroke: var(--nn-theme-mobile-toolbar-button-active-icon-color) !important;
     stroke-width: 1.5;
 }
 
-/* Disabled tab bar button */
-.nn-tab-bar-button:disabled {
+/* Disabled mobile toolbar button */
+.nn-mobile-toolbar-button:disabled {
     opacity: 0.4;
     cursor: not-allowed;
 }
@@ -3079,25 +3080,33 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-mobile-tab-icon-color
-        title: Tab bar icon color
-        description: Icon color in mobile tab bar.
+        id: nn-theme-mobile-toolbar-bg
+        title: Mobile toolbar background
+        description: Background color of the mobile toolbar.
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-mobile-tab-active-bg
-        title: Tab bar active background
-        description: Background color for active tab.
+        id: nn-theme-mobile-toolbar-button-icon-color
+        title: Toolbar button icon color
+        description: Icon color in mobile toolbar.
         type: variable-themed-color
         format: hex
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-mobile-tab-active-icon-color
-        title: Tab bar active icon color
-        description: Icon color for active tab.
+        id: nn-theme-mobile-toolbar-button-active-bg
+        title: Toolbar button active background
+        description: Background color for active toolbar button.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-mobile-toolbar-button-active-icon-color
+        title: Toolbar button active icon color
+        description: Icon color for active toolbar button.
         type: variable-themed-color
         format: hex
         default-light: '#'

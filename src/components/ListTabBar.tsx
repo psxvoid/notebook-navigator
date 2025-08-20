@@ -177,9 +177,9 @@ export function ListTabBar() {
             Object.keys(settings.tagAppearances[selectionState.selectedTag]).length > 0);
 
     return (
-        <div className="nn-tab-bar">
+        <div className="nn-mobile-toolbar">
             <button
-                className={`nn-tab-bar-button ${settings.showNotesFromSubfolders ? 'nn-tab-bar-button-active' : ''}`}
+                className={`nn-mobile-toolbar-button ${settings.showNotesFromSubfolders ? 'nn-mobile-toolbar-button-active' : ''}`}
                 aria-label={strings.paneHeader.toggleSubfolders}
                 onClick={handleToggleSubfolders}
                 disabled={selectionState.selectionType !== ItemType.FOLDER || !selectionState.selectedFolder}
@@ -188,7 +188,7 @@ export function ListTabBar() {
                 <ObsidianIcon name="layers" />
             </button>
             <button
-                className={`nn-tab-bar-button ${isCustomSort ? 'nn-tab-bar-button-active' : ''}`}
+                className={`nn-mobile-toolbar-button ${isCustomSort ? 'nn-mobile-toolbar-button-active' : ''}`}
                 aria-label={strings.paneHeader.changeSortOrder}
                 onClick={handleSortMenu}
                 disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
@@ -197,7 +197,7 @@ export function ListTabBar() {
                 <ObsidianIcon name={getSortIcon()} />
             </button>
             <button
-                className={`nn-tab-bar-button ${hasCustomAppearance ? 'nn-tab-bar-button-active' : ''}`}
+                className={`nn-mobile-toolbar-button ${hasCustomAppearance ? 'nn-mobile-toolbar-button-active' : ''}`}
                 aria-label={strings.paneHeader.changeAppearance}
                 onClick={handleAppearanceMenu}
                 disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
@@ -206,7 +206,7 @@ export function ListTabBar() {
                 <ObsidianIcon name="palette" />
             </button>
             <button
-                className="nn-tab-bar-button"
+                className="nn-mobile-toolbar-button"
                 aria-label={strings.paneHeader.newNote}
                 onClick={handleNewFile}
                 disabled={!selectionState.selectedFolder && !selectionState.selectedTag}

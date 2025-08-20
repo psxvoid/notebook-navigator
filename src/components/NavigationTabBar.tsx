@@ -138,9 +138,9 @@ export function NavigationTabBar() {
     }, [updateSettings]);
 
     return (
-        <div className="nn-tab-bar">
+        <div className="nn-mobile-toolbar">
             <button
-                className="nn-tab-bar-button"
+                className="nn-mobile-toolbar-button"
                 aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
                 onClick={handleExpandCollapseAll}
                 tabIndex={-1}
@@ -148,7 +148,7 @@ export function NavigationTabBar() {
                 <ObsidianIcon name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'} />
             </button>
             <button
-                className={`nn-tab-bar-button ${settings.autoExpandFoldersTags ? 'nn-tab-bar-button-active' : ''}`}
+                className={`nn-mobile-toolbar-button ${settings.autoExpandFoldersTags ? 'nn-mobile-toolbar-button-active' : ''}`}
                 aria-label={strings.paneHeader.autoExpandFoldersTags}
                 onClick={handleToggleAutoExpand}
                 tabIndex={-1}
@@ -156,7 +156,7 @@ export function NavigationTabBar() {
                 <ObsidianIcon name="folder-tree" />
             </button>
             <button
-                className="nn-tab-bar-button"
+                className="nn-mobile-toolbar-button"
                 aria-label={strings.paneHeader.newFolder}
                 onClick={handleNewFolder}
                 disabled={!selectionState.selectedFolder}
