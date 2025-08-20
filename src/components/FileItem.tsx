@@ -256,6 +256,13 @@ export const FileItem = React.memo(function FileItem({
         const dateField = getDateField(sortOption);
         const timestamp = dateField === 'ctime' ? getFileCreatedTime(file) : getFileModifiedTime(file);
 
+        // Pinned items are all grouped under "📌 Pinned" section regardless of their actual dates
+        // We need to calculate the actual date group to show smart formatting
+        if (isPinned) {
+            const actualDateGroup = DateUtils.getDateGroup(timestamp);
+            return DateUtils.formatDateForGroup(timestamp, actualDateGroup, settings.dateFormat, settings.timeFormat);
+        }
+
         // If in a date group and not in pinned section, format relative to group
         if (dateGroup && dateGroup !== strings.listPane.pinnedSection) {
             return DateUtils.formatDateForGroup(timestamp, dateGroup, settings.dateFormat, settings.timeFormat);
@@ -270,6 +277,7 @@ export const FileItem = React.memo(function FileItem({
         file.stat.ctime,
         sortOption,
         dateGroup,
+        isPinned,
         appearanceSettings.showDate,
         settings.dateFormat,
         settings.timeFormat,
