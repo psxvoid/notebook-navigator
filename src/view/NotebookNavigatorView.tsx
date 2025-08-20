@@ -90,6 +90,13 @@ export class NotebookNavigatorView extends ItemView {
         const isMobile = Platform.isMobile;
         if (isMobile) {
             container.classList.add('notebook-navigator-mobile');
+
+            // Add platform-specific classes
+            if (Platform.isAndroidApp) {
+                container.classList.add('notebook-navigator-android');
+            } else if (Platform.isIosApp) {
+                container.classList.add('notebook-navigator-ios');
+            }
         }
 
         this.root = createRoot(container);

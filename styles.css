@@ -1853,6 +1853,22 @@ body.nn-resizing {
     margin-top: 0;
 }
 
+/* Platform-specific safe area definitions */
+.notebook-navigator-ios {
+    /* iOS uses env() for dynamic safe areas (notch, home indicator) */
+    --nn-mobile-safe-area-bottom: env(safe-area-inset-bottom, 8px);
+}
+
+.notebook-navigator-android {
+    /* Android needs fixed padding for navigation bar */
+    --nn-mobile-safe-area-bottom: 48px;
+}
+
+/* Fallback for undetected mobile platforms */
+.notebook-navigator-mobile:not(.notebook-navigator-ios):not(.notebook-navigator-android) {
+    --nn-mobile-safe-area-bottom: 8px;
+}
+
 /* Mobile container - use grid for consistent structure while allowing sliding */
 .notebook-navigator-mobile .nn-split-container {
     display: grid;
@@ -2280,12 +2296,12 @@ body.nn-resizing {
     flex-shrink: 0;
     padding: 0 8px;
 
-    /* Add bottom padding for safe area (home indicator on iPhone X+) */
-    padding-bottom: env(safe-area-inset-bottom, 8px);
+    /* Use platform-specific safe area variable */
+    padding-bottom: var(--nn-mobile-safe-area-bottom);
 
     /* Adjust height to include safe area padding */
-    height: calc(49px + env(safe-area-inset-bottom, 8px));
-    min-height: calc(49px + env(safe-area-inset-bottom, 8px));
+    height: calc(49px + var(--nn-mobile-safe-area-bottom));
+    min-height: calc(49px + var(--nn-mobile-safe-area-bottom));
 }
 
 /* Mobile toolbar buttons */
