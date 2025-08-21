@@ -104,21 +104,34 @@ separation of concerns.
 ```typescript
 // Folder operations
 setFolderColor(folderPath: string, color: string): Promise<void>
+removeFolderColor(folderPath: string): Promise<void>
 setFolderIcon(folderPath: string, iconId: string): Promise<void>
+removeFolderIcon(folderPath: string): Promise<void>
 setFolderSortOverride(folderPath: string, sortOption: SortOption): Promise<void>
+removeFolderSortOverride(folderPath: string): Promise<void>
+handleFolderRename(oldPath: string, newPath: string): Promise<void>
+handleFolderDelete(folderPath: string): Promise<void>
 
 // Tag operations
 setTagColor(tagPath: string, color: string): Promise<void>
+removeTagColor(tagPath: string): Promise<void>
 setTagIcon(tagPath: string, iconId: string): Promise<void>
+removeTagIcon(tagPath: string): Promise<void>
 setTagSortOverride(tagPath: string, sortOption: SortOption): Promise<void>
+removeTagSortOverride(tagPath: string): Promise<void>
 
-// File operations
-togglePinForFolder(filePath: string, folderPath: string): Promise<void>
-togglePinForTag(filePath: string, tagPath: string): Promise<void>
-isPinnedInFolder(filePath: string, folderPath: string): boolean
+// File pin operations
+togglePin(filePath: string, context: PinContext): Promise<void>
+isFilePinned(filePath: string, context?: PinContext): boolean
+getPinnedNotes(context?: PinContext): string[]
+handleFileDelete(filePath: string): Promise<void>
+handleFileRename(oldPath: string, newPath: string): Promise<void>
 
 // Cleanup operations
-performUnifiedCleanup(validators: CleanupValidators): Promise<CleanupResult>
+cleanupAllMetadata(): Promise<boolean>
+cleanupTagMetadata(): Promise<boolean>
+runUnifiedCleanup(validators: CleanupValidators): Promise<boolean>
+static prepareCleanupValidators(app: App, tagTree: Map<string, TagTreeNode>): CleanupValidators
 ```
 
 ### FileSystemOperations
@@ -139,13 +152,40 @@ Handles all file system operations with user interaction through modals and conf
 **Key Methods:**
 
 ```typescript
-createNewNote(folder: TFolder, suggestedName?: string): Promise<TFile | null>
-createNewFolder(parentFolder: TFolder): Promise<TFolder | null>
-renameFile(file: TAbstractFile): Promise<void>
-deleteFiles(files: TAbstractFile[], settings: NotebookNavigatorSettings): Promise<void>
-moveFilesToFolder(options: MoveFilesOptions): Promise<MoveFilesResult>
+// File operations
+createNewFile(parent: TFolder): Promise<TFile | null>
+renameFile(file: TFile, settings?: NotebookNavigatorSettings): Promise<void>
+deleteFile(file: TFile, confirmBeforeDelete: boolean, onSuccess?: () => void, preDeleteAction?: () => Promise<void>): Promise<void>
+deleteSelectedFile(): Promise<void>  // Smart deletion with selection update
+duplicateNote(file: TFile): Promise<void>
+
+// Folder operations
+createNewFolder(parent: TFolder, onSuccess?: (path: string) => void): Promise<void>
+renameFolder(folder: TFolder, settings?: NotebookNavigatorSettings): Promise<void>
+deleteFolder(folder: TFolder, confirmBeforeDelete: boolean, onSuccess?: () => void): Promise<void>
+duplicateFolder(folder: TFolder): Promise<void>
+
+// Folder note operations
 createFolderNote(folder: TFolder): Promise<TFile | null>
 deleteFolderNote(folder: TFolder): Promise<void>
+
+// Multi-file operations
+moveFilesWithModal(files: TFile[], targetFolder: TFolder, onSuccess?: () => void): Promise<void>
+deleteMultipleFiles(files: TAbstractFile[], confirmBeforeDelete: boolean, onSuccess?: () => void): Promise<void>
+deleteFilesWithSmartSelection(files: TAbstractFile[], confirmBeforeDelete: boolean): Promise<void>
+
+// Special file types
+createCanvas(parent: TFolder): Promise<void>
+createBase(parent: TFolder): Promise<void>
+createNewDrawing(parent: TFolder): Promise<TFile | null>
+
+// System operations
+openVersionHistory(file: TFile): Promise<void>
+revealInSystemExplorer(file: TFile | TFolder): Promise<void>
+getRevealInSystemExplorerText(): string
+
+// Utility methods
+isDescendant(parent: TAbstractFile, child: TAbstractFile): boolean
 ```
 
 ### ContentProviderRegistry
@@ -195,9 +235,23 @@ interface IContentProvider {
   getRelevantSettings(): (keyof NotebookNavigatorSettings)[];
   shouldRegenerate(oldSettings, newSettings): boolean;
   clearContent(): Promise<void>;
-  queueFiles(files: TFile[], settings): void;
+  queueFiles(files: TFile[]): void; // No settings parameter
+  startProcessing(settings: NotebookNavigatorSettings): void;
+  stopProcessing(): void;
   onSettingsChanged(settings): void;
 }
+```
+
+**Registry Methods:**
+
+```typescript
+registerProvider(provider: IContentProvider): void
+getProvider(type: ContentType): IContentProvider | undefined
+getAllProviders(): IContentProvider[]
+getAllRelevantSettings(): (keyof NotebookNavigatorSettings)[]
+queueFilesForAllProviders(files: TFile[], settings: NotebookNavigatorSettings): void
+handleSettingsChange(oldSettings, newSettings): void
+stopAllProcessing(): void
 ```
 
 ## Supporting Services
@@ -219,11 +273,12 @@ Bridge between React components and the tag tree data structure.
 **Key Methods:**
 
 ```typescript
-updateTagTree(tree: Map<string, TagTreeNode>, untagged: number): void
+updateTagTree(tree: Map<string, TagTreeNode>, untagged: number, favoriteTree?: Map<string, TagTreeNode>): void
 getTagTree(): Map<string, TagTreeNode>
 findTagNode(tagPath: string): TagTreeNode | null
 getAllTagPaths(): string[]
 getUntaggedCount(): number
+collectTagPaths(node: TagTreeNode): Set<string>
 ```
 
 ### CommandQueueService
@@ -239,6 +294,7 @@ Manages operation context and tracking, replacing global window flags.
 - File move tracking
 - Folder note open tracking
 - Version history operations
+- New context (tab/split/window) tracking
 
 **Operation Types:**
 
@@ -246,9 +302,47 @@ Manages operation context and tracking, replacing global window flags.
 enum OperationType {
   MOVE_FILE = 'move-file',
   OPEN_FOLDER_NOTE = 'open-folder-note',
-  OPEN_VERSION_HISTORY = 'open-version-history'
+  OPEN_VERSION_HISTORY = 'open-version-history',
+  OPEN_IN_NEW_CONTEXT = 'open-in-new-context'
 }
 ```
+
+**Key Methods:**
+
+```typescript
+// Check operation status
+isMovingFile(): boolean
+isOpeningFolderNote(): boolean
+isOpeningVersionHistory(): boolean
+isOpeningInNewContext(): boolean  // Only for tab/split, not window
+
+// Execute operations with tracking
+executeMoveFiles(files: TFile[], targetFolder: TFolder): Promise<CommandResult>
+executeOpenFolderNote(folderPath: string, openFile: () => Promise<void>): Promise<CommandResult>
+executeOpenVersionHistory(file: TFile, openHistory: () => Promise<void>): Promise<CommandResult>
+executeOpenInNewContext(file: TFile, context: PaneType, openFile: () => Promise<void>): Promise<CommandResult>
+
+// Debug and maintenance
+getActiveOperations(): Operation[]
+clearAllOperations(): void
+```
+
+**Implementation Details:**
+
+- **Operation Tracking**: Each operation is assigned a unique ID and tracked in an internal Map
+- **Automatic Cleanup**: Operations are automatically removed after completion or error
+- **Context Awareness**: The `isOpeningInNewContext()` method only returns true for tab/split operations, not window
+  operations (since window opens don't affect the current window's focus)
+- **Command Results**: All execute methods return a `CommandResult` interface:
+  ```typescript
+  interface CommandResult<T = unknown> {
+    success: boolean;
+    data?: T; // Operation-specific data (e.g., move counts)
+    error?: Error;
+  }
+  ```
+- **Move Operation Results**: Returns `{movedCount: number, skippedCount: number}` for file move operations, indicating
+  how many files were successfully moved vs. skipped due to conflicts
 
 ### IconService
 
@@ -272,10 +366,21 @@ Singleton service managing icon providers and rendering.
 **Key Methods:**
 
 ```typescript
+// Provider management
 registerProvider(provider: IconProvider): void
+unregisterProvider(providerId: string): void
+getProvider(providerId: string): IconProvider | undefined
+getAllProviders(): IconProvider[]
+
+// Icon operations
 parseIconId(iconId: string): ParsedIconId
-renderIcon(iconId: string, containerEl: HTMLElement): void
-searchIcons(query: string): IconDefinition[]
+renderIcon(container: HTMLElement, iconId: string, size?: number): void  // Note: parameter order
+formatIconId(provider: string, identifier: string): string
+isValidIcon(iconId: string): boolean
+
+// Icon search and retrieval
+search(query: string, providerId?: string): IconDefinition[]
+getAllIcons(providerId?: string): IconDefinition[]
 getRecentIcons(): string[]
 ```
 
@@ -297,10 +402,10 @@ Manages tag operations on files through frontmatter manipulation.
 
 ```typescript
 addTagToFiles(tag: string, files: TFile[]): Promise<{added: number, skipped: number}>
-removeTagFromFiles(tag: string, files: TFile[]): Promise<{removed: number, skipped: number}>
-removeAllTagsFromFiles(files: TFile[]): Promise<{removed: number}>
+removeTagFromFiles(tag: string, files: TFile[]): Promise<number>  // Returns removed count only
+clearAllTagsFromFiles(files: TFile[]): Promise<number>  // Different method name, returns count
 getTagsFromFiles(files: TFile[]): string[]
-fileHasTagOrAncestor(file: TFile, tag: string): Promise<boolean>
+// Note: fileHasTagOrAncestor is a private method, not part of public API
 ```
 
 ## Dependency Injection
@@ -357,11 +462,17 @@ Services are instantiated during plugin startup (see startup-process.md Phase 1)
 
 ```typescript
 // Initialize core services
-this.fileSystemOps = new FileSystemOperations(this.app, this.settings);
 this.metadataService = new MetadataService(this.app, this, () => this.tagTreeService);
 this.tagOperations = new TagOperations(this.app);
 this.tagTreeService = new TagTreeService();
 this.commandQueue = new CommandQueueService(this.app);
+this.fileSystemOps = new FileSystemOperations(
+  this.app,
+  () => this.tagTreeService,
+  () => this.metadataService,
+  () => this.commandQueue,
+  this.settings
+);
 
 // Icon service is a singleton
 const iconService = IconService.getInstance();

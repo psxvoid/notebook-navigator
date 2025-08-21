@@ -140,7 +140,7 @@ The Obsidian `ItemView` that hosts the React application:
 
 - Creates and manages the React root
 - Handles view lifecycle (onOpen, onClose)
-- Provides navigation methods (navigateToFile, navigateToFolder)
+- Provides navigation methods (navigateToFile, navigateToFolderWithModal)
 - Manages mobile-specific styles
 
 ### NotebookNavigatorContainer
