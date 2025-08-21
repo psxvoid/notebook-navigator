@@ -485,6 +485,14 @@ This is perfect for:
 - Archived notes you want to keep but not see daily
 - Template files with a `template: true` property
 
+### Navigation shortcuts and tricks
+
+- **Breadcrumb navigation:** Click any segment in the header breadcrumb path to quickly jump to parent folders or parent
+  tags
+- **Scrollable paths on mobile:** If the path or tag in the mobile list pane header is too long, swipe it horizontally
+  to reveal the full path
+- **Middle-click to open in new tab:** On desktop, middle-click any file to open it in a new tab without switching focus
+
 <br>
 
 ## Questions or Issues?
