@@ -148,6 +148,11 @@ export const ListPane = React.memo(
 
         const handleFileClick = useCallback(
             (file: TFile, e: React.MouseEvent, fileIndex?: number, orderedFiles?: TFile[]) => {
+                // Ignore middle mouse button clicks - they're handled by onMouseDown
+                if (e.button === 1) {
+                    return;
+                }
+
                 isUserSelectionRef.current = true; // Mark this as a user selection
 
                 // Check if CMD (Mac) or Ctrl (Windows/Linux) is pressed for multi-select

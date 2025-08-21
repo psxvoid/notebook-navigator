@@ -125,9 +125,10 @@ export function useNavigatorEventHandlers({ app, containerRef, setIsNavigatorFoc
 
     // Ensure the container has focus when the focused pane changes
     useEffect(() => {
-        // Don't steal focus if we're opening version history
+        // Don't steal focus if we're opening version history or in a new context
         const isOpeningVersionHistory = commandQueue.isOpeningVersionHistory();
-        if (uiState.focusedPane && !isOpeningVersionHistory) {
+        const isOpeningInNewContext = commandQueue.isOpeningInNewContext();
+        if (uiState.focusedPane && !isOpeningVersionHistory && !isOpeningInNewContext) {
             containerRef.current?.focus();
         }
     }, [uiState.focusedPane, containerRef, commandQueue]);

@@ -29,13 +29,14 @@ import { NotebookNavigatorSettings } from '../../settings';
 import { TagSuggestModal } from '../../modals/TagSuggestModal';
 import { RemoveTagModal } from '../../modals/RemoveTagModal';
 import { ConfirmModal } from '../../modals/ConfirmModal';
+import { CommandQueueService } from '../../services/CommandQueueService';
 
 /**
  * Builds the context menu for a file
  */
 export function buildFileMenu(params: FileMenuBuilderParams): void {
     const { file, menu, services, settings, state, dispatchers } = params;
-    const { app, isMobile, fileSystemOps, metadataService, tagTreeService } = services;
+    const { app, isMobile, fileSystemOps, metadataService, tagTreeService, commandQueue } = services;
     const { selectionState } = state;
     const { selectionDispatch } = dispatchers;
 
@@ -70,9 +71,9 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 
     // Open options - show for single or multiple selection
     if (!shouldShowMultiOptions) {
-        addSingleFileOpenOptions(menu, file, app, isMobile);
+        addSingleFileOpenOptions(menu, file, app, isMobile, commandQueue);
     } else {
-        addMultipleFilesOpenOptions(menu, selectedCount, selectionState, app, isMobile, cachedSelectedFiles);
+        addMultipleFilesOpenOptions(menu, selectedCount, selectionState, app, isMobile, cachedSelectedFiles, commandQueue);
     }
 
     menu.addSeparator();
@@ -323,13 +324,19 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
 /**
  * Add open options for a single file
  */
-function addSingleFileOpenOptions(menu: Menu, file: TFile, app: App, isMobile: boolean): void {
+function addSingleFileOpenOptions(menu: Menu, file: TFile, app: App, isMobile: boolean, commandQueue: CommandQueueService | null): void {
     // Open in new tab
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.file.openInNewTab)
             .setIcon('file-plus')
             .onClick(() => {
-                app.workspace.getLeaf('tab').openFile(file);
+                if (commandQueue) {
+                    commandQueue.executeOpenInNewContext(file, 'tab', async () => {
+                        await app.workspace.getLeaf('tab').openFile(file);
+                    });
+                } else {
+                    app.workspace.getLeaf('tab').openFile(file);
+                }
             });
     });
 
@@ -338,7 +345,13 @@ function addSingleFileOpenOptions(menu: Menu, file: TFile, app: App, isMobile: b
         item.setTitle(strings.contextMenu.file.openToRight)
             .setIcon('vertical-three-dots')
             .onClick(() => {
-                app.workspace.getLeaf('split').openFile(file);
+                if (commandQueue) {
+                    commandQueue.executeOpenInNewContext(file, 'split', async () => {
+                        await app.workspace.getLeaf('split').openFile(file);
+                    });
+                } else {
+                    app.workspace.getLeaf('split').openFile(file);
+                }
             });
     });
 
@@ -363,7 +376,8 @@ function addMultipleFilesOpenOptions(
     selectionState: SelectionState,
     app: App,
     isMobile: boolean,
-    cachedSelectedFiles?: TFile[]
+    cachedSelectedFiles?: TFile[],
+    commandQueue?: CommandQueueService | null
 ): void {
     // Use cached files if provided, otherwise convert paths to files
     const selectedFiles =
@@ -386,7 +400,13 @@ function addMultipleFilesOpenOptions(
                     .filter((f): f is TFile => f instanceof TFile);
 
                 for (const selectedFile of selectedFiles) {
-                    await app.workspace.getLeaf('tab').openFile(selectedFile);
+                    if (commandQueue) {
+                        await commandQueue.executeOpenInNewContext(selectedFile, 'tab', async () => {
+                            await app.workspace.getLeaf('tab').openFile(selectedFile);
+                        });
+                    } else {
+                        await app.workspace.getLeaf('tab').openFile(selectedFile);
+                    }
                 }
             });
     });
@@ -405,7 +425,13 @@ function addMultipleFilesOpenOptions(
                     .filter((f): f is TFile => f instanceof TFile);
 
                 for (const selectedFile of selectedFiles) {
-                    await app.workspace.getLeaf('split').openFile(selectedFile);
+                    if (commandQueue) {
+                        await commandQueue.executeOpenInNewContext(selectedFile, 'split', async () => {
+                            await app.workspace.getLeaf('split').openFile(selectedFile);
+                        });
+                    } else {
+                        await app.workspace.getLeaf('split').openFile(selectedFile);
+                    }
                 }
             });
     });

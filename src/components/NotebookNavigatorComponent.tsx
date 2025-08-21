@@ -180,9 +180,10 @@ export const NotebookNavigatorComponent = React.memo(
 
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                     // Focus the container to ensure keyboard navigation works
-                    // Don't steal focus if we're opening version history
+                    // Don't steal focus if we're opening version history or in a new context
                     const isOpeningVersionHistory = commandQueue?.isOpeningVersionHistory() || false;
-                    if (!isOpeningVersionHistory) {
+                    const isOpeningInNewContext = commandQueue?.isOpeningInNewContext() || false;
+                    if (!isOpeningVersionHistory && !isOpeningInNewContext) {
                         containerRef.current?.focus();
                     }
                 },

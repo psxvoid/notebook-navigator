@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, TFile, TFolder } from 'obsidian';
+import { App, TFile, TFolder, PaneType } from 'obsidian';
 
 /**
  * Types of operations that can be tracked by the command queue
@@ -24,7 +24,8 @@ import { App, TFile, TFolder } from 'obsidian';
 export enum OperationType {
     MOVE_FILE = 'move-file',
     OPEN_FOLDER_NOTE = 'open-folder-note',
-    OPEN_VERSION_HISTORY = 'open-version-history'
+    OPEN_VERSION_HISTORY = 'open-version-history',
+    OPEN_IN_NEW_CONTEXT = 'open-in-new-context'
 }
 
 /**
@@ -61,7 +62,16 @@ interface OpenVersionHistoryOperation extends BaseOperation {
     file: TFile;
 }
 
-type Operation = MoveFileOperation | OpenFolderNoteOperation | OpenVersionHistoryOperation;
+/**
+ * Operation for tracking opening files in new contexts
+ */
+interface OpenInNewContextOperation extends BaseOperation {
+    type: OperationType.OPEN_IN_NEW_CONTEXT;
+    file: TFile;
+    context: PaneType;
+}
+
+type Operation = MoveFileOperation | OpenFolderNoteOperation | OpenVersionHistoryOperation | OpenInNewContextOperation;
 
 /**
  * Result of a command execution
@@ -121,6 +131,23 @@ export class CommandQueueService {
      */
     isOpeningVersionHistory(): boolean {
         return this.hasActiveOperation(OperationType.OPEN_VERSION_HISTORY);
+    }
+
+    /**
+     * Check if opening in a new context (tab/split only, not window)
+     * Window opens in a separate window so doesn't affect current window's focus
+     */
+    isOpeningInNewContext(): boolean {
+        for (const operation of this.activeOperations.values()) {
+            if (operation.type === OperationType.OPEN_IN_NEW_CONTEXT) {
+                const op = operation as OpenInNewContextOperation;
+                // Only tab and split affect the current window
+                if (op.context === 'tab' || op.context === 'split') {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 
     /**
@@ -221,6 +248,36 @@ export class CommandQueueService {
         try {
             await openHistory();
             // Clean up immediately after the version history command is executed
+            this.activeOperations.delete(operationId);
+            return { success: true };
+        } catch (error) {
+            // Clean up on error as well
+            this.activeOperations.delete(operationId);
+            return {
+                success: false,
+                error: error as Error
+            };
+        }
+    }
+
+    /**
+     * Execute opening a file in a new context (tab/split/window) with context tracking
+     */
+    async executeOpenInNewContext(file: TFile, context: PaneType, openFile: () => Promise<void>): Promise<CommandResult> {
+        const operationId = this.generateOperationId();
+        const operation: OpenInNewContextOperation = {
+            id: operationId,
+            type: OperationType.OPEN_IN_NEW_CONTEXT,
+            timestamp: Date.now(),
+            file,
+            context
+        };
+
+        this.activeOperations.set(operationId, operation);
+
+        try {
+            await openFile();
+            // Clean up immediately after the file is opened
             this.activeOperations.delete(operationId);
             return { success: true };
         } catch (error) {

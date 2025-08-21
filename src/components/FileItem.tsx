@@ -102,7 +102,7 @@ export const FileItem = React.memo(function FileItem({
     selectionType
 }: FileItemProps) {
     // === Hooks (all hooks together at the top) ===
-    const { app, isMobile, plugin } = useServices();
+    const { app, isMobile, plugin, commandQueue } = useServices();
     const settings = useSettingsState();
     const appearanceSettings = useListPaneAppearance();
     const { getFileDisplayName, getDB, getFileCreatedTime, getFileModifiedTime, findTagInFavoriteTree } = useFileCache();
@@ -405,7 +405,13 @@ export const FileItem = React.memo(function FileItem({
     const handleOpenInNewTab = (e: React.MouseEvent) => {
         e.stopPropagation();
         e.preventDefault();
-        app.workspace.getLeaf('tab').openFile(file);
+        if (commandQueue) {
+            commandQueue.executeOpenInNewContext(file, 'tab', async () => {
+                await app.workspace.getLeaf('tab').openFile(file);
+            });
+        } else {
+            app.workspace.getLeaf('tab').openFile(file);
+        }
     };
 
     const handlePinClick = async (e: React.MouseEvent) => {
@@ -420,6 +426,21 @@ export const FileItem = React.memo(function FileItem({
         e.preventDefault();
         await plugin.activateView();
         await plugin.revealFileInActualFolder(file);
+    };
+
+    // Handle middle mouse button click to open in new tab
+    const handleMouseDown = (e: React.MouseEvent) => {
+        if (e.button === 1) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (commandQueue) {
+                commandQueue.executeOpenInNewContext(file, 'tab', async () => {
+                    await app.workspace.getLeaf('tab').openFile(file);
+                });
+            } else {
+                app.workspace.getLeaf('tab').openFile(file);
+            }
+        }
     };
 
     // === Effects ===
@@ -451,6 +472,7 @@ export const FileItem = React.memo(function FileItem({
             data-drag-type="file"
             data-draggable={!isMobile ? 'true' : undefined}
             onClick={onClick}
+            onMouseDown={handleMouseDown}
             draggable={!isMobile}
             role="listitem"
             onMouseEnter={() => !isMobile && setIsHovered(true)}

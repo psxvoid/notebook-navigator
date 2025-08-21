@@ -397,14 +397,15 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                 return;
             }
 
-            // Check if we're opening version history
+            // Check if we're opening version history or in a new context
             const isOpeningVersionHistory = commandQueue && commandQueue.isOpeningVersionHistory();
+            const isOpeningInNewContext = commandQueue && commandQueue.isOpeningInNewContext();
 
-            // Don't reveal if navigator has focus (unless we're opening version history)
+            // Don't reveal if navigator has focus (unless we're opening version history or in new context)
             const navigatorEl = document.querySelector('.nn-split-container');
             const hasNavigatorFocus = navigatorEl && navigatorEl.contains(document.activeElement);
 
-            if (hasNavigatorFocus && !isOpeningVersionHistory) {
+            if (hasNavigatorFocus && !isOpeningVersionHistory && !isOpeningInNewContext) {
                 return;
             }
 
