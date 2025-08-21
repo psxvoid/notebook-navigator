@@ -34,7 +34,7 @@ body {
     /* Font sizes - fixed pixel values to prevent scaling with Obsidian font size */
     --nn-file-name-size: 14px; /* Fixed 14px */
     --nn-file-small-size: 13px; /* Fixed 13px */
-    --nn-mobile-header-font-size: 15px; /* Fixed 15px for mobile headers */
+    --nn-mobile-header-font-size: 17px; /* iOS standard 17px (overridden to 20px on Android) */
 
     /* Date header heights and padding */
     --nn-date-header-height: 35px; /* First header */
@@ -1868,11 +1868,15 @@ body.nn-resizing {
 .notebook-navigator-ios {
     /* iOS uses env() for dynamic safe areas (notch, home indicator) */
     --nn-mobile-safe-area-bottom: env(safe-area-inset-bottom, 8px);
+    /* iOS Human Interface Guidelines standard for navigation titles */
+    --nn-mobile-header-font-size: 17px;
 }
 
 .notebook-navigator-android {
     /* Android needs fixed padding for navigation bar */
     --nn-mobile-safe-area-bottom: 48px;
+    /* Material Design 3 standard for top app bar titles */
+    --nn-mobile-header-font-size: 20px;
 }
 
 /* Fallback for undetected mobile platforms */
