@@ -1295,58 +1295,62 @@ body.nn-resizing {
     will-change: transform;
 }
 
-/* Badge shown on drag ghost for multiple files */
+/* Badge shown on drag ghost for multiple files - Apple-style red badge */
 .nn-drag-ghost-badge {
-    background-color: var(--text-normal); /* Black in light mode, light gray in dark mode */
-    color: var(--background-primary); /* White in light mode, dark in dark mode - inverted */
-    padding: 4px 8px;
-    border-radius: 8px;
-    font-size: 12px;
-    font-weight: 600;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
+    background-color: #dc3545;
+    color: white;
+    font-weight: bold;
+    font-size: 14px;
     min-width: 24px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
-}
-
-/* Force white text */
-.theme-light .nn-drag-ghost-badge {
-    background-color: #000000;
-    color: #ffffff;
-}
-
-.theme-dark .nn-drag-ghost-badge {
-    background-color: var(--background-modifier-border); /* Gray in dark mode */
-    color: #ffffff;
-}
-
-/* Icon shown on drag ghost for single file */
-.nn-drag-ghost-icon {
-    background-color: var(--background-primary);
-    border: 2px solid var(--background-modifier-border);
-    border-radius: 8px;
+    height: 24px;
+    padding: 0 8px;
+    border-radius: 12px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    width: 32px;
-    height: 32px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 }
 
-/* Style the Lucide icon inside drag ghost */
+/* Icon shown on drag ghost for single file/folder - dark circular background */
+.nn-drag-ghost-icon {
+    background-color: #000000; /* Default black for light mode */
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 26px;
+    height: 26px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Dark mode: use dark gray background */
+.theme-dark .nn-drag-ghost-icon {
+    background-color: var(--background-modifier-border-hover);
+}
+
+/* Style the Lucide icon inside drag ghost - white icon */
 .nn-drag-ghost-icon svg {
-    width: 20px;
-    height: 20px;
-    color: var(--text-muted);
+    width: 16px;
+    height: 16px;
+    color: #ffffff;
+    stroke: #ffffff;
+    stroke-width: 2.5;
+    fill: none;
 }
 
-/* Featured image in drag ghost */
+/* Featured image in drag ghost - circular */
 .nn-drag-ghost-icon.nn-drag-ghost-featured-image {
     padding: 0;
     overflow: hidden;
-    width: 42px;
-    height: 42px;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 2px solid #000000;
+}
+
+/* Dark mode: use dark gray border for featured image */
+.theme-dark .nn-drag-ghost-icon.nn-drag-ghost-featured-image {
+    border-color: var(--background-modifier-border);
 }
 
 .nn-drag-ghost-icon.nn-drag-ghost-featured-image img {
@@ -2004,6 +2008,19 @@ body.nn-resizing {
 /* Increase stroke width for back button arrow and apply link color */
 .notebook-navigator-mobile .nn-back-button svg {
     stroke: var(--link-color) !important;
+    width: 20px !important; /* Default size for Android */
+    height: 20px !important;
+}
+
+/* iOS/iPadOS-specific back button adjustments */
+.notebook-navigator-mobile:not(.notebook-navigator-android) .nn-back-button {
+    padding: 4px !important; /* Reduce padding to allow larger icon (44px - 8px padding = 36px space) */
+}
+
+/* iOS/iPadOS-specific back button chevron styling (36px actual, ~32px visual due to Lucide padding) */
+.notebook-navigator-mobile:not(.notebook-navigator-android) .nn-back-button svg {
+    width: 36px !important;
+    height: 36px !important;
 }
 
 /* Mobile header title */

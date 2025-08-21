@@ -17,7 +17,7 @@
  */
 
 import React, { useCallback, useEffect } from 'react';
-import { Menu, TFolder } from 'obsidian';
+import { Menu, TFolder, Platform } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useFileSystemOps, useMetadataService } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
@@ -393,7 +393,7 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
                         }}
                         tabIndex={-1}
                     >
-                        <ObsidianIcon name="arrow-left" />
+                        <ObsidianIcon name={Platform.isAndroidApp ? 'arrow-left' : 'chevron-left'} />
                     </button>
                     {showFade && <div className="nn-breadcrumb-fade" />}
                     <div ref={scrollContainerRef} className="nn-breadcrumb-scroll" onScroll={handleScroll}>

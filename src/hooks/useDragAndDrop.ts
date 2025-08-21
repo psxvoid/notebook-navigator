@@ -181,7 +181,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         setIcon(dragIcon, 'file');
                     }
                 } else if (type === ItemType.FOLDER) {
-                    setIcon(dragIcon, 'folder');
+                    setIcon(dragIcon, 'folder-closed');
                 }
 
                 dragGhost.appendChild(dragIcon);
