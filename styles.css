@@ -336,6 +336,13 @@ body {
 /* On mobile, use link color for clickable segments */
 .is-mobile .nn-path-segment {
     color: var(--link-color);
+    text-decoration: none;
+}
+
+/* Prevent underline on mobile tap/active state */
+.is-mobile .nn-path-segment:active,
+.is-mobile .nn-path-segment:focus {
+    text-decoration: none;
 }
 
 /* ========================================================================
@@ -1652,7 +1659,7 @@ body.nn-resizing {
 /* Icon category headers */
 .nn-icon-section-header {
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 400;
     color: var(--text-muted);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -2025,7 +2032,7 @@ body.nn-resizing {
 
 /* Mobile header title */
 .notebook-navigator-mobile .nn-mobile-title {
-    font-weight: 500;
+    font-weight: 600;
     font-size: var(--nn-mobile-header-font-size);
     color: var(--text-normal);
     white-space: nowrap;
@@ -2247,7 +2254,7 @@ body.nn-resizing {
     font-size: 11px;
     color: var(--text-muted);
     text-align: center;
-    font-weight: 500;
+    font-weight: 400;
 }
 
 /* Dark theme adjustments for color picker */
