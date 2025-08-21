@@ -19,8 +19,12 @@ services are accessed through dependency injection via the ServicesContext, ensu
 
 ## Service Hierarchy
 
+### Service Context and Main Services
+
 ```mermaid
 graph TB
+    ServicesContext["ServicesContext<br/>Dependency Injection"]
+
     subgraph "Core Services"
         MetadataService["MetadataService<br/>Folder/tag/file metadata"]
         FileSystemOperations["FileSystemOperations<br/>File operations & modals"]
@@ -34,35 +38,49 @@ graph TB
         TagOperations["TagOperations<br/>Tag management"]
     end
 
-    subgraph "Sub-Services"
-        FolderMeta["FolderMetadataService"]
-        TagMeta["TagMetadataService"]
-        FileMeta["FileMetadataService"]
-    end
-
-    subgraph "Content Providers"
-        PreviewProvider["PreviewContentProvider"]
-        ImageProvider["FeatureImageContentProvider"]
-        MetadataProvider["MetadataContentProvider"]
-        TagProvider["TagContentProvider"]
-    end
-
-    MetadataService --> FolderMeta
-    MetadataService --> TagMeta
-    MetadataService --> FileMeta
-
-    ContentRegistry --> PreviewProvider
-    ContentRegistry --> ImageProvider
-    ContentRegistry --> MetadataProvider
-    ContentRegistry --> TagProvider
-
-    ServicesContext["ServicesContext"] --> MetadataService
-    ServicesContext --> FileSystemOperations["FileSystemOperations<br/>File operations & modals"]
+    ServicesContext --> MetadataService
+    ServicesContext --> FileSystemOperations
     ServicesContext --> ContentRegistry
     ServicesContext --> TagTreeService
     ServicesContext --> CommandQueue
     ServicesContext --> IconService
     ServicesContext --> TagOperations
+```
+
+### Metadata Service Structure
+
+```mermaid
+graph TB
+    MetadataService["MetadataService<br/>Central metadata coordinator"]
+
+    subgraph "Sub-Services"
+        FolderMeta["FolderMetadataService<br/>Colors, icons, sort"]
+        TagMeta["TagMetadataService<br/>Colors, icons, sort"]
+        FileMeta["FileMetadataService<br/>Pinned notes"]
+    end
+
+    MetadataService --> FolderMeta
+    MetadataService --> TagMeta
+    MetadataService --> FileMeta
+```
+
+### Content Provider Registry Structure
+
+```mermaid
+graph TB
+    ContentRegistry["ContentProviderRegistry<br/>Provider coordinator"]
+
+    subgraph "Content Providers"
+        PreviewProvider["PreviewContentProvider<br/>Note previews"]
+        ImageProvider["FeatureImageContentProvider<br/>Feature images"]
+        MetadataProvider["MetadataContentProvider<br/>Frontmatter fields"]
+        TagProvider["TagContentProvider<br/>Tag extraction"]
+    end
+
+    ContentRegistry --> PreviewProvider
+    ContentRegistry --> ImageProvider
+    ContentRegistry --> MetadataProvider
+    ContentRegistry --> TagProvider
 ```
 
 ## Core Services
