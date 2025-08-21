@@ -37,8 +37,6 @@ All variables start with `--nn-theme-` and should be defined at the `body` level
 
 | Variable                                    | Default                            | Description                                       |
 | ------------------------------------------- | ---------------------------------- | ------------------------------------------------- |
-| `--nn-theme-navitem-hover-bg`               | `var(--background-modifier-hover)` | Item hover background color                       |
-| `--nn-theme-navitem-selected-bg`            | `var(--text-selection)`            | Selected item background color                    |
 | `--nn-theme-navitem-border-radius`          | `4px`                              | Corner radius for folder and tag items (0-14px)   |
 | `--nn-theme-navitem-chevron-color`          | `var(--text-muted)`                | Color for expand/collapse arrows                  |
 | `--nn-theme-navitem-icon-color`             | `var(--text-muted)`                | Icon color for folders and tags                   |
@@ -46,12 +44,14 @@ All variables start with `--nn-theme-` and should be defined at the `body` level
 | `--nn-theme-navitem-count-color`            | `var(--text-muted)`                | Text color for file count badges                  |
 | `--nn-theme-navitem-count-bg`               | `transparent`                      | Background color for file count badges            |
 | `--nn-theme-navitem-count-border-radius`    | `8px`                              | Corner radius for file count badges (0-8px)       |
-| `--nn-theme-navitem-selected-inactive-bg`   | `var(--background-modifier-hover)` | Selected item background when pane is inactive    |
+| `--nn-theme-navitem-hover-bg`               | `var(--background-modifier-hover)` | Item hover background color                       |
+| `--nn-theme-navitem-selected-bg`            | `var(--text-selection)`            | Selected item background color                    |
 | `--nn-theme-navitem-selected-chevron-color` | `var(--text-muted)`                | Expand/collapse arrow color when item is selected |
 | `--nn-theme-navitem-selected-icon-color`    | `var(--text-muted)`                | Icon color when item is selected                  |
 | `--nn-theme-navitem-selected-name-color`    | `var(--text-normal)`               | Folder/tag name color when selected               |
 | `--nn-theme-navitem-selected-count-color`   | `var(--text-muted)`                | File count text color when item is selected       |
 | `--nn-theme-navitem-selected-count-bg`      | `transparent`                      | File count background color when selected         |
+| `--nn-theme-navitem-selected-inactive-bg`   | `var(--background-modifier-hover)` | Selected item background when pane is inactive    |
 
 #### Text styling
 
@@ -157,8 +157,6 @@ body {
   --nn-theme-nav-header-bg: #f0f3f1; /* Soft sage for header */
 
   /* Folder & tag items */
-  --nn-theme-navitem-hover-bg: #f4e8e7; /* Light dusty rose hover */
-  --nn-theme-navitem-selected-bg: #e6d1d0; /* Dusty rose selection */
   --nn-theme-navitem-border-radius: 8px; /* Increased rounded corners */
   --nn-theme-navitem-chevron-color: #929d99; /* Muted gray-green arrows */
   --nn-theme-navitem-icon-color: #3b827e; /* Deep teal icons */
@@ -166,14 +164,14 @@ body {
   --nn-theme-navitem-count-color: #ffffff; /* White count text */
   --nn-theme-navitem-count-bg: #4fb2ad; /* Brighter teal badge */
   --nn-theme-navitem-count-border-radius: 8px; /* Pill-shaped count badges */
-  --nn-theme-navitem-selected-inactive-bg: #e9e9e9; /* Muted gray inactive */
-
-  /* Selected item styling */
+  --nn-theme-navitem-hover-bg: #f4e8e7; /* Light dusty rose hover */
+  --nn-theme-navitem-selected-bg: #e6d1d0; /* Dusty rose selection */
   --nn-theme-navitem-selected-chevron-color: #3f3534; /* Dark brown chevron on selection */
   --nn-theme-navitem-selected-icon-color: #3f3534; /* Dark brown icon on selection */
   --nn-theme-navitem-selected-name-color: #3f3534; /* Dark brown text on selection */
   --nn-theme-navitem-selected-count-color: #e6d1d0; /* Dusty rose count text when selected */
   --nn-theme-navitem-selected-count-bg: #ffffff; /* White count background when selected */
+  --nn-theme-navitem-selected-inactive-bg: #e9e9e9; /* Muted gray inactive */
 
   /* Text styling */
   --nn-theme-navitem-name-font-weight: 400; /* Regular weight */
@@ -261,9 +259,9 @@ To support both light and dark modes, define your variables under `.theme-light`
 .theme-light {
   /* Navigation pane */
   --nn-theme-nav-bg: #ffeeff; /* Light pink */
-  --nn-theme-navitem-selected-bg: #ffccff; /* Pastel purple */
   --nn-theme-navitem-name-color: #ff66cc; /* Pink text */
   --nn-theme-navitem-hover-bg: #ffddff; /* Very light pink */
+  --nn-theme-navitem-selected-bg: #ffccff; /* Pastel purple */
   --nn-theme-navitem-selected-chevron-color: #990099; /* Deep purple chevron when selected */
   --nn-theme-navitem-selected-icon-color: #990099; /* Deep purple icon when selected */
   --nn-theme-navitem-selected-name-color: #990099; /* Deep purple text when selected */
@@ -282,9 +280,9 @@ To support both light and dark modes, define your variables under `.theme-light`
 .theme-dark {
   /* Navigation pane */
   --nn-theme-nav-bg: #330033; /* Dark purple */
-  --nn-theme-navitem-selected-bg: #663366; /* Muted purple */
   --nn-theme-navitem-name-color: #ffaaff; /* Light pink text */
   --nn-theme-navitem-hover-bg: #442244; /* Dark purple hover */
+  --nn-theme-navitem-selected-bg: #663366; /* Muted purple */
   --nn-theme-navitem-selected-chevron-color: #ffccff; /* Light purple chevron when selected */
   --nn-theme-navitem-selected-icon-color: #ffccff; /* Light purple icon when selected */
   --nn-theme-navitem-selected-name-color: #ffccff; /* Light purple text when selected */

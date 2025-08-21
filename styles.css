@@ -2630,6 +2630,16 @@ settings:
         level: 2
         collapsed: false
     -
+        id: nn-theme-navitem-border-radius
+        title: Item border radius
+        description: Corner radius for folder and tag items.
+        type: variable-number-slider
+        default: 4
+        format: px
+        min: 0
+        max: 14
+        step: 1
+    -
         id: nn-theme-navitem-chevron-color
         title: Expand/collapse arrow color
         description: Color for expand/collapse arrows.
@@ -2696,24 +2706,6 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-navitem-border-radius
-        title: Item border radius
-        description: Corner radius for folder and tag items.
-        type: variable-number-slider
-        default: 4
-        format: px
-        min: 0
-        max: 14
-        step: 1
-    -
-        id: nn-theme-navitem-selected-inactive-bg
-        title: Selection background (inactive)
-        description: Selected item background color when pane is inactive.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
         id: nn-theme-navitem-selected-chevron-color
         title: Selected chevron color
         description: Expand/collapse arrow color when item is selected.
@@ -2749,6 +2741,14 @@ settings:
         id: nn-theme-navitem-selected-count-bg
         title: Selected count background
         description: File count background color when selected.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-navitem-selected-inactive-bg
+        title: Selection background (inactive)
+        description: Selected item background color when pane is inactive.
         type: variable-themed-color
         format: hex
         default-light: '#'
