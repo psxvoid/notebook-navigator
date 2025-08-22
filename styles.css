@@ -2025,6 +2025,17 @@ body.nn-resizing {
     height: 100%;
 }
 
+/* Mobile header icon - positioned at right */
+.notebook-navigator-mobile .nn-mobile-header-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 44px;
+    height: 44px;
+    flex-shrink: 0;
+    color: var(--nn-theme-list-header-icon-color);
+}
+
 /* Scrollable breadcrumb container */
 .notebook-navigator-mobile .nn-breadcrumb-scroll {
     flex: 1;
@@ -2033,7 +2044,11 @@ body.nn-resizing {
     scroll-behavior: smooth;
     -webkit-overflow-scrolling: touch;
     margin-left: 44px; /* Start right after the arrow button */
-    margin-right: 44px; /* Match left margin for symmetric layout */
+}
+
+/* Add right margin when no icon for centering */
+.notebook-navigator-mobile .nn-mobile-header-no-icon .nn-breadcrumb-scroll {
+    margin-right: 44px;
 }
 
 .notebook-navigator-mobile .nn-breadcrumb-scroll::-webkit-scrollbar {

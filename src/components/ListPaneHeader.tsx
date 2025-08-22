@@ -386,7 +386,7 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
         // On mobile, show simplified header with back button and path - actions moved to tab bar
         return (
             <div className="nn-pane-header nn-pane-header-simple" onClick={onHeaderClick}>
-                <div className="nn-mobile-header">
+                <div className={`nn-mobile-header ${!folderIcon || !settings.showIcons ? 'nn-mobile-header-no-icon' : ''}`}>
                     <button
                         className="nn-icon-button nn-back-button"
                         aria-label={strings.paneHeader.mobileBackToNavigation}
@@ -400,11 +400,9 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
                     </button>
                     {showFade && <div className="nn-breadcrumb-fade" />}
                     <div ref={scrollContainerRef} className="nn-breadcrumb-scroll" onScroll={handleScroll}>
-                        <span className="nn-mobile-title">
-                            {folderIcon && settings.showIcons && <span ref={mobileIconRef} className="nn-mobile-breadcrumb-icon" />}
-                            {renderPathSegments()}
-                        </span>
+                        <span className="nn-mobile-title">{renderPathSegments()}</span>
                     </div>
+                    {folderIcon && settings.showIcons && <span ref={mobileIconRef} className="nn-mobile-header-icon" />}
                 </div>
             </div>
         );
