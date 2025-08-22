@@ -76,7 +76,7 @@ body {
     --nn-theme-list-header-icon-color: var(--text-muted);
     --nn-theme-list-header-breadcrumb-color: var(--text-muted);
     --nn-theme-list-separator-color: var(--background-modifier-border);
-    --nn-theme-list-group-header-text-color: var(--text-muted);
+    --nn-theme-list-group-header-color: var(--text-muted);
 
     /* -- Headers -- */
     --nn-theme-header-border-color: var(--background-modifier-border);
@@ -119,16 +119,22 @@ body {
     --nn-theme-file-preview-color: var(--text-muted);
     --nn-theme-file-date-color: var(--text-normal);
     --nn-theme-file-parent-color: var(--text-muted);
-    --nn-theme-file-tag-text-color: var(--text-muted);
+    --nn-theme-file-tag-color: var(--text-muted);
     --nn-theme-file-tag-bg: var(--background-modifier-border);
     --nn-theme-file-tag-border-radius: 10px;
     --nn-theme-file-tag-custom-color-text-color: white;
     --nn-theme-file-selected-bg: var(--text-selection);
     --nn-theme-file-selected-inactive-bg: var(--background-modifier-hover);
+    --nn-theme-file-selected-name-color: var(--nn-theme-file-name-color);
+    --nn-theme-file-selected-preview-color: var(--nn-theme-file-preview-color);
+    --nn-theme-file-selected-date-color: var(--nn-theme-file-date-color);
+    --nn-theme-file-selected-parent-color: var(--nn-theme-file-parent-color);
+    --nn-theme-file-selected-tag-color: var(--nn-theme-file-tag-color);
+    --nn-theme-file-selected-tag-bg: var(--nn-theme-file-tag-bg);
 
     /* -- File Item Text Styling -- */
     --nn-theme-file-date-font-weight: 400;
-    --nn-theme-file-tag-text-font-weight: 400;
+    --nn-theme-file-tag-font-weight: 400;
 
     /* -- Quick Actions -- */
     --nn-theme-quick-actions-bg: color-mix(in srgb, var(--background-primary) 95%, transparent);
@@ -147,6 +153,7 @@ body {
     --nn-theme-mobile-list-header-bg: var(--background-primary);
     --nn-theme-mobile-list-header-link-color: var(--link-color);
     --nn-theme-mobile-toolbar-bg: var(--background-secondary);
+    --nn-theme-mobile-toolbar-border-color: var(--background-modifier-border);
     --nn-theme-mobile-toolbar-button-icon-color: var(--link-color);
     --nn-theme-mobile-toolbar-button-active-bg: var(--background-modifier-hover);
     --nn-theme-mobile-toolbar-button-active-icon-color: var(--link-color);
@@ -636,7 +643,7 @@ body {
     background-color: var(--nn-theme-navitem-count-bg);
     flex-shrink: 0;
     /* Dynamic margin that increases with navitem border radius for better visual balance */
-    margin-inline-end: calc(-4px + max(0px, calc(min(14px, var(--nn-theme-navitem-border-radius)) - 4px) * 0.3));
+    margin-inline-end: calc(-2px + max(0px, calc(min(14px, var(--nn-theme-navitem-border-radius)) - 4px) * 0.3));
 
     /* Pill style when background is set */
     border-radius: min(8px, var(--nn-theme-navitem-count-border-radius));
@@ -925,10 +932,10 @@ body {
     height: 20px;
     padding: 0 8px;
     background-color: var(--nn-theme-file-tag-bg);
-    color: var(--nn-theme-file-tag-text-color);
+    color: var(--nn-theme-file-tag-color);
     border-radius: min(10px, var(--nn-theme-file-tag-border-radius));
     font-size: 12px;
-    font-weight: var(--nn-theme-file-tag-text-font-weight);
+    font-weight: var(--nn-theme-file-tag-font-weight);
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -959,9 +966,32 @@ body {
     filter: brightness(1.05);
 }
 
-/* Selected file tag styles */
-.nn-file.nn-selected .nn-file-tag {
-    opacity: 0.85;
+/* Selected file tag styles - only for tags without custom colors */
+.nn-file.nn-selected .nn-file-tag:not([style*='background-color']) {
+    background-color: var(--nn-theme-file-selected-tag-bg);
+    color: var(--nn-theme-file-selected-tag-color);
+}
+
+/* Ensure custom color tags keep their text color when selected */
+.nn-file.nn-selected .nn-file-tag[style*='background-color'] {
+    color: var(--nn-theme-file-tag-custom-color-text-color);
+}
+
+/* Selected file text colors */
+.nn-file.nn-selected .nn-file-name {
+    color: var(--nn-theme-file-selected-name-color);
+}
+
+.nn-file.nn-selected .nn-file-preview {
+    color: var(--nn-theme-file-selected-preview-color);
+}
+
+.nn-file.nn-selected .nn-file-date {
+    color: var(--nn-theme-file-selected-date-color);
+}
+
+.nn-file.nn-selected .nn-file-parent {
+    color: var(--nn-theme-file-selected-parent-color);
 }
 
 /* ========================================================================
@@ -983,7 +1013,7 @@ body {
 
 /* Selected slim file - maintain selection styles */
 .nn-file.nn-slim.nn-selected .nn-file-name {
-    color: var(--text-normal);
+    color: var(--nn-theme-file-selected-name-color);
 }
 
 /* ========================================================================
@@ -1061,7 +1091,7 @@ body {
         var(--nn-file-item-padding-horizontal);
     font-size: var(--nn-file-small-size);
     font-weight: 600;
-    color: var(--nn-theme-list-group-header-text-color);
+    color: var(--nn-theme-list-group-header-color);
     background-color: transparent !important;
     white-space: nowrap;
     overflow: hidden;
@@ -2080,6 +2110,11 @@ body.nn-resizing {
     color: var(--nn-theme-navitem-name-color);
 }
 
+/* Mobile breadcrumb separator - use same color as current segment */
+.notebook-navigator-mobile .nn-path-separator {
+    color: var(--nn-theme-navitem-name-color);
+}
+
 /* Ensure scrollers fill available space on mobile */
 .notebook-navigator-mobile .nn-navigation-pane-scroller,
 .notebook-navigator-mobile .nn-list-pane-scroller {
@@ -2357,7 +2392,7 @@ body.nn-resizing {
     justify-content: space-around;
     align-items: center;
     background-color: var(--nn-theme-mobile-toolbar-bg);
-    border-top: 1px solid var(--background-modifier-border);
+    border-top: 1px solid var(--nn-theme-mobile-toolbar-border-color);
     flex-shrink: 0;
     padding: 0 8px;
 
@@ -2705,15 +2740,6 @@ settings:
         max: 8
         step: 1
     -
-        id: nn-theme-navitem-count-font-weight
-        title: File count font weight
-        description: Font weight for file count badges.
-        type: variable-number-slider
-        default: 400
-        min: 100
-        max: 900
-        step: 100
-    -
         id: nn-theme-navitem-hover-bg
         title: Hover background
         description: Item hover background color.
@@ -2828,6 +2854,15 @@ settings:
             label: Dotted underline
             value: underline dotted
     -
+        id: nn-theme-navitem-count-font-weight
+        title: File count font weight
+        description: Font weight for file count badges.
+        type: variable-number-slider
+        default: 400
+        min: 100
+        max: 900
+        step: 100
+    -
         id: nn-theme-pane-divider-heading
         title: Pane divider
         description: Vertical divider between navigation and file list panes.
@@ -2898,7 +2933,7 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
-        id: nn-theme-list-group-header-text-color
+        id: nn-theme-list-group-header-color
         title: Group header text color
         description: Text color for date groups and pinned section.
         type: variable-themed-color
@@ -2974,7 +3009,7 @@ settings:
         max: 10
         step: 1
     -
-        id: nn-theme-file-tag-text-color
+        id: nn-theme-file-tag-color
         title: File tag text color
         description: Text color for tag pills.
         type: variable-themed-color
@@ -3014,6 +3049,54 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
+        id: nn-theme-file-selected-name-color
+        title: Selected file name color
+        description: Text color for file names when selected.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-file-selected-preview-color
+        title: Selected file preview color
+        description: Text color for content preview when selected.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-file-selected-date-color
+        title: Selected file date color
+        description: Text color for file dates when selected.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-file-selected-parent-color
+        title: Selected file parent folder color
+        description: Text color for parent folder path when selected.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-file-selected-tag-color
+        title: Selected file tag text color
+        description: Text color for tag pills when selected.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-file-selected-tag-bg
+        title: Selected file tag background
+        description: Background color for tag pills when selected.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
         id: nn-file-text-styling-heading
         title: File text styling
         type: heading
@@ -3029,7 +3112,7 @@ settings:
         max: 900
         step: 100
     -
-        id: nn-theme-file-tag-text-font-weight
+        id: nn-theme-file-tag-font-weight
         title: Tag text font weight
         description: Font weight for tag pill text.
         type: variable-number-slider
@@ -3191,6 +3274,14 @@ settings:
         id: nn-theme-mobile-toolbar-bg
         title: Mobile toolbar background
         description: Background color of the mobile toolbar.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-mobile-toolbar-border-color
+        title: Mobile toolbar border color
+        description: Border color of the mobile toolbar.
         type: variable-themed-color
         format: hex
         default-light: '#'
