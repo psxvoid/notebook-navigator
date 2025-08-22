@@ -132,7 +132,7 @@ custom color styles, which override the default style.
 | Variable                                             | Default                            | Description                                                                  |
 | ---------------------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------- |
 | `--nn-theme-mobile-nav-bg`                           | `var(--background-primary)`        | Background color of navigation pane on mobile (by default, both panes match) |
-| `--nn-theme-mobile-toolbar-bg`                       | `var(--background-primary)`        | Background color of the mobile toolbar                                       |
+| `--nn-theme-mobile-toolbar-bg`                       | `var(--background-secondary)`      | Background color of the mobile toolbar                                       |
 | `--nn-theme-mobile-toolbar-button-icon-color`        | `var(--link-color)`                | Icon color for toolbar buttons                                               |
 | `--nn-theme-mobile-toolbar-button-active-bg`         | `var(--background-modifier-hover)` | Background color for active toolbar button                                   |
 | `--nn-theme-mobile-toolbar-button-active-icon-color` | `var(--link-color)`                | Icon color for active toolbar button                                         |
@@ -239,7 +239,7 @@ body {
      ======================================== */
 
   --nn-theme-mobile-nav-bg: #f0f3f1; /* Soft sage navigation on mobile */
-  --nn-theme-mobile-toolbar-bg: #f0f3f1; /* Soft sage toolbar background */
+  --nn-theme-mobile-toolbar-bg: #e8ebe9; /* Slightly darker sage toolbar background for contrast */
   --nn-theme-mobile-toolbar-button-icon-color: #7d8583; /* Muted gray-green toolbar icons */
   --nn-theme-mobile-toolbar-button-active-bg: #e6d1d0; /* Dusty rose active button */
   --nn-theme-mobile-toolbar-button-active-icon-color: #3f3534; /* Dark brown active icon */

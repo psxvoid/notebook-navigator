@@ -139,7 +139,7 @@ body {
 
     /* -- Mobile Toolbar -- */
     --nn-theme-mobile-nav-bg: var(--background-primary);
-    --nn-theme-mobile-toolbar-bg: var(--background-primary);
+    --nn-theme-mobile-toolbar-bg: var(--background-secondary);
     --nn-theme-mobile-toolbar-button-icon-color: var(--link-color);
     --nn-theme-mobile-toolbar-button-active-bg: var(--background-modifier-hover);
     --nn-theme-mobile-toolbar-button-active-icon-color: var(--link-color);
