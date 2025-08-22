@@ -41,6 +41,7 @@ interface ListPaneHeaderProps {
 
 export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
     const iconRef = React.useRef<HTMLSpanElement>(null);
+    const mobileIconRef = React.useRef<HTMLSpanElement>(null);
     const { app, isMobile } = useServices();
     const settings = useSettingsState();
     const updateSettings = useSettingsUpdate();
@@ -337,10 +338,13 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
     }
 
     useEffect(() => {
-        // Only render icon in dual pane mode (in single pane, we show a chevron button instead)
-        if (iconRef.current && folderIcon && settings.showIcons && !uiState.singlePane) {
-            const iconService = getIconService();
+        // Always render icon when available
+        const iconService = getIconService();
+        if (iconRef.current && folderIcon && settings.showIcons) {
             iconService.renderIcon(iconRef.current, folderIcon);
+        }
+        if (mobileIconRef.current && folderIcon && settings.showIcons) {
+            iconService.renderIcon(mobileIconRef.current, folderIcon);
         }
     }, [
         folderIcon,
@@ -348,7 +352,6 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
         selectionState.selectedFolder,
         selectionState.selectedTag,
         selectionState.selectionType,
-        uiState.singlePane,
         expansionState.expandedFolders
     ]);
 
@@ -397,7 +400,10 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
                     </button>
                     {showFade && <div className="nn-breadcrumb-fade" />}
                     <div ref={scrollContainerRef} className="nn-breadcrumb-scroll" onScroll={handleScroll}>
-                        <span className="nn-mobile-title">{renderPathSegments()}</span>
+                        <span className="nn-mobile-title">
+                            {folderIcon && settings.showIcons && <span ref={mobileIconRef} className="nn-mobile-breadcrumb-icon" />}
+                            {renderPathSegments()}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -407,21 +413,21 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
     return (
         <div className="nn-pane-header">
             <div className="nn-header-actions nn-header-actions--space-between">
+                {uiState.singlePane && (
+                    <button
+                        className="nn-icon-button"
+                        onClick={() => {
+                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
+                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+                        }}
+                        aria-label={strings.paneHeader.showFolders}
+                        tabIndex={-1}
+                    >
+                        <ObsidianIcon name="chevron-left" />
+                    </button>
+                )}
                 <span className="nn-pane-header-title">
-                    {uiState.singlePane ? (
-                        <button
-                            className="nn-icon-button nn-icon-button-muted nn-pane-header-icon-button"
-                            onClick={() => {
-                                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'navigation' });
-                                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
-                            }}
-                            aria-label={strings.paneHeader.showFolders}
-                        >
-                            <ObsidianIcon name="chevron-left" className="nn-pane-header-icon" />
-                        </button>
-                    ) : (
-                        folderIcon && <span ref={iconRef} className="nn-pane-header-icon" />
-                    )}
+                    {folderIcon && <span ref={iconRef} className="nn-pane-header-icon" />}
                     <span className="nn-pane-header-text">{renderPathSegments()}</span>
                 </span>
                 <div className="nn-header-actions">

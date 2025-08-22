@@ -268,7 +268,6 @@ body {
 /* File list pane header */
 .nn-list-pane .nn-pane-header {
     background-color: var(--nn-theme-list-header-bg);
-    padding-left: 0;
 }
 
 /* Header actions container - groups action buttons in headers */
@@ -291,6 +290,11 @@ body {
     min-width: 0; /* Allow shrinking below content size */
     display: flex;
     align-items: center;
+}
+
+/* Remove left padding when back button is present (single pane mode) */
+.nn-single-pane .nn-list-pane .nn-pane-header-title {
+    padding-left: 2px; /* Match gap between header action buttons */
 }
 
 /* Icon in pane header */
@@ -2043,6 +2047,24 @@ body.nn-resizing {
     padding-left: 12px; /* Standard padding for snap position */
 }
 
+/* Mobile breadcrumb icon */
+.notebook-navigator-mobile .nn-mobile-breadcrumb-icon {
+    display: inline-block;
+    margin-right: 8px;
+    color: var(--nn-theme-navitem-name-color);
+    vertical-align: middle;
+}
+
+/* Breadcrumb current segment - desktop uses list header color, mobile uses navitem color */
+.nn-path-current {
+    color: var(--nn-theme-list-header-breadcrumb-color);
+}
+
+/* Mobile breadcrumb current segment - override to use navitem color */
+.notebook-navigator-mobile .nn-path-current {
+    color: var(--nn-theme-navitem-name-color);
+}
+
 /* Ensure scrollers fill available space on mobile */
 .notebook-navigator-mobile .nn-navigation-pane-scroller,
 .notebook-navigator-mobile .nn-list-pane-scroller {
@@ -2445,28 +2467,6 @@ body.nn-resizing {
 /* Fix icon mirroring - Obsidian auto-mirrors icons, but we may need to prevent it for some icons */
 
 /* Currently, all our icons (chevrons, folders, etc.) should be mirrored in RTL, so no overrides needed */
-
-/* Sidebar toggle button in file pane header */
-.nn-pane-header-icon-button {
-    padding: 0;
-    margin: 0;
-    background: none;
-    border: none;
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    color: var(--text-muted);
-    opacity: 0.8;
-}
-
-.nn-pane-header-icon-button:hover {
-    opacity: 1;
-    color: var(--text-normal);
-}
-
-.nn-icon-button-muted {
-    color: var(--text-muted);
-}
 
 /* =================================================================================
    Icon System
