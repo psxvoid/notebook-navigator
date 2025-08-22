@@ -77,8 +77,8 @@ body {
     --nn-theme-navitem-count-color: var(--text-muted);
     --nn-theme-navitem-count-bg: transparent;
     --nn-theme-navitem-count-border-radius: 8px;
-    --nn-theme-navitem-hover-bg: var(--background-modifier-hover);
     --nn-theme-navitem-border-radius: 4px;
+    --nn-theme-navitem-hover-bg: var(--background-modifier-hover);
     --nn-theme-navitem-selected-bg: var(--text-selection);
     --nn-theme-navitem-selected-chevron-color: var(--text-muted);
     --nn-theme-navitem-selected-icon-color: var(--text-muted);
@@ -2744,15 +2744,6 @@ settings:
         step: 1
     -
     -
-        id: nn-theme-navitem-hover-bg
-        title: Hover background
-        description: Item hover background color.
-        type: variable-themed-color
-        format: hex
-        default-light: '#'
-        default-dark: '#'
-    -
-    -
         id: nn-theme-navitem-border-radius
         title: Item border radius
         description: Corner radius for folder and tag items.
@@ -2762,6 +2753,15 @@ settings:
         min: 0
         max: 14
         step: 1
+    -
+    -
+        id: nn-theme-navitem-hover-bg
+        title: Hover background
+        description: Item hover background color.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
     -
     -
         id: nn-theme-navitem-selected-bg
