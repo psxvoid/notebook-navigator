@@ -44,6 +44,7 @@ All variables start with `--nn-theme-` and should be defined at the `body` level
 | `--nn-theme-navitem-count-color`            | `var(--text-muted)`                | Text color for file count badges                  |
 | `--nn-theme-navitem-count-bg`               | `transparent`                      | Background color for file count badges            |
 | `--nn-theme-navitem-count-border-radius`    | `8px`                              | Corner radius for file count badges (0-8px)       |
+| `--nn-theme-navitem-count-font-weight`      | `400`                              | Font weight for file count badges                 |
 | `--nn-theme-navitem-hover-bg`               | `var(--background-modifier-hover)` | Item hover background color                       |
 | `--nn-theme-navitem-selected-bg`            | `var(--text-selection)`            | Selected item background color                    |
 | `--nn-theme-navitem-selected-chevron-color` | `var(--text-muted)`                | Expand/collapse arrow color when item is selected |
@@ -100,6 +101,13 @@ custom color styles, which override the default style.
 | `--nn-theme-file-selected-bg`                 | `var(--text-selection)`             | Selected file background color                              |
 | `--nn-theme-file-selected-inactive-bg`        | `var(--background-modifier-hover)`  | Selected file background when pane is inactive              |
 
+#### Text styling
+
+| Variable                               | Default | Description                   |
+| -------------------------------------- | ------- | ----------------------------- |
+| `--nn-theme-file-date-font-weight`     | `400`   | Font weight for file dates    |
+| `--nn-theme-file-tag-text-font-weight` | `400`   | Font weight for tag pill text |
+
 #### Quick actions
 
 | Variable                                    | Default                                                          | Description                                                       |
@@ -132,6 +140,8 @@ custom color styles, which override the default style.
 | Variable                                             | Default                            | Description                                                                  |
 | ---------------------------------------------------- | ---------------------------------- | ---------------------------------------------------------------------------- |
 | `--nn-theme-mobile-nav-bg`                           | `var(--background-primary)`        | Background color of navigation pane on mobile (by default, both panes match) |
+| `--nn-theme-mobile-list-header-bg`                   | `var(--background-primary)`        | Background color of the list header on mobile                                |
+| `--nn-theme-mobile-list-header-link-color`           | `var(--link-color)`                | Color for back button and clickable breadcrumb segments on mobile            |
 | `--nn-theme-mobile-toolbar-bg`                       | `var(--background-secondary)`      | Background color of the mobile toolbar                                       |
 | `--nn-theme-mobile-toolbar-button-icon-color`        | `var(--link-color)`                | Icon color for toolbar buttons                                               |
 | `--nn-theme-mobile-toolbar-button-active-bg`         | `var(--background-modifier-hover)` | Background color for active toolbar button                                   |
@@ -139,12 +149,11 @@ custom color styles, which override the default style.
 
 ## Complete Theme Example
 
-Here's a complete example showing all variables with custom colors:
+Here's a complete example showing all variables with beautiful pastel rainbow colors:
 
 ```css
 /* ========================================
-   NOTEBOOK NAVIGATOR THEME CUSTOMIZATION
-   All variables are defined at body level
+   NOTEBOOK NAVIGATOR PASTEL RAINBOW THEME
    ======================================== */
 
 body {
@@ -153,96 +162,103 @@ body {
      ======================================== */
 
   /* Pane background */
-  --nn-theme-nav-bg: #fdfaf6; /* Warm off-white background */
-  --nn-theme-nav-header-bg: #f0f3f1; /* Soft sage for header */
+  --nn-theme-nav-bg: #fef3fd; /* Soft lavender cream - navigation pane background */
+  --nn-theme-nav-header-bg: #f0f9ff; /* Baby blue mist - navigation header background */
 
   /* Folder & tag items */
-  --nn-theme-navitem-border-radius: 8px; /* Increased rounded corners */
-  --nn-theme-navitem-chevron-color: #929d99; /* Muted gray-green arrows */
-  --nn-theme-navitem-icon-color: #3b827e; /* Deep teal icons */
-  --nn-theme-navitem-name-color: #4a5451; /* Dark slate text */
-  --nn-theme-navitem-count-color: #ffffff; /* White count text */
-  --nn-theme-navitem-count-bg: #4fb2ad; /* Brighter teal badge */
-  --nn-theme-navitem-count-border-radius: 8px; /* Pill-shaped count badges */
-  --nn-theme-navitem-hover-bg: #f4e8e7; /* Light dusty rose hover */
-  --nn-theme-navitem-selected-bg: #e6d1d0; /* Dusty rose selection */
-  --nn-theme-navitem-selected-chevron-color: #3f3534; /* Dark brown chevron on selection */
-  --nn-theme-navitem-selected-icon-color: #3f3534; /* Dark brown icon on selection */
-  --nn-theme-navitem-selected-name-color: #3f3534; /* Dark brown text on selection */
-  --nn-theme-navitem-selected-count-color: #e6d1d0; /* Dusty rose count text when selected */
-  --nn-theme-navitem-selected-count-bg: #ffffff; /* White count background when selected */
-  --nn-theme-navitem-selected-inactive-bg: #e9e9e9; /* Muted gray inactive */
+  --nn-theme-navitem-border-radius: 10px; /* Softly rounded corners */
+  --nn-theme-navitem-chevron-color: #c084fc; /* Soft purple - expand/collapse arrows */
+  --nn-theme-navitem-icon-color: #67e8f9; /* Sky cyan - folder/tag icons */
+  --nn-theme-navitem-name-color: #6b7280; /* Gentle gray - folder/tag names */
+  --nn-theme-navitem-count-color: #ffffff; /* Pure white - file count text */
+  --nn-theme-navitem-count-bg: #fbbf24; /* Soft amber - file count badge background */
+  --nn-theme-navitem-count-border-radius: 10px; /* Fully rounded count badges */
+  --nn-theme-navitem-count-font-weight: 600; /* Bold for count badges */
+  --nn-theme-navitem-hover-bg: #fce7f3; /* Pale pink blush - hover background */
+  --nn-theme-navitem-selected-bg: #ddd6fe; /* Soft violet - selected item background */
+  --nn-theme-navitem-selected-chevron-color: #7c3aed; /* Medium violet - selected item arrows */
+  --nn-theme-navitem-selected-icon-color: #06b6d4; /* Bright cyan - selected item icons */
+  --nn-theme-navitem-selected-name-color: #4c1d95; /* Deep violet - selected item text */
+  --nn-theme-navitem-selected-count-color: #7c3aed; /* Medium violet - selected item count text */
+  --nn-theme-navitem-selected-count-bg: #fef3c7; /* Pale amber - selected item count background */
+  --nn-theme-navitem-selected-inactive-bg: #f3f4f6; /* Cool gray - inactive selected background */
 
   /* Text styling */
-  --nn-theme-navitem-name-font-weight: 400; /* Regular weight */
-  --nn-theme-navitem-custom-color-name-font-weight: 600; /* Bold for custom colors */
+  --nn-theme-navitem-name-font-weight: 400; /* Regular weight for normal items */
+  --nn-theme-navitem-custom-color-name-font-weight: 600; /* Bold for custom colored items */
   --nn-theme-navitem-folder-note-name-font-weight: 600; /* Bold for folder notes */
-  --nn-theme-navitem-folder-note-name-decoration: underline; /* Underline folder notes */
+  --nn-theme-navitem-folder-note-name-decoration: underline; /* Clean underline for folder notes */
 
   /* ========================================
      PANE DIVIDER
      ======================================== */
 
-  --nn-theme-divider-border-color: #dcd8d3; /* Soft beige border */
-  --nn-theme-divider-resize-handle-hover-bg: #b4d4e1; /* Powder blue on hover */
+  --nn-theme-divider-border-color: #e9d5ff; /* Pale lavender - vertical divider between panes */
+  --nn-theme-divider-resize-handle-hover-bg: #a5f3fc; /* Bright aqua - resize handle on hover */
 
   /* ========================================
      LIST PANE (Files)
      ======================================== */
 
   /* Pane background */
-  --nn-theme-list-bg: #ffffff; /* Clean white for file list */
-  --nn-theme-list-header-bg: #f0f3f1; /* Soft sage header */
-  --nn-theme-list-header-icon-color: #3b827e; /* Folder/tag icon in header */
-  --nn-theme-list-header-breadcrumb-color: #4a5451; /* Breadcrumb path text */
-  --nn-theme-list-separator-color: #e9e9e9; /* Light gray dividers */
-  --nn-theme-list-group-header-text-color: #3b827e; /* Deep teal headers */
+  --nn-theme-list-bg: #fffbeb; /* Cream yellow - file list background */
+  --nn-theme-list-header-bg: #ecfdf5; /* Mint cream - file list header background */
+  --nn-theme-list-header-icon-color: #10b981; /* Emerald - folder/tag icon in breadcrumb */
+  --nn-theme-list-header-breadcrumb-color: #059669; /* Forest green - breadcrumb path text */
+  --nn-theme-list-separator-color: #fed7aa; /* Peach cream - divider lines between files */
+  --nn-theme-list-group-header-text-color: #f59e0b; /* Warm amber - date group headers */
 
   /* File items */
-  --nn-theme-file-border-radius: 10px; /* Rounded file items */
-  --nn-theme-file-name-color: #3e4845; /* Deep slate-gray text */
-  --nn-theme-file-feature-border-radius: 4px; /* Slightly rounded images */
-  --nn-theme-file-preview-color: #6b7280; /* Neutral gray preview */
-  --nn-theme-file-date-color: #7d8583; /* Muted gray-green date */
-  --nn-theme-file-parent-color: #3b827e; /* Deep teal folder path */
-  --nn-theme-file-tag-text-color: #b56543; /* Muted terracotta tag text */
-  --nn-theme-file-tag-bg: #f9e6dc; /* Light apricot tag background */
-  --nn-theme-file-tag-border-radius: 16px; /* Very rounded tag pills */
-  --nn-theme-file-tag-custom-color-text-color: #ffffff; /* White text for custom colored tags */
-  --nn-theme-file-selected-bg: #e6d1d0; /* Dusty rose selection */
-  --nn-theme-file-selected-inactive-bg: #e9e9e9; /* Light gray inactive */
+  --nn-theme-file-border-radius: 12px; /* Nicely rounded file items */
+  --nn-theme-file-name-color: #7c2d12; /* Rich brown - file names */
+  --nn-theme-file-feature-border-radius: 8px; /* Softly rounded feature images */
+  --nn-theme-file-preview-color: #9ca3af; /* Cool gray - preview text */
+  --nn-theme-file-date-color: #16a34a; /* Green - file dates */
+  --nn-theme-file-parent-color: #ea580c; /* Bright orange - parent folder path */
+  --nn-theme-file-tag-text-color: #8b5cf6; /* Purple - tag text */
+  --nn-theme-file-tag-bg: #ede9fe; /* Pale purple - tag pill background */
+  --nn-theme-file-tag-border-radius: 10px; /* Fully rounded tag pills */
+  --nn-theme-file-tag-custom-color-text-color: #ffffff; /* White - text for custom colored tags */
+  --nn-theme-file-selected-bg: #bbf7d0; /* Mint green - selected file background */
+  --nn-theme-file-selected-inactive-bg: #fef3c7; /* Pale yellow - inactive selected file background */
+
+  /* File text styling */
+  --nn-theme-file-date-font-weight: 400; /* Regular weight for dates */
+  --nn-theme-file-tag-text-font-weight: 600; /* Bold for tag pills */
 
   /* Quick actions */
-  --nn-theme-quick-actions-bg: rgba(253, 250, 246, 0.92); /* Semi-transparent warm off-white */
-  --nn-theme-quick-actions-border: #e6d1d0; /* Dusty rose border */
-  --nn-theme-quick-actions-border-radius: 12px; /* Maximum rounded toolbar (max: 12px) */
-  --nn-theme-quick-actions-icon-color: #3b827e; /* Deep teal icons */
-  --nn-theme-quick-actions-icon-hover-color: #b56543; /* Muted terracotta on hover */
-  --nn-theme-quick-actions-separator-color: #f0f3f1; /* Soft sage separator */
+  --nn-theme-quick-actions-bg: rgba(254, 240, 138, 0.9); /* Semi-transparent pastel yellow - quick actions panel */
+  --nn-theme-quick-actions-border: #fbbf24; /* Soft amber - quick actions border */
+  --nn-theme-quick-actions-border-radius: 12px; /* Maximum rounded toolbar */
+  --nn-theme-quick-actions-icon-color: #60a5fa; /* Sky blue - quick action icons */
+  --nn-theme-quick-actions-icon-hover-color: #f472b6; /* Pink - quick action icons on hover */
+  --nn-theme-quick-actions-separator-color: #fde68a; /* Pale yellow - separators between actions */
 
   /* ========================================
      HEADERS
      ======================================== */
 
   /* Header colors */
-  --nn-theme-header-border-color: #dcd8d3; /* Soft beige border */
+  --nn-theme-header-border-color: #fecaca; /* Soft pink - header bottom border */
 
   /* Header buttons */
-  --nn-theme-header-button-icon-color: #7d8583; /* Muted gray-green icons */
-  --nn-theme-header-button-hover-bg: #f0f3f1; /* Soft sage hover */
-  --nn-theme-header-button-active-bg: #e9e9e9; /* Light gray active background */
-  --nn-theme-header-button-active-icon-color: #3e4845; /* Deep slate-gray active */
-  --nn-theme-header-button-disabled-icon-color: #d4d4d8; /* Gray disabled */
+  --nn-theme-header-button-icon-color: #a78bfa; /* Soft purple - header button icons */
+  --nn-theme-header-button-hover-bg: #e0e7ff; /* Pale indigo - header button hover background */
+  --nn-theme-header-button-active-bg: #c7d2fe; /* Light indigo - active/toggled button background */
+  --nn-theme-header-button-active-icon-color: #6366f1; /* Indigo - active/toggled button icons */
+  --nn-theme-header-button-disabled-icon-color: #d1d5db; /* Light gray - disabled button icons */
 
   /* ========================================
      MOBILE STYLES
      ======================================== */
 
-  --nn-theme-mobile-nav-bg: #f0f3f1; /* Soft sage navigation on mobile */
-  --nn-theme-mobile-toolbar-bg: #e8ebe9; /* Slightly darker sage toolbar background for contrast */
-  --nn-theme-mobile-toolbar-button-icon-color: #7d8583; /* Muted gray-green toolbar icons */
-  --nn-theme-mobile-toolbar-button-active-bg: #e6d1d0; /* Dusty rose active button */
-  --nn-theme-mobile-toolbar-button-active-icon-color: #3f3534; /* Dark brown active icon */
+  --nn-theme-mobile-nav-bg: #fdf4ff; /* Pale orchid - mobile navigation background */
+  --nn-theme-mobile-list-header-bg: #f9f5ff; /* Very pale purple - mobile list header background */
+  --nn-theme-mobile-list-header-link-color: #9333ea; /* Purple - mobile back button and breadcrumb links */
+  --nn-theme-mobile-toolbar-bg: #f3e8ff; /* Light purple - mobile toolbar background */
+  --nn-theme-mobile-toolbar-button-icon-color: #a855f7; /* Purple - mobile toolbar icons */
+  --nn-theme-mobile-toolbar-button-active-bg: #fce7f3; /* Pink blush - active mobile button background */
+  --nn-theme-mobile-toolbar-button-active-icon-color: #ec4899; /* Hot pink - active mobile button icons */
 }
 ```
 

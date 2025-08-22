@@ -110,6 +110,7 @@ body {
     --nn-theme-navitem-custom-color-name-font-weight: 600;
     --nn-theme-navitem-folder-note-name-font-weight: 600;
     --nn-theme-navitem-folder-note-name-decoration: underline;
+    --nn-theme-navitem-count-font-weight: 400;
 
     /* -- File Items -- */
     --nn-theme-file-border-radius: 8px;
@@ -125,6 +126,10 @@ body {
     --nn-theme-file-selected-bg: var(--text-selection);
     --nn-theme-file-selected-inactive-bg: var(--background-modifier-hover);
 
+    /* -- File Item Text Styling -- */
+    --nn-theme-file-date-font-weight: 400;
+    --nn-theme-file-tag-text-font-weight: 400;
+
     /* -- Quick Actions -- */
     --nn-theme-quick-actions-bg: color-mix(in srgb, var(--background-primary) 95%, transparent);
     --nn-theme-quick-actions-border: var(--background-modifier-border);
@@ -139,6 +144,8 @@ body {
 
     /* -- Mobile Toolbar -- */
     --nn-theme-mobile-nav-bg: var(--background-primary);
+    --nn-theme-mobile-list-header-bg: var(--background-primary);
+    --nn-theme-mobile-list-header-link-color: var(--link-color);
     --nn-theme-mobile-toolbar-bg: var(--background-secondary);
     --nn-theme-mobile-toolbar-button-icon-color: var(--link-color);
     --nn-theme-mobile-toolbar-button-active-bg: var(--background-modifier-hover);
@@ -339,7 +346,7 @@ body {
 
 /* On mobile, use link color for clickable segments */
 .is-mobile .nn-path-segment {
-    color: var(--link-color);
+    color: var(--nn-theme-mobile-list-header-link-color);
     text-decoration: none;
 }
 
@@ -414,6 +421,12 @@ body {
 .nn-icon-button:disabled {
     opacity: 0.5;
     cursor: not-allowed;
+    color: var(--nn-theme-header-button-disabled-icon-color);
+}
+
+/* Disabled icon svg stroke color */
+.nn-icon-button:disabled svg {
+    stroke: var(--nn-theme-header-button-disabled-icon-color);
 }
 
 /* Disabled hover state - no hover effect when disabled */
@@ -618,6 +631,7 @@ body {
 /* Folder file count - shows number of files in folder */
 .nn-navitem-count {
     font-size: 11px;
+    font-weight: var(--nn-theme-navitem-count-font-weight);
     color: var(--nn-theme-navitem-count-color);
     background-color: var(--nn-theme-navitem-count-bg);
     flex-shrink: 0;
@@ -824,6 +838,7 @@ body {
 /* File date - modification date display */
 .nn-file-date {
     font-size: var(--nn-file-small-size);
+    font-weight: var(--nn-theme-file-date-font-weight);
     color: var(--nn-theme-file-date-color);
     flex-shrink: 1; /* Allow date to shrink when space is limited */
     white-space: nowrap;
@@ -913,7 +928,7 @@ body {
     color: var(--nn-theme-file-tag-text-color);
     border-radius: min(10px, var(--nn-theme-file-tag-border-radius));
     font-size: 12px;
-    font-weight: 400;
+    font-weight: var(--nn-theme-file-tag-text-font-weight);
     white-space: nowrap;
     flex-shrink: 0;
 }
@@ -2022,7 +2037,7 @@ body.nn-resizing {
 
 /* Increase stroke width for back button arrow and apply link color */
 .notebook-navigator-mobile .nn-back-button svg {
-    stroke: var(--link-color) !important;
+    stroke: var(--nn-theme-mobile-list-header-link-color) !important;
     width: 20px !important; /* Default size for Android */
     height: 20px !important;
 }
@@ -2690,6 +2705,15 @@ settings:
         max: 8
         step: 1
     -
+        id: nn-theme-navitem-count-font-weight
+        title: File count font weight
+        description: Font weight for file count badges.
+        type: variable-number-slider
+        default: 400
+        min: 100
+        max: 900
+        step: 100
+    -
         id: nn-theme-navitem-hover-bg
         title: Hover background
         description: Item hover background color.
@@ -2990,6 +3014,30 @@ settings:
         default-light: '#'
         default-dark: '#'
     -
+        id: nn-file-text-styling-heading
+        title: File text styling
+        type: heading
+        level: 2
+        collapsed: false
+    -
+        id: nn-theme-file-date-font-weight
+        title: Date font weight
+        description: Font weight for file dates.
+        type: variable-number-slider
+        default: 400
+        min: 100
+        max: 900
+        step: 100
+    -
+        id: nn-theme-file-tag-text-font-weight
+        title: Tag text font weight
+        description: Font weight for tag pill text.
+        type: variable-number-slider
+        default: 400
+        min: 100
+        max: 900
+        step: 100
+    -
         id: nn-theme-quick-actions-heading
         title: Quick actions
         description: Hover toolbar for file actions.
@@ -3119,6 +3167,22 @@ settings:
         id: nn-theme-mobile-nav-bg
         title: Mobile navigation background
         description: Background color of the navigation pane on mobile.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-mobile-list-header-bg
+        title: Mobile list header background
+        description: Background color of the list header on mobile.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+        id: nn-theme-mobile-list-header-link-color
+        title: Mobile header link color
+        description: Color for back button and clickable breadcrumb segments on mobile.
         type: variable-themed-color
         format: hex
         default-light: '#'
