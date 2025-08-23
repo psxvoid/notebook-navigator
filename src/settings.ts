@@ -24,7 +24,7 @@ import { FileVisibility, FILE_VISIBILITY } from './utils/fileTypeUtils';
 import { calculateCacheStatistics, CacheStatistics } from './storage/statistics';
 import { ISO_DATE_FORMAT } from './utils/dateUtils';
 import { FolderAppearance, TagAppearance } from './hooks/useListPaneAppearance';
-import { PinnedNote } from './types';
+import { PinnedNotes } from './types';
 
 // Current settings schema version
 const SETTINGS_VERSION = 1;
@@ -115,7 +115,7 @@ export interface NotebookNavigatorSettings {
     // Advanced
     confirmBeforeDelete: boolean;
     // Internal
-    pinnedNotes: PinnedNote[];
+    pinnedNotes: PinnedNotes;
     folderIcons: Record<string, string>;
     folderColors: Record<string, string>;
     folderSortOverrides: Record<string, SortOption>;
@@ -193,7 +193,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Advanced
     confirmBeforeDelete: true,
     // Internal
-    pinnedNotes: [],
+    pinnedNotes: {},
     folderIcons: {},
     folderColors: {},
     folderSortOverrides: {},

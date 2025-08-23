@@ -30,7 +30,7 @@ import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage, LOCALSTORAGE_VERSION } from './utils/localStorage';
 import { initializeMobileLogger } from './utils/mobileLogger';
 import { NotebookNavigatorAPI } from './api/NotebookNavigatorAPI';
-import { PinnedNote, ItemType } from './types';
+import { ItemType, PinnedNotes } from './types';
 
 /**
  * Polyfill for requestIdleCallback
@@ -675,76 +675,38 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         this.normalizeTagSettings();
 
-        // Migrate pinnedNotes from Record<string, string[]> to string[] if needed
-        this.migratePinnedNotes();
+        // Migrate pinnedNotes to new object format if needed
+        this.migratePinnedNotesToObject();
     }
 
     /**
-     * Type guard to check if value is old pinned notes format
+     * Migrates pinnedNotes from array format to object format
      */
-    private isOldPinnedNotesFormat(value: unknown): value is Record<string, string[]> {
-        if (!value || typeof value !== 'object' || Array.isArray(value)) {
-            return false;
-        }
+    private migratePinnedNotesToObject() {
+        // Check if pinnedNotes is in array format
+        if (Array.isArray(this.settings.pinnedNotes)) {
+            console.log('Migrating pinnedNotes from array to object format');
 
-        // Check if it looks like the old format (object with string keys and string[] values)
-        const obj = value as Record<string, unknown>;
-        const keys = Object.keys(obj);
+            const arrayFormat = this.settings.pinnedNotes as Array<{ path: string; context: Record<string, boolean> }>;
+            const objectFormat: PinnedNotes = {};
 
-        // Empty object is not valid old format
-        if (keys.length === 0) {
-            return false;
-        }
-
-        // Validate that all entries are string arrays
-        for (const key of keys) {
-            const val = obj[key];
-            if (!Array.isArray(val)) return false;
-            // Check if all items in array are strings
-            if (!val.every(item => typeof item === 'string')) return false;
-        }
-        return true;
-    }
-
-    /**
-     * Migrates pinnedNotes from old format (Record<string, string[]>) to new format (PinnedNote[])
-     */
-    private migratePinnedNotes() {
-        // Check if pinnedNotes is in the old format (object with folder paths as keys)
-        if (this.isOldPinnedNotesFormat(this.settings.pinnedNotes)) {
-            console.log('Migrating pinnedNotes to new format');
-
-            const oldPinnedNotes = this.settings.pinnedNotes as Record<string, string[]>;
-            const pinnedNotesMap = new Map<string, PinnedNote>();
-
-            // Collect all unique pinned file paths from all folders
-            for (const folderPath in oldPinnedNotes) {
-                const pinnedInFolder = oldPinnedNotes[folderPath];
-                if (Array.isArray(pinnedInFolder)) {
-                    pinnedInFolder.forEach((filePath: string) => {
-                        // Create new PinnedNote with both contexts enabled
-                        // since we don't know original context
-                        pinnedNotesMap.set(filePath, {
-                            path: filePath,
-                            context: {
-                                [ItemType.FOLDER]: true,
-                                [ItemType.TAG]: true
-                            }
-                        });
-                    });
+            for (const note of arrayFormat) {
+                if (note.path && note.context) {
+                    objectFormat[note.path] = {
+                        folder: note.context[ItemType.FOLDER] || note.context['folder'] || false,
+                        tag: note.context[ItemType.TAG] || note.context['tag'] || false
+                    };
                 }
             }
 
-            // Convert to array
-            this.settings.pinnedNotes = Array.from(pinnedNotesMap.values());
+            this.settings.pinnedNotes = objectFormat;
+            console.log(`Migrated ${Object.keys(objectFormat).length} pinned notes to object format`);
 
-            console.log(`Migrated ${this.settings.pinnedNotes.length} pinned notes`);
-
-            // Save the migrated settings
+            // Save immediately
             this.saveData(this.settings);
         } else if (!this.settings.pinnedNotes) {
-            // Ensure pinnedNotes is initialized as an array
-            this.settings.pinnedNotes = [];
+            // Initialize as empty object
+            this.settings.pinnedNotes = {};
         }
     }
 

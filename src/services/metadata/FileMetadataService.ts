@@ -18,7 +18,7 @@
 
 import { BaseMetadataService } from './BaseMetadataService';
 import type { CleanupValidators } from '../MetadataService';
-import { PinnedNote, PinContext, ItemType } from '../../types';
+import { NavigatorContext } from '../../types';
 
 /**
  * Service for managing file-specific metadata operations
@@ -28,36 +28,28 @@ export class FileMetadataService extends BaseMetadataService {
     /**
      * Toggles the pinned state of a note in a specific context
      * @param filePath - Path of the file to pin/unpin
-     * @param context - Context to toggle (ItemType.FOLDER or ItemType.TAG)
+     * @param context - Context to toggle ('folder' or 'tag')
      */
-    async togglePinnedNote(filePath: string, context: PinContext): Promise<void> {
+    async togglePinnedNote(filePath: string, context: NavigatorContext): Promise<void> {
         await this.saveAndUpdate(settings => {
             if (!settings.pinnedNotes) {
-                settings.pinnedNotes = [];
+                settings.pinnedNotes = {};
             }
 
-            // Find existing pinned note
-            const existingIndex = settings.pinnedNotes.findIndex((p: PinnedNote) => p.path === filePath);
-
-            if (existingIndex >= 0) {
-                // Note exists, toggle the specific context
-                const pinnedNote = settings.pinnedNotes[existingIndex];
-                pinnedNote.context[context] = !pinnedNote.context[context];
-
-                // If both contexts are false, remove the note
-                if (!pinnedNote.context[ItemType.FOLDER] && !pinnedNote.context[ItemType.TAG]) {
-                    settings.pinnedNotes.splice(existingIndex, 1);
-                }
-            } else {
-                // Note doesn't exist, create new with specified context
-                const newPinnedNote: PinnedNote = {
-                    path: filePath,
-                    context: {
-                        [ItemType.FOLDER]: context === ItemType.FOLDER,
-                        [ItemType.TAG]: context === ItemType.TAG
-                    }
+            if (!settings.pinnedNotes[filePath]) {
+                // Create new pin with only specified context
+                settings.pinnedNotes[filePath] = {
+                    folder: context === 'folder',
+                    tag: context === 'tag'
                 };
-                settings.pinnedNotes.push(newPinnedNote);
+            } else {
+                // Toggle the specific context
+                settings.pinnedNotes[filePath][context] = !settings.pinnedNotes[filePath][context];
+
+                // Remove if unpinned from all contexts
+                if (!settings.pinnedNotes[filePath].folder && !settings.pinnedNotes[filePath].tag) {
+                    delete settings.pinnedNotes[filePath];
+                }
             }
         });
     }
@@ -65,39 +57,35 @@ export class FileMetadataService extends BaseMetadataService {
     /**
      * Checks if a note is pinned
      * @param filePath - Path of the file to check
-     * @param context - Optional context to check (ItemType.FOLDER or ItemType.TAG)
+     * @param context - Optional context to check ('folder' or 'tag')
      * @returns True if the note is pinned (in any context or specified context)
      */
-    isPinned(filePath: string, context?: PinContext): boolean {
-        const pinnedNotes = this.settingsProvider.settings.pinnedNotes || [];
-        const pinnedNote = pinnedNotes.find((p: PinnedNote) => p.path === filePath);
+    isPinned(filePath: string, context?: NavigatorContext): boolean {
+        const contexts = this.settingsProvider.settings.pinnedNotes?.[filePath];
+        if (!contexts) return false;
 
-        if (!pinnedNote) return false;
-
-        // If no context specified, check if pinned in any context
         if (!context) {
-            return pinnedNote.context[ItemType.FOLDER] || pinnedNote.context[ItemType.TAG] || false;
+            return contexts.folder || contexts.tag;
         }
 
-        // Check specific context
-        return pinnedNote.context[context] || false;
+        return contexts[context] || false;
     }
 
     /**
      * Gets all pinned notes
-     * @param context - Optional context filter (ItemType.FOLDER or ItemType.TAG)
+     * @param context - Optional context filter ('folder' or 'tag')
      * @returns Array of pinned file paths
      */
-    getPinnedNotes(context?: PinContext): string[] {
-        const pinnedNotes = this.settingsProvider.settings.pinnedNotes || [];
+    getPinnedNotes(context?: NavigatorContext): string[] {
+        const pinnedNotes = this.settingsProvider.settings.pinnedNotes || {};
 
         if (!context) {
-            // Return all pinned paths
-            return pinnedNotes.map((p: PinnedNote) => p.path);
+            return Object.keys(pinnedNotes);
         }
 
-        // Return paths pinned in specific context
-        return pinnedNotes.filter((p: PinnedNote) => p.context[context]).map((p: PinnedNote) => p.path);
+        return Object.entries(pinnedNotes)
+            .filter(([_, contexts]) => contexts[context])
+            .map(([path]) => path);
     }
 
     /**
@@ -106,11 +94,8 @@ export class FileMetadataService extends BaseMetadataService {
      */
     async handleFileDelete(filePath: string): Promise<void> {
         await this.saveAndUpdate(settings => {
-            if (settings.pinnedNotes) {
-                const index = settings.pinnedNotes.findIndex((p: PinnedNote) => p.path === filePath);
-                if (index >= 0) {
-                    settings.pinnedNotes.splice(index, 1);
-                }
+            if (settings.pinnedNotes?.[filePath]) {
+                delete settings.pinnedNotes[filePath];
             }
         });
     }
@@ -122,11 +107,12 @@ export class FileMetadataService extends BaseMetadataService {
      */
     async handleFileRename(oldPath: string, newPath: string): Promise<void> {
         await this.saveAndUpdate(settings => {
-            if (settings.pinnedNotes) {
-                const pinnedNote = settings.pinnedNotes.find((p: PinnedNote) => p.path === oldPath);
-                if (pinnedNote) {
-                    pinnedNote.path = newPath;
-                }
+            if (settings.pinnedNotes?.[oldPath]) {
+                // Save contexts and delete old entry
+                const contexts = settings.pinnedNotes[oldPath];
+                delete settings.pinnedNotes[oldPath];
+                // Add with new path
+                settings.pinnedNotes[newPath] = contexts;
             }
         });
     }
@@ -140,15 +126,15 @@ export class FileMetadataService extends BaseMetadataService {
         let hasChanges = false;
 
         await this.saveAndUpdate(settings => {
-            if (settings.pinnedNotes && Array.isArray(settings.pinnedNotes)) {
-                const validNotes = settings.pinnedNotes.filter((note: PinnedNote) => validators.vaultFiles.has(note.path));
+            if (!settings.pinnedNotes) {
+                settings.pinnedNotes = {};
+                return;
+            }
 
-                if (validNotes.length !== settings.pinnedNotes.length) {
-                    settings.pinnedNotes = validNotes;
-                    hasChanges = true;
-                }
-            } else if (!settings.pinnedNotes) {
-                settings.pinnedNotes = [];
+            const invalidPaths = Object.keys(settings.pinnedNotes).filter(path => !validators.vaultFiles.has(path));
+
+            if (invalidPaths.length > 0) {
+                invalidPaths.forEach(path => delete settings.pinnedNotes[path]);
                 hasChanges = true;
             }
         });

@@ -24,7 +24,7 @@ import { FolderMetadataService, TagMetadataService, FileMetadataService } from '
 import { TagTreeNode } from '../types/storage';
 import { FileData } from '../storage/IndexedDBStorage';
 import { getDBInstance } from '../storage/fileOperations';
-import { PinContext } from '../types';
+import { NavigatorContext } from '../types';
 
 /**
  * Validators object containing all data needed for cleanup operations
@@ -144,15 +144,15 @@ export class MetadataService {
 
     // ========== File/Pinned Notes Methods (delegated to FileMetadataService) ==========
 
-    async togglePin(filePath: string, context: PinContext): Promise<void> {
+    async togglePin(filePath: string, context: NavigatorContext): Promise<void> {
         return this.fileService.togglePinnedNote(filePath, context);
     }
 
-    isFilePinned(filePath: string, context?: PinContext): boolean {
+    isFilePinned(filePath: string, context?: NavigatorContext): boolean {
         return this.fileService.isPinned(filePath, context);
     }
 
-    getPinnedNotes(context?: PinContext): string[] {
+    getPinnedNotes(context?: NavigatorContext): string[] {
         return this.fileService.getPinnedNotes(context);
     }
 

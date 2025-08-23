@@ -18,7 +18,7 @@
 
 import { TFile, TFolder, App } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
-import { PinnedNote, PinContext, ItemType } from '../types';
+import { NavigatorContext, PinnedNotes } from '../types';
 import { UNTAGGED_TAG_ID } from '../types';
 import {
     parseExcludedProperties,
@@ -70,25 +70,22 @@ export function getFolderNote(folder: TFolder, settings: NotebookNavigatorSettin
 /**
  * Collects all pinned note paths from settings
  */
-export function collectPinnedPaths(pinnedNotes: PinnedNote[], contextFilter?: PinContext): Set<string> {
+export function collectPinnedPaths(pinnedNotes: PinnedNotes, contextFilter?: NavigatorContext): Set<string> {
     const allPinnedPaths = new Set<string>();
 
-    if (!Array.isArray(pinnedNotes)) {
+    if (!pinnedNotes || typeof pinnedNotes !== 'object') {
         return allPinnedPaths;
     }
 
-    pinnedNotes.forEach(pinnedNote => {
-        // If no filter specified, include all pinned notes
+    for (const [path, contexts] of Object.entries(pinnedNotes)) {
         if (!contextFilter) {
-            allPinnedPaths.add(pinnedNote.path);
+            // Include all pinned notes
+            allPinnedPaths.add(path);
+        } else if (contexts[contextFilter]) {
+            // Include if pinned in the specified context
+            allPinnedPaths.add(path);
         }
-        // If filter specified, only include notes pinned in that context
-        else if (contextFilter === ItemType.FOLDER && pinnedNote.context[ItemType.FOLDER]) {
-            allPinnedPaths.add(pinnedNote.path);
-        } else if (contextFilter === ItemType.TAG && pinnedNote.context[ItemType.TAG]) {
-            allPinnedPaths.add(pinnedNote.path);
-        }
-    });
+    }
 
     return allPinnedPaths;
 }
@@ -149,7 +146,7 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
         (file: TFile) => file.stat.mtime
     );
 
-    const pinnedPaths = collectPinnedPaths(settings.pinnedNotes, ItemType.FOLDER);
+    const pinnedPaths = collectPinnedPaths(settings.pinnedNotes, 'folder');
     // Separate pinned and unpinned files
     let sortedFiles: TFile[];
     if (pinnedPaths.size === 0) {
@@ -238,8 +235,8 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
         (file: TFile) => file.stat.mtime
     );
 
-    // Handle pinned notes
-    const pinnedPaths = collectPinnedPaths(settings.pinnedNotes);
+    // Handle pinned notes for tag context
+    const pinnedPaths = collectPinnedPaths(settings.pinnedNotes, 'tag');
     // Separate pinned and unpinned files
     if (pinnedPaths.size === 0) {
         return filteredFiles;

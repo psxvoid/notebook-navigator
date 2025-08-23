@@ -107,12 +107,12 @@ Notes can be pinned in different contexts - they appear at the top of the file l
 
 #### Pin Methods
 
-| Method                     | Description                                         | Returns                 |
-| -------------------------- | --------------------------------------------------- | ----------------------- |
-| `pin(file, context?)`      | Pin a file (defaults to 'all' - both contexts)      | `Promise<void>`         |
-| `unpin(file, context?)`    | Unpin a file (defaults to 'all' - both contexts)    | `Promise<void>`         |
-| `isPinned(file, context?)` | Check if pinned (no context = any, 'all' = both)    | `boolean`               |
-| `getPinned()`              | Get all pinned files with their context information | `readonly PinnedFile[]` |
+| Method                     | Description                                         | Returns            |
+| -------------------------- | --------------------------------------------------- | ------------------ |
+| `pin(file, context?)`      | Pin a file (defaults to 'all' - both contexts)      | `Promise<void>`    |
+| `unpin(file, context?)`    | Unpin a file (defaults to 'all' - both contexts)    | `Promise<void>`    |
+| `isPinned(file, context?)` | Check if pinned (no context = any, 'all' = both)    | `boolean`          |
+| `getPinned()`              | Get all pinned files with their context information | `Readonly<Pinned>` |
 
 #### Understanding Pin Contexts
 
@@ -158,10 +158,15 @@ if (nn.metadata.isPinned(file, 'folder')) {
 
 // Get all pinned files with context info
 const pinned = nn.metadata.getPinned();
-// Returns: [{ file: TFile, context: { folder: true, tag: false } }, ...]
+// Returns: Map<string, { folder: boolean, tag: boolean }>
+// Example: Map { "Notes/todo.md" => { folder: true, tag: false }, ... }
 
-// Filter as needed
-const folderPinned = pinned.filter(p => p.context.folder);
+// Iterate over pinned files
+for (const [path, context] of pinned) {
+  if (context.folder) {
+    console.log(`${path} is pinned in folder view`);
+  }
+}
 ```
 
 ## Navigation API
@@ -222,7 +227,7 @@ Subscribe to navigator events to react to user actions.
 | `storage-ready`        | `void`                                          | Storage system is ready      |
 | `nav-item-changed`     | `{ item: NavItem }`                             | Navigation selection changed |
 | `selection-changed`    | `{ state: SelectionState }`                     | Selection changed            |
-| `pinned-files-changed` | `{ files: readonly PinnedFile[] }`              | Pinned files changed         |
+| `pinned-files-changed` | `{ files: Readonly<Pinned> }`                   | Pinned files changed         |
 | `folder-changed`       | `{ folder: TFolder, metadata: FolderMetadata }` | Folder metadata changed      |
 | `tag-changed`          | `{ tag: string, metadata: TagMetadata }`        | Tag metadata changed         |
 

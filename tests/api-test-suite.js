@@ -10,7 +10,7 @@
  * - NavItem type for navigation selection
  * - Event API with all supported event types
  * - Context-aware pinning with PinContext type
- * - Readonly array returns (getPinned returns PinnedFile[], event payloads)
+ * - Map-based returns (getPinned returns Readonly<Pinned> Map)
  *
  * ⚠️ WARNING: This test suite will create and delete files in your vault!
  *
@@ -452,16 +452,16 @@
                     this.assertTrue(this.api.metadata.isPinned(testFile, 'tag'), 'Should be pinned in tag context');
                     this.assertTrue(this.api.metadata.isPinned(testFile, 'all'), 'Should be pinned in all contexts');
 
-                    // Get all pinned files (returns readonly PinnedFile[])
+                    // Get all pinned files (returns Readonly<Map>)
                     const pinnedFiles = this.api.metadata.getPinned();
-                    this.assertTrue(Array.isArray(pinnedFiles), 'Should return array of pinned files (readonly PinnedFile[])');
-                    const pinnedPaths = pinnedFiles.map(pf => pf.file.path);
-                    this.assertTrue(pinnedPaths.includes(testFile.path), 'Pinned files should include our test file');
+                    this.assertTrue(pinnedFiles instanceof Map, 'Should return Map of pinned files (Readonly<Pinned>)');
+                    this.assertTrue(pinnedFiles.has(testFile.path), 'Pinned files should include our test file');
 
                     // Check context info in returned data
-                    const ourPinnedFile = pinnedFiles.find(pf => pf.file.path === testFile.path);
-                    this.assertTrue(ourPinnedFile.context.folder, 'Should have folder context');
-                    this.assertTrue(ourPinnedFile.context.tag, 'Should have tag context');
+                    const ourContext = pinnedFiles.get(testFile.path);
+                    this.assertExists(ourContext, 'Should have context for our pinned file');
+                    this.assertTrue(ourContext.folder, 'Should have folder context');
+                    this.assertTrue(ourContext.tag, 'Should have tag context');
 
                     // Unpin from specific context
                     await this.api.metadata.unpin(testFile, 'folder');
@@ -621,12 +621,15 @@
 
                     // If an event was captured, verify structure
                     if (eventData) {
-                        this.assertTrue(Array.isArray(eventData.files), 'Should have files array (readonly TFile[])');
-                        // Note: We don't test the readonly aspect, just that it's an array
-                        // Files array contains all currently pinned files
-                        eventData.files.forEach(file => {
-                            this.assertExists(file.path, 'Each pinned file should have a path');
-                        });
+                        this.assertTrue(eventData.files instanceof Map, 'Should have files Map (Readonly<Pinned>)');
+                        // Note: We don't test the readonly aspect, just that it's a Map
+                        // Map contains all currently pinned files with their contexts
+                        for (const [path, context] of eventData.files) {
+                            this.assertTrue(typeof path === 'string', 'Path should be a string');
+                            this.assertExists(context, 'Each entry should have context');
+                            this.assertTrue(typeof context.folder === 'boolean', 'Context should have folder boolean');
+                            this.assertTrue(typeof context.tag === 'boolean', 'Context should have tag boolean');
+                        }
                     }
 
                     // Clean up

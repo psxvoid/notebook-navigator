@@ -82,13 +82,14 @@ export interface PinnedFile {
     /** The pinned file */
     file: TFile;
     /** Which context the file is pinned in */
-    context: {
-        /** Whether pinned in folder context */
-        folder: boolean;
-        /** Whether pinned in tag context */
-        tag: boolean;
-    };
+    context: { folder: boolean; tag: boolean };
 }
+
+/**
+ * Type alias for the Map structure returned by the API for pinned notes
+ * Maps file paths to their pinning context states
+ */
+export type Pinned = Map<string, { folder: boolean; tag: boolean }>;
 
 /**
  * All available event types that can be subscribed to
@@ -114,8 +115,8 @@ export interface NotebookNavigatorEvents {
 
     /** Fired when pinned files change */
     'pinned-files-changed': {
-        /** All currently pinned files with their context information */
-        files: readonly PinnedFile[];
+        /** All currently pinned files with their context information as a Map */
+        files: Readonly<Pinned>;
     };
 
     /** Fired when folder metadata changes */
@@ -157,8 +158,8 @@ export interface NotebookNavigatorAPI {
         setTagMeta(tag: string, meta: Partial<TagMetadata>): Promise<void>;
 
         // Pinned files
-        /** Get all pinned files with their context information */
-        getPinned(): readonly PinnedFile[];
+        /** Get all pinned files with their context information as a Map */
+        getPinned(): Readonly<Pinned>;
         /** Check if a file is pinned (no context = any, 'all' = both) */
         isPinned(file: TFile, context?: PinContext): boolean;
         /** Pin a file (defaults to 'all' - both contexts) */

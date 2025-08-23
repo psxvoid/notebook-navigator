@@ -68,21 +68,16 @@ export const ListPaneItemType = {
 export type ListPaneItemType = (typeof ListPaneItemType)[keyof typeof ListPaneItemType];
 
 /**
- * Type for pin context - can only be folder or tag
+ * Navigator context type for context-aware features like pinning
+ * Represents different browsing contexts in the navigator
  */
-export type PinContext = typeof ItemType.FOLDER | typeof ItemType.TAG;
+export type NavigatorContext = 'folder' | 'tag';
 
 /**
- * Represents a pinned note with context information
- * Context tracks whether the note is pinned in folder view, tag view, or both
+ * Type alias for pinned notes storage structure
+ * Maps file paths to their pinning context states
  */
-export interface PinnedNote {
-    path: string;
-    context: {
-        [ItemType.FOLDER]?: boolean;
-        [ItemType.TAG]?: boolean;
-    };
-}
+export type PinnedNotes = Record<string, Record<NavigatorContext, boolean>>;
 
 /**
  * Enum for navigation pane item types

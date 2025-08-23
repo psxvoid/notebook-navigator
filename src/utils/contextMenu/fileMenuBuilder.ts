@@ -21,7 +21,7 @@ import { FileMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
 import { getInternalPlugin } from '../../utils/typeGuards';
 import { getFilesForFolder, getFilesForTag } from '../../utils/fileFinder';
-import { ItemType, PinContext } from '../../types';
+import { ItemType, NavigatorContext } from '../../types';
 import { MetadataService } from '../../services/MetadataService';
 import { FileSystemOperations } from '../../services/FileSystemService';
 import { SelectionState, SelectionAction } from '../../context/SelectionContext';
@@ -79,7 +79,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     menu.addSeparator();
 
     // Pin/Unpin note(s)
-    const pinContext: PinContext = selectionState.selectionType === ItemType.TAG ? ItemType.TAG : ItemType.FOLDER;
+    const pinContext: NavigatorContext = selectionState.selectionType === ItemType.TAG ? 'tag' : 'folder';
     if (!shouldShowMultiOptions) {
         addSingleFilePinOption(menu, file, metadataService, pinContext);
     } else {
@@ -461,7 +461,7 @@ function addMultipleFilesOpenOptions(
 /**
  * Add pin option for a single file
  */
-function addSingleFilePinOption(menu: Menu, file: TFile, metadataService: MetadataService, context: PinContext): void {
+function addSingleFilePinOption(menu: Menu, file: TFile, metadataService: MetadataService, context: NavigatorContext): void {
     const isPinned = metadataService.isFilePinned(file.path, context);
 
     menu.addItem((item: MenuItem) => {
@@ -492,7 +492,7 @@ function addMultipleFilesPinOption(
     selectionState: SelectionState,
     app: App,
     metadataService: MetadataService,
-    context: PinContext
+    context: NavigatorContext
 ): void {
     // Check if any selected files are unpinned
     const selectedFiles = Array.from(selectionState.selectedFiles)

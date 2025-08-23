@@ -18,9 +18,9 @@
 
 import { TFile, TFolder } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
-import type { FolderMetadata, TagMetadata, IconString, PinContext, PinnedFile } from '../types';
+import type { FolderMetadata, TagMetadata, IconString, PinContext, Pinned } from '../types';
 import type { NotebookNavigatorSettings } from '../../settings';
-import { ItemType, PinnedNote } from '../../types';
+import { PinnedNotes } from '../../types';
 
 /**
  * Metadata API - Manage folder and tag appearance, icons, colors, and pinned files
@@ -39,7 +39,7 @@ export class MetadataAPI {
         tagIcons: {} as Record<string, string>,
 
         // Pinned files
-        pinnedNotes: [] as PinnedNote[]
+        pinnedNotes: {} as PinnedNotes
     };
 
     /**
@@ -50,14 +50,14 @@ export class MetadataAPI {
         folderIcons: Record<string, string>;
         tagColors: Record<string, string>;
         tagIcons: Record<string, string>;
-        pinnedNotes: PinnedNote[];
+        pinnedNotes: PinnedNotes;
         initialized: boolean;
     } = {
         folderColors: {},
         folderIcons: {},
         tagColors: {},
         tagIcons: {},
-        pinnedNotes: [],
+        pinnedNotes: {},
         initialized: false
     };
 
@@ -100,30 +100,22 @@ export class MetadataAPI {
     }
 
     /**
-     * Deep compare pinned notes arrays
+     * Deep compare pinned notes objects
      * @internal
      */
-    private pinnedNotesChanged(oldNotes: PinnedNote[], newNotes: PinnedNote[]): boolean {
-        if (oldNotes.length !== newNotes.length) return true;
+    private pinnedNotesChanged(oldNotes: PinnedNotes, newNotes: PinnedNotes): boolean {
+        const oldKeys = Object.keys(oldNotes);
+        const newKeys = Object.keys(newNotes);
 
-        // Create a map of old notes for efficient lookup
-        const oldMap = new Map<string, PinnedNote['context']>();
-        for (const note of oldNotes) {
-            oldMap.set(note.path, note.context);
-        }
+        if (oldKeys.length !== newKeys.length) return true;
 
-        // Check each new note against the old ones
-        for (const newNote of newNotes) {
-            const oldContext = oldMap.get(newNote.path);
+        // Check each note
+        for (const path of newKeys) {
+            const oldContext = oldNotes[path];
             if (!oldContext) return true; // New note added
 
-            // Compare contexts
-            const oldFolder = oldContext[ItemType.FOLDER] ?? false;
-            const newFolder = newNote.context[ItemType.FOLDER] ?? false;
-            const oldTag = oldContext[ItemType.TAG] ?? false;
-            const newTag = newNote.context[ItemType.TAG] ?? false;
-
-            if (oldFolder !== newFolder || oldTag !== newTag) {
+            const newContext = newNotes[path];
+            if (oldContext.folder !== newContext.folder || oldContext.tag !== newContext.tag) {
                 return true;
             }
         }
@@ -142,7 +134,7 @@ export class MetadataAPI {
             folderIcons: settings.folderIcons || {},
             tagColors: settings.tagColors || {},
             tagIcons: settings.tagIcons || {},
-            pinnedNotes: settings.pinnedNotes || []
+            pinnedNotes: settings.pinnedNotes || {}
         };
 
         // Update the cache first
@@ -151,7 +143,7 @@ export class MetadataAPI {
             folderIcons: { ...current.folderIcons },
             tagColors: { ...current.tagColors },
             tagIcons: { ...current.tagIcons },
-            pinnedNotes: [...current.pinnedNotes]
+            pinnedNotes: { ...current.pinnedNotes }
         };
 
         // Skip comparison on first run (just initialize state)
@@ -161,10 +153,7 @@ export class MetadataAPI {
                 folderIcons: { ...current.folderIcons },
                 tagColors: { ...current.tagColors },
                 tagIcons: { ...current.tagIcons },
-                pinnedNotes: current.pinnedNotes.map(n => ({
-                    path: n.path,
-                    context: { ...n.context }
-                })),
+                pinnedNotes: { ...current.pinnedNotes },
                 initialized: true
             };
             return;
@@ -203,8 +192,8 @@ export class MetadataAPI {
 
         // Check pinned notes
         if (this.pinnedNotesChanged(this.previousState.pinnedNotes, current.pinnedNotes)) {
-            const pinnedFiles = this.getPinned();
-            this.api.trigger('pinned-files-changed', { files: pinnedFiles });
+            const pinnedMap = this.getPinned();
+            this.api.trigger('pinned-files-changed', { files: pinnedMap });
         }
 
         // Update previous state for next comparison
@@ -213,10 +202,7 @@ export class MetadataAPI {
             folderIcons: { ...current.folderIcons },
             tagColors: { ...current.tagColors },
             tagIcons: { ...current.tagIcons },
-            pinnedNotes: current.pinnedNotes.map(n => ({
-                path: n.path,
-                context: { ...n.context }
-            })),
+            pinnedNotes: { ...current.pinnedNotes },
             initialized: true
         };
     }
@@ -348,34 +334,24 @@ export class MetadataAPI {
     // ===================================================================
 
     /**
-     * Helper to convert API context to internal ItemType constants
-     */
-    private toInternalContext(context: PinContext): typeof ItemType.FOLDER | typeof ItemType.TAG {
-        return context === 'tag' ? ItemType.TAG : ItemType.FOLDER;
-    }
-
-    /**
      * Check if a file is pinned
      * @param file - File to check
      * @param context - Context to check (if not specified, returns true if pinned in any context)
      */
     isPinned(file: TFile, context?: PinContext): boolean {
-        const pinnedNote = this.metadataState.pinnedNotes.find(p => p.path === file.path);
-
-        if (!pinnedNote) {
-            return false;
-        }
+        const contexts = this.metadataState.pinnedNotes[file.path];
+        if (!contexts) return false;
 
         if (!context) {
             // No context - check if pinned in any context
-            return pinnedNote.context[ItemType.FOLDER] || pinnedNote.context[ItemType.TAG] || false;
+            return contexts.folder || contexts.tag;
         } else if (context === 'all') {
             // Check if pinned in both contexts
-            return (pinnedNote.context[ItemType.FOLDER] || false) && (pinnedNote.context[ItemType.TAG] || false);
+            return contexts.folder && contexts.tag;
+        } else if (context === 'folder') {
+            return contexts.folder;
         } else {
-            // Check specific context
-            const internalContext = this.toInternalContext(context);
-            return pinnedNote.context[internalContext] || false;
+            return contexts.tag;
         }
     }
 
@@ -388,39 +364,37 @@ export class MetadataAPI {
         const plugin = this.api.getPlugin();
         if (!plugin || !plugin.metadataService) return;
 
-        // Find or create pinned note entry in settings
-        let pinnedNote = plugin.settings.pinnedNotes.find(p => p.path === file.path);
-        if (!pinnedNote) {
-            pinnedNote = {
-                path: file.path,
-                context: {
-                    [ItemType.FOLDER]: false,
-                    [ItemType.TAG]: false
-                }
-            };
-            plugin.settings.pinnedNotes.push(pinnedNote);
+        if (!plugin.settings.pinnedNotes) {
+            plugin.settings.pinnedNotes = {};
+        }
+
+        if (!plugin.settings.pinnedNotes[file.path]) {
+            plugin.settings.pinnedNotes[file.path] = { folder: false, tag: false };
         }
 
         let changed = false;
+        const contexts = plugin.settings.pinnedNotes[file.path];
 
         if (context === 'all') {
             // Pin in both contexts
-            if (!pinnedNote.context[ItemType.FOLDER] || !pinnedNote.context[ItemType.TAG]) {
-                pinnedNote.context[ItemType.FOLDER] = true;
-                pinnedNote.context[ItemType.TAG] = true;
+            if (!contexts.folder || !contexts.tag) {
+                contexts.folder = true;
+                contexts.tag = true;
                 changed = true;
             }
-        } else {
-            // Pin in specific context
-            const internalContext = this.toInternalContext(context);
-            if (!pinnedNote.context[internalContext]) {
-                pinnedNote.context[internalContext] = true;
+        } else if (context === 'folder') {
+            if (!contexts.folder) {
+                contexts.folder = true;
+                changed = true;
+            }
+        } else if (context === 'tag') {
+            if (!contexts.tag) {
+                contexts.tag = true;
                 changed = true;
             }
         }
 
         // Save settings if anything changed
-        // The cache will be updated via the settings update callback
         if (changed) {
             await plugin.saveSettings();
         }
@@ -435,40 +409,33 @@ export class MetadataAPI {
         const plugin = this.api.getPlugin();
         if (!plugin || !plugin.metadataService) return;
 
-        // Find pinned note entry in settings
-        const pinnedNote = plugin.settings.pinnedNotes.find(p => p.path === file.path);
-        if (!pinnedNote) {
-            return;
-        }
+        const contexts = plugin.settings.pinnedNotes?.[file.path];
+        if (!contexts) return;
 
         let changed = false;
 
         if (context === 'all') {
-            // Unpin from both contexts
-            if (pinnedNote.context[ItemType.FOLDER] || pinnedNote.context[ItemType.TAG]) {
-                pinnedNote.context[ItemType.FOLDER] = false;
-                pinnedNote.context[ItemType.TAG] = false;
+            // Unpin from all contexts - remove entirely
+            delete plugin.settings.pinnedNotes[file.path];
+            changed = true;
+        } else if (context === 'folder') {
+            if (contexts.folder) {
+                contexts.folder = false;
                 changed = true;
             }
-        } else {
-            // Unpin from specific context
-            const internalContext = this.toInternalContext(context);
-            if (pinnedNote.context[internalContext]) {
-                pinnedNote.context[internalContext] = false;
+        } else if (context === 'tag') {
+            if (contexts.tag) {
+                contexts.tag = false;
                 changed = true;
             }
         }
 
-        // Remove from list if unpinned from all contexts
-        if (changed && !pinnedNote.context[ItemType.FOLDER] && !pinnedNote.context[ItemType.TAG]) {
-            const index = plugin.settings.pinnedNotes.indexOf(pinnedNote);
-            if (index >= 0) {
-                plugin.settings.pinnedNotes.splice(index, 1);
-            }
+        // Remove if unpinned from all contexts
+        if (changed && contexts && !contexts.folder && !contexts.tag) {
+            delete plugin.settings.pinnedNotes[file.path];
         }
 
         // Save settings if anything changed
-        // The cache will be updated via the settings update callback
         if (changed) {
             await plugin.saveSettings();
         }
@@ -476,26 +443,9 @@ export class MetadataAPI {
 
     /**
      * Get all pinned files with their context information
-     * @returns Array of PinnedFile objects
+     * @returns Map of file paths to PinnedContext objects
      */
-    getPinned(): readonly PinnedFile[] {
-        const plugin = this.api.getPlugin();
-        const { app } = plugin;
-        const result: PinnedFile[] = [];
-
-        for (const pinnedNote of this.metadataState.pinnedNotes) {
-            const file = app.vault.getFileByPath(pinnedNote.path);
-            if (file) {
-                result.push({
-                    file,
-                    context: {
-                        folder: pinnedNote.context[ItemType.FOLDER] || false,
-                        tag: pinnedNote.context[ItemType.TAG] || false
-                    }
-                });
-            }
-        }
-
-        return result;
+    getPinned(): Readonly<Pinned> {
+        return new Map(Object.entries(this.metadataState.pinnedNotes));
     }
 }
