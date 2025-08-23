@@ -35,23 +35,23 @@ All variables start with `--nn-theme-` and should be defined at the `body` level
 
 #### Folder & tag items
 
-| Variable                                    | Default                            | Description                                       |
-| ------------------------------------------- | ---------------------------------- | ------------------------------------------------- |
-| `--nn-theme-navitem-chevron-color`          | `var(--text-muted)`                | Color for expand/collapse arrows                  |
-| `--nn-theme-navitem-icon-color`             | `var(--text-muted)`                | Icon color for folders and tags                   |
-| `--nn-theme-navitem-name-color`             | `var(--text-normal)`               | Text color for folder and tag names               |
-| `--nn-theme-navitem-count-color`            | `var(--text-muted)`                | Text color for file count badges                  |
-| `--nn-theme-navitem-count-bg`               | `transparent`                      | Background color for file count badges            |
-| `--nn-theme-navitem-count-border-radius`    | `8px`                              | Corner radius for file count badges (0-8px)       |
-| `--nn-theme-navitem-border-radius`          | `4px`                              | Corner radius for folder and tag items (0-14px)   |
-| `--nn-theme-navitem-hover-bg`               | `var(--background-modifier-hover)` | Item hover background color                       |
-| `--nn-theme-navitem-selected-bg`            | `var(--text-selection)`            | Selected item background color                    |
-| `--nn-theme-navitem-selected-chevron-color` | `var(--text-muted)`                | Expand/collapse arrow color when item is selected |
-| `--nn-theme-navitem-selected-icon-color`    | `var(--text-muted)`                | Icon color when item is selected                  |
-| `--nn-theme-navitem-selected-name-color`    | `var(--text-normal)`               | Folder/tag name color when selected               |
-| `--nn-theme-navitem-selected-count-color`   | `var(--text-muted)`                | File count text color when item is selected       |
-| `--nn-theme-navitem-selected-count-bg`      | `transparent`                      | File count background color when selected         |
-| `--nn-theme-navitem-selected-inactive-bg`   | `var(--background-modifier-hover)` | Selected item background when pane is inactive    |
+| Variable                                    | Default                                 | Description                                       |
+| ------------------------------------------- | --------------------------------------- | ------------------------------------------------- |
+| `--nn-theme-navitem-chevron-color`          | `var(--text-muted)`                     | Color for expand/collapse arrows                  |
+| `--nn-theme-navitem-icon-color`             | `var(--text-muted)`                     | Icon color for folders and tags                   |
+| `--nn-theme-navitem-name-color`             | `var(--text-normal)`                    | Text color for folder and tag names               |
+| `--nn-theme-navitem-count-color`            | `var(--text-muted)`                     | Text color for file count badges                  |
+| `--nn-theme-navitem-count-bg`               | `transparent`                           | Background color for file count badges            |
+| `--nn-theme-navitem-count-border-radius`    | `8px`                                   | Corner radius for file count badges (0-8px)       |
+| `--nn-theme-navitem-border-radius`          | `4px`                                   | Corner radius for folder and tag items (0-14px)   |
+| `--nn-theme-navitem-hover-bg`               | `var(--background-modifier-hover)`      | Item hover background color                       |
+| `--nn-theme-navitem-selected-bg`            | `var(--text-selection)`                 | Selected item background color                    |
+| `--nn-theme-navitem-selected-chevron-color` | `var(--nn-theme-navitem-chevron-color)` | Expand/collapse arrow color when item is selected |
+| `--nn-theme-navitem-selected-icon-color`    | `var(--nn-theme-navitem-icon-color)`    | Icon color when item is selected                  |
+| `--nn-theme-navitem-selected-name-color`    | `var(--nn-theme-navitem-name-color)`    | Folder/tag name color when selected               |
+| `--nn-theme-navitem-selected-count-color`   | `var(--nn-theme-navitem-count-color)`   | File count text color when item is selected       |
+| `--nn-theme-navitem-selected-count-bg`      | `var(--nn-theme-navitem-count-bg)`      | File count background color when selected         |
+| `--nn-theme-navitem-selected-inactive-bg`   | `var(--background-modifier-hover)`      | Selected item background when pane is inactive    |
 
 #### Text styling
 

@@ -80,11 +80,11 @@ body {
     --nn-theme-navitem-border-radius: 4px;
     --nn-theme-navitem-hover-bg: var(--background-modifier-hover);
     --nn-theme-navitem-selected-bg: var(--text-selection);
-    --nn-theme-navitem-selected-chevron-color: var(--text-muted);
-    --nn-theme-navitem-selected-icon-color: var(--text-muted);
-    --nn-theme-navitem-selected-name-color: var(--text-normal);
-    --nn-theme-navitem-selected-count-color: var(--text-muted);
-    --nn-theme-navitem-selected-count-bg: transparent;
+    --nn-theme-navitem-selected-chevron-color: var(--nn-theme-navitem-chevron-color);
+    --nn-theme-navitem-selected-icon-color: var(--nn-theme-navitem-icon-color);
+    --nn-theme-navitem-selected-name-color: var(--nn-theme-navitem-name-color);
+    --nn-theme-navitem-selected-count-color: var(--nn-theme-navitem-count-color);
+    --nn-theme-navitem-selected-count-bg: var(--nn-theme-navitem-count-bg);
     --nn-theme-navitem-selected-inactive-bg: var(--background-modifier-hover);
 
     /* -- Navigation Item Text Styling -- */
