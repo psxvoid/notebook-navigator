@@ -56,7 +56,7 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.4.0',
-        date: '2025-08-22',
+        date: '2025-08-24',
         showOnUpdate: true,
         info: 'First Community Plugin Release! 🎉 Notebook Navigator is now available in the Obsidian Community Plugins directory. A big thanks to everyone who supported the development of this plugin!',
         new: [
@@ -69,7 +69,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
             '**Pinned notes are now context-aware**. Files are now pinned separately in folder view and tag view, allowing different pinned files for each context.'
         ],
         fixed: [
-            'Lots of polish to the user experience. Featured images scale in size depending on item height, we use native scroll bars on macOS and mobile, and the interface was improved in over a dozen places.'
+            'Lots of polish to the user experience. Featured images scale in size depending on item height, we use native scroll bars on macOS and mobile, drag and drop works, and the interface was improved in over a dozen places.'
         ]
     },
     {
