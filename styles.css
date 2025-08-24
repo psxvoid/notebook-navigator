@@ -2380,9 +2380,9 @@ body.nn-resizing {
    Mobile-specific Folder Text Size
    ======================================================================== */
 
-/* Increase folder text size on mobile for better readability */
+/* Folder text size on mobile */
 .notebook-navigator-mobile .nn-navitem-name {
-    font-size: var(--nn-mobile-header-font-size);
+    font-size: 16px;
 }
 
 /* Increase folder icon size on mobile */
