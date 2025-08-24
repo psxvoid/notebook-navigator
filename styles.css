@@ -127,7 +127,7 @@ body {
     --nn-theme-file-selected-inactive-bg: var(--background-modifier-hover);
 
     /* -- File Item Text Styling -- */
-    --nn-theme-list-header-breadcrumb-font-weight: 400;
+    --nn-theme-list-header-breadcrumb-font-weight: 600;
     --nn-theme-list-group-header-font-weight: 600;
     --nn-theme-file-name-font-weight: 600;
     --nn-theme-file-slim-name-font-weight: 400;
@@ -2047,6 +2047,12 @@ body.nn-resizing {
     color: var(--nn-theme-mobile-list-header-icon-color);
 }
 
+/* Mobile header emoji icon - match mobile navigation icon size */
+.notebook-navigator-mobile .nn-mobile-header-icon.nn-emoji-icon {
+    font-size: 20px;
+    line-height: 20px;
+}
+
 /* Scrollable breadcrumb container */
 .notebook-navigator-mobile .nn-breadcrumb-scroll {
     flex: 1;
@@ -3179,7 +3185,7 @@ settings:
     -
     -
         id: nn-file-text-styling-heading
-        title: File text styling
+        title: Text styling
         type: heading
         level: 2
         collapsed: false
@@ -3189,7 +3195,7 @@ settings:
         title: List header breadcrumb font weight
         description: Font weight for the breadcrumb in list header.
         type: variable-number-slider
-        default: 400
+        default: 600
         min: 100
         max: 900
         step: 100

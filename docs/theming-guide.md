@@ -111,7 +111,7 @@ custom color styles, which override the default style.
 
 | Variable                                        | Default | Description                                    |
 | ----------------------------------------------- | ------- | ---------------------------------------------- |
-| `--nn-theme-list-header-breadcrumb-font-weight` | `400`   | Font weight for the breadcrumb in list header  |
+| `--nn-theme-list-header-breadcrumb-font-weight` | `600`   | Font weight for the breadcrumb in list header  |
 | `--nn-theme-list-group-header-font-weight`      | `600`   | Font weight for date groups and pinned section |
 | `--nn-theme-file-name-font-weight`              | `600`   | Font weight for file names                     |
 | `--nn-theme-file-slim-name-font-weight`         | `400`   | Font weight for file names in slim mode        |
@@ -246,7 +246,7 @@ body {
   --nn-theme-file-selected-tag-bg: #5a5f66; /* Medium gray - selected tag background */
 
   /* File text styling */
-  --nn-theme-list-header-breadcrumb-font-weight: 400; /* Regular weight for breadcrumb */
+  --nn-theme-list-header-breadcrumb-font-weight: 600; /* Bold weight for breadcrumb */
   --nn-theme-list-group-header-font-weight: 600; /* Bold for date groups */
   --nn-theme-file-name-font-weight: 600; /* Bold for file names */
   --nn-theme-file-slim-name-font-weight: 400; /* Regular for slim file names */
