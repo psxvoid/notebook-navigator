@@ -109,10 +109,16 @@ custom color styles, which override the default style.
 
 #### Text styling
 
-| Variable                           | Default | Description                |
-| ---------------------------------- | ------- | -------------------------- |
-| `--nn-theme-file-date-font-weight` | `400`   | Font weight for file dates |
-| `--nn-theme-file-tag-font-weight`  | `400`   | Font weight for tag pills  |
+| Variable                                        | Default | Description                                    |
+| ----------------------------------------------- | ------- | ---------------------------------------------- |
+| `--nn-theme-list-header-breadcrumb-font-weight` | `400`   | Font weight for the breadcrumb in list header  |
+| `--nn-theme-list-group-header-font-weight`      | `600`   | Font weight for date groups and pinned section |
+| `--nn-theme-file-name-font-weight`              | `600`   | Font weight for file names                     |
+| `--nn-theme-file-slim-name-font-weight`         | `400`   | Font weight for file names in slim mode        |
+| `--nn-theme-file-preview-font-weight`           | `400`   | Font weight for file preview text              |
+| `--nn-theme-file-date-font-weight`              | `400`   | Font weight for file dates                     |
+| `--nn-theme-file-parent-font-weight`            | `400`   | Font weight for parent folder path             |
+| `--nn-theme-file-tag-font-weight`               | `400`   | Font weight for tag pills                      |
 
 #### Quick actions (desktop only)
 
@@ -143,18 +149,19 @@ custom color styles, which override the default style.
 
 ### Mobile styles
 
-| Variable                                             | Default                             | Description                                                                  |
-| ---------------------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------- |
-| `--nn-theme-mobile-nav-bg`                           | `var(--background-primary)`         | Background color of navigation pane on mobile (by default, both panes match) |
-| `--nn-theme-mobile-list-header-bg`                   | `var(--background-primary)`         | Background color of the list header on mobile                                |
-| `--nn-theme-mobile-list-header-link-color`           | `var(--link-color)`                 | Color for back button and clickable breadcrumb segments on mobile            |
-| `--nn-theme-mobile-list-header-breadcrumb-color`     | `var(--text-normal)`                | Color for current folder and separators in breadcrumb on mobile              |
-| `--nn-theme-mobile-list-header-icon-color`           | `var(--text-muted)`                 | Color for the folder/tag icon in mobile header                               |
-| `--nn-theme-mobile-toolbar-bg`                       | `var(--background-secondary)`       | Background color of the mobile toolbar                                       |
-| `--nn-theme-mobile-toolbar-border-color`             | `var(--background-modifier-border)` | Border color of the mobile toolbar                                           |
-| `--nn-theme-mobile-toolbar-button-icon-color`        | `var(--link-color)`                 | Icon color for toolbar buttons                                               |
-| `--nn-theme-mobile-toolbar-button-active-bg`         | `var(--background-modifier-hover)`  | Background color for active toolbar button                                   |
-| `--nn-theme-mobile-toolbar-button-active-icon-color` | `var(--link-color)`                 | Icon color for active toolbar button                                         |
+| Variable                                               | Default                             | Description                                                                  |
+| ------------------------------------------------------ | ----------------------------------- | ---------------------------------------------------------------------------- |
+| `--nn-theme-mobile-nav-bg`                             | `var(--background-primary)`         | Background color of navigation pane on mobile (by default, both panes match) |
+| `--nn-theme-mobile-list-header-bg`                     | `var(--background-primary)`         | Background color of the list header on mobile                                |
+| `--nn-theme-mobile-list-header-link-color`             | `var(--link-color)`                 | Color for back button and clickable breadcrumb segments on mobile            |
+| `--nn-theme-mobile-list-header-breadcrumb-color`       | `var(--text-normal)`                | Color for current folder and separators in breadcrumb on mobile              |
+| `--nn-theme-mobile-list-header-breadcrumb-font-weight` | `600`                               | Font weight for mobile breadcrumb                                            |
+| `--nn-theme-mobile-list-header-icon-color`             | `var(--text-muted)`                 | Color for the folder/tag icon in mobile header                               |
+| `--nn-theme-mobile-toolbar-bg`                         | `var(--background-secondary)`       | Background color of the mobile toolbar                                       |
+| `--nn-theme-mobile-toolbar-border-color`               | `var(--background-modifier-border)` | Border color of the mobile toolbar                                           |
+| `--nn-theme-mobile-toolbar-button-icon-color`          | `var(--link-color)`                 | Icon color for toolbar buttons                                               |
+| `--nn-theme-mobile-toolbar-button-active-bg`           | `var(--background-modifier-hover)`  | Background color for active toolbar button                                   |
+| `--nn-theme-mobile-toolbar-button-active-icon-color`   | `var(--link-color)`                 | Icon color for active toolbar button                                         |
 
 ## Complete Theme Example
 
@@ -239,7 +246,13 @@ body {
   --nn-theme-file-selected-tag-bg: #5a5f66; /* Medium gray - selected tag background */
 
   /* File text styling */
+  --nn-theme-list-header-breadcrumb-font-weight: 400; /* Regular weight for breadcrumb */
+  --nn-theme-list-group-header-font-weight: 600; /* Bold for date groups */
+  --nn-theme-file-name-font-weight: 600; /* Bold for file names */
+  --nn-theme-file-slim-name-font-weight: 400; /* Regular for slim file names */
+  --nn-theme-file-preview-font-weight: 400; /* Regular for preview text */
   --nn-theme-file-date-font-weight: 400; /* Regular weight for dates */
+  --nn-theme-file-parent-font-weight: 400; /* Regular for parent folder */
   --nn-theme-file-tag-font-weight: 400; /* Regular for tag pills */
 
   /* Quick actions */
@@ -272,6 +285,7 @@ body {
   --nn-theme-mobile-list-header-bg: #3c3f41; /* Dark gray sidebar - mobile list header background */
   --nn-theme-mobile-list-header-link-color: #589df6; /* Bright blue - mobile back button and breadcrumb links */
   --nn-theme-mobile-list-header-breadcrumb-color: #a9b7c6; /* Soft blue-gray - current folder and separators */
+  --nn-theme-mobile-list-header-breadcrumb-font-weight: 600; /* Bold weight - mobile breadcrumb */
   --nn-theme-mobile-list-header-icon-color: #7f8b91; /* Muted gray - folder/tag icon in header */
   --nn-theme-mobile-toolbar-bg: #3c3f41; /* Dark gray sidebar - mobile toolbar background */
   --nn-theme-mobile-toolbar-border-color: #555555; /* Subtle gray - mobile toolbar border */

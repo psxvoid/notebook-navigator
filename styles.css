@@ -127,7 +127,13 @@ body {
     --nn-theme-file-selected-inactive-bg: var(--background-modifier-hover);
 
     /* -- File Item Text Styling -- */
+    --nn-theme-list-header-breadcrumb-font-weight: 400;
+    --nn-theme-list-group-header-font-weight: 600;
+    --nn-theme-file-name-font-weight: 600;
+    --nn-theme-file-slim-name-font-weight: 400;
+    --nn-theme-file-preview-font-weight: 400;
     --nn-theme-file-date-font-weight: 400;
+    --nn-theme-file-parent-font-weight: 400;
     --nn-theme-file-tag-font-weight: 400;
 
     /* -- Quick Actions -- */
@@ -153,6 +159,7 @@ body {
     --nn-theme-mobile-list-header-bg: var(--background-primary);
     --nn-theme-mobile-list-header-link-color: var(--link-color);
     --nn-theme-mobile-list-header-breadcrumb-color: var(--text-normal);
+    --nn-theme-mobile-list-header-breadcrumb-font-weight: 600;
     --nn-theme-mobile-list-header-icon-color: var(--text-muted);
     --nn-theme-mobile-toolbar-bg: var(--background-secondary);
     --nn-theme-mobile-toolbar-border-color: var(--background-modifier-border);
@@ -296,7 +303,7 @@ body {
 /* Desktop pane header title */
 .nn-pane-header-title {
     font-size: var(--nn-nav-font-size); /* Use nav font size (13px) to match folder items */
-    font-weight: 600;
+    font-weight: var(--nn-theme-list-header-breadcrumb-font-weight);
     color: var(--nn-theme-list-header-breadcrumb-color);
 
     /* Match date header padding */
@@ -759,7 +766,7 @@ body {
 /* File name - primary text with ellipsis overflow */
 .nn-file-name {
     font-size: var(--nn-file-name-size);
-    font-weight: 600;
+    font-weight: var(--nn-theme-file-name-font-weight);
     color: var(--nn-theme-file-name-color);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -862,6 +869,7 @@ body {
 /* File preview text - secondary line showing file content */
 .nn-file-preview {
     font-size: var(--nn-file-small-size);
+    font-weight: var(--nn-theme-file-preview-font-weight);
     color: var(--nn-theme-file-preview-color);
     line-height: var(--nn-file-multiline-text-line-height);
     overflow: hidden;
@@ -887,6 +895,7 @@ body {
 /* Folder indicator - shows parent folder for files from subfolders */
 .nn-file-folder {
     font-size: var(--nn-file-small-size);
+    font-weight: var(--nn-theme-file-parent-font-weight);
     color: var(--nn-theme-file-parent-color);
     display: flex;
     align-items: center;
@@ -1008,7 +1017,7 @@ body {
 /* Slim file name - no bold, smaller font like folder items */
 .nn-file.nn-slim .nn-file-name {
     font-size: var(--nn-file-small-size);
-    font-weight: 400;
+    font-weight: var(--nn-theme-file-slim-name-font-weight);
     margin-bottom: 0;
     line-height: var(--nn-file-title-line-height);
 }
@@ -1092,7 +1101,7 @@ body {
     padding: var(--nn-date-header-padding-top) var(--nn-file-item-padding-horizontal) var(--nn-date-header-padding-bottom)
         var(--nn-file-item-padding-horizontal);
     font-size: var(--nn-file-small-size);
-    font-weight: 600;
+    font-weight: var(--nn-theme-list-group-header-font-weight);
     color: var(--nn-theme-list-group-header-color);
     background-color: transparent !important;
     white-space: nowrap;
@@ -2012,8 +2021,8 @@ body.nn-resizing {
 
 .notebook-navigator-mobile .nn-pane-header-simple .nn-pane-header-title {
     font-size: var(--nn-mobile-header-font-size);
-    font-weight: 600;
-    color: var(--text-normal);
+    font-weight: var(--nn-theme-mobile-list-header-breadcrumb-font-weight);
+    color: var(--nn-theme-mobile-list-header-breadcrumb-color);
     width: 100%;
     text-align: center;
 }
@@ -2102,9 +2111,9 @@ body.nn-resizing {
 
 /* Mobile header title */
 .notebook-navigator-mobile .nn-mobile-title {
-    font-weight: 600;
+    font-weight: var(--nn-theme-mobile-list-header-breadcrumb-font-weight);
     font-size: var(--nn-mobile-header-font-size);
-    color: var(--text-normal);
+    color: var(--nn-theme-mobile-list-header-breadcrumb-color);
     white-space: nowrap;
     padding-left: 12px; /* Standard padding for snap position */
 }
@@ -2663,11 +2672,8 @@ body.nn-resizing {
 }
 
 /* @settings
-    -
 
-    -
 name: Notebook Navigator
-    -
 id: notebook-navigator-style-settings
 settings:
     -
@@ -3179,9 +3185,69 @@ settings:
         collapsed: false
     -
     -
+        id: nn-theme-list-header-breadcrumb-font-weight
+        title: List header breadcrumb font weight
+        description: Font weight for the breadcrumb in list header.
+        type: variable-number-slider
+        default: 400
+        min: 100
+        max: 900
+        step: 100
+    -
+    -
+        id: nn-theme-list-group-header-font-weight
+        title: Group header font weight
+        description: Font weight for date groups and pinned section.
+        type: variable-number-slider
+        default: 600
+        min: 100
+        max: 900
+        step: 100
+    -
+    -
+        id: nn-theme-file-name-font-weight
+        title: File name font weight
+        description: Font weight for file names.
+        type: variable-number-slider
+        default: 600
+        min: 100
+        max: 900
+        step: 100
+    -
+    -
+        id: nn-theme-file-slim-name-font-weight
+        title: File name font weight (slim mode)
+        description: Font weight for file names in slim mode.
+        type: variable-number-slider
+        default: 400
+        min: 100
+        max: 900
+        step: 100
+    -
+    -
+        id: nn-theme-file-preview-font-weight
+        title: File preview font weight
+        description: Font weight for file preview text.
+        type: variable-number-slider
+        default: 400
+        min: 100
+        max: 900
+        step: 100
+    -
+    -
         id: nn-theme-file-date-font-weight
         title: Date font weight
         description: Font weight for file dates.
+        type: variable-number-slider
+        default: 400
+        min: 100
+        max: 900
+        step: 100
+    -
+    -
+        id: nn-theme-file-parent-font-weight
+        title: Parent folder font weight
+        description: Font weight for parent folder path.
         type: variable-number-slider
         default: 400
         min: 100
@@ -3375,6 +3441,16 @@ settings:
         format: hex
         default-light: '#'
         default-dark: '#'
+    -
+    -
+        id: nn-theme-mobile-list-header-breadcrumb-font-weight
+        title: Mobile breadcrumb font weight
+        description: Font weight for mobile header breadcrumb.
+        type: variable-number-slider
+        default: 600
+        min: 100
+        max: 900
+        step: 100
     -
     -
         id: nn-theme-mobile-list-header-icon-color
