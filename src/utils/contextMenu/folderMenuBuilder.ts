@@ -33,6 +33,13 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     const { selectionState, expandedFolders } = state;
     const { selectionDispatch, expansionDispatch } = dispatchers;
 
+    // Show folder name on mobile
+    if (services.isMobile) {
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(folder.name).setIsLabel(true);
+        });
+    }
+
     // New note
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.folder.newNote)

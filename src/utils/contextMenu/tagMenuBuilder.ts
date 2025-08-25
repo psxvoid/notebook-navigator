@@ -27,7 +27,14 @@ import { UNTAGGED_TAG_ID } from '../../types';
  */
 export function buildTagMenu(params: TagMenuBuilderParams): void {
     const { tagPath, menu, services, settings, context } = params;
-    const { app, metadataService, plugin } = services;
+    const { app, metadataService, plugin, isMobile } = services;
+
+    // Show tag name on mobile
+    if (isMobile) {
+        menu.addItem((item: MenuItem) => {
+            item.setTitle('#' + tagPath).setIsLabel(true);
+        });
+    }
 
     // Don't show favorites options for the Untagged virtual tag
     if (tagPath !== UNTAGGED_TAG_ID) {

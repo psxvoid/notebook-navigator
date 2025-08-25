@@ -40,6 +40,13 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     const { selectionState } = state;
     const { selectionDispatch } = dispatchers;
 
+    // Show file name on mobile
+    if (isMobile) {
+        menu.addItem((item: MenuItem) => {
+            item.setTitle(file.basename).setIsLabel(true);
+        });
+    }
+
     // Check if multiple files are selected
     const selectedCount = selectionState.selectedFiles.size;
     const isMultipleSelected = selectedCount > 1;
