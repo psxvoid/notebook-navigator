@@ -55,7 +55,7 @@
  */
 
 import React, { useRef, useEffect, useCallback, useImperativeHandle, forwardRef, useMemo } from 'react';
-import { TFolder } from 'obsidian';
+import { TFolder, Platform } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -110,6 +110,9 @@ export const NavigationPane = React.memo(
         const settings = useSettingsState();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
+
+        // Android uses toolbar at top, iOS at bottom
+        const isAndroid = Platform.isAndroidApp;
         // Track previous settings for smart auto-expand
         const prevShowFavoritesFolder = useRef(settings.showFavoriteTagsFolder);
         const prevShowAllTagsFolder = useRef(settings.showAllTagsFolder);
@@ -554,6 +557,8 @@ export const NavigationPane = React.memo(
         return (
             <div className="nn-navigation-pane" style={props.style}>
                 <NavigationPaneHeader />
+                {/* Android - toolbar at top */}
+                {isMobile && isAndroid && <NavigationTabBar />}
                 <div ref={scrollContainerRef} className="nn-navigation-pane-scroller" data-pane="navigation" role="tree" tabIndex={-1}>
                     {items.length > 0 && (
                         <div
@@ -583,7 +588,8 @@ export const NavigationPane = React.memo(
                         </div>
                     )}
                 </div>
-                {isMobile && <NavigationTabBar />}
+                {/* iOS - toolbar at bottom */}
+                {isMobile && !isAndroid && <NavigationTabBar />}
             </div>
         );
     })

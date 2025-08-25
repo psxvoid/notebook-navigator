@@ -45,7 +45,7 @@
  */
 
 import React, { useCallback, useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
-import { TFile } from 'obsidian';
+import { TFile, Platform } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
@@ -103,6 +103,9 @@ export const ListPane = React.memo(
         const appearanceSettings = useListPaneAppearance();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
+
+        // Android uses toolbar at top, iOS at bottom
+        const isAndroid = Platform.isAndroidApp;
 
         // Track if the file selection is from user click vs auto-selection
         const isUserSelectionRef = useRef(false);
@@ -326,10 +329,13 @@ export const ListPane = React.memo(
                 <div className="nn-list-pane">
                     {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
                     <ListPaneHeader onHeaderClick={handleScrollToTop} />
+                    {/* Android - toolbar at top */}
+                    {isMobile && isAndroid && <ListTabBar />}
                     <div className="nn-list-pane-scroller nn-empty-state">
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoSelection}</div>
                     </div>
-                    {isMobile && <ListTabBar />}
+                    {/* iOS - toolbar at bottom */}
+                    {isMobile && !isAndroid && <ListTabBar />}
                 </div>
             );
         }
@@ -339,10 +345,13 @@ export const ListPane = React.memo(
                 <div className="nn-list-pane">
                     {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
                     <ListPaneHeader onHeaderClick={handleScrollToTop} />
+                    {/* Android - toolbar at top */}
+                    {isMobile && isAndroid && <ListTabBar />}
                     <div className="nn-list-pane-scroller nn-empty-state">
                         <div className="nn-empty-message">{strings.listPane.emptyStateNoNotes}</div>
                     </div>
-                    {isMobile && <ListTabBar />}
+                    {/* iOS - toolbar at bottom */}
+                    {isMobile && !isAndroid && <ListTabBar />}
                 </div>
             );
         }
@@ -351,6 +360,8 @@ export const ListPane = React.memo(
             <div className="nn-list-pane">
                 {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
                 <ListPaneHeader onHeaderClick={handleScrollToTop} />
+                {/* Android - toolbar at top */}
+                {isMobile && isAndroid && <ListTabBar />}
                 <div
                     ref={scrollContainerRefCallback}
                     className={`nn-list-pane-scroller ${isSlimMode ? 'nn-slim-mode' : ''}`}
@@ -478,7 +489,8 @@ export const ListPane = React.memo(
                         </div>
                     )}
                 </div>
-                {isMobile && <ListTabBar />}
+                {/* iOS - toolbar at bottom */}
+                {isMobile && !isAndroid && <ListTabBar />}
             </div>
         );
     })

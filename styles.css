@@ -1930,16 +1930,6 @@ body.nn-resizing {
     --nn-mobile-safe-area-bottom: env(safe-area-inset-bottom, 8px);
 }
 
-.notebook-navigator-android {
-    /* Android uses env() with fallback for navigation bar safe area */
-    --nn-mobile-safe-area-bottom: max(env(safe-area-inset-bottom, 0px), 8px);
-}
-
-/* Fallback for undetected mobile platforms */
-.notebook-navigator-mobile:not(.notebook-navigator-ios):not(.notebook-navigator-android) {
-    --nn-mobile-safe-area-bottom: 8px;
-}
-
 /* Mobile container - use grid for consistent structure while allowing sliding */
 .notebook-navigator-mobile .nn-split-container {
     display: grid;
@@ -2482,6 +2472,29 @@ body.nn-resizing {
 .nn-mobile-toolbar-button:disabled {
     opacity: 0.4;
     cursor: not-allowed;
+}
+
+/* ========================================================================
+   Android Toolbar Positioning
+   Android displays toolbar at top, iOS at bottom
+   ======================================================================== */
+
+/* Android: toolbar at top with reduced height */
+.notebook-navigator-android .nn-mobile-toolbar {
+    background-color: var(--nn-theme-mobile-list-header-bg);
+    border-top: none;
+    border-bottom: 1px solid var(--nn-theme-mobile-toolbar-border-color);
+    padding-bottom: 0;
+    height: 44px;
+    min-height: 44px;
+}
+
+/* Android: smaller toolbar buttons */
+.notebook-navigator-android .nn-mobile-toolbar-button {
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
+    min-height: 40px;
 }
 
 .nn-tab-bar-button:disabled:active {
