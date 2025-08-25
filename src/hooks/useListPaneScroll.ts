@@ -298,20 +298,15 @@ export function useListPaneScroll({
         }
     }, [isMobile]);
 
-    // Get scroll index for a file, adjusting to show top group header when navigating folders
-    // This ensures the top group header (pinned or date) is visible when changing folders/tags
+    // Get scroll index for a file, showing group header if file is first in its group
     const getSelectionIndex = useCallback(
         (filePath: string) => {
             const fileIndex = filePathToIndex.get(filePath);
 
             if (fileIndex !== undefined && fileIndex !== -1) {
-                // Check if there's a header immediately before this file
-                // Only scroll to header if this is the first file in the list
+                // Show header for any file that's first in its group
                 if (fileIndex > 0 && listItems[fileIndex - 1]?.type === ListPaneItemType.HEADER) {
-                    const isFirstFileInList = fileIndex === 1 || (fileIndex === 2 && listItems[0]?.type === ListPaneItemType.HEADER);
-                    if (isFirstFileInList) {
-                        return fileIndex - 1;
-                    }
+                    return fileIndex - 1;
                 }
                 return fileIndex;
             }
