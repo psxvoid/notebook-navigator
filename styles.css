@@ -2497,10 +2497,6 @@ body.nn-resizing {
     min-height: 40px;
 }
 
-.nn-tab-bar-button:disabled:active {
-    background-color: transparent;
-}
-
 /* Make panes flex containers on mobile to accommodate tab bars */
 .notebook-navigator-mobile .nn-navigation-pane,
 .notebook-navigator-mobile .nn-list-pane {

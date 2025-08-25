@@ -29,7 +29,7 @@ import { ObsidianIcon } from './ObsidianIcon';
 import { showListPaneAppearanceMenu } from './ListPaneAppearanceMenu';
 import { useListPaneAppearance } from '../hooks/useListPaneAppearance';
 
-export function ListTabBar() {
+export function ListToolbar() {
     const { app } = useServices();
     const settings = useSettingsState();
     const updateSettings = useSettingsUpdate();

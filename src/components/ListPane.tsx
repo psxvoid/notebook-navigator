@@ -61,7 +61,7 @@ import { ListPaneItemType } from '../types';
 import { getEffectiveSortOption } from '../utils/sortUtils';
 import { FileItem } from './FileItem';
 import { ListPaneHeader } from './ListPaneHeader';
-import { ListTabBar } from './ListTabBar';
+import { ListToolbar } from './ListToolbar';
 
 /**
  * Renders the list pane displaying files from the selected folder.
@@ -333,7 +333,7 @@ export const ListPane = React.memo(
                 {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
                 <ListPaneHeader onHeaderClick={handleScrollToTop} />
                 {/* Android - toolbar at top */}
-                {isMobile && isAndroid && <ListTabBar />}
+                {isMobile && isAndroid && <ListToolbar />}
 
                 {/* Conditional content rendering */}
                 {isEmptySelection ? (
@@ -475,7 +475,7 @@ export const ListPane = React.memo(
                 )}
 
                 {/* iOS - toolbar at bottom */}
-                {isMobile && !isAndroid && <ListTabBar />}
+                {isMobile && !isAndroid && <ListToolbar />}
             </div>
         );
     })

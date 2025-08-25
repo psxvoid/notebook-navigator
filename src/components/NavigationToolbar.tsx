@@ -27,7 +27,7 @@ import { strings } from '../i18n';
 import { collectAllTagPaths } from '../utils/tagTree';
 import { ObsidianIcon } from './ObsidianIcon';
 
-export function NavigationTabBar() {
+export function NavigationToolbar() {
     const { app } = useServices();
     const settings = useSettingsState();
     const updateSettings = useSettingsUpdate();

@@ -75,7 +75,7 @@ import { findTagNode } from '../utils/tagTree';
 import { parseExcludedFolders } from '../utils/fileFilters';
 import { FolderItem } from './FolderItem';
 import { NavigationPaneHeader } from './NavigationPaneHeader';
-import { NavigationTabBar } from './NavigationTabBar';
+import { NavigationToolbar } from './NavigationToolbar';
 import { TagTreeItem } from './TagTreeItem';
 import { VirtualFolderComponent } from './VirtualFolderItem';
 
@@ -558,7 +558,7 @@ export const NavigationPane = React.memo(
             <div className="nn-navigation-pane" style={props.style}>
                 <NavigationPaneHeader />
                 {/* Android - toolbar at top */}
-                {isMobile && isAndroid && <NavigationTabBar />}
+                {isMobile && isAndroid && <NavigationToolbar />}
                 <div ref={scrollContainerRef} className="nn-navigation-pane-scroller" data-pane="navigation" role="tree" tabIndex={-1}>
                     {items.length > 0 && (
                         <div
@@ -589,7 +589,7 @@ export const NavigationPane = React.memo(
                     )}
                 </div>
                 {/* iOS - toolbar at bottom */}
-                {isMobile && !isAndroid && <NavigationTabBar />}
+                {isMobile && !isAndroid && <NavigationToolbar />}
             </div>
         );
     })

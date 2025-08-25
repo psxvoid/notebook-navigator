@@ -71,7 +71,7 @@ graph TD
         subgraph "Panes"
             subgraph "List Pane (Right)"
                 LPH[ListPaneHeader<br/>• Desktop: Toolbar buttons<br/>• Mobile: Back arrow<br/>• Both: Clickable path]
-                LTB[ListTabBar<br/>• Toolbar buttons<br/>• Mobile only]
+                LTB[ListToolbar<br/>• Toolbar buttons<br/>• Mobile only]
                 LP[ListPane<br/>• Virtual scrolling<br/>• File sorting<br/>• Multi-selection<br/>• Resize handle for dual-pane]
 
                 subgraph "List Items"
@@ -82,7 +82,7 @@ graph TD
 
             subgraph "Navigation Pane (Left)"
                 NPH[NavigationPaneHeader<br/>• Toolbar buttons<br/>• Desktop only]
-                NTB[NavigationTabBar<br/>• Toolbar buttons<br/>• Mobile only]
+                NTB[NavigationToolbar<br/>• Toolbar buttons<br/>• Mobile only]
                 NP[NavigationPane<br/>• Virtual scrolling<br/>• Tree building<br/>• Item rendering]
 
                 subgraph "Navigation Items"
@@ -206,9 +206,9 @@ The main container managing the two-pane layout:
 - Toggle auto-expand behavior
 - Create new folder button
 
-### NavigationTabBar
+### NavigationToolbar
 
-**Location**: `src/components/NavigationTabBar.tsx`
+**Location**: `src/components/NavigationToolbar.tsx`
 
 **Mobile only** - The bottom tab bar for the navigation pane:
 
@@ -264,9 +264,9 @@ The header for the list pane (visible on both desktop and mobile):
 - **Mobile**: Back arrow for navigation
 - **Both**: Clickable breadcrumb path showing current folder/tag
 
-### ListTabBar
+### ListToolbar
 
-**Location**: `src/components/ListTabBar.tsx`
+**Location**: `src/components/ListToolbar.tsx`
 
 **Mobile only** - The bottom tab bar for the list pane:
 
