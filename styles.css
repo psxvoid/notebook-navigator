@@ -2517,6 +2517,11 @@ body.nn-resizing {
     padding: var(--nn-file-padding-vertical-slim-mobile) var(--nn-file-item-padding-horizontal);
 }
 
+/* Mobile slim mode file names - larger font for better readability */
+.notebook-navigator-mobile .nn-file.nn-slim .nn-file-name {
+    font-size: 15px;
+}
+
 /* ========================================================================
    RTL (Right-to-Left) Support
    ======================================================================== */
