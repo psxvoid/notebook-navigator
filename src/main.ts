@@ -403,7 +403,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                     menu.addSeparator();
                     menu.addItem(item => {
                         item.setTitle(strings.plugin.revealInNavigator)
-                            .setIcon('folder-open')
+                            .setIcon('lucide-folder-open')
                             .onClick(async () => {
                                 // Ensure navigator is open and visible
                                 await this.activateView();
@@ -417,7 +417,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         );
 
         // Ribbon Icon For Opening
-        this.ribbonIconEl = this.addRibbonIcon('notebook', strings.plugin.ribbonTooltip, async () => {
+        this.ribbonIconEl = this.addRibbonIcon('lucide-notebook', strings.plugin.ribbonTooltip, async () => {
             await this.activateView();
         });
 

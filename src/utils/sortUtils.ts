@@ -94,7 +94,7 @@ export function sortFiles(
  * @returns Icon name for ObsidianIcon component
  */
 export function getSortIcon(sortOption: SortOption): string {
-    return sortOption.endsWith('-desc') ? 'sort-desc' : 'sort-asc';
+    return sortOption.endsWith('-desc') ? 'lucide-sort-desc' : 'lucide-sort-asc';
 }
 
 /**

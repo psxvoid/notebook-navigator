@@ -145,7 +145,7 @@ export function NavigationTabBar() {
                 onClick={handleExpandCollapseAll}
                 tabIndex={-1}
             >
-                <ObsidianIcon name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'} />
+                <ObsidianIcon name={shouldCollapseItems() ? 'lucide-chevrons-down-up' : 'lucide-chevrons-up-down'} />
             </button>
             <button
                 className={`nn-mobile-toolbar-button ${settings.autoExpandFoldersTags ? 'nn-mobile-toolbar-button-active' : ''}`}
@@ -153,7 +153,7 @@ export function NavigationTabBar() {
                 onClick={handleToggleAutoExpand}
                 tabIndex={-1}
             >
-                <ObsidianIcon name="folder-tree" />
+                <ObsidianIcon name="lucide-folder-tree" />
             </button>
             <button
                 className="nn-mobile-toolbar-button"
@@ -162,7 +162,7 @@ export function NavigationTabBar() {
                 disabled={!selectionState.selectedFolder}
                 tabIndex={-1}
             >
-                <ObsidianIcon name="folder-plus" />
+                <ObsidianIcon name="lucide-folder-plus" />
             </button>
         </div>
     );

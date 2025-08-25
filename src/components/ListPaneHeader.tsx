@@ -330,10 +330,10 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
                 const excludedFolders = parseExcludedFolders(settings.excludedFolders);
                 const hasChildren = hasVisibleSubfolders(selectionState.selectedFolder, excludedFolders);
                 const isExpanded = expansionState.expandedFolders.has(selectionState.selectedFolder.path);
-                folderIcon = hasChildren && isExpanded ? 'folder-open' : 'folder-closed';
+                folderIcon = hasChildren && isExpanded ? 'lucide-folder-open' : 'lucide-folder-closed';
             }
         } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-            folderIcon = metadataService.getTagIcon(selectionState.selectedTag) || 'tags';
+            folderIcon = metadataService.getTagIcon(selectionState.selectedTag) || 'lucide-tags';
         }
     }
 
@@ -396,7 +396,7 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
                         }}
                         tabIndex={-1}
                     >
-                        <ObsidianIcon name={Platform.isAndroidApp ? 'arrow-left' : 'chevron-left'} />
+                        <ObsidianIcon name={Platform.isAndroidApp ? 'lucide-arrow-left' : 'lucide-chevron-left'} />
                     </button>
                     {showFade && <div className="nn-breadcrumb-fade" />}
                     <div ref={scrollContainerRef} className="nn-breadcrumb-scroll" onScroll={handleScroll}>
@@ -421,7 +421,7 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
                         aria-label={strings.paneHeader.showFolders}
                         tabIndex={-1}
                     >
-                        <ObsidianIcon name="chevron-left" />
+                        <ObsidianIcon name="lucide-chevron-left" />
                     </button>
                 )}
                 <span className="nn-pane-header-title">
@@ -436,7 +436,7 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
                         disabled={selectionState.selectionType !== ItemType.FOLDER || !selectionState.selectedFolder}
                         tabIndex={-1}
                     >
-                        <ObsidianIcon name="layers" />
+                        <ObsidianIcon name="lucide-layers" />
                     </button>
                     <button
                         className={`nn-icon-button ${isCustomSort ? 'nn-icon-button-active' : ''}`}
@@ -454,7 +454,7 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
                         disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
                         tabIndex={-1}
                     >
-                        <ObsidianIcon name="palette" />
+                        <ObsidianIcon name="lucide-palette" />
                     </button>
                     <button
                         className="nn-icon-button"
@@ -463,7 +463,7 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
                         disabled={!selectionState.selectedFolder}
                         tabIndex={-1}
                     >
-                        <ObsidianIcon name="pen-box" />
+                        <ObsidianIcon name="lucide-pen-box" />
                     </button>
                 </div>
             </div>

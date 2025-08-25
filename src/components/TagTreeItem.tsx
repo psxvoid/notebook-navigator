@@ -155,14 +155,14 @@ export const TagTreeItem = React.memo(
         // Update chevron icon based on expanded state
         React.useEffect(() => {
             if (chevronRef.current && hasChildren) {
-                setIcon(chevronRef.current, isExpanded ? 'chevron-down' : 'chevron-right');
+                setIcon(chevronRef.current, isExpanded ? 'lucide-chevron-down' : 'lucide-chevron-right');
             }
         }, [isExpanded, hasChildren]);
 
         // Update tag icon
         React.useEffect(() => {
             if (iconRef.current && settings.showIcons) {
-                getIconService().renderIcon(iconRef.current, tagIcon || 'tags');
+                getIconService().renderIcon(iconRef.current, tagIcon || 'lucide-tags');
             }
         }, [tagIcon, settings.showIcons]);
 

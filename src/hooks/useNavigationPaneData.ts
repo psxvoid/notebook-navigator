@@ -177,7 +177,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
 
             if (settings.showFavoriteTagsFolder) {
                 // Show "Favorites" folder
-                addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'star');
+                addVirtualFolder('favorite-tags-root', strings.tagList.favoriteTags, 'lucide-star');
                 addTagItems(visibleFavoriteTree, 'favorite-tags-root');
             } else {
                 // Show favorite tags directly without folder
@@ -197,7 +197,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
 
             if (settings.showAllTagsFolder) {
                 // Show "Tags" folder
-                addVirtualFolder('all-tags-root', strings.tagList.allTags, 'tags');
+                addVirtualFolder('all-tags-root', strings.tagList.allTags, 'lucide-tags');
                 addTagItems(visibleTagTree, 'all-tags-root');
             } else {
                 // Show non-favorite tags directly without folder
@@ -218,7 +218,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
             // No favorites configured
             if (settings.showAllTagsFolder) {
                 // Show "Tags" folder
-                addVirtualFolder('tags-root', strings.tagList.tags, 'tags');
+                addVirtualFolder('tags-root', strings.tagList.tags, 'lucide-tags');
                 addTagItems(visibleTagTree, 'tags-root');
             } else {
                 // Show all tags directly without folder

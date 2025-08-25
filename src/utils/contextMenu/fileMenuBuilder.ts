@@ -99,7 +99,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         if (syncPlugin && 'enabled' in syncPlugin && syncPlugin.enabled) {
             menu.addItem((item: MenuItem) => {
                 item.setTitle(strings.contextMenu.file.openVersionHistory)
-                    .setIcon('history')
+                    .setIcon('lucide-history')
                     .onClick(async () => {
                         await fileSystemOps.openVersionHistory(file);
                     });
@@ -120,7 +120,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     // Add tag - always shown
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.file.addTag)
-            .setIcon('plus')
+            .setIcon('lucide-plus')
             .onClick(async () => {
                 const modal = new TagSuggestModal(
                     app,
@@ -145,7 +145,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     if (hasTags) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.file.removeTag)
-                .setIcon('minus')
+                .setIcon('lucide-minus')
                 .onClick(async () => {
                     // Get tags from selected files
                     const existingTags = services.tagOperations.getTagsFromFiles(filesForTagOps);
@@ -183,7 +183,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         if (hasMultipleTags) {
             menu.addItem((item: MenuItem) => {
                 item.setTitle(strings.contextMenu.file.removeAllTags)
-                    .setIcon('x')
+                    .setIcon('lucide-x')
                     .onClick(async () => {
                         // Check if files have tags first
                         const existingTags = services.tagOperations.getTagsFromFiles(filesForTagOps);
@@ -227,7 +227,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
         if (!isFileInSelectedFolder) {
             menu.addItem((item: MenuItem) => {
                 item.setTitle(strings.contextMenu.file.revealInFolder)
-                    .setIcon('folder')
+                    .setIcon('lucide-folder')
                     .onClick(async () => {
                         await services.plugin.activateView();
                         await services.plugin.revealFileInActualFolder(file);
@@ -240,7 +240,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     if (!isMobile && !shouldShowMultiOptions) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(fileSystemOps.getRevealInSystemExplorerText())
-                .setIcon('folder-open')
+                .setIcon('lucide-folder-open')
                 .onClick(async () => {
                     await fileSystemOps.revealInSystemExplorer(file);
                 });
@@ -251,7 +251,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     if (!shouldShowMultiOptions) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.file.copyDeepLink)
-                .setIcon('link')
+                .setIcon('lucide-link')
                 .onClick(async () => {
                     const vaultName = app.vault.getName();
                     const encodedVault = encodeURIComponent(vaultName);
@@ -270,7 +270,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     if (!shouldShowMultiOptions) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(isMarkdown ? strings.contextMenu.file.renameNote : strings.contextMenu.file.renameFile)
-                .setIcon('pencil')
+                .setIcon('lucide-pencil')
                 .onClick(async () => {
                     await fileSystemOps.renameFile(file);
                 });
@@ -281,7 +281,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     if (!shouldShowMultiOptions) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.file.moveToFolder)
-                .setIcon('folder-input')
+                .setIcon('lucide-folder-input')
                 .onClick(async () => {
                     await fileSystemOps.moveFilesWithModal([file], {
                         selectedFile: selectionState.selectedFile,
@@ -293,7 +293,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     } else {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.file.moveMultipleToFolder.replace('{count}', selectedCount.toString()))
-                .setIcon('folder-input')
+                .setIcon('lucide-folder-input')
                 .onClick(async () => {
                     await fileSystemOps.moveFilesWithModal(cachedSelectedFiles, {
                         selectedFile: selectionState.selectedFile,
@@ -328,7 +328,7 @@ function addSingleFileOpenOptions(menu: Menu, file: TFile, app: App, isMobile: b
     // Open in new tab
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.file.openInNewTab)
-            .setIcon('file-plus')
+            .setIcon('lucide-file-plus')
             .onClick(() => {
                 if (commandQueue) {
                     commandQueue.executeOpenInNewContext(file, 'tab', async () => {
@@ -343,7 +343,7 @@ function addSingleFileOpenOptions(menu: Menu, file: TFile, app: App, isMobile: b
     // Open to the right
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.file.openToRight)
-            .setIcon('vertical-three-dots')
+            .setIcon('lucide-vertical-three-dots')
             .onClick(() => {
                 if (commandQueue) {
                     commandQueue.executeOpenInNewContext(file, 'split', async () => {
@@ -359,7 +359,7 @@ function addSingleFileOpenOptions(menu: Menu, file: TFile, app: App, isMobile: b
     if (!isMobile) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.file.openInNewWindow)
-                .setIcon('monitor')
+                .setIcon('lucide-monitor')
                 .onClick(() => {
                     app.workspace.getLeaf('window').openFile(file);
                 });
@@ -393,7 +393,7 @@ function addMultipleFilesOpenOptions(
                 ? strings.contextMenu.file.openMultipleInNewTabs.replace('{count}', selectedCount.toString())
                 : strings.contextMenu.file.openMultipleFilesInNewTabs.replace('{count}', selectedCount.toString())
         )
-            .setIcon('file-plus')
+            .setIcon('lucide-file-plus')
             .onClick(async () => {
                 const selectedFiles = Array.from(selectionState.selectedFiles)
                     .map(path => app.vault.getAbstractFileByPath(path))
@@ -418,7 +418,7 @@ function addMultipleFilesOpenOptions(
                 ? strings.contextMenu.file.openMultipleToRight.replace('{count}', selectedCount.toString())
                 : strings.contextMenu.file.openMultipleFilesToRight.replace('{count}', selectedCount.toString())
         )
-            .setIcon('vertical-three-dots')
+            .setIcon('lucide-vertical-three-dots')
             .onClick(async () => {
                 const selectedFiles = Array.from(selectionState.selectedFiles)
                     .map(path => app.vault.getAbstractFileByPath(path))
@@ -444,7 +444,7 @@ function addMultipleFilesOpenOptions(
                     ? strings.contextMenu.file.openMultipleInNewWindows.replace('{count}', selectedCount.toString())
                     : strings.contextMenu.file.openMultipleFilesInNewWindows.replace('{count}', selectedCount.toString())
             )
-                .setIcon('monitor')
+                .setIcon('lucide-monitor')
                 .onClick(async () => {
                     const selectedFiles = Array.from(selectionState.selectedFiles)
                         .map(path => app.vault.getAbstractFileByPath(path))
@@ -474,7 +474,7 @@ function addSingleFilePinOption(menu: Menu, file: TFile, metadataService: Metada
                   ? strings.contextMenu.file.pinNote
                   : strings.contextMenu.file.pinFile
         )
-            .setIcon('pin')
+            .setIcon('lucide-pin')
             .onClick(async () => {
                 if (!file.parent) return;
 
@@ -516,7 +516,7 @@ function addMultipleFilesPinOption(
                   ? strings.contextMenu.file.unpinMultipleNotes.replace('{count}', selectedCount.toString())
                   : strings.contextMenu.file.unpinMultipleFiles.replace('{count}', selectedCount.toString())
         )
-            .setIcon('pin')
+            .setIcon('lucide-pin')
             .onClick(async () => {
                 for (const selectedFile of selectedFiles) {
                     if (anyUnpinned) {
@@ -539,7 +539,7 @@ function addMultipleFilesPinOption(
 function addSingleFileDuplicateOption(menu: Menu, file: TFile, fileSystemOps: FileSystemOperations): void {
     menu.addItem((item: MenuItem) => {
         item.setTitle(file.extension === 'md' ? strings.contextMenu.file.duplicateNote : strings.contextMenu.file.duplicateFile)
-            .setIcon('documents')
+            .setIcon('lucide-documents')
             .onClick(async () => {
                 await fileSystemOps.duplicateNote(file);
             });
@@ -568,7 +568,7 @@ function addMultipleFilesDuplicateOption(
                 ? strings.contextMenu.file.duplicateMultipleNotes.replace('{count}', selectedCount.toString())
                 : strings.contextMenu.file.duplicateMultipleFiles.replace('{count}', selectedCount.toString())
         )
-            .setIcon('documents')
+            .setIcon('lucide-documents')
             .onClick(async () => {
                 // Duplicate all selected files
                 const selectedFiles = Array.from(selectionState.selectedFiles)
@@ -595,7 +595,7 @@ function addSingleFileDeleteOption(
 ): void {
     menu.addItem((item: MenuItem) => {
         item.setTitle(file.extension === 'md' ? strings.contextMenu.file.deleteNote : strings.contextMenu.file.deleteFile)
-            .setIcon('trash')
+            .setIcon('lucide-trash')
             .onClick(async () => {
                 // Check if this is the currently selected file
                 if (selectionState.selectedFile?.path === file.path) {
@@ -642,7 +642,7 @@ function addMultipleFilesDeleteOption(
                 ? strings.contextMenu.file.deleteMultipleNotes.replace('{count}', selectedCount.toString())
                 : strings.contextMenu.file.deleteMultipleFiles.replace('{count}', selectedCount.toString())
         )
-            .setIcon('trash')
+            .setIcon('lucide-trash')
             .onClick(async () => {
                 // Use centralized delete method with smart selection
                 await fileSystemOps.deleteFilesWithSmartSelection(

@@ -126,7 +126,7 @@ export function showListPaneAppearanceMenu({
 
     // Title rows header
     menu.addItem(item => {
-        item.setTitle(strings.folderAppearance.titleRows).setIcon('text').setDisabled(true);
+        item.setTitle(strings.folderAppearance.titleRows).setIcon('lucide-text').setDisabled(true);
     });
 
     // Default title rows option
@@ -157,7 +157,7 @@ export function showListPaneAppearanceMenu({
 
     // Preview rows header
     menu.addItem(item => {
-        item.setTitle(strings.folderAppearance.previewRows).setIcon('file-text').setDisabled(true);
+        item.setTitle(strings.folderAppearance.previewRows).setIcon('lucide-file-text').setDisabled(true);
     });
 
     // Default preview rows option

@@ -36,7 +36,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     // New note
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.folder.newNote)
-            .setIcon('pen-box')
+            .setIcon('lucide-pen-box')
             .onClick(async () => {
                 await fileSystemOps.createNewFile(folder);
             });
@@ -45,7 +45,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     // New folder
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.folder.newFolder)
-            .setIcon('folder-plus')
+            .setIcon('lucide-folder-plus')
             .onClick(async () => {
                 await fileSystemOps.createNewFolder(folder, () => {
                     // Expand the parent folder to show the newly created folder
@@ -59,7 +59,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     // New canvas
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.folder.newCanvas)
-            .setIcon('layout-grid')
+            .setIcon('lucide-layout-grid')
             .onClick(async () => {
                 await fileSystemOps.createCanvas(folder);
             });
@@ -70,7 +70,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     if (basesPlugin?.enabled) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.folder.newBase)
-                .setIcon('database')
+                .setIcon('lucide-database')
                 .onClick(async () => {
                     await fileSystemOps.createBase(folder);
                 });
@@ -82,7 +82,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     if (isExcalidrawInstalled) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.folder.newDrawing)
-                .setIcon('pencil')
+                .setIcon('lucide-pencil')
                 .onClick(async () => {
                     await fileSystemOps.createNewDrawing(folder);
                 });
@@ -94,7 +94,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     // Duplicate folder
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.folder.duplicateFolder)
-            .setIcon('documents')
+            .setIcon('lucide-documents')
             .onClick(async () => {
                 await fileSystemOps.duplicateFolder(folder);
             });
@@ -103,7 +103,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     // Search in folder
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.folder.searchInFolder)
-            .setIcon('search')
+            .setIcon('lucide-search')
             .onClick(() => {
                 interface SearchPlugin {
                     enabled: boolean;
@@ -122,7 +122,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     if (!services.isMobile) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(fileSystemOps.getRevealInSystemExplorerText())
-                .setIcon('folder-open')
+                .setIcon('lucide-folder-open')
                 .onClick(async () => {
                     await fileSystemOps.revealInSystemExplorer(folder);
                 });
@@ -139,7 +139,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
             // Delete folder note option
             menu.addItem((item: MenuItem) => {
                 item.setTitle(strings.contextMenu.folder.deleteFolderNote)
-                    .setIcon('trash')
+                    .setIcon('lucide-trash')
                     .onClick(async () => {
                         await fileSystemOps.deleteFile(folderNote, settings.confirmBeforeDelete);
                     });
@@ -148,7 +148,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
             // Create folder note option
             menu.addItem((item: MenuItem) => {
                 item.setTitle(strings.contextMenu.folder.createFolderNote)
-                    .setIcon('pen-box')
+                    .setIcon('lucide-pen-box')
                     .onClick(async () => {
                         // Use folderNoteName if set, otherwise use folder name
                         const noteName = (settings.folderNoteName || folder.name) + '.md';
@@ -190,7 +190,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         // Change icon
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.folder.changeIcon)
-                .setIcon('image')
+                .setIcon('lucide-image')
                 .onClick(async () => {
                     const { IconPickerModal } = await import('../../modals/IconPickerModal');
                     const modal = new IconPickerModal(app, metadataService, folder.path);
@@ -203,7 +203,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
         if (currentIcon) {
             menu.addItem((item: MenuItem) => {
                 item.setTitle(strings.contextMenu.folder.removeIcon)
-                    .setIcon('x')
+                    .setIcon('lucide-x')
                     .onClick(async () => {
                         await metadataService.removeFolderIcon(folder.path);
                     });
@@ -214,7 +214,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     // Change color
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.folder.changeColor)
-            .setIcon('palette')
+            .setIcon('lucide-palette')
             .onClick(async () => {
                 const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
                 const modal = new ColorPickerModal(app, metadataService, folder.path);
@@ -227,7 +227,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     if (currentColor) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.folder.removeColor)
-                .setIcon('x')
+                .setIcon('lucide-x')
                 .onClick(async () => {
                     await metadataService.removeFolderColor(folder.path);
                 });
@@ -240,7 +240,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     if (folder.path !== '/') {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.folder.excludeFolder)
-                .setIcon('eye-off')
+                .setIcon('lucide-eye-off')
                 .onClick(async () => {
                     const currentExcluded = services.plugin.settings.excludedFolders;
                     // Ensure path starts with / for path-based exclusion
@@ -262,7 +262,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     // Rename folder
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.folder.renameFolder)
-            .setIcon('pencil')
+            .setIcon('lucide-pencil')
             .onClick(async () => {
                 // Handle root folder rename differently
                 if (folder.path === '/') {
@@ -289,7 +289,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     if (folder.path !== '/') {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.folder.deleteFolder)
-                .setIcon('trash')
+                .setIcon('lucide-trash')
                 .onClick(async () => {
                     const parentFolder = folder.parent;
 

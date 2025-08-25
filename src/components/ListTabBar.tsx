@@ -185,7 +185,7 @@ export function ListTabBar() {
                 disabled={selectionState.selectionType !== ItemType.FOLDER || !selectionState.selectedFolder}
                 tabIndex={-1}
             >
-                <ObsidianIcon name="layers" />
+                <ObsidianIcon name="lucide-layers" />
             </button>
             <button
                 className={`nn-mobile-toolbar-button ${isCustomSort ? 'nn-mobile-toolbar-button-active' : ''}`}
@@ -203,7 +203,7 @@ export function ListTabBar() {
                 disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
                 tabIndex={-1}
             >
-                <ObsidianIcon name="palette" />
+                <ObsidianIcon name="lucide-palette" />
             </button>
             <button
                 className="nn-mobile-toolbar-button"
@@ -212,7 +212,7 @@ export function ListTabBar() {
                 disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
                 tabIndex={-1}
             >
-                <ObsidianIcon name="pen-box" />
+                <ObsidianIcon name="lucide-pen-box" />
             </button>
         </div>
     );

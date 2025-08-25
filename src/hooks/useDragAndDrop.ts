@@ -178,10 +178,10 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     }
 
                     if (!imageLoaded) {
-                        setIcon(dragIcon, 'file');
+                        setIcon(dragIcon, 'lucide-file');
                     }
                 } else if (type === ItemType.FOLDER) {
-                    setIcon(dragIcon, 'folder-closed');
+                    setIcon(dragIcon, 'lucide-folder-closed');
                 }
 
                 dragGhost.appendChild(dragIcon);

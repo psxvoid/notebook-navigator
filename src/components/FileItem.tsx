@@ -449,13 +449,13 @@ export const FileItem = React.memo(function FileItem({
     useEffect(() => {
         if (isHovered && !isMobile) {
             if (revealInFolderIconRef.current && shouldShowRevealIcon) {
-                setIcon(revealInFolderIconRef.current, 'folder');
+                setIcon(revealInFolderIconRef.current, 'lucide-folder');
             }
             if (pinNoteIconRef.current && shouldShowPinNote) {
-                setIcon(pinNoteIconRef.current, isPinned ? 'pin-off' : 'pin');
+                setIcon(pinNoteIconRef.current, isPinned ? 'lucide-pin-off' : 'lucide-pin');
             }
             if (openInNewTabIconRef.current && shouldShowOpenInNewTab) {
-                setIcon(openInNewTabIconRef.current, 'file-plus');
+                setIcon(openInNewTabIconRef.current, 'lucide-file-plus');
             }
         }
     }, [isHovered, isMobile, shouldShowOpenInNewTab, shouldShowPinNote, shouldShowRevealIcon, isPinned]);
@@ -569,7 +569,7 @@ export const FileItem = React.memo(function FileItem({
                                             file.parent &&
                                             file.parent.path !== parentFolder && (
                                                 <div className="nn-file-folder">
-                                                    <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
+                                                    <ObsidianIcon name="lucide-folder-closed" className="nn-file-folder-icon" />
                                                     <span>{file.parent.name}</span>
                                                 </div>
                                             )}
@@ -593,7 +593,7 @@ export const FileItem = React.memo(function FileItem({
                                                         file.parent &&
                                                         file.parent.path !== parentFolder && (
                                                             <div className="nn-file-folder">
-                                                                <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
+                                                                <ObsidianIcon name="lucide-folder-closed" className="nn-file-folder-icon" />
                                                                 <span>{file.parent.name}</span>
                                                             </div>
                                                         )}
@@ -626,7 +626,7 @@ export const FileItem = React.memo(function FileItem({
                                                         file.parent &&
                                                         file.parent.path !== parentFolder && (
                                                             <div className="nn-file-folder">
-                                                                <ObsidianIcon name="folder-closed" className="nn-file-folder-icon" />
+                                                                <ObsidianIcon name="lucide-folder-closed" className="nn-file-folder-icon" />
                                                                 <span>{file.parent.name}</span>
                                                             </div>
                                                         )}

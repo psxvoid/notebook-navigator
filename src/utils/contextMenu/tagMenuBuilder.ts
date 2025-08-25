@@ -35,7 +35,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
             // In favorites section - always show "Remove from favorites"
             menu.addItem((item: MenuItem) => {
                 item.setTitle(strings.contextMenu.tag.removeFromFavorites)
-                    .setIcon('star-off')
+                    .setIcon('lucide-star-off')
                     .onClick(async () => {
                         // Find all patterns that match this tag
                         const matchingPatterns = findMatchingPrefixes(tagPath, settings.favoriteTags);
@@ -54,7 +54,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                 // Tag is not a favorite - show "Add to favorites"
                 menu.addItem((item: MenuItem) => {
                     item.setTitle(strings.contextMenu.tag.addToFavorites)
-                        .setIcon('star')
+                        .setIcon('lucide-star')
                         .onClick(async () => {
                             // Clean up redundant entries when adding new favorite
                             const cleanedFavorites = settings.favoriteTags.filter(existing => {
@@ -71,7 +71,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                 // Tag is already a favorite - show "Remove from favorites"
                 menu.addItem((item: MenuItem) => {
                     item.setTitle(strings.contextMenu.tag.removeFromFavorites)
-                        .setIcon('star-off')
+                        .setIcon('lucide-star-off')
                         .onClick(async () => {
                             // Find all patterns that match this tag
                             const matchingPatterns = findMatchingPrefixes(tagPath, settings.favoriteTags);
@@ -91,7 +91,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
     // Change icon
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.tag.changeIcon)
-            .setIcon('image')
+            .setIcon('lucide-image')
             .onClick(async () => {
                 const { IconPickerModal } = await import('../../modals/IconPickerModal');
                 const { ItemType } = await import('../../types');
@@ -105,7 +105,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
     if (currentIcon) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.tag.removeIcon)
-                .setIcon('x')
+                .setIcon('lucide-x')
                 .onClick(async () => {
                     await metadataService.removeTagIcon(tagPath);
                 });
@@ -115,7 +115,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
     // Change color
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.tag.changeColor)
-            .setIcon('palette')
+            .setIcon('lucide-palette')
             .onClick(async () => {
                 const { ColorPickerModal } = await import('../../modals/ColorPickerModal');
                 const modal = new ColorPickerModal(app, metadataService, tagPath, 'tag');
@@ -128,7 +128,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
     if (hasDirectColor) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.tag.removeColor)
-                .setIcon('x')
+                .setIcon('lucide-x')
                 .onClick(async () => {
                     await metadataService.removeTagColor(tagPath);
                 });

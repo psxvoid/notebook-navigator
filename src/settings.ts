@@ -869,7 +869,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             }
         ).addExtraButton(button =>
             button
-                .setIcon('help')
+                .setIcon('lucide-help')
                 .setTooltip(strings.settings.items.dateFormat.helpTooltip)
                 .onClick(() => {
                     new Notice(strings.settings.items.dateFormat.help, TIMEOUTS.NOTICE_HELP);
@@ -887,7 +887,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             }
         ).addExtraButton(button =>
             button
-                .setIcon('help')
+                .setIcon('lucide-help')
                 .setTooltip(strings.settings.items.timeFormat.helpTooltip)
                 .onClick(() => {
                     new Notice(strings.settings.items.timeFormat.help, TIMEOUTS.NOTICE_HELP);
@@ -955,7 +955,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             }
         ).addExtraButton(button =>
             button
-                .setIcon('help')
+                .setIcon('lucide-help')
                 .setTooltip(strings.settings.items.frontmatterDateFormat.helpTooltip)
                 .onClick(() => {
                     new Notice(strings.settings.items.frontmatterDateFormat.help, TIMEOUTS.NOTICE_HELP);

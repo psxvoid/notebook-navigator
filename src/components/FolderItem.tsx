@@ -238,7 +238,7 @@ export const FolderItem = React.memo(function FolderItem({
 
     useEffect(() => {
         if (chevronRef.current) {
-            setIcon(chevronRef.current, isExpanded ? 'chevron-down' : 'chevron-right');
+            setIcon(chevronRef.current, isExpanded ? 'lucide-chevron-down' : 'lucide-chevron-right');
         }
     }, [isExpanded]);
 
@@ -252,7 +252,7 @@ export const FolderItem = React.memo(function FolderItem({
                 iconService.renderIcon(iconRef.current, icon);
             } else {
                 // Default icon - show open folder only if has children AND is expanded
-                const iconName = hasChildren && isExpanded ? 'folder-open' : 'folder-closed';
+                const iconName = hasChildren && isExpanded ? 'lucide-folder-open' : 'lucide-folder-closed';
                 iconService.renderIcon(iconRef.current, iconName);
             }
         }

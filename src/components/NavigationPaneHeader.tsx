@@ -156,7 +156,7 @@ export function NavigationPaneHeader() {
                     }}
                     tabIndex={-1}
                 >
-                    <ObsidianIcon name={settings.dualPane ? 'panel-left-close' : 'panel-right-open'} />
+                    <ObsidianIcon name={settings.dualPane ? 'lucide-panel-left-close' : 'lucide-panel-right-open'} />
                 </button>
                 <div className="nn-header-actions">
                     <button
@@ -165,7 +165,7 @@ export function NavigationPaneHeader() {
                         onClick={handleExpandCollapseAll}
                         tabIndex={-1}
                     >
-                        <ObsidianIcon name={shouldCollapseItems() ? 'chevrons-down-up' : 'chevrons-up-down'} />
+                        <ObsidianIcon name={shouldCollapseItems() ? 'lucide-chevrons-down-up' : 'lucide-chevrons-up-down'} />
                     </button>
                     <button
                         className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}
@@ -173,7 +173,7 @@ export function NavigationPaneHeader() {
                         onClick={handleToggleAutoExpand}
                         tabIndex={-1}
                     >
-                        <ObsidianIcon name="folder-tree" />
+                        <ObsidianIcon name="lucide-folder-tree" />
                     </button>
                     <button
                         className="nn-icon-button"
@@ -182,7 +182,7 @@ export function NavigationPaneHeader() {
                         disabled={!selectionState.selectedFolder}
                         tabIndex={-1}
                     >
-                        <ObsidianIcon name="folder-plus" />
+                        <ObsidianIcon name="lucide-folder-plus" />
                     </button>
                 </div>
             </div>

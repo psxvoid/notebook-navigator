@@ -105,7 +105,7 @@ export const VirtualFolderComponent = React.memo(function VirtualFolderComponent
 
     useEffect(() => {
         if (chevronRef.current) {
-            setIcon(chevronRef.current, isExpanded ? 'chevron-down' : 'chevron-right');
+            setIcon(chevronRef.current, isExpanded ? 'lucide-chevron-down' : 'lucide-chevron-right');
         }
     }, [isExpanded]);
 
