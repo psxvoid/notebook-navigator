@@ -18,7 +18,7 @@
 
 import { useCallback } from 'react';
 import { Menu } from 'obsidian';
-import { useSelectionState } from '../context/SelectionContext';
+import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useFileSystemOps, useMetadataService } from '../context/ServicesContext';
 import { useSettingsState, useSettingsUpdate } from '../context/SettingsContext';
 import { strings } from '../i18n';
@@ -27,6 +27,7 @@ import { ItemType } from '../types';
 import { getEffectiveSortOption, getSortIcon as getSortIconName, SORT_OPTIONS } from '../utils/sortUtils';
 import { showListPaneAppearanceMenu } from '../components/ListPaneAppearanceMenu';
 import { useListPaneAppearance } from './useListPaneAppearance';
+import { getFilesForFolder } from '../utils/fileFinder';
 
 /**
  * Custom hook that provides shared actions for list pane toolbars.
@@ -39,6 +40,7 @@ export function useListActions() {
     const settings = useSettingsState();
     const updateSettings = useSettingsUpdate();
     const selectionState = useSelectionState();
+    const selectionDispatch = useSelectionDispatch();
     const fileSystemOps = useFileSystemOps();
     const metadataService = useMetadataService();
     const appearanceSettings = useListPaneAppearance();
@@ -156,11 +158,30 @@ export function useListActions() {
         ]
     );
 
+    /**
+     * Toggles the display of notes from subfolders.
+     * When enabling subfolders, automatically selects the active file if it's within the current folder hierarchy.
+     */
     const handleToggleSubfolders = useCallback(async () => {
+        const wasShowingSubfolders = settings.showNotesFromSubfolders;
+
         await updateSettings(s => {
             s.showNotesFromSubfolders = !s.showNotesFromSubfolders;
         });
-    }, [updateSettings]);
+
+        // Special case: When enabling subfolders, auto-select the active file if it's in the folder
+        if (!wasShowingSubfolders && selectionState.selectedFolder && !selectionState.selectedFile) {
+            const activeFile = app.workspace.getActiveFile();
+            if (activeFile) {
+                // Check if the active file would be visible with subfolders enabled
+                const filesInFolder = getFilesForFolder(selectionState.selectedFolder, { ...settings, showNotesFromSubfolders: true }, app);
+
+                if (filesInFolder.some(f => f.path === activeFile.path)) {
+                    selectionDispatch({ type: 'SET_SELECTED_FILE', file: activeFile });
+                }
+            }
+        }
+    }, [updateSettings, settings, selectionState.selectedFolder, selectionState.selectedFile, app, selectionDispatch]);
 
     const isCustomSort =
         (selectionState.selectionType === ItemType.FOLDER &&
