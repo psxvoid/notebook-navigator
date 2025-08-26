@@ -161,7 +161,14 @@ export const STRINGS_EN = {
             emojiInstructions: 'Type or paste any emoji to use it as an icon'
         },
         colorPicker: {
-            header: 'Choose folder color',
+            currentColor: 'Current',
+            newColor: 'New',
+            presetColors: 'Preset colors',
+            recentColors: 'Recent colors',
+            clearRecentColors: 'Clear recent colors',
+            apply: 'Apply',
+            hexLabel: 'HEX',
+            rgbLabel: 'RGB',
             colors: {
                 red: 'Red',
                 orange: 'Orange',

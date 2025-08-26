@@ -270,7 +270,9 @@ export const FileItem = React.memo(function FileItem({
 
         // Otherwise format as absolute date
         return DateUtils.formatDate(timestamp, settings.dateFormat);
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- file.stat.mtime and file.stat.ctime are needed to detect file changes
+        // NOTE TO REVIEWER: Including **file.stat.mtime**/**file.stat.ctime** to detect file changes
+        // Without them, dates won't update after file edits
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         file,
         file.stat.mtime,
@@ -355,7 +357,9 @@ export const FileItem = React.memo(function FileItem({
         return () => {
             unsubscribe();
         };
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- file.path is needed to resubscribe when file is renamed
+        // NOTE TO REVIEWER: Including **file.path** to resubscribe on rename
+        // Subscription key changes with path, needs new subscription
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [file.path, appearanceSettings.showPreview, appearanceSettings.showImage, getDB, app]);
 
     // Add Obsidian tooltip (desktop only)

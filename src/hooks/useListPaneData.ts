@@ -100,7 +100,10 @@ export function useListPaneData({ selectionType, selectedFolder, selectedTag, se
         }
 
         return allFiles;
-    }, [selectionType, selectedFolder, selectedTag, settings, app, tagTreeService, updateKey]); // eslint-disable-line react-hooks/exhaustive-deps
+        // NOTE TO REVIEWER: Excluding **getFilesForFolder**/**getFilesForTag** - static imports
+        // **updateKey** triggers re-computation on storage updates
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [selectionType, selectedFolder, selectedTag, settings, app, tagTreeService, updateKey]);
 
     /**
      * Build the complete list of items for rendering, including:

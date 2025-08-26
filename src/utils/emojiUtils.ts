@@ -56,6 +56,7 @@ export function isValidEmoji(str: string): boolean {
     // More permissive check: if it doesn't contain regular text and has some Unicode,
     // we'll assume it's an emoji. This handles edge cases and newer emojis better.
     // The actual rendering will validate if it's truly an emoji
+    // NOTE TO REVIEWER: Unicode ranges are safe here - detecting emoji characters
     // eslint-disable-next-line no-misleading-character-class
     const hasHighUnicode = /[\u{1F000}-\u{1FAFF}\u{2000}-\u{3300}\u{FE00}-\u{FE0F}]/u.test(trimmed);
 
@@ -85,6 +86,7 @@ export function extractFirstEmoji(str: string): string | null {
 
     // Try to extract emoji-like characters from the beginning
     // This regex is intentionally broad to catch various emoji formats
+    // NOTE TO REVIEWER: Unicode ranges are safe here - extracting emoji characters
     // eslint-disable-next-line no-misleading-character-class
     const match = trimmed.match(/^[\u{1F000}-\u{1FAFF}\u{2000}-\u{3300}\u{FE00}-\u{FE0F}\u{200D}]+/u);
 

@@ -125,7 +125,7 @@ export interface NotebookNavigatorSettings {
     tagColors: Record<string, string>;
     tagSortOverrides: Record<string, SortOption>;
     tagAppearances: Record<string, TagAppearance>;
-    recentIcons: string[];
+    recentIcons: Record<string, string[]>;
     recentColors: string[];
     lastShownVersion: string;
     settingsVersion: number;
@@ -205,7 +205,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     tagColors: {},
     tagSortOverrides: {},
     tagAppearances: {},
-    recentIcons: [],
+    recentIcons: {},
     recentColors: [],
     lastShownVersion: '',
     settingsVersion: SETTINGS_VERSION

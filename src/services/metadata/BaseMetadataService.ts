@@ -50,11 +50,14 @@ export type EntityType = typeof ItemType.FOLDER | typeof ItemType.TAG;
  */
 export abstract class BaseMetadataService {
     protected updateQueue: Promise<void> = Promise.resolve();
+    protected settingsProvider: ISettingsProvider;
 
     constructor(
         protected app: App,
-        protected settingsProvider: ISettingsProvider
-    ) {}
+        settingsProvider: ISettingsProvider
+    ) {
+        this.settingsProvider = settingsProvider;
+    }
 
     /**
      * Saves settings and triggers UI update
@@ -174,14 +177,6 @@ export abstract class BaseMetadataService {
                 }
                 settings.tagIcons[path] = iconId;
             }
-
-            // Update recently used icons
-            if (!settings.recentIcons) {
-                settings.recentIcons = [];
-            }
-
-            // Remove if already exists and add to front
-            settings.recentIcons = [iconId, ...settings.recentIcons.filter((id: string) => id !== iconId)].slice(0, 10); // Keep only 10 most recent
         });
     }
 

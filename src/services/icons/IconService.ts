@@ -17,7 +17,6 @@
  */
 
 import { IconProvider, IconDefinition, ParsedIconId, IconServiceConfig } from './types';
-import { localStorage } from '../../utils/localStorage';
 
 /**
  * Central service for managing icon providers and rendering icons.
@@ -38,17 +37,13 @@ export class IconService {
     private static instance: IconService;
     private providers = new Map<string, IconProvider>();
     private config: IconServiceConfig;
-    private recentIcons: string[] = [];
     private static readonly DEFAULT_PROVIDER = 'lucide';
-    private static readonly RECENT_ICONS_STORAGE_KEY = 'nn-recent-icons';
 
     private constructor(config: IconServiceConfig = {}) {
         this.config = {
             defaultProvider: IconService.DEFAULT_PROVIDER,
-            recentIconsLimit: 20,
             ...config
         };
-        this.loadRecentIcons();
     }
 
     /**
@@ -156,7 +151,6 @@ export class IconService {
 
         try {
             provider.render(container, parsed.identifier, size);
-            this.addToRecentIcons(iconId);
         } catch (error) {
             console.log(`[IconService] Error rendering icon ${iconId}: ${error}`);
             container.empty();
@@ -212,45 +206,6 @@ export class IconService {
             );
         }
         return results;
-    }
-
-    getRecentIcons(): string[] {
-        return [...this.recentIcons];
-    }
-
-    private addToRecentIcons(iconId: string): void {
-        const index = this.recentIcons.indexOf(iconId);
-        if (index > -1) {
-            this.recentIcons.splice(index, 1);
-        }
-
-        this.recentIcons.unshift(iconId);
-
-        if (this.recentIcons.length > (this.config.recentIconsLimit || 20)) {
-            this.recentIcons = this.recentIcons.slice(0, this.config.recentIconsLimit);
-        }
-
-        this.saveRecentIcons();
-    }
-
-    private loadRecentIcons(): void {
-        try {
-            const stored = localStorage.get<string[]>(IconService.RECENT_ICONS_STORAGE_KEY);
-            if (stored) {
-                this.recentIcons = stored;
-            }
-        } catch (error) {
-            console.log(`Error loading recent icons: ${error}`);
-            this.recentIcons = [];
-        }
-    }
-
-    private saveRecentIcons(): void {
-        try {
-            localStorage.set(IconService.RECENT_ICONS_STORAGE_KEY, this.recentIcons);
-        } catch (error) {
-            console.log(`Error saving recent icons: ${error}`);
-        }
     }
 
     /**

@@ -23,6 +23,12 @@ import { getIconService, IconDefinition, IconProvider } from '../services/icons'
 import { MetadataService } from '../services/MetadataService';
 import { ItemType } from '../types';
 import { TIMEOUTS } from '../types/obsidian-extended';
+import { ISettingsProvider } from '../interfaces/ISettingsProvider';
+
+// Constants
+const GRID_COLUMNS = 5;
+const MAX_SEARCH_RESULTS = 50;
+const MAX_RECENT_PER_PROVIDER = 15;
 
 /**
  * Enhanced icon picker modal that supports multiple icon providers
@@ -30,11 +36,11 @@ import { TIMEOUTS } from '../types/obsidian-extended';
  */
 export class IconPickerModal extends Modal {
     private currentProvider: string = 'lucide';
-    private gridColumns: number = 5;
     private iconService = getIconService();
     private itemPath: string;
     private itemType: typeof ItemType.FOLDER | typeof ItemType.TAG;
     private metadataService: MetadataService;
+    private settingsProvider: ISettingsProvider;
     /** Callback function invoked when an icon is selected */
     public onChooseIcon: (iconId: string | null) => void;
     private resultsContainer: HTMLDivElement;
@@ -51,6 +57,7 @@ export class IconPickerModal extends Modal {
     ) {
         super(app);
         this.metadataService = metadataService;
+        this.settingsProvider = metadataService.getSettingsProvider();
         this.itemPath = itemPath;
         this.itemType = itemType;
     }
@@ -59,6 +66,11 @@ export class IconPickerModal extends Modal {
         const { contentEl } = this;
         contentEl.empty();
         contentEl.addClass('nn-icon-picker-modal');
+
+        // Header showing the folder/tag name
+        const header = contentEl.createDiv('nn-icon-picker-header');
+        const headerText = this.itemType === ItemType.TAG ? `#${this.itemPath}` : this.itemPath.split('/').pop() || this.itemPath;
+        header.createEl('h3', { text: headerText });
 
         // Create tabs for providers
         this.createProviderTabs();
@@ -128,14 +140,9 @@ export class IconPickerModal extends Modal {
         const searchTerm = this.searchInput.value.toLowerCase().trim();
 
         if (searchTerm === '') {
-            // Show recently used icons for both providers
-            const recentIcons = this.iconService
-                .getRecentIcons()
-                .filter(iconId => {
-                    const parsed = this.iconService.parseIconId(iconId);
-                    return parsed.provider === this.currentProvider;
-                })
-                .slice(0, 20);
+            // Show recently used icons for the current provider
+            const settings = this.settingsProvider.settings;
+            const recentIcons = settings.recentIcons?.[this.currentProvider] || [];
 
             if (recentIcons.length > 0) {
                 const header = this.resultsContainer.createDiv('nn-icon-section-header');
@@ -189,14 +196,14 @@ export class IconPickerModal extends Modal {
                 const grid = this.resultsContainer.createDiv('nn-icon-grid');
                 const provider = this.iconService.getProvider(this.currentProvider);
 
-                // Limit to first 50 results
-                results.slice(0, 50).forEach(iconDef => {
+                // Limit to first MAX_SEARCH_RESULTS results
+                results.slice(0, MAX_SEARCH_RESULTS).forEach(iconDef => {
                     if (provider) {
                         this.createIconItem(iconDef, grid, provider);
                     }
                 });
 
-                if (results.length > 50) {
+                if (results.length > MAX_SEARCH_RESULTS) {
                     const moreMessage = this.resultsContainer.createDiv('nn-icon-more-message');
                     moreMessage.setText(strings.modals.iconPicker.showingResultsInfo.replace('{count}', results.length.toString()));
                 }
@@ -239,7 +246,44 @@ export class IconPickerModal extends Modal {
         iconItem.setAttribute('tabindex', '0');
     }
 
+    /**
+     * Save icon to recent icons (per provider)
+     */
+    private async saveToRecentIcons(iconId: string) {
+        const parsed = this.iconService.parseIconId(iconId);
+        const providerId = parsed.provider;
+
+        const settings = this.settingsProvider.settings;
+        if (!settings.recentIcons) {
+            settings.recentIcons = {};
+        }
+        if (!settings.recentIcons[providerId]) {
+            settings.recentIcons[providerId] = [];
+        }
+
+        const providerIcons = settings.recentIcons[providerId];
+        const index = providerIcons.indexOf(iconId);
+
+        // Remove if already exists
+        if (index > -1) {
+            providerIcons.splice(index, 1);
+        }
+
+        // Add to front
+        providerIcons.unshift(iconId);
+
+        // Limit to MAX_RECENT_PER_PROVIDER per provider
+        if (providerIcons.length > MAX_RECENT_PER_PROVIDER) {
+            settings.recentIcons[providerId] = providerIcons.slice(0, MAX_RECENT_PER_PROVIDER);
+        }
+
+        await this.settingsProvider.saveSettings();
+    }
+
     private async selectIcon(iconId: string) {
+        // Save to recent icons
+        await this.saveToRecentIcons(iconId);
+
         // Set the icon based on item type
         if (this.itemType === ItemType.TAG) {
             await this.metadataService.setTagIcon(this.itemPath, iconId);
@@ -284,29 +328,29 @@ export class IconPickerModal extends Modal {
 
                     case 'ArrowLeft':
                         e.preventDefault();
-                        if (currentIndex % this.gridColumns > 0) {
+                        if (currentIndex % GRID_COLUMNS > 0) {
                             newIndex = currentIndex - 1;
                         }
                         break;
 
                     case 'ArrowRight':
                         e.preventDefault();
-                        if (currentIndex % this.gridColumns < this.gridColumns - 1 && currentIndex < iconItems.length - 1) {
+                        if (currentIndex % GRID_COLUMNS < GRID_COLUMNS - 1 && currentIndex < iconItems.length - 1) {
                             newIndex = currentIndex + 1;
                         }
                         break;
 
                     case 'ArrowUp':
                         e.preventDefault();
-                        if (currentIndex >= this.gridColumns) {
-                            newIndex = currentIndex - this.gridColumns;
+                        if (currentIndex >= GRID_COLUMNS) {
+                            newIndex = currentIndex - GRID_COLUMNS;
                         }
                         break;
 
                     case 'ArrowDown':
                         e.preventDefault();
-                        if (currentIndex + this.gridColumns < iconItems.length) {
-                            newIndex = currentIndex + this.gridColumns;
+                        if (currentIndex + GRID_COLUMNS < iconItems.length) {
+                            newIndex = currentIndex + GRID_COLUMNS;
                         }
                         break;
 

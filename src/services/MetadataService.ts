@@ -45,6 +45,7 @@ export class MetadataService {
     private fileService: FileMetadataService;
     private folderService: FolderMetadataService;
     private tagService: TagMetadataService;
+    private settingsProvider: ISettingsProvider;
 
     /**
      * Creates a new MetadataService instance
@@ -53,10 +54,19 @@ export class MetadataService {
      * @param getTagTreeProvider - Function to get the tag tree provider
      */
     constructor(app: App, settingsProvider: ISettingsProvider, getTagTreeProvider: () => ITagTreeProvider | null) {
+        this.settingsProvider = settingsProvider;
         // Initialize sub-services
         this.folderService = new FolderMetadataService(app, settingsProvider);
         this.tagService = new TagMetadataService(app, settingsProvider, getTagTreeProvider);
         this.fileService = new FileMetadataService(app, settingsProvider);
+    }
+
+    /**
+     * Gets the settings provider for accessing and saving settings
+     * @returns The settings provider instance
+     */
+    getSettingsProvider(): ISettingsProvider {
+        return this.settingsProvider;
     }
     // ========== Folder Methods (delegated to FolderMetadataService) ==========
 

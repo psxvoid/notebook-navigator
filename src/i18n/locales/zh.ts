@@ -162,7 +162,14 @@ export const STRINGS_ZH = {
             emojiInstructions: '输入或粘贴任何表情符号作为图标使用'
         },
         colorPicker: {
-            header: '选择文件夹颜色',
+            currentColor: '当前',
+            newColor: '新颜色',
+            presetColors: '预设颜色',
+            recentColors: '最近使用的颜色',
+            clearRecentColors: '清除最近使用的颜色',
+            apply: '应用',
+            hexLabel: 'HEX',
+            rgbLabel: 'RGB',
             colors: {
                 red: '红色',
                 orange: '橙色',

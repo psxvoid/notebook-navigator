@@ -41,7 +41,7 @@
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode, useMemo, useCallback } from 'react';
 import { App, TFile } from 'obsidian';
-import { TIMEOUTS } from '../types/obsidian-extended';
+import { TIMEOUTS, ExtendedApp } from '../types/obsidian-extended';
 import { ProcessedMetadata, extractMetadata } from '../utils/metadataExtractor';
 import { ContentProviderRegistry } from '../services/content/ContentProviderRegistry';
 import { PreviewContentProvider } from '../services/content/PreviewContentProvider';
@@ -351,8 +351,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
     // Initialize IndexedDB on mount
     useEffect(() => {
-        // @ts-expect-error - appId exists on app but not in type definition
-        const appId = app.appId as string;
+        const appId = (app as ExtendedApp).appId || '';
         initializeCache(appId)
             .then(() => {
                 setIsIndexedDBReady(true);

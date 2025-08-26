@@ -126,6 +126,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         await this.loadSettings();
 
+        // Clear old recentIcons format if it's still an array
+        if (Array.isArray(this.settings.recentIcons)) {
+            this.settings.recentIcons = {};
+            await this.saveSettings();
+        }
+
         // Set localStorage version if not present
         if (!localStorage.get(STORAGE_KEYS.localStorageVersionKey)) {
             localStorage.set(STORAGE_KEYS.localStorageVersionKey, LOCALSTORAGE_VERSION);

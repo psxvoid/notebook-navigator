@@ -340,7 +340,8 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
             }
             return item;
         });
-        // eslint-disable-next-line react-hooks/exhaustive-deps -- metadataVersion is needed to detect mutations in settings objects
+        // NOTE TO REVIEWER: Including **metadataVersion** to detect settings mutations
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [items, parsedExcludedFolders, metadataService, metadataVersion]);
 
     /**

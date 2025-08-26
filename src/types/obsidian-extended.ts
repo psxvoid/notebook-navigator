@@ -28,6 +28,11 @@ import { App, Plugin, View, WorkspaceLeaf, TFile } from 'obsidian';
  */
 export interface ExtendedApp extends App {
     /**
+     * Unique identifier for the vault/app instance
+     */
+    appId?: string;
+
+    /**
      * Shows a file in the system file explorer (Finder/Explorer)
      * @param path - Vault-relative path to the file
      */

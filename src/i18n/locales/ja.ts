@@ -162,7 +162,14 @@ export const STRINGS_JA = {
             emojiInstructions: '絵文字を入力または貼り付けてアイコンとして使用'
         },
         colorPicker: {
-            header: 'フォルダの色を選択',
+            currentColor: '現在',
+            newColor: '新規',
+            presetColors: 'プリセット色',
+            recentColors: '最近使用した色',
+            clearRecentColors: '最近使用した色をクリア',
+            apply: '適用',
+            hexLabel: 'HEX',
+            rgbLabel: 'RGB',
             colors: {
                 red: '赤',
                 orange: 'オレンジ',

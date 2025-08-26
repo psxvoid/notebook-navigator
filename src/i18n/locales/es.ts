@@ -162,7 +162,14 @@ export const STRINGS_ES = {
             emojiInstructions: 'Escribe o pega cualquier emoji para usarlo como icono'
         },
         colorPicker: {
-            header: 'Elegir color de carpeta',
+            currentColor: 'Actual',
+            newColor: 'Nuevo',
+            presetColors: 'Colores predefinidos',
+            recentColors: 'Colores recientes',
+            clearRecentColors: 'Limpiar colores recientes',
+            apply: 'Aplicar',
+            hexLabel: 'HEX',
+            rgbLabel: 'RGB',
             colors: {
                 red: 'Rojo',
                 orange: 'Naranja',

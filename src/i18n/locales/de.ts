@@ -162,7 +162,14 @@ export const STRINGS_DE = {
             emojiInstructions: 'Geben Sie ein Emoji ein oder fügen Sie es ein, um es als Symbol zu verwenden'
         },
         colorPicker: {
-            header: 'Ordnerfarbe wählen',
+            currentColor: 'Aktuell',
+            newColor: 'Neu',
+            presetColors: 'Vordefinierte Farben',
+            recentColors: 'Zuletzt verwendete Farben',
+            clearRecentColors: 'Zuletzt verwendete Farben löschen',
+            apply: 'Anwenden',
+            hexLabel: 'HEX',
+            rgbLabel: 'RGB',
             colors: {
                 red: 'Rot',
                 orange: 'Orange',

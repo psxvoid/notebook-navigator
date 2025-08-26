@@ -24,10 +24,6 @@ import { ISettingsProvider } from '../interfaces/ISettingsProvider';
 /**
  * Color palette for folder colors
  * Carefully selected to work well in both light and dark themes
- *
- * NOTE: These colors must be duplicated in styles.css as attribute selectors
- * This duplication is required for Obsidian plugin compliance (no JS styles)
- * If you modify colors here, update the corresponding CSS rules
  */
 const COLOR_PALETTE = [
     { name: strings.modals.colorPicker.colors.red, value: '#ef4444' },
@@ -53,6 +49,9 @@ const COLOR_PALETTE = [
 ];
 
 const MAX_RECENT_COLORS = 10;
+const DEFAULT_COLOR = '#3b82f6';
+
+type RGBChannel = 'r' | 'g' | 'b';
 
 /**
  * Extended metadata service interface for color operations
@@ -62,6 +61,7 @@ interface ColorMetadataService {
     setFolderColor(path: string, color: string): Promise<void>;
     removeTagColor(path: string): Promise<void>;
     removeFolderColor(path: string): Promise<void>;
+    getSettingsProvider(): ISettingsProvider;
 }
 
 /**
@@ -78,7 +78,7 @@ export class ColorPickerModal extends Modal {
     private metadataService: ColorMetadataService;
     private settingsProvider: ISettingsProvider;
     private currentColor: string | null = null;
-    private selectedColor: string = '#3b82f6';
+    private selectedColor: string = DEFAULT_COLOR;
     private hexInput: HTMLInputElement;
     private previewCurrent: HTMLDivElement;
     private previewNew: HTMLDivElement;
@@ -109,24 +109,8 @@ export class ColorPickerModal extends Modal {
         this.itemPath = itemPath;
         this.itemType = itemType;
 
-        // Access settings through the service's internal structure
-        // This is a temporary solution until MetadataService exposes settings properly
-        const serviceInternal = metadataService as unknown as {
-            folderService?: {
-                settingsProvider?: ISettingsProvider;
-            };
-        };
-        this.settingsProvider =
-            serviceInternal.folderService?.settingsProvider ||
-            ({
-                settings: {
-                    ...({} as ISettingsProvider['settings']),
-                    tagColors: {},
-                    folderColors: {},
-                    recentColors: []
-                },
-                saveSettings: async () => {}
-            } as ISettingsProvider);
+        // Access settings through the service
+        this.settingsProvider = metadataService.getSettingsProvider();
 
         // Get current color if exists
         const settings = this.settingsProvider.settings;
@@ -135,8 +119,8 @@ export class ColorPickerModal extends Modal {
             this.currentColor = currentColors[itemPath];
             this.selectedColor = currentColors[itemPath];
         } else {
-            // No current color, but we need a starting color for the picker
-            this.selectedColor = '#3b82f6';
+            // Default starting color
+            this.selectedColor = DEFAULT_COLOR;
         }
     }
 
@@ -148,23 +132,23 @@ export class ColorPickerModal extends Modal {
         contentEl.empty();
         contentEl.addClass('nn-color-picker-modal');
 
-        // Header - centered, showing the actual folder/tag name
+        // Header showing the folder/tag name
         const header = contentEl.createDiv('nn-color-picker-header');
-        const headerText = this.itemType === ItemType.TAG ? `#${this.itemPath}` : this.itemPath.split('/').pop() || this.itemPath;
+        const headerText = this.isTag() ? `#${this.itemPath}` : this.itemPath.split('/').pop() || this.itemPath;
         header.createEl('h3', { text: headerText });
 
-        // Main content area with two columns
+        // Two-column layout
         const mainContent = contentEl.createDiv('nn-color-picker-content');
 
         // Left column
         const leftColumn = mainContent.createDiv('nn-color-picker-left');
 
-        // Color preview section - Current → New
+        // Color preview section
         const previewSection = leftColumn.createDiv('nn-color-preview-section');
         const previewContainer = previewSection.createDiv('nn-color-preview-container');
 
         const currentSection = previewContainer.createDiv('nn-preview-current');
-        currentSection.createEl('span', { text: 'Current', cls: 'nn-preview-label' });
+        currentSection.createEl('span', { text: strings.modals.colorPicker.currentColor, cls: 'nn-preview-label' });
         this.previewCurrent = currentSection.createDiv('nn-preview-color');
         if (this.currentColor) {
             this.previewCurrent.style.backgroundColor = this.currentColor;
@@ -176,36 +160,41 @@ export class ColorPickerModal extends Modal {
         setIcon(arrow, 'lucide-arrow-right');
 
         const newSection = previewContainer.createDiv('nn-preview-new');
-        newSection.createEl('span', { text: 'New', cls: 'nn-preview-label' });
+        newSection.createEl('span', { text: strings.modals.colorPicker.newColor, cls: 'nn-preview-label' });
         this.previewNew = newSection.createDiv('nn-preview-color');
         this.previewNew.style.backgroundColor = this.selectedColor;
 
-        // Preset colors section - moved to left column
+        // Preset colors section
         const presetSection = leftColumn.createDiv('nn-preset-section');
-        presetSection.createEl('div', { text: 'Preset colors', cls: 'nn-section-label' });
+        presetSection.createEl('div', { text: strings.modals.colorPicker.presetColors, cls: 'nn-section-label' });
         this.presetColorsContainer = presetSection.createDiv('nn-preset-colors');
 
         // Right column
         const rightColumn = mainContent.createDiv('nn-color-picker-right');
 
-        // Hex input section - moved above RGB for mobile keyboard visibility
+        // Hex input section
         const hexSection = rightColumn.createDiv('nn-hex-section');
-        hexSection.createEl('label', { text: 'HEX', cls: 'nn-hex-title' });
+        hexSection.createEl('label', { text: strings.modals.colorPicker.hexLabel, cls: 'nn-hex-title' });
         const hexContainer = hexSection.createDiv('nn-hex-container');
         hexContainer.createEl('span', { text: '#', cls: 'nn-hex-label' });
         this.hexInput = hexContainer.createEl('input', {
             type: 'text',
             cls: 'nn-hex-input',
-            value: this.selectedColor.substring(1)
+            value: this.selectedColor.substring(1),
+            attr: {
+                'aria-label': 'Hex color value',
+                maxlength: '6',
+                placeholder: 'RRGGBB'
+            }
         });
 
         // RGB sliders section
         const rgbSection = rightColumn.createDiv('nn-rgb-section');
-        rgbSection.createEl('div', { text: 'RGB', cls: 'nn-rgb-title' });
-        this.rgbSliders = {} as { r: HTMLInputElement; g: HTMLInputElement; b: HTMLInputElement };
-        this.rgbValues = {} as { r: HTMLSpanElement; g: HTMLSpanElement; b: HTMLSpanElement };
+        rgbSection.createEl('div', { text: strings.modals.colorPicker.rgbLabel, cls: 'nn-rgb-title' });
+        this.rgbSliders = {} as Record<RGBChannel, HTMLInputElement>;
+        this.rgbValues = {} as Record<RGBChannel, HTMLSpanElement>;
 
-        ['r', 'g', 'b'].forEach(channel => {
+        (['r', 'g', 'b'] as const).forEach(channel => {
             const sliderRow = rgbSection.createDiv('nn-rgb-row');
             sliderRow.createEl('span', {
                 text: channel.toUpperCase(),
@@ -214,10 +203,13 @@ export class ColorPickerModal extends Modal {
 
             const slider = sliderRow.createEl('input', {
                 type: 'range',
-                cls: 'nn-rgb-slider'
+                cls: 'nn-rgb-slider',
+                attr: {
+                    'aria-label': `${channel.toUpperCase()} value`,
+                    min: '0',
+                    max: '255'
+                }
             }) as HTMLInputElement;
-            slider.min = '0';
-            slider.max = '255';
             slider.classList.add(`nn-rgb-slider-${channel}`);
 
             const value = sliderRow.createEl('span', {
@@ -225,33 +217,34 @@ export class ColorPickerModal extends Modal {
                 text: '0'
             });
 
-            this.rgbSliders[channel as 'r' | 'g' | 'b'] = slider;
-            this.rgbValues[channel as 'r' | 'g' | 'b'] = value;
+            this.rgbSliders[channel as RGBChannel] = slider;
+            this.rgbValues[channel as RGBChannel] = value;
         });
 
-        // Recent colors section - moved to right column
+        // Recent colors section
         const recentSection = rightColumn.createDiv('nn-recent-section');
         const recentHeader = recentSection.createDiv('nn-recent-header');
-        recentHeader.createEl('div', { text: 'Recent colors', cls: 'nn-section-label' });
+        recentHeader.createEl('div', { text: strings.modals.colorPicker.recentColors, cls: 'nn-section-label' });
 
-        // Clear button on same line
+        // Clear button
         const clearButton = recentHeader.createEl('button', {
             text: '×',
             cls: 'nn-clear-recent',
-            title: 'Clear recent colors'
+            title: strings.modals.colorPicker.clearRecentColors
         });
-        clearButton.addEventListener('click', async () => {
-            await this.clearRecentColors();
+        clearButton.addEventListener('click', () => {
+            this.clearRecentColors();
         });
 
         this.recentColorsContainer = recentSection.createDiv('nn-recent-colors');
 
-        // Buttons at the bottom - centered
+        // Action buttons
         const buttonContainer = contentEl.createDiv('nn-color-button-container');
 
-        // Cancel/Remove button - text changes based on whether there's a current color
+        // Cancel/Remove button
+        const removeColorText = this.isTag() ? strings.contextMenu.tag.removeColor : strings.contextMenu.folder.removeColor;
         const cancelRemoveButton = buttonContainer.createEl('button', {
-            text: this.currentColor ? 'Remove' : 'Cancel'
+            text: this.currentColor ? removeColorText : strings.common.cancel
         });
         cancelRemoveButton.addEventListener('click', () => {
             if (this.currentColor) {
@@ -263,11 +256,11 @@ export class ColorPickerModal extends Modal {
 
         // Apply color button
         const applyButton = buttonContainer.createEl('button', {
-            text: 'Apply',
+            text: strings.modals.colorPicker.apply,
             cls: 'mod-cta'
         });
-        applyButton.addEventListener('click', () => {
-            this.applyColor();
+        applyButton.addEventListener('click', async () => {
+            await this.applyColor();
         });
 
         // Set up event handlers
@@ -298,8 +291,8 @@ export class ColorPickerModal extends Modal {
      */
     private setupEventHandlers() {
         // RGB slider handlers
-        Object.keys(this.rgbSliders).forEach(channel => {
-            const slider = this.rgbSliders[channel as 'r' | 'g' | 'b'];
+        (Object.keys(this.rgbSliders) as RGBChannel[]).forEach(channel => {
+            const slider = this.rgbSliders[channel];
             slider.addEventListener('input', () => {
                 if (!this.isUpdating) {
                     this.updateFromRGB();
@@ -319,19 +312,8 @@ export class ColorPickerModal extends Modal {
             const dot = this.recentColorsContainer.createDiv('nn-color-dot');
             dot.style.backgroundColor = color;
             dot.setAttribute('data-color', color);
-            dot.addEventListener('click', async () => {
-                this.updateFromHex(color);
-                // Apply the color directly without re-adding to recent
-                // Set the color based on item type
-                if (this.itemType === ItemType.TAG) {
-                    await this.metadataService.setTagColor(this.itemPath, color);
-                } else {
-                    await this.metadataService.setFolderColor(this.itemPath, color);
-                }
-                // Notify callback
-                this.onChooseColor?.(color);
-                // Close the modal
-                this.close();
+            dot.addEventListener('click', () => {
+                this.applyColorAndClose(color, false);
             });
         });
 
@@ -344,9 +326,9 @@ export class ColorPickerModal extends Modal {
     /**
      * Clear all recently used colors
      */
-    private async clearRecentColors() {
+    private clearRecentColors() {
         this.settingsProvider.settings.recentColors = [];
-        await this.settingsProvider.saveSettings();
+        this.settingsProvider.saveSettings();
         this.loadRecentColors();
     }
 
@@ -361,19 +343,8 @@ export class ColorPickerModal extends Modal {
             dot.style.backgroundColor = color.value;
             dot.setAttribute('data-color', color.value);
             dot.setAttribute('title', color.name);
-            dot.addEventListener('click', async () => {
-                this.updateFromHex(color.value);
-                // Apply the color directly without adding to recent
-                // Set the color based on item type
-                if (this.itemType === ItemType.TAG) {
-                    await this.metadataService.setTagColor(this.itemPath, color.value);
-                } else {
-                    await this.metadataService.setFolderColor(this.itemPath, color.value);
-                }
-                // Notify callback
-                this.onChooseColor?.(color.value);
-                // Close the modal
-                this.close();
+            dot.addEventListener('click', () => {
+                this.applyColorAndClose(color.value, false);
             });
         });
     }
@@ -453,15 +424,7 @@ export class ColorPickerModal extends Modal {
      */
     private validateAndFormatHex(input: string): string | null {
         // Remove # if present and spaces
-        let hex = input.replace('#', '').trim();
-
-        // Support 3-digit hex
-        if (hex.length === 3) {
-            hex = hex
-                .split('')
-                .map(c => c + c)
-                .join('');
-        }
+        const hex = input.replace('#', '').trim();
 
         // Validate 6-digit hex
         if (!/^[0-9A-Fa-f]{6}$/.test(hex)) {
@@ -472,10 +435,10 @@ export class ColorPickerModal extends Modal {
     }
 
     /**
-     * Save color to recent colors (only for custom colors, not presets)
+     * Save color to recent colors
      */
     private async saveToRecentColors(color: string) {
-        // Check if this is a preset color - if so, don't add to recent
+        // Don't add preset colors to recent
         const isPresetColor = COLOR_PALETTE.some(preset => preset.value === color);
         if (isPresetColor) {
             return;
@@ -501,9 +464,9 @@ export class ColorPickerModal extends Modal {
     /**
      * Apply the selected color and close
      */
-    private applyColor() {
+    private async applyColor() {
         // Save the color
-        this.saveColor();
+        await this.saveColor();
         // Close the modal
         this.close();
     }
@@ -513,7 +476,7 @@ export class ColorPickerModal extends Modal {
      */
     private async removeColor() {
         // Remove the color based on item type
-        if (this.itemType === ItemType.TAG) {
+        if (this.isTag()) {
             await this.metadataService.removeTagColor(this.itemPath);
         } else {
             await this.metadataService.removeFolderColor(this.itemPath);
@@ -534,7 +497,7 @@ export class ColorPickerModal extends Modal {
         await this.saveToRecentColors(this.selectedColor);
 
         // Set the color based on item type
-        if (this.itemType === ItemType.TAG) {
+        if (this.isTag()) {
             await this.metadataService.setTagColor(this.itemPath, this.selectedColor);
         } else {
             await this.metadataService.setFolderColor(this.itemPath, this.selectedColor);
@@ -542,5 +505,38 @@ export class ColorPickerModal extends Modal {
 
         // Notify callback
         this.onChooseColor?.(this.selectedColor);
+    }
+
+    /**
+     * Helper to check if this is for a tag
+     */
+    private isTag(): boolean {
+        return this.itemType === ItemType.TAG;
+    }
+
+    /**
+     * Apply color and close modal
+     * Used by both preset and recent color clicks
+     */
+    private async applyColorAndClose(color: string, saveToRecent: boolean = true) {
+        this.updateFromHex(color);
+
+        // Save to recent if requested
+        if (saveToRecent) {
+            await this.saveToRecentColors(color);
+        }
+
+        // Set the color based on item type
+        if (this.isTag()) {
+            await this.metadataService.setTagColor(this.itemPath, color);
+        } else {
+            await this.metadataService.setFolderColor(this.itemPath, color);
+        }
+
+        // Notify callback
+        this.onChooseColor?.(color);
+
+        // Close the modal
+        this.close();
     }
 }
