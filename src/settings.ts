@@ -71,7 +71,7 @@ export interface NotebookNavigatorSettings {
     collapseButtonBehavior: CollapseButtonBehavior;
     // Folders
     showRootFolder: boolean;
-    customVaultName: string;
+    inheritFolderColors: boolean;
     enableFolderNotes: boolean;
     folderNoteName: string;
     folderNoteProperties: string[];
@@ -115,6 +115,7 @@ export interface NotebookNavigatorSettings {
     // Advanced
     confirmBeforeDelete: boolean;
     // Internal
+    customVaultName: string;
     pinnedNotes: PinnedNotes;
     folderIcons: Record<string, string>;
     folderColors: Record<string, string>;
@@ -149,7 +150,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     collapseButtonBehavior: 'all',
     // Folders
     showRootFolder: true,
-    customVaultName: '',
+    inheritFolderColors: false,
     enableFolderNotes: false,
     folderNoteName: '',
     folderNoteProperties: [],
@@ -193,6 +194,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Advanced
     confirmBeforeDelete: true,
     // Internal
+    customVaultName: '',
     pinnedNotes: {},
     folderIcons: {},
     folderColors: {},
@@ -562,6 +564,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showRootFolder).onChange(async value => {
                     this.plugin.settings.showRootFolder = value;
+                    await this.saveAndRefresh();
+                })
+            );
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.inheritFolderColors.name)
+            .setDesc(strings.settings.items.inheritFolderColors.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.inheritFolderColors).onChange(async value => {
+                    this.plugin.settings.inheritFolderColors = value;
                     await this.saveAndRefresh();
                 })
             );

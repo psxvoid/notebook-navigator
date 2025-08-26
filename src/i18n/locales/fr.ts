@@ -539,6 +539,10 @@ export const STRINGS_FR = {
                 name: 'Afficher le dossier racine',
                 desc: "Afficher le nom du dossier racine dans l'arborescence."
             },
+            inheritFolderColors: {
+                name: 'Hériter des couleurs de dossier',
+                desc: 'Les sous-dossiers héritent de la couleur des dossiers parents.'
+            },
             showNoteCount: {
                 name: 'Afficher le nombre de notes',
                 desc: 'Afficher le nombre de notes dans chaque dossier et étiquette.'

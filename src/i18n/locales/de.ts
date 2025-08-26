@@ -538,6 +538,10 @@ export const STRINGS_DE = {
                 name: 'Wurzelordner anzeigen',
                 desc: 'Den Namen des Wurzelordners im Baum anzeigen.'
             },
+            inheritFolderColors: {
+                name: 'Ordnerfarben vererben',
+                desc: 'Unterordner erben die Farbe von übergeordneten Ordnern.'
+            },
             showNoteCount: {
                 name: 'Notizenzahl anzeigen',
                 desc: 'Die Anzahl der Notizen in jedem Ordner und Tag anzeigen.'

@@ -229,9 +229,9 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
             });
     });
 
-    // Remove color (only show if custom color is set)
-    const currentColor = metadataService.getFolderColor(folder.path);
-    if (currentColor) {
+    // Remove color (only show if custom color is set directly on this folder)
+    const hasDirectColor = settings.folderColors && settings.folderColors[folder.path];
+    if (hasDirectColor) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.folder.removeColor)
                 .setIcon('lucide-x')

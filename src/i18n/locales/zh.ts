@@ -538,6 +538,10 @@ export const STRINGS_ZH = {
                 name: '显示根文件夹',
                 desc: '在树中显示根文件夹名称。'
             },
+            inheritFolderColors: {
+                name: '继承文件夹颜色',
+                desc: '子文件夹从父文件夹继承颜色。'
+            },
             showNoteCount: {
                 name: '显示笔记数',
                 desc: '显示每个文件夹和标签中的笔记数量。'

@@ -290,7 +290,6 @@ export function useListPaneScroll({
 
     /**
      * Scroll to top handler for mobile header tap.
-     * Uses smooth scrolling for better UX on mobile.
      */
     const handleScrollToTop = useCallback(() => {
         if (isMobile && scrollContainerRef.current) {

@@ -537,6 +537,10 @@ export const STRINGS_EN = {
                 name: 'Show root folder',
                 desc: 'Display the vault name as the root folder in the tree.'
             },
+            inheritFolderColors: {
+                name: 'Inherit folder colors',
+                desc: 'Child folders inherit color from parent folders.'
+            },
             showNoteCount: {
                 name: 'Show note count',
                 desc: 'Display the number of notes in each folder and tag.'

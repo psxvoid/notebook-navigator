@@ -56,14 +56,15 @@ export interface ReleaseNote {
 const RELEASE_NOTES: ReleaseNote[] = [
     {
         version: '1.4.0',
-        date: '2025-08-25',
+        date: '2025-08-26',
         showOnUpdate: true,
         info: 'First Community Plugin Release! 🎉 Notebook Navigator is now available in the Obsidian Community Plugins directory. A big thanks to everyone who supported the development of this plugin!',
         new: [
             '**Public API**. Other plugins and Javascript developers can now interact with Notebook Navigator through a comprehensive API that provides metadata management, navigation control, and event subscriptions. Full TypeScript support included!',
             '**Theming support**. Notebook Navigator now exposes custom CSS properties and provides detailed documentation for theme developers. Theme developers can fully customize colors, selection styles, hover effects, and all UI elements including mobile-specific components.',
             '**Style Settings support**. Full integration with the Style Settings plugin makes it super easy to get Notebook Navigator to look just the way you want it!',
-            '**New setting: Optimize note height**. You can now toggle off the automatic height reduction of pinned notes and notes without preview text (default on).'
+            '**New setting: Optimize note height**. You can now toggle off the automatic height reduction of pinned notes and notes without preview text (default on).',
+            '**New setting: Inherit folder colors**. You can now toggle on color inheritance for folders.'
         ],
         changed: [
             '**Pinned notes are now context-aware**. Files are now pinned separately in folder view and tag view, allowing different pinned files for each context.'

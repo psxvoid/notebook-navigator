@@ -538,6 +538,10 @@ export const STRINGS_ES = {
                 name: 'Mostrar carpeta raíz',
                 desc: 'Muestra el nombre de la carpeta raíz en el árbol.'
             },
+            inheritFolderColors: {
+                name: 'Heredar colores de carpeta',
+                desc: 'Las subcarpetas heredan el color de las carpetas principales.'
+            },
             showNoteCount: {
                 name: 'Mostrar conteo de notas',
                 desc: 'Muestra el número de notas en cada carpeta y etiqueta.'

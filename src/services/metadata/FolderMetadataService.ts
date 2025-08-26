@@ -56,12 +56,26 @@ export class FolderMetadataService extends BaseMetadataService {
     }
 
     /**
-     * Gets the custom color for a folder
+     * Gets the custom color for a folder, checking ancestors if inheritance is enabled
      * @param folderPath - Path of the folder
      * @returns The color value or undefined
      */
     getFolderColor(folderPath: string): string | undefined {
-        return this.getEntityColor(ItemType.FOLDER, folderPath);
+        // First check if this folder has a color directly set
+        const directColor = this.getEntityColor(ItemType.FOLDER, folderPath);
+        if (directColor) return directColor;
+
+        // If no direct color and inheritance is enabled, check ancestors
+        if (this.settingsProvider.settings.inheritFolderColors) {
+            const pathParts = folderPath.split('/');
+            for (let i = pathParts.length - 1; i > 0; i--) {
+                const ancestorPath = pathParts.slice(0, i).join('/');
+                const ancestorColor = this.getEntityColor(ItemType.FOLDER, ancestorPath);
+                if (ancestorColor) return ancestorColor;
+            }
+        }
+
+        return undefined;
     }
 
     /**

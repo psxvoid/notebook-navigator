@@ -539,6 +539,10 @@ export const STRINGS_JA = {
                 name: 'ルートフォルダを表示',
                 desc: 'ツリーにルートフォルダ名を表示します。'
             },
+            inheritFolderColors: {
+                name: 'フォルダの色を継承',
+                desc: 'サブフォルダが親フォルダから色を継承します。'
+            },
             showNoteCount: {
                 name: 'ノート数を表示',
                 desc: '各フォルダとタグのノート数を表示します。'
