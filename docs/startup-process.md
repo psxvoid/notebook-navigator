@@ -83,7 +83,6 @@ Both version changes result in a cold boot to ensure data consistency.
 2. Load settings from data.json
 3. Initialize core services:
    - LocalStorage (vault-specific storage)
-   - MobileLogger (for mobile debugging)
    - IconService (icon providers)
    - MetadataService (colors, icons, sort overrides, appearance overrides)
    - TagOperations (tag manipulation)

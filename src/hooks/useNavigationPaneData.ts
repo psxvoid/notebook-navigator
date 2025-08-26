@@ -31,7 +31,7 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import { TFile, TFolder } from 'obsidian';
-import { useServices } from '../context/ServicesContext';
+import { useServices, useMetadataService } from '../context/ServicesContext';
 import { useExpansionState } from '../context/ExpansionContext';
 import { useFileCache } from '../context/StorageContext';
 import { strings } from '../i18n';
@@ -79,6 +79,7 @@ interface UseNavigationPaneDataResult {
  */
 export function useNavigationPaneData({ settings, isVisible }: UseNavigationPaneDataParams): UseNavigationPaneDataResult {
     const { app } = useServices();
+    const metadataService = useMetadataService();
     const expansionState = useExpansionState();
     const { fileData } = useFileCache();
 
@@ -252,6 +253,11 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
     ]);
 
     /**
+     * Pre-compute parsed excluded folders to avoid repeated parsing
+     */
+    const parsedExcludedFolders = useMemo(() => parseExcludedFolders(settings.excludedFolders), [settings.excludedFolders]);
+
+    /**
      * Combine folder and tag items based on display order settings
      */
     const items = useMemo(() => {
@@ -295,11 +301,54 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
     }, [folderItems, tagItems, settings.showTags, settings.showTagsAboveFolders]);
 
     /**
+     * Create a stable version key for metadata objects that gets updated when they're mutated
+     * This is needed because the settings objects are mutated in place when colors/icons change
+     * We depend on the entire settings object to ensure this recalculates when settings update
+     */
+    const metadataVersion = useMemo(() => {
+        // Create a version string that will change when any metadata is added/removed/changed
+        // We use JSON.stringify to detect any changes in the objects
+        return JSON.stringify({
+            folderColors: settings.folderColors || {},
+            tagColors: settings.tagColors || {},
+            folderIcons: settings.folderIcons || {},
+            tagIcons: settings.tagIcons || {},
+            inheritFolderColors: settings.inheritFolderColors
+        });
+    }, [settings]); // Depend on entire settings object to catch mutations
+
+    /**
+     * Add metadata (colors, icons) and excluded folders to items
+     * This pre-computation avoids calling these functions during render
+     */
+    const itemsWithMetadata = useMemo(() => {
+        return items.map(item => {
+            if (item.type === NavigationPaneItemType.FOLDER) {
+                return {
+                    ...item,
+                    color: metadataService.getFolderColor(item.data.path),
+                    icon: metadataService.getFolderIcon(item.data.path),
+                    parsedExcludedFolders
+                };
+            } else if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
+                const tagNode = item.data as TagTreeNode;
+                return {
+                    ...item,
+                    color: metadataService.getTagColor(tagNode.path),
+                    icon: metadataService.getTagIcon(tagNode.path)
+                };
+            }
+            return item;
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps -- metadataVersion is needed to detect mutations in settings objects
+    }, [items, parsedExcludedFolders, metadataService, metadataVersion]);
+
+    /**
      * Create a map for O(1) item lookups by path
      */
     const pathToIndex = useMemo(() => {
         const map = new Map<string, number>();
-        items.forEach((item, index) => {
+        itemsWithMetadata.forEach((item, index) => {
             if (item.type === NavigationPaneItemType.FOLDER) {
                 map.set(item.data.path, index);
             } else if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
@@ -308,7 +357,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
             }
         });
         return map;
-    }, [items]);
+    }, [itemsWithMetadata]);
 
     /**
      * Pre-compute tag counts to avoid expensive calculations during render
@@ -325,7 +374,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         }
 
         // Compute counts for all tag items
-        items.forEach(item => {
+        itemsWithMetadata.forEach(item => {
             if (item.type === NavigationPaneItemType.TAG) {
                 const tagNode = item.data as TagTreeNode;
                 counts.set(tagNode.path, getTotalNoteCount(tagNode));
@@ -333,7 +382,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         });
 
         return counts;
-    }, [items, settings.showTags, settings.showUntagged, untaggedCount, isVisible]);
+    }, [itemsWithMetadata, settings.showTags, settings.showUntagged, untaggedCount, isVisible]);
 
     /**
      * Pre-compute folder file counts to avoid recursive counting during render
@@ -367,7 +416,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         };
 
         // Compute counts for all folder items
-        items.forEach(item => {
+        itemsWithMetadata.forEach(item => {
             if (item.type === NavigationPaneItemType.FOLDER && item.data instanceof TFolder) {
                 counts.set(item.data.path, countFiles(item.data));
             }
@@ -375,7 +424,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
 
         return counts;
     }, [
-        items,
+        itemsWithMetadata,
         settings.showNoteCount,
         settings.showNotesFromSubfolders,
         settings.excludedFiles,
@@ -431,7 +480,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
     }, [app, settings.showRootFolder]);
 
     return {
-        items,
+        items: itemsWithMetadata,
         pathToIndex,
         tagCounts,
         folderCounts

@@ -58,7 +58,6 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.4.0',
         date: '2025-08-26',
         showOnUpdate: true,
-        info: 'First Community Plugin Release! 🎉 Notebook Navigator is now available in the Obsidian Community Plugins directory. A big thanks to everyone who supported the development of this plugin!',
         new: [
             '**Public API**. Other plugins and Javascript developers can now interact with Notebook Navigator through a comprehensive API that provides metadata management, navigation control, and event subscriptions. Full TypeScript support included!',
             '**Theming support**. Notebook Navigator now exposes custom CSS properties and provides detailed documentation for theme developers. Theme developers can fully customize colors, selection styles, hover effects, and all UI elements including mobile-specific components.',

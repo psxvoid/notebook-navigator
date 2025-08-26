@@ -44,6 +44,9 @@ export interface FolderTreeItem {
     level: number;
     path: string;
     key: string;
+    color?: string;
+    icon?: string;
+    parsedExcludedFolders?: string[];
 }
 
 export interface TagTreeItem {
@@ -53,6 +56,8 @@ export interface TagTreeItem {
     path?: string;
     key: string;
     context?: 'favorites' | 'tags'; // Indicates which section this tag is in
+    color?: string;
+    icon?: string;
 }
 
 export interface UntaggedItem {
@@ -61,6 +66,8 @@ export interface UntaggedItem {
     level: number;
     key: string;
     context?: 'favorites' | 'tags'; // Indicates which section this item is in
+    color?: string;
+    icon?: string;
 }
 
 export interface VirtualFolderItem {

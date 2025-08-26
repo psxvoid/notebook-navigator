@@ -60,7 +60,6 @@ import { Virtualizer } from '@tanstack/react-virtual';
 import { useExpansionState, useExpansionDispatch } from '../context/ExpansionContext';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useCommandQueue } from '../context/ServicesContext';
-import { useMetadataService } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useFileCache } from '../context/StorageContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
@@ -72,7 +71,6 @@ import { NavigationPaneItemType, ItemType, VirtualFolder } from '../types';
 import { TagTreeNode } from '../types/storage';
 import { getFolderNote } from '../utils/fileFinder';
 import { findTagNode } from '../utils/tagTree';
-import { parseExcludedFolders } from '../utils/fileFilters';
 import { FolderItem } from './FolderItem';
 import { NavigationPaneHeader } from './NavigationPaneHeader';
 import { NavigationToolbar } from './NavigationToolbar';
@@ -102,7 +100,6 @@ export const NavigationPane = React.memo(
     forwardRef<NavigationPaneHandle, NavigationPaneProps>(function NavigationPane(props, ref) {
         const { app, isMobile } = useServices();
         const commandQueue = useCommandQueue();
-        const metadataService = useMetadataService();
         const expansionState = useExpansionState();
         const expansionDispatch = useExpansionDispatch();
         const selectionState = useSelectionState();
@@ -357,10 +354,10 @@ export const NavigationPane = React.memo(
                                         }
                                     }
                                 }}
-                                icon={metadataService.getFolderIcon(item.data.path)}
-                                color={metadataService.getFolderColor(item.data.path)}
+                                icon={item.icon}
+                                color={item.color}
                                 fileCount={folderCounts.get(item.data.path)}
-                                excludedFolders={parseExcludedFolders(settings.excludedFolders)}
+                                excludedFolders={item.parsedExcludedFolders || []}
                             />
                         );
 
@@ -398,8 +395,8 @@ export const NavigationPane = React.memo(
                                 onToggle={() => handleTagToggle(tagNode.path)}
                                 onClick={() => handleTagClick(tagNode.path, item.context)}
                                 context={'context' in item ? item.context : undefined}
-                                color={metadataService.getTagColor(tagNode.path)}
-                                icon={metadataService.getTagIcon(tagNode.path)}
+                                color={item.color}
+                                icon={item.icon}
                                 onToggleAllSiblings={() => {
                                     const isCurrentlyExpanded = expansionState.expandedTags.has(tagNode.path);
 
@@ -460,8 +457,7 @@ export const NavigationPane = React.memo(
                 expansionDispatch,
                 settings,
                 tagCounts,
-                folderCounts,
-                metadataService
+                folderCounts
             ]
         );
 

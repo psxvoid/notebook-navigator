@@ -278,7 +278,8 @@ You can set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 ### Folders
 
 - **Show root folder:** Display "Vault" as the root folder in the tree
-- **Inherit folder colors:** When enabled, subfolders inherit the color from their parent folder if they don't have a custom color set
+- **Inherit folder colors:** When enabled, subfolders inherit the color from their parent folder if they don't have a
+  custom color set
 - **Enable folder notes:** When enabled, folders with associated notes are displayed as clickable links
   - **Folder note name:** Name of the folder note without extension. Leave empty to use the same name as the folder
   - **Hide folder notes in list:** Hide the folder note from appearing in the folder's note list
