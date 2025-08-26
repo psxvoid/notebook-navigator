@@ -28,7 +28,6 @@ import { FileSystemOperations } from './services/FileSystemService';
 import { NotebookNavigatorView } from './view/NotebookNavigatorView';
 import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage, LOCALSTORAGE_VERSION } from './utils/localStorage';
-import { initializeMobileLogger } from './utils/mobileLogger';
 import { NotebookNavigatorAPI } from './api/NotebookNavigatorAPI';
 import { ItemType, PinnedNotes } from './types';
 
@@ -131,9 +130,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         if (!localStorage.get(STORAGE_KEYS.localStorageVersionKey)) {
             localStorage.set(STORAGE_KEYS.localStorageVersionKey, LOCALSTORAGE_VERSION);
         }
-
-        // Initialize mobile logger
-        initializeMobileLogger(this.app);
 
         // Initialize icon service
         const { initializeIconService } = await import('./services/icons');
