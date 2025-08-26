@@ -32,7 +32,8 @@ export default tseslint.config(
         },
         plugins: {
             react: fixupPluginRules(react),
-            'react-hooks': fixupPluginRules(reactHooks)
+            'react-hooks': fixupPluginRules(reactHooks),
+            obsidianmd: obsidianmd
         },
         settings: {
             react: {
@@ -51,7 +52,9 @@ export default tseslint.config(
             'no-console': 'off',
             'no-debugger': 'error',
             'prefer-const': 'error',
-            'no-var': 'error'
+            'no-var': 'error',
+            // Upgrade obsidianmd rules from warn to error
+            'obsidianmd/prefer-file-manager-trash-file': 'error'
         }
     }
 );
