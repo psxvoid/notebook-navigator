@@ -245,7 +245,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
      * @param placeholder - Placeholder text for the input
      * @param getValue - Function to get current value
      * @param setValue - Function to set new value
-     * @param refreshView - Whether to refresh the navigator view on change
      * @param validator - Optional validation function
      * @returns The created Setting instance
      */
@@ -256,7 +255,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         placeholder: string,
         getValue: () => string,
         setValue: (value: string) => void,
-        _refreshView: boolean = true,
         validator?: (value: string) => boolean
     ): Setting {
         return new Setting(container)

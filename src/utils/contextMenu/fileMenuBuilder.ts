@@ -655,12 +655,6 @@ function addMultipleFilesDeleteOption(
                 await fileSystemOps.deleteFilesWithSmartSelection(
                     selectionState.selectedFiles,
                     cachedFileList,
-                    settings,
-                    {
-                        selectionType: selectionState.selectionType,
-                        selectedFolder: selectionState.selectedFolder || undefined,
-                        selectedTag: selectionState.selectedTag || undefined
-                    },
                     selectionDispatch,
                     settings.confirmBeforeDelete
                 );

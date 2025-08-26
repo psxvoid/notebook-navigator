@@ -36,7 +36,7 @@ import { getDBInstance } from '../storage/fileOperations';
 /**
  * Gets the folder note for a folder if it exists
  */
-export function getFolderNote(folder: TFolder, settings: NotebookNavigatorSettings, _app: App): TFile | null {
+export function getFolderNote(folder: TFolder, settings: NotebookNavigatorSettings): TFile | null {
     if (!settings.enableFolderNotes) {
         return null;
     }

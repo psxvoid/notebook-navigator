@@ -62,12 +62,6 @@ export async function deleteSelectedFiles({
         await fileSystemOps.deleteFilesWithSmartSelection(
             selectionState.selectedFiles,
             allFiles,
-            settings,
-            {
-                selectionType: selectionState.selectionType,
-                selectedFolder: selectionState.selectedFolder || undefined,
-                selectedTag: selectionState.selectedTag || undefined
-            },
             selectionDispatch,
             settings.confirmBeforeDelete
         );

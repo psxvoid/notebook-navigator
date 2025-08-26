@@ -140,7 +140,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     if (settings.enableFolderNotes) {
         menu.addSeparator();
 
-        const folderNote = getFolderNote(folder, settings, app);
+        const folderNote = getFolderNote(folder, settings);
 
         if (folderNote) {
             // Delete folder note option

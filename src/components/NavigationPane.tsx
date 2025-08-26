@@ -183,7 +183,7 @@ export const NavigationPane = React.memo(
             (folder: TFolder) => {
                 // Check if we should open a folder note instead
                 if (settings.enableFolderNotes) {
-                    const folderNote = getFolderNote(folder, settings, app);
+                    const folderNote = getFolderNote(folder, settings);
 
                     if (folderNote) {
                         // Set folder as selected without auto-selecting first file

@@ -145,11 +145,11 @@ export const FolderItem = React.memo(function FolderItem({
 
     const hasFolderNote = useMemo(() => {
         if (!settings.enableFolderNotes) return false;
-        const folderNote = getFolderNote(folder, settings, app);
+        const folderNote = getFolderNote(folder, settings);
         return folderNote !== null;
         // NOTE TO REVIEWER: Including **fileCount** to detect folder content changes
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [folder, settings, app, fileCount]);
+    }, [folder, settings, fileCount]);
 
     // Memoize className to avoid string concatenation on every render
     const className = useMemo(() => {

@@ -19,7 +19,7 @@ import { Root, createRoot } from 'react-dom/client';
  */
 
 // src/view/NotebookNavigatorView.tsx
-import { ItemView, WorkspaceLeaf, TFile, Platform, ViewStateResult } from 'obsidian';
+import { ItemView, WorkspaceLeaf, TFile, Platform } from 'obsidian';
 import { NotebookNavigatorContainer } from '../components/NotebookNavigatorContainer';
 import type { NotebookNavigatorHandle } from '../components/NotebookNavigatorComponent';
 import { ExpansionProvider } from '../context/ExpansionContext';
@@ -215,26 +215,6 @@ export class NotebookNavigatorView extends ItemView {
     async removeAllTagsFromSelectedFiles(): Promise<void> {
         await this.componentRef.current?.removeAllTagsFromSelectedFiles();
     }
-
-    /**
-     * Gets the current view state for persistence
-     * Called by Obsidian when saving workspace state (e.g., when switching layouts)
-     * Currently returns empty state as the view doesn't persist any specific data
-     */
-    getState(): Record<string, unknown> {
-        return {};
-    }
-
-    /**
-     * Restores the view state from persistence
-     * Called by Obsidian when restoring workspace state (e.g., on startup or layout change)
-     * The result parameter indicates what actions Obsidian will take:
-     * - history: true = navigation history will be preserved
-     * - layout: true = view layout will be preserved
-     * - close: false = view won't be closed
-     * Currently no-op as the view doesn't persist any specific state
-     */
-    async setState(_state: unknown, _result: ViewStateResult): Promise<void> {}
 
     /**
      * Called when view is resized

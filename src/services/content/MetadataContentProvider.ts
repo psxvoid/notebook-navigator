@@ -93,7 +93,7 @@ export class MetadataContentProvider extends BaseContentProvider {
 
         try {
             const cachedMetadata = this.app.metadataCache.getFileCache(job.file);
-            const processedMetadata = extractMetadataFromCache(cachedMetadata, job.file, settings);
+            const processedMetadata = extractMetadataFromCache(cachedMetadata, settings);
 
             const fileMetadata: FileData['metadata'] = {};
             if (processedMetadata.fn) fileMetadata.name = processedMetadata.fn;

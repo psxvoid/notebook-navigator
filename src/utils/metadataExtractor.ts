@@ -39,21 +39,16 @@ export interface ProcessedMetadata {
  */
 export function extractMetadata(app: App, file: TFile, settings: NotebookNavigatorSettings): ProcessedMetadata {
     const metadata = app.metadataCache.getFileCache(file);
-    return extractMetadataFromCache(metadata, file, settings);
+    return extractMetadataFromCache(metadata, settings);
 }
 
 /**
  * Extract metadata from cached metadata
  * @param metadata - Cached metadata from Obsidian
- * @param _file - The file (unused but kept for consistency)
  * @param settings - Current plugin settings
  * @returns Processed metadata object
  */
-export function extractMetadataFromCache(
-    metadata: CachedMetadata | null,
-    _file: TFile,
-    settings: NotebookNavigatorSettings
-): ProcessedMetadata {
+export function extractMetadataFromCache(metadata: CachedMetadata | null, settings: NotebookNavigatorSettings): ProcessedMetadata {
     const frontmatter = metadata?.frontmatter;
 
     if (!frontmatter || !settings.useFrontmatterMetadata) {

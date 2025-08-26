@@ -152,7 +152,7 @@ export class FileSystemOperations {
                         // Check for folder note before renaming
                         let folderNote: TFile | null = null;
                         if (settings?.enableFolderNotes) {
-                            folderNote = getFolderNote(folder, settings, this.app);
+                            folderNote = getFolderNote(folder, settings);
                         }
 
                         const newPath = normalizePath(folder.parent?.path ? `${folder.parent.path}/${newName}` : newName);
@@ -717,16 +717,12 @@ export class FileSystemOperations {
      * Centralizes the delete logic used by both keyboard shortcuts and context menu
      * @param selectedFiles - Set of selected file paths
      * @param allFiles - All files in the current view (for finding next file)
-     * @param settings - Plugin settings
-     * @param selectionContext - Current selection context
      * @param selectionDispatch - Selection dispatch function
      * @param confirmBeforeDelete - Whether to show confirmation dialog
      */
     async deleteFilesWithSmartSelection(
         selectedFiles: Set<string>,
         allFiles: TFile[],
-        _settings: NotebookNavigatorSettings,
-        _selectionContext: SelectionContext,
         selectionDispatch: SelectionDispatch,
         confirmBeforeDelete: boolean
     ): Promise<void> {
