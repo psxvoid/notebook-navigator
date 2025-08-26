@@ -176,12 +176,12 @@ export abstract class BaseMetadataService {
             }
 
             // Update recently used icons
-            if (!settings.recentlyUsedIcons) {
-                settings.recentlyUsedIcons = [];
+            if (!settings.recentIcons) {
+                settings.recentIcons = [];
             }
 
             // Remove if already exists and add to front
-            settings.recentlyUsedIcons = [iconId, ...settings.recentlyUsedIcons.filter((id: string) => id !== iconId)].slice(0, 10); // Keep only 10 most recent
+            settings.recentIcons = [iconId, ...settings.recentIcons.filter((id: string) => id !== iconId)].slice(0, 10); // Keep only 10 most recent
         });
     }
 

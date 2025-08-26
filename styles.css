@@ -2192,170 +2192,388 @@ body.nn-resizing {
 }
 
 /* ========================================================================
-   Color Picker Modal
+   Color Picker Modal - Compact Mobile-Friendly Design
    ======================================================================== */
 
-/* Color picker modal width - calculated for 5 columns */
+/* Modal size - use natural width */
 .modal.nn-color-picker-modal {
-    width: 340px !important;
-    max-width: 340px !important;
-    min-width: 340px !important;
+    max-height: 80vh;
 }
 
-/* Color picker content layout */
+/* Modal content padding */
 .nn-color-picker-modal .modal-content {
-    padding: 20px;
+    padding: 16px;
+    overflow-y: auto;
+    width: 100%;
+    box-sizing: border-box;
 }
 
-/* Color picker header */
+/* Header */
 .nn-color-picker-header {
     margin-bottom: 16px;
-    width: 100%;
     text-align: center;
 }
 
 .nn-color-picker-header h3 {
     margin: 0;
-    font-size: 14px;
+    font-size: 16px;
     font-weight: 600;
     color: var(--text-normal);
 }
 
-/* Color grid layout - 5 columns */
-.nn-color-grid {
-    display: grid;
-    grid-template-columns: repeat(5, 1fr);
+/* Two column layout */
+.nn-color-picker-content {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 16px;
+}
+
+.nn-color-picker-left {
+    flex: 0 0 250px;
+    display: flex;
+    flex-direction: column;
+}
+
+.nn-color-picker-right {
+    flex: 1;
+    min-width: 200px;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Preview section */
+.nn-color-preview-section {
+    margin-bottom: auto; /* Push preset colors to bottom */
+    padding-bottom: 15px;
+}
+
+.nn-color-preview-container {
+    display: flex;
+    align-items: center;
     gap: 12px;
 }
 
-/* Individual color item */
-.nn-color-item {
+.nn-preview-current,
+.nn-preview-new {
+    flex: 1;
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: 8px;
-    border-radius: var(--radius-m);
+    gap: 6px;
 }
 
-/* Color item hover/focus states */
-.nn-color-item:hover {
-    background-color: var(--background-modifier-hover);
-    transform: scale(1.05);
-}
-
-.nn-color-item:focus {
-    outline: none;
-    box-shadow: 0 0 0 2px var(--interactive-accent);
-}
-
-/* Color preview circle */
-.nn-color-preview {
-    width: 48px;
-    height: 48px;
-    border-radius: 50%;
-    box-shadow:
-        0 2px 4px rgba(0, 0, 0, 0.1),
-        inset 0 0 0 1px rgba(0, 0, 0, 0.1);
-}
-
-/* Apply background colors based on data attribute 
- * NOTE: These colors must match COLOR_PALETTE in ColorPickerModal.ts
- * This duplication is required for Obsidian plugin compliance (no JS styles)
- */
-.nn-color-preview[data-color-value='#ef4444'] {
-    background-color: #ef4444;
-}
-
-.nn-color-preview[data-color-value='#f97316'] {
-    background-color: #f97316;
-}
-
-.nn-color-preview[data-color-value='#f59e0b'] {
-    background-color: #f59e0b;
-}
-
-.nn-color-preview[data-color-value='#eab308'] {
-    background-color: #eab308;
-}
-
-.nn-color-preview[data-color-value='#84cc16'] {
-    background-color: #84cc16;
-}
-
-.nn-color-preview[data-color-value='#22c55e'] {
-    background-color: #22c55e;
-}
-
-.nn-color-preview[data-color-value='#10b981'] {
-    background-color: #10b981;
-}
-
-.nn-color-preview[data-color-value='#14b8a6'] {
-    background-color: #14b8a6;
-}
-
-.nn-color-preview[data-color-value='#06b6d4'] {
-    background-color: #06b6d4;
-}
-
-.nn-color-preview[data-color-value='#0ea5e9'] {
-    background-color: #0ea5e9;
-}
-
-.nn-color-preview[data-color-value='#3b82f6'] {
-    background-color: #3b82f6;
-}
-
-.nn-color-preview[data-color-value='#6366f1'] {
-    background-color: #6366f1;
-}
-
-.nn-color-preview[data-color-value='#8b5cf6'] {
-    background-color: #8b5cf6;
-}
-
-.nn-color-preview[data-color-value='#a855f7'] {
-    background-color: #a855f7;
-}
-
-.nn-color-preview[data-color-value='#d946ef'] {
-    background-color: #d946ef;
-}
-
-.nn-color-preview[data-color-value='#ec4899'] {
-    background-color: #ec4899;
-}
-
-.nn-color-preview[data-color-value='#f43f5e'] {
-    background-color: #f43f5e;
-}
-
-.nn-color-preview[data-color-value='#6b7280'] {
-    background-color: #6b7280;
-}
-
-.nn-color-preview[data-color-value='#64748b'] {
-    background-color: #64748b;
-}
-
-.nn-color-preview[data-color-value='#78716c'] {
-    background-color: #78716c;
-}
-
-/* Color name label */
-.nn-color-name {
+.nn-preview-label {
     font-size: 11px;
     color: var(--text-muted);
-    text-align: center;
-    font-weight: 400;
+    font-weight: 500;
 }
 
-/* Dark theme adjustments for color picker */
-.theme-dark .nn-color-preview {
-    box-shadow:
-        0 2px 4px rgba(0, 0, 0, 0.3),
-        inset 0 0 0 1px rgba(255, 255, 255, 0.1);
+.nn-preview-color {
+    width: 100%;
+    height: 50px;
+    border-radius: var(--radius-m);
+    border: 1px solid var(--background-modifier-border);
+}
+
+/* Transparent/no color indicator */
+.nn-preview-color.nn-no-color {
+    background-image:
+        linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc),
+        linear-gradient(45deg, #ccc 25%, transparent 25%, transparent 75%, #ccc 75%, #ccc);
+    background-size: 10px 10px;
+    background-position:
+        0 0,
+        5px 5px;
+    background-color: #fff;
+}
+
+.theme-dark .nn-preview-color.nn-no-color {
+    background-image:
+        linear-gradient(45deg, #444 25%, transparent 25%, transparent 75%, #444 75%, #444),
+        linear-gradient(45deg, #444 25%, transparent 25%, transparent 75%, #444 75%, #444);
+    background-color: #222;
+}
+
+.nn-preview-arrow {
+    width: 20px;
+    height: 20px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+    margin-top: 18px;
+}
+
+.nn-preview-arrow svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* RGB sliders section */
+.nn-rgb-section {
+    margin-bottom: auto; /* Push everything below to the bottom */
+    padding-bottom: 15px;
+}
+
+.nn-rgb-title {
+    font-size: 11px;
+    color: var(--text-muted);
+    font-weight: 500;
+    margin-bottom: 6px;
+}
+
+.nn-rgb-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.nn-rgb-row:last-child {
+    margin-bottom: 0;
+}
+
+.nn-rgb-label {
+    width: 16px;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+}
+
+.nn-rgb-slider {
+    flex: 1;
+    height: 4px;
+    -webkit-appearance: none;
+    appearance: none;
+    background: var(--background-modifier-border);
+    border-radius: 2px;
+    outline: none;
+}
+
+/* Slider thumb */
+.nn-rgb-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--interactive-accent);
+    cursor: pointer;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.nn-rgb-slider::-moz-range-thumb {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    background: var(--interactive-accent);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* RGB value display */
+.nn-rgb-value {
+    width: 32px;
+    text-align: right;
+    font-size: 11px;
+    color: var(--text-muted);
+    font-family: var(--font-monospace);
+}
+
+/* Color gradients for sliders */
+.nn-rgb-slider-r {
+    background: linear-gradient(to right, #000000, #ff0000);
+}
+
+.nn-rgb-slider-g {
+    background: linear-gradient(to right, #000000, #00ff00);
+}
+
+.nn-rgb-slider-b {
+    background: linear-gradient(to right, #000000, #0000ff);
+}
+
+/* Hex input section */
+.nn-hex-section {
+    margin-bottom: 20px;
+}
+
+.nn-hex-title {
+    display: block;
+    font-size: 11px;
+    font-weight: 500;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    height: 17px; /* Match the preview label height for alignment */
+}
+
+.nn-hex-container {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.nn-hex-label {
+    font-size: 14px;
+    color: var(--text-normal);
+    font-weight: 500;
+}
+
+.nn-hex-input {
+    flex: 1;
+    padding: 6px 8px;
+    border: 1px solid var(--background-modifier-border);
+    border-radius: var(--radius-s);
+    background: var(--background-primary);
+    color: var(--text-normal);
+    font-family: var(--font-monospace);
+    font-size: 13px;
+}
+
+.nn-hex-input:focus {
+    outline: none;
+    border-color: var(--interactive-accent);
+}
+
+/* Recent colors section */
+.nn-recent-section {
+    margin-top: auto; /* Align to bottom */
+}
+
+/* Recent colors header */
+.nn-recent-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 8px;
+}
+
+.nn-section-label {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.nn-recent-colors {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+}
+
+.nn-clear-recent {
+    width: 20px;
+    height: 20px;
+    padding: 0;
+    background: transparent;
+    color: var(--text-muted);
+    border: 1px solid var(--background-modifier-border);
+    border-radius: 3px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    line-height: 1;
+}
+
+.nn-clear-recent:hover {
+    background: var(--background-modifier-hover);
+    color: var(--text-normal);
+}
+
+/* Preset colors section */
+.nn-preset-section {
+    margin-top: auto; /* Align to bottom */
+}
+
+.nn-preset-colors {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    margin-top: 8px;
+}
+
+/* Color dots */
+.nn-color-dot {
+    aspect-ratio: 1;
+    border-radius: var(--radius-s);
+    cursor: pointer;
+    border: 1px solid var(--background-modifier-border);
+    transition: transform 0.1s ease;
+    position: relative;
+}
+
+/* Touch target enhancement */
+.nn-color-dot::before {
+    content: '';
+    position: absolute;
+    top: -4px;
+    left: -4px;
+    right: -4px;
+    bottom: -4px;
+}
+
+.nn-color-dot:hover {
+    transform: scale(1.1);
+    border-color: var(--interactive-accent);
+}
+
+.nn-color-dot:active {
+    transform: scale(0.95);
+}
+
+/* Empty color slot */
+.nn-color-dot.nn-color-empty {
+    background: var(--background-secondary);
+    border-style: dashed;
+    cursor: default;
+    opacity: 0.3;
+}
+
+.nn-color-dot.nn-color-empty:hover {
+    transform: none;
+    border-color: var(--background-modifier-border);
+}
+
+/* Button container */
+.nn-color-button-container {
+    display: flex;
+    gap: 12px;
+    margin-top: 20px;
+    padding-top: 16px;
+    border-top: 1px solid var(--background-modifier-border);
+    justify-content: center;
+}
+
+/* Dark theme adjustments */
+.theme-dark .nn-preview-color {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-dark .nn-color-dot {
+    border-color: rgba(255, 255, 255, 0.1);
+}
+
+.theme-dark .nn-color-dot:hover {
+    border-color: var(--interactive-accent);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 600px) {
+    .nn-color-picker-content {
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .nn-color-picker-left,
+    .nn-color-picker-right {
+        flex: 1 1 auto;
+        width: 100%;
+    }
+
+    .nn-preset-colors,
+    .nn-recent-colors {
+        grid-template-columns: repeat(8, 1fr);
+    }
 }
 
 /* ========================================================================

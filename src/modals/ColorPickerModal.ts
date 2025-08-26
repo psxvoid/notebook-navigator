@@ -16,10 +16,10 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, Modal } from 'obsidian';
+import { App, Modal, setIcon } from 'obsidian';
 import { strings } from '../i18n';
-import { MetadataService } from '../services/MetadataService';
 import { ItemType } from '../types';
+import { ISettingsProvider } from '../interfaces/ISettingsProvider';
 
 /**
  * Color palette for folder colors
@@ -52,24 +52,41 @@ const COLOR_PALETTE = [
     { name: strings.modals.colorPicker.colors.stone, value: '#78716c' }
 ];
 
+const MAX_RECENT_COLORS = 10;
+
 /**
- * Color picker modal for selecting custom folder colors
- * Displays a grid of predefined colors that work well in both themes
- *
- * Features:
- * - Clean grid layout with 5 columns
- * - Shows color preview with name below
- * - Keyboard navigation support
- * - Smooth hover and focus effects
- * - Applies to folder icon and name (not chevron)
+ * Extended metadata service interface for color operations
+ */
+interface ColorMetadataService {
+    setTagColor(path: string, color: string): Promise<void>;
+    setFolderColor(path: string, color: string): Promise<void>;
+    removeTagColor(path: string): Promise<void>;
+    removeFolderColor(path: string): Promise<void>;
+}
+
+/**
+ * Color picker modal with advanced features
+ * - Hex input field
+ * - RGB sliders
+ * - Recently used colors
+ * - Preset color palette
+ * - Real-time preview
  */
 export class ColorPickerModal extends Modal {
-    private colorGrid: HTMLDivElement;
-    private gridColumns: number = 5;
     private itemPath: string;
     private itemType: typeof ItemType.FOLDER | typeof ItemType.TAG;
-    private metadataService: MetadataService;
-    private keydownHandler: ((e: KeyboardEvent) => void) | null = null;
+    private metadataService: ColorMetadataService;
+    private settingsProvider: ISettingsProvider;
+    private currentColor: string | null = null;
+    private selectedColor: string = '#3b82f6';
+    private hexInput: HTMLInputElement;
+    private previewCurrent: HTMLDivElement;
+    private previewNew: HTMLDivElement;
+    private rgbSliders: { r: HTMLInputElement; g: HTMLInputElement; b: HTMLInputElement };
+    private rgbValues: { r: HTMLSpanElement; g: HTMLSpanElement; b: HTMLSpanElement };
+    private recentColorsContainer: HTMLDivElement;
+    private presetColorsContainer: HTMLDivElement;
+    private isUpdating = false;
 
     /** Callback function invoked when a color is selected */
     public onChooseColor: (color: string | null) => void;
@@ -83,7 +100,7 @@ export class ColorPickerModal extends Modal {
      */
     constructor(
         app: App,
-        metadataService: MetadataService,
+        metadataService: ColorMetadataService,
         itemPath: string,
         itemType: typeof ItemType.FOLDER | typeof ItemType.TAG = ItemType.FOLDER
     ) {
@@ -91,177 +108,439 @@ export class ColorPickerModal extends Modal {
         this.metadataService = metadataService;
         this.itemPath = itemPath;
         this.itemType = itemType;
+
+        // Access settings through the service's internal structure
+        // This is a temporary solution until MetadataService exposes settings properly
+        const serviceInternal = metadataService as unknown as {
+            folderService?: {
+                settingsProvider?: ISettingsProvider;
+            };
+        };
+        this.settingsProvider =
+            serviceInternal.folderService?.settingsProvider ||
+            ({
+                settings: {
+                    ...({} as ISettingsProvider['settings']),
+                    tagColors: {},
+                    folderColors: {},
+                    recentColors: []
+                },
+                saveSettings: async () => {}
+            } as ISettingsProvider);
+
+        // Get current color if exists
+        const settings = this.settingsProvider.settings;
+        const currentColors = itemType === ItemType.TAG ? settings.tagColors : settings.folderColors;
+        if (currentColors && currentColors[itemPath]) {
+            this.currentColor = currentColors[itemPath];
+            this.selectedColor = currentColors[itemPath];
+        } else {
+            // No current color, but we need a starting color for the picker
+            this.selectedColor = '#3b82f6';
+        }
     }
 
     /**
      * Called when the modal is opened
-     * Sets up the color grid
      */
     onOpen() {
         const { contentEl } = this;
         contentEl.empty();
         contentEl.addClass('nn-color-picker-modal');
 
-        // Create header
+        // Header - centered, showing the actual folder/tag name
         const header = contentEl.createDiv('nn-color-picker-header');
-        header.createEl('h3', { text: strings.modals.colorPicker.header });
+        const headerText = this.itemType === ItemType.TAG ? `#${this.itemPath}` : this.itemPath.split('/').pop() || this.itemPath;
+        header.createEl('h3', { text: headerText });
 
-        // Create color grid
-        this.colorGrid = contentEl.createDiv('nn-color-grid');
+        // Main content area with two columns
+        const mainContent = contentEl.createDiv('nn-color-picker-content');
 
-        // Add color items
-        COLOR_PALETTE.forEach((color, index) => {
-            this.createColorItem(color, index);
+        // Left column
+        const leftColumn = mainContent.createDiv('nn-color-picker-left');
+
+        // Color preview section - Current → New
+        const previewSection = leftColumn.createDiv('nn-color-preview-section');
+        const previewContainer = previewSection.createDiv('nn-color-preview-container');
+
+        const currentSection = previewContainer.createDiv('nn-preview-current');
+        currentSection.createEl('span', { text: 'Current', cls: 'nn-preview-label' });
+        this.previewCurrent = currentSection.createDiv('nn-preview-color');
+        if (this.currentColor) {
+            this.previewCurrent.style.backgroundColor = this.currentColor;
+        } else {
+            this.previewCurrent.addClass('nn-no-color');
+        }
+
+        const arrow = previewContainer.createDiv('nn-preview-arrow');
+        setIcon(arrow, 'lucide-arrow-right');
+
+        const newSection = previewContainer.createDiv('nn-preview-new');
+        newSection.createEl('span', { text: 'New', cls: 'nn-preview-label' });
+        this.previewNew = newSection.createDiv('nn-preview-color');
+        this.previewNew.style.backgroundColor = this.selectedColor;
+
+        // Preset colors section - moved to left column
+        const presetSection = leftColumn.createDiv('nn-preset-section');
+        presetSection.createEl('div', { text: 'Preset colors', cls: 'nn-section-label' });
+        this.presetColorsContainer = presetSection.createDiv('nn-preset-colors');
+
+        // Right column
+        const rightColumn = mainContent.createDiv('nn-color-picker-right');
+
+        // Hex input section - moved above RGB for mobile keyboard visibility
+        const hexSection = rightColumn.createDiv('nn-hex-section');
+        hexSection.createEl('label', { text: 'HEX', cls: 'nn-hex-title' });
+        const hexContainer = hexSection.createDiv('nn-hex-container');
+        hexContainer.createEl('span', { text: '#', cls: 'nn-hex-label' });
+        this.hexInput = hexContainer.createEl('input', {
+            type: 'text',
+            cls: 'nn-hex-input',
+            value: this.selectedColor.substring(1)
         });
 
-        // Set up keyboard navigation
-        this.setupKeyboardNavigation();
+        // RGB sliders section
+        const rgbSection = rightColumn.createDiv('nn-rgb-section');
+        rgbSection.createEl('div', { text: 'RGB', cls: 'nn-rgb-title' });
+        this.rgbSliders = {} as { r: HTMLInputElement; g: HTMLInputElement; b: HTMLInputElement };
+        this.rgbValues = {} as { r: HTMLSpanElement; g: HTMLSpanElement; b: HTMLSpanElement };
 
-        // Focus first color
-        // Use requestAnimationFrame to ensure DOM is ready
-        requestAnimationFrame(() => {
-            this.focusFirstColor();
+        ['r', 'g', 'b'].forEach(channel => {
+            const sliderRow = rgbSection.createDiv('nn-rgb-row');
+            sliderRow.createEl('span', {
+                text: channel.toUpperCase(),
+                cls: 'nn-rgb-label'
+            });
+
+            const slider = sliderRow.createEl('input', {
+                type: 'range',
+                cls: 'nn-rgb-slider'
+            }) as HTMLInputElement;
+            slider.min = '0';
+            slider.max = '255';
+            slider.classList.add(`nn-rgb-slider-${channel}`);
+
+            const value = sliderRow.createEl('span', {
+                cls: 'nn-rgb-value',
+                text: '0'
+            });
+
+            this.rgbSliders[channel as 'r' | 'g' | 'b'] = slider;
+            this.rgbValues[channel as 'r' | 'g' | 'b'] = value;
+        });
+
+        // Recent colors section - moved to right column
+        const recentSection = rightColumn.createDiv('nn-recent-section');
+        const recentHeader = recentSection.createDiv('nn-recent-header');
+        recentHeader.createEl('div', { text: 'Recent colors', cls: 'nn-section-label' });
+
+        // Clear button on same line
+        const clearButton = recentHeader.createEl('button', {
+            text: '×',
+            cls: 'nn-clear-recent',
+            title: 'Clear recent colors'
+        });
+        clearButton.addEventListener('click', async () => {
+            await this.clearRecentColors();
+        });
+
+        this.recentColorsContainer = recentSection.createDiv('nn-recent-colors');
+
+        // Buttons at the bottom - centered
+        const buttonContainer = contentEl.createDiv('nn-color-button-container');
+
+        // Cancel/Remove button - text changes based on whether there's a current color
+        const cancelRemoveButton = buttonContainer.createEl('button', {
+            text: this.currentColor ? 'Remove' : 'Cancel'
+        });
+        cancelRemoveButton.addEventListener('click', () => {
+            if (this.currentColor) {
+                this.removeColor();
+            } else {
+                this.close();
+            }
+        });
+
+        // Apply color button
+        const applyButton = buttonContainer.createEl('button', {
+            text: 'Apply',
+            cls: 'mod-cta'
+        });
+        applyButton.addEventListener('click', () => {
+            this.applyColor();
+        });
+
+        // Set up event handlers
+        this.setupEventHandlers();
+        this.loadRecentColors();
+        this.loadPresetColors();
+        this.updateFromHex(this.selectedColor);
+
+        // Hex input real-time update
+        this.hexInput.addEventListener('input', () => {
+            const hex = this.validateAndFormatHex(this.hexInput.value);
+            if (hex) {
+                this.updateFromHex(hex);
+            }
         });
     }
 
     /**
      * Called when the modal is closed
-     * Cleans up the modal content
      */
     onClose() {
         const { contentEl } = this;
-
-        // Remove event listener if it was added
-        if (this.keydownHandler) {
-            contentEl.removeEventListener('keydown', this.keydownHandler);
-            this.keydownHandler = null;
-        }
-
         contentEl.empty();
     }
 
     /**
-     * Creates a clickable color item in the grid
-     * @param color - The color object with name and value
-     * @param index - The index in the grid
+     * Set up event handlers for sliders
      */
-    private createColorItem(color: { name: string; value: string }, index: number) {
-        const colorItem = this.colorGrid.createDiv('nn-color-item');
-        colorItem.setAttribute('data-color', color.value);
-        colorItem.setAttribute('data-index', index.toString());
+    private setupEventHandlers() {
+        // RGB slider handlers
+        Object.keys(this.rgbSliders).forEach(channel => {
+            const slider = this.rgbSliders[channel as 'r' | 'g' | 'b'];
+            slider.addEventListener('input', () => {
+                if (!this.isUpdating) {
+                    this.updateFromRGB();
+                }
+            });
+        });
+    }
 
-        // Color preview
-        const colorPreview = colorItem.createDiv('nn-color-preview');
-        colorPreview.setAttribute('data-color-value', color.value);
+    /**
+     * Load and display recently used colors
+     */
+    private loadRecentColors() {
+        const recentColors = this.settingsProvider.settings.recentColors || [];
+        this.recentColorsContainer.empty();
 
-        // Color name
-        const colorName = colorItem.createDiv('nn-color-name');
-        colorName.setText(color.name);
-
-        // Click handler
-        colorItem.addEventListener('click', () => {
-            this.selectColor(color.value);
+        recentColors.forEach(color => {
+            const dot = this.recentColorsContainer.createDiv('nn-color-dot');
+            dot.style.backgroundColor = color;
+            dot.setAttribute('data-color', color);
+            dot.addEventListener('click', async () => {
+                this.updateFromHex(color);
+                // Apply the color directly without re-adding to recent
+                // Set the color based on item type
+                if (this.itemType === ItemType.TAG) {
+                    await this.metadataService.setTagColor(this.itemPath, color);
+                } else {
+                    await this.metadataService.setFolderColor(this.itemPath, color);
+                }
+                // Notify callback
+                this.onChooseColor?.(color);
+                // Close the modal
+                this.close();
+            });
         });
 
-        // Make focusable
-        colorItem.setAttribute('tabindex', '0');
-    }
-
-    /**
-     * Sets up keyboard navigation for the modal
-     * Arrow keys navigate the grid, Enter/Space selects
-     */
-    private setupKeyboardNavigation() {
-        this.keydownHandler = (e: KeyboardEvent) => {
-            const colorItems = Array.from(this.colorGrid.querySelectorAll('.nn-color-item')) as HTMLElement[];
-            if (colorItems.length === 0) return;
-
-            const currentFocused = document.activeElement as HTMLElement;
-            const isInGrid = currentFocused?.classList.contains('nn-color-item');
-
-            if (isInGrid) {
-                const currentIndex = parseInt(currentFocused.getAttribute('data-index') || '0');
-                let newIndex = currentIndex;
-
-                switch (e.key) {
-                    case 'ArrowLeft':
-                        e.preventDefault();
-                        if (currentIndex % this.gridColumns > 0) {
-                            newIndex = currentIndex - 1;
-                        }
-                        break;
-
-                    case 'ArrowRight':
-                        e.preventDefault();
-                        if (currentIndex % this.gridColumns < this.gridColumns - 1 && currentIndex < colorItems.length - 1) {
-                            newIndex = currentIndex + 1;
-                        }
-                        break;
-
-                    case 'ArrowUp':
-                        e.preventDefault();
-                        if (currentIndex >= this.gridColumns) {
-                            newIndex = currentIndex - this.gridColumns;
-                        }
-                        break;
-
-                    case 'ArrowDown':
-                        e.preventDefault();
-                        if (currentIndex + this.gridColumns < colorItems.length) {
-                            newIndex = currentIndex + this.gridColumns;
-                        }
-                        break;
-
-                    case 'Enter':
-                    case ' ': {
-                        e.preventDefault();
-                        const color = currentFocused.getAttribute('data-color');
-                        if (color) {
-                            this.selectColor(color);
-                        }
-                        break;
-                    }
-
-                    case 'Escape':
-                        e.preventDefault();
-                        this.close();
-                        break;
-                }
-
-                if (newIndex !== currentIndex && newIndex >= 0 && newIndex < colorItems.length) {
-                    colorItems[newIndex].focus();
-                }
-            }
-        };
-
-        this.contentEl.addEventListener('keydown', this.keydownHandler);
-    }
-
-    /**
-     * Focuses the first color in the grid
-     */
-    private focusFirstColor() {
-        const firstColor = this.colorGrid.querySelector('.nn-color-item') as HTMLElement;
-        if (firstColor) {
-            firstColor.focus();
+        // Fill empty slots
+        for (let i = recentColors.length; i < MAX_RECENT_COLORS; i++) {
+            this.recentColorsContainer.createDiv('nn-color-dot nn-color-empty');
         }
     }
 
     /**
-     * Handles color selection
-     * Saves the selection and closes the modal
-     * @param color - The selected color value
+     * Clear all recently used colors
      */
-    private async selectColor(color: string) {
+    private async clearRecentColors() {
+        this.settingsProvider.settings.recentColors = [];
+        await this.settingsProvider.saveSettings();
+        this.loadRecentColors();
+    }
+
+    /**
+     * Load preset color palette
+     */
+    private loadPresetColors() {
+        this.presetColorsContainer.empty();
+
+        COLOR_PALETTE.forEach(color => {
+            const dot = this.presetColorsContainer.createDiv('nn-color-dot');
+            dot.style.backgroundColor = color.value;
+            dot.setAttribute('data-color', color.value);
+            dot.setAttribute('title', color.name);
+            dot.addEventListener('click', async () => {
+                this.updateFromHex(color.value);
+                // Apply the color directly without adding to recent
+                // Set the color based on item type
+                if (this.itemType === ItemType.TAG) {
+                    await this.metadataService.setTagColor(this.itemPath, color.value);
+                } else {
+                    await this.metadataService.setFolderColor(this.itemPath, color.value);
+                }
+                // Notify callback
+                this.onChooseColor?.(color.value);
+                // Close the modal
+                this.close();
+            });
+        });
+    }
+
+    /**
+     * Update all controls from hex value
+     */
+    private updateFromHex(hex: string) {
+        this.isUpdating = true;
+        this.selectedColor = hex;
+
+        // Update preview
+        this.previewNew.style.backgroundColor = hex;
+
+        // Update hex input
+        this.hexInput.value = hex.substring(1);
+
+        // Convert to RGB and update sliders
+        const rgb = this.hexToRgb(hex);
+        if (rgb) {
+            this.rgbSliders.r.value = rgb.r.toString();
+            this.rgbSliders.g.value = rgb.g.toString();
+            this.rgbSliders.b.value = rgb.b.toString();
+            this.rgbValues.r.setText(rgb.r.toString());
+            this.rgbValues.g.setText(rgb.g.toString());
+            this.rgbValues.b.setText(rgb.b.toString());
+        }
+
+        this.isUpdating = false;
+    }
+
+    /**
+     * Update from RGB slider values
+     */
+    private updateFromRGB() {
+        const r = parseInt(this.rgbSliders.r.value);
+        const g = parseInt(this.rgbSliders.g.value);
+        const b = parseInt(this.rgbSliders.b.value);
+
+        // Update value displays
+        this.rgbValues.r.setText(r.toString());
+        this.rgbValues.g.setText(g.toString());
+        this.rgbValues.b.setText(b.toString());
+
+        // Convert to hex
+        const hex = this.rgbToHex(r, g, b);
+        this.selectedColor = hex;
+
+        // Update preview and hex input
+        this.previewNew.style.backgroundColor = hex;
+        this.hexInput.value = hex.substring(1);
+    }
+
+    /**
+     * Convert hex to RGB
+     */
+    private hexToRgb(hex: string): { r: number; g: number; b: number } | null {
+        const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result
+            ? {
+                  r: parseInt(result[1], 16),
+                  g: parseInt(result[2], 16),
+                  b: parseInt(result[3], 16)
+              }
+            : null;
+    }
+
+    /**
+     * Convert RGB to hex
+     */
+    private rgbToHex(r: number, g: number, b: number): string {
+        return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+    }
+
+    /**
+     * Validate and format hex input
+     */
+    private validateAndFormatHex(input: string): string | null {
+        // Remove # if present and spaces
+        let hex = input.replace('#', '').trim();
+
+        // Support 3-digit hex
+        if (hex.length === 3) {
+            hex = hex
+                .split('')
+                .map(c => c + c)
+                .join('');
+        }
+
+        // Validate 6-digit hex
+        if (!/^[0-9A-Fa-f]{6}$/.test(hex)) {
+            return null;
+        }
+
+        return '#' + hex.toLowerCase();
+    }
+
+    /**
+     * Save color to recent colors (only for custom colors, not presets)
+     */
+    private async saveToRecentColors(color: string) {
+        // Check if this is a preset color - if so, don't add to recent
+        const isPresetColor = COLOR_PALETTE.some(preset => preset.value === color);
+        if (isPresetColor) {
+            return;
+        }
+
+        const settings = this.settingsProvider.settings;
+        let recentColors = settings.recentColors || [];
+
+        // Remove if already exists
+        recentColors = recentColors.filter(c => c !== color);
+
+        // Add to front
+        recentColors.unshift(color);
+
+        // Limit to max
+        recentColors = recentColors.slice(0, MAX_RECENT_COLORS);
+
+        // Update settings
+        settings.recentColors = recentColors;
+        await this.settingsProvider.saveSettings();
+    }
+
+    /**
+     * Apply the selected color and close
+     */
+    private applyColor() {
+        // Save the color
+        this.saveColor();
+        // Close the modal
+        this.close();
+    }
+
+    /**
+     * Remove the color and close
+     */
+    private async removeColor() {
+        // Remove the color based on item type
+        if (this.itemType === ItemType.TAG) {
+            await this.metadataService.removeTagColor(this.itemPath);
+        } else {
+            await this.metadataService.removeFolderColor(this.itemPath);
+        }
+
+        // Notify callback with null
+        this.onChooseColor?.(null);
+
+        // Close the modal
+        this.close();
+    }
+
+    /**
+     * Save the selected color
+     */
+    private async saveColor() {
+        // Save to recent colors
+        await this.saveToRecentColors(this.selectedColor);
+
         // Set the color based on item type
         if (this.itemType === ItemType.TAG) {
-            await this.metadataService.setTagColor(this.itemPath, color);
+            await this.metadataService.setTagColor(this.itemPath, this.selectedColor);
         } else {
-            await this.metadataService.setFolderColor(this.itemPath, color);
+            await this.metadataService.setFolderColor(this.itemPath, this.selectedColor);
         }
 
-        // Notify callback and close
-        this.onChooseColor?.(color);
-        this.close();
+        // Notify callback
+        this.onChooseColor?.(this.selectedColor);
     }
 }
