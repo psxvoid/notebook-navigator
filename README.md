@@ -4,11 +4,9 @@
 ![Obsidian Compatibility](https://img.shields.io/badge/Obsidian-v1.8.0+-483699?logo=obsidian&style=flat-square)
 [![Discord](https://img.shields.io/discord/1405458145974943846?color=7289da&label=Discord&logo=discord&logoColor=white)](https://discord.gg/6eeSUvzEJr)
 
-Notebook Navigator is a plugin for [Obsidian](https://obsidian.md) that replaces the default file explorer with a
-Notes-style interface with a dual-pane layout.
+Notebook Navigator is a plugin for [Obsidian](https://obsidian.md) that replaces the default file explorer with a Notes-style interface with a dual-pane layout.
 
-If you love using Notebook Navigator, please consider [buying me a coffee](https://buymeacoffee.com/johansan) or
-[Sponsor on GitHub ❤️](https://github.com/sponsors/johansan).
+If you love using Notebook Navigator, please consider [buying me a coffee](https://buymeacoffee.com/johansan) or [Sponsor on GitHub ❤️](https://github.com/sponsors/johansan).
 
 <a href="https://www.buymeacoffee.com/johansan" target="_blank"><img src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png" alt="Buy Me A Coffee" style="height: 60px !important;width: 217px !important;" ></a>
 
