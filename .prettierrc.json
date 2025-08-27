@@ -19,6 +19,7 @@
     },
     {
       "files": "*.md",
+      "excludeFiles": ["README*", "docs/**/*"],
       "options": {
         "proseWrap": "always",
         "printWidth": 120
