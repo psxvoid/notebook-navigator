@@ -53,6 +53,9 @@ body {
     --nn-nav-font-size: 13px; /* Fixed 13px */
     --nn-nav-icon-size: 16px; /* Fixed icon size */
 
+    /* User-configurable settings via Style Settings */
+    --nn-setting-nav-indent: 10px; /* Indentation width for folder/tag tree */
+
     /* ========================================================================
        Pane Width Constraints
        ======================================================================== */
@@ -535,6 +538,7 @@ body {
     min-width: 0; /* Allow folder items to shrink below min-content width */
     height: var(--nn-nav-item-height); /* Fixed height for virtualizer accuracy */
     box-sizing: border-box;
+    padding-inline-start: calc(var(--level, 0) * var(--nn-setting-nav-indent));
     contain: paint; /* Isolate per-item painting */
 }
 
@@ -2936,6 +2940,17 @@ settings:
         type: heading
         level: 2
         collapsed: false
+    -
+    -
+        id: nn-setting-nav-indent
+        title: Tree indentation
+        description: Indentation width for each folder and tag nesting level
+        type: variable-number-slider
+        default: 10
+        format: px
+        min: 5
+        max: 20
+        step: 1
     -
     -
         id: nn-theme-navitem-chevron-color

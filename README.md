@@ -295,6 +295,31 @@ _(\*) These settings store data to a local cache database. You can see the total
 
 <br>
 
+## Style Settings
+
+Notebook Navigator integrates with the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin for visual customization.
+
+### Available Customizations
+
+With Style Settings installed, you can customize:
+
+- **Navigation layout** - Tree indentation width (5-20px)
+- **Colors** - All interface colors including backgrounds, text, icons, and selection states
+- **Borders & corners** - Border radius for items, badges, and panels
+- **Font weights** - Text weights for folders, tags, files, and various UI elements
+- **Mobile styles** - Separate customizations for mobile interface
+
+### How to Use
+
+1. Install the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin from Community Plugins
+2. Open Style Settings from Obsidian settings
+3. Find "Notebook Navigator" in the Style Settings list
+4. Customize any aspect of the interface
+
+For theme developers who want to style Notebook Navigator, see the [Theming Guide](docs/theming-guide.md).
+
+<br>
+
 ## Tips and Tricks
 
 ### Display thumbnails with Featured Image plugin
