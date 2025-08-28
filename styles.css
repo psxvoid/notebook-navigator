@@ -54,7 +54,7 @@ body {
     --nn-nav-icon-size: 16px; /* Fixed icon size */
 
     /* User-configurable settings via Style Settings */
-    --nn-setting-nav-indent: 10px; /* Indentation width for folder/tag tree */
+    --nn-setting-nav-indent: 16px; /* Indentation width for folder/tag tree */
 
     /* ========================================================================
        Pane Width Constraints
@@ -2946,10 +2946,10 @@ settings:
         title: Tree indentation
         description: Indentation width for each folder and tag nesting level
         type: variable-number-slider
-        default: 10
+        default: 16
         format: px
-        min: 5
-        max: 20
+        min: 10
+        max: 24
         step: 1
     -
     -
