@@ -299,7 +299,7 @@ export class IconPickerModal extends Modal {
     private setupKeyboardNavigation() {
         // Similar to original but simplified
         this.contentEl.addEventListener('keydown', e => {
-            const iconItems = Array.from(this.resultsContainer.querySelectorAll('.nn-icon-item')) as HTMLElement[];
+            const iconItems = Array.from(this.resultsContainer.querySelectorAll<HTMLElement>('.nn-icon-item'));
             if (iconItems.length === 0) return;
 
             const currentFocused = document.activeElement as HTMLElement;

@@ -69,7 +69,7 @@ if (typeof window !== 'undefined' && !window.requestIdleCallback) {
         }, timeout);
 
         // Cast is safe because we're in a browser environment
-        return timeoutId as number;
+        return timeoutId;
     };
 
     window.cancelIdleCallback = function (id: number) {

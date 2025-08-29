@@ -67,7 +67,7 @@ import { useNavigationPaneKeyboard } from '../hooks/useNavigationPaneKeyboard';
 import { useNavigationPaneData } from '../hooks/useNavigationPaneData';
 import { useNavigationPaneScroll } from '../hooks/useNavigationPaneScroll';
 import type { CombinedNavigationItem } from '../types/virtualization';
-import { NavigationPaneItemType, ItemType, VirtualFolder } from '../types';
+import { NavigationPaneItemType, ItemType } from '../types';
 import { TagTreeNode } from '../types/storage';
 import { getFolderNote } from '../utils/fileFinder';
 import { findTagNode } from '../utils/tagTree';
@@ -362,7 +362,7 @@ export const NavigationPane = React.memo(
                         );
 
                     case NavigationPaneItemType.VIRTUAL_FOLDER: {
-                        const virtualFolder = item.data as VirtualFolder;
+                        const virtualFolder = item.data;
                         const hasChildren =
                             virtualFolder.id === 'tags-root' ||
                             virtualFolder.id === 'all-tags-root' ||
@@ -381,7 +381,7 @@ export const NavigationPane = React.memo(
 
                     case NavigationPaneItemType.TAG:
                     case NavigationPaneItemType.UNTAGGED: {
-                        const tagNode = item.data as TagTreeNode;
+                        const tagNode = item.data;
                         return (
                             <TagTreeItem
                                 tagNode={tagNode}

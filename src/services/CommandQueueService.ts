@@ -140,7 +140,7 @@ export class CommandQueueService {
     isOpeningInNewContext(): boolean {
         for (const operation of this.activeOperations.values()) {
             if (operation.type === OperationType.OPEN_IN_NEW_CONTEXT) {
-                const op = operation as OpenInNewContextOperation;
+                const op = operation;
                 // Only tab and split affect the current window
                 if (op.context === 'tab' || op.context === 'split') {
                     return true;

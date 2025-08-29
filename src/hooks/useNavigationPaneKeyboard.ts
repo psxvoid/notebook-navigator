@@ -37,7 +37,6 @@ import { useServices, useFileSystemOps } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useUIState, useUIDispatch } from '../context/UIStateContext';
 import { NavigationPaneItemType, ItemType } from '../types';
-import { TagTreeNode } from '../types/storage';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import { deleteSelectedFolder } from '../utils/deleteOperations';
 import { useKeyboardNavigation, KeyboardNavigationHelpers } from './useKeyboardNavigation';
@@ -109,7 +108,7 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                     }
                 }
             } else if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
-                const tagNode = item.data as TagTreeNode;
+                const tagNode = item.data;
                 const context = 'context' in item ? item.context : undefined;
                 selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagNode.path, context });
 
@@ -140,7 +139,7 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                     expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
                 }
             } else if (item.type === NavigationPaneItemType.TAG) {
-                const tag = item.data as TagTreeNode;
+                const tag = item.data;
                 const isExpanded = expansionState.expandedTags.has(tag.path);
                 if (expand && !isExpanded && tag.children.size > 0) {
                     expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath: tag.path });
@@ -266,7 +265,7 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                             }
                         } else if (item.type === NavigationPaneItemType.TAG) {
                             // Similarly for tags
-                            const tag = item.data as TagTreeNode;
+                            const tag = item.data;
                             const isExpanded = expansionState.expandedTags.has(tag.path);
                             const hasChildren = tag.children.size > 0;
 
@@ -321,7 +320,7 @@ export function useNavigationPaneKeyboard({ items, virtualizer, containerRef, pa
                                 }
                             }
                         } else if (item.type === NavigationPaneItemType.TAG) {
-                            const tag = item.data as TagTreeNode;
+                            const tag = item.data;
                             const isExpanded = expansionState.expandedTags.has(tag.path);
                             if (isExpanded) {
                                 // Collapse the tag

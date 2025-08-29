@@ -54,7 +54,11 @@ export default tseslint.config(
             'prefer-const': 'error',
             'no-var': 'error',
             // Upgrade obsidianmd rules from warn to error
-            'obsidianmd/prefer-file-manager-trash-file': 'error'
+            'obsidianmd/prefer-file-manager-trash-file': 'error',
+
+            // Warns about unnecessary type assertions like "as string" when TypeScript already knows the type
+            '@typescript-eslint/no-unnecessary-type-assertion': 'warn',
+            '@typescript-eslint/prefer-as-const': 'warn'
         }
     }
 );

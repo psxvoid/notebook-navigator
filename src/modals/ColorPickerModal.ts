@@ -209,7 +209,7 @@ export class ColorPickerModal extends Modal {
                     min: '0',
                     max: '255'
                 }
-            }) as HTMLInputElement;
+            });
             slider.classList.add(`nn-rgb-slider-${channel}`);
 
             const value = sliderRow.createEl('span', {

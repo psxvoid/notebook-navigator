@@ -331,7 +331,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                     parsedExcludedFolders
                 };
             } else if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
-                const tagNode = item.data as TagTreeNode;
+                const tagNode = item.data;
                 return {
                     ...item,
                     color: metadataService.getTagColor(tagNode.path),
@@ -353,7 +353,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
             if (item.type === NavigationPaneItemType.FOLDER) {
                 map.set(item.data.path, index);
             } else if (item.type === NavigationPaneItemType.TAG || item.type === NavigationPaneItemType.UNTAGGED) {
-                const tagNode = item.data as TagTreeNode;
+                const tagNode = item.data;
                 map.set(tagNode.path, index);
             }
         });
@@ -377,7 +377,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         // Compute counts for all tag items
         itemsWithMetadata.forEach(item => {
             if (item.type === NavigationPaneItemType.TAG) {
-                const tagNode = item.data as TagTreeNode;
+                const tagNode = item.data;
                 counts.set(tagNode.path, getTotalNoteCount(tagNode));
             }
         });

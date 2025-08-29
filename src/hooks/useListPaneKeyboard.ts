@@ -326,7 +326,7 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
                         const allFiles = items
                             .filter(item => item.type === ListPaneItemType.FILE)
                             .map(item => {
-                                const fileItem = item as ListPaneItem;
+                                const fileItem = item;
                                 return fileItem.data instanceof TFile ? fileItem.data : null;
                             })
                             .filter((file): file is TFile => file !== null);

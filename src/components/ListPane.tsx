@@ -305,7 +305,7 @@ export const ListPane = React.memo(
             () => ({
                 getIndexOfPath: (path: string) => filePathToIndex.get(path) ?? -1,
                 virtualizer: rowVirtualizer,
-                scrollContainerRef: scrollContainerRef.current as HTMLDivElement | null
+                scrollContainerRef: scrollContainerRef.current
             }),
             [filePathToIndex, rowVirtualizer, scrollContainerRef]
         );
