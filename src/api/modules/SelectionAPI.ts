@@ -81,12 +81,11 @@ export class SelectionAPI {
                 folder: null,
                 tag: this.selectionState.navigationTag
             };
-        } else {
-            return {
-                folder: null,
-                tag: null
-            };
         }
+        return {
+            folder: null,
+            tag: null
+        };
     }
 
     /**

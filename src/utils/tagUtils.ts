@@ -105,7 +105,7 @@ export function determineTagToReveal(
         // For auto-reveals (which tag reveals always are), check if current tag is a parent
         // This is similar to how folder auto-reveals preserve parent folders with showNotesFromSubfolders
         const currentTagLower = currentTag.toLowerCase();
-        const currentTagPrefix = currentTagLower + '/';
+        const currentTagPrefix = `${currentTagLower}/`;
 
         // Check if any of the file's tags are children of the current tag
         for (const fileTag of fileTags) {

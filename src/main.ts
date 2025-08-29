@@ -653,7 +653,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         }
 
         // Start with default settings
-        this.settings = Object.assign({}, DEFAULT_SETTINGS, data || {});
+        this.settings = { ...DEFAULT_SETTINGS, ...(data || {}) };
 
         // On first launch, set language-specific date/time formats
         if (isFirstLaunch || !data?.dateFormat) {
@@ -689,7 +689,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         if (Array.isArray(this.settings.pinnedNotes)) {
             console.log('Migrating pinnedNotes from array to object format');
 
-            const arrayFormat = this.settings.pinnedNotes as Array<{ path: string; context: Record<string, boolean> }>;
+            const arrayFormat = this.settings.pinnedNotes as { path: string; context: Record<string, boolean> }[];
             const objectFormat: PinnedNotes = {};
 
             for (const note of arrayFormat) {

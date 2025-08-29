@@ -280,7 +280,7 @@ export class IndexedDBStorage {
 
                         // Use openCursor to get both keys and values
                         const request = store.openCursor();
-                        const filesWithPaths: Array<{ path: string; data: FileData }> = [];
+                        const filesWithPaths: { path: string; data: FileData }[] = [];
 
                         await new Promise<void>((resolve, reject) => {
                             request.onsuccess = event => {
@@ -427,7 +427,7 @@ export class IndexedDBStorage {
      *
      * @param files - Array of file data with paths to store
      */
-    async setFiles(files: Array<{ path: string; data: FileData }>): Promise<void> {
+    async setFiles(files: { path: string; data: FileData }[]): Promise<void> {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
@@ -573,7 +573,7 @@ export class IndexedDBStorage {
      *
      * @returns Array of files with paths
      */
-    getAllFiles(): Array<{ path: string; data: FileData }> {
+    getAllFiles(): { path: string; data: FileData }[] {
         if (!this.cache.isReady()) {
             return [];
         }
@@ -697,13 +697,13 @@ export class IndexedDBStorage {
      *
      * @param updates - Array of path and mtime pairs to update
      */
-    async updateMtimes(updates: Array<{ path: string; mtime: number }>): Promise<void> {
+    async updateMtimes(updates: { path: string; mtime: number }[]): Promise<void> {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
         const paths = updates.map(u => u.path);
         const existingFiles = this.getFiles(paths);
-        const filesToUpdate: Array<{ path: string; data: FileData }> = [];
+        const filesToUpdate: { path: string; data: FileData }[] = [];
 
         for (const update of updates) {
             const file = existingFiles.get(update.path);
@@ -868,7 +868,7 @@ export class IndexedDBStorage {
         if (!this.db) throw new Error('Database not initialized');
 
         const files = this.getFiles(paths);
-        const updates: Array<{ path: string; data: FileData }> = [];
+        const updates: { path: string; data: FileData }[] = [];
         const changeNotifications: FileContentChange[] = [];
 
         for (const [path, file] of files) {
@@ -923,20 +923,20 @@ export class IndexedDBStorage {
      * @param updates - Array of content updates to apply
      */
     async batchUpdateFileContent(
-        updates: Array<{
+        updates: {
             path: string;
             tags?: string[] | null;
             preview?: string;
             featureImage?: string;
             metadata?: FileData['metadata'];
-        }>
+        }[]
     ): Promise<void> {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
         const paths = updates.map(u => u.path);
         const existingFiles = this.getFiles(paths);
-        const filesToUpdate: Array<{ path: string; data: FileData }> = [];
+        const filesToUpdate: { path: string; data: FileData }[] = [];
         const changeNotifications: FileContentChange[] = [];
 
         for (const update of updates) {
@@ -1018,7 +1018,7 @@ export class IndexedDBStorage {
      *
      * @param files - Array of file data with paths to store
      */
-    async batchUpdate(files: Array<{ path: string; data: FileData }>): Promise<void> {
+    async batchUpdate(files: { path: string; data: FileData }[]): Promise<void> {
         await this.setFiles(files);
     }
 

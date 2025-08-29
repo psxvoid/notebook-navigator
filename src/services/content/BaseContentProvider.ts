@@ -139,7 +139,7 @@ export abstract class BaseContentProvider implements IContentProvider {
         const settings = this.currentBatchSettings;
 
         // Declare activeJobs outside try block so it's accessible in finally
-        let activeJobs: Array<{ job: ContentJob; fileData: FileData | null; needsProcessing: boolean }> = [];
+        let activeJobs: { job: ContentJob; fileData: FileData | null; needsProcessing: boolean }[] = [];
 
         try {
             const db = getDBInstance();
@@ -170,13 +170,13 @@ export abstract class BaseContentProvider implements IContentProvider {
             });
 
             // Process files in parallel batches
-            const updates: Array<{
+            const updates: {
                 path: string;
                 tags?: string[] | null;
                 preview?: string;
                 featureImage?: string;
                 metadata?: FileData['metadata'];
-            }> = [];
+            }[] = [];
 
             for (let i = 0; i < activeJobs.length; i += this.PARALLEL_LIMIT) {
                 if (this.abortController.signal.aborted) break;
@@ -216,7 +216,7 @@ export abstract class BaseContentProvider implements IContentProvider {
                 // This is done after content generation to prevent race conditions
                 // Note: updateMtimes does NOT emit notifications - it's internal bookkeeping only
                 // The UI already updated from batchUpdateFileContent above
-                const mtimeUpdates: Array<{ path: string; mtime: number }> = [];
+                const mtimeUpdates: { path: string; mtime: number }[] = [];
                 for (const { job } of activeJobs) {
                     if (updates.some(u => u.path === job.file.path)) {
                         mtimeUpdates.push({

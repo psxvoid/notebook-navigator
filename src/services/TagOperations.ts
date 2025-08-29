@@ -152,7 +152,7 @@ export class TagOperations {
 
             // Check if we already have an ancestor tag
             // e.g., if we want to add "project/example" but file has "project"
-            return lowerTag.startsWith(lowerExistingTag + '/');
+            return lowerTag.startsWith(`${lowerExistingTag}/`);
         });
     }
 
@@ -257,7 +257,7 @@ export class TagOperations {
         const currentTags = this.getTagsFromFiles([file]);
 
         // Find descendant tags to remove
-        const descendantTags = currentTags.filter(tag => tag.startsWith(ancestorTag + '/'));
+        const descendantTags = currentTags.filter(tag => tag.startsWith(`${ancestorTag}/`));
 
         if (descendantTags.length === 0) return;
 

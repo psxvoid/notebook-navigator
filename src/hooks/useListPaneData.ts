@@ -289,7 +289,7 @@ export function useListPaneData({ selectionType, selectedFolder, selectedTag, se
                         return;
                     }
                     // If showing subfolders, check if it's a descendant
-                    if (!fileFolder || !fileFolder.path.startsWith(selectedFolder.path + '/')) {
+                    if (!fileFolder?.path.startsWith(`${selectedFolder.path}/`)) {
                         return;
                     }
                 }

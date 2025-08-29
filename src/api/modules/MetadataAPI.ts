@@ -350,9 +350,8 @@ export class MetadataAPI {
             return contexts.folder && contexts.tag;
         } else if (context === 'folder') {
             return contexts.folder;
-        } else {
-            return contexts.tag;
         }
+        return contexts.tag;
     }
 
     /**
@@ -362,7 +361,7 @@ export class MetadataAPI {
      */
     async pin(file: TFile, context: PinContext = 'all'): Promise<void> {
         const plugin = this.api.getPlugin();
-        if (!plugin || !plugin.metadataService) return;
+        if (!plugin?.metadataService) return;
 
         if (!plugin.settings.pinnedNotes) {
             plugin.settings.pinnedNotes = {};
@@ -407,7 +406,7 @@ export class MetadataAPI {
      */
     async unpin(file: TFile, context: PinContext = 'all'): Promise<void> {
         const plugin = this.api.getPlugin();
-        if (!plugin || !plugin.metadataService) return;
+        if (!plugin?.metadataService) return;
 
         const contexts = plugin.settings.pinnedNotes?.[file.path];
         if (!contexts) return;

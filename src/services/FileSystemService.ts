@@ -69,7 +69,7 @@ interface MoveFilesResult {
     /** Number of files skipped due to conflicts */
     skippedCount: number;
     /** Files that failed to move with their errors */
-    errors: Array<{ file: TFile; error: Error }>;
+    errors: { file: TFile; error: Error }[];
 }
 
 /**
@@ -604,7 +604,7 @@ export class FileSystemOperations {
             // Copy all contents recursively with batching
             const copyContents = async (sourceFolder: TFolder, destPath: string) => {
                 // Collect all operations first
-                const filesToCopy: Array<{ source: TFile; destPath: string }> = [];
+                const filesToCopy: { source: TFile; destPath: string }[] = [];
                 const foldersToCreate: string[] = [];
 
                 const collectOperations = (folder: TFolder, currentDestPath: string) => {
@@ -658,7 +658,7 @@ export class FileSystemOperations {
         const performDelete = async () => {
             // Delete files in batches to improve performance
             const BATCH_SIZE = 10;
-            const errors: Array<{ file: TFile; error: unknown }> = [];
+            const errors: { file: TFile; error: unknown }[] = [];
             let deletedCount = 0;
 
             for (let i = 0; i < files.length; i += BATCH_SIZE) {
@@ -793,9 +793,8 @@ export class FileSystemOperations {
     getRevealInSystemExplorerText(): string {
         if (Platform.isMacOS) {
             return strings.contextMenu.file.revealInFinder;
-        } else {
-            return strings.contextMenu.file.showInExplorer;
         }
+        return strings.contextMenu.file.showInExplorer;
     }
 
     /**

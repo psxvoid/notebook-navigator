@@ -344,7 +344,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             failedText = `${strings.settings.items.metadataInfo.failedToParse}: ${failedCreatedCount} ${strings.settings.items.metadataInfo.createdDates}, ${failedModifiedCount} ${strings.settings.items.metadataInfo.modifiedDates}.`;
             // Only add suggestion if more than 70% failed
             if (failurePercentage > 70) {
-                failedText += ' ' + strings.settings.items.metadataInfo.checkTimestampFormat;
+                failedText += ` ${strings.settings.items.metadataInfo.checkTimestampFormat}`;
             }
         }
 
@@ -1117,7 +1117,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         const tipDiv = infoContainer.createEl('div', {
             cls: 'setting-item-description'
         });
-        tipDiv.createSpan({ text: strings.settings.items.featureImageProperties.tip + ' ' });
+        tipDiv.createSpan({ text: `${strings.settings.items.featureImageProperties.tip} ` });
         tipDiv.createSpan({
             text: strings.settings.items.featureImageProperties.embedFallback
         });

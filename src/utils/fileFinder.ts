@@ -240,18 +240,17 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
     // Separate pinned and unpinned files
     if (pinnedPaths.size === 0) {
         return filteredFiles;
-    } else {
-        const pinnedFiles: TFile[] = [];
-        const unpinnedFiles: TFile[] = [];
-
-        for (const file of filteredFiles) {
-            if (pinnedPaths.has(file.path)) {
-                pinnedFiles.push(file);
-            } else {
-                unpinnedFiles.push(file);
-            }
-        }
-
-        return [...pinnedFiles, ...unpinnedFiles];
     }
+    const pinnedFiles: TFile[] = [];
+    const unpinnedFiles: TFile[] = [];
+
+    for (const file of filteredFiles) {
+        if (pinnedPaths.has(file.path)) {
+            pinnedFiles.push(file);
+        } else {
+            unpinnedFiles.push(file);
+        }
+    }
+
+    return [...pinnedFiles, ...unpinnedFiles];
 }

@@ -172,10 +172,9 @@ export class DateUtils {
             }
 
             return monthName;
-        } else {
-            // Previous years - show year
-            return date.getFullYear().toString();
         }
+        // Previous years - show year
+        return date.getFullYear().toString();
     }
 
     /**

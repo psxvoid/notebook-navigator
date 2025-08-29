@@ -88,7 +88,7 @@ export async function initializeCache(appIdParam: string): Promise<void> {
  */
 export async function recordFileChanges(files: TFile[], existingData: Map<string, FileData>): Promise<void> {
     const db = getDBInstance();
-    const updates: Array<{ path: string; data: FileData }> = [];
+    const updates: { path: string; data: FileData }[] = [];
 
     for (const file of files) {
         const existing = existingData.get(file.path);
@@ -143,7 +143,7 @@ export async function markFilesForRegeneration(files: TFile[]): Promise<void> {
     const db = getDBInstance();
     const paths = files.map(f => f.path);
     const existingData = db.getFiles(paths);
-    const updates: Array<{ path: string; data: FileData }> = [];
+    const updates: { path: string; data: FileData }[] = [];
 
     for (const file of files) {
         const existing = existingData.get(file.path);

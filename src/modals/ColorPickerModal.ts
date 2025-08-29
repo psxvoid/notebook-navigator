@@ -416,7 +416,7 @@ export class ColorPickerModal extends Modal {
      * Convert RGB to hex
      */
     private rgbToHex(r: number, g: number, b: number): string {
-        return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join('');
+        return `#${[r, g, b].map(x => x.toString(16).padStart(2, '0')).join('')}`;
     }
 
     /**
@@ -431,7 +431,7 @@ export class ColorPickerModal extends Modal {
             return null;
         }
 
-        return '#' + hex.toLowerCase();
+        return `#${hex.toLowerCase()}`;
     }
 
     /**

@@ -133,7 +133,7 @@ export function showListPaneAppearanceMenu({
     menu.addItem(item => {
         const hasCustomTitleRows = appearance?.titleRows !== undefined;
         const isDefaultTitle = titleRows === settings.fileNameRows && !hasCustomTitleRows;
-        item.setTitle('    ' + strings.folderAppearance.defaultTitleOption(settings.fileNameRows))
+        item.setTitle(`    ${strings.folderAppearance.defaultTitleOption(settings.fileNameRows)}`)
             .setChecked(isDefaultTitle)
             .onClick(() => {
                 updateAppearance({ titleRows: undefined });
@@ -145,7 +145,7 @@ export function showListPaneAppearanceMenu({
         menu.addItem(item => {
             const hasCustomTitleRows = appearance?.titleRows !== undefined;
             const isChecked = titleRows === rows && hasCustomTitleRows;
-            item.setTitle('    ' + strings.folderAppearance.titleRowOption(rows))
+            item.setTitle(`    ${strings.folderAppearance.titleRowOption(rows)}`)
                 .setChecked(isChecked)
                 .onClick(() => {
                     updateAppearance({ titleRows: rows });
@@ -164,7 +164,7 @@ export function showListPaneAppearanceMenu({
     menu.addItem(item => {
         const hasCustomPreviewRows = appearance?.previewRows !== undefined;
         const isDefaultPreview = previewRows === settings.previewRows && !hasCustomPreviewRows;
-        item.setTitle('    ' + strings.folderAppearance.defaultPreviewOption(settings.previewRows))
+        item.setTitle(`    ${strings.folderAppearance.defaultPreviewOption(settings.previewRows)}`)
             .setChecked(isDefaultPreview && !isSlim)
             .onClick(() => {
                 if (isSlim) {
@@ -186,7 +186,7 @@ export function showListPaneAppearanceMenu({
         menu.addItem(item => {
             const hasCustomPreviewRows = appearance?.previewRows !== undefined;
             const isChecked = previewRows === rows && hasCustomPreviewRows && !isSlim;
-            item.setTitle('    ' + strings.folderAppearance.previewRowOption(rows))
+            item.setTitle(`    ${strings.folderAppearance.previewRowOption(rows)}`)
                 .setChecked(isChecked)
                 .onClick(() => {
                     if (isSlim) {

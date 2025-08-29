@@ -73,7 +73,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
      */
     const revealFileInActualFolder = useCallback(
         (file: TFile) => {
-            if (!file || !file.parent) return;
+            if (!file?.parent) return;
 
             // Always expand folders for actual folder reveal
             const foldersToExpand: string[] = [];
@@ -219,7 +219,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
      */
     const revealFileInNearestFolder = useCallback(
         (file: TFile) => {
-            if (!file || !file.parent) return;
+            if (!file?.parent) return;
 
             // Check if we're in tag view and should switch tags
             let targetTag: string | null | undefined = undefined;
@@ -374,7 +374,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
         const detectActiveFileChange = () => {
             // Get the currently active file view
             const view = app.workspace.getActiveViewOfType(FileView);
-            if (!view || !view.file || !(view.file instanceof TFile)) {
+            if (!view?.file || !(view.file instanceof TFile)) {
                 return;
             }
 

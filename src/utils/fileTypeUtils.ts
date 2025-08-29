@@ -54,7 +54,7 @@ const IMAGE_EXTENSIONS = new Set(['png', 'jpg', 'jpeg', 'gif', 'svg', 'webp', 'b
  */
 export function shouldDisplayFile(file: TFile, visibility: FileVisibility, app: App): boolean {
     // Validate inputs
-    if (!file || !file.extension) {
+    if (!file?.extension) {
         return false;
     }
 
@@ -113,7 +113,7 @@ export function shouldDisplayFile(file: TFile, visibility: FileVisibility, app: 
  * Check if a file is an image that can be displayed as a feature image
  */
 export function isImageFile(file: TFile): boolean {
-    if (!file || !file.extension) {
+    if (!file?.extension) {
         return false;
     }
     return IMAGE_EXTENSIONS.has(file.extension.toLowerCase());

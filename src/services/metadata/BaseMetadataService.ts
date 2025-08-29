@@ -151,9 +151,8 @@ export abstract class BaseMetadataService {
     protected getEntityColor(entityType: EntityType, path: string): string | undefined {
         if (entityType === ItemType.FOLDER) {
             return this.settingsProvider.settings.folderColors?.[path];
-        } else {
-            return this.settingsProvider.settings.tagColors?.[path];
         }
+        return this.settingsProvider.settings.tagColors?.[path];
     }
 
     // ========== Generic Icon Management ==========
@@ -210,9 +209,8 @@ export abstract class BaseMetadataService {
     protected getEntityIcon(entityType: EntityType, path: string): string | undefined {
         if (entityType === ItemType.FOLDER) {
             return this.settingsProvider.settings.folderIcons?.[path];
-        } else {
-            return this.settingsProvider.settings.tagIcons?.[path];
         }
+        return this.settingsProvider.settings.tagIcons?.[path];
     }
 
     // ========== Generic Sort Override Management ==========
@@ -269,9 +267,8 @@ export abstract class BaseMetadataService {
     protected getEntitySortOverride(entityType: EntityType, path: string): SortOption | undefined {
         if (entityType === ItemType.FOLDER) {
             return this.settingsProvider.settings.folderSortOverrides?.[path];
-        } else {
-            return this.settingsProvider.settings.tagSortOverrides?.[path];
         }
+        return this.settingsProvider.settings.tagSortOverrides?.[path];
     }
 
     // ========== Generic Metadata Cleanup Utilities ==========
@@ -313,8 +310,8 @@ export abstract class BaseMetadataService {
     protected updateNestedPaths<T>(metadata: Record<string, T> | undefined, oldPath: string, newPath: string): boolean {
         if (!metadata) return false;
 
-        const oldPrefix = oldPath + '/';
-        const updates: Array<{ oldPath: string; newPath: string; value: T }> = [];
+        const oldPrefix = `${oldPath}/`;
+        const updates: { oldPath: string; newPath: string; value: T }[] = [];
 
         // First, handle direct path match
         if (oldPath in metadata) {
@@ -328,7 +325,7 @@ export abstract class BaseMetadataService {
         // Then handle nested paths
         for (const path in metadata) {
             if (path.startsWith(oldPrefix)) {
-                const newNestedPath = newPath + '/' + path.slice(oldPrefix.length);
+                const newNestedPath = `${newPath}/${path.slice(oldPrefix.length)}`;
                 updates.push({
                     oldPath: path,
                     newPath: newNestedPath,
@@ -355,7 +352,7 @@ export abstract class BaseMetadataService {
 
         let hasChanges = false;
         for (const path in metadata) {
-            if (path === pathPrefix || path.startsWith(pathPrefix + '/')) {
+            if (path === pathPrefix || path.startsWith(`${pathPrefix}/`)) {
                 delete metadata[path];
                 hasChanges = true;
             }

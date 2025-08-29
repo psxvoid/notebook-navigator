@@ -33,7 +33,7 @@ export class MemoryFileCache {
      * Initialize the cache by loading all data from IndexedDB.
      * This is called once during database initialization.
      */
-    initialize(filesWithPaths: Array<{ path: string; data: FileData }>): void {
+    initialize(filesWithPaths: { path: string; data: FileData }[]): void {
         // Clear any existing data
         this.memoryMap.clear();
 
@@ -91,8 +91,8 @@ export class MemoryFileCache {
     /**
      * Get all files with their paths.
      */
-    getAllFilesWithPaths(): Array<{ path: string; data: FileData }> {
-        const result: Array<{ path: string; data: FileData }> = [];
+    getAllFilesWithPaths(): { path: string; data: FileData }[] {
+        const result: { path: string; data: FileData }[] = [];
         for (const [path, data] of this.memoryMap.entries()) {
             result.push({ path, data });
         }
@@ -145,7 +145,7 @@ export class MemoryFileCache {
     /**
      * Batch update multiple files.
      */
-    batchUpdate(updates: Array<{ path: string; data: FileData }>): void {
+    batchUpdate(updates: { path: string; data: FileData }[]): void {
         for (const { path, data } of updates) {
             this.memoryMap.set(path, data);
         }
@@ -155,12 +155,12 @@ export class MemoryFileCache {
      * Batch update file content fields.
      */
     batchUpdateFileContent(
-        updates: Array<{
+        updates: {
             path: string;
             preview?: string;
             featureImage?: string;
             metadata?: FileData['metadata'];
-        }>
+        }[]
     ): void {
         for (const update of updates) {
             this.updateFileContent(update.path, update);

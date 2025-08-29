@@ -122,7 +122,7 @@ export class PreviewTextUtils {
         }
 
         // Check frontmatter for excalidraw-plugin property
-        if (frontmatter && frontmatter['excalidraw-plugin']) {
+        if (frontmatter?.['excalidraw-plugin']) {
             return true;
         }
 
@@ -237,7 +237,7 @@ export class PreviewTextUtils {
                         // Apply same character limit to property values
                         const maxChars = MAX_PREVIEW_TEXT_LENGTH;
                         if (propertyValue.length > maxChars) {
-                            return propertyValue.substring(0, maxChars - 1) + '…';
+                            return `${propertyValue.substring(0, maxChars - 1)}…`;
                         }
                         return propertyValue;
                     }
@@ -270,7 +270,7 @@ export class PreviewTextUtils {
         // Fixed character limit with ellipsis
         const maxChars = MAX_PREVIEW_TEXT_LENGTH;
         if (preview.length > maxChars) {
-            return preview.substring(0, maxChars - 1) + '…';
+            return `${preview.substring(0, maxChars - 1)}…`;
         }
 
         return preview;

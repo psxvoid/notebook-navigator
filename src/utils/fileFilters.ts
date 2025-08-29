@@ -180,7 +180,7 @@ export function cleanupExclusionPatterns(existingPatterns: string[], newPattern:
             // Check two cases:
             // 1. Exact match: new="/folder" removes existing="/folder"
             // 2. Child path: new="/folder" removes existing="/folder/subfolder"
-            const newWithSlash = cleanNew.endsWith('/') ? cleanNew : cleanNew + '/';
+            const newWithSlash = cleanNew.endsWith('/') ? cleanNew : `${cleanNew}/`;
             const isChildPath = cleanExisting.startsWith(newWithSlash) || cleanExisting === cleanNew;
             return !isChildPath; // Keep pattern if it's NOT a child
         }

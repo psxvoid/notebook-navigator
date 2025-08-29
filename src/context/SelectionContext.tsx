@@ -230,23 +230,22 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
                         isFolderChangeWithAutoSelect: false,
                         isKeyboardNavigation: false
                     };
-                } else {
-                    // No tag to reveal, switch to folder view
-                    const newFolder = action.preserveFolder && state.selectedFolder ? state.selectedFolder : action.file.parent;
-                    return {
-                        ...state,
-                        selectionType: 'folder',
-                        selectedFolder: newFolder,
-                        selectedTag: null,
-                        selectedFiles: newSelectedFiles,
-                        selectedFile: action.file,
-                        anchorIndex: null,
-                        lastMovementDirection: null,
-                        isRevealOperation: true,
-                        isFolderChangeWithAutoSelect: false,
-                        isKeyboardNavigation: false
-                    };
                 }
+                // No tag to reveal, switch to folder view
+                const newFolder = action.preserveFolder && state.selectedFolder ? state.selectedFolder : action.file.parent;
+                return {
+                    ...state,
+                    selectionType: 'folder',
+                    selectedFolder: newFolder,
+                    selectedTag: null,
+                    selectedFiles: newSelectedFiles,
+                    selectedFile: action.file,
+                    anchorIndex: null,
+                    lastMovementDirection: null,
+                    isRevealOperation: true,
+                    isFolderChangeWithAutoSelect: false,
+                    isKeyboardNavigation: false
+                };
             }
 
             // When targetTag is not specified, preserve current view type
@@ -743,7 +742,7 @@ export function SelectionProvider({
 
     // Register file rename listener
     useEffect(() => {
-        const listenerId = 'selection-context-' + Math.random().toString(36).substr(2, 9);
+        const listenerId = `selection-context-${Math.random().toString(36).substr(2, 9)}`;
 
         const handleFileRename = (oldPath: string, newPath: string) => {
             dispatch({ type: 'UPDATE_FILE_PATH', oldPath, newPath });

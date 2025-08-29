@@ -479,7 +479,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                     await moveFilesWithContext([sourceItem], targetFolder);
                 } else if (sourceItem instanceof TFolder) {
                     // Don't allow moving a folder into itself or its descendants
-                    if (targetFolder.path === sourceItem.path || targetFolder.path.startsWith(sourceItem.path + '/')) {
+                    if (targetFolder.path === sourceItem.path || targetFolder.path.startsWith(`${sourceItem.path}/`)) {
                         new Notice(strings.dragDrop.errors.cannotMoveIntoSelf);
                         return;
                     }

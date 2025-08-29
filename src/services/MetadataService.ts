@@ -30,7 +30,7 @@ import { NavigatorContext } from '../types';
  * Validators object containing all data needed for cleanup operations
  */
 export interface CleanupValidators {
-    dbFiles: Array<{ path: string; data: FileData }>;
+    dbFiles: { path: string; data: FileData }[];
     tagTree: Map<string, TagTreeNode>;
     vaultFiles: Set<string>;
     vaultFolders: Set<string>; // Actual folder paths from vault

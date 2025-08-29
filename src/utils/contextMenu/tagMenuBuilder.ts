@@ -32,7 +32,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
     // Show tag name on mobile
     if (isMobile) {
         menu.addItem((item: MenuItem) => {
-            item.setTitle('#' + tagPath).setIsLabel(true);
+            item.setTitle(`#${tagPath}`).setIsLabel(true);
         });
     }
 
@@ -67,7 +67,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                             const cleanedFavorites = settings.favoriteTags.filter(existing => {
                                 // Remove entries that would become redundant
                                 // If we're adding "photo/camera", remove "photo/camera/fuji"
-                                return !existing.startsWith(tagPath + '/');
+                                return !existing.startsWith(`${tagPath}/`);
                             });
 
                             plugin.settings.favoriteTags = [...cleanedFavorites, tagPath];

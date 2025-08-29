@@ -158,7 +158,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                     .setIcon('lucide-pen-box')
                     .onClick(async () => {
                         // Use folderNoteName if set, otherwise use folder name
-                        const noteName = (settings.folderNoteName || folder.name) + '.md';
+                        const noteName = `${settings.folderNoteName || folder.name}.md`;
                         const notePath = normalizePath(`${folder.path}/${noteName}`);
 
                         // Check if file already exists
@@ -252,7 +252,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                     const currentExcluded = services.plugin.settings.excludedFolders;
                     // Ensure path starts with / for path-based exclusion
                     // Obsidian folder paths don't start with /, so we add it
-                    const folderPath = folder.path.startsWith('/') ? folder.path : '/' + folder.path;
+                    const folderPath = folder.path.startsWith('/') ? folder.path : `/${folder.path}`;
 
                     // Clean up redundant patterns and add the new one
                     const cleanedPatterns = cleanupExclusionPatterns(currentExcluded, folderPath);

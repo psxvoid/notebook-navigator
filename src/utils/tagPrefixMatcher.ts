@@ -49,7 +49,7 @@ function matchesPrefix(tagPath: string, prefix: string): boolean {
     // prefix from settings is already clean and lowercase
 
     // Check both exact match and prefix match in one expression
-    return cleanedTag === prefix || cleanedTag.startsWith(prefix + '/');
+    return cleanedTag === prefix || cleanedTag.startsWith(`${prefix}/`);
 }
 
 /**
@@ -79,12 +79,12 @@ export function findMatchingPrefixes(tagPath: string, prefixes: string[]): strin
         // prefixes from settings are already clean and lowercase
 
         // Check if this prefix would match the tag
-        if (cleanedTag === prefix || cleanedTag.startsWith(prefix + '/')) {
+        if (cleanedTag === prefix || cleanedTag.startsWith(`${prefix}/`)) {
             matchingPrefixes.push(prefix);
         }
         // Also check if the tag is an ancestor of the prefix
         // (e.g., clicking "photo" when "photo/camera" is favorited)
-        else if (prefix.startsWith(cleanedTag + '/')) {
+        else if (prefix.startsWith(`${cleanedTag}/`)) {
             matchingPrefixes.push(prefix);
         }
     }
