@@ -55,6 +55,17 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.4.1',
+        date: '2025-08-29',
+        showOnUpdate: true,
+        new: [
+            'New Style Settings parameter: **Tree indentation** to adjust the indentation width for each folder and tag in the navigation pane.'
+        ],
+        fixed: [
+            'Removed legacy ESLint 8 support from build process. Added more rules to ESLint 9 config file.'
+        ]
+    },
+    {
         version: '1.4.0',
         date: '2025-08-26',
         showOnUpdate: true,
