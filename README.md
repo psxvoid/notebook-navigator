@@ -32,8 +32,8 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - **Dual-pane layout** - Navigation pane on the left (folders and tags), list pane on right (files)
 - **Single-pane layout** - Default on mobile, optional on desktop. Switch between navigation and file list
 - **Mobile optimized** - Touch-friendly interface with properly sized buttons for Android, iOS and iPadOS
-- **Multi-language support** - English, German, Spanish, French, Japanese, and Chinese Simplified
-- **RTL language support** - Right-to-left languages with proper layout mirroring
+- **Multi-language support** - English, Deutsch, Español, Français, 日本語, 中文
+- **RTL language support** - Right-to-left languages with proper layout mirroring (e.g., العربية)
 - **Resizable panes** - Adjust the split between navigation and list pane
 
 ### Navigation
