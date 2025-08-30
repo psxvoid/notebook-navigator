@@ -17,8 +17,9 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 1. **Install Obsidian** - Download and install from [obsidian.md](https://obsidian.md/)
 2. **Enable community plugins** - Go to Settings → Community plugins → Turn on community plugins
 3. **Install Notebook Navigator** - Click "Browse" → Search for "Notebook Navigator" → Install
-4. **Optional: Install Featured Image** - For automatic thumbnail generation, install [Featured Image](https://github.com/johansan/obsidian-featured-image) plugin to create optimized thumbnails for all your documents
-5. **Optional: Install Pixel Perfect Image** - For precise image management, install [Pixel Perfect Image](https://github.com/johansan/pixel-perfect-image) plugin to resize images to exact pixel dimensions and perform advanced image operations
+4. **Install Featured Image** - For automatic thumbnail generation, install [Featured Image](https://github.com/johansan/obsidian-featured-image) plugin to create optimized thumbnails for all your documents
+
+For precise image management, consider also installing [Pixel Perfect Image](https://github.com/johansan/pixel-perfect-image) which lets you resize images to exact pixel dimensions and perform advanced image operations.
 
 <br>
 
