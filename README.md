@@ -17,6 +17,8 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 1. **Install Obsidian** - Download and install from [obsidian.md](https://obsidian.md/)
 2. **Enable community plugins** - Go to Settings → Community plugins → Turn on community plugins
 3. **Install Notebook Navigator** - Click "Browse" → Search for "Notebook Navigator" → Install
+4. **Optional: Install Featured Image** - For automatic thumbnail generation, install [Featured Image](https://github.com/johansan/obsidian-featured-image) plugin to create optimized thumbnails for all your documents
+5. **Optional: Install Pixel Perfect Image** - For precise image management, install [Pixel Perfect Image](https://github.com/johansan/pixel-perfect-image) plugin to resize images to exact pixel dimensions and perform advanced image operations
 
 <br>
 
@@ -330,21 +332,7 @@ Combine with the [Featured Image plugin](https://github.com/johansan/obsidian-fe
 2. Enable "Show feature image" in Notebook Navigator settings
 3. Notes display thumbnails from the first image
 
-#### Thumbnail optimization
-
-For retina and mobile screens, configure Featured Image plugin for 128px thumbnails:
-
-- **Create resized thumbnail:** `true`
-- **Resized thumbnail frontmatter property:** `featureResized`
-- **Max resized width:** `128`
-- **Max resized height:** `128`
-- **Fill resized dimensions:** `true`
-
-Then in Notebook Navigator settings:
-
-- **Image properties:** `featureResized, feature`
-
-Checks for 128px thumbnails (featureResized), then falls back to full-size feature image. The 128px size provides 2x resolution for retina displays. Thumbnails scale from 42-64px in the list pane based on content height.
+For best performance and quality, use 128px thumbnails.
 
 ### Folder notes
 
