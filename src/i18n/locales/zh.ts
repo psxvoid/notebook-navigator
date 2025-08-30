@@ -536,10 +536,13 @@ export const STRINGS_ZH = {
             },
             featureImageProperties: {
                 name: '图片属性',
-                desc: '用于缩略图的前置元数据属性的逗号分隔列表。将使用第一个包含图片的属性。',
+                desc: '用于缩略图的前置元数据属性的逗号分隔列表。将使用第一个包含图片的属性。如果为空且启用了后备设置，将使用第一个嵌入的图片。',
                 tip: '使用"Featured Image"插件自动设置图片。为获得最佳性能和质量，请使用 128px 缩略图。',
-                placeholder: 'featureResized, feature',
-                embedFallback: '如果在上述属性中未找到图片，将使用文档中的第一个嵌入图片（需要 Obsidian 1.9.4+）'
+                placeholder: 'thumbnail, featureResized, feature'
+            },
+            useEmbeddedImageFallback: {
+                name: '使用嵌入图片作为后备',
+                desc: '当在前置元数据属性中找不到缩略图时，使用文档中的第一个嵌入图片作为后备（需要 Obsidian 1.9.4+）。禁用此选项以验证缩略图是否正确配置。'
             },
             showRootFolder: {
                 name: '显示根文件夹',

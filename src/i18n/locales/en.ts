@@ -534,11 +534,13 @@ export const STRINGS_EN = {
             },
             featureImageProperties: {
                 name: 'Image properties',
-                desc: 'Comma-separated list of frontmatter properties to check for thumbnail images. The first property with an image will be used.',
+                desc: 'Comma-separated list of frontmatter properties to check for thumbnail images. The first property with an image will be used. If empty and the fallback setting is enabled, the first embedded image will be used.',
                 tip: 'Use the "Featured Image" plugin to automatically set feature images. For best performance and quality, use 128px thumbnails.',
-                placeholder: 'featureResized, feature',
-                embedFallback:
-                    'If no image is found in the properties above, the first embedded image in the document will be used (requires Obsidian 1.9.4+)'
+                placeholder: 'thumbnail, featureResized, feature'
+            },
+            useEmbeddedImageFallback: {
+                name: 'Use embedded image fallback',
+                desc: 'Use the first embedded image in the document as a fallback when no thumbnail is found in frontmatter properties (requires Obsidian 1.9.4+). Disable this to verify that thumbnails are properly configured.'
             },
             showRootFolder: {
                 name: 'Show root folder',

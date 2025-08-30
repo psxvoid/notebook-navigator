@@ -112,6 +112,7 @@ export interface NotebookNavigatorSettings {
     previewRows: number;
     showFeatureImage: boolean;
     featureImageProperties: string[];
+    useEmbeddedImageFallback: boolean;
     // Advanced
     confirmBeforeDelete: boolean;
     // Internal
@@ -191,7 +192,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     previewProperties: [],
     previewRows: 2,
     showFeatureImage: true,
-    featureImageProperties: ['featureResized', 'feature'],
+    featureImageProperties: ['thumbnail', 'featureResized', 'feature'],
+    useEmbeddedImageFallback: true,
     // Advanced
     confirmBeforeDelete: true,
     // Internal
@@ -1113,14 +1115,22 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         // Create a container for additional info that appears below the entire setting
         const infoContainer = featureImageSettingsEl.createDiv('nn-setting-info-container');
 
-        // Add tip text and embed fallback in a single section
+        // Add tip text
         const tipDiv = infoContainer.createEl('div', {
             cls: 'setting-item-description'
         });
-        tipDiv.createSpan({ text: `${strings.settings.items.featureImageProperties.tip} ` });
-        tipDiv.createSpan({
-            text: strings.settings.items.featureImageProperties.embedFallback
-        });
+        tipDiv.createSpan({ text: strings.settings.items.featureImageProperties.tip });
+
+        // Add embedded image fallback toggle
+        new Setting(featureImageSettingsEl)
+            .setName(strings.settings.items.useEmbeddedImageFallback.name)
+            .setDesc(strings.settings.items.useEmbeddedImageFallback.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.useEmbeddedImageFallback).onChange(async value => {
+                    this.plugin.settings.useEmbeddedImageFallback = value;
+                    await this.saveAndRefresh();
+                })
+            );
 
         // Section 6: Advanced
         new Setting(containerEl).setName(strings.settings.sections.advanced).setHeading();

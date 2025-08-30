@@ -33,7 +33,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
     }
 
     getRelevantSettings(): (keyof NotebookNavigatorSettings)[] {
-        return ['showFeatureImage', 'featureImageProperties'];
+        return ['showFeatureImage', 'featureImageProperties', 'useEmbeddedImageFallback'];
     }
 
     shouldRegenerate(oldSettings: NotebookNavigatorSettings, newSettings: NotebookNavigatorSettings): boolean {
@@ -46,7 +46,8 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         if (newSettings.showFeatureImage) {
             return (
                 oldSettings.showFeatureImage !== newSettings.showFeatureImage ||
-                JSON.stringify(oldSettings.featureImageProperties) !== JSON.stringify(newSettings.featureImageProperties)
+                JSON.stringify(oldSettings.featureImageProperties) !== JSON.stringify(newSettings.featureImageProperties) ||
+                oldSettings.useEmbeddedImageFallback !== newSettings.useEmbeddedImageFallback
             );
         }
 
@@ -136,7 +137,7 @@ export class FeatureImageContentProvider extends BaseContentProvider {
         }
 
         // Check embedded images as fallback
-        if (metadata?.embeds && metadata.embeds.length > 0) {
+        if (settings.useEmbeddedImageFallback && metadata?.embeds && metadata.embeds.length > 0) {
             for (const embed of metadata.embeds) {
                 const embedPath = embed.link;
                 const embedFile = this.app.metadataCache.getFirstLinkpathDest(embedPath, file.path);

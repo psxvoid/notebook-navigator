@@ -536,11 +536,13 @@ export const STRINGS_FR = {
             },
             featureImageProperties: {
                 name: "Propriétés d'image",
-                desc: 'Liste de propriétés de métadonnées séparées par des virgules pour les images miniatures. La première propriété avec une image sera utilisée.',
+                desc: 'Liste de propriétés de métadonnées séparées par des virgules pour les images miniatures. La première propriété avec une image sera utilisée. Si vide et que le paramètre de repli est activé, la première image intégrée sera utilisée.',
                 tip: 'Utilisez le plugin "Featured Image" pour définir automatiquement des images. Pour de meilleures performances et qualité, utilisez des miniatures de 128px.',
-                placeholder: 'featureResized, feature',
-                embedFallback:
-                    "Si aucune image n'est trouvée dans les propriétés ci-dessus, la première image intégrée dans le document sera utilisée (nécessite Obsidian 1.9.4+)"
+                placeholder: 'thumbnail, featureResized, feature'
+            },
+            useEmbeddedImageFallback: {
+                name: "Utiliser l'image intégrée comme solution de repli",
+                desc: "Utilise la première image intégrée dans le document comme solution de repli lorsqu'aucune miniature n'est trouvée dans les propriétés du frontmatter (nécessite Obsidian 1.9.4+). Désactivez cette option pour vérifier que les miniatures sont correctement configurées."
             },
             showRootFolder: {
                 name: 'Afficher le dossier racine',

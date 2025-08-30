@@ -535,11 +535,13 @@ export const STRINGS_ES = {
             },
             featureImageProperties: {
                 name: 'Propiedades de imagen',
-                desc: 'Lista separada por comas de propiedades del frontmatter para imágenes en miniatura. Se usará la primera propiedad con una imagen.',
+                desc: 'Lista separada por comas de propiedades del frontmatter para imágenes en miniatura. Se usará la primera propiedad con una imagen. Si está vacía y la configuración de respaldo está habilitada, se usará la primera imagen incrustada.',
                 tip: 'Usa el plugin "Featured Image" para establecer imágenes automáticamente. Para mejor rendimiento y calidad, usa miniaturas de 128px.',
-                placeholder: 'featureResized, feature',
-                embedFallback:
-                    'Si no se encuentra ninguna imagen en las propiedades anteriores, se utilizará la primera imagen incrustada en el documento (requiere Obsidian 1.9.4+)'
+                placeholder: 'thumbnail, featureResized, feature'
+            },
+            useEmbeddedImageFallback: {
+                name: 'Usar imagen incrustada como alternativa',
+                desc: 'Usa la primera imagen incrustada en el documento como alternativa cuando no se encuentre ninguna miniatura en las propiedades del frontmatter (requiere Obsidian 1.9.4+). Desactívalo para verificar que las miniaturas estén configuradas correctamente.'
             },
             showRootFolder: {
                 name: 'Mostrar carpeta raíz',

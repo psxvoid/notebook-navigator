@@ -535,11 +535,13 @@ export const STRINGS_DE = {
             },
             featureImageProperties: {
                 name: 'Bildeigenschaften',
-                desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften für Miniaturbilder. Die erste Eigenschaft mit einem Bild wird verwendet.',
+                desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften für Miniaturbilder. Die erste Eigenschaft mit einem Bild wird verwendet. Wenn leer und die Fallback-Einstellung aktiviert ist, wird das erste eingebettete Bild verwendet.',
                 tip: 'Verwenden Sie das "Featured Image" Plugin für automatische Vorschaubilder. Für beste Leistung und Qualität verwenden Sie 128px Thumbnails.',
-                placeholder: 'featureResized, feature',
-                embedFallback:
-                    'Wenn kein Bild in den obigen Eigenschaften gefunden wird, wird das erste eingebettete Bild im Dokument verwendet (erfordert Obsidian 1.9.4+)'
+                placeholder: 'thumbnail, featureResized, feature'
+            },
+            useEmbeddedImageFallback: {
+                name: 'Eingebettetes Bild als Fallback verwenden',
+                desc: 'Verwende das erste eingebettete Bild im Dokument als Fallback, wenn kein Miniaturbild in den Frontmatter-Eigenschaften gefunden wird (erfordert Obsidian 1.9.4+). Deaktivieren Sie dies, um zu überprüfen, ob Miniaturbilder richtig konfiguriert sind.'
             },
             showRootFolder: {
                 name: 'Wurzelordner anzeigen',

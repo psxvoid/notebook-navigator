@@ -536,11 +536,13 @@ export const STRINGS_JA = {
             },
             featureImageProperties: {
                 name: '画像プロパティ',
-                desc: 'サムネイル画像用のフロントマタープロパティのカンマ区切りリスト。画像を持つ最初のプロパティが使用されます。',
+                desc: 'サムネイル画像用のフロントマタープロパティのカンマ区切りリスト。画像を持つ最初のプロパティが使用されます。空でフォールバック設定が有効な場合、最初の埋め込み画像が使用されます。',
                 tip: '「Featured Image」プラグインを使用して自動的に画像を設定できます。最高のパフォーマンスと品質には128pxのサムネイルを使用してください。',
-                placeholder: 'featureResized, feature',
-                embedFallback:
-                    '上記のプロパティに画像が見つからない場合、ドキュメント内の最初の埋め込み画像が使用されます（Obsidian 1.9.4以降が必要）'
+                placeholder: 'thumbnail, featureResized, feature'
+            },
+            useEmbeddedImageFallback: {
+                name: '埋め込み画像をフォールバックとして使用',
+                desc: 'フロントマタープロパティにサムネイルが見つからない場合、ドキュメント内の最初の埋め込み画像をフォールバックとして使用します（Obsidian 1.9.4以降が必要）。サムネイルが正しく設定されていることを確認するには、これを無効にします。'
             },
             showRootFolder: {
                 name: 'ルートフォルダを表示',
