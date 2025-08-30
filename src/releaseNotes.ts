@@ -55,6 +55,14 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.4.2',
+        date: '2025-08-30',
+        showOnUpdate: false,
+        new: [
+            'New setting: **Use embedded image fallback**. Default ON, uses the first embedded image in the document as a fallback when no thumbnail is found in frontmatter properties. Disable to verify that thumbnails are properly configured.'
+        ]
+    },
+    {
         version: '1.4.1',
         date: '2025-08-29',
         showOnUpdate: true,
