@@ -25,7 +25,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 ## Features
 
-![Notebook Navigator Screenshot](https://github.com/johansan/notebook-navigator/blob/main/images/screenshot1.png?raw=true)
+![Notebook Navigator Screenshot](https://github.com/johansan/notebook-navigator/blob/main/images/notebook-navigator.png?raw=true)
 
 ### Interface
 
