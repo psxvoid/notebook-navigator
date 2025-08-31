@@ -620,10 +620,10 @@ type PendingScroll = {
    - **Code Location**: Search for `SCROLL_REVEAL_OPERATION` in useListPaneScroll.ts
 
 5. **List Configuration Change** (`reason: 'list-config-change'`)
-   - **Trigger**: Toggling settings that affect list display (e.g., "Show notes from subfolders", sort order)
-   - **Detection**: Configuration key change compared to previous render
-   - **Behavior**: Maintains position on selected file or scrolls to top
-   - **Code Location**: Search for configuration key tracking in useListPaneScroll.ts
+   - **Trigger**: Changes to settings that affect list structure (show subfolders, optimize height, folder appearance, sort order)
+   - **Detection**: Configuration key change (built from these settings)
+   - **Behavior**: Preserves scroll position on selected file; scrolls to top when disabling subfolders with no selection
+   - **Code Location**: Search for `configKey` building in useListPaneScroll.ts
 
 #### Scroll Alignment Logic
 
