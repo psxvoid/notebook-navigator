@@ -536,7 +536,6 @@ export const STRINGS_DE = {
             featureImageProperties: {
                 name: 'Bildeigenschaften',
                 desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften für Miniaturbilder. Die erste Eigenschaft mit einem Bild wird verwendet. Wenn leer und die Fallback-Einstellung aktiviert ist, wird das erste eingebettete Bild verwendet.',
-                tip: 'Verwenden Sie das "Featured Image" Plugin für automatische Vorschaubilder. Für beste Leistung und Qualität verwenden Sie 128px Thumbnails.',
                 placeholder: 'thumbnail, featureResized, feature'
             },
             useEmbeddedImageFallback: {

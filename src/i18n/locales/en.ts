@@ -535,7 +535,6 @@ export const STRINGS_EN = {
             featureImageProperties: {
                 name: 'Image properties',
                 desc: 'Comma-separated list of frontmatter properties to check for thumbnail images. The first property with an image will be used. If empty and the fallback setting is enabled, the first embedded image will be used.',
-                tip: 'Use the "Featured Image" plugin to automatically set feature images. For best performance and quality, use 128px thumbnails.',
                 placeholder: 'thumbnail, featureResized, feature'
             },
             useEmbeddedImageFallback: {

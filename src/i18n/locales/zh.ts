@@ -537,7 +537,6 @@ export const STRINGS_ZH = {
             featureImageProperties: {
                 name: '图片属性',
                 desc: '用于缩略图的前置元数据属性的逗号分隔列表。将使用第一个包含图片的属性。如果为空且启用了后备设置，将使用第一个嵌入的图片。',
-                tip: '使用"Featured Image"插件自动设置图片。为获得最佳性能和质量，请使用 128px 缩略图。',
                 placeholder: 'thumbnail, featureResized, feature'
             },
             useEmbeddedImageFallback: {

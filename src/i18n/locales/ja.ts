@@ -537,7 +537,6 @@ export const STRINGS_JA = {
             featureImageProperties: {
                 name: '画像プロパティ',
                 desc: 'サムネイル画像用のフロントマタープロパティのカンマ区切りリスト。画像を持つ最初のプロパティが使用されます。空でフォールバック設定が有効な場合、最初の埋め込み画像が使用されます。',
-                tip: '「Featured Image」プラグインを使用して自動的に画像を設定できます。最高のパフォーマンスと品質には128pxのサムネイルを使用してください。',
                 placeholder: 'thumbnail, featureResized, feature'
             },
             useEmbeddedImageFallback: {

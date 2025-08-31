@@ -536,7 +536,6 @@ export const STRINGS_ES = {
             featureImageProperties: {
                 name: 'Propiedades de imagen',
                 desc: 'Lista separada por comas de propiedades del frontmatter para imágenes en miniatura. Se usará la primera propiedad con una imagen. Si está vacía y la configuración de respaldo está habilitada, se usará la primera imagen incrustada.',
-                tip: 'Usa el plugin "Featured Image" para establecer imágenes automáticamente. Para mejor rendimiento y calidad, usa miniaturas de 128px.',
                 placeholder: 'thumbnail, featureResized, feature'
             },
             useEmbeddedImageFallback: {

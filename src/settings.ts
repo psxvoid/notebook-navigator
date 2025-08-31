@@ -883,7 +883,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             }
         ).addExtraButton(button =>
             button
-                .setIcon('lucide-help')
+                .setIcon('lucide-help-circle')
                 .setTooltip(strings.settings.items.dateFormat.helpTooltip)
                 .onClick(() => {
                     new Notice(strings.settings.items.dateFormat.help, TIMEOUTS.NOTICE_HELP);
@@ -901,7 +901,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             }
         ).addExtraButton(button =>
             button
-                .setIcon('lucide-help')
+                .setIcon('lucide-help-circle')
                 .setTooltip(strings.settings.items.timeFormat.helpTooltip)
                 .onClick(() => {
                     new Notice(strings.settings.items.timeFormat.help, TIMEOUTS.NOTICE_HELP);
@@ -969,7 +969,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             }
         ).addExtraButton(button =>
             button
-                .setIcon('lucide-help')
+                .setIcon('lucide-help-circle')
                 .setTooltip(strings.settings.items.frontmatterDateFormat.helpTooltip)
                 .onClick(() => {
                     new Notice(strings.settings.items.frontmatterDateFormat.help, TIMEOUTS.NOTICE_HELP);
@@ -1111,15 +1111,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             }
         );
         featurePropertiesSetting.controlEl.addClass('nn-setting-wide-input');
-
-        // Create a container for additional info that appears below the entire setting
-        const infoContainer = featureImageSettingsEl.createDiv('nn-setting-info-container');
-
-        // Add tip text
-        const tipDiv = infoContainer.createEl('div', {
-            cls: 'setting-item-description'
-        });
-        tipDiv.createSpan({ text: strings.settings.items.featureImageProperties.tip });
 
         // Add embedded image fallback toggle
         new Setting(featureImageSettingsEl)

@@ -537,7 +537,6 @@ export const STRINGS_FR = {
             featureImageProperties: {
                 name: "Propriétés d'image",
                 desc: 'Liste de propriétés de métadonnées séparées par des virgules pour les images miniatures. La première propriété avec une image sera utilisée. Si vide et que le paramètre de repli est activé, la première image intégrée sera utilisée.',
-                tip: 'Utilisez le plugin "Featured Image" pour définir automatiquement des images. Pour de meilleures performances et qualité, utilisez des miniatures de 128px.',
                 placeholder: 'thumbnail, featureResized, feature'
             },
             useEmbeddedImageFallback: {
