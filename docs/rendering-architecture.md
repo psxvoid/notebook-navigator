@@ -581,7 +581,7 @@ The ListPane (`useListPaneScroll.ts`) handles the most complex scrolling scenari
 #### Scroll Reason Types
 
 ```typescript
-type ScrollReason = 'folder-navigation' | 'visibility-change' | 'reveal' | 'subfolder-toggle';
+type ScrollReason = 'folder-navigation' | 'visibility-change' | 'reveal' | 'list-config-change';
 
 type PendingScroll = {
   type: 'file' | 'top';
@@ -619,11 +619,11 @@ type PendingScroll = {
    - **Behavior**: Auto-positions to show file with minimal movement
    - **Code Location**: Search for `SCROLL_REVEAL_OPERATION` in useListPaneScroll.ts
 
-5. **Subfolder Toggle** (`reason: 'subfolder-toggle'`)
-   - **Trigger**: Toggling "Show notes from subfolders" setting
-   - **Detection**: `prevShowSubfoldersRef.current !== settings.showNotesFromSubfolders`
+5. **List Configuration Change** (`reason: 'list-config-change'`)
+   - **Trigger**: Toggling settings that affect list display (e.g., "Show notes from subfolders", sort order)
+   - **Detection**: Configuration key change compared to previous render
    - **Behavior**: Maintains position on selected file or scrolls to top
-   - **Code Location**: Search for `SCROLL_SUBFOLDER_TOGGLE` in useListPaneScroll.ts
+   - **Code Location**: Search for configuration key tracking in useListPaneScroll.ts
 
 #### Scroll Alignment Logic
 
