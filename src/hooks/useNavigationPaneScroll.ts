@@ -90,6 +90,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
     const prevVisibleRef = useRef<boolean>(false);
     const prevFocusedPaneRef = useRef<string | null>(null);
     const prevSelectedTagRef = useRef<string | null>(null);
+    const prevNavSettingsKeyRef = useRef<string>('');
 
     /**
      * Initialize TanStack Virtual virtualizer with dynamic heights for navigation items
@@ -262,16 +263,23 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
     /**
      * Re-measure all items when line height settings change
      * This ensures the virtualizer immediately updates when settings are adjusted
-     * Also scroll to selected item to maintain position
      */
     useEffect(() => {
         if (!rowVirtualizer) return;
 
         // Re-measure all items with new heights
         rowVirtualizer.measure();
+    }, [settings.navItemHeight, settings.navIndent, rowVirtualizer]);
 
-        // Scroll to selected item to maintain position after settings change
-        if (selectedPath && isVisible) {
+    /**
+     * Scroll to maintain position only when settings actually change
+     * Uses a settings key to detect real changes
+     */
+    useEffect(() => {
+        const settingsKey = `${settings.navItemHeight}-${settings.navIndent}`;
+        const settingsChanged = prevNavSettingsKeyRef.current && prevNavSettingsKeyRef.current !== settingsKey;
+
+        if (settingsChanged && selectedPath && isVisible && rowVirtualizer) {
             const index = pathToIndex.get(selectedPath);
             if (index !== undefined && index >= 0) {
                 // Use requestAnimationFrame to ensure measurements are complete
@@ -283,7 +291,9 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
                 });
             }
         }
-    }, [settings.navItemHeight, settings.navIndent, rowVirtualizer, selectedPath, pathToIndex, isVisible]);
+
+        prevNavSettingsKeyRef.current = settingsKey;
+    }, [settings.navItemHeight, settings.navIndent, selectedPath, pathToIndex, isVisible, rowVirtualizer]);
 
     return {
         rowVirtualizer,
