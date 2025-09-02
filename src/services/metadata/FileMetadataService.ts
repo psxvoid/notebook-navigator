@@ -147,7 +147,7 @@ export class FileMetadataService extends BaseMetadataService {
      * @returns True if any changes were made
      */
     async cleanupPinnedNotes(): Promise<boolean> {
-        const vaultFiles = new Set(this.app.vault.getMarkdownFiles().map(f => f.path));
+        const vaultFiles = new Set(this.app.vault.getFiles().map(f => f.path));
         return this.cleanupWithValidators({
             vaultFiles,
             vaultFolders: new Set(),

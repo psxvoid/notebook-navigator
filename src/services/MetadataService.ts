@@ -234,8 +234,8 @@ export class MetadataService {
     static prepareCleanupValidators(app: App, tagTree: Map<string, TagTreeNode> = new Map()): CleanupValidators {
         const db = getDBInstance();
 
-        // Collect all markdown files
-        const vaultFiles = new Set(app.vault.getMarkdownFiles().map(f => f.path));
+        // Collect all files in vault
+        const vaultFiles = new Set(app.vault.getFiles().map(f => f.path));
 
         // Recursively collect all folder paths
         const vaultFolders = new Set<string>();
