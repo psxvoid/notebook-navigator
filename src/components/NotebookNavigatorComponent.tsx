@@ -55,6 +55,7 @@ export interface NotebookNavigatorHandle {
     addTagToSelectedFiles: () => Promise<void>;
     removeTagFromSelectedFiles: () => Promise<void>;
     removeAllTagsFromSelectedFiles: () => Promise<void>;
+    toggleSearch: () => void;
 }
 
 /**
@@ -390,6 +391,9 @@ export const NotebookNavigatorComponent = React.memo(
                         strings.common.remove
                     );
                     confirmModal.open();
+                },
+                toggleSearch: () => {
+                    listPaneRef.current?.toggleSearch();
                 }
             };
         }, [

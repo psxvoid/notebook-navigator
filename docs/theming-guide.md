@@ -75,14 +75,15 @@ custom color styles, which override the default style.
 
 ### List pane (files)
 
-| Variable                                  | Default                             | Description                                                              |
-| ----------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------ |
-| `--nn-theme-list-bg`                      | `var(--background-primary)`         | Background color of the list pane                                        |
-| `--nn-theme-list-header-bg`               | `var(--background-primary)`         | Background color of the list pane header (desktop only)                  |
-| `--nn-theme-list-header-icon-color`       | `var(--text-muted)`                 | Folder/tag icon color shown to the left of the breadcrumb (desktop only) |
-| `--nn-theme-list-header-breadcrumb-color` | `var(--text-muted)`                 | Text color for the breadcrumb path in the list header (desktop only)     |
-| `--nn-theme-list-group-header-color`      | `var(--text-muted)`                 | Text color for date groups and pinned section                            |
-| `--nn-theme-list-separator-color`         | `var(--background-modifier-border)` | Divider line color between files                                         |
+| Variable                                  | Default                             | Description                                                                        |
+| ----------------------------------------- | ----------------------------------- | ---------------------------------------------------------------------------------- |
+| `--nn-theme-list-bg`                      | `var(--background-primary)`         | Background color of the list pane                                                  |
+| `--nn-theme-list-header-bg`               | `var(--background-primary)`         | Background color of the list pane header (desktop only)                            |
+| `--nn-theme-list-header-icon-color`       | `var(--text-muted)`                 | Folder/tag icon color shown to the left of the breadcrumb (desktop only)           |
+| `--nn-theme-list-header-breadcrumb-color` | `var(--text-muted)`                 | Text color for the breadcrumb path in the list header (desktop only)               |
+| `--nn-theme-list-header-search-active-bg` | `var(--text-highlight-bg)`          | Background color for the search field when a search query is active (desktop only) |
+| `--nn-theme-list-group-header-color`      | `var(--text-muted)`                 | Text color for date groups and pinned section                                      |
+| `--nn-theme-list-separator-color`         | `var(--background-modifier-border)` | Divider line color between files                                                   |
 
 #### File items
 
@@ -222,6 +223,7 @@ body {
   --nn-theme-list-header-bg: #2b2b2b; /* Dark editor background - file list header background */
   --nn-theme-list-header-icon-color: #afb1b3; /* Light gray - folder/tag icon in breadcrumb */
   --nn-theme-list-header-breadcrumb-color: #7f8b91; /* Muted gray - breadcrumb path text */
+  --nn-theme-list-header-search-active-bg: #515336; /* Yellow tint - active search field background */
   --nn-theme-list-separator-color: #3c3c3c; /* Very subtle - divider lines between files */
   --nn-theme-list-group-header-color: #7f8b91; /* Muted gray - date group headers */
 

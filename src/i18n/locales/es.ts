@@ -65,7 +65,13 @@ export const STRINGS_ES = {
         autoExpandFoldersTags: 'Expandir carpetas y etiquetas automáticamente', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showDualPane: 'Mostrar paneles dobles', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: 'Mostrar panel único', // Tooltip for button to show single-pane layout (English: Show single pane)
-        changeAppearance: 'Cambiar apariencia' // Tooltip for button to change folder appearance settings (English: Change appearance)
+        changeAppearance: 'Cambiar apariencia', // Tooltip for button to change folder appearance settings (English: Change appearance)
+        search: 'Buscar' // Tooltip for search button (English: Search)
+    },
+    // Search input
+    searchInput: {
+        placeholder: 'Buscar...', // Placeholder text for search input (English: Search...)
+        clearSearch: 'Borrar búsqueda' // Tooltip for clear search button (English: Clear search)
     },
 
     // Context menus
@@ -347,6 +353,7 @@ export const STRINGS_ES = {
         open: 'Abrir', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealFile: 'Revelar archivo', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: 'Enfocar archivo', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
+        search: 'Buscar', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'Alternar diseño de doble panel', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
         deleteFile: 'Eliminar archivos', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Crear nueva nota', // Command palette: Creates a new note in the currently selected folder (English: Create new note)

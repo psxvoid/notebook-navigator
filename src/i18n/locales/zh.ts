@@ -65,7 +65,13 @@ export const STRINGS_ZH = {
         autoExpandFoldersTags: '自动展开文件夹和标签', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showDualPane: '显示双窗格', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: '显示单窗格', // Tooltip for button to show single-pane layout (English: Show single pane)
-        changeAppearance: '更改外观' // Tooltip for button to change folder appearance settings (English: Change appearance)
+        changeAppearance: '更改外观', // Tooltip for button to change folder appearance settings (English: Change appearance)
+        search: '搜索' // Tooltip for search button (English: Search)
+    },
+    // Search input
+    searchInput: {
+        placeholder: '搜索...', // Placeholder text for search input (English: Search...)
+        clearSearch: '清除搜索' // Tooltip for clear search button (English: Clear search)
     },
 
     // Context menus
@@ -347,6 +353,7 @@ export const STRINGS_ZH = {
         open: '打开', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealFile: '显示文件', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: '聚焦文件', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
+        search: '搜索', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: '切换双窗格布局', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
         deleteFile: '删除文件', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '创建新笔记', // Command palette: Creates a new note in the currently selected folder (English: Create new note)

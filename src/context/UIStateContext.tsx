@@ -26,7 +26,7 @@ import { useSettingsState } from './SettingsContext';
 
 // State interface
 interface UIState {
-    focusedPane: 'navigation' | 'files';
+    focusedPane: 'navigation' | 'files' | 'search';
     currentSinglePaneView: 'navigation' | 'files';
     paneWidth: number;
     dualPane: boolean;
@@ -35,7 +35,7 @@ interface UIState {
 
 // Action types
 export type UIAction =
-    | { type: 'SET_FOCUSED_PANE'; pane: 'navigation' | 'files' }
+    | { type: 'SET_FOCUSED_PANE'; pane: 'navigation' | 'files' | 'search' }
     | { type: 'SET_SINGLE_PANE_VIEW'; view: 'navigation' | 'files' }
     | { type: 'SET_PANE_WIDTH'; width: number };
 

@@ -33,9 +33,11 @@ import { useListActions } from '../hooks/useListActions';
 
 interface ListPaneHeaderProps {
     onHeaderClick?: () => void;
+    isSearchActive?: boolean;
+    onSearchToggle?: () => void;
 }
 
-export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
+export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }: ListPaneHeaderProps) {
     const iconRef = React.useRef<HTMLSpanElement>(null);
     const mobileIconRef = React.useRef<HTMLSpanElement>(null);
     const { app, isMobile } = useServices();
@@ -275,6 +277,15 @@ export function ListPaneHeader({ onHeaderClick }: ListPaneHeaderProps) {
                     <span className="nn-pane-header-text">{renderPathSegments()}</span>
                 </span>
                 <div className="nn-header-actions">
+                    <button
+                        className={`nn-icon-button ${isSearchActive ? 'nn-icon-button-active' : ''}`}
+                        aria-label={strings.paneHeader.search}
+                        onClick={onSearchToggle}
+                        disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
+                        tabIndex={-1}
+                    >
+                        <ObsidianIcon name="lucide-search" />
+                    </button>
                     <button
                         className={`nn-icon-button ${settings.showNotesFromSubfolders ? 'nn-icon-button-active' : ''}`}
                         aria-label={strings.paneHeader.toggleSubfolders}

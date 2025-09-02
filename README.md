@@ -72,6 +72,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 ### Productivity
 
 - **Quick actions** - Hover buttons for open in new tab, pin, and reveal in folder
+- **File search** - Search and filter notes in the current folder or tag with instant results
 - **Drag & drop** - Move files between folders, drag to tags to add tags, drag to Untagged to remove tags
 - **Tag operations** - Add, remove, or clear tags via context menu and commands
 - **File operations** - Create, rename, delete, duplicate, move files and folders
@@ -169,21 +170,22 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 ## Keyboard shortcuts
 
-| Key                                         | Action                                                                                  |
-| ------------------------------------------- | --------------------------------------------------------------------------------------- |
-| ↑/↓                                         | Navigate up/down in current pane                                                        |
-| ←                                           | In navigation pane: collapse or go to parent<br>In list pane: switch to navigation pane |
-| →                                           | In navigation pane: expand or switch to list pane<br>In list pane: switch to editor     |
-| Tab                                         | In navigation pane: switch to list pane<br>In list pane: switch to editor               |
-| Shift+Tab                                   | Switch from list pane to navigation pane                                                |
-| PageUp/PageDown                             | Scroll up/down in navigation pane and list pane                                         |
-| Home/End                                    | Jump to first/last item in current pane                                                 |
-| Delete (Windows/Linux)<br>Backspace (macOS) | Delete selected item                                                                    |
-| Cmd/Ctrl+A                                  | Select all notes in current folder                                                      |
-| Cmd/Ctrl+Click                              | Toggle notes selection                                                                  |
-| Shift+Click                                 | Select a range of notes                                                                 |
-| Shift+Home/End                              | Select from current position to first/last item                                         |
-| Shift+↑/↓                                   | Extend selection up/down                                                                |
+| Key                                         | Action                                                                                                            |
+| ------------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| ↑/↓                                         | Navigate up/down in current pane                                                                                  |
+| ←                                           | In navigation pane: collapse or go to parent<br>In list pane: switch to navigation pane                           |
+| →                                           | In navigation pane: expand or switch to list pane<br>In list pane: switch to editor                               |
+| Tab                                         | In navigation pane: switch to list pane<br>In list pane: switch to editor<br>In search field: switch to list pane |
+| Shift+Tab                                   | Switch from list pane to navigation pane<br>In search field: switch to navigation pane                            |
+| Escape                                      | In search field: close search and focus list pane                                                                 |
+| PageUp/PageDown                             | Scroll up/down in navigation pane and list pane                                                                   |
+| Home/End                                    | Jump to first/last item in current pane                                                                           |
+| Delete (Windows/Linux)<br>Backspace (macOS) | Delete selected item                                                                                              |
+| Cmd/Ctrl+A                                  | Select all notes in current folder                                                                                |
+| Cmd/Ctrl+Click                              | Toggle notes selection                                                                                            |
+| Shift+Click                                 | Select a range of notes                                                                                           |
+| Shift+Home/End                              | Select from current position to first/last item                                                                   |
+| Shift+↑/↓                                   | Extend selection up/down                                                                                          |
 
 <br>
 
@@ -198,6 +200,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Navigate to folder` Search dialog to jump to any folder
 - `Notebook Navigator: Navigate to tag` Search dialog to jump to any tag
 - `Notebook Navigator: Focus file` Move keyboard focus to file list pane
+- `Notebook Navigator: Search` Opens search field or focuses it if already open. Search persists between sessions
 
 **Layout & display**
 

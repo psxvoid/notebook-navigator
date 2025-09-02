@@ -113,6 +113,7 @@ body {
     --nn-theme-list-header-bg: var(--background-primary);
     --nn-theme-list-header-icon-color: var(--text-muted);
     --nn-theme-list-header-breadcrumb-color: var(--text-muted);
+    --nn-theme-list-header-search-active-bg: var(--text-highlight-bg);
     --nn-theme-list-group-header-color: var(--text-muted);
     --nn-theme-list-separator-color: var(--background-modifier-border);
 
@@ -303,11 +304,112 @@ body {
     background-color: var(--nn-theme-list-header-bg);
 }
 
+/* Hide header border when search is active by matching background color */
+.nn-list-pane.nn-search-active .nn-pane-header {
+    border-bottom-color: var(--nn-theme-list-header-bg);
+}
+
 /* Header actions container - groups action buttons in headers */
 .nn-header-actions {
     display: flex;
     gap: 2px;
     align-items: center;
+}
+
+/* Search bar container */
+.nn-search-bar-container {
+    height: 0;
+    overflow: hidden;
+    background-color: var(--nn-theme-list-header-bg);
+}
+
+.nn-search-bar-container.nn-search-bar-visible {
+    height: 44px;
+    border-bottom: 1px solid var(--nn-theme-header-border-color);
+}
+
+/* Search input wrapper */
+.nn-search-input-wrapper {
+    display: flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 10px 6px 10px;
+    background-color: var(--nn-theme-list-header-bg);
+}
+
+/* Search input container */
+.nn-search-input-container {
+    position: relative;
+    width: 100%;
+    height: 32px;
+}
+
+/* Search icon */
+.nn-search-input-icon {
+    position: absolute;
+    left: 10px;
+    top: 8px;
+    width: 16px;
+    height: 16px;
+    color: var(--nn-theme-list-header-icon-color);
+    pointer-events: none;
+}
+
+/* Search input field */
+.nn-search-input {
+    width: 100%;
+    height: 32px;
+    padding: 4px 36px !important;
+    font-size: 13px;
+    color: var(--nn-theme-file-selected-name-color) !important;
+    background: var(--nn-theme-list-bg) !important;
+    border: 1px solid var(--nn-theme-header-border-color) !important;
+    border-radius: 5px;
+    outline: none;
+    box-sizing: border-box;
+}
+
+/* Active search state - when there's a search query */
+.nn-search-input.nn-search-active {
+    background: var(--nn-theme-list-header-search-active-bg) !important;
+}
+
+/* Maintain highlight background on hover when search is active */
+.nn-search-input.nn-search-active:hover {
+    background: var(--nn-theme-list-header-search-active-bg) !important;
+}
+
+/* Focus state */
+.nn-search-input:focus {
+    border-color: var(--nn-theme-header-border-color) !important;
+    box-shadow: 0 0 0 2px var(--nn-theme-header-border-color) !important;
+}
+
+.nn-search-input::placeholder {
+    color: var(--nn-theme-list-header-breadcrumb-color) !important;
+}
+
+/* Clear button */
+.nn-search-clear-button {
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    cursor: pointer;
+    color: var(--nn-theme-list-header-icon-color);
+}
+
+.nn-search-clear-button:hover {
+    color: var(--nn-theme-header-button-active-icon-color);
+}
+
+.nn-search-clear-button svg {
+    width: 16px;
+    height: 16px;
+}
+
+/* Hide webkit search cancel button */
+.nn-search-input::-webkit-search-cancel-button {
+    display: none;
 }
 
 /* Desktop pane header title */
@@ -1281,11 +1383,14 @@ body {
 
 /* Dimmed selections - apply to all these cases:
    1. Navigator unfocused (all selections dimmed)
-   2. Navigator focused but inactive pane (cross-pane dimming) */
+   2. Navigator focused but inactive pane (cross-pane dimming)
+   3. Search field is focused (both panes dimmed) */
 .nn-split-container[data-navigator-focused='false'] .nn-file.nn-selected .nn-file-content::before,
 .nn-split-container[data-navigator-focused='false'] .nn-navitem.nn-selected::before,
 .nn-split-container[data-navigator-focused='true'][data-focus-pane='navigation'] .nn-file.nn-selected .nn-file-content::before,
-.nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-navitem.nn-selected::before {
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='files'] .nn-navitem.nn-selected::before,
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-file.nn-selected .nn-file-content::before,
+.nn-split-container[data-navigator-focused='true'][data-focus-pane='search'] .nn-navitem.nn-selected::before {
     background-color: var(--nn-theme-navitem-selected-inactive-bg);
 }
 
@@ -3227,6 +3332,15 @@ settings:
         id: nn-theme-list-header-breadcrumb-color
         title: List header breadcrumb color
         description: Text color for the breadcrumb path in the list header.
+        type: variable-themed-color
+        format: hex
+        default-light: '#'
+        default-dark: '#'
+    -
+    -
+        id: nn-theme-list-header-search-active-bg
+        title: Search field active background
+        description: Background color for the search field when a search query is active (desktop only).
         type: variable-themed-color
         format: hex
         default-light: '#'

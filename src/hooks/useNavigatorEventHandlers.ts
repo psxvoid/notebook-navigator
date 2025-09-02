@@ -125,6 +125,14 @@ export function useNavigatorEventHandlers({ app, containerRef, setIsNavigatorFoc
 
     // Ensure the container has focus when the focused pane changes
     useEffect(() => {
+        // Don't focus container when search is focused
+        // The search input field needs to maintain focus for typing.
+        // Without this check, the container would steal focus from the search input,
+        // making it impossible to type in the search field.
+        if (uiState.focusedPane === 'search') {
+            return;
+        }
+
         // Don't steal focus if we're opening version history or in a new context
         const isOpeningVersionHistory = commandQueue.isOpeningVersionHistory();
         const isOpeningInNewContext = commandQueue.isOpeningInNewContext();

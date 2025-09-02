@@ -58,45 +58,57 @@ const BASE_PATTERNS = [
     // Group 10: Bold italic nested - bold underscores with italic stars
     // Example: __*important*__ → important
     /__\*((?:(?!\*__).)+)\*__/.source,
-    // Group 11: Bold stars
+    // Group 11: Bold stars with highlight
+    // Example: **==important==** → important
+    /\*\*==((?:(?!==\*\*).)+)==\*\*/.source,
+    // Group 12: Highlight with bold stars
+    // Example: ==**important**== → important
+    /==\*\*((?:(?!\*\*==).)+)\*\*==/.source,
+    // Group 13: Bold underscores with highlight
+    // Example: __==important==__ → important
+    /__==((?:(?!==__).)+)==__/.source,
+    // Group 14: Highlight with bold underscores
+    // Example: ==__important__== → important
+    /==__((?:(?!__==).)+)__==/.source,
+    // Group 15: Bold stars
     // Example: **bold** → bold
     /\*\*((?:(?!\*\*).)+)\*\*/.source,
-    // Group 12: Bold underscores
+    // Group 16: Bold underscores
     // Example: __bold__ → bold
     /__((?:(?!__).)+)__/.source,
-    // Group 13: Italic stars (iOS compatible - no lookbehind)
+    // Group 17: Italic stars (iOS compatible - no lookbehind)
     // Example: *italic* → italic (but not 5*6*7)
-    // Captures: [13] = prefix, [14] = content
+    // Captures: [17] = prefix, [18] = content
     /(^|[^*\d])\*([^*\n]+)\*(?![*\d])/.source,
-    // Group 14: Italic underscores (iOS compatible - no lookbehind)
+    // Group 18: Italic underscores (iOS compatible - no lookbehind)
     // Example: _italic_ → italic (but not variable_name_here)
-    // Captures: [14] = prefix, [15] = content
+    // Captures: [18] = prefix, [19] = content
     /(^|[^_a-zA-Z0-9])_([^_\n]+)_(?![_a-zA-Z0-9])/.source,
-    // Group 15: Strikethrough
+    // Group 19: Strikethrough
     // Example: ~~deleted~~ → deleted
     /~~((?:(?!~~).)+)~~/.source,
-    // Group 16: Highlight
+    // Group 20: Highlight
     // Example: ==highlighted== → highlighted
     /==((?:(?!==).)+)==/.source,
-    // Group 17: Links
+    // Group 21: Links
     // Example: [Google](https://google.com) → Google
     /\[([^\]]+)\]\([^)]+\)/.source,
-    // Group 18: Wiki links with display
+    // Group 22: Wiki links with display
     // Example: [[Some Page|Display Text]] → Display Text
     /\[\[[^\]|]+\|([^\]]+)\]\]/.source,
-    // Group 19: Wiki links
+    // Group 23: Wiki links
     // Example: [[Some Page]] → Some Page
     /\[\[([^\]]+)\]\]/.source,
-    // Group 20: Callout titles (just the [!...] part)
+    // Group 24: Callout titles (just the [!...] part)
     // Example: [!info] Optional title → (removed)
     /\[![\w-]+\](?:\s+[^\n]*)?/.source,
-    // Group 21: Lists and blockquotes - non-capturing group
+    // Group 25: Lists and blockquotes - non-capturing group
     // Example: - List item → (removed), * List → (removed), > Quote → (removed)
     /^(?:[-*+]\s+|\d+\.\s+|>\s+)/.source,
-    // Group 22: Heading markers (always strip the # symbols, keep the text)
+    // Group 26: Heading markers (always strip the # symbols, keep the text)
     // Example: # Title → Title, ## Section → Section
     /^(#+)\s+(.*)$/m.source,
-    // Group 23: Markdown tables - matches table rows (lines with pipes)
+    // Group 27: Markdown tables - matches table rows (lines with pipes)
     // Example: | Header | Another | → (removed)
     // This captures lines that start with optional whitespace, then |, and contain at least one more |
     /^\s*\|.*\|.*$/m.source
@@ -196,18 +208,18 @@ export class PreviewTextUtils {
             for (let i = 0; i < groups.length - 2; i++) {
                 // -2 for offset and string
                 if (groups[i] !== undefined) {
-                    // Special handling for italic patterns with prefixes
-                    if (i === 12 && groups[13] !== undefined) {
-                        return groups[12] + groups[13];
+                    // Special handling for italic patterns with prefixes (groups 17 and 18)
+                    if (i === 16 && groups[17] !== undefined) {
+                        return groups[16] + groups[17];
                     }
-                    if (i === 13 && groups[12] !== undefined) {
+                    if (i === 17 && groups[16] !== undefined) {
                         continue;
                     }
 
-                    if (i === 14 && groups[15] !== undefined) {
-                        return groups[14] + groups[15];
+                    if (i === 18 && groups[19] !== undefined) {
+                        return groups[18] + groups[19];
                     }
-                    if (i === 15 && groups[14] !== undefined) {
+                    if (i === 19 && groups[18] !== undefined) {
                         continue;
                     }
 

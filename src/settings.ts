@@ -119,6 +119,7 @@ export interface NotebookNavigatorSettings {
     // Advanced
     confirmBeforeDelete: boolean;
     // Internal
+    searchActive: boolean;
     customVaultName: string;
     pinnedNotes: PinnedNotes;
     folderIcons: Record<string, string>;
@@ -202,6 +203,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Advanced
     confirmBeforeDelete: true,
     // Internal
+    searchActive: false,
     customVaultName: '',
     pinnedNotes: {},
     folderIcons: {},

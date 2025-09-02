@@ -54,6 +54,8 @@ interface UseListPaneDataParams {
     selectedTag: string | null;
     /** Plugin settings */
     settings: NotebookNavigatorSettings;
+    /** Optional search query to filter files */
+    searchQuery?: string;
 }
 
 /**
@@ -79,7 +81,13 @@ interface UseListPaneDataResult {
  * @param params - Configuration parameters
  * @returns File list data and lookup maps
  */
-export function useListPaneData({ selectionType, selectedFolder, selectedTag, settings }: UseListPaneDataParams): UseListPaneDataResult {
+export function useListPaneData({
+    selectionType,
+    selectedFolder,
+    selectedTag,
+    settings,
+    searchQuery
+}: UseListPaneDataParams): UseListPaneDataResult {
     const { app, tagTreeService } = useServices();
     const { getFileCreatedTime, getFileModifiedTime, getDB } = useFileCache();
 
@@ -99,11 +107,38 @@ export function useListPaneData({ selectionType, selectedFolder, selectedTag, se
             allFiles = getFilesForTag(selectedTag, settings, app, tagTreeService);
         }
 
+        // Apply search filter if query is provided
+        if (searchQuery && searchQuery.trim()) {
+            const query = searchQuery.toLowerCase().trim();
+
+            // Split query into segments for multi-word search
+            const searchSegments = query.split(/\s+/).filter(s => s.length > 0);
+            const isMultiWordSearch = searchSegments.length > 1;
+
+            allFiles = allFiles.filter(file => {
+                const filename = file.basename.toLowerCase();
+
+                // Exact substring match (e.g., "test" matches "testing.md")
+                if (filename.includes(query)) {
+                    return true;
+                }
+
+                // Multi-word search: all segments must be present
+                // (e.g., "inst mac" matches "Installation Macbook.md")
+                if (isMultiWordSearch) {
+                    const allSegmentsPresent = searchSegments.every(segment => filename.includes(segment));
+                    return allSegmentsPresent;
+                }
+
+                return false;
+            });
+        }
+
         return allFiles;
         // NOTE TO REVIEWER: Excluding **getFilesForFolder**/**getFilesForTag** - static imports
         // **updateKey** triggers re-computation on storage updates
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [selectionType, selectedFolder, selectedTag, settings, app, tagTreeService, updateKey]);
+    }, [selectionType, selectedFolder, selectedTag, settings, app, tagTreeService, updateKey, searchQuery]);
 
     /**
      * Build the complete list of items for rendering, including:

@@ -65,7 +65,13 @@ export const STRINGS_JA = {
         autoExpandFoldersTags: 'フォルダとタグを自動展開', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showDualPane: 'デュアルペインを表示', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: 'シングルペインを表示', // Tooltip for button to show single-pane layout (English: Show single pane)
-        changeAppearance: '外観を変更' // Tooltip for button to change folder appearance settings (English: Change appearance)
+        changeAppearance: '外観を変更', // Tooltip for button to change folder appearance settings (English: Change appearance)
+        search: '検索' // Tooltip for search button (English: Search)
+    },
+    // Search input
+    searchInput: {
+        placeholder: '検索...', // Placeholder text for search input (English: Search...)
+        clearSearch: '検索をクリア' // Tooltip for clear search button (English: Clear search)
     },
 
     // Context menus
@@ -347,6 +353,7 @@ export const STRINGS_JA = {
         open: '開く', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealFile: 'ファイルを表示', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: 'ファイルにフォーカス', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
+        search: '検索', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'デュアルペインレイアウトを切り替え', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
         deleteFile: 'ファイルを削除', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: '新規ノートを作成', // Command palette: Creates a new note in the currently selected folder (English: Create new note)

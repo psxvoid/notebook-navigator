@@ -65,7 +65,13 @@ export const STRINGS_DE = {
         autoExpandFoldersTags: 'Ordner und Tags automatisch erweitern', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showDualPane: 'Zweispaltige Ansicht anzeigen', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: 'Einspaltige Ansicht anzeigen', // Tooltip for button to show single-pane layout (English: Show single pane)
-        changeAppearance: 'Erscheinungsbild ändern' // Tooltip for button to change folder appearance settings (English: Change appearance)
+        changeAppearance: 'Erscheinungsbild ändern', // Tooltip for button to change folder appearance settings (English: Change appearance)
+        search: 'Suchen' // Tooltip for search button (English: Search)
+    },
+    // Search input
+    searchInput: {
+        placeholder: 'Suchen...', // Placeholder text for search input (English: Search...)
+        clearSearch: 'Suche löschen' // Tooltip for clear search button (English: Clear search)
     },
 
     // Context menus
@@ -347,6 +353,7 @@ export const STRINGS_DE = {
         open: 'Öffnen', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealFile: 'Datei anzeigen', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: 'Datei fokussieren', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
+        search: 'Suchen', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'Doppelbereichslayout umschalten', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
         deleteFile: 'Dateien löschen', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Neue Notiz erstellen', // Command palette: Creates a new note in the currently selected folder (English: Create new note)

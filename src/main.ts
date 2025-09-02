@@ -172,7 +172,21 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             id: 'open-view',
             name: strings.commands.open,
             callback: async () => {
-                await this.activateView();
+                // Check if navigator is already open
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                if (navigatorLeaves.length > 0) {
+                    // Navigator is already open - focus the file pane
+                    for (const leaf of navigatorLeaves) {
+                        const view = leaf.view;
+                        if (view instanceof NotebookNavigatorView) {
+                            view.focusFilePane();
+                            break;
+                        }
+                    }
+                } else {
+                    // Navigator is not open - open it
+                    await this.activateView();
+                }
             }
         });
 
@@ -250,6 +264,25 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                         view.focusFilePane();
                     }
                 });
+            }
+        });
+
+        this.addCommand({
+            id: 'search',
+            name: strings.commands.search,
+            callback: async () => {
+                // Ensure navigator is open and visible
+                await this.activateView();
+
+                // Open search or focus it if already open
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                for (const leaf of navigatorLeaves) {
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        view.toggleSearch();
+                        break;
+                    }
+                }
             }
         });
 

@@ -65,7 +65,13 @@ export const STRINGS_FR = {
         autoExpandFoldersTags: 'Développer automatiquement les dossiers et les étiquettes', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showDualPane: 'Afficher les panneaux doubles', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: 'Afficher panneau unique', // Tooltip for button to show single-pane layout (English: Show single pane)
-        changeAppearance: "Changer l'apparence" // Tooltip for button to change folder appearance settings (English: Change appearance)
+        changeAppearance: "Changer l'apparence", // Tooltip for button to change folder appearance settings (English: Change appearance)
+        search: 'Rechercher' // Tooltip for search button (English: Search)
+    },
+    // Search input
+    searchInput: {
+        placeholder: 'Rechercher...', // Placeholder text for search input (English: Search...)
+        clearSearch: 'Effacer la recherche' // Tooltip for clear search button (English: Clear search)
     },
 
     // Context menus
@@ -347,6 +353,7 @@ export const STRINGS_FR = {
         open: 'Ouvrir', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealFile: 'Révéler le fichier', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
         focusFile: 'Focus sur le fichier', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
+        search: 'Rechercher', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'Basculer la disposition à double panneau', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
         deleteFile: 'Supprimer les fichiers', // Command palette: Deletes the currently active file (English: Delete file)
         createNewNote: 'Créer une nouvelle note', // Command palette: Creates a new note in the currently selected folder (English: Create new note)

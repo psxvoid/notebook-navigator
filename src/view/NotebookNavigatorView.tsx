@@ -217,6 +217,13 @@ export class NotebookNavigatorView extends ItemView {
     }
 
     /**
+     * Toggle search in the file list
+     */
+    toggleSearch(): void {
+        this.componentRef.current?.toggleSearch();
+    }
+
+    /**
      * Called when view is resized
      * Triggered when the view dimensions change, including:
      * - Mobile drawer animations (swipe to show/hide)

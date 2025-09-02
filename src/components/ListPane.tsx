@@ -44,7 +44,7 @@
  *    - Keyboard navigation optimized
  */
 
-import React, { useCallback, useRef, useEffect, useImperativeHandle, forwardRef } from 'react';
+import React, { useCallback, useRef, useEffect, useImperativeHandle, forwardRef, useState } from 'react';
 import { TFile, Platform } from 'obsidian';
 import { Virtualizer } from '@tanstack/react-virtual';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
@@ -62,6 +62,7 @@ import { getEffectiveSortOption } from '../utils/sortUtils';
 import { FileItem } from './FileItem';
 import { ListPaneHeader } from './ListPaneHeader';
 import { ListToolbar } from './ListToolbar';
+import { SearchInput } from './SearchInput';
 
 /**
  * Renders the list pane displaying files from the selected folder.
@@ -74,6 +75,7 @@ export interface ListPaneHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
     scrollContainerRef: HTMLDivElement | null;
+    toggleSearch: () => void;
 }
 
 interface ListPaneProps {
@@ -96,13 +98,25 @@ interface ListPaneProps {
 
 export const ListPane = React.memo(
     forwardRef<ListPaneHandle, ListPaneProps>(function ListPane(props, ref) {
-        const { app, isMobile } = useServices();
+        const { app, isMobile, plugin } = useServices();
         const selectionState = useSelectionState();
         const selectionDispatch = useSelectionDispatch();
         const settings = useSettingsState();
         const appearanceSettings = useListPaneAppearance();
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
+
+        // Search state - initialized from settings (but never active on mobile)
+        const [isSearchActive, setIsSearchActive] = useState(!isMobile && settings.searchActive);
+        const [searchQuery, setSearchQuery] = useState('');
+
+        // Save search state to settings when it changes (only on desktop)
+        useEffect(() => {
+            if (!isMobile && plugin.settings.searchActive !== isSearchActive) {
+                plugin.settings.searchActive = isSearchActive;
+                plugin.saveSettings();
+            }
+        }, [isSearchActive, plugin, isMobile]);
 
         // Android uses toolbar at top, iOS at bottom
         const isAndroid = Platform.isAndroidApp;
@@ -129,7 +143,8 @@ export const ListPane = React.memo(
             selectionType,
             selectedFolder,
             selectedTag,
-            settings
+            settings,
+            searchQuery: isSearchActive ? searchQuery : undefined
         });
 
         // Use the new scroll hook
@@ -232,6 +247,28 @@ export const ListPane = React.memo(
                 return;
             }
 
+            // If search is active and auto-select is enabled, we need to select the first filtered file
+            if (isSearchActive && settings.autoSelectFirstFileOnFocusChange && !isMobile && isFolderChangeWithAutoSelect) {
+                // Check if the auto-selected file is in the filtered list
+                if (selectedFile && !files.some(f => f.path === selectedFile.path)) {
+                    // The auto-selected file is not visible due to search filter
+                    // Select the first file from the filtered list instead
+                    if (files.length > 0) {
+                        selectionDispatch({ type: 'SET_SELECTED_FILE', file: files[0] });
+                        // Open it in the editor without focus
+                        const leaf = app.workspace.getLeaf(false);
+                        if (leaf) {
+                            leaf.openFile(files[0], { active: false });
+                        }
+                    } else {
+                        // No files match the search - clear selection
+                        selectionDispatch({ type: 'SET_SELECTED_FILE', file: null });
+                    }
+                    isUserSelectionRef.current = false;
+                    return;
+                }
+            }
+
             if (selectedFile && !isUserSelectionRef.current && settings.autoSelectFirstFileOnFocusChange && !isMobile) {
                 // Check if we're actively navigating the navigator
                 const navigatorEl = document.querySelector('.nn-split-container');
@@ -255,7 +292,9 @@ export const ListPane = React.memo(
             selectionState.isRevealOperation,
             selectionState.isFolderChangeWithAutoSelect,
             selectionState.isKeyboardNavigation,
-            selectionDispatch
+            selectionDispatch,
+            isSearchActive,
+            files
         ]);
 
         // Auto-select first file when navigating to files pane with keyboard in dual-pane mode
@@ -268,20 +307,27 @@ export const ListPane = React.memo(
                 // Clear the keyboard navigation flag
                 selectionDispatch({ type: 'SET_KEYBOARD_NAVIGATION', isKeyboardNavigation: false });
 
-                // If no file is selected and we have files
-                if (!selectedFile && files.length > 0) {
-                    // Check if the active file is in the current view
+                // Determine if we need to select a file
+                const hasNoSelection = !selectedFile;
+                const selectedFileNotInFilteredList = selectedFile && !files.some(f => f.path === selectedFile.path);
+                const needsSelection = hasNoSelection || selectedFileNotInFilteredList;
+
+                if (needsSelection && files.length > 0) {
+                    // Try to select the active file if it's in the filtered list
                     const activeFile = app.workspace.getActiveFile();
-                    if (activeFile && files.some(f => f.path === activeFile.path)) {
-                        // Select the active file
+                    const activeFileInFilteredList = activeFile && files.some(f => f.path === activeFile.path);
+
+                    if (activeFileInFilteredList) {
                         selectionDispatch({ type: 'SET_SELECTED_FILE', file: activeFile });
                     } else {
-                        // Select the first file
-                        selectionDispatch({ type: 'SET_SELECTED_FILE', file: files[0] });
+                        // Fall back to selecting the first file in the filtered list
+                        const firstFile = files[0];
+                        selectionDispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
+
                         // Open it in the editor without focus
                         const leaf = app.workspace.getLeaf(false);
                         if (leaf) {
-                            leaf.openFile(files[0], { active: false });
+                            leaf.openFile(firstFile, { active: false });
                         }
                     }
                 }
@@ -305,9 +351,27 @@ export const ListPane = React.memo(
             () => ({
                 getIndexOfPath: (path: string) => filePathToIndex.get(path) ?? -1,
                 virtualizer: rowVirtualizer,
-                scrollContainerRef: scrollContainerRef.current
+                scrollContainerRef: scrollContainerRef.current,
+                toggleSearch: () => {
+                    // Don't allow search on mobile
+                    if (isMobile) return;
+
+                    if (isSearchActive) {
+                        // Search is already open - just focus the search input
+                        setTimeout(() => {
+                            const searchInput = document.querySelector('.nn-search-input') as HTMLInputElement;
+                            if (searchInput) {
+                                searchInput.focus();
+                                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'search' });
+                            }
+                        }, 0);
+                    } else {
+                        // Opening search - the SearchInput component will auto-focus
+                        setIsSearchActive(true);
+                    }
+                }
             }),
-            [filePathToIndex, rowVirtualizer, scrollContainerRef]
+            [filePathToIndex, rowVirtualizer, scrollContainerRef, isSearchActive, uiDispatch, isMobile]
         );
 
         // Add keyboard navigation
@@ -329,9 +393,39 @@ export const ListPane = React.memo(
 
         // Single return with conditional content
         return (
-            <div className="nn-list-pane">
+            <div className={`nn-list-pane ${isSearchActive ? 'nn-search-active' : ''}`}>
                 {props.resizeHandleProps && <div className="nn-resize-handle" {...props.resizeHandleProps} />}
-                <ListPaneHeader onHeaderClick={handleScrollToTop} />
+                <ListPaneHeader
+                    onHeaderClick={handleScrollToTop}
+                    isSearchActive={isSearchActive}
+                    onSearchToggle={() => {
+                        // Don't allow search on mobile
+                        if (isMobile) return;
+
+                        setIsSearchActive(!isSearchActive);
+                        if (isSearchActive) {
+                            setSearchQuery(''); // Clear search when closing
+                            // Restore focus to files pane when closing search
+                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+                        } else {
+                            // Set focus to search when opening
+                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'search' });
+                        }
+                    }}
+                />
+                {/* Search bar - collapsible */}
+                <div className={`nn-search-bar-container ${isSearchActive ? 'nn-search-bar-visible' : ''}`}>
+                    {isSearchActive && (
+                        <SearchInput
+                            searchQuery={searchQuery}
+                            onSearchQueryChange={setSearchQuery}
+                            onClose={() => {
+                                setIsSearchActive(false);
+                                setSearchQuery('');
+                            }}
+                        />
+                    )}
+                </div>
                 {/* Android - toolbar at top */}
                 {isMobile && isAndroid && <ListToolbar />}
 

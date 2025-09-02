@@ -251,13 +251,17 @@ export const FolderItem = React.memo(function FolderItem({
             if (icon) {
                 // Custom icon is set - always show it, never toggle
                 iconService.renderIcon(iconRef.current, icon);
+            } else if (folder.path === '/') {
+                // Root folder - use vault icon (open/closed based on expansion state)
+                const vaultIconName = hasChildren && isExpanded ? 'open-vault' : 'vault';
+                iconService.renderIcon(iconRef.current, vaultIconName);
             } else {
                 // Default icon - show open folder only if has children AND is expanded
                 const iconName = hasChildren && isExpanded ? 'lucide-folder-open' : 'lucide-folder-closed';
                 iconService.renderIcon(iconRef.current, iconName);
             }
         }
-    }, [isExpanded, icon, hasChildren, settings.showIcons]);
+    }, [isExpanded, icon, hasChildren, settings.showIcons, folder.path]);
 
     // Enable context menu
     useContextMenu(folderRef, { type: ItemType.FOLDER, item: folder });
