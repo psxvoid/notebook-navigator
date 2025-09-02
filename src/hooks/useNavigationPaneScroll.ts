@@ -33,6 +33,7 @@ import { useVirtualizer, Virtualizer } from '@tanstack/react-virtual';
 import { useServices } from '../context/ServicesContext';
 import { useSelectionState } from '../context/SelectionContext';
 import { useUIState } from '../context/UIStateContext';
+import { useSettingsState } from '../context/SettingsContext';
 import { NavigationPaneItemType, ItemType, NAVPANE_MEASUREMENTS, OVERSCAN } from '../types';
 import type { CombinedNavigationItem } from '../types/virtualization';
 
@@ -75,6 +76,7 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
     const { isMobile } = useServices();
     const selectionState = useSelectionState();
     const uiState = useUIState();
+    const settings = useSettingsState();
 
     // Reference to the scroll container DOM element
     const scrollContainerRef = useRef<HTMLDivElement>(null);
@@ -90,30 +92,32 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
     const prevSelectedTagRef = useRef<string | null>(null);
 
     /**
-     * Initialize TanStack Virtual virtualizer with fixed heights for navigation items
+     * Initialize TanStack Virtual virtualizer with dynamic heights for navigation items
      */
     const rowVirtualizer = useVirtualizer({
         count: items.length,
         getScrollElement: () => scrollContainerRef.current,
         estimateSize: index => {
             const item = items[index];
-            const heights = isMobile ? NAVPANE_MEASUREMENTS.mobile : NAVPANE_MEASUREMENTS.desktop;
+
+            // Use dynamic line height settings for folder and tag items
+            const itemHeight = isMobile ? settings.navItemHeight + NAVPANE_MEASUREMENTS.mobileHeightIncrement : settings.navItemHeight;
 
             switch (item.type) {
                 case NavigationPaneItemType.TOP_SPACER:
-                    return heights.topSpacer;
+                    return NAVPANE_MEASUREMENTS.topSpacer;
                 case NavigationPaneItemType.BOTTOM_SPACER:
-                    return heights.bottomSpacer;
+                    return NAVPANE_MEASUREMENTS.bottomSpacer;
                 case NavigationPaneItemType.LIST_SPACER:
-                    return heights.listSpacer;
+                    return NAVPANE_MEASUREMENTS.listSpacer;
                 case NavigationPaneItemType.FOLDER:
                 case NavigationPaneItemType.VIRTUAL_FOLDER:
-                    return heights.folder;
+                    return itemHeight;
                 case NavigationPaneItemType.TAG:
                 case NavigationPaneItemType.UNTAGGED:
-                    return heights.tag;
+                    return itemHeight;
                 default:
-                    return heights.folder; // fallback
+                    return itemHeight; // fallback
             }
         },
         overscan: OVERSCAN
@@ -254,6 +258,32 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
         window.addEventListener('notebook-navigator-visible', handleVisible);
         return () => window.removeEventListener('notebook-navigator-visible', handleVisible);
     }, [isMobile, selectedPath, rowVirtualizer, pathToIndex]);
+
+    /**
+     * Re-measure all items when line height settings change
+     * This ensures the virtualizer immediately updates when settings are adjusted
+     * Also scroll to selected item to maintain position
+     */
+    useEffect(() => {
+        if (!rowVirtualizer) return;
+
+        // Re-measure all items with new heights
+        rowVirtualizer.measure();
+
+        // Scroll to selected item to maintain position after settings change
+        if (selectedPath && isVisible) {
+            const index = pathToIndex.get(selectedPath);
+            if (index !== undefined && index >= 0) {
+                // Use requestAnimationFrame to ensure measurements are complete
+                requestAnimationFrame(() => {
+                    rowVirtualizer.scrollToIndex(index, {
+                        align: 'auto',
+                        behavior: 'auto'
+                    });
+                });
+            }
+        }
+    }, [settings.navItemHeight, settings.navIndent, rowVirtualizer, selectedPath, pathToIndex, isVisible]);
 
     return {
         rowVirtualizer,

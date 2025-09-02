@@ -14,7 +14,7 @@ If you love using Notebook Navigator, please consider [buying me a coffee](https
 
 <br>
 
-## Getting Started
+## Getting started
 
 1. **Install Obsidian** - Download and install from [obsidian.md](https://obsidian.md/)
 2. **Enable community plugins** - Go to Settings → Community plugins → Turn on community plugins
@@ -59,7 +59,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - **Hidden tags** - Hide tags with wildcard and regex patterns
 - **Untagged notes** - Find and organize notes without tags
 
-### File Display
+### File display
 
 - **Note previews** - Display 1-5 lines of text from each note
 - **Feature images** - Display thumbnail images from frontmatter or first embedded image
@@ -78,7 +78,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - **Filtering** - Exclude folders and notes with patterns, wildcards, and frontmatter properties
 - **Search commands** - Quick navigation to any folder or tag via command palette
 
-### Advanced Theming Support
+### Advanced theming support
 
 - **Style Settings integration** - Full support for the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin
 - **80 CSS variables** - Complete set of `--nn-theme-*` variables for colors, backgrounds, and visual elements
@@ -96,7 +96,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 <br>
 
-## Code Quality & Compliance
+## Code quality & compliance
 
 - **Obsidian ESLint Plugin** - Full compliance with [Obsidian's official ESLint plugin](https://github.com/obsidianmd/eslint-plugin)
 - **Zero-Tolerance Build Process** - Build aborts on any error or warning
@@ -105,7 +105,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 <br>
 
-## Architecture & Performance
+## Architecture & performance
 
 - **React + TanStack Virtual** - React architecture with virtualized rendering. Handles 100,000+ notes
 - **IndexedDB + RAM Cache** - Dual-layer caching with metadata mirrored in RAM for synchronous access
@@ -134,7 +134,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 <br>
 
-## How to Use
+## How to use
 
 1. Install the plugin from Obsidian's Community Plugins
 2. The navigator will replace your default file explorer
@@ -167,7 +167,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 <br>
 
-## Keyboard Shortcuts
+## Keyboard shortcuts
 
 | Key                                         | Action                                                                                  |
 | ------------------------------------------- | --------------------------------------------------------------------------------------- |
@@ -191,7 +191,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 
 Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
-**View & Navigation**
+**View & navigation**
 
 - `Notebook Navigator: Open` Opens Notebook Navigator in left sidebar
 - `Notebook Navigator: Reveal file` Reveals current file in navigator. Expands parent folders and scrolls to file
@@ -199,18 +199,18 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Navigate to tag` Search dialog to jump to any tag
 - `Notebook Navigator: Focus file` Move keyboard focus to file list pane
 
-**Layout & Display**
+**Layout & display**
 
 - `Notebook Navigator: Toggle dual pane layout` Toggle single/dual-pane layout (desktop)
 - `Notebook Navigator: Toggle show notes from subfolders` Toggle subfolder notes display
 
-**File Operations**
+**File operations**
 
 - `Notebook Navigator: Create new note` Create note in currently selected folder. **Tip:** Bind Cmd/Ctrl+N to this command (unbind from Obsidian's default "Create new note" first)
 - `Notebook Navigator: Move files` Move selected files to another folder. Selects next file in current folder
 - `Notebook Navigator: Delete files` Delete selected files. Selects next file in current folder
 
-**Tag Operations**
+**Tag operations**
 
 - `Notebook Navigator: Add tag to selected files` Dialog to add tag to selected files. Supports creating new tags
 - `Notebook Navigator: Remove tag from selected files` Dialog to remove specific tag. Removes immediately if only one tag
@@ -220,7 +220,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 ## Settings
 
-### Top Level Settings
+### Top level settings
 
 - **Dual pane layout (desktop only):** Show navigation and list panes side by side
 - **Auto-reveal active note:** Reveal and select notes when opened from Quick Switcher, links, or search
@@ -233,13 +233,15 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - Right-click folders to add to exclusion list
 - **Excluded notes:** Comma-separated frontmatter properties. Notes with these properties are hidden (e.g., draft, private, archived)
 
-### Navigation Pane
+### Navigation pane
 
 - **Auto-select first note (desktop only):** Select and open first note when switching folders or tags
 - **Auto-expand folders and tags:** Expand folders and tags when selected
-- **Show note count:** Display note count in folders and tags
-- **Show icons:** Display icons next to folders and tags
 - **Collapse button behavior:** What expand/collapse all button affects. `All folders and tags`, `Folders only`, `Tags only`
+- **Show icons:** Display icons next to folders and tags
+- **Show note count:** Display note count in folders and tags
+- **Tree indentation:** Indentation width for each folder and tag nesting level (10-24px)
+- **Item height:** Height of items in the navigation pane (20-28px)
 
 ### Folders
 
@@ -260,7 +262,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Favorite tags:** Comma-separated tag patterns. Supports exact match, wildcards (\*), regex (/pattern/)
 - **Hidden tags:** Comma-separated patterns to hide. Supports exact match, wildcards (\*), regex (/pattern/)
 
-### List Pane
+### List pane
 
 - **Sort notes by:** Note sort order. `Date edited (newest/oldest first)`, `Date created (newest/oldest first)`, `Title (A-Z first)`
 - **Group notes by date:** Group by date headers when sorted by date
@@ -268,9 +270,9 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Show notes from subfolders:** Display all notes from subfolders
 - **Show parent folder names:** Display parent folder for subfolder notes
 - **Show quick actions (desktop only):** Hover action buttons
-- **Open in new tab:** Icon to open in new tab
-- **Pin note:** Icon to pin/unpin notes
 - **Reveal in folder:** Icon to reveal note's actual folder location
+- **Pin note:** Icon to pin/unpin notes
+- **Open in new tab:** Icon to open in new tab
 - **Date format:** Format for displaying dates (uses date-fns format)
 - **Time format:** Format for displaying times (uses date-fns format)
 
@@ -300,34 +302,22 @@ _(\*) These settings store data to a local cache database. You can see the total
 
 <br>
 
-## Style Settings
+## Style settings
 
 Notebook Navigator integrates with the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin for visual customization.
 
-### Available Customizations
-
-With Style Settings installed, you can customize:
-
-- **Navigation layout** - Tree indentation width (5-20px)
 - **Colors** - All interface colors including backgrounds, text, icons, and selection states
 - **Borders & corners** - Border radius for items, badges, and panels
 - **Font weights** - Text weights for folders, tags, files, and various UI elements
 - **Mobile styles** - Separate customizations for mobile interface
 
-### How to Use
-
-1. Install the [Style Settings](https://github.com/mgmeyers/obsidian-style-settings) plugin from Community Plugins
-2. Open Style Settings from Obsidian settings
-3. Find "Notebook Navigator" in the Style Settings list
-4. Customize any aspect of the interface
-
 For theme developers who want to style Notebook Navigator, see the [Theming Guide](docs/theming-guide.md).
 
 <br>
 
-## Tips and Tricks
+## Tips and tricks
 
-### Display thumbnails with Featured Image plugin
+### Display thumbnails with featured image plugin
 
 Combine with the [Featured Image plugin](https://github.com/johansan/obsidian-featured-image) for thumbnail previews:
 
@@ -430,7 +420,7 @@ Use cases:
 
 <br>
 
-## Questions or Issues?
+## Questions or issues?
 
 **[Join our Discord](https://discord.gg/6eeSUvzEJr)** for support and discussions, or open an issue on the
 [GitHub repository](https://github.com/johansan/notebook-navigator).

@@ -551,7 +551,7 @@ export const STRINGS_EN = {
             },
             showNoteCount: {
                 name: 'Show note count',
-                desc: 'Display the number of notes in each folder and tag.'
+                desc: 'Display the number of notes next to each folder and tag.'
             },
             showIcons: {
                 name: 'Show icons',
@@ -565,6 +565,14 @@ export const STRINGS_EN = {
                     foldersOnly: 'Folders only',
                     tagsOnly: 'Tags only'
                 }
+            },
+            navItemHeight: {
+                name: 'Item height',
+                desc: 'Adjust the height of folders and tags in the navigation pane.'
+            },
+            navIndent: {
+                name: 'Tree indentation',
+                desc: 'Adjust the indentation width for nested folders and tags.'
             },
             showTags: {
                 name: 'Show tags (*)',

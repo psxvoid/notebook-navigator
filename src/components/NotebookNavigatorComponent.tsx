@@ -34,7 +34,7 @@ import { FolderSuggestModal } from '../modals/FolderSuggestModal';
 import { TagSuggestModal } from '../modals/TagSuggestModal';
 import { RemoveTagModal } from '../modals/RemoveTagModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
-import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, ItemType } from '../types';
+import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, ItemType, NAVPANE_MEASUREMENTS } from '../types';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { ListPane } from './ListPane';
@@ -429,6 +429,43 @@ export const NotebookNavigatorComponent = React.memo(
         if (isResizing) {
             containerClasses.push('nn-resizing');
         }
+
+        // Apply dynamic CSS variables for item heights and font size
+        useEffect(() => {
+            if (containerRef.current) {
+                const navItemHeight = settings.navItemHeight;
+                const defaultHeight = NAVPANE_MEASUREMENTS.defaultItemHeight;
+                const defaultFontSize = NAVPANE_MEASUREMENTS.defaultFontSize;
+
+                // Calculate font sizes based on item height (default 28px)
+                // Desktop: default 13px, 12px if height ≤24, 11px if height ≤22
+                let fontSize = defaultFontSize;
+                if (navItemHeight <= defaultHeight - 6) {
+                    // ≤22
+                    fontSize = defaultFontSize - 2; // 11px
+                } else if (navItemHeight <= defaultHeight - 4) {
+                    // ≤24
+                    fontSize = defaultFontSize - 1; // 12px
+                }
+
+                // Mobile adjustments
+                const mobileNavItemHeight = navItemHeight + NAVPANE_MEASUREMENTS.mobileHeightIncrement;
+                const mobileFontSize = fontSize + NAVPANE_MEASUREMENTS.mobileFontSizeIncrement;
+
+                // Calculate padding: (total height - line height) / 2
+                // Line height is fixed at 18px in CSS (--nn-nav-line-height)
+                const desktopPadding = Math.floor((navItemHeight - NAVPANE_MEASUREMENTS.lineHeight) / 2);
+                const mobilePadding = Math.floor((mobileNavItemHeight - NAVPANE_MEASUREMENTS.lineHeight) / 2);
+
+                containerRef.current.style.setProperty('--nn-setting-nav-item-height', `${navItemHeight}px`);
+                containerRef.current.style.setProperty('--nn-setting-nav-item-height-mobile', `${mobileNavItemHeight}px`);
+                containerRef.current.style.setProperty('--nn-setting-nav-padding-vertical', `${desktopPadding}px`);
+                containerRef.current.style.setProperty('--nn-setting-nav-padding-vertical-mobile', `${mobilePadding}px`);
+                containerRef.current.style.setProperty('--nn-setting-nav-font-size', `${fontSize}px`);
+                containerRef.current.style.setProperty('--nn-setting-nav-font-size-mobile', `${mobileFontSize}px`);
+                containerRef.current.style.setProperty('--nn-setting-nav-indent', `${settings.navIndent}px`);
+            }
+        }, [settings.navItemHeight, settings.navIndent]);
 
         return (
             <div

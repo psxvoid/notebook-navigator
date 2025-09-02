@@ -101,24 +101,25 @@ export type NavigationPaneItemType = (typeof NavigationPaneItemType)[keyof typeo
 /**
  * Navigation pane measurements for accurate virtualization
  * Used by NavigationPane component
+ * Note: Folder and tag heights are now dynamically calculated from settings
  */
 export const NAVPANE_MEASUREMENTS = {
-    desktop: {
-        folder: 28, // var(--nn-nav-item-height)
-        tag: 28, // var(--nn-nav-item-height)
-        header: 35, // Tag section header height
-        bottomSpacer: 20,
-        topSpacer: 10,
-        listSpacer: 10
-    },
-    mobile: {
-        folder: 40, // var(--nn-nav-item-height-mobile)
-        tag: 40, // var(--nn-nav-item-height-mobile)
-        header: 38, // Slightly larger for mobile font sizes
-        bottomSpacer: 20,
-        topSpacer: 10,
-        listSpacer: 10
-    }
+    // Default settings
+    defaultItemHeight: 28, // Default item height
+    defaultIndent: 16, // Default tree indentation
+    defaultFontSize: 13, // Default desktop font size
+
+    // Navigation item components
+    lineHeight: 18, // Fixed line height for folder/tag names (--nn-nav-line-height)
+
+    // Mobile adjustments
+    mobileHeightIncrement: 12, // Mobile item height is desktop + 12px
+    mobileFontSizeIncrement: 3, // Mobile font size is desktop + 3px
+
+    // Spacers
+    topSpacer: 10,
+    listSpacer: 10,
+    bottomSpacer: 20
 };
 
 /**

@@ -43,18 +43,26 @@ body {
 
     /* Navigation item heights - fixed pixel values to prevent fractional rendering */
     --nn-nav-line-height: 18px; /* Fixed line height for folder/tag names */
-    --nn-nav-padding-vertical: 5px; /* Padding to achieve 28px total height */
-    --nn-nav-item-height: 28px; /* Total height: 5px + 18px + 5px = 28px */
+    /* Note: The following are dynamically set by JavaScript based on user settings:
+       --nn-setting-nav-padding-vertical
+       --nn-setting-nav-padding-vertical-mobile
+       --nn-setting-nav-item-height
+       --nn-setting-nav-item-height-mobile
+       --nn-setting-nav-font-size
+       --nn-setting-nav-font-size-mobile
+       --nn-setting-nav-indent
+    */
 
-    /* Mobile navigation heights */
-    --nn-nav-item-height-mobile: 40px; /* Total height for mobile */
-
-    /* Navigation font sizes - fixed for pixel-perfect rendering */
-    --nn-nav-font-size: 13px; /* Fixed 13px */
+    /* Navigation icon size */
     --nn-nav-icon-size: 16px; /* Fixed icon size */
 
-    /* User-configurable settings via Style Settings */
-    --nn-setting-nav-indent: 16px; /* Indentation width for folder/tag tree */
+    /* ========================================================================
+       Header Font Sizes
+       ======================================================================== */
+
+    /* Header font sizes */
+    --nn-desktop-header-font-size: 13px; /* Fixed desktop header font size */
+    --nn-mobile-header-font-size: 17px; /* Fixed mobile header font size */
 
     /* ========================================================================
        Pane Width Constraints
@@ -168,7 +176,6 @@ body {
     --nn-theme-mobile-toolbar-button-icon-color: var(--link-color);
     --nn-theme-mobile-toolbar-button-active-bg: var(--background-modifier-hover);
     --nn-theme-mobile-toolbar-button-active-icon-color: var(--link-color);
-    --nn-mobile-header-font-size: 17px;
 
     /* -- File Separator -- */
     --nn-separator-height: 1px;
@@ -305,7 +312,7 @@ body {
 
 /* Desktop pane header title */
 .nn-pane-header-title {
-    font-size: var(--nn-nav-font-size); /* Use nav font size (13px) to match folder items */
+    font-size: var(--nn-desktop-header-font-size);
     font-weight: var(--nn-theme-list-header-breadcrumb-font-weight);
     color: var(--nn-theme-list-header-breadcrumb-color);
 
@@ -536,7 +543,7 @@ body {
     margin: 0;
     padding: 0;
     min-width: 0; /* Allow folder items to shrink below min-content width */
-    height: var(--nn-nav-item-height); /* Fixed height for virtualizer accuracy */
+    height: var(--nn-setting-nav-item-height); /* Fixed height for virtualizer accuracy */
     box-sizing: border-box;
     padding-inline-start: calc(var(--level, 0) * var(--nn-setting-nav-indent));
     contain: paint; /* Isolate per-item painting */
@@ -546,7 +553,7 @@ body {
 .nn-navitem-content {
     display: flex;
     align-items: center;
-    padding: var(--nn-nav-padding-vertical) var(--nn-nav-item-padding-horizontal);
+    padding: var(--nn-setting-nav-padding-vertical) var(--nn-nav-item-padding-horizontal);
     border-radius: min(14px, var(--nn-theme-navitem-border-radius));
     margin: 0;
     background: transparent;
@@ -616,7 +623,7 @@ body {
 
 /* Folder name text - truncates with ellipsis on overflow */
 .nn-navitem-name {
-    font-size: var(--nn-nav-font-size);
+    font-size: var(--nn-setting-nav-font-size);
     font-weight: var(--nn-theme-navitem-name-font-weight) !important;
     white-space: nowrap;
     overflow: hidden;
@@ -1841,6 +1848,8 @@ body.nn-resizing {
 /* Settings page indentation for sub-settings */
 .nn-sub-settings {
     margin-inline-start: 20px;
+    padding-left: 1em;
+    border-left: 2px solid var(--background-modifier-border);
 }
 
 /* Settings section header spacing */
@@ -2182,7 +2191,7 @@ body.nn-resizing {
 
 /* Touch-friendly tap targets on mobile */
 .notebook-navigator-mobile .nn-navitem {
-    height: var(--nn-nav-item-height-mobile); /* Fixed height instead of min-height */
+    height: var(--nn-setting-nav-item-height-mobile); /* Fixed height instead of min-height */
 }
 
 /* Larger touch targets for chevrons on mobile */
@@ -2584,7 +2593,7 @@ body.nn-resizing {
 
 /* Folder text size on mobile */
 .notebook-navigator-mobile .nn-navitem-name {
-    font-size: 16px;
+    font-size: var(--nn-setting-nav-font-size-mobile);
 }
 
 /* Increase folder icon size on mobile */
@@ -2609,7 +2618,7 @@ body.nn-resizing {
 
 /* Mobile folder content padding adjustment for proper selection height */
 .notebook-navigator-mobile .nn-navitem-content {
-    padding: 8px 8px;
+    padding: var(--nn-setting-nav-padding-vertical-mobile) var(--nn-nav-item-padding-horizontal);
     padding-inline-start: 4px;
     height: 100%;
     display: flex;
@@ -2902,6 +2911,14 @@ body.nn-resizing {
     margin-left: 20px;
 }
 
+/* Make delete menu items red (items with trash icon) */
+.menu-item:has(.menu-item-icon svg.lucide-trash) {
+    color: var(--text-error);
+}
+.menu-item:has(.menu-item-icon svg.lucide-trash) .menu-item-icon {
+    color: var(--text-error);
+}
+
 /* @settings
 
 name: Notebook Navigator
@@ -2940,17 +2957,6 @@ settings:
         type: heading
         level: 2
         collapsed: false
-    -
-    -
-        id: nn-setting-nav-indent
-        title: Tree indentation
-        description: Indentation width for each folder and tag nesting level
-        type: variable-number-slider
-        default: 16
-        format: px
-        min: 10
-        max: 24
-        step: 1
     -
     -
         id: nn-theme-navitem-chevron-color

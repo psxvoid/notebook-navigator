@@ -552,7 +552,7 @@ export const STRINGS_ES = {
             },
             showNoteCount: {
                 name: 'Mostrar conteo de notas',
-                desc: 'Muestra el número de notas en cada carpeta y etiqueta.'
+                desc: 'Muestra el número de notas junto a cada carpeta y etiqueta.'
             },
             showIcons: {
                 name: 'Mostrar iconos',
@@ -566,6 +566,14 @@ export const STRINGS_ES = {
                     foldersOnly: 'Solo carpetas',
                     tagsOnly: 'Solo etiquetas'
                 }
+            },
+            navItemHeight: {
+                name: 'Altura de línea',
+                desc: 'Ajustar la altura de las carpetas y etiquetas en el panel de navegación.'
+            },
+            navIndent: {
+                name: 'Sangría del árbol',
+                desc: 'Ajustar el ancho de sangría para carpetas y etiquetas anidadas.'
             },
             showTags: {
                 name: 'Mostrar etiquetas (*)',

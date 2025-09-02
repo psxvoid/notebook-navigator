@@ -552,7 +552,7 @@ export const STRINGS_DE = {
             },
             showNoteCount: {
                 name: 'Notizenzahl anzeigen',
-                desc: 'Die Anzahl der Notizen in jedem Ordner und Tag anzeigen.'
+                desc: 'Die Anzahl der Notizen neben jedem Ordner und Tag anzeigen.'
             },
             showIcons: {
                 name: 'Symbole anzeigen',
@@ -566,6 +566,14 @@ export const STRINGS_DE = {
                     foldersOnly: 'Nur Ordner',
                     tagsOnly: 'Nur Tags'
                 }
+            },
+            navItemHeight: {
+                name: 'Zeilenhöhe',
+                desc: 'Passen Sie die Höhe von Ordnern und Tags im Navigationsbereich an.'
+            },
+            navIndent: {
+                name: 'Baum-Einrückung',
+                desc: 'Passen Sie die Einrückungsbreite für verschachtelte Ordner und Tags an.'
             },
             showTags: {
                 name: 'Tags anzeigen (*)',

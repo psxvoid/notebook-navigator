@@ -16,11 +16,12 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { App, Notice, PluginSettingTab, Setting } from 'obsidian';
+import { App, Notice, PluginSettingTab, Setting, SliderComponent } from 'obsidian';
 import NotebookNavigatorPlugin from './main';
 import { strings } from './i18n';
 import { TIMEOUTS } from './types/obsidian-extended';
 import { FileVisibility, FILE_VISIBILITY } from './utils/fileTypeUtils';
+import { NAVPANE_MEASUREMENTS } from './types';
 import { calculateCacheStatistics, CacheStatistics } from './storage/statistics';
 import { ISO_DATE_FORMAT } from './utils/dateUtils';
 import { FolderAppearance, TagAppearance } from './hooks/useListPaneAppearance';
@@ -66,9 +67,11 @@ export interface NotebookNavigatorSettings {
     // Navigation pane
     autoSelectFirstFileOnFocusChange: boolean;
     autoExpandFoldersTags: boolean;
-    showNoteCount: boolean;
-    showIcons: boolean;
     collapseButtonBehavior: CollapseButtonBehavior;
+    showIcons: boolean;
+    showNoteCount: boolean;
+    navItemHeight: number;
+    navIndent: number;
     // Folders
     showRootFolder: boolean;
     inheritFolderColors: boolean;
@@ -147,9 +150,11 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Navigation pane
     autoSelectFirstFileOnFocusChange: true,
     autoExpandFoldersTags: false,
-    showNoteCount: true,
-    showIcons: true,
     collapseButtonBehavior: 'all',
+    showIcons: true,
+    showNoteCount: true,
+    navItemHeight: NAVPANE_MEASUREMENTS.defaultItemHeight,
+    navIndent: NAVPANE_MEASUREMENTS.defaultIndent,
     // Folders
     showRootFolder: true,
     inheritFolderColors: false,
@@ -523,13 +528,18 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
-            .setName(strings.settings.items.showNoteCount.name)
-            .setDesc(strings.settings.items.showNoteCount.desc)
-            .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.showNoteCount).onChange(async value => {
-                    this.plugin.settings.showNoteCount = value;
-                    await this.saveAndRefresh();
-                })
+            .setName(strings.settings.items.collapseButtonBehavior.name)
+            .setDesc(strings.settings.items.collapseButtonBehavior.desc)
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOption('all', strings.settings.items.collapseButtonBehavior.options.all)
+                    .addOption('folders-only', strings.settings.items.collapseButtonBehavior.options.foldersOnly)
+                    .addOption('tags-only', strings.settings.items.collapseButtonBehavior.options.tagsOnly)
+                    .setValue(this.plugin.settings.collapseButtonBehavior)
+                    .onChange(async (value: CollapseButtonBehavior) => {
+                        this.plugin.settings.collapseButtonBehavior = value;
+                        await this.saveAndRefresh();
+                    })
             );
 
         new Setting(containerEl)
@@ -543,16 +553,65 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
-            .setName(strings.settings.items.collapseButtonBehavior.name)
-            .setDesc(strings.settings.items.collapseButtonBehavior.desc)
-            .addDropdown(dropdown =>
-                dropdown
-                    .addOption('all', strings.settings.items.collapseButtonBehavior.options.all)
-                    .addOption('folders-only', strings.settings.items.collapseButtonBehavior.options.foldersOnly)
-                    .addOption('tags-only', strings.settings.items.collapseButtonBehavior.options.tagsOnly)
-                    .setValue(this.plugin.settings.collapseButtonBehavior)
-                    .onChange(async (value: CollapseButtonBehavior) => {
-                        this.plugin.settings.collapseButtonBehavior = value;
+            .setName(strings.settings.items.showNoteCount.name)
+            .setDesc(strings.settings.items.showNoteCount.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showNoteCount).onChange(async value => {
+                    this.plugin.settings.showNoteCount = value;
+                    await this.saveAndRefresh();
+                })
+            );
+
+        let lineHeightSlider: SliderComponent;
+        new Setting(containerEl)
+            .setName(strings.settings.items.navItemHeight.name)
+            .setDesc(strings.settings.items.navItemHeight.desc)
+            .addSlider(slider => {
+                lineHeightSlider = slider
+                    .setLimits(20, 28, 1)
+                    .setValue(this.plugin.settings.navItemHeight)
+                    .setDynamicTooltip()
+                    .onChange(async value => {
+                        this.plugin.settings.navItemHeight = value;
+                        await this.saveAndRefresh();
+                    });
+                return slider;
+            })
+            .addExtraButton(button =>
+                button
+                    .setIcon('lucide-rotate-ccw')
+                    .setTooltip('Restore to default (28px)')
+                    .onClick(async () => {
+                        const defaultValue = DEFAULT_SETTINGS.navItemHeight;
+                        lineHeightSlider.setValue(defaultValue);
+                        this.plugin.settings.navItemHeight = defaultValue;
+                        await this.saveAndRefresh();
+                    })
+            );
+
+        let indentationSlider: SliderComponent;
+        new Setting(containerEl)
+            .setName(strings.settings.items.navIndent.name)
+            .setDesc(strings.settings.items.navIndent.desc)
+            .addSlider(slider => {
+                indentationSlider = slider
+                    .setLimits(10, 24, 1)
+                    .setValue(this.plugin.settings.navIndent)
+                    .setDynamicTooltip()
+                    .onChange(async value => {
+                        this.plugin.settings.navIndent = value;
+                        await this.saveAndRefresh();
+                    });
+                return slider;
+            })
+            .addExtraButton(button =>
+                button
+                    .setIcon('lucide-rotate-ccw')
+                    .setTooltip('Restore to default (16px)')
+                    .onClick(async () => {
+                        const defaultValue = DEFAULT_SETTINGS.navIndent;
+                        indentationSlider.setValue(defaultValue);
+                        this.plugin.settings.navIndent = defaultValue;
                         await this.saveAndRefresh();
                     })
             );

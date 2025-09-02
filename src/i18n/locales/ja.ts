@@ -553,7 +553,7 @@ export const STRINGS_JA = {
             },
             showNoteCount: {
                 name: 'ノート数を表示',
-                desc: '各フォルダとタグのノート数を表示します。'
+                desc: '各フォルダとタグの横にノート数を表示します。'
             },
             showIcons: {
                 name: 'アイコンを表示',
@@ -567,6 +567,14 @@ export const STRINGS_JA = {
                     foldersOnly: 'フォルダのみ',
                     tagsOnly: 'タグのみ'
                 }
+            },
+            navItemHeight: {
+                name: '行高',
+                desc: 'ナビゲーションペイン内のフォルダとタグの高さを調整します。'
+            },
+            navIndent: {
+                name: 'ツリーインデント',
+                desc: 'ネストされたフォルダとタグのインデント幅を調整します。'
             },
             showTags: {
                 name: 'タグを表示 (*)',

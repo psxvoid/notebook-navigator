@@ -553,7 +553,7 @@ export const STRINGS_FR = {
             },
             showNoteCount: {
                 name: 'Afficher le nombre de notes',
-                desc: 'Afficher le nombre de notes dans chaque dossier et étiquette.'
+                desc: 'Afficher le nombre de notes à côté de chaque dossier et étiquette.'
             },
             showIcons: {
                 name: 'Afficher les icônes',
@@ -567,6 +567,14 @@ export const STRINGS_FR = {
                     foldersOnly: 'Dossiers uniquement',
                     tagsOnly: 'Étiquettes uniquement'
                 }
+            },
+            navItemHeight: {
+                name: 'Hauteur de ligne',
+                desc: 'Ajuster la hauteur des dossiers et étiquettes dans le panneau de navigation.'
+            },
+            navIndent: {
+                name: "Indentation de l'arbre",
+                desc: "Ajuster la largeur d'indentation pour les dossiers et étiquettes imbriqués."
             },
             showTags: {
                 name: 'Afficher les étiquettes (*)',

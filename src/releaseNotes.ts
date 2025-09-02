@@ -55,6 +55,15 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.4.4',
+        date: '2025-09-02',
+        showOnUpdate: true,
+        new: [
+            'New setting: **Item height**. Adjust the height of folders and tags in the navigation pane.',
+            'New setting: **Tree indentation**. Adjust the indentation width for nested folders and tags.'
+        ]
+    },
+    {
         version: '1.4.3',
         date: '2025-08-31',
         showOnUpdate: false,

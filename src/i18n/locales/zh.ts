@@ -553,7 +553,7 @@ export const STRINGS_ZH = {
             },
             showNoteCount: {
                 name: '显示笔记数',
-                desc: '显示每个文件夹和标签中的笔记数量。'
+                desc: '在每个文件夹和标签旁显示笔记数量。'
             },
             showIcons: {
                 name: '显示图标',
@@ -567,6 +567,14 @@ export const STRINGS_ZH = {
                     foldersOnly: '仅文件夹',
                     tagsOnly: '仅标签'
                 }
+            },
+            navItemHeight: {
+                name: '行高',
+                desc: '调整导航窗格中文件夹和标签的高度。'
+            },
+            navIndent: {
+                name: '树形缩进',
+                desc: '调整嵌套文件夹和标签的缩进宽度。'
             },
             showTags: {
                 name: '显示标签 (*)',
