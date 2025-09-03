@@ -110,6 +110,13 @@ export const ListPane = React.memo(
         const isSearchActive = settings.searchActive;
         const [searchQuery, setSearchQuery] = useState('');
 
+        // Clear search query when search is deactivated externally
+        useEffect(() => {
+            if (!isSearchActive && searchQuery) {
+                setSearchQuery('');
+            }
+        }, [isSearchActive, searchQuery]);
+
         // Helper to toggle search state
         const setIsSearchActive = useCallback(
             (active: boolean) => {
@@ -401,7 +408,6 @@ export const ListPane = React.memo(
                     onSearchToggle={() => {
                         setIsSearchActive(!isSearchActive);
                         if (isSearchActive) {
-                            setSearchQuery(''); // Clear search when closing
                             // Restore focus to files pane when closing search
                             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                         } else {
@@ -418,7 +424,6 @@ export const ListPane = React.memo(
                             onSearchQueryChange={setSearchQuery}
                             onClose={() => {
                                 setIsSearchActive(false);
-                                setSearchQuery('');
                             }}
                             onFocusFiles={() => {
                                 // Auto-select first file if needed when focusing from search
@@ -441,9 +446,6 @@ export const ListPane = React.memo(
                         isSearchActive={isSearchActive}
                         onSearchToggle={() => {
                             setIsSearchActive(!isSearchActive);
-                            if (isSearchActive) {
-                                setSearchQuery(''); // Clear search when closing
-                            }
                         }}
                     />
                 )}
@@ -593,9 +595,6 @@ export const ListPane = React.memo(
                         isSearchActive={isSearchActive}
                         onSearchToggle={() => {
                             setIsSearchActive(!isSearchActive);
-                            if (isSearchActive) {
-                                setSearchQuery(''); // Clear search when closing
-                            }
                         }}
                     />
                 )}
