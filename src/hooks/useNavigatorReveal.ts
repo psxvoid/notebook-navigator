@@ -471,7 +471,9 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                     });
                     return;
                 }
-                revealFileInActualFolder(fileToReveal); // Use actual folder for startup
+                // Use nearest folder for startup - this respects showNotesFromSubfolders
+                // and preserves the current folder selection when possible
+                revealFileInNearestFolder(fileToReveal);
             } else {
                 revealFileInNearestFolder(fileToReveal); // Use nearest folder for sidebar clicks
             }
