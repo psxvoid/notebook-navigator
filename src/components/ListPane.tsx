@@ -106,17 +106,20 @@ export const ListPane = React.memo(
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
 
-        // Search state - initialized from settings
-        const [isSearchActive, setIsSearchActive] = useState(settings.searchActive);
+        // Search state - use directly from settings for sync across devices
+        const isSearchActive = settings.searchActive;
         const [searchQuery, setSearchQuery] = useState('');
 
-        // Save search state to settings when it changes
-        useEffect(() => {
-            if (plugin.settings.searchActive !== isSearchActive) {
-                plugin.settings.searchActive = isSearchActive;
-                plugin.saveSettings();
-            }
-        }, [isSearchActive, plugin]);
+        // Helper to toggle search state
+        const setIsSearchActive = useCallback(
+            (active: boolean) => {
+                if (plugin.settings.searchActive !== active) {
+                    plugin.settings.searchActive = active;
+                    plugin.saveSettings();
+                }
+            },
+            [plugin]
+        );
 
         // Android uses toolbar at top, iOS at bottom
         const isAndroid = Platform.isAndroidApp;
@@ -368,7 +371,7 @@ export const ListPane = React.memo(
                     }
                 }
             }),
-            [filePathToIndex, rowVirtualizer, scrollContainerRef, isSearchActive, uiDispatch]
+            [filePathToIndex, rowVirtualizer, scrollContainerRef, isSearchActive, uiDispatch, setIsSearchActive]
         );
 
         // Add keyboard navigation
