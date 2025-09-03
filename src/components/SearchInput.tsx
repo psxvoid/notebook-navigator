@@ -61,19 +61,20 @@ export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocus
             e.preventDefault();
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
 
-            // On desktop, also handle file selection
-            // On mobile, just move focus (hides keyboard) but don't select
-            if (!isMobile && onFocusFiles) {
-                onFocusFiles();
-            }
-
-            // Focus the list pane scroll container
-            setTimeout(() => {
-                const listPaneScroller = document.querySelector('.nn-list-pane-scroller');
-                if (listPaneScroller instanceof HTMLElement) {
-                    listPaneScroller.focus();
+            if (!isMobile) {
+                // Desktop: Handle file selection (which also focuses the list)
+                if (onFocusFiles) {
+                    onFocusFiles();
                 }
-            }, 0);
+            } else {
+                // Mobile: Just focus the list to hide keyboard (no file selection)
+                setTimeout(() => {
+                    const listPaneScroller = document.querySelector('.nn-list-pane-scroller');
+                    if (listPaneScroller instanceof HTMLElement) {
+                        listPaneScroller.focus();
+                    }
+                }, 0);
+            }
         } else if (e.key === 'Tab') {
             e.preventDefault();
 
@@ -84,18 +85,10 @@ export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocus
                 // Tab: Move focus to files pane (desktop only)
                 uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
 
-                // Call the callback to handle file selection if needed
+                // Handle file selection (which also focuses the list)
                 if (onFocusFiles) {
                     onFocusFiles();
                 }
-
-                // Focus the list pane scroll container
-                setTimeout(() => {
-                    const listPaneScroller = document.querySelector('.nn-list-pane-scroller');
-                    if (listPaneScroller instanceof HTMLElement) {
-                        listPaneScroller.focus();
-                    }
-                }, 0);
             }
             // On mobile, Tab does nothing (stays in search field)
         }
