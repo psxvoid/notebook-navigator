@@ -55,6 +55,12 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.4.6',
+        date: '2025-09-03',
+        showOnUpdate: true,
+        fixed: ['Untagged notes folder would not show immediately when enabled from settings (only showed after restart).']
+    },
+    {
         version: '1.4.5',
         date: '2025-09-03',
         showOnUpdate: true,
