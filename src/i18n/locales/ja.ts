@@ -352,7 +352,6 @@ export const STRINGS_JA = {
     commands: {
         open: '開く', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealFile: 'ファイルを表示', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
-        focusFile: 'ファイルにフォーカス', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         search: '検索', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'デュアルペインレイアウトを切り替え', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
         deleteFile: 'ファイルを削除', // Command palette: Deletes the currently active file (English: Delete file)

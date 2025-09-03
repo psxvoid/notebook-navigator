@@ -352,7 +352,6 @@ export const STRINGS_ZH = {
     commands: {
         open: '打开', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealFile: '显示文件', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
-        focusFile: '聚焦文件', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         search: '搜索', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: '切换双窗格布局', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
         deleteFile: '删除文件', // Command palette: Deletes the currently active file (English: Delete file)

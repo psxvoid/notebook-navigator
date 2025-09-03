@@ -250,24 +250,6 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         });
 
         this.addCommand({
-            id: 'focus-file',
-            name: strings.commands.focusFile,
-            callback: async () => {
-                // Ensure navigator is open and visible
-                await this.activateView();
-
-                // Find and focus the file pane
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
-                navigatorLeaves.forEach(leaf => {
-                    const view = leaf.view;
-                    if (view instanceof NotebookNavigatorView) {
-                        view.focusFilePane();
-                    }
-                });
-            }
-        });
-
-        this.addCommand({
             id: 'search',
             name: strings.commands.search,
             callback: async () => {

@@ -195,17 +195,16 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 **View & navigation**
 
-- `Notebook Navigator: Open` Opens Notebook Navigator in left sidebar
+- `Notebook Navigator: Open` Opens Notebook Navigator in left sidebar. If already open, focuses the file list pane. **Tip:** Bind to a shortcut key like Cmd/Ctrl+Shift+E to quickly move to the list pane
 - `Notebook Navigator: Reveal file` Reveals current file in navigator. Expands parent folders and scrolls to file
 - `Notebook Navigator: Navigate to folder` Search dialog to jump to any folder
 - `Notebook Navigator: Navigate to tag` Search dialog to jump to any tag
-- `Notebook Navigator: Focus file` Move keyboard focus to file list pane
-- `Notebook Navigator: Search` Opens quick search field or focuses it if already open. Search persists between sessions. **Tip:** Bind to a shortcut key like Cmd+Shift+S for quick file filtering
+- `Notebook Navigator: Search` Opens quick search field or focuses it if already open. Search persists between sessions. **Tip:** Bind to a shortcut key like Cmd/Ctrl+Shift+F for quick file filtering
 
 **Layout & display**
 
 - `Notebook Navigator: Toggle dual pane layout` Toggle single/dual-pane layout (desktop)
-- `Notebook Navigator: Toggle show notes from subfolders` Toggle subfolder notes display
+- `Notebook Navigator: Toggle show notes from subfolders` Toggle subfolder notes display. **Tip:** Bind to a shortcut key like Cmd/Ctrl+Shift+S to quickly toggle display of notes from subfolders
 
 **File operations**
 

@@ -352,7 +352,6 @@ export const STRINGS_DE = {
     commands: {
         open: 'Öffnen', // Command palette: Opens the Notebook Navigator view (English: Open)
         revealFile: 'Datei anzeigen', // Command palette: Reveals and selects the currently active file in the navigator (English: Reveal file)
-        focusFile: 'Datei fokussieren', // Command palette: Moves keyboard focus to the file list pane (English: Focus file)
         search: 'Suchen', // Command palette: Toggle search in the file list (English: Search)
         toggleDualPane: 'Doppelbereichslayout umschalten', // Command palette: Toggles between single-pane and dual-pane layout (English: Toggle dual pane layout)
         deleteFile: 'Dateien löschen', // Command palette: Deletes the currently active file (English: Delete file)

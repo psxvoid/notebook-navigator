@@ -61,8 +61,14 @@ const RELEASE_NOTES: ReleaseNote[] = [
         info: 'Thanks a lot for using Notebook Navigator! In this release we have a great new feature: Quick search, to instantly filter files in the current folder or tag! Bind it to a shortcut key like CMD+SHIFT+S to quickly open or focus the quick search field. Use Tab or Enter to move focus to the file list, use Shift+Tab to move to navigation pane, or Esc to close.',
         new: [
             '**Quick search**. Filter files in the current folder or tag with the new search button in the toolbar.',
-            '**Search command**. Access file search from anywhere with the new Notebook Navigator: Search command.',
+            '**Search command**. Access quick search from anywhere with the new Notebook Navigator: Search command.',
             '**New theme variable**. `--nn-theme-list-header-search-active-bg` to customize the search field background when active. Also available in Style Settings.'
+        ],
+        improved: [
+            'The **Open** command now moves focus to list pane if the plugin is already open. Use this for keyboard first navigation.'
+        ],
+        changed: [
+            'Removed the now redundant **Focus file** command since the **Open** command now handles both opening and focusing. Make sure to update your hot keys.'
         ],
         fixed: ['Non-markdown files now correctly stay pinned when the plugin restarts.']
     },
