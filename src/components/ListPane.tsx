@@ -106,17 +106,17 @@ export const ListPane = React.memo(
         const uiState = useUIState();
         const uiDispatch = useUIDispatch();
 
-        // Search state - initialized from settings (but never active on mobile)
-        const [isSearchActive, setIsSearchActive] = useState(!isMobile && settings.searchActive);
+        // Search state - initialized from settings
+        const [isSearchActive, setIsSearchActive] = useState(settings.searchActive);
         const [searchQuery, setSearchQuery] = useState('');
 
-        // Save search state to settings when it changes (only on desktop)
+        // Save search state to settings when it changes
         useEffect(() => {
-            if (!isMobile && plugin.settings.searchActive !== isSearchActive) {
+            if (plugin.settings.searchActive !== isSearchActive) {
                 plugin.settings.searchActive = isSearchActive;
                 plugin.saveSettings();
             }
-        }, [isSearchActive, plugin, isMobile]);
+        }, [isSearchActive, plugin]);
 
         // Android uses toolbar at top, iOS at bottom
         const isAndroid = Platform.isAndroidApp;
@@ -353,9 +353,6 @@ export const ListPane = React.memo(
                 virtualizer: rowVirtualizer,
                 scrollContainerRef: scrollContainerRef.current,
                 toggleSearch: () => {
-                    // Don't allow search on mobile
-                    if (isMobile) return;
-
                     if (isSearchActive) {
                         // Search is already open - just focus the search input
                         setTimeout(() => {
@@ -371,7 +368,7 @@ export const ListPane = React.memo(
                     }
                 }
             }),
-            [filePathToIndex, rowVirtualizer, scrollContainerRef, isSearchActive, uiDispatch, isMobile]
+            [filePathToIndex, rowVirtualizer, scrollContainerRef, isSearchActive, uiDispatch]
         );
 
         // Add keyboard navigation
@@ -399,9 +396,6 @@ export const ListPane = React.memo(
                     onHeaderClick={handleScrollToTop}
                     isSearchActive={isSearchActive}
                     onSearchToggle={() => {
-                        // Don't allow search on mobile
-                        if (isMobile) return;
-
                         setIsSearchActive(!isSearchActive);
                         if (isSearchActive) {
                             setSearchQuery(''); // Clear search when closing
@@ -439,7 +433,17 @@ export const ListPane = React.memo(
                     )}
                 </div>
                 {/* Android - toolbar at top */}
-                {isMobile && isAndroid && <ListToolbar />}
+                {isMobile && isAndroid && (
+                    <ListToolbar
+                        isSearchActive={isSearchActive}
+                        onSearchToggle={() => {
+                            setIsSearchActive(!isSearchActive);
+                            if (isSearchActive) {
+                                setSearchQuery(''); // Clear search when closing
+                            }
+                        }}
+                    />
+                )}
 
                 {/* Conditional content rendering */}
                 {isEmptySelection ? (
@@ -581,7 +585,17 @@ export const ListPane = React.memo(
                 )}
 
                 {/* iOS - toolbar at bottom */}
-                {isMobile && !isAndroid && <ListToolbar />}
+                {isMobile && !isAndroid && (
+                    <ListToolbar
+                        isSearchActive={isSearchActive}
+                        onSearchToggle={() => {
+                            setIsSearchActive(!isSearchActive);
+                            if (isSearchActive) {
+                                setSearchQuery(''); // Clear search when closing
+                            }
+                        }}
+                    />
+                )}
             </div>
         );
     })

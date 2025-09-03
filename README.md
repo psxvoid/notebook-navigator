@@ -176,7 +176,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 | ←                                           | In navigation pane: collapse or go to parent<br>In list pane: switch to navigation pane                           |
 | →                                           | In navigation pane: expand or switch to list pane<br>In list pane: switch to editor                               |
 | Tab                                         | In navigation pane: switch to list pane<br>In list pane: switch to editor<br>In search field: switch to list pane |
-| Shift+Tab                                   | Switch from list pane to navigation pane<br>In search field: switch to navigation pane                            |
+| Shift+Tab                                   | In list pane: switch to navigation pane<br>In search field: switch to navigation pane                             |
 | Escape                                      | In search field: close search and focus list pane                                                                 |
 | PageUp/PageDown                             | Scroll up/down in navigation pane and list pane                                                                   |
 | Home/End                                    | Jump to first/last item in current pane                                                                           |

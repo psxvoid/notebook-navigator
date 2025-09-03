@@ -412,6 +412,54 @@ body {
     display: none;
 }
 
+/* ========================================================================
+   Mobile Search Styles
+   ======================================================================== */
+
+/* Mobile search input wrapper - inherits padding from base styles */
+.notebook-navigator-mobile .nn-search-input-wrapper {
+    height: 48px;
+    background-color: var(--nn-theme-mobile-list-header-bg);
+}
+
+/* Mobile search bar container */
+.notebook-navigator-mobile .nn-search-bar-container {
+    background-color: var(--nn-theme-mobile-list-header-bg);
+}
+
+.notebook-navigator-mobile .nn-search-bar-container.nn-search-bar-visible {
+    height: 48px;
+    border-bottom: 1px solid var(--nn-theme-mobile-toolbar-border-color);
+}
+
+/* Mobile search input container */
+.notebook-navigator-mobile .nn-search-input-container {
+    height: 36px;
+}
+
+/* Mobile search input field */
+.notebook-navigator-mobile .nn-search-input {
+    height: 36px;
+    font-size: 16px; /* Prevent zoom on iOS */
+    padding: 4px 36px !important;
+    border-radius: 8px;
+}
+
+/* Mobile search icon */
+.notebook-navigator-mobile .nn-search-input-icon {
+    top: 10px;
+}
+
+/* Mobile clear button */
+.notebook-navigator-mobile .nn-search-clear-button {
+    top: 10px;
+}
+
+/* Hide mobile header border when search is active */
+.notebook-navigator-mobile .nn-list-pane.nn-search-active .nn-pane-header {
+    border-bottom-color: var(--nn-theme-mobile-list-header-bg);
+}
+
 /* Desktop pane header title */
 .nn-pane-header-title {
     font-size: var(--nn-desktop-header-font-size);

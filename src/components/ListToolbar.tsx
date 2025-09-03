@@ -23,7 +23,12 @@ import { ItemType } from '../types';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useListActions } from '../hooks/useListActions';
 
-export function ListToolbar() {
+interface ListToolbarProps {
+    isSearchActive?: boolean;
+    onSearchToggle?: () => void;
+}
+
+export function ListToolbar({ isSearchActive, onSearchToggle }: ListToolbarProps) {
     const settings = useSettingsState();
     const selectionState = useSelectionState();
 
@@ -33,6 +38,15 @@ export function ListToolbar() {
 
     return (
         <div className="nn-mobile-toolbar">
+            <button
+                className={`nn-mobile-toolbar-button ${isSearchActive ? 'nn-mobile-toolbar-button-active' : ''}`}
+                aria-label={strings.paneHeader.search}
+                onClick={onSearchToggle}
+                disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
+                tabIndex={-1}
+            >
+                <ObsidianIcon name="lucide-search" />
+            </button>
             <button
                 className={`nn-mobile-toolbar-button ${settings.showNotesFromSubfolders ? 'nn-mobile-toolbar-button-active' : ''}`}
                 aria-label={strings.paneHeader.toggleSubfolders}

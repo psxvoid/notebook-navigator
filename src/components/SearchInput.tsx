@@ -19,6 +19,7 @@
 import React, { useEffect, useRef } from 'react';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useUIDispatch, useUIState } from '../context/UIStateContext';
+import { useServices } from '../context/ServicesContext';
 import { strings } from '../i18n';
 
 interface SearchInputProps {
@@ -30,6 +31,7 @@ interface SearchInputProps {
 
 export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocusFiles }: SearchInputProps) {
     const inputRef = useRef<HTMLInputElement>(null);
+    const { isMobile } = useServices();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
 
@@ -39,6 +41,8 @@ export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocus
     }, []);
 
     // Handle keyboard navigation
+    // Mobile: Escape closes, Enter moves focus to list (hides keyboard) but doesn't select
+    // Desktop: Escape closes, Enter/Tab move to file list, Shift+Tab to nav pane
     const handleKeyDown = (e: React.KeyboardEvent) => {
         if (e.key === 'Escape') {
             e.preventDefault();
@@ -53,14 +57,31 @@ export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocus
                     listPaneScroller.focus();
                 }
             }, 0);
-        } else if (e.key === 'Enter' || e.key === 'Tab') {
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+
+            // On desktop, also handle file selection
+            // On mobile, just move focus (hides keyboard) but don't select
+            if (!isMobile && onFocusFiles) {
+                onFocusFiles();
+            }
+
+            // Focus the list pane scroll container
+            setTimeout(() => {
+                const listPaneScroller = document.querySelector('.nn-list-pane-scroller');
+                if (listPaneScroller instanceof HTMLElement) {
+                    listPaneScroller.focus();
+                }
+            }, 0);
+        } else if (e.key === 'Tab') {
             e.preventDefault();
 
-            if (e.shiftKey && !uiState.singlePane) {
-                // Shift+Tab: Move focus to navigation pane (only in dual pane mode)
+            if (e.shiftKey && !uiState.singlePane && !isMobile) {
+                // Shift+Tab: Move focus to navigation pane (only in dual pane desktop mode)
                 uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
-            } else {
-                // Enter, Tab, or Shift+Tab in single pane: Move focus to files pane (list pane)
+            } else if (!isMobile) {
+                // Tab: Move focus to files pane (desktop only)
                 uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
 
                 // Call the callback to handle file selection if needed
@@ -76,6 +97,7 @@ export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocus
                     }
                 }, 0);
             }
+            // On mobile, Tab does nothing (stays in search field)
         }
     };
 
@@ -94,6 +116,7 @@ export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocus
                     className={`nn-search-input ${searchQuery ? 'nn-search-active' : ''}`}
                     placeholder={strings.searchInput.placeholder}
                     spellCheck={false}
+                    enterKeyHint="search"
                     value={searchQuery}
                     onChange={e => onSearchQueryChange(e.target.value)}
                     onKeyDown={handleKeyDown}
