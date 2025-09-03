@@ -265,7 +265,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             untagged: newUntagged
         } = buildTagTreeFromDatabase(db, excludedFolderPatterns, settings.favoriteTags);
         clearNoteCountCache();
-        const untaggedCount = settings.showTags && settings.showUntagged ? newUntagged : 0;
+        const untaggedCount = newUntagged;
         setFileData({ favoriteTree, tagTree, untagged: untaggedCount });
 
         // Update the TagTreeService with both trees
@@ -274,7 +274,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
 
         return { favoriteTree, tagTree };
-    }, [settings.showTags, settings.showUntagged, settings.excludedFolders, settings.favoriteTags, tagTreeService]);
+    }, [settings.excludedFolders, settings.favoriteTags, tagTreeService]);
 
     // Hook for handling deferred cleanup after tag extraction
     const { startTracking, handleTagsExtracted, waitForMetadataCache } = useDeferredMetadataCleanup({
