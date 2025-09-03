@@ -25,9 +25,10 @@ interface SearchInputProps {
     searchQuery: string;
     onSearchQueryChange: (query: string) => void;
     onClose: () => void;
+    onFocusFiles?: () => void;
 }
 
-export function SearchInput({ searchQuery, onSearchQueryChange, onClose }: SearchInputProps) {
+export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocusFiles }: SearchInputProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
@@ -61,6 +62,11 @@ export function SearchInput({ searchQuery, onSearchQueryChange, onClose }: Searc
             } else {
                 // Enter, Tab, or Shift+Tab in single pane: Move focus to files pane (list pane)
                 uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+
+                // Call the callback to handle file selection if needed
+                if (onFocusFiles) {
+                    onFocusFiles();
+                }
 
                 // Focus the list pane scroll container
                 setTimeout(() => {

@@ -423,6 +423,18 @@ export const ListPane = React.memo(
                                 setIsSearchActive(false);
                                 setSearchQuery('');
                             }}
+                            onFocusFiles={() => {
+                                // Auto-select first file if needed when focusing from search
+                                const hasNoSelection = !selectedFile;
+                                const selectedFileNotInFilteredList = selectedFile && !files.some(f => f.path === selectedFile.path);
+                                const needsSelection = hasNoSelection || selectedFileNotInFilteredList;
+
+                                if (needsSelection && orderedFiles.length > 0) {
+                                    // Select the first file in the filtered list
+                                    const firstFile = orderedFiles[0];
+                                    selectionDispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
+                                }
+                            }}
                         />
                     )}
                 </div>
