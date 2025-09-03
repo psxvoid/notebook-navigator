@@ -72,7 +72,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 ### Productivity
 
 - **Quick actions** - Hover buttons for open in new tab, pin, and reveal in folder
-- **File search** - Search and filter notes in the current folder or tag with instant results
+- **Quick search** - Search and filter notes in the current folder or tag with instant results
 - **Drag & drop** - Move files between folders, drag to tags to add tags, drag to Untagged to remove tags
 - **Tag operations** - Add, remove, or clear tags via context menu and commands
 - **File operations** - Create, rename, delete, duplicate, move files and folders
@@ -200,7 +200,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Navigate to folder` Search dialog to jump to any folder
 - `Notebook Navigator: Navigate to tag` Search dialog to jump to any tag
 - `Notebook Navigator: Focus file` Move keyboard focus to file list pane
-- `Notebook Navigator: Search` Opens search field or focuses it if already open. Search persists between sessions
+- `Notebook Navigator: Search` Opens quick search field or focuses it if already open. Search persists between sessions. **Tip:** Bind to a shortcut key like Cmd+Shift+S for quick file filtering
 
 **Layout & display**
 

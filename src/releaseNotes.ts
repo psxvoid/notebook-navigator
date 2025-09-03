@@ -55,53 +55,24 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.4.5',
+        date: '2025-09-03',
+        showOnUpdate: true,
+        info: 'Thanks a lot for using Notebook Navigator! In this release we have a great new feature: Quick search, to instantly filter files in the current folder or tag! Bind it to a shortcut key like CMD+SHIFT+S to quickly open or focus the quick search field. Use Tab or Enter to move focus to the file list, use Shift+Tab to move to navigation pane, or Esc to close.',
+        new: [
+            '**Quick search**. Filter files in the current folder or tag with the new search button in the toolbar.',
+            '**Search command**. Access file search from anywhere with the new Notebook Navigator: Search command.',
+            '**New theme variable**. `--nn-theme-list-header-search-active-bg` to customize the search field background when active. Also available in Style Settings.'
+        ],
+        fixed: ['Non-markdown files now correctly stay pinned when the plugin restarts.']
+    },
+    {
         version: '1.4.4',
         date: '2025-09-02',
         showOnUpdate: true,
         new: [
             'New setting: **Item height**. Adjust the height of folders and tags in the navigation pane.',
             'New setting: **Tree indentation**. Adjust the indentation width for nested folders and tags.'
-        ]
-    },
-    {
-        version: '1.4.3',
-        date: '2025-08-31',
-        showOnUpdate: false,
-        fixed: ['The Help buttons for date strings in Settings are now visible again (they had invalid icons).']
-    },
-    {
-        version: '1.4.2',
-        date: '2025-08-30',
-        showOnUpdate: false,
-        new: [
-            'New setting: **Use embedded image fallback**. Default ON, uses the first embedded image in the document as a fallback when no thumbnail is found in frontmatter properties. Disable to verify that thumbnails are properly configured.'
-        ]
-    },
-    {
-        version: '1.4.1',
-        date: '2025-08-29',
-        showOnUpdate: true,
-        new: [
-            'New Style Settings parameter: **Tree indentation** to adjust the indentation width for each folder and tag in the navigation pane.'
-        ],
-        fixed: ['Removed legacy ESLint 8 support from build process. Added more rules to ESLint 9 config file.']
-    },
-    {
-        version: '1.4.0',
-        date: '2025-08-26',
-        showOnUpdate: true,
-        new: [
-            '**Public API**. Other plugins and Javascript developers can now interact with Notebook Navigator through a comprehensive API that provides metadata management, navigation control, and event subscriptions. Full TypeScript support included!',
-            '**Theming support**. Notebook Navigator now exposes custom CSS properties and provides detailed documentation for theme developers. Theme developers can fully customize colors, selection styles, hover effects, and all UI elements including mobile-specific components.',
-            '**Style Settings support**. Full integration with the Style Settings plugin makes it super easy to get Notebook Navigator to look just the way you want it!',
-            '**New setting: Optimize note height**. You can now toggle off the automatic height reduction of pinned notes and notes without preview text (default on).',
-            '**New setting: Inherit folder colors**. You can now toggle on color inheritance for folders.'
-        ],
-        changed: [
-            '**Pinned notes are now context-aware**. Files are now pinned separately in folder view and tag view, allowing different pinned files for each context.'
-        ],
-        fixed: [
-            'Lots of improvements to the user experience. Featured images scale in size depending on item height, we use native scroll bars on macOS, and the interface was improved in over a dozen places.'
         ]
     }
 ];
