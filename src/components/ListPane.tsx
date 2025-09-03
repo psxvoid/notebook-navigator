@@ -109,6 +109,7 @@ export const ListPane = React.memo(
         // Search state - use directly from settings for sync across devices
         const isSearchActive = settings.searchActive;
         const [searchQuery, setSearchQuery] = useState('');
+        const [shouldFocusSearch, setShouldFocusSearch] = useState(false);
 
         // Clear search query when search is deactivated externally
         useEffect(() => {
@@ -373,7 +374,8 @@ export const ListPane = React.memo(
                             }
                         }, 0);
                     } else {
-                        // Opening search - the SearchInput component will auto-focus
+                        // Opening search - activate with focus
+                        setShouldFocusSearch(true);
                         setIsSearchActive(true);
                     }
                 }
@@ -406,13 +408,15 @@ export const ListPane = React.memo(
                     onHeaderClick={handleScrollToTop}
                     isSearchActive={isSearchActive}
                     onSearchToggle={() => {
-                        setIsSearchActive(!isSearchActive);
-                        if (isSearchActive) {
-                            // Restore focus to files pane when closing search
-                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
-                        } else {
-                            // Set focus to search when opening
+                        if (!isSearchActive) {
+                            // Opening search - activate with focus
+                            setShouldFocusSearch(true);
+                            setIsSearchActive(true);
                             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'search' });
+                        } else {
+                            // Closing search
+                            setIsSearchActive(false);
+                            uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                         }
                     }}
                 />
@@ -422,6 +426,8 @@ export const ListPane = React.memo(
                         <SearchInput
                             searchQuery={searchQuery}
                             onSearchQueryChange={setSearchQuery}
+                            shouldFocus={shouldFocusSearch}
+                            onFocusComplete={() => setShouldFocusSearch(false)}
                             onClose={() => {
                                 setIsSearchActive(false);
                             }}
@@ -445,6 +451,10 @@ export const ListPane = React.memo(
                     <ListToolbar
                         isSearchActive={isSearchActive}
                         onSearchToggle={() => {
+                            if (!isSearchActive) {
+                                // Opening search - activate with focus
+                                setShouldFocusSearch(true);
+                            }
                             setIsSearchActive(!isSearchActive);
                         }}
                     />
@@ -594,6 +604,10 @@ export const ListPane = React.memo(
                     <ListToolbar
                         isSearchActive={isSearchActive}
                         onSearchToggle={() => {
+                            if (!isSearchActive) {
+                                // Opening search - activate with focus
+                                setShouldFocusSearch(true);
+                            }
                             setIsSearchActive(!isSearchActive);
                         }}
                     />

@@ -27,18 +27,26 @@ interface SearchInputProps {
     onSearchQueryChange: (query: string) => void;
     onClose: () => void;
     onFocusFiles?: () => void;
+    shouldFocus?: boolean;
+    onFocusComplete?: () => void;
 }
 
-export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocusFiles }: SearchInputProps) {
+export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocusFiles, shouldFocus, onFocusComplete }: SearchInputProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const { isMobile } = useServices();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
 
-    // Auto-focus input when component mounts
+    // Auto-focus input when shouldFocus is true
     useEffect(() => {
-        inputRef.current?.focus();
-    }, []);
+        if (shouldFocus) {
+            inputRef.current?.focus();
+            // Reset the focus flag after focusing
+            if (onFocusComplete) {
+                onFocusComplete();
+            }
+        }
+    }, [shouldFocus, onFocusComplete]);
 
     // Handle keyboard navigation
     // Mobile: Escape closes, Enter moves focus to list (hides keyboard) but doesn't select
