@@ -56,6 +56,38 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
 
     // Function to render clickable path segments
     const renderPathSegments = (): React.ReactNode => {
+        // In dual pane mode on desktop, only show the current folder/tag name
+        if (!uiState.singlePane && !isMobile) {
+            // Handle folders
+            if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+                const folder = selectionState.selectedFolder;
+                // Root folder - show vault name
+                if (folder.path === '/') {
+                    return settings.customVaultName || app.vault.getName();
+                }
+                // Show just the folder name
+                return folder.name;
+            }
+
+            // Handle tags
+            if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+                const tag = selectionState.selectedTag;
+                // Special case for untagged
+                if (tag === UNTAGGED_TAG_ID) {
+                    return strings.common.untagged;
+                }
+                // Get display path for tag
+                const displayPath = getTagDisplayPath(tag);
+                // Return just the last segment (current tag name)
+                const segments = displayPath.split('/').filter(s => s);
+                return segments[segments.length - 1] || displayPath;
+            }
+
+            // Fallback for no selection
+            return strings.common.noSelection;
+        }
+
+        // For single pane mode and mobile, show the full breadcrumb
         // Handle folders
         if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
             const folder = selectionState.selectedFolder;
