@@ -76,7 +76,7 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
     const selectionDispatch = useSelectionDispatch();
     const uiState = useUIState();
     const uiDispatch = useUIDispatch();
-    const multiSelection = useMultiSelection(virtualizer);
+    const multiSelection = useMultiSelection();
 
     /**
      * Get current selection index
@@ -179,7 +179,15 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
                         // Multi-selection with Shift+Down
                         const currentFileIndex = fileIndexMap.get(selectionState.selectedFile.path);
                         if (currentFileIndex !== undefined && currentFileIndex !== -1) {
-                            multiSelection.handleShiftArrowSelection('down', currentFileIndex, files);
+                            const finalFileIndex = multiSelection.handleShiftArrowSelection('down', currentFileIndex, files);
+                            if (finalFileIndex >= 0) {
+                                // Convert file index to items index and scroll
+                                const finalFile = files[finalFileIndex];
+                                const itemIndex = pathToIndex.get(finalFile.path);
+                                if (itemIndex !== undefined) {
+                                    helpers.scrollToIndex(itemIndex);
+                                }
+                            }
                         }
                         return; // Don't process normal navigation
                     }
@@ -198,7 +206,15 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
                         // Multi-selection with Shift+Up
                         const currentFileIndex = fileIndexMap.get(selectionState.selectedFile.path);
                         if (currentFileIndex !== undefined && currentFileIndex !== -1) {
-                            multiSelection.handleShiftArrowSelection('up', currentFileIndex, files);
+                            const finalFileIndex = multiSelection.handleShiftArrowSelection('up', currentFileIndex, files);
+                            if (finalFileIndex >= 0) {
+                                // Convert file index to items index and scroll
+                                const finalFile = files[finalFileIndex];
+                                const itemIndex = pathToIndex.get(finalFile.path);
+                                if (itemIndex !== undefined) {
+                                    helpers.scrollToIndex(itemIndex);
+                                }
+                            }
                         }
                         return; // Don't process normal navigation
                     }
@@ -393,7 +409,8 @@ export function useListPaneKeyboard({ items, virtualizer, containerRef, pathToIn
             selectionDispatch,
             selectItemAtIndex,
             handleRangeSelection,
-            items
+            items,
+            pathToIndex
         ]
     );
 

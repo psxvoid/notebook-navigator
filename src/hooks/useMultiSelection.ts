@@ -18,7 +18,6 @@
 
 import { useCallback } from 'react';
 import { TFile } from 'obsidian';
-import { Virtualizer } from '@tanstack/react-virtual';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices } from '../context/ServicesContext';
 import { findFileIndex, getFilesInRange } from '../utils/selectionUtils';
@@ -27,7 +26,7 @@ import { findFileIndex, getFilesInRange } from '../utils/selectionUtils';
  * Hook for managing multi-selection operations in file lists
  * Provides clean API for selection operations like Shift+Click, Cmd+Click, etc.
  */
-export function useMultiSelection(virtualizer?: Virtualizer<HTMLDivElement, Element>) {
+export function useMultiSelection() {
     const selectionState = useSelectionState();
     const selectionDispatch = useSelectionDispatch();
     const { app } = useServices();
@@ -127,12 +126,13 @@ export function useMultiSelection(virtualizer?: Virtualizer<HTMLDivElement, Elem
 
     /**
      * Handle Shift+Arrow selection with Apple Notes-style anchor jumping
+     * Returns the final index to scroll to, or -1 if no movement occurred
      */
     const handleShiftArrowSelection = useCallback(
-        (direction: 'up' | 'down', currentIndex: number, files: TFile[]) => {
+        (direction: 'up' | 'down', currentIndex: number, files: TFile[]): number => {
             // Can't extend selection if nothing is selected
             if (currentIndex === -1 || !selectionState.selectedFile) {
-                return;
+                return -1;
             }
 
             const currentFile = selectionState.selectedFile;
@@ -142,7 +142,7 @@ export function useMultiSelection(virtualizer?: Virtualizer<HTMLDivElement, Elem
 
             // Check if we're at boundary
             if (nextIndex === currentIndex) {
-                return;
+                return -1;
             }
 
             const nextFile = files[nextIndex];
@@ -211,15 +211,10 @@ export function useMultiSelection(virtualizer?: Virtualizer<HTMLDivElement, Elem
                 }
             }
 
-            // Scroll to the final position if virtualizer is provided
-            if (virtualizer) {
-                virtualizer.scrollToIndex(finalIndex, {
-                    align: 'auto',
-                    behavior: 'auto'
-                });
-            }
+            // Return the final index for the caller to handle scrolling
+            return finalIndex;
         },
-        [selectionState.selectedFile, selectionState.selectedFiles, selectionDispatch, virtualizer, app.workspace]
+        [selectionState.selectedFile, selectionState.selectedFiles, selectionDispatch, app.workspace]
     );
 
     /**
