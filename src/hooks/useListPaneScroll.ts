@@ -69,6 +69,8 @@ interface UseListPaneScrollParams {
     selectionState: SelectionState;
     /** Selection state dispatcher */
     selectionDispatch: (action: { type: string; [key: string]: unknown }) => void;
+    /** Current search query (undefined if search is not active) */
+    searchQuery?: string;
 }
 
 /**
@@ -102,7 +104,8 @@ export function useListPaneScroll({
     folderSettings,
     isVisible,
     selectionState,
-    selectionDispatch
+    selectionDispatch,
+    searchQuery
 }: UseListPaneScrollParams): UseListPaneScrollResult {
     const { isMobile } = useServices();
     const { hasPreview, getDB, isStorageReady } = useFileCache();
@@ -113,6 +116,7 @@ export function useListPaneScroll({
     // Track list state changes and pending scroll operations
     const prevListKeyRef = useRef<string>(''); // Previous folder/tag context to detect navigation
     const prevConfigKeyRef = useRef<string>(''); // Track config changes for scroll preservation
+    const prevSearchQueryRef = useRef<string | undefined>(undefined); // Track search query changes
 
     // Scroll reason types to determine alignment behavior
     type ScrollReason = 'folder-navigation' | 'visibility-change' | 'reveal' | 'list-config-change';
@@ -626,6 +630,37 @@ export function useListPaneScroll({
             setPendingScrollVersion(v => v + 1);
         }
     }, [selectionState.isRevealOperation, selectedFile, isVisible, selectionDispatch, filePathToIndex]);
+
+    /**
+     * Handle search query changes.
+     * Scrolls to top when search filters change and selected file is not in results.
+     * SCROLL_SEARCH: Sets pending scroll to top when appropriate
+     */
+    useEffect(() => {
+        // Only handle when search is active (searchQuery is defined)
+        if (searchQuery === undefined || !isVisible || !rowVirtualizer) {
+            prevSearchQueryRef.current = searchQuery;
+            return;
+        }
+
+        // Check if search query actually changed
+        if (prevSearchQueryRef.current === searchQuery) {
+            return; // No change, don't scroll
+        }
+
+        // Update the ref
+        prevSearchQueryRef.current = searchQuery;
+
+        // Check if selected file exists in the filtered list
+        const selectedFileInList = selectedFile && filePathToIndex.has(selectedFile.path);
+
+        // If no selected file or selected file is filtered out, scroll to top
+        if (!selectedFileInList && listItems.length > 0) {
+            pendingScrollRef.current = { type: 'top', reason: 'list-config-change' };
+            setPendingScrollVersion(v => v + 1);
+        }
+        // If selected file is in list, the folder navigation effect will handle scrolling to it
+    }, [searchQuery, selectedFile, filePathToIndex, isVisible, rowVirtualizer, listItems.length]);
 
     return {
         rowVirtualizer,

@@ -169,7 +169,8 @@ export const ListPane = React.memo(
             folderSettings: appearanceSettings,
             isVisible,
             selectionState,
-            selectionDispatch
+            selectionDispatch,
+            searchQuery: isSearchActive ? searchQuery : undefined
         });
 
         // Check if we're in slim mode

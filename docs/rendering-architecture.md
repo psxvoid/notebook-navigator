@@ -627,6 +627,13 @@ type PendingScroll = {
      selection
    - **Code Location**: Search for `configKey` building in useListPaneScroll.ts
 
+6. **Search Query Change** (`SCROLL_SEARCH`)
+   - **Trigger**: User types in the search field, changing the filter
+   - **Detection**: `searchQuery` parameter changes (when search is active)
+   - **Behavior**: Scrolls to top when selected file is not in filtered results or no file is selected
+   - **Code Location**: Search for `SCROLL_SEARCH` in useListPaneScroll.ts
+   - **Purpose**: Ensures users see results from the top when searching
+
 #### Scroll Alignment Logic
 
 ```typescript
