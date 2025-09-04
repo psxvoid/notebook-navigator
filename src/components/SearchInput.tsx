@@ -70,10 +70,18 @@ export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocus
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
 
             if (!isMobile) {
-                // Desktop: Handle file selection (which also focuses the list)
+                // Desktop: Handle file selection and focus the list
                 if (onFocusFiles) {
                     onFocusFiles();
                 }
+
+                // Focus the list pane scroller to enable keyboard navigation
+                setTimeout(() => {
+                    const listPaneScroller = document.querySelector('.nn-list-pane-scroller');
+                    if (listPaneScroller instanceof HTMLElement) {
+                        listPaneScroller.focus();
+                    }
+                }, 0);
             } else {
                 // Mobile: Just focus the list to hide keyboard (no file selection)
                 setTimeout(() => {
@@ -93,10 +101,18 @@ export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocus
                 // Tab: Move focus to files pane (desktop only)
                 uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
 
-                // Handle file selection (which also focuses the list)
+                // Handle file selection and focus the list
                 if (onFocusFiles) {
                     onFocusFiles();
                 }
+
+                // Focus the list pane scroller to enable keyboard navigation
+                setTimeout(() => {
+                    const listPaneScroller = document.querySelector('.nn-list-pane-scroller');
+                    if (listPaneScroller instanceof HTMLElement) {
+                        listPaneScroller.focus();
+                    }
+                }, 0);
             }
             // On mobile, Tab does nothing (stays in search field)
         }
