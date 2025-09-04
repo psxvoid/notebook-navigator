@@ -37,6 +37,7 @@ import { ConfirmModal } from '../modals/ConfirmModal';
 import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, ItemType, NAVPANE_MEASUREMENTS } from '../types';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
 import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
+import { localStorage } from '../utils/localStorage';
 import { ListPane } from './ListPane';
 import type { ListPaneHandle } from './ListPane';
 import { NavigationPane } from './NavigationPane';
@@ -111,8 +112,12 @@ export const NotebookNavigatorComponent = React.memo(
             (node: HTMLDivElement | null) => {
                 containerRef.current = node;
 
-                // Auto-disable dual pane mode on startup if viewport is too narrow for both panes
-                if (node && !isMobile && !hasCheckedInitialVisibility.current && settings.dualPane) {
+                // Only check width on very first startup (when there's no saved pane width)
+                const savedWidth = localStorage.get<number>(STORAGE_KEYS.navigationPaneWidthKey);
+                const isFirstRun = !savedWidth;
+
+                // Auto-disable dual pane mode on first startup if viewport is too narrow for both panes
+                if (node && !isMobile && !hasCheckedInitialVisibility.current && settings.dualPane && isFirstRun) {
                     hasCheckedInitialVisibility.current = true;
 
                     const containerWidth = node.getBoundingClientRect().width;
