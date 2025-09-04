@@ -55,6 +55,21 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.4.7',
+        date: '2025-09-04',
+        showOnUpdate: true,
+        changed: [
+            '**Startup behavior**: Notebook Navigator no longer auto-reveals the current file in its actual folder during startup. Instead when "Show notes from subfolders" is enabled it now stays in the selected ancestor folder.',
+            '**Auto-select first note (desktop only)** now defaults to **false** based on user feedback. The reason for having it set to **true** by default was to match behavior with Apple Notes.'
+        ],
+        fixed: [
+            'The **Notebook Navigator: Open** command now properly activates the navigator view when it is already open but hidden behind another in sidebar view.',
+            '**Multi-selection scrolling** with Shift + Up / Down now properly focuses the file where the cursor is.',
+            'Fixed an issue where **Tab / Enter keys** in the search field would not always move focus to list pane.',
+            'Filtering list with a search query now **scrolls to top** when there is no selected file in the list.'
+        ]
+    },
+    {
         version: '1.4.6',
         date: '2025-09-03',
         showOnUpdate: true,
