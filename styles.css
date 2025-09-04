@@ -1337,6 +1337,18 @@ body {
     background-color: inherit;
 }
 
+.nn-skeleton-search-bar {
+    height: 40px;
+    background-color: var(--nn-theme-list-header-bg);
+    border-bottom: 1px solid var(--nn-theme-header-border-color);
+    flex-shrink: 0;
+}
+
+/* Hide skeleton header border when search is active */
+.nn-skeleton-list-pane.nn-search-active .nn-skeleton-list-header {
+    border-bottom-color: var(--nn-theme-list-header-bg);
+}
+
 /* Add right border only to nav content area in dual pane mode */
 :not(.nn-single-pane) .nn-skeleton-navigation-pane .nn-skeleton-content {
     border-right: 1px solid var(--nn-theme-divider-border-color);

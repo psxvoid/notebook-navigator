@@ -21,13 +21,17 @@ import React from 'react';
 interface SkeletonViewProps {
     paneWidth: number;
     singlePane: boolean;
+    searchActive: boolean;
 }
 
-export const SkeletonView = React.memo(function SkeletonView({ paneWidth, singlePane }: SkeletonViewProps) {
+export const SkeletonView = React.memo(function SkeletonView({ paneWidth, singlePane, searchActive }: SkeletonViewProps) {
+    const listPaneClass = searchActive ? 'nn-skeleton-list-pane nn-search-active' : 'nn-skeleton-list-pane';
+
     if (singlePane) {
         return (
-            <div className="nn-skeleton-list-pane">
+            <div className={listPaneClass}>
                 <div className="nn-skeleton-list-header" />
+                {searchActive && <div className="nn-skeleton-search-bar" />}
                 <div className="nn-skeleton-content" />
             </div>
         );
@@ -39,8 +43,9 @@ export const SkeletonView = React.memo(function SkeletonView({ paneWidth, single
                 <div className="nn-skeleton-nav-header" />
                 <div className="nn-skeleton-content" />
             </div>
-            <div className="nn-skeleton-list-pane">
+            <div className={listPaneClass}>
                 <div className="nn-skeleton-list-header" />
+                {searchActive && <div className="nn-skeleton-search-bar" />}
                 <div className="nn-skeleton-content" />
             </div>
         </>

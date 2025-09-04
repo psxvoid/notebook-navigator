@@ -19,6 +19,7 @@
 import React, { useState, useEffect, forwardRef } from 'react';
 import { useFileCache } from '../context/StorageContext';
 import { useUIState } from '../context/UIStateContext';
+import { useSettingsState } from '../context/SettingsContext';
 import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS } from '../types';
 import { NotebookNavigatorComponent } from './NotebookNavigatorComponent';
 import type { NotebookNavigatorHandle } from './NotebookNavigatorComponent';
@@ -33,6 +34,7 @@ export const NotebookNavigatorContainer = React.memo(
     forwardRef<NotebookNavigatorHandle>(function NotebookNavigatorContainer(_, ref) {
         const { isStorageReady } = useFileCache();
         const uiState = useUIState();
+        const settings = useSettingsState();
         const [paneWidth, setPaneWidth] = useState(NAVIGATION_PANE_DIMENSIONS.defaultWidth);
 
         // Load saved pane width
@@ -46,7 +48,7 @@ export const NotebookNavigatorContainer = React.memo(
         if (!isStorageReady) {
             return (
                 <div className="nn-split-container nn-desktop">
-                    <SkeletonView paneWidth={paneWidth} singlePane={uiState.singlePane} />
+                    <SkeletonView paneWidth={paneWidth} singlePane={uiState.singlePane} searchActive={settings.searchActive} />
                 </div>
             );
         }
