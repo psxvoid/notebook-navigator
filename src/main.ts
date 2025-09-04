@@ -175,13 +175,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 // Check if navigator is already open
                 const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
                 if (navigatorLeaves.length > 0) {
-                    // Navigator is already open - focus the file pane
-                    for (const leaf of navigatorLeaves) {
-                        const view = leaf.view;
-                        if (view instanceof NotebookNavigatorView) {
-                            view.focusFilePane();
-                            break;
-                        }
+                    // Navigator exists - reveal it and focus the file pane
+                    const leaf = navigatorLeaves[0];
+                    this.app.workspace.revealLeaf(leaf);
+                    const view = leaf.view;
+                    if (view instanceof NotebookNavigatorView) {
+                        view.focusFilePane();
                     }
                 } else {
                     // Navigator is not open - open it
