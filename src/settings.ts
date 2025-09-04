@@ -149,7 +149,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     excludedFolders: [],
     excludedFiles: [],
     // Navigation pane
-    autoSelectFirstFileOnFocusChange: true,
+    autoSelectFirstFileOnFocusChange: false,
     autoExpandFoldersTags: false,
     collapseButtonBehavior: 'all',
     showIcons: true,
