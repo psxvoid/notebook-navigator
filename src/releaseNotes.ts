@@ -55,6 +55,22 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.4.8',
+        date: '2025-09-05',
+        showOnUpdate: true,
+        new: [
+            'New button: **Show hidden items**. Quickly show hidden folders and tags with the new navigation button.',
+            'New setting: **Show hidden items**. Control which items are affected by the show/hide button: all items, folders or tags.',
+            'New command: **Toggle hidden items**. Show or hide excluded items with the new shortcut command.',
+            'New tag context menu option: **Hide tag**. Hide a tag from the navigation pane with smart filtering logic.'
+        ],
+        changed: [
+            'On startup the view will only reset to single pane on the first startup if the view is too narrow. Previously it checked on every startup.',
+            'Untagged section now only shows markdown files since only markdown documents can have tags.'
+        ],
+        fixed: ['Context menu icons for "Remove icon" and "Remove color" now correctly show the X icon instead of the palette icon.']
+    },
+    {
         version: '1.4.7',
         date: '2025-09-04',
         showOnUpdate: true,
