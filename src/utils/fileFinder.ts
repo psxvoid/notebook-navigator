@@ -188,12 +188,12 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
 
     // Special case for untagged files
     if (tag === UNTAGGED_TAG_ID) {
+        // Only show markdown files in untagged section since only they can be tagged
         filteredFiles = allFiles.filter(file => {
-            // Non-markdown files are always untagged
             if (file.extension !== 'md') {
-                return true;
+                return false;
             }
-            // For markdown files, check if they have tags using our cache
+            // Check if the markdown file has tags using our cache
             const fileTags = db.getCachedTags(file.path);
             return fileTags.length === 0;
         });
