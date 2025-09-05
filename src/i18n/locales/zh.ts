@@ -142,7 +142,8 @@ export const STRINGS_ZH = {
             changeColor: '更改颜色',
             removeColor: '移除颜色',
             addToFavorites: '添加到收藏',
-            removeFromFavorites: '从收藏中移除'
+            removeFromFavorites: '从收藏中移除',
+            hideTag: '隐藏标签'
         }
     },
 

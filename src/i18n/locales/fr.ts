@@ -142,7 +142,8 @@ export const STRINGS_FR = {
             changeColor: 'Changer la couleur',
             removeColor: 'Supprimer la couleur',
             addToFavorites: 'Ajouter aux favoris',
-            removeFromFavorites: 'Retirer des favoris'
+            removeFromFavorites: 'Retirer des favoris',
+            hideTag: 'Masquer létiquette'
         }
     },
 

@@ -19,7 +19,7 @@
 import { MenuItem } from 'obsidian';
 import { TagMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
-import { findMatchingPrefixes } from '../tagPrefixMatcher';
+import { findMatchingPrefixes, cleanupTagPatterns } from '../tagPrefixMatcher';
 import { UNTAGGED_TAG_ID } from '../../types';
 
 /**
@@ -64,13 +64,9 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                         .setIcon('lucide-star')
                         .onClick(async () => {
                             // Clean up redundant entries when adding new favorite
-                            const cleanedFavorites = settings.favoriteTags.filter(existing => {
-                                // Remove entries that would become redundant
-                                // If we're adding "photo/camera", remove "photo/camera/fuji"
-                                return !existing.startsWith(`${tagPath}/`);
-                            });
+                            const cleanedFavorites = cleanupTagPatterns(settings.favoriteTags, tagPath);
 
-                            plugin.settings.favoriteTags = [...cleanedFavorites, tagPath];
+                            plugin.settings.favoriteTags = cleanedFavorites;
                             await plugin.saveSettings();
                         });
                 });
@@ -140,5 +136,27 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                     await metadataService.removeTagColor(tagPath);
                 });
         });
+    }
+
+    // Don't show hide tag option for the Untagged virtual tag
+    if (tagPath !== UNTAGGED_TAG_ID) {
+        menu.addSeparator();
+
+        // Hide tag option
+        const isHidden = settings.hiddenTags.includes(tagPath);
+
+        if (!isHidden) {
+            menu.addItem((item: MenuItem) => {
+                item.setTitle(strings.contextMenu.tag.hideTag)
+                    .setIcon('lucide-eye-off')
+                    .onClick(async () => {
+                        // Clean up redundant entries when adding new hidden tag
+                        const cleanedHiddenTags = cleanupTagPatterns(settings.hiddenTags, tagPath);
+
+                        plugin.settings.hiddenTags = cleanedHiddenTags;
+                        await plugin.saveSettings();
+                    });
+            });
+        }
     }
 }

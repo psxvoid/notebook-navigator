@@ -91,3 +91,31 @@ export function findMatchingPrefixes(tagPath: string, prefixes: string[]): strin
 
     return matchingPrefixes;
 }
+
+/**
+ * Cleans up redundant tag patterns when adding a new pattern.
+ * Removes existing patterns that would be covered by the new pattern.
+ *
+ * Example: When adding "photo", removes "photo/camera", "photo/camera/fuji"
+ *
+ * @param existingPatterns - Current list of tag patterns
+ * @param newPattern - The new pattern being added
+ * @returns Cleaned list with the new pattern added and redundant ones removed
+ */
+export function cleanupTagPatterns(existingPatterns: string[], newPattern: string): string[] {
+    const cleanedNew = cleanTagPath(newPattern);
+
+    // Filter out patterns that would be made redundant by the new pattern
+    const cleanedPatterns = existingPatterns.filter(existing => {
+        const cleanedExisting = cleanTagPath(existing);
+
+        // Remove if the existing pattern is a child of the new pattern
+        // Example: new="photo" removes existing="photo/camera"
+        return !cleanedExisting.startsWith(`${cleanedNew}/`);
+    });
+
+    // Add the new pattern
+    cleanedPatterns.push(cleanedNew);
+
+    return cleanedPatterns;
+}

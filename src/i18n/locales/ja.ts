@@ -142,7 +142,8 @@ export const STRINGS_JA = {
             changeColor: '色を変更',
             removeColor: '色を削除',
             addToFavorites: 'お気に入りに追加',
-            removeFromFavorites: 'お気に入りから削除'
+            removeFromFavorites: 'お気に入りから削除',
+            hideTag: 'タグを非表示'
         }
     },
 
