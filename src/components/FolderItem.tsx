@@ -58,13 +58,14 @@ import { strings } from '../i18n';
 import { getIconService } from '../services/icons';
 import { isSupportedFileExtension, ItemType } from '../types';
 import { getFolderNote } from '../utils/fileFinder';
-import { hasVisibleSubfolders } from '../utils/fileFilters';
+import { hasSubfolders } from '../utils/fileFilters';
 
 interface FolderItemProps {
     folder: TFolder;
     level: number;
     isExpanded: boolean;
     isSelected: boolean;
+    isExcluded?: boolean;
     onToggle: () => void;
     onClick: () => void;
     onNameClick?: () => void;
@@ -94,6 +95,7 @@ export const FolderItem = React.memo(function FolderItem({
     level,
     isExpanded,
     isSelected,
+    isExcluded,
     onToggle,
     onClick,
     onNameClick,
@@ -137,8 +139,9 @@ export const FolderItem = React.memo(function FolderItem({
     // NavigationPane pre-computes all folder counts for performance
     const fileCount = precomputedFileCount ?? 0;
 
-    // Check if folder has visible children - not memoized because Obsidian mutates the children array
-    const hasChildren = hasVisibleSubfolders(folder, excludedFolders);
+    // Check if folder has children - not memoized because Obsidian mutates the children array
+    // The hasSubfolders function handles the logic of whether to show all or only visible subfolders
+    const hasChildren = hasSubfolders(folder, excludedFolders, settings.showHiddenItems);
 
     // Use color from props (passed from NavigationPane)
     const customColor = color;
@@ -155,8 +158,9 @@ export const FolderItem = React.memo(function FolderItem({
     const className = useMemo(() => {
         const classes = ['nn-navitem', 'nn-folder'];
         if (isSelected) classes.push('nn-selected');
+        if (isExcluded) classes.push('nn-excluded');
         return classes.join(' ');
-    }, [isSelected]);
+    }, [isSelected, isExcluded]);
 
     const folderNameClassName = useMemo(() => {
         const classes = ['nn-navitem-name'];

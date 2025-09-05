@@ -63,6 +63,8 @@ export const STRINGS_EN = {
         hideFolders: 'Hide navigation', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         toggleSubfolders: 'Show notes from subfolders', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
         autoExpandFoldersTags: 'Auto-expand folders and tags', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
+        showExcludedItems: 'Show hidden items', // Tooltip for button to show hidden items (English: Show hidden items)
+        hideExcludedItems: 'Hide hidden items', // Tooltip for button to hide hidden items (English: Hide hidden items)
         showDualPane: 'Show dual panes', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: 'Show single pane', // Tooltip for button to show single-pane layout (English: Show single pane)
         changeAppearance: 'Change appearance', // Tooltip for button to change folder appearance settings (English: Change appearance)
@@ -129,7 +131,7 @@ export const STRINGS_EN = {
             removeIcon: 'Remove icon',
             changeColor: 'Change color',
             removeColor: 'Remove color',
-            excludeFolder: 'Exclude folder',
+            excludeFolder: 'Hide folder',
             renameFolder: 'Rename folder',
             deleteFolder: 'Delete folder'
         },
@@ -359,6 +361,7 @@ export const STRINGS_EN = {
         navigateToFolder: 'Navigate to folder', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navigate to tag', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: 'Toggle show notes from subfolders', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
+        toggleHidden: 'Toggle hidden items', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         addTag: 'Add tag to selected files', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Remove tag from selected files', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: 'Remove all tags from selected files' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
@@ -470,12 +473,12 @@ export const STRINGS_EN = {
                 }
             },
             excludedNotes: {
-                name: 'Excluded notes',
+                name: 'Hide notes',
                 desc: 'Comma-separated list of frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived).',
                 placeholder: 'draft, private'
             },
             excludedFolders: {
-                name: 'Excluded folders',
+                name: 'Hide folders',
                 desc: 'Comma-separated list of folders to hide. Name patterns: assets* (folders starting with assets), *_temp (ending with _temp). Path patterns: /archive (root archive only), /res* (root folders starting with res), /*/temp (temp folders one level deep), /projects/* (all folders inside projects).',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
@@ -563,9 +566,18 @@ export const STRINGS_EN = {
                 name: 'Show icons',
                 desc: 'Display icons next to folders and tags in the navigation pane.'
             },
-            collapseButtonBehavior: {
-                name: 'Collapse button behavior',
+            collapseBehavior: {
+                name: 'Collapse items',
                 desc: 'Choose what the expand/collapse all button affects.',
+                options: {
+                    all: 'All folders and tags',
+                    foldersOnly: 'Folders only',
+                    tagsOnly: 'Tags only'
+                }
+            },
+            showHiddenBehavior: {
+                name: 'Show hidden items',
+                desc: 'Choose what the show/hide hidden items button affects.',
                 options: {
                     all: 'All folders and tags',
                     foldersOnly: 'Folders only',

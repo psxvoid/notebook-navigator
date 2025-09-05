@@ -63,6 +63,8 @@ export const STRINGS_ZH = {
         hideFolders: '隐藏导航', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         toggleSubfolders: '显示子文件夹中的笔记', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
         autoExpandFoldersTags: '自动展开文件夹和标签', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
+        showExcludedItems: '显示隐藏项', // Tooltip for button to show hidden items (English: Show hidden items)
+        hideExcludedItems: '隐藏隐藏项', // Tooltip for button to hide hidden items (English: Hide hidden items)
         showDualPane: '显示双窗格', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: '显示单窗格', // Tooltip for button to show single-pane layout (English: Show single pane)
         changeAppearance: '更改外观', // Tooltip for button to change folder appearance settings (English: Change appearance)
@@ -130,7 +132,7 @@ export const STRINGS_ZH = {
             removeIcon: '移除图标',
             changeColor: '更改颜色',
             removeColor: '移除颜色',
-            excludeFolder: '排除文件夹',
+            excludeFolder: '隐藏文件夹',
             renameFolder: '重命名文件夹',
             deleteFolder: '删除文件夹'
         },
@@ -360,6 +362,7 @@ export const STRINGS_ZH = {
         navigateToFolder: '导航到文件夹', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '导航到标签', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: '切换显示子文件夹中的笔记', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
+        toggleHidden: '切换隐藏项', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         addTag: '为选定文件添加标签', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: '从选定文件移除标签', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: '从选定文件移除所有标签' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
@@ -462,12 +465,12 @@ export const STRINGS_ZH = {
                 desc: '悬停时显示笔记和文件夹的额外信息工具提示。'
             },
             excludedNotes: {
-                name: '排除的笔记',
+                name: '隐藏笔记',
                 desc: '逗号分隔的前置元数据属性列表。包含任何这些属性的笔记将被隐藏（例如：draft, private, archived）。',
                 placeholder: 'draft, private'
             },
             excludedFolders: {
-                name: '排除的文件夹',
+                name: '隐藏文件夹',
                 desc: '逗号分隔的要隐藏的文件夹列表。名称模式：assets*（以assets开头的文件夹），*_temp（以_temp结尾）。路径模式：/archive（仅根目录archive），/res*（以res开头的根文件夹），/*/temp（一级目录下的temp文件夹），/projects/*（projects内的所有文件夹）。',
                 placeholder: 'templates, assets*, /archive, /res*',
                 info: '自动清理：通过右键排除时，冗余的模式会被移除（例如，如果您排除/projects且/projects/app已在列表中，它将被移除）。'
@@ -565,9 +568,18 @@ export const STRINGS_ZH = {
                 name: '显示图标',
                 desc: '在导航面板中的文件夹和标签旁显示图标。'
             },
-            collapseButtonBehavior: {
-                name: '折叠按钮行为',
+            collapseBehavior: {
+                name: '折叠项目',
                 desc: '选择展开/折叠全部按钮影响的内容。',
+                options: {
+                    all: '所有文件夹和标签',
+                    foldersOnly: '仅文件夹',
+                    tagsOnly: '仅标签'
+                }
+            },
+            showHiddenBehavior: {
+                name: '显示隐藏项',
+                desc: '选择显示/隐藏隐藏项按钮影响的内容。',
                 options: {
                     all: '所有文件夹和标签',
                     foldersOnly: '仅文件夹',

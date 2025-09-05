@@ -16,13 +16,13 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { MenuItem, Notice, normalizePath } from 'obsidian';
+import { MenuItem, Notice, normalizePath, Platform } from 'obsidian';
 import { FolderMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
 import { getInternalPlugin, isFolderAncestor } from '../../utils/typeGuards';
 import { getFolderNote } from '../../utils/fileFinder';
 import { ExtendedApp } from '../../types/obsidian-extended';
-import { cleanupExclusionPatterns } from '../../utils/fileFilters';
+import { cleanupExclusionPatterns, isFolderInExcludedFolder } from '../../utils/fileFilters';
 
 /**
  * Builds the context menu for a folder
@@ -101,7 +101,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     // Duplicate folder
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.folder.duplicateFolder)
-            .setIcon('lucide-documents')
+            .setIcon('lucide-copy')
             .onClick(async () => {
                 await fileSystemOps.duplicateFolder(folder);
             });
@@ -129,7 +129,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
     if (!services.isMobile) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(fileSystemOps.getRevealInSystemExplorerText())
-                .setIcon('lucide-folder-open')
+                .setIcon(Platform.isMacOS ? 'lucide-app-window-mac' : 'lucide-app-window')
                 .onClick(async () => {
                     await fileSystemOps.revealInSystemExplorer(folder);
                 });
@@ -243,27 +243,34 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
 
     menu.addSeparator();
 
-    // Exclude folder (not available for root folder)
+    // Hide folder (not available for root folder or already hidden folders)
     if (folder.path !== '/') {
-        menu.addItem((item: MenuItem) => {
-            item.setTitle(strings.contextMenu.folder.excludeFolder)
-                .setIcon('lucide-eye-off')
-                .onClick(async () => {
-                    const currentExcluded = services.plugin.settings.excludedFolders;
-                    // Ensure path starts with / for path-based exclusion
-                    // Obsidian folder paths don't start with /, so we add it
-                    const folderPath = folder.path.startsWith('/') ? folder.path : `/${folder.path}`;
+        // Check if folder is already excluded using proper wildcard pattern matching
+        const excludedPatterns = services.plugin.settings.excludedFolders;
+        const isExcluded = isFolderInExcludedFolder(folder, excludedPatterns);
 
-                    // Clean up redundant patterns and add the new one
-                    const cleanedPatterns = cleanupExclusionPatterns(currentExcluded, folderPath);
+        // Only show "Hide folder" if not already excluded
+        if (!isExcluded) {
+            menu.addItem((item: MenuItem) => {
+                item.setTitle(strings.contextMenu.folder.excludeFolder)
+                    .setIcon('lucide-eye-off')
+                    .onClick(async () => {
+                        const currentExcluded = services.plugin.settings.excludedFolders;
+                        // Ensure path starts with / for path-based exclusion
+                        // Obsidian folder paths don't start with /, so we add it
+                        const folderPath = folder.path.startsWith('/') ? folder.path : `/${folder.path}`;
 
-                    services.plugin.settings.excludedFolders = cleanedPatterns;
-                    await services.plugin.saveSettings();
-                    services.plugin.onSettingsUpdate();
+                        // Clean up redundant patterns and add the new one
+                        const cleanedPatterns = cleanupExclusionPatterns(currentExcluded, folderPath);
 
-                    new Notice(strings.fileSystem.notices.excludedFolder.replace('{name}', folder.name));
-                });
-        });
+                        services.plugin.settings.excludedFolders = cleanedPatterns;
+                        await services.plugin.saveSettings();
+                        services.plugin.onSettingsUpdate();
+
+                        new Notice(strings.fileSystem.notices.excludedFolder.replace('{name}', folder.name));
+                    });
+            });
+        }
     }
 
     // Rename folder

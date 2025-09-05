@@ -123,7 +123,7 @@ export const NavigationPane = React.memo(
         const favoriteTree = fileData.favoriteTree;
         const tagTree = fileData.tagTree;
 
-        // Use the new data hook
+        // Use the new data hook - now returns filtered items and pathToIndex
         const { items, pathToIndex, tagCounts, folderCounts } = useNavigationPaneData({
             settings,
             isVisible
@@ -332,6 +332,7 @@ export const NavigationPane = React.memo(
                                     selectionState.selectionType === ItemType.FOLDER &&
                                     selectionState.selectedFolder?.path === item.data.path
                                 }
+                                isExcluded={item.isExcluded}
                                 onToggle={() => handleFolderToggle(item.data.path)}
                                 onClick={() => handleFolderClick(item.data)}
                                 onNameClick={() => handleFolderNameClick(item.data)}
@@ -392,6 +393,7 @@ export const NavigationPane = React.memo(
                                     selectionState.selectedTag === tagNode.path &&
                                     selectionState.selectedTagContext === item.context
                                 }
+                                isHidden={'isHidden' in item ? item.isHidden : false}
                                 onToggle={() => handleTagToggle(tagNode.path)}
                                 onClick={() => handleTagClick(tagNode.path, item.context)}
                                 context={'context' in item ? item.context : undefined}

@@ -63,6 +63,8 @@ export const STRINGS_ES = {
         hideFolders: 'Ocultar navegación', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         toggleSubfolders: 'Mostrar notas de subcarpetas', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
         autoExpandFoldersTags: 'Expandir carpetas y etiquetas automáticamente', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
+        showExcludedItems: 'Mostrar elementos ocultos', // Tooltip for button to show hidden items (English: Show hidden items)
+        hideExcludedItems: 'Ocultar elementos ocultos', // Tooltip for button to hide hidden items (English: Hide hidden items)
         showDualPane: 'Mostrar paneles dobles', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: 'Mostrar panel único', // Tooltip for button to show single-pane layout (English: Show single pane)
         changeAppearance: 'Cambiar apariencia', // Tooltip for button to change folder appearance settings (English: Change appearance)
@@ -130,7 +132,7 @@ export const STRINGS_ES = {
             removeIcon: 'Quitar icono',
             changeColor: 'Cambiar color',
             removeColor: 'Quitar color',
-            excludeFolder: 'Excluir carpeta',
+            excludeFolder: 'Ocultar carpeta',
             renameFolder: 'Renombrar carpeta',
             deleteFolder: 'Eliminar carpeta'
         },
@@ -360,6 +362,7 @@ export const STRINGS_ES = {
         navigateToFolder: 'Navegar a carpeta', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navegar a etiqueta', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: 'Alternar mostrar notas de subcarpetas', // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
+        toggleHidden: 'Alternar elementos ocultos', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         addTag: 'Añadir etiqueta a archivos seleccionados', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Eliminar etiqueta de archivos seleccionados', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: 'Eliminar todas las etiquetas de archivos seleccionados' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
@@ -462,12 +465,12 @@ export const STRINGS_ES = {
                 desc: 'Muestra tooltips con información adicional para notas y carpetas al pasar el cursor.'
             },
             excludedNotes: {
-                name: 'Notas excluidas',
+                name: 'Ocultar notas',
                 desc: 'Lista de propiedades del frontmatter separadas por comas. Las notas que contengan cualquiera de estas propiedades se ocultarán (ej.: draft, private, archived).',
                 placeholder: 'draft, private'
             },
             excludedFolders: {
-                name: 'Carpetas excluidas',
+                name: 'Ocultar carpetas',
                 desc: 'Lista de carpetas a ocultar separadas por comas. Patrones de nombre: assets* (carpetas que comienzan con assets), *_temp (terminan con _temp). Patrones de ruta: /archive (solo archivo raíz), /res* (carpetas raíz que comienzan con res), /*/temp (carpetas temp un nivel abajo), /projects/* (todas las carpetas dentro de projects).',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
@@ -564,9 +567,18 @@ export const STRINGS_ES = {
                 name: 'Mostrar iconos',
                 desc: 'Muestra iconos junto a las carpetas y etiquetas en el panel de navegación.'
             },
-            collapseButtonBehavior: {
-                name: 'Comportamiento del botón contraer',
+            collapseBehavior: {
+                name: 'Contraer elementos',
                 desc: 'Elige qué afecta el botón de expandir/contraer todo.',
+                options: {
+                    all: 'Todas las carpetas y etiquetas',
+                    foldersOnly: 'Solo carpetas',
+                    tagsOnly: 'Solo etiquetas'
+                }
+            },
+            showHiddenBehavior: {
+                name: 'Mostrar elementos ocultos',
+                desc: 'Elija qué afecta el botón de mostrar/ocultar elementos ocultos.',
                 options: {
                     all: 'Todas las carpetas y etiquetas',
                     foldersOnly: 'Solo carpetas',

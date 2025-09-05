@@ -20,14 +20,7 @@ import { TFile, TFolder, App } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { NavigatorContext, PinnedNotes } from '../types';
 import { UNTAGGED_TAG_ID } from '../types';
-import {
-    parseExcludedProperties,
-    shouldExcludeFile,
-    parseExcludedFolders,
-    shouldExcludeFolder,
-    getFilteredMarkdownFiles,
-    getFilteredFiles
-} from './fileFilters';
+import { shouldExcludeFile, shouldExcludeFolder, getFilteredMarkdownFiles, getFilteredFiles } from './fileFilters';
 import { shouldDisplayFile, FILE_VISIBILITY } from './fileTypeUtils';
 import { getEffectiveSortOption, sortFiles } from './sortUtils';
 import { TagTreeService } from '../services/TagTreeService';
@@ -95,11 +88,11 @@ export function collectPinnedPaths(pinnedNotes: PinnedNotes, contextFilter?: Nav
  * This is the primary utility function to be used by the reducer.
  */
 export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSettings, app: App): TFile[] {
-    const excludedProperties = parseExcludedProperties(settings.excludedFiles);
+    const excludedProperties = settings.excludedFiles;
 
     // Collect files from folder
     const files: TFile[] = [];
-    const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
+    const excludedFolderPatterns = settings.excludedFolders;
 
     const collectFiles = (f: TFolder): void => {
         for (const child of f.children) {
@@ -110,7 +103,12 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
                 }
             } else if (settings.showNotesFromSubfolders && child instanceof TFolder) {
                 // Skip excluded folders when collecting files - pass full path for path-based patterns
-                if (excludedFolderPatterns.length === 0 || !shouldExcludeFolder(child.name, excludedFolderPatterns, child.path)) {
+                // But respect the showHiddenItems setting - if it's on, include files from excluded folders
+                if (
+                    settings.showHiddenItems ||
+                    excludedFolderPatterns.length === 0 ||
+                    !shouldExcludeFolder(child.name, excludedFolderPatterns, child.path)
+                ) {
                     collectFiles(child);
                 }
             }

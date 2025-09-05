@@ -30,7 +30,8 @@ export function NavigationPaneHeader() {
     const selectionState = useSelectionState();
 
     // Use the shared actions hook
-    const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleAutoExpand } = useNavigationActions();
+    const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleAutoExpand, handleToggleShowExcludedFolders } =
+        useNavigationActions();
 
     if (isMobile) {
         // On mobile, no header - actions in tab bar
@@ -60,6 +61,21 @@ export function NavigationPaneHeader() {
                         tabIndex={-1}
                     >
                         <ObsidianIcon name={shouldCollapseItems() ? 'lucide-chevrons-down-up' : 'lucide-chevrons-up-down'} />
+                    </button>
+                    <button
+                        className={`nn-icon-button ${settings.showHiddenItems ? 'nn-icon-button-active' : ''}`}
+                        aria-label={settings.showHiddenItems ? strings.paneHeader.hideExcludedItems : strings.paneHeader.showExcludedItems}
+                        onClick={handleToggleShowExcludedFolders}
+                        disabled={
+                            (settings.showHiddenBehavior === 'folders-only' && settings.excludedFolders.length === 0) ||
+                            (settings.showHiddenBehavior === 'tags-only' && settings.hiddenTags.length === 0) ||
+                            (settings.showHiddenBehavior === 'all' &&
+                                settings.excludedFolders.length === 0 &&
+                                settings.hiddenTags.length === 0)
+                        }
+                        tabIndex={-1}
+                    >
+                        <ObsidianIcon name="lucide-eye" />
                     </button>
                     <button
                         className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}

@@ -58,7 +58,7 @@ import {
     getDBInstance
 } from '../storage/fileOperations';
 import { TagTreeNode } from '../types/storage';
-import { getFilteredMarkdownFiles, parseExcludedFolders } from '../utils/fileFilters';
+import { getFilteredMarkdownFiles } from '../utils/fileFilters';
 import { getFileDisplayName as getDisplayName } from '../utils/fileNameUtils';
 import { clearNoteCountCache } from '../utils/tagTree';
 import { buildTagTreeFromDatabase, findTagNode, collectAllTagPaths } from '../utils/tagTree';
@@ -258,7 +258,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     // Helper function to rebuild tag tree
     const rebuildTagTree = useCallback(() => {
         const db = getDBInstance();
-        const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
+        const excludedFolderPatterns = settings.excludedFolders;
         const {
             favoriteTree,
             tagTree,

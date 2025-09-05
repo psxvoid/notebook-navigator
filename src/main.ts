@@ -294,6 +294,19 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             }
         });
 
+        this.addCommand({
+            id: 'toggle-hidden',
+            name: strings.commands.toggleHidden,
+            callback: async () => {
+                // Ensure navigator is open and visible
+                await this.activateView();
+
+                this.settings.showHiddenItems = !this.settings.showHiddenItems;
+                await this.saveSettings();
+                this.onSettingsUpdate();
+            }
+        });
+
         // File Operations commands
         this.addCommand({
             id: 'create-new-note',
@@ -760,6 +773,16 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 // Silently ignore errors from settings update callbacks
             }
         });
+    }
+
+    /**
+     * Sets the visibility of hidden items (folders and/or tags)
+     * @param value - The new value for showHiddenItems setting
+     */
+    public async showHiddenItems(value: boolean) {
+        this.settings.showHiddenItems = value;
+        await this.saveSettings();
+        this.onSettingsUpdate();
     }
 
     /**

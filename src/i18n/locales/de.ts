@@ -63,6 +63,8 @@ export const STRINGS_DE = {
         hideFolders: 'Navigation ausblenden', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         toggleSubfolders: 'Notizen aus Unterordnern anzeigen', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
         autoExpandFoldersTags: 'Ordner und Tags automatisch erweitern', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
+        showExcludedItems: 'Versteckte Elemente anzeigen', // Tooltip for button to show hidden items (English: Show hidden items)
+        hideExcludedItems: 'Versteckte Elemente ausblenden', // Tooltip for button to hide hidden items (English: Hide hidden items)
         showDualPane: 'Zweispaltige Ansicht anzeigen', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: 'Einspaltige Ansicht anzeigen', // Tooltip for button to show single-pane layout (English: Show single pane)
         changeAppearance: 'Erscheinungsbild ändern', // Tooltip for button to change folder appearance settings (English: Change appearance)
@@ -130,7 +132,7 @@ export const STRINGS_DE = {
             removeIcon: 'Symbol entfernen',
             changeColor: 'Farbe ändern',
             removeColor: 'Farbe entfernen',
-            excludeFolder: 'Ordner ausschließen',
+            excludeFolder: 'Ordner verstecken',
             renameFolder: 'Ordner umbenennen',
             deleteFolder: 'Ordner löschen'
         },
@@ -360,6 +362,7 @@ export const STRINGS_DE = {
         navigateToFolder: 'Zu Ordner navigieren', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Zu Tag navigieren', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: 'Notizen aus Unterordnern umschalten', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
+        toggleHidden: 'Versteckte Elemente umschalten', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         addTag: 'Tag zu ausgewählten Dateien hinzufügen', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Tag von ausgewählten Dateien entfernen', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: 'Alle Tags von ausgewählten Dateien entfernen' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
@@ -462,12 +465,12 @@ export const STRINGS_DE = {
                 desc: 'Zeige Hover-Tooltips mit zusätzlichen Informationen für Notizen und Ordner an.'
             },
             excludedNotes: {
-                name: 'Ausgeschlossene Notizen',
+                name: 'Notizen verstecken',
                 desc: 'Kommagetrennte Liste von Frontmatter-Eigenschaften. Notizen mit diesen Eigenschaften werden ausgeblendet (z.B. Entwurf, privat, archiviert).',
                 placeholder: 'entwurf, privat'
             },
             excludedFolders: {
-                name: 'Ausgeschlossene Ordner',
+                name: 'Ordner verstecken',
                 desc: 'Kommagetrennte Liste von auszublendenden Ordnern. Namensmuster: assets* (Ordner die mit assets beginnen), *_temp (endet mit _temp). Pfadmuster: /archive (nur Wurzel-Archive), /res* (Wurzelordner die mit res beginnen), /*/temp (temp-Ordner eine Ebene tief), /projects/* (alle Ordner in projects).',
                 placeholder: 'templates, assets*, /archive, /res*'
             },
@@ -564,9 +567,18 @@ export const STRINGS_DE = {
                 name: 'Symbole anzeigen',
                 desc: 'Symbole neben Ordnern und Tags im Navigationsbereich anzeigen.'
             },
-            collapseButtonBehavior: {
-                name: 'Verhalten der Einklapp-Schaltfläche',
+            collapseBehavior: {
+                name: 'Elemente einklappen',
                 desc: 'Wählen Sie, was die Schaltfläche zum Ein-/Ausklappen beeinflusst.',
+                options: {
+                    all: 'Alle Ordner und Tags',
+                    foldersOnly: 'Nur Ordner',
+                    tagsOnly: 'Nur Tags'
+                }
+            },
+            showHiddenBehavior: {
+                name: 'Versteckte Elemente anzeigen',
+                desc: 'Wählen Sie, was die Schaltfläche zum Anzeigen/Ausblenden versteckter Elemente beeinflusst.',
                 options: {
                     all: 'Alle Ordner und Tags',
                     foldersOnly: 'Nur Ordner',

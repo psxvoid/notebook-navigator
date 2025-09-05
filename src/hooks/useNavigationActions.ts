@@ -42,7 +42,7 @@ export function useNavigationActions() {
     const { fileData } = useFileCache();
 
     const shouldCollapseItems = useCallback(() => {
-        const behavior = settings.collapseButtonBehavior;
+        const behavior = settings.collapseBehavior;
 
         const hasFoldersExpanded = settings.showRootFolder
             ? Array.from(expansionState.expandedFolders).some(path => path !== '/')
@@ -56,10 +56,10 @@ export function useNavigationActions() {
               : behavior === 'tags-only'
                 ? hasTagsExpanded
                 : false;
-    }, [settings.collapseButtonBehavior, settings.showRootFolder, expansionState.expandedFolders, expansionState.expandedTags]);
+    }, [settings.collapseBehavior, settings.showRootFolder, expansionState.expandedFolders, expansionState.expandedTags]);
 
     const handleExpandCollapseAll = useCallback(() => {
-        const behavior = settings.collapseButtonBehavior;
+        const behavior = settings.collapseBehavior;
         const rootFolder = app.vault.getRoot();
         const shouldCollapse = shouldCollapseItems();
 
@@ -117,7 +117,7 @@ export function useNavigationActions() {
         app,
         expansionDispatch,
         settings.showRootFolder,
-        settings.collapseButtonBehavior,
+        settings.collapseBehavior,
         fileData.favoriteTree,
         fileData.tagTree,
         shouldCollapseItems
@@ -143,10 +143,17 @@ export function useNavigationActions() {
         });
     }, [updateSettings]);
 
+    const handleToggleShowExcludedFolders = useCallback(async () => {
+        await updateSettings(s => {
+            s.showHiddenItems = !s.showHiddenItems;
+        });
+    }, [updateSettings]);
+
     return {
         shouldCollapseItems,
         handleExpandCollapseAll,
         handleNewFolder,
-        handleToggleAutoExpand
+        handleToggleAutoExpand,
+        handleToggleShowExcludedFolders
     };
 }

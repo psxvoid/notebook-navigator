@@ -63,6 +63,8 @@ export const STRINGS_JA = {
         hideFolders: 'ナビゲーションを非表示', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         toggleSubfolders: 'サブフォルダのノートを表示', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
         autoExpandFoldersTags: 'フォルダとタグを自動展開', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
+        showExcludedItems: '非表示項目を表示', // Tooltip for button to show hidden items (English: Show hidden items)
+        hideExcludedItems: '非表示項目を隠す', // Tooltip for button to hide hidden items (English: Hide hidden items)
         showDualPane: 'デュアルペインを表示', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: 'シングルペインを表示', // Tooltip for button to show single-pane layout (English: Show single pane)
         changeAppearance: '外観を変更', // Tooltip for button to change folder appearance settings (English: Change appearance)
@@ -130,7 +132,7 @@ export const STRINGS_JA = {
             removeIcon: 'アイコンを削除',
             changeColor: '色を変更',
             removeColor: '色を削除',
-            excludeFolder: 'フォルダを除外',
+            excludeFolder: 'フォルダを非表示',
             renameFolder: 'フォルダの名前を変更',
             deleteFolder: 'フォルダを削除'
         },
@@ -360,6 +362,7 @@ export const STRINGS_JA = {
         navigateToFolder: 'フォルダにナビゲート', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'タグにナビゲート', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: 'サブフォルダのノート表示を切り替え', // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
+        toggleHidden: '非表示項目を切り替え', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         addTag: '選択したファイルにタグを追加', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: '選択したファイルからタグを削除', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: '選択したファイルからすべてのタグを削除' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
@@ -462,12 +465,12 @@ export const STRINGS_JA = {
                 desc: 'ノートとフォルダの追加情報をホバー時にツールチップで表示します。'
             },
             excludedNotes: {
-                name: '除外するノート',
+                name: 'ノートを非表示',
                 desc: 'カンマ区切りのフロントマター属性のリスト。これらの属性を含むノートは非表示になります（例：draft, private, archived）。',
                 placeholder: 'draft, private'
             },
             excludedFolders: {
-                name: '除外するフォルダ',
+                name: 'フォルダを非表示',
                 desc: '非表示にするフォルダのカンマ区切りリスト。名前パターン: assets*（assetsで始まるフォルダ）、*_temp（_tempで終わる）。パスパターン: /archive（ルートのアーカイブのみ）、/res*（resで始まるルートフォルダ）、/*/temp（1階層下のtempフォルダ）、/projects/*（projects内のすべてのフォルダ）。',
                 placeholder: 'templates, assets*, /archive, /res*',
                 info: '自動クリーンアップ：右クリックで除外する際、重複するパターンが削除されます（例：/projectsを除外し、/projects/appが既にリストにある場合、削除されます）。'
@@ -565,9 +568,18 @@ export const STRINGS_JA = {
                 name: 'アイコンを表示',
                 desc: 'ナビゲーションパネルのフォルダとタグの横にアイコンを表示します。'
             },
-            collapseButtonBehavior: {
-                name: '折りたたみボタンの動作',
+            collapseBehavior: {
+                name: '項目を折りたたむ',
                 desc: '展開/折りたたみボタンが影響する項目を選択します。',
+                options: {
+                    all: 'すべてのフォルダとタグ',
+                    foldersOnly: 'フォルダのみ',
+                    tagsOnly: 'タグのみ'
+                }
+            },
+            showHiddenBehavior: {
+                name: '非表示項目を表示',
+                desc: '非表示項目の表示/非表示ボタンが影響する対象を選択します。',
                 options: {
                     all: 'すべてのフォルダとタグ',
                     foldersOnly: 'フォルダのみ',

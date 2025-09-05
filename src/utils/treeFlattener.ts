@@ -21,7 +21,8 @@ import { getCurrentLanguage } from '../i18n';
 import { NavigationPaneItemType } from '../types';
 import { TagTreeNode } from '../types/storage';
 import type { FolderTreeItem, TagTreeItem } from '../types/virtualization';
-import { shouldExcludeFolder } from './fileFilters';
+import { isFolderInExcludedFolder } from './fileFilters';
+import { matchesAnyPrefix } from './tagPrefixMatcher';
 
 /**
  * Flattens a folder tree into a linear array for virtualization.
@@ -50,19 +51,24 @@ export function flattenFolderTree(
             return;
         }
 
-        // Skip excluded folders (pass both name and full path for pattern matching)
-        if (excludePatterns.length > 0 && shouldExcludeFolder(folder.name, excludePatterns, folder.path)) {
-            return;
-        }
+        // Check if folder is excluded (including if parent is excluded)
+        const isExcluded = excludePatterns.length > 0 && isFolderInExcludedFolder(folder, excludePatterns);
 
-        // Add the folder itself
-        items.push({
+        // Add the folder itself - always include it with the flag
+        const folderItem: FolderTreeItem = {
             type: NavigationPaneItemType.FOLDER,
             data: folder,
             level,
             path: folder.path,
             key: folder.path
-        });
+        };
+
+        // Mark as excluded if applicable
+        if (isExcluded) {
+            folderItem.isExcluded = true;
+        }
+
+        items.push(folderItem);
 
         // Add children if expanded
         if (expandedFolders.has(folder.path) && folder.children && folder.children.length > 0) {
@@ -93,13 +99,16 @@ export function flattenFolderTree(
  * @param tagNodes - Array of root tag nodes to flatten
  * @param expandedTags - Set of expanded tag paths
  * @param level - Current nesting level (for indentation)
+ * @param context - Whether these are favorite or regular tags
+ * @param hiddenPatterns - Patterns for tags that are normally hidden
  * @returns Array of flattened tag items
  */
 export function flattenTagTree(
     tagNodes: TagTreeNode[],
     expandedTags: Set<string>,
     level: number = 0,
-    context?: 'favorites' | 'tags'
+    context?: 'favorites' | 'tags',
+    hiddenPatterns: string[] = []
 ): TagTreeItem[] {
     const items: TagTreeItem[] = [];
 
@@ -107,14 +116,21 @@ export function flattenTagTree(
     const sortedNodes = tagNodes.slice().sort((a, b) => a.name.localeCompare(b.name));
 
     function addNode(node: TagTreeNode, currentLevel: number) {
-        items.push({
+        const item: TagTreeItem = {
             type: NavigationPaneItemType.TAG,
             data: node,
             level: currentLevel,
             path: node.path,
             key: node.path,
             context
-        });
+        };
+
+        // Check if this tag would normally be hidden
+        if (hiddenPatterns.length > 0 && matchesAnyPrefix(node.path.toLowerCase(), hiddenPatterns)) {
+            item.isHidden = true;
+        }
+
+        items.push(item);
 
         // Add children if expanded and has children
         if (expandedTags.has(node.path) && node.children && node.children.size > 0) {

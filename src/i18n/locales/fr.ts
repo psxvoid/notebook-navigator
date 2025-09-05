@@ -63,6 +63,8 @@ export const STRINGS_FR = {
         hideFolders: 'Masquer la navigation', // Tooltip for button to hide the navigation pane (English: Hide navigation)
         toggleSubfolders: 'Afficher les notes des sous-dossiers', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
         autoExpandFoldersTags: 'Développer automatiquement les dossiers et les étiquettes', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
+        showExcludedItems: 'Afficher les éléments masqués', // Tooltip for button to show hidden items (English: Show hidden items)
+        hideExcludedItems: 'Masquer les éléments masqués', // Tooltip for button to hide hidden items (English: Hide hidden items)
         showDualPane: 'Afficher les panneaux doubles', // Tooltip for button to show dual-pane layout (English: Show dual panes)
         showSinglePane: 'Afficher panneau unique', // Tooltip for button to show single-pane layout (English: Show single pane)
         changeAppearance: "Changer l'apparence", // Tooltip for button to change folder appearance settings (English: Change appearance)
@@ -130,7 +132,7 @@ export const STRINGS_FR = {
             removeIcon: "Supprimer l'icône",
             changeColor: 'Changer la couleur',
             removeColor: 'Supprimer la couleur',
-            excludeFolder: 'Exclure le dossier',
+            excludeFolder: 'Masquer le dossier',
             renameFolder: 'Renommer le dossier',
             deleteFolder: 'Supprimer le dossier'
         },
@@ -360,6 +362,7 @@ export const STRINGS_FR = {
         navigateToFolder: 'Naviguer vers le dossier', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: "Naviguer vers l'étiquette", // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: "Basculer l'affichage des notes des sous-dossiers",
+        toggleHidden: 'Basculer les éléments masqués', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         addTag: 'Ajouter une étiquette aux fichiers sélectionnés', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Supprimer une étiquette des fichiers sélectionnés', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: 'Supprimer toutes les étiquettes des fichiers sélectionnés' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
@@ -462,12 +465,12 @@ export const STRINGS_FR = {
                 desc: 'Affiche des infobulles avec des informations supplémentaires pour les notes et dossiers au survol.'
             },
             excludedNotes: {
-                name: 'Notes exclues',
+                name: 'Masquer les notes',
                 desc: "Liste de propriétés de métadonnées séparées par des virgules. Les notes contenant l'une de ces propriétés seront masquées (ex. : draft, private, archived).",
                 placeholder: 'draft, private'
             },
             excludedFolders: {
-                name: 'Dossiers exclus',
+                name: 'Masquer les dossiers',
                 desc: 'Liste de dossiers à masquer séparés par des virgules. Modèles de nom : assets* (dossiers commençant par assets), *_temp (finissant par _temp). Modèles de chemin : /archive (archive racine uniquement), /res* (dossiers racine commençant par res), /*/temp (dossiers temp un niveau plus bas), /projects/* (tous les dossiers dans projects).',
                 placeholder: 'templates, assets*, /archive, /res*',
                 info: "Nettoyage automatique : Lors de l'exclusion par clic droit, les modèles redondants sont supprimés (par exemple, si vous excluez /projects et que /projects/app existe déjà dans la liste, il sera supprimé)."
@@ -565,9 +568,18 @@ export const STRINGS_FR = {
                 name: 'Afficher les icônes',
                 desc: 'Afficher les icônes à côté des dossiers et étiquettes dans le panneau de navigation.'
             },
-            collapseButtonBehavior: {
-                name: 'Comportement du bouton replier',
+            collapseBehavior: {
+                name: 'Replier les éléments',
                 desc: 'Choisissez ce que le bouton déplier/replier tout affecte.',
+                options: {
+                    all: 'Tous les dossiers et étiquettes',
+                    foldersOnly: 'Dossiers uniquement',
+                    tagsOnly: 'Étiquettes uniquement'
+                }
+            },
+            showHiddenBehavior: {
+                name: 'Afficher les éléments masqués',
+                desc: 'Choisissez ce que le bouton afficher/masquer les éléments cachés affecte.',
                 options: {
                     all: 'Tous les dossiers et étiquettes',
                     foldersOnly: 'Dossiers uniquement',

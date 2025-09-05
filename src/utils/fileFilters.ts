@@ -21,11 +21,10 @@ import { NotebookNavigatorSettings } from '../settings';
 import { shouldDisplayFile } from './fileTypeUtils';
 
 /**
- * Filters the excluded files array to remove empty entries
+ * When true, excluded folders are not indexed in the database
+ * Set to false to index all files regardless of exclusion settings
  */
-export function parseExcludedProperties(excludedFiles: string[]): string[] {
-    return excludedFiles.filter(p => p && p.trim());
-}
+const SKIP_EXCLUDED_FOLDERS_IN_INDEX = false;
 
 /**
  * Checks if a file should be excluded based on its frontmatter properties
@@ -38,13 +37,6 @@ export function shouldExcludeFile(file: TFile, excludedProperties: string[], app
     if (!frontmatter) return false;
 
     return excludedProperties.some(prop => prop in frontmatter);
-}
-
-/**
- * Filters the excluded folders array to remove empty entries
- */
-export function parseExcludedFolders(ignoreFolders: string[]): string[] {
-    return ignoreFolders.filter(f => f && f.trim());
 }
 
 /**
@@ -151,6 +143,51 @@ function isFileInExcludedFolder(file: TFile, excludedFolderPatterns: string[]): 
 }
 
 /**
+ * Checks if a folder is a child of an excluded folder by checking all parent folders
+ * Also handles wildcard patterns that might exclude parent folders
+ */
+export function isFolderInExcludedFolder(folder: TFolder, excludedFolderPatterns: string[]): boolean {
+    if (!folder || excludedFolderPatterns.length === 0) return false;
+
+    // Check if this folder itself is excluded
+    if (shouldExcludeFolder(folder.name, excludedFolderPatterns, folder.path)) {
+        return true;
+    }
+
+    // For wildcard patterns, we need to check if any parent path would match
+    // For example, if pattern is "/_*" and folder is "_folder/subfolder/deep",
+    // we need to check if "_folder" matches the pattern
+    for (const pattern of excludedFolderPatterns) {
+        if (pattern.startsWith('/') && pattern.includes('*')) {
+            // This is a path-based wildcard pattern
+            // Check each level of the path to see if it would be excluded
+            const pathParts = folder.path.split('/');
+            let currentPath = '';
+
+            for (const part of pathParts) {
+                currentPath = currentPath ? `${currentPath}/${part}` : part;
+                if (matchesPathPattern(currentPath, pattern)) {
+                    // This level of the path matches the exclusion pattern
+                    return true;
+                }
+            }
+        }
+    }
+
+    // Check all parent folders for exact matches
+    let currentFolder: TFolder | null = folder.parent;
+    while (currentFolder) {
+        // Pass both folder name and path for proper pattern matching
+        if (shouldExcludeFolder(currentFolder.name, excludedFolderPatterns, currentFolder.path)) {
+            return true;
+        }
+        currentFolder = currentFolder.parent;
+    }
+
+    return false;
+}
+
+/**
  * Cleans up redundant exclusion patterns when adding a new pattern
  * Removes existing patterns that would be covered by the new pattern
  * @param existingPatterns - Current list of exclusion patterns
@@ -218,27 +255,35 @@ export function isPathInExcludedFolder(filePath: string, excludedFolderPatterns:
 }
 
 /**
- * Checks if a folder has any visible (non-excluded) subfolders.
+ * Checks if a folder has any subfolders based on visibility settings.
  * This is used to determine whether to show expand/collapse chevrons
  * and whether to use the open/closed folder icon.
  *
  * @param folder - The folder to check
  * @param excludePatterns - Array of exclusion patterns
- * @returns True if the folder has at least one visible subfolder
+ * @param showHiddenItems - Whether excluded folders are being shown
+ * @returns True if the folder has subfolders (visible or all, depending on settings)
  */
-export function hasVisibleSubfolders(folder: TFolder, excludePatterns: string[]): boolean {
+export function hasSubfolders(folder: TFolder, excludePatterns: string[], showHiddenItems: boolean): boolean {
     if (!folder.children || folder.children.length === 0) {
         return false;
     }
 
-    // Check if any child folder is NOT excluded
+    // Skip exclusion check if:
+    // 1. No exclusion patterns defined (nothing to exclude)
+    // 2. This folder is excluded but we're showing excluded folders
+    const noPatterns = excludePatterns.length === 0;
+    const isExcludedButShown = showHiddenItems && isFolderInExcludedFolder(folder, excludePatterns);
+    const skipExclusionCheck = noPatterns || isExcludedButShown;
+
+    // Check if any child folder exists (based on visibility rules)
     return folder.children.some(child => {
         if (!(child instanceof TFolder)) {
             return false;
         }
 
-        // If no exclusion patterns, all folders are visible
-        if (excludePatterns.length === 0) {
+        // If we're skipping exclusion checks, any folder counts
+        if (skipExclusionCheck) {
             return true;
         }
 
@@ -255,8 +300,8 @@ export function hasVisibleSubfolders(folder: TFolder, excludePatterns: string[])
 export function getFilteredMarkdownFiles(app: App, settings: NotebookNavigatorSettings): TFile[] {
     if (!app || !settings) return [];
 
-    const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-    const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
+    const excludedProperties = settings.excludedFiles;
+    const excludedFolderPatterns = settings.excludedFolders;
 
     return app.vault.getMarkdownFiles().filter(file => {
         // Filter by excluded properties
@@ -264,8 +309,8 @@ export function getFilteredMarkdownFiles(app: App, settings: NotebookNavigatorSe
             return false;
         }
 
-        // Filter by excluded folders
-        if (isFileInExcludedFolder(file, excludedFolderPatterns)) {
+        // Filter by excluded folders (only if SKIP_EXCLUDED_FOLDERS_IN_INDEX is true)
+        if (SKIP_EXCLUDED_FOLDERS_IN_INDEX && isFileInExcludedFolder(file, excludedFolderPatterns)) {
             return false;
         }
 
@@ -282,8 +327,8 @@ export function getFilteredMarkdownFiles(app: App, settings: NotebookNavigatorSe
 export function getFilteredFiles(app: App, settings: NotebookNavigatorSettings): TFile[] {
     if (!app || !settings) return [];
 
-    const excludedProperties = parseExcludedProperties(settings.excludedFiles);
-    const excludedFolderPatterns = parseExcludedFolders(settings.excludedFolders);
+    const excludedProperties = settings.excludedFiles;
+    const excludedFolderPatterns = settings.excludedFolders;
 
     return app.vault.getFiles().filter(file => {
         // Filter by visibility settings
@@ -296,8 +341,8 @@ export function getFilteredFiles(app: App, settings: NotebookNavigatorSettings):
             return false;
         }
 
-        // Filter by excluded folders
-        if (isFileInExcludedFolder(file, excludedFolderPatterns)) {
+        // Filter by excluded folders (only if SKIP_EXCLUDED_FOLDERS_IN_INDEX is true)
+        if (SKIP_EXCLUDED_FOLDERS_IN_INDEX && isFileInExcludedFolder(file, excludedFolderPatterns)) {
             return false;
         }
 

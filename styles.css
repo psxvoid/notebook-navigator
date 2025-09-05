@@ -1661,6 +1661,18 @@ body.nn-resizing {
 }
 
 /* ========================================================================
+   Hidden Items - Dimmed appearance for hidden folders and tags
+   ======================================================================== */
+
+/* Hidden items (folders and tags) - dimmed appearance */
+.nn-navitem.nn-excluded .nn-navitem-chevron,
+.nn-navitem.nn-excluded .nn-navitem-icon,
+.nn-navitem.nn-excluded .nn-navitem-name,
+.nn-navitem.nn-excluded .nn-navitem-count {
+    opacity: 0.5;
+}
+
+/* ========================================================================
    Modal Styles
    ======================================================================== */
 

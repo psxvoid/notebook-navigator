@@ -85,6 +85,8 @@ interface TagTreeItemProps {
     color?: string;
     /** Custom icon for the tag - fetched by NavigationPane from MetadataService */
     icon?: string;
+    /** Whether this tag is normally hidden but being shown */
+    isHidden?: boolean;
 }
 
 /**
@@ -94,7 +96,21 @@ interface TagTreeItemProps {
  */
 export const TagTreeItem = React.memo(
     forwardRef<HTMLDivElement, TagTreeItemProps>(function TagTreeItem(
-        { tagNode, level, isExpanded, isSelected, onToggle, onClick, onToggleAllSiblings, fileCount, showFileCount, context, color, icon },
+        {
+            tagNode,
+            level,
+            isExpanded,
+            isSelected,
+            isHidden,
+            onToggle,
+            onClick,
+            onToggleAllSiblings,
+            fileCount,
+            showFileCount,
+            context,
+            color,
+            icon
+        },
         ref
     ) {
         const settings = useSettingsState();
@@ -113,8 +129,9 @@ export const TagTreeItem = React.memo(
         const className = useMemo(() => {
             const classes = ['nn-navitem', 'nn-tag'];
             if (isSelected) classes.push('nn-selected');
+            if (isHidden) classes.push('nn-excluded');
             return classes.join(' ');
-        }, [isSelected]);
+        }, [isSelected, isHidden]);
 
         const tagNameClassName = useMemo(() => {
             const classes = ['nn-navitem-name'];

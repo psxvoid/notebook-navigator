@@ -27,7 +27,7 @@ import { useExpansionState } from '../context/ExpansionContext';
 import { strings } from '../i18n';
 import { getIconService } from '../services/icons';
 import { UNTAGGED_TAG_ID, ItemType } from '../types';
-import { hasVisibleSubfolders, parseExcludedFolders } from '../utils/fileFilters';
+import { hasSubfolders } from '../utils/fileFilters';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useListActions } from '../hooks/useListActions';
 
@@ -207,8 +207,8 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
                 folderIcon = customIcon;
             } else {
                 // Use open/closed folder icon based on expansion state and visible children
-                const excludedFolders = parseExcludedFolders(settings.excludedFolders);
-                const hasChildren = hasVisibleSubfolders(selectionState.selectedFolder, excludedFolders);
+                const excludedFolders = settings.excludedFolders;
+                const hasChildren = hasSubfolders(selectionState.selectedFolder, excludedFolders, settings.showHiddenItems);
                 const isExpanded = expansionState.expandedFolders.has(selectionState.selectedFolder.path);
                 folderIcon = hasChildren && isExpanded ? 'lucide-folder-open' : 'lucide-folder-closed';
             }

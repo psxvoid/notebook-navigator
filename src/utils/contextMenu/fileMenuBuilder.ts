@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { MenuItem, TFile, Notice, Menu, App } from 'obsidian';
+import { MenuItem, TFile, Notice, Menu, App, Platform } from 'obsidian';
 import { FileMenuBuilderParams } from './menuTypes';
 import { strings } from '../../i18n';
 import { getInternalPlugin } from '../../utils/typeGuards';
@@ -247,7 +247,7 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     if (!isMobile && !shouldShowMultiOptions) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(fileSystemOps.getRevealInSystemExplorerText())
-                .setIcon('lucide-folder-open')
+                .setIcon(Platform.isMacOS ? 'lucide-app-window-mac' : 'lucide-app-window')
                 .onClick(async () => {
                     await fileSystemOps.revealInSystemExplorer(file);
                 });
@@ -350,7 +350,7 @@ function addSingleFileOpenOptions(menu: Menu, file: TFile, app: App, isMobile: b
     // Open to the right
     menu.addItem((item: MenuItem) => {
         item.setTitle(strings.contextMenu.file.openToRight)
-            .setIcon('lucide-vertical-three-dots')
+            .setIcon('lucide-separator-vertical')
             .onClick(() => {
                 if (commandQueue) {
                     commandQueue.executeOpenInNewContext(file, 'split', async () => {
@@ -366,7 +366,7 @@ function addSingleFileOpenOptions(menu: Menu, file: TFile, app: App, isMobile: b
     if (!isMobile) {
         menu.addItem((item: MenuItem) => {
             item.setTitle(strings.contextMenu.file.openInNewWindow)
-                .setIcon('lucide-monitor')
+                .setIcon('lucide-external-link')
                 .onClick(() => {
                     app.workspace.getLeaf('window').openFile(file);
                 });
@@ -425,7 +425,7 @@ function addMultipleFilesOpenOptions(
                 ? strings.contextMenu.file.openMultipleToRight.replace('{count}', selectedCount.toString())
                 : strings.contextMenu.file.openMultipleFilesToRight.replace('{count}', selectedCount.toString())
         )
-            .setIcon('lucide-vertical-three-dots')
+            .setIcon('lucide-separator-vertical')
             .onClick(async () => {
                 const selectedFiles = Array.from(selectionState.selectedFiles)
                     .map(path => app.vault.getAbstractFileByPath(path))
@@ -451,7 +451,7 @@ function addMultipleFilesOpenOptions(
                     ? strings.contextMenu.file.openMultipleInNewWindows.replace('{count}', selectedCount.toString())
                     : strings.contextMenu.file.openMultipleFilesInNewWindows.replace('{count}', selectedCount.toString())
             )
-                .setIcon('lucide-monitor')
+                .setIcon('lucide-external-link')
                 .onClick(async () => {
                     const selectedFiles = Array.from(selectionState.selectedFiles)
                         .map(path => app.vault.getAbstractFileByPath(path))
@@ -546,7 +546,7 @@ function addMultipleFilesPinOption(
 function addSingleFileDuplicateOption(menu: Menu, file: TFile, fileSystemOps: FileSystemOperations): void {
     menu.addItem((item: MenuItem) => {
         item.setTitle(file.extension === 'md' ? strings.contextMenu.file.duplicateNote : strings.contextMenu.file.duplicateFile)
-            .setIcon('lucide-documents')
+            .setIcon('lucide-copy')
             .onClick(async () => {
                 await fileSystemOps.duplicateNote(file);
             });
@@ -575,7 +575,7 @@ function addMultipleFilesDuplicateOption(
                 ? strings.contextMenu.file.duplicateMultipleNotes.replace('{count}', selectedCount.toString())
                 : strings.contextMenu.file.duplicateMultipleFiles.replace('{count}', selectedCount.toString())
         )
-            .setIcon('lucide-documents')
+            .setIcon('lucide-copy')
             .onClick(async () => {
                 // Duplicate all selected files
                 const selectedFiles = Array.from(selectionState.selectedFiles)

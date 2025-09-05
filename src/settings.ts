@@ -42,12 +42,12 @@ export type SortOption =
     | 'title-desc'; // Title (Z first)
 
 /**
- * Collapse button behavior options
+ * Scope of items that button actions affect
  */
-export type CollapseButtonBehavior =
-    | 'all' // Collapse/expand both folders and tags
-    | 'folders-only' // Collapse/expand only folders
-    | 'tags-only'; // Collapse/expand only tags
+export type ItemScope =
+    | 'all' // Both folders and tags
+    | 'folders-only' // Only folders
+    | 'tags-only'; // Only tags
 
 /**
  * Quick actions configuration
@@ -67,7 +67,8 @@ export interface NotebookNavigatorSettings {
     // Navigation pane
     autoSelectFirstFileOnFocusChange: boolean;
     autoExpandFoldersTags: boolean;
-    collapseButtonBehavior: CollapseButtonBehavior;
+    collapseBehavior: ItemScope;
+    showHiddenBehavior: ItemScope;
     showIcons: boolean;
     showNoteCount: boolean;
     navItemHeight: number;
@@ -120,6 +121,7 @@ export interface NotebookNavigatorSettings {
     confirmBeforeDelete: boolean;
     // Internal
     searchActive: boolean;
+    showHiddenItems: boolean;
     customVaultName: string;
     pinnedNotes: PinnedNotes;
     folderIcons: Record<string, string>;
@@ -151,7 +153,8 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Navigation pane
     autoSelectFirstFileOnFocusChange: false,
     autoExpandFoldersTags: false,
-    collapseButtonBehavior: 'all',
+    collapseBehavior: 'all',
+    showHiddenBehavior: 'all',
     showIcons: true,
     showNoteCount: true,
     navItemHeight: NAVPANE_MEASUREMENTS.defaultItemHeight,
@@ -204,6 +207,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     confirmBeforeDelete: true,
     // Internal
     searchActive: false,
+    showHiddenItems: false,
     customVaultName: '',
     pinnedNotes: {},
     folderIcons: {},
@@ -530,16 +534,31 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             );
 
         new Setting(containerEl)
-            .setName(strings.settings.items.collapseButtonBehavior.name)
-            .setDesc(strings.settings.items.collapseButtonBehavior.desc)
+            .setName(strings.settings.items.collapseBehavior.name)
+            .setDesc(strings.settings.items.collapseBehavior.desc)
             .addDropdown(dropdown =>
                 dropdown
-                    .addOption('all', strings.settings.items.collapseButtonBehavior.options.all)
-                    .addOption('folders-only', strings.settings.items.collapseButtonBehavior.options.foldersOnly)
-                    .addOption('tags-only', strings.settings.items.collapseButtonBehavior.options.tagsOnly)
-                    .setValue(this.plugin.settings.collapseButtonBehavior)
-                    .onChange(async (value: CollapseButtonBehavior) => {
-                        this.plugin.settings.collapseButtonBehavior = value;
+                    .addOption('all', strings.settings.items.collapseBehavior.options.all)
+                    .addOption('folders-only', strings.settings.items.collapseBehavior.options.foldersOnly)
+                    .addOption('tags-only', strings.settings.items.collapseBehavior.options.tagsOnly)
+                    .setValue(this.plugin.settings.collapseBehavior)
+                    .onChange(async (value: ItemScope) => {
+                        this.plugin.settings.collapseBehavior = value;
+                        await this.saveAndRefresh();
+                    })
+            );
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.showHiddenBehavior.name)
+            .setDesc(strings.settings.items.showHiddenBehavior.desc)
+            .addDropdown(dropdown =>
+                dropdown
+                    .addOption('all', strings.settings.items.showHiddenBehavior.options.all)
+                    .addOption('folders-only', strings.settings.items.showHiddenBehavior.options.foldersOnly)
+                    .addOption('tags-only', strings.settings.items.showHiddenBehavior.options.tagsOnly)
+                    .setValue(this.plugin.settings.showHiddenBehavior)
+                    .onChange(async (value: ItemScope) => {
+                        this.plugin.settings.showHiddenBehavior = value;
                         await this.saveAndRefresh();
                     })
             );
