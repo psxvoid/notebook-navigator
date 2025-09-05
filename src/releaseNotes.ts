@@ -65,10 +65,10 @@ const RELEASE_NOTES: ReleaseNote[] = [
             'New tag context menu option: **Hide tag**. Hide a tag from the navigation pane with smart filtering logic.'
         ],
         changed: [
-            'On startup the view will only reset to single pane on the first startup if the view is too narrow. Previously it checked on every startup.',
-            'Untagged section now only shows markdown files since only markdown documents can have tags.'
+            'On startup, the view will now only reset to single pane **on the first startup** if the view is too narrow. Previously it checked on every startup.',
+            '**Untagged section** will now only show markdown files, even if other types are enabled in settings, since only markdown documents can have tags. This makes it easier to quickly find untagged notes.'
         ],
-        fixed: ['Context menu icons for "Remove icon" and "Remove color" now correctly show the X icon instead of the palette icon.']
+        fixed: ['Some icons were missing for some of the context menu options.']
     },
     {
         version: '1.4.7',
