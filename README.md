@@ -57,6 +57,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - **Custom appearances** - Configure display settings per folder or tag (title rows, preview rows, slim mode)
 - **Favorite tags** - Pin frequently used tags to a dedicated section
 - **Hidden tags** - Hide tags with wildcard and regex patterns
+- **Toggle hidden items** - Show or hide excluded folders and hidden tags with toolbar button
 - **Untagged notes** - Find and organize notes without tags
 
 ### File display
@@ -205,6 +206,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - `Notebook Navigator: Toggle dual pane layout` Toggle single/dual-pane layout (desktop)
 - `Notebook Navigator: Toggle show notes from subfolders` Toggle subfolder notes display. **Tip:** Bind to a shortcut key like Cmd/Ctrl+Shift+S to quickly toggle display of notes from subfolders
+- `Notebook Navigator: Toggle hidden items` Show or hide excluded folders and hidden tags
 
 **File operations**
 
@@ -239,7 +241,8 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 - **Auto-select first note (desktop only):** Select and open first note when switching folders or tags
 - **Auto-expand folders and tags:** Expand folders and tags when selected
-- **Collapse button behavior:** What expand/collapse all button affects. `All folders and tags`, `Folders only`, `Tags only`
+- **Collapse items:** What expand/collapse all button affects. `All folders and tags`, `Folders only`, `Tags only`
+- **Show hidden items:** Which items to show or hide. `All folders and tags`, `Folders only`, `Tags only`
 - **Show icons:** Display icons next to folders and tags
 - **Show note count:** Display note count in folders and tags
 - **Tree indentation:** Indentation width for each folder and tag nesting level (10-24px)
