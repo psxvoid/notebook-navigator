@@ -66,7 +66,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         ],
         changed: [
             'On startup, the view will now only reset to single pane **on the first startup** if the view is too narrow. Previously it checked on every startup.',
-            '**Untagged section** will now only show markdown files, even if other types are enabled in settings, since only markdown documents can have tags. This makes it easier to quickly find untagged notes.'
+            '**Untagged section** will now only show markdown files, even if other types are enabled in settings, since only markdown documents can have tags.'
         ],
         fixed: ['Some icons were missing for some of the context menu options.']
     },
