@@ -150,12 +150,10 @@ export const NavigationPane = React.memo(
                 // Normal folder selection behavior
                 selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
 
-                // Auto-expand if enabled and folder has children
+                // Auto-expand/collapse if enabled and folder has children
                 if (settings.autoExpandFoldersTags && folder.children.some(child => child instanceof TFolder)) {
-                    // Only expand if not already expanded
-                    if (!expansionState.expandedFolders.has(folder.path)) {
-                        expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
-                    }
+                    // Toggle expansion state - expand if collapsed, collapse if expanded
+                    expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
                 }
 
                 // Switch to files view in single pane mode
@@ -168,14 +166,7 @@ export const NavigationPane = React.memo(
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
                 }
             },
-            [
-                selectionDispatch,
-                uiDispatch,
-                uiState.singlePane,
-                settings.autoExpandFoldersTags,
-                expansionState.expandedFolders,
-                expansionDispatch
-            ]
+            [selectionDispatch, uiDispatch, uiState.singlePane, settings.autoExpandFoldersTags, expansionDispatch]
         );
 
         // Handle folder name click (for folder notes)
@@ -282,15 +273,13 @@ export const NavigationPane = React.memo(
 
                 selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath, context });
 
-                // Auto-expand if enabled and tag has children
+                // Auto-expand/collapse if enabled and tag has children
                 if (settings.autoExpandFoldersTags) {
                     // Find the tag node to check if it has children
                     const tagNode = Array.from(tagTree.values()).find(node => node.path === tagPath);
                     if (tagNode && tagNode.children.size > 0) {
-                        // Only expand if not already expanded
-                        if (!expansionState.expandedTags.has(tagPath)) {
-                            expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath });
-                        }
+                        // Toggle expansion state - expand if collapsed, collapse if expanded
+                        expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath });
                     }
                 }
 
@@ -310,7 +299,6 @@ export const NavigationPane = React.memo(
                 uiState.singlePane,
                 settings.autoExpandFoldersTags,
                 tagTree,
-                expansionState.expandedTags,
                 expansionDispatch,
                 selectionState.selectedTag,
                 selectionState.selectedTagContext,
