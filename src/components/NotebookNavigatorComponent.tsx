@@ -27,6 +27,7 @@ import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useNavigatorReveal } from '../hooks/useNavigatorReveal';
 import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
 import { useResizablePane } from '../hooks/useResizablePane';
+import { useNavigationActions } from '../hooks/useNavigationActions';
 import { useMobileSwipeNavigation } from '../hooks/useSwipeGesture';
 import { useTagNavigation } from '../hooks/useTagNavigation';
 import { strings } from '../i18n';
@@ -57,6 +58,7 @@ export interface NotebookNavigatorHandle {
     removeTagFromSelectedFiles: () => Promise<void>;
     removeAllTagsFromSelectedFiles: () => Promise<void>;
     toggleSearch: () => void;
+    triggerCollapse: () => void;
 }
 
 /**
@@ -156,6 +158,9 @@ export const NotebookNavigatorComponent = React.memo(
             containerRef,
             setIsNavigatorFocused
         });
+
+        // Get navigation actions
+        const { handleExpandCollapseAll } = useNavigationActions();
 
         // Expose methods via ref
         useImperativeHandle(ref, () => {
@@ -399,6 +404,9 @@ export const NotebookNavigatorComponent = React.memo(
                 },
                 toggleSearch: () => {
                     listPaneRef.current?.toggleSearch();
+                },
+                triggerCollapse: () => {
+                    handleExpandCollapseAll();
                 }
             };
         }, [
@@ -418,7 +426,8 @@ export const NotebookNavigatorComponent = React.memo(
             plugin,
             tagTreeService,
             commandQueue,
-            tagOperations
+            tagOperations,
+            handleExpandCollapseAll
         ]);
 
         // Add platform class

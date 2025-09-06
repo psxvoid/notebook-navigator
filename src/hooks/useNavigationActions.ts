@@ -49,14 +49,72 @@ export function useNavigationActions() {
             : expansionState.expandedFolders.size > 0;
         const hasTagsExpanded = expansionState.expandedTags.size > 0;
 
-        return behavior === 'all'
-            ? hasFoldersExpanded || hasTagsExpanded
-            : behavior === 'folders-only'
-              ? hasFoldersExpanded
-              : behavior === 'tags-only'
-                ? hasTagsExpanded
-                : false;
-    }, [settings.collapseBehavior, settings.showRootFolder, expansionState.expandedFolders, expansionState.expandedTags]);
+        // Check if we should collapse based on behavior setting
+        const hasItemsExpanded =
+            behavior === 'all'
+                ? hasFoldersExpanded || hasTagsExpanded
+                : behavior === 'folders-only'
+                  ? hasFoldersExpanded
+                  : behavior === 'tags-only'
+                    ? hasTagsExpanded
+                    : false;
+
+        // If smart collapse is enabled and items are expanded,
+        // check if we're already in the "focused" state (only parent chain expanded)
+        if (settings.smartCollapse && hasItemsExpanded) {
+            const shouldAffectFolders = behavior === 'all' || behavior === 'folders-only';
+            const shouldAffectTags = behavior === 'all' || behavior === 'tags-only';
+
+            // Build the parent chain that we would keep when collapsing
+            const expectedFolders = new Set<string>();
+            const expectedTags = new Set<string>();
+
+            if (shouldAffectFolders && selectionState.selectedFolder) {
+                let currentFolder: TFolder | null = selectionState.selectedFolder.parent;
+                while (currentFolder) {
+                    expectedFolders.add(currentFolder.path);
+                    if (currentFolder.path === '/') break;
+                    currentFolder = currentFolder.parent;
+                }
+            }
+
+            if (shouldAffectTags && selectionState.selectedTag) {
+                const parts = selectionState.selectedTag.split('/');
+                let currentPath = '';
+                // Build parent chain (excluding the tag itself)
+                for (let i = 0; i < parts.length - 1; i++) {
+                    currentPath = currentPath ? `${currentPath}/${parts[i]}` : parts[i];
+                    expectedTags.add(currentPath);
+                }
+            }
+
+            // Check if current expansion matches what we'd have after smart collapse
+            const foldersMatch =
+                !shouldAffectFolders ||
+                (expansionState.expandedFolders.size === expectedFolders.size &&
+                    Array.from(expansionState.expandedFolders).every(f => expectedFolders.has(f)));
+
+            const tagsMatch =
+                !shouldAffectTags ||
+                (expansionState.expandedTags.size === expectedTags.size &&
+                    Array.from(expansionState.expandedTags).every(t => expectedTags.has(t)));
+
+            // If we're already in focused state, expand all instead
+            if (foldersMatch && tagsMatch) {
+                return false;
+            }
+        }
+
+        return hasItemsExpanded;
+    }, [
+        settings.collapseBehavior,
+        settings.showRootFolder,
+        settings.smartCollapse,
+        expansionState.expandedFolders,
+        expansionState.expandedTags,
+        selectionState.selectedFolder,
+        selectionState.selectedTag
+    ]);
 
     const handleExpandCollapseAll = useCallback(() => {
         const behavior = settings.collapseBehavior;
@@ -72,9 +130,10 @@ export function useNavigationActions() {
                 const foldersToKeep = new Set<string>();
                 const tagsToKeep = new Set<string>();
 
-                // If a folder is selected, keep it and its parent chain
+                // If a folder is selected, keep only its parent chain (not the folder itself)
+                // This way we see the selected folder but not its siblings
                 if (selectionState.selectedFolder && shouldAffectFolders) {
-                    let currentFolder: TFolder | null = selectionState.selectedFolder;
+                    let currentFolder: TFolder | null = selectionState.selectedFolder.parent;
                     while (currentFolder) {
                         foldersToKeep.add(currentFolder.path);
                         if (currentFolder.path === '/') break;
@@ -82,12 +141,14 @@ export function useNavigationActions() {
                     }
                 }
 
-                // If a tag is selected, keep it and its parent chain
+                // If a tag is selected, keep only its parent chain (not the tag itself)
+                // This way we see the selected tag but not its siblings
                 if (selectionState.selectedTag && shouldAffectTags) {
                     const parts = selectionState.selectedTag.split('/');
                     let currentPath = '';
-                    for (const part of parts) {
-                        currentPath = currentPath ? `${currentPath}/${part}` : part;
+                    // Stop before the last part (the selected tag itself)
+                    for (let i = 0; i < parts.length - 1; i++) {
+                        currentPath = currentPath ? `${currentPath}/${parts[i]}` : parts[i];
                         tagsToKeep.add(currentPath);
                     }
                 }

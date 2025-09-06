@@ -364,6 +364,7 @@ export const STRINGS_FR = {
         navigateToTag: "Naviguer vers l'étiquette", // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: "Basculer l'affichage des notes des sous-dossiers",
         toggleHidden: 'Basculer les éléments masqués', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        collapse: 'Replier', // Command palette: Collapse or expand all folders and tags (English: Collapse)
         addTag: 'Ajouter une étiquette aux fichiers sélectionnés', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Supprimer une étiquette des fichiers sélectionnés', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: 'Supprimer toutes les étiquettes des fichiers sélectionnés' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)

@@ -364,6 +364,7 @@ export const STRINGS_DE = {
         navigateToTag: 'Zu Tag navigieren', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: 'Notizen aus Unterordnern umschalten', // Command palette: Toggles showing notes from subfolders (English: Toggle show notes from subfolders)
         toggleHidden: 'Versteckte Elemente umschalten', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        collapse: 'Einklappen', // Command palette: Collapse or expand all folders and tags (English: Collapse)
         addTag: 'Tag zu ausgewählten Dateien hinzufügen', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Tag von ausgewählten Dateien entfernen', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: 'Alle Tags von ausgewählten Dateien entfernen' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)

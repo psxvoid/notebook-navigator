@@ -364,6 +364,7 @@ export const STRINGS_JA = {
         navigateToTag: 'タグにナビゲート', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: 'サブフォルダのノート表示を切り替え', // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
         toggleHidden: '非表示項目を切り替え', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        collapse: '折りたたむ', // Command palette: Collapse or expand all folders and tags (English: Collapse)
         addTag: '選択したファイルにタグを追加', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: '選択したファイルからタグを削除', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: '選択したファイルからすべてのタグを削除' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)

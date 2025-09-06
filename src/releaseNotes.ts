@@ -59,7 +59,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-09-07',
         showOnUpdate: true,
         new: [
-            '**Smart collapse**: The collapse button now keeps the currently selected folder or tag and its parents expanded when collapsing. This can be disabled in settings.'
+            '**Smart collapse**: The collapse button now keeps the currently selected folder or tag and its parents expanded when collapsing. This can be disabled in settings.',
+            '**Collapse command**: New command to trigger collapse/expand from anywhere. Assign a hotkey for quick access.'
         ],
         improved: ['**Auto-expand folders and tags** in settings now also auto-collapses items when expanded.'],
         changed: [
