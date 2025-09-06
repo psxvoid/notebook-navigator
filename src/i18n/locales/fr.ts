@@ -578,6 +578,10 @@ export const STRINGS_FR = {
                     tagsOnly: 'Étiquettes uniquement'
                 }
             },
+            smartCollapse: {
+                name: 'Garder lélément sélectionné déplié',
+                desc: 'Lors du repliement, garde le dossier ou létiquette actuellement sélectionné et ses parents dépliés.'
+            },
             showHiddenBehavior: {
                 name: 'Afficher les éléments masqués',
                 desc: 'Choisissez ce que le bouton afficher/masquer les éléments cachés affecte.',

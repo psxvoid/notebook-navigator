@@ -576,6 +576,10 @@ export const STRINGS_EN = {
                     tagsOnly: 'Tags only'
                 }
             },
+            smartCollapse: {
+                name: 'Keep selected item expanded',
+                desc: 'When collapsing, keep the currently selected folder or tag and its parents expanded.'
+            },
             showHiddenBehavior: {
                 name: 'Show hidden items',
                 desc: 'Choose what the show/hide hidden items button affects.',

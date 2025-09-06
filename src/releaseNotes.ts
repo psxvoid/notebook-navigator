@@ -55,6 +55,19 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.4.9',
+        date: '2025-09-07',
+        showOnUpdate: true,
+        new: [
+            '**Smart collapse**: The collapse button now keeps the currently selected folder or tag and its parents expanded when collapsing. This can be disabled in settings.'
+        ],
+        improved: ['**Auto-expand folders and tags** in settings now also auto-collapses items when expanded.'],
+        changed: [
+            '**Command IDs updated**: `open-view` → `open`, `toggle-show-notes-from-subfolders` → `toggle-notes-from-subfolders`, `delete-file` → `delete-files`. Please update your shortcut commands.',
+            '**Auto-expand button removed** from the toolbar. The setting remains available in the plugin settings panel.'
+        ]
+    },
+    {
         version: '1.4.8',
         date: '2025-09-05',
         showOnUpdate: true,

@@ -67,16 +67,51 @@ export function useNavigationActions() {
         const shouldAffectTags = behavior === 'all' || behavior === 'tags-only';
 
         if (shouldCollapse) {
-            if (shouldAffectFolders) {
-                const collapsedFolders = new Set<string>();
-                if (settings.showRootFolder) {
-                    collapsedFolders.add('/');
-                }
-                expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: collapsedFolders });
-            }
+            // Smart collapse: keep selected item and its parents expanded
+            if (settings.smartCollapse && (selectionState.selectedFolder || selectionState.selectedTag)) {
+                const foldersToKeep = new Set<string>();
+                const tagsToKeep = new Set<string>();
 
-            if (shouldAffectTags) {
-                expansionDispatch({ type: 'SET_EXPANDED_TAGS', tags: new Set() });
+                // If a folder is selected, keep it and its parent chain
+                if (selectionState.selectedFolder && shouldAffectFolders) {
+                    let currentFolder: TFolder | null = selectionState.selectedFolder;
+                    while (currentFolder) {
+                        foldersToKeep.add(currentFolder.path);
+                        if (currentFolder.path === '/') break;
+                        currentFolder = currentFolder.parent;
+                    }
+                }
+
+                // If a tag is selected, keep it and its parent chain
+                if (selectionState.selectedTag && shouldAffectTags) {
+                    const parts = selectionState.selectedTag.split('/');
+                    let currentPath = '';
+                    for (const part of parts) {
+                        currentPath = currentPath ? `${currentPath}/${part}` : part;
+                        tagsToKeep.add(currentPath);
+                    }
+                }
+
+                // Apply smart collapse
+                if (shouldAffectFolders) {
+                    expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: foldersToKeep });
+                }
+                if (shouldAffectTags) {
+                    expansionDispatch({ type: 'SET_EXPANDED_TAGS', tags: tagsToKeep });
+                }
+            } else {
+                // Regular collapse all
+                if (shouldAffectFolders) {
+                    const collapsedFolders = new Set<string>();
+                    if (settings.showRootFolder) {
+                        collapsedFolders.add('/');
+                    }
+                    expansionDispatch({ type: 'SET_EXPANDED_FOLDERS', folders: collapsedFolders });
+                }
+
+                if (shouldAffectTags) {
+                    expansionDispatch({ type: 'SET_EXPANDED_TAGS', tags: new Set() });
+                }
             }
         } else {
             if (shouldAffectFolders) {
@@ -118,6 +153,9 @@ export function useNavigationActions() {
         expansionDispatch,
         settings.showRootFolder,
         settings.collapseBehavior,
+        settings.smartCollapse,
+        selectionState.selectedFolder,
+        selectionState.selectedTag,
         fileData.favoriteTree,
         fileData.tagTree,
         shouldCollapseItems
@@ -137,12 +175,6 @@ export function useNavigationActions() {
         }
     }, [selectionState.selectedFolder, expansionState.expandedFolders, fileSystemOps, expansionDispatch]);
 
-    const handleToggleAutoExpand = useCallback(async () => {
-        await updateSettings(s => {
-            s.autoExpandFoldersTags = !s.autoExpandFoldersTags;
-        });
-    }, [updateSettings]);
-
     const handleToggleShowExcludedFolders = useCallback(async () => {
         await updateSettings(s => {
             s.showHiddenItems = !s.showHiddenItems;
@@ -153,7 +185,6 @@ export function useNavigationActions() {
         shouldCollapseItems,
         handleExpandCollapseAll,
         handleNewFolder,
-        handleToggleAutoExpand,
         handleToggleShowExcludedFolders
     };
 }

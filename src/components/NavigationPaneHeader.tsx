@@ -30,8 +30,7 @@ export function NavigationPaneHeader() {
     const selectionState = useSelectionState();
 
     // Use the shared actions hook
-    const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleAutoExpand, handleToggleShowExcludedFolders } =
-        useNavigationActions();
+    const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleShowExcludedFolders } = useNavigationActions();
 
     if (isMobile) {
         // On mobile, no header - actions in tab bar
@@ -76,14 +75,6 @@ export function NavigationPaneHeader() {
                         tabIndex={-1}
                     >
                         <ObsidianIcon name="lucide-eye" />
-                    </button>
-                    <button
-                        className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}
-                        aria-label={strings.paneHeader.autoExpandFoldersTags}
-                        onClick={handleToggleAutoExpand}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name="lucide-folder-tree" />
                     </button>
                     <button
                         className="nn-icon-button"

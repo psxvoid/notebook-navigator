@@ -578,6 +578,10 @@ export const STRINGS_ZH = {
                     tagsOnly: '仅标签'
                 }
             },
+            smartCollapse: {
+                name: '保持选中项展开',
+                desc: '折叠时，保持当前选中的文件夹或标签及其父级展开。'
+            },
             showHiddenBehavior: {
                 name: '显示隐藏项',
                 desc: '选择显示/隐藏隐藏项按钮影响的内容。',

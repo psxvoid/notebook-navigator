@@ -577,6 +577,10 @@ export const STRINGS_DE = {
                     tagsOnly: 'Nur Tags'
                 }
             },
+            smartCollapse: {
+                name: 'Ausgewähltes Element erweitert halten',
+                desc: 'Beim Einklappen bleiben der aktuell ausgewählte Ordner oder Tag und seine übergeordneten Elemente erweitert.'
+            },
             showHiddenBehavior: {
                 name: 'Versteckte Elemente anzeigen',
                 desc: 'Wählen Sie, was die Schaltfläche zum Anzeigen/Ausblenden versteckter Elemente beeinflusst.',

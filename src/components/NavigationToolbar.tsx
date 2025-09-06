@@ -27,8 +27,7 @@ export function NavigationToolbar() {
     const selectionState = useSelectionState();
 
     // Use the shared actions hook
-    const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleAutoExpand, handleToggleShowExcludedFolders } =
-        useNavigationActions();
+    const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleShowExcludedFolders } = useNavigationActions();
 
     return (
         <div className="nn-mobile-toolbar">
@@ -52,14 +51,6 @@ export function NavigationToolbar() {
                 tabIndex={-1}
             >
                 <ObsidianIcon name="lucide-eye" />
-            </button>
-            <button
-                className={`nn-mobile-toolbar-button ${settings.autoExpandFoldersTags ? 'nn-mobile-toolbar-button-active' : ''}`}
-                aria-label={strings.paneHeader.autoExpandFoldersTags}
-                onClick={handleToggleAutoExpand}
-                tabIndex={-1}
-            >
-                <ObsidianIcon name="lucide-folder-tree" />
             </button>
             <button
                 className="nn-mobile-toolbar-button"
