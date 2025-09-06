@@ -169,7 +169,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // View & Navigation commands
         this.addCommand({
-            id: 'open-view',
+            id: 'open',
             name: strings.commands.open,
             callback: async () => {
                 // Check if navigator is already open
@@ -282,7 +282,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         });
 
         this.addCommand({
-            id: 'toggle-show-notes-from-subfolders',
+            id: 'toggle-notes-from-subfolders',
             name: strings.commands.toggleSubfolders,
             callback: async () => {
                 // Ensure navigator is open and visible
@@ -347,7 +347,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         });
 
         this.addCommand({
-            id: 'delete-file',
+            id: 'delete-files',
             name: strings.commands.deleteFile,
             callback: async () => {
                 // Ensure navigator is open and visible
