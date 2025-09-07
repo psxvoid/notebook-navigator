@@ -224,6 +224,13 @@ export class NotebookNavigatorView extends ItemView {
     }
 
     /**
+     * Trigger collapse/expand all
+     */
+    triggerCollapse(): void {
+        this.componentRef.current?.triggerCollapse();
+    }
+
+    /**
      * Called when view is resized
      * Triggered when the view dimensions change, including:
      * - Mobile drawer animations (swipe to show/hide)

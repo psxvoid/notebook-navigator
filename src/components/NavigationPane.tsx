@@ -68,6 +68,7 @@ import { useNavigationPaneData } from '../hooks/useNavigationPaneData';
 import { useNavigationPaneScroll } from '../hooks/useNavigationPaneScroll';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import { NavigationPaneItemType, ItemType } from '../types';
+import { getSelectedPath } from '../utils/selectionUtils';
 import { TagTreeNode } from '../types/storage';
 import { getFolderNote } from '../utils/fileFinder';
 import { findTagNode } from '../utils/tagTree';
@@ -136,6 +137,14 @@ export const NavigationPane = React.memo(
             isVisible
         });
 
+        // Callback for after expand/collapse operations
+        const handleExpandCollapseComplete = useCallback(() => {
+            const selectedPath = getSelectedPath(selectionState);
+            if (selectedPath) {
+                requestScroll(selectedPath);
+            }
+        }, [selectionState, requestScroll]);
+
         // Handle folder toggle
         const handleFolderToggle = useCallback(
             (path: string) => {
@@ -150,12 +159,10 @@ export const NavigationPane = React.memo(
                 // Normal folder selection behavior
                 selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder });
 
-                // Auto-expand if enabled and folder has children
+                // Auto-expand/collapse if enabled and folder has children
                 if (settings.autoExpandFoldersTags && folder.children.some(child => child instanceof TFolder)) {
-                    // Only expand if not already expanded
-                    if (!expansionState.expandedFolders.has(folder.path)) {
-                        expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
-                    }
+                    // Toggle expansion state - expand if collapsed, collapse if expanded
+                    expansionDispatch({ type: 'TOGGLE_FOLDER_EXPANDED', folderPath: folder.path });
                 }
 
                 // Switch to files view in single pane mode
@@ -168,14 +175,7 @@ export const NavigationPane = React.memo(
                     uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
                 }
             },
-            [
-                selectionDispatch,
-                uiDispatch,
-                uiState.singlePane,
-                settings.autoExpandFoldersTags,
-                expansionState.expandedFolders,
-                expansionDispatch
-            ]
+            [selectionDispatch, uiDispatch, uiState.singlePane, settings.autoExpandFoldersTags, expansionDispatch]
         );
 
         // Handle folder name click (for folder notes)
@@ -282,15 +282,13 @@ export const NavigationPane = React.memo(
 
                 selectionDispatch({ type: 'SET_SELECTED_TAG', tag: tagPath, context });
 
-                // Auto-expand if enabled and tag has children
+                // Auto-expand/collapse if enabled and tag has children
                 if (settings.autoExpandFoldersTags) {
                     // Find the tag node to check if it has children
                     const tagNode = Array.from(tagTree.values()).find(node => node.path === tagPath);
                     if (tagNode && tagNode.children.size > 0) {
-                        // Only expand if not already expanded
-                        if (!expansionState.expandedTags.has(tagPath)) {
-                            expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath });
-                        }
+                        // Toggle expansion state - expand if collapsed, collapse if expanded
+                        expansionDispatch({ type: 'TOGGLE_TAG_EXPANDED', tagPath });
                     }
                 }
 
@@ -310,7 +308,6 @@ export const NavigationPane = React.memo(
                 uiState.singlePane,
                 settings.autoExpandFoldersTags,
                 tagTree,
-                expansionState.expandedTags,
                 expansionDispatch,
                 selectionState.selectedTag,
                 selectionState.selectedTagContext,
@@ -554,9 +551,9 @@ export const NavigationPane = React.memo(
 
         return (
             <div className="nn-navigation-pane" style={props.style}>
-                <NavigationPaneHeader />
+                <NavigationPaneHeader onExpandCollapseComplete={handleExpandCollapseComplete} />
                 {/* Android - toolbar at top */}
-                {isMobile && isAndroid && <NavigationToolbar />}
+                {isMobile && isAndroid && <NavigationToolbar onExpandCollapseComplete={handleExpandCollapseComplete} />}
                 <div ref={scrollContainerRef} className="nn-navigation-pane-scroller" data-pane="navigation" role="tree" tabIndex={-1}>
                     {items.length > 0 && (
                         <div
@@ -587,7 +584,7 @@ export const NavigationPane = React.memo(
                     )}
                 </div>
                 {/* iOS - toolbar at bottom */}
-                {isMobile && !isAndroid && <NavigationToolbar />}
+                {isMobile && !isAndroid && <NavigationToolbar onExpandCollapseComplete={handleExpandCollapseComplete} />}
             </div>
         );
     })

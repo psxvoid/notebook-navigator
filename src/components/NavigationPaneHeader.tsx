@@ -23,15 +23,18 @@ import { strings } from '../i18n';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useNavigationActions } from '../hooks/useNavigationActions';
 
-export function NavigationPaneHeader() {
+interface NavigationPaneHeaderProps {
+    onExpandCollapseComplete?: () => void;
+}
+
+export function NavigationPaneHeader({ onExpandCollapseComplete }: NavigationPaneHeaderProps) {
     const { isMobile } = useServices();
     const settings = useSettingsState();
     const updateSettings = useSettingsUpdate();
     const selectionState = useSelectionState();
 
     // Use the shared actions hook
-    const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleAutoExpand, handleToggleShowExcludedFolders } =
-        useNavigationActions();
+    const { shouldCollapseItems, handleExpandCollapseAll, handleNewFolder, handleToggleShowExcludedFolders } = useNavigationActions();
 
     if (isMobile) {
         // On mobile, no header - actions in tab bar
@@ -57,7 +60,15 @@ export function NavigationPaneHeader() {
                     <button
                         className="nn-icon-button"
                         aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
-                        onClick={handleExpandCollapseAll}
+                        onClick={() => {
+                            handleExpandCollapseAll();
+                            if (onExpandCollapseComplete) {
+                                // Use requestAnimationFrame to ensure DOM updates are complete
+                                requestAnimationFrame(() => {
+                                    onExpandCollapseComplete();
+                                });
+                            }
+                        }}
                         tabIndex={-1}
                     >
                         <ObsidianIcon name={shouldCollapseItems() ? 'lucide-chevrons-down-up' : 'lucide-chevrons-up-down'} />
@@ -76,14 +87,6 @@ export function NavigationPaneHeader() {
                         tabIndex={-1}
                     >
                         <ObsidianIcon name="lucide-eye" />
-                    </button>
-                    <button
-                        className={`nn-icon-button ${settings.autoExpandFoldersTags ? 'nn-icon-button-active' : ''}`}
-                        aria-label={strings.paneHeader.autoExpandFoldersTags}
-                        onClick={handleToggleAutoExpand}
-                        tabIndex={-1}
-                    >
-                        <ObsidianIcon name="lucide-folder-tree" />
                     </button>
                     <button
                         className="nn-icon-button"

@@ -51,8 +51,8 @@ export const STRINGS_ES = {
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: 'Contraer todo', // Tooltip for button that collapses all expanded items (English: Collapse all)
-        expandAllFolders: 'Expandir todo', // Tooltip for button that expands all items (English: Expand all)
+        collapseAllFolders: 'Contraer elementos', // Tooltip for button that collapses expanded items (English: Collapse items)
+        expandAllFolders: 'Expandir elementos', // Tooltip for button that expands items (English: Expand items)
         newFolder: 'Nueva carpeta', // Tooltip for create new folder button (English: New folder)
         newNote: 'Nueva nota', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Volver a navegación', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -362,8 +362,9 @@ export const STRINGS_ES = {
         moveFiles: 'Mover archivos', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'Navegar a carpeta', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Navegar a etiqueta', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleSubfolders: 'Alternar mostrar notas de subcarpetas', // Command palette: Toggles showing notes from subfolders (English: Toggle subfolder notes)
+        toggleSubfolders: 'Alternar notas de subcarpetas', // Command palette: Toggles showing notes from subfolders (English: Toggle notes from subfolders)
         toggleHidden: 'Alternar elementos ocultos', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
+        collapse: 'Contraer / expandir elementos', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand items)
         addTag: 'Añadir etiqueta a archivos seleccionados', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Eliminar etiqueta de archivos seleccionados', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: 'Eliminar todas las etiquetas de archivos seleccionados' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
@@ -576,6 +577,10 @@ export const STRINGS_ES = {
                     foldersOnly: 'Solo carpetas',
                     tagsOnly: 'Solo etiquetas'
                 }
+            },
+            smartCollapse: {
+                name: 'Mantener elemento seleccionado expandido',
+                desc: 'Al contraer, mantiene la carpeta o etiqueta seleccionada actualmente y sus elementos principales expandidos.'
             },
             showHiddenBehavior: {
                 name: 'Mostrar elementos ocultos',

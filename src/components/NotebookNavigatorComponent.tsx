@@ -27,6 +27,7 @@ import { useDragAndDrop } from '../hooks/useDragAndDrop';
 import { useNavigatorReveal } from '../hooks/useNavigatorReveal';
 import { useNavigatorEventHandlers } from '../hooks/useNavigatorEventHandlers';
 import { useResizablePane } from '../hooks/useResizablePane';
+import { useNavigationActions } from '../hooks/useNavigationActions';
 import { useMobileSwipeNavigation } from '../hooks/useSwipeGesture';
 import { useTagNavigation } from '../hooks/useTagNavigation';
 import { strings } from '../i18n';
@@ -35,8 +36,8 @@ import { TagSuggestModal } from '../modals/TagSuggestModal';
 import { RemoveTagModal } from '../modals/RemoveTagModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
 import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, ItemType, NAVPANE_MEASUREMENTS } from '../types';
+import { getSelectedPath, getFilesForSelection } from '../utils/selectionUtils';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
-import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { localStorage } from '../utils/localStorage';
 import { ListPane } from './ListPane';
 import type { ListPaneHandle } from './ListPane';
@@ -57,6 +58,7 @@ export interface NotebookNavigatorHandle {
     removeTagFromSelectedFiles: () => Promise<void>;
     removeAllTagsFromSelectedFiles: () => Promise<void>;
     toggleSearch: () => void;
+    triggerCollapse: () => void;
 }
 
 /**
@@ -157,6 +159,9 @@ export const NotebookNavigatorComponent = React.memo(
             setIsNavigatorFocused
         });
 
+        // Get navigation actions
+        const { handleExpandCollapseAll } = useNavigationActions();
+
         // Expose methods via ref
         useImperativeHandle(ref, () => {
             // Helper function to get selected files
@@ -241,12 +246,7 @@ export const NotebookNavigatorComponent = React.memo(
                     }
 
                     // Get all files in the current view for smart selection
-                    let allFiles: TFile[] = [];
-                    if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-                        allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
-                    } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                        allFiles = getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
-                    }
+                    const allFiles = getFilesForSelection(selectionState, settings, app, tagTreeService);
 
                     // Move files with modal
                     await fileSystemOps.moveFilesWithModal(selectedFiles, {
@@ -399,6 +399,16 @@ export const NotebookNavigatorComponent = React.memo(
                 },
                 toggleSearch: () => {
                     listPaneRef.current?.toggleSearch();
+                },
+                triggerCollapse: () => {
+                    handleExpandCollapseAll();
+                    // Request scroll to selected item after collapse/expand
+                    requestAnimationFrame(() => {
+                        const selectedPath = getSelectedPath(selectionState);
+                        if (selectedPath && navigationPaneRef.current) {
+                            navigationPaneRef.current.requestScroll(selectedPath);
+                        }
+                    });
                 }
             };
         }, [
@@ -418,7 +428,9 @@ export const NotebookNavigatorComponent = React.memo(
             plugin,
             tagTreeService,
             commandQueue,
-            tagOperations
+            tagOperations,
+            handleExpandCollapseAll,
+            navigationPaneRef
         ]);
 
         // Add platform class

@@ -17,11 +17,53 @@
  */
 
 import { TFile, App } from 'obsidian';
-import { SelectionDispatch } from '../context/SelectionContext';
+import { SelectionDispatch, SelectionState } from '../context/SelectionContext';
+import { ItemType } from '../types';
+import { NotebookNavigatorSettings } from '../settings';
+import { TagTreeService } from '../services/TagTreeService';
+import { getFilesForFolder, getFilesForTag } from './fileFinder';
 
 /**
  * Utilities for managing file selection operations
  */
+
+/**
+ * Get the path of the currently selected folder or tag
+ * @param selectionState The current selection state
+ * @returns The path string or null if nothing is selected
+ */
+export function getSelectedPath(selectionState: SelectionState): string | null {
+    if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+        return selectionState.selectedFolder.path;
+    }
+    if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+        return selectionState.selectedTag;
+    }
+    return null;
+}
+
+/**
+ * Get all files for the current selection (folder or tag)
+ * @param selectionState The current selection state
+ * @param settings Plugin settings
+ * @param app Obsidian app instance
+ * @param tagTreeService Tag tree service for tag operations
+ * @returns Array of files in the selected folder or with the selected tag
+ */
+export function getFilesForSelection(
+    selectionState: SelectionState,
+    settings: NotebookNavigatorSettings,
+    app: App,
+    tagTreeService: TagTreeService | null
+): TFile[] {
+    if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
+        return getFilesForFolder(selectionState.selectedFolder, settings, app);
+    }
+    if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
+        return getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
+    }
+    return [];
+}
 
 /**
  * Find the next file to select after removing files (delete or move)
