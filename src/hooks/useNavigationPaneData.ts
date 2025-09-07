@@ -431,6 +431,8 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         const excludedProperties = settings.excludedFiles;
         const excludedFolderPatterns = settings.excludedFolders;
 
+        const showHiddenFolders = settings.showHiddenItems && settings.showHiddenBehavior !== 'tags-only';
+
         const countFiles = (folder: TFolder): number => {
             let count = 0;
             for (const child of folder.children) {
@@ -443,7 +445,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                 } else if (settings.showNotesFromSubfolders && child instanceof TFolder) {
                     // When showing excluded folders, count their files too
                     // Otherwise, check if this subfolder should be excluded
-                    if (settings.showHiddenItems || !shouldExcludeFolder(child.name, excludedFolderPatterns, child.path)) {
+                    if (showHiddenFolders || !shouldExcludeFolder(child.name, excludedFolderPatterns, child.path)) {
                         count += countFiles(child);
                     }
                 }
@@ -464,6 +466,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         settings.showNoteCount,
         settings.showNotesFromSubfolders,
         settings.showHiddenItems,
+        settings.showHiddenBehavior,
         settings.excludedFiles,
         settings.excludedFolders,
         settings.fileVisibility,
