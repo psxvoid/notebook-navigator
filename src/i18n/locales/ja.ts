@@ -583,15 +583,6 @@ export const STRINGS_JA = {
                 name: '選択中の項目を展開したままにする',
                 desc: '折りたたむ時、現在選択されているフォルダまたはタグとその親を展開したままにします。'
             },
-            showHiddenBehavior: {
-                name: '非表示項目を表示',
-                desc: '非表示項目の表示/非表示ボタンが影響する対象を選択します。',
-                options: {
-                    all: 'すべてのフォルダとタグ',
-                    foldersOnly: 'フォルダのみ',
-                    tagsOnly: 'タグのみ'
-                }
-            },
             navItemHeight: {
                 name: '行高',
                 desc: 'ナビゲーションペイン内のフォルダとタグの高さを調整します。'

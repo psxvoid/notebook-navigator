@@ -208,7 +208,7 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
             } else {
                 // Use open/closed folder icon based on expansion state and visible children
                 const excludedFolders = settings.excludedFolders;
-                const showHiddenFolders = settings.showHiddenItems && settings.showHiddenBehavior !== 'tags-only';
+                const showHiddenFolders = settings.showHiddenItems;
                 const hasChildren = hasSubfolders(selectionState.selectedFolder, excludedFolders, showHiddenFolders);
                 const isExpanded = expansionState.expandedFolders.has(selectionState.selectedFolder.path);
                 folderIcon = hasChildren && isExpanded ? 'lucide-folder-open' : 'lucide-folder-closed';

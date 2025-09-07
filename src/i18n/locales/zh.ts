@@ -583,15 +583,6 @@ export const STRINGS_ZH = {
                 name: '保持选中项展开',
                 desc: '折叠时，保持当前选中的文件夹或标签及其父级展开。'
             },
-            showHiddenBehavior: {
-                name: '显示隐藏项',
-                desc: '选择显示/隐藏隐藏项按钮影响的内容。',
-                options: {
-                    all: '所有文件夹和标签',
-                    foldersOnly: '仅文件夹',
-                    tagsOnly: '仅标签'
-                }
-            },
             navItemHeight: {
                 name: '行高',
                 desc: '调整导航窗格中文件夹和标签的高度。'

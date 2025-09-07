@@ -94,7 +94,7 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
     const files: TFile[] = [];
     const excludedFolderPatterns = settings.excludedFolders;
 
-    const showHiddenFolders = settings.showHiddenItems && settings.showHiddenBehavior !== 'tags-only';
+    const showHiddenFolders = settings.showHiddenItems;
 
     const collectFiles = (f: TFolder): void => {
         for (const child of f.children) {
@@ -105,7 +105,7 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
                 }
             } else if (settings.showNotesFromSubfolders && child instanceof TFolder) {
                 // Skip excluded folders when collecting files - pass full path for path-based patterns
-                // But respect the showHiddenBehavior setting - only include excluded folders when behavior includes folders
+                // Include excluded folders only when showHiddenItems is true
                 if (
                     showHiddenFolders ||
                     excludedFolderPatterns.length === 0 ||
@@ -185,7 +185,7 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
     }
 
     const excludedFolderPatterns = settings.excludedFolders;
-    const showHiddenFolders = settings.showHiddenItems && settings.showHiddenBehavior !== 'tags-only';
+    const showHiddenFolders = settings.showHiddenItems;
     const isAllowedByFolder = (file: TFile) =>
         showHiddenFolders || excludedFolderPatterns.length === 0 || !isPathInExcludedFolder(file.path, excludedFolderPatterns);
 

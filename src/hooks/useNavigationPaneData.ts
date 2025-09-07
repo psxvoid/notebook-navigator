@@ -142,10 +142,8 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
             });
         };
 
-        // Apply hidden tag exclusion to both trees based on showHiddenBehavior setting
-        // When showHiddenItems is false, always hide tags (act like behavior is 'all')
-        // When showHiddenItems is true, only hide tags if behavior is 'folders-only'
-        const shouldHideTags = !settings.showHiddenItems || (settings.showHiddenItems && settings.showHiddenBehavior === 'folders-only');
+        // Apply hidden tag exclusion to both trees based on showHiddenItems setting
+        const shouldHideTags = !settings.showHiddenItems;
         const visibleFavoriteTree =
             hiddenPatterns.length > 0 && shouldHideTags ? excludeFromTagTree(favoriteTree, hiddenPatterns) : favoriteTree;
         const visibleTagTree = hiddenPatterns.length > 0 && shouldHideTags ? excludeFromTagTree(tagTree, hiddenPatterns) : tagTree;
@@ -253,7 +251,6 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         settings.favoriteTags,
         settings.hiddenTags,
         settings.showHiddenItems,
-        settings.showHiddenBehavior,
         settings.showUntagged,
         settings.showUntaggedInFavorites,
         settings.showFavoriteTagsFolder,
@@ -358,24 +355,22 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
     }, [items, parsedExcludedFolders, metadataService, metadataVersion]);
 
     /**
-     * Filter items based on showHiddenItems setting and showHiddenBehavior
-     * When showHiddenItems is false, filter out folders marked as excluded (if behavior includes folders)
+     * Filter items based on showHiddenItems setting
+     * When showHiddenItems is false, filter out folders marked as excluded
      */
     const filteredItems = useMemo(() => {
-        const shouldShowHiddenFolders = settings.showHiddenBehavior !== 'tags-only' && settings.showHiddenItems;
-        if (shouldShowHiddenFolders) {
+        if (settings.showHiddenItems) {
             // Show all items including excluded ones
             return itemsWithMetadata;
         }
         // Filter out excluded folders
-        // When showHiddenItems is false, always hide excluded folders (act like behavior is 'all')
         return itemsWithMetadata.filter(item => {
             if (item.type === NavigationPaneItemType.FOLDER && item.isExcluded) {
                 return false;
             }
             return true;
         });
-    }, [itemsWithMetadata, settings.showHiddenItems, settings.showHiddenBehavior]);
+    }, [itemsWithMetadata, settings.showHiddenItems]);
 
     /**
      * Create a map for O(1) item lookups by path
@@ -431,7 +426,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         const excludedProperties = settings.excludedFiles;
         const excludedFolderPatterns = settings.excludedFolders;
 
-        const showHiddenFolders = settings.showHiddenItems && settings.showHiddenBehavior !== 'tags-only';
+        const showHiddenFolders = settings.showHiddenItems;
 
         const countFiles = (folder: TFolder): number => {
             let count = 0;
@@ -466,7 +461,6 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         settings.showNoteCount,
         settings.showNotesFromSubfolders,
         settings.showHiddenItems,
-        settings.showHiddenBehavior,
         settings.excludedFiles,
         settings.excludedFolders,
         settings.fileVisibility,

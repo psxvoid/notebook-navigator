@@ -583,15 +583,6 @@ export const STRINGS_FR = {
                 name: 'Garder lélément sélectionné déplié',
                 desc: 'Lors du repliement, garde le dossier ou létiquette actuellement sélectionné et ses parents dépliés.'
             },
-            showHiddenBehavior: {
-                name: 'Afficher les éléments masqués',
-                desc: 'Choisissez ce que le bouton afficher/masquer les éléments cachés affecte.',
-                options: {
-                    all: 'Tous les dossiers et étiquettes',
-                    foldersOnly: 'Dossiers uniquement',
-                    tagsOnly: 'Étiquettes uniquement'
-                }
-            },
             navItemHeight: {
                 name: 'Hauteur de ligne',
                 desc: 'Ajuster la hauteur des dossiers et étiquettes dans le panneau de navigation.'

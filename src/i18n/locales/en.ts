@@ -581,15 +581,6 @@ export const STRINGS_EN = {
                 name: 'Keep selected item expanded',
                 desc: 'When collapsing, keep the currently selected folder or tag and its parents expanded.'
             },
-            showHiddenBehavior: {
-                name: 'Show hidden items',
-                desc: 'Choose what the show/hide hidden items button affects.',
-                options: {
-                    all: 'All folders and tags',
-                    foldersOnly: 'Folders only',
-                    tagsOnly: 'Tags only'
-                }
-            },
             navItemHeight: {
                 name: 'Item height',
                 desc: 'Adjust the height of folders and tags in the navigation pane.'

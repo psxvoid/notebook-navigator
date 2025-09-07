@@ -69,7 +69,6 @@ export interface NotebookNavigatorSettings {
     autoExpandFoldersTags: boolean;
     collapseBehavior: ItemScope;
     smartCollapse: boolean;
-    showHiddenBehavior: ItemScope;
     showIcons: boolean;
     showNoteCount: boolean;
     navItemHeight: number;
@@ -156,7 +155,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     autoExpandFoldersTags: false,
     collapseBehavior: 'all',
     smartCollapse: true,
-    showHiddenBehavior: 'all',
     showIcons: true,
     showNoteCount: true,
     navItemHeight: NAVPANE_MEASUREMENTS.defaultItemHeight,
@@ -558,21 +556,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     this.plugin.settings.smartCollapse = value;
                     await this.saveAndRefresh();
                 })
-            );
-
-        new Setting(containerEl)
-            .setName(strings.settings.items.showHiddenBehavior.name)
-            .setDesc(strings.settings.items.showHiddenBehavior.desc)
-            .addDropdown(dropdown =>
-                dropdown
-                    .addOption('all', strings.settings.items.showHiddenBehavior.options.all)
-                    .addOption('folders-only', strings.settings.items.showHiddenBehavior.options.foldersOnly)
-                    .addOption('tags-only', strings.settings.items.showHiddenBehavior.options.tagsOnly)
-                    .setValue(this.plugin.settings.showHiddenBehavior)
-                    .onChange(async (value: ItemScope) => {
-                        this.plugin.settings.showHiddenBehavior = value;
-                        await this.saveAndRefresh();
-                    })
             );
 
         new Setting(containerEl)

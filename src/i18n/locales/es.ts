@@ -582,15 +582,6 @@ export const STRINGS_ES = {
                 name: 'Mantener elemento seleccionado expandido',
                 desc: 'Al contraer, mantiene la carpeta o etiqueta seleccionada actualmente y sus elementos principales expandidos.'
             },
-            showHiddenBehavior: {
-                name: 'Mostrar elementos ocultos',
-                desc: 'Elija qué afecta el botón de mostrar/ocultar elementos ocultos.',
-                options: {
-                    all: 'Todas las carpetas y etiquetas',
-                    foldersOnly: 'Solo carpetas',
-                    tagsOnly: 'Solo etiquetas'
-                }
-            },
             navItemHeight: {
                 name: 'Altura de línea',
                 desc: 'Ajustar la altura de las carpetas y etiquetas en el panel de navegación.'
