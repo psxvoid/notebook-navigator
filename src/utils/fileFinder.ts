@@ -20,7 +20,7 @@ import { TFile, TFolder, App } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { NavigatorContext, PinnedNotes } from '../types';
 import { UNTAGGED_TAG_ID } from '../types';
-import { shouldExcludeFile, shouldExcludeFolder, getFilteredMarkdownFiles, getFilteredFiles } from './fileFilters';
+import { shouldExcludeFile, shouldExcludeFolder, getFilteredDocumentFiles, getFilteredFiles, isPathInExcludedFolder } from './fileFilters';
 import { shouldDisplayFile, FILE_VISIBILITY } from './fileTypeUtils';
 import { getEffectiveSortOption, sortFiles } from './sortUtils';
 import { TagTreeService } from '../services/TagTreeService';
@@ -94,6 +94,8 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
     const files: TFile[] = [];
     const excludedFolderPatterns = settings.excludedFolders;
 
+    const showHiddenFolders = settings.showHiddenItems;
+
     const collectFiles = (f: TFolder): void => {
         for (const child of f.children) {
             if (child instanceof TFile) {
@@ -103,9 +105,9 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
                 }
             } else if (settings.showNotesFromSubfolders && child instanceof TFolder) {
                 // Skip excluded folders when collecting files - pass full path for path-based patterns
-                // But respect the showHiddenItems setting - if it's on, include files from excluded folders
+                // Include excluded folders only when showHiddenItems is true
                 if (
-                    settings.showHiddenItems ||
+                    showHiddenFolders ||
                     excludedFolderPatterns.length === 0 ||
                     !shouldExcludeFolder(child.name, excludedFolderPatterns, child.path)
                 ) {
@@ -174,13 +176,21 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
     // Get all files based on visibility setting, with proper filtering
     let allFiles: TFile[] = [];
 
-    if (settings.fileVisibility === FILE_VISIBILITY.MARKDOWN) {
-        // Only markdown files
-        allFiles = getFilteredMarkdownFiles(app, settings);
+    if (settings.fileVisibility === FILE_VISIBILITY.DOCUMENTS) {
+        // Only document files (markdown, canvas, base)
+        allFiles = getFilteredDocumentFiles(app, settings);
     } else {
         // Get all files with filtering
         allFiles = getFilteredFiles(app, settings);
     }
+
+    const excludedFolderPatterns = settings.excludedFolders;
+    const showHiddenFolders = settings.showHiddenItems;
+    const isAllowedByFolder = (file: TFile) =>
+        showHiddenFolders || excludedFolderPatterns.length === 0 || !isPathInExcludedFolder(file.path, excludedFolderPatterns);
+
+    // Apply folder-based visibility rules to align with tag tree counts
+    const baseFiles = allFiles.filter(isAllowedByFolder);
 
     let filteredFiles: TFile[] = [];
 
@@ -189,7 +199,7 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
     // Special case for untagged files
     if (tag === UNTAGGED_TAG_ID) {
         // Only show markdown files in untagged section since only they can be tagged
-        filteredFiles = allFiles.filter(file => {
+        filteredFiles = baseFiles.filter(file => {
             if (file.extension !== 'md') {
                 return false;
             }
@@ -199,7 +209,7 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
         });
     } else {
         // For regular tags, only consider markdown files since only they can have tags
-        const markdownFiles = allFiles.filter(file => file.extension === 'md');
+        const markdownFiles = baseFiles.filter(file => file.extension === 'md');
 
         // Find the selected tag node using TagTreeService
         const selectedNode = tagTreeService?.findTagNode(tag) || null;

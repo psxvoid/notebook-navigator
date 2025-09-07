@@ -75,6 +75,71 @@ interface FileItemProps {
     parentFolder?: string | null;
     isPinned?: boolean;
     selectionType?: ItemType | null;
+    /** Active search query for highlighting matches in the file name */
+    searchQuery?: string;
+}
+
+/**
+ * Computes merged highlight ranges for all occurrences of search segments.
+ * Overlapping ranges are merged to avoid nested highlights.
+ */
+function getMergedHighlightRanges(text: string, query?: string): { start: number; end: number }[] {
+    if (!query) return [];
+    const normalized = query.trim().toLowerCase();
+    if (!normalized) return [];
+    const segments = normalized.split(/\s+/).filter(Boolean);
+    if (segments.length === 0) return [];
+
+    const lower = text.toLowerCase();
+    const ranges: { start: number; end: number }[] = [];
+
+    segments.forEach(seg => {
+        let idx = lower.indexOf(seg);
+        while (idx !== -1) {
+            ranges.push({ start: idx, end: idx + seg.length });
+            idx = lower.indexOf(seg, idx + seg.length);
+        }
+    });
+
+    if (ranges.length === 0) return [];
+
+    ranges.sort((a, b) => a.start - b.start || a.end - b.end);
+    const merged: { start: number; end: number }[] = [];
+    for (const r of ranges) {
+        const last = merged[merged.length - 1];
+        if (!last || r.start > last.end) {
+            merged.push({ ...r });
+        } else if (r.end > last.end) {
+            last.end = r.end;
+        }
+    }
+    return merged;
+}
+
+/**
+ * Splits text into plain and highlighted parts based on merged ranges.
+ */
+function renderHighlightedText(text: string, query?: string): React.ReactNode {
+    const ranges = getMergedHighlightRanges(text, query);
+    if (ranges.length === 0) return text;
+
+    const parts: React.ReactNode[] = [];
+    let cursor = 0;
+    ranges.forEach((r, i) => {
+        if (r.start > cursor) {
+            parts.push(text.slice(cursor, r.start));
+        }
+        parts.push(
+            <span key={`h-${i}`} className="nn-search-highlight">
+                {text.slice(r.start, r.end)}
+            </span>
+        );
+        cursor = r.end;
+    });
+    if (cursor < text.length) {
+        parts.push(text.slice(cursor));
+    }
+    return <>{parts}</>;
 }
 
 /**
@@ -99,7 +164,8 @@ export const FileItem = React.memo(function FileItem({
     sortOption,
     parentFolder,
     isPinned = false,
-    selectionType
+    selectionType,
+    searchQuery
 }: FileItemProps) {
     // === Hooks (all hooks together at the top) ===
     const { app, isMobile, plugin, commandQueue } = useServices();
@@ -172,6 +238,9 @@ export const FileItem = React.memo(function FileItem({
     const displayName = useMemo(() => {
         return getFileDisplayName(file);
     }, [file, getFileDisplayName]);
+
+    // Highlight matches in display name when search is active
+    const highlightedName = useMemo(() => renderHighlightedText(displayName, searchQuery), [displayName, searchQuery]);
 
     // === Callbacks ===
 
@@ -534,7 +603,7 @@ export const FileItem = React.memo(function FileItem({
                                 className="nn-file-name"
                                 style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}
                             >
-                                {displayName}
+                                {highlightedName}
                             </div>
                             {renderTags()}
                         </div>
@@ -546,7 +615,7 @@ export const FileItem = React.memo(function FileItem({
                                     className="nn-file-name"
                                     style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}
                                 >
-                                    {displayName}
+                                    {highlightedName}
                                 </div>
 
                                 {/* Single row mode (preview rows = 1) - show all elements */}

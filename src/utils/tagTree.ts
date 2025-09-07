@@ -86,8 +86,8 @@ export function buildTagTreeFromDatabase(
 
         // Skip files with null tags (not extracted yet) or empty tags
         if (tags === null || tags.length === 0) {
-            // Only count as untagged if tags were extracted (not null)
-            if (tags !== null) {
+            // Only count markdown files as untagged (since only they can have tags)
+            if (tags !== null && path.endsWith('.md')) {
                 untaggedCount++;
             }
             continue;

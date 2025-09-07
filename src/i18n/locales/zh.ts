@@ -52,7 +52,7 @@ export const STRINGS_ZH = {
     // Pane header
     paneHeader: {
         collapseAllFolders: '折叠项目', // Tooltip for button that collapses expanded items (English: Collapse items)
-        expandAllFolders: '展开项目', // Tooltip for button that expands items (English: Expand items)
+        expandAllFolders: '展开所有项目', // Tooltip for button that expands all items (English: Expand all items)
         newFolder: '新建文件夹', // Tooltip for create new folder button (English: New folder)
         newNote: '新笔记', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: '返回导航', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -364,7 +364,7 @@ export const STRINGS_ZH = {
         navigateToTag: '导航到标签', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: '切换子文件夹笔记', // Command palette: Toggles showing notes from subfolders (English: Toggle notes from subfolders)
         toggleHidden: '切换隐藏项', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
-        collapse: '折叠/展开项目', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand items)
+        collapse: '折叠/展开所有项目', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: '为选定文件添加标签', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: '从选定文件移除标签', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: '从选定文件移除所有标签' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
@@ -479,11 +479,11 @@ export const STRINGS_ZH = {
             },
             fileVisibility: {
                 name: '显示文件类型',
-                desc: '选择在导航器中显示哪些文件类型。Obsidian不支持的文件将在系统默认应用程序中打开。',
+                desc: '过滤在导航器中显示的文件类型。Obsidian不支持的文件类型可能会在外部应用程序中打开。',
                 options: {
-                    markdownOnly: '仅 Markdown',
-                    supported: '支持的文件',
-                    all: '所有文件'
+                    documents: '文档 (.md, .canvas, .base)',
+                    supported: '支持 (在Obsidian中打开)',
+                    all: '全部 (可能外部打开)'
                 }
             },
             showFileDate: {
@@ -582,15 +582,6 @@ export const STRINGS_ZH = {
             smartCollapse: {
                 name: '保持选中项展开',
                 desc: '折叠时，保持当前选中的文件夹或标签及其父级展开。'
-            },
-            showHiddenBehavior: {
-                name: '显示隐藏项',
-                desc: '选择显示/隐藏隐藏项按钮影响的内容。',
-                options: {
-                    all: '所有文件夹和标签',
-                    foldersOnly: '仅文件夹',
-                    tagsOnly: '仅标签'
-                }
             },
             navItemHeight: {
                 name: '行高',

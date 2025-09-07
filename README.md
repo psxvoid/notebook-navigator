@@ -208,7 +208,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - `Notebook Navigator: Toggle dual pane layout` Toggle single/dual-pane layout (desktop)
 - `Notebook Navigator: Toggle notes from subfolders` Toggle subfolder notes display. **Suggestion:** Bind to a shortcut key like `Cmd/Ctrl+Shift+S` to quickly toggle display of notes from subfolders
 - `Notebook Navigator: Toggle hidden items` Show or hide excluded folders and hidden tags
-- `Notebook Navigator: Collapse` Collapse or expand items based on the current state. When `Keep selected item expanded` is enabled (default on), all folders except the current one will be collapsed. This is super handy to keep the navigation tree tidy when searching for documents. **Suggestion:** Bind to a shortcut key like `Cmd/Ctrl+Shift+C` to quickly collapse non-selected items
+- `Notebook Navigator: Collapse` Collapse or expand all items based on the current state. When `Keep selected item expanded` is enabled (default on), all folders except the current one will be collapsed. This is super handy to keep the navigation tree tidy when searching for documents. **Suggestion:** Bind to a shortcut key like `Cmd/Ctrl+Shift+C` to quickly collapse non-selected items
 
 **File operations**
 

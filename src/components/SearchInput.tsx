@@ -29,9 +29,19 @@ interface SearchInputProps {
     onFocusFiles?: () => void;
     shouldFocus?: boolean;
     onFocusComplete?: () => void;
+    /** Root container to scope DOM queries within this navigator instance */
+    containerRef?: React.RefObject<HTMLDivElement | null>;
 }
 
-export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocusFiles, shouldFocus, onFocusComplete }: SearchInputProps) {
+export function SearchInput({
+    searchQuery,
+    onSearchQueryChange,
+    onClose,
+    onFocusFiles,
+    shouldFocus,
+    onFocusComplete,
+    containerRef
+}: SearchInputProps) {
     const inputRef = useRef<HTMLInputElement>(null);
     const { isMobile } = useServices();
     const uiState = useUIState();
@@ -60,7 +70,8 @@ export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocus
             uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
 
             setTimeout(() => {
-                const listPaneScroller = document.querySelector('.nn-list-pane-scroller');
+                const scope = containerRef?.current ?? document;
+                const listPaneScroller = scope.querySelector('.nn-list-pane-scroller');
                 if (listPaneScroller instanceof HTMLElement) {
                     listPaneScroller.focus();
                 }
@@ -77,7 +88,8 @@ export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocus
 
                 // Focus the list pane scroller to enable keyboard navigation
                 setTimeout(() => {
-                    const listPaneScroller = document.querySelector('.nn-list-pane-scroller');
+                    const scope = containerRef?.current ?? document;
+                    const listPaneScroller = scope.querySelector('.nn-list-pane-scroller');
                     if (listPaneScroller instanceof HTMLElement) {
                         listPaneScroller.focus();
                     }
@@ -85,7 +97,8 @@ export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocus
             } else {
                 // Mobile: Just focus the list to hide keyboard (no file selection)
                 setTimeout(() => {
-                    const listPaneScroller = document.querySelector('.nn-list-pane-scroller');
+                    const scope = containerRef?.current ?? document;
+                    const listPaneScroller = scope.querySelector('.nn-list-pane-scroller');
                     if (listPaneScroller instanceof HTMLElement) {
                         listPaneScroller.focus();
                     }
@@ -108,7 +121,8 @@ export function SearchInput({ searchQuery, onSearchQueryChange, onClose, onFocus
 
                 // Focus the list pane scroller to enable keyboard navigation
                 setTimeout(() => {
-                    const listPaneScroller = document.querySelector('.nn-list-pane-scroller');
+                    const scope = containerRef?.current ?? document;
+                    const listPaneScroller = scope.querySelector('.nn-list-pane-scroller');
                     if (listPaneScroller instanceof HTMLElement) {
                         listPaneScroller.focus();
                     }

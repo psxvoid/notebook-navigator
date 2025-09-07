@@ -186,6 +186,14 @@ body {
    Base Layout & Container Styles
    ======================================================================== */
 
+/* Inline match highlight in file names while search is active */
+.nn-search-highlight {
+    background-color: var(--nn-theme-list-header-search-active-bg);
+    color: inherit;
+    border-radius: 3px;
+    padding: 0 1px;
+}
+
 /* Resets Obsidian's default view-content padding for cleaner integration */
 .view-content.notebook-navigator {
     padding: 0;

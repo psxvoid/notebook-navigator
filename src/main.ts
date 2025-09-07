@@ -30,6 +30,7 @@ import { strings, getDefaultDateFormat, getDefaultTimeFormat } from './i18n';
 import { localStorage, LOCALSTORAGE_VERSION } from './utils/localStorage';
 import { NotebookNavigatorAPI } from './api/NotebookNavigatorAPI';
 import { ItemType, PinnedNotes } from './types';
+import { FileVisibility } from './utils/fileTypeUtils';
 
 /**
  * Polyfill for requestIdleCallback
@@ -722,6 +723,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         }
 
         this.normalizeTagSettings();
+
+        // Migrate fileVisibility from 'markdown' to 'documents'
+        if ((this.settings.fileVisibility as string) === 'markdown') {
+            this.settings.fileVisibility = 'documents' as FileVisibility;
+        }
 
         // Migrate pinnedNotes to new object format if needed
         this.migratePinnedNotesToObject();

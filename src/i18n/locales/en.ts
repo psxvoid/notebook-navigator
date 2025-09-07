@@ -52,7 +52,7 @@ export const STRINGS_EN = {
     // Pane header
     paneHeader: {
         collapseAllFolders: 'Collapse items', // Tooltip for button that collapses expanded items (English: Collapse items)
-        expandAllFolders: 'Expand items', // Tooltip for button that expands items (English: Expand items)
+        expandAllFolders: 'Expand all items', // Tooltip for button that expands all items (English: Expand all items)
         newFolder: 'New folder', // Tooltip for create new folder button (English: New folder)
         newNote: 'New note', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Back to navigation', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -363,7 +363,7 @@ export const STRINGS_EN = {
         navigateToTag: 'Navigate to tag', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: 'Toggle notes from subfolders', // Command palette: Toggles showing notes from subfolders (English: Toggle notes from subfolders)
         toggleHidden: 'Toggle hidden items', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
-        collapse: 'Collapse / expand items', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand items)
+        collapse: 'Collapse / expand all items', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Add tag to selected files', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Remove tag from selected files', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: 'Remove all tags from selected files' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
@@ -467,11 +467,11 @@ export const STRINGS_EN = {
             },
             fileVisibility: {
                 name: 'Show file types',
-                desc: "Choose which file types to display in the navigator. Files not supported by Obsidian will open in your system's default application.",
+                desc: 'Filter which file types are shown in the navigator. File types not supported by Obsidian may open in external applications.',
                 options: {
-                    markdownOnly: 'Markdown only',
-                    supported: 'Supported files',
-                    all: 'All files'
+                    documents: 'Documents (.md, .canvas, .base)',
+                    supported: 'Supported (opens in Obsidian)',
+                    all: 'All (may open externally)'
                 }
             },
             excludedNotes: {
@@ -580,15 +580,6 @@ export const STRINGS_EN = {
             smartCollapse: {
                 name: 'Keep selected item expanded',
                 desc: 'When collapsing, keep the currently selected folder or tag and its parents expanded.'
-            },
-            showHiddenBehavior: {
-                name: 'Show hidden items',
-                desc: 'Choose what the show/hide hidden items button affects.',
-                options: {
-                    all: 'All folders and tags',
-                    foldersOnly: 'Folders only',
-                    tagsOnly: 'Tags only'
-                }
             },
             navItemHeight: {
                 name: 'Item height',

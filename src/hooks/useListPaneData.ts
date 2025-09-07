@@ -89,7 +89,7 @@ export function useListPaneData({
     searchQuery
 }: UseListPaneDataParams): UseListPaneDataResult {
     const { app, tagTreeService } = useServices();
-    const { getFileCreatedTime, getFileModifiedTime, getDB } = useFileCache();
+    const { getFileCreatedTime, getFileModifiedTime, getDB, getFileDisplayName } = useFileCache();
 
     // State to force updates when vault changes (incremented on create/delete/rename)
     const [updateKey, setUpdateKey] = useState(0);
@@ -116,17 +116,18 @@ export function useListPaneData({
             const isMultiWordSearch = searchSegments.length > 1;
 
             allFiles = allFiles.filter(file => {
-                const filename = file.basename.toLowerCase();
+                // Use display name for matching so search aligns with UI (frontmatter-aware)
+                const name = getFileDisplayName(file).toLowerCase();
 
                 // Exact substring match (e.g., "test" matches "testing.md")
-                if (filename.includes(query)) {
+                if (name.includes(query)) {
                     return true;
                 }
 
                 // Multi-word search: all segments must be present
                 // (e.g., "inst mac" matches "Installation Macbook.md")
                 if (isMultiWordSearch) {
-                    const allSegmentsPresent = searchSegments.every(segment => filename.includes(segment));
+                    const allSegmentsPresent = searchSegments.every(segment => name.includes(segment));
                     return allSegmentsPresent;
                 }
 

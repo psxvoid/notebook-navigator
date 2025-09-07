@@ -52,7 +52,7 @@ export const STRINGS_FR = {
     // Pane header
     paneHeader: {
         collapseAllFolders: 'Replier les éléments', // Tooltip for button that collapses expanded items (English: Collapse items)
-        expandAllFolders: 'Déplier les éléments', // Tooltip for button that expands items (English: Expand items)
+        expandAllFolders: 'Déplier tous les éléments', // Tooltip for button that expands all items (English: Expand all items)
         newFolder: 'Nouveau dossier', // Tooltip for create new folder button (English: New folder)
         newNote: 'Nouvelle note', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Retour à la navigation', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -364,7 +364,7 @@ export const STRINGS_FR = {
         navigateToTag: "Naviguer vers l'étiquette", // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: 'Basculer notes des sous-dossiers', // Command palette: Toggles showing notes from subfolders (English: Toggle notes from subfolders)
         toggleHidden: 'Basculer les éléments masqués', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
-        collapse: 'Replier / déplier les éléments', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand items)
+        collapse: 'Replier / déplier tous les éléments', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Ajouter une étiquette aux fichiers sélectionnés', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Supprimer une étiquette des fichiers sélectionnés', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: 'Supprimer toutes les étiquettes des fichiers sélectionnés' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
@@ -479,11 +479,11 @@ export const STRINGS_FR = {
             },
             fileVisibility: {
                 name: 'Afficher les types de fichiers',
-                desc: "Choisissez quels types de fichiers afficher dans le navigateur. Les fichiers non pris en charge par Obsidian s'ouvriront dans l'application par défaut de votre système.",
+                desc: "Filtrez quels types de fichiers sont affichés dans le navigateur. Les types de fichiers non pris en charge par Obsidian peuvent s'ouvrir dans des applications externes.",
                 options: {
-                    markdownOnly: 'Markdown uniquement',
-                    supported: 'Fichiers pris en charge',
-                    all: 'Tous les fichiers'
+                    documents: 'Documents (.md, .canvas, .base)',
+                    supported: 'Pris en charge (ouvre dans Obsidian)',
+                    all: 'Tous (peut ouvrir en externe)'
                 }
             },
             showFileDate: {
@@ -582,15 +582,6 @@ export const STRINGS_FR = {
             smartCollapse: {
                 name: 'Garder lélément sélectionné déplié',
                 desc: 'Lors du repliement, garde le dossier ou létiquette actuellement sélectionné et ses parents dépliés.'
-            },
-            showHiddenBehavior: {
-                name: 'Afficher les éléments masqués',
-                desc: 'Choisissez ce que le bouton afficher/masquer les éléments cachés affecte.',
-                options: {
-                    all: 'Tous les dossiers et étiquettes',
-                    foldersOnly: 'Dossiers uniquement',
-                    tagsOnly: 'Étiquettes uniquement'
-                }
             },
             navItemHeight: {
                 name: 'Hauteur de ligne',

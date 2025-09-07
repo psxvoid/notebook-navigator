@@ -55,11 +55,7 @@ export function NavigationToolbar({ onExpandCollapseComplete }: NavigationToolba
                 className={`nn-mobile-toolbar-button ${settings.showHiddenItems ? 'nn-mobile-toolbar-button-active' : ''}`}
                 aria-label={settings.showHiddenItems ? strings.paneHeader.hideExcludedItems : strings.paneHeader.showExcludedItems}
                 onClick={handleToggleShowExcludedFolders}
-                disabled={
-                    (settings.showHiddenBehavior === 'folders-only' && settings.excludedFolders.length === 0) ||
-                    (settings.showHiddenBehavior === 'tags-only' && settings.hiddenTags.length === 0) ||
-                    (settings.showHiddenBehavior === 'all' && settings.excludedFolders.length === 0 && settings.hiddenTags.length === 0)
-                }
+                disabled={settings.excludedFolders.length === 0 && settings.hiddenTags.length === 0}
                 tabIndex={-1}
             >
                 <ObsidianIcon name="lucide-eye" />
