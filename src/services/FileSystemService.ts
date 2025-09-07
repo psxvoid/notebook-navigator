@@ -361,7 +361,7 @@ export class FileSystemOperations {
 
             // Try to maintain focus on file list using a more reliable method
             window.setTimeout(() => {
-                const fileListEl = document.querySelector('.nn-file-list-virtualizer') as HTMLElement;
+                const fileListEl = document.querySelector('.nn-list-pane-scroller') as HTMLElement;
                 if (fileListEl) {
                     fileListEl.focus();
                 }

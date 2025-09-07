@@ -176,6 +176,28 @@ export const ListPane = React.memo(
         // Check if we're in slim mode
         const isSlimMode = !appearanceSettings.showDate && !appearanceSettings.showPreview && !appearanceSettings.showImage;
 
+        // Ensure the list has a valid selection for the current filter
+        const ensureSelectionForCurrentFilter = useCallback(
+            (options?: { openInEditor?: boolean }) => {
+                const openInEditor = options?.openInEditor ?? false;
+                const hasNoSelection = !selectedFile;
+                const selectedFileInList = selectedFile ? filePathToIndex.has(selectedFile.path) : false;
+                const needsSelection = hasNoSelection || !selectedFileInList;
+
+                if (needsSelection && orderedFiles.length > 0) {
+                    const firstFile = orderedFiles[0];
+                    selectionDispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
+                    if (openInEditor) {
+                        const leaf = app.workspace.getLeaf(false);
+                        if (leaf) {
+                            leaf.openFile(firstFile, { active: false });
+                        }
+                    }
+                }
+            },
+            [selectedFile, orderedFiles, filePathToIndex, selectionDispatch, app.workspace]
+        );
+
         const handleFileClick = useCallback(
             (file: TFile, e: React.MouseEvent, fileIndex?: number, orderedFiles?: TFile[]) => {
                 // Ignore middle mouse button clicks - they're handled by onMouseDown
@@ -368,7 +390,8 @@ export const ListPane = React.memo(
                     if (isSearchActive) {
                         // Search is already open - just focus the search input
                         setTimeout(() => {
-                            const searchInput = document.querySelector('.nn-search-input') as HTMLInputElement;
+                            const scope = props.rootContainerRef.current ?? document;
+                            const searchInput = scope.querySelector('.nn-search-input') as HTMLInputElement;
                             if (searchInput) {
                                 searchInput.focus();
                                 uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'search' });
@@ -378,10 +401,11 @@ export const ListPane = React.memo(
                         // Opening search - activate with focus
                         setShouldFocusSearch(true);
                         setIsSearchActive(true);
+                        uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'search' });
                     }
                 }
             }),
-            [filePathToIndex, rowVirtualizer, scrollContainerRef, isSearchActive, uiDispatch, setIsSearchActive]
+            [filePathToIndex, rowVirtualizer, scrollContainerRef, isSearchActive, uiDispatch, setIsSearchActive, props.rootContainerRef]
         );
 
         // Add keyboard navigation
@@ -433,17 +457,10 @@ export const ListPane = React.memo(
                                 setIsSearchActive(false);
                             }}
                             onFocusFiles={() => {
-                                // Auto-select first file if needed when focusing from search
-                                const hasNoSelection = !selectedFile;
-                                const selectedFileNotInFilteredList = selectedFile && !files.some(f => f.path === selectedFile.path);
-                                const needsSelection = hasNoSelection || selectedFileNotInFilteredList;
-
-                                if (needsSelection && orderedFiles.length > 0) {
-                                    // Select the first file in the filtered list
-                                    const firstFile = orderedFiles[0];
-                                    selectionDispatch({ type: 'SET_SELECTED_FILE', file: firstFile });
-                                }
+                                // Ensure selection exists when focusing list from search (no editor open)
+                                ensureSelectionForCurrentFilter({ openInEditor: false });
                             }}
+                            containerRef={props.rootContainerRef}
                         />
                     )}
                 </div>
@@ -455,8 +472,12 @@ export const ListPane = React.memo(
                             if (!isSearchActive) {
                                 // Opening search - activate with focus
                                 setShouldFocusSearch(true);
+                                setIsSearchActive(true);
+                                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'search' });
+                            } else {
+                                setIsSearchActive(false);
+                                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                             }
-                            setIsSearchActive(!isSearchActive);
                         }}
                     />
                 )}
@@ -608,8 +629,12 @@ export const ListPane = React.memo(
                             if (!isSearchActive) {
                                 // Opening search - activate with focus
                                 setShouldFocusSearch(true);
+                                setIsSearchActive(true);
+                                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'search' });
+                            } else {
+                                setIsSearchActive(false);
+                                uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
                             }
-                            setIsSearchActive(!isSearchActive);
                         }}
                     />
                 )}
