@@ -479,11 +479,11 @@ export const STRINGS_JA = {
             },
             fileVisibility: {
                 name: 'ファイルタイプを表示',
-                desc: 'ナビゲーターに表示するファイルタイプを選択します。Obsidianでサポートされていないファイルは、システムのデフォルトアプリケーションで開かれます。',
+                desc: 'ナビゲーターに表示されるファイルタイプをフィルタリングします。Obsidianでサポートされていないファイルタイプは、外部アプリケーションで開かれる場合があります。',
                 options: {
-                    markdownOnly: 'Markdownのみ',
-                    supported: 'サポートされているファイル',
-                    all: 'すべてのファイル'
+                    documents: 'ドキュメント (.md, .canvas, .base)',
+                    supported: 'サポート (Obsidianで開く)',
+                    all: 'すべて (外部で開く場合あり)'
                 }
             },
             showFileDate: {

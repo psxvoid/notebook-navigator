@@ -479,11 +479,11 @@ export const STRINGS_FR = {
             },
             fileVisibility: {
                 name: 'Afficher les types de fichiers',
-                desc: "Choisissez quels types de fichiers afficher dans le navigateur. Les fichiers non pris en charge par Obsidian s'ouvriront dans l'application par défaut de votre système.",
+                desc: "Filtrez quels types de fichiers sont affichés dans le navigateur. Les types de fichiers non pris en charge par Obsidian peuvent s'ouvrir dans des applications externes.",
                 options: {
-                    markdownOnly: 'Markdown uniquement',
-                    supported: 'Fichiers pris en charge',
-                    all: 'Tous les fichiers'
+                    documents: 'Documents (.md, .canvas, .base)',
+                    supported: 'Pris en charge (ouvre dans Obsidian)',
+                    all: 'Tous (peut ouvrir en externe)'
                 }
             },
             showFileDate: {

@@ -20,7 +20,7 @@ import { TFile, TFolder, App } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { NavigatorContext, PinnedNotes } from '../types';
 import { UNTAGGED_TAG_ID } from '../types';
-import { shouldExcludeFile, shouldExcludeFolder, getFilteredMarkdownFiles, getFilteredFiles } from './fileFilters';
+import { shouldExcludeFile, shouldExcludeFolder, getFilteredDocumentFiles, getFilteredFiles } from './fileFilters';
 import { shouldDisplayFile, FILE_VISIBILITY } from './fileTypeUtils';
 import { getEffectiveSortOption, sortFiles } from './sortUtils';
 import { TagTreeService } from '../services/TagTreeService';
@@ -174,9 +174,9 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
     // Get all files based on visibility setting, with proper filtering
     let allFiles: TFile[] = [];
 
-    if (settings.fileVisibility === FILE_VISIBILITY.MARKDOWN) {
-        // Only markdown files
-        allFiles = getFilteredMarkdownFiles(app, settings);
+    if (settings.fileVisibility === FILE_VISIBILITY.DOCUMENTS) {
+        // Only document files (markdown, canvas, base)
+        allFiles = getFilteredDocumentFiles(app, settings);
     } else {
         // Get all files with filtering
         allFiles = getFilteredFiles(app, settings);

@@ -478,11 +478,11 @@ export const STRINGS_DE = {
             },
             fileVisibility: {
                 name: 'Dateitypen anzeigen',
-                desc: 'Wählen Sie, welche Dateitypen im Navigator angezeigt werden sollen. Dateien, die von Obsidian nicht unterstützt werden, werden in der Standardanwendung Ihres Systems geöffnet.',
+                desc: 'Filtern Sie, welche Dateitypen im Navigator angezeigt werden. Dateitypen, die von Obsidian nicht unterstützt werden, können in externen Anwendungen geöffnet werden.',
                 options: {
-                    markdownOnly: 'Nur Markdown',
-                    supported: 'Unterstützte Dateien',
-                    all: 'Alle Dateien'
+                    documents: 'Dokumente (.md, .canvas, .base)',
+                    supported: 'Unterstützt (öffnet in Obsidian)',
+                    all: 'Alle (öffnet ggf. extern)'
                 }
             },
             showFileDate: {

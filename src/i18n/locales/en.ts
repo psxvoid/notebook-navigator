@@ -467,11 +467,11 @@ export const STRINGS_EN = {
             },
             fileVisibility: {
                 name: 'Show file types',
-                desc: "Choose which file types to display in the navigator. Files not supported by Obsidian will open in your system's default application.",
+                desc: 'Filter which file types are shown in the navigator. File types not supported by Obsidian may open in external applications.',
                 options: {
-                    markdownOnly: 'Markdown only',
-                    supported: 'Supported files',
-                    all: 'All files'
+                    documents: 'Documents (.md, .canvas, .base)',
+                    supported: 'Supported (opens in Obsidian)',
+                    all: 'All (may open externally)'
                 }
             },
             excludedNotes: {

@@ -472,7 +472,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .setDesc(strings.settings.items.fileVisibility.desc)
             .addDropdown(dropdown =>
                 dropdown
-                    .addOption(FILE_VISIBILITY.MARKDOWN, strings.settings.items.fileVisibility.options.markdownOnly)
+                    .addOption(FILE_VISIBILITY.DOCUMENTS, strings.settings.items.fileVisibility.options.documents)
                     .addOption(FILE_VISIBILITY.SUPPORTED, strings.settings.items.fileVisibility.options.supported)
                     .addOption(FILE_VISIBILITY.ALL, strings.settings.items.fileVisibility.options.all)
                     .setValue(this.plugin.settings.fileVisibility)

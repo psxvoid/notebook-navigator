@@ -293,6 +293,28 @@ export function hasSubfolders(folder: TFolder, excludePatterns: string[], showHi
 }
 
 /**
+ * Returns true if a file passes exclusion rules based on settings
+ * - Excludes markdown files with matching frontmatter properties
+ * - Optionally excludes files in excluded folders when indexing is configured to skip them
+ */
+function passesExclusionFilters(file: TFile, settings: NotebookNavigatorSettings, app: App): boolean {
+    const excludedProperties = settings.excludedFiles;
+    const excludedFolderPatterns = settings.excludedFolders;
+
+    // Frontmatter based exclusion (markdown only)
+    if (file.extension === 'md' && excludedProperties.length > 0 && shouldExcludeFile(file, excludedProperties, app)) {
+        return false;
+    }
+
+    // Folder based exclusion (only if configured to skip in index)
+    if (SKIP_EXCLUDED_FOLDERS_IN_INDEX && isFileInExcludedFolder(file, excludedFolderPatterns)) {
+        return false;
+    }
+
+    return true;
+}
+
+/**
  * Gets filtered markdown files from the vault, excluding files based on:
  * - Excluded folder patterns
  * - Excluded frontmatter properties
@@ -300,21 +322,23 @@ export function hasSubfolders(folder: TFolder, excludePatterns: string[], showHi
 export function getFilteredMarkdownFiles(app: App, settings: NotebookNavigatorSettings): TFile[] {
     if (!app || !settings) return [];
 
-    const excludedProperties = settings.excludedFiles;
-    const excludedFolderPatterns = settings.excludedFolders;
+    return app.vault.getMarkdownFiles().filter(file => passesExclusionFilters(file, settings, app));
+}
 
-    return app.vault.getMarkdownFiles().filter(file => {
-        // Filter by excluded properties
-        if (excludedProperties.length > 0 && shouldExcludeFile(file, excludedProperties, app)) {
-            return false;
-        }
+/**
+ * Gets filtered document files (markdown, canvas, base) from the vault, excluding files based on:
+ * - Excluded folder patterns
+ * - Excluded frontmatter properties
+ */
+export function getFilteredDocumentFiles(app: App, settings: NotebookNavigatorSettings): TFile[] {
+    if (!app || !settings) return [];
 
-        // Filter by excluded folders (only if SKIP_EXCLUDED_FOLDERS_IN_INDEX is true)
-        if (SKIP_EXCLUDED_FOLDERS_IN_INDEX && isFileInExcludedFolder(file, excludedFolderPatterns)) {
-            return false;
-        }
+    return app.vault.getFiles().filter(file => {
+        // Only include document files (md, canvas, base)
+        const isDocument = file.extension === 'md' || file.extension === 'canvas' || file.extension === 'base';
+        if (!isDocument) return false;
 
-        return true;
+        return passesExclusionFilters(file, settings, app);
     });
 }
 
@@ -327,25 +351,12 @@ export function getFilteredMarkdownFiles(app: App, settings: NotebookNavigatorSe
 export function getFilteredFiles(app: App, settings: NotebookNavigatorSettings): TFile[] {
     if (!app || !settings) return [];
 
-    const excludedProperties = settings.excludedFiles;
-    const excludedFolderPatterns = settings.excludedFolders;
-
     return app.vault.getFiles().filter(file => {
         // Filter by visibility settings
         if (!shouldDisplayFile(file, settings.fileVisibility, app)) {
             return false;
         }
 
-        // Filter by excluded properties (only for markdown files)
-        if (file.extension === 'md' && excludedProperties.length > 0 && shouldExcludeFile(file, excludedProperties, app)) {
-            return false;
-        }
-
-        // Filter by excluded folders (only if SKIP_EXCLUDED_FOLDERS_IN_INDEX is true)
-        if (SKIP_EXCLUDED_FOLDERS_IN_INDEX && isFileInExcludedFolder(file, excludedFolderPatterns)) {
-            return false;
-        }
-
-        return true;
+        return passesExclusionFilters(file, settings, app);
     });
 }

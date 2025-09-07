@@ -478,11 +478,11 @@ export const STRINGS_ES = {
             },
             fileVisibility: {
                 name: 'Mostrar tipos de archivo',
-                desc: 'Elija qué tipos de archivo mostrar en el navegador. Los archivos no soportados por Obsidian se abrirán en la aplicación predeterminada de su sistema.',
+                desc: 'Filtre qué tipos de archivo se muestran en el navegador. Los tipos de archivo no soportados por Obsidian pueden abrirse en aplicaciones externas.',
                 options: {
-                    markdownOnly: 'Solo Markdown',
-                    supported: 'Archivos soportados',
-                    all: 'Todos los archivos'
+                    documents: 'Documentos (.md, .canvas, .base)',
+                    supported: 'Soportados (abre en Obsidian)',
+                    all: 'Todos (puede abrir externamente)'
                 }
             },
             showFileDate: {

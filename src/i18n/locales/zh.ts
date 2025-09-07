@@ -479,11 +479,11 @@ export const STRINGS_ZH = {
             },
             fileVisibility: {
                 name: '显示文件类型',
-                desc: '选择在导航器中显示哪些文件类型。Obsidian不支持的文件将在系统默认应用程序中打开。',
+                desc: '过滤在导航器中显示的文件类型。Obsidian不支持的文件类型可能会在外部应用程序中打开。',
                 options: {
-                    markdownOnly: '仅 Markdown',
-                    supported: '支持的文件',
-                    all: '所有文件'
+                    documents: '文档 (.md, .canvas, .base)',
+                    supported: '支持 (在Obsidian中打开)',
+                    all: '全部 (可能外部打开)'
                 }
             },
             showFileDate: {

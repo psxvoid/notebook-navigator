@@ -23,7 +23,7 @@ import { ExtendedApp } from '../types/obsidian-extended';
  * File visibility options for the navigator
  */
 export const FILE_VISIBILITY = {
-    MARKDOWN: 'markdown',
+    DOCUMENTS: 'documents',
     SUPPORTED: 'supported',
     ALL: 'all'
 } as const;
@@ -59,8 +59,9 @@ export function shouldDisplayFile(file: TFile, visibility: FileVisibility, app: 
     }
 
     switch (visibility) {
-        case FILE_VISIBILITY.MARKDOWN:
-            return file.extension === 'md';
+        case FILE_VISIBILITY.DOCUMENTS:
+            // Primary document types in Obsidian
+            return file.extension === 'md' || file.extension === 'canvas' || file.extension === 'base';
 
         case FILE_VISIBILITY.SUPPORTED: {
             // Get supported extensions inline
@@ -104,8 +105,8 @@ export function shouldDisplayFile(file: TFile, visibility: FileVisibility, app: 
             return true;
 
         default:
-            // Default to markdown for safety
-            return file.extension === 'md';
+            // Default to documents for safety
+            return file.extension === 'md' || file.extension === 'canvas' || file.extension === 'base';
     }
 }
 
