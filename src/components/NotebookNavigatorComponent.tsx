@@ -36,8 +36,8 @@ import { TagSuggestModal } from '../modals/TagSuggestModal';
 import { RemoveTagModal } from '../modals/RemoveTagModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
 import { STORAGE_KEYS, NAVIGATION_PANE_DIMENSIONS, FILE_PANE_DIMENSIONS, ItemType, NAVPANE_MEASUREMENTS } from '../types';
+import { getSelectedPath, getFilesForSelection } from '../utils/selectionUtils';
 import { deleteSelectedFiles, deleteSelectedFolder } from '../utils/deleteOperations';
-import { getFilesForFolder, getFilesForTag } from '../utils/fileFinder';
 import { localStorage } from '../utils/localStorage';
 import { ListPane } from './ListPane';
 import type { ListPaneHandle } from './ListPane';
@@ -246,12 +246,7 @@ export const NotebookNavigatorComponent = React.memo(
                     }
 
                     // Get all files in the current view for smart selection
-                    let allFiles: TFile[] = [];
-                    if (selectionState.selectionType === ItemType.FOLDER && selectionState.selectedFolder) {
-                        allFiles = getFilesForFolder(selectionState.selectedFolder, settings, app);
-                    } else if (selectionState.selectionType === ItemType.TAG && selectionState.selectedTag) {
-                        allFiles = getFilesForTag(selectionState.selectedTag, settings, app, tagTreeService);
-                    }
+                    const allFiles = getFilesForSelection(selectionState, settings, app, tagTreeService);
 
                     // Move files with modal
                     await fileSystemOps.moveFilesWithModal(selectedFiles, {
@@ -407,6 +402,13 @@ export const NotebookNavigatorComponent = React.memo(
                 },
                 triggerCollapse: () => {
                     handleExpandCollapseAll();
+                    // Request scroll to selected item after collapse/expand
+                    requestAnimationFrame(() => {
+                        const selectedPath = getSelectedPath(selectionState);
+                        if (selectedPath && navigationPaneRef.current) {
+                            navigationPaneRef.current.requestScroll(selectedPath);
+                        }
+                    });
                 }
             };
         }, [
@@ -427,7 +429,8 @@ export const NotebookNavigatorComponent = React.memo(
             tagTreeService,
             commandQueue,
             tagOperations,
-            handleExpandCollapseAll
+            handleExpandCollapseAll,
+            navigationPaneRef
         ]);
 
         // Add platform class

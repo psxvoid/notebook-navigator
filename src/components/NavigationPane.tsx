@@ -68,6 +68,7 @@ import { useNavigationPaneData } from '../hooks/useNavigationPaneData';
 import { useNavigationPaneScroll } from '../hooks/useNavigationPaneScroll';
 import type { CombinedNavigationItem } from '../types/virtualization';
 import { NavigationPaneItemType, ItemType } from '../types';
+import { getSelectedPath } from '../utils/selectionUtils';
 import { TagTreeNode } from '../types/storage';
 import { getFolderNote } from '../utils/fileFinder';
 import { findTagNode } from '../utils/tagTree';
@@ -135,6 +136,14 @@ export const NavigationPane = React.memo(
             pathToIndex,
             isVisible
         });
+
+        // Callback for after expand/collapse operations
+        const handleExpandCollapseComplete = useCallback(() => {
+            const selectedPath = getSelectedPath(selectionState);
+            if (selectedPath) {
+                requestScroll(selectedPath);
+            }
+        }, [selectionState, requestScroll]);
 
         // Handle folder toggle
         const handleFolderToggle = useCallback(
@@ -542,9 +551,9 @@ export const NavigationPane = React.memo(
 
         return (
             <div className="nn-navigation-pane" style={props.style}>
-                <NavigationPaneHeader />
+                <NavigationPaneHeader onExpandCollapseComplete={handleExpandCollapseComplete} />
                 {/* Android - toolbar at top */}
-                {isMobile && isAndroid && <NavigationToolbar />}
+                {isMobile && isAndroid && <NavigationToolbar onExpandCollapseComplete={handleExpandCollapseComplete} />}
                 <div ref={scrollContainerRef} className="nn-navigation-pane-scroller" data-pane="navigation" role="tree" tabIndex={-1}>
                     {items.length > 0 && (
                         <div
@@ -575,7 +584,7 @@ export const NavigationPane = React.memo(
                     )}
                 </div>
                 {/* iOS - toolbar at bottom */}
-                {isMobile && !isAndroid && <NavigationToolbar />}
+                {isMobile && !isAndroid && <NavigationToolbar onExpandCollapseComplete={handleExpandCollapseComplete} />}
             </div>
         );
     })

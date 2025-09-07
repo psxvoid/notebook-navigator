@@ -51,8 +51,8 @@ export const STRINGS_JA = {
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: 'すべて折りたたむ', // Tooltip for button that collapses all expanded items (English: Collapse all)
-        expandAllFolders: 'すべて展開', // Tooltip for button that expands all items (English: Expand all)
+        collapseAllFolders: 'アイテムを折りたたむ', // Tooltip for button that collapses expanded items (English: Collapse items)
+        expandAllFolders: 'アイテムを展開', // Tooltip for button that expands items (English: Expand items)
         newFolder: '新規フォルダ', // Tooltip for create new folder button (English: New folder)
         newNote: '新規ノート', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'ナビゲーションに戻る', // Mobile-only back button text to return to navigation pane (English: Back to navigation)

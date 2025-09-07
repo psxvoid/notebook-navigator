@@ -23,7 +23,11 @@ import { strings } from '../i18n';
 import { ObsidianIcon } from './ObsidianIcon';
 import { useNavigationActions } from '../hooks/useNavigationActions';
 
-export function NavigationPaneHeader() {
+interface NavigationPaneHeaderProps {
+    onExpandCollapseComplete?: () => void;
+}
+
+export function NavigationPaneHeader({ onExpandCollapseComplete }: NavigationPaneHeaderProps) {
     const { isMobile } = useServices();
     const settings = useSettingsState();
     const updateSettings = useSettingsUpdate();
@@ -56,7 +60,15 @@ export function NavigationPaneHeader() {
                     <button
                         className="nn-icon-button"
                         aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
-                        onClick={handleExpandCollapseAll}
+                        onClick={() => {
+                            handleExpandCollapseAll();
+                            if (onExpandCollapseComplete) {
+                                // Use requestAnimationFrame to ensure DOM updates are complete
+                                requestAnimationFrame(() => {
+                                    onExpandCollapseComplete();
+                                });
+                            }
+                        }}
                         tabIndex={-1}
                     >
                         <ObsidianIcon name={shouldCollapseItems() ? 'lucide-chevrons-down-up' : 'lucide-chevrons-up-down'} />

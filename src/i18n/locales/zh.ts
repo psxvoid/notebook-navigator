@@ -51,8 +51,8 @@ export const STRINGS_ZH = {
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: '全部折叠', // Tooltip for button that collapses all expanded items (English: Collapse all)
-        expandAllFolders: '全部展开', // Tooltip for button that expands all items (English: Expand all)
+        collapseAllFolders: '折叠项目', // Tooltip for button that collapses expanded items (English: Collapse items)
+        expandAllFolders: '展开项目', // Tooltip for button that expands items (English: Expand items)
         newFolder: '新建文件夹', // Tooltip for create new folder button (English: New folder)
         newNote: '新笔记', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: '返回导航', // Mobile-only back button text to return to navigation pane (English: Back to navigation)

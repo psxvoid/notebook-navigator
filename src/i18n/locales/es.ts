@@ -51,8 +51,8 @@ export const STRINGS_ES = {
 
     // Pane header
     paneHeader: {
-        collapseAllFolders: 'Contraer todo', // Tooltip for button that collapses all expanded items (English: Collapse all)
-        expandAllFolders: 'Expandir todo', // Tooltip for button that expands all items (English: Expand all)
+        collapseAllFolders: 'Contraer elementos', // Tooltip for button that collapses expanded items (English: Collapse items)
+        expandAllFolders: 'Expandir elementos', // Tooltip for button that expands items (English: Expand items)
         newFolder: 'Nueva carpeta', // Tooltip for create new folder button (English: New folder)
         newNote: 'Nueva nota', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Volver a navegación', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
