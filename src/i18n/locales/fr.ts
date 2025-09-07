@@ -52,7 +52,7 @@ export const STRINGS_FR = {
     // Pane header
     paneHeader: {
         collapseAllFolders: 'Replier les éléments', // Tooltip for button that collapses expanded items (English: Collapse items)
-        expandAllFolders: 'Déplier les éléments', // Tooltip for button that expands items (English: Expand items)
+        expandAllFolders: 'Déplier tous les éléments', // Tooltip for button that expands all items (English: Expand all items)
         newFolder: 'Nouveau dossier', // Tooltip for create new folder button (English: New folder)
         newNote: 'Nouvelle note', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: 'Retour à la navigation', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -364,7 +364,7 @@ export const STRINGS_FR = {
         navigateToTag: "Naviguer vers l'étiquette", // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: 'Basculer notes des sous-dossiers', // Command palette: Toggles showing notes from subfolders (English: Toggle notes from subfolders)
         toggleHidden: 'Basculer les éléments masqués', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
-        collapse: 'Replier / déplier les éléments', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand items)
+        collapse: 'Replier / déplier tous les éléments', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Ajouter une étiquette aux fichiers sélectionnés', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: 'Supprimer une étiquette des fichiers sélectionnés', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: 'Supprimer toutes les étiquettes des fichiers sélectionnés' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)

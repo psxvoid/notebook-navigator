@@ -52,7 +52,7 @@ export const STRINGS_ZH = {
     // Pane header
     paneHeader: {
         collapseAllFolders: '折叠项目', // Tooltip for button that collapses expanded items (English: Collapse items)
-        expandAllFolders: '展开项目', // Tooltip for button that expands items (English: Expand items)
+        expandAllFolders: '展开所有项目', // Tooltip for button that expands all items (English: Expand all items)
         newFolder: '新建文件夹', // Tooltip for create new folder button (English: New folder)
         newNote: '新笔记', // Tooltip for create new note button (English: New note)
         mobileBackToNavigation: '返回导航', // Mobile-only back button text to return to navigation pane (English: Back to navigation)
@@ -364,7 +364,7 @@ export const STRINGS_ZH = {
         navigateToTag: '导航到标签', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
         toggleSubfolders: '切换子文件夹笔记', // Command palette: Toggles showing notes from subfolders (English: Toggle notes from subfolders)
         toggleHidden: '切换隐藏项', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
-        collapse: '折叠/展开项目', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand items)
+        collapse: '折叠/展开所有项目', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: '为选定文件添加标签', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
         removeTag: '从选定文件移除标签', // Command palette: Opens a dialog to remove a tag from selected files (English: Remove tag from selected files)
         removeAllTags: '从选定文件移除所有标签' // Command palette: Removes all tags from selected files (English: Remove all tags from selected files)
