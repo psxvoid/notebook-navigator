@@ -20,7 +20,7 @@ import { TFile, TFolder, App } from 'obsidian';
 import { NotebookNavigatorSettings } from '../settings';
 import { NavigatorContext, PinnedNotes } from '../types';
 import { UNTAGGED_TAG_ID } from '../types';
-import { shouldExcludeFile, shouldExcludeFolder, getFilteredDocumentFiles, getFilteredFiles } from './fileFilters';
+import { shouldExcludeFile, shouldExcludeFolder, getFilteredDocumentFiles, getFilteredFiles, isPathInExcludedFolder } from './fileFilters';
 import { shouldDisplayFile, FILE_VISIBILITY } from './fileTypeUtils';
 import { getEffectiveSortOption, sortFiles } from './sortUtils';
 import { TagTreeService } from '../services/TagTreeService';
@@ -184,6 +184,14 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
         allFiles = getFilteredFiles(app, settings);
     }
 
+    const excludedFolderPatterns = settings.excludedFolders;
+    const showHiddenFolders = settings.showHiddenItems && settings.showHiddenBehavior !== 'tags-only';
+    const isAllowedByFolder = (file: TFile) =>
+        showHiddenFolders || excludedFolderPatterns.length === 0 || !isPathInExcludedFolder(file.path, excludedFolderPatterns);
+
+    // Apply folder-based visibility rules to align with tag tree counts
+    const baseFiles = allFiles.filter(isAllowedByFolder);
+
     let filteredFiles: TFile[] = [];
 
     const db = getDBInstance();
@@ -191,7 +199,7 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
     // Special case for untagged files
     if (tag === UNTAGGED_TAG_ID) {
         // Only show markdown files in untagged section since only they can be tagged
-        filteredFiles = allFiles.filter(file => {
+        filteredFiles = baseFiles.filter(file => {
             if (file.extension !== 'md') {
                 return false;
             }
@@ -201,7 +209,7 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
         });
     } else {
         // For regular tags, only consider markdown files since only they can have tags
-        const markdownFiles = allFiles.filter(file => file.extension === 'md');
+        const markdownFiles = baseFiles.filter(file => file.extension === 'md');
 
         // Find the selected tag node using TagTreeService
         const selectedNode = tagTreeService?.findTagNode(tag) || null;
