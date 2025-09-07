@@ -669,7 +669,9 @@ The NavigationPane (`useNavigationPaneScroll.ts`) uses a simpler system:
    - **Detection**: `pendingScrollRef.current` has a value
    - **Behavior**: Centers the requested item (`align: 'center'`)
    - **Code Location**: Search for `NAV_SCROLL_PENDING` in useNavigationPaneScroll.ts
-   - **Used by**: Reveal operations to ensure parent folders/tags are visible
+   - **Used by**: 
+     - Reveal operations to ensure parent folders/tags are visible
+     - Collapse/expand all operations to scroll to selected item after tree changes
 
 3. **Mobile Drawer Visibility**
    - **Trigger**: Mobile drawer becomes visible
