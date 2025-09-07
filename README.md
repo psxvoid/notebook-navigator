@@ -165,7 +165,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 5. Drag and drop notes between folders to organize, drag to tags to add tags, or drag to Untagged to remove all tags.
    For more precise tag management, use the right-click context menu options
 
-**Tip:** Use the ribbon icon (folder tree icon) in the left sidebar to reopen Notebook Navigator if closed.
+**Note:** Use the ribbon icon (folder tree icon) in the left sidebar to reopen Notebook Navigator if closed, or use the command `Notebook Navigator: Open`.
 
 <br>
 
@@ -196,22 +196,24 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 
 **View & navigation**
 
-- `Notebook Navigator: Open` Opens Notebook Navigator in left sidebar. If already open, focuses the file list pane. **Tip:** Bind to a shortcut key like Cmd/Ctrl+Shift+E to quickly move to the list pane
+- `Notebook Navigator: Open` Opens Notebook Navigator in left sidebar. If already open, focuses the file list pane. **Suggestion:** Bind to a shortcut key like Cmd/Ctrl+Shift+E to quickly move to the list pane
 - `Notebook Navigator: Reveal file` Reveals current file in navigator. Expands parent folders and scrolls to file
 - `Notebook Navigator: Navigate to folder` Search dialog to jump to any folder
 - `Notebook Navigator: Navigate to tag` Search dialog to jump to any tag
-- `Notebook Navigator: Search` Opens quick search field or focuses it if already open. Search persists between sessions. **Tip:** Bind to a shortcut key like Cmd/Ctrl+Shift+F for quick file filtering
+- `Notebook Navigator: Search` Opens quick search field or focuses it if already open. Search persists between sessions. **Suggestion:** Bind to a shortcut key like Cmd/Ctrl+Shift+F for quick file filtering
 
 **Layout & display**
 
 - `Notebook Navigator: Toggle dual pane layout` Toggle single/dual-pane layout (desktop)
-- `Notebook Navigator: Toggle show notes from subfolders` Toggle subfolder notes display. **Tip:** Bind to a shortcut key like Cmd/Ctrl+Shift+S to quickly toggle display of notes from subfolders
+- `Notebook Navigator: Toggle notes from subfolders` Toggle subfolder notes display. **Suggestion:** Bind to a shortcut key like Cmd/Ctrl+Shift+S to quickly toggle display of notes from subfolders
 - `Notebook Navigator: Toggle hidden items` Show or hide excluded folders and hidden tags
-- `Notebook Navigator: Collapse` Collapse or expand items based on current state. With 'Keep selected item expanded' enabled, focuses on the selected item
+- `Notebook Navigator: Collapse` Collapse or expand items based on the current state. When `Keep selected item expanded` is enabled (default on), all folders except the current one will be collapsed. This is super handy to keep the navigation tree tidy when searching for documents. **Suggestion:** Bind to a shortcut key like Cmd/Ctrl+Shift+C for to quickly collapse non-selected items
 
 **File operations**
 
-- `Notebook Navigator: Create new note` Create note in currently selected folder. **Tip:** Bind Cmd/Ctrl+N to this command (unbind from Obsidian's default "Create new note" first)
+**Note:** When creating new notes in Obsidian you can choose the `Default location for new notes` in Obsidian settings. This can be the the root folder, same folder as current file, or a specific folder. When working with Notebook Navigator, especially with the setting `Show notes from subfolders` enabled, none of these options are preferred. Instead you always want to create new notes in the currently selected folder (for example if you have `Show notes from subfolders` on, and have a note in a subfolder selected, you do not want the new note to appear in the subfolder). The same also applies to moving and deleting files. This is why you should use these commands instead of the built-in Obsidian commands when using Notebook Navigator.
+
+- `Notebook Navigator: Create new note` Create note in currently selected folder. **Suggestion:** Bind Cmd/Ctrl+N to this command (unbind from Obsidian's default "Create new note" first)
 - `Notebook Navigator: Move files` Move selected files to another folder. Selects next file in current folder
 - `Notebook Navigator: Delete files` Delete selected files. Selects next file in current folder
 
