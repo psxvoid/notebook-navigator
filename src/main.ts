@@ -328,7 +328,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // File Operations commands
         this.addCommand({
-            id: 'create-new-note',
+            id: 'new-note',
             name: strings.commands.createNewNote,
             callback: async () => {
                 // Ensure navigator is open and visible

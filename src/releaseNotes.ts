@@ -58,7 +58,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.4.9',
         date: '2025-09-07',
         showOnUpdate: true,
-        info: 'Important: Since the plugin is not yet approved I took the opportunity to rename three command IDs I felt were wrong or incorrect. New names are: `open`, `toggle-notes-from-subfolders` and `delete-files`. Please update your hotkeys.',
+        info: 'Important: Since the plugin is not yet approved I took the opportunity to rename four command IDs. The new names are: `open`, `toggle-notes-from-subfolders`, `delete-files` and `new-note`. Please update your hotkeys.',
         new: [
             '**Smart collapse**: The collapse button now keeps the currently selected folder or tag and its parents expanded when collapsing. This can be disabled in settings.',
             '**Collapse command**: New command to trigger collapse / expand. Assign a hotkey for quick access, try using this with Auto-expand folders and tags for a super efficient workflow!'
