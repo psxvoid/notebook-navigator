@@ -596,6 +596,7 @@ export const ListPane = React.memo(
                                                     sortOption={effectiveSortOption}
                                                     parentFolder={item.parentFolder}
                                                     isPinned={item.isPinned}
+                                                    searchQuery={isSearchActive ? searchQuery : undefined}
                                                 />
                                             ) : null}
                                         </div>
