@@ -38,7 +38,7 @@ import { TIMEOUTS } from '../types/obsidian-extended';
 import { DateUtils } from '../utils/dateUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
 import { leadingEdgeDebounce } from '../utils/leadingEdgeDebounce';
-import { getDateField, getEffectiveSortOption, sortFiles } from '../utils/sortUtils';
+import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
 import { strings } from '../i18n';
 import type { NotebookNavigatorSettings } from '../settings';
 
@@ -171,9 +171,7 @@ export function useListPaneData({
         // Determine which sort option to use
         const sortOption = getEffectiveSortOption(settings, selectionType as NavigationItemType, selectedFolder, selectedTag);
 
-        // Sort pinned and unpinned files separately
-        sortFiles(pinnedFiles, sortOption, getFileCreatedTime, getFileModifiedTime);
-        sortFiles(unpinnedFiles, sortOption, getFileCreatedTime, getFileModifiedTime);
+        // Files are already sorted in fileFinder; preserve order here
 
         // Track file index for stable onClick handlers
         let fileIndexCounter = 0;

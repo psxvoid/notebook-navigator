@@ -156,7 +156,11 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             // If metadata is enabled, extract on-demand
             if (settings.useFrontmatterMetadata) {
                 const metadata = extractMetadata(app, file, settings);
-                if (metadata.fc !== undefined && metadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED) {
+                if (
+                    metadata.fc !== undefined &&
+                    metadata.fc !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED &&
+                    metadata.fc !== METADATA_SENTINEL.PARSE_FAILED
+                ) {
                     return metadata.fc;
                 }
             }
@@ -169,7 +173,11 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             // If metadata is enabled, extract on-demand
             if (settings.useFrontmatterMetadata) {
                 const metadata = extractMetadata(app, file, settings);
-                if (metadata.fm !== undefined && metadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED) {
+                if (
+                    metadata.fm !== undefined &&
+                    metadata.fm !== METADATA_SENTINEL.FIELD_NOT_CONFIGURED &&
+                    metadata.fm !== METADATA_SENTINEL.PARSE_FAILED
+                ) {
                     return metadata.fm;
                 }
             }
