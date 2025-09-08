@@ -555,6 +555,25 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
             // Trigger Style Settings plugin to parse our settings
             this.app.workspace.trigger('parse-style-settings');
+
+            // Delayed settings reload to catch Obsidian Sync updates
+            // This handles the race condition where the plugin loads before sync completes
+            setTimeout(async () => {
+                if (this.isUnloading) return;
+
+                // Store current settings for comparison (deep copy for nested objects)
+                const oldSettings = JSON.stringify(this.settings);
+
+                // Reload settings from disk (may have been updated by sync)
+                await this.loadSettings();
+
+                // Check if settings changed during the delay
+                const newSettings = JSON.stringify(this.settings);
+                if (newSettings !== oldSettings) {
+                    // Notify all UI components that settings have changed
+                    this.onSettingsUpdate();
+                }
+            }, 5000); // 5 second delay to allow Obsidian Sync to complete
         });
     }
 
