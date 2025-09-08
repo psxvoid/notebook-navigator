@@ -651,11 +651,27 @@ export class FileSystemOperations {
      * @param files - Array of files to delete
      * @param confirmBeforeDelete - Whether to show confirmation dialog
      * @param onSuccess - Optional callback to run after successful deletion
+     * @param preDeleteAction - Optional action to run BEFORE files are deleted
      */
-    async deleteMultipleFiles(files: TFile[], confirmBeforeDelete = true, onSuccess?: () => void): Promise<void> {
+    async deleteMultipleFiles(
+        files: TFile[],
+        confirmBeforeDelete = true,
+        onSuccess?: () => void,
+        preDeleteAction?: () => void | Promise<void>
+    ): Promise<void> {
         if (files.length === 0) return;
 
         const performDelete = async () => {
+            // Run optional pre-delete action (e.g., to update selection)
+            if (preDeleteAction) {
+                try {
+                    await preDeleteAction();
+                } catch (e) {
+                    // Continue with delete even if pre-delete action throws
+                    console.error('Pre-delete action failed:', e);
+                }
+            }
+
             // Delete files in batches to improve performance
             const BATCH_SIZE = 10;
             const errors: { file: TFile; error: unknown }[] = [];
@@ -736,15 +752,38 @@ export class FileSystemOperations {
         // Find next file to select using utility
         const nextFileToSelect = findNextFileAfterRemoval(allFiles, selectedFiles);
 
-        // Delete the files with callback to update selection
-        await this.deleteMultipleFiles(filesToDelete, confirmBeforeDelete, async () => {
-            // Clear multi-selection first
-            selectionDispatch({ type: 'CLEAR_FILE_SELECTION' });
-            // Update selection after deletion (don't open in editor for bulk operations)
-            if (nextFileToSelect) {
-                await updateSelectionAfterFileOperation(nextFileToSelect, selectionDispatch, this.app, { openInEditor: false });
+        // Delete the files with a pre-delete action that updates selection only after confirmation
+        await this.deleteMultipleFiles(
+            filesToDelete,
+            confirmBeforeDelete,
+            async () => {
+                // No additional selection changes here. Selection handled in beforeDelete.
+            },
+            async () => {
+                if (nextFileToSelect) {
+                    // Verify the next file still exists (matching single file deletion)
+                    const stillExists = this.app.vault.getFileByPath(nextFileToSelect.path);
+                    if (stillExists) {
+                        // Update selection using same params as single file deletion
+                        await updateSelectionAfterFileOperation(nextFileToSelect, selectionDispatch, this.app);
+                    } else {
+                        // Next file was deleted, clear selection
+                        await updateSelectionAfterFileOperation(null, selectionDispatch, this.app);
+                    }
+                } else {
+                    // No files left in folder - clear selection
+                    selectionDispatch({ type: 'CLEAR_FILE_SELECTION' });
+                }
+
+                // Focus management (matching single file deletion)
+                window.setTimeout(() => {
+                    const fileListEl = document.querySelector('.nn-list-pane-scroller') as HTMLElement;
+                    if (fileListEl) {
+                        fileListEl.focus();
+                    }
+                }, TIMEOUTS.FILE_OPERATION_DELAY);
             }
-        });
+        );
     }
 
     /**
