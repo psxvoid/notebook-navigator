@@ -484,6 +484,7 @@ export const FileItem = React.memo(function FileItem({
         settings,
         displayName,
         getFileCreatedTime,
+        getFileModifiedTime,
         sortOption,
         metadataVersion
     ]);
