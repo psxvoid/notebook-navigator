@@ -61,6 +61,9 @@ const RELEASE_NOTES: ReleaseNote[] = [
         improved: [
             'Folders, tags, and files now use **natural sorting** that compares number sequences by value (e.g., "note2" is now listed before "note10").'
         ],
+        changed: [
+            'Tag metadata (colors, icons, appearance, sorting) is no longer automatically cleaned up on startup, as tags may be used occasionally for special items.'
+        ],
         fixed: [
             'If **Read metadata from frontmatter** is enabled, metadata changes will now properly trigger updates of file name, sorting, and tooltips when changed.',
             'Fixed an issue where deleting multiple files would not select the next file in the same folder.'
