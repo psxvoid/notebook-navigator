@@ -191,7 +191,6 @@ body {
     background-color: var(--nn-theme-list-header-search-active-bg);
     color: inherit;
     border-radius: 3px;
-    padding: 0 1px;
 }
 
 /* Resets Obsidian's default view-content padding for cleaner integration */
