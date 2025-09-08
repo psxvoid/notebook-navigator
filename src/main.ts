@@ -98,6 +98,10 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     private fileRenameListeners = new Map<string, (oldPath: string, newPath: string) => void>();
     // Track if we're in the process of unloading
     private isUnloading = false;
+    // Timer for delayed sync check
+    private syncCheckTimer: number | null = null;
+    // Pending version update to apply after sync check
+    private pendingVersionUpdate: string | null = null;
 
     // LocalStorage keys for state persistence
     // These keys are used to save and restore the plugin's state between sessions
@@ -110,8 +114,17 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     async onExternalSettingsChange() {
         if (!this.isUnloading) {
+            // Cancel pending sync check timer since sync has already updated
+            if (this.syncCheckTimer !== null) {
+                window.clearTimeout(this.syncCheckTimer);
+                this.syncCheckTimer = null;
+            }
+
             await this.loadSettings();
             this.onSettingsUpdate();
+
+            // Apply any pending version update now that sync is complete
+            await this.applyPendingVersionUpdate();
         }
     }
 
@@ -550,29 +563,18 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
             }
 
-            // Check for version updates
-            await this.checkForVersionUpdate();
+            // Check for version updates but defer saving to avoid conflict with sync
+            await this.checkForVersionUpdate(true);
 
             // Trigger Style Settings plugin to parse our settings
             this.app.workspace.trigger('parse-style-settings');
 
             // Delayed settings reload to catch Obsidian Sync updates
             // This handles the race condition where the plugin loads before sync completes
-            setTimeout(async () => {
-                if (this.isUnloading) return;
-
-                // Store current settings for comparison (deep copy for nested objects)
-                const oldSettings = JSON.stringify(this.settings);
-
-                // Reload settings from disk (may have been updated by sync)
-                await this.loadSettings();
-
-                // Check if settings changed during the delay
-                const newSettings = JSON.stringify(this.settings);
-                if (newSettings !== oldSettings) {
-                    // Notify all UI components that settings have changed
-                    this.onSettingsUpdate();
-                }
+            // Store timer reference so it can be cancelled if onExternalSettingsChange fires
+            this.syncCheckTimer = window.setTimeout(async () => {
+                this.syncCheckTimer = null;
+                await this.checkSyncAndUpdate();
             }, 5000); // 5 second delay to allow Obsidian Sync to complete
         });
     }
@@ -617,6 +619,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     onunload() {
         // Set unloading flag to prevent any new operations
         this.isUnloading = true;
+
+        // Cancel pending sync check timer if it exists
+        if (this.syncCheckTimer !== null) {
+            window.clearTimeout(this.syncCheckTimer);
+            this.syncCheckTimer = null;
+        }
 
         // Clear all listeners first to prevent any callbacks during cleanup
         this.settingsUpdateListeners.clear();
@@ -875,9 +883,46 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     }
 
     /**
-     * Check if the plugin has been updated and show release notes if needed
+     * Checks for settings changes from sync and updates UI if needed
+     * Called after a delay to catch sync updates that occur during startup
      */
-    private async checkForVersionUpdate(): Promise<void> {
+    private async checkSyncAndUpdate(): Promise<void> {
+        if (this.isUnloading) return;
+
+        // Store current settings for comparison (deep copy for nested objects)
+        const oldSettings = JSON.stringify(this.settings);
+
+        // Reload settings from disk (may have been updated by sync)
+        await this.loadSettings();
+
+        // Check if settings changed during the delay
+        const newSettings = JSON.stringify(this.settings);
+        if (newSettings !== oldSettings) {
+            // Notify all UI components that settings have changed
+            this.onSettingsUpdate();
+        }
+
+        // Apply any pending version update now that sync check is complete
+        await this.applyPendingVersionUpdate();
+    }
+
+    /**
+     * Applies pending version update that was deferred during startup
+     * This avoids early saves that could overwrite incoming sync data
+     */
+    private async applyPendingVersionUpdate(): Promise<void> {
+        if (this.pendingVersionUpdate !== null) {
+            this.settings.lastShownVersion = this.pendingVersionUpdate;
+            this.pendingVersionUpdate = null;
+            await this.saveSettings();
+        }
+    }
+
+    /**
+     * Check if the plugin has been updated and show release notes if needed
+     * @param deferSave - If true, saves the version update after sync check completes
+     */
+    private async checkForVersionUpdate(deferSave = false): Promise<void> {
         // Get current version from manifest
         const currentVersion = this.manifest.version;
 
@@ -886,8 +931,13 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // Don't show on first install (when lastShownVersion is empty)
         if (!lastShownVersion) {
-            this.settings.lastShownVersion = currentVersion;
-            await this.saveSettings();
+            if (deferSave) {
+                // Store for later saving after sync check
+                this.pendingVersionUpdate = currentVersion;
+            } else {
+                this.settings.lastShownVersion = currentVersion;
+                await this.saveSettings();
+            }
             return;
         }
 
@@ -909,8 +959,13 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             }
 
             // Update version before showing modal so it doesn't show again
-            this.settings.lastShownVersion = currentVersion;
-            await this.saveSettings();
+            if (deferSave) {
+                // Store for later saving after sync check
+                this.pendingVersionUpdate = currentVersion;
+            } else {
+                this.settings.lastShownVersion = currentVersion;
+                await this.saveSettings();
+            }
 
             // Show the modal only if the current version doesn't have skipAutoShow
             if (shouldShowReleaseNotesForVersion(currentVersion)) {
