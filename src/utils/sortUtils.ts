@@ -19,11 +19,30 @@
 import { TFile, TFolder } from 'obsidian';
 import type { SortOption, NotebookNavigatorSettings } from '../settings';
 import { NavigationItemType, ItemType } from '../types';
+import { getCurrentLanguage } from '../i18n';
 
 /**
  * Available sort options in order they appear in menus
  */
 export const SORT_OPTIONS: SortOption[] = ['modified-desc', 'modified-asc', 'created-desc', 'created-asc', 'title-asc', 'title-desc'];
+
+/**
+ * Natural string comparison that treats digit sequences as numbers.
+ * Currently Obsidian restarts when locale changes, but this might change in the future.
+ */
+const collatorCache = new Map<string, Intl.Collator>();
+
+export function naturalCompare(a: string, b: string, locale?: string): number {
+    // Use Obsidian's language setting if no locale specified
+    const effectiveLocale = locale || getCurrentLanguage();
+    const key = effectiveLocale || 'default';
+    let collator = collatorCache.get(key);
+    if (!collator) {
+        collator = new Intl.Collator(effectiveLocale, { numeric: true, sensitivity: 'base' });
+        collatorCache.set(key, collator);
+    }
+    return collator.compare(a, b);
+}
 
 /**
  * Determines the effective sort option for a given context
@@ -80,10 +99,10 @@ export function sortFiles(
             files.sort((a, b) => getTimestamp(a, 'created') - getTimestamp(b, 'created'));
             break;
         case 'title-asc':
-            files.sort((a, b) => a.basename.localeCompare(b.basename));
+            files.sort((a, b) => naturalCompare(a.basename, b.basename));
             break;
         case 'title-desc':
-            files.sort((a, b) => b.basename.localeCompare(a.basename));
+            files.sort((a, b) => naturalCompare(b.basename, a.basename));
             break;
     }
 }

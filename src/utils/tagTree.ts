@@ -20,6 +20,7 @@ import { IndexedDBStorage } from '../storage/IndexedDBStorage';
 import { TagTreeNode } from '../types/storage';
 import { isPathInExcludedFolder } from './fileFilters';
 import { matchesAnyPrefix } from './tagPrefixMatcher';
+import { naturalCompare } from './sortUtils';
 
 /**
  * Tag Tree Utilities
@@ -156,8 +157,8 @@ export function buildTagTreeFromDatabase(
         const allNodes = new Map<string, TagTreeNode>();
         const tree = new Map<string, TagTreeNode>();
 
-        // Sort tags to ensure parents are processed before children
-        tagPaths.sort();
+        // Sort tags (natural order) to ensure parents are processed before children
+        tagPaths.sort((a, b) => naturalCompare(a, b));
 
         for (const tagPath of tagPaths) {
             const parts = tagPath.split('/');

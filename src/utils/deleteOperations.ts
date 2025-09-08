@@ -17,6 +17,7 @@
  */
 
 import { App, TFile, TFolder } from 'obsidian';
+import { naturalCompare } from './sortUtils';
 import { SelectionState, SelectionAction } from '../context/SelectionContext';
 import { FileSystemOperations } from '../services/FileSystemService';
 import { TagTreeService } from '../services/TagTreeService';
@@ -109,7 +110,7 @@ export async function deleteSelectedFolder({
     if (parentFolder) {
         const siblings = parentFolder.children
             .filter((child): child is TFolder => child instanceof TFolder)
-            .sort((a, b) => a.name.localeCompare(b.name));
+            .sort((a, b) => naturalCompare(a.name, b.name));
 
         const currentIndex = siblings.findIndex(f => f.path === folderToDelete.path);
 
@@ -131,7 +132,7 @@ export async function deleteSelectedFolder({
         const rootFolder = app.vault.getRoot();
         const rootFolders = rootFolder.children
             .filter((child): child is TFolder => child instanceof TFolder && child.path !== folderToDelete.path)
-            .sort((a, b) => a.name.localeCompare(b.name));
+            .sort((a, b) => naturalCompare(a.name, b.name));
 
         if (rootFolders.length > 0) {
             nextFolderToSelect = rootFolders[0];

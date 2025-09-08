@@ -22,6 +22,7 @@ import { TagTreeNode } from '../types/storage';
 import { getTotalNoteCount } from '../utils/tagTree';
 import { BaseSuggestModal } from './BaseSuggestModal';
 import NotebookNavigatorPlugin from '../main';
+import { naturalCompare } from '../utils/sortUtils';
 
 /**
  * Modal for selecting a tag to navigate to
@@ -164,12 +165,12 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
             }
         }
 
-        // Sort tags alphabetically by path
+        // Sort tags alphabetically by path using natural comparison
         tags.sort((a, b) => {
             // Keep untagged at the top
             if (a.path === '__untagged__') return -1;
             if (b.path === '__untagged__') return 1;
-            return a.path.localeCompare(b.path);
+            return naturalCompare(a.path, b.path);
         });
 
         return tags;
