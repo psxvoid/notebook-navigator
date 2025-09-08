@@ -476,7 +476,17 @@ export const FileItem = React.memo(function FileItem({
         setTooltip(fileRef.current, tooltip, {
             placement: isRTL ? 'left' : 'right'
         });
-    }, [isMobile, file, file.stat.ctime, file.stat.mtime, settings, displayName, getFileCreatedTime, getFileModifiedTime, sortOption]);
+    }, [
+        isMobile,
+        file,
+        file.stat.ctime,
+        file.stat.mtime,
+        settings,
+        displayName,
+        getFileCreatedTime,
+        sortOption,
+        metadataVersion
+    ]);
 
     // Quick action handlers - these don't need memoization because:
     // 1. They're only attached to DOM elements that appear on hover
