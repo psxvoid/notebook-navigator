@@ -125,9 +125,7 @@ export const TIMEOUTS = {
  */
 export const OBSIDIAN_COMMANDS = {
     EDIT_FILE_TITLE: 'workspace:edit-file-title',
-    SYNC_HISTORY: 'sync:show-sync-history',
-    VERSION_HISTORY: 'sync:view-version-history',
-    REVEAL_IN_NAVIGATOR: 'notebook-navigator:reveal-active-file'
+    VERSION_HISTORY: 'sync:view-version-history'
 } as const;
 
 /**
