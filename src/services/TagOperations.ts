@@ -369,7 +369,7 @@ export class TagOperations {
      * Examples:
      * - "text #tag more text" → "text more text"
      * - "#todo finish this #urgent" → "finish this"
-     * - "Issue #123 is fixed" → "Issue #123 is fixed" (preserved - not a tag)
+     * - "Issue #123 is fixed" → "Issue is fixed"
      * - "#project/subtask done" → "done"
      * - "#multi-word-tag text" → "text"
      * - "text#notag" → "text#notag" (preserved - no space before #)

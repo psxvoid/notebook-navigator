@@ -958,29 +958,6 @@ export class IndexedDBStorage {
     }
 
     /**
-     * Get all files that have a specific tag.
-     * Uses the cache for synchronous retrieval.
-     *
-     * @param tag - Tag to search for (with or without #)
-     * @returns Map of path to file data for files with the tag
-     */
-    getFilesByTag(tag: string): Map<string, FileData> {
-        if (!this.cache.isReady()) {
-            return new Map();
-        }
-        const result = new Map<string, FileData>();
-        const allFiles = this.cache.getAllFilesWithPaths();
-        for (const { path, data } of allFiles) {
-            if (data.tags !== null && data.tags.includes(tag)) {
-                result.set(path, data);
-            }
-        }
-        return result;
-    }
-
-    // Removed getFileByPath as it's redundant now that path is the primary key
-
-    /**
      * Batch update or add multiple files in the database.
      * More efficient than multiple setFile calls.
      * Updates cache after successful database writes.
