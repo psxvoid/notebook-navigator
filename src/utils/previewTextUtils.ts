@@ -99,9 +99,12 @@ const BASE_PATTERNS = [
     // Group 23: Wiki links
     // Example: [[Some Page]] → Some Page
     /\[\[([^\]]+)\]\]/.source,
-    // Group 24: Callout titles (just the [!...] part)
-    // Example: [!info] Optional title → (removed)
-    /\[![\w-]+\](?:\s+[^\n]*)?/.source,
+    // Group 24: Callout titles (supports [!...] and [!...]+/-)
+    // Examples:
+    // [!info] Optional title → (removed)
+    // [!info]+ Optional title → (removed)
+    // [!info]- Optional title → (removed)
+    /\[![\w-]+\][+-]?(?:\s+[^\n]*)?/.source,
     // Group 25: Lists and blockquotes - non-capturing group
     // Example: - List item → (removed), * List → (removed), > Quote → (removed)
     /^(?:[-*+]\s+|\d+\.\s+|>\s+)/.source,
