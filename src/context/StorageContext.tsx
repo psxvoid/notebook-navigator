@@ -267,11 +267,13 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     const rebuildTagTree = useCallback(() => {
         const db = getDBInstance();
         const excludedFolderPatterns = settings.excludedFolders;
+        // Include only files that pass current frontmatter + folder exclusion filters
+        const includedPaths = new Set(getFilteredMarkdownFilesCallback().map(f => f.path));
         const {
             favoriteTree,
             tagTree,
             untagged: newUntagged
-        } = buildTagTreeFromDatabase(db, excludedFolderPatterns, settings.favoriteTags);
+        } = buildTagTreeFromDatabase(db, excludedFolderPatterns, settings.favoriteTags, includedPaths);
         clearNoteCountCache();
         const untaggedCount = newUntagged;
         setFileData({ favoriteTree, tagTree, untagged: untaggedCount });
@@ -282,7 +284,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
 
         return { favoriteTree, tagTree };
-    }, [settings.excludedFolders, settings.favoriteTags, tagTreeService]);
+    }, [settings.excludedFolders, settings.favoriteTags, tagTreeService, getFilteredMarkdownFilesCallback]);
 
     // Hook for handling deferred cleanup after tag extraction
     const { startTracking, handleTagsExtracted, waitForMetadataCache } = useDeferredMetadataCleanup({
@@ -670,6 +672,91 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
 
         // Let content providers handle settings changes
         handleSettingsChanges(prevSettings.current, settings);
+
+        // Detect exclusion setting changes and resync cache / tag tree
+        const excludedFoldersChanged = JSON.stringify(prevSettings.current.excludedFolders) !== JSON.stringify(settings.excludedFolders);
+        const excludedFilesChanged = JSON.stringify(prevSettings.current.excludedFiles) !== JSON.stringify(settings.excludedFiles);
+
+        if (excludedFoldersChanged || excludedFilesChanged) {
+            (async () => {
+                try {
+                    const allFiles = getFilteredMarkdownFilesCallback();
+                    const { toAdd, toUpdate, toRemove, cachedFiles } = await calculateFileDiff(allFiles);
+
+                    if (toRemove.length > 0) {
+                        await removeFilesFromCache(toRemove);
+                    }
+
+                    if (toAdd.length > 0 || toUpdate.length > 0) {
+                        await recordFileChanges([...toAdd, ...toUpdate], cachedFiles);
+                    }
+
+                    // Always rebuild tag tree so folder exclusion rule changes take effect immediately
+                    if (settings.showTags) {
+                        rebuildTagTree();
+                    }
+
+                    // Queue content generation for newly added/updated items if needed
+                    const contentEnabled =
+                        settings.showTags || settings.showFilePreview || settings.showFeatureImage || settings.useFrontmatterMetadata;
+
+                    if (contentRegistry.current && contentEnabled) {
+                        const db = getDBInstance();
+                        let filesToProcess: TFile[] = [];
+
+                        try {
+                            const filesToCheck = [...toAdd, ...toUpdate];
+                            const paths = filesToCheck.map(f => f.path);
+                            const indexedFiles = db.getFiles(paths);
+
+                            filesToProcess = filesToCheck.filter(file => {
+                                const fileData = indexedFiles.get(file.path);
+                                if (!fileData) return true;
+                                if (fileData.mtime !== file.stat.mtime) return true;
+                                const needsContent =
+                                    (settings.showFilePreview && fileData.preview === null && file.extension === 'md') ||
+                                    (settings.showFeatureImage && fileData.featureImage === null) ||
+                                    (settings.useFrontmatterMetadata && fileData.metadata === null && file.extension === 'md');
+                                return needsContent;
+                            });
+
+                            if (filesToProcess.length === 0) {
+                                const filesNeedingTags = settings.showTags ? db.getFilesNeedingContent('tags') : new Set<string>();
+                                const filesNeedingPreview = settings.showFilePreview
+                                    ? db.getFilesNeedingContent('preview')
+                                    : new Set<string>();
+                                const filesNeedingImage = settings.showFeatureImage
+                                    ? db.getFilesNeedingContent('featureImage')
+                                    : new Set<string>();
+                                const filesNeedingMetadata = settings.useFrontmatterMetadata
+                                    ? db.getFilesNeedingContent('metadata')
+                                    : new Set<string>();
+
+                                const pathsNeedingContent = new Set([
+                                    ...filesNeedingTags,
+                                    ...filesNeedingPreview,
+                                    ...filesNeedingImage,
+                                    ...filesNeedingMetadata
+                                ]);
+
+                                if (pathsNeedingContent.size > 0) {
+                                    filesToProcess = allFiles.filter(file => pathsNeedingContent.has(file.path));
+                                }
+                            }
+                        } catch (err) {
+                            console.error('Failed to check content needs from IndexedDB:', err);
+                        }
+
+                        if (filesToProcess.length > 0) {
+                            contentRegistry.current.queueFilesForAllProviders(filesToProcess, settings);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error resyncing cache after exclusion changes:', error);
+                }
+            })();
+        }
+
         prevSettings.current = settings;
 
         // Check for favoriteTags changes separately (not a content setting)
@@ -678,7 +765,7 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             rebuildTagTree();
             prevFavoriteTags.current = settings.favoriteTags;
         }
-    }, [settings, handleSettingsChanges, rebuildTagTree]);
+    }, [settings, handleSettingsChanges, rebuildTagTree, getFilteredMarkdownFilesCallback]);
 
     return <StorageContext.Provider value={contextValue}>{children}</StorageContext.Provider>;
 }

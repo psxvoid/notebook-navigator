@@ -59,7 +59,8 @@ function getNoteCountCache(): WeakMap<TagTreeNode, number> {
 export function buildTagTreeFromDatabase(
     db: IndexedDBStorage,
     excludedFolderPatterns?: string[],
-    favoritePatterns: string[] = []
+    favoritePatterns: string[] = [],
+    includedPaths?: Set<string>
 ): { favoriteTree: Map<string, TagTreeNode>; tagTree: Map<string, TagTreeNode>; untagged: number } {
     // Favorite prefixes will be used for simple prefix matching
 
@@ -78,6 +79,10 @@ export function buildTagTreeFromDatabase(
 
     // First pass: collect all tags and their file associations
     for (const { path, data: fileData } of allFiles) {
+        // Defense-in-depth: skip files not in the included set (e.g., frontmatter-excluded)
+        if (includedPaths && !includedPaths.has(path)) {
+            continue;
+        }
         // Skip files in excluded folders if patterns provided
         if (excludedFolderPatterns && isPathInExcludedFolder(path, excludedFolderPatterns)) {
             continue;
