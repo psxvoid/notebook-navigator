@@ -237,6 +237,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
     private statsTextEl: HTMLElement | null = null;
     // Reference to metadata parsing info element
     private metadataInfoEl: HTMLElement | null = null;
+    // Statistics update interval ID
+    private statsUpdateInterval: number | null = null;
 
     /**
      * Creates a new settings tab
@@ -417,6 +419,12 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
      * - Advanced
      */
     display(): void {
+        // Clear any existing interval to prevent duplicates
+        if (this.statsUpdateInterval !== null) {
+            window.clearInterval(this.statsUpdateInterval);
+            this.statsUpdateInterval = null;
+        }
+
         const { containerEl } = this;
         containerEl.empty();
 
@@ -1250,11 +1258,13 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         this.updateStatistics();
 
         // Start periodic updates every 1 second
-        this.plugin.registerInterval(
-            window.setInterval(() => {
-                this.updateStatistics();
-            }, TIMEOUTS.INTERVAL_STATISTICS)
-        );
+        // Create interval and register it with plugin for cleanup on unload
+        this.statsUpdateInterval = window.setInterval(() => {
+            this.updateStatistics();
+        }, TIMEOUTS.INTERVAL_STATISTICS);
+
+        // Register with plugin to ensure cleanup on plugin unload
+        this.plugin.registerInterval(this.statsUpdateInterval);
 
         // Set initial visibility
         previewSettingsEl.toggle(this.plugin.settings.showFilePreview);
@@ -1330,7 +1340,11 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         this.debounceTimers.forEach(timer => window.clearTimeout(timer));
         this.debounceTimers.clear();
 
-        // Note: statsUpdateInterval is automatically cleaned up by plugin.registerInterval
+        // Stop statistics update interval
+        if (this.statsUpdateInterval !== null) {
+            window.clearInterval(this.statsUpdateInterval);
+            this.statsUpdateInterval = null;
+        }
 
         // Clear reference to stats element
         this.statsTextEl = null;
