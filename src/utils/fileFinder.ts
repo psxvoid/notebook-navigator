@@ -225,9 +225,9 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
     }
 
     const excludedFolderPatterns = settings.excludedFolders;
-    const showHiddenFolders = settings.showHiddenItems;
+    // For tag views, always exclude files in excluded folders to align with tag tree counts
     const isAllowedByFolder = (file: TFile) =>
-        showHiddenFolders || excludedFolderPatterns.length === 0 || !isPathInExcludedFolder(file.path, excludedFolderPatterns);
+        excludedFolderPatterns.length === 0 || !isPathInExcludedFolder(file.path, excludedFolderPatterns);
 
     // Apply folder-based visibility rules to align with tag tree counts
     const baseFiles = allFiles.filter(isAllowedByFolder);

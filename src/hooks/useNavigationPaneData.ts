@@ -521,6 +521,23 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         };
     }, [app, settings.showRootFolder]);
 
+    // Refresh folder counts when frontmatter changes (e.g., hide/unhide via frontmatter properties)
+    useEffect(() => {
+        const bumpCounts = leadingEdgeDebounce(() => {
+            setFileChangeVersion(v => v + 1);
+        }, TIMEOUTS.DEBOUNCE_CONTENT);
+
+        const metaRef = app.metadataCache.on('changed', file => {
+            if (file instanceof TFile) {
+                bumpCounts();
+            }
+        });
+
+        return () => {
+            app.metadataCache.offref(metaRef);
+        };
+    }, [app]);
+
     return {
         items: filteredItems,
         pathToIndex,

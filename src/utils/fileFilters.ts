@@ -36,6 +36,7 @@ export function shouldExcludeFile(file: TFile, excludedProperties: string[], app
     const frontmatter = metadata?.frontmatter;
     if (!frontmatter) return false;
 
+    // Hide if any of the listed properties exist in frontmatter (value is ignored)
     return excludedProperties.some(prop => prop in frontmatter);
 }
 
