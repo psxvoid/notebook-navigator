@@ -269,7 +269,7 @@ export class FileSystemOperations {
         onSuccess?: () => void,
         preDeleteAction?: () => Promise<void>
     ): Promise<void> {
-        const performDelete = async () => {
+        const performDeleteCore = async () => {
             try {
                 // Run pre-delete action if provided
                 if (preDeleteAction) {
@@ -291,12 +291,24 @@ export class FileSystemOperations {
                 this.app,
                 strings.modals.fileSystem.deleteFileTitle.replace('{name}', file.basename),
                 strings.modals.fileSystem.deleteFileConfirm,
-                performDelete
+                async () => {
+                    const commandQueue = this.getCommandQueue();
+                    if (commandQueue) {
+                        await commandQueue.executeDeleteFiles([file], performDeleteCore);
+                    } else {
+                        await performDeleteCore();
+                    }
+                }
             );
             confirmModal.open();
         } else {
             // Direct deletion without confirmation
-            await performDelete();
+            const commandQueue = this.getCommandQueue();
+            if (commandQueue) {
+                await commandQueue.executeDeleteFiles([file], performDeleteCore);
+            } else {
+                await performDeleteCore();
+            }
         }
     }
 
@@ -624,7 +636,7 @@ export class FileSystemOperations {
     ): Promise<void> {
         if (files.length === 0) return;
 
-        const performDelete = async () => {
+        const performDeleteCore = async () => {
             // Run optional pre-delete action (e.g., to update selection)
             if (preDeleteAction) {
                 try {
@@ -679,11 +691,23 @@ export class FileSystemOperations {
                 this.app,
                 strings.fileSystem.confirmations.deleteMultipleFiles.replace('{count}', files.length.toString()),
                 strings.fileSystem.confirmations.deleteConfirmation,
-                performDelete
+                async () => {
+                    const commandQueue = this.getCommandQueue();
+                    if (commandQueue) {
+                        await commandQueue.executeDeleteFiles(files, performDeleteCore);
+                    } else {
+                        await performDeleteCore();
+                    }
+                }
             );
             modal.open();
         } else {
-            await performDelete();
+            const commandQueue = this.getCommandQueue();
+            if (commandQueue) {
+                await commandQueue.executeDeleteFiles(files, performDeleteCore);
+            } else {
+                await performDeleteCore();
+            }
         }
     }
 

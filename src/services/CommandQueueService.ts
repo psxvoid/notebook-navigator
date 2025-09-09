@@ -23,6 +23,7 @@ import { App, TFile, TFolder, PaneType } from 'obsidian';
  */
 export enum OperationType {
     MOVE_FILE = 'move-file',
+    DELETE_FILES = 'delete-files',
     OPEN_FOLDER_NOTE = 'open-folder-note',
     OPEN_VERSION_HISTORY = 'open-version-history',
     OPEN_IN_NEW_CONTEXT = 'open-in-new-context'
@@ -44,6 +45,14 @@ interface MoveFileOperation extends BaseOperation {
     type: OperationType.MOVE_FILE;
     files: TFile[];
     targetFolder: TFolder;
+}
+
+/**
+ * Operation for tracking batch file deletions
+ */
+interface DeleteFilesOperation extends BaseOperation {
+    type: OperationType.DELETE_FILES;
+    files: TFile[];
 }
 
 /**
@@ -70,8 +79,12 @@ interface OpenInNewContextOperation extends BaseOperation {
     file: TFile;
     context: PaneType;
 }
-
-type Operation = MoveFileOperation | OpenFolderNoteOperation | OpenVersionHistoryOperation | OpenInNewContextOperation;
+type Operation =
+    | MoveFileOperation
+    | DeleteFilesOperation
+    | OpenFolderNoteOperation
+    | OpenVersionHistoryOperation
+    | OpenInNewContextOperation;
 
 /**
  * Result of a command execution
@@ -90,6 +103,7 @@ export interface CommandResult<T = unknown> {
 export class CommandQueueService {
     private activeOperations = new Map<string, Operation>();
     private operationCounter = 0;
+    private listeners = new Set<(type: OperationType, active: boolean) => void>();
 
     constructor(private app: App) {}
 
@@ -98,6 +112,27 @@ export class CommandQueueService {
      */
     private generateOperationId(): string {
         return `op-${Date.now()}-${++this.operationCounter}`;
+    }
+
+    /**
+     * Subscribe to operation activity changes. Returns an unsubscribe function.
+     */
+    onOperationChange(listener: (type: OperationType, active: boolean) => void): () => void {
+        this.listeners.add(listener);
+        return () => {
+            this.listeners.delete(listener);
+        };
+    }
+
+    private notify(type: OperationType, active: boolean) {
+        this.listeners.forEach(l => {
+            try {
+                l(type, active);
+            } catch (e) {
+                // Swallow listener errors to avoid breaking queue
+                console.error('CommandQueueService listener error:', e);
+            }
+        });
     }
 
     /**
@@ -117,6 +152,13 @@ export class CommandQueueService {
      */
     isMovingFile(): boolean {
         return this.hasActiveOperation(OperationType.MOVE_FILE);
+    }
+
+    /**
+     * Check if deleting files
+     */
+    isDeletingFiles(): boolean {
+        return this.hasActiveOperation(OperationType.DELETE_FILES);
     }
 
     /**
@@ -164,6 +206,7 @@ export class CommandQueueService {
         };
 
         this.activeOperations.set(operationId, operation);
+        this.notify(OperationType.MOVE_FILE, true);
 
         try {
             let movedCount = 0;
@@ -212,6 +255,33 @@ export class CommandQueueService {
         } finally {
             // Always clean up the operation
             this.activeOperations.delete(operationId);
+            this.notify(OperationType.MOVE_FILE, false);
+        }
+    }
+
+    /**
+     * Execute a batch delete operation with proper context tracking
+     */
+    async executeDeleteFiles(files: TFile[], performDelete: () => Promise<void>): Promise<CommandResult<void>> {
+        const operationId = this.generateOperationId();
+        const operation: DeleteFilesOperation = {
+            id: operationId,
+            type: OperationType.DELETE_FILES,
+            timestamp: Date.now(),
+            files
+        };
+
+        this.activeOperations.set(operationId, operation);
+        this.notify(OperationType.DELETE_FILES, true);
+
+        try {
+            await performDelete();
+            return { success: true };
+        } catch (error) {
+            return { success: false, error: error as Error };
+        } finally {
+            this.activeOperations.delete(operationId);
+            this.notify(OperationType.DELETE_FILES, false);
         }
     }
 

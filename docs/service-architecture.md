@@ -310,35 +310,42 @@ Manages operation context and tracking, replacing global window flags.
 - Operation queueing and execution
 - Context preservation during operations
 - File move tracking
+- File delete tracking
 - Folder note open tracking
 - Version history operations
 - New context (tab/split/window) tracking
 
-**Operation Types:**
+**Operation types:**
 
 ```typescript
 enum OperationType {
   MOVE_FILE = 'move-file',
+  DELETE_FILES = 'delete-files',
   OPEN_FOLDER_NOTE = 'open-folder-note',
   OPEN_VERSION_HISTORY = 'open-version-history',
   OPEN_IN_NEW_CONTEXT = 'open-in-new-context'
 }
 ```
 
-**Key Methods:**
+**Key methods:**
 
 ```typescript
 // Check operation status
 isMovingFile(): boolean
+isDeletingFiles(): boolean
 isOpeningFolderNote(): boolean
 isOpeningVersionHistory(): boolean
 isOpeningInNewContext(): boolean  // Only for tab/split, not window
 
 // Execute operations with tracking
 executeMoveFiles(files: TFile[], targetFolder: TFolder): Promise<CommandResult>
+executeDeleteFiles(files: TFile[], performDelete: () => Promise<void>): Promise<CommandResult>
 executeOpenFolderNote(folderPath: string, openFile: () => Promise<void>): Promise<CommandResult>
 executeOpenVersionHistory(file: TFile, openHistory: () => Promise<void>): Promise<CommandResult>
 executeOpenInNewContext(file: TFile, context: PaneType, openFile: () => Promise<void>): Promise<CommandResult>
+
+// Subscribe to operation activity changes
+onOperationChange(listener: (type: OperationType, active: boolean) => void): () => void
 
 // Debug and maintenance
 getActiveOperations(): Operation[]
@@ -359,8 +366,32 @@ clearAllOperations(): void
     error?: Error;
   }
   ```
-- **Move Operation Results**: Returns `{movedCount: number, skippedCount: number}` for file move operations, indicating
-  how many files were successfully moved vs. skipped due to conflicts
+- **Move operation results**: returns `{ movedCount: number; skippedCount: number }` for file move operations
+
+**Batch UI update pattern:**
+
+- The file list suppresses intermediate refreshes during batch operations.
+- `useListPaneData` defers handling of `vault.create`, `vault.delete`, and `vault.rename` while `MOVE_FILE` or
+  `DELETE_FILES` are active.
+- After the operation ends, it flushes a single refresh after `TIMEOUTS.FILE_OPERATION_DELAY`.
+- Subscription example:
+
+```typescript
+// useListPaneData
+const unsubscribe = commandQueue.onOperationChange((type, active) => {
+  if (type === OperationType.MOVE_FILE || type === OperationType.DELETE_FILES) {
+    operationActiveRef.current = active;
+    if (!active) {
+      flushPendingWhenIdle(); // schedules one update after TIMEOUTS.FILE_OPERATION_DELAY
+    }
+  }
+});
+```
+
+**Delete integration:**
+
+- `FileSystemOperations.deleteFile` and `deleteMultipleFiles` wrap deletes with `executeDeleteFiles`.
+- This aligns delete behavior with move behavior for list updates.
 
 ### IconService
 
