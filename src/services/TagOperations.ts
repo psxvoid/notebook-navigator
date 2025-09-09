@@ -352,8 +352,8 @@ export class TagOperations {
         // Escape special regex characters in tag
         const escapedTag = this.escapeRegExp(tag);
         // Remove the specific tag with optional preceding space
-        // Must be followed by whitespace or end of line
-        const regex = new RegExp(`(\\s)?#${escapedTag}(?=\\s|$)`, 'gi');
+        // Must be followed by whitespace, punctuation, or end of line
+        const regex = new RegExp(`(\\s)?#${escapedTag}(?=\\s|$|[.,:;!?()\\[\\]{}])`, 'gi');
         return content.replace(regex, '');
     }
 
@@ -370,10 +370,12 @@ export class TagOperations {
      * - "#tag1 #tag2\n#tag3" → "\n"
      * - "end with #tag" → "end with"
      * - "text  #tag  more" → "text  more" (existing double spaces preserved)
+     * - "Task #todo, check #bug." → "Task, check."
+     * - "Review (#urgent) and [#task]" → "Review () and []"
      */
     private removeAllInlineTags(content: string): string {
         // Remove tags with optional leading space, or just the tag at start of line
-        // The regex captures: (optional preceding space)(#tag)(lookahead for space or EOL)
-        return content.replace(/(\s)?#[\w\-/]+(?=\s|$)/g, '');
+        // The regex captures: (optional preceding space)(#tag)(lookahead for space, punctuation, or EOL)
+        return content.replace(/(\s)?#[\w\-/]+(?=\s|$|[.,:;!?()[\]{}])/g, '');
     }
 }
