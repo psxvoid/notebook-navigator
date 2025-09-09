@@ -265,6 +265,7 @@ export const STRINGS_ZH = {
             createFolder: '创建文件夹失败：{error}',
             createFile: '创建文件失败：{error}',
             renameFolder: '重命名文件夹失败：{error}',
+            renameFolderNoteConflict: '无法重命名："{name}"已在此文件夹中存在',
             renameFile: '重命名文件失败：{error}',
             deleteFolder: '删除文件夹失败：{error}',
             deleteFile: '删除文件失败：{error}',

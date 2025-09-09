@@ -265,6 +265,7 @@ export const STRINGS_ES = {
             createFolder: 'Error al crear la carpeta: {error}',
             createFile: 'Error al crear el archivo: {error}',
             renameFolder: 'Error al renombrar la carpeta: {error}',
+            renameFolderNoteConflict: 'No se puede renombrar: "{name}" ya existe en esta carpeta',
             renameFile: 'Error al renombrar el archivo: {error}',
             deleteFolder: 'Error al eliminar la carpeta: {error}',
             deleteFile: 'Error al eliminar el archivo: {error}',

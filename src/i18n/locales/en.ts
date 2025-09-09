@@ -264,6 +264,7 @@ export const STRINGS_EN = {
             createFolder: 'Failed to create folder: {error}',
             createFile: 'Failed to create file: {error}',
             renameFolder: 'Failed to rename folder: {error}',
+            renameFolderNoteConflict: 'Cannot rename: "{name}" already exists in this folder',
             renameFile: 'Failed to rename file: {error}',
             deleteFolder: 'Failed to delete folder: {error}',
             deleteFile: 'Failed to delete file: {error}',

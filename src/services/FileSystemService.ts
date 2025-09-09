@@ -149,30 +149,33 @@ export class FileSystemOperations {
             async newName => {
                 if (newName && newName !== folder.name) {
                     try {
-                        // Check for folder note before renaming
+                        const useDefaultFolderNote = Boolean(settings?.enableFolderNotes && !settings.folderNoteName);
+
                         let folderNote: TFile | null = null;
-                        if (settings?.enableFolderNotes) {
+                        if (useDefaultFolderNote && settings) {
                             folderNote = getFolderNote(folder, settings);
                         }
 
-                        const newPath = normalizePath(folder.parent?.path ? `${folder.parent.path}/${newName}` : newName);
-
-                        // Rename the folder note FIRST if it exists and uses the same name as folder
-                        if (folderNote && settings && !settings.folderNoteName) {
-                            // Only rename if folderNoteName is empty (meaning it uses folder name)
-                            try {
-                                const newNoteName = `${newName}.${folderNote.extension}`;
-                                // Use the current folder path since folder hasn't been renamed yet
-                                const newNotePath = normalizePath(`${folder.path}/${newNoteName}`);
-                                await this.app.fileManager.renameFile(folderNote, newNotePath);
-                            } catch (error) {
-                                // Log error but continue with folder rename
-                                console.error('Failed to rename folder note:', error);
+                        if (folderNote) {
+                            const newNoteName = `${newName}.${folderNote.extension}`;
+                            const conflictPath = normalizePath(`${folder.path}/${newNoteName}`);
+                            const conflict = this.app.vault.getFileByPath(conflictPath);
+                            if (conflict) {
+                                new Notice(strings.fileSystem.errors.renameFolderNoteConflict.replace('{name}', newNoteName));
+                                return;
                             }
                         }
 
-                        // Now rename the folder - this will move the already-renamed folder note with it
-                        await this.app.fileManager.renameFile(folder, newPath);
+                        const newFolderPath = normalizePath(folder.parent?.path ? `${folder.parent.path}/${newName}` : newName);
+
+                        // Rename the folder (moves contents including the folder note)
+                        await this.app.fileManager.renameFile(folder, newFolderPath);
+
+                        // Rename the folder note to match the new folder name when using default naming
+                        if (folderNote) {
+                            const newNotePath = normalizePath(`${newFolderPath}/${newName}.${folderNote.extension}`);
+                            await this.app.fileManager.renameFile(folderNote, newNotePath);
+                        }
                     } catch (error) {
                         new Notice(strings.fileSystem.errors.renameFolder.replace('{error}', error.message));
                     }

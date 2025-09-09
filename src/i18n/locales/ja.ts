@@ -265,6 +265,7 @@ export const STRINGS_JA = {
             createFolder: 'フォルダの作成に失敗しました：{error}',
             createFile: 'ファイルの作成に失敗しました：{error}',
             renameFolder: 'フォルダの名前変更に失敗しました：{error}',
+            renameFolderNoteConflict: '名前を変更できません："{name}"はこのフォルダに既に存在します',
             renameFile: 'ファイルの名前変更に失敗しました：{error}',
             deleteFolder: 'フォルダの削除に失敗しました：{error}',
             deleteFile: 'ファイルの削除に失敗しました：{error}',
