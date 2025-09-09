@@ -16,7 +16,6 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import { TFolder } from 'obsidian';
 import { SortOption } from '../../settings';
 import { ItemType } from '../../types';
 import { BaseMetadataService } from './BaseMetadataService';
@@ -31,8 +30,7 @@ export class FolderMetadataService extends BaseMetadataService {
      * Validates that a folder exists in the vault
      */
     private validateFolder(folderPath: string): boolean {
-        const folder = this.app.vault.getAbstractFileByPath(folderPath);
-        return folder instanceof TFolder;
+        return this.app.vault.getFolderByPath(folderPath) !== null;
     }
 
     /**
@@ -169,10 +167,7 @@ export class FolderMetadataService extends BaseMetadataService {
      * @returns True if any changes were made
      */
     async cleanupFolderMetadata(): Promise<boolean> {
-        const validator = (path: string) => {
-            const folder = this.app.vault.getAbstractFileByPath(path);
-            return folder instanceof TFolder;
-        };
+        const validator = (path: string) => this.app.vault.getFolderByPath(path) !== null;
 
         const results = await Promise.all([
             this.cleanupMetadata(this.settingsProvider.settings, 'folderColors', validator),

@@ -165,7 +165,7 @@
 
         async createTestFolder(path) {
             await app.vault.createFolder(path);
-            const folder = app.vault.getAbstractFileByPath(path);
+            const folder = app.vault.getFolderByPath(path);
             this.testFolders.push(folder);
             return folder;
         }
@@ -178,7 +178,7 @@
             // Delete test files
             for (const file of this.testFiles) {
                 try {
-                    await app.vault.delete(file);
+                    await app.fileManager.trashFile(file);
                 } catch (e) {
                     // File might already be deleted
                 }
@@ -187,7 +187,7 @@
             // Delete test folders (in reverse order to delete children first)
             for (const folder of this.testFolders.reverse()) {
                 try {
-                    await app.vault.delete(folder);
+                    await app.fileManager.trashFile(folder);
                 } catch (e) {
                     // Folder might already be deleted
                 }

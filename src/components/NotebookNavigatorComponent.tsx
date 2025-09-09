@@ -168,8 +168,8 @@ export const NotebookNavigatorComponent = React.memo(
             const getSelectedFiles = (): TFile[] => {
                 // Get selected files
                 const selectedFiles = Array.from(selectionState.selectedFiles)
-                    .map(path => app.vault.getAbstractFileByPath(path))
-                    .filter((f): f is TFile => f instanceof TFile);
+                    .map(path => app.vault.getFileByPath(path))
+                    .filter((f): f is TFile => !!f);
 
                 if (selectedFiles.length === 0) {
                     // No files selected, try current file

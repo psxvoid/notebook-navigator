@@ -448,8 +448,8 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             }
 
             // Handle folder drops
-            const targetFolder = app.vault.getAbstractFileByPath(targetPath);
-            if (!(targetFolder instanceof TFolder)) return;
+            const targetFolder = app.vault.getFolderByPath(targetPath);
+            if (!targetFolder) return;
 
             // Check if dragging multiple files (never folders - folders are always single)
             const multipleFilesData = e.dataTransfer?.getData('obsidian/files');

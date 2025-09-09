@@ -177,8 +177,8 @@ export class MetadataAPI {
 
         // Fire events for changed folders
         for (const folderPath of changedFolders) {
-            const folder = this.api.getApp().vault.getAbstractFileByPath(folderPath);
-            if (folder instanceof TFolder) {
+            const folder = this.api.getApp().vault.getFolderByPath(folderPath);
+            if (folder) {
                 const metadata = this.getFolderMeta(folder);
                 this.api.trigger('folder-changed', {
                     folder,

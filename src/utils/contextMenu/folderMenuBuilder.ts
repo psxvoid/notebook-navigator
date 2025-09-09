@@ -162,7 +162,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                         const notePath = normalizePath(`${folder.path}/${noteName}`);
 
                         // Check if file already exists
-                        const existingFile = app.vault.getAbstractFileByPath(notePath);
+                        const existingFile = app.vault.getFileByPath(notePath);
                         if (existingFile) {
                             new Notice(strings.fileSystem.errors.folderNoteAlreadyExists);
                             return;

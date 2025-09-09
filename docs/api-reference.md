@@ -128,8 +128,8 @@ notes when browsing folders, and reference notes when browsing by tags.
 
 ```typescript
 // Set folder appearance
-const folder = app.vault.getAbstractFileByPath('Projects');
-if (folder instanceof TFolder) {
+const folder = app.vault.getFolderByPath('Projects');
+if (folder) {
   await nn.metadata.setFolderMeta(folder, {
     color: '#FF5733', // Hex, or 'red', 'rgb(255, 87, 51)', 'hsl(9, 100%, 60%)'
     icon: 'lucide:folder-open' // Type-safe with IconString

@@ -546,7 +546,7 @@ export class FileSystemOperations {
             let newName = `${baseName} ${counter}`;
             let newPath = normalizePath(file.parent ? `${file.parent.path}/${newName}.${extension}` : `${newName}.${extension}`);
 
-            while (this.app.vault.getAbstractFileByPath(newPath)) {
+            while (this.app.vault.getFileByPath(newPath)) {
                 counter++;
                 newName = `${baseName} ${counter}`;
                 newPath = normalizePath(file.parent ? `${file.parent.path}/${newName}.${extension}` : `${newName}.${extension}`);
@@ -597,7 +597,7 @@ export class FileSystemOperations {
             let newName = `${baseName} ${counter}`;
             let newPath = normalizePath(folder.parent ? `${folder.parent.path}/${newName}` : newName);
 
-            while (this.app.vault.getAbstractFileByPath(newPath)) {
+            while (this.app.vault.getFolderByPath(newPath)) {
                 counter++;
                 newName = `${baseName} ${counter}`;
                 newPath = normalizePath(folder.parent ? `${folder.parent.path}/${newName}` : newName);

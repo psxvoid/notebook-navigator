@@ -176,7 +176,7 @@ export class CommandQueueService {
                 const newPath = `${targetFolder.path}/${file.name}`;
 
                 // Check for name conflicts
-                if (this.app.vault.getAbstractFileByPath(newPath)) {
+                if (this.app.vault.getFileByPath(newPath)) {
                     skippedCount++;
                     continue;
                 }
