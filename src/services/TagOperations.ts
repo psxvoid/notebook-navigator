@@ -353,13 +353,15 @@ export class TagOperations {
 
     /**
      * Removes a specific inline tag from content
+     * Supports Unicode characters in tags (e.g., #TODO_日本語, #проект, #tâche)
      */
     private removeInlineTags(content: string, tag: string): string {
         // Escape special regex characters in tag
         const escapedTag = this.escapeRegExp(tag);
         // Remove the specific tag with optional preceding space
         // Must be followed by whitespace, punctuation, or end of line
-        const regex = new RegExp(`(\\s)?#${escapedTag}(?=\\s|$|[.,:;!?()\\[\\]{}])`, 'gi');
+        // Uses 'u' flag for proper Unicode matching in case tag contains Unicode characters
+        const regex = new RegExp(`(\\s)?#${escapedTag}(?=\\s|$|[.,:;!?()\\[\\]{}])`, 'giu');
         return content.replace(regex, '');
     }
 
@@ -378,10 +380,15 @@ export class TagOperations {
      * - "text  #tag  more" → "text  more" (existing double spaces preserved)
      * - "Task #todo, check #bug." → "Task, check."
      * - "Review (#urgent) and [#task]" → "Review () and []"
+     * - "#TODO_日本語 text" → "text" (Unicode support)
+     * - "#проект/задача done" → "done" (Cyrillic support)
+     * - "#tâche-à-faire text" → "text" (accented characters)
      */
     private removeAllInlineTags(content: string): string {
         // Remove tags with optional leading space, or just the tag at start of line
+        // Uses Unicode property escapes to match any letter or number in any language
+        // \p{L} matches any Unicode letter, \p{N} matches any Unicode number
         // The regex captures: (optional preceding space)(#tag)(lookahead for space, punctuation, or EOL)
-        return content.replace(/(\s)?#[\w\-/]+(?=\s|$|[.,:;!?()[\]{}])/g, '');
+        return content.replace(/(\s)?#[\p{L}\p{N}_\-/]+(?=\s|$|[.,:;!?()[\]{}])/gu, '');
     }
 }
