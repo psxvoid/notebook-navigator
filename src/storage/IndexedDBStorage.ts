@@ -1,5 +1,4 @@
 import { STORAGE_KEYS } from '../types';
-import { TIMEOUTS } from '../types/obsidian-extended';
 import { localStorage } from '../utils/localStorage';
 /*
  * Notebook Navigator - Plugin for Obsidian
@@ -431,10 +430,6 @@ export class IndexedDBStorage {
         await this.init();
         if (!this.db) throw new Error('Database not initialized');
 
-        // Get existing data to check for tag changes
-        const existingData = this.getFiles(files.map(f => f.path));
-        const tagChanges: FileContentChange[] = [];
-
         const transaction = this.db.transaction([STORE_NAME], 'readwrite');
         const store = transaction.objectStore(STORE_NAME);
 
@@ -448,26 +443,6 @@ export class IndexedDBStorage {
             }
 
             files.forEach(({ path, data }) => {
-                // Check if tags changed
-                const existing = existingData.get(path);
-                const existingTags = existing?.tags;
-                const newTags = data.tags;
-
-                const tagsChanged =
-                    !existing ||
-                    existingTags !== newTags || // Handle null vs non-null
-                    (existingTags !== null &&
-                        newTags !== null &&
-                        (existingTags.length !== newTags.length || !existingTags.every((tag, i) => tag === newTags[i])));
-
-                if (tagsChanged) {
-                    tagChanges.push({
-                        path: path,
-                        changes: { tags: data.tags },
-                        changeType: 'metadata'
-                    });
-                }
-
                 const request = store.put(data, path);
 
                 request.onsuccess = () => {
@@ -475,12 +450,6 @@ export class IndexedDBStorage {
                     if (completed === files.length && !hasError) {
                         // Update cache after all successful database writes
                         this.cache.batchUpdate(files);
-
-                        // Emit tag changes after transaction completes
-                        if (tagChanges.length > 0) {
-                            window.setTimeout(() => this.emitChanges(tagChanges), TIMEOUTS.YIELD_TO_EVENT_LOOP);
-                        }
-
                         resolve();
                     }
                 };
@@ -987,29 +956,6 @@ export class IndexedDBStorage {
             this.emitChanges(changeNotifications);
         }
     }
-
-    /**
-     * Get all files that have a specific tag.
-     * Uses the cache for synchronous retrieval.
-     *
-     * @param tag - Tag to search for (with or without #)
-     * @returns Map of path to file data for files with the tag
-     */
-    getFilesByTag(tag: string): Map<string, FileData> {
-        if (!this.cache.isReady()) {
-            return new Map();
-        }
-        const result = new Map<string, FileData>();
-        const allFiles = this.cache.getAllFilesWithPaths();
-        for (const { path, data } of allFiles) {
-            if (data.tags !== null && data.tags.includes(tag)) {
-                result.set(path, data);
-            }
-        }
-        return result;
-    }
-
-    // Removed getFileByPath as it's redundant now that path is the primary key
 
     /**
      * Batch update or add multiple files in the database.

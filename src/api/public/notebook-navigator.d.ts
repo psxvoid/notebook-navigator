@@ -11,11 +11,9 @@
  *
  * const nn = app.plugins.plugins['notebook-navigator']?.api as NotebookNavigatorAPI;
  * if (nn) {
- *   const folder = app.vault.getAbstractFileByPath('Projects');
- *   if (folder instanceof TFolder) {
- *     await nn.metadata.setFolderMeta(folder, {
- *       icon: 'lucide:folder-star'
- *     });
+ *   const folder = app.vault.getFolderByPath('Projects');
+ *   if (folder) {
+ *     await nn.metadata.setFolderMeta(folder, { icon: 'lucide:folder-star' });
  *   }
  * }
  * ```

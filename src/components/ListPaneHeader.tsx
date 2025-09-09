@@ -17,7 +17,7 @@
  */
 
 import React, { useEffect } from 'react';
-import { TFolder, Platform } from 'obsidian';
+import { Platform } from 'obsidian';
 import { useSelectionState, useSelectionDispatch } from '../context/SelectionContext';
 import { useServices, useMetadataService } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
@@ -126,8 +126,8 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
                                     className="nn-path-segment"
                                     onClick={e => {
                                         e.stopPropagation();
-                                        const targetFolder = app.vault.getAbstractFileByPath(pathToSegment);
-                                        if (targetFolder instanceof TFolder) {
+                                        const targetFolder = app.vault.getFolderByPath(pathToSegment);
+                                        if (targetFolder) {
                                             selectionDispatch({ type: 'SET_SELECTED_FOLDER', folder: targetFolder });
                                         }
                                     }}

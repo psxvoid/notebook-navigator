@@ -65,13 +65,6 @@ export function useResizablePane({
     // Track resizing state
     const [isResizing, setIsResizing] = useState(false);
 
-    // Save width to localStorage when it changes
-    useEffect(() => {
-        if (storageKey) {
-            localStorage.set(storageKey, paneWidth);
-        }
-    }, [paneWidth, storageKey]);
-
     const handleResizeMouseDown = useCallback(
         (e: React.MouseEvent) => {
             const startX = e.clientX;
@@ -97,6 +90,10 @@ export function useResizablePane({
             const handleMouseUp = () => {
                 document.removeEventListener('mousemove', handleMouseMove);
                 document.removeEventListener('mouseup', handleMouseUp);
+                // Save final width to localStorage on mouseup
+                if (storageKey) {
+                    localStorage.set(storageKey, currentWidth);
+                }
                 // Clear resizing state
                 setIsResizing(false);
                 // Clear the cleanup ref since we've already cleaned up
@@ -113,7 +110,7 @@ export function useResizablePane({
                 setIsResizing(false);
             };
         },
-        [paneWidth, min]
+        [paneWidth, min, storageKey]
     );
 
     // Cleanup on unmount if resize is in progress

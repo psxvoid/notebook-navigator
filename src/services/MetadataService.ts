@@ -207,22 +207,24 @@ export class MetadataService {
     /**
      * Run unified cleanup using pre-loaded data from StorageContext
      * This avoids multiple file iterations during startup
+     *
+     * Note: Tag metadata is intentionally NOT cleaned up here. Tags are transient labels that:
+     * - May be temporarily unused (e.g., "high-prio" tag with no current items)
+     * - Can be pre-configured before files are tagged
+     * - In multi-device setups, settings sync before files (causing false positives)
+     * Users expect tag colors/icons to persist even when tags are not in use.
+     *
      * @param validators - Object containing database files, tag tree, and vault files
      * @returns true if any changes were made
      */
     async runUnifiedCleanup(validators: CleanupValidators): Promise<boolean> {
-        let hasChanges = false;
-
-        // Run all cleanup operations in parallel using the provided data
-        const [folderChanges, fileChanges, tagChanges] = await Promise.all([
+        // Run cleanup for folders and files only
+        const [folderChanges, fileChanges] = await Promise.all([
             this.folderService.cleanupWithValidators(validators),
-            this.fileService.cleanupWithValidators(validators),
-            this.tagService.cleanupWithValidators(validators)
+            this.fileService.cleanupWithValidators(validators)
         ]);
 
-        hasChanges = folderChanges || fileChanges || tagChanges;
-
-        return hasChanges;
+        return folderChanges || fileChanges;
     }
 
     /**

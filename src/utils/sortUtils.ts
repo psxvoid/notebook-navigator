@@ -78,7 +78,8 @@ export function sortFiles(
     files: TFile[],
     sortOption: SortOption,
     getCreatedTime: (file: TFile) => number,
-    getModifiedTime: (file: TFile) => number
+    getModifiedTime: (file: TFile) => number,
+    getDisplayName?: (file: TFile) => string
 ): void {
     // Helper function to get timestamp for sorting
     const getTimestamp = (file: TFile, type: 'created' | 'modified'): number => {
@@ -99,10 +100,27 @@ export function sortFiles(
             files.sort((a, b) => getTimestamp(a, 'created') - getTimestamp(b, 'created'));
             break;
         case 'title-asc':
-            files.sort((a, b) => naturalCompare(a.basename, b.basename));
+            files.sort((a, b) => {
+                const nameA = getDisplayName ? getDisplayName(a) : a.basename;
+                const nameB = getDisplayName ? getDisplayName(b) : b.basename;
+                const cmp = naturalCompare(nameA, nameB);
+                if (cmp !== 0) return cmp;
+                // Tie-breaker 1: shorter name first (file1 before file001)
+                if (nameA.length !== nameB.length) return nameA.length - nameB.length;
+                // Tie-breaker 2: path for total ordering
+                return a.path.localeCompare(b.path);
+            });
             break;
         case 'title-desc':
-            files.sort((a, b) => naturalCompare(b.basename, a.basename));
+            files.sort((a, b) => {
+                const nameA = getDisplayName ? getDisplayName(a) : a.basename;
+                const nameB = getDisplayName ? getDisplayName(b) : b.basename;
+                const cmp = naturalCompare(nameA, nameB);
+                if (cmp !== 0) return -cmp; // reverse order for desc
+                // Keep tie-breakers consistent to ensure deterministic order across contexts
+                if (nameA.length !== nameB.length) return nameA.length - nameB.length;
+                return a.path.localeCompare(b.path);
+            });
             break;
     }
 }

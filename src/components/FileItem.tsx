@@ -218,6 +218,7 @@ export const FileItem = React.memo(function FileItem({
     const [previewText, setPreviewText] = useState<string>(initialData.preview);
     const [tags, setTags] = useState<string[]>(initialData.tagList);
     const [featureImageUrl, setFeatureImageUrl] = useState<string | null>(initialData.imageUrl);
+    const [metadataVersion, setMetadataVersion] = useState(0);
 
     // === Refs ===
     const fileRef = useRef<HTMLDivElement>(null);
@@ -237,7 +238,9 @@ export const FileItem = React.memo(function FileItem({
     // Get display name from RAM cache (handles frontmatter title)
     const displayName = useMemo(() => {
         return getFileDisplayName(file);
-    }, [file, getFileDisplayName]);
+        // NOTE TO REVIEWER: Recompute on frontmatter metadata changes
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [file, getFileDisplayName, metadataVersion]);
 
     // Highlight matches in display name when search is active
     const highlightedName = useMemo(() => renderHighlightedText(displayName, searchQuery), [displayName, searchQuery]);
@@ -353,7 +356,8 @@ export const FileItem = React.memo(function FileItem({
         settings.dateFormat,
         settings.timeFormat,
         getFileCreatedTime,
-        getFileModifiedTime
+        getFileModifiedTime,
+        metadataVersion
     ]);
 
     // Height optimization settings
@@ -421,6 +425,9 @@ export const FileItem = React.memo(function FileItem({
             if (changes.tags !== undefined) {
                 setTags(changes.tags || []);
             }
+            if (changes.metadata !== undefined) {
+                setMetadataVersion(v => v + 1);
+            }
         });
 
         return () => {
@@ -469,7 +476,18 @@ export const FileItem = React.memo(function FileItem({
         setTooltip(fileRef.current, tooltip, {
             placement: isRTL ? 'left' : 'right'
         });
-    }, [isMobile, file, file.stat.ctime, file.stat.mtime, settings, displayName, getFileCreatedTime, getFileModifiedTime, sortOption]);
+    }, [
+        isMobile,
+        file,
+        file.stat.ctime,
+        file.stat.mtime,
+        settings,
+        displayName,
+        getFileCreatedTime,
+        getFileModifiedTime,
+        sortOption,
+        metadataVersion
+    ]);
 
     // Quick action handlers - these don't need memoization because:
     // 1. They're only attached to DOM elements that appear on hover

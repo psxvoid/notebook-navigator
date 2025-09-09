@@ -30,8 +30,8 @@ export interface ISettingsProvider {
     readonly settings: NotebookNavigatorSettings;
 
     /**
-     * Saves the current settings to persistent storage
+     * Saves the current settings to persistent storage and triggers UI updates
      * @returns Promise that resolves when settings are saved
      */
-    saveSettings(): Promise<void>;
+    saveSettingsAndUpdate(): Promise<void>;
 }

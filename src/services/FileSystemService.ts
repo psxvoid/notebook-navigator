@@ -149,30 +149,33 @@ export class FileSystemOperations {
             async newName => {
                 if (newName && newName !== folder.name) {
                     try {
-                        // Check for folder note before renaming
+                        const useDefaultFolderNote = Boolean(settings?.enableFolderNotes && !settings.folderNoteName);
+
                         let folderNote: TFile | null = null;
-                        if (settings?.enableFolderNotes) {
+                        if (useDefaultFolderNote && settings) {
                             folderNote = getFolderNote(folder, settings);
                         }
 
-                        const newPath = normalizePath(folder.parent?.path ? `${folder.parent.path}/${newName}` : newName);
-
-                        // Rename the folder note FIRST if it exists and uses the same name as folder
-                        if (folderNote && settings && !settings.folderNoteName) {
-                            // Only rename if folderNoteName is empty (meaning it uses folder name)
-                            try {
-                                const newNoteName = `${newName}.${folderNote.extension}`;
-                                // Use the current folder path since folder hasn't been renamed yet
-                                const newNotePath = normalizePath(`${folder.path}/${newNoteName}`);
-                                await this.app.fileManager.renameFile(folderNote, newNotePath);
-                            } catch (error) {
-                                // Log error but continue with folder rename
-                                console.error('Failed to rename folder note:', error);
+                        if (folderNote) {
+                            const newNoteName = `${newName}.${folderNote.extension}`;
+                            const conflictPath = normalizePath(`${folder.path}/${newNoteName}`);
+                            const conflict = this.app.vault.getFileByPath(conflictPath);
+                            if (conflict) {
+                                new Notice(strings.fileSystem.errors.renameFolderNoteConflict.replace('{name}', newNoteName));
+                                return;
                             }
                         }
 
-                        // Now rename the folder - this will move the already-renamed folder note with it
-                        await this.app.fileManager.renameFile(folder, newPath);
+                        const newFolderPath = normalizePath(folder.parent?.path ? `${folder.parent.path}/${newName}` : newName);
+
+                        // Rename the folder (moves contents including the folder note)
+                        await this.app.fileManager.renameFile(folder, newFolderPath);
+
+                        // Rename the folder note to match the new folder name when using default naming
+                        if (folderNote) {
+                            const newNotePath = normalizePath(`${newFolderPath}/${newName}.${folderNote.extension}`);
+                            await this.app.fileManager.renameFile(folderNote, newNotePath);
+                        }
                     } catch (error) {
                         new Notice(strings.fileSystem.errors.renameFolder.replace('{error}', error.message));
                     }
@@ -266,7 +269,7 @@ export class FileSystemOperations {
         onSuccess?: () => void,
         preDeleteAction?: () => Promise<void>
     ): Promise<void> {
-        const performDelete = async () => {
+        const performDeleteCore = async () => {
             try {
                 // Run pre-delete action if provided
                 if (preDeleteAction) {
@@ -288,12 +291,24 @@ export class FileSystemOperations {
                 this.app,
                 strings.modals.fileSystem.deleteFileTitle.replace('{name}', file.basename),
                 strings.modals.fileSystem.deleteFileConfirm,
-                performDelete
+                async () => {
+                    const commandQueue = this.getCommandQueue();
+                    if (commandQueue) {
+                        await commandQueue.executeDeleteFiles([file], performDeleteCore);
+                    } else {
+                        await performDeleteCore();
+                    }
+                }
             );
             confirmModal.open();
         } else {
             // Direct deletion without confirmation
-            await performDelete();
+            const commandQueue = this.getCommandQueue();
+            if (commandQueue) {
+                await commandQueue.executeDeleteFiles([file], performDeleteCore);
+            } else {
+                await performDeleteCore();
+            }
         }
     }
 
@@ -543,16 +558,17 @@ export class FileSystemOperations {
             let newName = `${baseName} ${counter}`;
             let newPath = normalizePath(file.parent ? `${file.parent.path}/${newName}.${extension}` : `${newName}.${extension}`);
 
-            while (this.app.vault.getAbstractFileByPath(newPath)) {
+            while (this.app.vault.getFileByPath(newPath)) {
                 counter++;
                 newName = `${baseName} ${counter}`;
                 newPath = normalizePath(file.parent ? `${file.parent.path}/${newName}.${extension}` : `${newName}.${extension}`);
             }
 
-            const content = await this.app.vault.read(file);
-            const newFile = await this.app.vault.create(newPath, content);
+            const newFile = await this.app.vault.copy(file, newPath);
 
-            this.app.workspace.getLeaf(false).openFile(newFile);
+            if (newFile instanceof TFile) {
+                this.app.workspace.getLeaf(false).openFile(newFile);
+            }
         } catch (error) {
             new Notice(strings.fileSystem.errors.duplicateNote.replace('{error}', error.message));
         }
@@ -593,54 +609,13 @@ export class FileSystemOperations {
             let newName = `${baseName} ${counter}`;
             let newPath = normalizePath(folder.parent ? `${folder.parent.path}/${newName}` : newName);
 
-            while (this.app.vault.getAbstractFileByPath(newPath)) {
+            while (this.app.vault.getFolderByPath(newPath)) {
                 counter++;
                 newName = `${baseName} ${counter}`;
                 newPath = normalizePath(folder.parent ? `${folder.parent.path}/${newName}` : newName);
             }
 
-            await this.app.vault.createFolder(newPath);
-
-            // Copy all contents recursively with batching
-            const copyContents = async (sourceFolder: TFolder, destPath: string) => {
-                // Collect all operations first
-                const filesToCopy: { source: TFile; destPath: string }[] = [];
-                const foldersToCreate: string[] = [];
-
-                const collectOperations = (folder: TFolder, currentDestPath: string) => {
-                    for (const child of folder.children) {
-                        if (child instanceof TFile) {
-                            const childPath = normalizePath(`${currentDestPath}/${child.name}`);
-                            filesToCopy.push({ source: child, destPath: childPath });
-                        } else if (child instanceof TFolder) {
-                            const childPath = normalizePath(`${currentDestPath}/${child.name}`);
-                            foldersToCreate.push(childPath);
-                            collectOperations(child, childPath);
-                        }
-                    }
-                };
-
-                collectOperations(sourceFolder, destPath);
-
-                // Create all folders first
-                for (const folderPath of foldersToCreate) {
-                    await this.app.vault.createFolder(folderPath);
-                }
-
-                // Copy files in batches of 10 to avoid overwhelming the system
-                const BATCH_SIZE = 10;
-                for (let i = 0; i < filesToCopy.length; i += BATCH_SIZE) {
-                    const batch = filesToCopy.slice(i, i + BATCH_SIZE);
-                    await Promise.all(
-                        batch.map(async ({ source, destPath }) => {
-                            const content = await this.app.vault.read(source);
-                            await this.app.vault.create(destPath, content);
-                        })
-                    );
-                }
-            };
-
-            await copyContents(folder, newPath);
+            await this.app.vault.copy(folder, newPath);
         } catch (error) {
             new Notice(strings.fileSystem.errors.duplicateFolder.replace('{error}', error.message));
         }
@@ -651,30 +626,42 @@ export class FileSystemOperations {
      * @param files - Array of files to delete
      * @param confirmBeforeDelete - Whether to show confirmation dialog
      * @param onSuccess - Optional callback to run after successful deletion
+     * @param preDeleteAction - Optional action to run BEFORE files are deleted
      */
-    async deleteMultipleFiles(files: TFile[], confirmBeforeDelete = true, onSuccess?: () => void): Promise<void> {
+    async deleteMultipleFiles(
+        files: TFile[],
+        confirmBeforeDelete = true,
+        onSuccess?: () => void,
+        preDeleteAction?: () => void | Promise<void>
+    ): Promise<void> {
         if (files.length === 0) return;
 
-        const performDelete = async () => {
-            // Delete files in batches to improve performance
-            const BATCH_SIZE = 10;
+        const performDeleteCore = async () => {
+            // Run optional pre-delete action (e.g., to update selection)
+            if (preDeleteAction) {
+                try {
+                    await preDeleteAction();
+                } catch (e) {
+                    // Continue with delete even if pre-delete action throws
+                    console.error('Pre-delete action failed:', e);
+                }
+            }
+
+            // Delete all files in parallel for instant removal
             const errors: { file: TFile; error: unknown }[] = [];
             let deletedCount = 0;
 
-            for (let i = 0; i < files.length; i += BATCH_SIZE) {
-                const batch = files.slice(i, i + BATCH_SIZE);
-                const results = await Promise.allSettled(batch.map(file => this.app.fileManager.trashFile(file)));
+            const results = await Promise.allSettled(files.map(file => this.app.fileManager.trashFile(file)));
 
-                results.forEach((result, index) => {
-                    if (result.status === 'fulfilled') {
-                        deletedCount++;
-                    } else {
-                        const file = batch[index];
-                        errors.push({ file, error: result.reason });
-                        console.error('Error deleting file:', file.path, result.reason);
-                    }
-                });
-            }
+            results.forEach((result, index) => {
+                if (result.status === 'fulfilled') {
+                    deletedCount++;
+                } else {
+                    const file = files[index];
+                    errors.push({ file, error: result.reason });
+                    console.error('Error deleting file:', file.path, result.reason);
+                }
+            });
 
             // Show appropriate notifications
             if (deletedCount > 0) {
@@ -704,11 +691,23 @@ export class FileSystemOperations {
                 this.app,
                 strings.fileSystem.confirmations.deleteMultipleFiles.replace('{count}', files.length.toString()),
                 strings.fileSystem.confirmations.deleteConfirmation,
-                performDelete
+                async () => {
+                    const commandQueue = this.getCommandQueue();
+                    if (commandQueue) {
+                        await commandQueue.executeDeleteFiles(files, performDeleteCore);
+                    } else {
+                        await performDeleteCore();
+                    }
+                }
             );
             modal.open();
         } else {
-            await performDelete();
+            const commandQueue = this.getCommandQueue();
+            if (commandQueue) {
+                await commandQueue.executeDeleteFiles(files, performDeleteCore);
+            } else {
+                await performDeleteCore();
+            }
         }
     }
 
@@ -736,15 +735,38 @@ export class FileSystemOperations {
         // Find next file to select using utility
         const nextFileToSelect = findNextFileAfterRemoval(allFiles, selectedFiles);
 
-        // Delete the files with callback to update selection
-        await this.deleteMultipleFiles(filesToDelete, confirmBeforeDelete, async () => {
-            // Clear multi-selection first
-            selectionDispatch({ type: 'CLEAR_FILE_SELECTION' });
-            // Update selection after deletion (don't open in editor for bulk operations)
-            if (nextFileToSelect) {
-                await updateSelectionAfterFileOperation(nextFileToSelect, selectionDispatch, this.app, { openInEditor: false });
+        // Delete the files with a pre-delete action that updates selection only after confirmation
+        await this.deleteMultipleFiles(
+            filesToDelete,
+            confirmBeforeDelete,
+            async () => {
+                // No additional selection changes here. Selection handled in beforeDelete.
+            },
+            async () => {
+                if (nextFileToSelect) {
+                    // Verify the next file still exists (matching single file deletion)
+                    const stillExists = this.app.vault.getFileByPath(nextFileToSelect.path);
+                    if (stillExists) {
+                        // Update selection using same params as single file deletion
+                        await updateSelectionAfterFileOperation(nextFileToSelect, selectionDispatch, this.app);
+                    } else {
+                        // Next file was deleted, clear selection
+                        await updateSelectionAfterFileOperation(null, selectionDispatch, this.app);
+                    }
+                } else {
+                    // No files left in folder - clear selection
+                    selectionDispatch({ type: 'CLEAR_FILE_SELECTION' });
+                }
+
+                // Focus management (matching single file deletion)
+                window.setTimeout(() => {
+                    const fileListEl = document.querySelector('.nn-list-pane-scroller') as HTMLElement;
+                    if (fileListEl) {
+                        fileListEl.focus();
+                    }
+                }, TIMEOUTS.FILE_OPERATION_DELAY);
             }
-        });
+        );
     }
 
     /**

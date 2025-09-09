@@ -314,8 +314,8 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
      */
     const navigateToFolder = useCallback(
         (folderPath: string) => {
-            const folder = app.vault.getAbstractFileByPath(folderPath);
-            if (!folder || !(folder instanceof TFolder)) return;
+            const folder = app.vault.getFolderByPath(folderPath);
+            if (!folder) return;
 
             // Expand all ancestors to make the folder visible
             const foldersToExpand: string[] = [];

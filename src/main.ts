@@ -18,7 +18,7 @@
 
 import { Plugin, WorkspaceLeaf, TFile, TFolder } from 'obsidian';
 import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
-import { LocalStorageKeys, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, STORAGE_KEYS } from './types';
+import { LocalStorageKeys, NOTEBOOK_NAVIGATOR_VIEW, STORAGE_KEYS } from './types';
 import { ISettingsProvider } from './interfaces/ISettingsProvider';
 import { MetadataService } from './services/MetadataService';
 import { TagOperations } from './services/TagOperations';
@@ -98,6 +98,10 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     private fileRenameListeners = new Map<string, (oldPath: string, newPath: string) => void>();
     // Track if we're in the process of unloading
     private isUnloading = false;
+    // Timer for delayed sync check
+    private syncCheckTimer: number | null = null;
+    // Pending version update to apply after sync check
+    private pendingVersionUpdate: string | null = null;
 
     // LocalStorage keys for state persistence
     // These keys are used to save and restore the plugin's state between sessions
@@ -110,8 +114,17 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     async onExternalSettingsChange() {
         if (!this.isUnloading) {
+            // Cancel pending sync check timer since sync has already updated
+            if (this.syncCheckTimer !== null) {
+                window.clearTimeout(this.syncCheckTimer);
+                this.syncCheckTimer = null;
+            }
+
             await this.loadSettings();
             this.onSettingsUpdate();
+
+            // Apply any pending version update now that sync is complete
+            await this.applyPendingVersionUpdate();
         }
     }
 
@@ -130,7 +143,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         // Clear old recentIcons format if it's still an array
         if (Array.isArray(this.settings.recentIcons)) {
             this.settings.recentIcons = {};
-            await this.saveSettings();
+            await this.saveSettingsAndUpdate();
         }
 
         // Set localStorage version if not present
@@ -164,7 +177,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         // Initialize public API
         this.api = new NotebookNavigatorAPI(this, this.app);
 
-        this.registerView(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, leaf => {
+        this.registerView(NOTEBOOK_NAVIGATOR_VIEW, leaf => {
             return new NotebookNavigatorView(leaf, this);
         });
 
@@ -174,7 +187,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             name: strings.commands.open,
             callback: async () => {
                 // Check if navigator is already open
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 if (navigatorLeaves.length > 0) {
                     // Navigator exists - reveal it and focus the file pane
                     const leaf = navigatorLeaves[0];
@@ -219,7 +232,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Show folder navigation modal
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -238,7 +251,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Show tag navigation modal
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -257,7 +270,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Open search or focus it if already open
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -278,7 +291,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
                 // Toggle the dual pane setting
                 this.settings.dualPane = !this.settings.dualPane;
-                await this.saveSettings();
+                await this.saveSettingsAndUpdate();
             }
         });
 
@@ -290,8 +303,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 this.settings.showNotesFromSubfolders = !this.settings.showNotesFromSubfolders;
-                await this.saveSettings();
-                this.onSettingsUpdate();
+                await this.saveSettingsAndUpdate();
             }
         });
 
@@ -303,8 +315,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 this.settings.showHiddenItems = !this.settings.showHiddenItems;
-                await this.saveSettings();
-                this.onSettingsUpdate();
+                await this.saveSettingsAndUpdate();
             }
         });
 
@@ -316,7 +327,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Trigger collapse/expand on all navigator views
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -336,7 +347,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Create new note in selected folder
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -355,7 +366,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Move selected files
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -374,7 +385,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Find and trigger delete in all navigator views
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 navigatorLeaves.forEach(leaf => {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -393,7 +404,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Add tag to selected files
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -412,7 +423,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Remove tag from selected files
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -431,7 +442,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Remove all tags from selected files
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -545,16 +556,24 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         // Use onLayoutReady for reliable initialization
         this.app.workspace.onLayoutReady(async () => {
             // Always open the view if it doesn't exist
-            const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+            const leaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
             if (leaves.length === 0 && !this.isUnloading) {
                 await this.activateView();
             }
 
-            // Check for version updates
-            await this.checkForVersionUpdate();
+            // Check for version updates but defer saving to avoid conflict with sync
+            await this.checkForVersionUpdate(true);
 
             // Trigger Style Settings plugin to parse our settings
             this.app.workspace.trigger('parse-style-settings');
+
+            // Delayed settings reload to catch Obsidian Sync updates
+            // This handles the race condition where the plugin loads before sync completes
+            // Store timer reference so it can be cancelled if onExternalSettingsChange fires
+            this.syncCheckTimer = window.setTimeout(async () => {
+                this.syncCheckTimer = null;
+                await this.checkSyncAndUpdate();
+            }, 5000); // 5 second delay to allow Obsidian Sync to complete
         });
     }
 
@@ -598,6 +617,12 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     onunload() {
         // Set unloading flag to prevent any new operations
         this.isUnloading = true;
+
+        // Cancel pending sync check timer if it exists
+        if (this.syncCheckTimer !== null) {
+            window.clearTimeout(this.syncCheckTimer);
+            this.syncCheckTimer = null;
+        }
 
         // Clear all listeners first to prevent any callbacks during cleanup
         this.settingsUpdateListeners.clear();
@@ -765,11 +790,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     }
 
     /**
-     * Saves current plugin settings to Obsidian's data storage
-     * Persists user preferences between sessions
+     * Saves current plugin settings to Obsidian's data storage and notifies listeners
+     * Persists user preferences between sessions and triggers UI updates
      * Called whenever settings are modified
      */
-    async saveSettings() {
+    async saveSettingsAndUpdate() {
         await this.saveData(this.settings);
         // Notify all listeners that settings have been updated
         this.onSettingsUpdate();
@@ -806,8 +831,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     public async showHiddenItems(value: boolean) {
         this.settings.showHiddenItems = value;
-        await this.saveSettings();
-        this.onSettingsUpdate();
+        await this.saveSettingsAndUpdate();
     }
 
     /**
@@ -820,7 +844,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         const { workspace } = this.app;
 
         let leaf: WorkspaceLeaf | null = null;
-        const leaves = workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+        const leaves = workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
 
         if (leaves.length > 0) {
             // View already exists - just reveal it
@@ -830,7 +854,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             // Create new leaf only if none exists
             leaf = workspace.getLeftLeaf(false);
             if (leaf) {
-                await leaf.setViewState({ type: VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, active: true });
+                await leaf.setViewState({ type: NOTEBOOK_NAVIGATOR_VIEW, active: true });
                 workspace.revealLeaf(leaf);
             }
         }
@@ -846,7 +870,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     async revealFileInActualFolder(file: TFile) {
         // Find all navigator views and reveal the file
-        const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+        const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
         navigatorLeaves.forEach(leaf => {
             const view = leaf.view;
             if (view instanceof NotebookNavigatorView) {
@@ -856,9 +880,46 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     }
 
     /**
-     * Check if the plugin has been updated and show release notes if needed
+     * Checks for settings changes from sync and updates UI if needed
+     * Called after a delay to catch sync updates that occur during startup
      */
-    private async checkForVersionUpdate(): Promise<void> {
+    private async checkSyncAndUpdate(): Promise<void> {
+        if (this.isUnloading) return;
+
+        // Store current settings for comparison (deep copy for nested objects)
+        const oldSettings = JSON.stringify(this.settings);
+
+        // Reload settings from disk (may have been updated by sync)
+        await this.loadSettings();
+
+        // Check if settings changed during the delay
+        const newSettings = JSON.stringify(this.settings);
+        if (newSettings !== oldSettings) {
+            // Notify all UI components that settings have changed
+            this.onSettingsUpdate();
+        }
+
+        // Apply any pending version update now that sync check is complete
+        await this.applyPendingVersionUpdate();
+    }
+
+    /**
+     * Applies pending version update that was deferred during startup
+     * This avoids early saves that could overwrite incoming sync data
+     */
+    private async applyPendingVersionUpdate(): Promise<void> {
+        if (this.pendingVersionUpdate !== null) {
+            this.settings.lastShownVersion = this.pendingVersionUpdate;
+            this.pendingVersionUpdate = null;
+            await this.saveSettingsAndUpdate();
+        }
+    }
+
+    /**
+     * Check if the plugin has been updated and show release notes if needed
+     * @param deferSave - If true, saves the version update after sync check completes
+     */
+    private async checkForVersionUpdate(deferSave = false): Promise<void> {
         // Get current version from manifest
         const currentVersion = this.manifest.version;
 
@@ -867,8 +928,13 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
         // Don't show on first install (when lastShownVersion is empty)
         if (!lastShownVersion) {
-            this.settings.lastShownVersion = currentVersion;
-            await this.saveSettings();
+            if (deferSave) {
+                // Store for later saving after sync check
+                this.pendingVersionUpdate = currentVersion;
+            } else {
+                this.settings.lastShownVersion = currentVersion;
+                await this.saveSettingsAndUpdate();
+            }
             return;
         }
 
@@ -890,8 +956,13 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             }
 
             // Update version before showing modal so it doesn't show again
-            this.settings.lastShownVersion = currentVersion;
-            await this.saveSettings();
+            if (deferSave) {
+                // Store for later saving after sync check
+                this.pendingVersionUpdate = currentVersion;
+            } else {
+                this.settings.lastShownVersion = currentVersion;
+                await this.saveSettingsAndUpdate();
+            }
 
             // Show the modal only if the current version doesn't have skipAutoShow
             if (shouldShowReleaseNotesForVersion(currentVersion)) {

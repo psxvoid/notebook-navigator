@@ -30,7 +30,7 @@ import { StorageProvider } from '../context/StorageContext';
 import { UIStateProvider } from '../context/UIStateContext';
 import { strings } from '../i18n';
 import NotebookNavigatorPlugin from '../main';
-import { VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT } from '../types';
+import { NOTEBOOK_NAVIGATOR_VIEW } from '../types';
 
 /**
  * Custom Obsidian view that hosts the React-based Notebook Navigator interface
@@ -57,7 +57,7 @@ export class NotebookNavigatorView extends ItemView {
      * @returns The view type constant used by Obsidian to manage this view
      */
     getViewType() {
-        return VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT;
+        return NOTEBOOK_NAVIGATOR_VIEW;
     }
 
     /**

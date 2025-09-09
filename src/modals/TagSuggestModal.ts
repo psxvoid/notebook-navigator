@@ -88,15 +88,16 @@ export class TagSuggestModal extends BaseSuggestModal<TagTreeNode> {
 
     /**
      * Validates if a tag name is valid
-     * Only allows letters, numbers, hyphens, underscores, and forward slashes
+     * Allows Unicode letters, numbers, hyphens, underscores, and forward slashes
      * @param tagName - The tag name to validate
      * @returns Whether the tag name is valid
      */
     private isValidTagName(tagName: string): boolean {
         if (!tagName || tagName.trim() === '') return false;
 
-        // Check for invalid characters (anything other than alphanumeric, -, _, /)
-        const validTagRegex = /^[a-zA-Z0-9\-_/]+$/;
+        // Check for invalid characters - allow any Unicode letter/number plus -, _, /
+        // \p{L} = any Unicode letter, \p{N} = any Unicode number
+        const validTagRegex = /^[\p{L}\p{N}\-_/]+$/u;
         return validTagRegex.test(tagName);
     }
 

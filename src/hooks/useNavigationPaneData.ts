@@ -86,6 +86,8 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
 
     // Stable folder data across re-renders
     const [rootFolders, setRootFolders] = useState<TFolder[]>([]);
+    // Track file changes to trigger count updates for non-markdown files
+    const [fileChangeVersion, setFileChangeVersion] = useState(0);
 
     // Get tag data from context
     const favoriteTree = fileData.favoriteTree;
@@ -454,6 +456,8 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         });
 
         return counts;
+        // NOTE TO REVIEWER: Including **fileChangeVersion** to trigger recalculation when non-markdown files move
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [
         itemsWithMetadata,
         settings.showNoteCount,
@@ -462,7 +466,8 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         settings.excludedFolders,
         settings.fileVisibility,
         app,
-        isVisible
+        isVisible,
+        fileChangeVersion
     ]);
 
     /**
@@ -496,12 +501,18 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         const events = [
             app.vault.on('create', file => {
                 if (file instanceof TFolder) rebuildFolders();
+                // Also track file changes for count updates
+                if (file instanceof TFile) setFileChangeVersion(v => v + 1);
             }),
             app.vault.on('delete', file => {
                 if (file instanceof TFolder) rebuildFolders();
+                // Also track file changes for count updates
+                if (file instanceof TFile) setFileChangeVersion(v => v + 1);
             }),
             app.vault.on('rename', file => {
                 if (file instanceof TFolder) rebuildFolders();
+                // Also track file changes for count updates
+                if (file instanceof TFile) setFileChangeVersion(v => v + 1);
             })
         ];
 
@@ -509,6 +520,23 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
             events.forEach(eventRef => app.vault.offref(eventRef));
         };
     }, [app, settings.showRootFolder]);
+
+    // Refresh folder counts when frontmatter changes (e.g., hide/unhide via frontmatter properties)
+    useEffect(() => {
+        const bumpCounts = leadingEdgeDebounce(() => {
+            setFileChangeVersion(v => v + 1);
+        }, TIMEOUTS.DEBOUNCE_CONTENT);
+
+        const metaRef = app.metadataCache.on('changed', file => {
+            if (file instanceof TFile) {
+                bumpCounts();
+            }
+        });
+
+        return () => {
+            app.metadataCache.offref(metaRef);
+        };
+    }, [app]);
 
     return {
         items: filteredItems,

@@ -22,9 +22,9 @@ import { App } from 'obsidian';
 export const LOCALSTORAGE_VERSION = 1;
 
 /**
- * Type-safe localStorage wrapper with JSON serialization
- * Uses Obsidian's vault-specific localStorage methods to ensure data isolation between vaults
- * IMPORTANT: Must be initialized with app instance before use to prevent data mixing
+ * Type-safe wrapper around Obsidian's vault-specific localStorage API
+ * Obsidian handles JSON serialization/deserialization internally
+ * IMPORTANT: Must be initialized with app instance before use to prevent data mixing between vaults
  */
 export const localStorage = {
     _app: null as App | null,
@@ -38,9 +38,9 @@ export const localStorage = {
     },
     /**
      * Safely retrieves a value from localStorage with error handling
-     * Always attempts JSON parsing
+     * Obsidian automatically deserializes the stored value
      * @param key - The localStorage key
-     * @returns The parsed value or null if not found/error occurs
+     * @returns The deserialized value or null if not found/error occurs
      */
     get<T = string>(key: string): T | null {
         try {
@@ -61,7 +61,7 @@ export const localStorage = {
     /**
      * Safely sets a value in localStorage with error handling
      * @param key - The localStorage key
-     * @param value - The value to store (will be JSON stringified)
+     * @param value - The value to store (Obsidian handles serialization)
      * @returns True if successful, false otherwise
      */
     set<T>(key: string, value: T): boolean {

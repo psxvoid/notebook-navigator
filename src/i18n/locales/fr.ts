@@ -265,6 +265,7 @@ export const STRINGS_FR = {
             createFolder: 'Échec de la création du dossier : {error}',
             createFile: 'Échec de la création du fichier : {error}',
             renameFolder: 'Échec du renommage du dossier : {error}',
+            renameFolderNoteConflict: 'Impossible de renommer : "{name}" existe déjà dans ce dossier',
             renameFile: 'Échec du renommage du fichier : {error}',
             deleteFolder: 'Échec de la suppression du dossier : {error}',
             deleteFile: 'Échec de la suppression du fichier : {error}',

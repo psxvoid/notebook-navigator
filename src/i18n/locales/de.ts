@@ -265,6 +265,7 @@ export const STRINGS_DE = {
             createFolder: 'Ordner konnte nicht erstellt werden: {error}',
             createFile: 'Datei konnte nicht erstellt werden: {error}',
             renameFolder: 'Ordner konnte nicht umbenannt werden: {error}',
+            renameFolderNoteConflict: 'Umbenennung nicht möglich: "{name}" existiert bereits in diesem Ordner',
             renameFile: 'Datei konnte nicht umbenannt werden: {error}',
             deleteFolder: 'Ordner konnte nicht gelöscht werden: {error}',
             deleteFile: 'Datei konnte nicht gelöscht werden: {error}',

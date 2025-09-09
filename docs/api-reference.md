@@ -77,9 +77,9 @@ Customize folder and tag appearance, manage pinned files.
 - **Color values**: Any string is accepted and saved. Invalid CSS colors will not render correctly but won't throw
   errors.
 - **Tag normalization**: The `getTagMeta()` and `setTagMeta()` methods automatically normalize tags:
-  - Both `'work'` and `'#work'` are accepted and treated as `'#work'`
+  - Both `'work'` and `'#work'` are accepted as input
   - Tags are case-insensitive: `'#Work'` and `'#work'` refer to the same tag
-  - The plugin preserves the canonical case (first encountered form) for display but all comparisons use lowercase
+  - Tags are stored internally without the '#' prefix as lowercase paths
 
 ### Folder and Tag Metadata
 
@@ -128,8 +128,8 @@ notes when browsing folders, and reference notes when browsing by tags.
 
 ```typescript
 // Set folder appearance
-const folder = app.vault.getAbstractFileByPath('Projects');
-if (folder instanceof TFolder) {
+const folder = app.vault.getFolderByPath('Projects');
+if (folder) {
   await nn.metadata.setFolderMeta(folder, {
     color: '#FF5733', // Hex, or 'red', 'rgb(255, 87, 51)', 'hsl(9, 100%, 60%)'
     icon: 'lucide:folder-open' // Type-safe with IconString

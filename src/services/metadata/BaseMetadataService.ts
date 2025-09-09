@@ -70,7 +70,7 @@ export abstract class BaseMetadataService {
                 // Update settings
                 updater(this.settingsProvider.settings);
                 // Save settings
-                await this.settingsProvider.saveSettings();
+                await this.settingsProvider.saveSettingsAndUpdate();
             })
             .catch(error => {
                 // Log error but don't break the queue for subsequent updates

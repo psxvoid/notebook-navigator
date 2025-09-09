@@ -72,8 +72,8 @@ export function buildFileMenu(params: FileMenuBuilderParams): void {
     // Cache selected files to avoid repeated path-to-file conversions
     const cachedSelectedFiles = shouldShowMultiOptions
         ? Array.from(selectionState.selectedFiles)
-              .map(path => app.vault.getAbstractFileByPath(path))
-              .filter((f): f is TFile => f instanceof TFile)
+              .map(path => app.vault.getFileByPath(path))
+              .filter((f): f is TFile => !!f)
         : [];
 
     // Open options - show for single or multiple selection
@@ -390,8 +390,8 @@ function addMultipleFilesOpenOptions(
     const selectedFiles =
         cachedSelectedFiles ||
         Array.from(selectionState.selectedFiles)
-            .map(path => app.vault.getAbstractFileByPath(path))
-            .filter((f): f is TFile => f instanceof TFile);
+            .map(path => app.vault.getFileByPath(path))
+            .filter((f): f is TFile => !!f);
     const allMarkdown = selectedFiles.every(f => f.extension === 'md');
 
     menu.addItem((item: MenuItem) => {
@@ -403,8 +403,8 @@ function addMultipleFilesOpenOptions(
             .setIcon('lucide-file-plus')
             .onClick(async () => {
                 const selectedFiles = Array.from(selectionState.selectedFiles)
-                    .map(path => app.vault.getAbstractFileByPath(path))
-                    .filter((f): f is TFile => f instanceof TFile);
+                    .map(path => app.vault.getFileByPath(path))
+                    .filter((f): f is TFile => !!f);
 
                 for (const selectedFile of selectedFiles) {
                     if (commandQueue) {
@@ -428,8 +428,8 @@ function addMultipleFilesOpenOptions(
             .setIcon('lucide-separator-vertical')
             .onClick(async () => {
                 const selectedFiles = Array.from(selectionState.selectedFiles)
-                    .map(path => app.vault.getAbstractFileByPath(path))
-                    .filter((f): f is TFile => f instanceof TFile);
+                    .map(path => app.vault.getFileByPath(path))
+                    .filter((f): f is TFile => !!f);
 
                 for (const selectedFile of selectedFiles) {
                     if (commandQueue) {
@@ -454,8 +454,8 @@ function addMultipleFilesOpenOptions(
                 .setIcon('lucide-external-link')
                 .onClick(async () => {
                     const selectedFiles = Array.from(selectionState.selectedFiles)
-                        .map(path => app.vault.getAbstractFileByPath(path))
-                        .filter((f): f is TFile => f instanceof TFile);
+                        .map(path => app.vault.getFileByPath(path))
+                        .filter((f): f is TFile => !!f);
 
                     for (const selectedFile of selectedFiles) {
                         await app.workspace.getLeaf('window').openFile(selectedFile);
@@ -503,8 +503,8 @@ function addMultipleFilesPinOption(
 ): void {
     // Check if any selected files are unpinned
     const selectedFiles = Array.from(selectionState.selectedFiles)
-        .map(path => app.vault.getAbstractFileByPath(path))
-        .filter((f): f is TFile => f instanceof TFile);
+        .map(path => app.vault.getFileByPath(path))
+        .filter((f): f is TFile => !!f);
 
     const anyUnpinned = selectedFiles.some(f => {
         return !metadataService.isFilePinned(f.path, context);
@@ -565,8 +565,8 @@ function addMultipleFilesDuplicateOption(
 ): void {
     // Check if all files are markdown
     const selectedFiles = Array.from(selectionState.selectedFiles)
-        .map(path => app.vault.getAbstractFileByPath(path))
-        .filter((f): f is TFile => f instanceof TFile);
+        .map(path => app.vault.getFileByPath(path))
+        .filter((f): f is TFile => !!f);
     const allMarkdown = selectedFiles.every(f => f.extension === 'md');
 
     menu.addItem((item: MenuItem) => {
@@ -579,8 +579,8 @@ function addMultipleFilesDuplicateOption(
             .onClick(async () => {
                 // Duplicate all selected files
                 const selectedFiles = Array.from(selectionState.selectedFiles)
-                    .map(path => app.vault.getAbstractFileByPath(path))
-                    .filter((f): f is TFile => f instanceof TFile);
+                    .map(path => app.vault.getFileByPath(path))
+                    .filter((f): f is TFile => !!f);
 
                 for (const selectedFile of selectedFiles) {
                     await fileSystemOps.duplicateNote(selectedFile);

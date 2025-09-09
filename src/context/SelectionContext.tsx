@@ -75,8 +75,8 @@ const SelectionDispatchContext = createContext<React.Dispatch<SelectionAction> |
 function getFirstSelectedFile(selectedFiles: Set<string>, app: App): TFile | null {
     if (selectedFiles.size === 0) return null;
     const firstPath = Array.from(selectedFiles)[0];
-    const file = app.vault.getAbstractFileByPath(firstPath);
-    return file instanceof TFile ? file : null;
+    const file = app.vault.getFileByPath(firstPath);
+    return file || null;
 }
 
 /**
@@ -439,8 +439,8 @@ function selectionReducer(state: SelectionState, action: SelectionAction, app?: 
             // Update selected file reference if it was renamed
             let newSelectedFile = state.selectedFile;
             if (state.selectedFile && state.selectedFile.path === action.oldPath && app) {
-                const updatedFile = app.vault.getAbstractFileByPath(action.newPath);
-                if (updatedFile && updatedFile instanceof TFile) {
+                const updatedFile = app.vault.getFileByPath(action.newPath);
+                if (updatedFile) {
                     newSelectedFile = updatedFile;
                 }
             }
@@ -494,8 +494,8 @@ export function SelectionProvider({
 
         let selectedFolder: TFolder | null = null;
         if (savedFolderPath) {
-            const folder = vault.getAbstractFileByPath(savedFolderPath);
-            if (folder instanceof TFolder) {
+            const folder = vault.getFolderByPath(savedFolderPath);
+            if (folder) {
                 selectedFolder = folder;
             }
         }
@@ -538,8 +538,8 @@ export function SelectionProvider({
         // Load multi-selection if available
         if (savedFilePaths.length > 0) {
             for (const path of savedFilePaths) {
-                const file = vault.getAbstractFileByPath(path);
-                if (file instanceof TFile) {
+                const file = vault.getFileByPath(path);
+                if (file) {
                     selectedFiles.add(file.path);
                     // Set the first valid file as the primary file if we don't have one
                     if (!selectedFile) {
@@ -551,8 +551,8 @@ export function SelectionProvider({
 
         // Fall back to single file if no multi-selection
         if (selectedFiles.size === 0 && savedFilePath) {
-            const file = vault.getAbstractFileByPath(savedFilePath);
-            if (file instanceof TFile) {
+            const file = vault.getFileByPath(savedFilePath);
+            if (file) {
                 selectedFile = file;
                 selectedFiles.add(file.path);
             }

@@ -162,7 +162,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                         const notePath = normalizePath(`${folder.path}/${noteName}`);
 
                         // Check if file already exists
-                        const existingFile = app.vault.getAbstractFileByPath(notePath);
+                        const existingFile = app.vault.getFileByPath(notePath);
                         if (existingFile) {
                             new Notice(strings.fileSystem.errors.folderNoteAlreadyExists);
                             return;
@@ -264,8 +264,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                         const cleanedPatterns = cleanupExclusionPatterns(currentExcluded, folderPath);
 
                         services.plugin.settings.excludedFolders = cleanedPatterns;
-                        await services.plugin.saveSettings();
-                        services.plugin.onSettingsUpdate();
+                        await services.plugin.saveSettingsAndUpdate();
 
                         new Notice(strings.fileSystem.notices.excludedFolder.replace('{name}', folder.name));
                     });
@@ -288,7 +287,7 @@ export function buildFolderMenu(params: FolderMenuBuilderParams): void {
                         async newName => {
                             // Update custom vault name setting (allow empty string)
                             services.plugin.settings.customVaultName = newName;
-                            await services.plugin.saveSettings();
+                            await services.plugin.saveSettingsAndUpdate();
                         },
                         settings.customVaultName
                     );

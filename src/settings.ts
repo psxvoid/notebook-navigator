@@ -237,6 +237,8 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
     private statsTextEl: HTMLElement | null = null;
     // Reference to metadata parsing info element
     private metadataInfoEl: HTMLElement | null = null;
+    // Statistics update interval ID
+    private statsUpdateInterval: number | null = null;
 
     /**
      * Creates a new settings tab
@@ -290,10 +292,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                             // Validate if validator provided
                             if (!validator || validator(value)) {
                                 setValue(value);
-                                await this.plugin.saveSettings();
-
-                                // Add this line to trigger the refresh:
-                                this.plugin.onSettingsUpdate();
+                                await this.plugin.saveSettingsAndUpdate();
                             }
 
                             this.debounceTimers.delete(timerId);
@@ -302,16 +301,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                         this.debounceTimers.set(timerId, timer);
                     })
             );
-    }
-
-    /**
-     * Helper to save settings
-     * Settings changes are automatically propagated through context providers
-     */
-    private async saveAndRefresh(): Promise<void> {
-        await this.plugin.saveSettings();
-        // Now, explicitly tell the plugin UI to update itself.
-        this.plugin.onSettingsUpdate();
     }
 
     /**
@@ -430,6 +419,12 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
      * - Advanced
      */
     display(): void {
+        // Clear any existing interval to prevent duplicates
+        if (this.statsUpdateInterval !== null) {
+            window.clearInterval(this.statsUpdateInterval);
+            this.statsUpdateInterval = null;
+        }
+
         const { containerEl } = this;
         containerEl.empty();
 
@@ -441,7 +436,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.dualPane).onChange(async value => {
                     this.plugin.settings.dualPane = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -451,7 +446,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.autoRevealActiveFile).onChange(async value => {
                     this.plugin.settings.autoRevealActiveFile = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -461,7 +456,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showTooltips).onChange(async value => {
                     this.plugin.settings.showTooltips = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -476,7 +471,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.fileVisibility)
                     .onChange(async (value: FileVisibility) => {
                         this.plugin.settings.fileVisibility = value;
-                        await this.saveAndRefresh();
+                        await this.plugin.saveSettingsAndUpdate();
                     })
             );
 
@@ -519,7 +514,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.autoSelectFirstFileOnFocusChange).onChange(async value => {
                     this.plugin.settings.autoSelectFirstFileOnFocusChange = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -529,7 +524,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.autoExpandFoldersTags).onChange(async value => {
                     this.plugin.settings.autoExpandFoldersTags = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -544,7 +539,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.collapseBehavior)
                     .onChange(async (value: ItemScope) => {
                         this.plugin.settings.collapseBehavior = value;
-                        await this.saveAndRefresh();
+                        await this.plugin.saveSettingsAndUpdate();
                     })
             );
 
@@ -554,7 +549,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.smartCollapse).onChange(async value => {
                     this.plugin.settings.smartCollapse = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -564,7 +559,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showIcons).onChange(async value => {
                     this.plugin.settings.showIcons = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -574,7 +569,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showNoteCount).onChange(async value => {
                     this.plugin.settings.showNoteCount = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -589,7 +584,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .setDynamicTooltip()
                     .onChange(async value => {
                         this.plugin.settings.navItemHeight = value;
-                        await this.saveAndRefresh();
+                        await this.plugin.saveSettingsAndUpdate();
                     });
                 return slider;
             })
@@ -601,7 +596,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                         const defaultValue = DEFAULT_SETTINGS.navItemHeight;
                         lineHeightSlider.setValue(defaultValue);
                         this.plugin.settings.navItemHeight = defaultValue;
-                        await this.saveAndRefresh();
+                        await this.plugin.saveSettingsAndUpdate();
                     })
             );
 
@@ -616,7 +611,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .setDynamicTooltip()
                     .onChange(async value => {
                         this.plugin.settings.navIndent = value;
-                        await this.saveAndRefresh();
+                        await this.plugin.saveSettingsAndUpdate();
                     });
                 return slider;
             })
@@ -628,7 +623,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                         const defaultValue = DEFAULT_SETTINGS.navIndent;
                         indentationSlider.setValue(defaultValue);
                         this.plugin.settings.navIndent = defaultValue;
-                        await this.saveAndRefresh();
+                        await this.plugin.saveSettingsAndUpdate();
                     })
             );
 
@@ -641,7 +636,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showRootFolder).onChange(async value => {
                     this.plugin.settings.showRootFolder = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -651,7 +646,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.inheritFolderColors).onChange(async value => {
                     this.plugin.settings.inheritFolderColors = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -661,7 +656,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.enableFolderNotes).onChange(async value => {
                     this.plugin.settings.enableFolderNotes = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                     // Update folder notes sub-settings visibility
                     folderNotesSettingsEl.toggle(value);
                 })
@@ -702,7 +697,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.hideFolderNoteInList).onChange(async value => {
                     this.plugin.settings.hideFolderNoteInList = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -718,7 +713,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showTags).onChange(async value => {
                     this.plugin.settings.showTags = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                     // Update tag sub-settings visibility
                     tagSubSettingsEl.toggle(value);
                     // Update visibility of "Show tags" setting in Notes section
@@ -737,7 +732,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showTagsAboveFolders).onChange(async value => {
                     this.plugin.settings.showTagsAboveFolders = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -747,7 +742,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showFavoriteTagsFolder).onChange(async value => {
                     this.plugin.settings.showFavoriteTagsFolder = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -757,7 +752,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showAllTagsFolder).onChange(async value => {
                     this.plugin.settings.showAllTagsFolder = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -768,7 +763,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 toggle.setValue(this.plugin.settings.showUntagged).onChange(async value => {
                     this.plugin.settings.showUntagged = value;
                     untaggedInFavoritesEl.style.display = value ? 'block' : 'none';
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -782,7 +777,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showUntaggedInFavorites).onChange(async value => {
                     this.plugin.settings.showUntaggedInFavorites = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -843,7 +838,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.defaultFolderSort)
                     .onChange(async (value: SortOption) => {
                         this.plugin.settings.defaultFolderSort = value;
-                        await this.saveAndRefresh();
+                        await this.plugin.saveSettingsAndUpdate();
                     })
             );
 
@@ -853,7 +848,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.groupByDate).onChange(async value => {
                     this.plugin.settings.groupByDate = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -863,7 +858,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.optimizeNoteHeight).onChange(async value => {
                     this.plugin.settings.optimizeNoteHeight = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -873,7 +868,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showNotesFromSubfolders).onChange(async value => {
                     this.plugin.settings.showNotesFromSubfolders = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                     // Update subfolder names visibility
                     subfolderNamesEl.toggle(value);
                 })
@@ -888,7 +883,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showParentFolderNames).onChange(async value => {
                     this.plugin.settings.showParentFolderNames = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -902,7 +897,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showQuickActions).onChange(async value => {
                     this.plugin.settings.showQuickActions = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                     // Update quick actions sub-settings visibility
                     quickActionsEl.toggle(value);
                 })
@@ -918,7 +913,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.quickActionRevealInFolder).onChange(async value => {
                     this.plugin.settings.quickActionRevealInFolder = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -929,7 +924,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.quickActionPinNote).onChange(async value => {
                     this.plugin.settings.quickActionPinNote = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -940,7 +935,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.quickActionOpenInNewTab).onChange(async value => {
                     this.plugin.settings.quickActionOpenInNewTab = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -992,7 +987,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.useFrontmatterMetadata).onChange(async value => {
                     this.plugin.settings.useFrontmatterMetadata = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                     frontmatterSettingsEl.toggle(value);
                 })
             );
@@ -1068,7 +1063,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.fileNameRows.toString())
                     .onChange(async value => {
                         this.plugin.settings.fileNameRows = parseInt(value, 10);
-                        await this.saveAndRefresh();
+                        await this.plugin.saveSettingsAndUpdate();
                     })
             );
 
@@ -1078,7 +1073,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showFileDate).onChange(async value => {
                     this.plugin.settings.showFileDate = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -1088,7 +1083,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showFileTags).onChange(async value => {
                     this.plugin.settings.showFileTags = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -1098,7 +1093,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showFilePreview).onChange(async value => {
                     this.plugin.settings.showFilePreview = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                     previewSettingsEl.toggle(value);
                 })
             );
@@ -1112,7 +1107,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.skipHeadingsInPreview).onChange(async value => {
                     this.plugin.settings.skipHeadingsInPreview = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -1129,7 +1124,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                     .setValue(this.plugin.settings.previewRows.toString())
                     .onChange(async value => {
                         this.plugin.settings.previewRows = parseInt(value, 10);
-                        await this.saveAndRefresh();
+                        await this.plugin.saveSettingsAndUpdate();
                     })
             );
 
@@ -1163,7 +1158,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showFeatureImage).onChange(async value => {
                     this.plugin.settings.showFeatureImage = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                     featureImageSettingsEl.toggle(value);
                 })
             );
@@ -1194,7 +1189,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.useEmbeddedImageFallback).onChange(async value => {
                     this.plugin.settings.useEmbeddedImageFallback = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -1207,7 +1202,7 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.confirmBeforeDelete).onChange(async value => {
                     this.plugin.settings.confirmBeforeDelete = value;
-                    await this.saveAndRefresh();
+                    await this.plugin.saveSettingsAndUpdate();
                 })
             );
 
@@ -1263,11 +1258,13 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         this.updateStatistics();
 
         // Start periodic updates every 1 second
-        this.plugin.registerInterval(
-            window.setInterval(() => {
-                this.updateStatistics();
-            }, TIMEOUTS.INTERVAL_STATISTICS)
-        );
+        // Create interval and register it with plugin for cleanup on unload
+        this.statsUpdateInterval = window.setInterval(() => {
+            this.updateStatistics();
+        }, TIMEOUTS.INTERVAL_STATISTICS);
+
+        // Register with plugin to ensure cleanup on plugin unload
+        this.plugin.registerInterval(this.statsUpdateInterval);
 
         // Set initial visibility
         previewSettingsEl.toggle(this.plugin.settings.showFilePreview);
@@ -1343,7 +1340,11 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
         this.debounceTimers.forEach(timer => window.clearTimeout(timer));
         this.debounceTimers.clear();
 
-        // Note: statsUpdateInterval is automatically cleaned up by plugin.registerInterval
+        // Stop statistics update interval
+        if (this.statsUpdateInterval !== null) {
+            window.clearInterval(this.statsUpdateInterval);
+            this.statsUpdateInterval = null;
+        }
 
         // Clear reference to stats element
         this.statsTextEl = null;

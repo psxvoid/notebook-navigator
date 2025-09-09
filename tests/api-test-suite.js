@@ -165,7 +165,7 @@
 
         async createTestFolder(path) {
             await app.vault.createFolder(path);
-            const folder = app.vault.getAbstractFileByPath(path);
+            const folder = app.vault.getFolderByPath(path);
             this.testFolders.push(folder);
             return folder;
         }
@@ -178,7 +178,7 @@
             // Delete test files
             for (const file of this.testFiles) {
                 try {
-                    await app.vault.delete(file);
+                    await app.fileManager.trashFile(file);
                 } catch (e) {
                     // File might already be deleted
                 }
@@ -187,7 +187,7 @@
             // Delete test folders (in reverse order to delete children first)
             for (const folder of this.testFolders.reverse()) {
                 try {
-                    await app.vault.delete(folder);
+                    await app.fileManager.trashFile(folder);
                 } catch (e) {
                     // Folder might already be deleted
                 }
@@ -393,6 +393,18 @@
                     const metaWithoutHash = this.api.metadata.getTagMeta(tagWithoutHash);
                     this.assertExists(metaWithoutHash, 'Should find metadata when querying without #');
                     this.assertEqual(metaWithoutHash.color, '#123456', 'Should return same color regardless of # prefix');
+
+                    // Test case-insensitive normalization
+                    const upperTag = 'NORMALIZE-TEST';
+                    const metaUpper = this.api.metadata.getTagMeta(upperTag);
+                    this.assertExists(metaUpper, 'Should find metadata when querying with uppercase');
+                    this.assertEqual(metaUpper.color, '#123456', 'Should return same color for uppercase tag');
+
+                    // Test mixed case with hash
+                    const mixedTag = '#Normalize-Test';
+                    const metaMixed = this.api.metadata.getTagMeta(mixedTag);
+                    this.assertExists(metaMixed, 'Should find metadata when querying with mixed case');
+                    this.assertEqual(metaMixed.color, '#123456', 'Should return same color for mixed case tag');
 
                     // Clean up
                     await this.api.metadata.setTagMeta(tagWithHash, { color: null });

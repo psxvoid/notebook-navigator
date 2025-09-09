@@ -239,7 +239,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
   - **Path patterns:** `/archive` excludes root archive folder, `/projects/secret` excludes specific path
   - **Wildcards:** `temp*` (starts with), `*_old` (ends with), `/projects/*` (all subfolders)
   - Right-click folders to add to exclusion list
-- **Excluded notes:** Comma-separated frontmatter properties. Notes with these properties are hidden (e.g., draft, private, archived)
+- **Excluded notes:** Comma-separated frontmatter properties. Notes containing any of these properties will be hidden (e.g., draft, private, archived)
 
 ### Navigation pane
 

@@ -25,6 +25,9 @@ import { shouldDisplayFile, FILE_VISIBILITY } from './fileTypeUtils';
 import { getEffectiveSortOption, sortFiles } from './sortUtils';
 import { TagTreeService } from '../services/TagTreeService';
 import { getDBInstance } from '../storage/fileOperations';
+import { extractMetadata } from '../utils/metadataExtractor';
+import { METADATA_SENTINEL } from '../storage/IndexedDBStorage';
+import { getFileDisplayName as getDisplayName } from './fileNameUtils';
 
 /**
  * Gets the folder note for a folder if it exists
@@ -139,12 +142,49 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
     }
 
     const sortOption = getEffectiveSortOption(settings, 'folder', folder);
-    sortFiles(
-        allFiles,
-        sortOption,
-        (file: TFile) => file.stat.ctime,
-        (file: TFile) => file.stat.mtime
-    );
+
+    if (settings.useFrontmatterMetadata) {
+        const metadataCache = new Map<string, ReturnType<typeof extractMetadata>>();
+        const getCached = (file: TFile) => {
+            let v = metadataCache.get(file.path);
+            if (!v) {
+                v = extractMetadata(app, file, settings);
+                metadataCache.set(file.path, v);
+            }
+            return v;
+        };
+
+        sortFiles(
+            allFiles,
+            sortOption,
+            (file: TFile) => {
+                const md = getCached(file);
+                if (md.fc === undefined || md.fc === METADATA_SENTINEL.FIELD_NOT_CONFIGURED || md.fc === METADATA_SENTINEL.PARSE_FAILED) {
+                    return file.stat.ctime;
+                }
+                return md.fc;
+            },
+            (file: TFile) => {
+                const md = getCached(file);
+                if (md.fm === undefined || md.fm === METADATA_SENTINEL.FIELD_NOT_CONFIGURED || md.fm === METADATA_SENTINEL.PARSE_FAILED) {
+                    return file.stat.mtime;
+                }
+                return md.fm;
+            },
+            (file: TFile) => {
+                const md = getCached(file);
+                return getDisplayName(file, { fn: md.fn }, settings);
+            }
+        );
+    } else {
+        sortFiles(
+            allFiles,
+            sortOption,
+            (file: TFile) => file.stat.ctime,
+            (file: TFile) => file.stat.mtime,
+            (file: TFile) => file.basename
+        );
+    }
 
     const pinnedPaths = collectPinnedPaths(settings.pinnedNotes, 'folder');
     // Separate pinned and unpinned files
@@ -185,9 +225,9 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
     }
 
     const excludedFolderPatterns = settings.excludedFolders;
-    const showHiddenFolders = settings.showHiddenItems;
+    // For tag views, always exclude files in excluded folders to align with tag tree counts
     const isAllowedByFolder = (file: TFile) =>
-        showHiddenFolders || excludedFolderPatterns.length === 0 || !isPathInExcludedFolder(file.path, excludedFolderPatterns);
+        excludedFolderPatterns.length === 0 || !isPathInExcludedFolder(file.path, excludedFolderPatterns);
 
     // Apply folder-based visibility rules to align with tag tree counts
     const baseFiles = allFiles.filter(isAllowedByFolder);
@@ -236,12 +276,49 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
 
     // Sort files
     const sortOption = getEffectiveSortOption(settings, 'tag', null, tag);
-    sortFiles(
-        filteredFiles,
-        sortOption,
-        (file: TFile) => file.stat.ctime,
-        (file: TFile) => file.stat.mtime
-    );
+
+    if (settings.useFrontmatterMetadata) {
+        const metadataCache = new Map<string, ReturnType<typeof extractMetadata>>();
+        const getCached = (file: TFile) => {
+            let v = metadataCache.get(file.path);
+            if (!v) {
+                v = extractMetadata(app, file, settings);
+                metadataCache.set(file.path, v);
+            }
+            return v;
+        };
+
+        sortFiles(
+            filteredFiles,
+            sortOption,
+            (file: TFile) => {
+                const md = getCached(file);
+                if (md.fc === undefined || md.fc === METADATA_SENTINEL.FIELD_NOT_CONFIGURED || md.fc === METADATA_SENTINEL.PARSE_FAILED) {
+                    return file.stat.ctime;
+                }
+                return md.fc;
+            },
+            (file: TFile) => {
+                const md = getCached(file);
+                if (md.fm === undefined || md.fm === METADATA_SENTINEL.FIELD_NOT_CONFIGURED || md.fm === METADATA_SENTINEL.PARSE_FAILED) {
+                    return file.stat.mtime;
+                }
+                return md.fm;
+            },
+            (file: TFile) => {
+                const md = getCached(file);
+                return getDisplayName(file, { fn: md.fn }, settings);
+            }
+        );
+    } else {
+        sortFiles(
+            filteredFiles,
+            sortOption,
+            (file: TFile) => file.stat.ctime,
+            (file: TFile) => file.stat.mtime,
+            (file: TFile) => file.basename
+        );
+    }
 
     // Handle pinned notes for tag context
     const pinnedPaths = collectPinnedPaths(settings.pinnedNotes, 'tag');

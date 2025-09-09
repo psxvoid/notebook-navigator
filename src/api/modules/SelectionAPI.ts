@@ -55,8 +55,8 @@ export class SelectionAPI {
                 this.selectionState.navigationTag = tagName;
                 this.selectionState.navigationFolder = null;
             } else if (folderPath) {
-                const folder = this.api.app.vault.getAbstractFileByPath(folderPath);
-                if (folder instanceof TFolder) {
+                const folder = this.api.app.vault.getFolderByPath(folderPath);
+                if (folder) {
                     this.selectionState.navigationFolder = folder;
                     this.selectionState.navigationTag = null;
                 }
@@ -126,10 +126,8 @@ export class SelectionAPI {
             // Get TFile objects for the event
             const fileObjects: TFile[] = [];
             for (const path of selectedFiles) {
-                const file = this.api.app.vault.getAbstractFileByPath(path);
-                if (file instanceof TFile) {
-                    fileObjects.push(file);
-                }
+                const file = this.api.app.vault.getFileByPath(path);
+                if (file) fileObjects.push(file);
             }
 
             this.api.trigger('selection-changed', {
@@ -149,10 +147,8 @@ export class SelectionAPI {
         const files: TFile[] = [];
 
         for (const path of this.selectionState.files) {
-            const file = this.api.app.vault.getAbstractFileByPath(path);
-            if (file instanceof TFile) {
-                files.push(file);
-            }
+            const file = this.api.app.vault.getFileByPath(path);
+            if (file) files.push(file);
         }
 
         return {

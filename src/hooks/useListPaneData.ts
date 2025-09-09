@@ -31,6 +31,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { TFile, TFolder } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
+import { OperationType } from '../services/CommandQueueService';
 import { useFileCache } from '../context/StorageContext';
 import { ListPaneItemType, ItemType, NavigationItemType } from '../types';
 import type { ListPaneItem } from '../types/virtualization';
@@ -38,7 +39,7 @@ import { TIMEOUTS } from '../types/obsidian-extended';
 import { DateUtils } from '../utils/dateUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
 import { leadingEdgeDebounce } from '../utils/leadingEdgeDebounce';
-import { getDateField, getEffectiveSortOption, sortFiles } from '../utils/sortUtils';
+import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
 import { strings } from '../i18n';
 import type { NotebookNavigatorSettings } from '../settings';
 
@@ -88,7 +89,7 @@ export function useListPaneData({
     settings,
     searchQuery
 }: UseListPaneDataParams): UseListPaneDataResult {
-    const { app, tagTreeService } = useServices();
+    const { app, tagTreeService, commandQueue } = useServices();
     const { getFileCreatedTime, getFileModifiedTime, getDB, getFileDisplayName } = useFileCache();
 
     // State to force updates when vault changes (incremented on create/delete/rename)
@@ -171,9 +172,7 @@ export function useListPaneData({
         // Determine which sort option to use
         const sortOption = getEffectiveSortOption(settings, selectionType as NavigationItemType, selectedFolder, selectedTag);
 
-        // Sort pinned and unpinned files separately
-        sortFiles(pinnedFiles, sortOption, getFileCreatedTime, getFileModifiedTime);
-        sortFiles(unpinnedFiles, sortOption, getFileCreatedTime, getFileModifiedTime);
+        // Files are already sorted in fileFinder; preserve order here
 
         // Track file index for stable onClick handlers
         let fileIndexCounter = 0;
@@ -303,15 +302,58 @@ export function useListPaneData({
             setUpdateKey(k => k + 1);
         }, TIMEOUTS.DEBOUNCE_CONTENT);
 
+        // Track ongoing batch operations (move/delete) and defer UI refreshes
+        const operationActiveRef = { current: false } as { current: boolean };
+        const pendingRefreshRef = { current: false } as { current: boolean };
+
+        // Helper to flush pending updates when operations have settled
+        const flushPendingWhenIdle = () => {
+            if (!pendingRefreshRef.current) return;
+            const attempt = () => {
+                if (operationActiveRef.current) {
+                    window.setTimeout(attempt, TIMEOUTS.FILE_OPERATION_DELAY);
+                } else {
+                    pendingRefreshRef.current = false;
+                    forceUpdate();
+                }
+            };
+            window.setTimeout(attempt, TIMEOUTS.FILE_OPERATION_DELAY);
+        };
+
+        // Subscribe to command queue operation changes (if available)
+        let unsubscribeCQ: (() => void) | null = null;
+        if (commandQueue) {
+            unsubscribeCQ = commandQueue.onOperationChange((type, active) => {
+                if (type === OperationType.MOVE_FILE || type === OperationType.DELETE_FILES) {
+                    operationActiveRef.current = active;
+                    if (!active) {
+                        flushPendingWhenIdle();
+                    }
+                }
+            });
+        }
+
         const vaultEvents = [
             app.vault.on('create', () => {
-                forceUpdate();
+                if (operationActiveRef.current) {
+                    pendingRefreshRef.current = true;
+                } else {
+                    forceUpdate();
+                }
             }),
             app.vault.on('delete', () => {
-                forceUpdate();
+                if (operationActiveRef.current) {
+                    pendingRefreshRef.current = true;
+                } else {
+                    forceUpdate();
+                }
             }),
             app.vault.on('rename', () => {
-                forceUpdate();
+                if (operationActiveRef.current) {
+                    pendingRefreshRef.current = true;
+                } else {
+                    forceUpdate();
+                }
             })
         ];
         const metadataEvent = app.metadataCache.on('changed', file => {
@@ -347,7 +389,11 @@ export function useListPaneData({
             if (selectionType === ItemType.TAG && selectedTag) {
                 const hasTagChanges = changes.some(change => change.changes.tags !== undefined);
                 if (hasTagChanges) {
-                    forceUpdate();
+                    if (operationActiveRef.current) {
+                        pendingRefreshRef.current = true;
+                    } else {
+                        forceUpdate();
+                    }
                 }
             }
         });
@@ -356,8 +402,9 @@ export function useListPaneData({
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
             app.metadataCache.offref(metadataEvent);
             dbUnsubscribe();
+            if (unsubscribeCQ) unsubscribeCQ();
         };
-    }, [app, selectionType, selectedTag, selectedFolder, settings.showNotesFromSubfolders, getDB]);
+    }, [app, selectionType, selectedTag, selectedFolder, settings.showNotesFromSubfolders, getDB, commandQueue]);
 
     return {
         listItems,

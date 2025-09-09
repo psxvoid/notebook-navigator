@@ -56,7 +56,7 @@ export async function createFileWithOptions(parent: TFolder, app: App, options: 
         let path = normalizePath(parent.path ? `${parent.path}/${fileName}.${extension}` : `${fileName}.${extension}`);
 
         // Keep incrementing until we find a unique name
-        while (app.vault.getAbstractFileByPath(path)) {
+        while (app.vault.getFileByPath(path)) {
             fileName = strings.fileSystem.defaultNames.untitledNumber.replace('{number}', counter.toString());
             path = normalizePath(parent.path ? `${parent.path}/${fileName}.${extension}` : `${fileName}.${extension}`);
             counter++;
