@@ -627,17 +627,13 @@ export class FileSystemOperations {
                     await this.app.vault.createFolder(folderPath);
                 }
 
-                // Copy files in batches of 10 to avoid overwhelming the system
-                const BATCH_SIZE = 10;
-                for (let i = 0; i < filesToCopy.length; i += BATCH_SIZE) {
-                    const batch = filesToCopy.slice(i, i + BATCH_SIZE);
-                    await Promise.all(
-                        batch.map(async ({ source, destPath }) => {
-                            const content = await this.app.vault.read(source);
-                            await this.app.vault.create(destPath, content);
-                        })
-                    );
-                }
+                // Copy all files in parallel for instant operation
+                await Promise.all(
+                    filesToCopy.map(async ({ source, destPath }) => {
+                        const content = await this.app.vault.read(source);
+                        await this.app.vault.create(destPath, content);
+                    })
+                );
             };
 
             await copyContents(folder, newPath);
@@ -672,25 +668,21 @@ export class FileSystemOperations {
                 }
             }
 
-            // Delete files in batches to improve performance
-            const BATCH_SIZE = 10;
+            // Delete all files in parallel for instant removal
             const errors: { file: TFile; error: unknown }[] = [];
             let deletedCount = 0;
 
-            for (let i = 0; i < files.length; i += BATCH_SIZE) {
-                const batch = files.slice(i, i + BATCH_SIZE);
-                const results = await Promise.allSettled(batch.map(file => this.app.fileManager.trashFile(file)));
+            const results = await Promise.allSettled(files.map(file => this.app.fileManager.trashFile(file)));
 
-                results.forEach((result, index) => {
-                    if (result.status === 'fulfilled') {
-                        deletedCount++;
-                    } else {
-                        const file = batch[index];
-                        errors.push({ file, error: result.reason });
-                        console.error('Error deleting file:', file.path, result.reason);
-                    }
-                });
-            }
+            results.forEach((result, index) => {
+                if (result.status === 'fulfilled') {
+                    deletedCount++;
+                } else {
+                    const file = files[index];
+                    errors.push({ file, error: result.reason });
+                    console.error('Error deleting file:', file.path, result.reason);
+                }
+            });
 
             // Show appropriate notifications
             if (deletedCount > 0) {

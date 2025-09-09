@@ -169,6 +169,9 @@ export class CommandQueueService {
             let movedCount = 0;
             let skippedCount = 0;
 
+            // First, collect all valid moves (non-conflicting files)
+            const filesToMove: { file: TFile; newPath: string }[] = [];
+
             for (const file of files) {
                 const newPath = `${targetFolder.path}/${file.name}`;
 
@@ -178,14 +181,24 @@ export class CommandQueueService {
                     continue;
                 }
 
-                try {
-                    await this.app.fileManager.renameFile(file, newPath);
-                    movedCount++;
-                } catch (error) {
-                    console.error('Error moving file:', file.path, error);
-                    throw error;
-                }
+                filesToMove.push({ file, newPath });
             }
+
+            // Move all non-conflicting files in parallel for instant operation
+            const results = await Promise.allSettled(
+                filesToMove.map(({ file, newPath }) => this.app.fileManager.renameFile(file, newPath))
+            );
+
+            // Count successes and log errors
+            results.forEach((result, index) => {
+                if (result.status === 'fulfilled') {
+                    movedCount++;
+                } else {
+                    const { file } = filesToMove[index];
+                    console.error('Error moving file:', file.path, result.reason);
+                    // Don't throw on individual failures, continue with other files
+                }
+            });
 
             return {
                 success: true,
