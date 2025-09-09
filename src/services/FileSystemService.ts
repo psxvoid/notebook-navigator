@@ -549,10 +549,11 @@ export class FileSystemOperations {
                 newPath = normalizePath(file.parent ? `${file.parent.path}/${newName}.${extension}` : `${newName}.${extension}`);
             }
 
-            const content = await this.app.vault.read(file);
-            const newFile = await this.app.vault.create(newPath, content);
+            const newFile = await this.app.vault.copy(file, newPath);
 
-            this.app.workspace.getLeaf(false).openFile(newFile);
+            if (newFile instanceof TFile) {
+                this.app.workspace.getLeaf(false).openFile(newFile);
+            }
         } catch (error) {
             new Notice(strings.fileSystem.errors.duplicateNote.replace('{error}', error.message));
         }
@@ -599,44 +600,7 @@ export class FileSystemOperations {
                 newPath = normalizePath(folder.parent ? `${folder.parent.path}/${newName}` : newName);
             }
 
-            await this.app.vault.createFolder(newPath);
-
-            // Copy all contents recursively with batching
-            const copyContents = async (sourceFolder: TFolder, destPath: string) => {
-                // Collect all operations first
-                const filesToCopy: { source: TFile; destPath: string }[] = [];
-                const foldersToCreate: string[] = [];
-
-                const collectOperations = (folder: TFolder, currentDestPath: string) => {
-                    for (const child of folder.children) {
-                        if (child instanceof TFile) {
-                            const childPath = normalizePath(`${currentDestPath}/${child.name}`);
-                            filesToCopy.push({ source: child, destPath: childPath });
-                        } else if (child instanceof TFolder) {
-                            const childPath = normalizePath(`${currentDestPath}/${child.name}`);
-                            foldersToCreate.push(childPath);
-                            collectOperations(child, childPath);
-                        }
-                    }
-                };
-
-                collectOperations(sourceFolder, destPath);
-
-                // Create all folders first
-                for (const folderPath of foldersToCreate) {
-                    await this.app.vault.createFolder(folderPath);
-                }
-
-                // Copy all files in parallel for instant operation
-                await Promise.all(
-                    filesToCopy.map(async ({ source, destPath }) => {
-                        const content = await this.app.vault.read(source);
-                        await this.app.vault.create(destPath, content);
-                    })
-                );
-            };
-
-            await copyContents(folder, newPath);
+            await this.app.vault.copy(folder, newPath);
         } catch (error) {
             new Notice(strings.fileSystem.errors.duplicateFolder.replace('{error}', error.message));
         }
