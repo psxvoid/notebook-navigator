@@ -19,6 +19,7 @@
 import { TFile } from 'obsidian';
 import type { NotebookNavigatorAPI } from '../NotebookNavigatorAPI';
 import { NotebookNavigatorView } from '../../view/NotebookNavigatorView';
+import { NOTEBOOK_NAVIGATOR_VIEW } from '../../types';
 
 /**
  * Navigation API - Navigate to files in the navigator
@@ -44,11 +45,11 @@ export class NavigationAPI {
      */
     private async ensureViewOpen(): Promise<NotebookNavigatorView | null> {
         const plugin = this.api.getPlugin();
-        const leaves = this.api.app.workspace.getLeavesOfType('notebook-navigator');
+        const leaves = this.api.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
 
         if (leaves.length === 0) {
             await plugin.activateView();
-            const newLeaves = this.api.app.workspace.getLeavesOfType('notebook-navigator');
+            const newLeaves = this.api.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
             if (newLeaves.length > 0 && newLeaves[0].view instanceof NotebookNavigatorView) {
                 return newLeaves[0].view;
             }

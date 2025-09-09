@@ -18,7 +18,7 @@
 
 import { Plugin, WorkspaceLeaf, TFile, TFolder } from 'obsidian';
 import { NotebookNavigatorSettings, DEFAULT_SETTINGS, NotebookNavigatorSettingTab } from './settings';
-import { LocalStorageKeys, VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, STORAGE_KEYS } from './types';
+import { LocalStorageKeys, NOTEBOOK_NAVIGATOR_VIEW, STORAGE_KEYS } from './types';
 import { ISettingsProvider } from './interfaces/ISettingsProvider';
 import { MetadataService } from './services/MetadataService';
 import { TagOperations } from './services/TagOperations';
@@ -177,7 +177,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         // Initialize public API
         this.api = new NotebookNavigatorAPI(this, this.app);
 
-        this.registerView(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, leaf => {
+        this.registerView(NOTEBOOK_NAVIGATOR_VIEW, leaf => {
             return new NotebookNavigatorView(leaf, this);
         });
 
@@ -187,7 +187,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             name: strings.commands.open,
             callback: async () => {
                 // Check if navigator is already open
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 if (navigatorLeaves.length > 0) {
                     // Navigator exists - reveal it and focus the file pane
                     const leaf = navigatorLeaves[0];
@@ -232,7 +232,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Show folder navigation modal
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -251,7 +251,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Show tag navigation modal
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -270,7 +270,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Open search or focus it if already open
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -327,7 +327,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Trigger collapse/expand on all navigator views
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -347,7 +347,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Create new note in selected folder
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -366,7 +366,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Move selected files
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -385,7 +385,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Find and trigger delete in all navigator views
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 navigatorLeaves.forEach(leaf => {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -404,7 +404,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Add tag to selected files
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -423,7 +423,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Remove tag from selected files
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -442,7 +442,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 // Remove all tags from selected files
-                const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+                const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
                 for (const leaf of navigatorLeaves) {
                     const view = leaf.view;
                     if (view instanceof NotebookNavigatorView) {
@@ -556,7 +556,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         // Use onLayoutReady for reliable initialization
         this.app.workspace.onLayoutReady(async () => {
             // Always open the view if it doesn't exist
-            const leaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+            const leaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
             if (leaves.length === 0 && !this.isUnloading) {
                 await this.activateView();
             }
@@ -844,7 +844,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         const { workspace } = this.app;
 
         let leaf: WorkspaceLeaf | null = null;
-        const leaves = workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+        const leaves = workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
 
         if (leaves.length > 0) {
             // View already exists - just reveal it
@@ -854,7 +854,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
             // Create new leaf only if none exists
             leaf = workspace.getLeftLeaf(false);
             if (leaf) {
-                await leaf.setViewState({ type: VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT, active: true });
+                await leaf.setViewState({ type: NOTEBOOK_NAVIGATOR_VIEW, active: true });
                 workspace.revealLeaf(leaf);
             }
         }
@@ -870,7 +870,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     async revealFileInActualFolder(file: TFile) {
         // Find all navigator views and reveal the file
-        const navigatorLeaves = this.app.workspace.getLeavesOfType(VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT);
+        const navigatorLeaves = this.app.workspace.getLeavesOfType(NOTEBOOK_NAVIGATOR_VIEW);
         navigatorLeaves.forEach(leaf => {
             const view = leaf.view;
             if (view instanceof NotebookNavigatorView) {

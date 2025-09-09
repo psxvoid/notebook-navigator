@@ -27,7 +27,7 @@ import { App, WorkspaceLeaf } from 'obsidian';
  * Unique identifier for the Notebook Navigator view type
  * Used by Obsidian to register and manage the custom view
  */
-export const VIEW_TYPE_NOTEBOOK_NAVIGATOR_REACT = 'notebook-navigator-react-view';
+export const NOTEBOOK_NAVIGATOR_VIEW = 'notebook-navigator';
 
 /**
  * Special tag identifier for untagged notes
