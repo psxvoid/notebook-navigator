@@ -53,12 +53,11 @@ export class TagOperations {
     /**
      * Builds a regex pattern for matching a specific inline tag
      * @param tag - The tag to match (without #)
-     * @param flags - RegExp flags (default: 'giu')
      * @returns A RegExp for matching the specific tag
      */
-    private buildSpecificTagPattern(tag: string, flags = 'giu'): RegExp {
+    private buildSpecificTagPattern(tag: string): RegExp {
         const escapedTag = this.escapeRegExp(tag);
-        return new RegExp(`(\\s)?#${escapedTag}${TagOperations.TAG_BOUNDARY}`, flags);
+        return new RegExp(`(\\s)?#${escapedTag}${TagOperations.TAG_BOUNDARY}`, 'giu');
     }
 
     /**
