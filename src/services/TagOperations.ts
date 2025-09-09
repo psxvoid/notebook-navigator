@@ -24,7 +24,42 @@ import { getDBInstance } from '../storage/fileOperations';
  * Handles adding tags to files and managing tag hierarchies.
  */
 export class TagOperations {
+    /**
+     * Pattern for valid tag characters: Unicode letters, numbers, underscore, hyphen, and forward slash
+     * \p{L} matches any Unicode letter, \p{N} matches any Unicode number
+     */
+    private static readonly TAG_CHAR_CLASS = '[\\p{L}\\p{N}_\\-/]+';
+
+    /**
+     * Pattern for tag boundaries: must be followed by whitespace, punctuation, or end of line
+     */
+    private static readonly TAG_BOUNDARY = '(?=\\s|$|[.,:;!?()[\\]{}])';
+
+    /**
+     * Complete pattern for matching any inline tag with optional leading space
+     */
+    private static readonly INLINE_TAG_PATTERN = new RegExp(`(\\s)?#${TagOperations.TAG_CHAR_CLASS}${TagOperations.TAG_BOUNDARY}`, 'gu');
+
+    /**
+     * Pattern for testing if content contains any inline tags (without global flag for test())
+     */
+    private static readonly INLINE_TAG_TEST_PATTERN = new RegExp(
+        `(\\s)?#${TagOperations.TAG_CHAR_CLASS}${TagOperations.TAG_BOUNDARY}`,
+        'u'
+    );
+
     constructor(private app: App) {}
+
+    /**
+     * Builds a regex pattern for matching a specific inline tag
+     * @param tag - The tag to match (without #)
+     * @param flags - RegExp flags (default: 'giu')
+     * @returns A RegExp for matching the specific tag
+     */
+    private buildSpecificTagPattern(tag: string, flags = 'giu'): RegExp {
+        const escapedTag = this.escapeRegExp(tag);
+        return new RegExp(`(\\s)?#${escapedTag}${TagOperations.TAG_BOUNDARY}`, flags);
+    }
 
     /**
      * Escapes special regex characters in a string
@@ -132,6 +167,21 @@ export class TagOperations {
     }
 
     /**
+     * Checks if content contains any inline tags
+     */
+    private hasInlineTags(content: string): boolean {
+        return TagOperations.INLINE_TAG_TEST_PATTERN.test(content);
+    }
+
+    /**
+     * Checks if content contains a specific inline tag (case-insensitive)
+     */
+    private hasSpecificInlineTag(content: string, tag: string): boolean {
+        const regex = this.buildSpecificTagPattern(tag);
+        return regex.test(content);
+    }
+
+    /**
      * Checks if a file already has a specific tag or an ancestor tag.
      * Comparison is case-insensitive (e.g., "TODO" matches "todo").
      * Also returns true if file has an ancestor tag (e.g., won't add "project/task" if file has "project").
@@ -236,14 +286,18 @@ export class TagOperations {
             console.error('Error removing tag from frontmatter:', error);
         }
 
-        // Remove from inline content
-        await this.app.vault.process(file, content => {
-            const newContent = this.removeInlineTags(content, tag);
-            if (newContent !== content) {
-                hadTag = true;
-            }
-            return newContent;
-        });
+        // Remove from inline content only if tag might exist
+        // First, read the content to check if we need to process it
+        const content = await this.app.vault.read(file);
+        if (this.hasSpecificInlineTag(content, tag)) {
+            await this.app.vault.process(file, content => {
+                const newContent = this.removeInlineTags(content, tag);
+                if (newContent !== content) {
+                    hadTag = true;
+                }
+                return newContent;
+            });
+        }
 
         return hadTag;
     }
@@ -299,14 +353,20 @@ export class TagOperations {
             console.error('Error removing descendant tags from frontmatter:', error);
         }
 
-        // Remove descendant tags from inline content
-        await this.app.vault.process(file, content => {
-            let newContent = content;
-            for (const descendantTag of descendantTags) {
-                newContent = this.removeInlineTags(newContent, descendantTag);
-            }
-            return newContent;
-        });
+        // Remove descendant tags from inline content only if any exist
+        // First check if we need to process at all
+        const content = await this.app.vault.read(file);
+        const hasAnyDescendantTag = descendantTags.some(tag => this.hasSpecificInlineTag(content, tag));
+
+        if (hasAnyDescendantTag) {
+            await this.app.vault.process(file, content => {
+                let newContent = content;
+                for (const descendantTag of descendantTags) {
+                    newContent = this.removeInlineTags(newContent, descendantTag);
+                }
+                return newContent;
+            });
+        }
     }
 
     /**
@@ -338,15 +398,18 @@ export class TagOperations {
             throw error;
         }
 
-        // Always process the file content for inline tags since we know tags exist
-        // Our cache told us there are tags, so we need to remove any inline ones
-        await this.app.vault.process(file, content => {
-            const newContent = this.removeAllInlineTags(content);
-            if (newContent !== content) {
-                hadTags = true;
-            }
-            return newContent;
-        });
+        // Only process file content if it actually contains inline tags
+        // Our cache told us there are tags, but they might only be in frontmatter
+        const content = await this.app.vault.read(file);
+        if (this.hasInlineTags(content)) {
+            await this.app.vault.process(file, content => {
+                const newContent = this.removeAllInlineTags(content);
+                if (newContent !== content) {
+                    hadTags = true;
+                }
+                return newContent;
+            });
+        }
 
         return hadTags;
     }
@@ -356,12 +419,7 @@ export class TagOperations {
      * Supports Unicode characters in tags (e.g., #TODO_日本語, #проект, #tâche)
      */
     private removeInlineTags(content: string, tag: string): string {
-        // Escape special regex characters in tag
-        const escapedTag = this.escapeRegExp(tag);
-        // Remove the specific tag with optional preceding space
-        // Must be followed by whitespace, punctuation, or end of line
-        // Uses 'u' flag for proper Unicode matching in case tag contains Unicode characters
-        const regex = new RegExp(`(\\s)?#${escapedTag}(?=\\s|$|[.,:;!?()\\[\\]{}])`, 'giu');
+        const regex = this.buildSpecificTagPattern(tag);
         return content.replace(regex, '');
     }
 
@@ -385,10 +443,6 @@ export class TagOperations {
      * - "#tâche-à-faire text" → "text" (accented characters)
      */
     private removeAllInlineTags(content: string): string {
-        // Remove tags with optional leading space, or just the tag at start of line
-        // Uses Unicode property escapes to match any letter or number in any language
-        // \p{L} matches any Unicode letter, \p{N} matches any Unicode number
-        // The regex captures: (optional preceding space)(#tag)(lookahead for space, punctuation, or EOL)
-        return content.replace(/(\s)?#[\p{L}\p{N}_\-/]+(?=\s|$|[.,:;!?()[\]{}])/gu, '');
+        return content.replace(TagOperations.INLINE_TAG_PATTERN, '');
     }
 }
