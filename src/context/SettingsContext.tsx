@@ -39,7 +39,7 @@ export function SettingsProvider({ children, plugin }: SettingsProviderProps) {
             updater(plugin.settings);
 
             // Save to storage
-            await plugin.saveSettings();
+            await plugin.saveSettingsAndUpdate();
 
             // The listener registered in useEffect will handle the re-render
             // by incrementing the version when onSettingsUpdate is called

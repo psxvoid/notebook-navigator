@@ -143,7 +143,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         // Clear old recentIcons format if it's still an array
         if (Array.isArray(this.settings.recentIcons)) {
             this.settings.recentIcons = {};
-            await this.saveSettings();
+            await this.saveSettingsAndUpdate();
         }
 
         // Set localStorage version if not present
@@ -291,7 +291,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
 
                 // Toggle the dual pane setting
                 this.settings.dualPane = !this.settings.dualPane;
-                await this.saveSettings();
+                await this.saveSettingsAndUpdate();
             }
         });
 
@@ -303,8 +303,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 this.settings.showNotesFromSubfolders = !this.settings.showNotesFromSubfolders;
-                await this.saveSettings();
-                this.onSettingsUpdate();
+                await this.saveSettingsAndUpdate();
             }
         });
 
@@ -316,8 +315,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 await this.activateView();
 
                 this.settings.showHiddenItems = !this.settings.showHiddenItems;
-                await this.saveSettings();
-                this.onSettingsUpdate();
+                await this.saveSettingsAndUpdate();
             }
         });
 
@@ -792,11 +790,11 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
     }
 
     /**
-     * Saves current plugin settings to Obsidian's data storage
-     * Persists user preferences between sessions
+     * Saves current plugin settings to Obsidian's data storage and notifies listeners
+     * Persists user preferences between sessions and triggers UI updates
      * Called whenever settings are modified
      */
-    async saveSettings() {
+    async saveSettingsAndUpdate() {
         await this.saveData(this.settings);
         // Notify all listeners that settings have been updated
         this.onSettingsUpdate();
@@ -833,8 +831,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
      */
     public async showHiddenItems(value: boolean) {
         this.settings.showHiddenItems = value;
-        await this.saveSettings();
-        this.onSettingsUpdate();
+        await this.saveSettingsAndUpdate();
     }
 
     /**
@@ -914,7 +911,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         if (this.pendingVersionUpdate !== null) {
             this.settings.lastShownVersion = this.pendingVersionUpdate;
             this.pendingVersionUpdate = null;
-            await this.saveSettings();
+            await this.saveSettingsAndUpdate();
         }
     }
 
@@ -936,7 +933,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 this.pendingVersionUpdate = currentVersion;
             } else {
                 this.settings.lastShownVersion = currentVersion;
-                await this.saveSettings();
+                await this.saveSettingsAndUpdate();
             }
             return;
         }
@@ -964,7 +961,7 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
                 this.pendingVersionUpdate = currentVersion;
             } else {
                 this.settings.lastShownVersion = currentVersion;
-                await this.saveSettings();
+                await this.saveSettingsAndUpdate();
             }
 
             // Show the modal only if the current version doesn't have skipAutoShow

@@ -252,7 +252,7 @@ export class MetadataAPI {
 
         // Save settings if anything changed
         if (changed) {
-            await plugin.saveSettings();
+            await plugin.saveSettingsAndUpdate();
         }
     }
 
@@ -395,7 +395,7 @@ export class MetadataAPI {
 
         // Save settings if anything changed
         if (changed) {
-            await plugin.saveSettings();
+            await plugin.saveSettingsAndUpdate();
         }
     }
 
@@ -436,7 +436,7 @@ export class MetadataAPI {
 
         // Save settings if anything changed
         if (changed) {
-            await plugin.saveSettings();
+            await plugin.saveSettingsAndUpdate();
         }
     }
 

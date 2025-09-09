@@ -277,7 +277,7 @@ export class IconPickerModal extends Modal {
             settings.recentIcons[providerId] = providerIcons.slice(0, MAX_RECENT_PER_PROVIDER);
         }
 
-        await this.settingsProvider.saveSettings();
+        await this.settingsProvider.saveSettingsAndUpdate();
     }
 
     private async selectIcon(iconId: string) {

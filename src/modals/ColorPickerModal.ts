@@ -328,7 +328,7 @@ export class ColorPickerModal extends Modal {
      */
     private clearRecentColors() {
         this.settingsProvider.settings.recentColors = [];
-        this.settingsProvider.saveSettings();
+        this.settingsProvider.saveSettingsAndUpdate();
         this.loadRecentColors();
     }
 
@@ -458,7 +458,7 @@ export class ColorPickerModal extends Modal {
 
         // Update settings
         settings.recentColors = recentColors;
-        await this.settingsProvider.saveSettings();
+        await this.settingsProvider.saveSettingsAndUpdate();
     }
 
     /**

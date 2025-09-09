@@ -123,7 +123,7 @@ export const ListPane = React.memo(
             (active: boolean) => {
                 if (plugin.settings.searchActive !== active) {
                     plugin.settings.searchActive = active;
-                    plugin.saveSettings();
+                    plugin.saveSettingsAndUpdate();
                 }
             },
             [plugin]

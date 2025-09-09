@@ -50,7 +50,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                         // Remove all matching patterns from favorites
                         plugin.settings.favoriteTags = settings.favoriteTags.filter(pattern => !matchingPatterns.includes(pattern));
 
-                        await plugin.saveSettings();
+                        await plugin.saveSettingsAndUpdate();
                     });
             });
         } else {
@@ -67,7 +67,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                             const cleanedFavorites = cleanupTagPatterns(settings.favoriteTags, tagPath);
 
                             plugin.settings.favoriteTags = cleanedFavorites;
-                            await plugin.saveSettings();
+                            await plugin.saveSettingsAndUpdate();
                         });
                 });
             } else {
@@ -82,7 +82,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                             // Remove all matching patterns from favorites
                             plugin.settings.favoriteTags = settings.favoriteTags.filter(pattern => !matchingPatterns.includes(pattern));
 
-                            await plugin.saveSettings();
+                            await plugin.saveSettingsAndUpdate();
                         });
                 });
             }
@@ -154,7 +154,7 @@ export function buildTagMenu(params: TagMenuBuilderParams): void {
                         const cleanedHiddenTags = cleanupTagPatterns(settings.hiddenTags, tagPath);
 
                         plugin.settings.hiddenTags = cleanedHiddenTags;
-                        await plugin.saveSettings();
+                        await plugin.saveSettingsAndUpdate();
                     });
             });
         }
