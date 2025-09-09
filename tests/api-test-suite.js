@@ -394,6 +394,18 @@
                     this.assertExists(metaWithoutHash, 'Should find metadata when querying without #');
                     this.assertEqual(metaWithoutHash.color, '#123456', 'Should return same color regardless of # prefix');
 
+                    // Test case-insensitive normalization
+                    const upperTag = 'NORMALIZE-TEST';
+                    const metaUpper = this.api.metadata.getTagMeta(upperTag);
+                    this.assertExists(metaUpper, 'Should find metadata when querying with uppercase');
+                    this.assertEqual(metaUpper.color, '#123456', 'Should return same color for uppercase tag');
+
+                    // Test mixed case with hash
+                    const mixedTag = '#Normalize-Test';
+                    const metaMixed = this.api.metadata.getTagMeta(mixedTag);
+                    this.assertExists(metaMixed, 'Should find metadata when querying with mixed case');
+                    this.assertEqual(metaMixed.color, '#123456', 'Should return same color for mixed case tag');
+
                     // Clean up
                     await this.api.metadata.setTagMeta(tagWithHash, { color: null });
                 },

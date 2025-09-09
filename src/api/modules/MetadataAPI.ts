@@ -66,6 +66,17 @@ export class MetadataAPI {
     }
 
     /**
+     * Normalizes a tag key by removing leading "#" and converting to lowercase
+     * @param tag - Tag string that may or may not have "#" prefix
+     * @returns Normalized tag key for internal storage
+     */
+    private normalizeTagKey(tag: string): string {
+        // Strip single leading "#" if present and lowercase
+        const normalized = tag.startsWith('#') ? tag.slice(1) : tag;
+        return normalized.toLowerCase();
+    }
+
+    /**
      * Initialize internal cache from plugin settings
      */
     private initializeFromSettings(): void {
@@ -297,11 +308,11 @@ export class MetadataAPI {
 
     /**
      * Get tag metadata
-     * @param tag - Tag string (e.g., '#work')
+     * @param tag - Tag string (with or without '#' prefix)
      */
     getTagMeta(tag: string): TagMetadata | null {
-        // Ensure tag starts with #
-        const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
+        // Normalize tag key for lookup
+        const normalizedTag = this.normalizeTagKey(tag);
 
         const color = this.metadataState.tagColors[normalizedTag];
         const icon = this.metadataState.tagIcons[normalizedTag];
@@ -318,14 +329,14 @@ export class MetadataAPI {
 
     /**
      * Set tag metadata (color and/or icon)
-     * @param tag - Tag string (e.g., '#work')
+     * @param tag - Tag string (with or without '#' prefix)
      * @param meta - Partial metadata object with properties to update
      */
     async setTagMeta(tag: string, meta: Partial<TagMetadata>): Promise<void> {
         const plugin = this.api.getPlugin();
         if (!plugin) return;
 
-        const normalizedTag = tag.startsWith('#') ? tag : `#${tag}`;
+        const normalizedTag = this.normalizeTagKey(tag);
         await this.updateMetadata(normalizedTag, meta, plugin.settings.tagColors, plugin.settings.tagIcons);
     }
 

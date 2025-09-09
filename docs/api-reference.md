@@ -77,9 +77,9 @@ Customize folder and tag appearance, manage pinned files.
 - **Color values**: Any string is accepted and saved. Invalid CSS colors will not render correctly but won't throw
   errors.
 - **Tag normalization**: The `getTagMeta()` and `setTagMeta()` methods automatically normalize tags:
-  - Both `'work'` and `'#work'` are accepted and treated as `'#work'`
+  - Both `'work'` and `'#work'` are accepted as input
   - Tags are case-insensitive: `'#Work'` and `'#work'` refer to the same tag
-  - The plugin preserves the canonical case (first encountered form) for display but all comparisons use lowercase
+  - Tags are stored internally without the '#' prefix as lowercase paths
 
 ### Folder and Tag Metadata
 
