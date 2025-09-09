@@ -120,10 +120,10 @@ export const ListPane = React.memo(
 
         // Helper to toggle search state
         const setIsSearchActive = useCallback(
-            (active: boolean) => {
+            async (active: boolean) => {
                 if (plugin.settings.searchActive !== active) {
                     plugin.settings.searchActive = active;
-                    plugin.saveSettingsAndUpdate();
+                    await plugin.saveSettingsAndUpdate();
                 }
             },
             [plugin]
