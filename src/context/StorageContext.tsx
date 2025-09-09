@@ -521,6 +521,11 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
                                                 return true; // New file, needs all content
                                             }
 
+                                            // Check if file was modified (mtime mismatch)
+                                            if (fileData.mtime !== file.stat.mtime) {
+                                                return true; // Modified file, needs content regeneration
+                                            }
+
                                             const needsContent =
                                                 (settings.showFilePreview && fileData.preview === null && file.extension === 'md') ||
                                                 (settings.showFeatureImage && fileData.featureImage === null) ||
