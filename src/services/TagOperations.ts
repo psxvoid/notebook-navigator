@@ -256,10 +256,14 @@ export class TagOperations {
         // Get all current tags from the file
         const currentTags = this.getTagsFromFiles([file]);
 
-        // Find descendant tags to remove
-        const descendantTags = currentTags.filter(tag => tag.startsWith(`${ancestorTag}/`));
+        // Find descendant tags to remove (case-insensitive)
+        const lowerAncestor = ancestorTag.toLowerCase();
+        const descendantTags = currentTags.filter(tag => tag.toLowerCase().startsWith(`${lowerAncestor}/`));
 
         if (descendantTags.length === 0) return;
+
+        // Create lowercase set for efficient lookup
+        const lowerDescendantSet = new Set(descendantTags.map(t => t.toLowerCase()));
 
         // Remove descendant tags from frontmatter
         try {
@@ -269,7 +273,8 @@ export class TagOperations {
                 if (Array.isArray(fm.tags)) {
                     fm.tags = fm.tags.filter((tag: string) => {
                         const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
-                        return !descendantTags.includes(cleanTag);
+                        // Case-insensitive check
+                        return !lowerDescendantSet.has(cleanTag.toLowerCase());
                     });
 
                     if (fm.tags.length === 0) {
@@ -279,7 +284,8 @@ export class TagOperations {
                     const tags = fm.tags.split(',').map((t: string) => t.trim());
                     const filteredTags = tags.filter((tag: string) => {
                         const cleanTag = tag.startsWith('#') ? tag.substring(1) : tag;
-                        return !descendantTags.includes(cleanTag);
+                        // Case-insensitive check
+                        return !lowerDescendantSet.has(cleanTag.toLowerCase());
                     });
 
                     if (filteredTags.length === 0) {
