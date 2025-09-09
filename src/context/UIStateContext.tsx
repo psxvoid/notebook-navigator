@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { createContext, useContext, useReducer, useEffect, ReactNode, useMemo } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useMemo } from 'react';
 import { NAVIGATION_PANE_DIMENSIONS } from '../types';
 // Storage keys
 import { STORAGE_KEYS } from '../types';
@@ -96,12 +96,8 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
         };
     }, [state, isMobile, settings.dualPane]);
 
-    // Persist pane width to localStorage
-    useEffect(() => {
-        if (!isMobile) {
-            localStorage.set(STORAGE_KEYS.navigationPaneWidthKey, state.paneWidth);
-        }
-    }, [state.paneWidth, isMobile]);
+    // Note: Pane width persistence is handled by useResizablePane hook
+    // to avoid duplicate writes during drag operations
 
     return (
         <UIStateContext.Provider value={stateWithPaneMode}>
