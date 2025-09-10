@@ -266,7 +266,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     // Helper function to rebuild tag tree
     const rebuildTagTree = useCallback(() => {
         const db = getDBInstance();
-        const excludedFolderPatterns = settings.excludedFolders;
+        // When showing hidden items, do not exclude folders from the tag tree
+        const excludedFolderPatterns = settings.showHiddenItems ? [] : settings.excludedFolders;
         // Include only files that pass current frontmatter + folder exclusion filters
         const includedPaths = new Set(getFilteredMarkdownFilesCallback().map(f => f.path));
         const {
@@ -284,7 +285,15 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
 
         return { favoriteTree, tagTree };
-    }, [settings.excludedFolders, settings.favoriteTags, tagTreeService, getFilteredMarkdownFilesCallback]);
+    }, [settings.excludedFolders, settings.favoriteTags, settings.showHiddenItems, tagTreeService, getFilteredMarkdownFilesCallback]);
+
+    // Rebuild tag tree when toggling visibility of hidden items
+    useEffect(() => {
+        if (!isStorageReady) return;
+        if (settings.showTags) {
+            rebuildTagTree();
+        }
+    }, [settings.showHiddenItems, settings.showTags, isStorageReady, rebuildTagTree]);
 
     // Hook for handling deferred cleanup after tag extraction
     const { startTracking, handleTagsExtracted, waitForMetadataCache } = useDeferredMetadataCleanup({

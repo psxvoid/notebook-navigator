@@ -439,8 +439,8 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                         }
                     }
                 } else if (settings.showNotesFromSubfolders && child instanceof TFolder) {
-                    // Always exclude files in excluded folders from counts (consistent with tag counts)
-                    if (!shouldExcludeFolder(child.name, excludedFolderPatterns, child.path)) {
+                    // When showing hidden items, include files from excluded subfolders
+                    if (settings.showHiddenItems || !shouldExcludeFolder(child.name, excludedFolderPatterns, child.path)) {
                         count += countFiles(child);
                     }
                 }
@@ -464,6 +464,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         settings.showNotesFromSubfolders,
         settings.excludedFiles,
         settings.excludedFolders,
+        settings.showHiddenItems,
         settings.fileVisibility,
         app,
         isVisible,
