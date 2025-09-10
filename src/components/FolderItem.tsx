@@ -50,15 +50,15 @@
  */
 
 import React, { useRef, useEffect, useMemo, useCallback } from 'react';
-import { TFolder, TFile, setTooltip, setIcon } from 'obsidian';
+import { TFolder, setTooltip, setIcon } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { useSettingsState } from '../context/SettingsContext';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { strings } from '../i18n';
 import { getIconService } from '../services/icons';
-import { isSupportedFileExtension, ItemType } from '../types';
+import { ItemType } from '../types';
 import { getFolderNote } from '../utils/fileFinder';
-import { hasSubfolders } from '../utils/fileFilters';
+import { hasSubfolders, shouldExcludeFolder } from '../utils/fileFilters';
 
 interface FolderItemProps {
     folder: TFolder;
@@ -119,21 +119,24 @@ export const FolderItem = React.memo(function FolderItem({
             return { fileCount: 0, folderCount: 0 };
         }
 
-        let fileCount = 0;
-        let folderCount = 0;
+        // Use precomputed file count from parent for consistency with UI
+        const fileCount = precomputedFileCount ?? 0;
 
+        // Count immediate child folders respecting hidden/excluded rules
+        const showHidden = settings.showHiddenItems;
+        let folderCount = 0;
         for (const child of folder.children) {
-            if (child instanceof TFile) {
-                if (isSupportedFileExtension(child.extension)) {
-                    fileCount++;
+            if (child instanceof TFolder) {
+                if (showHidden) {
+                    folderCount++;
+                } else if (!shouldExcludeFolder(child.name, excludedFolders, child.path)) {
+                    folderCount++;
                 }
-            } else if (child instanceof TFolder) {
-                folderCount++;
             }
         }
 
         return { fileCount, folderCount };
-    }, [folder.children, isMobile, settings.showTooltips]);
+    }, [folder.children, isMobile, settings.showTooltips, settings.showHiddenItems, excludedFolders, precomputedFileCount]);
 
     // Use precomputed file count from parent component
     // NavigationPane pre-computes all folder counts for performance
