@@ -264,11 +264,8 @@ export type SupportedFileExtension = keyof typeof SUPPORTED_FILE_TYPES;
 export type SupportedLeafType = (typeof SUPPORTED_FILE_TYPES)[SupportedFileExtension];
 
 /**
- * Helper function to check if a file extension is supported
+ * Helper functions related to supported leaf types
  */
-export function isSupportedFileExtension(extension: string): extension is SupportedFileExtension {
-    return extension in SUPPORTED_FILE_TYPES;
-}
 
 /**
  * Helper function to get all leaves with supported file types

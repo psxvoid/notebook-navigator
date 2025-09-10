@@ -36,15 +36,21 @@ interface AppWithInternals extends App {
 }
 
 /**
+ * Type guard to check if app has internal plugins API
+ */
+function hasInternalPlugins(app: App): app is AppWithInternals {
+    return app && typeof app === 'object' && 'internalPlugins' in app;
+}
+
+/**
  * Safe access to internal Obsidian APIs with type inference
  * Note: internalPlugins is not in Obsidian's public TypeScript API but is widely used
  * This provides safe access to internal plugins (e.g., search, sync) that many community plugins use
  */
 export function getInternalPlugin<T = InternalPlugin>(app: App, pluginId: string): T | undefined {
-    if (!app || typeof app !== 'object') return undefined;
+    if (!hasInternalPlugins(app)) return undefined;
 
-    const appWithInternals = app as AppWithInternals;
-    const plugin = appWithInternals.internalPlugins?.getPluginById?.(pluginId);
+    const plugin = app.internalPlugins?.getPluginById?.(pluginId);
 
     return plugin as T | undefined;
 }
@@ -59,16 +65,22 @@ interface AppWithCommands extends App {
 }
 
 /**
+ * Type guard to check if app has commands API
+ */
+function hasCommands(app: App): app is AppWithCommands {
+    return app && typeof app === 'object' && 'commands' in app;
+}
+
+/**
  * Safe command execution
  * Note: executeCommandById is not in Obsidian's public TypeScript API but is widely used
  * This is accessing internal Obsidian APIs that many plugins rely on
  */
 export function executeCommand(app: App, commandId: string): boolean {
-    if (!app || typeof app !== 'object') return false;
+    if (!hasCommands(app)) return false;
 
-    const appWithCommands = app as AppWithCommands;
     try {
-        return appWithCommands.commands?.executeCommandById?.(commandId) ?? false;
+        return app.commands?.executeCommandById?.(commandId) ?? false;
     } catch {
         return false;
     }

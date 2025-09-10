@@ -29,7 +29,7 @@
  */
 
 import { useMemo, useState, useEffect } from 'react';
-import { TFile, TFolder } from 'obsidian';
+import { TFile, TFolder, debounce } from 'obsidian';
 import { useServices } from '../context/ServicesContext';
 import { OperationType } from '../services/CommandQueueService';
 import { useFileCache } from '../context/StorageContext';
@@ -38,7 +38,6 @@ import type { ListPaneItem } from '../types/virtualization';
 import { TIMEOUTS } from '../types/obsidian-extended';
 import { DateUtils } from '../utils/dateUtils';
 import { getFilesForFolder, getFilesForTag, collectPinnedPaths } from '../utils/fileFinder';
-import { leadingEdgeDebounce } from '../utils/leadingEdgeDebounce';
 import { getDateField, getEffectiveSortOption } from '../utils/sortUtils';
 import { strings } from '../i18n';
 import type { NotebookNavigatorSettings } from '../settings';
@@ -296,11 +295,15 @@ export function useListPaneData({
      * Uses leading edge debounce for immediate UI feedback.
      */
     useEffect(() => {
-        // Use leading edge debounce for immediate UI updates
-        const forceUpdate = leadingEdgeDebounce(() => {
-            // Force re-render by incrementing update key
-            setUpdateKey(k => k + 1);
-        }, TIMEOUTS.DEBOUNCE_CONTENT);
+        // Trailing debounce for vault-driven updates. Schedules a refresh and
+        // extends the timer while more events arrive within FILE_OPERATION_DELAY.
+        const scheduleRefresh = debounce(
+            () => {
+                setUpdateKey(k => k + 1);
+            },
+            TIMEOUTS.FILE_OPERATION_DELAY,
+            true
+        );
 
         // Track ongoing batch operations (move/delete) and defer UI refreshes
         const operationActiveRef = { current: false } as { current: boolean };
@@ -309,15 +312,11 @@ export function useListPaneData({
         // Helper to flush pending updates when operations have settled
         const flushPendingWhenIdle = () => {
             if (!pendingRefreshRef.current) return;
-            const attempt = () => {
-                if (operationActiveRef.current) {
-                    window.setTimeout(attempt, TIMEOUTS.FILE_OPERATION_DELAY);
-                } else {
-                    pendingRefreshRef.current = false;
-                    forceUpdate();
-                }
-            };
-            window.setTimeout(attempt, TIMEOUTS.FILE_OPERATION_DELAY);
+            if (!operationActiveRef.current) {
+                pendingRefreshRef.current = false;
+                // Run any pending scheduled refresh immediately
+                scheduleRefresh.run();
+            }
         };
 
         // Subscribe to command queue operation changes (if available)
@@ -326,9 +325,7 @@ export function useListPaneData({
             unsubscribeCQ = commandQueue.onOperationChange((type, active) => {
                 if (type === OperationType.MOVE_FILE || type === OperationType.DELETE_FILES) {
                     operationActiveRef.current = active;
-                    if (!active) {
-                        flushPendingWhenIdle();
-                    }
+                    if (!active) flushPendingWhenIdle();
                 }
             });
         }
@@ -338,21 +335,21 @@ export function useListPaneData({
                 if (operationActiveRef.current) {
                     pendingRefreshRef.current = true;
                 } else {
-                    forceUpdate();
+                    scheduleRefresh();
                 }
             }),
             app.vault.on('delete', () => {
                 if (operationActiveRef.current) {
                     pendingRefreshRef.current = true;
                 } else {
-                    forceUpdate();
+                    scheduleRefresh();
                 }
             }),
             app.vault.on('rename', () => {
                 if (operationActiveRef.current) {
                     pendingRefreshRef.current = true;
                 } else {
-                    forceUpdate();
+                    scheduleRefresh();
                 }
             })
         ];
@@ -372,8 +369,12 @@ export function useListPaneData({
                     }
                 }
             } else if (selectionType === ItemType.TAG && selectedTag) {
-                // For tag view, we DO need to rebuild the list as files might be added/removed
-                forceUpdate();
+                // For tag view, schedule a trailing refresh and extend if more changes arrive
+                if (operationActiveRef.current) {
+                    pendingRefreshRef.current = true;
+                } else {
+                    scheduleRefresh();
+                }
                 return;
             }
 
@@ -392,7 +393,7 @@ export function useListPaneData({
                     if (operationActiveRef.current) {
                         pendingRefreshRef.current = true;
                     } else {
-                        forceUpdate();
+                        scheduleRefresh();
                     }
                 }
             }
@@ -403,6 +404,8 @@ export function useListPaneData({
             app.metadataCache.offref(metadataEvent);
             dbUnsubscribe();
             if (unsubscribeCQ) unsubscribeCQ();
+            // Cancel any pending scheduled refresh to avoid stray updates
+            scheduleRefresh.cancel();
         };
     }, [app, selectionType, selectedTag, selectedFolder, settings.showNotesFromSubfolders, getDB, commandQueue]);
 

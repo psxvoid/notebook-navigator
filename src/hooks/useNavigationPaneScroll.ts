@@ -60,7 +60,7 @@ interface UseNavigationPaneScrollResult {
     /** Handler to scroll to top (mobile header tap) */
     handleScrollToTop: () => void;
     /** Request a scroll to a specific path */
-    requestScroll: (path: string) => void;
+    requestScroll: (path: string, options?: { align?: 'auto' | 'center' | 'start' | 'end'; behavior?: 'auto' | 'smooth' }) => void;
     /** Version counter for pending scrolls */
     pendingScrollVersion: number;
 }
@@ -82,7 +82,8 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
     const scrollContainerRef = useRef<HTMLDivElement>(null);
 
     // Pending scroll state for handling reveal operations
-    const pendingScrollRef = useRef<string | null>(null);
+    type PendingScroll = { path: string; align?: 'auto' | 'center' | 'start' | 'end'; behavior?: 'auto' | 'smooth' };
+    const pendingScrollRef = useRef<PendingScroll | null>(null);
     const [pendingScrollVersion, setPendingScrollVersion] = useState(0);
 
     // Track previous values to detect actual changes
@@ -137,10 +138,13 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
      * Request a scroll to a specific path
      * Used by external components like useNavigatorReveal
      */
-    const requestScroll = useCallback((path: string) => {
-        pendingScrollRef.current = path;
-        setPendingScrollVersion(v => v + 1);
-    }, []);
+    const requestScroll = useCallback(
+        (path: string, options?: { align?: 'auto' | 'center' | 'start' | 'end'; behavior?: 'auto' | 'smooth' }) => {
+            pendingScrollRef.current = { path, align: options?.align, behavior: options?.behavior };
+            setPendingScrollVersion(v => v + 1);
+        },
+        []
+    );
 
     /**
      * Get the current selected path based on selection type
@@ -226,11 +230,11 @@ export function useNavigationPaneScroll({ items, pathToIndex, isVisible }: UseNa
             return;
         }
 
-        const pathToScroll = pendingScrollRef.current;
-        const index = pathToIndex.get(pathToScroll);
+        const { path, align, behavior } = pendingScrollRef.current;
+        const index = pathToIndex.get(path);
 
         if (index !== undefined && index !== -1) {
-            rowVirtualizer.scrollToIndex(index, { align: 'center', behavior: 'auto' });
+            rowVirtualizer.scrollToIndex(index, { align: align ?? 'center', behavior: behavior ?? 'auto' });
             pendingScrollRef.current = null;
         }
         // If index not found, keep the pending scroll for next rebuild

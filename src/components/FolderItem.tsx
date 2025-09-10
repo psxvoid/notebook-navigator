@@ -56,9 +56,10 @@ import { useSettingsState } from '../context/SettingsContext';
 import { useContextMenu } from '../hooks/useContextMenu';
 import { strings } from '../i18n';
 import { getIconService } from '../services/icons';
-import { isSupportedFileExtension, ItemType } from '../types';
+import { ItemType } from '../types';
 import { getFolderNote } from '../utils/fileFinder';
-import { hasSubfolders } from '../utils/fileFilters';
+import { hasSubfolders, shouldExcludeFolder, shouldExcludeFile } from '../utils/fileFilters';
+import { shouldDisplayFile } from '../utils/fileTypeUtils';
 
 interface FolderItemProps {
     folder: TFolder;
@@ -119,21 +120,42 @@ export const FolderItem = React.memo(function FolderItem({
             return { fileCount: 0, folderCount: 0 };
         }
 
+        // Tooltip should show immediate files only (non-recursive)
         let fileCount = 0;
-        let folderCount = 0;
-
         for (const child of folder.children) {
             if (child instanceof TFile) {
-                if (isSupportedFileExtension(child.extension)) {
-                    fileCount++;
+                if (shouldDisplayFile(child, settings.fileVisibility, app)) {
+                    if (!shouldExcludeFile(child, settings.excludedFiles, app)) {
+                        fileCount++;
+                    }
                 }
-            } else if (child instanceof TFolder) {
-                folderCount++;
+            }
+        }
+
+        // Count immediate child folders respecting hidden/excluded rules
+        const showHidden = settings.showHiddenItems;
+        let folderCount = 0;
+        for (const child of folder.children) {
+            if (child instanceof TFolder) {
+                if (showHidden) {
+                    folderCount++;
+                } else if (!shouldExcludeFolder(child.name, excludedFolders, child.path)) {
+                    folderCount++;
+                }
             }
         }
 
         return { fileCount, folderCount };
-    }, [folder.children, isMobile, settings.showTooltips]);
+    }, [
+        folder.children,
+        isMobile,
+        settings.showTooltips,
+        settings.showHiddenItems,
+        settings.fileVisibility,
+        settings.excludedFiles,
+        excludedFolders,
+        app
+    ]);
 
     // Use precomputed file count from parent component
     // NavigationPane pre-computes all folder counts for performance

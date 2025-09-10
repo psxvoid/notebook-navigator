@@ -23,10 +23,10 @@ import { ObsidianIcon } from './ObsidianIcon';
 import { useNavigationActions } from '../hooks/useNavigationActions';
 
 interface NavigationToolbarProps {
-    onExpandCollapseComplete?: () => void;
+    onTreeUpdateComplete?: () => void;
 }
 
-export function NavigationToolbar({ onExpandCollapseComplete }: NavigationToolbarProps) {
+export function NavigationToolbar({ onTreeUpdateComplete }: NavigationToolbarProps) {
     const settings = useSettingsState();
     const selectionState = useSelectionState();
 
@@ -40,10 +40,10 @@ export function NavigationToolbar({ onExpandCollapseComplete }: NavigationToolba
                 aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
                 onClick={() => {
                     handleExpandCollapseAll();
-                    if (onExpandCollapseComplete) {
+                    if (onTreeUpdateComplete) {
                         // Use requestAnimationFrame to ensure DOM updates are complete
                         requestAnimationFrame(() => {
-                            onExpandCollapseComplete();
+                            onTreeUpdateComplete();
                         });
                     }
                 }}
@@ -54,7 +54,15 @@ export function NavigationToolbar({ onExpandCollapseComplete }: NavigationToolba
             <button
                 className={`nn-mobile-toolbar-button ${settings.showHiddenItems ? 'nn-mobile-toolbar-button-active' : ''}`}
                 aria-label={settings.showHiddenItems ? strings.paneHeader.hideExcludedItems : strings.paneHeader.showExcludedItems}
-                onClick={handleToggleShowExcludedFolders}
+                onClick={async () => {
+                    await handleToggleShowExcludedFolders();
+                    if (onTreeUpdateComplete) {
+                        // Ensure DOM updates before attempting to scroll
+                        requestAnimationFrame(() => {
+                            onTreeUpdateComplete();
+                        });
+                    }
+                }}
                 disabled={settings.excludedFolders.length === 0 && settings.hiddenTags.length === 0}
                 tabIndex={-1}
             >

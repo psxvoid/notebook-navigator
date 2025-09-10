@@ -270,25 +270,27 @@ export function hasSubfolders(folder: TFolder, excludePatterns: string[], showHi
         return false;
     }
 
-    // Skip exclusion check if:
-    // 1. No exclusion patterns defined (nothing to exclude)
-    // 2. This folder is excluded but we're showing excluded folders
-    const noPatterns = excludePatterns.length === 0;
-    const isExcludedButShown = showHiddenItems && isFolderInExcludedFolder(folder, excludePatterns);
-    const skipExclusionCheck = noPatterns || isExcludedButShown;
+    // When showing hidden items, count all child folders regardless of exclusion patterns
+    // This ensures chevrons appear so users can expand to reveal excluded children
+    if (showHiddenItems) {
+        return folder.children.some(child => child instanceof TFolder);
+    }
 
-    // Check if any child folder exists (based on visibility rules)
+    // Skip exclusion check if no exclusion patterns are defined
+    const noPatterns = excludePatterns.length === 0;
+
+    // Check if any visible (non-excluded) child folder exists
     return folder.children.some(child => {
         if (!(child instanceof TFolder)) {
             return false;
         }
 
-        // If we're skipping exclusion checks, any folder counts
-        if (skipExclusionCheck) {
+        // If there are no patterns, any folder counts
+        if (noPatterns) {
             return true;
         }
 
-        // Check if this subfolder should be excluded
+        // Exclude subfolders that match patterns when not showing hidden items
         return !shouldExcludeFolder(child.name, excludePatterns, child.path);
     });
 }

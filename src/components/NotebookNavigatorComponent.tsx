@@ -406,7 +406,7 @@ export const NotebookNavigatorComponent = React.memo(
                     requestAnimationFrame(() => {
                         const selectedPath = getSelectedPath(selectionState);
                         if (selectedPath && navigationPaneRef.current) {
-                            navigationPaneRef.current.requestScroll(selectedPath);
+                            navigationPaneRef.current.requestScroll(selectedPath, { align: 'auto' });
                         }
                     });
                 }

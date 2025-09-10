@@ -40,7 +40,7 @@
  */
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode, useMemo, useCallback } from 'react';
-import { App, TFile } from 'obsidian';
+import { App, TFile, debounce } from 'obsidian';
 import { TIMEOUTS, ExtendedApp } from '../types/obsidian-extended';
 import { ProcessedMetadata, extractMetadata } from '../utils/metadataExtractor';
 import { ContentProviderRegistry } from '../services/content/ContentProviderRegistry';
@@ -62,7 +62,6 @@ import { getFilteredMarkdownFiles } from '../utils/fileFilters';
 import { getFileDisplayName as getDisplayName } from '../utils/fileNameUtils';
 import { clearNoteCountCache } from '../utils/tagTree';
 import { buildTagTreeFromDatabase, findTagNode, collectAllTagPaths } from '../utils/tagTree';
-import { leadingEdgeDebounce } from '../utils/leadingEdgeDebounce';
 import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
@@ -266,7 +265,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
     // Helper function to rebuild tag tree
     const rebuildTagTree = useCallback(() => {
         const db = getDBInstance();
-        const excludedFolderPatterns = settings.excludedFolders;
+        // When showing hidden items, do not exclude folders from the tag tree
+        const excludedFolderPatterns = settings.showHiddenItems ? [] : settings.excludedFolders;
         // Include only files that pass current frontmatter + folder exclusion filters
         const includedPaths = new Set(getFilteredMarkdownFilesCallback().map(f => f.path));
         const {
@@ -284,7 +284,15 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         }
 
         return { favoriteTree, tagTree };
-    }, [settings.excludedFolders, settings.favoriteTags, tagTreeService, getFilteredMarkdownFilesCallback]);
+    }, [settings.excludedFolders, settings.favoriteTags, settings.showHiddenItems, tagTreeService, getFilteredMarkdownFilesCallback]);
+
+    // Rebuild tag tree when toggling visibility of hidden items
+    useEffect(() => {
+        if (!isStorageReady) return;
+        if (settings.showTags) {
+            rebuildTagTree();
+        }
+    }, [settings.showHiddenItems, settings.showTags, isStorageReady, rebuildTagTree]);
 
     // Hook for handling deferred cleanup after tag extraction
     const { startTracking, handleTagsExtracted, waitForMetadataCache } = useDeferredMetadataCleanup({
@@ -593,9 +601,9 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             await processExistingCache(allFiles, isInitialLoad);
         };
 
-        // Create debounced version for events with leading edge execution
-        // This ensures files are added to database immediately on first event
-        const rebuildFileCache = leadingEdgeDebounce(() => buildFileCache(false), TIMEOUTS.DEBOUNCE_CONTENT);
+        // Trailing debounce for vault event bursts: schedule a rebuild and
+        // extend the timer while more events arrive within FILE_OPERATION_DELAY
+        const rebuildFileCache = debounce(() => buildFileCache(false), TIMEOUTS.FILE_OPERATION_DELAY, true);
 
         // Only build initial cache if IndexedDB is ready and we haven't built it yet
         if (isIndexedDBReady && !hasBuiltInitialCache.current) {
@@ -647,6 +655,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         return () => {
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
             app.metadataCache.offref(metadataEvent);
+            // Cancel any pending debounced rebuilds
+            rebuildFileCache.cancel();
         };
     }, [
         app,

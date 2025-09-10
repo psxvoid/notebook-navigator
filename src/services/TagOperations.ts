@@ -31,9 +31,10 @@ export class TagOperations {
     private static readonly TAG_CHAR_CLASS = '[\\p{L}\\p{N}_\\-/]+';
 
     /**
-     * Pattern for tag boundaries: must be followed by whitespace, punctuation, or end of line
+     * Pattern for tag boundaries: must be followed by whitespace, any Unicode punctuation, or end of line
+     * Uses Unicode property escapes (\\p{P}) to support non-ASCII punctuation (e.g., Japanese、Arabic, CJK)
      */
-    private static readonly TAG_BOUNDARY = '(?=\\s|$|[.,:;!?()[\\]{}])';
+    private static readonly TAG_BOUNDARY = '(?=\\s|$|\\p{P})';
 
     /**
      * Complete pattern for matching any inline tag with optional leading space
