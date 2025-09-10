@@ -40,7 +40,7 @@
  */
 
 import { createContext, useContext, useState, useEffect, useRef, ReactNode, useMemo, useCallback } from 'react';
-import { App, TFile } from 'obsidian';
+import { App, TFile, debounce } from 'obsidian';
 import { TIMEOUTS, ExtendedApp } from '../types/obsidian-extended';
 import { ProcessedMetadata, extractMetadata } from '../utils/metadataExtractor';
 import { ContentProviderRegistry } from '../services/content/ContentProviderRegistry';
@@ -62,7 +62,6 @@ import { getFilteredMarkdownFiles } from '../utils/fileFilters';
 import { getFileDisplayName as getDisplayName } from '../utils/fileNameUtils';
 import { clearNoteCountCache } from '../utils/tagTree';
 import { buildTagTreeFromDatabase, findTagNode, collectAllTagPaths } from '../utils/tagTree';
-import { leadingEdgeDebounce } from '../utils/leadingEdgeDebounce';
 import { useServices } from './ServicesContext';
 import { useSettingsState } from './SettingsContext';
 import { NotebookNavigatorSettings } from '../settings';
@@ -602,9 +601,9 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
             await processExistingCache(allFiles, isInitialLoad);
         };
 
-        // Create debounced version for events with leading edge execution
-        // This ensures files are added to database immediately on first event
-        const rebuildFileCache = leadingEdgeDebounce(() => buildFileCache(false), TIMEOUTS.DEBOUNCE_CONTENT);
+        // Trailing debounce for vault event bursts: schedule a rebuild and
+        // extend the timer while more events arrive within FILE_OPERATION_DELAY
+        const rebuildFileCache = debounce(() => buildFileCache(false), TIMEOUTS.FILE_OPERATION_DELAY, true);
 
         // Only build initial cache if IndexedDB is ready and we haven't built it yet
         if (isIndexedDBReady && !hasBuiltInitialCache.current) {
@@ -656,6 +655,8 @@ export function StorageProvider({ app, api, children }: StorageProviderProps) {
         return () => {
             vaultEvents.forEach(eventRef => app.vault.offref(eventRef));
             app.metadataCache.offref(metadataEvent);
+            // Cancel any pending debounced rebuilds
+            rebuildFileCache.cancel();
         };
     }, [
         app,

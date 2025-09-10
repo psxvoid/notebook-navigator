@@ -30,7 +30,7 @@
  */
 
 import { useMemo, useState, useEffect } from 'react';
-import { TFile, TFolder } from 'obsidian';
+import { TFile, TFolder, debounce } from 'obsidian';
 import { useServices, useMetadataService } from '../context/ServicesContext';
 import { useExpansionState } from '../context/ExpansionContext';
 import { useFileCache } from '../context/StorageContext';
@@ -42,7 +42,7 @@ import type { CombinedNavigationItem } from '../types/virtualization';
 import type { NotebookNavigatorSettings } from '../settings';
 import { shouldExcludeFile, shouldExcludeFolder } from '../utils/fileFilters';
 import { shouldDisplayFile } from '../utils/fileTypeUtils';
-import { leadingEdgeDebounce } from '../utils/leadingEdgeDebounce';
+// Use Obsidian's trailing debounce for vault-driven updates
 import { getTotalNoteCount, excludeFromTagTree } from '../utils/tagTree';
 import { flattenFolderTree, flattenTagTree } from '../utils/treeFlattener';
 import { naturalCompare } from '../utils/sortUtils';
@@ -495,8 +495,8 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         // Build immediately on mount
         buildFolders();
 
-        // Use leading edge debounce for immediate folder updates
-        const rebuildFolders = leadingEdgeDebounce(buildFolders, TIMEOUTS.DEBOUNCE_CONTENT);
+        // Trailing debounce for vault-driven folder changes
+        const rebuildFolders = debounce(buildFolders, TIMEOUTS.FILE_OPERATION_DELAY, true);
 
         // Listen to vault events for folder changes
         const events = [
@@ -519,14 +519,19 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
 
         return () => {
             events.forEach(eventRef => app.vault.offref(eventRef));
+            rebuildFolders.cancel();
         };
     }, [app, settings.showRootFolder]);
 
     // Refresh folder counts when frontmatter changes (e.g., hide/unhide via frontmatter properties)
     useEffect(() => {
-        const bumpCounts = leadingEdgeDebounce(() => {
-            setFileChangeVersion(v => v + 1);
-        }, TIMEOUTS.DEBOUNCE_CONTENT);
+        const bumpCounts = debounce(
+            () => {
+                setFileChangeVersion(v => v + 1);
+            },
+            TIMEOUTS.FILE_OPERATION_DELAY,
+            true
+        );
 
         const metaRef = app.metadataCache.on('changed', file => {
             if (file instanceof TFile) {
@@ -536,6 +541,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
 
         return () => {
             app.metadataCache.offref(metaRef);
+            bumpCounts.cancel();
         };
     }, [app]);
 
