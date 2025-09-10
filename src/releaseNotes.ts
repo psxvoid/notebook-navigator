@@ -55,6 +55,15 @@ export interface ReleaseNote {
  */
 const RELEASE_NOTES: ReleaseNote[] = [
     {
+        version: '1.4.12',
+        date: '2025-09-10',
+        showOnUpdate: false,
+        fixed: [
+            'Parent folders now show a chevron when they contain only hidden subfolders while "Show hidden items" is enabled.',
+            'Mobile keyboard hides correctly when switching from list pane to navigation pane.'
+        ]
+    },
+    {
         version: '1.4.11',
         date: '2025-09-09',
         showOnUpdate: true,
