@@ -59,7 +59,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         date: '2025-09-10',
         showOnUpdate: false,
         fixed: [
-            'Parent folders now show a chevron when they contain only hidden subfolders while "Show hidden items" is enabled.',
+            'Folders now properly show an expansion arrow when they contain only hidden subfolders while "Show hidden items" is enabled.',
             'Mobile keyboard hides correctly when switching from list pane to navigation pane.'
         ]
     },
