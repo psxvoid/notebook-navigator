@@ -511,12 +511,14 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
      * @param e - The drag event
      */
     const handleDragLeave = useCallback((e: DragEvent) => {
-        const target = e.target as HTMLElement;
-        const dropZone = target.closest('[data-drop-zone]') as HTMLElement;
-        if (dropZone && dropZone === dragOverElement.current) {
+        const target = e.target;
+        if (!(target instanceof HTMLElement)) return;
+
+        const dropZone = target.closest('[data-drop-zone]');
+        if (dropZone instanceof HTMLElement && dropZone === dragOverElement.current) {
             // Only remove if we're actually leaving the drop zone, not just moving to a child
-            const relatedTarget = e.relatedTarget as HTMLElement;
-            if (!dropZone.contains(relatedTarget)) {
+            const relatedTarget = e.relatedTarget;
+            if (!(relatedTarget instanceof Node) || !dropZone.contains(relatedTarget)) {
                 dropZone.classList.remove('nn-drag-over');
                 dragOverElement.current = null;
             }

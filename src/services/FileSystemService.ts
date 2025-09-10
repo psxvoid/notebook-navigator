@@ -376,8 +376,8 @@ export class FileSystemOperations {
 
             // Try to maintain focus on file list using a more reliable method
             window.setTimeout(() => {
-                const fileListEl = document.querySelector('.nn-list-pane-scroller') as HTMLElement;
-                if (fileListEl) {
+                const fileListEl = document.querySelector('.nn-list-pane-scroller');
+                if (fileListEl instanceof HTMLElement) {
                     fileListEl.focus();
                 }
             }, TIMEOUTS.FILE_OPERATION_DELAY);
@@ -760,8 +760,8 @@ export class FileSystemOperations {
 
                 // Focus management (matching single file deletion)
                 window.setTimeout(() => {
-                    const fileListEl = document.querySelector('.nn-list-pane-scroller') as HTMLElement;
-                    if (fileListEl) {
+                    const fileListEl = document.querySelector('.nn-list-pane-scroller');
+                    if (fileListEl instanceof HTMLElement) {
                         fileListEl.focus();
                     }
                 }, TIMEOUTS.FILE_OPERATION_DELAY);
