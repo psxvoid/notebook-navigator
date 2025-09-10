@@ -386,11 +386,23 @@ export const ListPane = React.memo(
                         // Opening search - activate with focus
                         setShouldFocusSearch(true);
                         setIsSearchActive(true);
+                        if (uiState.singlePane) {
+                            uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
+                        }
                         uiDispatch({ type: 'SET_FOCUSED_PANE', pane: 'search' });
                     }
                 }
             }),
-            [filePathToIndex, rowVirtualizer, scrollContainerRef, isSearchActive, uiDispatch, setIsSearchActive, props.rootContainerRef]
+            [
+                filePathToIndex,
+                rowVirtualizer,
+                scrollContainerRef,
+                isSearchActive,
+                uiDispatch,
+                setIsSearchActive,
+                props.rootContainerRef,
+                uiState.singlePane
+            ]
         );
 
         // Add keyboard navigation

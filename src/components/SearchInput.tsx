@@ -95,7 +95,8 @@ export function SearchInput({
                     }
                 }, 0);
             } else {
-                // Mobile: Just focus the list to hide keyboard (no file selection)
+                // Mobile: Switch to files view and focus list to hide keyboard
+                uiDispatch({ type: 'SET_SINGLE_PANE_VIEW', view: 'files' });
                 setTimeout(() => {
                     const scope = containerRef?.current ?? document;
                     const listPaneScroller = scope.querySelector('.nn-list-pane-scroller');

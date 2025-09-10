@@ -16,7 +16,7 @@
  * along with this program.  If not, see <https://www.gnu.org/licenses/>.
  */
 
-import React, { createContext, useContext, useReducer, ReactNode, useMemo } from 'react';
+import React, { createContext, useContext, useReducer, ReactNode, useMemo, useEffect } from 'react';
 import { NAVIGATION_PANE_DIMENSIONS } from '../types';
 // Storage keys
 import { STORAGE_KEYS } from '../types';
@@ -98,6 +98,20 @@ export function UIStateProvider({ children, isMobile }: UIStateProviderProps) {
 
     // Note: Pane width persistence is handled by useResizablePane hook
     // to avoid duplicate writes during drag operations
+
+    // Keep focused pane aligned with the visible pane on mobile (single-pane mode)
+    // This prevents mismatches where the UI shows one pane while keyboard handlers
+    // think another pane is focused (e.g., after swipe gestures or virtual keyboard actions).
+    useEffect(() => {
+        if (!isMobile) return;
+        const view = state.currentSinglePaneView;
+        const focused = state.focusedPane;
+        if (view === 'navigation' && focused !== 'navigation') {
+            dispatch({ type: 'SET_FOCUSED_PANE', pane: 'navigation' });
+        } else if (view === 'files' && focused === 'navigation') {
+            dispatch({ type: 'SET_FOCUSED_PANE', pane: 'files' });
+        }
+    }, [isMobile, state.currentSinglePaneView, state.focusedPane]);
 
     return (
         <UIStateContext.Provider value={stateWithPaneMode}>
