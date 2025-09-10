@@ -38,6 +38,10 @@ export class SelectionAPI {
         navigationTag: null as string | null
     };
 
+    // Snapshot signature of last-emitted selection to ensure events fire when
+    // selection content changes (even if the count stays the same)
+    private lastSelectionSignature = '';
+
     constructor(private api: NotebookNavigatorAPI) {
         // Initialize navigation state from localStorage
         this.initializeNavigationState();
@@ -117,12 +121,19 @@ export class SelectionAPI {
      * @internal
      */
     updateFileState(selectedFiles: Set<string>, primaryFile: TFile | null): void {
-        const oldCount = this.selectionState.files.size;
+        // Compute a stable signature for selected paths + primary file
+        const sortedPaths = Array.from(selectedFiles).sort();
+        const primaryPath = primaryFile ? primaryFile.path : '';
+        const newSignature = `${sortedPaths.join('|')}::${primaryPath}`;
+
+        // Update internal state
         this.selectionState.files = new Set(selectedFiles);
         this.selectionState.primaryFile = primaryFile;
 
-        // Trigger event if selection has changed
-        if (oldCount !== selectedFiles.size || oldCount === 0) {
+        // Emit event only when selection content actually changes
+        if (newSignature !== this.lastSelectionSignature) {
+            this.lastSelectionSignature = newSignature;
+
             // Get TFile objects for the event
             const fileObjects: TFile[] = [];
             for (const path of selectedFiles) {
