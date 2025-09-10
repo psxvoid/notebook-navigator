@@ -82,7 +82,7 @@ export interface NavigationPaneHandle {
     getIndexOfPath: (path: string) => number;
     virtualizer: Virtualizer<HTMLDivElement, Element> | null;
     scrollContainerRef: HTMLDivElement | null;
-    requestScroll: (path: string) => void;
+    requestScroll: (path: string, options?: { align?: 'auto' | 'center' | 'start' | 'end'; behavior?: 'auto' | 'smooth' }) => void;
 }
 
 interface NavigationPaneProps {
@@ -138,10 +138,10 @@ export const NavigationPane = React.memo(
         });
 
         // Callback for after expand/collapse operations
-        const handleExpandCollapseComplete = useCallback(() => {
+        const handleTreeUpdateComplete = useCallback(() => {
             const selectedPath = getSelectedPath(selectionState);
             if (selectedPath) {
-                requestScroll(selectedPath);
+                requestScroll(selectedPath, { align: 'auto' });
             }
         }, [selectionState, requestScroll]);
 
@@ -551,9 +551,9 @@ export const NavigationPane = React.memo(
 
         return (
             <div className="nn-navigation-pane" style={props.style}>
-                <NavigationPaneHeader onExpandCollapseComplete={handleExpandCollapseComplete} />
+                <NavigationPaneHeader onTreeUpdateComplete={handleTreeUpdateComplete} />
                 {/* Android - toolbar at top */}
-                {isMobile && isAndroid && <NavigationToolbar onExpandCollapseComplete={handleExpandCollapseComplete} />}
+                {isMobile && isAndroid && <NavigationToolbar onTreeUpdateComplete={handleTreeUpdateComplete} />}
                 <div ref={scrollContainerRef} className="nn-navigation-pane-scroller" data-pane="navigation" role="tree" tabIndex={-1}>
                     {items.length > 0 && (
                         <div
@@ -584,7 +584,7 @@ export const NavigationPane = React.memo(
                     )}
                 </div>
                 {/* iOS - toolbar at bottom */}
-                {isMobile && !isAndroid && <NavigationToolbar onExpandCollapseComplete={handleExpandCollapseComplete} />}
+                {isMobile && !isAndroid && <NavigationToolbar onTreeUpdateComplete={handleTreeUpdateComplete} />}
             </div>
         );
     })

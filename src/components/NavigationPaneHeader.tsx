@@ -24,10 +24,10 @@ import { ObsidianIcon } from './ObsidianIcon';
 import { useNavigationActions } from '../hooks/useNavigationActions';
 
 interface NavigationPaneHeaderProps {
-    onExpandCollapseComplete?: () => void;
+    onTreeUpdateComplete?: () => void;
 }
 
-export function NavigationPaneHeader({ onExpandCollapseComplete }: NavigationPaneHeaderProps) {
+export function NavigationPaneHeader({ onTreeUpdateComplete }: NavigationPaneHeaderProps) {
     const { isMobile } = useServices();
     const settings = useSettingsState();
     const updateSettings = useSettingsUpdate();
@@ -62,10 +62,10 @@ export function NavigationPaneHeader({ onExpandCollapseComplete }: NavigationPan
                         aria-label={shouldCollapseItems() ? strings.paneHeader.collapseAllFolders : strings.paneHeader.expandAllFolders}
                         onClick={() => {
                             handleExpandCollapseAll();
-                            if (onExpandCollapseComplete) {
+                            if (onTreeUpdateComplete) {
                                 // Use requestAnimationFrame to ensure DOM updates are complete
                                 requestAnimationFrame(() => {
-                                    onExpandCollapseComplete();
+                                    onTreeUpdateComplete();
                                 });
                             }
                         }}
@@ -76,7 +76,15 @@ export function NavigationPaneHeader({ onExpandCollapseComplete }: NavigationPan
                     <button
                         className={`nn-icon-button ${settings.showHiddenItems ? 'nn-icon-button-active' : ''}`}
                         aria-label={settings.showHiddenItems ? strings.paneHeader.hideExcludedItems : strings.paneHeader.showExcludedItems}
-                        onClick={handleToggleShowExcludedFolders}
+                        onClick={async () => {
+                            await handleToggleShowExcludedFolders();
+                            if (onTreeUpdateComplete) {
+                                // Ensure DOM updates before attempting to scroll
+                                requestAnimationFrame(() => {
+                                    onTreeUpdateComplete();
+                                });
+                            }
+                        }}
                         disabled={settings.excludedFolders.length === 0 && settings.hiddenTags.length === 0}
                         tabIndex={-1}
                     >
