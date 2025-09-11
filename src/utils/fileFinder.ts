@@ -106,7 +106,7 @@ export function getFilesForFolder(folder: TFolder, settings: NotebookNavigatorSe
                 if (shouldDisplayFile(child, settings.fileVisibility, app)) {
                     files.push(child);
                 }
-            } else if (settings.showNotesFromSubfolders && child instanceof TFolder) {
+            } else if (settings.includeDescendantNotes && child instanceof TFolder) {
                 // Skip excluded folders when collecting files - pass full path for path-based patterns
                 // Include excluded folders only when showHiddenItems is true
                 if (
@@ -256,8 +256,12 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
         const selectedNode = tagTreeService?.findTagNode(tag) || null;
 
         if (selectedNode) {
-            // Collect all tags to include (selected tag and all children)
-            const tagsToInclude = tagTreeService?.collectTagPaths(selectedNode) || new Set<string>();
+            // Collect tags to include based on setting:
+            // - When showing notes from subfolders: include selected tag and all descendants
+            // - Otherwise: include only the exact selected tag
+            const tagsToInclude = settings.includeDescendantNotes
+                ? tagTreeService?.collectTagPaths(selectedNode) || new Set<string>()
+                : new Set<string>([selectedNode.path]);
 
             // Create a lowercase set for case-insensitive comparison
             const tagsToIncludeLower = new Set(Array.from(tagsToInclude).map((tag: string) => tag.toLowerCase()));
@@ -265,9 +269,7 @@ export function getFilesForTag(tag: string, settings: NotebookNavigatorSettings,
             // Filter files that have any of the collected tags (case-insensitive)
             filteredFiles = markdownFiles.filter(file => {
                 const fileTags = db.getCachedTags(file.path);
-                return fileTags.some(tag => {
-                    return tagsToIncludeLower.has(tag.toLowerCase());
-                });
+                return fileTags.some(tag => tagsToIncludeLower.has(tag.toLowerCase()));
             });
         } else {
             // Fallback to empty if tag not found

@@ -61,7 +61,7 @@ export const STRINGS_ZH = {
         customSort: '自定义', // Label for custom sorting mode (English: Custom)
         showFolders: '显示导航', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: '隐藏导航', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        toggleSubfolders: '显示子文件夹中的笔记', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
+        toggleDescendantNotes: '显示后代笔记（文件夹和标签）', // Tooltip for button to toggle showing notes from descendants (English: Show notes from descendants (folders and tags))
         autoExpandFoldersTags: '自动展开文件夹和标签', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: '显示隐藏项', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: '隐藏隐藏项', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -363,7 +363,7 @@ export const STRINGS_ZH = {
         moveFiles: '移动文件', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: '导航到文件夹', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: '导航到标签', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleSubfolders: '切换子文件夹笔记', // Command palette: Toggles showing notes from subfolders (English: Toggle notes from subfolders)
+        toggleDescendantNotes: '切换后代笔记', // Command palette: Toggles showing notes from descendants (English: Toggle notes from descendants)
         toggleHidden: '切换隐藏项', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         collapse: '折叠/展开所有项目', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: '为选定文件添加标签', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
@@ -422,10 +422,6 @@ export const STRINGS_ZH = {
             optimizeNoteHeight: {
                 name: '优化笔记高度',
                 desc: '减少固定笔记和无预览文本笔记的高度。'
-            },
-            showNotesFromSubfolders: {
-                name: '显示子文件夹中的笔记',
-                desc: '在当前文件夹视图中显示所有子文件夹中的笔记。'
             },
             showParentFolderNames: {
                 name: '显示父文件夹名称',

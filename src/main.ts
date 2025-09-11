@@ -296,13 +296,13 @@ export default class NotebookNavigatorPlugin extends Plugin implements ISettings
         });
 
         this.addCommand({
-            id: 'toggle-notes-from-subfolders',
-            name: strings.commands.toggleSubfolders,
+            id: 'toggle-descendant-notes',
+            name: strings.commands.toggleDescendantNotes,
             callback: async () => {
                 // Ensure navigator is open and visible
                 await this.activateView();
 
-                this.settings.showNotesFromSubfolders = !this.settings.showNotesFromSubfolders;
+                this.settings.includeDescendantNotes = !this.settings.includeDescendantNotes;
                 await this.saveSettingsAndUpdate();
             }
         });

@@ -211,7 +211,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
     );
 
     /**
-     * Reveals a file but preserves current folder if it's an ancestor with showNotesFromSubfolders.
+     * Reveals a file but preserves current folder if it's an ancestor with includeDescendantNotes.
      * Now also handles intelligent tag switching for auto-reveals.
      * Used for: Clicking files in sidebar
      *
@@ -247,7 +247,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
 
             // Determine if we should preserve the current folder selection
             let preserveFolder = false;
-            if (settings.showNotesFromSubfolders && selectionState.selectedFolder && file.parent) {
+            if (settings.includeDescendantNotes && selectionState.selectedFolder && file.parent) {
                 // Check if the file's parent is a descendant of the currently selected folder
                 let currentParent: TFolder | null = file.parent;
                 while (currentParent) {
@@ -471,7 +471,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                     });
                     return;
                 }
-                // Use nearest folder for startup - this respects showNotesFromSubfolders
+                // Use nearest folder for startup - this respects includeDescendantNotes
                 // and preserves the current folder selection when possible
                 revealFileInNearestFolder(fileToReveal);
             } else {
@@ -509,7 +509,7 @@ export function useNavigatorReveal({ app, navigationPaneRef, listPaneRef }: UseN
                     navigationPaneRef.current?.requestScroll(selectionState.selectedTag);
                 } else if (selectionState.selectedFolder && file.parent && selectionState.selectedFolder.path === file.parent.path) {
                     // Request scroll to folder - but only if we're not preserving the current folder
-                    // When preserveFolder is true (showNotesFromSubfolders), we don't want to jump to the subfolder
+                    // When preserveFolder is true (includeDescendantNotes), we don't want to jump to the subfolder
                     navigationPaneRef.current?.requestScroll(file.parent.path);
                 }
             }

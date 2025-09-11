@@ -61,7 +61,7 @@ export const STRINGS_DE = {
         customSort: 'Benutzerdefiniert', // Label for custom sorting mode (English: Custom)
         showFolders: 'Navigation anzeigen', // Tooltip for button to show the navigation pane (English: Show navigation)
         hideFolders: 'Navigation ausblenden', // Tooltip for button to hide the navigation pane (English: Hide navigation)
-        toggleSubfolders: 'Notizen aus Unterordnern anzeigen', // Tooltip for button to toggle showing notes from subfolders (English: Show notes from subfolders)
+        toggleDescendantNotes: 'Notizen aus Nachkommen anzeigen (Ordner und Tags)', // Tooltip for button to toggle showing notes from descendants (English: Show notes from descendants (folders and tags))
         autoExpandFoldersTags: 'Ordner und Tags automatisch erweitern', // Tooltip for button to toggle auto-expanding folders and tags when selected (English: Auto-expand folders and tags)
         showExcludedItems: 'Versteckte Elemente anzeigen', // Tooltip for button to show hidden items (English: Show hidden items)
         hideExcludedItems: 'Versteckte Elemente ausblenden', // Tooltip for button to hide hidden items (English: Hide hidden items)
@@ -363,7 +363,7 @@ export const STRINGS_DE = {
         moveFiles: 'Dateien verschieben', // Command palette: Move selected files to another folder (English: Move files)
         navigateToFolder: 'Zu Ordner navigieren', // Command palette: Navigate to a folder using fuzzy search (English: Navigate to folder)
         navigateToTag: 'Zu Tag navigieren', // Command palette: Navigate to a tag using fuzzy search (English: Navigate to tag)
-        toggleSubfolders: 'Notizen aus Unterordnern', // Command palette: Toggles showing notes from subfolders (English: Toggle notes from subfolders)
+        toggleDescendantNotes: 'Notizen aus Nachkommen umschalten', // Command palette: Toggles showing notes from descendants (English: Toggle notes from descendants)
         toggleHidden: 'Versteckte Elemente umschalten', // Command palette: Toggles showing hidden items (English: Toggle hidden items)
         collapse: 'Alle Elemente ein-/ausklappen', // Command palette: Collapse or expand all folders and tags (English: Collapse / expand all items)
         addTag: 'Tag zu ausgewählten Dateien hinzufügen', // Command palette: Opens a dialog to add a tag to selected files (English: Add tag to selected files)
@@ -422,10 +422,6 @@ export const STRINGS_DE = {
             optimizeNoteHeight: {
                 name: 'Notizenhöhe optimieren',
                 desc: 'Höhe für angeheftete Notizen und Notizen ohne Vorschautext reduzieren.'
-            },
-            showNotesFromSubfolders: {
-                name: 'Notizen aus Unterordnern anzeigen',
-                desc: 'Alle Notizen aus Unterordnern in der aktuellen Ordneransicht anzeigen.'
             },
             showParentFolderNames: {
                 name: 'Übergeordnete Ordnernamen anzeigen',

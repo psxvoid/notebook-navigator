@@ -241,10 +241,12 @@ export function useListPaneScroll({
                     }
 
                     // Parent folder gets its own line (not shown for pinned items when optimization is enabled)
-                    if (!pinnedItemShouldUseCompactLayout && settings.showParentFolderNames && settings.showNotesFromSubfolders) {
+                    if (!pinnedItemShouldUseCompactLayout && settings.showParentFolderNames) {
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
-                        if (isInSubfolder) {
+                        const showParentFolderLine =
+                            selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInSubfolder);
+                        if (showParentFolderLine) {
                             textContentHeight += heights.singleTextLineHeight;
                         }
                     }
@@ -254,7 +256,9 @@ export function useListPaneScroll({
                         // Optimization enabled and empty preview: compact layout
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
-                        const showParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
+                        const showParentFolder =
+                            settings.showParentFolderNames &&
+                            (selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInSubfolder));
 
                         if (folderSettings.showDate || showParentFolder) {
                             textContentHeight += heights.singleTextLineHeight;
@@ -276,7 +280,9 @@ export function useListPaneScroll({
                         // Only add metadata line if date is shown OR parent folder is shown
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
-                        const showParentFolder = settings.showParentFolderNames && settings.showNotesFromSubfolders && isInSubfolder;
+                        const showParentFolder =
+                            settings.showParentFolderNames &&
+                            (selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInSubfolder));
 
                         if (folderSettings.showDate || showParentFolder) {
                             textContentHeight += heights.singleTextLineHeight;
@@ -587,7 +593,7 @@ export function useListPaneScroll({
         }
 
         // Build a key from just the config values that should trigger scroll preservation
-        const configKey = `${settings.showNotesFromSubfolders}-${settings.optimizeNoteHeight}-${JSON.stringify(folderSettings)}-${currentListItemsKey}`;
+        const configKey = `${settings.includeDescendantNotes}-${settings.optimizeNoteHeight}-${JSON.stringify(folderSettings)}-${currentListItemsKey}`;
 
         // Check if config actually changed
         if (prevConfigKeyRef.current === configKey) {
@@ -596,7 +602,7 @@ export function useListPaneScroll({
 
         // Detect subfolder toggle for special handling
         const wasShowingSubfolders = prevConfigKeyRef.current && prevConfigKeyRef.current.startsWith('true');
-        const nowShowingSubfolders = settings.showNotesFromSubfolders;
+        const nowShowingSubfolders = settings.includeDescendantNotes;
 
         // Update the ref
         prevConfigKeyRef.current = configKey;
@@ -621,7 +627,7 @@ export function useListPaneScroll({
         isVisible,
         rowVirtualizer,
         selectedFile,
-        settings.showNotesFromSubfolders,
+        settings.includeDescendantNotes,
         settings.optimizeNoteHeight,
         folderSettings,
         currentListItemsKey,

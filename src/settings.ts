@@ -93,8 +93,6 @@ export interface NotebookNavigatorSettings {
     defaultFolderSort: SortOption;
     groupByDate: boolean;
     optimizeNoteHeight: boolean;
-    showNotesFromSubfolders: boolean;
-    showParentFolderNames: boolean;
     showQuickActions: boolean;
     quickActionRevealInFolder: boolean;
     quickActionPinNote: boolean;
@@ -110,6 +108,7 @@ export interface NotebookNavigatorSettings {
     fileNameRows: number;
     showFileDate: boolean;
     showFileTags: boolean;
+    showParentFolderNames: boolean;
     showFilePreview: boolean;
     skipHeadingsInPreview: boolean;
     previewProperties: string[];
@@ -122,6 +121,8 @@ export interface NotebookNavigatorSettings {
     // Internal
     searchActive: boolean;
     showHiddenItems: boolean;
+    // Whether list/tag views include notes from descendants (subfolders/subtags)
+    includeDescendantNotes: boolean;
     customVaultName: string;
     pinnedNotes: PinnedNotes;
     folderIcons: Record<string, string>;
@@ -179,8 +180,6 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     defaultFolderSort: 'modified-desc',
     groupByDate: true,
     optimizeNoteHeight: true,
-    showNotesFromSubfolders: true,
-    showParentFolderNames: true,
     showQuickActions: true,
     quickActionRevealInFolder: true,
     quickActionPinNote: true,
@@ -196,6 +195,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     fileNameRows: 1,
     showFileDate: true,
     showFileTags: true,
+    showParentFolderNames: true,
     showFilePreview: true,
     skipHeadingsInPreview: true,
     previewProperties: [],
@@ -208,6 +208,7 @@ export const DEFAULT_SETTINGS: NotebookNavigatorSettings = {
     // Internal
     searchActive: false,
     showHiddenItems: false,
+    includeDescendantNotes: true,
     customVaultName: '',
     pinnedNotes: {},
     folderIcons: {},
@@ -862,34 +863,6 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
                 })
             );
 
-        new Setting(containerEl)
-            .setName(strings.settings.items.showNotesFromSubfolders.name)
-            .setDesc(strings.settings.items.showNotesFromSubfolders.desc)
-            .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.showNotesFromSubfolders).onChange(async value => {
-                    this.plugin.settings.showNotesFromSubfolders = value;
-                    await this.plugin.saveSettingsAndUpdate();
-                    // Update subfolder names visibility
-                    subfolderNamesEl.toggle(value);
-                })
-            );
-
-        // Container for conditional subfolder names setting
-        const subfolderNamesEl = containerEl.createDiv('nn-sub-settings');
-
-        new Setting(subfolderNamesEl)
-            .setName(strings.settings.items.showParentFolderNames.name)
-            .setDesc(strings.settings.items.showParentFolderNames.desc)
-            .addToggle(toggle =>
-                toggle.setValue(this.plugin.settings.showParentFolderNames).onChange(async value => {
-                    this.plugin.settings.showParentFolderNames = value;
-                    await this.plugin.saveSettingsAndUpdate();
-                })
-            );
-
-        // Set initial visibility
-        subfolderNamesEl.toggle(this.plugin.settings.showNotesFromSubfolders);
-
         // Quick actions settings
         new Setting(containerEl)
             .setName(strings.settings.items.showQuickActions.name)
@@ -1083,6 +1056,16 @@ export class NotebookNavigatorSettingTab extends PluginSettingTab {
             .addToggle(toggle =>
                 toggle.setValue(this.plugin.settings.showFileTags).onChange(async value => {
                     this.plugin.settings.showFileTags = value;
+                    await this.plugin.saveSettingsAndUpdate();
+                })
+            );
+
+        new Setting(containerEl)
+            .setName(strings.settings.items.showParentFolderNames.name)
+            .setDesc(strings.settings.items.showParentFolderNames.desc)
+            .addToggle(toggle =>
+                toggle.setValue(this.plugin.settings.showParentFolderNames).onChange(async value => {
+                    this.plugin.settings.showParentFolderNames = value;
                     await this.plugin.saveSettingsAndUpdate();
                 })
             );

@@ -410,12 +410,16 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
         itemsWithMetadata.forEach(item => {
             if (item.type === NavigationPaneItemType.TAG) {
                 const tagNode = item.data;
-                counts.set(tagNode.path, getTotalNoteCount(tagNode));
+                // Respect subfolder setting for tags:
+                // - When enabled: include notes from descendant tags
+                // - When disabled: count only notes directly on the tag
+                const count = settings.includeDescendantNotes ? getTotalNoteCount(tagNode) : tagNode.notesWithTag.size;
+                counts.set(tagNode.path, count);
             }
         });
 
         return counts;
-    }, [itemsWithMetadata, settings.showTags, settings.showUntagged, untaggedCount, isVisible]);
+    }, [itemsWithMetadata, settings.showTags, settings.showUntagged, settings.includeDescendantNotes, untaggedCount, isVisible]);
 
     /**
      * Pre-compute folder file counts to avoid recursive counting during render
@@ -438,7 +442,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
                             count++;
                         }
                     }
-                } else if (settings.showNotesFromSubfolders && child instanceof TFolder) {
+                } else if (settings.includeDescendantNotes && child instanceof TFolder) {
                     // When showing hidden items, include files from excluded subfolders
                     if (settings.showHiddenItems || !shouldExcludeFolder(child.name, excludedFolderPatterns, child.path)) {
                         count += countFiles(child);
@@ -461,7 +465,7 @@ export function useNavigationPaneData({ settings, isVisible }: UseNavigationPane
     }, [
         itemsWithMetadata,
         settings.showNoteCount,
-        settings.showNotesFromSubfolders,
+        settings.includeDescendantNotes,
         settings.excludedFiles,
         settings.excludedFolders,
         settings.showHiddenItems,

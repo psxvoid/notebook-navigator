@@ -163,7 +163,7 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
    - Change or remove folder/tag colors and icons
    - Create or delete folder notes
    - Open version history or reveal in system explorer
-   - Reveal in folder - switches to the file's containing folder (useful when viewing notes from subfolders or tags)
+   - Reveal in folder - switches to the file's containing folder (useful when viewing notes from descendants or tags)
 5. Drag and drop notes between folders to organize, drag to tags to add tags, or drag to Untagged to remove all tags.
    For more precise tag management, use the right-click context menu options
 
@@ -280,8 +280,6 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Sort notes by:** Note sort order. `Date edited (newest/oldest first)`, `Date created (newest/oldest first)`, `Title (A-Z first)`
 - **Group notes by date:** Group by date headers when sorted by date
 - **Optimize note height:** Reduce height for pinned notes and notes without preview
-- **Show notes from subfolders:** Display all notes from subfolders
-- **Show parent folder names:** Display parent folder for subfolder notes
 - **Show quick actions (desktop only):** Hover action buttons
 - **Reveal in folder:** Icon to reveal note's actual folder location
 - **Pin note:** Icon to pin/unpin notes
@@ -299,6 +297,7 @@ Set custom hotkeys for these commands in Obsidian's Hotkeys settings:
 - **Title rows:** Rows for note titles. `1` or `2`
 - **Show date:** Display date below note names
 - **Show tags:** Display tags in file list. Tags are clickable with proper colors
+- **Show parent folder names:** Display parent folder names for notes from subfolders and child tags
 - **Show note preview (\*):** Display preview text
 - **Skip headings in preview:** Skip heading lines in preview
 - **Preview properties:** Comma-separated list of frontmatter properties to check for preview text. The first property with text will be used

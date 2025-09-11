@@ -320,10 +320,10 @@ export function ListPaneHeader({ onHeaderClick, isSearchActive, onSearchToggle }
                         <ObsidianIcon name="lucide-search" />
                     </button>
                     <button
-                        className={`nn-icon-button ${settings.showNotesFromSubfolders ? 'nn-icon-button-active' : ''}`}
-                        aria-label={strings.paneHeader.toggleSubfolders}
+                        className={`nn-icon-button ${settings.includeDescendantNotes ? 'nn-icon-button-active' : ''}`}
+                        aria-label={strings.paneHeader.toggleDescendantNotes}
                         onClick={handleToggleSubfolders}
-                        disabled={selectionState.selectionType !== ItemType.FOLDER || !selectionState.selectedFolder}
+                        disabled={!selectionState.selectedFolder && !selectionState.selectedTag}
                         tabIndex={-1}
                     >
                         <ObsidianIcon name="lucide-layers" />
