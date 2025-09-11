@@ -95,10 +95,6 @@ function gitExecArray(args, options = {}) {
 // Helper to execute git commands that return strings
 function gitExecString(args, options = {}) {
     const result = gitExecArray(args, { encoding: 'utf8', ...options }).trim();
-    // Validate output isn't suspiciously long
-    if (result.length > 10000) {
-        throw new Error('Unexpected git output length');
-    }
     return result;
 }
 
