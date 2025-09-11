@@ -132,6 +132,8 @@ For precise image management, consider also installing [Pixel Perfect Image](htt
 - [**Rendering Architecture**](docs/rendering-architecture.md) - React component hierarchy, virtual scrolling with
   TanStack Virtual, performance optimizations, and data flow.
 
+- [**Scroll Orchestration**](docs/scroll-orchestration.md) - How the plugin ensures accurate scrolling when tree structures change (tag visibility, settings, etc.)
+
 - [**Service Architecture**](docs/service-architecture.md) - Business logic layer: MetadataService, FileSystemOperations, ContentProviderRegistry. Dependency injection patterns and service data flow.
 
 <br>
