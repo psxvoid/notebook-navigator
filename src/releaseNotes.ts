@@ -61,7 +61,8 @@ const RELEASE_NOTES: ReleaseNote[] = [
         new: ['You can now **drag and drop files** from your operating system directly onto folders to import them into your vault.'],
         changed: [
             'The toolbar button "Show notes from subfolders" was renamed to **Show notes from descendants** and now applies to both folders and tags.',
-            'The command **Toggle notes from subfolders** was renamed to "Toggle notes from descendants" (ID: toggle-descendant-notes). Please update your hotkeys.'
+            'The command **Toggle notes from subfolders** was renamed to "Toggle notes from descendants" (ID: toggle-descendant-notes). Please update your hotkeys.',
+            'File names show extension suffix for all files except md, canvas and base.'
         ],
         fixed: [
             'Toggling **Show hidden items** now properly focuses the selected item in the navigation pane. Also greatly improved the scrolling logic.'

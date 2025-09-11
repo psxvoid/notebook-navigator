@@ -60,7 +60,7 @@ import { strings } from '../i18n';
 import { SortOption } from '../settings';
 import { ItemType } from '../types';
 import { DateUtils } from '../utils/dateUtils';
-import { isImageFile } from '../utils/fileTypeUtils';
+import { getExtensionSuffix, isImageFile, shouldShowExtensionSuffix } from '../utils/fileTypeUtils';
 import { getDateField } from '../utils/sortUtils';
 import { ObsidianIcon } from './ObsidianIcon';
 
@@ -245,6 +245,10 @@ export const FileItem = React.memo(function FileItem({
     // Highlight matches in display name when search is active
     const highlightedName = useMemo(() => renderHighlightedText(displayName, searchQuery), [displayName, searchQuery]);
 
+    // Decide whether to render an inline extension suffix after the name
+    const extensionSuffix = useMemo(() => getExtensionSuffix(file), [file]);
+    const showExtensionSuffix = useMemo(() => shouldShowExtensionSuffix(file), [file]);
+
     // === Callbacks ===
 
     // Handle tag click
@@ -377,8 +381,9 @@ export const FileItem = React.memo(function FileItem({
     // Determine if we should show the feature image area (either with an image or extension badge)
     const shouldShowFeatureImageArea =
         appearanceSettings.showImage &&
-        (featureImageUrl || // Has an actual image
-            (file.extension !== 'md' && !isImageFile(file))); // Non-markdown, non-image files show extension badge
+        (featureImageUrl || // Has an actual image (markdown with feature image, or image files)
+            file.extension === 'canvas' ||
+            file.extension === 'base');
 
     // Memoize className to avoid string concatenation on every render
     const className = useMemo(() => {
@@ -466,8 +471,9 @@ export const FileItem = React.memo(function FileItem({
             ? `${strings.tooltips.createdAt} ${createdDate}\n${strings.tooltips.lastModifiedAt} ${modifiedDate}`
             : `${strings.tooltips.lastModifiedAt} ${modifiedDate}\n${strings.tooltips.createdAt} ${createdDate}`;
 
-        // Always include filename at the top
-        const tooltip = `${displayName}\n\n${datesTooltip}`;
+        // Always include a name at the top. When showing suffix, prefer the true filename (with extension)
+        const topLine = shouldShowExtensionSuffix(file) ? file.name : displayName;
+        const tooltip = `${topLine}\n\n${datesTooltip}`;
 
         // Check if RTL mode is active
         const isRTL = document.body.classList.contains('mod-rtl');
@@ -486,7 +492,8 @@ export const FileItem = React.memo(function FileItem({
         getFileCreatedTime,
         getFileModifiedTime,
         sortOption,
-        metadataVersion
+        metadataVersion,
+        file.name
     ]);
 
     // Quick action handlers - these don't need memoization because:
@@ -624,6 +631,7 @@ export const FileItem = React.memo(function FileItem({
                                 style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}
                             >
                                 {highlightedName}
+                                {showExtensionSuffix && <span className="nn-file-ext-suffix">{extensionSuffix}</span>}
                             </div>
                             {renderTags()}
                         </div>
@@ -637,6 +645,7 @@ export const FileItem = React.memo(function FileItem({
                                     style={{ '--filename-rows': appearanceSettings.titleRows } as React.CSSProperties}
                                 >
                                     {highlightedName}
+                                    {showExtensionSuffix && <span className="nn-file-ext-suffix">{extensionSuffix}</span>}
                                 </div>
 
                                 {/* ========== SINGLE LINE MODE ========== */}
