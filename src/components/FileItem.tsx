@@ -293,7 +293,7 @@ export const FileItem = React.memo(function FileItem({
         return [...favoriteTags, ...coloredTags, ...regularTags];
     }, [tags, findTagInFavoriteTree, getTagColor]);
 
-    // Render tags - extracted to avoid duplication
+    // Render tags
     const renderTags = useCallback(() => {
         if (!settings.showTags || !settings.showFileTags || categorizedTags.length === 0) {
             return null;
@@ -615,7 +615,9 @@ export const FileItem = React.memo(function FileItem({
                 )}
                 <div className="nn-file-inner-content">
                     {isSlimMode ? (
-                        // Slim mode: Show file name and tags with minimal styling
+                        // ========== SLIM MODE ==========
+                        // Minimal layout: only file name + tags
+                        // Used when date, preview, and image are all disabled
                         <div className="nn-slim-file-text-content">
                             <div
                                 className="nn-file-name"
@@ -626,7 +628,8 @@ export const FileItem = React.memo(function FileItem({
                             {renderTags()}
                         </div>
                     ) : (
-                        // Normal mode: Show all enabled elements
+                        // ========== NORMAL MODE ==========
+                        // Full layout with all enabled elements
                         <>
                             <div className="nn-file-text-content">
                                 <div
@@ -636,7 +639,9 @@ export const FileItem = React.memo(function FileItem({
                                     {highlightedName}
                                 </div>
 
-                                {/* Single row mode (preview rows = 1) - show all elements */}
+                                {/* ========== SINGLE LINE MODE ========== */}
+                                {/* Conditions: pinnedItemShouldUseCompactLayout OR previewRows < 2 */}
+                                {/* Layout: Date+Preview share one line, tags below, parent folder last */}
                                 {shouldUseSingleLineForDateAndPreview && (
                                     <>
                                         {/* Date + Preview on same line */}
@@ -652,7 +657,8 @@ export const FileItem = React.memo(function FileItem({
                                         {/* Tags */}
                                         {renderTags()}
 
-                                        {/* Parent folder - not shown for pinned items when optimization is enabled */}
+                                        {/* Parent folder - gets its own line */}
+                                        {/* Hidden when: pinnedItemShouldUseCompactLayout (pinned + optimization enabled) */}
                                         {settings.showParentFolderNames &&
                                             file.parent &&
                                             !pinnedItemShouldUseCompactLayout &&
@@ -666,20 +672,24 @@ export const FileItem = React.memo(function FileItem({
                                     </>
                                 )}
 
-                                {/* Multi-row mode (preview rows >= 2) - different layouts based on preview content */}
+                                {/* ========== MULTI-LINE MODE ========== */}
+                                {/* Conditions: !pinnedItemShouldUseCompactLayout AND previewRows >= 2 */}
+                                {/* Two sub-cases based on preview content and optimization settings */}
                                 {shouldUseMultiLinePreviewLayout && (
                                     <>
-                                        {/* Case 1: Empty preview text - show tags, then date + parent folder */}
+                                        {/* CASE 1: COLLAPSED EMPTY PREVIEW */}
+                                        {/* Conditions: heightOptimizationEnabled AND !hasPreviewText */}
+                                        {/* Layout: Tags first, then Date+Parent on same line (compact) */}
                                         {shouldCollapseEmptyPreviewSpace && (
                                             <>
                                                 {/* Tags (show even when no preview text) */}
                                                 {renderTags()}
-                                                {/* Date + Parent folder on same line */}
+                                                {/* Date + Parent folder share the second line (compact layout) */}
                                                 <div className="nn-file-second-line">
                                                     {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
                                                     {settings.showParentFolderNames &&
                                                         file.parent &&
-                                                        !isPinned &&
+                                                        !pinnedItemShouldUseCompactLayout &&
                                                         (selectionType === ItemType.TAG ||
                                                             (settings.includeDescendantNotes &&
                                                                 parentFolder &&
@@ -693,7 +703,9 @@ export const FileItem = React.memo(function FileItem({
                                             </>
                                         )}
 
-                                        {/* Case 2: Has preview text - show preview, tags, then date + parent folder */}
+                                        {/* CASE 2: ALWAYS RESERVE PREVIEW SPACE */}
+                                        {/* Conditions: heightOptimizationDisabled OR hasPreviewText */}
+                                        {/* Layout: Full preview rows, tags, then Date+Parent on same line */}
                                         {shouldAlwaysReservePreviewSpace && (
                                             <>
                                                 {/* Multi-row preview - show preview text spanning multiple rows */}
@@ -706,14 +718,15 @@ export const FileItem = React.memo(function FileItem({
                                                     </div>
                                                 )}
 
-                                                {/* Tags (only when preview text exists) */}
+                                                {/* Tags row */}
                                                 {renderTags()}
 
-                                                {/* Date + Parent folder on same line */}
+                                                {/* Date + Parent folder share the metadata line */}
                                                 <div className="nn-file-second-line">
                                                     {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
                                                     {settings.showParentFolderNames &&
                                                         file.parent &&
+                                                        !pinnedItemShouldUseCompactLayout &&
                                                         (selectionType === ItemType.TAG ||
                                                             (settings.includeDescendantNotes &&
                                                                 parentFolder &&
@@ -729,6 +742,8 @@ export const FileItem = React.memo(function FileItem({
                                     </>
                                 )}
                             </div>
+                            {/* ========== FEATURE IMAGE AREA ========== */}
+                            {/* Shows either actual image or extension badge for non-markdown files */}
                             {shouldShowFeatureImageArea && (
                                 <div className="nn-feature-image">
                                     {featureImageUrl ? (
