@@ -240,7 +240,7 @@ export function useListPaneScroll({
                         textContentHeight += heights.singleTextLineHeight;
                     }
 
-                    // Parent folder gets its own line (not shown for pinned items when optimization is enabled)
+                    // Parent folder gets its own line (not when pinned is in compact layout)
                     if (!pinnedItemShouldUseCompactLayout && settings.showParentFolderNames) {
                         const file = item.data instanceof TFile ? item.data : null;
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
@@ -258,6 +258,7 @@ export function useListPaneScroll({
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         const showParentFolder =
                             settings.showParentFolderNames &&
+                            !pinnedItemShouldUseCompactLayout &&
                             (selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInSubfolder));
 
                         if (folderSettings.showDate || showParentFolder) {
@@ -282,6 +283,7 @@ export function useListPaneScroll({
                         const isInSubfolder = file && item.parentFolder && file.parent && file.parent.path !== item.parentFolder;
                         const showParentFolder =
                             settings.showParentFolderNames &&
+                            !pinnedItemShouldUseCompactLayout &&
                             (selectionState.selectionType === 'tag' || (settings.includeDescendantNotes && isInSubfolder));
 
                         if (folderSettings.showDate || showParentFolder) {

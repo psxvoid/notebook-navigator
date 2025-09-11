@@ -655,11 +655,9 @@ export const FileItem = React.memo(function FileItem({
                                         {/* Parent folder - not shown for pinned items when optimization is enabled */}
                                         {settings.showParentFolderNames &&
                                             file.parent &&
+                                            !pinnedItemShouldUseCompactLayout &&
                                             (selectionType === ItemType.TAG ||
-                                                (!pinnedItemShouldUseCompactLayout &&
-                                                    settings.includeDescendantNotes &&
-                                                    parentFolder &&
-                                                    file.parent.path !== parentFolder)) && (
+                                                (settings.includeDescendantNotes && parentFolder && file.parent.path !== parentFolder)) && (
                                                 <div className="nn-file-folder">
                                                     <ObsidianIcon name="lucide-folder-closed" className="nn-file-folder-icon" />
                                                     <span>{file.parent.name}</span>
@@ -681,6 +679,7 @@ export const FileItem = React.memo(function FileItem({
                                                     {settings.showFileDate && <div className="nn-file-date">{displayDate}</div>}
                                                     {settings.showParentFolderNames &&
                                                         file.parent &&
+                                                        !isPinned &&
                                                         (selectionType === ItemType.TAG ||
                                                             (settings.includeDescendantNotes &&
                                                                 parentFolder &&
