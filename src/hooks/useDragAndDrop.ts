@@ -83,7 +83,7 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
      */
     const cleanupDragGhost = useCallback(() => {
         if (dragGhostElement.current) {
-            document.removeEventListener('mousemove', updateDragGhostPosition, { passive: true } as EventListenerOptions);
+            document.removeEventListener('mousemove', updateDragGhostPosition);
             document.removeEventListener('dragover', updateDragGhostPosition);
             dragGhostElement.current.remove();
             dragGhostElement.current = null;
@@ -166,8 +166,13 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
             // Start tracking mouse position
             document.addEventListener('mousemove', updateDragGhostPosition, { passive: true });
             document.addEventListener('dragover', updateDragGhostPosition);
+
+            // Ensure ghost is cleaned even if drag ends outside container
+            const onGlobalEnd = () => cleanupDragGhost();
+            window.addEventListener('dragend', onGlobalEnd, { once: true });
+            window.addEventListener('drop', onGlobalEnd, { once: true });
         },
-        [app, updateDragGhostPosition]
+        [app, updateDragGhostPosition, cleanupDragGhost]
     );
 
     /**
@@ -299,11 +304,15 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 const dropType = dropZone.getAttribute('data-drop-zone');
                 const targetPath = dropZone.getAttribute('data-drop-path');
 
-                // Use 'move' for folders and untagged, 'copy' for regular tags
-                if (dropType === 'folder' || targetPath === UNTAGGED_TAG_ID) {
-                    e.dataTransfer.dropEffect = 'move';
-                } else {
-                    e.dataTransfer.dropEffect = 'copy';
+                const typesList = e.dataTransfer.types;
+                const hasObsidianData = !!typesList?.includes('obsidian/file') || !!typesList?.includes('obsidian/files');
+                const isExternal = !!typesList?.includes('Files') && !hasObsidianData;
+
+                // Folder: move (internal) / copy (external); Tag: untagged = move, tag = copy
+                if (dropType === 'folder') {
+                    e.dataTransfer.dropEffect = isExternal ? 'copy' : 'move';
+                } else if (dropType === 'tag') {
+                    e.dataTransfer.dropEffect = targetPath === UNTAGGED_TAG_ID ? 'move' : 'copy';
                 }
             }
             dropZone.classList.add('nn-drag-over');
@@ -427,15 +436,21 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                         ? normalizePath(`${base}${uniqueBaseName}.${extension}`)
                         : normalizePath(`${base}${uniqueBaseName}`);
 
-                    // Read file content
-                    const arrayBuffer = await file.arrayBuffer();
+                    // Decide text vs binary import
+                    const lowerName = file.name.toLowerCase();
+                    const mime = file.type || '';
+                    const isLikelyText =
+                        extension.toLowerCase() === 'md' ||
+                        mime.startsWith('text/') ||
+                        mime === 'application/json' ||
+                        mime === 'application/xml' ||
+                        /\.(canvas|json|csv|txt|xml|html|css|js|ts)$/i.test(lowerName);
 
-                    // Create file in vault - use create() for .md files, createBinary() for everything else
-                    if (extension.toLowerCase() === 'md') {
-                        const decoder = new TextDecoder();
-                        const content = decoder.decode(arrayBuffer);
+                    if (isLikelyText) {
+                        const content = await file.text();
                         await app.vault.create(finalPath, content);
                     } else {
+                        const arrayBuffer = await file.arrayBuffer();
                         await app.vault.createBinary(finalPath, arrayBuffer);
                     }
 
@@ -480,7 +495,11 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
                 dragOverElement.current.classList.remove('nn-drag-over');
             }
 
-            const dropZone = dragOverElement.current;
+            let dropZone = dragOverElement.current;
+            if (!dropZone && isHTMLElement(e.target)) {
+                const candidate = e.target.closest('[data-drop-zone]');
+                dropZone = candidate instanceof HTMLElement ? candidate : null;
+            }
             if (!dropZone) return;
 
             const dropType = dropZone.getAttribute('data-drop-zone');
@@ -490,6 +509,15 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
             // Handle tag drops
             if (dropType === 'tag') {
+                // If external drag, show notice and ignore
+                const typesList = e.dataTransfer?.types;
+                const hasObsidianData = !!typesList?.includes('obsidian/file') || !!typesList?.includes('obsidian/files');
+                const isExternal = !!typesList?.includes('Files') && !hasObsidianData;
+                if (isExternal) {
+                    new Notice(strings.fileSystem.notifications.tagOperationsNotAvailable, TIMEOUTS.NOTICE_ERROR);
+                    return;
+                }
+
                 await handleTagDrop(e, targetPath);
                 return;
             }
@@ -500,12 +528,10 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
 
             // Check for external files from OS
             if (e.dataTransfer?.files && e.dataTransfer.files.length > 0) {
-                // Check if this is an external file drop (not from within Obsidian)
-                // External drops won't have the obsidian/file or obsidian/files data
-                const hasObsidianData = e.dataTransfer.getData('obsidian/file') || e.dataTransfer.getData('obsidian/files');
-
+                // Detect internal vs external via types
+                const typesList = e.dataTransfer.types;
+                const hasObsidianData = !!typesList?.includes('obsidian/file') || !!typesList?.includes('obsidian/files');
                 if (!hasObsidianData) {
-                    // This is an external file drop from OS
                     await handleExternalFileDrop(e.dataTransfer.files, targetFolder);
                     return;
                 }
@@ -593,9 +619,10 @@ export function useDragAndDrop(containerRef: React.RefObject<HTMLElement | null>
      */
     const handleDragEnd = useCallback(
         (e: DragEvent) => {
-            const target = e.target as HTMLElement;
+            const target = e.target;
+            if (!isHTMLElement(target)) return;
             const draggable = target.closest('[data-draggable="true"]');
-            const path = getPathFromDataAttribute(draggable as HTMLElement | null, 'data-drag-path');
+            const path = getPathFromDataAttribute(draggable instanceof HTMLElement ? draggable : null, 'data-drag-path');
 
             // Remove dragging class from all selected files if dragging multiple
             if (path && selectionState.selectedFiles.has(path)) {
