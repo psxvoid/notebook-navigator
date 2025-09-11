@@ -38,6 +38,38 @@ export interface CreateFileOptions {
 }
 
 /**
+ * Generates a unique filename by appending a number if the file already exists
+ * @param folderPath - The folder path where the file will be created
+ * @param baseName - The base name of the file (without extension)
+ * @param extension - The file extension (without dot)
+ * @param app - The Obsidian app instance
+ * @returns A unique filename
+ */
+export function generateUniqueFilename(folderPath: string, baseName: string, extension: string, app: App): string {
+    let fileName = baseName;
+    let counter = 1;
+
+    const makePath = (name: string) => {
+        const base = folderPath && folderPath !== '/' ? `${folderPath}/` : '';
+        if (!extension) {
+            return normalizePath(`${base}${name}`);
+        }
+        return normalizePath(`${base}${name}.${extension}`);
+    };
+
+    let path = makePath(fileName);
+
+    // Keep incrementing until we find a unique name
+    while (app.vault.getFileByPath(path)) {
+        fileName = `${baseName} ${counter}`;
+        path = makePath(fileName);
+        counter++;
+    }
+
+    return fileName;
+}
+
+/**
  * Creates a new file with the specified options
  * This helper eliminates code duplication across createNewFile, createCanvas, createBase, etc.
  *
@@ -51,16 +83,9 @@ export async function createFileWithOptions(parent: TFolder, app: App, options: 
 
     try {
         // Generate unique file path
-        let fileName = strings.fileSystem.defaultNames.untitled;
-        let counter = 1;
-        let path = normalizePath(parent.path ? `${parent.path}/${fileName}.${extension}` : `${fileName}.${extension}`);
-
-        // Keep incrementing until we find a unique name
-        while (app.vault.getFileByPath(path)) {
-            fileName = strings.fileSystem.defaultNames.untitledNumber.replace('{number}', counter.toString());
-            path = normalizePath(parent.path ? `${parent.path}/${fileName}.${extension}` : `${fileName}.${extension}`);
-            counter++;
-        }
+        const baseName = strings.fileSystem.defaultNames.untitled;
+        const fileName = generateUniqueFilename(parent.path, baseName, extension, app);
+        const path = normalizePath(parent.path ? `${parent.path}/${fileName}.${extension}` : `${fileName}.${extension}`);
 
         // Create the file
         const file = await app.vault.create(path, content);

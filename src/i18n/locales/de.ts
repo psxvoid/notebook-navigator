@@ -322,14 +322,17 @@ export const STRINGS_DE = {
             failedToAddTag: 'Hinzufügen des Tags "{tag}" fehlgeschlagen',
             failedToClearTags: 'Entfernen der Tags fehlgeschlagen',
             failedToMoveFolder: 'Ordner "{name}" konnte nicht verschoben werden',
-            foldersCannotHaveTags: 'Ordner können keine Tags haben'
+            foldersCannotHaveTags: 'Ordner können keine Tags haben',
+            failedToImportFiles: 'Import fehlgeschlagen: {names}'
         },
         notifications: {
             filesAlreadyExist: '{count} Dateien existieren bereits am Zielort',
             addedTag: 'Tag "{tag}" zu {count} Dateien hinzugefügt',
             filesAlreadyHaveTag: '{count} Dateien haben dieses Tag oder ein spezifischeres bereits',
             clearedTags: 'Alle Tags von {count} Dateien entfernt',
-            noTagsToClear: 'Keine Tags zum Entfernen'
+            noTagsToClear: 'Keine Tags zum Entfernen',
+            fileImported: '1 Datei importiert',
+            filesImported: '{count} Dateien importiert'
         }
     },
 

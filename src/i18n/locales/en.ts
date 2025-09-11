@@ -321,14 +321,17 @@ export const STRINGS_EN = {
             failedToAddTag: 'Failed to add tag "{tag}"',
             failedToClearTags: 'Failed to clear tags',
             failedToMoveFolder: 'Failed to move folder "{name}"',
-            foldersCannotHaveTags: 'Folders cannot have tags'
+            foldersCannotHaveTags: 'Folders cannot have tags',
+            failedToImportFiles: 'Failed to import: {names}'
         },
         notifications: {
             filesAlreadyExist: '{count} files already exist in destination',
             addedTag: 'Added tag "{tag}" to {count} files',
             filesAlreadyHaveTag: '{count} files already have this tag or a more specific one',
             clearedTags: 'Cleared all tags from {count} files',
-            noTagsToClear: 'No tags to clear'
+            noTagsToClear: 'No tags to clear',
+            fileImported: 'Imported 1 file',
+            filesImported: 'Imported {count} files'
         }
     },
 

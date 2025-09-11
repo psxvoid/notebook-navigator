@@ -322,14 +322,17 @@ export const STRINGS_ES = {
             failedToAddTag: 'Error al agregar la etiqueta "{tag}"',
             failedToClearTags: 'Error al eliminar las etiquetas',
             failedToMoveFolder: 'Error al mover la carpeta "{name}"',
-            foldersCannotHaveTags: 'Las carpetas no pueden tener etiquetas'
+            foldersCannotHaveTags: 'Las carpetas no pueden tener etiquetas',
+            failedToImportFiles: 'Failed to import: {names}'
         },
         notifications: {
             filesAlreadyExist: '{count} archivos ya existen en el destino',
             addedTag: 'Etiqueta "{tag}" agregada a {count} archivos',
             filesAlreadyHaveTag: '{count} archivos ya tienen esta etiqueta o una más específica',
             clearedTags: 'Se eliminaron todas las etiquetas de {count} archivos',
-            noTagsToClear: 'No hay etiquetas para eliminar'
+            noTagsToClear: 'No hay etiquetas para eliminar',
+            fileImported: 'Imported 1 file',
+            filesImported: 'Imported {count} files'
         }
     },
 

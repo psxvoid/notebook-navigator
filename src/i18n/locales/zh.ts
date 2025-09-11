@@ -322,14 +322,17 @@ export const STRINGS_ZH = {
             failedToAddTag: '添加标签 "{tag}" 失败',
             failedToClearTags: '清除标签失败',
             failedToMoveFolder: '移动文件夹"{name}"失败',
-            foldersCannotHaveTags: '文件夹不能有标签'
+            foldersCannotHaveTags: '文件夹不能有标签',
+            failedToImportFiles: 'Failed to import: {names}'
         },
         notifications: {
             filesAlreadyExist: '{count} 个文件在目标位置已存在',
             addedTag: '已将标签 "{tag}" 添加到 {count} 个文件',
             filesAlreadyHaveTag: '{count} 个文件已经有此标签或更具体的标签',
             clearedTags: '已从 {count} 个文件中清除所有标签',
-            noTagsToClear: '没有要清除的标签'
+            noTagsToClear: '没有要清除的标签',
+            fileImported: 'Imported 1 file',
+            filesImported: 'Imported {count} files'
         }
     },
 

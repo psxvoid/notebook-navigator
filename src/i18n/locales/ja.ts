@@ -322,14 +322,17 @@ export const STRINGS_JA = {
             failedToAddTag: 'タグ "{tag}" の追加に失敗しました',
             failedToClearTags: 'タグのクリアに失敗しました',
             failedToMoveFolder: 'フォルダ「{name}」の移動に失敗しました',
-            foldersCannotHaveTags: 'フォルダにタグを付けることはできません'
+            foldersCannotHaveTags: 'フォルダにタグを付けることはできません',
+            failedToImportFiles: 'Failed to import: {names}'
         },
         notifications: {
             filesAlreadyExist: '{count}個のファイルが移動先に既に存在します',
             addedTag: '{count}個のファイルにタグ "{tag}" を追加しました',
             filesAlreadyHaveTag: '{count}個のファイルには既にこのタグまたはより具体的なタグがあります',
             clearedTags: '{count}個のファイルからすべてのタグをクリアしました',
-            noTagsToClear: 'クリアするタグがありません'
+            noTagsToClear: 'クリアするタグがありません',
+            fileImported: 'Imported 1 file',
+            filesImported: 'Imported {count} files'
         }
     },
 

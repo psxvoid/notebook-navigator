@@ -58,6 +58,7 @@ const RELEASE_NOTES: ReleaseNote[] = [
         version: '1.4.13',
         date: '2025-09-11',
         showOnUpdate: true,
+        new: ['You can now **drag and drop files** from your operating system directly onto folders to import them into your vault.'],
         changed: [
             'The toolbar button "Show notes from subfolders" was renamed to **Show notes from descendants** and now applies to both folders and tags.',
             'The command **Toggle notes from subfolders** was renamed to "Toggle notes from descendants" (ID: toggle-descendant-notes). Please update your hotkeys.'
